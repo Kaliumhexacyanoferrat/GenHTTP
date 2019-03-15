@@ -8,8 +8,6 @@ using System.Net.Sockets;
 using System.Threading;
 using System.IO;
 
-using GenHTTP.Style;
-using GenHTTP.Controls;
 using GenHTTP.Utilities;
 
 namespace GenHTTP
@@ -19,7 +17,7 @@ namespace GenHTTP
     /// Handles the requests from a browser.
     /// </summary>
     [Serializable]
-    public class ClientHandler : MarshalByRefObject
+    public class ClientHandler
     {
         private Socket _Connection;
         private Server _Server;

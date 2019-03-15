@@ -35,7 +35,7 @@ namespace GenHTTP
     /// Provides methods to access a recieved http request.
     /// </summary>
     [Serializable]
-    public class HttpRequest : MarshalByRefObject
+    public class HttpRequest
     {
         private RequestType _Type;
         private ProtocolType _ProtocolType = ProtocolType.Http_1_0;

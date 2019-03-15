@@ -12,7 +12,7 @@ namespace GenHTTP
     /// A collection with available projects.
     /// </summary>
     [Serializable]
-    public class ProjectCollection : MarshalByRefObject
+    public class ProjectCollection
     {
         private Dictionary<string, IProject> _Projects;
         private Server _Server;

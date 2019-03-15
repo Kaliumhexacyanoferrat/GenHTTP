@@ -212,7 +212,7 @@ namespace GenHTTP
     /// The HTTP header of a HTTP response.
     /// </summary>
     [Serializable]
-    public class HttpResponseHeader : MarshalByRefObject
+    public class HttpResponseHeader
     {
         private ResponseType _Type;
         private ContentType _ContentType;

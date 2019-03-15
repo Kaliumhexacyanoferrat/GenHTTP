@@ -16,7 +16,7 @@ namespace GenHTTP
     /// 7 plus or minus ... 23.
     /// </remarks>
     [Serializable]
-    public class Configuration : MarshalByRefObject
+    public class Configuration
     {
         private ushort _SocketPort = 80;
         private ushort _SocketBacklog = 100;

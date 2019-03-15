@@ -15,7 +15,7 @@ namespace GenHTTP
     /// Represents a HTTP response.
     /// </summary>
     [Serializable]
-    public class HttpResponse : MarshalByRefObject
+    public class HttpResponse
     {
         private HttpResponseHeader _Header;
         private ClientHandler _Handler;
@@ -122,17 +122,6 @@ namespace GenHTTP
 
         #endregion
 
-        /// <summary>
-        /// Send a (X)HTML page to the client.
-        /// </summary>
-        /// <param name="page">The page to send to the client</param>
-        public void Send(Page page)
-        {
-            if (_Sent) throw new ResponseAlreadySentException();
-            byte[] serializedContent = page.SerializedContent;
-            _Header.ContentEncoding = page.Style.Encoding;
-            Send(serializedContent);
-        }
 
         /// <summary>
         /// Send a (X)HTML document to the client.
@@ -181,17 +170,6 @@ namespace GenHTTP
             download.SendFile(_Handler, this);
             _ContentLength = (ulong)download.Length;
             _Sent = true;
-        }
-
-        /// <summary>
-        /// Send an AJAX response to the client.
-        /// </summary>
-        /// <param name="ajax">The AJAX response to send to the client</param>
-        public void Send(IAjax ajax)
-        {
-            if (_Sent) throw new ResponseAlreadySentException();
-            byte[] serializedContent = ajax.SerializedContent;
-            Send(serializedContent);
         }
 
         /// <summary>

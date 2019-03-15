@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 
 using GenHTTP.Utilities;
-using GenHTTP.Style;
-using GenHTTP.Controls;
 
 namespace GenHTTP.SessionManagement
 {
@@ -232,33 +230,7 @@ namespace GenHTTP.SessionManagement
             }
             return false;
         }
-
-        /// <summary>
-        /// Retrieve a form which allows an user to log in using this session manager.
-        /// </summary>
-        /// <param name="request">The current <see cref="HttpRequest" /></param>
-        /// <returns>A form which allows an user to login, using the same page as a target</returns>
-        public Form GenerateForm(HttpRequest request)
-        {
-            Form form = new Form(HtmlMethod.Post, request.File);
-            // add username line
-            form.Children.Insert("Username:");
-            form.Children.InsertSpace();
-            Textfield username = form.Children.InsertTextfield("Username");
-            username.Name = "Username";
-            form.Children.InsertNewLine();
-            // add password line
-            form.Children.Insert("Password:");
-            form.Children.InsertSpace();
-            Passwordfield password = new Passwordfield("Password");
-            password.Name = "Password";
-            form.Children.Insert(password);
-            form.Children.InsertNewLine();
-            // add the submit button
-            form.Children.InsertSubmitButton("Login");
-            return form;
-        }
-
+        
         /// <summary>
         /// Remove a session from this manager.
         /// </summary>

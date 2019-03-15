@@ -10,7 +10,7 @@ namespace GenHTTP
     /// Represents a HTTP cookie.
     /// </summary>
     [Serializable]
-    public class HttpCookie : MarshalByRefObject
+    public class HttpCookie
     {
         private string _Name;
         private string _Value;

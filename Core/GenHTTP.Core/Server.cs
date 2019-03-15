@@ -31,7 +31,7 @@ namespace GenHTTP
     /// the server to load the new application.
     /// </remarks>
     [Serializable]
-    public class Server : MarshalByRefObject
+    public class Server
     {
         // Configuration
         private Configuration _Configuration;

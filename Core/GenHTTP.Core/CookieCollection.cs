@@ -10,7 +10,7 @@ namespace GenHTTP
     /// Stores the transmitted cookies for a <see cref="HttpRequest"/>.
     /// </summary>
     [Serializable]
-    public class CookieCollection : MarshalByRefObject
+    public class CookieCollection
     {
         private Dictionary<string, HttpCookie> _Cookies;
 
