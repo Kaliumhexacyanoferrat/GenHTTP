@@ -76,9 +76,9 @@ namespace Utility
                 valid.AddImage("/valid_css.gif", "Valid CSS");
 
                 DocumentCompiler compiler = new DocumentCompiler(doc);
-                if (!compiler.Compile(@"C:\ServerPage.cs", "GenHTTP", "ServerPage"))
+
+                if (!compiler.Compile(@"C:\Temp\ServerPage.cs", "GenHTTP", "ServerPage"))
                 {
-                    Console.WriteLine("Eins");
                     Console.WriteLine(compiler.Error.Message);
                     Console.WriteLine(compiler.Error.StackTrace);
                 }
@@ -86,7 +86,6 @@ namespace Utility
             }
             catch (Exception e)
             {
-                Console.WriteLine("Zwei");
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.StackTrace);
             }

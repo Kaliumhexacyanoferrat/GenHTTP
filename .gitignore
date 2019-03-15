@@ -8,7 +8,6 @@ logs/
 Dist/**/*.dll
 Dist/**/*.pdb
 Dist/**/*.exe
-Dist/GenHTTP.xml
 
 # User-specific files
 *.suo

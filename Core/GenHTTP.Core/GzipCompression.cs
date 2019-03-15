@@ -5,26 +5,29 @@ using System.Text;
 using System.IO;
 using System.IO.Compression;
 
-namespace GenHTTP {
-
-  /// <summary>
-  /// Provides GZip compression.
-  /// </summary>
-  public class GzipCompression {
+namespace GenHTTP
+{
 
     /// <summary>
-    /// Compress data.
+    /// Provides GZip compression.
     /// </summary>
-    /// <param name="toCompress">The data to compress</param>
-    /// <returns>The compressed data</returns>
-    public static byte[] Compress(byte[] toCompress) {
-      MemoryStream write = new MemoryStream();
-      GZipStream compressed = new GZipStream(write, CompressionMode.Compress);
-      compressed.Write(toCompress, 0, toCompress.Length);
-      compressed.Close();
-      return write.ToArray();
-    }
+    public class GzipCompression
+    {
 
-  }
+        /// <summary>
+        /// Compress data.
+        /// </summary>
+        /// <param name="toCompress">The data to compress</param>
+        /// <returns>The compressed data</returns>
+        public static byte[] Compress(byte[] toCompress)
+        {
+            MemoryStream write = new MemoryStream();
+            GZipStream compressed = new GZipStream(write, CompressionMode.Compress);
+            compressed.Write(toCompress, 0, toCompress.Length);
+            compressed.Close();
+            return write.ToArray();
+        }
+
+    }
 
 }
