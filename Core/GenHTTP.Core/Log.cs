@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using GenHTTP.Api.Infrastructure;
 
-namespace GenHTTP
+namespace GenHTTP.Core
 {
 
     /// <summary>
     /// Log information to a file.
     /// </summary>
     [Serializable]
-    public class Log
+    public class Log : ILog
     {
         private StreamWriter w;
         private bool _Console = true;

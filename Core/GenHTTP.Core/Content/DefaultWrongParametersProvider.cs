@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Http;
+using GenHTTP.Api.SessionManagement;
 
-using GenHTTP.SessionManagement;
-
-namespace GenHTTP.Content
+namespace GenHTTP.Core.Content
 {
 
     /// <summary>
@@ -38,7 +39,7 @@ namespace GenHTTP.Content
         /// <param name="request">The request to check responsibility for</param>
         /// <param name="info">Information about the user's session</param>
         /// <returns>true</returns>
-        public bool IsResponsible(HttpRequest request, AuthorizationInfo info)
+        public bool IsResponsible(IHttpRequest request, AuthorizationInfo info)
         {
             return true;
         }
@@ -49,12 +50,11 @@ namespace GenHTTP.Content
         /// <param name="request">The request to handle</param>
         /// <param name="response">The response to write to</param>
         /// <param name="info">Information about the current user</param>
-        public void HandleRequest(HttpRequest request, HttpResponse response, AuthorizationInfo info)
+        public void HandleRequest(IHttpRequest request, IHttpResponse response, AuthorizationInfo info)
         {
-            ServerPage page = _Server.NewServerPage;
+            var page = _Server.NewPage();
 
             page.Title = "Wrong script parameters";
-            page.ServerVersion = _Server.Version;
             page.Value = "The script '" + request.File + "' can not handle the given parameters.";
 
             response.Header.Type = ResponseType.BadRequest;

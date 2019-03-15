@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 using GenHTTP.Patterns;
 
-namespace GenHTTP
+namespace GenHTTP.Core
 {
 
     /// <summary>

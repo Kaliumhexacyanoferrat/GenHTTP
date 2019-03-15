@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using GenHTTP.Api.Configuration;
+using GenHTTP.Api.Http;
 
-using GenHTTP.Utilities;
-
-namespace GenHTTP
+namespace GenHTTP.Core
 {
 
     /// <summary>

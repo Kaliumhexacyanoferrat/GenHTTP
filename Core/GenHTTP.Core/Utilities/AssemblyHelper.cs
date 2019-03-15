@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 
-namespace GenHTTP.Utilities
+namespace GenHTTP.Core.Utilities
 {
 
     /// <summary>

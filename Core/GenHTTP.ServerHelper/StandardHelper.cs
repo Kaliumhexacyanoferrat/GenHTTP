@@ -4,13 +4,15 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
-using GenHTTP.Abstraction;
-using GenHTTP.Abstraction.Compiling;
-using GenHTTP.Abstraction.Elements;
-using GenHTTP.Abstraction.Style;
-using GenHTTP.Content;
+using GenHTTP.Api.Abstraction;
+using GenHTTP.Api.Abstraction.Elements;
+using GenHTTP.Api.Abstraction.Style;
+using GenHTTP.Api.Project;
+using GenHTTP.Api.Http;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 
-namespace GenHTTP.Utilities
+namespace GenHTTP.Core.ServerHelper
 {
 
     /// <summary>
@@ -18,18 +20,18 @@ namespace GenHTTP.Utilities
     /// </summary>
     public class StandardHelper : IServerHelper
     {
-        private Server _Server;
+        private IServer _Server;
         private DocumentType _Type = DocumentType.XHtml_1_1_Strict;
-        private DefaultNotFoundProvider _NotFound;
+        private IContentProvider _NotFound;
 
         /// <summary>
         /// Initializes this helper object.
         /// </summary>
         /// <param name="server">The server this helper is assigned to</param>
-        public void Init(Server server)
+        public void Init(IServer server)
         {
             _Server = server;
-            _NotFound = new DefaultNotFoundProvider(server);
+            _NotFound = server.DefaultNotFoundProvider;
         }
 
         /// <summary>
@@ -37,12 +39,11 @@ namespace GenHTTP.Utilities
         /// </summary>
         /// <param name="request">The request of the client</param>
         /// <param name="response">The response to write to</param>
-        public void GenerateIndex(HttpRequest request, HttpResponse response)
+        public void GenerateIndex(IHttpRequest request, IHttpResponse response)
         {
-            ServerPage page = _Server.NewServerPage;
+            IServerPage page = _Server.NewPage();
 
             page.Title = "Server index";
-            page.ServerVersion = _Server.Version;
 
             // write list
             NeutralElement list = new NeutralElement();
@@ -69,7 +70,7 @@ namespace GenHTTP.Utilities
         /// </summary>
         /// <param name="request">The request of the client</param>
         /// <param name="response">The response to write to</param>
-        public void GenerateNotFound(HttpRequest request, HttpResponse response)
+        public void GenerateNotFound(IHttpRequest request, IHttpResponse response)
         {
             _NotFound.HandleRequest(request, response, null);
             // log this request
@@ -82,14 +83,13 @@ namespace GenHTTP.Utilities
         /// <param name="request">The request of the client</param>
         /// <param name="response">The response to write to</param>
         /// <param name="exception">The exception which occured while running the project's method</param>
-        public void GenerateServerError(HttpRequest request, HttpResponse response, Exception exception)
+        public void GenerateServerError(IHttpRequest request, IHttpResponse response, Exception exception)
         {
-            ServerPage page = _Server.NewServerPage;
+            var page = _Server.NewPage();
             // prepare response
             response.Header.Type = ResponseType.InternalServerError;
 
             page.Title = "Error 500";
-            page.ServerVersion = _Server.Version;
             page.Value = "The server could not handle your request (<b>" + request.File + "</b>).";
 
             // log this request
@@ -106,14 +106,13 @@ namespace GenHTTP.Utilities
         /// </summary>
         /// <param name="request">The request of the client</param>
         /// <param name="response">The response to write to</param>
-        public void GenerateNoContent(HttpRequest request, HttpResponse response)
+        public void GenerateNoContent(IHttpRequest request, IHttpResponse response)
         {
-            ServerPage page = _Server.NewServerPage;
+            var page = _Server.NewPage();
             // prepare response
             response.Header.Type = ResponseType.InternalServerError;
 
             page.Title = "Error 500";
-            page.ServerVersion = _Server.Version;
             page.Value = "The responsible project did not handle this request.";
 
             // log this request
@@ -128,7 +127,7 @@ namespace GenHTTP.Utilities
         /// <param name="request">The request of the client</param>
         /// <param name="response">The response to write to</param>
         /// <returns>true, if this method handled this request</returns>
-        public bool GenerateOther(HttpRequest request, HttpResponse response)
+        public bool GenerateOther(IHttpRequest request, IHttpResponse response)
         {
             // support all additional files, stylesheets etc.
             string file = request.File;
@@ -147,12 +146,11 @@ namespace GenHTTP.Utilities
         /// This method will be called whenever the server recieved a malformed request.
         /// </summary>
         /// <param name="response">The response to write to</param>
-        public void GenerateBadRequest(HttpResponse response)
+        public void GenerateBadRequest(IHttpResponse response)
         {
-            ServerPage page = _Server.NewServerPage;
+            var page = _Server.NewPage();
 
             page.Title = "Malformed request";
-            page.ServerVersion = _Server.Version;
             page.Value = "The server did not understand the request of your client.";
 
             response.Send(page);

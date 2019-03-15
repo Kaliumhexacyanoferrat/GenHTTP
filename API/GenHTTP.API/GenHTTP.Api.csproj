@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <LangVersion>default</LangVersion>
+    
+    <OutputPath>../../Dist/</OutputPath>
+    
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    
+    <FileVersion>2.0.0.0</FileVersion>
+    
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="GenHTTP.Patterns">
+      <HintPath>..\..\Lib\GenHTTP.Patterns.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

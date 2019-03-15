@@ -3,19 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using GenHTTP.Caching;
-using GenHTTP.Abstraction;
-using GenHTTP.Abstraction.Style;
-using GenHTTP.Abstraction.Compiling;
+using GenHTTP.Api.Http;
+using System.IO;
+using System.Threading;
+using GenHTTP.Api.Abstraction;
+using GenHTTP.Api.Caching;
+using GenHTTP.Api.Compilation;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Compression;
 
-namespace GenHTTP
+namespace GenHTTP.Core
 {
 
     /// <summary>
     /// Represents a HTTP response.
     /// </summary>
     [Serializable]
-    public class HttpResponse
+    public class HttpResponse : IHttpResponse
     {
         private HttpResponseHeader _Header;
         private ClientHandler _Handler;
@@ -74,7 +78,7 @@ namespace GenHTTP
         /// <summary>
         /// The HTTP response header.
         /// </summary>
-        public HttpResponseHeader Header
+        public IHttpResponseHeader Header
         {
             get
             {
@@ -167,8 +171,65 @@ namespace GenHTTP
         public void Send(Download download)
         {
             if (_Sent) throw new ResponseAlreadySentException();
-            download.SendFile(_Handler, this);
-            _ContentLength = (ulong)download.Length;
+
+            Header.ContentType = download.ContentType;
+            Header.Modified = download.LastModified;
+
+            var sent = 0L;
+
+            // cache should be used
+            var cached = false;
+
+            if (download.Cache != null)
+            {
+                if (download.Cache.Load(download.File))
+                {
+                    byte[] toSend = (IsContentCompressable(download.UncompressedLength) && UseCompression) ? GzipCompression.Compress(download.Cache.Content(download.File)) : download.Cache.Content(download.File);
+                    sent = toSend.LongLength;
+                    // prepare header
+                    _Header.WriteHeader(_Handler, (ulong)sent);
+                    if (!IsHead) _Handler.SendBytes(toSend);
+
+                    cached = true;
+                }
+            }
+
+            if (!cached)
+            {
+                // file stream should be used (compressed)
+                using (var r = new BinaryReader(File.OpenRead(download.File)))
+                {
+                    if (UseCompression && IsContentCompressable(download.UncompressedLength))
+                    {
+                        byte[] toSend = GzipCompression.Compress(r.ReadBytes((int)r.BaseStream.Length));
+                        sent = toSend.LongLength;
+                        // prepare header
+                        _Header.WriteHeader(_Handler, (ulong)sent);
+                        if (!IsHead) _Handler.SendBytes(toSend);
+                    }
+                    else
+                    {
+                        // send file stream (uncompressed)
+                        _Header.WriteHeader(_Handler, (ulong)download.UncompressedLength);
+
+                        // send data
+                        short size = 1500;
+
+                        if (download.Limit != 0) size = (short)Math.Round(download.Limit * 0.0155, 0);
+
+                        while (sent < r.BaseStream.Length)
+                        {
+                            int current = size;
+                            if ((r.BaseStream.Length - sent) < size) current = (int)(r.BaseStream.Length - sent);
+                            if (!IsHead) _Handler.SendBytes(r.ReadBytes(current));
+                            sent += current;
+                            if (download.Limit != 0) Thread.Sleep(1);
+                        }
+                    }
+                }
+            }
+
+            _ContentLength = (ulong)sent;
             _Sent = true;
         }
 
@@ -233,23 +294,6 @@ namespace GenHTTP
             if (_Header.ContentType == ContentType.ApplicationOfficeDocumentSlideshow) return true;
             if (_Header.ContentType == ContentType.ApplicationOfficeDocumentWordProcessing) return true;
             return false;
-        }
-
-    }
-
-    /// <summary>
-    /// This exception will occur, whenever you try to sent data over a HttpResponse which
-    /// has already been used to send data.
-    /// </summary>
-    public class ResponseAlreadySentException : Exception
-    {
-
-        /// <summary>
-        /// Create a new exception of this type.
-        /// </summary>
-        public ResponseAlreadySentException() : base("This HttpResponse has already been used to send data.")
-        {
-
         }
 
     }

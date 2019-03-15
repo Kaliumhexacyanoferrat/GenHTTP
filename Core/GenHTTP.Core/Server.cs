@@ -13,10 +13,15 @@ using System.Diagnostics;
 using System.Runtime.Serialization.Formatters;
 using System.Runtime.Remoting;
 
-using GenHTTP.Utilities;
-using GenHTTP.Abstraction.Compiling;
+using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Compilation;
+using GenHTTP.Api.Project;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Http;
+using GenHTTP.Core.Utilities;
+using GenHTTP.Core.Content;
 
-namespace GenHTTP
+namespace GenHTTP.Core
 {
 
     /// <summary>
@@ -31,7 +36,7 @@ namespace GenHTTP
     /// the server to load the new application.
     /// </remarks>
     [Serializable]
-    public class Server
+    public class Server : IServer
     {
         // Configuration
         private Configuration _Configuration;
@@ -108,7 +113,7 @@ namespace GenHTTP
         private void Init()
         {
             AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
-            _Log = new Log(Path + "logs/" + Log.DateTimeString + ".log", _Configuration.LogToConsole);
+            _Log = new Log(Path + "logs/" + GenHTTP.Core.Log.DateTimeString + ".log", _Configuration.LogToConsole);
             _ServerTemplate = new ServerPageBase();
         }
 
@@ -328,6 +333,27 @@ namespace GenHTTP
             Dump();
         }
 
+        internal void LogRequest(HttpRequest request, HttpResponse response)
+        {
+            lock (_Log)
+            {
+                _Log.WriteTimestamp();
+                _Log.WriteColored(response.ClientHandler.IP.PadRight(14, ' '), ConsoleColor.Yellow);
+                string status = Mapping.GetStatusCode(response.Header.Type);
+                if (status.StartsWith("4") || status.StartsWith("5"))
+                {
+                    _Log.WriteColored(" " + Mapping.GetStatusCode(response.Header.Type), ConsoleColor.Red);
+                }
+                else
+                {
+                    _Log.WriteColored(" " + Mapping.GetStatusCode(response.Header.Type), ConsoleColor.Green);
+                }
+                _Log.WriteColored(" " + HttpRequest.GetRequestTypeName(request.Type), ConsoleColor.White);
+                _Log.WriteColored(" " + request.File, ConsoleColor.Gray);
+                _Log.WriteRightAlign(response.ContentLenght.ToString().PadLeft(5, ' '), ConsoleColor.DarkMagenta);
+            }
+        }
+        
         #endregion
 
         #region State control
@@ -374,7 +400,7 @@ namespace GenHTTP
         /// <summary>
         /// The log file handler of the server.
         /// </summary>
-        public Log Log
+        public ILog Log
         {
             get { return _Log; }
         }
@@ -382,7 +408,7 @@ namespace GenHTTP
         /// <summary>
         /// All available projects running on this server.
         /// </summary>
-        public ProjectCollection Projects
+        public IProjectCollection Projects
         {
             get
             {
@@ -449,13 +475,23 @@ namespace GenHTTP
         /// <summary>
         /// Retrieve a template of the standard server page.
         /// </summary>
-        public ServerPage NewServerPage
+        public IServerPage NewPage()
         {
-            get { return new ServerPage(_ServerTemplate); }
+            return new ServerPage(_ServerTemplate)
+            {
+                ServerVersion = Version
+            };
         }
 
-        #endregion
+        public IContentProvider DefaultNotFoundProvider => new DefaultNotFoundProvider(this);
 
+        public IContentProvider DefaultNotLoggedInProvider => new DefaultNotLoggedInProvider(this);
+
+        public IContentProvider DefaultNotEnoughRightsProvider => new DefaultNotEnoughRightsProvider(this);
+
+        public IContentProvider DefaultWrongParametersProvider => new DefaultWrongParametersProvider(this);
+
+        #endregion
 
     }
 

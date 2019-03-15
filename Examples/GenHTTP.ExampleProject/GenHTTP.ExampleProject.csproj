@@ -17,7 +17,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\GenHTTP.Core\GenHTTP.Core.csproj" />
+    <ProjectReference Include="..\..\API\GenHTTP.API\GenHTTP.Api.csproj" />
   </ItemGroup>
   
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

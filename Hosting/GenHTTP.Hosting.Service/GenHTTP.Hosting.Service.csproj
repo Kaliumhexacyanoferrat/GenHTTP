@@ -5,6 +5,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
+    <StartupObject>GenHTTP.Hosting.Service.Program</StartupObject>
 
   </PropertyGroup>
 

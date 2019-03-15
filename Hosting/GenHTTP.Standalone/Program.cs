@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.ServiceProcess;
+using GenHTTP.Api.Http;
+using GenHTTP.Core;
 
-namespace GenHTTP
+namespace GenHTTP.Hosting.Standalone
 {
 
     class Program
@@ -54,7 +56,7 @@ namespace GenHTTP
                     }
                 }
                 // create new server
-                Server svr = new Server();
+                var svr = new Server();
                 // configure server by arguments
                 Regex port = new Regex("-port:([0-9]{1,5})");
                 Regex backlog = new Regex("-backlog:([0-9]{1,5})");

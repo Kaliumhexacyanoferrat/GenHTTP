@@ -13,6 +13,8 @@
 
     <OutputPath>../../Dist/</OutputPath>
 
+    <StartupObject>GenHTTP.Hosting.Standalone.Program</StartupObject>
+
   </PropertyGroup>
       
   <ItemGroup>

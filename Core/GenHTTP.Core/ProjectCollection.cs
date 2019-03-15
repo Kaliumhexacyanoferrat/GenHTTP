@@ -4,15 +4,17 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Reflection;
+using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Project;
 
-namespace GenHTTP
+namespace GenHTTP.Core
 {
 
     /// <summary>
     /// A collection with available projects.
     /// </summary>
     [Serializable]
-    public class ProjectCollection
+    public class ProjectCollection : IProjectCollection
     {
         private Dictionary<string, IProject> _Projects;
         private Server _Server;

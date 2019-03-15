@@ -7,14 +7,9 @@ using ExampleProject.View;
 using ExampleProject.Controller;
 
 using GenHTTP;
-using GenHTTP.Content;
-using GenHTTP.Caching;
-using GenHTTP.Abstraction;
-using GenHTTP.Abstraction.Elements;
-using GenHTTP.Abstraction.Style;
-using GenHTTP.Abstraction.Compiling;
-using GenHTTP.Localization;
-using GenHTTP.SessionManagement;
+using GenHTTP.Api.Compilation;
+using GenHTTP.Api.Http;
+using GenHTTP.Api.Content;
 
 namespace ExampleProject
 {
@@ -23,7 +18,7 @@ namespace ExampleProject
     /// This class describes a web application for the
     /// GenHTTP server.
     /// </summary>
-    public class Project : AbstractProject
+    public class Project : ProjectBase
     {
 
         #region get-/setters
@@ -194,7 +189,7 @@ namespace ExampleProject
         /// </summary>
         /// <param name="request">The request to analyze</param>
         /// <param name="response">The response to prepare</param>
-        public override void PreHandleRequest(HttpRequest request, HttpResponse response)
+        public override void PreHandleRequest(IHttpRequest request, IHttpResponse response)
         {
             // for example, we could set a header field for all CS files
             // if (request.File.EndsWith(".cs")) response.Header["Cache-Control"] = "no-cache";

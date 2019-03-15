@@ -18,7 +18,7 @@
   </PropertyGroup>
     
   <ItemGroup>
-    <ProjectReference Include="..\GenHTTP.Core\GenHTTP.Core.csproj" /> 
+    <ProjectReference Include="..\..\API\GenHTTP.API\GenHTTP.Api.csproj" /> 
   </ItemGroup>
   
 </Project>

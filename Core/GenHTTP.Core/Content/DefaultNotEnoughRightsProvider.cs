@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using GenHTTP.SessionManagement;
-using GenHTTP.Abstraction;
-using GenHTTP.Abstraction.Elements;
+using GenHTTP.Api.SessionManagement;
+using GenHTTP.Api.Abstraction;
+using GenHTTP.Api.Abstraction.Elements;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Http;
 
-namespace GenHTTP.Content
+namespace GenHTTP.Core.Content
 {
 
     /// <summary>
@@ -41,7 +43,7 @@ namespace GenHTTP.Content
         /// <param name="request">The request to check responsibility for</param>
         /// <param name="info">Information about the user's session</param>
         /// <returns>true</returns>
-        public bool IsResponsible(HttpRequest request, AuthorizationInfo info)
+        public bool IsResponsible(IHttpRequest request, AuthorizationInfo info)
         {
             return true;
         }
@@ -52,12 +54,11 @@ namespace GenHTTP.Content
         /// <param name="request">The request to handle</param>
         /// <param name="response">The response to write to</param>
         /// <param name="info">Information about the current user</param>
-        public void HandleRequest(HttpRequest request, HttpResponse response, AuthorizationInfo info)
+        public void HandleRequest(IHttpRequest request, IHttpResponse response, AuthorizationInfo info)
         {
-            ServerPage page = _Server.NewServerPage;
+            var page = _Server.NewPage();
 
-            page.Title = "Error 404";
-            page.ServerVersion = _Server.Version;
+            page.Title = "Error 403";
             page.Value = "You don't have the permission to perform this action.";
 
             response.Header.Type = ResponseType.Forbidden;

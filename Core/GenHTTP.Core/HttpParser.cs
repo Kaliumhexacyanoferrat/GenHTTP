@@ -7,7 +7,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.IO;
 
-namespace GenHTTP
+namespace GenHTTP.Core
 {
 
     internal delegate void HandleRequest(HttpRequest request);

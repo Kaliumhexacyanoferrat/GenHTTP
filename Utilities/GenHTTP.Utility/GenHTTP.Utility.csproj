@@ -16,10 +16,13 @@
 
     <OutputPath>../../Dist/</OutputPath>
 
+    <StartupObject>GenHTTP.Utility.Program</StartupObject>
+
   </PropertyGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\GenHTTP.Core\GenHTTP.Core.csproj" />
+    <ProjectReference Include="..\..\API\GenHTTP.API\GenHTTP.Api.csproj" />
+    <ProjectReference Include="..\GenHTTP.Compilers\GenHTTP.Compilers.csproj" />
   </ItemGroup>
   
 </Project>

@@ -9,8 +9,9 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
-using GenHTTP.Abstraction;
-using GenHTTP.Abstraction.Compiling;
+using GenHTTP.Api.Compilation;
+using GenHTTP.Api.Abstraction;
+using GenHTTP.Api.Abstraction.Elements;
 
 namespace ExampleProject.View {
 
@@ -53,7 +54,7 @@ namespace ExampleProject.View {
     private List<byte[]> _Content;
     private System.String _Title;
     private System.String _Headline;
-    private GenHTTP.Abstraction.Elements.NeutralElement _Value;
+    private NeutralElement _Value;
 
     public ExampleTemplate(ITemplateBase baseClass) {
       _Content = new List<byte[]>(3);
@@ -74,7 +75,7 @@ namespace ExampleProject.View {
       set { _Headline = value; }
     }
 
-    public GenHTTP.Abstraction.Elements.NeutralElement Value {
+    public NeutralElement Value {
       get { return _Value; }
       set { _Value = value; }
     }

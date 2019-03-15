@@ -4,38 +4,18 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-
+using GenHTTP.Api.Http;
+using GenHTTP.Api.Project;
 using GenHTTP.Patterns;
-using GenHTTP.Utilities;
 
-namespace GenHTTP
+namespace GenHTTP.Core
 {
-
-    /// <summary>
-    /// All available request types this server can handle.
-    /// </summary>
-    [Serializable]
-    public enum RequestType
-    {
-        /// <summary>
-        /// A http GET request.
-        /// </summary>
-        GET,
-        /// <summary>
-        /// A http HEAD request.
-        /// </summary>
-        HEAD,
-        /// <summary>
-        /// A http POST request.
-        /// </summary>
-        POST
-    }
 
     /// <summary>
     /// Provides methods to access a recieved http request.
     /// </summary>
     [Serializable]
-    public class HttpRequest
+    public class HttpRequest : IHttpRequest
     {
         private RequestType _Type;
         private ProtocolType _ProtocolType = ProtocolType.Http_1_0;

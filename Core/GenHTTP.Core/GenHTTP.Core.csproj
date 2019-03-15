@@ -15,6 +15,10 @@
     <OutputPath>../../Dist/</OutputPath>
     
   </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\API\GenHTTP.API\GenHTTP.Api.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="GenHTTP.Patterns">

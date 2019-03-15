@@ -4,13 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Net;
-using System.Net.Sockets;
 using System.Threading;
 using System.IO;
 
-using GenHTTP.Utilities;
+using GenHTTP.Api.Http;
+using System.Net.Sockets;
 
-namespace GenHTTP
+using ProtocolType = GenHTTP.Api.Http.ProtocolType;
+
+namespace GenHTTP.Core
 {
 
     /// <summary>
@@ -174,7 +176,7 @@ namespace GenHTTP
                         request.Project.HandleRequest(request, response);
                         _LoadTime = (DateTime.Now - before).TotalSeconds;
                         // log request
-                        LogRequest(request, response);
+                        _Server.LogRequest(request, response);
                         // call completion event
                         //_Server.CallCompletionEvent(request, response);
                     }
@@ -251,28 +253,7 @@ namespace GenHTTP
             // call completion event
             _Server.CallCompletionEvent(request, response);
         }
-
-        private void LogRequest(HttpRequest request, HttpResponse response)
-        {
-            lock (_Server.Log)
-            {
-                _Server.Log.WriteTimestamp();
-                _Server.Log.WriteColored(response.ClientHandler.IP.PadRight(14, ' '), ConsoleColor.Yellow);
-                string status = response.Header.GetStatusCode(response.Header.Type);
-                if (status.StartsWith("4") || status.StartsWith("5"))
-                {
-                    _Server.Log.WriteColored(" " + response.Header.GetStatusCode(response.Header.Type), ConsoleColor.Red);
-                }
-                else
-                {
-                    _Server.Log.WriteColored(" " + response.Header.GetStatusCode(response.Header.Type), ConsoleColor.Green);
-                }
-                _Server.Log.WriteColored(" " + HttpRequest.GetRequestTypeName(request.Type), ConsoleColor.White);
-                _Server.Log.WriteColored(" " + request.File, ConsoleColor.Gray);
-                _Server.Log.WriteRightAlign(response.ContentLenght.ToString().PadLeft(5, ' '), ConsoleColor.DarkMagenta);
-            }
-        }
-
+        
         private void SendData(string data)
         {
             _Connection.Send(Encoding.ASCII.GetBytes(data));

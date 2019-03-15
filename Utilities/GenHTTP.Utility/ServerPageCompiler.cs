@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 
 using GenHTTP;
-using GenHTTP.Abstraction;
-using GenHTTP.Abstraction.Elements;
-using GenHTTP.Abstraction.Style;
-using GenHTTP.Abstraction.Compiling;
+using GenHTTP.Api.Abstraction;
+using GenHTTP.Api.Abstraction.Elements;
+using GenHTTP.Api.Abstraction.Style;
+using GenHTTP.Api.Compilation;
+using GenHTTP.Compilers;
 
-namespace Utility
+namespace GenHTTP.Utility
 {
 
     public class ServerPageCompiler

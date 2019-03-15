@@ -2,10 +2,11 @@
 using System.Text;
 using System.Collections.Generic;
 
-using GenHTTP.Abstraction;
-using GenHTTP.Abstraction.Compiling;
+using GenHTTP.Api.Compilation;
+using GenHTTP.Api.Abstraction;
+using GenHTTP.Api.Infrastructure;
 
-namespace GenHTTP
+namespace GenHTTP.Core
 {
 
     /// <summary>
@@ -71,7 +72,7 @@ namespace GenHTTP
     /// <summary>
     /// The default server page.
     /// </summary>
-    public class ServerPage : ITemplate
+    public class ServerPage : IServerPage
     {
         private ITemplateBase _Base;
         private List<byte[]> _Content;

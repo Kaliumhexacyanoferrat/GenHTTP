@@ -2,6 +2,7 @@
 using System.ServiceProcess;
 using System.Diagnostics;
 using System.Threading;
+using GenHTTP.Core;
 
 namespace GenHTTP
 {

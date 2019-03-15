@@ -6,12 +6,10 @@ using System.Text.RegularExpressions;
 
 using ExampleProject.View;
 
-using GenHTTP;
-using GenHTTP.Content;
-using GenHTTP.Abstraction;
-using GenHTTP.Abstraction.Style;
-using GenHTTP.Abstraction.Elements;
-using GenHTTP.SessionManagement;
+using GenHTTP.Api.Abstraction.Elements;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Http;
+using GenHTTP.Api.SessionManagement;
 
 namespace ExampleProject.Controller
 {
@@ -99,7 +97,7 @@ namespace ExampleProject.Controller
         /// <param name="info">Information about the user's session</param>
         /// <param name="analysis">Parameter analysis (which are missing? etc.)</param>
         /// <param name="hasPermission">If this variable is set to true, the user owns all required permissions to display this page</param>
-        protected override void GenerateContent(HttpRequest request, HttpResponse response, AuthorizationInfo info, ParameterAnalysis analysis, bool hasPermission)
+        protected override void GenerateContent(IHttpRequest request, IHttpResponse response, AuthorizationInfo info, ParameterAnalysis analysis, bool hasPermission)
         {
             // load a template to fill it
             ExampleTemplate template = _Project.GetTemplateInstance("main") as ExampleTemplate;
