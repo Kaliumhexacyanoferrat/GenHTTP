@@ -8,6 +8,7 @@ logs/
 Dist/**/*.dll
 Dist/**/*.pdb
 Dist/**/*.exe
+Dist/**/*.json
 
 # User-specific files
 *.suo
