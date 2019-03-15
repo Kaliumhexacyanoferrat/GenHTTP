@@ -39,6 +39,17 @@ namespace GenHTTP.Api.Infrastructure
         /// </summary>
         IProjectCollection Projects { get; }
 
+        /// <summary>
+        /// Specifies, whether the server is currently congested or not. It the server has to many
+        /// connections, it will enable the burst mode, which closes all keep-alive connections.
+        /// </summary>
+        bool Congested { get; }
+
+        /// <summary>
+        /// The configuration of the server (changeable during runtime).
+        /// </summary>
+        Configuration Configuration { get; }
+
         IServerPage NewPage();
 
         IContentProvider DefaultNotFoundProvider { get; }

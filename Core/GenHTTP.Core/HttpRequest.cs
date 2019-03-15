@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using GenHTTP.Api.Http;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Project;
 using GenHTTP.Patterns;
 
@@ -211,7 +212,7 @@ namespace GenHTTP.Core
         /// <summary>
         /// The client handler assigned to this request.
         /// </summary>
-        public ClientHandler Handler
+        public IClientHandler Handler
         {
             get
             {

@@ -43,6 +43,11 @@ namespace GenHTTP.Api.Http
         bool IsHead { get; }
 
         /// <summary>
+        /// The handler the response should be written to.
+        /// </summary>
+        IClientHandler ClientHandler { get; }
+
+        /// <summary>
         /// Send a (X)HTML document to the client.
         /// </summary>
         /// <param name="document">The document to send</param>

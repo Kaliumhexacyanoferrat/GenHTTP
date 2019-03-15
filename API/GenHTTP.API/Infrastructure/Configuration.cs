@@ -6,7 +6,7 @@ using System.Text;
 using GenHTTP.Api.Configuration;
 using GenHTTP.Api.Http;
 
-namespace GenHTTP.Core
+namespace GenHTTP.Api.Infrastructure
 {
 
     /// <summary>

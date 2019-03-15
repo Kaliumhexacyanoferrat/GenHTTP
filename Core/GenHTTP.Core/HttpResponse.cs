@@ -67,7 +67,7 @@ namespace GenHTTP.Core
         /// <summary>
         /// The handler the response should be written to.
         /// </summary>
-        public ClientHandler ClientHandler
+        public IClientHandler ClientHandler
         {
             get
             {

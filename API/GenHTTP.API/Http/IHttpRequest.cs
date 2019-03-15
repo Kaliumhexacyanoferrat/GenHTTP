@@ -106,6 +106,11 @@ namespace GenHTTP.Api.Http
         bool VirtualHosting { get; }
 
         /// <summary>
+        /// The client handler assigned to this request.
+        /// </summary>
+        IClientHandler Handler { get; }
+
+        /// <summary>
         /// Redirect this request.
         /// </summary>
         /// <param name="toURL">The new URL</param>

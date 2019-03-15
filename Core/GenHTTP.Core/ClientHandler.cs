@@ -11,6 +11,7 @@ using GenHTTP.Api.Http;
 using System.Net.Sockets;
 
 using ProtocolType = GenHTTP.Api.Http.ProtocolType;
+using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Core
 {
@@ -19,7 +20,7 @@ namespace GenHTTP.Core
     /// Handles the requests from a browser.
     /// </summary>
     [Serializable]
-    public class ClientHandler
+    public class ClientHandler : IClientHandler
     {
         private Socket _Connection;
         private Server _Server;
@@ -41,7 +42,7 @@ namespace GenHTTP.Core
         /// <summary>
         /// The server this handler relates to.
         /// </summary>
-        public Server Server
+        public IServer Server
         {
             get
             {
