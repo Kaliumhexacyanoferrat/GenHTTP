@@ -1,19 +1,25 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP", "GenHTTP\GenHTTP.csproj", "{59E1C489-E9E9-4374-8CB9-A2005722152D}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28621.142
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Core", "Core\GenHTTP.Core\GenHTTP.Core.csproj", "{59E1C489-E9E9-4374-8CB9-A2005722152D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleProject", "ExampleProject\ExampleProject.csproj", "{2603124E-1287-4D61-9540-6AC3EFAD4EB9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.ExampleProject", "Examples\GenHTTP.ExampleProject\GenHTTP.ExampleProject.csproj", "{2603124E-1287-4D61-9540-6AC3EFAD4EB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerHelper", "ServerHelper\ServerHelper.csproj", "{7594DDBE-1423-4A44-8430-2076AB481B80}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.ServerHelper", "Core\GenHTTP.ServerHelper\GenHTTP.ServerHelper.csproj", "{7594DDBE-1423-4A44-8430-2076AB481B80}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTPRemote", "GenHTTPRemote\GenHTTPRemote.csproj", "{D319D43B-2EC6-4984-82C4-37E084085D8B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Standalone", "Hosting\GenHTTP.Standalone\GenHTTP.Standalone.csproj", "{6A9C6E0F-783A-431C-84C7-5D075B5ED4CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Performance", "Performance\Performance.csproj", "{AC2AA481-B568-45C1-B2A2-AB4942B7E04A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Utility", "Utilities\GenHTTP.Utility\GenHTTP.Utility.csproj", "{C995B4CB-316E-4D3B-A9ED-1B4B4803415D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTPSvr", "GenHTTPSvr\GenHTTPSvr.csproj", "{6A9C6E0F-783A-431C-84C7-5D075B5ED4CE}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{AFBFE61E-0C33-42F6-9370-9F5088EB8633}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utility", "Utility\Utility.csproj", "{C995B4CB-316E-4D3B-A9ED-1B4B4803415D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Hosting", "Hosting", "{2B5A5875-B182-4070-874C-DCEF41AE04E1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{2287FAF2-0917-4B92-AA53-0E544DDFF0AA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{0CF409EF-4491-4C44-AAEC-D05DF4A5ED19}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,14 +39,6 @@ Global
 		{7594DDBE-1423-4A44-8430-2076AB481B80}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7594DDBE-1423-4A44-8430-2076AB481B80}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7594DDBE-1423-4A44-8430-2076AB481B80}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D319D43B-2EC6-4984-82C4-37E084085D8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D319D43B-2EC6-4984-82C4-37E084085D8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D319D43B-2EC6-4984-82C4-37E084085D8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D319D43B-2EC6-4984-82C4-37E084085D8B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AC2AA481-B568-45C1-B2A2-AB4942B7E04A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AC2AA481-B568-45C1-B2A2-AB4942B7E04A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AC2AA481-B568-45C1-B2A2-AB4942B7E04A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AC2AA481-B568-45C1-B2A2-AB4942B7E04A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6A9C6E0F-783A-431C-84C7-5D075B5ED4CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6A9C6E0F-783A-431C-84C7-5D075B5ED4CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A9C6E0F-783A-431C-84C7-5D075B5ED4CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -52,5 +50,15 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{59E1C489-E9E9-4374-8CB9-A2005722152D} = {AFBFE61E-0C33-42F6-9370-9F5088EB8633}
+		{2603124E-1287-4D61-9540-6AC3EFAD4EB9} = {2287FAF2-0917-4B92-AA53-0E544DDFF0AA}
+		{7594DDBE-1423-4A44-8430-2076AB481B80} = {AFBFE61E-0C33-42F6-9370-9F5088EB8633}
+		{6A9C6E0F-783A-431C-84C7-5D075B5ED4CE} = {2B5A5875-B182-4070-874C-DCEF41AE04E1}
+		{C995B4CB-316E-4D3B-A9ED-1B4B4803415D} = {0CF409EF-4491-4C44-AAEC-D05DF4A5ED19}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
 	EndGlobalSection
 EndGlobal

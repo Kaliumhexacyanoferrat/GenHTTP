@@ -3,6 +3,13 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Project specific files
+logs/
+Dist/**/*.dll
+Dist/**/*.pdb
+Dist/**/*.exe
+Dist/GenHTTP.xml
+
 # User-specific files
 *.suo
 *.user

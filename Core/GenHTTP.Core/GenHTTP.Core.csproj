@@ -1,0 +1,363 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{59E1C489-E9E9-4374-8CB9-A2005722152D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>GenHTTP.Core</RootNamespace>
+    <AssemblyName>GenHTTP.Core</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetZone>LocalIntranet</TargetZone>
+    <GenerateManifests>true</GenerateManifests>
+    <ManifestCertificateThumbprint>E1B093644E2B44915D7BC2A9B9EB56791F2B29FA</ManifestCertificateThumbprint>
+    <ManifestKeyFile>GenHTTP_TemporaryKey.pfx</ManifestKeyFile>
+    <SignManifests>false</SignManifests>
+    <StartupObject>
+    </StartupObject>
+    <PublishUrl>publish/</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>../../Dist/</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>GenHTTP.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>../../Dist/</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>GenHTTP.xml</DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="GenHTTP.Patterns, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Utilities\RegexTest\RegexTest\bin\Release\GenHTTP.Patterns.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Remoting" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Deprecated\clsAjax.cs" />
+    <Compile Include="GzipCompression.cs" />
+    <Compile Include="Deprecated\clsBody.cs" />
+    <Compile Include="ClientHandler.cs" />
+    <Compile Include="HttpCookie.cs" />
+    <Compile Include="CookieCollection.cs" />
+    <Compile Include="Download.cs" />
+    <Compile Include="Deprecated\clsFileCache.cs" />
+    <Compile Include="Utilities\Hash.cs" />
+    <Compile Include="Deprecated\clsHeader.cs" />
+    <Compile Include="Deprecated\clsJsFunction.cs" />
+    <Compile Include="Log.cs" />
+    <Compile Include="Deprecated\clsPage.cs" />
+    <Compile Include="Deprecated\Controls\clsDiv.cs" />
+    <Compile Include="Deprecated\Controls\clsForm.cs" />
+    <Compile Include="Deprecated\Controls\clsHeadline.cs" />
+    <Compile Include="Deprecated\Controls\clsHidden.cs" />
+    <Compile Include="Deprecated\Controls\clsImg.cs" />
+    <Compile Include="Deprecated\Controls\clsLine.cs" />
+    <Compile Include="Deprecated\Controls\clsLink.cs" />
+    <Compile Include="Deprecated\Controls\clsOption.cs" />
+    <Compile Include="Deprecated\Controls\clsPasswordfield.cs" />
+    <Compile Include="Deprecated\Controls\clsSelect.cs" />
+    <Compile Include="Deprecated\Controls\clsSpan.cs" />
+    <Compile Include="Deprecated\Controls\clsSubmitButton.cs" />
+    <Compile Include="Deprecated\Controls\clsTable.cs" />
+    <Compile Include="Deprecated\Controls\clsTd.cs" />
+    <Compile Include="Deprecated\Controls\clsTextarea.cs" />
+    <Compile Include="Deprecated\Controls\clsTextfield.cs" />
+    <Compile Include="Deprecated\Controls\clsTr.cs" />
+    <Compile Include="Deprecated\Controls\HtmlConstants.cs" />
+    <Compile Include="Deprecated\Style\clsBorder.cs" />
+    <Compile Include="Deprecated\Style\clsDefaultPageStyle.cs" />
+    <Compile Include="Deprecated\Style\clsFont.cs" />
+    <Compile Include="Deprecated\Style\clsHtmlBorder.cs" />
+    <Compile Include="Deprecated\Style\clsHtmlElement.cs" />
+    <Compile Include="Deprecated\IHeaderStyle.cs" />
+    <Compile Include="Deprecated\IItem.cs" />
+    <Compile Include="Deprecated\IPageStyle.cs" />
+    <Compile Include="Pattern.cs" />
+    <Compile Include="ProjectCollection.cs" />
+    <Compile Include="HttpRequest.cs" />
+    <Compile Include="HttpResponse.cs" />
+    <Compile Include="HttpResponseHeader.cs" />
+    <Compile Include="Server.cs" />
+    <Compile Include="IProject.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Deprecated\Style\clsCssClassCollection.cs" />
+    <Compile Include="Deprecated\Style\clsColor.cs" />
+    <Compile Include="Deprecated\Style\clsHtmlColor.cs" />
+    <Compile Include="Deprecated\Style\clsPosition.cs" />
+    <Compile Include="Deprecated\Style\clsSize.cs" />
+    <Compile Include="Deprecated\clsText.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Abstraction\Country.cs" />
+    <Compile Include="Abstraction\Document.cs" />
+    <Compile Include="Abstraction\DocumentBody.cs" />
+    <Compile Include="Abstraction\DocumentGeneratorException.cs" />
+    <Compile Include="Abstraction\DocumentHeader.cs" />
+    <Compile Include="Abstraction\Compiling\Placeholder.cs" />
+    <Compile Include="Abstraction\DocumentMetaInformation.cs" />
+    <Compile Include="Abstraction\DocumentMetaInformationType.cs" />
+    <Compile Include="Abstraction\DocumentLink.cs" />
+    <Compile Include="Abstraction\DocumentScript.cs" />
+    <Compile Include="Abstraction\DocumentScriptCollection.cs" />
+    <Compile Include="Abstraction\DublinCore\DublinCore.cs" />
+    <Compile Include="Abstraction\DublinCore\DublinCoreDocumentType.cs" />
+    <Compile Include="Abstraction\DublinCore\DublinElement.cs" />
+    <Compile Include="Abstraction\DublinCore\DublinReference.cs" />
+    <Compile Include="Abstraction\Elements\Area.cs" />
+    <Compile Include="Abstraction\Elements\Collections\AreaCollection.cs" />
+    <Compile Include="Abstraction\Elements\Collections\FormCollection.cs" />
+    <Compile Include="Abstraction\Elements\Collections\HeadlineCollection.cs" />
+    <Compile Include="Abstraction\Elements\Collections\InputCollection.cs" />
+    <Compile Include="Abstraction\Elements\Collections\OptionCollection.cs" />
+    <Compile Include="Abstraction\Elements\Collections\OptionGroupCollection.cs" />
+    <Compile Include="Abstraction\Elements\Collections\SelectCollection.cs" />
+    <Compile Include="Abstraction\Elements\Collections\TextareaCollection.cs" />
+    <Compile Include="Abstraction\Elements\Containers\IAreaContainer.cs" />
+    <Compile Include="Abstraction\Elements\Containers\IFieldsetContainer.cs" />
+    <Compile Include="Abstraction\Elements\Containers\IFormContainer.cs" />
+    <Compile Include="Abstraction\Elements\Containers\IHeadlineContainer.cs" />
+    <Compile Include="Abstraction\Elements\Containers\IInputContainer.cs" />
+    <Compile Include="Abstraction\Elements\Containers\IOptionContainer.cs" />
+    <Compile Include="Abstraction\Elements\Containers\IOptionGroupContainer.cs" />
+    <Compile Include="Abstraction\Elements\Containers\ISelectContainer.cs" />
+    <Compile Include="Abstraction\Elements\Containers\ITextareaContainer.cs" />
+    <Compile Include="Abstraction\Elements\Fieldset.cs" />
+    <Compile Include="Abstraction\Elements\Form.cs" />
+    <Compile Include="Abstraction\Elements\FormMethod.cs" />
+    <Compile Include="Abstraction\Elements\Headline.cs" />
+    <Compile Include="Abstraction\Elements\Input.cs" />
+    <Compile Include="Abstraction\Elements\InputType.cs" />
+    <Compile Include="Abstraction\Elements\Option.cs" />
+    <Compile Include="Abstraction\Elements\OptionGroup.cs" />
+    <Compile Include="Abstraction\Elements\Select.cs" />
+    <Compile Include="Abstraction\Elements\Shape.cs" />
+    <Compile Include="Abstraction\Elements\Collections\DivCollection.cs" />
+    <Compile Include="Abstraction\Elements\Collections\ElementAddDelegate.cs" />
+    <Compile Include="Abstraction\Elements\Collections\ImageCollection.cs" />
+    <Compile Include="Abstraction\Elements\Collections\LinkCollection.cs" />
+    <Compile Include="Abstraction\Elements\Collections\MapCollection.cs" />
+    <Compile Include="Abstraction\Elements\Collections\TableCellCollection.cs" />
+    <Compile Include="Abstraction\Elements\Collections\TableCollection.cs" />
+    <Compile Include="Abstraction\Elements\Collections\TableLineCollection.cs" />
+    <Compile Include="Abstraction\Elements\Collections\TableSectionCollection.cs" />
+    <Compile Include="Abstraction\Elements\Collections\TextCollection.cs" />
+    <Compile Include="Abstraction\Elements\Containers\IImageContainer.cs" />
+    <Compile Include="Abstraction\Elements\Containers\IMapContainer.cs" />
+    <Compile Include="Abstraction\Elements\Containers\ITableContainer.cs" />
+    <Compile Include="Abstraction\Elements\Image.cs" />
+    <Compile Include="Abstraction\Elements\Map.cs" />
+    <Compile Include="Abstraction\Elements\TableColumn.cs" />
+    <Compile Include="Abstraction\Elements\Containers\IDivContainer.cs" />
+    <Compile Include="Abstraction\Elements\Containers\ILinkContainer.cs" />
+    <Compile Include="Abstraction\Elements\Containers\ITableCellContainer.cs" />
+    <Compile Include="Abstraction\Elements\Containers\ITableLineContainer.cs" />
+    <Compile Include="Abstraction\Elements\Containers\ITableSectionContainer.cs" />
+    <Compile Include="Abstraction\Elements\Containers\ITextContainer.cs" />
+    <Compile Include="Abstraction\Elements\Div.cs" />
+    <Compile Include="Abstraction\Elements\Element.cs" />
+    <Compile Include="Abstraction\Elements\Link.cs" />
+    <Compile Include="Abstraction\Elements\NeutralElement.cs" />
+    <Compile Include="Abstraction\Elements\StyledContainerElement.cs" />
+    <Compile Include="Abstraction\Elements\StyledElementWithChildren.cs" />
+    <Compile Include="Abstraction\Elements\Table.cs" />
+    <Compile Include="Abstraction\Elements\TableCell.cs" />
+    <Compile Include="Abstraction\Elements\TableCellScope.cs" />
+    <Compile Include="Abstraction\Elements\TableColumnCollection.cs" />
+    <Compile Include="Abstraction\Elements\TableLine.cs" />
+    <Compile Include="Abstraction\Elements\TableSection.cs" />
+    <Compile Include="Abstraction\Elements\TableSectionType.cs" />
+    <Compile Include="Abstraction\Elements\Text.cs" />
+    <Compile Include="Abstraction\Elements\Textarea.cs" />
+    <Compile Include="Abstraction\HtmlId.cs" />
+    <Compile Include="Abstraction\Internationalization.cs" />
+    <Compile Include="Abstraction\DocumentType.cs" />
+    <Compile Include="Abstraction\DocumentKeywordCollection.cs" />
+    <Compile Include="Abstraction\Language.cs" />
+    <Compile Include="Abstraction\DocumentEncoding.cs" />
+    <Compile Include="Abstraction\DocumentEncodingType.cs" />
+    <Compile Include="Abstraction\LanguageInfo.cs" />
+    <Compile Include="Abstraction\DocumentMetaInformationCollection.cs" />
+    <Compile Include="Abstraction\LinkType.cs" />
+    <Compile Include="Abstraction\MediaType.cs" />
+    <Compile Include="Abstraction\Style\ElementBorder.cs" />
+    <Compile Include="Abstraction\Style\ElementBorderCollection.cs" />
+    <Compile Include="Abstraction\Style\ElementBorderType.cs" />
+    <Compile Include="Abstraction\Style\ElementClear.cs" />
+    <Compile Include="Abstraction\Style\ElementColor.cs" />
+    <Compile Include="Abstraction\Style\ElementFlow.cs" />
+    <Compile Include="Abstraction\Style\ElementFont.cs" />
+    <Compile Include="Abstraction\Style\ElementFontStyle.cs" />
+    <Compile Include="Abstraction\Style\ElementFontWeight.cs" />
+    <Compile Include="Abstraction\Style\ElementPosition.cs" />
+    <Compile Include="Abstraction\Style\ElementSize.cs" />
+    <Compile Include="Abstraction\Style\ElementSizeType.cs" />
+    <Compile Include="Abstraction\Elements\StyledElement.cs" />
+    <Compile Include="Abstraction\Style\ElementTextAlign.cs" />
+    <Compile Include="Abstraction\Style\ElementTextDecoration.cs" />
+    <Compile Include="Abstraction\Style\ElementVerticalAlign.cs" />
+    <Compile Include="Abstraction\TextDirection.cs" />
+    <Compile Include="Deprecated\clsItemCollection.cs" />
+    <Compile Include="HttpParser.cs" />
+    <Compile Include="HttpScanner.cs" />
+    <Compile Include="Deprecated\Controls\clsCheckbox.cs" />
+    <Compile Include="Deprecated\clsComment.cs" />
+    <Compile Include="Deprecated\IContentGenerator.cs" />
+    <Compile Include="IServerHelper.cs" />
+    <Compile Include="Localization\Localization.cs" />
+    <Compile Include="Localization\LocalizationManager.cs" />
+    <Compile Include="Remoting\HandledRequest.cs" />
+    <Compile Include="Remoting\InstanceManager.cs" />
+    <Compile Include="Remoting\InstanceProvider.cs" />
+    <Compile Include="SessionManagement\Group.cs" />
+    <Compile Include="SessionManagement\GroupCollection.cs" />
+    <Compile Include="SessionManagement\Session.cs" />
+    <Compile Include="SessionManagement\SessionCollection.cs" />
+    <Compile Include="SessionManagement\SessionManager.cs" />
+    <Compile Include="SessionManagement\User.cs" />
+    <Compile Include="SessionManagement\UserCollection.cs" />
+    <Compile Include="Utilities\AssemblyHelper.cs" />
+    <Compile Include="Utilities\AttributeCollection.cs" />
+    <Compile Include="Utilities\ChildCollection.cs" />
+    <Compile Include="Utilities\Setting.cs" />
+    <Compile Include="Utilities\SettingParser.cs" />
+    <Compile Include="Utilities\SettingScanner.cs" />
+    <Compile Include="Utilities\Encryption\Rijndael.cs" />
+    <Compile Include="Utilities\Encryption\IEncryptor.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Abstraction\Compiling\DocumentCompiler.cs" />
+    <Compile Include="Abstraction\Compiling\ISnippet.cs" />
+    <Compile Include="Abstraction\Compiling\ISnippetBase.cs" />
+    <Compile Include="Abstraction\Compiling\ITemplate.cs" />
+    <Compile Include="Abstraction\Compiling\ITemplateBase.cs" />
+    <Compile Include="Abstraction\Compiling\SnippetCollection.cs" />
+    <Compile Include="Abstraction\Compiling\SnippetCompiler.cs" />
+    <Compile Include="Abstraction\Compiling\TemplateCollection.cs" />
+    <Compile Include="Abstraction\Elements\Button.cs" />
+    <Compile Include="Abstraction\Elements\ButtonType.cs" />
+    <Compile Include="Abstraction\Elements\Collections\ButtonCollection.cs" />
+    <Compile Include="Abstraction\Elements\Collections\FieldsetCollection.cs" />
+    <Compile Include="Abstraction\Elements\Collections\SpanCollection.cs" />
+    <Compile Include="Abstraction\Elements\Containers\IButtonContainer.cs" />
+    <Compile Include="Abstraction\Elements\Containers\ISpanContainer.cs" />
+    <Compile Include="Abstraction\Compiling\SnippetContainer.cs" />
+    <Compile Include="Abstraction\Elements\Line.cs" />
+    <Compile Include="Abstraction\Elements\Span.cs" />
+    <Compile Include="AbstractProject.cs" />
+    <Compile Include="Caching\CachedResponse.cs" />
+    <Compile Include="Caching\CheckApplicability.cs" />
+    <Compile Include="Caching\ProjectCache.cs" />
+    <Compile Include="Configuration.cs" />
+    <Compile Include="Content\FolderProvider.cs" />
+    <Compile Include="Content\ParametrizedContentProvider.cs" />
+    <Compile Include="Content\DefaultNotEnoughRightsProvider.cs" />
+    <Compile Include="Content\DefaultNotLoggedInProvider.cs" />
+    <Compile Include="Content\DefaultWrongParametersProvider.cs" />
+    <Compile Include="Content\IContentProvider.cs" />
+    <Compile Include="Content\DefaultNotFoundProvider.cs" />
+    <Compile Include="Content\Parameter.cs" />
+    <Compile Include="Content\ParameterAnalysis.cs" />
+    <Compile Include="ProjectColorCollection.cs" />
+    <Compile Include="RewriteConfiguration.cs" />
+    <Compile Include="ServerDelegates.cs" />
+    <Compile Include="ServerPage.cs" />
+    <None Include="Properties\app.manifest" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+</Project>

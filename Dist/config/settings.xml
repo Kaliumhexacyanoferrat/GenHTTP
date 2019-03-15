@@ -1,0 +1,358 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- 
+
+  GenHTTP Configuration File
+  
+  Change the values of this configuration file to adjust the server software.
+  You can change the configuration on the fly by writing to the Configuration 
+  object of a running GenHTTP webserver. If you do not save these changes,
+  they will get lost when the server is shut down.
+
+  2009/10/29  Andreas Nägeli      Updated references; Added timer intervall; Corrected misspelled words
+  2009/10/01  Andreas Nägeli      Added support for virtual hosting
+  2009/09/15  Andreas Nägeli      Added remoting section 
+  2009/08/23	Andreas Nägeli      Added standard helper to configuration
+  2009/08/21	Andreas Nägeli      Changed limit to the correct double representation
+  2009/07/03  Andreas Nägeli      Added documentation
+
+-->
+
+<settings>
+  <!-- 
+    
+    This section contains settings used to configure the socket handling
+    of the GenHTTP webserver. Do not change these values if you are not
+    sure about the effects.
+    
+  -->
+  <socket>
+    <!--
+      Specifies the port number on which the server is listening on.
+    
+      Type: number
+      Range: 1-65536
+      Default: 80
+    -->
+    <port>80</port>
+    <!--
+      Number of slots in the connection buffer. A high value will
+      lead to increased memory consumption. Increase this value, if there
+      are many clients connecting to your server.
+      
+      Type: number
+      Range: 0-65536
+      Default: 20
+    -->
+    <backlog>20</backlog>
+    <!--
+      The time in seconds, the server will leave a connection to the client
+      open, waiting for new requests from the client's browser. This will
+      reserve a slot for the client in the thread pool. If this value is too
+      high, you may meet congestion problems.
+      
+      See also: http://www.genhttp.net/board/Thread-10-3.cs
+      
+      Type: number
+      Range: 1-65536     
+      Default: 15
+    -->
+    <timeout>15</timeout>
+    <!--
+    
+      This sections contains different buffer sizes. Change these values
+      to increase the performance of the web server. 
+    
+    -->
+    <buffers>
+      <!--
+        The size of the buffer used to read data from the input stream.
+        Should be big enough to store a complete HTTP request from a client.
+        
+        Type: number
+        Range: 1-4294967296
+        Default: 1520
+      -->
+      <receive>1520</receive>
+    </buffers>
+    <!--
+      
+      This sections contains settings for the thread pool, used to handle
+      requests in the GenHTTP webserver.
+      
+    -->
+    <threads>
+      <!--
+        The maximum number of threads in the thread pool. The number will get
+        doubled for async I/O operation threads. If this value is too high,
+        the server will run into performance problems due to excessive context
+        switches. If there are many clients accessing your web server,
+        you should increase this value to prevent congestion and to minimize
+        response times. Increase this value, if there are "Congestion detected"
+        entries in the logfile of the server.
+      
+        Type: number
+        Range: 1-4294967296
+        Default: 256
+      -->
+      <max>256</max>
+    </threads>
+    <!--
+    
+      This section contains settings for the internal congestion control
+      of the GenHTTP webserver.
+    
+      - prevention
+          Enable or disable the congestion control. If there are nearly no
+          clients accessing your web server, disabling this can improve the 
+          performance of the server slightly, but there will be the risk
+          of a DoS attack on your server software.
+          
+          Type: boolean
+          Valid values: true/false
+          Default: true
+
+    -->
+    <congestion prevention="true">
+      <!--
+        This value will be used to determine, whether the server's thread pool
+        is currently congested or not. If the thread pool contains more than
+        threads.max * limit worker threads, the server will accept no more
+        keep-alive connections.
+        
+        Type: float
+        Range: 0.01-0.99
+        Default: 0.90
+      -->
+      <limit>0.90</limit>
+    </congestion>
+  </socket>
+  <!--
+  
+    This section defines, how the GenHTTP webserver handles HTTP requests. 
+  
+  -->
+  <http>
+    <!--
+      The version of the HTTP protocol which should be used for this GenHTTP
+      webserver. HTTP/1.1 supports pipelining and other techniques to speed
+      up the data transfer to the client. Use HTTP/1.0 for compatibility
+      reasons.
+      
+      Type: HTTP protocol version
+      Valid values: 1.0/1.1
+      Default: 1.1
+    -->
+    <protocol version="1.1" />
+    <!--
+    
+      This section specifies the settings for the compression algorithm used
+      by the server software. Compression can be used to reduce to traffic
+      of the webserver but will increase the CPU usage of the server slightly.
+      Compression will only be used, if the connectec client supports this
+      mechanism.
+    
+      - enabled
+          Specifiy, whether the server should compress data to send or not.
+          
+          Type: boolean
+          Valid values: true/false
+          Default: true
+    
+    -->
+    <compression enabled="true">
+      <!--
+        The algorithm used for compression.
+        
+        Type: name of a compression algorithm
+        Valid values: gzip
+        Default: gzip
+      -->
+      <algorithm>gzip</algorithm>
+      <!--
+        Responses which are smaller than this limit, will get compressed.
+        This limit is necessary because gzip needs all the content available
+        in RAM to compress it.
+        
+        Type: number
+        Range: 1-4294967296
+        Default: 1048576
+      -->
+      <limit>1048576</limit>
+      
+    </compression>
+    
+    <!--
+    
+      This section allows you to rewrite HTTP requests.
+    
+    -->
+    <rewrites>
+      <!--
+        Rewrite a HTTP request.
+        
+        - url
+            The requests to rewrite.
+            
+            Type: URL
+            Valid values: regular expression or a URL
+            
+        - to
+            You can use place holders to access groups ($1 .. $n).
+            
+            Type: URL
+            Valid values: regular expression or a URL
+            
+        - regex
+            Specify, whether the server should use an regular expression
+            for this rule or not.
+            
+            Type: boolean
+            Valid values: true/false
+      -->
+      <!-- <rewrite url="^/([a-zA-Z0-9]+)$" to="/ExampleProject/$1" regex="true" /> -->
+    </rewrites>
+    
+    <!--
+    
+      This section allows you to redirect domains to a single project.
+      
+      Example:
+      
+      Domain computerleben.net -> Project computerleben
+      Domain genhttp.net -> Project genhttp
+    
+      - enabled
+          Set this attribute to "false", if you want to disable vhosts.
+          
+          Type: boolean
+          Valid values: true/false
+          Default value: true 
+             
+    -->
+    <vhosts enabled="true">
+      <!--
+        Redirect a domain
+        
+        - domain
+            The domain to handle
+            
+            Type: domain name
+            Valid values: [a-z0-9\.-]+\.(net|com|de|...)
+            
+        - project
+            The project to redirect to
+            
+            Type: project name
+      -->
+      <!-- <vhost domain="127.0.0.1" project="ExampleProject" /> -->
+    </vhosts>
+  </http>
+  <!--
+  
+    This sections contains information about the documents handled by
+    the GenHTTP webserver.
+  
+  -->
+  <documents>
+    <!--
+      The path to the project repository root.
+      
+      Type: path
+      Valid values: relative or absolute path to the project repository
+      Default: ./projects/
+    -->
+    <root>./projects/</root>
+    <!--
+      The path to the library containing the server helper to use.
+
+      Type: file path
+      Valid values: relative or absolute path to the server helper library
+      Default: ./GenHTTP.exe
+
+      - type
+            The name of the class to instantiate in the assembly.
+
+            Type: .NET Type
+            Valid values: name of .NET type within the assembly
+            Default: nothing
+    -->    
+    <helper>./GenHTTP.Core.ServerHelper.dll</helper>
+  </documents>
+  <!--
+  
+    This section contains the settings for the logging engine.
+  
+    - console
+        Specify, whether the server should log information to the
+        console or not. Enable this for debugging.
+        Disabling the logging to the console will make the server
+        software up to 5 times faster.
+        
+        Type: boolean
+        Valid values: true/false
+        Default: true
+        
+  -->
+  <logging console="true" />
+  
+  <!--
+  
+    This section contains settings for the remote management interface.
+    
+    - enabled
+        Specify, whether the remoting interface should be available
+        or not.
+        
+        Type: boolean
+        Valid values: true/false
+        Default: true
+  
+  -->
+  <remoting enabled="true">
+    <!--
+      Define the port which should be used for the TCP channel.
+      
+      Type: unsigned short
+      Range: 0-65535
+      Default: 58000
+    -->
+    <port>58000</port>  
+
+    <!--
+      The hashed password required to manage the server remotely.
+
+      Type: hashed string
+      Default: 600A55763B4D4420 (none)
+    -->
+    <password>600A55763B4D4420</password>
+  </remoting>
+
+  <!--
+
+    This section contains some additional settings
+
+  -->
+  <misc>
+    <!--
+      Define, how much regular expressions should be cached
+
+      - size
+        Type: ushort
+        Range: 0-65536
+        Default: 15
+    -->
+    <regex size="15" />
+    
+    <!--
+      Defines the intervall of the server's timer. The server will
+      fire the timer event in this intervall.
+      
+      - intervall
+        Type: seconds
+        Range: 60-65536
+        Default: 300
+    -->
+    <timer intervall="300" />
+  </misc>
+</settings>
