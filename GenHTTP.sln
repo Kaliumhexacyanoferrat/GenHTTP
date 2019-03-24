@@ -33,6 +33,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Content", "Content", "{23B2
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Content.Basic", "Content\GenHTTP.Content.Basic\GenHTTP.Content.Basic.csproj", "{0CB8D077-0F88-4D9F-9FB3-508BE884EA99}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Content.Templating", "Content\GenHTTP.Content.Templating\GenHTTP.Content.Templating.csproj", "{7FA5BD2F-C093-4F30-ACD9-A870C7A0DAF2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +69,10 @@ Global
 		{0CB8D077-0F88-4D9F-9FB3-508BE884EA99}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0CB8D077-0F88-4D9F-9FB3-508BE884EA99}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0CB8D077-0F88-4D9F-9FB3-508BE884EA99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FA5BD2F-C093-4F30-ACD9-A870C7A0DAF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FA5BD2F-C093-4F30-ACD9-A870C7A0DAF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FA5BD2F-C093-4F30-ACD9-A870C7A0DAF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FA5BD2F-C093-4F30-ACD9-A870C7A0DAF2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -79,6 +85,7 @@ Global
 		{C2D2B8D0-CA23-4790-8C71-B245A0AB81FB} = {06A861A6-D030-4129-9F8F-4EED698D00A6}
 		{8844F524-7559-4453-BC43-6DD4647A4F45} = {2B5A5875-B182-4070-874C-DCEF41AE04E1}
 		{0CB8D077-0F88-4D9F-9FB3-508BE884EA99} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
+		{7FA5BD2F-C093-4F30-ACD9-A870C7A0DAF2} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}

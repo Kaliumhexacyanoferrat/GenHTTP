@@ -16,9 +16,9 @@ namespace GenHTTP.Api.Routing
 
         void HandleContext(IEditableRoutingContext current);
 
-        IContentProvider GetProvider(ResponseType responseType, IRoutingContext context);
+        IContentProvider GetErrorHandler(IHttpRequest request, IHttpResponse response);
 
-        IContentPage GetPage(bool error);
+        IContentPage GetPage(IHttpRequest request, IHttpResponse response);
 
     }
 

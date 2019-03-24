@@ -13,31 +13,35 @@
     <StartupObject>GenHTTP.ExampleProject.Program</StartupObject>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
+
+    <PreserveCompilationContext>true</PreserveCompilationContext>
     
   </PropertyGroup>
   
   <ItemGroup>
+    <None Remove="Pages\Index.html" />
     <None Remove="Resources\images\octocat.png" />
     <None Remove="Resources\style.css" />
+    <None Remove="Templates\Template.html" />
   </ItemGroup>
   
   <ItemGroup>
+    <EmbeddedResource Include="Pages\Index.html" />
+    <EmbeddedResource Include="Templates\Template.html" />
     <EmbeddedResource Include="Resources\style.css" />
+    <EmbeddedResource Include="Resources\images\octocat.png" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\..\API\GenHTTP.API\GenHTTP.Api.csproj" />
     <ProjectReference Include="..\..\Content\GenHTTP.Content.Basic\GenHTTP.Content.Basic.csproj" />
+    <ProjectReference Include="..\..\Content\GenHTTP.Content.Templating\GenHTTP.Content.Templating.csproj" />
     <ProjectReference Include="..\..\Hosting\GenHTTP.Hosting.Embedded\GenHTTP.Hosting.Embedded.csproj" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\images\octocat.png" />
   </ItemGroup>
   
 </Project>

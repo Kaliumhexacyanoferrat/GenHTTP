@@ -39,14 +39,14 @@ namespace GenHTTP.Hosting.Embedded.Routing
             Router.HandleContext(current);
         }
 
-        public IContentPage GetPage(bool error)
+        public IContentPage GetPage(IHttpRequest request, IHttpResponse response)
         {
-            return Parent.GetPage(error);
+            return Parent.GetPage(request, response);
         }
 
-        public IContentProvider GetProvider(ResponseType responseType, IRoutingContext context)
+        public IContentProvider GetErrorHandler(IHttpRequest request, IHttpResponse response)
         {
-            return Parent.GetProvider(responseType, context);
+            return Parent.GetErrorHandler(request, response);
         }
 
         #endregion

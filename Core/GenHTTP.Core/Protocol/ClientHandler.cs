@@ -88,13 +88,15 @@ namespace GenHTTP.Core
 
                 try
                 {
-                    var provider = routing.ContentProvider ?? routing.Router.GetProvider(ResponseType.NotFound, routing);
+                    var provider = routing.ContentProvider ?? routing.Router.GetErrorHandler(request, response);
 
                     provider.Handle(request, response);
 
                     if (!response.Sent)
                     {
-                        routing.Router.GetProvider(ResponseType.InternalServerError, routing)
+                        response.Header.Type = ResponseType.InternalServerError;
+
+                        routing.Router.GetErrorHandler(request, response)
                                       .Handle(request, response);
                     }
                 }
@@ -102,7 +104,9 @@ namespace GenHTTP.Core
                 {
                     Log.LogError(e, $"Error while handling request '{request.Path}'");
 
-                    routing.Router.GetProvider(ResponseType.InternalServerError, routing)
+                    response.Header.Type = ResponseType.InternalServerError;
+
+                    routing.Router.GetErrorHandler(request, response)
                                   .Handle(request, response);
                 }
             }

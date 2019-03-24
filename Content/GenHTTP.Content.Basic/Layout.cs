@@ -22,9 +22,9 @@ namespace GenHTTP.Content.Basic
         
         private string? Index { get; }
 
-        private Func<bool, IContentPage>? Template { get; }
+        private ITemplateProvider? Template { get; }
 
-        private Func<ResponseType, IRoutingContext, IContentProvider>? ErrorHandler { get; }
+        private IErrorHandler? ErrorHandler { get; }
 
         #endregion
 
@@ -33,8 +33,8 @@ namespace GenHTTP.Content.Basic
         public Layout(Dictionary<string, IRouter>? routes = null,
                       Dictionary<string, IContentProvider>? content = null,
                       string? index = null,
-                      Func<bool, IContentPage>? template = null,
-                      Func<ResponseType, IRoutingContext, IContentProvider>? errorHandler = null)
+                      ITemplateProvider? template = null,
+                      IErrorHandler? errorHandler = null)
         {
             Routes = routes;
             Content = content;
@@ -70,7 +70,7 @@ namespace GenHTTP.Content.Basic
             // is there a matching content provider?
             if (Content != null)
             {
-                var requested = current.ScopedPath;
+                var requested = current.ScopedPath.Substring(1);
 
                 if (Content.ContainsKey(requested))
                 {
@@ -95,26 +95,26 @@ namespace GenHTTP.Content.Basic
             }
         }
 
-        public IContentPage GetPage(bool error)
+        public IContentPage GetPage(IHttpRequest request, IHttpResponse response)
         {
             if (Template != null)
             {
-                return Template(error);
+                return Template.GetPage(request, response);
             }
 
-            return Parent.GetPage(error);
+            return Parent.GetPage(request, response);
         }
 
-        public IContentProvider GetProvider(ResponseType responseType, IRoutingContext context)
+        public IContentProvider GetErrorHandler(IHttpRequest request, IHttpResponse response)
         {
             if (ErrorHandler != null)
             {
-                return ErrorHandler(responseType, context);
+                return ErrorHandler.GetContent(request, response);
             }
 
-            return Parent.GetProvider(responseType, context);
+            return Parent.GetErrorHandler(request, response);
         }
-
+        
         #endregion
 
     }

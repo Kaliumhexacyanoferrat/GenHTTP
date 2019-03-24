@@ -47,21 +47,23 @@ namespace GenHTTP.Core.Routing
             Router.HandleContext(current);
         }
 
-        public IContentPage GetPage(bool error)
+        public IContentPage GetPage(IHttpRequest request, IHttpResponse response)
         {
             return new ContentPage(Server);
         }
 
-        public IContentProvider GetProvider(ResponseType responseType, IRoutingContext context)
+        public IContentProvider GetErrorHandler(IHttpRequest request, IHttpResponse response)
         {
-            var isError = (int)responseType >= 400;
+            var type = response.Header.Type;
 
-            var page = context.Router.GetPage(isError);
+            var isError = (int)type >= 400;
 
-            page.Title = responseType.ToString();
-            page.Content = $"Server returned with response type '{responseType}'.";
+            var page = request.Routing.Router.GetPage(request, response);
+            
+            page.Title = type.ToString();
+            page.Content = $"Server returned with response type '{type}'.";
 
-            return new ContentPageProvider(page, responseType);
+            return new ContentPageProvider(page, type);
         }
         
         #endregion
