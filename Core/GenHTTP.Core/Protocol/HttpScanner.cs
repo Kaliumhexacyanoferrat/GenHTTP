@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-using GenHTTP.Patterns;
-
 namespace GenHTTP.Core
 {
 
@@ -35,30 +33,10 @@ namespace GenHTTP.Core
         private bool _UseContentPattern = false;
         private StringBuilder _ToScan;
 
-        private static PatternWhitespace _PatternWhitespace;
-        private static PatternHttp _PatternHttp;
-        private static PatternMethod _PatternMethod;
-        private static PatternUrl _PatternUrl;
-        private static PatternHeaderDefinition _PatternHeaderDefinition;
-        private static PatternHeaderContent _PatternHeaderContent;
-        private static PatternNewLine _PatternNewLine;
-
         private string _PatternContent = @"^(.+)";
 
         internal HttpScanner()
         {
-            // initialize reg ex objects on first use
-            if (_PatternWhitespace == null)
-            {
-                _PatternWhitespace = new PatternWhitespace();
-                _PatternHttp = new PatternHttp();
-                _PatternMethod = new PatternMethod();
-                _PatternUrl = new PatternUrl();
-                _PatternHeaderDefinition = new PatternHeaderDefinition();
-                _PatternHeaderContent = new PatternHeaderContent();
-                _PatternNewLine = new PatternNewLine();
-            }
-            // init string builder
             _ToScan = new StringBuilder();
         }
 
@@ -77,21 +55,52 @@ namespace GenHTTP.Core
         {
             if (!_UseContentPattern)
             {
-                IsMatch(_PatternWhitespace);
-                if (IsMatch(_PatternHttp)) return _Current = HttpToken.Http;
-                if (IsMatch(_PatternMethod)) { _LastTokenMethod = true; return _Current = HttpToken.Method; }
+                IsMatch(Pattern.WHITESPACE);
+
+                if (IsMatch(Pattern.HTTP))
+                {
+                    return _Current = HttpToken.Http;
+                }
+
+                if (IsMatch(Pattern.METHOD))
+                {
+                    _LastTokenMethod = true;
+                    return _Current = HttpToken.Method;
+                }
+
                 if (_LastTokenMethod)
                 {
-                    if (IsMatch(_PatternUrl)) { _LastTokenMethod = false; return _Current = HttpToken.Url; }
+                    if (IsMatch(Pattern.URL))
+                    {
+                        _LastTokenMethod = false;
+                        return _Current = HttpToken.Url;
+                    }
                 }
-                if (IsMatch(_PatternHeaderDefinition)) return _Current = HttpToken.HeaderDefinition;
-                if (IsMatch(_PatternHeaderContent)) return _Current = HttpToken.HeaderContent;
-                if (IsMatch(_PatternNewLine)) return _Current = HttpToken.NewLine;
+
+                if (IsMatch(Pattern.HEADER_DEFINITION))
+                {
+                    return _Current = HttpToken.HeaderDefinition;
+                }
+
+                if (IsMatch(Pattern.HEADER_CONTENT))
+                {
+                    return _Current = HttpToken.HeaderContent;
+                }
+
+                if (IsMatch(Pattern.NEW_LINE))
+                {
+                    return _Current = HttpToken.NewLine;
+                }
             }
             else
             {
-                if (IsMatch(_PatternContent)) { _UseContentPattern = false; return _Current = HttpToken.Content; }
+                if (IsMatch(_PatternContent))
+                {
+                    _UseContentPattern = false;
+                    return _Current = HttpToken.Content;
+                }
             }
+
             return _Current = HttpToken.Unknown;
         }
 
@@ -104,6 +113,7 @@ namespace GenHTTP.Core
         private bool IsMatch(Regex re)
         {
             string content = _ToScan.ToString();
+            
             if (re.IsMatch(content))
             {
                 Match m = re.Match(content);
@@ -111,6 +121,7 @@ namespace GenHTTP.Core
                 _ToScan.Remove(0, m.Length);
                 return true;
             }
+
             return false;
         }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace GenHTTP.Core
 {
@@ -9,29 +10,27 @@ namespace GenHTTP.Core
     /// <summary>
     /// Regular expressions used by this server.
     /// </summary>
-    public static class Pattern
+    internal static class Pattern
     {
 
-        /// <summary>
-        /// The format of a http request this server can handle.
-        /// </summary>
-        public static readonly string HTTP_REQUEST = @"^(GET|POST|HEAD) ([^ ]+) HTTP/([0-9])\.([0-9])$";
+        public static readonly Regex HTTP = new Regex(@"^HTTP/((?:1\.0)|(?:1\.1))\r\n");
 
-        /// <summary>
-        /// A header field in a http request.
-        /// </summary>
-        public static readonly string HTTP_REQUEST_FIELD = @"^([0-9a-zA-Z\-]+)\:(?:[ ]*)(.*)$";
+        public static readonly Regex METHOD = new Regex("^(GET|POST|HEAD)");
 
-        /// <summary>
-        /// A cookie definition in a header field.
-        /// </summary>
-        public static readonly string HTTP_REQUEST_COOKIE = @"^([^=]+)=([^;]*)";
+        public static readonly Regex URL = new Regex("^([^ ]+) ");
 
-        /// <summary>
-        /// A file request relating to a project.
-        /// </summary>
-        public static readonly string GenHTTP_PROJECT_REQUEST = @"^/([^/]+)/";
+        public static readonly Regex NEW_LINE = new Regex(@"^(\r\n)");
 
+        public static readonly Regex WHITESPACE = new Regex(@"^([ \t]+)");
+
+        public static readonly Regex CONTENT = new Regex("^(.+)");
+
+        public static readonly Regex GET_PARAMETER = new Regex("([^&=]+)=([^&]*)");
+
+        public static readonly Regex HEADER_DEFINITION = new Regex(@"^([^: \n]+): ");
+
+        public static readonly Regex HEADER_CONTENT = new Regex(@"^([^\n]+)\r\n");
+        
     }
 
 }

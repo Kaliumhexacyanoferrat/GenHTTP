@@ -61,12 +61,15 @@ namespace GenHTTP.Core
             _BodyAvailable = false;
             _Scanner = new HttpScanner();
             _CurrentRequest = new HttpRequest(_Handler);
+
             // create new buffer to store retrieved data
             _SocketBuffer = new byte[_BufferSize];
+
             try
             {
                 // begin to retrieve data
                 _Socket.BeginReceive(_SocketBuffer, 0, _BufferSize, SocketFlags.None, new AsyncCallback(RecievedData), null);
+                
                 // block this thread, waiting for timeout
                 while (_Socket.Connected && !Timeout) Thread.Sleep(10);
             }
@@ -80,30 +83,6 @@ namespace GenHTTP.Core
             }
         }
 
-        private bool RefreshConnectionState()
-        {
-            bool ret = true;
-            bool blockingState = _Socket.Blocking;
-            try
-            {
-                byte[] tmp = new byte[1];
-                _Socket.Blocking = false;
-                _Socket.Send(tmp, 0, 0);
-            }
-            catch (SocketException e)
-            {
-                if (e.NativeErrorCode.Equals(10035))
-                {
-                    ret = false;
-                }
-            }
-            finally
-            {
-                _Socket.Blocking = blockingState;
-            }
-            return ret;
-        }
-
         private void RecievedData(IAsyncResult result)
         {
             try
@@ -112,8 +91,13 @@ namespace GenHTTP.Core
                 int read = _Socket.EndReceive(result);
                 if (read == 0) return;
                 _Scanner.AddToScan(Encoding.ASCII.GetString(_SocketBuffer, 0, read));
+
                 // parse it
-                while (_Scanner.NextToken() != HttpToken.Unknown) Parse();
+                while (_Scanner.NextToken() != HttpToken.Unknown)
+                {
+                    Parse();
+                }
+
                 // and enqueue again
                 _Socket.BeginReceive(_SocketBuffer, 0, _BufferSize, SocketFlags.None, new AsyncCallback(RecievedData), null);
             }
@@ -131,24 +115,28 @@ namespace GenHTTP.Core
                     _CurrentRequest.ParseType(_Scanner.Value);
                     return;
                 }
+
                 // HTTP version
                 if (_Scanner.Current == HttpToken.Http)
                 {
                     _CurrentRequest.ParseHttp(_Scanner.Value);
                     return;
                 }
+
                 // URL
                 if (_Scanner.Current == HttpToken.Url)
                 {
                     _CurrentRequest.ParseURL(_Scanner.Value);
                     return;
                 }
+
                 // Save header field
                 if (_Scanner.Current == HttpToken.HeaderDefinition)
                 {
                     _CurrentHeader = _Scanner.Value;
                     return;
                 }
+
                 // Value of a header field
                 if (_Scanner.Current == HttpToken.HeaderContent)
                 {
@@ -157,9 +145,11 @@ namespace GenHTTP.Core
                         _Scanner.SetContentLength(Convert.ToInt64(_Scanner.Value));
                         _BodyAvailable = true;
                     }
+
                     _CurrentRequest.ParseHeaderField(_CurrentHeader, _Scanner.Value);
                     return;
                 }
+
                 // new line, check for content
                 if (_Scanner.Current == HttpToken.NewLine)
                 {
@@ -175,6 +165,7 @@ namespace GenHTTP.Core
                         HandleRequest();
                     }
                 }
+
                 // content
                 if (_Scanner.Current == HttpToken.Content)
                 {

@@ -5,9 +5,10 @@ using System.Net.Sockets;
 
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Routing;
+using GenHTTP.Api.Content;
 
 using Microsoft.Extensions.Logging;
-using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Core
 {
@@ -29,6 +30,8 @@ namespace GenHTTP.Core
         public ClientHandler(Socket socket, Server server)
         {
             Connection = socket;
+            NetworkStream = new NetworkStream(socket, false);
+
             _Server = server;
 
             Log = server.LoggerFactory.CreateLogger<ClientHandler>();
@@ -41,6 +44,8 @@ namespace GenHTTP.Core
         protected ILogger Log { get; }
 
         protected Socket Connection { get; }
+
+        protected NetworkStream NetworkStream { get; }
 
         /// <summary>
         /// The server this handler relates to.
@@ -73,6 +78,13 @@ namespace GenHTTP.Core
                 parser.Run();
             }
             catch { }
+            finally
+            {
+                if (NetworkStream != null)
+                {
+                    NetworkStream.Dispose();
+                }
+            }
         }
 
         internal bool HandleRequest(HttpRequest request, bool keepAlive)
@@ -88,7 +100,17 @@ namespace GenHTTP.Core
 
                 try
                 {
-                    var provider = routing.ContentProvider ?? routing.Router.GetErrorHandler(request, response);
+                    IContentProvider provider;
+
+                    if (routing.ContentProvider != null)
+                    {
+                        provider = routing.ContentProvider;
+                    }
+                    else
+                    {
+                        response.Header.Type = ResponseType.NotFound;
+                        provider = routing.Router.GetErrorHandler(request, response);
+                    }
 
                     provider.Handle(request, response);
 
@@ -128,16 +150,9 @@ namespace GenHTTP.Core
 
         internal void Send(Stream content)
         {
-            // ToDo: Rework this to be async and not wasting resources like hell
             try
             {
-                using (var mem = new MemoryStream())
-                {
-                    content.CopyTo(mem);
-                    mem.Seek(0, SeekOrigin.Begin);
-
-                    Connection.Send(mem.ToArray());
-                }
+                content.CopyTo(NetworkStream);
             }
             catch
             {
@@ -147,7 +162,7 @@ namespace GenHTTP.Core
 
         internal void SendBytes(byte[] content)
         {
-            Connection.Send(content);
+            NetworkStream.Write(content, 0, content.Length);
         }
 
         #endregion

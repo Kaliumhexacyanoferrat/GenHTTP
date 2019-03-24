@@ -32,11 +32,5 @@
   <ItemGroup>
     <ProjectReference Include="..\..\API\GenHTTP.API\GenHTTP.Api.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="GenHTTP.Patterns">
-      <HintPath>..\..\Lib\GenHTTP.Patterns.dll</HintPath>
-    </Reference>
-  </ItemGroup>
   
 </Project>

@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
-using GenHTTP.Patterns;
 
 namespace GenHTTP.Core
 {
@@ -210,10 +209,8 @@ namespace GenHTTP.Core
             if (pos > -1)
             {
                 string getPart = (_Path.Length > pos) ? _Path.Substring(pos + 1) : "";
-
-                PatternGetParameter get = new PatternGetParameter();
-
-                foreach (Match m in get.Matches(getPart))
+                
+                foreach (Match m in Pattern.GET_PARAMETER.Matches(getPart))
                 {
                     // add this get parameter only, if it does not exist yet
                     if (!_GetFields.ContainsKey(m.Groups[1].Value))
