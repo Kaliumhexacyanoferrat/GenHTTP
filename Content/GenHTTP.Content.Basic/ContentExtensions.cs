@@ -11,7 +11,8 @@ namespace GenHTTP.Content.Basic
     {
         private static readonly Dictionary<string, ContentType> CONTENT_TYPES = new Dictionary<string, ContentType>()
         {
-            { "png", ContentType.ImagePng }, { "jpg", ContentType.ImageJpg }
+            { "png", ContentType.ImagePng }, { "jpg", ContentType.ImageJpg },
+            { "css", ContentType.TextCss }
             // ToDo
         };
 

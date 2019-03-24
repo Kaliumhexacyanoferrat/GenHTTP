@@ -74,6 +74,7 @@ Global
 		{7FA5BD2F-C093-4F30-ACD9-A870C7A0DAF2} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
+		LessCompiler = 2603124e-1287-4d61-9540-6ac3efad4eb9
 		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
 	EndGlobalSection
 EndGlobal

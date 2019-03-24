@@ -68,6 +68,11 @@ namespace GenHTTP.Api.Routing
             ScopedPath = '/' + relativeUrl;
         }
 
+        public string? Route(string route)
+        {
+            return route;
+        }
+
         #endregion
 
     }

@@ -32,10 +32,10 @@ namespace GenHTTP.ExampleProject
                 },
                 content: new Dictionary<string, IContentProvider>
                 {
-                    { "index", new ScribanContent<ScribanContentViewModel>(LoadTemplate("Pages.Index"), (_) => new ScribanContentViewModel() { Title = "Index" }) }
+                    { "index", new TemplatedContent<TemplatedContentViewModel>(LoadTemplate("Pages.Index"), (_) => new TemplatedContentViewModel() { Title = "Index" }) }
                 },
                 index: "index",
-                template: new ScribanTemplate(LoadTemplate("Templates.Template"))
+                template: new TemplatedTemplate<TemplatedTemplateViewModel>(LoadTemplate("Templates.Template"), (rq, rs) => new TemplatedTemplateViewModel(rq, rs))
             );
 
             using (var server = EmbeddedServer.Run(content, loggerFactory))

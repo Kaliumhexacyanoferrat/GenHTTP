@@ -7,21 +7,24 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Content.Templating
 {
-
-    public class ScribanTemplate : ITemplateProvider
+     
+    public class TemplatedTemplate<T> : ITemplateProvider where T : TemplatedTemplateViewModel
     {
 
         #region Get-/Setters
 
         public string Template { get; }
 
+        public Func<IHttpRequest, IHttpResponse, T> ViewModelProvider { get; }
+
         #endregion
 
         #region Initialization
 
-        public ScribanTemplate(string template)
+        public TemplatedTemplate(string template, Func<IHttpRequest, IHttpResponse, T> viewModelProvider)
         {
             Template = template;
+            ViewModelProvider = viewModelProvider;
         }
 
         #endregion
@@ -29,8 +32,10 @@ namespace GenHTTP.Content.Templating
         #region Functionality
 
         public IContentPage GetPage(IHttpRequest request, IHttpResponse response)
-        {            
-            return new ScribanPage(Template, new ScribanTemplateViewModel(request, response));
+        {
+            var viewModel = ViewModelProvider(request, response);
+
+            return new TemplatedPage(Template, viewModel);
         }
 
         #endregion

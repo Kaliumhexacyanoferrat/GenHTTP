@@ -5,7 +5,7 @@ using System.Text;
 namespace GenHTTP.Content.Templating
 {
 
-    public class ScribanContentViewModel
+    public class TemplatedContentViewModel
     {
 
         public string? Title { get; set; }

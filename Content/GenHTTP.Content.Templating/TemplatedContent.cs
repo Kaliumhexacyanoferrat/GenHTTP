@@ -9,7 +9,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Content.Templating
 {
     
-    public class ScribanContent<T> : ScribanBased<T>, IContentProvider where T : ScribanContentViewModel
+    public class TemplatedContent<T> : TemplateBased<T>, IContentProvider where T : TemplatedContentViewModel
     {
 
         #region Get-/Setters
@@ -20,7 +20,7 @@ namespace GenHTTP.Content.Templating
 
         #region Initialization
 
-        public ScribanContent(string template, Func<IHttpRequest, T> viewModelProvider) : base(template)
+        public TemplatedContent(string template, Func<IHttpRequest, T> viewModelProvider) : base(template)
         {
             ViewModelProvider = viewModelProvider;
         }

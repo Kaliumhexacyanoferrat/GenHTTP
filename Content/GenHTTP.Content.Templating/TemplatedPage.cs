@@ -1,13 +1,14 @@
-﻿using GenHTTP.Api.Content.Pages;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
+using GenHTTP.Api.Content.Pages;
+
 namespace GenHTTP.Content.Templating
 {
 
-    internal class ScribanPage : ScribanBased<ScribanTemplateViewModel>, IContentPage
+    internal class TemplatedPage : TemplateBased<TemplatedTemplateViewModel>, IContentPage
     {
 
         #region Get-/Setters
@@ -24,13 +25,13 @@ namespace GenHTTP.Content.Templating
             set => ViewModel.Content = value;
         }
 
-        internal ScribanTemplateViewModel ViewModel { get; }
+        internal TemplatedTemplateViewModel ViewModel { get; }
 
         #endregion
 
         #region Initialization
 
-        internal ScribanPage(string template, ScribanTemplateViewModel viewModel) : base(template)
+        internal TemplatedPage(string template, TemplatedTemplateViewModel viewModel) : base(template)
         {
             ViewModel = viewModel;
         }

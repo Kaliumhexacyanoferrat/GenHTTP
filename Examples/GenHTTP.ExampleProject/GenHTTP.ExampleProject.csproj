@@ -20,18 +20,58 @@
   
   <ItemGroup>
     <None Remove="Pages\Index.html" />
-    <None Remove="Resources\images\octocat.png" />
-    <None Remove="Resources\style.css" />
+    <None Remove="Resources\images\background.jpg" />
+    <None Remove="Resources\scripts\jquery.backtotop.js" />
+    <None Remove="Resources\scripts\jquery.min.js" />
+    <None Remove="Resources\scripts\jquery.mobilemenu.js" />
+    <None Remove="Resources\styles\fontawesome.min.css" />
+    <None Remove="Resources\styles\framework.css" />
+    <None Remove="Resources\styles\layout.css" />
+    <None Remove="Resources\styles\webfonts\fa-brands-400.eot" />
+    <None Remove="Resources\styles\webfonts\fa-brands-400.svg" />
+    <None Remove="Resources\styles\webfonts\fa-brands-400.ttf" />
+    <None Remove="Resources\styles\webfonts\fa-brands-400.woff" />
+    <None Remove="Resources\styles\webfonts\fa-brands-400.woff2" />
+    <None Remove="Resources\styles\webfonts\fa-regular-400.eot" />
+    <None Remove="Resources\styles\webfonts\fa-regular-400.svg" />
+    <None Remove="Resources\styles\webfonts\fa-regular-400.ttf" />
+    <None Remove="Resources\styles\webfonts\fa-regular-400.woff" />
+    <None Remove="Resources\styles\webfonts\fa-regular-400.woff2" />
+    <None Remove="Resources\styles\webfonts\fa-solid-900.eot" />
+    <None Remove="Resources\styles\webfonts\fa-solid-900.svg" />
+    <None Remove="Resources\styles\webfonts\fa-solid-900.ttf" />
+    <None Remove="Resources\styles\webfonts\fa-solid-900.woff" />
+    <None Remove="Resources\styles\webfonts\fa-solid-900.woff2" />
     <None Remove="Templates\Template.html" />
   </ItemGroup>
   
   <ItemGroup>
     <EmbeddedResource Include="Pages\Index.html" />
+    <EmbeddedResource Include="Resources\images\background.jpg" />
+    <EmbeddedResource Include="Resources\scripts\jquery.backtotop.js" />
+    <EmbeddedResource Include="Resources\scripts\jquery.min.js" />
+    <EmbeddedResource Include="Resources\scripts\jquery.mobilemenu.js" />
+    <EmbeddedResource Include="Resources\styles\fontawesome.min.css" />
+    <EmbeddedResource Include="Resources\styles\framework.css" />
+    <EmbeddedResource Include="Resources\styles\layout.css" />
+    <EmbeddedResource Include="Resources\styles\webfonts\fa-brands-400.eot" />
+    <EmbeddedResource Include="Resources\styles\webfonts\fa-brands-400.svg" />
+    <EmbeddedResource Include="Resources\styles\webfonts\fa-brands-400.ttf" />
+    <EmbeddedResource Include="Resources\styles\webfonts\fa-brands-400.woff" />
+    <EmbeddedResource Include="Resources\styles\webfonts\fa-brands-400.woff2" />
+    <EmbeddedResource Include="Resources\styles\webfonts\fa-regular-400.eot" />
+    <EmbeddedResource Include="Resources\styles\webfonts\fa-regular-400.svg" />
+    <EmbeddedResource Include="Resources\styles\webfonts\fa-regular-400.ttf" />
+    <EmbeddedResource Include="Resources\styles\webfonts\fa-regular-400.woff" />
+    <EmbeddedResource Include="Resources\styles\webfonts\fa-regular-400.woff2" />
+    <EmbeddedResource Include="Resources\styles\webfonts\fa-solid-900.eot" />
+    <EmbeddedResource Include="Resources\styles\webfonts\fa-solid-900.svg" />
+    <EmbeddedResource Include="Resources\styles\webfonts\fa-solid-900.ttf" />
+    <EmbeddedResource Include="Resources\styles\webfonts\fa-solid-900.woff" />
+    <EmbeddedResource Include="Resources\styles\webfonts\fa-solid-900.woff2" />
     <EmbeddedResource Include="Templates\Template.html" />
-    <EmbeddedResource Include="Resources\style.css" />
-    <EmbeddedResource Include="Resources\images\octocat.png" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />

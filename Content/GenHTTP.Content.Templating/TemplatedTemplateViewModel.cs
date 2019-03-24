@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Text;
 
 using GenHTTP.Api.Protocol;
+using GenHTTP.Content.Templating.Functions;
 
 namespace GenHTTP.Content.Templating
 {
-
-    internal class ScribanTemplateViewModel
+    
+    public class TemplatedTemplateViewModel
     {
 
         #region Get-/Setters
@@ -19,19 +20,27 @@ namespace GenHTTP.Content.Templating
         public string Title { get; set; }
 
         public string Content { get; set; }
-
+        
         #endregion
 
         #region Initialization
 
-        public ScribanTemplateViewModel(IHttpRequest request, IHttpResponse response)
+        public TemplatedTemplateViewModel(IHttpRequest request, IHttpResponse response)
         {
             Request = request;
             Response = response;
 
             Title = "";
             Content = "";
+
+            Route = new RoutingMethod(Request.Routing);
         }
+
+        #endregion
+
+        #region Functionality
+
+        public RoutingMethod Route { get; }
 
         #endregion
 

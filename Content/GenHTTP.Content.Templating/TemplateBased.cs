@@ -8,7 +8,7 @@ using Scriban;
 namespace GenHTTP.Content.Templating
 {
     
-    public class ScribanBased<T>
+    public class TemplateBased<T>
     {
 
         #region Get-/Setters
@@ -19,9 +19,9 @@ namespace GenHTTP.Content.Templating
 
         #region Initialization
 
-        protected ScribanBased(string template)
+        protected TemplateBased(string template)
         {
-            Template = Template.Parse(template);
+            Template = Template.Parse(template); 
         }
 
         #endregion

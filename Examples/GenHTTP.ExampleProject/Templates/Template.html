@@ -1,13 +1,87 @@
 ﻿<!DOCTYPE html>
+<!--
+Template Name: Besloor
+Author: <a href="https://www.os-templates.com/">OS Templates</a>
+Author URI: https://www.os-templates.com/
+Copyright: OS-Templates.com
+Licence: Free to use under our free template licence terms
+Licence URI: https://www.os-templates.com/template-terms
+-->
+<html lang="en">
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta charset="utf-8" />
-    <title>{{title}}</title>
+    <title>{{ title }}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="{{ route 'res/styles/layout.css' }}" rel="stylesheet" type="text/css" media="all">
 </head>
-<body>
 
-    {{content}}
+<body id="top">
+
+    <div class="bgded overlay" style="background-image:url('{{ route 'res/images/background.jpg' }}');">
+
+        <div class="wrapper row0">
+            <div id="topbar" class="hoc clear">
+                <div class="fl_left">
+
+                </div>
+                <div class="fl_right">
+                    <ul class="nospace">
+                        <li><a href="{{ route '' }}"><i class="fas fa-home"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="wrapper row1">
+
+            <header id="header" class="hoc clear">
+
+                <div id="logo" class="fl_left">
+                    <h1 style="text-transform: none;"><a href="index.html">GenHTTP</a></h1>
+                </div>
+
+                <nav id="mainav" class="fl_right">
+
+                    <ul class="clear">
+
+                        <li class="active"><a href="{{ route '' }}">Home</a></li>
+
+                    </ul>
+
+                </nav>
+
+            </header>
+        </div>
+
+        <div id="pageintro" class="hoc clear">
+
+            <article class="center">
+                <h3 class="heading underline">GenHTTP Webserver</h3>
+                <p>Lightweight web server written in pure C# and with only a few dependencies to 3rd-party libraries.</p>
+                <footer><a class="btn" href="#features">Features</a></footer>
+            </article>
+
+        </div>
+
+    </div>
+
+    {{ content }}
+
+    <div class="wrapper row5">
+        <div id="copyright" class="hoc clear">
+            <p class="fl_left">2019 - <a href="https://github.com/Kaliumhexacyanoferrat/GenHTTP">GenHTTP Webserver</a></p>
+            <p class="fl_right">Template by <a target="_blank" href="https://www.os-templates.com/" title="Free Website Templates">OS Templates</a></p>
+        </div>
+    </div>
+
+    <a id="backtotop" href="#top"><i class="fas fa-chevron-up"></i></a>
+
+    <!-- JAVASCRIPTS -->
+    <script src="{{ route 'res/scripts/jquery.min.js' }}"></script>
+    <script src="{{ route 'res/scripts/jquery.backtotop.js' }}"></script>
+    <script src="{{ route 'res/scripts/jquery.mobilemenu.js' }}"></script>
 
 </body>
+
 </html>

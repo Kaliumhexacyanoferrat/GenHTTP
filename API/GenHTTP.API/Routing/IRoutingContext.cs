@@ -18,6 +18,8 @@ namespace GenHTTP.Api.Routing
         string ScopedPath { get; }
 
         IContentProvider? ContentProvider { get; }
+
+        string? Route(string route);
         
     }
 
