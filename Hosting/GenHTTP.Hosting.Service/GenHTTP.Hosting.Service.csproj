@@ -7,6 +7,9 @@
     <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
     <StartupObject>GenHTTP.Hosting.Service.Program</StartupObject>
 
+    <LangVersion>8.0</LangVersion>
+    <NullableContextOptions>enable</NullableContextOptions>
+    
   </PropertyGroup>
 
   <ItemGroup>

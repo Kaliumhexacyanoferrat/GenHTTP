@@ -1,5 +1,0 @@
-#
-# robots.txt
-#
-# You can add rules for bots here
-#

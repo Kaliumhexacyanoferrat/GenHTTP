@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+
+    <TargetFramework>netstandard2.0</TargetFramework>
     
-    <TargetFramework>netcoreapp3.0</TargetFramework>
-    <LangVersion>default</LangVersion>
-    
-    <OutputPath>../../Dist/</OutputPath>
-    
+    <LangVersion>8.0</LangVersion>
+    <NullableContextOptions>enable</NullableContextOptions>
+        
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
     
     <FileVersion>2.0.0.0</FileVersion>

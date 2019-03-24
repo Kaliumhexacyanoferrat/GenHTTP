@@ -3,25 +3,27 @@
   <PropertyGroup>
     
     <TargetFramework>netcoreapp3.0</TargetFramework>
+
+    <LangVersion>8.0</LangVersion>
+    <NullableContextOptions>enable</NullableContextOptions>
     
     <AssemblyTitle>GenHTTP Example Project</AssemblyTitle>
     <Description>Demonstrates, how the GenHTTP-Server basically works</Description>
     <Copyright>Copyright © 2019</Copyright>
+    <StartupObject>GenHTTP.ExampleProject.Program</StartupObject>
+    <ApplicationIcon />
+    <OutputType>Exe</OutputType>
     
   </PropertyGroup>
   
   <ItemGroup>
-    <Compile Remove="Dist\**" />
-    <EmbeddedResource Remove="Dist\**" />
-    <None Remove="Dist\**" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
   </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\..\API\GenHTTP.API\GenHTTP.Api.csproj" />
+    <ProjectReference Include="..\..\Hosting\GenHTTP.Hosting.Embedded\GenHTTP.Hosting.Embedded.csproj" />
   </ItemGroup>
-  
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy $(TargetPath) $(SolutionDir)Dist\netcoreapp3.0\projects\ExampleProject\$(TargetFileName)" />
-  </Target>
   
 </Project>

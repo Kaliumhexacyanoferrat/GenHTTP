@@ -4,14 +4,15 @@
     
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <OutputType>Exe</OutputType>
+
+    <LangVersion>8.0</LangVersion>
+    <NullableContextOptions>enable</NullableContextOptions>
    
     <RootNamespace>GenHTTP.Hosting.Standalone</RootNamespace>
     <AssemblyName>GenHTTP.Hosting.Standalone</AssemblyName>    
     <AssemblyTitle>GenHTTP Standalone Server</AssemblyTitle>   
     <Product>GenHTTP</Product>
     <Description>Allows you to run an instance of the GenHTTP webserver</Description>
-
-    <OutputPath>../../Dist/</OutputPath>
 
     <StartupObject>GenHTTP.Hosting.Standalone.Program</StartupObject>
 

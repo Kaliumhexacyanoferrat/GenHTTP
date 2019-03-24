@@ -29,9 +29,9 @@ namespace GenHTTP
         /// <param name="args">The args to handle</param>
         protected override void OnStart(string[] args)
         {
-            _Server = new Server();
-            _Thread = new Thread(new ThreadStart(_Server.Listen));
-            _Thread.Start();
+            //_Server = new Server();
+            //_Thread = new Thread(new ThreadStart(_Server.Listen));
+            //_Thread.Start();
         }
 
         /// <summary>
@@ -39,8 +39,7 @@ namespace GenHTTP
         /// </summary>
         protected override void OnStop()
         {
-            _Server.Dump();
-            _Server.Shutdown();
+            //_Server.Dispose();
         }
 
         private void InitializeComponent()

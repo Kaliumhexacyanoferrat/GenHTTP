@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.ServiceProcess;
-using GenHTTP.Api.Http;
 using GenHTTP.Core;
 
 namespace GenHTTP.Hosting.Standalone
@@ -15,7 +14,9 @@ namespace GenHTTP.Hosting.Standalone
 
         public static void Main(string[] args)
         {
-            try
+            // ToDo: Reimplement
+
+            /*try
             {
                 // check, whether the help argument is given to the application
                 foreach (string arg in args)
@@ -83,7 +84,7 @@ namespace GenHTTP.Hosting.Standalone
             {
                 Console.WriteLine(e.Message + Environment.NewLine + Environment.NewLine + e.StackTrace);
                 Console.ReadLine();
-            }
+            }*/
         }
 
     }
