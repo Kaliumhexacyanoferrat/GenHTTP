@@ -18,7 +18,6 @@ namespace GenHTTP.Api.Protocol
             if (type == ContentType.TextHtml) return "text/html";
             if (type == ContentType.TextCss) return "text/css";
             if (type == ContentType.ApplicationJavaScript) return "application/javascript";
-            if (type == ContentType.TextJavaScript) return "text/javascript";
             if (type == ContentType.ImageIcon) return "image/vnd.microsoft.icon";
             if (type == ContentType.ImageGif) return "image/gif";
             if (type == ContentType.ImageJpg) return "image/jpg";

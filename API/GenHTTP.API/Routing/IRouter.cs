@@ -14,7 +14,7 @@ namespace GenHTTP.Api.Routing
 
         IRouter Parent { get; set; }
 
-        IRoutingContext GetContext(IHttpRequest request);
+        void HandleContext(IEditableRoutingContext current);
 
         IContentProvider GetProvider(ResponseType responseType, IRoutingContext context);
 

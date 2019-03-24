@@ -42,9 +42,9 @@ namespace GenHTTP.Core.Routing
 
         #region Functionality
 
-        public IRoutingContext GetContext(IHttpRequest request)
+        public void HandleContext(IEditableRoutingContext current)
         {
-            return Router.GetContext(request);
+            Router.HandleContext(current);
         }
 
         public IContentPage GetPage(bool error)
@@ -63,7 +63,7 @@ namespace GenHTTP.Core.Routing
 
             return new ContentPageProvider(page, responseType);
         }
-
+        
         #endregion
 
     }

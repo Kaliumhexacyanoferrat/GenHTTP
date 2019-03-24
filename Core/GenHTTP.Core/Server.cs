@@ -38,7 +38,11 @@ namespace GenHTTP.Core
         /// <param name="response">The response which was sent</param>
         internal void CallCompletionEvent(IHttpRequest request, IHttpResponse response)
         {
-            if (request != null && response != null && OnRequestHandled != null) OnRequestHandled(request, response);
+            if (request != null && response != null)
+            {
+                Log.LogInformation($"{response.ClientHandler.IPAddress} {request.Type} {request.Path} {response.Header.Type} {response.ContentLenght}");
+                OnRequestHandled?.Invoke(request, response);
+            }
         }
 
         #endregion
@@ -129,33 +133,6 @@ namespace GenHTTP.Core
                 } while (!_Exit);
             }
             catch { }
-        }
-
-        #endregion
-
-        #region Helpers
-        
-        internal void LogRequest(HttpRequest request, HttpResponse response)
-        {
-            // ToDo
-
-            /*lock (_Log)
-            {
-                _Log.WriteTimestamp();
-                _Log.WriteColored(response.ClientHandler.IP.PadRight(14, ' '), ConsoleColor.Yellow);
-                string status = Mapping.GetStatusCode(response.Header.Type);
-                if (status.StartsWith("4") || status.StartsWith("5"))
-                {
-                    _Log.WriteColored(" " + Mapping.GetStatusCode(response.Header.Type), ConsoleColor.Red);
-                }
-                else
-                {
-                    _Log.WriteColored(" " + Mapping.GetStatusCode(response.Header.Type), ConsoleColor.Green);
-                }
-                _Log.WriteColored(" " + HttpRequest.GetRequestTypeName(request.Type), ConsoleColor.White);
-                _Log.WriteColored(" " + request.File, ConsoleColor.Gray);
-                _Log.WriteRightAlign(response.ContentLenght.ToString().PadLeft(5, ' '), ConsoleColor.DarkMagenta);
-            }*/
         }
 
         #endregion

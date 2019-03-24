@@ -17,13 +17,27 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <None Remove="Resources\images\octocat.png" />
+    <None Remove="Resources\style.css" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\style.css" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
   </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\..\API\GenHTTP.API\GenHTTP.Api.csproj" />
+    <ProjectReference Include="..\..\Content\GenHTTP.Content.Basic\GenHTTP.Content.Basic.csproj" />
     <ProjectReference Include="..\..\Hosting\GenHTTP.Hosting.Embedded\GenHTTP.Hosting.Embedded.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\images\octocat.png" />
   </ItemGroup>
   
 </Project>

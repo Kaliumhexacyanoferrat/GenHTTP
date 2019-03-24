@@ -26,15 +26,17 @@ namespace GenHTTP.Hosting.Embedded.Routing
         {
             Router = router;
             Router.Parent = this;
-        } 
+        }
 
         #endregion
 
         #region Functionality
 
-        public IRoutingContext GetContext(IHttpRequest request)
+        public void HandleContext(IEditableRoutingContext current)
         {
-            return Router.GetContext(request);
+            current.Scope(this);
+
+            Router.HandleContext(current);
         }
 
         public IContentPage GetPage(bool error)

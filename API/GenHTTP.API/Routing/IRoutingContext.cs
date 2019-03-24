@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Routing
 {
@@ -11,7 +12,11 @@ namespace GenHTTP.Api.Routing
     {
         
         IRouter Router { get; }
+
+        IHttpRequest Request { get; }
         
+        string ScopedPath { get; }
+
         IContentProvider? ContentProvider { get; }
         
     }

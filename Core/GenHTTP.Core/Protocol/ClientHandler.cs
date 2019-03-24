@@ -7,6 +7,7 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Infrastructure;
 
 using Microsoft.Extensions.Logging;
+using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Core
 {
@@ -80,8 +81,10 @@ namespace GenHTTP.Core
 
             try
             {
-                var routing = Server.Router.GetContext(request);
+                var routing = new RoutingContext(Server.Router, request);
                 request.Routing = routing;
+
+                Server.Router.HandleContext(routing);
 
                 try
                 {

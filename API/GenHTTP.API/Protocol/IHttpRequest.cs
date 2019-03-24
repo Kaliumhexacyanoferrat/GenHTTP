@@ -1,9 +1,10 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Routing;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
+
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Api.Protocol
 {
