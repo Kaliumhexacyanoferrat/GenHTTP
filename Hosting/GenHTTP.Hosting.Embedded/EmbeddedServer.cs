@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace GenHTTP.Hosting.Embedded
 {
 
-    public class EmbeddedServer : Server, IEmbeddedServer
+    public class EmbeddedServer : Server
     {
 
         #region Initialization
