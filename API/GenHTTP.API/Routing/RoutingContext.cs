@@ -70,7 +70,7 @@ namespace GenHTTP.Api.Routing
 
         public string? Route(string route)
         {
-            return route;
+            return "./" + route; // ToDo :)
         }
 
         #endregion

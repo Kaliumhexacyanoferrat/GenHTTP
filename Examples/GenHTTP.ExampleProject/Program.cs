@@ -38,7 +38,7 @@ namespace GenHTTP.ExampleProject
                 template: new TemplatedTemplate<TemplatedTemplateViewModel>(LoadTemplate("Templates.Template"), (rq, rs) => new TemplatedTemplateViewModel(rq, rs))
             );
 
-            using (var server = EmbeddedServer.Run(content, loggerFactory))
+            using (var server = EmbeddedServer.Run(content, loggerFactory, 8080))
             {
                 Console.WriteLine("Press any key to stop ...");
                 Console.ReadLine();
