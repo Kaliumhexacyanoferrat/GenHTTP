@@ -2,13 +2,13 @@
 
 GenHTTP is a lightweight web server written in pure C# and with only a few dependencies to 3rd-party libraries. The main purpose of this project is to serve small web applications written in .NET, allowing developers to concentrate on the functionality rather than on the infrastructure.
 
-As an example, the website of this project is hosted on a Raspberry Pi behind a nginx reverse proxy: [GenHTTP Example Project](https://genes.pics/genhttp/)
+As an example, the website of this project is hosted on a Raspberry Pi behind a nginx reverse proxy: [GenHTTP Example Project](https://genes.pics/genhttp/website/)
 
 ## Getting Started
 
-Currently, version 2 of the server is in development, with no nuget packages or Docker images yet available. This section will be extended, as soon version 2 becomes stable.
+Currently, version 2 of the server is in development, with no nuget packages or Docker images yet available. This section will be extended, as soon as version 2 becomes stable.
 
-For now, you can clone the repository and open the solution file in the directory root with Visual Studio 2019 or Visual Studio Code to build the server and the sample projects. The example project is a standalone .NET Core 3.0 application so it can directly be built and started.
+For now, you can clone the repository and open the solution file in the directory root with Visual Studio 2019 or Visual Studio Code to build the server and the sample projects. The example project is a standalone [.NET Core 3.0](https://dotnet.microsoft.com/download/dotnet-core/3.0) application so it can directly be built and started.
 
 To run the example project with .NET Core:
 
@@ -24,7 +24,7 @@ To build the project for ARM32, run:
 dotnet publish -r linux-arm
 ```
 
-Deploy the resulting files from `bin\Debug\netcoreapp3.0\linux-arm\publish` to the target system, make the app executable and run it:
+The resulting files can be found in `bin\Debug\netcoreapp3.0\linux-arm\publish` and deployed to the target system. To mark the app executable and run it:
 
 ```sh
 chmod 775 GenHTTP.ExampleProject
