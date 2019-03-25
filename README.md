@@ -18,6 +18,8 @@ cd ./GenHTTP/Examples/GenHTTP.ExampleProject
 dotnet run
 ```
 
+The example project will host a server instance on port 8080, so it can be viewed in your browser via http://localhost:8080.
+
 To build the project for ARM32, run:
 
 ```sh
