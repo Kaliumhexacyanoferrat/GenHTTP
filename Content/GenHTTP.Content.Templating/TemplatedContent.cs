@@ -14,13 +14,13 @@ namespace GenHTTP.Content.Templating
 
         #region Get-/Setters
 
-        public Func<IHttpRequest, T> ViewModelProvider { get; }
+        public Func<IHttpRequest, IHttpResponse, T> ViewModelProvider { get; }
         
         #endregion
 
         #region Initialization
 
-        public TemplatedContent(string template, Func<IHttpRequest, T> viewModelProvider) : base(template)
+        public TemplatedContent(string template, Func<IHttpRequest, IHttpResponse, T> viewModelProvider) : base(template)
         {
             ViewModelProvider = viewModelProvider;
         }
@@ -31,7 +31,7 @@ namespace GenHTTP.Content.Templating
 
         public void Handle(IHttpRequest request, IHttpResponse response)
         {
-            var viewModel = ViewModelProvider(request);
+            var viewModel = ViewModelProvider(request, response);
 
             var content = Render(viewModel);
 

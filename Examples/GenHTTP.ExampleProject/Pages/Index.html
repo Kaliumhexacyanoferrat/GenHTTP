@@ -1,55 +1,122 @@
-﻿<div class="wrapper row3">
+﻿
+<div class="site-block-1">
 
-    <main class="hoc container clear">
+    <div class="container">
 
-        <div class="center btmspace-80">
-            <a id="features"><h6 class="heading underline font-x2">Features</h6></a>
+        <div class="row">
+
+            <div class="col-lg-4">
+                <a href="https://github.com/Kaliumhexacyanoferrat/GenHTTP" class="site-block-feature d-flex p-4 rounded mb-4">
+                    <div class="mr-3">
+                        <span class="fas fa-code" style="font-size: 24pt;"></span>
+                    </div>
+                    <div class="text">
+                        <h3>100% Managed</h3>
+                        <p>Purely written in C# and provided as a .NET Standard 2.0 library, with no further dependencies.</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-lg-4">
+                <a href="https://github.com/Kaliumhexacyanoferrat/GenHTTP" class="site-block-feature d-flex p-4 rounded mb-4">
+                    <div class="mr-3">
+                        <span class="fas fa-share-alt" style="font-size: 24pt;"></span>
+                    </div>
+                    <div class="text">
+                        <h3>Open Source</h3>
+                        <p>All sources are available on GitHub under the MIT license.</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-lg-4">
+                <a href="https://github.com/Kaliumhexacyanoferrat/GenHTTP" class="site-block-feature d-flex p-4 rounded mb-4">
+                    <div class="mr-3">
+                        <span class="fas fa-terminal" style="font-size: 24pt;"></span>
+                    </div>
+                    <div class="text">
+                        <h3>Flexible Hosting</h3>
+                        <p>Embed the engine into your .NET application or host it via Docker.</p>
+                    </div>
+                </a>
+            </div>
+
         </div>
 
-        <ul class="nospace group overview btmspace-80">
+    </div>
 
-            <li class="one_quarter">
-                <article>
-                    <a href="#"><i class="fas fa-code"></i></a>
-                    <h6 class="heading"><a href="https://github.com/Kaliumhexacyanoferrat/GenHTTP">100% Managed</a></h6>
-                    <p>Written in pure C#, embeddable into any application supporting .NET Standard.</p>
-                    <footer><a href="https://github.com/Kaliumhexacyanoferrat/GenHTTP">View Details &raquo;</a></footer>
-                </article>
-            </li>
+</div>
 
-            <li class="one_quarter">
-                <article>
-                    <a href="#"><i class="fas fa-users"></i></a>
-                    <h6 class="heading"><a href="https://github.com/Kaliumhexacyanoferrat/GenHTTP">Open Source</a></h6>
-                    <p>All sources are licensed under the MIT license. Feel free to contribute.</p>
-                    <footer><a href="https://github.com/Kaliumhexacyanoferrat/GenHTTP">View Details &raquo;</a></footer>
-                </article>
-            </li>
+<div class="site-section">
 
-            <li class="one_quarter">
-                <article>
-                    <a href="#"><i class="fas fa-terminal"></i></a>
-                    <h6 class="heading"><a href="https://github.com/Kaliumhexacyanoferrat/GenHTTP">Ready for Docker</a></h6>
-                    <p>Well, not yet. But anytime soon. Image templates are work in progress.</p>
-                    <footer><a href="https://github.com/Kaliumhexacyanoferrat/GenHTTP">View Details &raquo;</a></footer>
-                </article>
-            </li>
+    <div class="container">
 
-            <li class="one_quarter">
-                <article>
-                    <a href="#"><i class="fas fa-rocket"></i></a>
-                    <h6 class="heading"><a href="https://github.com/Kaliumhexacyanoferrat/GenHTTP">Easy to use</a></h6>
-                    <p>Combine various content modules with a template-based rendering engine.</p>
-                    <footer><a href="https://github.com/Kaliumhexacyanoferrat/GenHTTP">View Details &raquo;</a></footer>
-                </article>
-            </li>
+        <div class="row">
 
-        </ul>
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <img src="{{ route 'res/images/hosting.png' }}" style="box-shadow: 7px 7px 5px #AAAAAA;" alt="Image" class="img-fluid">
+            </div>
 
-        <footer class="center"><a class="btn" href="https://github.com/Kaliumhexacyanoferrat/GenHTTP">View on GitHub</a></footer>
+            <div class="col-lg-5 ml-auto">
 
-        <div class="clear"></div>
+                <h2 class="font-weight-bold text-black mb-5">Features</h2>
 
-    </main>
+                <div class="accordion" id="accordionExample">
+
+                    <h2 class="mb-0 border rounded mb-2">
+                        <button class="btn " type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            1. Minimal Footprint
+                        </button>
+                    </h2>
+
+                    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+                        <div class="card-body">
+                            <p>Originally intended to run on a netbook with an Intel Atom processor, the server code is optimized to be fast and minimalistic. The bare server process hosting this website requires no more than 10 Megabytes of RAM.</p>
+                        </div>
+                    </div>
+
+                    <h2 class="mb-0 border rounded mb-2">
+                        <button class="btn collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            2. Few Dependencies
+                        </button>
+                    </h2>
+
+                    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                        <div class="card-body">
+                            <p>The server engine is intended bring along as few dependencies as possible. The process won't fuzz around with your file system, threads, statics, or assemblies.</p>
+                        </div>
+                    </div>
+
+                    <h2 class="mb-0 border rounded mb-2">
+                        <button class="btn collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            3. Object-Oriented and Powerful
+                        </button>
+                    </h2>
+
+                    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+                        <div class="card-body">
+                            <p>While being minimalistic, the server is designed to write simple web apps in a short time. Therefore, it features optional modules to handle resources, add webservices, or use templates.</p>
+                        </div>
+                    </div>
+
+                    <h2 class="mb-0 border rounded mb-2">
+                        <button class="btn collapsed" type="button" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                            4. Getting Started
+                        </button>
+                    </h2>
+
+                    <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordionExample">
+                        <div class="card-body">
+                            <p>To get started, check out the <a href="https://github.com/Kaliumhexacyanoferrat/GenHTTP/tree/master/Examples">samples on GitHub</a>.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>

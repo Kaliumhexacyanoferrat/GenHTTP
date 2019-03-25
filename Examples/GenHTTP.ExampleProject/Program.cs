@@ -32,7 +32,7 @@ namespace GenHTTP.ExampleProject
                 },
                 content: new Dictionary<string, IContentProvider>
                 {
-                    { "index", new TemplatedContent<TemplatedContentViewModel>(LoadTemplate("Pages.Index"), (_) => new TemplatedContentViewModel() { Title = "Index" }) }
+                    { "index", new TemplatedContent<TemplatedContentViewModel>(LoadTemplate("Pages.Index"), (rq, rs) => new TemplatedContentViewModel(rq, rs) { Title = "GenHTTP Webserver" }) }
                 },
                 index: "index",
                 template: new TemplatedTemplate<TemplatedTemplateViewModel>(LoadTemplate("Templates.Template"), (rq, rs) => new TemplatedTemplateViewModel(rq, rs))

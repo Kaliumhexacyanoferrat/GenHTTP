@@ -1,87 +1,108 @@
 ﻿<!DOCTYPE html>
-<!--
-Template Name: Besloor
-Author: <a href="https://www.os-templates.com/">OS Templates</a>
-Author URI: https://www.os-templates.com/
-Copyright: OS-Templates.com
-Licence: Free to use under our free template licence terms
-Licence URI: https://www.os-templates.com/template-terms
--->
 <html lang="en">
-
 <head>
     <title>{{ title }}</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link href="{{ route 'res/styles/layout.css' }}" rel="stylesheet" type="text/css" media="all">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,300,400,700,900">
+    <link rel="stylesheet" href="{{ route 'res/fonts/icomoon/style.css' }}">
+
+    <link rel="stylesheet" href="{{ route 'res/css/magnific-popup.css' }}">
+    <link rel="stylesheet" href="{{ route 'res/css/jquery-ui.css' }}">
+    <link rel="stylesheet" href="{{ route 'res/css/owl.carousel.min.css' }}">
+    <link rel="stylesheet" href="{{ route 'res/css/owl.theme.default.min.css' }}">
+    <link rel="stylesheet" href="{{ route 'res/css/bootstrap-datepicker.css' }}">
+
+    <link rel="stylesheet" href="{{ route 'res/css/aos.css' }}">
+
+    <link rel="stylesheet" href="{{ route 'res/css/style.css' }}">
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+
 </head>
+<body>
 
-<body id="top">
+    <div class="site-wrap">
 
-    <div class="bgded overlay" style="background-image:url('{{ route 'res/images/background.jpg' }}');">
-
-        <div class="wrapper row0">
-            <div id="topbar" class="hoc clear">
-                <div class="fl_left">
-
+        <div class="site-mobile-menu">
+            <div class="site-mobile-menu-header">
+                <div class="site-mobile-menu-close mt-3">
+                    <span class="icon-close2 js-menu-toggle"></span>
                 </div>
-                <div class="fl_right">
-                    <ul class="nospace">
-                        <li><a href="{{ route '' }}"><i class="fas fa-home"></i></a></li>
-                    </ul>
+            </div>
+            <div class="site-mobile-menu-body"></div>
+        </div> <!-- .site-mobile-menu -->
+        
+        <div class="site-navbar-wrap">
+            <div class="site-navbar">
+                <div class="container py-1">
+                    <div class="row align-items-center">
+                        <div class="col-2">
+                            <h1 class="mb-0 site-logo"><a href="{{ route 'index' }}">GenHTTP</a></h1>
+                        </div>
+                        <div class="col-10">
+                            <nav class="site-navigation text-right" role="navigation">
+                                <div class="container">
+                                    <div class="d-inline-block d-lg-none ml-md-0 mr-auto py-3"><a href="#" class="site-menu-toggle js-menu-toggle text-white"><span class="icon-menu h3"></span></a></div>
+
+                                    <ul class="site-menu js-clone-nav d-none d-lg-block">
+                                        <li class="active">
+                                            <a href="{{ route 'index' }}">Home</a>                                           
+                                        </li>                                       
+                                    </ul>
+                                </div>
+                            </nav>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="wrapper row1">
-
-            <header id="header" class="hoc clear">
-
-                <div id="logo" class="fl_left">
-                    <h1 style="text-transform: none;"><a href="index.html">GenHTTP</a></h1>
+        <div class="site-blocks-cover overlay" style="background-image: url({{ route 'res/images/background.jpg' }});" data-aos="fade" data-stellar-background-ratio="0.5">
+            <div class="container">
+                <div class="row align-items-center text-center justify-content-center">
+                    <div class="col-md-8">
+                        <span class="sub-text">Lightweight HTTP server written in C#</span>
+                        <h1>GenHTTP</h1>
+                    </div>
                 </div>
-
-                <nav id="mainav" class="fl_right">
-
-                    <ul class="clear">
-
-                        <li class="active"><a href="{{ route '' }}">Home</a></li>
-
-                    </ul>
-
-                </nav>
-
-            </header>
+            </div>
         </div>
 
-        <div id="pageintro" class="hoc clear">
+        {{ content }}
 
-            <article class="center">
-                <h3 class="heading underline">GenHTTP Webserver</h3>
-                <p>Lightweight web server written in pure C# and with only a few dependencies to 3rd-party libraries.</p>
-                <footer><a class="btn" href="#features">Features</a></footer>
-            </article>
+        <footer class="site-footer border-top">
+            <div class="container">
+                <div class="row pt-5 mt-5 text-center">
+                    <div class="col-md-12">
+                        <p>
+                            <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                            Copyright &copy;
+                            <script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="icon-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+                            <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                        </p>
+                    </div>
 
-        </div>
+                </div>
+            </div>
+        </footer>
 
     </div>
+    
+    <script src="{{ route 'res/js/jquery-3.3.1.min.js' }}"></script>
+    <script src="{{ route 'res/js/jquery-migrate-3.0.1.min.js' }}"></script>
+    <script src="{{ route 'res/js/jquery-ui.js' }}"></script>
+    <script src="{{ route 'res/js/popper.min.js' }}"></script>
+    <script src="{{ route 'res/js/bootstrap.min.js' }}"></script>
+    <script src="{{ route 'res/js/owl.carousel.min.js' }}"></script>
+    <script src="{{ route 'res/js/jquery.stellar.min.js' }}"></script>
+    <script src="{{ route 'res/js/jquery.countdown.min.js' }}"></script>
+    <script src="{{ route 'res/js/jquery.magnific-popup.min.js' }}"></script>
+    <script src="{{ route 'res/js/bootstrap-datepicker.min.js' }}"></script>
+    <script src="{{ route 'res/js/aos.js' }}"></script>
 
-    {{ content }}
-
-    <div class="wrapper row5">
-        <div id="copyright" class="hoc clear">
-            <p class="fl_left">2019 - <a href="https://github.com/Kaliumhexacyanoferrat/GenHTTP">GenHTTP Webserver</a></p>
-            <p class="fl_right">Template by <a target="_blank" href="https://www.os-templates.com/" title="Free Website Templates">OS Templates</a></p>
-        </div>
-    </div>
-
-    <a id="backtotop" href="#top"><i class="fas fa-chevron-up"></i></a>
-
-    <!-- JAVASCRIPTS -->
-    <script src="{{ route 'res/scripts/jquery.min.js' }}"></script>
-    <script src="{{ route 'res/scripts/jquery.backtotop.js' }}"></script>
-    <script src="{{ route 'res/scripts/jquery.mobilemenu.js' }}"></script>
+    <script src="{{ route 'res/js/main.js' }}"></script>
 
 </body>
-
 </html>
