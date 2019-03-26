@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using System.Text;
 
 using GenHTTP.Api.Content;
@@ -35,8 +34,9 @@ namespace GenHTTP.Content.Templating
 
             var content = Render(viewModel);
 
-            var page = request.Routing.Router.GetPage(request, response);
-
+            var page = request.Routing?.Router.GetPage(request, response) 
+                ?? throw new InvalidOperationException("Routing context is not set");
+            
             page.Title = viewModel.Title ?? "No Title";
             page.Content = content;
 

@@ -27,127 +27,126 @@ namespace GenHTTP.Core
     /// </summary>
     internal class HttpScanner
     {
-        private string _Value;
-        private HttpToken _Current = HttpToken.Unknown;
-        private bool _LastTokenMethod = false;
-        private bool _UseContentPattern = false;
-        private StringBuilder _ToScan;
 
-        private string _PatternContent = @"^(.+)";
+        #region Get-/Setters
+
+        public HttpToken Current { get; protected set; }
+
+        public string Value { get; protected set; }
+
+        public bool UseContentPattern { get; set; }
+
+        protected string PatternContent { get; set; }
+
+        protected StringBuilder Buffer { get; }
+        
+        protected bool LastTokenMethod { get; set; }
+
+        #endregion
+
+        #region Initialization
 
         internal HttpScanner()
         {
-            _ToScan = new StringBuilder();
+            Buffer = new StringBuilder();
+
+            LastTokenMethod = false;
+            PatternContent = @"^(.+)";
+
+            Current = HttpToken.Unknown;
+            Value = string.Empty;
         }
 
-        internal bool UseContentPattern
-        {
-            get { return _UseContentPattern; }
-            set { _UseContentPattern = value; }
-        }
+        #endregion
 
-        internal void SetContentLength(long length)
-        {
-            _PatternContent = @"^((?:.|\n){" + length + "})";
-        }
+        #region Functionality
 
         internal HttpToken NextToken()
         {
-            if (!_UseContentPattern)
+            if (!UseContentPattern)
             {
                 IsMatch(Pattern.WHITESPACE);
 
                 if (IsMatch(Pattern.HTTP))
                 {
-                    return _Current = HttpToken.Http;
+                    return Current = HttpToken.Http;
                 }
 
                 if (IsMatch(Pattern.METHOD))
                 {
-                    _LastTokenMethod = true;
-                    return _Current = HttpToken.Method;
+                    LastTokenMethod = true;
+                    return Current = HttpToken.Method;
                 }
 
-                if (_LastTokenMethod)
+                if (LastTokenMethod)
                 {
                     if (IsMatch(Pattern.URL))
                     {
-                        _LastTokenMethod = false;
-                        return _Current = HttpToken.Url;
+                        LastTokenMethod = false;
+                        return Current = HttpToken.Url;
                     }
                 }
 
                 if (IsMatch(Pattern.HEADER_DEFINITION))
                 {
-                    return _Current = HttpToken.HeaderDefinition;
+                    return Current = HttpToken.HeaderDefinition;
                 }
 
                 if (IsMatch(Pattern.HEADER_CONTENT))
                 {
-                    return _Current = HttpToken.HeaderContent;
+                    return Current = HttpToken.HeaderContent;
                 }
 
                 if (IsMatch(Pattern.NEW_LINE))
                 {
-                    return _Current = HttpToken.NewLine;
+                    return Current = HttpToken.NewLine;
                 }
             }
             else
             {
-                if (IsMatch(_PatternContent))
+                if (IsMatch(PatternContent))
                 {
-                    _UseContentPattern = false;
-                    return _Current = HttpToken.Content;
+                    UseContentPattern = false;
+                    return Current = HttpToken.Content;
                 }
             }
 
-            return _Current = HttpToken.Unknown;
+            return Current = HttpToken.Unknown;
+        }
+
+        internal void SetContentLength(long length)
+        {
+            PatternContent = @"^((?:.|\n){" + length + "})";
+        }
+
+        internal void Append(string value)
+        {
+            Buffer.Append(value);
         }
 
         private bool IsMatch(string pattern)
         {
-            Regex re = new Regex(pattern);
-            return IsMatch(re);
+            return IsMatch(new Regex(pattern));
         }
 
         private bool IsMatch(Regex re)
         {
-            string content = _ToScan.ToString();
-            
-            if (re.IsMatch(content))
+            var content = Buffer.ToString();
+
+            var match = re.Match(content);
+
+            if (match.Success)
             {
-                Match m = re.Match(content);
-                _Value = m.Groups[1].Value;
-                _ToScan.Remove(0, m.Length);
+                Value = match.Groups[1].Value;
+                Buffer.Remove(0, match.Length);
+
                 return true;
             }
 
             return false;
         }
 
-        internal void AddToScan(string toScan)
-        {
-            _ToScan.Append(toScan);
-        }
-
-        internal HttpToken Current
-        {
-            get { return _Current; }
-        }
-
-        internal string Value
-        {
-            get { return _Value; }
-        }
-
-        public string CurrentToken
-        {
-            get
-            {
-                return Enum.GetName(typeof(HttpToken), _Current);
-            }
-        }
-
+        #endregion
 
     }
 

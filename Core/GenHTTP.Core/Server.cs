@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Threading;
 
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Protocol.Exceptions;
 using GenHTTP.Api.Routing;
+
 using GenHTTP.Core.Routing;
-using Microsoft.Extensions.Logging;
 
 namespace GenHTTP.Core
 {
@@ -17,108 +17,49 @@ namespace GenHTTP.Core
     /// A small webserver written in C# which allows you to run your
     /// own web applications.
     /// </summary>
-    [Serializable]
     public class Server : IServer
     {
 
-        // State
-        private bool _Exit = false;
-        
-        #region Events
+        #region Get-/Setters
 
-        /// <summary>
-        /// You can subscribe to this event if you want to get notified whenever a request was sucessfully handled by a project.
-        /// </summary>
-        public event RequestHandled OnRequestHandled;
-        
-        /// <summary>
-        /// Allow other applications to analyze requests,
-        /// </summary>
-        /// <param name="request">The request which got handled</param>
-        /// <param name="response">The response which was sent</param>
-        internal void CallCompletionEvent(IHttpRequest request, IHttpResponse response)
-        {
-            if (request != null && response != null)
-            {
-                Log.LogInformation($"{response.ClientHandler.IPAddress} {request.Type} {request.Path} {response.Header.Type} {response.ContentLenght}");
-                OnRequestHandled?.Invoke(request, response);
-            }
-        }
+        public Version Version => Assembly.GetExecutingAssembly().GetName().Version;
+
+        public IRouter Router { get; protected set; }
+
+        public IServerCompanion? Companion { get; protected set; }
+
+        protected Socket Socket { get; private set; }
+
+        protected Thread MainThread { get; private set; }
 
         #endregion
 
         #region Constructors
 
-        public Server(IRouter router, ILoggerFactory loggerFactory, int port = 80, int backlog = 20)
+        public Server(IRouter router, IServerCompanion? companion, int port = 80, int backlog = 20)
         {
+            Companion = companion;
             Router = new CoreRouter(this, router);
-            
-            LoggerFactory = loggerFactory;
 
-            Log = loggerFactory.CreateLogger<Server>();
-
-            Port = port;
-            Backlog = backlog;
-
-            Listen();
-        }
-
-        #endregion
-
-        #region Get-/Setters
-
-        /// <summary>
-        /// The version of the server software.
-        /// </summary>
-        public Version Version => new Version(2, 0, 0);
-
-        public int Port { get; protected set; }
-
-        public int Backlog { get; protected set; }
-
-        public ILoggerFactory LoggerFactory { get; protected set; }
-
-        public IRouter Router { get; protected set; }
-
-        protected ILogger Log { get; set; }
-
-        protected Socket Socket { get; private set; }
-
-        protected Thread MainThread { get; private set; }
-        
-        #endregion
-
-        #region Functionality
-
-        /// <summary>
-        /// Listen on the given port for incoming connections.
-        /// </summary>
-        private void Listen()
-        {
-            // headline
-            Log.LogInformation($"GenHTTP v{Version}");
-            
-            // init socket
             try
             {
                 Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, System.Net.Sockets.ProtocolType.Tcp);
 
-                Socket.Bind(new IPEndPoint(IPAddress.Any, Port));
-                Socket.Listen(Backlog);
-
-                Log.LogInformation($"Server running on port {Port} ...");
+                Socket.Bind(new IPEndPoint(IPAddress.Any, port));
+                Socket.Listen(backlog);
             }
             catch (Exception e)
             {
-                Socket = null;
-
-                throw new SocketBindingException($"Failed to bind to port {Port}.", e);
+                throw new SocketBindingException($"Failed to bind to port {port}.", e);
             }
 
-            // start the accept loop
             MainThread = new Thread(MainLoop);
             MainThread.Start();
         }
+
+        #endregion
+
+        #region Functionality
 
         private void MainLoop()
         {
@@ -130,13 +71,17 @@ namespace GenHTTP.Core
                     var handler = new ClientHandler(clientSocket, this);
 
                     ThreadPool.QueueUserWorkItem(new WaitCallback(handler.Run));
-                } while (!_Exit);
+                }
+                while (true);
             }
-            catch { }
+            catch (Exception e)
+            {
+                Companion?.OnServerError(ServerErrorScope.ServerConnection, e);
+            }
         }
 
         #endregion
-        
+
         #region IDisposable Support
 
         private bool disposed = false;
@@ -151,21 +96,21 @@ namespace GenHTTP.Core
                     {
                         MainThread.Abort();
                     }
-                    catch
+                    catch (Exception e)
                     {
-                        MainThread = null;
+                        Companion?.OnServerError(ServerErrorScope.ServerConnection, e);
                     }
 
                     try
                     {
                         Socket.Dispose();
                     }
-                    catch
+                    catch (Exception e)
                     {
-                        Socket = null;
+                        Companion?.OnServerError(ServerErrorScope.ServerConnection, e);
                     }
                 }
-                
+
                 disposed = true;
             }
         }

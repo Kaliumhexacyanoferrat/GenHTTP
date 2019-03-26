@@ -1,6 +1,8 @@
-﻿using GenHTTP.Api.Infrastructure;
-using System;
+﻿using System;
+using System.IO;
 using System.Net;
+
+using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Api.Protocol
 {
@@ -17,12 +19,7 @@ namespace GenHTTP.Api.Protocol
         /// The IP of the connected client.
         /// </summary>
         IPAddress IPAddress { get; }
-
-        /// <summary>
-        /// Time span between handling the request and sending the response.
-        /// </summary>
-        TimeSpan? LoadTime { get; }
-
+        
     }
 
 }

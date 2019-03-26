@@ -206,55 +206,55 @@ namespace GenHTTP.Core
             // PROTCOL VERSION AND STATUS CODE
             if (_ProtocolType == ProtocolType.Http_1_0)
             {
-                handler.SendBytes(StringToBytes("HTTP/1.0 " + Mapping.GetStatusCode(_Type) + nl));
+                handler.Send(StringToBytes("HTTP/1.0 " + Mapping.GetStatusCode(_Type) + nl));
             }
             else
             {
-                handler.SendBytes(StringToBytes("HTTP/1.1 " + Mapping.GetStatusCode(_Type) + nl));
+                handler.Send(StringToBytes("HTTP/1.1 " + Mapping.GetStatusCode(_Type) + nl));
             }
 
             // CONTENT-TYPE
             string contentType = Mapping.GetContentType(_ContentType);
-            handler.SendBytes(StringToBytes("Content-Type: " + contentType));
+            handler.Send(StringToBytes("Content-Type: " + contentType));
 
             if (_ContentEncoding != null)
             {
-                handler.SendBytes(StringToBytes("; charset=" + _ContentEncoding.WebName));
+                handler.Send(StringToBytes("; charset=" + _ContentEncoding.WebName));
             }
 
-            handler.SendBytes(StringToBytes(nl));
+            handler.Send(StringToBytes(nl));
             
             // CONTENT-LENGTH
             if (contentLength != null && contentLength > 0)
             {
-                handler.SendBytes(StringToBytes("Content-Length: " + contentLength + nl));
+                handler.Send(StringToBytes("Content-Length: " + contentLength + nl));
             }
 
             // LAST-MODIFIED
             if (_Modified != null)
             {
-                handler.SendBytes(StringToBytes("Last-Modified: " + ((DateTime)_Modified).ToUniversalTime().ToString("r") + nl));
+                handler.Send(StringToBytes("Last-Modified: " + ((DateTime)_Modified).ToUniversalTime().ToString("r") + nl));
             }
 
             // EXPIRES
             if (_Expires != null)
             {
-                handler.SendBytes(StringToBytes("Expires: " + ((DateTime)_Expires).ToUniversalTime().ToString("r") + nl));
+                handler.Send(StringToBytes("Expires: " + ((DateTime)_Expires).ToUniversalTime().ToString("r") + nl));
             }
 
             // ADDITIONAL HEADER FIELDS
             foreach (string header in _Fields.Keys)
             {
-                handler.SendBytes(StringToBytes(header + ": " + this[header] + nl));
+                handler.Send(StringToBytes(header + ": " + this[header] + nl));
             }
 
             // SET-COOKIE
             foreach (var cookie in _Cookies)
             {
-                handler.SendBytes(StringToBytes(ToHttp(cookie) + nl));
+                handler.Send(StringToBytes(ToHttp(cookie) + nl));
             }
 
-            handler.SendBytes(StringToBytes(nl));
+            handler.Send(StringToBytes(nl));
         }
 
         private byte[] StringToBytes(string data)

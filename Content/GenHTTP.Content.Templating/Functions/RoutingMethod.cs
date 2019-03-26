@@ -15,13 +15,13 @@ namespace GenHTTP.Content.Templating.Functions
 
         #region Get-/Setters
 
-        public IRoutingContext Context { get; }
+        public IRoutingContext? Context { get; }
 
         #endregion
 
         #region Initialization
 
-        public RoutingMethod(IRoutingContext context)
+        public RoutingMethod(IRoutingContext? context)
         {
             Context = context;
         }
@@ -33,7 +33,7 @@ namespace GenHTTP.Content.Templating.Functions
         public object Invoke(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
         {
             var route = (string)arguments[0];
-            return Context.Route(route) ?? "";
+            return Context?.Route(route) ?? "";
         }
 
         public ValueTask<object> InvokeAsync(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)

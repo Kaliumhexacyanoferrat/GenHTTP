@@ -5,10 +5,6 @@ using System.Net.Sockets;
 
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Routing;
-using GenHTTP.Api.Content;
-
-using Microsoft.Extensions.Logging;
 
 namespace GenHTTP.Core
 {
@@ -33,19 +29,11 @@ namespace GenHTTP.Core
             NetworkStream = new NetworkStream(socket, false);
 
             _Server = server;
-
-            Log = server.LoggerFactory.CreateLogger<ClientHandler>();
         }
 
         #endregion
 
         #region Get-/Setter
-
-        protected ILogger Log { get; }
-
-        protected Socket Connection { get; }
-
-        protected NetworkStream NetworkStream { get; }
 
         /// <summary>
         /// The server this handler relates to.
@@ -53,14 +41,13 @@ namespace GenHTTP.Core
         public IServer Server => _Server;
 
         /// <summary>
-        /// Time span between handling the request and sending the response.
-        /// </summary>
-        public TimeSpan? LoadTime { get; private set; }
-
-        /// <summary>
         /// The IP of the connected client.
         /// </summary>
         public IPAddress IPAddress => ((IPEndPoint)Connection.RemoteEndPoint).Address;
+
+        protected Socket Connection { get; }
+
+        protected NetworkStream NetworkStream { get; }
 
         #endregion
 
@@ -73,79 +60,23 @@ namespace GenHTTP.Core
         {
             try
             {
-                // run parser
-                HttpParser parser = new HttpParser(Connection, _Server, this);
-                parser.Run();
+                new HttpParser(Connection, _Server, this).Run();
             }
-            catch { }
+            catch(Exception e)
+            {
+                Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, e);
+            }
             finally
             {
-                if (NetworkStream != null)
+                try
                 {
                     NetworkStream.Dispose();
                 }
-            }
-        }
-
-        internal bool HandleRequest(HttpRequest request, bool keepAlive)
-        {
-            var response = new HttpResponse(this, request.Type == RequestType.HEAD, request.ProtocolType, keepAlive);
-
-            try
-            {
-                var routing = new RoutingContext(Server.Router, request);
-                request.Routing = routing;
-
-                Server.Router.HandleContext(routing);
-
-                try
+                catch(Exception e)
                 {
-                    IContentProvider provider;
-
-                    if (routing.ContentProvider != null)
-                    {
-                        provider = routing.ContentProvider;
-                    }
-                    else
-                    {
-                        response.Header.Type = ResponseType.NotFound;
-                        provider = routing.Router.GetErrorHandler(request, response);
-                    }
-
-                    provider.Handle(request, response);
-
-                    if (!response.Sent)
-                    {
-                        response.Header.Type = ResponseType.InternalServerError;
-
-                        routing.Router.GetErrorHandler(request, response)
-                                      .Handle(request, response);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Log.LogError(e, $"Error while handling request '{request.Path}'");
-
-                    response.Header.Type = ResponseType.InternalServerError;
-
-                    routing.Router.GetErrorHandler(request, response)
-                                  .Handle(request, response);
+                    Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, e);
                 }
             }
-            catch (Exception e)
-            {
-                Log.LogError(e, "Unable to handle request.");
-                return true;
-            }
-
-            _Server.CallCompletionEvent(request, response);
-
-            if (response.Header.CloseConnection)
-            {
-                return true;
-            }
-
-            return !keepAlive;
         }
 
         internal void Send(Stream content)
@@ -154,19 +85,19 @@ namespace GenHTTP.Core
             {
                 content.CopyTo(NetworkStream);
             }
-            catch
+            catch (Exception e)
             {
-                // ToDo: ??
+                Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, e);
             }
         }
 
-        internal void SendBytes(byte[] content)
+        internal void Send(byte[] content)
         {
             NetworkStream.Write(content, 0, content.Length);
         }
 
         #endregion
-
+        
     }
 
 }

@@ -101,11 +101,6 @@
     <EmbeddedResource Include="Resources\js\slick.min.js" />
     <EmbeddedResource Include="Templates\Template.html" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\API\GenHTTP.API\GenHTTP.Api.csproj" />

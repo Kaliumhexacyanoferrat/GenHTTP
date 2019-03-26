@@ -79,17 +79,6 @@ namespace GenHTTP.Core
         }
 
         /// <summary>
-        /// The number of seconds needed to respond
-        /// </summary>
-        public TimeSpan? LoadTime
-        {
-            get
-            {
-                return _Handler.LoadTime;
-            }
-        }
-
-        /// <summary>
         /// Check, whether the response has already been used to send data.
         /// </summary>
         public bool Sent
@@ -132,6 +121,14 @@ namespace GenHTTP.Core
 
             _ContentLength = length;
             _Sent = true;
+        }
+        
+        public void Send(byte[] content)
+        {
+            using (var stream = new MemoryStream(content))
+            {
+                Send(stream);
+            }
         }
 
         #endregion

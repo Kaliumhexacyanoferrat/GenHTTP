@@ -12,8 +12,6 @@ using GenHTTP.Content.Basic;
 using GenHTTP.Content.Templating;
 using GenHTTP.Hosting.Embedded;
 
-using Microsoft.Extensions.Logging;
-
 namespace GenHTTP.ExampleProject
 {
 
@@ -22,8 +20,6 @@ namespace GenHTTP.ExampleProject
 
         public static void Main(string[] args)
         {
-            var loggerFactory = new LoggerFactory().AddConsole();
-
             var content = new Layout
             (
                 routes: new Dictionary<string, IRouter>
@@ -38,7 +34,7 @@ namespace GenHTTP.ExampleProject
                 template: new TemplatedTemplate<TemplatedTemplateViewModel>(LoadTemplate("Templates.Template"), (rq, rs) => new TemplatedTemplateViewModel(rq, rs))
             );
 
-            using (var server = EmbeddedServer.Run(content, loggerFactory, 8080))
+            using (var server = EmbeddedServer.Run(content, null, 8080))
             {
                 Console.WriteLine("Press any key to stop ...");
                 Console.ReadLine();

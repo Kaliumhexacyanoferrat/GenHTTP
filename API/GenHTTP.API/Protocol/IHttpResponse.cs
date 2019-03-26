@@ -18,12 +18,7 @@ namespace GenHTTP.Api.Protocol
         /// The content length of the sent (!) response.
         /// </summary>
         ulong? ContentLenght { get; }
-
-        /// <summary>
-        /// The time needed to respond.
-        /// </summary>
-        TimeSpan? LoadTime { get; }
-
+        
         /// <summary>
         /// Check, whether the response has already been used to send data.
         /// </summary>

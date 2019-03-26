@@ -55,10 +55,8 @@ namespace GenHTTP.Core.Routing
         public IContentProvider GetErrorHandler(IHttpRequest request, IHttpResponse response)
         {
             var type = response.Header.Type;
-
-            var isError = (int)type >= 400;
-
-            var page = request.Routing.Router.GetPage(request, response);
+            
+            var page = request.Routing?.Router.GetPage(request, response) ?? GetPage(request, response);
             
             page.Title = type.ToString();
             page.Content = $"Server returned with response type '{type}'.";
