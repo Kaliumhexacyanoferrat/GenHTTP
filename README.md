@@ -6,7 +6,7 @@ As an example, the website of this project is hosted on a Raspberry Pi behind a 
 
 ## Getting Started
 
-Currently, version 2 of the server is in development, with no nuget packages or Docker images yet available. This section will be extended, as soon as version 2 becomes stable.
+Currently, [version 2](https://github.com/Kaliumhexacyanoferrat/GenHTTP/projects/1) of the server is in development, with no nuget packages or Docker images yet available. This section will be extended, as soon as version 2 becomes stable.
 
 For now, you can clone the repository and open the solution file placed in the directory root with Visual Studio 2019 or Visual Studio Code to build the server and the sample projects. All server components are based on [.NET Standard 2.0](https://docs.microsoft.com/en-us/dotnet/standard/net-standard) so they can be referenced from any platform supporting this version. The example project is a standalone [.NET Core 3.0](https://dotnet.microsoft.com/download/dotnet-core/3.0) application so it can directly be built and started.
 
