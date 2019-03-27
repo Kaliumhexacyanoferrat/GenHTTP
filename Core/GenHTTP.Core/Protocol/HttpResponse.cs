@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
 using System.IO;
-using System.Threading;
+
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Exceptions;
 
 namespace GenHTTP.Core
 {

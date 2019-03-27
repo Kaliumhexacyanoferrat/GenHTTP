@@ -4,13 +4,9 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 
-using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Pages;
-using GenHTTP.Api.Routing;
-
-using GenHTTP.Content.Basic;
-using GenHTTP.Content.Templating;
-using GenHTTP.Hosting.Embedded;
+using GenHTTP.Core;
+using GenHTTP.Modules.Core;
+using GenHTTP.Modules.Scriban;
 
 namespace GenHTTP.ExampleProject
 {
@@ -20,35 +16,20 @@ namespace GenHTTP.ExampleProject
 
         public static void Main(string[] args)
         {
-            var content = new Layout
-            (
-                routes: new Dictionary<string, IRouter>
-                {
-                    { "res", new EmbeddedResources("GenHTTP.ExampleProject.Resources") }
-                },
-                content: new Dictionary<string, IContentProvider>
-                {
-                    { "index", new TemplatedContent<TemplatedContentViewModel>(LoadTemplate("Pages.Index"), (rq, rs) => new TemplatedContentViewModel(rq, rs) { Title = "GenHTTP Webserver" }) }
-                },
-                index: "index",
-                template: new TemplatedTemplate<TemplatedTemplateViewModel>(LoadTemplate("Templates.Template"), (rq, rs) => new TemplatedTemplateViewModel(rq, rs))
-            );
+            var layout = Layout.Create()
+                               .Template(ModScriban.Template(Data.FromResource("Template.html").Build()).Build())
+                               .Add("res", Static.Resources("Resources").Build())
+                               .Add("index", ModScriban.Page(Data.FromResource("Index.html").Build()).Build())
+                               .Index("index")
+                               .Build();
 
-            using (var server = EmbeddedServer.Run(content, null, 8080))
+            using (var server = new Server(layout, null, 8080))
             {
                 Console.WriteLine("Press any key to stop ...");
                 Console.ReadLine();
             }
         }
-
-        private static string LoadTemplate(string name)
-        {
-            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"GenHTTP.ExampleProject.{name}.html"))
-            {
-                return new StreamReader(stream).ReadToEnd();
-            }
-        }
-
+        
     }
 
 }

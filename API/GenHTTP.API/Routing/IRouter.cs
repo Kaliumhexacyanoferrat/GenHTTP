@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 
-using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Pages;
+using GenHTTP.Api.Modules;
+using GenHTTP.Api.Modules.Templating;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Routing
@@ -16,10 +16,10 @@ namespace GenHTTP.Api.Routing
 
         void HandleContext(IEditableRoutingContext current);
 
+        IRenderer<TemplateModel> GetRenderer();
+
         IContentProvider GetErrorHandler(IHttpRequest request, IHttpResponse response);
-
-        IContentPage GetPage(IHttpRequest request, IHttpResponse response);
-
+        
     }
 
 }

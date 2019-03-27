@@ -104,9 +104,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\API\GenHTTP.API\GenHTTP.Api.csproj" />
-    <ProjectReference Include="..\..\Content\GenHTTP.Content.Basic\GenHTTP.Content.Basic.csproj" />
-    <ProjectReference Include="..\..\Content\GenHTTP.Content.Templating\GenHTTP.Content.Templating.csproj" />
-    <ProjectReference Include="..\..\Hosting\GenHTTP.Hosting.Embedded\GenHTTP.Hosting.Embedded.csproj" />
+    <ProjectReference Include="..\..\Core\GenHTTP.Core\GenHTTP.Core.csproj" />
+    <ProjectReference Include="..\..\Modules\GenHTTP.Modules.Core\GenHTTP.Modules.Core.csproj" />
+    <ProjectReference Include="..\..\Modules\GenHTTP.Modules.Scriban\GenHTTP.Modules.Scriban.csproj" />
   </ItemGroup>
   
 </Project>

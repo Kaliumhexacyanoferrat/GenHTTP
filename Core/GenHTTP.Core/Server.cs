@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Threading;
 
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Protocol.Exceptions;
+using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
 using GenHTTP.Core.Routing;
@@ -39,7 +39,7 @@ namespace GenHTTP.Core
         public Server(IRouter router, IServerCompanion? companion, int port = 80, int backlog = 20)
         {
             Companion = companion;
-            Router = new CoreRouter(this, router);
+            Router = new CoreRouter(router);
 
             try
             {

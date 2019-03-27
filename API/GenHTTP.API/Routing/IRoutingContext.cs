@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-using GenHTTP.Api.Content;
+using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Routing

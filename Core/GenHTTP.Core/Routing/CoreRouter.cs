@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Reflection;
 
-using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Pages;
-using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Modules;
+using GenHTTP.Api.Modules.Templating;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
-using GenHTTP.Core.Content.Pages;
+using GenHTTP.Modules.Core.General;
+using GenHTTP.Modules.Core.Resource;
+using GenHTTP.Modules.Core.Templating;
 
 namespace GenHTTP.Core.Routing
 {
@@ -15,9 +17,7 @@ namespace GenHTTP.Core.Routing
     {
 
         #region Get-/Setters
-
-        private IServer Server { get; }
-
+        
         public IRouter Router { get; }
 
         public IRouter Parent
@@ -26,16 +26,19 @@ namespace GenHTTP.Core.Routing
             set { throw new NotSupportedException("CoreRouter is intended to be the root router."); }
         }
 
+        protected IRenderer<TemplateModel> Template { get; }
+
         #endregion
 
         #region Initialization
 
-        public CoreRouter(IServer server, IRouter router)
+        public CoreRouter(IRouter router)
         {
-            Server = server;
-
             Router = router;
             Router.Parent = this;
+
+            var templateProvider = new ResourceDataProvider(Assembly.GetExecutingAssembly(), "Template.html");
+            Template = new PlaceholderRender<TemplateModel>(templateProvider);
         }
 
         #endregion
@@ -47,23 +50,22 @@ namespace GenHTTP.Core.Routing
             Router.HandleContext(current);
         }
 
-        public IContentPage GetPage(IHttpRequest request, IHttpResponse response)
+        public IRenderer<TemplateModel> GetRenderer()
         {
-            return new ContentPage(Server);
+            return Template;
         }
 
         public IContentProvider GetErrorHandler(IHttpRequest request, IHttpResponse response)
         {
             var type = response.Header.Type;
-            
-            var page = request.Routing?.Router.GetPage(request, response) ?? GetPage(request, response);
-            
-            page.Title = type.ToString();
-            page.Content = $"Server returned with response type '{type}'.";
 
-            return new ContentPageProvider(page, type);
+            var page = new TemplateModel(request, response, type.ToString(), $"Server returned with response type '{type}'.");
+
+            var content = GetRenderer().Render(page);
+
+            return new StringProvider(content, ContentType.TextHtml);
         }
-        
+
         #endregion
 
     }

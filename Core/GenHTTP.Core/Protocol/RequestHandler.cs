@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 
-using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
@@ -160,13 +160,9 @@ namespace GenHTTP.Core.Protocol
                 {
                     response.Header.Type = ResponseType.InternalServerError;
 
-                    var page = coreRouter.GetPage(request, response);
-
-                    using (var stream = page.GetStream())
-                    {
-                        response.Send(stream);
-                    }
-
+                    coreRouter.GetErrorHandler(request, response)
+                              .Handle(request, response);
+                    
                     return true;
                 }
                 catch (Exception e)

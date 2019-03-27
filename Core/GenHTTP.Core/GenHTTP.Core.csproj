@@ -18,15 +18,16 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <None Remove="Content\ContentPage.html" />
+    <None Remove="Resources\Template.html" />
   </ItemGroup>
   
   <ItemGroup>
-    <EmbeddedResource Include="Content\Pages\ContentPage.html" />
+    <EmbeddedResource Include="Resources\Template.html" />
   </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\..\API\GenHTTP.API\GenHTTP.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\GenHTTP.Modules.Core\GenHTTP.Modules.Core.csproj" />
   </ItemGroup>
   
 </Project>
