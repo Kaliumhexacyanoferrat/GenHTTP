@@ -16,25 +16,43 @@ This will create a new folder `ExampleWebsite`. Within this folder, run the foll
 
 ```sh
 cd ExampleWebsite
-dotnet add package GenHttp.Core
+dotnet add package GenHTTP.Core
 ```
 
 You can then edit the generated `Program.cs` to setup a simple project using the GenHTTP server API:
 
 ```csharp
-var index = Page.From("Hello World!")
-                .Title("Example Website");
+using System;
 
-var project = Layout.Create()
-                    .Add("index", index, true);
+using GenHTTP.Core;
+using GenHTTP.Modules.Core;
 
-var server = Server.Create()
-                   .Router(project);
-
-using (var instance = server.Build())
+namespace ExampleWebsite
 {
-    Console.WriteLine("Press any key to shutdown ...");
-    Console.ReadLine();
+
+    public static class Program
+    {
+
+        public static void Main(string[] args)
+        {
+            var index = Page.From("Hello World!")
+                            .Title("Example Website");
+
+            var project = Layout.Create()
+                                .Add("index", index, true);
+
+            var server = Server.Create()
+                               .Router(project);
+
+            using (var instance = server.Build())
+            {
+                Console.WriteLine("Press any key to shutdown ...");
+                Console.ReadLine();
+            }
+        }
+
+    }
+
 }
 ```
 
