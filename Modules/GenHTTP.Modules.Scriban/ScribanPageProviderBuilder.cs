@@ -9,10 +9,11 @@ using GenHTTP.Api.Modules.Templating;
 namespace GenHTTP.Modules.Scriban
 {
 
-    public class ScribanPageProviderBuilder<T> : IBuilder<ScribanPageProvider<T>> where T : PageModel
+    public class ScribanPageProviderBuilder<T> : IContentBuilder where T : PageModel
     {
         protected IResourceProvider? _TemplateProvider;
         protected IPageProvider<T>? _ModelProvider;
+        protected string? _Title;
 
         #region Functionality
 
@@ -28,7 +29,13 @@ namespace GenHTTP.Modules.Scriban
             return this;
         }
 
-        public ScribanPageProvider<T> Build()
+        public ScribanPageProviderBuilder<T> Title(string title)
+        {
+            _Title = title;
+            return this;
+        }
+
+        public IContentProvider Build()
         {
             if (_TemplateProvider == null)
             {
@@ -40,7 +47,7 @@ namespace GenHTTP.Modules.Scriban
                 throw new BuilderMissingPropertyException("Model Provider");
             }
 
-            return new ScribanPageProvider<T>(_TemplateProvider, _ModelProvider);
+            return new ScribanPageProvider<T>(_TemplateProvider, _ModelProvider, _Title);
         }
 
         #endregion

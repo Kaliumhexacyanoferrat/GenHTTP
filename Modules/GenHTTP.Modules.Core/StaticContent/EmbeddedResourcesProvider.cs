@@ -21,7 +21,7 @@ namespace GenHTTP.Modules.Core.StaticContent
 
         public IRouter Parent { get; set; }
 
-        protected Dictionary<string, DownloadProvider> QualifiedNames { get; }
+        protected Dictionary<string, IContentProvider> QualifiedNames { get; }
 
         #endregion
 

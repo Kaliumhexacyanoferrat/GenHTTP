@@ -4,11 +4,12 @@ using System.Reflection;
 using System.Text;
 
 using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Modules;
 
 namespace GenHTTP.Modules.Core.Resource
 {
 
-    public class ResourceDataProviderBuilder : IBuilder<ResourceDataProvider>
+    public class ResourceDataProviderBuilder : IBuilder<IResourceProvider>
     {
         private Assembly? _Assembly;
         private string? _Name;
@@ -27,7 +28,7 @@ namespace GenHTTP.Modules.Core.Resource
             return this;
         }
 
-        public ResourceDataProvider Build()
+        public IResourceProvider Build()
         {
             if (_Name == null)
             {

@@ -10,7 +10,7 @@ using GenHTTP.Api.Modules.Templating;
 namespace GenHTTP.Modules.Core.Templating
 {
 
-    public class PlaceholderRendererBuilder : IBuilder<PlaceholderRender<TemplateModel>>
+    public class PlaceholderRendererBuilder : IBuilder<IRenderer<TemplateModel>>
     {
         protected IResourceProvider? _TemplateProvider;
         
@@ -22,7 +22,7 @@ namespace GenHTTP.Modules.Core.Templating
             return this;
         }
 
-        public PlaceholderRender<TemplateModel> Build()
+        public IRenderer<TemplateModel> Build()
         {
             if (_TemplateProvider == null)
             {

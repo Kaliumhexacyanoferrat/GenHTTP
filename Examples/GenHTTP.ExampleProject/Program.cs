@@ -17,13 +17,14 @@ namespace GenHTTP.ExampleProject
         public static void Main(string[] args)
         {
             var layout = Layout.Create()
-                               .Template(ModScriban.Template(Data.FromResource("Template.html").Build()).Build())
-                               .Add("res", Static.Resources("Resources").Build())
-                               .Add("index", ModScriban.Page(Data.FromResource("Index.html").Build()).Build())
-                               .Index("index")
-                               .Build();
+                               .Template(ModScriban.Template(Data.FromResource("Template.html")))
+                               .Add("res", Static.Resources("Resources"))
+                               .Add("index", ModScriban.Page(Data.FromResource("Index.html")).Title("GenHTTP Webserver"), true);
 
-            using (var server = new Server(layout, null, 8080))
+            var server = Server.Create()
+                               .Router(layout);
+
+            using (var instance = server.Build())
             {
                 Console.WriteLine("Press any key to stop ...");
                 Console.ReadLine();

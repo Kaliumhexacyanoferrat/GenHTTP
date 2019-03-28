@@ -4,8 +4,9 @@ using System.Net.Sockets;
 using System.Threading;
 
 using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Core.Protocol;
-using GenHTTP.Api.Protocol;
+using GenHTTP.Core.Infrastructure;
 
 namespace GenHTTP.Core
 {
@@ -27,7 +28,7 @@ namespace GenHTTP.Core
 
         protected Socket Socket { get; }
 
-        protected Server Server { get; }
+        protected ThreadedServer Server { get; }
 
         protected HttpRequest CurrentRequest { get; set; }
 
@@ -65,7 +66,7 @@ namespace GenHTTP.Core
         /// </summary>
         /// <param name="socket">The connection to watch</param>
         /// <param name="handler">The assigned client handler</param>
-        internal HttpParser(Socket socket, Server server, ClientHandler handler)
+        internal HttpParser(Socket socket, ThreadedServer server, ClientHandler handler)
         {
             Handler = handler;
             Socket = socket;

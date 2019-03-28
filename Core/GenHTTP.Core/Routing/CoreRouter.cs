@@ -13,7 +13,7 @@ using GenHTTP.Modules.Core.Templating;
 namespace GenHTTP.Core.Routing
 {
 
-    public class CoreRouter : IRouter
+    internal class CoreRouter : IRouter
     {
 
         #region Get-/Setters
@@ -32,7 +32,7 @@ namespace GenHTTP.Core.Routing
 
         #region Initialization
 
-        public CoreRouter(IRouter router)
+        internal CoreRouter(IRouter router)
         {
             Router = router;
             Router.Parent = this;

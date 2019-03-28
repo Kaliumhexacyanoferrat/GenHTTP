@@ -4,11 +4,13 @@ using System.IO;
 using System.Text;
 
 using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Modules;
+using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Core.StaticContent
 {
 
-    public class FileResourcesProviderBuilder : IBuilder<FileResourcesProvider>
+    public class FileResourcesProviderBuilder : IRouterBuilder
     {
         private DirectoryInfo? _Directory;
         
@@ -20,7 +22,7 @@ namespace GenHTTP.Modules.Core.StaticContent
             return this;
         }
 
-        public FileResourcesProvider Build()
+        public IRouter Build()
         {
             if (_Directory == null)
             {

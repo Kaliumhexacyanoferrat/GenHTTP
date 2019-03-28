@@ -11,8 +11,7 @@ namespace GenHTTP.Core
     /// <summary>
     /// The HTTP header of a HTTP response.
     /// </summary>
-    [Serializable]
-    public class HttpResponseHeader : IHttpResponseHeader
+    internal class HttpResponseHeader : IHttpResponseHeader
     {
         private ResponseType _Type;
         private ContentType _ContentType;

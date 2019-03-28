@@ -15,15 +15,25 @@ namespace GenHTTP.Core.Protocol
     internal class RequestHandler
     {
 
+        #region Get-/Setters
+
         protected IServer Server { get; }
 
         protected ClientHandler ClientHandler { get; }
 
-        public RequestHandler(IServer server, ClientHandler clientHandler)
+        #endregion
+
+        #region Initialization
+
+        internal RequestHandler(IServer server, ClientHandler clientHandler)
         {
             Server = server;
             ClientHandler = clientHandler;
         }
+
+        #endregion
+
+        #region Functionality
 
         internal bool HandleRequest(HttpRequest request, bool keepAlive)
         {
@@ -185,6 +195,8 @@ namespace GenHTTP.Core.Protocol
 
             return true;
         }
+
+        #endregion
 
     }
 

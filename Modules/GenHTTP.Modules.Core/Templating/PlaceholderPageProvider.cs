@@ -19,11 +19,13 @@ namespace GenHTTP.Modules.Core.Templating
 
         public IPageProvider<T> ModelProvider { get; }
 
+        public string? Title { get; }
+
         #endregion
 
         #region Initialization
 
-        public PlaceholderPageProvider(IResourceProvider templateProvider, IPageProvider<T> modelProvider)
+        public PlaceholderPageProvider(IResourceProvider templateProvider, IPageProvider<T> modelProvider, string? title)
         {
             TemplateProvider = templateProvider;
             ModelProvider = modelProvider;
@@ -41,7 +43,7 @@ namespace GenHTTP.Modules.Core.Templating
 
             var content = renderer.Render(model);
 
-            var templateModel = new TemplateModel(request, response, model.Title ?? "Untitled Page", content);
+            var templateModel = new TemplateModel(request, response, model.Title ?? Title ?? "Untitled Page", content);
 
             response.Send(templateModel, request);
         }

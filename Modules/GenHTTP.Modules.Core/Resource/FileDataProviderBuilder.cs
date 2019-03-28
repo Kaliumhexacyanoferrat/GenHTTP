@@ -4,11 +4,12 @@ using System.IO;
 using System.Text;
 
 using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Modules;
 
 namespace GenHTTP.Modules.Core.Resource
 {
 
-    public class FileDataProviderBuilder : IBuilder<FileDataProvider>
+    public class FileDataProviderBuilder : IBuilder<IResourceProvider>
     {
         private FileInfo? _File;
 
@@ -26,7 +27,7 @@ namespace GenHTTP.Modules.Core.Resource
             return this;
         }
 
-        public FileDataProvider Build()
+        public IResourceProvider Build()
         {
             if (_File == null)
             {

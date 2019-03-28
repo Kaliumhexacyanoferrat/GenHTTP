@@ -21,14 +21,17 @@ namespace GenHTTP.Modules.Scriban
 
         public IPageProvider<T> ModelProvider { get; }
 
+        public string? Title { get; }
+
         #endregion
 
         #region Initialization
 
-        public ScribanPageProvider(IResourceProvider templateProvider, IPageProvider<T> modelProvider)
+        public ScribanPageProvider(IResourceProvider templateProvider, IPageProvider<T> modelProvider, string? title)
         {
             TemplateProvider = templateProvider;
             ModelProvider = modelProvider;
+            Title = title;
         }
 
         #endregion
@@ -43,7 +46,7 @@ namespace GenHTTP.Modules.Scriban
 
             var content = renderer.Render(model);
 
-            var templateModel = new TemplateModel(request, response, model.Title ?? "Untitled Page", content);
+            var templateModel = new TemplateModel(request, response, model.Title ?? Title ?? "Untitled Page", content);
 
             response.Send(templateModel, request);
         }

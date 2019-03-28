@@ -10,7 +10,7 @@ using GenHTTP.Api.Modules.Templating;
 namespace GenHTTP.Modules.Core.Templating
 {
 
-    public static class Extensions
+    public static class TemplatingExtensions
     {
 
         public static void Send(this IHttpResponse response, TemplateModel model, IHttpRequest origin)

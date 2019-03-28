@@ -5,7 +5,7 @@ using System.Text;
 namespace GenHTTP.Api.Protocol
 {
 
-    public static class Mapping
+    internal static class Mapping
     {
 
         /// <summary>
@@ -13,7 +13,7 @@ namespace GenHTTP.Api.Protocol
         /// </summary>
         /// <param name="type">The type to convert</param>
         /// <returns>The converted string</returns>
-        public static string GetContentType(ContentType type)
+        internal static string GetContentType(ContentType type)
         {
             if (type == ContentType.TextHtml) return "text/html";
             if (type == ContentType.TextCss) return "text/css";
@@ -42,86 +42,13 @@ namespace GenHTTP.Api.Protocol
             if (type == ContentType.ApplicationOfficeDocumentSheet) return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
             return "application/force-download";
         }
-
-        /// <summary>
-        /// Try to retrieve the <see cref="ContentType" /> of a file by its extension.
-        /// </summary>
-        /// <param name="extension">The extension of the file (without the dot)</param>
-        /// <returns>The content type to send the file with</returns>
-        public static ContentType GetContentTypeByExtension(string extension)
-        {
-            if (extension == null) return ContentType.ApplicationForceDownload;
-            switch (extension.ToLower())
-            {
-                // CSS file
-                case "css": return ContentType.TextCss;
-                // HTML files
-                case "html":
-                case "htm": return ContentType.TextHtml;
-                case "ico": return ContentType.ImageIcon;
-                // Text files
-                case "sql":
-                case "txt":
-                case "pl":
-                case "cs":
-                case "php":
-                case "c":
-                case "h":
-                case "cpp":
-                case "sh":
-                case "bat":
-                case "cmd":
-                case "conf":
-                case "ini":
-                case "inf": return ContentType.TextPlain;
-                // JavaScript
-                case "js": return ContentType.ApplicationJavaScript;
-                // GIF
-                case "gif": return ContentType.ImageGif;
-                // JPG
-                case "jpeg":
-                case "jpg": return ContentType.ImageJpg;
-                // PNG
-                case "png": return ContentType.ImagePng;
-                // BMP
-                case "bmp": return ContentType.ImageBmp;
-                // OGG
-                case "ogg": return ContentType.AudioOgg;
-                // MP3
-                case "mp3": return ContentType.AudioMpeg;
-                // WAV
-                case "wav": return ContentType.AudioWav;
-                // TIFF
-                case "tiff": return ContentType.ImageTiff;
-                // CSV
-                case "csv": return ContentType.TextCsv;
-                // RTF
-                case "rtf": return ContentType.TextRichText;
-                // XML
-                case "xml": return ContentType.TextXml;
-                // Video files
-                case "mpg":
-                case "mpeg":
-                case "avi": return ContentType.VideoMpeg;
-                // Word processing
-                case "docx": return ContentType.ApplicationOfficeDocumentWordProcessing;
-                // Presentation
-                case "pptx": return ContentType.ApplicationOfficeDocumentPresentation;
-                // Slideshow
-                case "ppsx": return ContentType.ApplicationOfficeDocumentSlideshow;
-                // Sheet
-                case "xlsx": return ContentType.ApplicationOfficeDocumentSheet;
-                // All other files
-                default: return ContentType.ApplicationForceDownload;
-            }
-        }
-
+        
         /// <summary>
         /// Retrieve the name of a status by its code.
         /// </summary>
         /// <param name="type">The response type to convert</param>
         /// <returns>The name of the status</returns>
-        public static string GetStatusCode(ResponseType type)
+        internal static string GetStatusCode(ResponseType type)
         {
             if (type == ResponseType.Accepted) return "202 Accepted";
             if (type == ResponseType.BadGateway) return "502 Bad Gateway";

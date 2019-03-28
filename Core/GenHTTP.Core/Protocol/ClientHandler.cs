@@ -6,15 +6,17 @@ using System.Net.Sockets;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Infrastructure;
 
+using GenHTTP.Core.Infrastructure;
+
 namespace GenHTTP.Core
 {
 
     /// <summary>
     /// Handles the requests from a browser.
     /// </summary>
-    public class ClientHandler : IClientHandler
+    internal class ClientHandler : IClientHandler
     {
-        private Server _Server;
+        private ThreadedServer _Server;
 
         #region Initialization
 
@@ -23,7 +25,7 @@ namespace GenHTTP.Core
         /// </summary>
         /// <param name="socket">The socket to read from</param>
         /// <param name="server">The server this handler relates to</param>
-        public ClientHandler(Socket socket, Server server)
+        internal ClientHandler(Socket socket, ThreadedServer server)
         {
             Connection = socket;
             NetworkStream = new NetworkStream(socket, false);

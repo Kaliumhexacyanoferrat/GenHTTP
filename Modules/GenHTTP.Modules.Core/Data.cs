@@ -14,7 +14,7 @@ namespace GenHTTP.Modules.Core
 
         public static ResourceDataProviderBuilder FromResource(string name)
         {
-            return new ResourceDataProviderBuilder().Name(name);
+            return new ResourceDataProviderBuilder().Name(name).Assembly(Assembly.GetCallingAssembly());
         }
 
         public static ResourceDataProviderBuilder FromResource(Assembly assembly, string name)

@@ -10,7 +10,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Core.General
 {
 
-    public class DownloadProviderBuilder : IBuilder<DownloadProvider>
+    public class DownloadProviderBuilder : IContentBuilder
     {
         private IResourceProvider? _ResourceProvider;
         private ContentType? _ContentType;
@@ -29,7 +29,7 @@ namespace GenHTTP.Modules.Core.General
             return this;
         }
 
-        public DownloadProvider Build()
+        public IContentProvider Build()
         {
             if (_ResourceProvider == null)
             {

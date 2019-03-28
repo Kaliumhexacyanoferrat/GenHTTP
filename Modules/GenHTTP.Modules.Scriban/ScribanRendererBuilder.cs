@@ -6,11 +6,12 @@ using System.Text;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Scriban
 {
 
-    public class ScribanRendererBuilder : IBuilder<ScribanRenderer<TemplateModel>>
+    public class ScribanRendererBuilder : IBuilder<IRenderer<TemplateModel>>
     {
         protected IResourceProvider? _TemplateProvider;
         
@@ -22,7 +23,7 @@ namespace GenHTTP.Modules.Scriban
             return this;
         }
 
-        public ScribanRenderer<TemplateModel> Build()
+        public IRenderer<TemplateModel> Build()
         {
             if (_TemplateProvider == null)
             {

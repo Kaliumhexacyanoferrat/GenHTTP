@@ -12,8 +12,7 @@ namespace GenHTTP.Core
     /// <summary>
     /// Represents a HTTP response.
     /// </summary>
-    [Serializable]
-    public class HttpResponse : IHttpResponse
+    internal class HttpResponse : IHttpResponse
     {
         private HttpResponseHeader _Header;
         private ClientHandler _Handler;

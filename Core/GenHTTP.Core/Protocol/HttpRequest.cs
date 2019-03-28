@@ -13,7 +13,7 @@ namespace GenHTTP.Core
     /// <summary>
     /// Provides methods to access a recieved http request.
     /// </summary>
-    public class HttpRequest : IHttpRequest
+    internal class HttpRequest : IHttpRequest
     {
         
         #region Get-/Setters

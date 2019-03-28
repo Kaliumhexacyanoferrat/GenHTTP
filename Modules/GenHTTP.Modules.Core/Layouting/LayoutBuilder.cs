@@ -64,26 +64,26 @@ namespace GenHTTP.Modules.Core.Layouting
             return this;
         }
 
-        public LayoutBuilder Add(string route, IRouterBuilder router)
+        public LayoutBuilder Add(string route, IRouterBuilder router, bool index = false)
         {
             return Add(route, router.Build());
         }
 
-        public LayoutBuilder Add(string route, IRouter router)
+        public LayoutBuilder Add(string route, IRouter router, bool index = false)
         {
             Routes.Add(route, router);
-            return this;
+            return (index) ? Index(route) : this;
         }
 
-        public LayoutBuilder Add(string file, IContentBuilder content)
+        public LayoutBuilder Add(string file, IContentBuilder content, bool index = false)
         {
-            return Add(file, content.Build());
+            return Add(file, content.Build(), index);
         }
 
-        public LayoutBuilder Add(string file, IContentProvider content)
+        public LayoutBuilder Add(string file, IContentProvider content, bool index = false)
         {
             Content.Add(file, content);
-            return this;
+            return (index) ? Index(file) : this;
         }
 
         public IRouter Build()
