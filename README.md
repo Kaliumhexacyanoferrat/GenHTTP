@@ -14,7 +14,7 @@ To run the example project with .NET Core:
 
 ```sh
 git clone https://github.com/Kaliumhexacyanoferrat/GenHTTP.git
-cd ./GenHTTP/Examples/GenHTTP.ExampleProject
+cd ./GenHTTP/Examples/GenHTTP.Examples.CoreApp
 dotnet run
 ```
 
@@ -29,8 +29,8 @@ dotnet publish -r linux-arm
 The resulting files can be found in `bin\Debug\netcoreapp3.0\linux-arm\publish` and deployed to the target system. To mark the app executable and run it:
 
 ```sh
-chmod 775 GenHTTP.ExampleProject
-./GenHTTP.ExampleProject
+chmod 775 GenHTTP.Examples.CoreApp
+./GenHTTP.Examples.CoreApp
 ```
 
 ## History
