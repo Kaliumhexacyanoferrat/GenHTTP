@@ -16,7 +16,7 @@ namespace GenHTTP.Modules.Core
         {
             return new StringProviderBuilder().Data(content).Type(ContentType.TextPlain);
         }
-
+        
     }
 
 }

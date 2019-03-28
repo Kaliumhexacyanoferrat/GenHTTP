@@ -64,7 +64,12 @@ namespace GenHTTP.Modules.Core.StaticContent
         {
             return Parent.GetErrorHandler(request, response);
         }
-        
+
+        public string? Route(string path, int currentDepth)
+        {
+            return Parent.Route(path, currentDepth);
+        }
+
         #endregion
 
     }

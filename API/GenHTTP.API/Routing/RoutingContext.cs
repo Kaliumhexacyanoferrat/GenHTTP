@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 
@@ -20,9 +21,7 @@ namespace GenHTTP.Api.Routing
         public IHttpRequest Request { get; }
 
         public string ScopedPath { get; protected set; }
-
-        public bool IsIndex => string.IsNullOrEmpty(ScopedPath) || ScopedPath == "/";
-
+        
         #endregion
 
         #region Initialization
@@ -39,41 +38,38 @@ namespace GenHTTP.Api.Routing
 
         #region Functionality
 
-        public void Scope(IRouter router)
+        public void Scope(IRouter router, string? segment)
         {
             Router = router;
-        }
 
-        public string? ScopeSegment(IRouter router)
-        {
-            var index = ScopedPath.Substring(1).IndexOf('/');
-
-            if (index > -1)
+            if (segment != null)
             {
-                var segment = ScopedPath.Substring(1, index);
-                ScopedPath = ScopedPath.Substring(segment.Length + 1);
-
-                return segment;
+                ScopedPath = (ScopedPath.Length > 1) ? ScopedPath.Substring(segment.Length + 1) : "/";
             }
-
-            return null;
         }
-
+                        
         public void RegisterContent(IContentProvider contentProvider)
         {
             ContentProvider = contentProvider;
         }
         
-        public void Rewrite(string relativeUrl)
-        {
-            ScopedPath = '/' + relativeUrl;
-        }
-
         public string? Route(string route)
         {
-            return "./" + route; // ToDo :)
-        }
+            if (string.IsNullOrWhiteSpace(route))
+            {
+                return null;
+            }
 
+            if (route.StartsWith(".") || route.StartsWith("/"))
+            {
+                return route;
+            }
+
+            var depth = ScopedPath.Count(f => f == '/') - 1;
+
+            return Router.Route(route, Math.Max(0, depth));
+        }
+        
         #endregion
 
     }

@@ -12,7 +12,7 @@ namespace GenHTTP.Modules.Core.Layouting
 
     public class LayoutRouter : IRouter
     {
-        
+
         #region Get-/Setters
 
         public IRouter Parent { get; set; }
@@ -57,44 +57,61 @@ namespace GenHTTP.Modules.Core.Layouting
 
         public void HandleContext(IEditableRoutingContext current)
         {
-            current.Scope(this);
+            var segment = Routing.GetSegment(current.ScopedPath);
 
             // rewrite to index if requested
-            if (current.IsIndex && Index != null)
+            if (string.IsNullOrEmpty(segment) && Index != null)
             {
-                current.Rewrite(Index);
+                segment = Index;
             }
 
             // is there a matching content provider?
-            var requested = current.ScopedPath.Substring(1);
-
-            if (Content.ContainsKey(requested))
+            if (Content.ContainsKey(segment))
             {
-                current.RegisterContent(Content[requested]);
+                current.Scope(this, segment);
+                current.RegisterContent(Content[segment]);
                 return;
             }
 
             // are there any matching routes? 
-            var route = current.ScopeSegment(this);
-
-            if (route != null)
+            if (Routes.ContainsKey(segment))
             {
-                if (Routes.ContainsKey(route))
-                {
-                    Routes[route].HandleContext(current);
-                    return;
-                }
+                current.Scope(this, segment);
+                Routes[segment].HandleContext(current);
+                return;
             }
+
+            // no route found
+            current.Scope(this);
         }
 
         public IRenderer<TemplateModel> GetRenderer()
         {
             return Template ?? Parent.GetRenderer();
         }
-        
+
         public IContentProvider GetErrorHandler(IHttpRequest request, IHttpResponse response)
         {
             return ErrorHandler ?? Parent.GetErrorHandler(request, response);
+        }
+
+        public string? Route(string path, int currentDepth)
+        {
+            var segment = Routing.GetSegment(path);
+
+            if (Content.ContainsKey(segment) || Routes.ContainsKey(segment))
+            {
+                if (segment == Index)
+                {
+                    return Routing.GetRelation(currentDepth);
+                }
+                else
+                {
+                    return Routing.GetRelation(currentDepth) + path;
+                }
+            }
+
+            return Parent.Route(path, currentDepth + 1);
         }
 
         #endregion

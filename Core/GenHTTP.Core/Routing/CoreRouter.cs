@@ -61,9 +61,16 @@ namespace GenHTTP.Core.Routing
 
             var page = new TemplateModel(request, response, type.ToString(), $"Server returned with response type '{type}'.");
 
-            var content = GetRenderer().Render(page);
+            var renderer = request.Routing?.Router.GetRenderer() ?? GetRenderer();
+
+            var content = renderer.Render(page);
 
             return new StringProvider(content, ContentType.TextHtml);
+        }
+
+        public string? Route(string path, int currentDepth)
+        {
+            return null;
         }
 
         #endregion

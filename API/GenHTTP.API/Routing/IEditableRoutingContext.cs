@@ -9,15 +9,9 @@ namespace GenHTTP.Api.Routing
 
     public interface IEditableRoutingContext : IRoutingContext
     {
-
-        bool IsIndex { get; }
-
-        void Scope(IRouter router);
-
-        string? ScopeSegment(IRouter router);
-
-        void Rewrite(string relativeUrl);
-
+        
+        void Scope(IRouter router, string? segment = null);
+                
         void RegisterContent(IContentProvider contentProvider);
 
     }

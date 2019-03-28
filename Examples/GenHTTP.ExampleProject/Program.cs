@@ -20,6 +20,7 @@ namespace GenHTTP.ExampleProject
                                .Template(ModScriban.Template(Data.FromResource("Template.html")))
                                .Add("res", Static.Resources("Resources"))
                                .Add("index", ModScriban.Page(Data.FromResource("Index.html")).Title("GenHTTP Webserver"), true);
+            
 
             var server = Server.Create()
                                .Router(layout);

@@ -13,7 +13,7 @@ namespace GenHTTP.Modules.Core.StaticContent
 
     public class FileResourcesProvider : IRouter
     {
-        
+
         #region Get-/Setters
 
         public IRouter Parent { get; set; }
@@ -28,7 +28,7 @@ namespace GenHTTP.Modules.Core.StaticContent
         {
             Directory = directory;
         }
-        
+
         #endregion
 
         #region Functionality
@@ -53,6 +53,11 @@ namespace GenHTTP.Modules.Core.StaticContent
         public IContentProvider GetErrorHandler(IHttpRequest request, IHttpResponse response)
         {
             return Parent.GetErrorHandler(request, response);
+        }
+
+        public string? Route(string path, int currentDepth)
+        {
+            return Parent.Route(path, currentDepth);
         }
 
         #endregion

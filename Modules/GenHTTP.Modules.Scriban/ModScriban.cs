@@ -1,27 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
-using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.Core.Templating;
 
 namespace GenHTTP.Modules.Scriban
 {
 
     public static class ModScriban
     {
-
-        private class ImplicitModelProvider : IPageProvider<PageModel>
-        {
-
-            public PageModel GetModel(IHttpRequest request, IHttpResponse response)
-            {
-                return new PageModel(request, response);
-            }
-
-        }
-
+        
         public static ScribanRendererBuilder Template(IBuilder<IResourceProvider> templateProvider)
         {
             return Template(templateProvider.Build());

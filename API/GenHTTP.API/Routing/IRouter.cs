@@ -19,7 +19,9 @@ namespace GenHTTP.Api.Routing
         IRenderer<TemplateModel> GetRenderer();
 
         IContentProvider GetErrorHandler(IHttpRequest request, IHttpResponse response);
-        
+
+        string? Route(string path, int currentDepth);
+
     }
 
 }

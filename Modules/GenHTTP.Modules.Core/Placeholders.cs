@@ -14,17 +14,7 @@ namespace GenHTTP.Modules.Core
 
     public static class Placeholders
     {
-
-        private class ImplicitModelProvider : IPageProvider<PageModel>
-        {
-
-            public PageModel GetModel(IHttpRequest request, IHttpResponse response)
-            {
-                return new PageModel(request, response);
-            }
-
-        }
-
+        
         public static PlaceholderRendererBuilder Template(IBuilder<IResourceProvider> templateProvider)
         {
             return Template(templateProvider.Build());
