@@ -2,15 +2,53 @@
 
 GenHTTP is a lightweight web server written in pure C# with no dependencies to 3rd-party libraries. The main purpose of this project is to serve small web applications written in .NET, allowing developers to concentrate on the functionality rather than on the infrastructure.
 
-As an example, the website of this project is hosted on a Raspberry Pi behind a nginx reverse proxy: [GenHTTP Example Project](https://genes.pics/genhttp/website/)
+As an example, the website of this project is hosted on a Raspberry Pi behind a nginx reverse proxy: [GenHTTP Website](https://genes.pics/genhttp/website/)
 
 ## Getting Started
 
-Currently, [version 2](https://github.com/Kaliumhexacyanoferrat/GenHTTP/projects/1) of the server is in development, with no nuget packages or Docker images yet available. This section will be extended, as soon as version 2 becomes stable.
+To create a simple hello world project, run the following comand from the terminal:
 
-For now, you can clone the repository and open the solution file placed in the directory root with Visual Studio 2019 or Visual Studio Code to build the server and the sample projects. All server components are based on [.NET Standard 2.0](https://docs.microsoft.com/en-us/dotnet/standard/net-standard) so they can be referenced from any platform supporting this version. The example project is a standalone [.NET Core 3.0](https://dotnet.microsoft.com/download/dotnet-core/3.0) application so it can directly be built and started.
+```sh
+dotnet new console --framework netcoreapp3.0 -o ExampleWebsite
+```
 
-To run the example project with .NET Core:
+This will create a new folder `ExampleWebsite`. Within this folder, run the following command to add a nuget package reference to the [GenHTTP Core package](https://www.nuget.org/packages/GenHTTP.Core/):
+
+```sh
+cd ExampleWebsite
+dotnet add package GenHttp.Core
+```
+
+You can then edit the generated `Program.cs` to setup a simple project using the GenHTTP server API:
+
+```csharp
+var index = Page.From("Hello World!")
+                .Title("Example Website");
+
+var project = Layout.Create()
+                    .Add("index", index, true);
+
+var server = Server.Create()
+                   .Router(project);
+
+using (var instance = server.Build())
+{
+    Console.WriteLine("Press any key to shutdown ...");
+    Console.ReadLine();
+}
+```
+
+To run the newly created project, execute:
+
+```sh
+dotnet run 
+```
+
+This will host a new server instance on port 8080, allowing you to view the newly created project in your browser by navigating to http://localhost:8080.
+
+## Building the Server
+
+To build the server from source, clone this repository and run the example project launcher for .NET Core:
 
 ```sh
 git clone https://github.com/Kaliumhexacyanoferrat/GenHTTP.git
@@ -18,20 +56,7 @@ cd ./GenHTTP/Examples/GenHTTP.Examples.CoreApp
 dotnet run
 ```
 
-The example project will host a server instance on port 8080, so it can be viewed in your browser via http://localhost:8080.
-
-To build the project for ARM32, run:
-
-```sh
-dotnet publish -r linux-arm
-```
-
-The resulting files can be found in `bin\Debug\netcoreapp3.0\linux-arm\publish` and deployed to the target system. To mark the app executable and run it:
-
-```sh
-chmod 775 GenHTTP.Examples.CoreApp
-./GenHTTP.Examples.CoreApp
-```
+This will build the example project launcher for .NET Core with all the server dependencies and launch the server process on port 8080. You can access the examples in the browser via http://localhost:8080.
 
 ## History
 
