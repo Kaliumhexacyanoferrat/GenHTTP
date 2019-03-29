@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-When [steps to reproduce], the server should [result]. Instead [actual result].
+When [steps to reproduce], [expected result]. Instead [actual result].
 
 **Example**
 
