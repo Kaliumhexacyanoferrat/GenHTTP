@@ -5,7 +5,6 @@ using System.Text;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
-using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Core.Templating;
 

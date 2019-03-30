@@ -13,10 +13,15 @@ namespace GenHTTP.Modules.Core.StaticContent
 
     public class FileResourcesProvider : IRouter
     {
+        private IRouter? _Parent;
 
         #region Get-/Setters
 
-        public IRouter Parent { get; set; }
+        public IRouter Parent
+        {
+            get { return _Parent ?? throw new InvalidOperationException("Parent has not been set"); }
+            set { _Parent = value; }
+        }
 
         public DirectoryInfo Directory { get; }
 

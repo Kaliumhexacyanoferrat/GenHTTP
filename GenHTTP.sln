@@ -32,7 +32,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Examples.CoreApp", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Core.Tests", "Core\GenHTTP.Core.Tests\GenHTTP.Core.Tests.csproj", "{D6A8D025-012D-4276-9A53-11D84C32C666}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.API.Tests", "API\GenHTTP.API.Tests\GenHTTP.API.Tests.csproj", "{9589C7DE-AA00-44AC-9E90-0A022029FA0D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Api.Tests", "API\GenHTTP.API.Tests\GenHTTP.Api.Tests.csproj", "{9589C7DE-AA00-44AC-9E90-0A022029FA0D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Core.Tests", "Modules\GenHTTP.Modules.Core.Tests\GenHTTP.Modules.Core.Tests.csproj", "{56661981-A32B-427C-9F84-2EE2C801605D}"
 EndProject
@@ -101,7 +101,7 @@ Global
 		{67EFA1AA-8A51-4DA0-8AE4-42D2C84DE4E2} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
 		LessCompiler = 2603124e-1287-4d61-9540-6ac3efad4eb9
+		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
 	EndGlobalSection
 EndGlobal

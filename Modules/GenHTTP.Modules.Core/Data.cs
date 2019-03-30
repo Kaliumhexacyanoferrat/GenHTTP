@@ -32,6 +32,11 @@ namespace GenHTTP.Modules.Core
             return new FileDataProviderBuilder().File(file);
         }
 
+        public static StringDataProviderBuilder FromString(string data)
+        {
+            return new StringDataProviderBuilder().Content(data);
+        }
+
     }
 
 }

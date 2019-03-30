@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Text;
 
 using GenHTTP.Api.Modules;
@@ -11,6 +12,7 @@ namespace GenHTTP.Api.Routing
 
     public class RoutingContext : IEditableRoutingContext
     {
+        private static readonly Regex URI_START = new Regex("^[a-z]+:");
 
         #region Get-/Setters
 
@@ -38,7 +40,7 @@ namespace GenHTTP.Api.Routing
 
         #region Functionality
 
-        public void Scope(IRouter router, string? segment)
+        public void Scope(IRouter router, string? segment = null)
         {
             Router = router;
 
@@ -61,6 +63,11 @@ namespace GenHTTP.Api.Routing
             }
 
             if (route.StartsWith(".") || route.StartsWith("/"))
+            {
+                return route;
+            }
+
+            if (URI_START.IsMatch(route))
             {
                 return route;
             }

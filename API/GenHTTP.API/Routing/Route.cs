@@ -5,7 +5,7 @@ using System.Text;
 namespace GenHTTP.Api.Routing
 {
 
-    public static class Routing
+    public static class Route
     {
 
         public static string GetSegment(string path)

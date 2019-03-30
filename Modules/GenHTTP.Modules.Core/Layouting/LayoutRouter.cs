@@ -12,10 +12,15 @@ namespace GenHTTP.Modules.Core.Layouting
 
     public class LayoutRouter : IRouter
     {
+        private IRouter? _Parent;
 
         #region Get-/Setters
 
-        public IRouter Parent { get; set; }
+        public IRouter Parent
+        {
+            get { return _Parent ?? throw new InvalidOperationException("Parent has not been set"); }
+            set { _Parent = value; }
+        }
 
         private Dictionary<string, IRouter> Routes { get; }
 
@@ -57,7 +62,7 @@ namespace GenHTTP.Modules.Core.Layouting
 
         public void HandleContext(IEditableRoutingContext current)
         {
-            var segment = Routing.GetSegment(current.ScopedPath);
+            var segment = Api.Routing.Route.GetSegment(current.ScopedPath);
 
             // rewrite to index if requested
             if (string.IsNullOrEmpty(segment) && Index != null)
@@ -97,17 +102,17 @@ namespace GenHTTP.Modules.Core.Layouting
 
         public string? Route(string path, int currentDepth)
         {
-            var segment = Routing.GetSegment(path);
+            var segment = Api.Routing.Route.GetSegment(path);
 
             if (Content.ContainsKey(segment) || Routes.ContainsKey(segment))
             {
                 if (segment == Index)
                 {
-                    return Routing.GetRelation(currentDepth);
+                    return Api.Routing.Route.GetRelation(currentDepth);
                 }
                 else
                 {
-                    return Routing.GetRelation(currentDepth) + path;
+                    return Api.Routing.Route.GetRelation(currentDepth) + path;
                 }
             }
 

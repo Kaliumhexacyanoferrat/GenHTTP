@@ -16,10 +16,15 @@ namespace GenHTTP.Modules.Core.StaticContent
 
     public class EmbeddedResourcesProvider : IRouter
     {
+        private IRouter? _Parent;
 
         #region Get-/Setters
 
-        public IRouter Parent { get; set; }
+        public IRouter Parent
+        {
+            get { return _Parent ?? throw new InvalidOperationException("Parent has not been set");  }
+            set { _Parent = value; }
+        }
 
         protected Dictionary<string, IContentProvider> QualifiedNames { get; }
 

@@ -18,12 +18,12 @@ namespace GenHTTP.Core.Routing
 
         #region Get-/Setters
         
-        public IRouter Router { get; }
+        public IRouter Content { get; }
 
         public IRouter Parent
         {
-            get { return null; }
-            set { throw new NotSupportedException("CoreRouter is intended to be the root router."); }
+            get { throw new NotSupportedException("Core router has no parent"); }
+            set { throw new NotSupportedException("Setting core router's parent is not allowed"); }
         }
 
         protected IRenderer<TemplateModel> Template { get; }
@@ -32,10 +32,10 @@ namespace GenHTTP.Core.Routing
 
         #region Initialization
 
-        internal CoreRouter(IRouter router)
+        internal CoreRouter(IRouter content)
         {
-            Router = router;
-            Router.Parent = this;
+            Content = content;
+            Content.Parent = this;
 
             var templateProvider = new ResourceDataProvider(Assembly.GetExecutingAssembly(), "Template.html");
             Template = new PlaceholderRender<TemplateModel>(templateProvider);
@@ -47,7 +47,7 @@ namespace GenHTTP.Core.Routing
 
         public void HandleContext(IEditableRoutingContext current)
         {
-            Router.HandleContext(current);
+            Content.HandleContext(current);
         }
 
         public IRenderer<TemplateModel> GetRenderer()
@@ -72,7 +72,7 @@ namespace GenHTTP.Core.Routing
         {
             return null;
         }
-
+        
         #endregion
 
     }
