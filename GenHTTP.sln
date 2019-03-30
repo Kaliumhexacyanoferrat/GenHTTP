@@ -32,7 +32,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Examples.CoreApp", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Core.Tests", "Core\GenHTTP.Core.Tests\GenHTTP.Core.Tests.csproj", "{D6A8D025-012D-4276-9A53-11D84C32C666}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Api.Tests", "API\GenHTTP.API.Tests\GenHTTP.Api.Tests.csproj", "{9589C7DE-AA00-44AC-9E90-0A022029FA0D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Api.Tests", "API\GenHTTP.API.Tests\GenHTTP.API.Tests.csproj", "{9589C7DE-AA00-44AC-9E90-0A022029FA0D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Core.Tests", "Modules\GenHTTP.Modules.Core.Tests\GenHTTP.Modules.Core.Tests.csproj", "{56661981-A32B-427C-9F84-2EE2C801605D}"
 EndProject
