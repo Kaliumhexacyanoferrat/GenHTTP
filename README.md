@@ -4,6 +4,8 @@ GenHTTP is a lightweight web server written in pure C# with no dependencies to 3
 
 As an example, the website of this project is hosted on a Raspberry Pi behind a nginx reverse proxy: [GenHTTP Website](https://genes.pics/genhttp/website/)
 
+[![Build Status](https://travis-ci.com/Kaliumhexacyanoferrat/GenHTTP.svg?branch=master)](https://travis-ci.com/Kaliumhexacyanoferrat/GenHTTP) [![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Core.svg)](https://www.nuget.org/packages/GenHTTP.Core/)
+
 ## Getting Started
 
 To create a simple hello world project, run the following comand from the terminal:
