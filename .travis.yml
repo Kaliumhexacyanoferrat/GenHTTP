@@ -16,7 +16,7 @@ solution: GenHTTP.sln
 script:
   - sudo snap alias dotnet-sdk.dotnet dotnet
   - dotnet build GenHTTP.sln -c Release
-  - dotnet test -c Release --no-build GenHTTP.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude=[xunit.*]*
+  - dotnet test -c Release --no-build GenHTTP.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[xunit.*]*"
 
 after_script:
   - bash <(curl -s https://codecov.io/bash)

@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Custom
+*.coverage.opencover.xml
+
 # User-specific files
 *.suo
 *.user
