@@ -1,6 +1,7 @@
 ﻿using System;
 
 using GenHTTP.Core;
+using GenHTTP.Modules.Brotli;
 
 namespace GenHTTP.Examples.CoreApp
 {
@@ -13,7 +14,9 @@ namespace GenHTTP.Examples.CoreApp
             var project = Project.Build();
 
             var server = Server.Create()
-                               .Router(project);
+                               .Router(project)
+                               .Compression(ModBrotli.Create())
+                               .Console();
 
             using (var instance = server.Build())
             {

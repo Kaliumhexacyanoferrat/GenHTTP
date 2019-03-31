@@ -27,7 +27,7 @@ namespace GenHTTP.Api.Protocol
 
         IResponseBuilder Content(Stream body, ulong length, ContentType contentType);
 
-        IResponseBuilder Encoding(Encoding encoding);
+        IResponseBuilder Encoding(string encoding);
 
     }
 

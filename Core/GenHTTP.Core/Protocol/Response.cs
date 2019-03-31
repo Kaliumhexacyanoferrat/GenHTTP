@@ -26,7 +26,7 @@ namespace GenHTTP.Core
 
         public ContentType? ContentType { get; set; }
 
-        public Encoding? ContentEncoding { get; set; }
+        public string? ContentEncoding { get; set; }
 
         public ulong? ContentLength { get; set; }
 

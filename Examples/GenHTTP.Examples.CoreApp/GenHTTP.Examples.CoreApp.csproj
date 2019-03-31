@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\GenHTTP.Core\GenHTTP.Core.csproj" />
+    <ProjectReference Include="..\..\Modules\GenHTTP.Modules.Brotli\GenHTTP.Modules.Brotli.csproj" />
     <ProjectReference Include="..\GenHTTP.Examples\GenHTTP.Examples.csproj" />
   </ItemGroup>
 

@@ -11,15 +11,45 @@ namespace GenHTTP.Api.Infrastructure
     public interface IServerBuilder : IBuilder<IServer>
     {
 
+        #region Content
+
         IServerBuilder Router(IRouterBuilder routerBuilder);
 
         IServerBuilder Router(IRouter router);
 
+        #endregion
+
+        #region Infrastructure
+        
+        IServerBuilder Console();
+
         IServerBuilder Companion(IServerCompanion companion);
+
+        IServerBuilder Extension(IBuilder<IServerExtension> extension);
+
+        IServerBuilder Extension(IServerExtension extension);
+
+        #endregion
+
+        #region Compression
+
+        IServerBuilder Compression(IBuilder<ICompressionAlgorithm> algorithm);
+
+        IServerBuilder Compression(ICompressionAlgorithm algorithm);
+
+        IServerBuilder Compression(bool enabled);
+
+        #endregion
+
+        #region Binding
 
         IServerBuilder Port(ushort port);
 
         IServerBuilder Backlog(ushort backlog);
+
+        #endregion
+
+        #region Network settings
 
         /// <summary>
         /// Specifies the period of time after which the server will
@@ -38,6 +68,8 @@ namespace GenHTTP.Api.Infrastructure
         /// data streams (such as uploads or downloads).
         /// </summary>
         IServerBuilder TransferBufferSize(uint bufferSize);
+
+        #endregion
 
     }
     

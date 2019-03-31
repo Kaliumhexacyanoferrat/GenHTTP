@@ -56,10 +56,7 @@ namespace GenHTTP.Api.Protocol
         /// </summary>
         ContentType? ContentType { get; set; }
 
-        /// <summary>
-        /// The charset used to encode the data.
-        /// </summary>
-        Encoding? ContentEncoding { get; set; }
+        string? ContentEncoding { get; set; }
 
         /// <summary>
         /// The number of bytes the content consists of.

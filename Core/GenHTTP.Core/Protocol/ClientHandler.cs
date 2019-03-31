@@ -64,7 +64,7 @@ namespace GenHTTP.Core
                 do
                 {
                     var request = await Parser.GetRequest();
-                    closeConnection = HandleRequest(request);
+                    closeConnection = await HandleRequest(request);
                 }
                 while (!closeConnection);
             }
@@ -96,7 +96,7 @@ namespace GenHTTP.Core
             }
         }
         
-        private bool HandleRequest(RequestBuilder builder)
+        private async Task<bool> HandleRequest(RequestBuilder builder)
         {
             using (var request = builder.Handler(this).Build())
             {
@@ -112,7 +112,12 @@ namespace GenHTTP.Core
 
                 using (var response = requestHandler.Handle(request, out Exception? error))
                 {
-                    var success = responseHandler.Handle(request, response, keepAlive, error);
+                    foreach (var extension in Server.Extensions)
+                    {
+                        await extension.Intercept(request, response);
+                    }
+
+                    var success = await responseHandler.Handle(request, response, keepAlive, error);
 
                     if (!success || !keepAlive)
                     {

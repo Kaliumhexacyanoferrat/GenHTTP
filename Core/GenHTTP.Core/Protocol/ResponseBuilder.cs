@@ -16,7 +16,7 @@ namespace GenHTTP.Core.Protocol
         protected Stream? _Content;
         protected ulong? _ContentLength;
         protected ContentType? _ContentType;
-        protected Encoding? _ContentEncoding;
+        protected string? _ContentEncoding;
 
         protected DateTime? _Expires;
         protected DateTime? _Modified;
@@ -75,7 +75,7 @@ namespace GenHTTP.Core.Protocol
             return this;
         }
 
-        public IResponseBuilder Encoding(Encoding encoding)
+        public IResponseBuilder Encoding(string encoding)
         {
             _ContentEncoding = encoding;
             return this;

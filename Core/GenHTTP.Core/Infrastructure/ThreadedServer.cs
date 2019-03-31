@@ -3,9 +3,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
 using GenHTTP.Core.Routing;
@@ -24,6 +24,8 @@ namespace GenHTTP.Core.Infrastructure
 
         public IServerCompanion? Companion { get; protected set; }
 
+        public IExtensionCollection Extensions { get; }
+
         internal ServerConfiguration Configuration { get; }
 
         protected Socket Socket { get; private set; }
@@ -34,11 +36,12 @@ namespace GenHTTP.Core.Infrastructure
 
         #region Constructors
 
-        internal ThreadedServer(IRouter router, IServerCompanion? companion, ServerConfiguration configuration)
+        internal ThreadedServer(IServerCompanion? companion, ServerConfiguration configuration, IExtensionCollection extensions, IRouter router)
         {
             Companion = companion;
             Router = new CoreRouter(router);
 
+            Extensions = extensions;
             Configuration = configuration;
 
             try
@@ -53,7 +56,7 @@ namespace GenHTTP.Core.Infrastructure
                 throw new BindingException($"Failed to bind to port {Configuration.Port}.", e);
             }
 
-            MainThread = new Thread(MainLoop);
+            MainThread = new Thread(async () => await MainLoop());
             MainThread.Start();
         }
 
@@ -61,13 +64,13 @@ namespace GenHTTP.Core.Infrastructure
 
         #region Functionality
 
-        private void MainLoop()
+        private async Task MainLoop()
         {
             try
             {
                 do
                 {
-                    var clientSocket = Socket.Accept();
+                    var clientSocket = await Socket.AcceptAsync();
                     var handler = new ClientHandler(clientSocket, this, Configuration.Network);
 
                     ThreadPool.QueueUserWorkItem(new WaitCallback(async (_) => await handler.Run()));
@@ -93,12 +96,15 @@ namespace GenHTTP.Core.Infrastructure
                 if (disposing)
                 {
                     try
-                    {
+                    {                       
                         MainThread.Abort();
                     }
                     catch (Exception e)
                     {
-                        Companion?.OnServerError(ServerErrorScope.ServerConnection, e);
+                        if (!(e is PlatformNotSupportedException)) // .NET Core
+                        {
+                            Companion?.OnServerError(ServerErrorScope.ServerConnection, e);
+                        }
                     }
 
                     try

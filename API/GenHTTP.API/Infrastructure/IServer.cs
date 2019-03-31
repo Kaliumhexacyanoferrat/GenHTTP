@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Routing;
 
@@ -12,8 +13,10 @@ namespace GenHTTP.Api.Infrastructure
 
         IServerCompanion? Companion { get; }
 
+        IExtensionCollection Extensions { get; }
+
         IRouter Router { get; }
-          
+                  
     }
 
 }

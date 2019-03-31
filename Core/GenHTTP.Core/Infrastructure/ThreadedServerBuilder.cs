@@ -6,6 +6,8 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Routing;
 
+using GenHTTP.Modules.Core.Compression;
+
 namespace GenHTTP.Core.Infrastructure
 {
 
@@ -21,6 +23,10 @@ namespace GenHTTP.Core.Infrastructure
 
         protected IRouter? _Router;
         protected IServerCompanion? _Companion;
+
+        protected ExtensionCollection _Extensions = new ExtensionCollection();
+
+        protected Dictionary<string, ICompressionAlgorithm>? _Compression = new Dictionary<string, ICompressionAlgorithm>(StringComparer.InvariantCultureIgnoreCase);
         
         #region Functionality
 
@@ -75,19 +81,77 @@ namespace GenHTTP.Core.Infrastructure
             _TransferBufferSize = bufferSize;
             return this;
         }
-        
+
+        public IServerBuilder Console()
+        {
+            _Companion = new ConsoleCompanion();
+            return this;
+        }
+
+        public IServerBuilder Extension(IBuilder<IServerExtension> extension)
+        {
+            return Extension(extension.Build());
+        }
+
+        public IServerBuilder Extension(IServerExtension extension)
+        {
+            _Extensions.Add(extension);
+            return this;
+        }
+
+        public IServerBuilder Compression(IBuilder<ICompressionAlgorithm> algorithm)
+        {
+            return Compression(algorithm.Build());
+        }
+
+        public IServerBuilder Compression(ICompressionAlgorithm algorithm)
+        {
+            if (_Compression == null)
+            {
+                _Compression = new Dictionary<string, ICompressionAlgorithm>();
+            }
+
+            _Compression[algorithm.Name] = algorithm;
+
+            return this;
+        }
+
+        public IServerBuilder Compression(bool enabled)
+        {
+            if (enabled)
+            {
+                _Compression = new Dictionary<string, ICompressionAlgorithm>();
+            }
+            else
+            {
+                _Compression = null;
+            }
+
+            return this;
+        }
+
         public IServer Build()
         {
             if (_Router == null)
             {
                 throw new BuilderMissingPropertyException("Router");
             }
-
+            
             var network = new NetworkConfiguration(_RequestReadTimeout, _RequestMemoryLimit, _TransferBufferSize);
 
             var config = new ServerConfiguration(_Port, _Backlog, network);
             
-            return new ThreadedServer(_Router, _Companion, config);
+            if (_Compression != null)
+            {
+                if (!_Compression.ContainsKey("gzip"))
+                {
+                    _Compression.Add("gzip", new GzipAlgorithm());
+                }
+                
+                _Extensions.Add(new CompressionExtension(_Compression));
+            }
+
+            return new ThreadedServer(_Companion, config, _Extensions, _Router);
         }
         
         #endregion
