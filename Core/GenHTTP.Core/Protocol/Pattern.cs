@@ -15,7 +15,7 @@ namespace GenHTTP.Core
 
         public static readonly Regex HTTP = new Regex(@"^HTTP/((?:1\.0)|(?:1\.1))\r\n");
 
-        public static readonly Regex METHOD = new Regex("^(GET|POST|HEAD)");
+        public static readonly Regex METHOD = new Regex("^(GET|POST|HEAD|PUT|DELETE|OPTIONS|PATCH)");
 
         public static readonly Regex URL = new Regex("^([^ ]+) ");
 

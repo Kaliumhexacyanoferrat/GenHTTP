@@ -3,28 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
+using GenHTTP.Core.Protocol;
 
 namespace GenHTTP.Core
 {
 
-    /// <summary>
-    /// All possible Tokens in a HTTP-Request
-    /// </summary>
     internal enum Token
     {
-        Http,
+        Protocol,
         Method,
         Url,
         HeaderDefinition,
         HeaderContent,
         NewLine,
-        Content,
         Unknown
     }
 
-    /// <summary>
-    /// Scans the stream for the <see cref="Parser" />.
-    /// </summary>
     internal class Scanner
     {
 
@@ -34,24 +30,19 @@ namespace GenHTTP.Core
 
         public string Value { get; protected set; }
 
-        public bool UseContentPattern { get; set; }
+        public RequestBuffer Buffer { get; }
 
-        protected string PatternContent { get; set; }
-
-        protected StringBuilder Buffer { get; }
-        
         protected bool LastTokenMethod { get; set; }
 
         #endregion
 
         #region Initialization
 
-        internal Scanner()
+        internal Scanner(RequestBuffer buffer)
         {
-            Buffer = new StringBuilder();
+            Buffer = buffer;
 
             LastTokenMethod = false;
-            PatternContent = @"^(.+)";
 
             Current = Token.Unknown;
             Value = string.Empty;
@@ -61,84 +52,58 @@ namespace GenHTTP.Core
 
         #region Functionality
 
-        internal Token NextToken()
+        internal async Task<Token> NextToken()
         {
-            if (!UseContentPattern)
+            await IsMatch(Pattern.WHITESPACE);
+
+            if (await IsMatch(Pattern.NEW_LINE))
             {
-                IsMatch(Pattern.WHITESPACE);
-
-                if (IsMatch(Pattern.HTTP))
-                {
-                    return Current = Token.Http;
-                }
-
-                if (IsMatch(Pattern.METHOD))
-                {
-                    LastTokenMethod = true;
-                    return Current = Token.Method;
-                }
-
-                if (LastTokenMethod)
-                {
-                    if (IsMatch(Pattern.URL))
-                    {
-                        LastTokenMethod = false;
-                        return Current = Token.Url;
-                    }
-                }
-
-                if (IsMatch(Pattern.HEADER_DEFINITION))
-                {
-                    return Current = Token.HeaderDefinition;
-                }
-
-                if (IsMatch(Pattern.HEADER_CONTENT))
-                {
-                    return Current = Token.HeaderContent;
-                }
-
-                if (IsMatch(Pattern.NEW_LINE))
-                {
-                    return Current = Token.NewLine;
-                }
+                return Current = Token.NewLine;
             }
-            else
+
+            if (await IsMatch(Pattern.HTTP))
             {
-                if (IsMatch(PatternContent))
+                return Current = Token.Protocol;
+            }
+
+            if (await IsMatch(Pattern.METHOD))
+            {
+                LastTokenMethod = true;
+                return Current = Token.Method;
+            }
+
+            if (LastTokenMethod)
+            {
+                if (await IsMatch(Pattern.URL))
                 {
-                    UseContentPattern = false;
-                    return Current = Token.Content;
+                    LastTokenMethod = false;
+                    return Current = Token.Url;
                 }
             }
 
+            if (await IsMatch(Pattern.HEADER_DEFINITION))
+            {
+                return Current = Token.HeaderDefinition;
+            }
+
+            if (await IsMatch(Pattern.HEADER_CONTENT))
+            {
+                return Current = Token.HeaderContent;
+            }
+            
             return Current = Token.Unknown;
         }
 
-        internal void SetContentLength(long length)
+        private async Task<bool> IsMatch(Regex re)
         {
-            PatternContent = @"^((?:.|\n){" + length + "})";
-        }
-
-        internal void Append(string value)
-        {
-            Buffer.Append(value);
-        }
-
-        private bool IsMatch(string pattern)
-        {
-            return IsMatch(new Regex(pattern));
-        }
-
-        private bool IsMatch(Regex re)
-        {
-            var content = Buffer.ToString();
+            var content = await Buffer.GetString();
 
             var match = re.Match(content);
 
             if (match.Success)
             {
                 Value = match.Groups[1].Value;
-                Buffer.Remove(0, match.Length);
+                Buffer.Advance((ushort)match.Length);
 
                 return true;
             }

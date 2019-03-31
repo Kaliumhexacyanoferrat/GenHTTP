@@ -68,9 +68,9 @@ namespace GenHTTP.Core.Infrastructure
                 do
                 {
                     var clientSocket = Socket.Accept();
-                    var handler = new ClientHandler(clientSocket, this);
+                    var handler = new ClientHandler(clientSocket, this, Configuration.Network);
 
-                    ThreadPool.QueueUserWorkItem(new WaitCallback(handler.Run));
+                    ThreadPool.QueueUserWorkItem(new WaitCallback(async (_) => await handler.Run()));
                 }
                 while (true);
             }

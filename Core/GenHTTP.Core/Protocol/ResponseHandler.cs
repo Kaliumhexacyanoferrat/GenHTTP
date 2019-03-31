@@ -5,6 +5,7 @@ using System.Text;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Core.Infrastructure;
 
 namespace GenHTTP.Core.Protocol
 {
@@ -21,14 +22,17 @@ namespace GenHTTP.Core.Protocol
 
         protected Stream OutputStream { get; }
 
+        internal NetworkConfiguration Configuration { get; }
+
         #endregion
 
         #region Initialization
 
-        internal ResponseHandler(IServer server, Stream outputstream)
+        internal ResponseHandler(IServer server, Stream outputstream, NetworkConfiguration configuration)
         {
             Server = server;
             OutputStream = outputstream;
+            Configuration = configuration;
         }
 
         #endregion
@@ -126,7 +130,7 @@ namespace GenHTTP.Core.Protocol
                     response.Content.Seek(0, SeekOrigin.Begin);
                 }
 
-                response.Content.CopyTo(OutputStream);
+                response.Content.CopyTo(OutputStream, (int)Configuration.TransferBufferSize);
             }
         }
 

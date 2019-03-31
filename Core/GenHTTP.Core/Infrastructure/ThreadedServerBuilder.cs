@@ -14,11 +14,16 @@ namespace GenHTTP.Core.Infrastructure
         protected ushort _Backlog = 20;
         protected ushort _Port = 8080;
 
+        protected uint _RequestMemoryLimit = 1 * 1024 + 1024; // 1 MB
+        protected uint _TransferBufferSize = 65 * 1024; // 65 KB
+
+        protected TimeSpan _RequestReadTimeout = TimeSpan.FromSeconds(10);
+
         protected IRouter? _Router;
         protected IServerCompanion? _Companion;
-
-        #region Functionality
         
+        #region Functionality
+
         public IServerBuilder Router(IRouterBuilder routerBuilder)
         {
             return Router(routerBuilder.Build());
@@ -52,6 +57,24 @@ namespace GenHTTP.Core.Infrastructure
             _Backlog = backlog;
             return this;
         }
+
+        public IServerBuilder RequestReadTimeout(TimeSpan timeout)
+        {
+            _RequestReadTimeout = timeout;
+            return this;
+        }
+
+        public IServerBuilder RequestMemoryLimit(uint limit)
+        {
+            _RequestMemoryLimit = limit;
+            return this;
+        }
+
+        public IServerBuilder TransferBufferSize(uint bufferSize)
+        {
+            _TransferBufferSize = bufferSize;
+            return this;
+        }
         
         public IServer Build()
         {
@@ -60,11 +83,13 @@ namespace GenHTTP.Core.Infrastructure
                 throw new BuilderMissingPropertyException("Router");
             }
 
-            var config = new ServerConfiguration(_Port, _Backlog);
+            var network = new NetworkConfiguration(_RequestReadTimeout, _RequestMemoryLimit, _TransferBufferSize);
 
+            var config = new ServerConfiguration(_Port, _Backlog, network);
+            
             return new ThreadedServer(_Router, _Companion, config);
         }
-
+        
         #endregion
 
     }

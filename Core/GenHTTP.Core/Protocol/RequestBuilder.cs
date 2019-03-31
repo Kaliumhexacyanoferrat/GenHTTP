@@ -10,7 +10,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Core.Protocol
 {
 
-    public class RequestBuilder : IBuilder<IRequest>
+    internal class RequestBuilder : IBuilder<IRequest>
     {
         private IClientHandler? _ClientHandler;
 
@@ -24,7 +24,21 @@ namespace GenHTTP.Core.Protocol
         private Dictionary<string, string> _Query = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
         private CookieCollection _Cookies = new CookieCollection();
-        private HeaderCollection _Headers = new HeaderCollection();
+
+        #region Get-/Setters
+
+        internal HeaderCollection Headers { get; }
+
+        #endregion
+
+        #region Initialization
+
+        internal RequestBuilder()
+        {
+            Headers = new HeaderCollection();
+        }
+
+        #endregion
 
         #region Functionality
 
@@ -113,7 +127,7 @@ namespace GenHTTP.Core.Protocol
             }
             else
             {
-                _Headers[key] = value;
+                Headers[key] = value;
             }
 
             return this;
@@ -147,7 +161,7 @@ namespace GenHTTP.Core.Protocol
                 throw new BuilderMissingPropertyException("Path");
             }
 
-            return new Request((ProtocolType)_Protocol, (RequestType)_RequestType, _Path, _Headers, _Cookies, _Query, _Content, _ClientHandler);
+            return new Request((ProtocolType)_Protocol, (RequestType)_RequestType, _Path, Headers, _Cookies, _Query, _Content, _ClientHandler);
         }
 
         #endregion

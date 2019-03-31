@@ -2,11 +2,13 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Core.Protocol;
+using GenHTTP.Core.Infrastructure;
 
 namespace GenHTTP.Core
 {
@@ -20,11 +22,13 @@ namespace GenHTTP.Core
 
         public IPAddress IPAddress => ((IPEndPoint)Connection.RemoteEndPoint).Address;
 
+        internal NetworkConfiguration Configuration { get; }
+
         internal Socket Connection { get; }
 
         internal NetworkStream NetworkStream { get; }
 
-        protected Parser Parser { get; }
+        protected RequestParser Parser { get; }
 
         protected bool? KeepAlive { get; set; }
 
@@ -32,29 +36,44 @@ namespace GenHTTP.Core
 
         #region Initialization
 
-        internal ClientHandler(Socket socket, IServer server)
+        internal ClientHandler(Socket socket, IServer server, NetworkConfiguration config)
         {
             Server = server;
 
+            Configuration = config;
             Connection = socket;
-            NetworkStream = new NetworkStream(socket, false);
 
-            Parser = new Parser(socket, server, HandleRequest);
+            NetworkStream = new NetworkStream(socket, false)
+            {
+                ReadTimeout = (int)config.RequestReadTimeout.TotalMilliseconds
+            };
+
+            Parser = new RequestParser(NetworkStream, Configuration);
         }
 
         #endregion
 
         #region Functionality
 
-        internal void Run(object state)
+        internal async Task Run()
         {
             try
             {
-                Parser.Run();
+                bool closeConnection = false;
+
+                do
+                {
+                    var request = await Parser.GetRequest();
+                    closeConnection = HandleRequest(request);
+                }
+                while (!closeConnection);
             }
             catch (Exception e)
             {
-                Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, e);
+                if (!(e is ReadTimeoutException))
+                {
+                    Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, e);
+                }
             }
             finally
             {
@@ -76,8 +95,8 @@ namespace GenHTTP.Core
                 }
             }
         }
-
-        private void HandleRequest(RequestBuilder builder)
+        
+        private bool HandleRequest(RequestBuilder builder)
         {
             using (var request = builder.Handler(this).Build())
             {
@@ -88,7 +107,7 @@ namespace GenHTTP.Core
 
                 bool keepAlive = (bool)KeepAlive;
 
-                var responseHandler = new ResponseHandler(Server, NetworkStream);
+                var responseHandler = new ResponseHandler(Server, NetworkStream, Configuration);
                 var requestHandler = new RequestHandler(Server);
 
                 using (var response = requestHandler.Handle(request, out Exception? error))
@@ -100,10 +119,13 @@ namespace GenHTTP.Core
                         Connection.LingerState = new LingerOption(true, 1);
                         Connection.Disconnect(false);
                         Connection.Close();
+
+                        return true;
                     }
+
+                    return false;
                 }
             }
-
         }
 
         #endregion

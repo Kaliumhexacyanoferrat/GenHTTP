@@ -92,8 +92,6 @@ namespace GenHTTP.Core.Protocol
 
             try
             {
-                IContentProvider provider;
-
                 error = null;
 
                 if (routing.ContentProvider != null)

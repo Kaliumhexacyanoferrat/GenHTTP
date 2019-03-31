@@ -12,7 +12,8 @@ namespace GenHTTP.Api.Protocol
         POST,
         PUT,
         PATCH,
-        DELETE
+        DELETE,
+        OPTIONS
     }
 
 }
