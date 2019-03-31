@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 using GenHTTP.Api.Infrastructure;
@@ -18,66 +19,47 @@ namespace GenHTTP.Core.Protocol
         #region Get-/Setters
 
         protected IServer Server { get; }
-
-        protected ClientHandler ClientHandler { get; }
-
+        
         #endregion
 
         #region Initialization
 
-        internal RequestHandler(IServer server, ClientHandler clientHandler)
+        internal RequestHandler(IServer server)
         {
             Server = server;
-            ClientHandler = clientHandler;
         }
 
         #endregion
 
         #region Functionality
 
-        internal bool HandleRequest(HttpRequest request, bool keepAlive)
+        internal IResponse Handle(IRequest request, out Exception? error)
         {
-            var response = new HttpResponse(ClientHandler, request.Type == RequestType.HEAD, request.ProtocolType, keepAlive);
-
             IRoutingContext? routing;
-            Exception? error;
+            IResponse? response;
 
             if (TryRoute(request, out routing, out error))
             {
-                if (TryProvideContent(request, response, routing, out error))
-                {
-                    if (!response.Sent)
-                    {
-                        // the content provider didn't send data, so the
-                        // request is still unhandled
-                        ServerError(request, response, routing);
-                    }
-                }
-                else
-                {
-                    // the content provider threw an exception
-                    // send a templated error message page, if possible
-                    ServerError(request, response, routing);
-                }
+                response = TryProvideContent(request, routing, out error);                
             }
             else
             {
                 // with no routing context, we can't provide a templated error page
                 // provide a default error page in this case, if possible
-                CoreError(request, response);
+                response = CoreError(request);
             }
 
-            Server.Companion?.OnRequestHandled(request, response, error);
-
-            if (response.Header.CloseConnection)
+            if (response == null)
             {
-                return true;
+                // the content provider threw an exception
+                // send a templated error message page, if possible
+                response = ServerError(request, routing);
             }
 
-            return !keepAlive;
+            return response;
         }
 
-        protected bool TryRoute(HttpRequest request, out IRoutingContext? routingContext, out Exception? error)
+        protected bool TryRoute(IRequest request, out IRoutingContext? routingContext, out Exception? error)
         {
             try
             {
@@ -100,54 +82,48 @@ namespace GenHTTP.Core.Protocol
             }
         }
 
-        protected bool TryProvideContent(HttpRequest request, HttpResponse response, IRoutingContext? routing, out Exception? error)
+        protected IResponse? TryProvideContent(IRequest request, IRoutingContext? routing, out Exception? error)
         {
             if (routing == null)
             {
                 error = null;
-                return false;
+                return null;
             }
 
             try
             {
                 IContentProvider provider;
 
+                error = null;
+
                 if (routing.ContentProvider != null)
                 {
-                    provider = routing.ContentProvider;
+                    return routing.ContentProvider.Handle(request).Build();
                 }
                 else
                 {
-                    response.Header.Type = ResponseType.NotFound;
-                    provider = routing.Router.GetErrorHandler(request, response);
+                    return routing.Router.GetErrorHandler(request, ResponseType.NotFound)
+                                         .Handle(request)
+                                         .Type(ResponseType.NotFound)
+                                         .Build();
                 }
-
-                provider.Handle(request, response);
-
-                error = null;
-                return true;
             }
             catch (Exception e)
             {
                 error = e;
-                return false;
+                return null;
             }
         }
 
-        protected bool ServerError(HttpRequest request, HttpResponse response, IRoutingContext? routing)
+        protected IResponse ServerError(IRequest request, IRoutingContext? routing)
         {
-            if (response.Sent) return true;
-
             if (routing != null)
             {
                 try
                 {
-                    response.Header.Type = ResponseType.InternalServerError;
-
-                    routing.Router.GetErrorHandler(request, response)
-                                  .Handle(request, response);
-
-                    return true;
+                    return routing.Router.GetErrorHandler(request, ResponseType.InternalServerError)
+                                         .Handle(request)
+                                         .Build();
                 }
                 catch (Exception e)
                 {
@@ -155,25 +131,20 @@ namespace GenHTTP.Core.Protocol
                 }
             }
 
-            return CoreError(request, response);
+            return CoreError(request);
         }
 
-        protected bool CoreError(HttpRequest request, HttpResponse response)
+        protected IResponse CoreError(IRequest request)
         {
-            if (response.Sent) return true;
-
             var coreRouter = Server.Router as CoreRouter;
 
             if (coreRouter != null)
             {
                 try
                 {
-                    response.Header.Type = ResponseType.InternalServerError;
-
-                    coreRouter.GetErrorHandler(request, response)
-                              .Handle(request, response);
-                    
-                    return true;
+                    return coreRouter.GetErrorHandler(request, ResponseType.InternalServerError)
+                                     .Handle(request)
+                                     .Build();
                 }
                 catch (Exception e)
                 {
@@ -181,19 +152,17 @@ namespace GenHTTP.Core.Protocol
                 }
             }
 
-            return GenericError(request, response);
+            return GenericError(request);
         }
 
-        protected bool GenericError(HttpRequest request, HttpResponse response)
+        protected IResponse GenericError(IRequest request)
         {
-            if (response.Sent) return true;
+            var stream = new MemoryStream(Encoding.UTF8.GetBytes("Internal Server Error"));
 
-            response.Header.Type = ResponseType.InternalServerError;
-            response.Header.ContentType = ContentType.TextPlain;
-
-            response.Send(Encoding.UTF8.GetBytes("Internal Server Error"));
-
-            return true;
+            return request.Respond()
+                          .Type(ResponseType.InternalServerError)
+                          .Content(stream, ContentType.TextPlain)
+                          .Build();
         }
 
         #endregion

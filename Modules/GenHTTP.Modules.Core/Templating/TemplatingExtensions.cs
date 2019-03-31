@@ -13,25 +13,22 @@ namespace GenHTTP.Modules.Core.Templating
     public static class TemplatingExtensions
     {
 
-        public static void Send(this IHttpResponse response, TemplateModel model, IHttpRequest origin)
+        public static IResponseBuilder Content(this IResponseBuilder response, TemplateModel model)
         {
-            if (origin.Routing == null)
+            if (response.Request.Routing == null)
             {
                 throw new InvalidOperationException("Routing context is not available");
             }
 
-            var content = origin.Routing.Router
-                                        .GetRenderer()
-                                        .Render(model);
+            var content = response.Request.Routing.Router
+                                          .GetRenderer()
+                                          .Render(model);
 
-            response.Header.ContentType = ContentType.TextHtml;
+            var stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
 
-            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(content)))
-            {
-                response.Send(stream);
-            }
+            return response.Content(stream, ContentType.TextHtml);
         }
-
+        
     }
 
 }

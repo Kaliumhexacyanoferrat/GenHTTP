@@ -55,11 +55,9 @@ namespace GenHTTP.Core.Routing
             return Template;
         }
 
-        public IContentProvider GetErrorHandler(IHttpRequest request, IHttpResponse response)
+        public IContentProvider GetErrorHandler(IRequest request, ResponseType responseType)
         {
-            var type = response.Header.Type;
-
-            var page = new TemplateModel(request, response, type.ToString(), $"Server returned with response type '{type}'.");
+            var page = new TemplateModel(request, responseType.ToString(), $"Server returned with response type '{responseType}'.");
 
             var renderer = request.Routing?.Router.GetRenderer() ?? GetRenderer();
 

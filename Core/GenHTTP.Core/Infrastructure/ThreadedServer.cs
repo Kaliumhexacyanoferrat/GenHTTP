@@ -50,7 +50,7 @@ namespace GenHTTP.Core.Infrastructure
             }
             catch (Exception e)
             {
-                throw new SocketBindingException($"Failed to bind to port {Configuration.Port}.", e);
+                throw new BindingException($"Failed to bind to port {Configuration.Port}.", e);
             }
 
             MainThread = new Thread(MainLoop);

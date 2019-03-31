@@ -4,15 +4,10 @@ using System.Text;
 
 namespace GenHTTP.Api.Protocol
 {
-
-    public enum RequestType
+    
+    public interface ICookieCollection : IReadOnlyDictionary<string, Cookie>
     {
-        GET,
-        HEAD,
-        POST,
-        PUT,
-        PATCH,
-        DELETE
+
     }
 
 }

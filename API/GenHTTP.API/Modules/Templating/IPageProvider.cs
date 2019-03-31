@@ -10,7 +10,7 @@ namespace GenHTTP.Api.Modules.Templating
     public interface IPageProvider<T> where T : PageModel
     {
 
-        T GetModel(IHttpRequest request, IHttpResponse response);
+        T GetModel(IRequest request);
 
     }
 

@@ -20,10 +20,9 @@ namespace GenHTTP.Modules.Core.Tests
             var template = Data.FromString("[Title] [Content]");
             var renderer = Placeholders.Template(template).Build();
             
-            var request = Mock.Of<IHttpRequest>();
-            var response = Mock.Of<IHttpResponse>();
+            var request = Mock.Of<IRequest>();
 
-            Assert.Equal("Hello World", renderer.Render(new TemplateModel(request, response, "Hello", "World")));
+            Assert.Equal("Hello World", renderer.Render(new TemplateModel(request, "Hello", "World")));
         }
         
     }

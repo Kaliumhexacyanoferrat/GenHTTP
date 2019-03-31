@@ -96,7 +96,7 @@ namespace GenHTTP.Api.Tests.Routing
         {
             var coreRouter = router ?? new Mock<IRouter>();
 
-            var request = new Mock<IHttpRequest>();
+            var request = new Mock<IRequest>();
             request.SetupGet(r => r.Path).Returns(path);
 
             return new RoutingContext(coreRouter.Object, request.Object);

@@ -1,38 +1,30 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using System.Net.Sockets;
 using System.Threading;
 
 using GenHTTP.Api.Infrastructure;
-
 using GenHTTP.Core.Protocol;
-using GenHTTP.Core.Infrastructure;
 
 namespace GenHTTP.Core
 {
 
-    /// <summary>
-    /// Watches the connection and parses HttpRequests.
-    /// </summary>
-    internal class HttpParser
+    internal class Parser
     {
         private byte[] _SocketBuffer = new byte[4096];
 
         #region Get-/Setters
-
-        protected bool KeepAlive { get; set; }
-
-        protected bool FirstConnection { get; set; }
-
-        protected ClientHandler Handler { get; }
-
+                
         protected Socket Socket { get; }
+        
+        protected IServer Server { get; }
 
-        protected ThreadedServer Server { get; }
+        protected Action<RequestBuilder> RequestHandler { get; }
 
-        protected HttpRequest CurrentRequest { get; set; }
+        protected RequestBuilder CurrentRequest { get; set; }
 
-        protected HttpScanner Scanner { get; set; }
+        protected Scanner Scanner { get; set; }
 
         protected ushort Timeout { get; }
 
@@ -61,27 +53,20 @@ namespace GenHTTP.Core
 
         #region Initialization
 
-        /// <summary>
-        /// Create a new HttpParser object.
-        /// </summary>
-        /// <param name="socket">The connection to watch</param>
-        /// <param name="handler">The assigned client handler</param>
-        internal HttpParser(Socket socket, ThreadedServer server, ClientHandler handler)
+        internal Parser(Socket socket, IServer server, Action<RequestBuilder> requestHandler)
         {
-            Handler = handler;
             Socket = socket;
             Server = server;
 
             Timeout = 5;
 
-            FirstConnection = true;
-            KeepAlive = false;
-
             LastRequest = DateTime.Now;
             BodyAvailable = false;
 
-            Scanner = new HttpScanner();
-            CurrentRequest = new HttpRequest(Handler);
+            Scanner = new Scanner();
+            CurrentRequest = new RequestBuilder();
+
+            RequestHandler = requestHandler;
         }
 
         #endregion
@@ -90,22 +75,11 @@ namespace GenHTTP.Core
 
         internal void Run()
         {
-            try
-            {
-                // begin to retrieve data
-                Socket.BeginReceive(_SocketBuffer, 0, _SocketBuffer.Length, SocketFlags.None, new AsyncCallback(RecievedData), null);
+            // begin to retrieve data
+            Socket.BeginReceive(_SocketBuffer, 0, _SocketBuffer.Length, SocketFlags.None, new AsyncCallback(RecievedData), null);
 
-                // block this thread, waiting for timeout
-                while (Socket.Connected && !TimedOut) Thread.Sleep(10);
-            }
-            finally
-            {
-                if (Socket.Connected)
-                {
-                    Socket.Disconnect(false);
-                    Socket.Close();
-                }
-            }
+            // block this thread, waiting for timeout
+            while (Socket.Connected && !TimedOut) Thread.Sleep(10);
         }
 
         private void RecievedData(IAsyncResult result)
@@ -123,7 +97,7 @@ namespace GenHTTP.Core
                 Scanner.Append(Encoding.ASCII.GetString(_SocketBuffer, 0, read));
 
                 // parse it
-                while (Scanner.NextToken() != HttpToken.Unknown)
+                while (Scanner.NextToken() != Token.Unknown)
                 {
                     Parse();
                 }
@@ -142,36 +116,36 @@ namespace GenHTTP.Core
             try
             {
                 // GET, HEAD or POST
-                if (Scanner.Current == HttpToken.Method)
+                if (Scanner.Current == Token.Method)
                 {
                     LastRequest = DateTime.Now; // reset timeout-timer
-                    CurrentRequest.ParseType(Scanner.Value);
+                    CurrentRequest.Type(Scanner.Value);
                     return;
                 }
 
                 // HTTP version
-                if (Scanner.Current == HttpToken.Http)
+                if (Scanner.Current == Token.Http)
                 {
-                    CurrentRequest.ParseHttp(Scanner.Value);
+                    CurrentRequest.Protocol(Scanner.Value);
                     return;
                 }
 
                 // URL
-                if (Scanner.Current == HttpToken.Url)
+                if (Scanner.Current == Token.Url)
                 {
-                    CurrentRequest.ParseURL(Scanner.Value);
+                    CurrentRequest.Path(Scanner.Value);
                     return;
                 }
 
                 // Save header field
-                if (Scanner.Current == HttpToken.HeaderDefinition)
+                if (Scanner.Current == Token.HeaderDefinition)
                 {
                     CurrentHeader = Scanner.Value;
                     return;
                 }
 
                 // Value of a header field
-                if (Scanner.Current == HttpToken.HeaderContent)
+                if (Scanner.Current == Token.HeaderContent)
                 {
                     if (CurrentHeader != null)
                     {
@@ -181,7 +155,7 @@ namespace GenHTTP.Core
                             BodyAvailable = true;
                         }
 
-                        CurrentRequest.ParseHeaderField(CurrentHeader, Scanner.Value);
+                        CurrentRequest.Header(CurrentHeader, Scanner.Value);
                     }
                     else
                     {
@@ -192,7 +166,7 @@ namespace GenHTTP.Core
                 }
 
                 // new line, check for content
-                if (Scanner.Current == HttpToken.NewLine)
+                if (Scanner.Current == Token.NewLine)
                 {
                     if (BodyAvailable)
                     {
@@ -208,9 +182,12 @@ namespace GenHTTP.Core
                 }
 
                 // content
-                if (Scanner.Current == HttpToken.Content)
+                if (Scanner.Current == Token.Content)
                 {
-                    CurrentRequest.ParseBody(Scanner.Value);
+                    var bytes = Encoding.UTF8.GetBytes(Scanner.Value);
+                    var stream = new MemoryStream(bytes);
+
+                    CurrentRequest.Content(stream);
                     HandleRequest();
                 }
             }
@@ -224,42 +201,18 @@ namespace GenHTTP.Core
         {
             RequestsPending++;
 
-            var connection = (CurrentRequest["connection"] ?? "").ToLower();
-
-            if (FirstConnection)
-            {
-                FirstConnection = false;
-                KeepAlive = (connection == "keep-alive");
-            }
-            else
-            {
-                if (connection == "close")
-                {
-                    KeepAlive = false;
-                }
-            }
-
             try
             {
-                var requestHandler = new RequestHandler(Server, Handler);
-
-                if (requestHandler.HandleRequest(CurrentRequest, KeepAlive))
-                {
-                    Socket.LingerState = new LingerOption(true, 1);
-                    Socket.Disconnect(false);
-                    Socket.Close();
-                }
+                RequestHandler(CurrentRequest);
             }
             catch (Exception e)
             {
                 Server.Companion?.OnServerError(ServerErrorScope.Internal, e);
             }
-            finally
-            {
-                RequestsPending--;
-            }
 
-            CurrentRequest = new HttpRequest(Handler);
+            RequestsPending--;
+
+            CurrentRequest = new RequestBuilder();
         }
 
         #endregion

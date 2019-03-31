@@ -15,21 +15,18 @@ namespace GenHTTP.Api.Modules.Templating
 
         public string Content { get; }
 
-        public IHttpRequest Request { get; }
-
-        public IHttpResponse Response { get; }
+        public IRequest Request { get; }
 
         #endregion
 
         #region Initialization
 
-        public TemplateModel(IHttpRequest request, IHttpResponse response, string title, string content)
+        public TemplateModel(IRequest request, string title, string content)
         {
             Title = title;
             Content = content;
 
             Request = request;
-            Response = response;
         }
 
         #endregion

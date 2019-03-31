@@ -10,7 +10,7 @@ namespace GenHTTP.Core
     /// <summary>
     /// All possible Tokens in a HTTP-Request
     /// </summary>
-    internal enum HttpToken
+    internal enum Token
     {
         Http,
         Method,
@@ -23,14 +23,14 @@ namespace GenHTTP.Core
     }
 
     /// <summary>
-    /// Scans the stream for the <see cref="HttpParser" />.
+    /// Scans the stream for the <see cref="Parser" />.
     /// </summary>
-    internal class HttpScanner
+    internal class Scanner
     {
 
         #region Get-/Setters
 
-        public HttpToken Current { get; protected set; }
+        public Token Current { get; protected set; }
 
         public string Value { get; protected set; }
 
@@ -46,14 +46,14 @@ namespace GenHTTP.Core
 
         #region Initialization
 
-        internal HttpScanner()
+        internal Scanner()
         {
             Buffer = new StringBuilder();
 
             LastTokenMethod = false;
             PatternContent = @"^(.+)";
 
-            Current = HttpToken.Unknown;
+            Current = Token.Unknown;
             Value = string.Empty;
         }
 
@@ -61,7 +61,7 @@ namespace GenHTTP.Core
 
         #region Functionality
 
-        internal HttpToken NextToken()
+        internal Token NextToken()
         {
             if (!UseContentPattern)
             {
@@ -69,13 +69,13 @@ namespace GenHTTP.Core
 
                 if (IsMatch(Pattern.HTTP))
                 {
-                    return Current = HttpToken.Http;
+                    return Current = Token.Http;
                 }
 
                 if (IsMatch(Pattern.METHOD))
                 {
                     LastTokenMethod = true;
-                    return Current = HttpToken.Method;
+                    return Current = Token.Method;
                 }
 
                 if (LastTokenMethod)
@@ -83,23 +83,23 @@ namespace GenHTTP.Core
                     if (IsMatch(Pattern.URL))
                     {
                         LastTokenMethod = false;
-                        return Current = HttpToken.Url;
+                        return Current = Token.Url;
                     }
                 }
 
                 if (IsMatch(Pattern.HEADER_DEFINITION))
                 {
-                    return Current = HttpToken.HeaderDefinition;
+                    return Current = Token.HeaderDefinition;
                 }
 
                 if (IsMatch(Pattern.HEADER_CONTENT))
                 {
-                    return Current = HttpToken.HeaderContent;
+                    return Current = Token.HeaderContent;
                 }
 
                 if (IsMatch(Pattern.NEW_LINE))
                 {
-                    return Current = HttpToken.NewLine;
+                    return Current = Token.NewLine;
                 }
             }
             else
@@ -107,11 +107,11 @@ namespace GenHTTP.Core
                 if (IsMatch(PatternContent))
                 {
                     UseContentPattern = false;
-                    return Current = HttpToken.Content;
+                    return Current = Token.Content;
                 }
             }
 
-            return Current = HttpToken.Unknown;
+            return Current = Token.Unknown;
         }
 
         internal void SetContentLength(long length)

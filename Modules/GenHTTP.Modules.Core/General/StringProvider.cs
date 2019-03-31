@@ -32,14 +32,10 @@ namespace GenHTTP.Modules.Core.General
 
         #region Functionality
 
-        public void Handle(IHttpRequest request, IHttpResponse response)
+        public IResponseBuilder Handle(IRequest request)
         {
-            response.Header.ContentType = ContentType;
-
-            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(Data)))
-            {
-                response.Send(stream);
-            }
+            return request.Respond()
+                          .Content(new MemoryStream(Encoding.UTF8.GetBytes(Data)), ContentType);
         }
 
         #endregion

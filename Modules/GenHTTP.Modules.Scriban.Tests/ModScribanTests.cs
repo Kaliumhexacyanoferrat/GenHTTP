@@ -22,10 +22,9 @@ namespace GenHTTP.Modules.Scriban.Tests
             var template = Data.FromString("{{ title }} {{ content }}");
             var renderer = ModScriban.Template(template).Build();
 
-            var request = Mock.Of<IHttpRequest>();
-            var response = Mock.Of<IHttpResponse>();
+            var request = Mock.Of<IRequest>();
 
-            Assert.Equal("Hello World", renderer.Render(new TemplateModel(request, response, "Hello", "World")));
+            Assert.Equal("Hello World", renderer.Render(new TemplateModel(request, "Hello", "World")));
         }
 
     }

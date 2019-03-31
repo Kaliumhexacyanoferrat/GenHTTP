@@ -5,14 +5,9 @@ using System.Text;
 namespace GenHTTP.Api.Protocol
 {
 
-    public enum RequestType
+    public interface IHeaderCollection : IReadOnlyDictionary<string, string>
     {
-        GET,
-        HEAD,
-        POST,
-        PUT,
-        PATCH,
-        DELETE
+
     }
 
 }

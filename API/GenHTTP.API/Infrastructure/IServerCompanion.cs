@@ -19,7 +19,7 @@ namespace GenHTTP.Api.Infrastructure
     public interface IServerCompanion
     {
 
-        void OnRequestHandled(IHttpRequest request, IHttpResponse response, Exception? error);
+        void OnRequestHandled(IRequest request, IResponse response, Exception? error);
 
         void OnServerError(ServerErrorScope scope, Exception error);
 

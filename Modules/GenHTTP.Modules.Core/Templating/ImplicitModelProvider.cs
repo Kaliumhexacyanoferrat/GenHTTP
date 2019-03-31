@@ -11,9 +11,9 @@ namespace GenHTTP.Modules.Core.Templating
     public class ImplicitModelProvider : IPageProvider<PageModel>
     {
 
-        public PageModel GetModel(IHttpRequest request, IHttpResponse response)
+        public PageModel GetModel(IRequest request)
         {
-            return new PageModel(request, response);
+            return new PageModel(request);
         }
 
     }

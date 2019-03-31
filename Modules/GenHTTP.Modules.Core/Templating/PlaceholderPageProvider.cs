@@ -35,17 +35,18 @@ namespace GenHTTP.Modules.Core.Templating
 
         #region Functionality
 
-        public void Handle(IHttpRequest request, IHttpResponse response)
+        public IResponseBuilder Handle(IRequest request)
         {
             var renderer = new PlaceholderRender<T>(TemplateProvider);
 
-            var model = ModelProvider.GetModel(request, response);
+            var model = ModelProvider.GetModel(request);
 
             var content = renderer.Render(model);
 
-            var templateModel = new TemplateModel(request, response, model.Title ?? Title ?? "Untitled Page", content);
+            var templateModel = new TemplateModel(request, model.Title ?? Title ?? "Untitled Page", content);
 
-            response.Send(templateModel, request);
+            return request.Respond()
+                          .Content(templateModel);
         }
 
         #endregion

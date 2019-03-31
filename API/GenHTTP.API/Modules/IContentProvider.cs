@@ -10,7 +10,7 @@ namespace GenHTTP.Api.Modules
     public interface IContentProvider
     {
 
-        void Handle(IHttpRequest request, IHttpResponse response);
+        IResponseBuilder Handle(IRequest request);
 
     }
 

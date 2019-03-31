@@ -34,13 +34,14 @@ namespace GenHTTP.Modules.Core.General
 
         #region Functionality
 
-        public void Handle(IHttpRequest request, IHttpResponse response)
+        public IResponseBuilder Handle(IRequest request)
         {
-            var templateModel = new TemplateModel(request, response, Title ?? "Untitled Page", Content);
+            var templateModel = new TemplateModel(request, Title ?? "Untitled Page", Content);
 
-            response.Send(templateModel, request);
+            return request.Respond()
+                          .Content(templateModel);
         }
-
+        
         #endregion
 
     }

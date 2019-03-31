@@ -9,6 +9,7 @@ using GenHTTP.Core.Routing;
 using GenHTTP.Api.Routing;
 using GenHTTP.Api.Modules.Templating;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Core.Protocol;
 
 namespace GenHTTP.Core.Tests.Routing
 {
@@ -37,7 +38,7 @@ namespace GenHTTP.Core.Tests.Routing
         [Fact]
         public void TestHasRenderer()
         {
-            var templateModel = new TemplateModel(Mock.Of<IHttpRequest>(), Mock.Of<IHttpResponse>(), "Title", "Content");
+            var templateModel = new TemplateModel(Mock.Of<IRequest>(), "Title", "Content");
             var rendered = Instance.GetRenderer().Render(templateModel);
 
             Assert.Contains("Title", rendered);
@@ -59,18 +60,15 @@ namespace GenHTTP.Core.Tests.Routing
         [Fact]
         public void TestHandlesErrors()
         {
-            var request = Mock.Of<IHttpRequest>();
+            var request = new Mock<IRequest>();
 
-            var response = new Mock<IHttpResponse>();
+            request.Setup(r => r.Respond()).Returns(new ResponseBuilder(request.Object));            
 
-            var header = new Mock<IHttpResponseHeader>();
-            header.SetupGet(h => h.Type).Returns(ResponseType.InternalServerError);
+            var errorHandler = Instance.GetErrorHandler(request.Object, ResponseType.NotFound);
 
-            response.SetupGet(r => r.Header).Returns(header.Object);
+            var response = errorHandler.Handle(request.Object).Type(ResponseType.NotFound).Build();
 
-            var errorHandler = Instance.GetErrorHandler(request, response.Object);
-
-            errorHandler.Handle(request, response.Object);
+            Assert.Equal(ResponseType.NotFound, response.Type);
         }
 
         private IRouter Instance => new CoreRouter(Mock.Of<IRouter>());

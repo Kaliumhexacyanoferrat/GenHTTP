@@ -32,14 +32,10 @@ namespace GenHTTP.Modules.Core.General
 
         #region Functionality
 
-        public void Handle(IHttpRequest request, IHttpResponse response)
+        public IResponseBuilder Handle(IRequest request)
         {
-            response.Header.ContentType = ContentType;
-
-            using (var stream = ResourceProvider.GetResource())
-            {
-                response.Send(stream);
-            }
+            return request.Respond()
+                          .Content(ResourceProvider.GetResource(), ContentType);
         }
 
         #endregion

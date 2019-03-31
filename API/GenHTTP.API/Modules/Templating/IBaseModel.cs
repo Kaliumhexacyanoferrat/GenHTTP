@@ -10,10 +10,8 @@ namespace GenHTTP.Api.Modules.Templating
     public interface IBaseModel
     {
         
-        IHttpRequest Request { get; }
-
-        IHttpResponse Response { get; }
-
+        IRequest Request { get; }
+        
     }
 
 }

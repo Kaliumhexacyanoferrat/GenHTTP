@@ -20,7 +20,7 @@ namespace GenHTTP.Api.Routing
 
         public IContentProvider? ContentProvider { get; protected set; }
 
-        public IHttpRequest Request { get; }
+        public IRequest Request { get; }
 
         public string ScopedPath { get; protected set; }
         
@@ -28,7 +28,7 @@ namespace GenHTTP.Api.Routing
 
         #region Initialization
 
-        public RoutingContext(IRouter router, IHttpRequest request)
+        public RoutingContext(IRouter router, IRequest request)
         {
             Request = request;
             Router = router;

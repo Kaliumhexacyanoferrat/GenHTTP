@@ -13,7 +13,7 @@ namespace GenHTTP.Api.Routing
         
         IRouter Router { get; }
 
-        IHttpRequest Request { get; }
+        IRequest Request { get; }
         
         string ScopedPath { get; }
 
