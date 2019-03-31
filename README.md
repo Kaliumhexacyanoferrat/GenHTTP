@@ -8,63 +8,7 @@ As an example, the website of this project is hosted on a Raspberry Pi behind a 
 
 ## Getting Started
 
-To create a simple hello world project, run the following comand from the terminal:
-
-```sh
-dotnet new console --framework netcoreapp3.0 -o ExampleWebsite
-```
-
-This will create a new folder `ExampleWebsite`. Within this folder, run the following command to add a nuget package reference to the [GenHTTP Core package](https://www.nuget.org/packages/GenHTTP.Core/):
-
-```sh
-cd ExampleWebsite
-dotnet add package GenHTTP.Core
-```
-
-You can then edit the generated `Program.cs` to setup a simple project using the GenHTTP server API:
-
-```csharp
-using System;
-
-using GenHTTP.Core;
-using GenHTTP.Modules.Core;
-
-namespace ExampleWebsite
-{
-
-    public static class Program
-    {
-
-        public static void Main(string[] args)
-        {
-            var index = Page.From("Hello World!")
-                            .Title("Example Website");
-
-            var project = Layout.Create()
-                                .Add("index", index, true);
-
-            var server = Server.Create()
-                               .Router(project);
-
-            using (var instance = server.Build())
-            {
-                Console.WriteLine("Press any key to shutdown ...");
-                Console.ReadLine();
-            }
-        }
-
-    }
-
-}
-```
-
-To run the newly created project, execute:
-
-```sh
-dotnet run 
-```
-
-This will host a new server instance on port 8080, allowing you to view the newly created project in your browser by navigating to http://localhost:8080.
+To create a simple hello world project, follow the official <a href="https://genes.pics/genhttp/website/documentation/">starting guide</a>.
 
 ## Building the Server
 
