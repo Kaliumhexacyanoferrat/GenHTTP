@@ -52,6 +52,11 @@ namespace GenHTTP.Api.Protocol
         ApplicationForceDownload,
 
         /// <summary>
+        /// Anything else - data.
+        /// </summary>
+        ApplicationOctetStream,
+
+        /// <summary>
         /// A MP4 audio file.
         /// </summary>
         AudioMp4,
@@ -139,7 +144,43 @@ namespace GenHTTP.Api.Protocol
         /// <summary>
         /// An icon.
         /// </summary>
-        ImageIcon
+        ImageIcon,
+
+        /// <summary>
+        /// Microsoft, embedded otf.
+        /// </summary>
+        FontEmbeddedOpenTypeFont,
+
+        /// <summary>
+        /// True type font (.ttf)
+        /// </summary>
+        FontTrueTypeFont,
+
+        /// <summary>
+        /// Woff font (.woff)
+        /// </summary>
+        FontWoff,
+
+        /// <summary>
+        /// Woff 2 font (.woff2)
+        /// </summary>
+        FontWoff2,
+
+        /// <summary>
+        /// Open type fonf (.otf)
+        /// </summary>
+        FontOpenTypeFont,
+
+        /// <summary>
+        /// Scalable Vector Graphics (.svg)
+        /// </summary>
+        ImageScalableVectorGraphics,
+
+        /// <summary>
+        /// Scalable Vector Graphics (compressed, .svgz)
+        /// </summary>
+        ImageScalableVectorGraphicsCompressed
+
     }
 
 }

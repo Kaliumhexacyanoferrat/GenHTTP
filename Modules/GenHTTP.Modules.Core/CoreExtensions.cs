@@ -11,7 +11,7 @@ namespace GenHTTP.Modules.Core
     public static class CoreExtensions
     {
 
-        public static ContentType GuessContentType(this string fileName)
+        public static ContentType? GuessContentType(this string fileName)
         {
             var extension = Path.GetExtension(fileName);
                 
@@ -26,7 +26,6 @@ namespace GenHTTP.Modules.Core
                     // HTML files
                     case "html":
                     case "htm": return ContentType.TextHtml;
-                    case "ico": return ContentType.ImageIcon;
                     // Text files
                     case "sql":
                     case "txt":
@@ -42,48 +41,45 @@ namespace GenHTTP.Modules.Core
                     case "conf":
                     case "ini":
                     case "inf": return ContentType.TextPlain;
+                    // Fonts
+                    case "eot": return ContentType.FontEmbeddedOpenTypeFont;
+                    case "ttf": return ContentType.FontTrueTypeFont;
+                    case "otf": return ContentType.FontOpenTypeFont;
+                    case "woff": return ContentType.FontWoff;
+                    case "woff2": return ContentType.FontWoff2;
                     // JavaScript
                     case "js": return ContentType.ApplicationJavaScript;
-                    // GIF
+                    // Images
+                    case "ico": return ContentType.ImageIcon;
                     case "gif": return ContentType.ImageGif;
-                    // JPG
                     case "jpeg":
                     case "jpg": return ContentType.ImageJpg;
-                    // PNG
                     case "png": return ContentType.ImagePng;
-                    // BMP
                     case "bmp": return ContentType.ImageBmp;
-                    // OGG
-                    case "ogg": return ContentType.AudioOgg;
-                    // MP3
-                    case "mp3": return ContentType.AudioMpeg;
-                    // WAV
-                    case "wav": return ContentType.AudioWav;
-                    // TIFF
                     case "tiff": return ContentType.ImageTiff;
-                    // CSV
-                    case "csv": return ContentType.TextCsv;
-                    // RTF
-                    case "rtf": return ContentType.TextRichText;
-                    // XML
-                    case "xml": return ContentType.TextXml;
+                    case "svg": return ContentType.ImageScalableVectorGraphics;
+                    case "svgz": return ContentType.ImageScalableVectorGraphicsCompressed;
+                    // Audio
+                    case "ogg": return ContentType.AudioOgg;
+                    case "mp3": return ContentType.AudioMpeg;
+                    case "wav": return ContentType.AudioWav;
                     // Video files
                     case "mpg":
                     case "mpeg":
                     case "avi": return ContentType.VideoMpeg;
-                    // Word processing
+                    // Object models
+                    case "xml": return ContentType.TextXml;
+                    // Documents
+                    case "csv": return ContentType.TextCsv;
+                    case "rtf": return ContentType.TextRichText;
                     case "docx": return ContentType.ApplicationOfficeDocumentWordProcessing;
-                    // Presentation
                     case "pptx": return ContentType.ApplicationOfficeDocumentPresentation;
-                    // Slideshow
                     case "ppsx": return ContentType.ApplicationOfficeDocumentSlideshow;
-                    // Sheet
                     case "xlsx": return ContentType.ApplicationOfficeDocumentSheet;
                 }
             }
 
-            // All other files
-            return ContentType.ApplicationForceDownload;
+            return null;
         }
 
     }

@@ -23,7 +23,7 @@ namespace GenHTTP.Modules.Core
 
         public static DownloadProviderBuilder FromFile(FileInfo file)
         {
-            return From(Data.FromFile(file).Build()).Type(file.FullName.GuessContentType());
+            return From(Data.FromFile(file).Build()).Type(file.FullName.GuessContentType() ?? ContentType.ApplicationForceDownload);
         }
 
         public static DownloadProviderBuilder FromResource(string name)
@@ -33,7 +33,7 @@ namespace GenHTTP.Modules.Core
 
         public static DownloadProviderBuilder FromResource(Assembly source, string name)
         {
-            return From(Data.FromResource(source, name).Build()).Type(name.GuessContentType());
+            return From(Data.FromResource(source, name).Build()).Type(name.GuessContentType() ?? ContentType.ApplicationForceDownload);
         }
 
         public static DownloadProviderBuilder From(IBuilder<IResourceProvider> resource)

@@ -15,7 +15,7 @@ namespace GenHTTP.Modules.Core.Tests
         [Fact]
         public void TestNoExtension()
         {
-            Assert.Equal(ContentType.ApplicationForceDownload, "Dockerfile".GuessContentType());
+            Assert.Null("Dockerfile".GuessContentType());
         }
 
         [Fact]
@@ -33,7 +33,7 @@ namespace GenHTTP.Modules.Core.Tests
         [Fact]
         public void TestOther()
         {
-            Assert.Equal(ContentType.ApplicationForceDownload, "test.xyz".GuessContentType());
+            Assert.Null("test.xyz".GuessContentType());
         }
 
     }

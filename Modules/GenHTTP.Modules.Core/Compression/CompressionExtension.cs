@@ -32,30 +32,33 @@ namespace GenHTTP.Modules.Core.Compression
 
         public async Task Intercept(IRequest request, IResponse response)
         {
-            if ((response.Content != null) && ShouldCompress(response.ContentType))
+            if (response.ContentEncoding == null)
             {
-                if (request.Headers.TryGetValue("Accept-Encoding", out var header))
+                if ((response.Content != null) && ShouldCompress(response.ContentType))
                 {
-                    if (!string.IsNullOrEmpty(header))
+                    if (request.Headers.TryGetValue("Accept-Encoding", out var header))
                     {
-                        var supported = new HashSet<string>(header.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(a => a.Trim()));
-
-                        foreach (var algorithm in Algorithms.Values.OrderByDescending(a => (int)a.Priority))
+                        if (!string.IsNullOrEmpty(header))
                         {
-                            if (supported.Contains(algorithm.Name))
-                            {
-                                response.Content = algorithm.Compress(response.Content);
-                                response.ContentEncoding = algorithm.Name;
-                                response.ContentLength = null;
+                            var supported = new HashSet<string>(header.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(a => a.Trim()));
 
-                                break;
+                            foreach (var algorithm in Algorithms.Values.OrderByDescending(a => (int)a.Priority))
+                            {
+                                if (supported.Contains(algorithm.Name))
+                                {
+                                    response.Content = algorithm.Compress(response.Content);
+                                    response.ContentEncoding = algorithm.Name;
+                                    response.ContentLength = null;
+
+                                    break;
+                                }
                             }
                         }
                     }
                 }
             }
         }
-
+        
         protected bool ShouldCompress(ContentType? type)
         {
             if (type != null)
@@ -69,6 +72,12 @@ namespace GenHTTP.Modules.Core.Compression
                     case ContentType.TextHtml:
                     case ContentType.TextPlain:
                     case ContentType.TextRichText:
+                    case ContentType.FontWoff2:
+                    case ContentType.FontWoff:
+                    case ContentType.FontTrueTypeFont:
+                    case ContentType.FontOpenTypeFont:
+                    case ContentType.FontEmbeddedOpenTypeFont:
+                    case ContentType.ImageScalableVectorGraphics:
                     case ContentType.TextXml:
                         {
                             return true;
