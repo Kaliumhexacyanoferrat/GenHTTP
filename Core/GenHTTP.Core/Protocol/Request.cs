@@ -86,9 +86,9 @@ namespace GenHTTP.Core
         {
             return new ResponseBuilder(this).Type(ResponseType.OK);
         }
-
-        #endregion
         
+        #endregion
+
         #region IDisposable Support
 
         private bool disposed = false;
@@ -113,7 +113,7 @@ namespace GenHTTP.Core
         {
             Dispose(true);
         }
-
+        
         #endregion
 
     }

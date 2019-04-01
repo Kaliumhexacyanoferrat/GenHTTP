@@ -36,12 +36,17 @@ namespace GenHTTP.Modules.Core.General
 
         public IResponseBuilder Handle(IRequest request)
         {
-            var templateModel = new TemplateModel(request, Title ?? "Untitled Page", Content);
+            if (request.HasType(RequestType.HEAD, RequestType.GET, RequestType.POST))
+            {
+                var templateModel = new TemplateModel(request, Title ?? "Untitled Page", Content);
 
-            return request.Respond()
-                          .Content(templateModel);
+                return request.Respond()
+                              .Content(templateModel);
+            }
+
+            return request.Respond(ResponseType.MethodNotAllowed);
         }
-        
+
         #endregion
 
     }

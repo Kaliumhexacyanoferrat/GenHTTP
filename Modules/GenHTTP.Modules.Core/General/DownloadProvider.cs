@@ -34,8 +34,13 @@ namespace GenHTTP.Modules.Core.General
 
         public IResponseBuilder Handle(IRequest request)
         {
-            return request.Respond()
-                          .Content(ResourceProvider.GetResource(), ContentType);
+            if (request.HasType(RequestType.GET, RequestType.HEAD))
+            {
+                return request.Respond()
+                              .Content(ResourceProvider.GetResource(), ContentType);
+            }
+
+            return request.Respond(ResponseType.MethodNotAllowed);
         }
 
         #endregion

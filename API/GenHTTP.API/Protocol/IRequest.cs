@@ -37,9 +37,9 @@ namespace GenHTTP.Api.Protocol
         IClientHandler Handler { get; }
 
         IRoutingContext? Routing { get; set; }
-
+        
         IResponseBuilder Respond();
-                
+
     }
 
 }

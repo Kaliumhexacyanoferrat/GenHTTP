@@ -14,7 +14,7 @@ namespace GenHTTP.Modules.Core
         public static ContentType? GuessContentType(this string fileName)
         {
             var extension = Path.GetExtension(fileName);
-                
+
             if ((extension != null) && (extension.Length > 1))
             {
                 extension = extension.Substring(1);
@@ -81,6 +81,26 @@ namespace GenHTTP.Modules.Core
 
             return null;
         }
+
+        public static IResponseBuilder Respond(this IRequest request, ResponseType type)
+        {
+            var provider = request.Routing?.Router.GetErrorHandler(request, type) ?? throw new InvalidOperationException("Routing context is missing");
+            return provider.Handle(request).Type(type);
+        }
+
+        public static bool HasType(this IRequest request, params RequestType[] types)
+        {
+            foreach (var type in types)
+            {
+                if (type == request.Type)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
 
     }
 

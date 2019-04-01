@@ -33,6 +33,8 @@ namespace GenHTTP.Api.Protocol
 
         NotFound = 404,
 
+        MethodNotAllowed = 405,
+
         InternalServerError = 500,
 
         NotImplemented = 501,

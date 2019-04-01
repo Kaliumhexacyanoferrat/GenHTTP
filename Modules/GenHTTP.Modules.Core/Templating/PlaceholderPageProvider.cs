@@ -37,16 +37,21 @@ namespace GenHTTP.Modules.Core.Templating
 
         public IResponseBuilder Handle(IRequest request)
         {
-            var renderer = new PlaceholderRender<T>(TemplateProvider);
+            if (request.HasType(RequestType.HEAD, RequestType.GET, RequestType.POST))
+            {
+                var renderer = new PlaceholderRender<T>(TemplateProvider);
 
-            var model = ModelProvider.GetModel(request);
+                var model = ModelProvider.GetModel(request);
 
-            var content = renderer.Render(model);
+                var content = renderer.Render(model);
 
-            var templateModel = new TemplateModel(request, model.Title ?? Title ?? "Untitled Page", content);
+                var templateModel = new TemplateModel(request, model.Title ?? Title ?? "Untitled Page", content);
 
-            return request.Respond()
-                          .Content(templateModel);
+                return request.Respond()
+                              .Content(templateModel);
+            }
+
+            return request.Respond(ResponseType.MethodNotAllowed);
         }
 
         #endregion
