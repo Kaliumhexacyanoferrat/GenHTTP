@@ -68,7 +68,7 @@ namespace GenHTTP.Modules.Core.General
             }
             finally
             {
-                POOL.Return(buffer);
+                POOL.Return(inputBuffer);
             }
         }
 
