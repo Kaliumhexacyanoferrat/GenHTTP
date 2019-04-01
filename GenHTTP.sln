@@ -38,9 +38,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Core.Tests"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Scriban.Tests", "Modules\GenHTTP.Modules.Scriban.Tests\GenHTTP.Modules.Scriban.Tests.csproj", "{67EFA1AA-8A51-4DA0-8AE4-42D2C84DE4E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Modules.Brotli", "Modules\GenHTTP.Modules.Brotli\GenHTTP.Modules.Brotli.csproj", "{0604E2FC-B527-41DA-97D3-D1490174D34F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Brotli", "Modules\GenHTTP.Modules.Brotli\GenHTTP.Modules.Brotli.csproj", "{0604E2FC-B527-41DA-97D3-D1490174D34F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Modules.Brotli.Tests", "Modules\GenHTTP.Modules.Brotli.Tests\GenHTTP.Modules.Brotli.Tests.csproj", "{F2A90E13-6382-4B5F-9C43-EB3BFFD87867}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Brotli.Tests", "Modules\GenHTTP.Modules.Brotli.Tests\GenHTTP.Modules.Brotli.Tests.csproj", "{F2A90E13-6382-4B5F-9C43-EB3BFFD87867}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{A7930BE4-0549-4197-B139-B1A73E74B464}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Testing.Acceptance", "Testing\GenHTTP.Testing.Acceptance\GenHTTP.Testing.Acceptance.csproj", "{3B00D7C4-B8E9-4163-9E4C-67044BB26B34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -96,6 +100,10 @@ Global
 		{F2A90E13-6382-4B5F-9C43-EB3BFFD87867}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2A90E13-6382-4B5F-9C43-EB3BFFD87867}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F2A90E13-6382-4B5F-9C43-EB3BFFD87867}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B00D7C4-B8E9-4163-9E4C-67044BB26B34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B00D7C4-B8E9-4163-9E4C-67044BB26B34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B00D7C4-B8E9-4163-9E4C-67044BB26B34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B00D7C4-B8E9-4163-9E4C-67044BB26B34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -113,6 +121,7 @@ Global
 		{67EFA1AA-8A51-4DA0-8AE4-42D2C84DE4E2} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 		{0604E2FC-B527-41DA-97D3-D1490174D34F} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 		{F2A90E13-6382-4B5F-9C43-EB3BFFD87867} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
+		{3B00D7C4-B8E9-4163-9E4C-67044BB26B34} = {A7930BE4-0549-4197-B139-B1A73E74B464}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
