@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -8,6 +9,7 @@ namespace GenHTTP.Modules.Core.General
 
     public class FilteredStream : Stream
     {
+        private static ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
 
         #region Get-/Setters
 
@@ -46,21 +48,28 @@ namespace GenHTTP.Modules.Core.General
         public override int Read(byte[] buffer, int offset, int count)
         {
             // read from the input stream
-            var inputBuffer = new byte[count];
+            var inputBuffer = POOL.Rent(count);
 
-            var read = InputStream.Read(inputBuffer, 0, inputBuffer.Length);
+            try
+            {
+                var read = InputStream.Read(inputBuffer, 0, inputBuffer.Length);
 
-            // convert the data
-            ConversionStream.Write(inputBuffer, 0, read);
-            ConversionStream.Flush();
+                // convert the data
+                ConversionStream.Write(inputBuffer, 0, read);
+                ConversionStream.Flush();
 
-            // push the converted data into the given buffer
-            OutputStream.Seek(0, SeekOrigin.Begin);
-            var convertedRead = OutputStream.Read(buffer, offset, count);
+                // push the converted data into the given buffer
+                OutputStream.Seek(0, SeekOrigin.Begin);
+                var convertedRead = OutputStream.Read(buffer, offset, count);
 
-            OutputStream.SetLength(0); // free memory
+                OutputStream.SetLength(0); // free memory
 
-            return convertedRead;
+                return convertedRead;
+            }
+            finally
+            {
+                POOL.Return(buffer);
+            }
         }
 
         protected override void Dispose(bool disposing)

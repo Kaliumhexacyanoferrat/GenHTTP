@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -9,6 +10,8 @@ namespace GenHTTP.Core.Protocol
 
     internal class RequestBuffer : IDisposable
     {
+        private static ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
+
         private static readonly Encoding ENCODING = Encoding.GetEncoding("ISO-8859-1");
         
         #region Get-/Setters
@@ -60,7 +63,7 @@ namespace GenHTTP.Core.Protocol
             var position = Data.Position;
             var result = "";
             
-            using (var reader = new StreamReader(Data, ENCODING, false, 1024, true))
+            using (var reader = new StreamReader(Data, ENCODING, false, RequestParser.READ_BUFFER_SIZE, true))
             {
                 result = await reader.ReadToEndAsync();
             }
@@ -84,15 +87,22 @@ namespace GenHTTP.Core.Protocol
 
             if (available > 0)
             {
-                var buffer = new byte[available];
+                var buffer = POOL.Rent(available);
 
-                await Data.ReadAsync(buffer, 0, available);
+                try
+                {
+                    await Data.ReadAsync(buffer, 0, available);
 
-                await target.WriteAsync(buffer, 0, available);
+                    await target.WriteAsync(buffer, 0, available);
 
-                StringBuffer = null;
+                    StringBuffer = null;
 
-                return available;
+                    return available;
+                }
+                finally
+                {
+                    POOL.Return(buffer);
+                }
             }
 
             return 0;
@@ -102,8 +112,16 @@ namespace GenHTTP.Core.Protocol
         {
             if (Data.Position < Data.Length)
             {
-                var remaining = new byte[Data.Length - Data.Position];
-                await Data.ReadAsync(remaining, 0, remaining.Length);
+                var remaining = POOL.Rent((int)(Data.Length - Data.Position));
+
+                try
+                {
+                    await Data.ReadAsync(remaining, 0, remaining.Length);
+                }
+                finally
+                {
+                    POOL.Return(remaining);
+                }
 
                 return new RequestBuffer(remaining);
             }

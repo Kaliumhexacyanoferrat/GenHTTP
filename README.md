@@ -1,6 +1,6 @@
 # GenHTTP Webserver
 
-GenHTTP is a lightweight web server written in pure C# with no dependencies to 3rd-party libraries. The main purpose of this project is to serve small web applications written in .NET, allowing developers to concentrate on the functionality rather than on the infrastructure.
+GenHTTP is a lightweight web server written in pure C# with few dependencies to 3rd-party libraries. The main purpose of this project is to serve small web applications written in .NET, allowing developers to concentrate on the functionality rather than on the infrastructure.
 
 As an example, the website of this project is hosted on a Raspberry Pi behind a nginx reverse proxy: [GenHTTP Website](https://genes.pics/genhttp/website/)
 

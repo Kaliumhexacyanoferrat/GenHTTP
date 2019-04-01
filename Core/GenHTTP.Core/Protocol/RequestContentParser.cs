@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
@@ -14,7 +15,8 @@ namespace GenHTTP.Core.Protocol
 
     internal class RequestContentParser
     {
-                
+        private static ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
+
         #region Get-/Setters
 
         internal long Length { get; }
@@ -53,13 +55,20 @@ namespace GenHTTP.Core.Protocol
         
         private async Task<int> Migrate(NetworkStream source, Stream target)
         {
-            var buffer = new byte[Configuration.TransferBufferSize];
+            var buffer = POOL.Rent((int)Configuration.TransferBufferSize);
 
-            var read = await source.ReadWithTimeoutAsync(buffer, 0, buffer.Length);
+            try
+            {
+                var read = await source.ReadWithTimeoutAsync(buffer, 0, buffer.Length);
 
-            await target.WriteAsync(buffer, 0, read);
+                await target.WriteAsync(buffer, 0, read);
 
-            return read;
+                return read;
+            }
+            finally
+            {
+                POOL.Return(buffer);
+            }
         }
 
         #endregion

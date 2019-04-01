@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -14,6 +15,8 @@ namespace GenHTTP.Core.Protocol
 
     internal class ResponseHandler
     {
+        private static ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
+
         private static readonly Encoding HEADER_ENCODING = Encoding.GetEncoding("ISO-8859-1");
 
         private static readonly string NL = "\r\n";
@@ -137,20 +140,27 @@ namespace GenHTTP.Core.Protocol
                 {
                     int read;
 
-                    var buffer = new byte[Configuration.TransferBufferSize];
+                    var buffer = POOL.Rent((int)Configuration.TransferBufferSize);
 
-                    do
+                    try
                     {
-                        read = await response.Content.ReadAsync(buffer, 0, buffer.Length);
-
-                        if (read > 0)
+                        do
                         {
-                            await Write($"{read.ToString("X")}{NL}");
-                            await OutputStream.WriteAsync(buffer, 0, read);
-                            await Write(NL);
+                            read = await response.Content.ReadAsync(buffer, 0, buffer.Length);
+
+                            if (read > 0)
+                            {
+                                await Write($"{read.ToString("X")}{NL}");
+                                await OutputStream.WriteAsync(buffer, 0, read);
+                                await Write(NL);
+                            }
                         }
+                        while (read > 0);
                     }
-                    while (read > 0);
+                    finally
+                    {
+                        POOL.Return(buffer);
+                    }
 
                     await Write($"0{NL}{NL}");
                 }

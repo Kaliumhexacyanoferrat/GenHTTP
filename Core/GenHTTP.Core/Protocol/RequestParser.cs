@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Threading;
+using System.Buffers;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
@@ -16,6 +17,9 @@ namespace GenHTTP.Core
 
     internal class RequestParser
     {
+        public const int READ_BUFFER_SIZE = 8192;
+
+        private static ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
 
         #region Get-/Setters
 
@@ -66,24 +70,31 @@ namespace GenHTTP.Core
 
         private async Task Read()
         {
-            var buffer = new byte[4096];
+            var buffer = POOL.Rent(READ_BUFFER_SIZE);
 
-            var read = await InputStream.ReadWithTimeoutAsync(buffer, 0, buffer.Length);
-
-            if (read > 0)
+            try
             {
-                try
+                var read = await InputStream.ReadWithTimeoutAsync(buffer, 0, buffer.Length);
+
+                if (read > 0)
                 {
-                    await Context.Buffer.Append(buffer, read);
+                    try
+                    {
+                        await Context.Buffer.Append(buffer, read);
+                    }
+                    catch (IOException e)
+                    {
+                        throw new NetworkException("Error while reading client request", e);
+                    }
                 }
-                catch (IOException e)
+                else
                 {
-                    throw new NetworkException("Error while reading client request", e);
+                    throw new NetworkException("No data transmitted by client");
                 }
             }
-            else
+            finally
             {
-                throw new NetworkException("No data transmitted by client");
+                POOL.Return(buffer);
             }
         }
         
