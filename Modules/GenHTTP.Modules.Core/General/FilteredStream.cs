@@ -78,6 +78,7 @@ namespace GenHTTP.Modules.Core.General
 
             if (disposing)
             {
+                ConversionStream.Dispose();
                 OutputStream.Dispose();
                 InputStream.Dispose();
             }
