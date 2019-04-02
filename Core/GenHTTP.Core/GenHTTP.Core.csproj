@@ -17,7 +17,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://genes.pics/genhttp/website/</PackageProjectUrl>
 
-    <Description>Lightweight web server written in pure C# with no dependencies to 3rd-party libraries.</Description>
+    <Description>Lightweight web server written in pure C# with few dependencies to 3rd-party libraries.</Description>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     
