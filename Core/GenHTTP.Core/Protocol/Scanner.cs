@@ -52,21 +52,21 @@ namespace GenHTTP.Core
 
         #region Functionality
 
-        internal async Task<Token> NextToken()
+        internal Token NextToken()
         {
-            await IsMatch(Pattern.WHITESPACE);
+            IsMatch(Pattern.WHITESPACE);
 
-            if (await IsMatch(Pattern.NEW_LINE))
+            if (IsMatch(Pattern.NEW_LINE))
             {
                 return Current = Token.NewLine;
             }
 
-            if (await IsMatch(Pattern.HTTP))
+            if (IsMatch(Pattern.HTTP))
             {
                 return Current = Token.Protocol;
             }
 
-            if (await IsMatch(Pattern.METHOD))
+            if (IsMatch(Pattern.METHOD))
             {
                 LastTokenMethod = true;
                 return Current = Token.Method;
@@ -74,19 +74,19 @@ namespace GenHTTP.Core
 
             if (LastTokenMethod)
             {
-                if (await IsMatch(Pattern.URL))
+                if (IsMatch(Pattern.URL))
                 {
                     LastTokenMethod = false;
                     return Current = Token.Url;
                 }
             }
 
-            if (await IsMatch(Pattern.HEADER_DEFINITION))
+            if (IsMatch(Pattern.HEADER_DEFINITION))
             {
                 return Current = Token.HeaderDefinition;
             }
 
-            if (await IsMatch(Pattern.HEADER_CONTENT))
+            if (IsMatch(Pattern.HEADER_CONTENT))
             {
                 return Current = Token.HeaderContent;
             }
@@ -94,9 +94,9 @@ namespace GenHTTP.Core
             return Current = Token.Unknown;
         }
 
-        private async Task<bool> IsMatch(Regex re)
+        private bool IsMatch(Regex re)
         {
-            var content = await Buffer.GetString();
+            var content = Buffer.GetString();
 
             var match = re.Match(content);
 

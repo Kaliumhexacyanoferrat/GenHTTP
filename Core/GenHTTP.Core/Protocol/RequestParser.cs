@@ -56,13 +56,13 @@ namespace GenHTTP.Core
 
         private async Task<Token> GetToken()
         {
-            var token = await Context.Scanner.NextToken();
+            var token = Context.Scanner.NextToken();
 
             if (token == Token.Unknown)
             {
                 await Read();
 
-                token = await Context.Scanner.NextToken();
+                token = Context.Scanner.NextToken();
             }
 
             return token;

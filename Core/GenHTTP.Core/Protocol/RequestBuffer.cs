@@ -52,8 +52,8 @@ namespace GenHTTP.Core.Protocol
 
             StringBuffer = null;
         }
-        
-        public async Task<string> GetString()
+
+        public string GetString()
         {
             if (StringBuffer != null)
             {
@@ -65,7 +65,7 @@ namespace GenHTTP.Core.Protocol
             
             using (var reader = new StreamReader(Data, ENCODING, false, RequestParser.READ_BUFFER_SIZE, true))
             {
-                result = await reader.ReadToEndAsync();
+                result = reader.ReadToEnd();
             }
 
             Data.Seek(position, SeekOrigin.Begin);
