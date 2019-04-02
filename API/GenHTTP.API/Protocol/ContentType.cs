@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 
 namespace GenHTTP.Api.Protocol
 {
+
+    #region Known Types
 
     /// <summary>
     /// The content type of the response.
@@ -180,6 +183,106 @@ namespace GenHTTP.Api.Protocol
         /// Scalable Vector Graphics (compressed, .svgz)
         /// </summary>
         ImageScalableVectorGraphicsCompressed
+
+    }
+
+    #endregion
+
+    public class FlexibleContentType
+    {
+        private static Dictionary<ContentType, string> MAPPING;
+        private static Dictionary<string, ContentType> MAPPING_REVERSE;
+
+        #region Get-/Setters
+
+        public ContentType? KnownType { get; }
+
+        public string RawType { get; }
+
+        #endregion
+
+        #region Mapping
+
+        static FlexibleContentType()
+        {
+            MAPPING = new Dictionary<ContentType, string>
+            {
+                { ContentType.TextHtml, "text/html" },
+                { ContentType.TextCss, "text/css" },
+                { ContentType.ApplicationJavaScript, "application/javascript" },
+                { ContentType.ImageIcon, "image/vnd.microsoft.icon" },
+                { ContentType.ImageGif, "image/gif" },
+                { ContentType.ImageJpg, "image/jpg" },
+                { ContentType.ImagePng, "image/png" },
+                { ContentType.ImageBmp, "image/bmp" },
+                { ContentType.AudioMp4, "audio/mp4" },
+                { ContentType.AudioOgg, "audio/ogg" },
+                { ContentType.AudioMpeg, "audio/mpeg" },
+                { ContentType.ImageTiff, "image/tiff" },
+                { ContentType.TextCsv, "text/csv" },
+                { ContentType.TextRichText, "text/richtext" },
+                { ContentType.TextPlain, "text/plain" },
+                { ContentType.TextXml, "text/xml" },
+                { ContentType.VideoH264, "video/H264" },
+                { ContentType.VideoMp4, "video/mp4" },
+                { ContentType.VideoMpeg, "video/mpeg" },
+                { ContentType.VideoMpeg4Generic, "video/mpeg4-generic" },
+                { ContentType.AudioWav, "audio/wav" },
+                { ContentType.ApplicationOfficeDocumentWordProcessing, "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
+                { ContentType.ApplicationOfficeDocumentPresentation, "application/vnd.openxmlformats-officedocument.presentationml.presentation" },
+                { ContentType.ApplicationOfficeDocumentSlideshow, "application/vnd.openxmlformats-officedocument.presentationml.slideshow" },
+                { ContentType.ApplicationOfficeDocumentSheet, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
+                { ContentType.ApplicationForceDownload, "application/force-download" },
+                { ContentType.ApplicationOctetStream, "application/octet-stream" },
+                { ContentType.FontEmbeddedOpenTypeFont, "font/eot" },
+                { ContentType.FontOpenTypeFont, "font/otf" },
+                { ContentType.FontTrueTypeFont, "font/ttf" },
+                { ContentType.FontWoff, "font/woff" },
+                { ContentType.FontWoff2, "font/woff2" },
+                { ContentType.ImageScalableVectorGraphics, "image/svg" },
+                { ContentType.ImageScalableVectorGraphicsCompressed, "image/svgz" }
+            };
+
+            MAPPING_REVERSE = MAPPING.ToDictionary(x => x.Value, x => x.Key);
+        }
+
+        #endregion
+
+        #region Initialization
+
+        public FlexibleContentType(string rawType)
+        {
+            RawType = rawType;
+
+            if (MAPPING_REVERSE.TryGetValue(rawType, out var knownType))
+            {
+                KnownType = knownType;
+            }
+        }
+
+        public FlexibleContentType(ContentType type)
+        {
+            KnownType = type;
+            RawType = MAPPING[type];
+        }
+
+        #endregion
+
+        #region Convenience
+
+        public static bool operator ==(FlexibleContentType type, ContentType knownType) => type.KnownType == knownType;
+
+        public static bool operator !=(FlexibleContentType type, ContentType knownType) => type.KnownType != knownType;
+
+        public static bool operator ==(FlexibleContentType type, string rawType) => type.RawType == rawType;
+
+        public static bool operator !=(FlexibleContentType type, string rawType) => type.RawType != rawType;
+
+        public override bool Equals(object obj) => obj is FlexibleContentType type && RawType == type.RawType;
+
+        public override int GetHashCode() => RawType.GetHashCode();
+
+        #endregion
 
     }
 

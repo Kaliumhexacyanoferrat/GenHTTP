@@ -55,7 +55,7 @@ namespace GenHTTP.Modules.Core.StaticContent
             return Parent.GetRenderer();
         }
 
-        public IContentProvider GetErrorHandler(IRequest request, ResponseType responseType)
+        public IContentProvider GetErrorHandler(IRequest request, ResponseStatus responseType)
         {
             return Parent.GetErrorHandler(request, responseType);
         }

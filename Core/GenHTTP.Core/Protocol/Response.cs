@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 
 using GenHTTP.Api.Protocol;
@@ -18,13 +14,13 @@ namespace GenHTTP.Core
 
         #region Get-/Setters
 
-        public ResponseType Type { get; set; }
+        public FlexibleResponseStatus Status { get; set; }
 
         public DateTime? Expires { get; set; }
 
         public DateTime? Modified { get; set; }
 
-        public ContentType? ContentType { get; set; }
+        public FlexibleContentType? ContentType { get; set; }
 
         public string? ContentEncoding { get; set; }
 
@@ -59,9 +55,9 @@ namespace GenHTTP.Core
 
         #region Initialization
 
-        internal Response(ResponseType type, HeaderCollection headers, CookieCollection cookies)
+        internal Response(FlexibleResponseStatus type, HeaderCollection headers, CookieCollection cookies)
         {
-            Type = type;
+            Status = type;
 
             _Headers = headers;
             _Cookies = cookies;

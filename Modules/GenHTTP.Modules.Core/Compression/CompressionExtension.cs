@@ -34,7 +34,7 @@ namespace GenHTTP.Modules.Core.Compression
         {
             if (response.ContentEncoding == null)
             {
-                if ((response.Content != null) && ShouldCompress(response.ContentType))
+                if ((response.Content != null) && ShouldCompress(response.ContentType?.KnownType))
                 {
                     if (request.Headers.TryGetValue("Accept-Encoding", out var header))
                     {

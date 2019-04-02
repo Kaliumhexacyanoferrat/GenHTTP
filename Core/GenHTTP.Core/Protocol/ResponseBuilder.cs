@@ -11,11 +11,11 @@ namespace GenHTTP.Core.Protocol
 
     internal class ResponseBuilder : IResponseBuilder
     {
-        protected ResponseType? _Type;
+        protected FlexibleResponseStatus? _Status;
 
         protected Stream? _Content;
         protected ulong? _ContentLength;
-        protected ContentType? _ContentType;
+        protected FlexibleContentType? _ContentType;
         protected string? _ContentEncoding;
 
         protected DateTime? _Expires;
@@ -43,6 +43,11 @@ namespace GenHTTP.Core.Protocol
 
         public IResponseBuilder Content(Stream body, ContentType contentType)
         {
+            return Content(body, new FlexibleContentType(contentType));
+        }
+
+        public IResponseBuilder Content(Stream body, FlexibleContentType contentType)
+        {
             _Content = body;
             _ContentType = contentType;
 
@@ -55,6 +60,11 @@ namespace GenHTTP.Core.Protocol
         }
 
         public IResponseBuilder Content(Stream body, ulong length, ContentType contentType)
+        {
+            return Content(body, length, new FlexibleContentType(contentType));
+        }
+
+        public IResponseBuilder Content(Stream body, ulong length, FlexibleContentType contentType)
         {
             _ContentLength = length;
             _Content = body;
@@ -93,20 +103,26 @@ namespace GenHTTP.Core.Protocol
             return this;
         }
 
-        public IResponseBuilder Type(ResponseType type)
+        public IResponseBuilder Type(ResponseStatus status)
         {
-            _Type = type;
+            _Status = new FlexibleResponseStatus(status);
+            return this;
+        }
+
+        public IResponseBuilder Type(int status, string phrase)
+        {
+            _Status = new FlexibleResponseStatus(status, phrase);
             return this;
         }
 
         public IResponse Build()
         {
-            if (_Type == null)
+            if (_Status == null)
             {
                 throw new BuilderMissingPropertyException("Type");
             }
 
-            return new Response((ResponseType)_Type, _Headers, _Cookies)
+            return new Response(_Status, _Headers, _Cookies)
             {
                 Content = _Content,
                 ContentEncoding = _ContentEncoding,

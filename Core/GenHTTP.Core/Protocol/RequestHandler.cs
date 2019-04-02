@@ -107,9 +107,9 @@ namespace GenHTTP.Core.Protocol
                 }
                 else
                 {
-                    return routing.Router.GetErrorHandler(request, ResponseType.NotFound)
+                    return routing.Router.GetErrorHandler(request, ResponseStatus.NotFound)
                                          .Handle(request)
-                                         .Type(ResponseType.NotFound)
+                                         .Type(ResponseStatus.NotFound)
                                          .Build();
                 }
             }
@@ -152,9 +152,9 @@ namespace GenHTTP.Core.Protocol
             {
                 try
                 {
-                    return routing.Router.GetErrorHandler(request, ResponseType.InternalServerError)
+                    return routing.Router.GetErrorHandler(request, ResponseStatus.InternalServerError)
                                          .Handle(request)
-                                         .Type(ResponseType.InternalServerError)
+                                         .Type(ResponseStatus.InternalServerError)
                                          .Build();
                 }
                 catch (Exception e)
@@ -174,9 +174,9 @@ namespace GenHTTP.Core.Protocol
             {
                 try
                 {
-                    return coreRouter.GetErrorHandler(request, ResponseType.InternalServerError)
+                    return coreRouter.GetErrorHandler(request, ResponseStatus.InternalServerError)
                                      .Handle(request)
-                                     .Type(ResponseType.InternalServerError)
+                                     .Type(ResponseStatus.InternalServerError)
                                      .Build();
                 }
                 catch (Exception e)
@@ -193,7 +193,7 @@ namespace GenHTTP.Core.Protocol
             var stream = new MemoryStream(Encoding.UTF8.GetBytes("Internal Server Error"));
 
             return request.Respond()
-                          .Type(ResponseType.InternalServerError)
+                          .Type(ResponseStatus.InternalServerError)
                           .Content(stream, ContentType.TextPlain)
                           .Build();
         }

@@ -36,7 +36,7 @@ namespace GenHTTP.Modules.Core.General
 
         public IResponseBuilder Handle(IRequest request)
         {
-            if (request.HasType(RequestType.HEAD, RequestType.GET, RequestType.POST))
+            if (request.HasType(RequestMethod.HEAD, RequestMethod.GET, RequestMethod.POST))
             {
                 var templateModel = new TemplateModel(request, Title ?? "Untitled Page", Content.GetResourceAsString());
 
@@ -44,7 +44,7 @@ namespace GenHTTP.Modules.Core.General
                               .Content(templateModel);
             }
 
-            return request.Respond(ResponseType.MethodNotAllowed);
+            return request.Respond(ResponseStatus.MethodNotAllowed);
         }
 
         #endregion

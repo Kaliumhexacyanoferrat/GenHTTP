@@ -82,17 +82,17 @@ namespace GenHTTP.Modules.Core
             return null;
         }
 
-        public static IResponseBuilder Respond(this IRequest request, ResponseType type)
+        public static IResponseBuilder Respond(this IRequest request, ResponseStatus type)
         {
             var provider = request.Routing?.Router.GetErrorHandler(request, type) ?? throw new InvalidOperationException("Routing context is missing");
             return provider.Handle(request).Type(type);
         }
 
-        public static bool HasType(this IRequest request, params RequestType[] types)
+        public static bool HasType(this IRequest request, params RequestMethod[] methods)
         {
-            foreach (var type in types)
+            foreach (var method in methods)
             {
-                if (type == request.Type)
+                if (request.Method == method)
                 {
                     return true;
                 }
@@ -100,8 +100,7 @@ namespace GenHTTP.Modules.Core
 
             return false;
         }
-
-
+        
     }
 
 }

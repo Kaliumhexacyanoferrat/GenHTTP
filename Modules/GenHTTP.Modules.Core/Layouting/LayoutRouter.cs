@@ -95,7 +95,7 @@ namespace GenHTTP.Modules.Core.Layouting
             return Template ?? Parent.GetRenderer();
         }
 
-        public IContentProvider GetErrorHandler(IRequest request, ResponseType responseType)
+        public IContentProvider GetErrorHandler(IRequest request, ResponseStatus responseType)
         {
             return ErrorHandler ?? Parent.GetErrorHandler(request, responseType);
         }

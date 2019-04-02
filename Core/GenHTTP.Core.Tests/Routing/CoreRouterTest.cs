@@ -5,10 +5,11 @@ using System.Text;
 using Xunit;
 using Moq;
 
-using GenHTTP.Core.Routing;
 using GenHTTP.Api.Routing;
 using GenHTTP.Api.Modules.Templating;
 using GenHTTP.Api.Protocol;
+
+using GenHTTP.Core.Routing;
 using GenHTTP.Core.Protocol;
 
 namespace GenHTTP.Core.Tests.Routing
@@ -64,11 +65,11 @@ namespace GenHTTP.Core.Tests.Routing
 
             request.Setup(r => r.Respond()).Returns(new ResponseBuilder(request.Object));            
 
-            var errorHandler = Instance.GetErrorHandler(request.Object, ResponseType.NotFound);
+            var errorHandler = Instance.GetErrorHandler(request.Object, ResponseStatus.NotFound);
 
-            var response = errorHandler.Handle(request.Object).Type(ResponseType.NotFound).Build();
+            var response = errorHandler.Handle(request.Object).Type(ResponseStatus.NotFound).Build();
 
-            Assert.Equal(ResponseType.NotFound, response.Type);
+            Assert.Equal(ResponseStatus.NotFound, response.Status.KnownStatus);
         }
 
         private IRouter Instance => new CoreRouter(Mock.Of<IRouter>());

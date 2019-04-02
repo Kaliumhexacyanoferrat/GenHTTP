@@ -25,7 +25,7 @@ namespace GenHTTP.Core
 
         public ProtocolType ProtocolType { get; }
         
-        public RequestType Type { get;  }
+        public FlexibleRequestMethod Method { get;  }
 
         public string Path { get; }
         
@@ -62,13 +62,13 @@ namespace GenHTTP.Core
 
         #region Initialization
 
-        internal Request(ProtocolType protocol, RequestType type, string path, IHeaderCollection headers,
+        internal Request(ProtocolType protocol, FlexibleRequestMethod method, string path, IHeaderCollection headers,
                          ICookieCollection cookies, IReadOnlyDictionary<string, string> query, Stream? content, IClientHandler handler)
         {
             Handler = handler;
 
             ProtocolType = protocol;
-            Type = type;
+            Method = method;
             Path = path;
 
             Cookies = cookies;
@@ -84,7 +84,7 @@ namespace GenHTTP.Core
         
         public IResponseBuilder Respond()
         {
-            return new ResponseBuilder(this).Type(ResponseType.OK);
+            return new ResponseBuilder(this).Type(ResponseStatus.OK);
         }
         
         #endregion

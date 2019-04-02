@@ -32,7 +32,7 @@ namespace GenHTTP.Core
 
         public RequestBuffer Buffer { get; }
 
-        protected bool LastTokenMethod { get; set; }
+        public bool StatusLine { get; set; }
 
         #endregion
 
@@ -42,7 +42,7 @@ namespace GenHTTP.Core
         {
             Buffer = buffer;
 
-            LastTokenMethod = false;
+            StatusLine = true;
 
             Current = Token.Unknown;
             Value = string.Empty;
@@ -61,23 +61,28 @@ namespace GenHTTP.Core
                 return Current = Token.NewLine;
             }
 
-            if (IsMatch(Pattern.HTTP))
+            if (StatusLine)
             {
-                return Current = Token.Protocol;
-            }
-
-            if (IsMatch(Pattern.METHOD))
-            {
-                LastTokenMethod = true;
-                return Current = Token.Method;
-            }
-
-            if (LastTokenMethod)
-            {
-                if (IsMatch(Pattern.URL))
+                if (Current != Token.Method)
                 {
-                    LastTokenMethod = false;
-                    return Current = Token.Url;
+                    if (IsMatch(Pattern.METHOD))
+                    {
+                        return Current = Token.Method;
+                    }
+                }
+                
+                if (Current != Token.Url)
+                {
+                    if (IsMatch(Pattern.URL))
+                    {
+                        return Current = Token.Url;
+                    }
+                }
+
+                if (IsMatch(Pattern.HTTP))
+                {
+                    StatusLine = false;
+                    return Current = Token.Protocol;
                 }
             }
 
@@ -90,7 +95,7 @@ namespace GenHTTP.Core
             {
                 return Current = Token.HeaderContent;
             }
-            
+
             return Current = Token.Unknown;
         }
 

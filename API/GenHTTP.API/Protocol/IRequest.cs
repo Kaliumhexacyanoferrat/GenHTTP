@@ -14,7 +14,7 @@ namespace GenHTTP.Api.Protocol
 
         ProtocolType ProtocolType { get; }
 
-        RequestType Type { get; }
+        FlexibleRequestMethod Method { get; }
 
         string Path { get; }
 

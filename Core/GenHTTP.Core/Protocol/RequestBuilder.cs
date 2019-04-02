@@ -14,7 +14,7 @@ namespace GenHTTP.Core.Protocol
     {
         private IClientHandler? _ClientHandler;
 
-        private RequestType? _RequestType;
+        private FlexibleRequestMethod? _RequestMethod;
         private ProtocolType? _Protocol;
 
         private string? _Path;
@@ -73,15 +73,7 @@ namespace GenHTTP.Core.Protocol
 
         public RequestBuilder Type(string type)
         {
-            if (Enum.TryParse<RequestType>(type.ToUpper(), out var parsed))
-            {
-                _RequestType = parsed;
-            }
-            else
-            {
-                throw new ProtocolException($"HTTP verb '{type}' is not supported");
-            }
-
+            _RequestMethod = new FlexibleRequestMethod(type);
             return this;
         }
 
@@ -151,7 +143,7 @@ namespace GenHTTP.Core.Protocol
                 throw new BuilderMissingPropertyException("Protocol");
             }
 
-            if (_RequestType == null)
+            if (_RequestMethod is null)
             {
                 throw new BuilderMissingPropertyException("Type");
             }
@@ -161,7 +153,7 @@ namespace GenHTTP.Core.Protocol
                 throw new BuilderMissingPropertyException("Path");
             }
 
-            return new Request((ProtocolType)_Protocol, (RequestType)_RequestType, _Path, Headers, _Cookies, _Query, _Content, _ClientHandler);
+            return new Request((ProtocolType)_Protocol, _RequestMethod, _Path, Headers, _Cookies, _Query, _Content, _ClientHandler);
         }
 
         #endregion

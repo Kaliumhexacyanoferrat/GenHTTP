@@ -13,7 +13,7 @@ namespace GenHTTP.Api.Protocol
 
         IRequest Request { get; }
 
-        IResponseBuilder Type(ResponseType type);
+        IResponseBuilder Type(ResponseStatus type);
 
         IResponseBuilder Header(string key, string value);
 

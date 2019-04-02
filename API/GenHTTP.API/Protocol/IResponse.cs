@@ -14,7 +14,7 @@ namespace GenHTTP.Api.Protocol
         /// <summary>
         /// The HTTP response code.
         /// </summary>
-        ResponseType Type { get; set; }
+        FlexibleResponseStatus Status { get; set; }
 
         #endregion
 
@@ -54,7 +54,7 @@ namespace GenHTTP.Api.Protocol
         /// <summary>
         /// The type of the content.
         /// </summary>
-        ContentType? ContentType { get; set; }
+        FlexibleContentType? ContentType { get; set; }
 
         string? ContentEncoding { get; set; }
 

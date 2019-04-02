@@ -37,7 +37,7 @@ namespace GenHTTP.Modules.Core.Templating
 
         public IResponseBuilder Handle(IRequest request)
         {
-            if (request.HasType(RequestType.HEAD, RequestType.GET, RequestType.POST))
+            if (request.HasType(RequestMethod.HEAD, RequestMethod.GET, RequestMethod.POST))
             {
                 var renderer = new PlaceholderRender<T>(TemplateProvider);
 
@@ -51,7 +51,7 @@ namespace GenHTTP.Modules.Core.Templating
                               .Content(templateModel);
             }
 
-            return request.Respond(ResponseType.MethodNotAllowed);
+            return request.Respond(ResponseStatus.MethodNotAllowed);
         }
 
         #endregion
