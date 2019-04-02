@@ -10,7 +10,7 @@ using GenHTTP.Modules.Core.General;
 
 using Brotli;
 
-namespace GenHTTP.Modules.Brotli.Compression
+namespace GenHTTP.Modules.Core.Compression
 {
 
     public class BrotliAlgorithm : ICompressionAlgorithm

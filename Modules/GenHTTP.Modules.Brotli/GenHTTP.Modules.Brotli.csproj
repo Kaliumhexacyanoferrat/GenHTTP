@@ -44,5 +44,9 @@
     </PackageReference>
 
   </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Compression\" />
+  </ItemGroup>
 
 </Project>

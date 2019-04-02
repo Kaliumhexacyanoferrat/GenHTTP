@@ -33,7 +33,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\API\GenHTTP.API\GenHTTP.Api.csproj" />
     <ProjectReference Include="..\..\Core\GenHTTP.Core\GenHTTP.Core.csproj" />
-    <ProjectReference Include="..\..\Modules\GenHTTP.Modules.Brotli\GenHTTP.Modules.Brotli.csproj" />
     <ProjectReference Include="..\..\Modules\GenHTTP.Modules.Core\GenHTTP.Modules.Core.csproj" />
     <ProjectReference Include="..\..\Modules\GenHTTP.Modules.Scriban\GenHTTP.Modules.Scriban.csproj" />
   </ItemGroup>

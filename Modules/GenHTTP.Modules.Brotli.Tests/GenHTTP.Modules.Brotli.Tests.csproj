@@ -32,7 +32,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\GenHTTP.Core.Tests\GenHTTP.Core.Tests.csproj" />
-    <ProjectReference Include="..\GenHTTP.Modules.Brotli\GenHTTP.Modules.Brotli.csproj" />
     <ProjectReference Include="..\GenHTTP.Modules.Core.Tests\GenHTTP.Modules.Core.Tests.csproj" />
   </ItemGroup>
 
