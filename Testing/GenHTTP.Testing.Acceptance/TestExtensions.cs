@@ -18,7 +18,7 @@ namespace GenHTTP.Testing.Acceptance
             return reader.ReadToEnd();
         }
 
-        public static HttpWebResponse GetSafeResponse(this HttpWebRequest request)
+        public static HttpWebResponse GetSafeResponse(this WebRequest request)
         {
             try
             {

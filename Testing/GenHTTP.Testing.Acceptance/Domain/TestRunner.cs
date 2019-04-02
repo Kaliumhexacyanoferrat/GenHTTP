@@ -76,7 +76,7 @@ namespace GenHTTP.Testing.Acceptance.Domain
 
         public HttpWebResponse GetResponse(string? uri = null)
         {
-            return (HttpWebResponse)GetRequest(uri).GetSafeResponse();
+            return GetRequest(uri).GetSafeResponse();
         }
 
         #endregion

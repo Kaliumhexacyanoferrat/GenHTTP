@@ -31,15 +31,15 @@ namespace GenHTTP.Modules.Scriban
 
         public static ScribanPageProviderBuilder<PageModel> Page(IResourceProvider templateProvider)
         {
-            return new ScribanPageProviderBuilder<PageModel>().Template(templateProvider).Model(new ImplicitModelProvider());
+            return new ScribanPageProviderBuilder<PageModel>().Template(templateProvider).Model(r => new PageModel(r));
         }
 
-        public static ScribanPageProviderBuilder<T> Page<T>(IBuilder<IResourceProvider> templateProvider, IPageProvider<T> modelProvider) where T : PageModel
+        public static ScribanPageProviderBuilder<T> Page<T>(IBuilder<IResourceProvider> templateProvider, ModelProvider<T> modelProvider) where T : PageModel
         {
             return Page<T>(templateProvider.Build(), modelProvider);
         }
 
-        public static ScribanPageProviderBuilder<T> Page<T>(IResourceProvider templateProvider, IPageProvider<T> modelProvider) where T : PageModel
+        public static ScribanPageProviderBuilder<T> Page<T>(IResourceProvider templateProvider, ModelProvider<T> modelProvider) where T : PageModel
         {
             return new ScribanPageProviderBuilder<T>().Template(templateProvider).Model(modelProvider);
         }

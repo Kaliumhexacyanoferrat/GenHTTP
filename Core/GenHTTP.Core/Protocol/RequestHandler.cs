@@ -56,6 +56,13 @@ namespace GenHTTP.Core.Protocol
                 response = ServerError(request, routing);
             }
 
+            if (!TryIntercept(request, response, out error))
+            {
+                // an exception threw an exception
+                // send a templated error message
+                response = ServerError(request, routing);
+            }
+
             return response;
         }
 
@@ -113,6 +120,32 @@ namespace GenHTTP.Core.Protocol
             }
         }
 
+        protected bool TryIntercept(IRequest request, IResponse response, out Exception? error)
+        {
+            foreach (var extension in Server.Extensions)
+            {
+                try
+                {
+                    if (request.Content != null)
+                    {
+                        request.Content.Seek(0, SeekOrigin.Begin);
+                    }
+
+                    extension.Intercept(request, response);
+                }
+                catch (Exception e)
+                {
+                    Server.Companion?.OnServerError(ServerErrorScope.Extension, e);
+
+                    error = e;
+                    return false;
+                }
+            }
+
+            error = null;
+            return true;
+        }
+
         protected IResponse ServerError(IRequest request, IRoutingContext? routing)
         {
             if (routing != null)
@@ -121,6 +154,7 @@ namespace GenHTTP.Core.Protocol
                 {
                     return routing.Router.GetErrorHandler(request, ResponseType.InternalServerError)
                                          .Handle(request)
+                                         .Type(ResponseType.InternalServerError)
                                          .Build();
                 }
                 catch (Exception e)
@@ -142,6 +176,7 @@ namespace GenHTTP.Core.Protocol
                 {
                     return coreRouter.GetErrorHandler(request, ResponseType.InternalServerError)
                                      .Handle(request)
+                                     .Type(ResponseType.InternalServerError)
                                      .Build();
                 }
                 catch (Exception e)

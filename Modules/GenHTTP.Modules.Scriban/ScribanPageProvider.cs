@@ -20,7 +20,7 @@ namespace GenHTTP.Modules.Scriban
 
         public IResourceProvider TemplateProvider { get; }
 
-        public IPageProvider<T> ModelProvider { get; }
+        public ModelProvider<T> ModelProvider { get; }
 
         public string? Title { get; }
 
@@ -28,7 +28,7 @@ namespace GenHTTP.Modules.Scriban
 
         #region Initialization
 
-        public ScribanPageProvider(IResourceProvider templateProvider, IPageProvider<T> modelProvider, string? title)
+        public ScribanPageProvider(IResourceProvider templateProvider, ModelProvider<T> modelProvider, string? title)
         {
             TemplateProvider = templateProvider;
             ModelProvider = modelProvider;
@@ -45,7 +45,7 @@ namespace GenHTTP.Modules.Scriban
             {
                 var renderer = new ScribanRenderer<T>(TemplateProvider);
 
-                var model = ModelProvider.GetModel(request);
+                var model = ModelProvider(request);
 
                 var content = renderer.Render(model);
 

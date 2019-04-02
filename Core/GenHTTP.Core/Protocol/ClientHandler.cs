@@ -95,7 +95,7 @@ namespace GenHTTP.Core
                 }
             }
         }
-        
+
         private async Task<bool> HandleRequest(RequestBuilder builder)
         {
             using (var request = builder.Handler(this).Build())
@@ -112,11 +112,6 @@ namespace GenHTTP.Core
 
                 using (var response = requestHandler.Handle(request, out Exception? error))
                 {
-                    foreach (var extension in Server.Extensions)
-                    {
-                        await extension.Intercept(request, response);
-                    }
-
                     var success = await responseHandler.Handle(request, response, keepAlive, error);
 
                     if (!success || !keepAlive)

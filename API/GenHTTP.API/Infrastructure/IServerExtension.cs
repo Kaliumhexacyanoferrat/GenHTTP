@@ -11,7 +11,7 @@ namespace GenHTTP.Api.Infrastructure
     public interface IServerExtension
     {
         
-        Task Intercept(IRequest request, IResponse response);
+        void Intercept(IRequest request, IResponse response);
 
     }
 

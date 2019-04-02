@@ -7,6 +7,8 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Api.Modules.Templating
 {
 
+    public delegate T ModelProvider<T>(IRequest request);
+
     public interface IBaseModel
     {
         

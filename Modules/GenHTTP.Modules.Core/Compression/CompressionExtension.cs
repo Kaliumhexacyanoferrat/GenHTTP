@@ -30,7 +30,7 @@ namespace GenHTTP.Modules.Core.Compression
 
         #region Functionality
 
-        public async Task Intercept(IRequest request, IResponse response)
+        public void Intercept(IRequest request, IResponse response)
         {
             if (response.ContentEncoding == null)
             {
@@ -78,6 +78,7 @@ namespace GenHTTP.Modules.Core.Compression
                     case ContentType.FontOpenTypeFont:
                     case ContentType.FontEmbeddedOpenTypeFont:
                     case ContentType.ImageScalableVectorGraphics:
+                    case ContentType.ImageBmp:
                     case ContentType.TextXml:
                         {
                             return true;

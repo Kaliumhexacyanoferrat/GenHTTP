@@ -9,27 +9,27 @@ using GenHTTP.Api.Modules.Templating;
 namespace GenHTTP.Modules.Core.Templating
 {
 
-    public class PlaceholderPageBuilder<T> : IContentBuilder where T : PageModel
+    public class PlaceholderPageProviderBuilder<T> : IContentBuilder where T : PageModel
     {
         protected IResourceProvider? _TemplateProvider;
-        protected IPageProvider<T>? _ModelProvider;
+        protected ModelProvider<T>? _ModelProvider;
         protected string? _Title;
 
         #region Functionality
 
-        public PlaceholderPageBuilder<T> Template(IResourceProvider templateProvider)
+        public PlaceholderPageProviderBuilder<T> Template(IResourceProvider templateProvider)
         {
             _TemplateProvider = templateProvider;
             return this;
         }
 
-        public PlaceholderPageBuilder<T> Model(IPageProvider<T> modelProvider)
+        public PlaceholderPageProviderBuilder<T> Model(ModelProvider<T> modelProvider)
         {
             _ModelProvider = modelProvider;
             return this;
         }
 
-        public PlaceholderPageBuilder<T> Title(string title)
+        public PlaceholderPageProviderBuilder<T> Title(string title)
         {
             _Title = title;
             return this;

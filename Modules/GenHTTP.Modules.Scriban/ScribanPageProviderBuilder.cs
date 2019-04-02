@@ -12,7 +12,7 @@ namespace GenHTTP.Modules.Scriban
     public class ScribanPageProviderBuilder<T> : IContentBuilder where T : PageModel
     {
         protected IResourceProvider? _TemplateProvider;
-        protected IPageProvider<T>? _ModelProvider;
+        protected ModelProvider<T>? _ModelProvider;
         protected string? _Title;
 
         #region Functionality
@@ -23,7 +23,7 @@ namespace GenHTTP.Modules.Scriban
             return this;
         }
 
-        public ScribanPageProviderBuilder<T> Model(IPageProvider<T> modelProvider)
+        public ScribanPageProviderBuilder<T> Model(ModelProvider<T> modelProvider)
         {
             _ModelProvider = modelProvider;
             return this;

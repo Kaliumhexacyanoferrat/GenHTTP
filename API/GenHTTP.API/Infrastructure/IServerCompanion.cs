@@ -13,6 +13,7 @@ namespace GenHTTP.Api.Infrastructure
         ClientConnection,
         Parser,
         PageGeneration,
+        Extension,
         Internal
     }
 

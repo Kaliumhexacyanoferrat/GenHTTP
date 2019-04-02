@@ -18,13 +18,13 @@ namespace GenHTTP.Modules.Core.General
 
         public string? Title { get; }
 
-        public string Content { get; }
+        public IResourceProvider Content { get; }
 
         #endregion
 
         #region Initialization
 
-        public PageProvider(string? title, string content)
+        public PageProvider(string? title, IResourceProvider content)
         {
             Title = title;
             Content = content;
@@ -38,7 +38,7 @@ namespace GenHTTP.Modules.Core.General
         {
             if (request.HasType(RequestType.HEAD, RequestType.GET, RequestType.POST))
             {
-                var templateModel = new TemplateModel(request, Title ?? "Untitled Page", Content);
+                var templateModel = new TemplateModel(request, Title ?? "Untitled Page", Content.GetResourceAsString());
 
                 return request.Respond()
                               .Content(templateModel);
