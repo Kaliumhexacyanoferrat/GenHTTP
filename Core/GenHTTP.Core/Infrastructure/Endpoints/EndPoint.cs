@@ -23,7 +23,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         protected NetworkConfiguration Configuration { get; }
 
-        private Task Task { get; set; }
+        private Thread Thread { get; set; }
         
         private IPEndPoint Endpoint { get; }
         
@@ -62,7 +62,9 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
                 throw new BindingException($"Failed to bind to {endPoint}.", e);
             }
             
-            Task = Listen();
+
+            Thread = new Thread(new ThreadStart(async() => await Listen()));
+            Thread.Start();
         }
 
         #endregion
@@ -136,7 +138,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
                         Socket.Close();
                         Socket.Dispose();
 
-                        Task.Wait();
+                        Thread.Join();
                     }
                     catch (Exception e)
                     {
