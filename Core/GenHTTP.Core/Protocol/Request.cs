@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
 
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
@@ -21,6 +19,12 @@ namespace GenHTTP.Core
         
         #region Get-/Setters
 
+        public IServer Server { get; }
+
+        public IEndPoint EndPoint { get; }
+
+        public IClient Client { get; }
+
         public IRoutingContext? Routing { get; set; }
 
         public ProtocolType ProtocolType { get; }
@@ -35,8 +39,6 @@ namespace GenHTTP.Core
         
         public IReadOnlyDictionary<string, string> Query { get; }
         
-        public IClientHandler Handler { get; }
-
         public Stream? Content { get; }
 
         public string? Host => this["Host"];
@@ -62,10 +64,12 @@ namespace GenHTTP.Core
 
         #region Initialization
 
-        internal Request(ProtocolType protocol, FlexibleRequestMethod method, string path, IHeaderCollection headers,
-                         ICookieCollection cookies, IReadOnlyDictionary<string, string> query, Stream? content, IClientHandler handler)
+        internal Request(IServer server, IEndPoint endPoint, IClient client, ProtocolType protocol, FlexibleRequestMethod method,
+                         string path, IHeaderCollection headers, ICookieCollection cookies, IReadOnlyDictionary<string, string> query, Stream? content)
         {
-            Handler = handler;
+            Client = client;
+            Server = server;
+            EndPoint = endPoint;
 
             ProtocolType = protocol;
             Method = method;

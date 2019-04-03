@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 using GenHTTP.Api.Modules;
@@ -44,12 +47,18 @@ namespace GenHTTP.Api.Infrastructure
         #region Binding
 
         IServerBuilder Port(ushort port);
+        
+        IServerBuilder Bind(IPAddress address, ushort port);
 
-        IServerBuilder Backlog(ushort backlog);
+        IServerBuilder Bind(IPAddress address, ushort port, X509Certificate certificate);
+
+        IServerBuilder Bind(IPAddress address, ushort port, X509Certificate certificate, SslProtocols protocols);
 
         #endregion
 
         #region Network settings
+
+        IServerBuilder Backlog(ushort backlog);
 
         /// <summary>
         /// Specifies the period of time after which the server will

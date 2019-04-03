@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,6 +10,8 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Routing;
 
 using GenHTTP.Core.Routing;
+using GenHTTP.Core.Infrastructure.Configuration;
+using GenHTTP.Core.Infrastructure.Endpoints;
 
 namespace GenHTTP.Core.Infrastructure
 {
@@ -20,17 +23,15 @@ namespace GenHTTP.Core.Infrastructure
 
         public Version Version => Assembly.GetExecutingAssembly().GetName().Version;
 
-        public IRouter Router { get; protected set; }
+        public IRouter Router { get; private set; }
 
-        public IServerCompanion? Companion { get; protected set; }
+        public IServerCompanion? Companion { get; private set; }
 
         public IExtensionCollection Extensions { get; }
 
         internal ServerConfiguration Configuration { get; }
 
-        protected Socket Socket { get; private set; }
-
-        protected Thread MainThread { get; private set; }
+        internal EndPointCollection EndPoints { get; }
 
         #endregion
 
@@ -44,43 +45,7 @@ namespace GenHTTP.Core.Infrastructure
             Extensions = extensions;
             Configuration = configuration;
 
-            try
-            {
-                Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, System.Net.Sockets.ProtocolType.Tcp);
-
-                Socket.Bind(new IPEndPoint(IPAddress.Any, Configuration.Port));
-                Socket.Listen(Configuration.Backlog);
-            }
-            catch (Exception e)
-            {
-                throw new BindingException($"Failed to bind to port {Configuration.Port}.", e);
-            }
-
-            MainThread = new Thread(async () => await MainLoop());
-            MainThread.Start();
-        }
-
-        #endregion
-
-        #region Functionality
-
-        private async Task MainLoop()
-        {
-            try
-            {
-                do
-                {
-                    var clientSocket = await Socket.AcceptAsync();
-                    var handler = new ClientHandler(clientSocket, this, Configuration.Network);
-
-                    ThreadPool.QueueUserWorkItem(new WaitCallback(async (_) => await handler.Run()));
-                }
-                while (true);
-            }
-            catch (Exception e)
-            {
-                Companion?.OnServerError(ServerErrorScope.ServerConnection, e);
-            }
+            EndPoints = new EndPointCollection(this, configuration.EndPoints, configuration.Network);
         }
 
         #endregion
@@ -95,26 +60,7 @@ namespace GenHTTP.Core.Infrastructure
             {
                 if (disposing)
                 {
-                    try
-                    {                       
-                        MainThread.Abort();
-                    }
-                    catch (Exception e)
-                    {
-                        if (!(e is PlatformNotSupportedException)) // .NET Core
-                        {
-                            Companion?.OnServerError(ServerErrorScope.ServerConnection, e);
-                        }
-                    }
-
-                    try
-                    {
-                        Socket.Dispose();
-                    }
-                    catch (Exception e)
-                    {
-                        Companion?.OnServerError(ServerErrorScope.ServerConnection, e);
-                    }
+                    EndPoints.Dispose();
                 }
 
                 disposed = true;

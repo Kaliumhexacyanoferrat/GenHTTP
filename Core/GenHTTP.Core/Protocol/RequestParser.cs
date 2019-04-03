@@ -10,7 +10,7 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Core.Protocol;
-using GenHTTP.Core.Infrastructure;
+using GenHTTP.Core.Infrastructure.Configuration;
 
 namespace GenHTTP.Core
 {
@@ -27,13 +27,13 @@ namespace GenHTTP.Core
 
         internal NetworkConfiguration Configuration { get; }
 
-        protected NetworkStream InputStream { get; }
-        
+        private Stream InputStream { get; }
+
         #endregion
 
         #region Initialization
 
-        internal RequestParser(NetworkStream inputStream, NetworkConfiguration configuration)
+        internal RequestParser(Stream inputStream, NetworkConfiguration configuration)
         {
             Configuration = configuration;
             InputStream = inputStream;
@@ -45,11 +45,14 @@ namespace GenHTTP.Core
 
         #region Network handling
 
-        internal async Task<RequestBuilder> GetRequest()
+        internal async Task<RequestBuilder?> GetRequest()
         {
             var request = await ParseRequest();
 
-            Context = await Context.GetNext();
+            if (request != null)
+            {
+                Context = await Context.GetNext();
+            }
 
             return request;
         }
@@ -60,15 +63,20 @@ namespace GenHTTP.Core
 
             if (token == Token.Unknown)
             {
-                await Read();
-
-                token = Context.Scanner.NextToken();
+                if (await Read())
+                {
+                    token = Context.Scanner.NextToken();
+                }
+                else
+                {
+                    return Token.NoData;
+                }
             }
 
             return token;
         }
 
-        private async Task Read()
+        private async Task<bool> Read()
         {
             var buffer = POOL.Rent(READ_BUFFER_SIZE);
 
@@ -81,6 +89,7 @@ namespace GenHTTP.Core
                     try
                     {
                         await Context.Buffer.Append(buffer, read);
+                        return true;
                     }
                     catch (IOException e)
                     {
@@ -89,7 +98,7 @@ namespace GenHTTP.Core
                 }
                 else
                 {
-                    throw new NetworkException("No data transmitted by client");
+                    return false;
                 }
             }
             finally
@@ -97,17 +106,24 @@ namespace GenHTTP.Core
                 POOL.Return(buffer);
             }
         }
-        
+
         #endregion
 
         #region Grammar
 
-        private async Task<RequestBuilder> ParseRequest()
+        private async Task<RequestBuilder?> ParseRequest()
         {
             var request = Context.Request;
             var scanner = Context.Scanner;
 
-            if (await GetToken() != Token.Method)
+            var token = await GetToken();
+
+            if (token == Token.NoData)
+            {
+                return null;
+            }
+
+            if (token != Token.Method)
             {
                 throw new ProtocolException("Method expected");
             }
@@ -136,7 +152,7 @@ namespace GenHTTP.Core
             }
 
             await LoadContent();
-            
+
             return request;
         }
 

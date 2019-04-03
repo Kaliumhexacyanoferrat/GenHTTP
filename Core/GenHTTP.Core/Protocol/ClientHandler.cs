@@ -4,51 +4,56 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Core.Protocol;
-using GenHTTP.Core.Infrastructure;
+using GenHTTP.Core.Infrastructure.Configuration;
 
 namespace GenHTTP.Core
 {
 
-    internal class ClientHandler : IClientHandler
+    internal class ClientHandler : IClient
     {
 
         #region Get-/Setter
 
         public IServer Server { get; }
-
-        public IPAddress IPAddress => ((IPEndPoint)Connection.RemoteEndPoint).Address;
+                
+        public IEndPoint EndPoint { get; }
 
         internal NetworkConfiguration Configuration { get; }
 
         internal Socket Connection { get; }
 
-        internal NetworkStream NetworkStream { get; }
+        internal Stream Stream { get; }
 
-        protected RequestParser Parser { get; }
+        private RequestParser Parser { get; }
 
-        protected bool? KeepAlive { get; set; }
+        private bool? KeepAlive { get; set; }
+
+        #endregion
+
+        #region Information
+
+        public IPAddress IPAddress => ((IPEndPoint)Connection.RemoteEndPoint).Address;
+
+        public ushort Port => (ushort)((IPEndPoint)Connection.RemoteEndPoint).Port;
 
         #endregion
 
         #region Initialization
 
-        internal ClientHandler(Socket socket, IServer server, NetworkConfiguration config)
+        internal ClientHandler(Socket socket, Stream stream, IServer server, IEndPoint endPoint, NetworkConfiguration config)
         {
             Server = server;
+            EndPoint = endPoint;
 
             Configuration = config;
             Connection = socket;
 
-            NetworkStream = new NetworkStream(socket, false)
-            {
-                ReadTimeout = (int)config.RequestReadTimeout.TotalMilliseconds
-            };
+            Stream = stream;
 
-            Parser = new RequestParser(NetworkStream, Configuration);
+            Parser = new RequestParser(Stream, Configuration);
         }
 
         #endregion
@@ -59,21 +64,26 @@ namespace GenHTTP.Core
         {
             try
             {
-                bool closeConnection = false;
+                var closeConnection = false;
 
                 do
                 {
                     var request = await Parser.GetRequest();
-                    closeConnection = await HandleRequest(request);
+
+                    if (request != null)
+                    {
+                        closeConnection = await HandleRequest(request);
+                    }
+                    else
+                    {
+                        closeConnection = true;
+                    }
                 }
                 while (!closeConnection);
             }
             catch (Exception e)
             {
-                if (!(e is ReadTimeoutException))
-                {
-                    Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, e);
-                }
+                Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, e);
             }
             finally
             {
@@ -86,7 +96,7 @@ namespace GenHTTP.Core
 
                         Connection.Dispose();
 
-                        NetworkStream.Dispose();
+                        Stream.Dispose();
                     }
                 }
                 catch (Exception e)
@@ -98,7 +108,7 @@ namespace GenHTTP.Core
 
         private async Task<bool> HandleRequest(RequestBuilder builder)
         {
-            using (var request = builder.Handler(this).Build())
+            using (var request = builder.Connection(Server, EndPoint, this).Build())
             {
                 if (KeepAlive == null)
                 {
@@ -107,7 +117,7 @@ namespace GenHTTP.Core
 
                 bool keepAlive = (bool)KeepAlive;
 
-                var responseHandler = new ResponseHandler(Server, NetworkStream, Configuration);
+                var responseHandler = new ResponseHandler(Server, Stream, Configuration);
                 var requestHandler = new RequestHandler(Server);
 
                 using (var response = requestHandler.Handle(request, out Exception? error))

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Buffers;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,7 +7,7 @@ using System.Threading.Tasks;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Core.Infrastructure;
+using GenHTTP.Core.Infrastructure.Configuration;
 
 namespace GenHTTP.Core.Protocol
 {
@@ -23,9 +22,9 @@ namespace GenHTTP.Core.Protocol
 
         #region Get-/Setters
 
-        protected IServer Server { get; }
+        private IServer Server { get; }
 
-        protected Stream OutputStream { get; }
+        private Stream OutputStream { get; }
 
         internal NetworkConfiguration Configuration { get; }
 

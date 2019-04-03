@@ -18,7 +18,7 @@ namespace GenHTTP.Core.Protocol
 
         #region Get-/Setters
 
-        protected IServer Server { get; }
+        private IServer Server { get; }
         
         #endregion
 
@@ -66,7 +66,7 @@ namespace GenHTTP.Core.Protocol
             return response;
         }
 
-        protected bool TryRoute(IRequest request, out IRoutingContext? routingContext, out Exception? error)
+        private bool TryRoute(IRequest request, out IRoutingContext? routingContext, out Exception? error)
         {
             try
             {
@@ -89,7 +89,7 @@ namespace GenHTTP.Core.Protocol
             }
         }
 
-        protected IResponse? TryProvideContent(IRequest request, IRoutingContext? routing, out Exception? error)
+        private IResponse? TryProvideContent(IRequest request, IRoutingContext? routing, out Exception? error)
         {
             if (routing == null)
             {
@@ -120,7 +120,7 @@ namespace GenHTTP.Core.Protocol
             }
         }
 
-        protected bool TryIntercept(IRequest request, IResponse response, out Exception? error)
+        private bool TryIntercept(IRequest request, IResponse response, out Exception? error)
         {
             foreach (var extension in Server.Extensions)
             {
@@ -146,7 +146,7 @@ namespace GenHTTP.Core.Protocol
             return true;
         }
 
-        protected IResponse ServerError(IRequest request, IRoutingContext? routing)
+        private IResponse ServerError(IRequest request, IRoutingContext? routing)
         {
             if (routing != null)
             {
@@ -166,7 +166,7 @@ namespace GenHTTP.Core.Protocol
             return CoreError(request);
         }
 
-        protected IResponse CoreError(IRequest request)
+        private IResponse CoreError(IRequest request)
         {
             var coreRouter = Server.Router as CoreRouter;
 
@@ -188,7 +188,7 @@ namespace GenHTTP.Core.Protocol
             return GenericError(request);
         }
 
-        protected IResponse GenericError(IRequest request)
+        private IResponse GenericError(IRequest request)
         {
             var stream = new MemoryStream(Encoding.UTF8.GetBytes("Internal Server Error"));
 

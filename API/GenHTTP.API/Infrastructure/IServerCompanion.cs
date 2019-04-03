@@ -11,6 +11,7 @@ namespace GenHTTP.Api.Infrastructure
     {
         ServerConnection,
         ClientConnection,
+        Security,
         Parser,
         PageGeneration,
         Extension,

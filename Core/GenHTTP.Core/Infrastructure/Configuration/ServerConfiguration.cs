@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace GenHTTP.Core.Infrastructure
+namespace GenHTTP.Core.Infrastructure.Configuration
 {
 
     internal class ServerConfiguration
@@ -10,9 +10,7 @@ namespace GenHTTP.Core.Infrastructure
 
         #region Get-/Setters
 
-        internal ushort Port { get; }
-
-        internal ushort Backlog { get; }
+        internal IEnumerable<EndPointConfiguration> EndPoints { get; }
 
         internal NetworkConfiguration Network { get; }
 
@@ -20,11 +18,9 @@ namespace GenHTTP.Core.Infrastructure
 
         #region Initialization
 
-        internal ServerConfiguration(ushort port, ushort backlog, NetworkConfiguration networkConfiguration)
+        internal ServerConfiguration(IEnumerable<EndPointConfiguration> endPoints, NetworkConfiguration networkConfiguration)
         {
-            Port = port;
-            Backlog = backlog;
-
+            EndPoints = endPoints;
             Network = networkConfiguration;
         }
 

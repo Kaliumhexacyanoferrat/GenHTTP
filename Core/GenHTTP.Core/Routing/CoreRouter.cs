@@ -26,7 +26,7 @@ namespace GenHTTP.Core.Routing
             set { throw new NotSupportedException("Setting core router's parent is not allowed"); }
         }
 
-        protected IRenderer<TemplateModel> Template { get; }
+        private IRenderer<TemplateModel> Template { get; }
 
         #endregion
 

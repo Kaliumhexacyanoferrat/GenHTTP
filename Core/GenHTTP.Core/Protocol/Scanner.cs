@@ -18,6 +18,7 @@ namespace GenHTTP.Core
         HeaderDefinition,
         HeaderContent,
         NewLine,
+        NoData,
         Unknown
     }
 
@@ -26,9 +27,9 @@ namespace GenHTTP.Core
 
         #region Get-/Setters
 
-        public Token Current { get; protected set; }
+        public Token Current { get; private set; }
 
-        public string Value { get; protected set; }
+        public string Value { get; private set; }
 
         public RequestBuffer Buffer { get; }
 

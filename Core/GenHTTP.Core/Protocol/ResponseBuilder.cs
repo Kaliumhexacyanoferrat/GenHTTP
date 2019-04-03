@@ -11,18 +11,18 @@ namespace GenHTTP.Core.Protocol
 
     internal class ResponseBuilder : IResponseBuilder
     {
-        protected FlexibleResponseStatus? _Status;
+        private FlexibleResponseStatus? _Status;
 
-        protected Stream? _Content;
-        protected ulong? _ContentLength;
-        protected FlexibleContentType? _ContentType;
-        protected string? _ContentEncoding;
+        private Stream? _Content;
+        private ulong? _ContentLength;
+        private FlexibleContentType? _ContentType;
+        private string? _ContentEncoding;
 
-        protected DateTime? _Expires;
-        protected DateTime? _Modified;
+        private DateTime? _Expires;
+        private DateTime? _Modified;
 
-        protected CookieCollection _Cookies = new CookieCollection();
-        protected HeaderCollection _Headers = new HeaderCollection();
+        private CookieCollection _Cookies = new CookieCollection();
+        private HeaderCollection _Headers = new HeaderCollection();
 
         #region Get-/Setters
 

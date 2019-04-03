@@ -12,7 +12,9 @@ namespace GenHTTP.Core.Protocol
 
     internal class RequestBuilder : IBuilder<IRequest>
     {
-        private IClientHandler? _ClientHandler;
+        private IServer? _Server;
+        private IClient? _Client;
+        private IEndPoint? _EndPoint;
 
         private FlexibleRequestMethod? _RequestMethod;
         private ProtocolType? _Protocol;
@@ -42,9 +44,12 @@ namespace GenHTTP.Core.Protocol
 
         #region Functionality
 
-        public RequestBuilder Handler(IClientHandler clientHandler)
+        public RequestBuilder Connection(IServer server, IEndPoint endPoint, IClient client)
         {
-            _ClientHandler = clientHandler;
+            _Server = server;
+            _Client = client;
+            _EndPoint = endPoint;
+
             return this;
         }
 
@@ -133,9 +138,19 @@ namespace GenHTTP.Core.Protocol
 
         public IRequest Build()
         {
-            if (_ClientHandler == null)
+            if (_Server == null)
             {
-                throw new BuilderMissingPropertyException("Handler");
+                throw new BuilderMissingPropertyException("Server");
+            }
+
+            if (_EndPoint == null)
+            {
+                throw new BuilderMissingPropertyException("EndPoint");
+            }
+
+            if (_Client == null)
+            {
+                throw new BuilderMissingPropertyException("Client");
             }
 
             if (_Protocol == null)
@@ -153,7 +168,7 @@ namespace GenHTTP.Core.Protocol
                 throw new BuilderMissingPropertyException("Path");
             }
 
-            return new Request((ProtocolType)_Protocol, _RequestMethod, _Path, Headers, _Cookies, _Query, _Content, _ClientHandler);
+            return new Request(_Server, _EndPoint, _Client, (ProtocolType)_Protocol, _RequestMethod, _Path, Headers, _Cookies, _Query, _Content);
         }
 
         #endregion

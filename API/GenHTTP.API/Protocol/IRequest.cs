@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
 
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Api.Protocol
@@ -12,11 +13,29 @@ namespace GenHTTP.Api.Protocol
     public interface IRequest : IDisposable
     {
 
+        #region General Infrastructure
+
+        IServer Server { get; }
+
+        IEndPoint EndPoint { get; }
+
+        IClient Client { get; }
+
+        IRoutingContext? Routing { get; set; }
+
+        #endregion
+
+        #region HTTP Protocol
+
         ProtocolType ProtocolType { get; }
 
         FlexibleRequestMethod Method { get; }
 
         string Path { get; }
+
+        #endregion
+
+        #region Headers
 
         string? UserAgent { get; }
         
@@ -32,13 +51,19 @@ namespace GenHTTP.Api.Protocol
 
         IHeaderCollection Headers { get; }
 
+        #endregion
+
+        #region Body
+
         Stream? Content { get; }
 
-        IClientHandler Handler { get; }
+        #endregion
 
-        IRoutingContext? Routing { get; set; }
-        
+        #region Functionality
+
         IResponseBuilder Respond();
+
+        #endregion
 
     }
 

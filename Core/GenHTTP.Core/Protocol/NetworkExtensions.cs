@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace GenHTTP.Core.Protocol
     internal static class NetworkExtensions
     {
 
-        internal static async Task<int> ReadWithTimeoutAsync(this NetworkStream stream, byte[] buffer, int offset, int count)
+        internal static async Task<int> ReadWithTimeoutAsync(this Stream stream, byte[] buffer, int offset, int count)
         {
             var result = 0;
 
@@ -24,7 +25,7 @@ namespace GenHTTP.Core.Protocol
 
             if (!success)
             {
-                throw new ReadTimeoutException();
+                return -1;
             }
 
             if (result == 0)

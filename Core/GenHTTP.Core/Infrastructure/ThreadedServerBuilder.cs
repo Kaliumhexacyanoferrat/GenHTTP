@@ -1,10 +1,15 @@
 ﻿using System;
+using System.Net;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+using System.Linq;
 using System.Collections.Generic;
-using System.Text;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Routing;
+
+using GenHTTP.Core.Infrastructure.Configuration;
 
 using GenHTTP.Modules.Core.Compression;
 
@@ -13,22 +18,24 @@ namespace GenHTTP.Core.Infrastructure
 
     internal class ThreadedServerBuilder : IServerBuilder
     {
-        protected ushort _Backlog = 20;
-        protected ushort _Port = 8080;
+        private ushort _Backlog = 20;
+        private ushort _Port = 8080;
 
-        protected uint _RequestMemoryLimit = 1 * 1024 + 1024; // 1 MB
-        protected uint _TransferBufferSize = 65 * 1024; // 65 KB
+        private uint _RequestMemoryLimit = 1 * 1024 + 1024; // 1 MB
+        private uint _TransferBufferSize = 65 * 1024; // 65 KB
 
-        protected TimeSpan _RequestReadTimeout = TimeSpan.FromSeconds(10);
+        private TimeSpan _RequestReadTimeout = TimeSpan.FromSeconds(10);
 
-        protected IRouter? _Router;
-        protected IServerCompanion? _Companion;
+        private IRouter? _Router;
+        private IServerCompanion? _Companion;
 
-        protected ExtensionCollection _Extensions = new ExtensionCollection();
+        private List<IServerExtension> _Extensions = new List<IServerExtension>();
 
-        protected Dictionary<string, ICompressionAlgorithm>? _Compression = new Dictionary<string, ICompressionAlgorithm>(StringComparer.InvariantCultureIgnoreCase);
-        
-        #region Functionality
+        private Dictionary<string, ICompressionAlgorithm>? _Compression = new Dictionary<string, ICompressionAlgorithm>(StringComparer.InvariantCultureIgnoreCase);
+
+        private List<EndPointConfiguration> _EndPoints = new List<EndPointConfiguration>();
+
+        #region Content
 
         public IServerBuilder Router(IRouterBuilder routerBuilder)
         {
@@ -41,12 +48,37 @@ namespace GenHTTP.Core.Infrastructure
             return this;
         }
 
+        #endregion
+
+        #region Infrastructure
+
+        public IServerBuilder Console()
+        {
+            _Companion = new ConsoleCompanion();
+            return this;
+        }
+
         public IServerBuilder Companion(IServerCompanion companion)
         {
             _Companion = companion;
             return this;
         }
+        
+        public IServerBuilder Extension(IBuilder<IServerExtension> extension)
+        {
+            return Extension(extension.Build());
+        }
 
+        public IServerBuilder Extension(IServerExtension extension)
+        {
+            _Extensions.Add(extension);
+            return this;
+        }
+
+        #endregion
+
+        #region Binding
+        
         public IServerBuilder Port(ushort port)
         {
             if (port == 0)
@@ -57,6 +89,28 @@ namespace GenHTTP.Core.Infrastructure
             _Port = port;
             return this;
         }
+
+        public IServerBuilder Bind(IPAddress address, ushort port)
+        {
+            _EndPoints.Add(new EndPointConfiguration(address, port, null));
+            return this;
+        }
+
+        public IServerBuilder Bind(IPAddress address, ushort port, X509Certificate certificate)
+        {
+            _EndPoints.Add(new EndPointConfiguration(address, port, new SecurityConfiguration(certificate, SslProtocols.Tls12)));
+            return this;
+        }
+
+        public IServerBuilder Bind(IPAddress address, ushort port, X509Certificate certificate, SslProtocols protocols)
+        {
+            _EndPoints.Add(new EndPointConfiguration(address, port, new SecurityConfiguration(certificate, protocols)));
+            return this;
+        }
+
+        #endregion
+
+        #region Network settings
 
         public IServerBuilder Backlog(ushort backlog)
         {
@@ -82,22 +136,9 @@ namespace GenHTTP.Core.Infrastructure
             return this;
         }
 
-        public IServerBuilder Console()
-        {
-            _Companion = new ConsoleCompanion();
-            return this;
-        }
+        #endregion
 
-        public IServerBuilder Extension(IBuilder<IServerExtension> extension)
-        {
-            return Extension(extension.Build());
-        }
-
-        public IServerBuilder Extension(IServerExtension extension)
-        {
-            _Extensions.Add(extension);
-            return this;
-        }
+        #region Compression
 
         public IServerBuilder Compression(IBuilder<ICompressionAlgorithm> algorithm)
         {
@@ -130,28 +171,45 @@ namespace GenHTTP.Core.Infrastructure
             return this;
         }
 
+        #endregion
+
+        #region Builder
+
         public IServer Build()
         {
             if (_Router == null)
             {
                 throw new BuilderMissingPropertyException("Router");
             }
-            
-            var network = new NetworkConfiguration(_RequestReadTimeout, _RequestMemoryLimit, _TransferBufferSize);
 
-            var config = new ServerConfiguration(_Port, _Backlog, network);
-            
-            if (_Compression != null)
+            var network = new NetworkConfiguration(_RequestReadTimeout, _RequestMemoryLimit, _TransferBufferSize, _Backlog);
+
+            var endpoints = new List<EndPointConfiguration>(_EndPoints);
+
+            if (!endpoints.Any())
             {
-                if (!_Compression.ContainsKey("gzip"))
-                {
-                    _Compression.Add("gzip", new GzipAlgorithm());
-                }
-
-                _Extensions.Add(new CompressionExtension(_Compression));
+                endpoints.Add(new EndPointConfiguration(IPAddress.Any, _Port, null));
+                endpoints.Add(new EndPointConfiguration(IPAddress.IPv6Any, _Port, null));
             }
 
-            return new ThreadedServer(_Companion, config, _Extensions, _Router);
+            var config = new ServerConfiguration(endpoints, network);
+
+            var extensions = new ExtensionCollection();
+            extensions.AddRange(_Extensions);
+
+            if (_Compression != null)
+            {
+                var algorithms = new Dictionary<string, ICompressionAlgorithm>(_Compression);
+                
+                if (!algorithms.ContainsKey("gzip"))
+                {
+                    algorithms.Add("gzip", new GzipAlgorithm());
+                }
+
+                extensions.Add(new CompressionExtension(algorithms));
+            }
+
+            return new ThreadedServer(_Companion, config, extensions, _Router);
         }
         
         #endregion

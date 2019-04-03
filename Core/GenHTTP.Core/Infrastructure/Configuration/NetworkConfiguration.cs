@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace GenHTTP.Core.Infrastructure
+namespace GenHTTP.Core.Infrastructure.Configuration
 {
 
     internal class NetworkConfiguration
@@ -16,15 +16,18 @@ namespace GenHTTP.Core.Infrastructure
 
         internal uint TransferBufferSize { get; }
 
+        internal ushort Backlog { get; }
+
         #endregion
 
         #region Initialization
 
-        internal NetworkConfiguration(TimeSpan readTimeout, uint memoryLimit, uint transferBuffer)
+        internal NetworkConfiguration(TimeSpan readTimeout, uint memoryLimit, uint transferBuffer, ushort backlog)
         {
             RequestReadTimeout = readTimeout;
             RequestMemoryLimit = memoryLimit;
             TransferBufferSize = transferBuffer;
+            Backlog = backlog;
         }
 
         #endregion

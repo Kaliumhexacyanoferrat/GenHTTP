@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Buffers;
-using System.Collections.Generic;
 using System.IO;
-using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
 
-using GenHTTP.Core.Infrastructure;
+using GenHTTP.Core.Infrastructure.Configuration;
 
 namespace GenHTTP.Core.Protocol
 {
@@ -37,7 +34,7 @@ namespace GenHTTP.Core.Protocol
 
         #region Functionality
 
-        public async Task<Stream> GetBody(RequestBuffer buffer, NetworkStream inputStream)
+        public async Task<Stream> GetBody(RequestBuffer buffer, Stream inputStream)
         {
             var body = (Length > Configuration.RequestMemoryLimit) ? TemporaryFileStream.Create() : new MemoryStream((int)Length);
 
@@ -45,7 +42,16 @@ namespace GenHTTP.Core.Protocol
 
             while (toFetch > 0)
             {
-                toFetch -= await Migrate(inputStream, body);
+                var read = await Migrate(inputStream, body);
+
+                if (read > 0)
+                {
+                    toFetch -= read;
+                }
+                else
+                {
+                    throw new NetworkException("Failed to read body from stream");
+                }
             }
 
             body.Seek(0, SeekOrigin.Begin);
@@ -53,7 +59,7 @@ namespace GenHTTP.Core.Protocol
             return body;
         }
         
-        private async Task<int> Migrate(NetworkStream source, Stream target)
+        private async Task<int> Migrate(Stream source, Stream target)
         {
             var buffer = POOL.Rent((int)Configuration.TransferBufferSize);
 
@@ -61,7 +67,10 @@ namespace GenHTTP.Core.Protocol
             {
                 var read = await source.ReadWithTimeoutAsync(buffer, 0, buffer.Length);
 
-                await target.WriteAsync(buffer, 0, read);
+                if (read > 0)
+                {
+                    await target.WriteAsync(buffer, 0, read);
+                }
 
                 return read;
             }

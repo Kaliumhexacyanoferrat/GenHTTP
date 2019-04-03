@@ -1,6 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.IO.Compression;
+using System.Net;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Core;
 using GenHTTP.Modules.Core.General;
@@ -28,7 +31,7 @@ namespace GenHTTP.Examples.CoreApp
         public static void Main(string[] args)
         {
             var project = Project.Build();
-
+            
             var server = Server.Create()
                                .Router(project)
                                .Compression(new BrotliCompression())
@@ -36,7 +39,7 @@ namespace GenHTTP.Examples.CoreApp
 
             using (var instance = server.Build())
             {
-                Console.WriteLine("Server is running on port 8080.");
+                Console.WriteLine("Server is running ...");
                 Console.WriteLine("Please press any key to shutdown ...");
 
                 Console.ReadLine();
