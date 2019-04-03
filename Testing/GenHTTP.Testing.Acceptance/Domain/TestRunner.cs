@@ -43,7 +43,7 @@ namespace GenHTTP.Testing.Acceptance.Domain
 
                 Builder = Server.Create()
                                 .Router(Layout.Create())
-                                .Port(Port);
+                                .Bind(IPAddress.IPv6Any, Port);
             }
         }
 
@@ -71,7 +71,10 @@ namespace GenHTTP.Testing.Acceptance.Domain
 
         public HttpWebRequest GetRequest(string? uri = null)
         {
-            return WebRequest.CreateHttp($"http://localhost:{Port}{uri ?? ""}");
+            var request = WebRequest.CreateHttp($"http://localhost:{Port}{uri ?? ""}");
+            request.Timeout = 2000;
+
+            return request;
         }
 
         public HttpWebResponse GetResponse(string? uri = null)

@@ -39,9 +39,9 @@ namespace GenHTTP.Testing.Acceptance.Core
         {
             using var runner = new TestRunner();
 
-            runner.Builder.Console().Build();
+            using var _ = runner.Builder.Console().Build();
 
-            using var _ = runner.GetResponse();
+            using var __ = runner.GetResponse();
         }
 
         /// <summary>
@@ -54,9 +54,9 @@ namespace GenHTTP.Testing.Acceptance.Core
 
             var companion = new CustomCompanion();
 
-            runner.Builder.Companion(companion).Build();
+            using var _ = runner.Builder.Companion(companion).Build();
 
-            using var _ = runner.GetResponse();
+            using var __ = runner.GetResponse();
 
             Assert.True(companion.Called);
         }

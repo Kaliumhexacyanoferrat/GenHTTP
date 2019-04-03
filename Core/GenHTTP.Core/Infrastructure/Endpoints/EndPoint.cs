@@ -77,7 +77,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
                 {
                     Handle(await Socket.AcceptAsync());
                 }
-                while (true);
+                while (!shuttingDown);
             }
             catch (Exception e)
             {

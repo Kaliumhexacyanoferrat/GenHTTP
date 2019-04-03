@@ -45,7 +45,7 @@ namespace GenHTTP.Testing.Acceptance.Core
 
             using var runner = new TestRunner();
 
-            runner.Builder.Extension(test).Build();
+            using var _ = runner.Builder.Extension(test).Build();
 
             var request = runner.GetRequest();
             request.Method = "POST";
@@ -56,7 +56,7 @@ namespace GenHTTP.Testing.Acceptance.Core
                 input.Write(bytes, 0, bytes.Length);
             }
 
-            using var _ = request.GetSafeResponse();
+            using var __ = request.GetSafeResponse();
 
             Assert.Equal(str, test.Value);
         }
