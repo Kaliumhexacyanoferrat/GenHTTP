@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Collections.Generic;
 using System.Text;
 
@@ -57,6 +58,10 @@ namespace GenHTTP.Testing.Acceptance.Core
             using var _ = runner.Builder.Companion(companion).Build();
 
             using var __ = runner.GetResponse();
+
+            // the companion is called _after_ the response has been sent
+            // bad hack, reconsider
+            Thread.Sleep(50);
 
             Assert.True(companion.Called);
         }

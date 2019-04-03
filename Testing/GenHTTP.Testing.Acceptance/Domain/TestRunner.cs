@@ -43,7 +43,7 @@ namespace GenHTTP.Testing.Acceptance.Domain
 
                 Builder = Server.Create()
                                 .Router(Layout.Create())
-                                .Bind(IPAddress.Any, Port);
+                                .Bind(IPAddress.IPv6Any, Port);
             }
         }
 
