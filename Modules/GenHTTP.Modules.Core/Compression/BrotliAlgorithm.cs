@@ -8,7 +8,7 @@ using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Modules.Core.General;
 
-using Brotli;
+using BrotliSharpLib;
 
 namespace GenHTTP.Modules.Core.Compression
 {
@@ -22,7 +22,12 @@ namespace GenHTTP.Modules.Core.Compression
 
         public Stream Compress(Stream content)
         {
-            return new FilteredStream(content, (mem) => new BrotliStream(mem, CompressionMode.Compress));
+            return new FilteredStream(content, (mem) => {
+                var stream = new BrotliStream(mem, CompressionMode.Compress, false);
+                stream.SetQuality(7);
+
+                return stream;
+            });
         }
 
     }
