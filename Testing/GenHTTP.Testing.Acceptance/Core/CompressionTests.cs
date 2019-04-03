@@ -43,7 +43,7 @@ namespace GenHTTP.Testing.Acceptance.Core
 
             using var response = request.GetSafeResponse();
 
-            Assert.Equal("br", response.ContentEncoding);
+            Assert.Equal("gzip", response.ContentEncoding);
         }
 
         /// <summary>

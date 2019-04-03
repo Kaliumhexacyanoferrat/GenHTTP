@@ -35,8 +35,6 @@
   <ItemGroup>
     
     <ProjectReference Include="..\..\API\GenHTTP.API\GenHTTP.Api.csproj" />
-    
-    <PackageReference Include="BrotliSharpLib" Version="0.3.3" />
 
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05">
       <PrivateAssets>all</PrivateAssets>

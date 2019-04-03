@@ -148,11 +148,6 @@ namespace GenHTTP.Core.Infrastructure
                     _Compression.Add("gzip", new GzipAlgorithm());
                 }
 
-                if (!_Compression.ContainsKey("br"))
-                {
-                    _Compression.Add("br", new BrotliAlgorithm());
-                }
-
                 _Extensions.Add(new CompressionExtension(_Compression));
             }
 

@@ -1,19 +1,37 @@
 ﻿using System;
-
+using System.IO;
+using System.IO.Compression;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Core;
+using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Examples.CoreApp
 {
 
-    public static class Program
+    public class BrotliCompression : ICompressionAlgorithm
     {
 
+        public string Name => "br";
+
+        public Priority Priority => Priority.High;
+
+        public Stream Compress(Stream content)
+        {
+            return new FilteredStream(content, (mem) => new BrotliStream(mem, CompressionLevel.Fastest, false));
+        }
+
+    }
+
+    public static class Program
+    {
+        
         public static void Main(string[] args)
         {
             var project = Project.Build();
 
             var server = Server.Create()
                                .Router(project)
+                               .Compression(new BrotliCompression())
                                .Console();
 
             using (var instance = server.Build())
