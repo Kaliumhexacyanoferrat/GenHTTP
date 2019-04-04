@@ -9,6 +9,7 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Routing;
 
+using GenHTTP.Core.Infrastructure.Endpoints;
 using GenHTTP.Core.Infrastructure.Configuration;
 
 using GenHTTP.Modules.Core.Compression;
@@ -63,7 +64,7 @@ namespace GenHTTP.Core.Infrastructure
             _Companion = companion;
             return this;
         }
-        
+
         public IServerBuilder Extension(IBuilder<IServerExtension> extension)
         {
             return Extension(extension.Build());
@@ -78,7 +79,7 @@ namespace GenHTTP.Core.Infrastructure
         #endregion
 
         #region Binding
-        
+
         public IServerBuilder Port(ushort port)
         {
             if (port == 0)
@@ -98,13 +99,23 @@ namespace GenHTTP.Core.Infrastructure
 
         public IServerBuilder Bind(IPAddress address, ushort port, X509Certificate certificate)
         {
-            _EndPoints.Add(new EndPointConfiguration(address, port, new SecurityConfiguration(certificate, SslProtocols.Tls12)));
-            return this;
+            return Bind(address, port, new SimpleCertificateProvider(certificate));
         }
 
         public IServerBuilder Bind(IPAddress address, ushort port, X509Certificate certificate, SslProtocols protocols)
         {
-            _EndPoints.Add(new EndPointConfiguration(address, port, new SecurityConfiguration(certificate, protocols)));
+            return Bind(address, port, new SimpleCertificateProvider(certificate), protocols);
+        }
+
+        public IServerBuilder Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider)
+        {
+            _EndPoints.Add(new EndPointConfiguration(address, port, new SecurityConfiguration(certificateProvider, SslProtocols.Tls12)));
+            return this;
+        }
+
+        public IServerBuilder Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols)
+        {
+            _EndPoints.Add(new EndPointConfiguration(address, port, new SecurityConfiguration(certificateProvider, protocols)));
             return this;
         }
 
@@ -200,7 +211,7 @@ namespace GenHTTP.Core.Infrastructure
             if (_Compression != null)
             {
                 var algorithms = new Dictionary<string, ICompressionAlgorithm>(_Compression);
-                
+
                 if (!algorithms.ContainsKey("gzip"))
                 {
                     algorithms.Add("gzip", new GzipAlgorithm());
@@ -211,7 +222,7 @@ namespace GenHTTP.Core.Infrastructure
 
             return new ThreadedServer(_Companion, config, extensions, _Router);
         }
-        
+
         #endregion
 
     }

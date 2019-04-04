@@ -54,6 +54,10 @@ namespace GenHTTP.Api.Infrastructure
 
         IServerBuilder Bind(IPAddress address, ushort port, X509Certificate certificate, SslProtocols protocols);
 
+        IServerBuilder Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider);
+
+        IServerBuilder Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols);
+
         #endregion
 
         #region Network settings

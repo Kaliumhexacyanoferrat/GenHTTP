@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Core;
 using GenHTTP.Modules.Core.General;
@@ -34,7 +35,6 @@ namespace GenHTTP.Examples.CoreApp
             
             var server = Server.Create()
                                .Router(project)
-                               .Compression(new BrotliCompression())
                                .Console();
 
             using (var instance = server.Build())

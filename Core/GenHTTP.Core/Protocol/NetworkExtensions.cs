@@ -23,16 +23,11 @@ namespace GenHTTP.Core.Protocol
 
             var success = await Task.WhenAny(task, Task.Delay(stream.ReadTimeout)) == task;
 
-            if (!success)
+            if (!success || result == 0)
             {
                 return -1;
             }
-
-            if (result == 0)
-            {
-                throw new NetworkException("Read 0 bytes from input stream");
-            }
-            
+                        
             return result;
         }
 

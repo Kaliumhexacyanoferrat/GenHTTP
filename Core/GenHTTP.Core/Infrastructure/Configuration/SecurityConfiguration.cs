@@ -4,6 +4,8 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
+using GenHTTP.Api.Infrastructure;
+
 namespace GenHTTP.Core.Infrastructure.Configuration
 {
 
@@ -14,13 +16,13 @@ namespace GenHTTP.Core.Infrastructure.Configuration
 
         internal SslProtocols Protocols { get; }
 
-        internal X509Certificate Certificate { get; }
+        internal ICertificateProvider Certificate { get; }
         
         #endregion
 
         #region Initialization
 
-        internal SecurityConfiguration(X509Certificate certificate, SslProtocols protocols)
+        internal SecurityConfiguration(ICertificateProvider certificate, SslProtocols protocols)
         {
             Protocols = protocols;
             Certificate = certificate;
