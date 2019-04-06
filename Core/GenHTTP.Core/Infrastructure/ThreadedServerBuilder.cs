@@ -105,12 +105,12 @@ namespace GenHTTP.Core.Infrastructure
             return this;
         }
 
-        public IServerBuilder Bind(IPAddress address, ushort port, X509Certificate certificate)
+        public IServerBuilder Bind(IPAddress address, ushort port, X509Certificate2 certificate)
         {
             return Bind(address, port, new SimpleCertificateProvider(certificate));
         }
 
-        public IServerBuilder Bind(IPAddress address, ushort port, X509Certificate certificate, SslProtocols protocols)
+        public IServerBuilder Bind(IPAddress address, ushort port, X509Certificate2 certificate, SslProtocols protocols)
         {
             return Bind(address, port, new SimpleCertificateProvider(certificate), protocols);
         }

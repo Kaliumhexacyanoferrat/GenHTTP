@@ -52,9 +52,9 @@ namespace GenHTTP.Api.Infrastructure
         
         IServerBuilder Bind(IPAddress address, ushort port);
 
-        IServerBuilder Bind(IPAddress address, ushort port, X509Certificate certificate);
+        IServerBuilder Bind(IPAddress address, ushort port, X509Certificate2 certificate);
 
-        IServerBuilder Bind(IPAddress address, ushort port, X509Certificate certificate, SslProtocols protocols);
+        IServerBuilder Bind(IPAddress address, ushort port, X509Certificate2 certificate, SslProtocols protocols);
 
         IServerBuilder Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider);
 

@@ -13,13 +13,13 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         #region Get-/Setters
 
-        internal X509Certificate Certificate { get; }
+        internal X509Certificate2 Certificate { get; }
 
         #endregion
 
         #region Initialization
 
-        internal SimpleCertificateProvider(X509Certificate certificate)
+        internal SimpleCertificateProvider(X509Certificate2 certificate)
         {
             Certificate = certificate;
         }
@@ -28,7 +28,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         #region Functionaliy
 
-        public X509Certificate Provide(string? host)
+        public X509Certificate2 Provide(string? host)
         {
             return Certificate;
         }

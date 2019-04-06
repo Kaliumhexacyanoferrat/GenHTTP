@@ -49,14 +49,14 @@ namespace GenHTTP.Testing.Acceptance.Core
             Assert.Equal("Hello Alice!", response.GetContent());
         }
 
-        private static X509Certificate GetCertificate()
+        private static X509Certificate2 GetCertificate()
         {
             using (var stream = Data.FromResource("Certificate.pfx").Build().GetResource())
             {
                 using (var mem = new MemoryStream())
                 {
                     stream.CopyTo(mem);
-                    return new X509Certificate(mem.ToArray());
+                    return new X509Certificate2(mem.ToArray());
                 }
             }
         }

@@ -9,7 +9,7 @@ namespace GenHTTP.Api.Infrastructure
     public interface ICertificateProvider
     {
 
-        X509Certificate Provide(string? host);
+        X509Certificate2 Provide(string? host);
 
     }
 
