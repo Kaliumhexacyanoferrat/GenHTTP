@@ -56,7 +56,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         internal bool Peek()
         {
-            var buffer = POOL.Rent(8192);
+            var buffer = POOL.Rent(RequestParser.READ_BUFFER_SIZE);
 
             try
             {

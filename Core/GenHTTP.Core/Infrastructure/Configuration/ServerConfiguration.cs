@@ -14,12 +14,17 @@ namespace GenHTTP.Core.Infrastructure.Configuration
 
         internal NetworkConfiguration Network { get; }
 
+        internal bool DevelopmentMode { get; }
+
         #endregion
 
         #region Initialization
 
-        internal ServerConfiguration(IEnumerable<EndPointConfiguration> endPoints, NetworkConfiguration networkConfiguration)
+        internal ServerConfiguration(bool developmentMode, IEnumerable<EndPointConfiguration> endPoints,
+                                     NetworkConfiguration networkConfiguration)
         {
+            DevelopmentMode = developmentMode;
+
             EndPoints = endPoints;
             Network = networkConfiguration;
         }

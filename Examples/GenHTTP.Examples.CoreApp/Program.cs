@@ -5,27 +5,13 @@ using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
-using GenHTTP.Api.Infrastructure;
 using GenHTTP.Core;
-using GenHTTP.Modules.Core.General;
+
+using GenHTTP.Examples.CoreApp.Utilities;
 
 namespace GenHTTP.Examples.CoreApp
 {
-
-    public class BrotliCompression : ICompressionAlgorithm
-    {
-
-        public string Name => "br";
-
-        public Priority Priority => Priority.High;
-
-        public Stream Compress(Stream content)
-        {
-            return new FilteredStream(content, (mem) => new BrotliStream(mem, CompressionLevel.Fastest, false));
-        }
-
-    }
-
+    
     public static class Program
     {
         
@@ -35,7 +21,12 @@ namespace GenHTTP.Examples.CoreApp
             
             var server = Server.Create()
                                .Router(project)
+                               .Compression(new BrotliCompression())
                                .Console();
+
+#if DEBUG
+            server.Development();
+#endif
 
             using (var instance = server.Build())
             {

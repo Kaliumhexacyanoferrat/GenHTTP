@@ -21,7 +21,9 @@ namespace GenHTTP.Core.Infrastructure
 
         #region Get-/Setters
 
-        public Version Version => Assembly.GetExecutingAssembly().GetName().Version;
+        public Version Version { get; }
+
+        public bool Development => Configuration.DevelopmentMode;
 
         public IRouter Router { get; private set; }
 
@@ -39,6 +41,8 @@ namespace GenHTTP.Core.Infrastructure
 
         internal ThreadedServer(IServerCompanion? companion, ServerConfiguration configuration, IExtensionCollection extensions, IRouter router)
         {
+            Version = Assembly.GetExecutingAssembly().GetName().Version;
+
             Companion = companion;
             Router = new CoreRouter(router);
 

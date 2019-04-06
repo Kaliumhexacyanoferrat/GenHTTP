@@ -38,31 +38,39 @@ namespace GenHTTP.Core.Protocol
             IRoutingContext? routing;
             IResponse? response;
 
-            if (TryRoute(request, out routing, out error))
+            Exception? cause;
+
+            if (TryRoute(request, out routing, out cause))
             {
-                response = TryProvideContent(request, routing, out error);                
+                response = TryProvideContent(request, routing, out cause);                
             }
             else
             {
                 // with no routing context, we can't provide a templated error page
-                // provide a default error page in this case, if possible
-                response = CoreError(request);
+                // provide a default error page in this case, if possible                ;
+                response = CoreError(request, cause);
             }
 
             if (response == null)
             {
                 // the content provider threw an exception
                 // send a templated error message page, if possible
-                response = ServerError(request, routing);
+                response = ServerError(request, routing, cause);
             }
 
-            if (!TryIntercept(request, response, out error))
+            if (!TryIntercept(request, response, out var extensionError))
             {
-                // an exception threw an exception
+                // an extension threw an exception
                 // send a templated error message
-                response = ServerError(request, routing);
+                if (extensionError != null)
+                {
+                    cause = extensionError;
+                }
+
+                response = ServerError(request, routing, cause);
             }
 
+            error = cause;
             return response;
         }
 
@@ -107,7 +115,7 @@ namespace GenHTTP.Core.Protocol
                 }
                 else
                 {
-                    return routing.Router.GetErrorHandler(request, ResponseStatus.NotFound)
+                    return routing.Router.GetErrorHandler(request, ResponseStatus.NotFound, null)
                                          .Handle(request)
                                          .Type(ResponseStatus.NotFound)
                                          .Build();
@@ -146,13 +154,13 @@ namespace GenHTTP.Core.Protocol
             return true;
         }
 
-        private IResponse ServerError(IRequest request, IRoutingContext? routing)
+        private IResponse ServerError(IRequest request, IRoutingContext? routing, Exception? cause)
         {
             if (routing != null)
             {
                 try
                 {
-                    return routing.Router.GetErrorHandler(request, ResponseStatus.InternalServerError)
+                    return routing.Router.GetErrorHandler(request, ResponseStatus.InternalServerError, cause)
                                          .Handle(request)
                                          .Type(ResponseStatus.InternalServerError)
                                          .Build();
@@ -163,10 +171,10 @@ namespace GenHTTP.Core.Protocol
                 }
             }
 
-            return CoreError(request);
+            return CoreError(request, cause);
         }
 
-        private IResponse CoreError(IRequest request)
+        private IResponse CoreError(IRequest request, Exception? cause)
         {
             var coreRouter = Server.Router as CoreRouter;
 
@@ -174,7 +182,7 @@ namespace GenHTTP.Core.Protocol
             {
                 try
                 {
-                    return coreRouter.GetErrorHandler(request, ResponseStatus.InternalServerError)
+                    return coreRouter.GetErrorHandler(request, ResponseStatus.InternalServerError, cause)
                                      .Handle(request)
                                      .Type(ResponseStatus.InternalServerError)
                                      .Build();
@@ -185,10 +193,10 @@ namespace GenHTTP.Core.Protocol
                 }
             }
 
-            return GenericError(request);
+            return GenericError(request, cause);
         }
 
-        private IResponse GenericError(IRequest request)
+        private IResponse GenericError(IRequest request, Exception? cause)
         {
             var stream = new MemoryStream(Encoding.UTF8.GetBytes("Internal Server Error"));
 

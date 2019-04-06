@@ -10,6 +10,8 @@ using GenHTTP.Modules.Core.General;
 using GenHTTP.Modules.Core.Resource;
 using GenHTTP.Modules.Core.Templating;
 
+using GenHTTP.Core.Utilities;
+
 namespace GenHTTP.Core.Routing
 {
 
@@ -55,9 +57,22 @@ namespace GenHTTP.Core.Routing
             return Template;
         }
 
-        public IContentProvider GetErrorHandler(IRequest request, ResponseStatus responseType)
+        public IContentProvider GetErrorHandler(IRequest request, ResponseStatus responseType, Exception? cause)
         {
-            var page = new TemplateModel(request, responseType.ToString(), $"Server returned with response type '{responseType}'.");
+            var title = responseType.ToString().SplitCamelCase();
+
+            string body;
+
+            if (request.Server.Development && (cause != null))
+            {
+                body = cause.ToString();
+            }
+            else
+            {
+                body = $"Server returned with response type '{title}'.";
+            }
+
+            var page = new TemplateModel(request, title, body);
 
             var renderer = request.Routing?.Router.GetRenderer() ?? GetRenderer();
 

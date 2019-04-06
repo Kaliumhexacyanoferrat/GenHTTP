@@ -11,6 +11,8 @@ namespace GenHTTP.Api.Infrastructure
 
         Version Version { get; }
 
+        bool Development { get; }
+
         IServerCompanion? Companion { get; }
 
         IExtensionCollection Extensions { get; }

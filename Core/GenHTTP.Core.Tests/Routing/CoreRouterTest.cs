@@ -6,6 +6,7 @@ using Xunit;
 using Moq;
 
 using GenHTTP.Api.Routing;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Modules.Templating;
 using GenHTTP.Api.Protocol;
 
@@ -61,11 +62,14 @@ namespace GenHTTP.Core.Tests.Routing
         [Fact]
         public void TestHandlesErrors()
         {
+            var server = Mock.Of<IServer>();
+
             var request = new Mock<IRequest>();
 
+            request.Setup(r => r.Server).Returns(server);
             request.Setup(r => r.Respond()).Returns(new ResponseBuilder(request.Object));            
 
-            var errorHandler = Instance.GetErrorHandler(request.Object, ResponseStatus.NotFound);
+            var errorHandler = Instance.GetErrorHandler(request.Object, ResponseStatus.NotFound, null);
 
             var response = errorHandler.Handle(request.Object).Type(ResponseStatus.NotFound).Build();
 

@@ -25,6 +25,8 @@ namespace GenHTTP.Core.Infrastructure
         private uint _RequestMemoryLimit = 1 * 1024 + 1024; // 1 MB
         private uint _TransferBufferSize = 65 * 1024; // 65 KB
 
+        private bool _Development = false;
+
         private TimeSpan _RequestReadTimeout = TimeSpan.FromSeconds(10);
 
         private IRouter? _Router;
@@ -73,6 +75,12 @@ namespace GenHTTP.Core.Infrastructure
         public IServerBuilder Extension(IServerExtension extension)
         {
             _Extensions.Add(extension);
+            return this;
+        }
+
+        public IServerBuilder Development(bool developmentMode = true)
+        {
+            _Development = developmentMode;
             return this;
         }
 
@@ -203,7 +211,7 @@ namespace GenHTTP.Core.Infrastructure
                 endpoints.Add(new EndPointConfiguration(IPAddress.IPv6Any, _Port, null));
             }
 
-            var config = new ServerConfiguration(endpoints, network);
+            var config = new ServerConfiguration(_Development, endpoints, network);
 
             var extensions = new ExtensionCollection();
             extensions.AddRange(_Extensions);

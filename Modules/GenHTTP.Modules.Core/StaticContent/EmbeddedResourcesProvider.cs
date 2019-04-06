@@ -65,9 +65,9 @@ namespace GenHTTP.Modules.Core.StaticContent
             return Parent.GetRenderer();
         }
 
-        public IContentProvider GetErrorHandler(IRequest request, ResponseStatus responseType)
+        public IContentProvider GetErrorHandler(IRequest request, ResponseStatus responseType, Exception? cause)
         {
-            return Parent.GetErrorHandler(request, responseType);
+            return Parent.GetErrorHandler(request, responseType, cause);
         }
 
         public string? Route(string path, int currentDepth)

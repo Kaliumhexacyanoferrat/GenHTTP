@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 
 using GenHTTP.Api.Modules;
-
+using GenHTTP.Examples.Examples.Infrastructure;
 using GenHTTP.Modules.Core;
+using GenHTTP.Modules.Scriban;
 
 namespace GenHTTP.Examples
 {
@@ -14,10 +15,12 @@ namespace GenHTTP.Examples
 
         public static IRouterBuilder Build()
         {
-            var layout = Layout.Create()
-                               .Add("index", Page.From("Hello World!").Title("GenHTTP Examples"), true);
+            var index = ModScriban.Page(Data.FromResource("Index.html"))
+                                  .Title("Examples");
 
-            return layout;
+            return Layout.Create()
+                         .Add("infrastructure", InfrastructureExamples.Create())
+                         .Add("index", index, true);
         }
 
     }

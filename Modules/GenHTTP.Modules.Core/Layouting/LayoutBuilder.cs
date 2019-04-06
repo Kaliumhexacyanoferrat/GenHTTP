@@ -14,6 +14,7 @@ namespace GenHTTP.Modules.Core.Layouting
     {
         protected string? _Index;
         protected IRenderer<TemplateModel>? _Template;
+
         protected IContentProvider? _ErrorHandler;
 
         #region Get-/Setters

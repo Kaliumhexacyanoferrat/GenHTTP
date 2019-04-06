@@ -32,6 +32,8 @@ namespace GenHTTP.Api.Infrastructure
 
         IServerBuilder Extension(IServerExtension extension);
 
+        IServerBuilder Development(bool developmentMode = true);
+
         #endregion
 
         #region Compression
