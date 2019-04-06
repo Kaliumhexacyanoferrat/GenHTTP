@@ -46,6 +46,11 @@ namespace GenHTTP.Core.Protocol
             return Content(body, new FlexibleContentType(contentType));
         }
 
+        public IResponseBuilder Content(Stream body, string contentType)
+        {
+            return Content(body, new FlexibleContentType(contentType));
+        }
+
         public IResponseBuilder Content(Stream body, FlexibleContentType contentType)
         {
             _Content = body;
@@ -60,6 +65,11 @@ namespace GenHTTP.Core.Protocol
         }
 
         public IResponseBuilder Content(Stream body, ulong length, ContentType contentType)
+        {
+            return Content(body, length, new FlexibleContentType(contentType));
+        }
+
+        public IResponseBuilder Content(Stream body, ulong length, string contentType)
         {
             return Content(body, length, new FlexibleContentType(contentType));
         }
@@ -103,13 +113,13 @@ namespace GenHTTP.Core.Protocol
             return this;
         }
 
-        public IResponseBuilder Type(ResponseStatus status)
+        public IResponseBuilder Status(ResponseStatus status)
         {
             _Status = new FlexibleResponseStatus(status);
             return this;
         }
 
-        public IResponseBuilder Type(int status, string phrase)
+        public IResponseBuilder Status(int status, string phrase)
         {
             _Status = new FlexibleResponseStatus(status, phrase);
             return this;

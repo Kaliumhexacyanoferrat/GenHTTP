@@ -117,7 +117,7 @@ namespace GenHTTP.Core.Protocol
                 {
                     return routing.Router.GetErrorHandler(request, ResponseStatus.NotFound, null)
                                          .Handle(request)
-                                         .Type(ResponseStatus.NotFound)
+                                         .Status(ResponseStatus.NotFound)
                                          .Build();
                 }
             }
@@ -162,7 +162,7 @@ namespace GenHTTP.Core.Protocol
                 {
                     return routing.Router.GetErrorHandler(request, ResponseStatus.InternalServerError, cause)
                                          .Handle(request)
-                                         .Type(ResponseStatus.InternalServerError)
+                                         .Status(ResponseStatus.InternalServerError)
                                          .Build();
                 }
                 catch (Exception e)
@@ -184,7 +184,7 @@ namespace GenHTTP.Core.Protocol
                 {
                     return coreRouter.GetErrorHandler(request, ResponseStatus.InternalServerError, cause)
                                      .Handle(request)
-                                     .Type(ResponseStatus.InternalServerError)
+                                     .Status(ResponseStatus.InternalServerError)
                                      .Build();
                 }
                 catch (Exception e)
@@ -201,7 +201,7 @@ namespace GenHTTP.Core.Protocol
             var stream = new MemoryStream(Encoding.UTF8.GetBytes("Internal Server Error"));
 
             return request.Respond()
-                          .Type(ResponseStatus.InternalServerError)
+                          .Status(ResponseStatus.InternalServerError)
                           .Content(stream, ContentType.TextPlain)
                           .Build();
         }

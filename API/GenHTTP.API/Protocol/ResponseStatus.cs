@@ -190,16 +190,7 @@ namespace GenHTTP.Api.Protocol
         public FlexibleResponseStatus(int status, string phrase)
         {
             RawStatus = status;
-
-            if (Enum.TryParse<ResponseStatus>($"{status}", out var knownStatus))
-            {
-                KnownStatus = knownStatus;
-                Phrase = MAPPING[knownStatus];
-            }
-            else
-            {
-                Phrase = phrase;
-            }
+            Phrase = phrase;
         }
 
         public FlexibleResponseStatus(ResponseStatus status)

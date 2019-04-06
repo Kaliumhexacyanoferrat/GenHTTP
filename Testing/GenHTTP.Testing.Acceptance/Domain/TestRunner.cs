@@ -23,13 +23,13 @@ namespace GenHTTP.Testing.Acceptance.Domain
         public ushort Port { get; }
 
         public IServerBuilder Builder { get; }
-        
+
         public IServer? Instance { get; protected set; }
 
         #endregion
 
         #region Initialization
-        
+
         static TestRunner()
         {
             HttpWebRequest.DefaultCachePolicy = new HttpRequestCachePolicy(HttpRequestCacheLevel.NoCacheNoStore);
@@ -37,13 +37,18 @@ namespace GenHTTP.Testing.Acceptance.Domain
 
         public TestRunner()
         {
+            Port = NextPort();
+
+            Builder = Server.Create()
+                            .Router(Layout.Create())
+                            .Port(Port);
+        }
+
+        public static ushort NextPort()
+        {
             lock (_SyncRoot)
             {
-                Port = _NextPort++;
-
-                Builder = Server.Create()
-                                .Router(Layout.Create())
-                                .Port(Port);
+                return _NextPort++;
             }
         }
 

@@ -13,7 +13,9 @@ namespace GenHTTP.Api.Protocol
 
         IRequest Request { get; }
 
-        IResponseBuilder Type(ResponseStatus type);
+        IResponseBuilder Status(ResponseStatus status);
+
+        IResponseBuilder Status(int status, string reason);
 
         IResponseBuilder Header(string key, string value);
 
@@ -25,7 +27,11 @@ namespace GenHTTP.Api.Protocol
         
         IResponseBuilder Content(Stream body, ContentType contentType);
 
+        IResponseBuilder Content(Stream body, string contentType);
+
         IResponseBuilder Content(Stream body, ulong length, ContentType contentType);
+
+        IResponseBuilder Content(Stream body, ulong length, string contentType);
 
         IResponseBuilder Encoding(string encoding);
 

@@ -88,7 +88,7 @@ namespace GenHTTP.Core
         
         public IResponseBuilder Respond()
         {
-            return new ResponseBuilder(this).Type(ResponseStatus.OK);
+            return new ResponseBuilder(this).Status(ResponseStatus.OK);
         }
         
         #endregion

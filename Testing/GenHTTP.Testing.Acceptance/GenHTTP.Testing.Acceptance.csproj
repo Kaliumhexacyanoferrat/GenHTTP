@@ -12,7 +12,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\Certificate.pfx" />
     <None Remove="Resources\File.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Certificate.pfx">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>

@@ -71,7 +71,7 @@ namespace GenHTTP.Core.Tests.Routing
 
             var errorHandler = Instance.GetErrorHandler(request.Object, ResponseStatus.NotFound, null);
 
-            var response = errorHandler.Handle(request.Object).Type(ResponseStatus.NotFound).Build();
+            var response = errorHandler.Handle(request.Object).Status(ResponseStatus.NotFound).Build();
 
             Assert.Equal(ResponseStatus.NotFound, response.Status.KnownStatus);
         }
