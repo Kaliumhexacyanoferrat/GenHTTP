@@ -45,13 +45,7 @@ namespace GenHTTP.Api.Protocol
                 KnownMethod = type;
             }
         }
-
-        public FlexibleRequestMethod(RequestMethod type)
-        {
-            KnownMethod = type;
-            RawMethod = type.ToString();
-        }
-
+        
         #endregion
 
         #region Convenience

@@ -102,7 +102,7 @@ namespace GenHTTP.Core.Protocol
 
             if (response.Modified != null)
             {
-                await WriteHeader("Modified", (DateTime)response.Modified);
+                await WriteHeader("Last-Modified", (DateTime)response.Modified);
             }
 
             if (response.Expires != null)
