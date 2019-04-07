@@ -187,13 +187,7 @@ namespace GenHTTP.Core.Protocol
         private async Task WriteCookie(Cookie cookie)
         {
             var value = $"{cookie.Name}={cookie.Value}";
-
-            if (cookie.Expires != null)
-            {
-                var t = (DateTime)cookie.Expires;
-                value += $"; expires={t.ToUniversalTime().ToString("r")}";
-            }
-
+            
             if (cookie.MaxAge != null)
             {
                 value += $"; Max-Age={cookie.MaxAge.Value}";

@@ -41,18 +41,7 @@ namespace GenHTTP.Modules.Core.Resource
         {
             return Source.GetManifestResourceStream(QualifiedName);
         }
-
-        public string GetResourceAsString()
-        {
-            using (var stream = GetResource())
-            {
-                using (var reader = new StreamReader(stream))
-                {
-                    return reader.ReadToEnd();
-                }
-            }
-        }
-
+        
         #endregion
 
     }

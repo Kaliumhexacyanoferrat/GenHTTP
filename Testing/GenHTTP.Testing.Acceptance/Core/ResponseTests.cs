@@ -31,7 +31,7 @@ namespace GenHTTP.Testing.Acceptance.Core
                 var content = new MemoryStream(Encoding.UTF8.GetBytes("Hello World"));
 
                 return request.Respond()
-                              .Content(content, 11, "text/x-custom")
+                              .Content(content, "text/x-custom")
                               .Expires(DateTime.Now.AddYears(1))
                               .Modified(Modified)
                               .Header("X-Powered-By", "Test Runner");

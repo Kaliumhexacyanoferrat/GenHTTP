@@ -112,16 +112,28 @@ namespace GenHTTP.Api.Protocol
 
     #endregion
 
+    /// <summary>
+    /// The status of the response send to the client.
+    /// </summary>
     public class FlexibleResponseStatus
     {
-        private static Dictionary<ResponseStatus, string> MAPPING;
+        private static readonly Dictionary<ResponseStatus, string> MAPPING;
 
         #region Get-/Setters
 
+        /// <summary>
+        /// The known status, if any.
+        /// </summary>
         public ResponseStatus? KnownStatus { get; }
 
+        /// <summary>
+        /// The raw HTTP status.
+        /// </summary>
         public int RawStatus { get; }
 
+        /// <summary>
+        /// The reason phrase to be send.
+        /// </summary>
         public string Phrase { get; }
 
         #endregion

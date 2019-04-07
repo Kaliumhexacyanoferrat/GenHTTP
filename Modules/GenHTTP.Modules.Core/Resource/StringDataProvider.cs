@@ -32,12 +32,7 @@ namespace GenHTTP.Modules.Core.Resource
         {
             return new MemoryStream(Encoding.UTF8.GetBytes(Content));
         }
-
-        public string GetResourceAsString()
-        {
-            return Content;
-        }
-
+        
         #endregion
 
     }

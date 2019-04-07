@@ -63,26 +63,7 @@ namespace GenHTTP.Core.Protocol
 
             return this;
         }
-
-        public IResponseBuilder Content(Stream body, ulong length, ContentType contentType)
-        {
-            return Content(body, length, new FlexibleContentType(contentType));
-        }
-
-        public IResponseBuilder Content(Stream body, ulong length, string contentType)
-        {
-            return Content(body, length, new FlexibleContentType(contentType));
-        }
-
-        public IResponseBuilder Content(Stream body, ulong length, FlexibleContentType contentType)
-        {
-            _ContentLength = length;
-            _Content = body;
-            _ContentType = contentType;
-
-            return this;
-        }
-
+        
         public IResponseBuilder Cookie(Cookie cookie)
         {
             _Cookies[cookie.Name] = cookie;

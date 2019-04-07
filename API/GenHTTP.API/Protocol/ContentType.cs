@@ -188,15 +188,24 @@ namespace GenHTTP.Api.Protocol
 
     #endregion
 
+    /// <summary>
+    /// The type of content which is sent to or received from a client.
+    /// </summary>
     public class FlexibleContentType
     {
-        private static Dictionary<ContentType, string> MAPPING;
-        private static Dictionary<string, ContentType> MAPPING_REVERSE;
+        private static readonly Dictionary<ContentType, string> MAPPING;
+        private static readonly Dictionary<string, ContentType> MAPPING_REVERSE;
 
         #region Get-/Setters
 
+        /// <summary>
+        /// The known, enumerated type, if any.
+        /// </summary>
         public ContentType? KnownType { get; }
 
+        /// <summary>
+        /// The raw type.
+        /// </summary>
         public string RawType { get; }
 
         #endregion
@@ -250,6 +259,10 @@ namespace GenHTTP.Api.Protocol
 
         #region Initialization
 
+        /// <summary>
+        /// Create a new content type from the given string.
+        /// </summary>
+        /// <param name="rawType">The string representation of the content type</param>
         public FlexibleContentType(string rawType)
         {
             RawType = rawType;
@@ -260,6 +273,10 @@ namespace GenHTTP.Api.Protocol
             }
         }
 
+        /// <summary>
+        /// Create a new content type from the given known type.
+        /// </summary>
+        /// <param name="type">The known type</param>
         public FlexibleContentType(ContentType type)
         {
             KnownType = type;

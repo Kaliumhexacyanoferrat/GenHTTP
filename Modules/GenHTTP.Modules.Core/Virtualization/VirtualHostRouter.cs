@@ -30,7 +30,18 @@ namespace GenHTTP.Modules.Core.Virtualization
                                  IRenderer<TemplateModel>? template,
                                  IContentProvider? errorHandler) : base(template, errorHandler)
         {
+            foreach (var router in hosts.Values)
+            {
+                router.Parent = this;
+            }
+
             Hosts = hosts;
+            
+            if (defaultRoute != null)
+            {
+                defaultRoute.Parent = this;
+            }
+
             DefaultRoute = defaultRoute;
         }
         

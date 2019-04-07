@@ -9,7 +9,9 @@ using GenHTTP.Api.Routing;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Modules;
 
-namespace GenHTTP.Api.Tests.Routing
+using GenHTTP.Core.Routing;
+
+namespace GenHTTP.Core.Tests.Routing
 {
 
     public class RoutingContextTest

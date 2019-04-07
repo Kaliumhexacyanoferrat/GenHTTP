@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
+using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core
@@ -100,7 +101,15 @@ namespace GenHTTP.Modules.Core
 
             return false;
         }
-        
+
+        public static string GetResourceAsString(this IResourceProvider resourceProvider)
+        {
+            using var stream = resourceProvider.GetResource();
+            using var reader = new StreamReader(stream);
+
+            return reader.ReadToEnd();
+        }
+
     }
 
 }

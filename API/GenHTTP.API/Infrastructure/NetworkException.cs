@@ -5,6 +5,9 @@ using System.Text;
 namespace GenHTTP.Api.Infrastructure
 {
 
+    /// <summary>
+    /// Thrown if a network-level exception occurs.
+    /// </summary>
     public class NetworkException : Exception
     {
         

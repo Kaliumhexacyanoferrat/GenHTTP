@@ -6,6 +6,9 @@ using System.Text;
 namespace GenHTTP.Api.Protocol
 {
 
+    /// <summary>
+    /// The response to be send to the connected client for a given request.
+    /// </summary>
     public interface IResponse : IDisposable
     {
 
@@ -43,8 +46,14 @@ namespace GenHTTP.Api.Protocol
         /// <param name="cookie">The cookie to send</param>
         void AddCookie(Cookie cookie);
 
+        /// <summary>
+        /// The headers of the HTTP response.
+        /// </summary>
         IHeaderCollection Headers { get; }
 
+        /// <summary>
+        /// The cookies to be send to the client.
+        /// </summary>
         ICookieCollection Cookies { get; }
 
         #endregion

@@ -23,19 +23,32 @@ namespace GenHTTP.Api.Protocol
         UNLOCK
     }
 
+    /// <summary>
+    /// The kind of request sent by the client.
+    /// </summary>
     public class FlexibleRequestMethod
     {
 
         #region Get-/Setters
 
+        /// <summary>
+        /// The known method of the request, if any.
+        /// </summary>
         public RequestMethod? KnownMethod { get; }
 
+        /// <summary>
+        /// The raw method of the request.
+        /// </summary>
         public string RawMethod { get; }
 
         #endregion
 
         #region Initialization
 
+        /// <summary>
+        /// Create a new request method instance.
+        /// </summary>
+        /// <param name="rawType">The raw type transmitted by the client</param>
         public FlexibleRequestMethod(string rawType)
         {
             RawMethod = rawType;

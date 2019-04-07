@@ -37,12 +37,7 @@ namespace GenHTTP.Modules.Core.Resource
         {
             return File.OpenRead();
         }
-
-        public string GetResourceAsString()
-        {
-            return System.IO.File.ReadAllText(File.FullName);
-        }
-
+        
         #endregion
 
     }

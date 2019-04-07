@@ -4,6 +4,7 @@ using System.Text;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Modules.Core;
 
 using Scriban;
 using Scriban.Runtime;

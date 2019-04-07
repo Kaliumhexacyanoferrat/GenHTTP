@@ -6,11 +6,12 @@ using System.Text;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Routing;
 
-namespace GenHTTP.Api.Routing
+namespace GenHTTP.Core.Routing
 {
 
-    public class RoutingContext : IEditableRoutingContext
+    internal class RoutingContext : IEditableRoutingContext
     {
         private static readonly Regex URI_START = new Regex("^[a-z]+:");
 
@@ -28,7 +29,7 @@ namespace GenHTTP.Api.Routing
 
         #region Initialization
 
-        public RoutingContext(IRouter router, IRequest request)
+        internal RoutingContext(IRouter router, IRequest request)
         {
             Request = request;
             Router = router;
