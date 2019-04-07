@@ -2,26 +2,22 @@
 using System.Collections.Generic;
 using System.Text;
 
-using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Routing;
 using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core.Layouting
 {
 
-    public class LayoutBuilder : IRouterBuilder
+    public class LayoutBuilder : RouterBuilderBase<LayoutBuilder>
     {
-        protected string? _Index;
-        protected IRenderer<TemplateModel>? _Template;
-
-        protected IContentProvider? _ErrorHandler;
+        private string? _Index;
 
         #region Get-/Setters
         
-        protected Dictionary<string, IRouter> Routes { get; }
+        private Dictionary<string, IRouter> Routes { get; }
 
-        protected Dictionary<string, IContentProvider> Content { get; }
+        private Dictionary<string, IContentProvider> Content { get; }
         
         #endregion
 
@@ -42,29 +38,7 @@ namespace GenHTTP.Modules.Core.Layouting
             _Index = index;
             return this;
         }
-
-        public LayoutBuilder Template(IBuilder<IRenderer<TemplateModel>> template)
-        {
-            return Template(template.Build());
-        }
-
-        public LayoutBuilder Template(IRenderer<TemplateModel> template)
-        {
-            _Template = template;
-            return this;
-        }
-
-        public LayoutBuilder ErrorHandler(IContentBuilder errorHandler)
-        {
-            return ErrorHandler(errorHandler.Build());
-        }
-
-        public LayoutBuilder ErrorHandler(IContentProvider errorHandler)
-        {
-            _ErrorHandler = errorHandler;
-            return this;
-        }
-
+        
         public LayoutBuilder Add(string route, IRouterBuilder router, bool index = false)
         {
             return Add(route, router.Build());
@@ -87,7 +61,7 @@ namespace GenHTTP.Modules.Core.Layouting
             return (index) ? Index(file) : this;
         }
 
-        public IRouter Build()
+        public override IRouter Build()
         {
             return new LayoutRouter(Routes, Content, _Index, _Template, _ErrorHandler);
         }

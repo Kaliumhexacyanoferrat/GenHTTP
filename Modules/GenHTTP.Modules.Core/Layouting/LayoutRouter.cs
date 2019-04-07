@@ -2,36 +2,26 @@
 using System.Collections.Generic;
 using System.Text;
 
-using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
 
+using GenHTTP.Modules.Core.General;
+
 namespace GenHTTP.Modules.Core.Layouting
 {
 
-    public class LayoutRouter : IRouter
+    public class LayoutRouter : RouterBase
     {
-        private IRouter? _Parent;
 
         #region Get-/Setters
-
-        public IRouter Parent
-        {
-            get { return _Parent ?? throw new InvalidOperationException("Parent has not been set"); }
-            set { _Parent = value; }
-        }
-
+        
         private Dictionary<string, IRouter> Routes { get; }
 
         private Dictionary<string, IContentProvider> Content { get; }
 
         private string? Index { get; }
-
-        private IRenderer<TemplateModel>? Template { get; }
-
-        private IContentProvider? ErrorHandler { get; }
-
+        
         #endregion
 
         #region Initialization
@@ -40,16 +30,13 @@ namespace GenHTTP.Modules.Core.Layouting
                             Dictionary<string, IContentProvider> content,
                             string? index,
                             IRenderer<TemplateModel>? template,
-                            IContentProvider? errorHandler)
+                            IContentProvider? errorHandler) : base(template, errorHandler)
         {
             Routes = routes;
             Content = content;
 
             Index = index;
-
-            Template = template;
-            ErrorHandler = errorHandler;
-
+            
             foreach (var route in routes)
             {
                 route.Value.Parent = this;
@@ -60,7 +47,7 @@ namespace GenHTTP.Modules.Core.Layouting
 
         #region Functionality
 
-        public void HandleContext(IEditableRoutingContext current)
+        public override void HandleContext(IEditableRoutingContext current)
         {
             var segment = Api.Routing.Route.GetSegment(current.ScopedPath);
 
@@ -89,18 +76,8 @@ namespace GenHTTP.Modules.Core.Layouting
             // no route found
             current.Scope(this);
         }
-
-        public IRenderer<TemplateModel> GetRenderer()
-        {
-            return Template ?? Parent.GetRenderer();
-        }
-
-        public IContentProvider GetErrorHandler(IRequest request, ResponseStatus responseType, Exception? cause)
-        {
-            return ErrorHandler ?? Parent.GetErrorHandler(request, responseType, cause);
-        }
-
-        public string? Route(string path, int currentDepth)
+        
+        public override string? Route(string path, int currentDepth)
         {
             var segment = Api.Routing.Route.GetSegment(path);
 

@@ -15,7 +15,7 @@ namespace GenHTTP.Modules.Core.Compression
 
         #region Get-/Setters
 
-        protected IReadOnlyDictionary<string, ICompressionAlgorithm> Algorithms { get; }
+        private IReadOnlyDictionary<string, ICompressionAlgorithm> Algorithms { get; }
 
         #endregion
 
@@ -59,7 +59,7 @@ namespace GenHTTP.Modules.Core.Compression
             }
         }
         
-        protected bool ShouldCompress(ContentType? type)
+        private bool ShouldCompress(ContentType? type)
         {
             if (type != null)
             {

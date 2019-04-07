@@ -47,7 +47,7 @@ namespace GenHTTP.Core.Protocol
             else
             {
                 // with no routing context, we can't provide a templated error page
-                // provide a default error page in this case, if possible                ;
+                // provide a default error page in this case, if possible
                 response = CoreError(request, cause);
             }
 

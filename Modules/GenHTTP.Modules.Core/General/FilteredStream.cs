@@ -25,7 +25,7 @@ namespace GenHTTP.Modules.Core.General
 
         public Stream InputStream { get; }
 
-        public Stream ConversionStream { get; protected set; }
+        public Stream ConversionStream { get; private set; }
 
         public MemoryStream OutputStream { get; }
 

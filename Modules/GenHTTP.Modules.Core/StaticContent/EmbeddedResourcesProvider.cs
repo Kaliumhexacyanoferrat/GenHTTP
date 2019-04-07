@@ -26,7 +26,7 @@ namespace GenHTTP.Modules.Core.StaticContent
             set { _Parent = value; }
         }
 
-        protected Dictionary<string, IContentProvider> QualifiedNames { get; }
+        private Dictionary<string, IContentProvider> QualifiedNames { get; }
 
         #endregion
 

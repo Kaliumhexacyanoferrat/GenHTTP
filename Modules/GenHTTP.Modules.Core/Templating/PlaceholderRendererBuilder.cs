@@ -12,7 +12,7 @@ namespace GenHTTP.Modules.Core.Templating
 
     public class PlaceholderRendererBuilder : IBuilder<IRenderer<TemplateModel>>
     {
-        protected IResourceProvider? _TemplateProvider;
+        private IResourceProvider? _TemplateProvider;
         
         #region Functionality
 

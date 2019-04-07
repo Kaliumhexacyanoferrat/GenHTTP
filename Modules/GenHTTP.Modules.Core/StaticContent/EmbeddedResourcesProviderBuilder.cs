@@ -12,8 +12,8 @@ namespace GenHTTP.Modules.Core.StaticContent
 
     public class EmbeddedResourcesProviderBuilder : IRouterBuilder
     {
-        protected Assembly? _Assembly;
-        protected string? _Root;
+        private Assembly? _Assembly;
+        private string? _Root;
 
         #region Functionality
 

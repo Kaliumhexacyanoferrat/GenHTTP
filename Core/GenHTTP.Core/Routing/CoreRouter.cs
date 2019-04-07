@@ -65,7 +65,7 @@ namespace GenHTTP.Core.Routing
 
             if (request.Server.Development && (cause != null))
             {
-                body = cause.ToString();
+                body = cause.ToString().Replace(Environment.NewLine, "<br />");
             }
             else
             {

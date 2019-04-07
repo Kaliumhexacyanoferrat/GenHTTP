@@ -10,8 +10,8 @@ namespace GenHTTP.Modules.Core.General
 
     public class PageProviderBuilder : IContentBuilder
     {
-        protected IResourceProvider? _Content;
-        protected string? _Title;
+        private IResourceProvider? _Content;
+        private string? _Title;
 
         #region Functionality
 

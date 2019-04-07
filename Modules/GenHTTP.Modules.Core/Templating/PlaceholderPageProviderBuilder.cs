@@ -11,9 +11,9 @@ namespace GenHTTP.Modules.Core.Templating
 
     public class PlaceholderPageProviderBuilder<T> : IContentBuilder where T : PageModel
     {
-        protected IResourceProvider? _TemplateProvider;
-        protected ModelProvider<T>? _ModelProvider;
-        protected string? _Title;
+        private IResourceProvider? _TemplateProvider;
+        private ModelProvider<T>? _ModelProvider;
+        private string? _Title;
 
         #region Functionality
 
