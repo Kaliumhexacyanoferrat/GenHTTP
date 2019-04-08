@@ -22,6 +22,11 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             public IResponseBuilder Handle(IRequest request)
             {
+                if (request.Query.ContainsKey("location"))
+                {
+                    return request.Respond().Header("Location", $"http://localhost:{request.EndPoint.Port}/target");
+                }
+
                 var content = new MemoryStream(Encoding.UTF8.GetBytes("Hello World!"));
                 return request.Respond().Content(content, ContentType.TextPlain);
             }
@@ -51,6 +56,11 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var response = runner.GetResponse();
 
             Assert.Equal("Hello World!", response.GetContent());
+
+            // test redirection
+            using var redirected = runner.GetResponse("/?location=1");
+
+            Assert.Equal(redirected.Headers["Location"], $"http://localhost:{runner.Port}/target");
         }
 
         /// <summary>

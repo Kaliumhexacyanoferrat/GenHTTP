@@ -69,7 +69,7 @@ namespace GenHTTP.Modules.Core.Proxy
             }
             catch (OperationCanceledException e)
             {
-                return request.Respond(ResponseStatus.GatewayTimeout, e);                       
+                return request.Respond(ResponseStatus.GatewayTimeout, e);
             }
             catch (WebException e)
             {
@@ -127,7 +127,7 @@ namespace GenHTTP.Modules.Core.Proxy
                     query[kv.Key] = kv.Value;
                 }
 
-                return query.ToString();
+                return "?" + query.ToString();
             }
 
             return string.Empty;
@@ -169,22 +169,27 @@ namespace GenHTTP.Modules.Core.Proxy
 
         private string RewriteLocation(string location, IRequest request)
         {
-            var routing = request.Routing ?? throw new InvalidOperationException("No routing context available");
-            
-            string relativePath;
-
-            if (routing.ScopedPath != "/")
+            if (location.StartsWith(Upstream))
             {
-                relativePath = request.Path.Substring(0, request.Path.Length - routing.ScopedPath.Length);
+                var routing = request.Routing ?? throw new InvalidOperationException("No routing context available");
+
+                string relativePath;
+
+                if (routing.ScopedPath != "/")
+                {
+                    relativePath = request.Path.Substring(0, request.Path.Length - routing.ScopedPath.Length);
+                }
+                else
+                {
+                    relativePath = request.Path.Substring(1);
+                }
+
+                var protocol = request.EndPoint.Secure ? "https://" : "http://";
+
+                return location.Replace(Upstream, protocol + request.Host + relativePath);
             }
-            else
-            {
-                relativePath = request.Path;
-            }           
 
-            var protocol = request.EndPoint.Secure ? "https://" : "http://";
-
-            return location.Replace(Upstream, protocol + request.Host + relativePath);
+            return location;
         }
 
         private HttpWebResponse GetSafeResponse(WebRequest request)
