@@ -47,6 +47,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             // proxying server
             var proxy = ReverseProxy.Create()
+                                    .ConnectTimeout(TimeSpan.FromSeconds(2))
+                                    .ReadTimeout(TimeSpan.FromSeconds(5))
                                     .Upstream("http://localhost:" + testServer.Port);
 
             var layout = Layout.Create().Add("_", proxy, true);
