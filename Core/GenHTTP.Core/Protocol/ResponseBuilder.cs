@@ -56,7 +56,7 @@ namespace GenHTTP.Core.Protocol
             _Content = body;
             _ContentType = contentType;
 
-            if (body.Length > 0)
+            if (body.CanSeek && body.Length > 0)
             {
                 _ContentLength = (ulong)body.Length;
             }

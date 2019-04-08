@@ -5,7 +5,7 @@ using System.Text;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Examples.Examples.Infrastructure.Exceptions
+namespace GenHTTP.Examples.Examples.Infrastructure
 {
 
     public class ExceptionProvider : IContentProvider

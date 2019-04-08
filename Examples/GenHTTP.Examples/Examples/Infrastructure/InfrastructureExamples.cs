@@ -5,8 +5,6 @@ using System.Text;
 using GenHTTP.Api.Modules;
 using GenHTTP.Modules.Core;
 
-using GenHTTP.Examples.Examples.Infrastructure.Exceptions;
-
 namespace GenHTTP.Examples.Examples.Infrastructure
 {
 
@@ -15,8 +13,12 @@ namespace GenHTTP.Examples.Examples.Infrastructure
 
         public static IRouterBuilder Create()
         {
+            var proxy = ReverseProxy.Create()
+                                    .Upstream("https://genes.pics/genhttp/website/");
+
             return Layout.Create()
-                         .Add("exceptions", ExceptionExample.Create());
+                         .Add("exceptions", new ExceptionProvider())
+                         .Add("proxy", proxy);
         }
 
     }

@@ -83,9 +83,9 @@ namespace GenHTTP.Modules.Core
             return null;
         }
 
-        public static IResponseBuilder Respond(this IRequest request, ResponseStatus status)
+        public static IResponseBuilder Respond(this IRequest request, ResponseStatus status, Exception? cause = null)
         {
-            var provider = request.Routing?.Router.GetErrorHandler(request, status, null) ?? throw new InvalidOperationException("Routing context is missing");
+            var provider = request.Routing?.Router.GetErrorHandler(request, status, cause) ?? throw new InvalidOperationException("Routing context is missing");
             return provider.Handle(request).Status(status);
         }
 
