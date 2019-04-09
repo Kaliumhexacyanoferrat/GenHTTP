@@ -30,6 +30,11 @@ namespace GenHTTP.Api.Protocol
         ApplicationJavaScript,
 
         /// <summary>
+        /// A JSON file.
+        /// </summary>
+        ApplicationJson,
+
+        /// <summary>
         /// A PNG image.
         /// </summary>
         ImagePng,
@@ -249,7 +254,8 @@ namespace GenHTTP.Api.Protocol
                 { ContentType.FontWoff, "font/woff" },
                 { ContentType.FontWoff2, "font/woff2" },
                 { ContentType.ImageScalableVectorGraphics, "image/svg" },
-                { ContentType.ImageScalableVectorGraphicsCompressed, "image/svgz" }
+                { ContentType.ImageScalableVectorGraphicsCompressed, "image/svgz" },
+                { ContentType.ApplicationJson, "application/json" }
             };
 
             MAPPING_REVERSE = MAPPING.ToDictionary(x => x.Value, x => x.Key);
