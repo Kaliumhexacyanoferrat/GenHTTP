@@ -15,31 +15,40 @@ namespace GenHTTP.Modules.Core.Layouting
     {
 
         #region Get-/Setters
-        
+
         private Dictionary<string, IRouter> Routes { get; }
 
         private Dictionary<string, IContentProvider> Content { get; }
 
-        private string? Index { get; }
-        
+        private IRouter? DefaultRouter { get; }
+
+        private IContentProvider? DefaultContent { get; }
+
         #endregion
 
         #region Initialization
 
         public LayoutRouter(Dictionary<string, IRouter> routes,
                             Dictionary<string, IContentProvider> content,
-                            string? index,
+                            IRouter? defaultRouter,
+                            IContentProvider? defaultContent,
                             IRenderer<TemplateModel>? template,
                             IContentProvider? errorHandler) : base(template, errorHandler)
         {
             Routes = routes;
-            Content = content;
+            DefaultRouter = defaultRouter;
 
-            Index = index;
-            
+            Content = content;
+            DefaultContent = defaultContent;
+
             foreach (var route in routes)
             {
                 route.Value.Parent = this;
+            }
+
+            if (defaultRouter != null)
+            {
+                defaultRouter.Parent = this;
             }
         }
 
@@ -50,12 +59,6 @@ namespace GenHTTP.Modules.Core.Layouting
         public override void HandleContext(IEditableRoutingContext current)
         {
             var segment = Api.Routing.Route.GetSegment(current.ScopedPath);
-
-            // rewrite to index if requested
-            if (string.IsNullOrEmpty(segment) && Index != null)
-            {
-                segment = Index;
-            }
 
             // is there a matching content provider?
             if (Content.ContainsKey(segment))
@@ -73,24 +76,33 @@ namespace GenHTTP.Modules.Core.Layouting
                 return;
             }
 
+            // route by default
+            if (DefaultRouter != null)
+            {
+                current.Scope(this);
+                DefaultRouter.HandleContext(current);
+                return;
+            }
+
+            // default content
+            if (DefaultContent != null)
+            {
+                current.Scope(this);
+                current.RegisterContent(DefaultContent);
+                return;
+            }
+
             // no route found
             current.Scope(this);
         }
-        
+
         public override string? Route(string path, int currentDepth)
         {
             var segment = Api.Routing.Route.GetSegment(path);
 
             if (Content.ContainsKey(segment) || Routes.ContainsKey(segment))
             {
-                if (segment == Index)
-                {
-                    return Api.Routing.Route.GetRelation(currentDepth);
-                }
-                else
-                {
-                    return Api.Routing.Route.GetRelation(currentDepth) + path;
-                }
+                return Api.Routing.Route.GetRelation(currentDepth) + path;
             }
 
             return Parent.Route(path, currentDepth + 1);

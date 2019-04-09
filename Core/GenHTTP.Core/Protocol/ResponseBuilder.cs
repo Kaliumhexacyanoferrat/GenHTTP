@@ -41,6 +41,12 @@ namespace GenHTTP.Core.Protocol
 
         #region Functionality
 
+        public IResponseBuilder ContentLength(ulong length)
+        {
+            _ContentLength = length;
+            return this;
+        }
+
         public IResponseBuilder Content(Stream body, ContentType contentType)
         {
             return Content(body, new FlexibleContentType(contentType));

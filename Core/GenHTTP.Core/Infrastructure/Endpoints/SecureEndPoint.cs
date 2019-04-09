@@ -66,9 +66,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
                 if (readAhead.Peek())
                 {
                     var host = GetHostName(readAhead);
-
-                    Console.WriteLine(host);
-
+                    
                     stream = new SslStream(readAhead, false);
 
                     var certificate = Options.Certificate.Provide(host);

@@ -96,6 +96,11 @@ namespace GenHTTP.Core.Protocol
                 {
                     _Query[m.Groups[1].Value] = Uri.UnescapeDataString(m.Groups[2].Value.Replace('+', ' '));
                 }
+
+                if (_Query.Count == 0)
+                {
+                    _Query[query] = string.Empty;
+                }
             }
             else
             {

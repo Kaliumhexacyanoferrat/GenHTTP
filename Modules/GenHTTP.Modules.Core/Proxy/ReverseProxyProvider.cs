@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using System.Linq;
 using System.Web;
 
 using Net = System.Net;
@@ -105,12 +106,10 @@ namespace GenHTTP.Modules.Core.Proxy
 
             if (request.Cookies.Count > 0)
             {
-                req.CookieContainer = new CookieContainer();
+                var cookieHeader = request.Cookies.Values
+                                                  .Select(c => $"{c.Name}={c.Value}");
 
-                foreach (var cookie in request.Cookies)
-                {
-                    req.CookieContainer.Add(new Net.Cookie(cookie.Key, cookie.Value.Value));
-                }
+                req.Headers.Add("Cookie", string.Join("; ", cookieHeader));
             }
 
             return req;
@@ -159,11 +158,16 @@ namespace GenHTTP.Modules.Core.Proxy
                 builder.Encoding(response.ContentEncoding);
             }
 
+            if (response.ContentLength > 0)
+            {
+                builder.ContentLength((ulong)response.ContentLength);
+            }
+
             if (!request.HasType(RequestMethod.HEAD))
             {
                 builder.Content(response.GetResponseStream(), response.ContentType);
             }
-
+            
             return builder;
         }
 

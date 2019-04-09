@@ -53,7 +53,7 @@ namespace GenHTTP.Modules.Core.Virtualization
         {
             current.Scope(this);
 
-            var host = current.Request.Host;
+            var host = current.Request.HostWithoutPort();
 
             // try to find a regular route
             if (host != null)

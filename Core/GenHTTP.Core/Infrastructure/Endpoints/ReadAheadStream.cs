@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Diagnostics;
 using System.IO;
 
 using GenHTTP.Api.Protocol;
@@ -77,7 +78,8 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
                 POOL.Return(buffer);
             }
         }
-        
+
+        [DebuggerHidden]
         public override int Read(byte[] buffer, int offset, int count)
         {
             if (Buffer.Position < Buffer.Length)
@@ -92,6 +94,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
             return BaseStream.Read(buffer, offset, count);
         }
 
+        [DebuggerHidden]
         public override void Write(byte[] buffer, int offset, int count)
         {
             BaseStream.Write(buffer, offset, count);

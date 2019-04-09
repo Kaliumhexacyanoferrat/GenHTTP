@@ -13,6 +13,9 @@ namespace GenHTTP.Modules.Core.Layouting
     {
         private string? _Index;
 
+        private IRouter? _DefaultRouter;
+        private IContentProvider? _DefaultContent;
+
         #region Get-/Setters
         
         private Dictionary<string, IRouter> Routes { get; }
@@ -38,10 +41,32 @@ namespace GenHTTP.Modules.Core.Layouting
             _Index = index;
             return this;
         }
-        
+
+        public LayoutBuilder Default(IRouterBuilder router)
+        {
+            return Default(router.Build());
+        }
+
+        public LayoutBuilder Default(IRouter router)
+        {
+            _DefaultRouter = router;
+            return this;
+        }
+
+        public LayoutBuilder Default(IContentBuilder content)
+        {
+            return Default(content.Build());
+        }
+
+        public LayoutBuilder Default(IContentProvider content)
+        {
+            _DefaultContent = content;
+            return this;
+        }
+
         public LayoutBuilder Add(string route, IRouterBuilder router, bool index = false)
         {
-            return Add(route, router.Build());
+            return Add(route, router.Build(), index);
         }
 
         public LayoutBuilder Add(string route, IRouter router, bool index = false)
@@ -63,7 +88,22 @@ namespace GenHTTP.Modules.Core.Layouting
 
         public override IRouter Build()
         {
-            return new LayoutRouter(Routes, Content, _Index, _Template, _ErrorHandler);
+            var defaultRouter = _DefaultRouter;
+            var defaultContent = _DefaultContent;
+
+            if (_Index != null)
+            {
+                if (Routes.ContainsKey(_Index))
+                {
+                    defaultRouter = Routes[_Index];
+                }
+                else if (Content.ContainsKey(_Index))
+                {
+                    defaultContent = Content[_Index];
+                }
+            }
+
+            return new LayoutRouter(Routes, Content, defaultRouter, defaultContent, _Template, _ErrorHandler);
         }
 
         #endregion

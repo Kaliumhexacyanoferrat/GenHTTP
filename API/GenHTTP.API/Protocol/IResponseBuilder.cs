@@ -72,7 +72,13 @@ namespace GenHTTP.Api.Protocol
         /// <param name="body">The content to be send to the client</param>
         /// <param name="contentType">The type of content</param>
         IResponseBuilder Content(Stream body, string contentType);
-        
+
+        /// <summary>
+        /// Specifies the length of the content stream, if known.
+        /// </summary>
+        /// <param name="length">The length of the content stream</param>
+        IResponseBuilder ContentLength(ulong length);
+
         /// <summary>
         /// Sets the encoding of the content.
         /// </summary>
