@@ -15,7 +15,7 @@
     <Company />
 
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageProjectUrl>https://genes.pics/genhttp/website/</PackageProjectUrl>
+    <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
     <Description>Provides renderers based on the Scriban templating engine that can be used to render websites in projects running on the GenHTTP webserver.</Description>
 

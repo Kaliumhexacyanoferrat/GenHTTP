@@ -15,7 +15,7 @@
     <Company />
 
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageProjectUrl>https://genes.pics/genhttp/website/</PackageProjectUrl>
+    <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
     <Description>Core modules of the GenHTTP webserver. Provides basic features such as navigation, layouting, static content or downloads.</Description>
 

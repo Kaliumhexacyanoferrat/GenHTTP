@@ -14,7 +14,7 @@ namespace GenHTTP.Examples.Examples.Infrastructure
         public static IRouterBuilder Create()
         {
             var proxy = ReverseProxy.Create()
-                                    .Upstream("https://genes.pics/genhttp/website/");
+                                    .Upstream("https://genhttp.org/");
 
             return Layout.Create()
                          .Add("exceptions", new ExceptionProvider())

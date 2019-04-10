@@ -14,8 +14,8 @@
     <Authors>Andreas Nägeli</Authors>    
     <Company />
     
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>    
-    <PackageProjectUrl>https://genes.pics/genhttp/website/</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
     
     <Description>Public API of the GenHTTP webserver. This package is at least required to build a project that can be executed with the GenHTTP webserver.</Description>
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
@@ -65,7 +66,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
             {
                 if (readAhead.Peek())
                 {
-                    var host = GetHostName(readAhead);
+                    var host = GetHostName(readAhead, Options.Certificate.SupportedHosts);
                     
                     stream = new SslStream(readAhead, false);
 
@@ -93,22 +94,16 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
         #endregion
 
         #region Client Hello (very hacky at the moment ...)
-
-        private static readonly Regex HOST_NAME = new Regex(@"^[a-zA-Z0-9\.-]{3,}");
-
-        private string? GetHostName(ReadAheadStream stream)
+        
+        private string? GetHostName(ReadAheadStream stream, IEnumerable<string> supportedHosts)
         {
             var str = Encoding.ASCII.GetString(stream.Buffer.ToArray());
 
-            var splitted = str.Split('\n');
-
-            foreach (var entry in splitted)
+            foreach (var host in supportedHosts)
             {
-                var match = HOST_NAME.Match(entry);
-
-                if (match.Success)
+                if (str.Contains(host))
                 {
-                    return match.Value;
+                    return host;
                 }
             }
 

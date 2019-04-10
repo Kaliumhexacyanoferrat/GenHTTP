@@ -126,7 +126,7 @@ namespace GenHTTP.Api.Infrastructure
         /// <remarks>
         /// By default, the endpoint will accept TLS 1.2 connections only.
         /// </remarks>
-        IServerBuilder Bind(IPAddress address, ushort port, X509Certificate2 certificate);
+        IServerBuilder Bind(IPAddress address, ushort port, string host, X509Certificate2 certificate);
 
         /// <summary>
         /// Registers a secure endpoint the server will bind to on
@@ -136,7 +136,7 @@ namespace GenHTTP.Api.Infrastructure
         /// <param name="port">The port to listen on</param>
         /// <param name="certificate">The certificate used to negoiate a connection with</param>
         /// <param name="protocols">The SSL/TLS protocl versions which should be supported by the endpoint</param>
-        IServerBuilder Bind(IPAddress address, ushort port, X509Certificate2 certificate, SslProtocols protocols);
+        IServerBuilder Bind(IPAddress address, ushort port, string host, X509Certificate2 certificate, SslProtocols protocols);
 
         /// <summary>
         /// Registers a secure endpoint the server will bind to on

@@ -2,13 +2,13 @@
 
 GenHTTP is a lightweight web server written in pure C# with few dependencies to 3rd-party libraries. The main purpose of this project is to serve small web applications written in .NET, allowing developers to concentrate on the functionality rather than on the infrastructure.
 
-As an example, the website of this project is hosted on a Raspberry Pi behind a nginx reverse proxy: [GenHTTP Website](https://genes.pics/genhttp/website/)
+As an example, the website of this project is hosted on a Raspberry Pi behind a nginx reverse proxy: [GenHTTP Website](https://genhttp.org/)
 
 [![Build Status](https://travis-ci.com/Kaliumhexacyanoferrat/GenHTTP.svg?branch=master)](https://travis-ci.com/Kaliumhexacyanoferrat/GenHTTP)  [![codecov](https://codecov.io/gh/Kaliumhexacyanoferrat/GenHTTP/branch/master/graph/badge.svg)](https://codecov.io/gh/Kaliumhexacyanoferrat/GenHTTP)  [![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Core.svg)](https://www.nuget.org/packages/GenHTTP.Core/) 
 
 ## Getting Started
 
-To create a simple hello world project, follow the official <a href="https://genes.pics/genhttp/website/documentation/">starting guide</a>.
+To create a simple hello world project, follow the official <a href="https://genhttp.org/documentation/">starting guide</a>.
 
 ## Building the Server
 

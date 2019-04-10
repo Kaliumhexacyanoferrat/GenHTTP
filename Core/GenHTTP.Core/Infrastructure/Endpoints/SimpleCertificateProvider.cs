@@ -15,13 +15,18 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         internal X509Certificate2 Certificate { get; }
 
+        internal string Host { get; }
+
+        public IEnumerable<string> SupportedHosts => new string[] { Host };
+
         #endregion
 
         #region Initialization
 
-        internal SimpleCertificateProvider(X509Certificate2 certificate)
+        internal SimpleCertificateProvider(string host, X509Certificate2 certificate)
         {
             Certificate = certificate;
+            Host = host;
         }
 
         #endregion

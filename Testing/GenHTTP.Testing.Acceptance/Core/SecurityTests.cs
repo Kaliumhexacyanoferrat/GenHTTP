@@ -33,7 +33,7 @@ namespace GenHTTP.Testing.Acceptance.Core
 
             using var _ = runner.Builder
                                 .Router(content)
-                                .Bind(IPAddress.Any, port, cert)
+                                .Bind(IPAddress.Any, port, "localhost", cert)
                                 .Build();
 
             var request = WebRequest.CreateHttp($"https://localhost:{port}");

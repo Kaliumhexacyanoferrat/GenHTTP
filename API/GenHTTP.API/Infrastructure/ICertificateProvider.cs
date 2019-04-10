@@ -20,6 +20,11 @@ namespace GenHTTP.Api.Infrastructure
         /// <returns>The certificate to be used to authenticate the client</returns>
         X509Certificate2 Provide(string? host);
 
+        /// <summary>
+        /// Returns the names of the hosts which are supported by this provider.
+        /// </summary>
+        IEnumerable<string> SupportedHosts { get; }
+
     }
 
 }
