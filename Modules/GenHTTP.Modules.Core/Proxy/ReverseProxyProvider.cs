@@ -9,6 +9,7 @@ using Net = System.Net;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
+using System.Net.Http;
 
 namespace GenHTTP.Modules.Core.Proxy
 {
@@ -63,9 +64,9 @@ namespace GenHTTP.Modules.Core.Proxy
                         request.Content.CopyTo(inputStream);
                     }
                 }
-
+                
                 var resp = GetSafeResponse(req);
-
+                
                 return GetResponse(resp, request);
             }
             catch (OperationCanceledException e)
@@ -78,12 +79,17 @@ namespace GenHTTP.Modules.Core.Proxy
             }
         }
 
-        private HttpWebRequest ConfigureRequest(IRequest request)
+        private string GetRequestUri(IRequest request)
         {
             var path = request.Routing?.ScopedPath ?? throw new InvalidOperationException("No routing context available");
 
-            var req = WebRequest.CreateHttp(Upstream + path + GetQueryString(request));
+            return Upstream + path + GetQueryString(request);
+        }
 
+        private HttpWebRequest ConfigureRequest(IRequest request)
+        {
+            var req = WebRequest.CreateHttp(GetRequestUri(request));
+            
             req.AllowAutoRedirect = false;
 
             req.Timeout = (int)ConnectTimeout.TotalMilliseconds;
@@ -138,13 +144,20 @@ namespace GenHTTP.Modules.Core.Proxy
 
             builder.Status((int)response.StatusCode, response.StatusDescription);
 
-            foreach (string key in response.Headers.Keys)
+            foreach (var key in response.Headers.AllKeys)
             {
                 if (!RESERVED_RESPONSE_HEADERS.Contains(key))
                 {
                     if (key == "Location")
                     {
                         builder.Header(key, RewriteLocation(response.Headers[key], request));
+                    }
+                    else if (key == "Set-Cookie")
+                    {
+                        foreach (var cookie in BrokenCookieHeaderParser.GetCookies(response.Headers[key]))
+                        {
+                            builder.Cookie(cookie);
+                        }
                     }
                     else
                     {
@@ -167,7 +180,7 @@ namespace GenHTTP.Modules.Core.Proxy
             {
                 builder.Content(response.GetResponseStream(), response.ContentType);
             }
-            
+
             return builder;
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 using GenHTTP.Api.Protocol;
@@ -30,6 +31,8 @@ namespace GenHTTP.Core
 
         public ICookieCollection Cookies => _Cookies;
 
+        public List<string> RawCookies { get; set; }
+
         public IHeaderCollection Headers => _Headers;
         
         public string? this[string field]
@@ -55,12 +58,14 @@ namespace GenHTTP.Core
 
         #region Initialization
 
-        internal Response(FlexibleResponseStatus type, HeaderCollection headers, CookieCollection cookies)
+        internal Response(FlexibleResponseStatus type, HeaderCollection headers, CookieCollection cookies, List<string> rawCookies)
         {
             Status = type;
 
             _Headers = headers;
+
             _Cookies = cookies;
+            RawCookies = rawCookies;
         }
 
         #endregion

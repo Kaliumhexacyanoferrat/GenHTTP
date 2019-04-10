@@ -53,7 +53,7 @@ namespace GenHTTP.Core.Protocol
 
                 await Write(NL);
 
-                if (request.Method != RequestMethod.HEAD)
+                if (ShouldSendBody(request, response))
                 {
                     await WriteBody(response);
                 }
@@ -67,6 +67,15 @@ namespace GenHTTP.Core.Protocol
                 Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, e);
                 return false;
             }
+        }
+
+        private bool ShouldSendBody(IRequest request, IResponse response)
+        {
+            var knownStatus = response.Status.KnownStatus;
+
+            return (request.Method.KnownMethod != RequestMethod.HEAD)
+                && (knownStatus != ResponseStatus.NoContent)
+                && (knownStatus != ResponseStatus.NotModified);
         }
 
         private async Task WriteStatus(IRequest request, IResponse response)
@@ -123,6 +132,11 @@ namespace GenHTTP.Core.Protocol
             foreach (var cookie in response.Cookies.Values)
             {
                 await WriteCookie(cookie);
+            }
+
+            foreach (var cookie in response.RawCookies)
+            {
+                await WriteHeader("Set-Cookie", cookie);
             }
         }
 

@@ -203,6 +203,11 @@ namespace GenHTTP.Api.Protocol
         {
             RawStatus = status;
             Phrase = phrase;
+
+            if (Enum.IsDefined(typeof(ResponseStatus), status))
+            {
+                KnownStatus = (ResponseStatus)status;
+            }
         }
 
         public FlexibleResponseStatus(ResponseStatus status)

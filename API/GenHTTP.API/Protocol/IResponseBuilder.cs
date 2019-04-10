@@ -58,7 +58,13 @@ namespace GenHTTP.Api.Protocol
         /// </summary>
         /// <param name="cookie">The cookie to be added</param>
         IResponseBuilder Cookie(Cookie cookie);
-        
+
+        /// <summary>
+        /// Adds the given raw cookie to the resonse.
+        /// </summary>
+        /// <param name="cookie">The raw cookie string to be added</param>
+        IResponseBuilder Cookie(string cookie);
+
         /// <summary>
         /// Specifies the content to be send to the client.
         /// </summary>

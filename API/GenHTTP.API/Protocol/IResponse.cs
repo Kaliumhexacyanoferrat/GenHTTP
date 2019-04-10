@@ -56,6 +56,11 @@ namespace GenHTTP.Api.Protocol
         /// </summary>
         ICookieCollection Cookies { get; }
 
+        /// <summary>
+        /// Raw cookie headers.
+        /// </summary>
+        List<string> RawCookies { get; }
+
         #endregion
 
         #region Content
