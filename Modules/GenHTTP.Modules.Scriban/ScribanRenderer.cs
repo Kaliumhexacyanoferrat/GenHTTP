@@ -14,6 +14,7 @@ namespace GenHTTP.Modules.Scriban
 
     public class ScribanRenderer<T> : IRenderer<T> where T : IBaseModel
     {
+        private Template? _Template;
 
         #region Get-/Setters
 
@@ -34,9 +35,7 @@ namespace GenHTTP.Modules.Scriban
 
         public string Render(T model)
         {
-            var content = TemplateProvider.GetResourceAsString();
-
-            var template = Template.Parse(content);
+            var template = GetTemplate();
 
             var obj = new ScriptObject();
 
@@ -44,6 +43,21 @@ namespace GenHTTP.Modules.Scriban
             obj.SetValue("route", new RoutingMethod(model.Request.Routing), true);
 
             return template.Render(obj);
+        }
+
+        private Template GetTemplate()
+        {
+            if (TemplateProvider.AllowCache)
+            {
+                return _Template ?? (_Template = LoadTemplate());
+            }
+
+            return LoadTemplate();
+        }
+
+        private Template LoadTemplate()
+        {
+            return Template.Parse(TemplateProvider.GetResourceAsString());
         }
 
         #endregion

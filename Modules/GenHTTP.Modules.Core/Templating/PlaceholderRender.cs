@@ -14,6 +14,8 @@ namespace GenHTTP.Modules.Core.Templating
     {
         private readonly static Regex PLACEHOLDER = new Regex(@"\[([a-zA-Z0-9]+)\]");
 
+        private string? _Template;
+
         #region Get-/Setters
 
         public IResourceProvider TemplateProvider { get; }
@@ -33,7 +35,7 @@ namespace GenHTTP.Modules.Core.Templating
 
         public string Render(T model)
         {
-            var template = TemplateProvider.GetResourceAsString();
+            var template = GetTemplate();
 
             var flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase;
 
@@ -50,6 +52,21 @@ namespace GenHTTP.Modules.Core.Templating
 
                 return match.Value;
             });
+        }
+
+        private string GetTemplate()
+        {
+            if (TemplateProvider.AllowCache)
+            {
+                return _Template ?? (_Template = LoadTemplate());
+            }
+
+            return LoadTemplate();
+        }
+
+        private string LoadTemplate()
+        {
+            return TemplateProvider.GetResourceAsString();
         }
 
         #endregion

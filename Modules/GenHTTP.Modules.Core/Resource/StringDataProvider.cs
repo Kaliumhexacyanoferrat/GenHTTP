@@ -15,6 +15,8 @@ namespace GenHTTP.Modules.Core.Resource
 
         public string Content { get; }
 
+        public bool AllowCache => true;
+
         #endregion
 
         #region Initialization

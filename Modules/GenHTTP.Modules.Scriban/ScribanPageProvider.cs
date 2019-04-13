@@ -22,6 +22,8 @@ namespace GenHTTP.Modules.Scriban
 
         public ModelProvider<T> ModelProvider { get; }
 
+        public ScribanRenderer<T> Renderer { get; }
+
         public string? Title { get; }
 
         #endregion
@@ -33,6 +35,8 @@ namespace GenHTTP.Modules.Scriban
             TemplateProvider = templateProvider;
             ModelProvider = modelProvider;
             Title = title;
+
+            Renderer = new ScribanRenderer<T>(TemplateProvider);
         }
 
         #endregion
@@ -43,11 +47,9 @@ namespace GenHTTP.Modules.Scriban
         {
             if (request.HasType(RequestMethod.HEAD, RequestMethod.GET, RequestMethod.POST))
             {
-                var renderer = new ScribanRenderer<T>(TemplateProvider);
-
                 var model = ModelProvider(request);
 
-                var content = renderer.Render(model);
+                var content = Renderer.Render(model);
 
                 var templateModel = new TemplateModel(request, model.Title ?? Title ?? "Untitled Page", content);
 

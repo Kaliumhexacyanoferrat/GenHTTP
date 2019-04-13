@@ -15,6 +15,8 @@ namespace GenHTTP.Modules.Core.Resource
 
         public FileInfo File { get; }
 
+        public bool AllowCache => false;
+
         #endregion
 
         #region Initialization

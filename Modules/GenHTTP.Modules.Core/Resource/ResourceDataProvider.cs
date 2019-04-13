@@ -19,6 +19,8 @@ namespace GenHTTP.Modules.Core.Resource
 
         public string QualifiedName { get; }
 
+        public bool AllowCache => true;
+
         #endregion
 
         #region Initialization
