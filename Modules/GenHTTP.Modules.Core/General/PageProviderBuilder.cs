@@ -8,7 +8,7 @@ using GenHTTP.Api.Modules;
 namespace GenHTTP.Modules.Core.General
 {
 
-    public class PageProviderBuilder : IContentBuilder
+    public class PageProviderBuilder : ContentBuilderBase
     {
         private IResourceProvider? _Content;
         private string? _Title;
@@ -27,14 +27,14 @@ namespace GenHTTP.Modules.Core.General
             return this;
         }
 
-        public IContentProvider Build()
+        public override IContentProvider Build()
         {
             if (_Content == null)
             {
                 throw new BuilderMissingPropertyException("Content");
             }
 
-            return new PageProvider(_Title, _Content);
+            return new PageProvider(_Title, _Content, _Modification);
         }
 
         #endregion

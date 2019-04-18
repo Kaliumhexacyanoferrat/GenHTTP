@@ -10,6 +10,7 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Testing.Acceptance.Domain;
 using GenHTTP.Modules.Core;
+using GenHTTP.Api.Modules;
 
 namespace GenHTTP.Testing.Acceptance.Core
 {
@@ -21,6 +22,8 @@ namespace GenHTTP.Testing.Acceptance.Core
         {
 
             public string? Value { get; private set; }
+
+            public IContentProvider? Intercept(IRequest request) => null;
 
             public void Intercept(IRequest request, IResponse response)
             {

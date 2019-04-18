@@ -5,8 +5,7 @@ using System.Net.Cache;
 using System.Text;
 
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Modules;
-
+using GenHTTP.Api.Routing;
 using GenHTTP.Core;
 using GenHTTP.Modules.Core;
 
@@ -78,6 +77,7 @@ namespace GenHTTP.Testing.Acceptance.Domain
         {
             var request = WebRequest.CreateHttp($"http://localhost:{Port}{uri ?? ""}");
             request.Timeout = 2000;
+            request.AllowAutoRedirect = false;
 
             return request;
         }

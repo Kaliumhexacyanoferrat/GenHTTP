@@ -6,10 +6,12 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
 
+using GenHTTP.Modules.Core.General;
+
 namespace GenHTTP.Modules.Core.Templating
 {
 
-    public class PlaceholderPageProviderBuilder<T> : IContentBuilder where T : PageModel
+    public class PlaceholderPageProviderBuilder<T> : ContentBuilderBase where T : PageModel
     {
         private IResourceProvider? _TemplateProvider;
         private ModelProvider<T>? _ModelProvider;
@@ -35,7 +37,7 @@ namespace GenHTTP.Modules.Core.Templating
             return this;
         }
 
-        public IContentProvider Build()
+        public override IContentProvider Build()
         {
             if (_TemplateProvider == null)
             {
@@ -47,7 +49,7 @@ namespace GenHTTP.Modules.Core.Templating
                 throw new BuilderMissingPropertyException("Model Provider");
             }
 
-            return new PlaceholderPageProvider<T>(_TemplateProvider, _ModelProvider, _Title);
+            return new PlaceholderPageProvider<T>(_TemplateProvider, _ModelProvider, _Title, _Modification);
         }
 
         #endregion

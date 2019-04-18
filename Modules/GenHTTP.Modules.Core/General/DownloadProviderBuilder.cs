@@ -10,7 +10,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Core.General
 {
 
-    public class DownloadProviderBuilder : IContentBuilder
+    public class DownloadProviderBuilder : ContentBuilderBase
     {
         private IResourceProvider? _ResourceProvider;
         private ContentType? _ContentType;
@@ -29,7 +29,7 @@ namespace GenHTTP.Modules.Core.General
             return this;
         }
 
-        public IContentProvider Build()
+        public override IContentProvider Build()
         {
             if (_ResourceProvider == null)
             {
@@ -41,7 +41,7 @@ namespace GenHTTP.Modules.Core.General
                 throw new BuilderMissingPropertyException("Content Type");
             }
 
-            return new DownloadProvider(_ResourceProvider, (ContentType)_ContentType);
+            return new DownloadProvider(_ResourceProvider, (ContentType)_ContentType, _Modification);
         }
 
         #endregion

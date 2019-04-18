@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Routing;
@@ -52,7 +50,7 @@ namespace GenHTTP.Api.Infrastructure
         /// Registers the given extension in the server.
         /// </summary>
         /// <param name="extension">The extension to be registerd</param>
-        IServerBuilder Extension(IBuilder<IServerExtension> extension);
+        IServerBuilder Extension(IServerExtensionBuilder extension);
 
         /// <summary>
         /// Registers the given extension in the server.
@@ -159,6 +157,17 @@ namespace GenHTTP.Api.Infrastructure
         /// <param name="certificateProvider">The provider to select the certificate used to negoiate a connection with</param>
         /// <param name="protocols">The SSL/TLS protocl versions which should be supported by the endpoint</param>
         IServerBuilder Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols);
+
+        #endregion
+
+        #region Security
+
+        /// <summary>
+        /// Specifies the upgrade mode used to upgrade insecure requests
+        /// to HTTPS secured endpoints.
+        /// </summary>
+        /// <param name="upgradeMode">The upgrade mode to be used</param>
+        IServerBuilder Security(SecureUpgrade upgradeMode);
 
         #endregion
 

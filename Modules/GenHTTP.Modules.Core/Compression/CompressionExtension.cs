@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -6,7 +7,7 @@ using System.Linq;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-using System.IO;
+using GenHTTP.Api.Modules;
 
 namespace GenHTTP.Modules.Core.Compression
 {
@@ -30,6 +31,8 @@ namespace GenHTTP.Modules.Core.Compression
         #endregion
 
         #region Functionality
+
+        public IContentProvider? Intercept(IRequest request) => null;
 
         public void Intercept(IRequest request, IResponse response)
         {
@@ -98,7 +101,7 @@ namespace GenHTTP.Modules.Core.Compression
 
             return false;
         }
-
+        
         #endregion
 
     }

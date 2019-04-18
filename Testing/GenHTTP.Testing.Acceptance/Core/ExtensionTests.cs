@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,10 +8,9 @@ using Xunit;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Modules;
 
-using GenHTTP.Modules.Core;
 using GenHTTP.Testing.Acceptance.Domain;
-using System.Net;
 
 namespace GenHTTP.Testing.Acceptance.Core
 {
@@ -20,6 +20,8 @@ namespace GenHTTP.Testing.Acceptance.Core
 
         public class MyExtension : IServerExtension
         {
+
+            public IContentProvider? Intercept(IRequest request) => null;
 
             public void Intercept(IRequest request, IResponse response)
             {

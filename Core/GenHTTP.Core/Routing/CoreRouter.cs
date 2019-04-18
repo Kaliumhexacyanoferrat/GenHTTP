@@ -78,7 +78,7 @@ namespace GenHTTP.Core.Routing
 
             var content = renderer.Render(page);
 
-            return new StringProvider(content, ContentType.TextHtml);
+            return new StringProvider(content, ContentType.TextHtml, null);
         }
 
         public string? Route(string path, int currentDepth)

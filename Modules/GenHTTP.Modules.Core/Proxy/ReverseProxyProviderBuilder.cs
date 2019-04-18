@@ -5,10 +5,12 @@ using System.Text;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Modules;
 
+using GenHTTP.Modules.Core.General;
+
 namespace GenHTTP.Modules.Core.Proxy
 {
 
-    public class ReverseProxyProviderBuilder : IContentBuilder
+    public class ReverseProxyProviderBuilder : ContentBuilderBase
     {
         private string? _Upstream;
 
@@ -41,14 +43,14 @@ namespace GenHTTP.Modules.Core.Proxy
             return this;
         }
 
-        public IContentProvider Build()
+        public override IContentProvider Build()
         {
             if (_Upstream == null)
             {
                 throw new BuilderMissingPropertyException("Upstream");
             }
 
-            return new ReverseProxyProvider(_Upstream, _ConnectTimeout, _ReadTimeout);
+            return new ReverseProxyProvider(_Upstream, _ConnectTimeout, _ReadTimeout, _Modification);
         }
 
         #endregion

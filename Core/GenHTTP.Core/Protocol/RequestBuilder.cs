@@ -129,7 +129,7 @@ namespace GenHTTP.Core.Protocol
             }
             else
             {
-                Headers[key] = value;
+                Headers[key] = value.Trim();
             }
 
             return this;

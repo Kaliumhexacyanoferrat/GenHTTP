@@ -1,20 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Text;
 using System.Linq;
 using System.Web;
 
-using Net = System.Net;
-
-using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
-using System.Net.Http;
+using GenHTTP.Api.Modules;
+using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core.Proxy
 {
 
-    public class ReverseProxyProvider : IContentProvider
+    public class ReverseProxyProvider : ContentProviderBase
     {
         private static readonly HashSet<string> RESERVED_RESPONSE_HEADERS = new HashSet<string>
         {
@@ -39,7 +36,7 @@ namespace GenHTTP.Modules.Core.Proxy
 
         #region Initialization
 
-        public ReverseProxyProvider(string upstream, TimeSpan connectTimeout, TimeSpan readTimeout)
+        public ReverseProxyProvider(string upstream, TimeSpan connectTimeout, TimeSpan readTimeout, ResponseModification? mod) : base(mod)
         {
             Upstream = upstream;
 
@@ -51,7 +48,7 @@ namespace GenHTTP.Modules.Core.Proxy
 
         #region Functionality
 
-        public IResponseBuilder Handle(IRequest request)
+        protected override IResponseBuilder HandleInternal(IRequest request)
         {
             try
             {

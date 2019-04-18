@@ -18,6 +18,7 @@ namespace GenHTTP.Core.Infrastructure
 
     internal class ThreadedServer : IServer
     {
+        private EndPointCollection _EndPoints;
 
         #region Get-/Setters
 
@@ -31,10 +32,10 @@ namespace GenHTTP.Core.Infrastructure
 
         public IExtensionCollection Extensions { get; }
 
+        public IEndPointCollection EndPoints => _EndPoints;
+
         internal ServerConfiguration Configuration { get; }
-
-        internal EndPointCollection EndPoints { get; }
-
+        
         #endregion
 
         #region Constructors
@@ -49,7 +50,7 @@ namespace GenHTTP.Core.Infrastructure
             Extensions = extensions;
             Configuration = configuration;
 
-            EndPoints = new EndPointCollection(this, configuration.EndPoints, configuration.Network);
+            _EndPoints = new EndPointCollection(this, configuration.EndPoints, configuration.Network);
         }
 
         #endregion
@@ -64,7 +65,7 @@ namespace GenHTTP.Core.Infrastructure
             {
                 if (disposing)
                 {
-                    EndPoints.Dispose();
+                    _EndPoints.Dispose();
                 }
 
                 disposed = true;

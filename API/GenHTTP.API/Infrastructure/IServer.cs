@@ -29,6 +29,11 @@ namespace GenHTTP.Api.Infrastructure
         bool Development { get; }
 
         /// <summary>
+        /// The endpoints the server is listening on.
+        /// </summary>
+        IEndPointCollection EndPoints { get; }
+
+        /// <summary>
         /// An instance that will be called on certain events such as
         /// handled requests or errors that occur within the engine.
         /// </summary>

@@ -6,6 +6,7 @@
 
     <LangVersion>8.0</LangVersion>
     <NullableContextOptions>enable</NullableContextOptions>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
   </PropertyGroup>
 

@@ -9,7 +9,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Core.General
 {
 
-    public class DownloadProvider : IContentProvider
+    public class DownloadProvider : ContentProviderBase
     {
 
         #region Get-/Setters
@@ -22,7 +22,7 @@ namespace GenHTTP.Modules.Core.General
 
         #region Initialization
 
-        public DownloadProvider(IResourceProvider resourceProvider, ContentType contentType)
+        public DownloadProvider(IResourceProvider resourceProvider, ContentType contentType, ResponseModification? mod) : base(mod)
         {
             ResourceProvider = resourceProvider;
             ContentType = contentType;
@@ -32,7 +32,7 @@ namespace GenHTTP.Modules.Core.General
 
         #region Functionality
 
-        public IResponseBuilder Handle(IRequest request)
+        protected override IResponseBuilder HandleInternal(IRequest request)
         {
             if (request.HasType(RequestMethod.GET, RequestMethod.HEAD))
             {

@@ -8,12 +8,13 @@ using GenHTTP.Api.Modules.Templating;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Core;
+using GenHTTP.Modules.Core.General;
 using GenHTTP.Modules.Core.Templating;
 
 namespace GenHTTP.Modules.Scriban
 {
 
-    public class ScribanPageProvider<T> : IContentProvider where T : PageModel
+    public class ScribanPageProvider<T> : ContentProviderBase where T : PageModel
     {
 
         #region Get-/Setters
@@ -30,7 +31,7 @@ namespace GenHTTP.Modules.Scriban
 
         #region Initialization
 
-        public ScribanPageProvider(IResourceProvider templateProvider, ModelProvider<T> modelProvider, string? title)
+        public ScribanPageProvider(IResourceProvider templateProvider, ModelProvider<T> modelProvider, string? title, ResponseModification? mod) : base(mod)
         {
             TemplateProvider = templateProvider;
             ModelProvider = modelProvider;
@@ -43,7 +44,7 @@ namespace GenHTTP.Modules.Scriban
 
         #region Functionality
 
-        public IResponseBuilder Handle(IRequest request)
+        protected override IResponseBuilder HandleInternal(IRequest request)
         {
             if (request.HasType(RequestMethod.HEAD, RequestMethod.GET, RequestMethod.POST))
             {

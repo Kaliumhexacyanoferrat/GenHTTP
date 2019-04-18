@@ -9,7 +9,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Core.General
 {
 
-    public class StringProviderBuilder : IContentBuilder
+    public class StringProviderBuilder : ContentBuilderBase
     {
         private string? _Data;
         private ContentType? _ContentType;
@@ -28,7 +28,7 @@ namespace GenHTTP.Modules.Core.General
             return this;
         }
 
-        public IContentProvider Build()
+        public override IContentProvider Build()
         {
             if (_Data == null)
             {
@@ -40,7 +40,7 @@ namespace GenHTTP.Modules.Core.General
                 throw new BuilderMissingPropertyException("Content Type");
             }
 
-            return new StringProvider(_Data, (ContentType)_ContentType);
+            return new StringProvider(_Data, (ContentType)_ContentType, _Modification);
         }
 
         #endregion

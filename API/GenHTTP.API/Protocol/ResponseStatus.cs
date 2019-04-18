@@ -38,6 +38,8 @@ namespace GenHTTP.Api.Protocol
 
         TemporaryRedirect = 307,
 
+        PermanentRedirect = 308,
+
         BadRequest = 400,
 
         Unauthorized = 401,
@@ -164,6 +166,7 @@ namespace GenHTTP.Api.Protocol
                 { ResponseStatus.MultiStatus, "Multi-Status"},
                 { ResponseStatus.AlreadyReported, "Already Reported"},
                 { ResponseStatus.TemporaryRedirect, "Temporary Redirect"},
+                { ResponseStatus.PermanentRedirect, "Permanent Redirect"},
                 { ResponseStatus.Continue, "Continue" },
                 { ResponseStatus.SwitchingProtocols, "Switching Protocols" },
                 { ResponseStatus.NotAcceptable, "Not Acceptable" },

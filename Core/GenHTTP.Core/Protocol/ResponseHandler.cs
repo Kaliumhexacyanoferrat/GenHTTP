@@ -149,7 +149,7 @@ namespace GenHTTP.Core.Protocol
                     response.Content.Seek(0, SeekOrigin.Begin);
                 }
                 
-                if ((response.Content != null) && (response.ContentLength == null))
+                if (response.ContentLength == null)
                 {
                     int read;
 

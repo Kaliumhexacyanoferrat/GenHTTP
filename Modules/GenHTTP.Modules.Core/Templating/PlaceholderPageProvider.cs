@@ -7,10 +7,12 @@ using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
 using GenHTTP.Api.Protocol;
 
+using GenHTTP.Modules.Core.General;
+
 namespace GenHTTP.Modules.Core.Templating
 {
 
-    public class PlaceholderPageProvider<T> : IContentProvider where T : PageModel
+    public class PlaceholderPageProvider<T> : ContentProviderBase where T : PageModel
     {
 
         #region Get-/Setters
@@ -25,17 +27,18 @@ namespace GenHTTP.Modules.Core.Templating
 
         #region Initialization
 
-        public PlaceholderPageProvider(IResourceProvider templateProvider, ModelProvider<T> modelProvider, string? title)
+        public PlaceholderPageProvider(IResourceProvider templateProvider, ModelProvider<T> modelProvider, string? title, ResponseModification? mod) : base(mod)
         {
             TemplateProvider = templateProvider;
             ModelProvider = modelProvider;
+            Title = title;
         }
 
         #endregion
 
         #region Functionality
 
-        public IResponseBuilder Handle(IRequest request)
+        protected override IResponseBuilder HandleInternal(IRequest request)
         {
             if (request.HasType(RequestMethod.HEAD, RequestMethod.GET, RequestMethod.POST))
             {

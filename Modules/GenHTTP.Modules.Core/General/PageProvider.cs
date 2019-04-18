@@ -11,7 +11,7 @@ using GenHTTP.Modules.Core.Templating;
 namespace GenHTTP.Modules.Core.General
 {
 
-    public class PageProvider : IContentProvider
+    public class PageProvider : ContentProviderBase
     {
 
         #region Get-/Setters
@@ -24,7 +24,7 @@ namespace GenHTTP.Modules.Core.General
 
         #region Initialization
 
-        public PageProvider(string? title, IResourceProvider content)
+        public PageProvider(string? title, IResourceProvider content, ResponseModification? mod) : base(mod)
         {
             Title = title;
             Content = content;
@@ -34,7 +34,7 @@ namespace GenHTTP.Modules.Core.General
 
         #region Functionality
 
-        public IResponseBuilder Handle(IRequest request)
+        protected override IResponseBuilder HandleInternal(IRequest request)
         {
             if (request.HasType(RequestMethod.HEAD, RequestMethod.GET, RequestMethod.POST))
             {

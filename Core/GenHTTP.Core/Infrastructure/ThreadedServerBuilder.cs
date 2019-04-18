@@ -13,6 +13,7 @@ using GenHTTP.Core.Infrastructure.Endpoints;
 using GenHTTP.Core.Infrastructure.Configuration;
 
 using GenHTTP.Modules.Core.Compression;
+using GenHTTP.Modules.Core.Security;
 
 namespace GenHTTP.Core.Infrastructure
 {
@@ -28,6 +29,8 @@ namespace GenHTTP.Core.Infrastructure
         private bool _Development = false;
 
         private TimeSpan _RequestReadTimeout = TimeSpan.FromSeconds(10);
+
+        private SecureUpgrade _SecureUpgrade = SecureUpgrade.Force;
 
         private IRouter? _Router;
         private IServerCompanion? _Companion;
@@ -67,7 +70,7 @@ namespace GenHTTP.Core.Infrastructure
             return this;
         }
 
-        public IServerBuilder Extension(IBuilder<IServerExtension> extension)
+        public IServerBuilder Extension(IServerExtensionBuilder extension)
         {
             return Extension(extension.Build());
         }
@@ -192,6 +195,16 @@ namespace GenHTTP.Core.Infrastructure
 
         #endregion
 
+        #region Security
+
+        public IServerBuilder Security(SecureUpgrade upgradeMode)
+        {
+            _SecureUpgrade = upgradeMode;
+            return this;
+        }
+
+        #endregion
+
         #region Builder
 
         public IServer Build()
@@ -228,9 +241,17 @@ namespace GenHTTP.Core.Infrastructure
                 extensions.Add(new CompressionExtension(algorithms));
             }
 
+            if (endpoints.Any(e => e.Security != null))
+            {
+                if (_SecureUpgrade != SecureUpgrade.None)
+                {
+                    extensions.Add(new SecureUpgradeExtension(_SecureUpgrade));
+                }
+            }
+
             return new ThreadedServer(_Companion, config, extensions, _Router);
         }
-
+        
         #endregion
 
     }

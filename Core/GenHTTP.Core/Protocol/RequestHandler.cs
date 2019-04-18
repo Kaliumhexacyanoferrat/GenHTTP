@@ -83,6 +83,17 @@ namespace GenHTTP.Core.Protocol
 
                 Server.Router.HandleContext(routing);
 
+                foreach (var extension in Server.Extensions)
+                {
+                    var content = extension.Intercept(request);
+
+                    if (content != null)
+                    {
+                        routing.RegisterContent(content);
+                        break;
+                    }
+                }
+
                 routingContext = routing;
                 error = null;
 

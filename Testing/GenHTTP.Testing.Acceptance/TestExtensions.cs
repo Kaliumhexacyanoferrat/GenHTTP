@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace GenHTTP.Testing.Acceptance
@@ -42,6 +44,14 @@ namespace GenHTTP.Testing.Acceptance
         public static DateTime WithoutMS(this DateTime date)
         {
             return new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Kind);
+        }
+
+        public static void IgnoreSecurityErrors(this HttpWebRequest request)
+        {
+            request.ServerCertificateValidationCallback = (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) =>
+            {
+                return true;
+            };
         }
 
     }

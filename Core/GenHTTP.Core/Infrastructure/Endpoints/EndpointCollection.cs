@@ -9,15 +9,13 @@ using GenHTTP.Core.Infrastructure.Configuration;
 namespace GenHTTP.Core.Infrastructure.Endpoints
 {
 
-    internal class EndPointCollection : IDisposable
+    internal class EndPointCollection : List<IEndPoint>, IDisposable, IEndPointCollection
     {
 
         #region Get-/Setters
 
         private IServer Server { get; }
-
-        private List<EndPoint> EndPoints { get; }
-
+        
         private NetworkConfiguration NetworkConfiguration { get; }
 
         #endregion
@@ -28,12 +26,10 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
         {
             Server = server;
             NetworkConfiguration = networkConfiguration;
-
-            EndPoints = new List<EndPoint>();
-
+            
             foreach (var config in configuration)
             {
-                EndPoints.Add(Start(config));
+                Add(Start(config));
             }
         }
 
@@ -67,7 +63,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
             {
                 if (disposing)
                 {
-                    foreach (var endpoint in EndPoints)
+                    foreach (EndPoint endpoint in this)
                     {
                         try
                         {
@@ -79,7 +75,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
                         }
                     }
 
-                    EndPoints.Clear();
+                    Clear();
                 }
 
                 disposed = true;
