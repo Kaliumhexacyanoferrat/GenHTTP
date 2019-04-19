@@ -125,12 +125,6 @@ namespace GenHTTP.Testing.Acceptance.Core
         [Fact]
         public void TestTransportPolicyDisabled()
         {
-            Action<IServerBuilder> adjustment = (builder) =>
-            {
-                builder.StrictTransport(TimeSpan.FromSeconds(10), false, false);
-                builder.StrictTransport(false);
-            };
-
             RunSecure((insec, sec) =>
             {
                 var secureRequest = WebRequest.CreateHttp($"https://localhost:{sec}");
@@ -141,7 +135,11 @@ namespace GenHTTP.Testing.Acceptance.Core
                 Assert.Equal(HttpStatusCode.OK, secureResponse.StatusCode);
                 Assert.Null(secureResponse.Headers["Strict-Transport-Security"]);
 
-            }, adjustment);
+            }, b =>
+            {
+                b.StrictTransport(TimeSpan.FromSeconds(10), false, false);
+                b.StrictTransport(false);
+            });
         }
 
         private static void RunSecure(Action<ushort, ushort> logic, Action<IServerBuilder>? adjustments = null, SecureUpgrade? mode = null)
