@@ -30,7 +30,10 @@ namespace GenHTTP.Core.Infrastructure
 
         private TimeSpan _RequestReadTimeout = TimeSpan.FromSeconds(10);
 
-        private SecureUpgrade _SecureUpgrade = SecureUpgrade.Force;
+        private SecureUpgrade _SecureUpgrade = Api.Infrastructure.SecureUpgrade.Force;
+
+        private bool _StrictTransport = true;
+        private StrictTransportPolicy _StrictTransportPolicy = new StrictTransportPolicy(TimeSpan.FromDays(365), true, true);
 
         private IRouter? _Router;
         private IServerCompanion? _Companion;
@@ -197,9 +200,22 @@ namespace GenHTTP.Core.Infrastructure
 
         #region Security
 
-        public IServerBuilder Security(SecureUpgrade upgradeMode)
+        public IServerBuilder SecureUpgrade(SecureUpgrade upgradeMode)
         {
             _SecureUpgrade = upgradeMode;
+            return this;
+        }
+
+        public IServerBuilder StrictTransport(TimeSpan maximumAge, bool includeSubdomains = true, bool preload = true)
+        {
+            _StrictTransport = true;
+            _StrictTransportPolicy = new StrictTransportPolicy(maximumAge, includeSubdomains, preload);
+            return this;
+        }
+
+        public IServerBuilder StrictTransport(bool enabled)
+        {
+            _StrictTransport = enabled;
             return this;
         }
 
@@ -243,9 +259,14 @@ namespace GenHTTP.Core.Infrastructure
 
             if (endpoints.Any(e => e.Security != null))
             {
-                if (_SecureUpgrade != SecureUpgrade.None)
+                if (_SecureUpgrade != Api.Infrastructure.SecureUpgrade.None)
                 {
                     extensions.Add(new SecureUpgradeExtension(_SecureUpgrade));
+                }
+
+                if (_StrictTransport)
+                {
+                    extensions.Add(new StrictTransportExtension(_StrictTransportPolicy));
                 }
             }
 

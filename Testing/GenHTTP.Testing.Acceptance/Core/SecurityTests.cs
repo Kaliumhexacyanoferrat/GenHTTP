@@ -67,7 +67,7 @@ namespace GenHTTP.Testing.Acceptance.Core
                 using var response = request.GetSafeResponse();
 
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            }, SecureUpgrade.Allow);
+            }, null, SecureUpgrade.Allow);
         }
 
         /// <summary>
@@ -88,10 +88,63 @@ namespace GenHTTP.Testing.Acceptance.Core
                 Assert.Equal(HttpStatusCode.TemporaryRedirect, response.StatusCode);
                 Assert.Equal($"https://localhost:{sec}/", response.Headers["Location"]);
                 Assert.Equal($"Upgrade-Insecure-Requests", response.Headers["Vary"]);
-            }, SecureUpgrade.Allow);
+            }, null, SecureUpgrade.Allow);
         }
 
-        private static void RunSecure(Action<ushort, ushort> logic, SecureUpgrade? mode = null)
+        /// <summary>
+        /// As the hoster of a web application, I want my application to enforce strict
+        /// transport security, so that man-in-the-middle attacks can be avoided to some extend.
+        /// </summary>
+        [Fact]
+        public void TestTransportPolicy()
+        {
+            RunSecure((insec, sec) =>
+            {
+                var insecureRequest = WebRequest.CreateHttp($"http://localhost:{insec}");
+
+                using var insecureResponse = insecureRequest.GetSafeResponse();
+
+                Assert.Equal(HttpStatusCode.OK, insecureResponse.StatusCode);
+                Assert.Null(insecureResponse.Headers["Strict-Transport-Security"]);
+                
+                var secureRequest = WebRequest.CreateHttp($"https://localhost:{sec}");
+                secureRequest.IgnoreSecurityErrors();
+
+                using var secureResponse = secureRequest.GetSafeResponse();
+
+                Assert.Equal(HttpStatusCode.OK, secureResponse.StatusCode);
+                Assert.Equal("max-age=31536000; includeSubDomains; preload", secureResponse.Headers["Strict-Transport-Security"]);
+
+            }, null, SecureUpgrade.None);
+        }
+
+        /// <summary>
+        /// As the hoster of a web application, i would like to be able to disable
+        /// HSTS so the server doesn't mess with my domain.
+        /// </summary>
+        [Fact]
+        public void TestTransportPolicyDisabled()
+        {
+            Action<IServerBuilder> adjustment = (builder) =>
+            {
+                builder.StrictTransport(TimeSpan.FromSeconds(10), false, false);
+                builder.StrictTransport(false);
+            };
+
+            RunSecure((insec, sec) =>
+            {
+                var secureRequest = WebRequest.CreateHttp($"https://localhost:{sec}");
+                secureRequest.IgnoreSecurityErrors();
+
+                using var secureResponse = secureRequest.GetSafeResponse();
+
+                Assert.Equal(HttpStatusCode.OK, secureResponse.StatusCode);
+                Assert.Null(secureResponse.Headers["Strict-Transport-Security"]);
+
+            }, adjustment);
+        }
+
+        private static void RunSecure(Action<ushort, ushort> logic, Action<IServerBuilder>? adjustments = null, SecureUpgrade? mode = null)
         {
             var content = Layout.Create().Add("index", Content.From("Hello Alice!"), true);
 
@@ -108,8 +161,10 @@ namespace GenHTTP.Testing.Acceptance.Core
 
             if (mode != null)
             {
-                builder.Security(mode.Value);
+                builder.SecureUpgrade(mode.Value);
             }
+
+            adjustments?.Invoke(builder);
 
             using var _ = builder.Build();
 

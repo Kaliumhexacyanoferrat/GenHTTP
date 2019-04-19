@@ -167,7 +167,23 @@ namespace GenHTTP.Api.Infrastructure
         /// to HTTPS secured endpoints.
         /// </summary>
         /// <param name="upgradeMode">The upgrade mode to be used</param>
-        IServerBuilder Security(SecureUpgrade upgradeMode);
+        IServerBuilder SecureUpgrade(SecureUpgrade upgradeMode);
+
+        /// <summary>
+        /// Configures the HSTS to be applied by the server when serving content
+        /// over secure endpoints.
+        /// </summary>
+        /// <param name="maximumAge">The maximum age of this policy</param>
+        /// <param name="includeSubdomains">Whether subdomains are included in the policy or not</param>
+        /// <param name="preload">Whether the policy is allowed to be preloaded</param>
+        IServerBuilder StrictTransport(TimeSpan maximumAge, bool includeSubdomains = true, bool preload = true);
+
+        /// <summary>
+        /// Enables or disables the strict transport policy (HSTS), which is
+        /// enabled by default.
+        /// </summary>
+        /// <param name="enabled">Whether the strict transport policy is enabled</param>
+        IServerBuilder StrictTransport(bool enabled);
 
         #endregion
 
