@@ -76,7 +76,7 @@ namespace GenHTTP.Testing.Acceptance.Domain
         public HttpWebRequest GetRequest(string? uri = null)
         {
             var request = WebRequest.CreateHttp($"http://localhost:{Port}{uri ?? ""}");
-            request.Timeout = 2000;
+            request.Timeout = 3000;
             request.AllowAutoRedirect = false;
 
             return request;
