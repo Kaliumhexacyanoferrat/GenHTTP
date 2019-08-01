@@ -15,7 +15,7 @@ namespace GenHTTP.Testing.Acceptance.Domain
     public class TestRunner : IDisposable
     {
         private static object _SyncRoot = new object();
-        private static ushort _NextPort = 1024;
+        private static ushort _NextPort = 20000;
 
         #region Get-/Setters
 
