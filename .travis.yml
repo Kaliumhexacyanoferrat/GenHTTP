@@ -3,7 +3,7 @@ dist: xenial
 addons:
   snaps:
   - name: dotnet-sdk
-    classic: true
+    confinement: classic 
     channel: latest/beta
     
 sudo: required
@@ -16,5 +16,5 @@ solution: GenHTTP.sln
 script:
   - sudo snap alias dotnet-sdk.dotnet dotnet
   - dotnet build GenHTTP.sln -c Release
-  - dotnet test -c Release --no-build GenHTTP.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude=\"[xunit.*]*,[*Test*]*\" /p:ParallelizeTestCollections=false
+  - dotnet test -c Release -parallel none --no-build GenHTTP.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ParallelizeTestCollections=false /p:Exclude=\"[xunit.*]*,[*Test*]*\" 
   - bash <(curl -s https://codecov.io/bash)
