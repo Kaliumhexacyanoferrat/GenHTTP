@@ -41,7 +41,7 @@ namespace GenHTTP.Modules.Core.StaticContent
                                          Key = n.Substring(n.IndexOf(root) + root.Length),
                                          Value = Download.FromResource(assembly, n).Build()
                                      })
-                                     .ToDictionary(n => n.Key!!, n => n.Value!!);
+                                     .ToDictionary(n => n.Key!, n => n.Value!);
         }
 
         #endregion
