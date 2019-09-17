@@ -207,7 +207,7 @@ namespace GenHTTP.Api.Infrastructure
         IServerBuilder RequestReadTimeout(TimeSpan timeout);
 
         /// <summary>
-        /// Requests smaller than this limit will be held in memory, while
+        /// Requests smaller than this limit (in bytes) will be held in memory, while
         /// larger requests will be cached in a temporary file.
         /// </summary>
         IServerBuilder RequestMemoryLimit(uint limit);

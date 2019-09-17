@@ -11,6 +11,8 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Core;
 using GenHTTP.Testing.Acceptance.Domain;
 
+using Cookie = GenHTTP.Api.Protocol.Cookie;
+
 namespace GenHTTP.Testing.Acceptance.Providers
 {
 
@@ -26,9 +28,17 @@ namespace GenHTTP.Testing.Acceptance.Providers
                 {
                     return request.Respond().Header("Location", $"http://localhost:{request.EndPoint.Port}/target");
                 }
-
+                
                 var content = new MemoryStream(Encoding.UTF8.GetBytes("Hello World!"));
-                return request.Respond().Content(content, ContentType.TextPlain);
+
+                var response = request.Respond().Content(content, ContentType.TextPlain);
+
+                if (request.Cookies.Count > 0)
+                {
+                    response.Cookie(new Cookie("Bla", "Blubb"));
+                }
+
+                return response;
             }
 
         }
@@ -63,6 +73,15 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var redirected = runner.GetResponse("/?location=1");
 
             Assert.Equal(redirected.Headers["Location"], $"http://localhost:{runner.Port}/target");
+
+            // test cookies
+            var cookieRequest = runner.GetRequest();
+            cookieRequest.CookieContainer = new CookieContainer();
+            cookieRequest.CookieContainer.Add(new System.Net.Cookie("Hello", "World", "/", "localhost"));
+
+            using var cookied = cookieRequest.GetSafeResponse();
+
+            Assert.True(cookied.Cookies.Count > 0);
         }
 
         /// <summary>
