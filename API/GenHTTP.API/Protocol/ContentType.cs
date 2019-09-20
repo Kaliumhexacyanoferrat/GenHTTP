@@ -63,7 +63,7 @@ namespace GenHTTP.Api.Protocol
         /// Anything else - data.
         /// </summary>
         ApplicationOctetStream,
-
+        
         /// <summary>
         /// A MP4 audio file.
         /// </summary>

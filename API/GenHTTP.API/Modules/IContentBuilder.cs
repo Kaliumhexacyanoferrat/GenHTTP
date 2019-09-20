@@ -11,7 +11,17 @@ namespace GenHTTP.Api.Modules
     /// <summary>
     /// A builder which will provide an <see cref="IContentProvider"/>.
     /// </summary>
-    public interface IContentBuilder : IBuilder<IContentProvider>
+    public interface IContentBuilder : IContentBuilder<IContentProvider>
+    {
+        
+
+    }
+    
+    /// <summary>
+    /// A builder to provide a more specific content provider type.
+    /// </summary>
+    /// <typeparam name="T">The type of content being provided</typeparam>
+    public interface IContentBuilder<T> : IBuilder<T> where T : IContentProvider
     {
 
         /// <summary>

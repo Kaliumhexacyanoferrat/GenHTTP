@@ -171,9 +171,9 @@ namespace GenHTTP.Core.Protocol
             {
                 try
                 {
-                    return routing.Router.GetErrorHandler(request, ResponseStatus.InternalServerError, cause)
+                    return routing.Router.GetErrorHandler(request, DeriveStatus(cause), cause)
                                          .Handle(request)
-                                         .Status(ResponseStatus.InternalServerError)
+                                         .Status(DeriveStatus(cause))
                                          .Build();
                 }
                 catch (Exception e)
@@ -193,9 +193,9 @@ namespace GenHTTP.Core.Protocol
             {
                 try
                 {
-                    return coreRouter.GetErrorHandler(request, ResponseStatus.InternalServerError, cause)
+                    return coreRouter.GetErrorHandler(request, DeriveStatus(cause), cause)
                                      .Handle(request)
-                                     .Status(ResponseStatus.InternalServerError)
+                                     .Status(DeriveStatus(cause))
                                      .Build();
                 }
                 catch (Exception e)
@@ -212,9 +212,19 @@ namespace GenHTTP.Core.Protocol
             var stream = new MemoryStream(Encoding.UTF8.GetBytes("Internal Server Error"));
 
             return request.Respond()
-                          .Status(ResponseStatus.InternalServerError)
+                          .Status(DeriveStatus(cause))
                           .Content(stream, ContentType.TextPlain)
                           .Build();
+        }
+
+        private ResponseStatus DeriveStatus(Exception? exception)
+        {
+            if (exception is ProviderException pe)
+            {
+                return pe.Status;
+            }
+
+            return ResponseStatus.InternalServerError;
         }
 
         #endregion

@@ -4,7 +4,7 @@ addons:
   snaps:
   - name: dotnet-sdk
     confinement: classic 
-    channel: latest/beta
+    channel: latest/stable
     
 sudo: required
 

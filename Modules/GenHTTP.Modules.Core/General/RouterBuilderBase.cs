@@ -10,36 +10,38 @@ using GenHTTP.Api.Routing;
 namespace GenHTTP.Modules.Core.General
 {
 
-    public abstract class RouterBuilderBase<T> : IRouterBuilder
+    public abstract class RouterBuilderBase<T> : RouterBuilderBase<T, IRouter>, IRouterBuilder { }
+
+    public abstract class RouterBuilderBase<TBuilder, TRouter> : IRouterBuilder<TRouter> where TRouter : IRouter
     {
         protected IRenderer<TemplateModel>? _Template;
         protected IContentProvider? _ErrorHandler;
 
         #region Functionality
 
-        public T Template(IBuilder<IRenderer<TemplateModel>> template)
+        public TBuilder Template(IBuilder<IRenderer<TemplateModel>> template)
         {
             return Template(template.Build());
         }
 
-        public T Template(IRenderer<TemplateModel> template)
+        public TBuilder Template(IRenderer<TemplateModel> template)
         {
             _Template = template;
-            return (T)(object)this;
+            return (TBuilder)(object)this;
         }
 
-        public T ErrorHandler(IContentBuilder errorHandler)
+        public TBuilder ErrorHandler(IContentBuilder errorHandler)
         {
             return ErrorHandler(errorHandler.Build());
         }
 
-        public T ErrorHandler(IContentProvider errorHandler)
+        public TBuilder ErrorHandler(IContentProvider errorHandler)
         {
             _ErrorHandler = errorHandler;
-            return (T)(object)this;
+            return (TBuilder)(object)this;
         }
 
-        public abstract IRouter Build();
+        public abstract TRouter Build();
 
         #endregion
 

@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 
 using GenHTTP.Api.Routing;
-using GenHTTP.Examples.Examples.Infrastructure;
 using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Scriban;
+
+using GenHTTP.Examples.Examples.Infrastructure;
+using GenHTTP.Examples.Examples.Webservices;
 
 namespace GenHTTP.Examples
 {
@@ -20,6 +22,7 @@ namespace GenHTTP.Examples
 
             return Layout.Create()
                          .Add("infrastructure", InfrastructureExamples.Create())
+                         .Add("webservice", WebserviceExamples.Create())
                          .Add("index", index, true);
         }
 

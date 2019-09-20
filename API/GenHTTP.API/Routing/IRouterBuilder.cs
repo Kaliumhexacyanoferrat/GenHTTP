@@ -12,7 +12,12 @@ namespace GenHTTP.Api.Routing
     /// <summary>
     /// A builder which will provide an <see cref="IRouter"/>.
     /// </summary>
-    public interface IRouterBuilder : IBuilder<IRouter>
+    public interface IRouterBuilder : IRouterBuilder<IRouter>
+    {
+
+    }
+
+    public interface IRouterBuilder<T> : IBuilder<T> where T : IRouter
     {
 
     }
