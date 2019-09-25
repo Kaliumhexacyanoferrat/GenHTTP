@@ -14,25 +14,21 @@ using GenHTTP.Modules.Core.General;
 namespace GenHTTP.Modules.Core.StaticContent
 {
 
-    public class EmbeddedResourcesProvider : IRouter
+    public class EmbeddedResourcesProvider : RouterBase
     {
-        private IRouter? _Parent;
 
         #region Get-/Setters
-
-        public IRouter Parent
-        {
-            get { return _Parent ?? throw new InvalidOperationException("Parent has not been set");  }
-            set { _Parent = value; }
-        }
-
+        
         private Dictionary<string, IContentProvider> QualifiedNames { get; }
 
         #endregion
 
         #region Initialization
 
-        public EmbeddedResourcesProvider(Assembly assembly, string root)
+        public EmbeddedResourcesProvider(Assembly assembly,
+                                         string root, 
+                                         IRenderer<TemplateModel>? template,
+                                         IContentProvider? errorHandler) : base(template, errorHandler)
         {
             QualifiedNames = assembly.GetManifestResourceNames()
                                      .Where(n => n.Contains(root))
@@ -47,8 +43,8 @@ namespace GenHTTP.Modules.Core.StaticContent
         #endregion
 
         #region Functionality
-
-        public void HandleContext(IEditableRoutingContext current)
+        
+        public override void HandleContext(IEditableRoutingContext current)
         {
             current.Scope(this);
 
@@ -60,17 +56,7 @@ namespace GenHTTP.Modules.Core.StaticContent
             }
         }
 
-        public IRenderer<TemplateModel> GetRenderer()
-        {
-            return Parent.GetRenderer();
-        }
-
-        public IContentProvider GetErrorHandler(IRequest request, ResponseStatus responseType, Exception? cause)
-        {
-            return Parent.GetErrorHandler(request, responseType, cause);
-        }
-
-        public string? Route(string path, int currentDepth)
+        public override string? Route(string path, int currentDepth)
         {
             return Parent.Route(path, currentDepth);
         }

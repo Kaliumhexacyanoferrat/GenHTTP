@@ -4,13 +4,14 @@ using System.Reflection;
 using System.Text;
 
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Modules;
 using GenHTTP.Api.Routing;
+
+using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core.StaticContent
 {
 
-    public class EmbeddedResourcesProviderBuilder : IRouterBuilder
+    public class EmbeddedResourcesProviderBuilder : RouterBuilderBase<EmbeddedResourcesProviderBuilder>
     {
         private Assembly? _Assembly;
         private string? _Root;
@@ -29,7 +30,7 @@ namespace GenHTTP.Modules.Core.StaticContent
             return this;
         }
 
-        public IRouter Build()
+        public override IRouter Build()
         {
             if (_Root == null)
             {
@@ -41,7 +42,7 @@ namespace GenHTTP.Modules.Core.StaticContent
                 _Assembly = System.Reflection.Assembly.GetCallingAssembly();
             }
 
-            return new EmbeddedResourcesProvider(_Assembly, _Root);
+            return new EmbeddedResourcesProvider(_Assembly, _Root, _Template, _ErrorHandler);
         }
 
         #endregion

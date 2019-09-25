@@ -4,13 +4,14 @@ using System.IO;
 using System.Text;
 
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Modules;
 using GenHTTP.Api.Routing;
+
+using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core.StaticContent
 {
 
-    public class FileResourcesProviderBuilder : IRouterBuilder
+    public class FileResourcesProviderBuilder : RouterBuilderBase<FileResourcesProviderBuilder>
     {
         private DirectoryInfo? _Directory;
         
@@ -22,7 +23,7 @@ namespace GenHTTP.Modules.Core.StaticContent
             return this;
         }
 
-        public IRouter Build()
+        public override IRouter Build()
         {
             if (_Directory == null)
             {
@@ -34,7 +35,7 @@ namespace GenHTTP.Modules.Core.StaticContent
                 throw new DirectoryNotFoundException($"The given directory does not exist: '{_Directory.FullName}'");
             }
             
-            return new FileResourcesProvider(_Directory);
+            return new FileResourcesProvider(_Directory, _Template, _ErrorHandler);
         }
 
         #endregion
