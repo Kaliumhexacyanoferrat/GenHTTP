@@ -12,15 +12,17 @@ namespace GenHTTP.Modules.Core.General
 
         #region Get-/Setters
         
-        public ContentType ContentType { get; }
-
         private byte[] Buffer { get; }
+
+        public override string? Title => null;
+
+        public override FlexibleContentType ContentType { get; }
 
         #endregion
 
         #region Initialization
 
-        public StringProvider(string data, ContentType contentType, ResponseModification? mod) : base(mod)
+        public StringProvider(string data, FlexibleContentType contentType, ResponseModification? mod) : base(mod)
         {
             Buffer = Encoding.UTF8.GetBytes(data);
             ContentType = contentType;
@@ -33,7 +35,7 @@ namespace GenHTTP.Modules.Core.General
         protected override IResponseBuilder HandleInternal(IRequest request)
         {
             return request.Respond()
-                          .Content(new MemoryStream(Buffer), ContentType);
+                          .Content(new MemoryStream(Buffer), ContentType.RawType);
         }
 
         #endregion

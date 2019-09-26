@@ -83,7 +83,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         /// As a developer, I can generate links in Scriban pages.
         /// </summary>
         [Fact]
-        public void TestScribanPageRoting()
+        public void TestScribanPageRouting()
         {
             var page = Data.FromString("{{ route 'https://google.de' }}|{{ route 'res/123' }}|{{ route 'other/456/' }}|{{ route './relative' }}");
 

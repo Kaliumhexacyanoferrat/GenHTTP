@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Reflection;
+using System.Collections.Generic;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
-
-using GenHTTP.Modules.Core.General;
-using GenHTTP.Modules.Core.Resource;
-using GenHTTP.Modules.Core.Templating;
-
-using GenHTTP.Core.Utilities;
 
 namespace GenHTTP.Core.Routing
 {
@@ -28,8 +22,6 @@ namespace GenHTTP.Core.Routing
             set { throw new NotSupportedException("Setting core router's parent is not allowed"); }
         }
 
-        private IRenderer<TemplateModel> Template { get; }
-
         #endregion
 
         #region Initialization
@@ -38,9 +30,6 @@ namespace GenHTTP.Core.Routing
         {
             Content = content;
             Content.Parent = this;
-
-            var templateProvider = new ResourceDataProvider(Assembly.GetExecutingAssembly(), "Template.html");
-            Template = new PlaceholderRender<TemplateModel>(templateProvider);
         }
 
         #endregion
@@ -52,33 +41,13 @@ namespace GenHTTP.Core.Routing
             Content.HandleContext(current);
         }
 
-        public IRenderer<TemplateModel> GetRenderer()
+        public IRenderer<TemplateModel> GetRenderer() => throw new InvalidOperationException("Core router has no renderer");
+
+        public IContentProvider GetErrorHandler(IRequest request, ResponseStatus responseType, Exception? cause) => throw new InvalidOperationException("Core router has no error handler");
+        
+        public IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
         {
-            return Template;
-        }
-
-        public IContentProvider GetErrorHandler(IRequest request, ResponseStatus responseType, Exception? cause)
-        {
-            var title = responseType.ToString().SplitCamelCase();
-
-            string body;
-
-            if (request.Server.Development && (cause != null))
-            {
-                body = cause.ToString().Replace(Environment.NewLine, "<br />");
-            }
-            else
-            {
-                body = $"Server returned with response type '{title}'.";
-            }
-
-            var page = new TemplateModel(request, title, body);
-
-            var renderer = request.Routing?.Router.GetRenderer() ?? GetRenderer();
-
-            var content = renderer.Render(page);
-
-            return new StringProvider(content, ContentType.TextHtml, null);
+            return Content.GetContent(request, basePath);
         }
 
         public string? Route(string path, int currentDepth)

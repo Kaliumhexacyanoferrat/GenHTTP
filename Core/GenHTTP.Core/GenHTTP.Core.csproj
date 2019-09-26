@@ -34,14 +34,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <None Remove="Resources\Template.html" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\Template.html" />
-  </ItemGroup>
-  
-  <ItemGroup>
    
     <ProjectReference Include="..\..\API\GenHTTP.API\GenHTTP.Api.csproj" />
     <ProjectReference Include="..\..\Modules\GenHTTP.Modules.Core\GenHTTP.Modules.Core.csproj" />

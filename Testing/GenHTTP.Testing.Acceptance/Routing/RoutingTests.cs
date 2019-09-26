@@ -24,6 +24,10 @@ namespace GenHTTP.Testing.Acceptance.Routing
 
             }
 
+            public override string? Title => null;
+
+            public override FlexibleContentType? ContentType => null;
+
             protected override IResponseBuilder HandleInternal(IRequest request)
             {
                 throw new NotImplementedException();

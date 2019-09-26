@@ -1,15 +1,16 @@
-﻿using System.Reflection;
-using System.Text.RegularExpressions;
-
-using GenHTTP.Api.Modules;
+﻿using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace GenHTTP.Modules.Core.Templating
 {
 
     public class PlaceholderRender<T> : IRenderer<T> where T : IBaseModel
     {
-        private readonly static Regex PLACEHOLDER = new Regex(@"\[([a-zA-Z0-9]+)\]", RegexOptions.Compiled);
+        private readonly static Regex PLACEHOLDER = new Regex(@"\[([a-zA-Z0-9\.]+)\]", RegexOptions.Compiled);
 
         private string? _Template;
 
@@ -34,20 +35,12 @@ namespace GenHTTP.Modules.Core.Templating
         {
             var template = GetTemplate();
 
-            var flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase;
-
             return PLACEHOLDER.Replace(template, (match) =>
             {
-                var name = match.Groups[1].Value;
+                var fullPath = match.Groups[1].Value;
+                var path = fullPath.Split('.');
 
-                var property = model.GetType().GetProperty(name, flags);
-
-                if (property != null)
-                {
-                    return property.GetValue(model)?.ToString() ?? string.Empty;
-                }
-
-                return match.Value;
+                return GetValue(fullPath, path, model);
             });
         }
 
@@ -64,6 +57,48 @@ namespace GenHTTP.Modules.Core.Templating
         private string LoadTemplate()
         {
             return TemplateProvider.GetResourceAsString();
+        }
+
+        private string? GetValue(string fullPath, IEnumerable<string> path, object model)
+        {
+            if (!path.Any())
+            {
+                return null;
+            }
+            else
+            {
+                var name = path.First();
+
+                var data = GetValue(name, model);
+
+                if (path.Count() == 1)
+                {
+                    return data?.ToString() ?? fullPath;
+                }
+                else
+                {
+                    if (data == null)
+                    {
+                        return fullPath;
+                    }
+
+                    return GetValue(fullPath, path.Skip(1), data);
+                }
+            }
+        }
+
+        private object? GetValue(string name, object model)
+        {
+            var flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase;
+
+            var property = model.GetType().GetProperty(name, flags);
+
+            if (property != null)
+            {
+                return property.GetValue(model);
+            }
+
+            return null;
         }
 
         #endregion

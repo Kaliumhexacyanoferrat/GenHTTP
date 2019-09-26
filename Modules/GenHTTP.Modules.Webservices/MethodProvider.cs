@@ -43,6 +43,10 @@ namespace GenHTTP.Modules.Webservices
 
         private SerializationRegistry Serialization { get; }
 
+        public string? Title => null;
+
+        public FlexibleContentType? ContentType => null; // ToDo: Best effort
+
         #endregion
 
         #region Initialization
@@ -168,14 +172,14 @@ namespace GenHTTP.Modules.Webservices
             // stream returned as a download
             if (result is Stream download)
             {
-                return request.Respond().Content(download, ContentType.ApplicationForceDownload);
+                return request.Respond().Content(download, Api.Protocol.ContentType.ApplicationForceDownload);
             }
 
             // basic types should produce a string value
             if (type.IsPrimitive || type == typeof(string) || type.IsEnum)
             {
                 var stream = new MemoryStream(Encoding.UTF8.GetBytes(result.ToString()));
-                return request.Respond().Content(stream, ContentType.TextPlain);
+                return request.Respond().Content(stream, Api.Protocol.ContentType.TextPlain);
             }
 
             // serialize the result

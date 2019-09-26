@@ -21,6 +21,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
         private class ProxiedProvider : IContentProvider
         {
 
+            public FlexibleContentType? ContentType => new FlexibleContentType(Api.Protocol.ContentType.TextPlain);
+
+            public string? Title => null;
+
             public IResponseBuilder Handle(IRequest request)
             {
                 if (request.Query.ContainsKey("location"))
@@ -31,7 +35,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
                 var content = new MemoryStream(Encoding.ASCII.GetBytes("Hello World!"));
 
                 var response = request.Respond()
-                                      .Content(content, ContentType.TextPlain);
+                                      .Content(content, ContentType!.RawType);
 
                 if (request.Cookies.Count > 0)
                 {

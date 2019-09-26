@@ -12,9 +12,11 @@ namespace GenHTTP.Modules.Core.General
 
         #region Get-/Setters
 
-        public string? Title { get; }
+        public override string? Title { get; }
 
         public IResourceProvider Content { get; }
+
+        public override FlexibleContentType ContentType => new FlexibleContentType(Api.Protocol.ContentType.TextHtml);
 
         #endregion
 

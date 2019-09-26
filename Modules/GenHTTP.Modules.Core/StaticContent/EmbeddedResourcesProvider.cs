@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System.IO;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 
+using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
 using GenHTTP.Api.Routing;
@@ -17,7 +19,7 @@ namespace GenHTTP.Modules.Core.StaticContent
         #region Get-/Setters
 
         private Dictionary<string, IContentProvider> QualifiedNames { get; }
-
+        
         #endregion
 
         #region Initialization
@@ -53,11 +55,22 @@ namespace GenHTTP.Modules.Core.StaticContent
             }
         }
 
+        public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
+        {
+            foreach (var qn in QualifiedNames)
+            {
+                var slashPath = qn.Key.Replace('.', '/');
+                var fileName = Path.GetFileName(slashPath);
+
+                yield return new ContentElement(basePath + slashPath, fileName, fileName.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
+            }
+        }
+
         public override string? Route(string path, int currentDepth)
         {
             return Parent.Route(path, currentDepth);
         }
-
+        
         #endregion
 
     }

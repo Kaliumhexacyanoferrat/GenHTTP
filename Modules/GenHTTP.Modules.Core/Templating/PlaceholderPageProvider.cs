@@ -16,7 +16,9 @@ namespace GenHTTP.Modules.Core.Templating
 
         public ModelProvider<T> ModelProvider { get; }
 
-        public string? Title { get; }
+        public override string? Title { get; }
+
+        public override FlexibleContentType? ContentType => new FlexibleContentType(Api.Protocol.ContentType.TextHtml);
 
         #endregion
 

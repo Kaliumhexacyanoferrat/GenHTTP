@@ -36,7 +36,7 @@ namespace GenHTTP.Modules.Core.General
                 throw new BuilderMissingPropertyException("Content Type");
             }
 
-            return new StringProvider(_Data, (ContentType)_ContentType, _Modification);
+            return new StringProvider(_Data, new FlexibleContentType((ContentType)_ContentType), _Modification);
         }
 
         #endregion

@@ -1,7 +1,9 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
 using GenHTTP.Modules.Core.General;
@@ -46,6 +48,17 @@ namespace GenHTTP.Modules.Core.StaticContent
         public override string? Route(string path, int currentDepth)
         {
             return Parent.Route(path, currentDepth);
+        }
+
+        public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
+        {
+            foreach (var file in Directory.EnumerateFiles("*.*", SearchOption.AllDirectories))
+            {
+                var childPath = Path.GetRelativePath(Directory.FullName, file.FullName);
+
+                // ToDo: better organized with folders (aka children)
+                yield return new ContentElement($"{basePath}{childPath}", file.Name, file.Name.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
+            }
         }
 
         #endregion

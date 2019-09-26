@@ -1,4 +1,6 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using System.Collections.Generic;
+
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Modules
 {
@@ -10,9 +12,9 @@ namespace GenHTTP.Api.Modules
     /// <remarks>
     /// Content providers can be registered at routers.
     /// </remarks>
-    public interface IContentProvider
+    public interface IContentProvider : IContentDescription
     {
-
+        
         /// <summary>
         /// Handles the given request, generating the response
         /// to be send to the client.

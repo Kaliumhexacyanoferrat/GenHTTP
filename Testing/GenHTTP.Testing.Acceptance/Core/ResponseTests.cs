@@ -21,6 +21,10 @@ namespace GenHTTP.Testing.Acceptance.Core
 
             public DateTime Modified { get; }
 
+            public FlexibleContentType? ContentType => new FlexibleContentType("text/x-custom");
+
+            public string? Title => null;
+
             public ResponseProvider()
             {
                 Modified = DateTime.Now.AddDays(-10);
