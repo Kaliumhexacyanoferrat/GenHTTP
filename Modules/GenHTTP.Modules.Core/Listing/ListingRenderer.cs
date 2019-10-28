@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 
@@ -26,17 +27,17 @@ namespace GenHTTP.Modules.Core.Listing
 
             if (model.HasParent)
             {
-                Append(content, "..", null, null);
+                Append(content, "..", "..", null, null);
             }
 
-            foreach (var dir in model.Directories)
+            foreach (var dir in model.Directories.OrderBy(d => d.Name))
             {
-                Append(content, dir.Name, null, dir.LastWriteTime);
+                Append(content, $"./{dir.Name}/", dir.Name, null, dir.LastWriteTime);
             }
 
-            foreach (var file in model.Files)
+            foreach (var file in model.Files.OrderBy(f => f.Name))
             {
-                Append(content, file.Name, file.Length, file.LastWriteTime);
+                Append(content, $"./{file.Name}", file.Name, file.Length, file.LastWriteTime);
             }
 
             content.AppendLine("</table>");
@@ -44,10 +45,10 @@ namespace GenHTTP.Modules.Core.Listing
             return content.ToString();
         }
 
-        private void Append(StringBuilder builder, string name, long? size, DateTime? modified)
+        private void Append(StringBuilder builder, string path, string name, long? size, DateTime? modified)
         {
             builder.AppendLine("<tr>");
-            builder.AppendLine($"  <td><a href=\"{name}/\">{name}</a></td>");
+            builder.AppendLine($"  <td><a href=\"{path}\">{name}</a></td>");
 
             if (size != null)
             {
