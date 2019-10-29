@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Web;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
@@ -43,7 +44,7 @@ namespace GenHTTP.Modules.Core.Listing
 
             var renderer = new ListingRenderer();
 
-            var templateModel = new TemplateModel(request, $"Index of {request.Path}", renderer.Render(model));
+            var templateModel = new TemplateModel(request, $"Index of {HttpUtility.UrlDecode(request.Path)}", renderer.Render(model));
 
             return request.Respond(ResponseStatus.OK).Content(templateModel);
         }

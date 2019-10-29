@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Web;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
@@ -19,25 +20,25 @@ namespace GenHTTP.Modules.Core.Listing
 
             content.AppendLine("<thead>");
             content.AppendLine("  <tr>");
-            content.AppendLine("    <td>Name</td>");
-            content.AppendLine("    <td>Size</td>");
-            content.AppendLine("    <td>Last Modified</td>");
+            content.AppendLine("    <th>Name</th>");
+            content.AppendLine("    <th>Size</th>");
+            content.AppendLine("    <th>Last Modified</th>");
             content.AppendLine("  </tr>");
             content.AppendLine("</thead>");
 
             if (model.HasParent)
             {
-                Append(content, "..", "..", null, null);
+                Append(content, "../", "..", null, null);
             }
 
             foreach (var dir in model.Directories.OrderBy(d => d.Name))
             {
-                Append(content, $"./{dir.Name}/", dir.Name, null, dir.LastWriteTime);
+                Append(content, $"./{HttpUtility.UrlEncode(dir.Name)}/", dir.Name, null, dir.LastWriteTime);
             }
 
             foreach (var file in model.Files.OrderBy(f => f.Name))
             {
-                Append(content, $"./{file.Name}", file.Name, file.Length, file.LastWriteTime);
+                Append(content, $"./{HttpUtility.UrlEncode(file.Name)}", file.Name, file.Length, file.LastWriteTime);
             }
 
             content.AppendLine("</table>");
@@ -49,17 +50,8 @@ namespace GenHTTP.Modules.Core.Listing
         {
             builder.AppendLine("<tr>");
             builder.AppendLine($"  <td><a href=\"{path}\">{name}</a></td>");
-
-            if (size != null)
-            {
-                builder.AppendLine($"  <td>{size}</td>");
-
-            }
-            else
-            {
-                builder.AppendLine("  <td>-</td>");
-            }
-
+            builder.AppendLine($"  <td>{FileSizeFormatter.Format(size)}</td>");
+            
             if (modified != null)
             {
                 builder.AppendLine($"  <td>{modified}</td>");
@@ -71,7 +63,7 @@ namespace GenHTTP.Modules.Core.Listing
 
             builder.AppendLine("</tr>");
         }
-
+        
     }
 
 

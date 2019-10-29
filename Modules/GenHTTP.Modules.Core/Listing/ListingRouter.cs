@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-
+using System.Web;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
 using GenHTTP.Api.Routing;
@@ -45,8 +45,8 @@ namespace GenHTTP.Modules.Core.Listing
         public override void HandleContext(IEditableRoutingContext current)
         {
             current.Scope(this);
-
-            var path = Path.Combine(Info.FullName, "." + current.ScopedPath);
+            
+            var path = Path.Combine(Info.FullName, "." + HttpUtility.UrlDecode(current.ScopedPath));
 
             if (File.Exists(path))
             {
