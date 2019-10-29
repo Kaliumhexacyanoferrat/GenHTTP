@@ -43,6 +43,19 @@ namespace GenHTTP.Testing.Acceptance.Core
         }
 
         [Fact]
+        public void TestConnectionClose()
+        {
+            using var runner = TestRunner.Run();
+
+            var request = runner.GetRequest();
+            request.Headers.Add("Connection", "close");
+
+            using var response = request.GetSafeResponse();
+
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        [Fact]
         public void TestEmptyQuery()
         {
             using var response = TestRunner.Run().GetResponse("/?");

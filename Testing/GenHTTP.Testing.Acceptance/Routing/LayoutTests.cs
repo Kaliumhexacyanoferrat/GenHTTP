@@ -50,6 +50,22 @@ namespace GenHTTP.Testing.Acceptance.Routing
             Assert.Equal("Hey there: Hello World!", response.GetContent());
         }
 
+        /// <summary>
+        /// As a developer I can set a default handler to be used for requests.
+        /// </summary>
+        [Fact]
+        public void TestDefaultContent()
+        {
+            var layout = Layout.Create().Default(Content.From("Hello World!"));
+
+            using var runner = TestRunner.Run(layout);
+
+            using var response = runner.GetResponse();
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal("Hello World!", response.GetContent());
+        }
+
     }
 
 }

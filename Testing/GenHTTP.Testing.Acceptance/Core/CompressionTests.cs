@@ -30,6 +30,16 @@ namespace GenHTTP.Testing.Acceptance.Core
 
         }
 
+        private class CustomAlgorithmBuilder : IBuilder<ICompressionAlgorithm>
+        {
+
+            public ICompressionAlgorithm Build()
+            {
+                return new CustomAlgorithm();
+            }
+
+        }
+
         /// <summary>
         /// As a developer, I expect responses to be compressed out of the box.
         /// </summary>
@@ -69,7 +79,7 @@ namespace GenHTTP.Testing.Acceptance.Core
         {
             using var runner = new TestRunner();
 
-            using var _ = runner.Builder.Compression(new CustomAlgorithm()).Build();
+            using var _ = runner.Builder.Compression(new CustomAlgorithmBuilder()).Build();
 
             var request = runner.GetRequest();
             request.Headers.Add("Accept-Encoding", "custom");

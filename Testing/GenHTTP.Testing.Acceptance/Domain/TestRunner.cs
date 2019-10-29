@@ -60,7 +60,9 @@ namespace GenHTTP.Testing.Acceptance.Domain
             return runner;
         }
 
-        public static TestRunner Run(IRouterBuilder router)
+        public static TestRunner Run(IRouterBuilder router) => Run(router.Build());
+
+        public static TestRunner Run(IRouter router)
         {
             var runner = new TestRunner();
 

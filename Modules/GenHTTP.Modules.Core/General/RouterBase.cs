@@ -33,7 +33,7 @@ namespace GenHTTP.Modules.Core.General
         protected RouterBase(IRenderer<TemplateModel>? template, IContentProvider? errorHandler)
         {
             Template = template;
-            ErrorHandler = ErrorHandler;
+            ErrorHandler = errorHandler;
         }
 
         #endregion

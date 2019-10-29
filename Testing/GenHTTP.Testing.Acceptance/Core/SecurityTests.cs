@@ -14,7 +14,7 @@ namespace GenHTTP.Testing.Acceptance.Core
 
     public class SecurityTests
     {
-        
+
         /// <summary>
         /// As a developer I would like to serve my application in a secure manner.
         /// </summary>
@@ -106,7 +106,7 @@ namespace GenHTTP.Testing.Acceptance.Core
 
                 Assert.Equal(HttpStatusCode.OK, insecureResponse.StatusCode);
                 Assert.Null(insecureResponse.Headers["Strict-Transport-Security"]);
-                
+
                 var secureRequest = WebRequest.CreateHttp($"https://localhost:{sec}");
                 secureRequest.IgnoreSecurityErrors();
 
@@ -142,6 +142,30 @@ namespace GenHTTP.Testing.Acceptance.Core
                 Assert.Null(secureResponse.Headers["Strict-Transport-Security"]);
 
             }, adjustments);
+        }
+
+        /// <summary>
+        /// As the operator of the server, I expect the server to resume
+        /// normal operation after a security error has happened.
+        /// </summary>
+        [Fact]
+        public void TestSecurityError()
+        {
+            RunSecure((insec, sec) =>
+            {
+                Assert.Throws<WebException>(() =>
+                {
+                    var failedRequest = WebRequest.CreateHttp($"https://localhost:{sec}");
+                    failedRequest.GetSafeResponse();
+                });
+
+                var okayRequest = WebRequest.CreateHttp($"https://localhost:{sec}");
+                okayRequest.IgnoreSecurityErrors();
+
+                using var response = okayRequest.GetSafeResponse();
+
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            });
         }
 
         private static void RunSecure(Action<ushort, ushort> logic, Action<IServerBuilder>? adjustments = null, SecureUpgrade? mode = null)
@@ -187,6 +211,6 @@ namespace GenHTTP.Testing.Acceptance.Core
         }
 
     }
-    
+
 }
 

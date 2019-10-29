@@ -35,6 +35,16 @@ namespace GenHTTP.Testing.Acceptance.Core
 
         }
 
+        public class MyExtensionBuilder : IServerExtensionBuilder
+        {
+
+            public IServerExtension Build()
+            {
+                return new MyExtension();
+            }
+
+        }
+
         /// <summary>
         /// As a developer, I can add additional extensions to intercept requests.
         /// </summary>
@@ -43,7 +53,7 @@ namespace GenHTTP.Testing.Acceptance.Core
         {
             using var runner = new TestRunner();
 
-            using var _ = runner.Builder.Extension(new MyExtension()).Build();
+            using var _ = runner.Builder.Extension(new MyExtensionBuilder()).Build();
 
             using var response = runner.GetResponse();
 
@@ -58,7 +68,7 @@ namespace GenHTTP.Testing.Acceptance.Core
         {
             using var runner = new TestRunner();
 
-            using var _ = runner.Builder.Extension(new MyExtension()).Build();
+            using var _ = runner.Builder.Extension(new MyExtensionBuilder()).Build();
 
             for (var i = 0; i < 2; i++)
             {
