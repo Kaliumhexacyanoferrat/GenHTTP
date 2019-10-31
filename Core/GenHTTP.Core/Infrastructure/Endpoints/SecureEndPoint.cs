@@ -38,9 +38,9 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         protected override async Task Accept(Socket client)
         {
-            var authenticated = TryAuthenticate(client, out var stream);
+            var stream = await TryAuthenticate(client);
 
-            if (authenticated && stream != null)
+            if (stream != null)
             {
                 await Handle(client, stream);
             }
@@ -58,7 +58,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
             }
         }
 
-        private bool TryAuthenticate(Socket client, out SslStream? stream)
+        private async Task<SslStream?> TryAuthenticate(Socket client)
         {
             var readAhead = new ReadAheadStream(new NetworkStream(client));
 
@@ -67,18 +67,17 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
                 if (readAhead.Peek())
                 {
                     var host = GetHostName(readAhead, Options.Certificate.SupportedHosts);
-                    
-                    stream = new SslStream(readAhead, false);
 
                     var certificate = Options.Certificate.Provide(host);
 
-                    stream.AuthenticateAsServer(certificate, false, Options.Protocols, true);
+                    var stream = new SslStream(readAhead, false);
 
-                    return true;
+                    await stream.AuthenticateAsServerAsync(certificate, false, Options.Protocols, true);
+
+                    return stream;
                 }
 
-                stream = null;
-                return false;
+                return null;
             }
             catch (Exception e)
             {
@@ -86,8 +85,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
                 Server.Companion?.OnServerError(ServerErrorScope.Security, e);
 
-                stream = null;
-                return false;
+                return null;
             }
         }
 

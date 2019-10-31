@@ -179,7 +179,7 @@ namespace GenHTTP.Core.Protocol
                 }
                 else
                 {
-                    response.Content.CopyTo(OutputStream, (int)Configuration.TransferBufferSize);
+                    await response.Content.CopyToAsync(OutputStream, (int)Configuration.TransferBufferSize);
                 }                    
             }
         }
