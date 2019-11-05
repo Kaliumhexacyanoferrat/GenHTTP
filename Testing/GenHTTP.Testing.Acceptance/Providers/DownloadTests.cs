@@ -29,8 +29,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
                 using (var runner = TestRunner.Run(layout))
                 {
-                    using var response = runner.GetResponse("/file");
-                    Assert.Equal("Hello File!", response.GetContent());
+                    using (var response = runner.GetResponse("/file"))
+                    {
+                        Assert.Equal("Hello File!", response.GetContent());
+                    }
                 }
             }
             finally
@@ -38,7 +40,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
                 File.Delete(file);
             }
         }
-        
+
         /// <summary>
         /// As a developer, I can provide downloads from embedded files.
         /// </summary>

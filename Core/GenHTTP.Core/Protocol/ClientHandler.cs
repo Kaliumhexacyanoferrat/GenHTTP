@@ -93,11 +93,11 @@ namespace GenHTTP.Core
                     {
                         Connection.Disconnect(false);
                         Connection.Close();
-
-                        Connection.Dispose();
-
-                        Stream.Dispose();
                     }
+
+                    Connection.Dispose();
+
+                    Stream.Dispose();
                 }
                 catch (Exception e)
                 {
