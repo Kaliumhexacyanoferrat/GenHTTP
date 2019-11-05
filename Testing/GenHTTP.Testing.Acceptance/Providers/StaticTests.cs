@@ -45,9 +45,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
                 using (var runner = TestRunner.Run(layout))
                 {
-                    using var response = runner.GetResponse($"/res/{file.Name}");
-
-                    Assert.Equal("Hello File!", response.GetContent());
+                    using (var response = runner.GetResponse($"/res/{file.Name}")) 
+                    {
+                        Assert.Equal("Hello File!", response.GetContent());
+                    }
                 }
             }
             finally
