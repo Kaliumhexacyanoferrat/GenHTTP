@@ -14,6 +14,4 @@ script:
   - dotnet test -c Release --no-build GenHTTP.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ParallelizeTestCollections=false /p:Exclude=\"[xunit.*]*,[*Test*]*\" 
   
 after_success:
-  - dotnet tool restore
-  - dotnet csmacnz.Coveralls --opencover -i ./Testing/GenHTTP.Testing.Acceptance/coverage.opencover.xml 
   - bash <(curl -s https://codecov.io/bash)
