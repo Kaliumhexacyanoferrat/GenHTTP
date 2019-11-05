@@ -1,20 +1,19 @@
 dist: xenial
-
-addons:
-  snaps:
-  - name: dotnet-sdk
-    confinement: classic 
-    channel: latest/stable
     
 sudo: required
 
 language: csharp
 mono: none
 
+dotnet: 3.0
+
 solution: GenHTTP.sln
 
 script:
-  - sudo snap alias dotnet-sdk.dotnet dotnet
   - dotnet build GenHTTP.sln -c Release
   - dotnet test -c Release --no-build GenHTTP.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ParallelizeTestCollections=false /p:Exclude=\"[xunit.*]*,[*Test*]*\" 
+  
+after_success:
+  - dotnet tool restore
+  - dotnet csmacnz.Coveralls --opencover -i ./Testing/GenHTTP.Testing.Acceptance/coverage.opencover.xml 
   - bash <(curl -s https://codecov.io/bash)
