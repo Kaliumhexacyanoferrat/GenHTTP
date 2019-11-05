@@ -9,9 +9,21 @@ dotnet: 3.0
 
 solution: GenHTTP.sln
 
+env:
+  - DOTNET_ROLL_FORWARD=Major
+
+addons:
+  sonarcloud:
+    organization: "kaliumhexacyanoferrat"
+    token:
+      secure: $SONAR_TOKEN
+
+install:
+  - git fetch --unshallow --tags
+
 script:
+  - dotnet tool restore
+  - dotnet sonarscanner begin /k:"GenHTTP" /d:sonar.login="$SONAR_TOKEN" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/bin/**/*,**/obj/**/*"
   - dotnet build GenHTTP.sln -c Release
   - dotnet test -c Release --no-build GenHTTP.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ParallelizeTestCollections=false /p:Exclude=\"[xunit.*]*,[*Test*]*\" 
-  
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
