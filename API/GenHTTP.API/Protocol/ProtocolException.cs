@@ -17,7 +17,7 @@ namespace GenHTTP.Api.Protocol
 
         }
 
-        protected ProtocolException(SerializationInfo info, StreamingContext context)
+        protected ProtocolException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
 
         }

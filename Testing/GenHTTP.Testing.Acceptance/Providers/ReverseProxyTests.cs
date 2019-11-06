@@ -28,13 +28,19 @@ namespace GenHTTP.Testing.Acceptance.Providers
                     return request.Respond().Header("Location", $"http://localhost:{request.EndPoint.Port}/target");
                 }
 
-                var content = new MemoryStream(Encoding.UTF8.GetBytes("Hello World!"));
+                var content = new MemoryStream(Encoding.ASCII.GetBytes("Hello World!"));
 
-                var response = request.Respond().Content(content, ContentType.TextPlain);
+                var response = request.Respond()
+                                      .Content(content, ContentType.TextPlain);
 
                 if (request.Cookies.Count > 0)
                 {
                     response.Cookie(new Cookie("Bla", "Blubb"));
+                }
+
+                if (request.Headers.ContainsKey("X-Custom-Header"))
+                {
+                    response.Header("X-Custom-Header", request.Headers["X-Custom-Header"]);
                 }
 
                 return response;
@@ -64,9 +70,22 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var runner = TestRunner.Run(layout);
 
-            using var response = runner.GetResponse();
+            var request = runner.GetRequest();
+
+            request.Method = "POST";
+            request.Headers.Add("X-Custom-Header", "Custom Value");
+            request.ContentType = "text/plain";
+
+            using (var stream = request.GetRequestStream())
+            {
+                var input = Encoding.UTF8.GetBytes("Input");
+                stream.Write(input, 0, input.Length);
+            }
+
+            var response = request.GetSafeResponse();
 
             Assert.Equal("Hello World!", response.GetContent());
+            Assert.Equal("Custom Value", response.Headers.Get("X-Custom-Header"));
 
             // test redirection
             using var redirected = runner.GetResponse("/?location=1");
