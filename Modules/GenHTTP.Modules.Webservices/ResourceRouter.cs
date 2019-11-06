@@ -73,7 +73,6 @@ namespace GenHTTP.Modules.Webservices
                 if (matchingMethods.Count == 1)
                 {
                     current.RegisterContent(matchingMethods.First());
-                    return;
                 }
                 else if (methods.Count > 1)
                 {

@@ -77,6 +77,12 @@ namespace GenHTTP.Core.Protocol
             return this;
         }
 
+        public IResponseBuilder Cookie(string cookie)
+        {
+            _RawCookies.Add(cookie);
+            return this;
+        }
+
         public IResponseBuilder Header(string key, string value)
         {
             _Headers[key] = value;
@@ -110,12 +116,6 @@ namespace GenHTTP.Core.Protocol
         public IResponseBuilder Status(int status, string reason)
         {
             _Status = new FlexibleResponseStatus(status, reason);
-            return this;
-        }
-
-        public IResponseBuilder Cookie(string cookie)
-        {
-            _RawCookies.Add(cookie);
             return this;
         }
 

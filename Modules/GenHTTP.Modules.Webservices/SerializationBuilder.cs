@@ -10,7 +10,7 @@ namespace GenHTTP.Modules.Webservices
     {
         private FlexibleContentType? _Default = null;
 
-        private Dictionary<FlexibleContentType, ISerializationFormat> _Registry = new Dictionary<FlexibleContentType, ISerializationFormat>();
+        private readonly Dictionary<FlexibleContentType, ISerializationFormat> _Registry = new Dictionary<FlexibleContentType, ISerializationFormat>();
 
         #region Functionality
 

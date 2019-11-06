@@ -8,9 +8,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
     internal class ReadAheadStream : Stream
     {
-        private static ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
-
-        private int _Timeout;
+        private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
 
         #region Get-/Setters
 
@@ -24,11 +22,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
 
-        public override int ReadTimeout
-        {
-            get { return _Timeout; }
-            set { _Timeout = value; }
-        }
+        public override int ReadTimeout { get; set; }
 
         internal MemoryStream Buffer { get; }
 

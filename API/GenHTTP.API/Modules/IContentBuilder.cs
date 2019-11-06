@@ -16,7 +16,7 @@ namespace GenHTTP.Api.Modules
     /// A builder to provide a more specific content provider type.
     /// </summary>
     /// <typeparam name="T">The type of content being provided</typeparam>
-    public interface IContentBuilder<T> : IBuilder<T> where T : IContentProvider
+    public interface IContentBuilder<out T> : IBuilder<T> where T : IContentProvider
     {
 
         /// <summary>

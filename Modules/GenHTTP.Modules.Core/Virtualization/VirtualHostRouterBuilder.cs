@@ -10,7 +10,8 @@ namespace GenHTTP.Modules.Core.Virtualization
 
     public class VirtualHostRouterBuilder : RouterBuilderBase<VirtualHostRouterBuilder>
     {
-        private Dictionary<string, IRouter> _Hosts = new Dictionary<string, IRouter>();
+        private readonly Dictionary<string, IRouter> _Hosts = new Dictionary<string, IRouter>();
+
         private IRouter? _DefaultRoute;
 
         #region Functionality

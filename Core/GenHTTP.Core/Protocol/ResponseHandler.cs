@@ -88,45 +88,45 @@ namespace GenHTTP.Core.Protocol
 
         private async Task WriteHeader(IResponse response, bool keepAlive)
         {
-            await WriteHeader("Server", $"GenHTTP/{Server.Version}");
+            await WriteHeaderLine("Server", $"GenHTTP/{Server.Version}");
 
-            await WriteHeader("Date", DateTime.Now);
+            await WriteHeaderLine("Date", DateTime.Now);
 
-            await WriteHeader("Connection", (keepAlive) ? "Keep-Alive" : "Close");
+            await WriteHeaderLine("Connection", (keepAlive) ? "Keep-Alive" : "Close");
 
             if (!(response.ContentType is null))
             {
-                await WriteHeader("Content-Type", response.ContentType.RawType);
+                await WriteHeaderLine("Content-Type", response.ContentType.RawType);
             }
 
             if (response.ContentEncoding != null)
             {
-                await WriteHeader("Content-Encoding", $"{response.ContentEncoding}");
+                await WriteHeaderLine("Content-Encoding", $"{response.ContentEncoding}");
             }
 
             if (response.ContentLength != null)
             {
-                await WriteHeader("Content-Length", $"{response.ContentLength}");
+                await WriteHeaderLine("Content-Length", $"{response.ContentLength}");
             }
 
             if (response.Modified != null)
             {
-                await WriteHeader("Last-Modified", (DateTime)response.Modified);
+                await WriteHeaderLine("Last-Modified", (DateTime)response.Modified);
             }
 
             if (response.Expires != null)
             {
-                await WriteHeader("Expires", (DateTime)response.Expires);
+                await WriteHeaderLine("Expires", (DateTime)response.Expires);
             }
 
             if ((response.Content != null) && (response.ContentLength == null))
             {
-                await WriteHeader("Transfer-Encoding", "chunked");
+                await WriteHeaderLine("Transfer-Encoding", "chunked");
             }
 
             foreach (var header in response.Headers)
             {
-                await WriteHeader(header.Key, header.Value);
+                await WriteHeaderLine(header.Key, header.Value);
             }
 
             foreach (var cookie in response.Cookies.Values)
@@ -136,7 +136,7 @@ namespace GenHTTP.Core.Protocol
 
             foreach (var cookie in response.RawCookies)
             {
-                await WriteHeader("Set-Cookie", cookie);
+                await WriteHeaderLine("Set-Cookie", cookie);
             }
         }
 
@@ -188,14 +188,14 @@ namespace GenHTTP.Core.Protocol
 
         #region Helpers
 
-        private async Task WriteHeader(string key, string value)
+        private async Task WriteHeaderLine(string key, string value)
         {
             await Write($"{key}: {value}{NL}");
         }
 
-        private async Task WriteHeader(string key, DateTime value)
+        private async Task WriteHeaderLine(string key, DateTime value)
         {
-            await WriteHeader(key, value.ToUniversalTime().ToString("r"));
+            await WriteHeaderLine(key, value.ToUniversalTime().ToString("r"));
         }
 
         private async Task WriteCookie(Cookie cookie)
@@ -209,7 +209,7 @@ namespace GenHTTP.Core.Protocol
 
             value += "; Path=/";
 
-            await WriteHeader("Set-Cookie", value);
+            await WriteHeaderLine("Set-Cookie", value);
         }
 
         private async Task Write(string text)

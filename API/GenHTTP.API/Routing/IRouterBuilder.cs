@@ -11,7 +11,7 @@ namespace GenHTTP.Api.Routing
 
     }
 
-    public interface IRouterBuilder<T> : IBuilder<T> where T : IRouter
+    public interface IRouterBuilder<out T> : IBuilder<T> where T : IRouter
     {
 
     }

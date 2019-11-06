@@ -196,8 +196,6 @@ namespace GenHTTP.Api.Protocol
     /// </summary>
     public class FlexibleContentType
     {
-        private static readonly Dictionary<ContentType, string> MAPPING;
-        private static readonly Dictionary<string, ContentType> MAPPING_REVERSE;
 
         #region Get-/Setters
 
@@ -215,49 +213,46 @@ namespace GenHTTP.Api.Protocol
 
         #region Mapping
 
-        static FlexibleContentType()
+        private static readonly Dictionary<ContentType, string> MAPPING = new Dictionary<ContentType, string>
         {
-            MAPPING = new Dictionary<ContentType, string>
-            {
-                { ContentType.TextHtml, "text/html" },
-                { ContentType.TextCss, "text/css" },
-                { ContentType.ApplicationJavaScript, "application/javascript" },
-                { ContentType.ImageIcon, "image/vnd.microsoft.icon" },
-                { ContentType.ImageGif, "image/gif" },
-                { ContentType.ImageJpg, "image/jpg" },
-                { ContentType.ImagePng, "image/png" },
-                { ContentType.ImageBmp, "image/bmp" },
-                { ContentType.AudioMp4, "audio/mp4" },
-                { ContentType.AudioOgg, "audio/ogg" },
-                { ContentType.AudioMpeg, "audio/mpeg" },
-                { ContentType.ImageTiff, "image/tiff" },
-                { ContentType.TextCsv, "text/csv" },
-                { ContentType.TextRichText, "text/richtext" },
-                { ContentType.TextPlain, "text/plain" },
-                { ContentType.TextXml, "text/xml" },
-                { ContentType.VideoH264, "video/H264" },
-                { ContentType.VideoMp4, "video/mp4" },
-                { ContentType.VideoMpeg, "video/mpeg" },
-                { ContentType.VideoMpeg4Generic, "video/mpeg4-generic" },
-                { ContentType.AudioWav, "audio/wav" },
-                { ContentType.ApplicationOfficeDocumentWordProcessing, "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
-                { ContentType.ApplicationOfficeDocumentPresentation, "application/vnd.openxmlformats-officedocument.presentationml.presentation" },
-                { ContentType.ApplicationOfficeDocumentSlideshow, "application/vnd.openxmlformats-officedocument.presentationml.slideshow" },
-                { ContentType.ApplicationOfficeDocumentSheet, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
-                { ContentType.ApplicationForceDownload, "application/force-download" },
-                { ContentType.ApplicationOctetStream, "application/octet-stream" },
-                { ContentType.FontEmbeddedOpenTypeFont, "font/eot" },
-                { ContentType.FontOpenTypeFont, "font/otf" },
-                { ContentType.FontTrueTypeFont, "font/ttf" },
-                { ContentType.FontWoff, "font/woff" },
-                { ContentType.FontWoff2, "font/woff2" },
-                { ContentType.ImageScalableVectorGraphics, "image/svg" },
-                { ContentType.ImageScalableVectorGraphicsCompressed, "image/svgz" },
-                { ContentType.ApplicationJson, "application/json" }
-            };
+            { ContentType.TextHtml, "text/html" },
+            { ContentType.TextCss, "text/css" },
+            { ContentType.ApplicationJavaScript, "application/javascript" },
+            { ContentType.ImageIcon, "image/vnd.microsoft.icon" },
+            { ContentType.ImageGif, "image/gif" },
+            { ContentType.ImageJpg, "image/jpg" },
+            { ContentType.ImagePng, "image/png" },
+            { ContentType.ImageBmp, "image/bmp" },
+            { ContentType.AudioMp4, "audio/mp4" },
+            { ContentType.AudioOgg, "audio/ogg" },
+            { ContentType.AudioMpeg, "audio/mpeg" },
+            { ContentType.ImageTiff, "image/tiff" },
+            { ContentType.TextCsv, "text/csv" },
+            { ContentType.TextRichText, "text/richtext" },
+            { ContentType.TextPlain, "text/plain" },
+            { ContentType.TextXml, "text/xml" },
+            { ContentType.VideoH264, "video/H264" },
+            { ContentType.VideoMp4, "video/mp4" },
+            { ContentType.VideoMpeg, "video/mpeg" },
+            { ContentType.VideoMpeg4Generic, "video/mpeg4-generic" },
+            { ContentType.AudioWav, "audio/wav" },
+            { ContentType.ApplicationOfficeDocumentWordProcessing, "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
+            { ContentType.ApplicationOfficeDocumentPresentation, "application/vnd.openxmlformats-officedocument.presentationml.presentation" },
+            { ContentType.ApplicationOfficeDocumentSlideshow, "application/vnd.openxmlformats-officedocument.presentationml.slideshow" },
+            { ContentType.ApplicationOfficeDocumentSheet, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
+            { ContentType.ApplicationForceDownload, "application/force-download" },
+            { ContentType.ApplicationOctetStream, "application/octet-stream" },
+            { ContentType.FontEmbeddedOpenTypeFont, "font/eot" },
+            { ContentType.FontOpenTypeFont, "font/otf" },
+            { ContentType.FontTrueTypeFont, "font/ttf" },
+            { ContentType.FontWoff, "font/woff" },
+            { ContentType.FontWoff2, "font/woff2" },
+            { ContentType.ImageScalableVectorGraphics, "image/svg" },
+            { ContentType.ImageScalableVectorGraphicsCompressed, "image/svgz" },
+            { ContentType.ApplicationJson, "application/json" }
+        };
 
-            MAPPING_REVERSE = MAPPING.ToDictionary(x => x.Value, x => x.Key);
-        }
+        private static readonly Dictionary<string, ContentType> MAPPING_REVERSE = MAPPING.ToDictionary(x => x.Value, x => x.Key);
 
         #endregion
 
