@@ -25,5 +25,5 @@ script:
   - dotnet tool restore
   - dotnet sonarscanner begin /k:"GenHTTP" /d:sonar.login="$SONAR_TOKEN" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/bin/**/*,**/obj/**/*"
   - dotnet build GenHTTP.sln -c Release
-  - dotnet test -c Release --no-build GenHTTP.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ParallelizeTestCollections=false /p:Exclude=\"[xunit.*]*,[*Test*]*\" 
+  - dotnet test -c Release --no-build GenHTTP.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ParallelizeTestCollections=false /p:Exclude=\"[xunit.*]*,[*Test*]*,[*Examples*]*\" 
   - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
