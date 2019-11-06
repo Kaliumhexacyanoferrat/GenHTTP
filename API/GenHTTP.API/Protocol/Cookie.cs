@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace GenHTTP.Api.Protocol
+﻿namespace GenHTTP.Api.Protocol
 {
 
     /// <summary>
@@ -23,7 +18,7 @@ namespace GenHTTP.Api.Protocol
         /// The value of the cookie.
         /// </summary>
         public string Value { get; set; }
-        
+
         /// <summary>
         /// The number of seconds after the cookie will be discarded by the client.
         /// </summary>
@@ -58,7 +53,7 @@ namespace GenHTTP.Api.Protocol
         }
 
         #endregion
-                
+
     }
 
 }

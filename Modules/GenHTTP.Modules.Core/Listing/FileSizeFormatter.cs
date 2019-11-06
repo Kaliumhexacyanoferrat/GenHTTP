@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace GenHTTP.Modules.Core.Listing
 {
-    
+
     public static class FileSizeFormatter
     {
 
@@ -15,7 +13,7 @@ namespace GenHTTP.Modules.Core.Listing
         private const double GIGABYTES = MEGABYTES * 1024;
 
         private const double TERABYTES = GIGABYTES * 1024;
-        
+
         public static string Format(long? bytes)
         {
             if (bytes != null)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Buffers;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,13 +12,13 @@ namespace GenHTTP.Core.Protocol
         private static ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
 
         private static readonly Encoding ENCODING = Encoding.GetEncoding("ISO-8859-1");
-        
+
         #region Get-/Setters
-        
+
         public MemoryStream Data { get; }
 
         private StringBuilder? StringBuffer { get; set; }
-                
+
         #endregion
 
         #region Initialization
@@ -62,7 +61,7 @@ namespace GenHTTP.Core.Protocol
 
             var position = Data.Position;
             var result = "";
-            
+
             using (var reader = new StreamReader(Data, ENCODING, false, RequestParser.READ_BUFFER_SIZE, true))
             {
                 result = reader.ReadToEnd();
@@ -151,6 +150,7 @@ namespace GenHTTP.Core.Protocol
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion

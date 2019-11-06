@@ -18,7 +18,7 @@ namespace GenHTTP.Core
         #region Get-/Setter
 
         public IServer Server { get; }
-                
+
         public IEndPoint EndPoint { get; }
 
         internal NetworkConfiguration Configuration { get; }

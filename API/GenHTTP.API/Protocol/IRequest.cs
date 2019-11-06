@@ -25,7 +25,7 @@ namespace GenHTTP.Api.Protocol
         /// The endpoint the request originates from.
         /// </summary>
         IEndPoint EndPoint { get; }
-        
+
         /// <summary>
         /// The client which sent the request.
         /// </summary>

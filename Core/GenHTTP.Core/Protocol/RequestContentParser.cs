@@ -1,5 +1,4 @@
-﻿using System;
-using System.Buffers;
+﻿using System.Buffers;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -58,7 +57,7 @@ namespace GenHTTP.Core.Protocol
 
             return body;
         }
-        
+
         private async Task<int> Migrate(Stream source, Stream target)
         {
             var buffer = POOL.Rent((int)Configuration.TransferBufferSize);

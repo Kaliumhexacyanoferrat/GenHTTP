@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
+﻿using System.Net;
 
 namespace GenHTTP.Core.Infrastructure.Configuration
 {
@@ -15,7 +11,7 @@ namespace GenHTTP.Core.Infrastructure.Configuration
         internal IPAddress Address { get; }
 
         internal ushort Port { get; }
-        
+
         internal SecurityConfiguration? Security { get; }
 
         #endregion

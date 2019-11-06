@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Modules
 {
-    
+
     /// <summary>
     /// Generates the response which should be sent to the client
     /// for a given request. 

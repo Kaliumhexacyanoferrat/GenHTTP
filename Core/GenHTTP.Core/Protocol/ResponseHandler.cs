@@ -148,7 +148,7 @@ namespace GenHTTP.Core.Protocol
                 {
                     response.Content.Seek(0, SeekOrigin.Begin);
                 }
-                
+
                 if (response.ContentLength == null)
                 {
                     int read;
@@ -180,7 +180,7 @@ namespace GenHTTP.Core.Protocol
                 else
                 {
                     await response.Content.CopyToAsync(OutputStream, (int)Configuration.TransferBufferSize);
-                }                    
+                }
             }
         }
 
@@ -201,7 +201,7 @@ namespace GenHTTP.Core.Protocol
         private async Task WriteCookie(Cookie cookie)
         {
             var value = $"{cookie.Name}={cookie.Value}";
-            
+
             if (cookie.MaxAge != null)
             {
                 value += $"; Max-Age={cookie.MaxAge.Value}";
@@ -217,7 +217,7 @@ namespace GenHTTP.Core.Protocol
             var buffer = HEADER_ENCODING.GetBytes(text);
             await OutputStream.WriteAsync(buffer, 0, buffer.Length);
         }
-                
+
         #endregion
 
     }

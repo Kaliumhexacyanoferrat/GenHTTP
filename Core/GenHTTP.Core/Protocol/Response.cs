@@ -10,8 +10,8 @@ namespace GenHTTP.Core
 
     internal class Response : IResponse
     {
-        private CookieCollection _Cookies;
-        private HeaderCollection _Headers;
+        private readonly CookieCollection _Cookies;
+        private readonly HeaderCollection _Headers;
 
         #region Get-/Setters
 
@@ -34,7 +34,7 @@ namespace GenHTTP.Core
         public List<string> RawCookies { get; set; }
 
         public IHeaderCollection Headers => _Headers;
-        
+
         public string? this[string field]
         {
             get
@@ -102,6 +102,7 @@ namespace GenHTTP.Core
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion

@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
@@ -23,7 +20,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         #region 
 
-        internal InsecureEndPoint(IServer server, IPEndPoint endPoint, NetworkConfiguration configuration) 
+        internal InsecureEndPoint(IServer server, IPEndPoint endPoint, NetworkConfiguration configuration)
             : base(server, endPoint, configuration)
         {
 

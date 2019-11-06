@@ -3,7 +3,6 @@ using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
-using GenHTTP.Api.Modules;
 using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Api.Infrastructure
@@ -32,7 +31,7 @@ namespace GenHTTP.Api.Infrastructure
         #endregion
 
         #region Infrastructure
-        
+
         /// <summary>
         /// Registers a companion that will log all handled requests and
         /// errors to the console.
@@ -105,7 +104,7 @@ namespace GenHTTP.Api.Infrastructure
         /// will be ignored.
         /// </remarks>
         IServerBuilder Port(ushort port);
-        
+
         /// <summary>
         /// Registers an endpoint for the given address and port the server will
         /// bind to on startup to listen for incomming HTTP requests.
@@ -113,7 +112,7 @@ namespace GenHTTP.Api.Infrastructure
         /// <param name="address">The address to bind to</param>
         /// <param name="port">The port to listen on</param>
         IServerBuilder Bind(IPAddress address, ushort port);
-        
+
         /// <summary>
         /// Registers a secure endpoint the server will bind to on
         /// startup to listen for incoming HTTPS requests.
@@ -221,5 +220,5 @@ namespace GenHTTP.Api.Infrastructure
         #endregion
 
     }
-    
+
 }

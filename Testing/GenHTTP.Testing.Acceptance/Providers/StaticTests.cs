@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.IO;
 
 using Xunit;
 
@@ -45,7 +42,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
                 using (var runner = TestRunner.Run(layout))
                 {
-                    using (var response = runner.GetResponse($"/res/{file.Name}")) 
+                    using (var response = runner.GetResponse($"/res/{file.Name}"))
                     {
                         Assert.Equal("Hello File!", response.GetContent());
                     }

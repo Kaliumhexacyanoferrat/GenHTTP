@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -19,7 +18,7 @@ namespace GenHTTP.Core.Protocol
         #region Get-/Setters
 
         private IServer Server { get; }
-        
+
         #endregion
 
         #region Initialization
@@ -42,7 +41,7 @@ namespace GenHTTP.Core.Protocol
 
             if (TryRoute(request, out routing, out cause))
             {
-                response = TryProvideContent(request, routing, out cause);                
+                response = TryProvideContent(request, routing, out cause);
             }
             else
             {

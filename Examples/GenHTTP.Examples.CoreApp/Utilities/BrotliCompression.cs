@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.IO.Compression;
-using System.Text;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Core.General;

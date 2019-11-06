@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace GenHTTP.Api.Protocol
 {
 
     #region Known Types
 
-    public enum ResponseStatus : int
+    public enum ResponseStatus
     {
 
         Continue = 100,
@@ -119,7 +118,6 @@ namespace GenHTTP.Api.Protocol
     /// </summary>
     public class FlexibleResponseStatus
     {
-        private static readonly Dictionary<ResponseStatus, string> MAPPING;
 
         #region Get-/Setters
 
@@ -142,61 +140,58 @@ namespace GenHTTP.Api.Protocol
 
         #region Mapping
 
-        static FlexibleResponseStatus()
+        private static readonly Dictionary<ResponseStatus, string> MAPPING = new Dictionary<ResponseStatus, string>
         {
-            MAPPING = new Dictionary<ResponseStatus, string>
-            {
-                { ResponseStatus.Accepted, "Accepted" },
-                { ResponseStatus.BadGateway, "Bad Gateway" },
-                { ResponseStatus.BadRequest, "Bad Request" },
-                { ResponseStatus.Created, "Created" },
-                { ResponseStatus.Forbidden, "Forbidden" },
-                { ResponseStatus.InternalServerError, "Internal Server Error" },
-                { ResponseStatus.MethodNotAllowed, "Method Not Allowed" },
-                { ResponseStatus.MovedPermanently, "Moved Permamently" },
-                { ResponseStatus.Found, "Found" },
-                { ResponseStatus.NoContent, "No Content" },
-                { ResponseStatus.NotFound, "Not Found" },
-                { ResponseStatus.NotImplemented, "Not Implemented" },
-                { ResponseStatus.NotModified, "Not Modified" },
-                { ResponseStatus.OK, "OK" },
-                { ResponseStatus.ServiceUnavailable, "Service Unavailable"},
-                { ResponseStatus.Unauthorized, "Unauthorized"},
-                { ResponseStatus.PartialContent, "Partial Content"},
-                { ResponseStatus.MultiStatus, "Multi-Status"},
-                { ResponseStatus.AlreadyReported, "Already Reported"},
-                { ResponseStatus.TemporaryRedirect, "Temporary Redirect"},
-                { ResponseStatus.PermanentRedirect, "Permanent Redirect"},
-                { ResponseStatus.Continue, "Continue" },
-                { ResponseStatus.SwitchingProtocols, "Switching Protocols" },
-                { ResponseStatus.NotAcceptable, "Not Acceptable" },
-                { ResponseStatus.ProxyAuthenticationRequired, "Proxy Authentication Required" },
-                { ResponseStatus.Conflict, "Conflict" },
-                { ResponseStatus.Gone, "Gone" },
-                { ResponseStatus.LengthRequired, "Length Required" },
-                { ResponseStatus.PreconditionFailed, "Precondition Failed" },
-                { ResponseStatus.RequestEntityTooLarge, "Request Entity Too Large" },
-                { ResponseStatus.RequestUriTooLong, "Request Uri Too Long" },
-                { ResponseStatus.UnsupportedMediaType, "Unsupported Media Type" },
-                { ResponseStatus.RequestedRangeNotSatisfiable, "Requested Range Not Satisfiable" },
-                { ResponseStatus.ExpectationFailed, "Expectation Failed" },
-                { ResponseStatus.UnprocessableEntity, "Unprocessable Entity" },
-                { ResponseStatus.Locked, "Locked" },
-                { ResponseStatus.FailedDependency, "Failed Dependency" },
-                { ResponseStatus.ReservedForWebDAV, "Reserved For WebDAV" },
-                { ResponseStatus.UpgradeRequired, "Upgrade Required" },
-                { ResponseStatus.PreconditionRequired, "Precondition Required" },
-                { ResponseStatus.TooManyRequests, "Too Many Requests" },
-                { ResponseStatus.RequestHeaderFieldsTooLarge, "Request Header Fields Too Large" },
-                { ResponseStatus.UnavailableForLegalReasons, "Unavailable For Legal Reasons" },
-                { ResponseStatus.GatewayTimeout, "Gateway Timeout" },
-                { ResponseStatus.HttpVersionNotSupported, "HTTP Version Not Supported" },
-                { ResponseStatus.InsufficientStorage, "Insufficient Storage" },
-                { ResponseStatus.LoopDetected, "Loop Detected" },
-                { ResponseStatus.NotExtended, "Not Extended" },
-                { ResponseStatus.NetworkAuthenticationRequired, "Network Authentication Required" }
-            };
-        }
+            { ResponseStatus.Accepted, "Accepted" },
+            { ResponseStatus.BadGateway, "Bad Gateway" },
+            { ResponseStatus.BadRequest, "Bad Request" },
+            { ResponseStatus.Created, "Created" },
+            { ResponseStatus.Forbidden, "Forbidden" },
+            { ResponseStatus.InternalServerError, "Internal Server Error" },
+            { ResponseStatus.MethodNotAllowed, "Method Not Allowed" },
+            { ResponseStatus.MovedPermanently, "Moved Permamently" },
+            { ResponseStatus.Found, "Found" },
+            { ResponseStatus.NoContent, "No Content" },
+            { ResponseStatus.NotFound, "Not Found" },
+            { ResponseStatus.NotImplemented, "Not Implemented" },
+            { ResponseStatus.NotModified, "Not Modified" },
+            { ResponseStatus.OK, "OK" },
+            { ResponseStatus.ServiceUnavailable, "Service Unavailable"},
+            { ResponseStatus.Unauthorized, "Unauthorized"},
+            { ResponseStatus.PartialContent, "Partial Content"},
+            { ResponseStatus.MultiStatus, "Multi-Status"},
+            { ResponseStatus.AlreadyReported, "Already Reported"},
+            { ResponseStatus.TemporaryRedirect, "Temporary Redirect"},
+            { ResponseStatus.PermanentRedirect, "Permanent Redirect"},
+            { ResponseStatus.Continue, "Continue" },
+            { ResponseStatus.SwitchingProtocols, "Switching Protocols" },
+            { ResponseStatus.NotAcceptable, "Not Acceptable" },
+            { ResponseStatus.ProxyAuthenticationRequired, "Proxy Authentication Required" },
+            { ResponseStatus.Conflict, "Conflict" },
+            { ResponseStatus.Gone, "Gone" },
+            { ResponseStatus.LengthRequired, "Length Required" },
+            { ResponseStatus.PreconditionFailed, "Precondition Failed" },
+            { ResponseStatus.RequestEntityTooLarge, "Request Entity Too Large" },
+            { ResponseStatus.RequestUriTooLong, "Request Uri Too Long" },
+            { ResponseStatus.UnsupportedMediaType, "Unsupported Media Type" },
+            { ResponseStatus.RequestedRangeNotSatisfiable, "Requested Range Not Satisfiable" },
+            { ResponseStatus.ExpectationFailed, "Expectation Failed" },
+            { ResponseStatus.UnprocessableEntity, "Unprocessable Entity" },
+            { ResponseStatus.Locked, "Locked" },
+            { ResponseStatus.FailedDependency, "Failed Dependency" },
+            { ResponseStatus.ReservedForWebDAV, "Reserved For WebDAV" },
+            { ResponseStatus.UpgradeRequired, "Upgrade Required" },
+            { ResponseStatus.PreconditionRequired, "Precondition Required" },
+            { ResponseStatus.TooManyRequests, "Too Many Requests" },
+            { ResponseStatus.RequestHeaderFieldsTooLarge, "Request Header Fields Too Large" },
+            { ResponseStatus.UnavailableForLegalReasons, "Unavailable For Legal Reasons" },
+            { ResponseStatus.GatewayTimeout, "Gateway Timeout" },
+            { ResponseStatus.HttpVersionNotSupported, "HTTP Version Not Supported" },
+            { ResponseStatus.InsufficientStorage, "Insufficient Storage" },
+            { ResponseStatus.LoopDetected, "Loop Detected" },
+            { ResponseStatus.NotExtended, "Not Extended" },
+            { ResponseStatus.NetworkAuthenticationRequired, "Network Authentication Required" }
+        };
 
         #endregion
 

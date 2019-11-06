@@ -104,7 +104,7 @@ namespace GenHTTP.Modules.Webservices
 
                     if (sourceArgument.Success)
                     {
-                        targetArguments[i] = ChangeType(sourceArgument.Value, par.ParameterType); 
+                        targetArguments[i] = ChangeType(sourceArgument.Value, par.ParameterType);
                         continue;
                     }
 

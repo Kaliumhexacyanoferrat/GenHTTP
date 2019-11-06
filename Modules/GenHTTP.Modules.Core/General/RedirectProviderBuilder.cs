@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using GenHTTP.Api.Infrastructure;
+﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Modules;
-using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.General
 {
@@ -38,7 +33,7 @@ namespace GenHTTP.Modules.Core.General
 
             return new RedirectProvider(_Location, _Temporary, _Modification);
         }
-        
+
         #endregion
 
     }

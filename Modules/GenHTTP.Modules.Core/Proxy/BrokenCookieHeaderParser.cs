@@ -1,7 +1,5 @@
-﻿using GenHTTP.Api.Protocol;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace GenHTTP.Modules.Core.Proxy

@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 
 namespace GenHTTP.Api.Infrastructure
 {
-    
+
     /// <summary>
     /// The implementation of an algorithm allowing to transfer content
     /// in a compressed form to the client.
     /// </summary>
     public interface ICompressionAlgorithm
     {
-        
+
         /// <summary>
         /// The name of the algorithm as specified by the client in the
         /// "Accept-Encoding" HTTP header.

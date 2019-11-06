@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using GenHTTP.Api.Infrastructure;
+﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
-
-using GenHTTP.Modules.Core.Templating;
 
 namespace GenHTTP.Modules.Scriban
 {
 
     public static class ModScriban
     {
-        
+
         public static ScribanRendererBuilder Template(IBuilder<IResourceProvider> templateProvider)
         {
             return Template(templateProvider.Build());
@@ -43,7 +37,7 @@ namespace GenHTTP.Modules.Scriban
         {
             return new ScribanPageProviderBuilder<T>().Template(templateProvider).Model(modelProvider);
         }
-        
+
     }
 
 }

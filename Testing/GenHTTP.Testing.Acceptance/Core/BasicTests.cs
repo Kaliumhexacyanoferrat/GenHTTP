@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
-using System.Collections.Generic;
-using System.Text;
+
 using Xunit;
 
 using GenHTTP.Testing.Acceptance.Domain;
@@ -21,7 +20,7 @@ namespace GenHTTP.Testing.Acceptance.Core
                           .TransferBufferSize(128)
                           .RequestReadTimeout(TimeSpan.FromSeconds(2))
                           .Backlog(1);
-            
+
             using var _ = runner.Builder.Build();
 
             using var response = runner.GetResponse();

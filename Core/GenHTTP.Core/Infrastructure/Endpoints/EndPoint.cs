@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,7 +12,7 @@ using GenHTTP.Core.Infrastructure.Configuration;
 namespace GenHTTP.Core.Infrastructure.Endpoints
 {
 
-    internal abstract class EndPoint : IEndPoint, IDisposable
+    internal abstract class EndPoint : IEndPoint
     {
 
         #region Get-/Setters
@@ -24,9 +22,9 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
         protected NetworkConfiguration Configuration { get; }
 
         private Thread Thread { get; set; }
-        
+
         private IPEndPoint Endpoint { get; }
-        
+
         private Socket Socket { get; }
 
         #endregion
@@ -61,9 +59,9 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
             {
                 throw new BindingException($"Failed to bind to {endPoint}.", e);
             }
-            
 
-            Thread = new Thread(new ThreadStart(async() => await Listen()));
+
+            Thread = new Thread(new ThreadStart(async () => await Listen()));
             Thread.Start();
         }
 
@@ -153,6 +151,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion

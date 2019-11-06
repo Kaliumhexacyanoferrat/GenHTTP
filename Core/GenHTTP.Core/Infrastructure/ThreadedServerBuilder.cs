@@ -6,7 +6,6 @@ using System.Linq;
 using System.Collections.Generic;
 
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Modules;
 using GenHTTP.Api.Routing;
 
 using GenHTTP.Core.Infrastructure.Endpoints;
@@ -38,11 +37,11 @@ namespace GenHTTP.Core.Infrastructure
         private IRouter? _Router;
         private IServerCompanion? _Companion;
 
-        private List<IServerExtension> _Extensions = new List<IServerExtension>();
+        private readonly List<IServerExtension> _Extensions = new List<IServerExtension>();
 
         private Dictionary<string, ICompressionAlgorithm>? _Compression = new Dictionary<string, ICompressionAlgorithm>(StringComparer.InvariantCultureIgnoreCase);
 
-        private List<EndPointConfiguration> _EndPoints = new List<EndPointConfiguration>();
+        private readonly List<EndPointConfiguration> _EndPoints = new List<EndPointConfiguration>();
 
         #region Content
 
@@ -272,7 +271,7 @@ namespace GenHTTP.Core.Infrastructure
 
             return new ThreadedServer(_Companion, config, extensions, _Router);
         }
-        
+
         #endregion
 
     }

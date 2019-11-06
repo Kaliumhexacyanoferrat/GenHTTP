@@ -61,9 +61,9 @@ namespace GenHTTP.Modules.Core.Proxy
                         request.Content.CopyTo(inputStream);
                     }
                 }
-                
+
                 var resp = GetSafeResponse(req);
-                
+
                 return GetResponse(resp, request);
             }
             catch (OperationCanceledException e)
@@ -86,7 +86,7 @@ namespace GenHTTP.Modules.Core.Proxy
         private HttpWebRequest ConfigureRequest(IRequest request)
         {
             var req = WebRequest.CreateHttp(GetRequestUri(request));
-            
+
             req.AllowAutoRedirect = false;
 
             req.Timeout = (int)ConnectTimeout.TotalMilliseconds;

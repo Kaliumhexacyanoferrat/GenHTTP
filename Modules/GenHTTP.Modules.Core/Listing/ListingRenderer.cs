@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Web;
 using System.Linq;
-using System.Collections.Generic;
 using System.Text;
 
 using GenHTTP.Api.Modules.Templating;
@@ -51,7 +50,7 @@ namespace GenHTTP.Modules.Core.Listing
             builder.AppendLine("<tr>");
             builder.AppendLine($"  <td><a href=\"{path}\">{name}</a></td>");
             builder.AppendLine($"  <td>{FileSizeFormatter.Format(size)}</td>");
-            
+
             if (modified != null)
             {
                 builder.AppendLine($"  <td>{modified}</td>");
@@ -63,7 +62,7 @@ namespace GenHTTP.Modules.Core.Listing
 
             builder.AppendLine("</tr>");
         }
-        
+
     }
 
 

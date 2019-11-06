@@ -16,7 +16,7 @@ namespace GenHTTP.Core
     /// </summary>
     internal class Request : IRequest
     {
-        
+
         #region Get-/Setters
 
         public IServer Server { get; }
@@ -28,17 +28,17 @@ namespace GenHTTP.Core
         public IRoutingContext? Routing { get; set; }
 
         public ProtocolType ProtocolType { get; }
-        
-        public FlexibleRequestMethod Method { get;  }
+
+        public FlexibleRequestMethod Method { get; }
 
         public string Path { get; }
-        
+
         public ICookieCollection Cookies { get; }
 
         public IHeaderCollection Headers { get; }
-        
+
         public IReadOnlyDictionary<string, string> Query { get; }
-        
+
         public Stream? Content { get; }
 
         public string? Host => this["Host"];
@@ -46,7 +46,7 @@ namespace GenHTTP.Core
         public string? Referer => this["Referer"];
 
         public string? UserAgent => this["User-Agent"];
-        
+
         public string? this[string additionalHeader]
         {
             get
@@ -85,12 +85,12 @@ namespace GenHTTP.Core
         #endregion
 
         #region Functionality
-        
+
         public IResponseBuilder Respond()
         {
             return new ResponseBuilder(this).Status(ResponseStatus.OK);
         }
-        
+
         #endregion
 
         #region IDisposable Support
@@ -108,7 +108,7 @@ namespace GenHTTP.Core
                         Content.Dispose();
                     }
                 }
-                
+
                 disposed = true;
             }
         }
@@ -116,8 +116,9 @@ namespace GenHTTP.Core
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
-        
+
         #endregion
 
     }

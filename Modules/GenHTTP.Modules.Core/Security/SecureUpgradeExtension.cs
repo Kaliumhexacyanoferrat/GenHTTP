@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Collections.Generic;
-using System.Text;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Modules;
@@ -61,7 +59,7 @@ namespace GenHTTP.Modules.Core.Security
 
         public void Intercept(IRequest request, IResponse response)
         {
-
+            // reponse does not need to get modified
         }
 
         private string GetRedirectLocation(IRequest request)

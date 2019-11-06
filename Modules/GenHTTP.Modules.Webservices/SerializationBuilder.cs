@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
@@ -17,7 +15,7 @@ namespace GenHTTP.Modules.Webservices
         #region Functionality
 
         public SerializationBuilder Default(ContentType contentType) => Default(new FlexibleContentType(contentType));
-        
+
         public SerializationBuilder Default(FlexibleContentType contentType)
         {
             _Default = contentType;

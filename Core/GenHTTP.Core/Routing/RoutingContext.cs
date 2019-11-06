@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Linq;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Text;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
@@ -24,7 +22,7 @@ namespace GenHTTP.Core.Routing
         public IRequest Request { get; }
 
         public string ScopedPath { get; protected set; }
-        
+
         #endregion
 
         #region Initialization
@@ -50,12 +48,12 @@ namespace GenHTTP.Core.Routing
                 ScopedPath = (ScopedPath.Length > 1) ? ScopedPath.Substring(segment.Length + 1) : "/";
             }
         }
-                        
+
         public void RegisterContent(IContentProvider contentProvider)
         {
             ContentProvider = contentProvider;
         }
-        
+
         public string? Route(string route)
         {
             if (string.IsNullOrWhiteSpace(route))
@@ -77,7 +75,7 @@ namespace GenHTTP.Core.Routing
 
             return Router.Route(route, Math.Max(0, depth));
         }
-        
+
         #endregion
 
     }

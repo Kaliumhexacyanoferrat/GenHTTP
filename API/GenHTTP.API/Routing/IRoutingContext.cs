@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using GenHTTP.Api.Modules;
+﻿using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Routing
@@ -14,7 +10,7 @@ namespace GenHTTP.Api.Routing
     /// </summary>
     public interface IRoutingContext
     {
-        
+
         /// <summary>
         /// The router responsible for this request.
         /// </summary>
@@ -24,7 +20,7 @@ namespace GenHTTP.Api.Routing
         /// The request to be handled.
         /// </summary>
         IRequest Request { get; }
-        
+
         /// <summary>
         /// The remaining part of the request URI after
         /// the router chain has processed the request.
@@ -44,7 +40,7 @@ namespace GenHTTP.Api.Routing
         /// <param name="route">The resource to be accessed</param>
         /// <returns>The relative path to the resource, if it can be determined</returns>
         string? Route(string route);
-        
+
     }
 
 }

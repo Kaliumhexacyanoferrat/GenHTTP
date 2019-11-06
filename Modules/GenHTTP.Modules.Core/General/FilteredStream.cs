@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Buffers;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace GenHTTP.Modules.Core.General
 {

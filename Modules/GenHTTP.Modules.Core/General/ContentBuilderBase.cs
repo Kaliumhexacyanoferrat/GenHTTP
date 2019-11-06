@@ -1,8 +1,4 @@
 ﻿using GenHTTP.Api.Modules;
-using GenHTTP.Api.Protocol;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace GenHTTP.Modules.Core.General
 {
@@ -18,7 +14,7 @@ namespace GenHTTP.Modules.Core.General
             _Modification = modification;
             return this;
         }
-        
+
         public abstract IContentProvider Build();
 
         #endregion

@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 
 namespace GenHTTP.Modules.Webservices.Util
 {
-    
+
     internal static class PathHelper
     {
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Modules.Templating
 {
@@ -13,6 +9,6 @@ namespace GenHTTP.Api.Modules.Templating
     /// <typeparam name="T">The type of model to be returned</typeparam>
     /// <param name="request">The current request</param>
     /// <returns>The newly created model instance</returns>
-    public delegate T ModelProvider<T>(IRequest request);
+    public delegate T ModelProvider<out T>(IRequest request);
 
 }

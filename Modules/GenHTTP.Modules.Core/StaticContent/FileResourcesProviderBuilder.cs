@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Routing;
@@ -14,9 +11,9 @@ namespace GenHTTP.Modules.Core.StaticContent
     public class FileResourcesProviderBuilder : RouterBuilderBase<FileResourcesProviderBuilder>
     {
         private DirectoryInfo? _Directory;
-        
+
         #region Functionality
-                
+
         public FileResourcesProviderBuilder Directory(DirectoryInfo directory)
         {
             _Directory = directory;
@@ -34,7 +31,7 @@ namespace GenHTTP.Modules.Core.StaticContent
             {
                 throw new DirectoryNotFoundException($"The given directory does not exist: '{_Directory.FullName}'");
             }
-            
+
             return new FileResourcesProvider(_Directory, _Template, _ErrorHandler);
         }
 

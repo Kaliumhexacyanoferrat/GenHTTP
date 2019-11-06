@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
@@ -16,14 +13,14 @@ namespace GenHTTP.Modules.Core.StaticContent
     {
 
         #region Get-/Setters
-        
+
         public DirectoryInfo Directory { get; }
 
         #endregion
 
         #region Initialization
 
-        public FileResourcesProvider(DirectoryInfo directory, 
+        public FileResourcesProvider(DirectoryInfo directory,
                                      IRenderer<TemplateModel>? template,
                                      IContentProvider? errorHandler) : base(template, errorHandler)
         {
@@ -33,7 +30,7 @@ namespace GenHTTP.Modules.Core.StaticContent
         #endregion
 
         #region Functionality
-        
+
         public override void HandleContext(IEditableRoutingContext current)
         {
             current.Scope(this);

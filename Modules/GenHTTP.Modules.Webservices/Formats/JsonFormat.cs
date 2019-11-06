@@ -11,7 +11,8 @@ namespace GenHTTP.Modules.Webservices.Formats
     public class JsonFormat : ISerializationFormat
     {
 
-        private static readonly JsonSerializerSettings SETTINGS = new JsonSerializerSettings() { 
+        private static readonly JsonSerializerSettings SETTINGS = new JsonSerializerSettings()
+        {
             NullValueHandling = NullValueHandling.Ignore
         };
 

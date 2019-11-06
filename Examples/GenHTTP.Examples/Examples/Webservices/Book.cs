@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GenHTTP.Examples.Examples.Webservices
+﻿namespace GenHTTP.Examples.Examples.Webservices
 {
-    
+
     public class Book
     {
 

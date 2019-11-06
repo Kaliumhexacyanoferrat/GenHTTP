@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-
-using GenHTTP.Api.Infrastructure;
+﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
 
@@ -13,7 +8,7 @@ namespace GenHTTP.Modules.Core.Templating
     public class PlaceholderRendererBuilder : IBuilder<IRenderer<TemplateModel>>
     {
         private IResourceProvider? _TemplateProvider;
-        
+
         #region Functionality
 
         public PlaceholderRendererBuilder TemplateProvider(IResourceProvider templateProvider)

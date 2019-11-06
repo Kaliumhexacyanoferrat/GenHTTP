@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
 namespace GenHTTP.Api.Modules
 {
@@ -34,7 +31,7 @@ namespace GenHTTP.Api.Modules
         /// </summary>
         /// <returns>The resource to be accessed</returns>
         Stream GetResource();
-        
+
     }
 
 }

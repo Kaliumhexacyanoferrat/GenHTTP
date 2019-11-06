@@ -1,7 +1,7 @@
-﻿using GenHTTP.Api.Protocol;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
+
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Core.Protocol
 {

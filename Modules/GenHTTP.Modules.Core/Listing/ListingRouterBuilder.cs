@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using GenHTTP.Api.Infrastructure;
+﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Routing;
 
@@ -16,7 +12,7 @@ namespace GenHTTP.Modules.Core.Listing
         private string? _Directory;
 
         private ResponseModification? _Modification;
-        
+
         #region Functionality
 
         public ListingRouterBuilder Directory(string directory)

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GenHTTP.Modules.Webservices
+﻿namespace GenHTTP.Modules.Webservices
 {
-    
+
     /// <summary>
     /// Entry point to add webservice resources to another router.
     /// </summary>

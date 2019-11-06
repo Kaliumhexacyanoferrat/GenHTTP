@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
@@ -109,7 +107,7 @@ namespace GenHTTP.Modules.Core
 
             return reader.ReadToEnd();
         }
-        
+
         public static string? HostWithoutPort(this IRequest request)
         {
             var host = request.Host;

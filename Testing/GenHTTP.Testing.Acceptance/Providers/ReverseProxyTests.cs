@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -28,7 +27,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
                 {
                     return request.Respond().Header("Location", $"http://localhost:{request.EndPoint.Port}/target");
                 }
-                
+
                 var content = new MemoryStream(Encoding.UTF8.GetBytes("Hello World!"));
 
                 var response = request.Respond().Content(content, ContentType.TextPlain);

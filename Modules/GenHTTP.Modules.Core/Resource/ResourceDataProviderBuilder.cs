@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
+﻿using System.Reflection;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Modules;
@@ -13,7 +10,7 @@ namespace GenHTTP.Modules.Core.Resource
     {
         private Assembly? _Assembly;
         private string? _Name;
-        
+
         #region Functionality
 
         public ResourceDataProviderBuilder Assembly(Assembly assembly)
@@ -39,7 +36,7 @@ namespace GenHTTP.Modules.Core.Resource
             {
                 _Assembly = System.Reflection.Assembly.GetCallingAssembly();
             }
-            
+
             return new ResourceDataProvider(_Assembly, _Name);
         }
 

@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
 using GenHTTP.Modules.Core.Listing;
 
 namespace GenHTTP.Modules.Core
 {
-    
+
     public static class DirectoryListing
     {
 

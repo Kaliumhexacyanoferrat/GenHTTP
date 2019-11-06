@@ -1,7 +1,5 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Collections.Generic;
-using System.Text;
 
 namespace GenHTTP.Api.Protocol
 {
@@ -63,7 +61,7 @@ namespace GenHTTP.Api.Protocol
         /// Anything else - data.
         /// </summary>
         ApplicationOctetStream,
-        
+
         /// <summary>
         /// A MP4 audio file.
         /// </summary>

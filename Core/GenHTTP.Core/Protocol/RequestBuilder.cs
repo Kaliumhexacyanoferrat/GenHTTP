@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Text.RegularExpressions;
 
 using GenHTTP.Api.Infrastructure;
@@ -23,9 +22,9 @@ namespace GenHTTP.Core.Protocol
 
         private Stream? _Content;
 
-        private Dictionary<string, string> _Query = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+        private readonly Dictionary<string, string> _Query = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
-        private CookieCollection _Cookies = new CookieCollection();
+        private readonly CookieCollection _Cookies = new CookieCollection();
 
         #region Get-/Setters
 
@@ -134,7 +133,7 @@ namespace GenHTTP.Core.Protocol
 
             return this;
         }
-        
+
         public RequestBuilder Content(Stream content)
         {
             _Content = content;

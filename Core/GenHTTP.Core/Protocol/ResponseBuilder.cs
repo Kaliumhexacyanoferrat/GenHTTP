@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
@@ -21,10 +20,10 @@ namespace GenHTTP.Core.Protocol
         private DateTime? _Expires;
         private DateTime? _Modified;
 
-        private List<string> _RawCookies = new List<string>();
-        private CookieCollection _Cookies = new CookieCollection();
+        private readonly List<string> _RawCookies = new List<string>();
+        private readonly CookieCollection _Cookies = new CookieCollection();
 
-        private HeaderCollection _Headers = new HeaderCollection();
+        private readonly HeaderCollection _Headers = new HeaderCollection();
 
         #region Get-/Setters
 
@@ -71,7 +70,7 @@ namespace GenHTTP.Core.Protocol
 
             return this;
         }
-        
+
         public IResponseBuilder Cookie(Cookie cookie)
         {
             _Cookies[cookie.Name] = cookie;
@@ -108,9 +107,9 @@ namespace GenHTTP.Core.Protocol
             return this;
         }
 
-        public IResponseBuilder Status(int status, string phrase)
+        public IResponseBuilder Status(int status, string reason)
         {
-            _Status = new FlexibleResponseStatus(status, phrase);
+            _Status = new FlexibleResponseStatus(status, reason);
             return this;
         }
 
@@ -119,7 +118,7 @@ namespace GenHTTP.Core.Protocol
             _RawCookies.Add(cookie);
             return this;
         }
-        
+
         public IResponse Build()
         {
             if (_Status == null)

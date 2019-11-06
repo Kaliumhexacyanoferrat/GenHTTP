@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 
 using GenHTTP.Api.Modules;
@@ -34,7 +32,7 @@ namespace GenHTTP.Modules.Core.Resource
         {
             return new MemoryStream(Encoding.UTF8.GetBytes(Content));
         }
-        
+
         #endregion
 
     }

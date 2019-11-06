@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace GenHTTP.Api.Protocol
 {
@@ -62,13 +60,13 @@ namespace GenHTTP.Api.Protocol
         public FlexibleRequestMethod(string rawType)
         {
             RawMethod = rawType;
-            
+
             if (Enum.TryParse<RequestMethod>(rawType, out var type))
             {
                 KnownMethod = type;
             }
         }
-        
+
         #endregion
 
         #region Convenience
@@ -80,7 +78,7 @@ namespace GenHTTP.Api.Protocol
         public static bool operator ==(FlexibleRequestMethod method, string rawMethod) => method.RawMethod == rawMethod;
 
         public static bool operator !=(FlexibleRequestMethod method, string rawMethod) => method.RawMethod != rawMethod;
-        
+
         public override bool Equals(object obj) => obj is FlexibleRequestMethod method && RawMethod == method.RawMethod;
 
         public override int GetHashCode() => RawMethod.GetHashCode();

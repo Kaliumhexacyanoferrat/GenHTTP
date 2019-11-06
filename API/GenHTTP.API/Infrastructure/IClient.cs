@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Text;
+﻿using System.Net;
 
 namespace GenHTTP.Api.Infrastructure
 {
-    
+
     /// <summary>
     /// The remote client which requests a resource from the server.
     /// </summary>

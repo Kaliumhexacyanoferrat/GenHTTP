@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -28,7 +27,7 @@ namespace GenHTTP.Modules.Core.Templating
 
             return response.Content(stream, ContentType.TextHtml);
         }
-        
+
     }
 
 }

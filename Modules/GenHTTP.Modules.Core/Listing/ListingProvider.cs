@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 using System.Web;
 
 using GenHTTP.Api.Modules;
@@ -37,7 +34,7 @@ namespace GenHTTP.Modules.Core.Listing
         protected override IResponseBuilder HandleInternal(IRequest request)
         {
             var scoped = request.Routing!.ScopedPath;
-            
+
             var info = new DirectoryInfo(Path);
 
             var model = new ListingModel(request, info.GetDirectories(), info.GetFiles(), scoped != "/");

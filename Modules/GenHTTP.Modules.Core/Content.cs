@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Core.General;
 
@@ -16,7 +12,7 @@ namespace GenHTTP.Modules.Core
         {
             return new StringProviderBuilder().Data(content).Type(ContentType.TextPlain);
         }
-        
+
     }
 
 }

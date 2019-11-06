@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
@@ -30,7 +28,7 @@ namespace GenHTTP.Api.Routing
         /// </summary>
         /// <param name="current">The routing content to be adjusted by the router</param>
         void HandleContext(IEditableRoutingContext current);
-        
+
         /// <summary>
         /// Fetches the template to be used for responses generated 
         /// by this router.

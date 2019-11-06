@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Net;
-using System.Net.Sockets;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Routing;
@@ -18,7 +13,7 @@ namespace GenHTTP.Core.Infrastructure
 
     internal class ThreadedServer : IServer
     {
-        private EndPointCollection _EndPoints;
+        private readonly EndPointCollection _EndPoints;
 
         #region Get-/Setters
 
@@ -35,7 +30,7 @@ namespace GenHTTP.Core.Infrastructure
         public IEndPointCollection EndPoints => _EndPoints;
 
         internal ServerConfiguration Configuration { get; }
-        
+
         #endregion
 
         #region Constructors
@@ -75,6 +70,7 @@ namespace GenHTTP.Core.Infrastructure
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion

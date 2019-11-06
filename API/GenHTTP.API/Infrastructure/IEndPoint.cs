@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Text;
 
 namespace GenHTTP.Api.Infrastructure
 {
-    
+
     /// <summary>
     /// An endpoint the server will listen on for incoming requests.
     /// </summary>
-    public interface IEndPoint
+    public interface IEndPoint : IDisposable
     {
 
         /// <summary>
@@ -30,7 +28,7 @@ namespace GenHTTP.Api.Infrastructure
         /// Specifies, whether this is is an endpoint secured via SSL/TLS.
         /// </summary>
         bool Secure { get; }
-    
+
     }
 
 }

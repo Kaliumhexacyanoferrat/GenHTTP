@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
@@ -92,7 +91,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
         #endregion
 
         #region Client Hello (very hacky at the moment ...)
-        
+
         private string? GetHostName(ReadAheadStream stream, IEnumerable<string> supportedHosts)
         {
             var str = Encoding.ASCII.GetString(stream.Buffer.ToArray());

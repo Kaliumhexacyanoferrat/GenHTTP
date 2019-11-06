@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Cache;
-using System.Text;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Routing;
@@ -112,6 +110,7 @@ namespace GenHTTP.Testing.Acceptance.Domain
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion

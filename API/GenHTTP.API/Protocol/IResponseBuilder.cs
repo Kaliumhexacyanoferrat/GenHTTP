@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 using GenHTTP.Api.Infrastructure;
 
@@ -52,7 +50,7 @@ namespace GenHTTP.Api.Protocol
         /// </summary>
         /// <param name="modificationDate">The point in time when the requested resource has been modified last</param>
         IResponseBuilder Modified(DateTime modificationDate);
-        
+
         /// <summary>
         /// Adds the given cookie to the response.
         /// </summary>

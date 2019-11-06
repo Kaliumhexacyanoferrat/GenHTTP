@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
-using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
 using GenHTTP.Modules.Core.General;
@@ -36,7 +33,7 @@ namespace GenHTTP.Modules.Core.Virtualization
             }
 
             Hosts = hosts;
-            
+
             if (defaultRoute != null)
             {
                 defaultRoute.Parent = this;
@@ -44,11 +41,11 @@ namespace GenHTTP.Modules.Core.Virtualization
 
             DefaultRoute = defaultRoute;
         }
-        
+
         #endregion
 
         #region Functionality
-        
+
         public override void HandleContext(IEditableRoutingContext current)
         {
             current.Scope(this);

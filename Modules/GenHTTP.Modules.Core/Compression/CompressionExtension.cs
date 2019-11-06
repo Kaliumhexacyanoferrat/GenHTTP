@@ -1,8 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 using System.Linq;
 
 using GenHTTP.Api.Infrastructure;
@@ -62,7 +60,7 @@ namespace GenHTTP.Modules.Core.Compression
                 }
             }
         }
-        
+
         private bool ShouldCompress(string path, ContentType? type)
         {
             if (type != null)
@@ -88,7 +86,7 @@ namespace GenHTTP.Modules.Core.Compression
                         {
                             return true;
                         }
-                }                
+                }
             }
 
             if (path.Contains("."))
@@ -101,7 +99,7 @@ namespace GenHTTP.Modules.Core.Compression
 
             return false;
         }
-        
+
         #endregion
 
     }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace GenHTTP.Api.Protocol
 {
@@ -9,6 +7,7 @@ namespace GenHTTP.Api.Protocol
     /// Thrown by the server, if the HTTP protocol has
     /// somehow been violated (either by the server or the client).
     /// </summary>
+    [Serializable]
     public class ProtocolException : Exception
     {
 

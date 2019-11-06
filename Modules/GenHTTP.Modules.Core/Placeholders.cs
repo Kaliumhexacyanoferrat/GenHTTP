@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using GenHTTP.Api.Infrastructure;
+﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
 
@@ -13,7 +9,7 @@ namespace GenHTTP.Modules.Core
 
     public static class Placeholders
     {
-        
+
         public static PlaceholderRendererBuilder Template(IBuilder<IResourceProvider> templateProvider)
         {
             return Template(templateProvider.Build());

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-
-using GenHTTP.Api.Modules;
+﻿using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Infrastructure
@@ -25,7 +20,7 @@ namespace GenHTTP.Api.Infrastructure
         /// <param name="request">The request received from the client</param>
         /// <returns>A response, if the extension decides to intercept this request</returns>
         IContentProvider? Intercept(IRequest request);
-        
+
         /// <summary>
         /// Will be invoked, before the server will send the given response
         /// to the client. The response may be modified to the needs of your

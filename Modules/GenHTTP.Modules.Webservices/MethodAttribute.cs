@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Webservices
 {
-    
+
     /// <summary>
     /// Attribute indicating that this method can be invoked
     /// via a webservice call.
@@ -26,7 +24,7 @@ namespace GenHTTP.Modules.Webservices
         /// The path this method is availabe at.
         /// </summary>
         public string? Path { get; set; }
-                
+
         #endregion
 
         #region Initialization

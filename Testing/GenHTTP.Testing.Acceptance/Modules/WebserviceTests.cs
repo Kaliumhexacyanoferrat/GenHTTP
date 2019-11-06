@@ -199,7 +199,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
                 Assert.Equal(1234.56, result.Nullable);
             });
         }
-        
+
         [Fact]
         public void TestException()
         {

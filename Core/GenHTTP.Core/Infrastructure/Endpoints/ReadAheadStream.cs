@@ -3,8 +3,6 @@ using System.Buffers;
 using System.Diagnostics;
 using System.IO;
 
-using GenHTTP.Api.Protocol;
-
 namespace GenHTTP.Core.Infrastructure.Endpoints
 {
 
@@ -35,7 +33,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
         internal MemoryStream Buffer { get; }
 
         private Stream BaseStream { get; }
-        
+
         #endregion
 
         #region Initialization
@@ -103,7 +101,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-            
+
             if (disposing)
             {
                 BaseStream.Dispose();

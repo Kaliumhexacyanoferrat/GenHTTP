@@ -19,7 +19,7 @@ namespace GenHTTP.Core.Routing
     {
 
         #region Get-/Setters
-        
+
         public IRouter Content { get; }
 
         public IRouter Parent
@@ -85,7 +85,7 @@ namespace GenHTTP.Core.Routing
         {
             return null;
         }
-        
+
         #endregion
 
     }

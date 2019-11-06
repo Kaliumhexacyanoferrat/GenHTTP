@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using GenHTTP.Api.Modules;
+﻿using GenHTTP.Api.Modules;
 
 namespace GenHTTP.Api.Routing
 {
@@ -13,7 +9,7 @@ namespace GenHTTP.Api.Routing
     /// </summary>
     public interface IEditableRoutingContext : IRoutingContext
     {
-        
+
         /// <summary>
         /// Scopes the context to the given router. This method
         /// must be called by any router when handling the
@@ -22,7 +18,7 @@ namespace GenHTTP.Api.Routing
         /// <param name="router">The router to scope the request to</param>
         /// <param name="segment">The segment which has been chunked of by the router from the request URI, if any</param>
         void Scope(IRouter router, string? segment = null);
-                
+
         /// <summary>
         /// Registers the given content provider to be responsible
         /// to generate the content for the current request.

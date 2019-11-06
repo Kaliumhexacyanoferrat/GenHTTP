@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
@@ -15,7 +13,7 @@ namespace GenHTTP.Modules.Core.General
         private IRouter? _Parent;
 
         #region Get-/Setters
-        
+
         public IRouter Parent
         {
             get { return _Parent ?? throw new InvalidOperationException("Parent has not been set"); }
@@ -39,7 +37,7 @@ namespace GenHTTP.Modules.Core.General
         #endregion
 
         #region Functionality
-        
+
         public IRenderer<TemplateModel> GetRenderer()
         {
             return Template ?? Parent.GetRenderer();

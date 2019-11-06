@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using GenHTTP.Modules.Core.General;
+﻿using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core
 {

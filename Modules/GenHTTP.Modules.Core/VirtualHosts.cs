@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using GenHTTP.Modules.Core.Virtualization;
+﻿using GenHTTP.Modules.Core.Virtualization;
 
 namespace GenHTTP.Modules.Core
 {

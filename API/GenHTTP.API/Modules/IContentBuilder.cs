@@ -1,22 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Api.Modules
 {
-    
+
     /// <summary>
     /// A builder which will provide an <see cref="IContentProvider"/>.
     /// </summary>
     public interface IContentBuilder : IContentBuilder<IContentProvider>
     {
-        
+
 
     }
-    
+
     /// <summary>
     /// A builder to provide a more specific content provider type.
     /// </summary>

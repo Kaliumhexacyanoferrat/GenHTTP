@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
 using Xunit;
 
@@ -60,7 +57,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var runner = GetEnvironment();
 
             using var response = runner.GetResponse("/my.txt");
-            
+
             Assert.Equal("Hello World!", response.GetContent());
         }
 

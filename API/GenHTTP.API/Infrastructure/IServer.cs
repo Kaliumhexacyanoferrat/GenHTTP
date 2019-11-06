@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 
 using GenHTTP.Api.Routing;
 
@@ -50,7 +49,7 @@ namespace GenHTTP.Api.Infrastructure
         /// incoming HTTP requests.
         /// </summary>
         IRouter Router { get; }
-                  
+
     }
 
 }

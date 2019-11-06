@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net.Sockets;
-using System.Text;
+﻿using System.IO;
 using System.Threading.Tasks;
-
-using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Core.Protocol
 {
@@ -17,7 +11,8 @@ namespace GenHTTP.Core.Protocol
         {
             var result = 0;
 
-            var task = Task.Run(async () => {
+            var task = Task.Run(async () =>
+            {
                 result = await stream.ReadAsync(buffer, offset, count);
             });
 
@@ -27,7 +22,7 @@ namespace GenHTTP.Core.Protocol
             {
                 return -1;
             }
-                        
+
             return result;
         }
 

@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using System.Linq;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
-using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
 using GenHTTP.Modules.Core.General;
@@ -18,7 +15,7 @@ namespace GenHTTP.Modules.Core.StaticContent
     {
 
         #region Get-/Setters
-        
+
         private Dictionary<string, IContentProvider> QualifiedNames { get; }
 
         #endregion
@@ -26,7 +23,7 @@ namespace GenHTTP.Modules.Core.StaticContent
         #region Initialization
 
         public EmbeddedResourcesProvider(Assembly assembly,
-                                         string root, 
+                                         string root,
                                          IRenderer<TemplateModel>? template,
                                          IContentProvider? errorHandler) : base(template, errorHandler)
         {
@@ -43,7 +40,7 @@ namespace GenHTTP.Modules.Core.StaticContent
         #endregion
 
         #region Functionality
-        
+
         public override void HandleContext(IEditableRoutingContext current)
         {
             current.Scope(this);

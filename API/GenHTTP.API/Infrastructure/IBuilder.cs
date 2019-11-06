@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GenHTTP.Api.Infrastructure
+﻿namespace GenHTTP.Api.Infrastructure
 {
 
     /// <summary>
@@ -14,7 +10,7 @@ namespace GenHTTP.Api.Infrastructure
     /// Builders must not change their internal state when building an object, allowing
     /// builder instances to be re-used if required.
     /// </remarks>
-    public interface IBuilder<T>
+    public interface IBuilder<out T>
     {
 
         /// <summary>

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Routing;
 using GenHTTP.Api.Modules;
@@ -17,11 +15,11 @@ namespace GenHTTP.Modules.Core.Layouting
         private IContentProvider? _DefaultContent;
 
         #region Get-/Setters
-        
+
         private Dictionary<string, IRouter> Routes { get; }
 
         private Dictionary<string, IContentProvider> Content { get; }
-        
+
         #endregion
 
         #region Initialization

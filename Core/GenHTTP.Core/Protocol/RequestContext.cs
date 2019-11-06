@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace GenHTTP.Core.Protocol
@@ -34,7 +32,7 @@ namespace GenHTTP.Core.Protocol
             Scanner = new Scanner(buffer);
             Request = new RequestBuilder();
         }
-            
+
         #endregion
 
         #region Functionality
@@ -42,7 +40,7 @@ namespace GenHTTP.Core.Protocol
         public async Task<RequestContext> GetNext()
         {
             var next = new RequestContext(await Buffer.GetNext());
-            
+
             Dispose();
 
             return next;
@@ -70,6 +68,7 @@ namespace GenHTTP.Core.Protocol
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion

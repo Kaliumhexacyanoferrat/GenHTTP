@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Text;
 
 using Xunit;
 
@@ -61,7 +59,7 @@ namespace GenHTTP.Testing.Acceptance.Routing
             using var response = runner.GetResponse();
             Assert.Equal("Oh misfortune!", response.GetContent());
         }
-        
+
     }
 
 }

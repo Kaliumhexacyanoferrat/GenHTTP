@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace GenHTTP.Api.Infrastructure
 {
- 
+
     /// <summary>
     /// Provides a list of endpoints a server is listening to.
     /// </summary>

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-
-using GenHTTP.Api.Infrastructure;
+﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
 
@@ -14,7 +9,7 @@ namespace GenHTTP.Modules.Core.General
     {
         private IResourceProvider? _ResourceProvider;
         private ContentType? _ContentType;
-        
+
         #region Functionality
 
         public DownloadProviderBuilder Resource(IResourceProvider resource)

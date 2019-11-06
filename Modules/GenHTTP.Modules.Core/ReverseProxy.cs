@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using GenHTTP.Modules.Core.Proxy;
+﻿using GenHTTP.Modules.Core.Proxy;
 
 namespace GenHTTP.Modules.Core
 {

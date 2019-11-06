@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Protocol;
 
@@ -53,7 +51,7 @@ namespace GenHTTP.Modules.Webservices
                 return GetFormat(new FlexibleContentType(accepted)) ?? GetFormat(Default);
             }
 
-            return GetFormat(Default);            
+            return GetFormat(Default);
         }
 
         private ISerializationFormat? GetFormat(FlexibleContentType contentType)

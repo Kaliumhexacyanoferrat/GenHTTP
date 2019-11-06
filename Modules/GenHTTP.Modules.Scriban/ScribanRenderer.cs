@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using GenHTTP.Api.Modules;
+﻿using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
 using GenHTTP.Modules.Core;
 
@@ -19,7 +15,7 @@ namespace GenHTTP.Modules.Scriban
         #region Get-/Setters
 
         public IResourceProvider TemplateProvider { get; }
-        
+
         #endregion
 
         #region Initialization

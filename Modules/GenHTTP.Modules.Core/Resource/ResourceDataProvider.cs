@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using System.Linq;
 using System.IO;
 
@@ -14,7 +12,7 @@ namespace GenHTTP.Modules.Core.Resource
     {
 
         #region Get-/Setters
-        
+
         public Assembly Source { get; }
 
         public string QualifiedName { get; }
@@ -28,8 +26,7 @@ namespace GenHTTP.Modules.Core.Resource
         public ResourceDataProvider(Assembly source, string name)
         {
             var fqn = source.GetManifestResourceNames()
-                            .Where(n => n.EndsWith(name))
-                            .FirstOrDefault();
+                            .FirstOrDefault(n => n.EndsWith(name));
 
             QualifiedName = fqn ?? throw new InvalidOperationException($"Resource '{name}' does not exist in assembly '{source}'");
             Source = source;
@@ -38,12 +35,12 @@ namespace GenHTTP.Modules.Core.Resource
         #endregion
 
         #region Functionality
-        
+
         public Stream GetResource()
         {
             return Source.GetManifestResourceStream(QualifiedName);
         }
-        
+
         #endregion
 
     }

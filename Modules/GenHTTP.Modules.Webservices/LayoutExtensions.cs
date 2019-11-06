@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using GenHTTP.Modules.Core.Layouting;
+﻿using GenHTTP.Modules.Core.Layouting;
 
 namespace GenHTTP.Modules.Webservices
 {
-    
+
     /// <summary>
     /// Allows to easily add resources to layouts.
     /// </summary>

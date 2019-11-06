@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Text;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Core.Infrastructure.Configuration;
@@ -15,7 +14,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
         #region Get-/Setters
 
         private IServer Server { get; }
-        
+
         private NetworkConfiguration NetworkConfiguration { get; }
 
         #endregion
@@ -26,7 +25,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
         {
             Server = server;
             NetworkConfiguration = networkConfiguration;
-            
+
             foreach (var config in configuration)
             {
                 Add(Start(config));
@@ -63,7 +62,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
             {
                 if (disposing)
                 {
-                    foreach (EndPoint endpoint in this)
+                    foreach (IEndPoint endpoint in this)
                     {
                         try
                         {
@@ -85,6 +84,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion

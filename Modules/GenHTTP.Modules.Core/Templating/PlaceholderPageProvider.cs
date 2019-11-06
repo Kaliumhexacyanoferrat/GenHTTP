@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-
-using GenHTTP.Api.Modules;
+﻿using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
 using GenHTTP.Api.Protocol;
 

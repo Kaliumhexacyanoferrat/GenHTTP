@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using GenHTTP.Api.Routing;
+﻿using GenHTTP.Api.Routing;
 using GenHTTP.Modules.Core;
 
 namespace GenHTTP.Examples.Examples.Infrastructure

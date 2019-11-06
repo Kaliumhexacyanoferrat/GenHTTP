@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Modules.Templating
 {
@@ -25,7 +21,7 @@ namespace GenHTTP.Api.Modules.Templating
         /// The request which caused this rendering call.
         /// </summary>
         public IRequest Request { get; }
-        
+
         #endregion
 
         #region Functionality

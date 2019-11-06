@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace GenHTTP.Core
 {
@@ -30,7 +26,7 @@ namespace GenHTTP.Core
         public static readonly Regex HEADER_DEFINITION = new Regex(@"^([^: \n]+): ");
 
         public static readonly Regex HEADER_CONTENT = new Regex(@"^([^\n]+)\r\n");
-        
+
     }
 
 }
