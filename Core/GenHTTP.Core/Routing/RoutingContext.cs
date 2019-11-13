@@ -11,7 +11,7 @@ namespace GenHTTP.Core.Routing
 
     internal class RoutingContext : IEditableRoutingContext
     {
-        private static readonly Regex URI_START = new Regex("^[a-z]+:");
+        private static readonly Regex URI_START = new Regex("^[a-z]+:", RegexOptions.Compiled);
 
         #region Get-/Setters
 

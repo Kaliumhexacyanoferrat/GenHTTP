@@ -9,7 +9,7 @@ namespace GenHTTP.Modules.Core.Templating
 
     public class PlaceholderRender<T> : IRenderer<T> where T : IBaseModel
     {
-        private readonly static Regex PLACEHOLDER = new Regex(@"\[([a-zA-Z0-9]+)\]");
+        private readonly static Regex PLACEHOLDER = new Regex(@"\[([a-zA-Z0-9]+)\]", RegexOptions.Compiled);
 
         private string? _Template;
 

@@ -29,9 +29,13 @@ namespace GenHTTP.Core.Protocol
             StringBuffer = null;
         }
 
-        public RequestBuffer(byte[] data)
+        public RequestBuffer(byte[] data, int length)
         {
-            Data = new MemoryStream(data);
+            Data = new MemoryStream();
+
+            Data.Write(data, 0, length);
+            Data.Seek(0, SeekOrigin.Begin);
+
             StringBuffer = null;
         }
 
@@ -41,13 +45,11 @@ namespace GenHTTP.Core.Protocol
 
         public async Task Append(byte[] data, int bytesRead)
         {
-            var position = Data.Position;
-
             Data.Seek(0, SeekOrigin.End);
 
             await Data.WriteAsync(data, 0, bytesRead);
 
-            Data.Seek(position, SeekOrigin.Begin);
+            Data.Seek(-bytesRead, SeekOrigin.Current);
 
             StringBuffer = null;
         }
@@ -111,7 +113,9 @@ namespace GenHTTP.Core.Protocol
         {
             if (Data.Position < Data.Length)
             {
-                var remaining = POOL.Rent((int)(Data.Length - Data.Position));
+                var length = (int)(Data.Length - Data.Position);
+
+                var remaining = POOL.Rent(length);
 
                 try
                 {
@@ -122,7 +126,7 @@ namespace GenHTTP.Core.Protocol
                     POOL.Return(remaining);
                 }
 
-                return new RequestBuffer(remaining);
+                return new RequestBuffer(remaining, length);
             }
 
             return new RequestBuffer();

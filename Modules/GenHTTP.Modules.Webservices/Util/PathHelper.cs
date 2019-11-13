@@ -7,9 +7,9 @@ namespace GenHTTP.Modules.Webservices.Util
     internal static class PathHelper
     {
 
-        private static readonly Regex EMPTY = new Regex("^(/|)$");
+        private static readonly Regex EMPTY = new Regex("^(/|)$", RegexOptions.Compiled);
 
-        private static readonly Regex VAR_PATTERN = new Regex(@"\:([a-z]+)", RegexOptions.IgnoreCase);
+        private static readonly Regex VAR_PATTERN = new Regex(@"\:([a-z]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         internal static Regex Parse(string? path)
         {

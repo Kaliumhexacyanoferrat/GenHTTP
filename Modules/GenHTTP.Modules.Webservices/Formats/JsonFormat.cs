@@ -24,7 +24,7 @@ namespace GenHTTP.Modules.Webservices.Formats
 
             var serializer = new JsonSerializer();
 
-            return serializer.Deserialize(jsonReader, type);
+            return serializer.Deserialize(jsonReader, type)!;
         }
 
         public IResponseBuilder Serialize(IRequest request, object response)
