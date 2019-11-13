@@ -90,23 +90,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         private void Handle(Socket client)
         {
-            if (!ThreadPool.QueueUserWorkItem(new WaitCallback(async (_) => await Accept(client))))
-            {
-                var error = new NetworkException("Thread pool did not accept worker. Connection dropped.");
-                Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, error);
-
-                try
-                {
-                    client.Disconnect(false);
-                    client.Close();
-
-                    client.Dispose();
-                }
-                catch (Exception e)
-                {
-                    Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, e);
-                }
-            }
+            Task.Run(() => Accept(client));
         }
 
         protected abstract Task Accept(Socket client);
