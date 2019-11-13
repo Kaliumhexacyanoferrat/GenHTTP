@@ -21,7 +21,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         protected NetworkConfiguration Configuration { get; }
 
-        private Thread Thread { get; set; }
+        private Task Task { get; set; }
 
         private IPEndPoint Endpoint { get; }
 
@@ -61,8 +61,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
             }
 
 
-            Thread = new Thread(new ThreadStart(async () => await Listen()));
-            Thread.Start();
+            Task = Task.Run(() => Listen());
         }
 
         #endregion
@@ -120,7 +119,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
                         Socket.Close();
                         Socket.Dispose();
 
-                        Thread.Join();
+                        Task.Wait();
                     }
                     catch (Exception e)
                     {
