@@ -19,6 +19,7 @@ namespace GenHTTP.Core
 
     internal class Scanner
     {
+        private const string NEW_LINE = "\r\n";
 
         #region Get-/Setters
 
@@ -50,65 +51,70 @@ namespace GenHTTP.Core
 
         internal Token NextToken()
         {
-            IsMatch(Pattern.WHITESPACE);
+            var content = Buffer.GetString();
 
-            if (IsMatch(Pattern.NEW_LINE))
+            if (Current == Token.Unknown)
             {
-                return Current = Token.NewLine;
+                return Match(content, " ", Token.Method);
             }
-
-            if (StatusLine)
+            else if (Current == Token.Method)
             {
-                if (Current != Token.Method)
+                return Match(content, " ", Token.Url);
+            }
+            else if (Current == Token.Url)
+            {
+                if (TryMatch(content, NEW_LINE, out var protocol))
                 {
-                    if (IsMatch(Pattern.METHOD))
-                    {
-                        return Current = Token.Method;
-                    }
-                }
-
-                if (Current != Token.Url)
-                {
-                    if (IsMatch(Pattern.URL))
-                    {
-                        return Current = Token.Url;
-                    }
-                }
-
-                if (IsMatch(Pattern.HTTP))
-                {
-                    StatusLine = false;
+                    Value = protocol.Substring(5);
                     return Current = Token.Protocol;
                 }
             }
-
-            if (IsMatch(Pattern.HEADER_DEFINITION))
+            else if (Current == Token.Protocol || Current == Token.HeaderContent)
             {
-                return Current = Token.HeaderDefinition;
+                if (content.StartsWith(NEW_LINE))
+                {
+                    Buffer.Advance(2);
+                    return Current = Token.NewLine;
+                }
+                else
+                {
+                    return Match(content, ":", Token.HeaderDefinition);
+                }
+            }
+            else if (Current == Token.HeaderDefinition)
+            {
+                return Match(content, NEW_LINE, Token.HeaderContent);
             }
 
-            if (IsMatch(Pattern.HEADER_CONTENT))
+            Value = string.Empty;
+            return Token.Unknown;
+        }
+        
+        private Token Match(string content, string separator, Token newToken)
+        {
+            if (TryMatch(content, separator, out var value))
             {
-                return Current = Token.HeaderContent;
+                Value = value;
+                return Current = newToken;
             }
 
-            return Current = Token.Unknown;
+            Value = string.Empty;
+            return Token.Unknown;
         }
 
-        private bool IsMatch(Regex re)
+        private bool TryMatch(string content, string separator, out string value)
         {
-            var content = Buffer.GetString();
+            var index = content.IndexOf(separator);
 
-            var match = re.Match(content);
-
-            if (match.Success)
+            if (index > -1)
             {
-                Value = match.Groups[1].Value;
-                Buffer.Advance((ushort)match.Length);
+                value = content.Substring(0, index).Trim();
+                Buffer.Advance((ushort)(index + separator.Length));
 
                 return true;
             }
 
+            value = string.Empty;
             return false;
         }
 

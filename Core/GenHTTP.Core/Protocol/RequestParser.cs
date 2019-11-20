@@ -53,7 +53,7 @@ namespace GenHTTP.Core
             return request;
         }
 
-        private async Task<Token> GetToken()
+        private async ValueTask<Token> GetToken()
         {
             var token = Context.Scanner.NextToken();
 
