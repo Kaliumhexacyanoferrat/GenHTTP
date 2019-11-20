@@ -1,6 +1,4 @@
-﻿using System.Text.RegularExpressions;
-
-using GenHTTP.Core.Protocol;
+﻿using GenHTTP.Core.Protocol;
 
 namespace GenHTTP.Core
 {
