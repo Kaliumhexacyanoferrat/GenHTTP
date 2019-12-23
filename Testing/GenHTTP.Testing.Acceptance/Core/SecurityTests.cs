@@ -126,7 +126,7 @@ namespace GenHTTP.Testing.Acceptance.Core
         [Fact]
         public void TestTransportPolicyDisabled()
         {
-            static void adjustments(IServerBuilder b)
+            static void adjustments(IServerHost b)
             {
                 b.StrictTransport(TimeSpan.FromSeconds(10), false, false);
                 b.StrictTransport(false);
@@ -188,7 +188,7 @@ namespace GenHTTP.Testing.Acceptance.Core
             }, host: "myserver");
         }
 
-        private static void RunSecure(Action<ushort, ushort> logic, Action<IServerBuilder>? adjustments = null, SecureUpgrade? mode = null, string host = "localhost")
+        private static void RunSecure(Action<ushort, ushort> logic, Action<IServerHost>? adjustments = null, SecureUpgrade? mode = null, string host = "localhost")
         {
             var content = Layout.Create().Add("index", Content.From("Hello Alice!"), true);
 
@@ -198,19 +198,18 @@ namespace GenHTTP.Testing.Acceptance.Core
 
             using var cert = GetCertificate();
 
-            var builder = runner.Builder
-                                .Router(content)
-                                .Bind(IPAddress.Any, runner.Port)
-                                .Bind(IPAddress.Any, port, new PickyCertificateProvider(host, cert), SslProtocols.Tls12);
-            
+            runner.Host.Router(content)
+                       .Bind(IPAddress.Any, runner.Port)
+                       .Bind(IPAddress.Any, port, new PickyCertificateProvider(host, cert), SslProtocols.Tls12);
+
             if (mode != null)
             {
-                builder.SecureUpgrade(mode.Value);
+                runner.Host.SecureUpgrade(mode.Value);
             }
 
-            adjustments?.Invoke(builder);
+            adjustments?.Invoke(runner.Host);
 
-            using var _ = builder.Build();
+            runner.Start();
 
             logic(runner.Port, port);
         }

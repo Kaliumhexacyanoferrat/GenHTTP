@@ -16,12 +16,12 @@ namespace GenHTTP.Testing.Acceptance.Core
         {
             using var runner = new TestRunner();
 
-            runner.Builder.RequestMemoryLimit(128)
-                          .TransferBufferSize(128)
-                          .RequestReadTimeout(TimeSpan.FromSeconds(2))
-                          .Backlog(1);
+            runner.Host.RequestMemoryLimit(128)
+                       .TransferBufferSize(128)
+                       .RequestReadTimeout(TimeSpan.FromSeconds(2))
+                       .Backlog(1);
 
-            using var _ = runner.Builder.Build();
+            runner.Start();
 
             using var response = runner.GetResponse();
 

@@ -4,7 +4,6 @@ using System.Net.Cache;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Routing;
-using GenHTTP.Core;
 using GenHTTP.Modules.Core;
 
 namespace GenHTTP.Testing.Acceptance.Domain
@@ -19,9 +18,7 @@ namespace GenHTTP.Testing.Acceptance.Domain
 
         public ushort Port { get; }
 
-        public IServerBuilder Builder { get; }
-
-        public IServer? Instance { get; protected set; }
+        public IServerHost Host { get; protected set; }
 
         #endregion
 
@@ -36,9 +33,9 @@ namespace GenHTTP.Testing.Acceptance.Domain
         {
             Port = NextPort();
 
-            Builder = Server.Create()
-                            .Router(Layout.Create())
-                            .Port(Port);
+            Host = GenHTTP.Core.Host.Create()
+                                    .Router(Layout.Create())
+                                    .Port(Port);
         }
 
         public static ushort NextPort()
@@ -53,7 +50,7 @@ namespace GenHTTP.Testing.Acceptance.Domain
         {
             var runner = new TestRunner();
 
-            runner.Instance = runner.Builder.Build();
+            runner.Host.Start();
 
             return runner;
         }
@@ -64,7 +61,7 @@ namespace GenHTTP.Testing.Acceptance.Domain
         {
             var runner = new TestRunner();
 
-            runner.Instance = runner.Builder.Router(router).Build();
+            runner.Host.Router(router).Start();
 
             return runner;
         }
@@ -72,6 +69,11 @@ namespace GenHTTP.Testing.Acceptance.Domain
         #endregion
 
         #region Functionality
+
+        public void Start()
+        {
+            Host.Start();
+        }
 
         public HttpWebRequest GetRequest(string? uri = null)
         {
@@ -99,8 +101,7 @@ namespace GenHTTP.Testing.Acceptance.Domain
             {
                 if (disposing)
                 {
-                    Instance?.Dispose();
-                    Instance = null;
+                    Host.Stop();
                 }
 
                 disposed = true;

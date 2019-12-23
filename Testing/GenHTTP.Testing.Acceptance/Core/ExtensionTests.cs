@@ -50,7 +50,7 @@ namespace GenHTTP.Testing.Acceptance.Core
         {
             using var runner = new TestRunner();
 
-            using var _ = runner.Builder.Extension(new MyExtensionBuilder()).Build();
+            runner.Host.Extension(new MyExtensionBuilder()).Start();
 
             using var response = runner.GetResponse();
 
@@ -65,7 +65,7 @@ namespace GenHTTP.Testing.Acceptance.Core
         {
             using var runner = new TestRunner();
 
-            using var _ = runner.Builder.Extension(new MyExtensionBuilder()).Build();
+            runner.Host.Extension(new MyExtensionBuilder()).Start();
 
             for (var i = 0; i < 2; i++)
             {

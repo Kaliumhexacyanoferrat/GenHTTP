@@ -1,6 +1,4 @@
-﻿using System;
-
-using GenHTTP.Core;
+﻿using GenHTTP.Core;
 
 namespace GenHTTP.Examples.CoreApp
 {
@@ -8,25 +6,15 @@ namespace GenHTTP.Examples.CoreApp
     public static class Program
     {
 
-        public static void Main(string[] args)
+        public static int Main(string[] args)
         {
             var project = Project.Build();
 
-            var server = Server.Create()
-                               .Router(project)
-                               .Console();
-
-#if DEBUG
-            server.Development();
-#endif
-
-            using (var instance = server.Build())
-            {
-                Console.WriteLine("Server is running ...");
-                Console.WriteLine("Please press any key to shutdown ...");
-
-                Console.ReadLine();
-            }
+            return Host.Create()
+                       .Router(project)
+                       .Console()
+                       .Debug()
+                       .Run();
         }
 
     }

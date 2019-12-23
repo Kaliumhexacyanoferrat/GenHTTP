@@ -11,7 +11,12 @@ namespace GenHTTP.Api.Infrastructure
     /// <summary>
     /// Allows to configure and create a new <see cref="IServer"/> instance.
     /// </summary>
-    public interface IServerBuilder : IBuilder<IServer>
+    public interface IServerBuilder : IServerBuilder<IServerBuilder> { }
+
+    /// <summary>
+    /// Allows to configure and create a new <see cref="IServer"/> instance.
+    /// </summary>
+    public interface IServerBuilder<T> : IBuilder<IServer>
     {
 
         #region Content
@@ -20,13 +25,13 @@ namespace GenHTTP.Api.Infrastructure
         /// Registers the router which will be used to handle all requests.
         /// </summary>
         /// <param name="routerBuilder">The router to be registered</param>
-        IServerBuilder Router(IRouterBuilder routerBuilder);
+        T Router(IRouterBuilder routerBuilder);
 
         /// <summary>
         /// Registers the router which will be used to handle all requests.
         /// </summary>
         /// <param name="routerBuilder">The router to be registered</param>
-        IServerBuilder Router(IRouter router);
+        T Router(IRouter router);
 
         #endregion
 
@@ -36,26 +41,26 @@ namespace GenHTTP.Api.Infrastructure
         /// Registers a companion that will log all handled requests and
         /// errors to the console.
         /// </summary>
-        IServerBuilder Console();
+        T Console();
 
         /// <summary>
         /// Registers the given companion to be used by the server, allowing
         /// to log and handle requests and errors.
         /// </summary>
         /// <param name="companion">The companion to be used by the server</param>
-        IServerBuilder Companion(IServerCompanion companion);
+        T Companion(IServerCompanion companion);
 
         /// <summary>
         /// Registers the given extension in the server.
         /// </summary>
         /// <param name="extension">The extension to be registerd</param>
-        IServerBuilder Extension(IServerExtensionBuilder extension);
+        T Extension(IServerExtensionBuilder extension);
 
         /// <summary>
         /// Registers the given extension in the server.
         /// </summary>
         /// <param name="extension">The extension to be registerd</param>
-        IServerBuilder Extension(IServerExtension extension);
+        T Extension(IServerExtension extension);
 
         /// <summary>
         /// Enables or disables the development mode on the server instance. When in
@@ -66,7 +71,7 @@ namespace GenHTTP.Api.Infrastructure
         /// <remarks>
         /// By default, the development mode is disabled.
         /// </remarks>
-        IServerBuilder Development(bool developmentMode = true);
+        T Development(bool developmentMode = true);
 
         #endregion
 
@@ -76,20 +81,20 @@ namespace GenHTTP.Api.Infrastructure
         /// Registers the given compression algorithm to be used by the server.
         /// </summary>
         /// <param name="algorithm">The algorithm to be registered</param>
-        IServerBuilder Compression(IBuilder<ICompressionAlgorithm> algorithm);
+        T Compression(IBuilder<ICompressionAlgorithm> algorithm);
 
         /// <summary>
         /// Registers the given compression algorithm to be used by the server.
         /// </summary>
         /// <param name="algorithm">The algorithm to be registered</param>
-        IServerBuilder Compression(ICompressionAlgorithm algorithm);
+        T Compression(ICompressionAlgorithm algorithm);
 
         /// <summary>
         /// Enables or disables compression for this server instance. By default,
         /// the server will compress content using the gzip algorithm, if applicable.
         /// </summary>
         /// <param name="enabled">Whether compression is enabled for this server</param>
-        IServerBuilder Compression(bool enabled);
+        T Compression(bool enabled);
 
         #endregion
 
@@ -103,7 +108,7 @@ namespace GenHTTP.Api.Infrastructure
         /// If you register custom endpoints using the Bind methods, this value
         /// will be ignored.
         /// </remarks>
-        IServerBuilder Port(ushort port);
+        T Port(ushort port);
 
         /// <summary>
         /// Registers an endpoint for the given address and port the server will
@@ -111,7 +116,7 @@ namespace GenHTTP.Api.Infrastructure
         /// </summary>
         /// <param name="address">The address to bind to</param>
         /// <param name="port">The port to listen on</param>
-        IServerBuilder Bind(IPAddress address, ushort port);
+        T Bind(IPAddress address, ushort port);
 
         /// <summary>
         /// Registers a secure endpoint the server will bind to on
@@ -123,7 +128,7 @@ namespace GenHTTP.Api.Infrastructure
         /// <remarks>
         /// By default, the endpoint will accept TLS 1.2 connections only.
         /// </remarks>
-        IServerBuilder Bind(IPAddress address, ushort port, string host, X509Certificate2 certificate);
+        T Bind(IPAddress address, ushort port, string host, X509Certificate2 certificate);
 
         /// <summary>
         /// Registers a secure endpoint the server will bind to on
@@ -133,7 +138,7 @@ namespace GenHTTP.Api.Infrastructure
         /// <param name="port">The port to listen on</param>
         /// <param name="certificate">The certificate used to negoiate a connection with</param>
         /// <param name="protocols">The SSL/TLS protocl versions which should be supported by the endpoint</param>
-        IServerBuilder Bind(IPAddress address, ushort port, string host, X509Certificate2 certificate, SslProtocols protocols);
+        T Bind(IPAddress address, ushort port, string host, X509Certificate2 certificate, SslProtocols protocols);
 
         /// <summary>
         /// Registers a secure endpoint the server will bind to on
@@ -145,7 +150,7 @@ namespace GenHTTP.Api.Infrastructure
         /// <remarks>
         /// By default, the endpoint will accept TLS 1.2 connections only.
         /// </remarks>
-        IServerBuilder Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider);
+        T Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider);
 
         /// <summary>
         /// Registers a secure endpoint the server will bind to on
@@ -155,7 +160,7 @@ namespace GenHTTP.Api.Infrastructure
         /// <param name="port">The port to listen on</param>
         /// <param name="certificateProvider">The provider to select the certificate used to negoiate a connection with</param>
         /// <param name="protocols">The SSL/TLS protocl versions which should be supported by the endpoint</param>
-        IServerBuilder Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols);
+        T Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols);
 
         #endregion
 
@@ -166,7 +171,7 @@ namespace GenHTTP.Api.Infrastructure
         /// to HTTPS secured endpoints.
         /// </summary>
         /// <param name="upgradeMode">The upgrade mode to be used</param>
-        IServerBuilder SecureUpgrade(SecureUpgrade upgradeMode);
+        T SecureUpgrade(SecureUpgrade upgradeMode);
 
         /// <summary>
         /// Configures the HSTS to be applied by the server when serving content
@@ -175,14 +180,14 @@ namespace GenHTTP.Api.Infrastructure
         /// <param name="maximumAge">The maximum age of this policy</param>
         /// <param name="includeSubdomains">Whether subdomains are included in the policy or not</param>
         /// <param name="preload">Whether the policy is allowed to be preloaded</param>
-        IServerBuilder StrictTransport(TimeSpan maximumAge, bool includeSubdomains = true, bool preload = true);
+        T StrictTransport(TimeSpan maximumAge, bool includeSubdomains = true, bool preload = true);
 
         /// <summary>
         /// Enables or disables the strict transport policy (HSTS), which is
         /// enabled by default.
         /// </summary>
         /// <param name="enabled">Whether the strict transport policy is enabled</param>
-        IServerBuilder StrictTransport(bool enabled);
+        T StrictTransport(bool enabled);
 
         #endregion
 
@@ -197,25 +202,25 @@ namespace GenHTTP.Api.Infrastructure
         /// Adjust this value only, if you expect large bursts of simultaneous requests
         /// or your server requires very long to generate requests.
         /// </remarks>
-        IServerBuilder Backlog(ushort backlog);
+        T Backlog(ushort backlog);
 
         /// <summary>
         /// Specifies the period of time after which the server will
         /// assume the client connection timed out.
         /// </summary>
-        IServerBuilder RequestReadTimeout(TimeSpan timeout);
+        T RequestReadTimeout(TimeSpan timeout);
 
         /// <summary>
         /// Requests smaller than this limit (in bytes) will be held in memory, while
         /// larger requests will be cached in a temporary file.
         /// </summary>
-        IServerBuilder RequestMemoryLimit(uint limit);
+        T RequestMemoryLimit(uint limit);
 
         /// <summary>
         /// Size of the buffer that will be used to read or write large
         /// data streams (such as uploads or downloads).
         /// </summary>
-        IServerBuilder TransferBufferSize(uint bufferSize);
+        T TransferBufferSize(uint bufferSize);
 
         #endregion
 

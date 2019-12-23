@@ -35,7 +35,7 @@ namespace GenHTTP.Testing.Acceptance.Core
 
             var router = Layout.Create().Add("index", new ThrowingProvider(), true);
 
-            using var _ = runner.Builder.Router(router).Development().Build();
+            runner.Host.Router(router).Development().Start();
 
             using var response = runner.GetResponse();
 

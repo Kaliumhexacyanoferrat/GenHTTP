@@ -78,7 +78,7 @@ namespace GenHTTP.Testing.Acceptance.Core
         {
             using var runner = new TestRunner();
 
-            using var _ = runner.Builder.Compression(false).Build();
+            runner.Host.Compression(false).Start();
 
             using var response = runner.GetResponse();
 
@@ -93,7 +93,7 @@ namespace GenHTTP.Testing.Acceptance.Core
         {
             using var runner = new TestRunner();
 
-            using var _ = runner.Builder.Compression(new CustomAlgorithmBuilder()).Build();
+            runner.Host.Compression(new CustomAlgorithmBuilder()).Start();
 
             var request = runner.GetRequest();
             request.Headers.Add("Accept-Encoding", "custom");

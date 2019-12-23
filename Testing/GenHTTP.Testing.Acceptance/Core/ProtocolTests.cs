@@ -47,7 +47,7 @@ namespace GenHTTP.Testing.Acceptance.Core
 
             using var runner = new TestRunner();
 
-            using var _ = runner.Builder.Extension(test).Build();
+            runner.Host.Extension(test).Start();
 
             var request = runner.GetRequest();
             request.Method = "POST";
