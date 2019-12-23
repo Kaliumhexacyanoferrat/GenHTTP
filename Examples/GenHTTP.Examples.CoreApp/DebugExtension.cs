@@ -11,7 +11,7 @@ namespace GenHTTP.Examples.CoreApp
 #if DEBUG
             return host.Development();
 #else
-            return this;
+            return host;
 #endif
         }
 
