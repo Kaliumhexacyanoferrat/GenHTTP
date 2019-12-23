@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.IO;
+using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
 using Xunit;
@@ -8,7 +9,6 @@ using Xunit;
 using GenHTTP.Testing.Acceptance.Domain;
 using GenHTTP.Modules.Core;
 using GenHTTP.Api.Infrastructure;
-using System.Security.Authentication;
 
 namespace GenHTTP.Testing.Acceptance.Core
 {
