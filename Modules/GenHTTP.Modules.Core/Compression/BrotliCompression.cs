@@ -4,7 +4,7 @@ using System.IO.Compression;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Core.General;
 
-namespace GenHTTP.Examples.CoreApp.Utilities
+namespace GenHTTP.Modules.Core.Compression
 {
 
     public class BrotliCompression : ICompressionAlgorithm

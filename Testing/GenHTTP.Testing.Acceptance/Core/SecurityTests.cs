@@ -168,7 +168,7 @@ namespace GenHTTP.Testing.Acceptance.Core
             });
         }
 
-        private static void RunSecure(Action<ushort, ushort> logic, Action<IServerBuilder>? adjustments = null, SecureUpgrade? mode = null)
+        private static void RunSecure(Action<ushort, ushort> logic, Action<IServerBuilder>? adjustments = null, SecureUpgrade? mode = null, string host = "localhost")
         {
             var content = Layout.Create().Add("index", Content.From("Hello Alice!"), true);
 
@@ -181,17 +181,14 @@ namespace GenHTTP.Testing.Acceptance.Core
             var builder = runner.Builder
                                 .Router(content)
                                 .Bind(IPAddress.Any, runner.Port)
-                                .Bind(IPAddress.Any, port, "localhost", cert);
+                                .Bind(IPAddress.Any, port, host, cert);
 
             if (mode != null)
             {
                 builder.SecureUpgrade(mode.Value);
             }
 
-            if (adjustments != null)
-            {
-                adjustments(builder);
-            }
+            adjustments?.Invoke(builder);
 
             using var _ = builder.Build();
 

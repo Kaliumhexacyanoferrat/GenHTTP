@@ -15,8 +15,6 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         internal string Host { get; }
 
-        public IEnumerable<string> SupportedHosts => new string[] { Host };
-
         #endregion
 
         #region Initialization
@@ -31,10 +29,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         #region Functionaliy
 
-        public X509Certificate2 Provide(string? host)
-        {
-            return Certificate;
-        }
+        public X509Certificate2? Provide(string? host) => Certificate;
 
         #endregion
 

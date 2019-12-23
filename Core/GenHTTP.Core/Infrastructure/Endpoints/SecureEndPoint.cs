@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
-using System.Text;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
@@ -21,6 +22,8 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         public override bool Secure => true;
 
+        private SslServerAuthenticationOptions AuthenticationOptions { get; }
+
         #endregion
 
         #region Initialization
@@ -29,6 +32,17 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
             : base(server, endPoint, configuration)
         {
             Options = options;
+
+            AuthenticationOptions = new SslServerAuthenticationOptions()
+            {
+                EnabledSslProtocols = Options.Protocols,
+                ClientCertificateRequired = false,
+                AllowRenegotiation = true,
+                ApplicationProtocols = new List<SslApplicationProtocol>() { SslApplicationProtocol.Http11 },
+                CertificateRevocationCheckMode = X509RevocationMode.NoCheck, // no support for client certificates yet
+                EncryptionPolicy = EncryptionPolicy.RequireEncryption,
+                ServerCertificateSelectionCallback = SelectCertificate
+            };
         }
 
         #endregion
@@ -59,52 +73,32 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         private async Task<SslStream?> TryAuthenticate(Socket client)
         {
-            var readAhead = new ReadAheadStream(new NetworkStream(client));
-
             try
             {
-                if (readAhead.Peek())
-                {
-                    var host = GetHostName(readAhead, Options.Certificate.SupportedHosts);
+                var stream = new SslStream(new NetworkStream(client), false);
 
-                    var certificate = Options.Certificate.Provide(host);
+                await stream.AuthenticateAsServerAsync(AuthenticationOptions, CancellationToken.None);
 
-                    var stream = new SslStream(readAhead, false);
-
-                    await stream.AuthenticateAsServerAsync(certificate, false, Options.Protocols, true);
-
-                    return stream;
-                }
-
-                return null;
+                return stream;
             }
             catch (Exception e)
             {
-                readAhead.Dispose();
-
                 Server.Companion?.OnServerError(ServerErrorScope.Security, e);
 
                 return null;
             }
         }
 
-        #endregion
-
-        #region Client Hello (very hacky at the moment ...)
-
-        private string? GetHostName(ReadAheadStream stream, IEnumerable<string> supportedHosts)
+        private X509Certificate SelectCertificate(object sender, string hostName)
         {
-            var str = Encoding.ASCII.GetString(stream.Buffer.ToArray());
+            var certificate = Options.Certificate.Provide(hostName);
 
-            foreach (var host in supportedHosts)
+            if (certificate == null)
             {
-                if (str.Contains(host))
-                {
-                    return host;
-                }
+                throw new InvalidOperationException($"The provider did not return a certificate to be used for host '{hostName}'");
             }
 
-            return null;
+            return certificate;
         }
 
         #endregion

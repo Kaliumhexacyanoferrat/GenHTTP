@@ -50,6 +50,23 @@ namespace GenHTTP.Testing.Acceptance.Core
 
             using var response = request.GetSafeResponse();
 
+            Assert.Equal("br", response.ContentEncoding);
+        }
+
+        /// <summary>
+        /// As a browser, I expect only supported compression algorithms to be used
+        /// to generate my response.
+        /// </summary>
+        [Fact]
+        public void TestSpecficAlgorithm()
+        {
+            using var runner = TestRunner.Run();
+
+            var request = runner.GetRequest();
+            request.Headers.Add("Accept-Encoding", "gzip");
+
+            using var response = request.GetSafeResponse();
+
             Assert.Equal("gzip", response.ContentEncoding);
         }
 

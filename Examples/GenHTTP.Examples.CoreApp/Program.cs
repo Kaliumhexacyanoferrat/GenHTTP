@@ -2,8 +2,6 @@
 
 using GenHTTP.Core;
 
-using GenHTTP.Examples.CoreApp.Utilities;
-
 namespace GenHTTP.Examples.CoreApp
 {
 
@@ -16,7 +14,6 @@ namespace GenHTTP.Examples.CoreApp
 
             var server = Server.Create()
                                .Router(project)
-                               .Compression(new BrotliCompression())
                                .Console();
 
 #if DEBUG
