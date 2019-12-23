@@ -8,6 +8,7 @@ using Xunit;
 using GenHTTP.Testing.Acceptance.Domain;
 using GenHTTP.Modules.Core;
 using GenHTTP.Api.Infrastructure;
+using System.Security.Authentication;
 
 namespace GenHTTP.Testing.Acceptance.Core
 {
@@ -168,6 +169,25 @@ namespace GenHTTP.Testing.Acceptance.Core
             });
         }
 
+        /// <summary>
+        /// As a web developer, I can decide not to return a certificate which will
+        /// abort the server SSL handshake.
+        /// </summary>
+        [Fact]
+        public void TestNoCertificate()
+        {
+            RunSecure((insec, sec) =>
+            {
+                Assert.Throws<WebException>(() =>
+                {
+                    var failedRequest = WebRequest.CreateHttp($"https://localhost:{sec}");
+                    failedRequest.IgnoreSecurityErrors();
+
+                    failedRequest.GetSafeResponse();
+                });
+            }, host: "myserver");
+        }
+
         private static void RunSecure(Action<ushort, ushort> logic, Action<IServerBuilder>? adjustments = null, SecureUpgrade? mode = null, string host = "localhost")
         {
             var content = Layout.Create().Add("index", Content.From("Hello Alice!"), true);
@@ -181,8 +201,8 @@ namespace GenHTTP.Testing.Acceptance.Core
             var builder = runner.Builder
                                 .Router(content)
                                 .Bind(IPAddress.Any, runner.Port)
-                                .Bind(IPAddress.Any, port, host, cert);
-
+                                .Bind(IPAddress.Any, port, new PickyCertificateProvider(host, cert), SslProtocols.Tls12);
+            
             if (mode != null)
             {
                 builder.SecureUpgrade(mode.Value);
@@ -205,6 +225,26 @@ namespace GenHTTP.Testing.Acceptance.Core
                     return new X509Certificate2(mem.ToArray());
                 }
             }
+        }
+
+        private class PickyCertificateProvider : ICertificateProvider
+        {
+
+            private string Host { get; }
+
+            private X509Certificate2 Certificate { get; }
+
+            public PickyCertificateProvider(string host, X509Certificate2 certificate)
+            {
+                Host = host;
+                Certificate = certificate;
+            }
+
+            public X509Certificate2? Provide(string? host)
+            {
+                return (host == Host) ? Certificate : null;
+            }
+
         }
 
     }
