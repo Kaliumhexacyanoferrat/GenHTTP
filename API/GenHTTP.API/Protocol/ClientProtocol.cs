@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GenHTTP.Api.Protocol
+﻿namespace GenHTTP.Api.Protocol
 {
 
     public enum ClientProtocol

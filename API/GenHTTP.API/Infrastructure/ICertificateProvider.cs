@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
+﻿using System.Security.Cryptography.X509Certificates;
 
 namespace GenHTTP.Api.Infrastructure
 {
@@ -17,7 +16,7 @@ namespace GenHTTP.Api.Infrastructure
         /// <param name="host">The name of the host, if specified by the client</param>
         /// <returns>The certificate to be used to authenticate the client</returns>
         X509Certificate2? Provide(string? host);
-        
+
     }
 
 }

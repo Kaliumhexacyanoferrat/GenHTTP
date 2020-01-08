@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Text;
+﻿using System.Net;
 
 namespace GenHTTP.Api.Protocol
 {
-    
+
     public class Forwarding
     {
 

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Net;
 
-using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Core.Protocol
@@ -18,12 +17,12 @@ namespace GenHTTP.Core.Protocol
         }
 
         internal void Add(string header) => AddRange(Parse(header));
-        
+
         private IEnumerable<Forwarding> Parse(string value)
         {
             var forwardings = value.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
-            foreach(var forwarding in forwardings)
+            foreach (var forwarding in forwardings)
             {
                 IPAddress? address = null;
                 ClientProtocol? protocol = null;
@@ -60,7 +59,7 @@ namespace GenHTTP.Core.Protocol
                 {
                     yield return new Forwarding(address, host, protocol);
                 }
-            } 
+            }
         }
 
     }
