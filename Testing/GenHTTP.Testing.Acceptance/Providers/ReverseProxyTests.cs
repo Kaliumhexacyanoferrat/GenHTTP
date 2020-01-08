@@ -43,6 +43,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
                     response.Header("X-Custom-Header", request.Headers["X-Custom-Header"]);
                 }
 
+                Assert.NotEqual(request.Client, request.LocalClient);
+                Assert.NotEmpty(request.Forwardings);
+                
                 return response;
             }
 

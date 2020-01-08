@@ -29,7 +29,14 @@ namespace GenHTTP.Api.Protocol
         /// <summary>
         /// The client which sent the request.
         /// </summary>
-        IClient Client { get; }
+        IClientConnection Client { get; }
+
+        /// <summary>
+        /// If the request has been forwarded by a proxy, the client property
+        /// will return the originating client where this property will return
+        /// the information of the proxy.
+        /// </summary>
+        IClientConnection LocalClient { get; }
 
         /// <summary>
         /// The routing context of the request, if applicable.
@@ -43,7 +50,7 @@ namespace GenHTTP.Api.Protocol
         /// <summary>
         /// The requested protocol type.
         /// </summary>
-        ProtocolType ProtocolType { get; }
+        HttpProtocol ProtocolType { get; }
 
         /// <summary>
         /// The HTTP method used by the client to issue this request.
@@ -90,6 +97,12 @@ namespace GenHTTP.Api.Protocol
         /// The cookies passed by the client.
         /// </summary>
         ICookieCollection Cookies { get; }
+
+        /// <summary>
+        /// If the request has been forwarded by one or more proxies, this collection may contain
+        /// additional information about the initial request by the originating client. 
+        /// </summary>
+        IForwardingCollection Forwardings { get; }
 
         /// <summary>
         /// The headers of this HTTP request.

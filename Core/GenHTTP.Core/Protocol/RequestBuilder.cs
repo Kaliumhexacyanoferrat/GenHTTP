@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Text.RegularExpressions;
 
 using GenHTTP.Api.Infrastructure;
@@ -12,11 +13,12 @@ namespace GenHTTP.Core.Protocol
     internal class RequestBuilder : IBuilder<IRequest>
     {
         private IServer? _Server;
-        private IClient? _Client;
         private IEndPoint? _EndPoint;
 
+        private IPAddress? _Address;
+
         private FlexibleRequestMethod? _RequestMethod;
-        private ProtocolType? _Protocol;
+        private HttpProtocol? _Protocol;
 
         private string? _Path;
 
@@ -25,6 +27,8 @@ namespace GenHTTP.Core.Protocol
         private readonly Dictionary<string, string> _Query = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
         private readonly CookieCollection _Cookies = new CookieCollection();
+
+        private readonly ForwardingCollection _Forwardings = new ForwardingCollection();
 
         #region Get-/Setters
 
@@ -43,10 +47,10 @@ namespace GenHTTP.Core.Protocol
 
         #region Functionality
 
-        public RequestBuilder Connection(IServer server, IEndPoint endPoint, IClient client)
+        public RequestBuilder Connection(IServer server, IEndPoint endPoint, IPAddress address)
         {
             _Server = server;
-            _Client = client;
+            _Address = address;
             _EndPoint = endPoint;
 
             return this;
@@ -58,12 +62,12 @@ namespace GenHTTP.Core.Protocol
             {
                 case "1.0":
                     {
-                        _Protocol = ProtocolType.Http_1_0;
+                        _Protocol = HttpProtocol.Http_1_0;
                         break;
                     }
                 case "1.1":
                     {
-                        _Protocol = ProtocolType.Http_1_1;
+                        _Protocol = HttpProtocol.Http_1_1;
                         break;
                     }
                 default:
@@ -111,20 +115,15 @@ namespace GenHTTP.Core.Protocol
 
         public RequestBuilder Header(string key, string value)
         {
-            if (key.ToLower() == "cookie")
+            var lowerKey = key.ToLower();
+
+            if (lowerKey == "cookie")
             {
-                var cookies = value.Split("; ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-
-                foreach (var kv in cookies)
-                {
-                    var index = kv.IndexOf("=");
-
-                    if (index > -1)
-                    {
-                        var cookie = new Cookie(kv.Substring(0, index), kv.Substring(index + 1));
-                        _Cookies[cookie.Name] = cookie;
-                    }
-                }
+                _Cookies.Add(value);
+            }
+            else if (lowerKey == "forwarded")
+            {
+                _Forwardings.Add(value);
             }
             else
             {
@@ -152,9 +151,9 @@ namespace GenHTTP.Core.Protocol
                 throw new BuilderMissingPropertyException("EndPoint");
             }
 
-            if (_Client == null)
+            if (_Address == null)
             {
-                throw new BuilderMissingPropertyException("Client");
+                throw new BuilderMissingPropertyException("Address");
             }
 
             if (_Protocol == null)
@@ -172,7 +171,29 @@ namespace GenHTTP.Core.Protocol
                 throw new BuilderMissingPropertyException("Path");
             }
 
-            return new Request(_Server, _EndPoint, _Client, (ProtocolType)_Protocol, _RequestMethod, _Path, Headers, _Cookies, _Query, _Content);
+            var protocol = (_EndPoint.Secure) ? ClientProtocol.HTTPS : ClientProtocol.HTTP;
+
+            var localClient = new ClientConnection(_Address, protocol, Headers["Host"]);
+
+            var client = DetermineClient() ?? localClient;
+
+            return new Request(_Server, _EndPoint, client, localClient, (HttpProtocol)_Protocol, _RequestMethod, _Path, Headers, _Cookies, _Forwardings, _Query, _Content);
+        }
+
+        private IClientConnection? DetermineClient()
+        {
+            if (_Forwardings.Count > 0)
+            {
+                foreach (var forwarding in _Forwardings)
+                {
+                    if (forwarding.For != null)
+                    {
+                        return new ClientConnection(forwarding.For, forwarding.Protocol, forwarding.Host);
+                    }
+                }
+            }
+
+            return null;
         }
 
         #endregion

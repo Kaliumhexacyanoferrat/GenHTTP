@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Linq;
-using System.Web;
-
+﻿using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Modules;
 using GenHTTP.Modules.Core.General;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Web;
 
 namespace GenHTTP.Modules.Core.Proxy
 {
@@ -21,7 +20,7 @@ namespace GenHTTP.Modules.Core.Proxy
 
         private static readonly HashSet<string> RESERVED_REQUEST_HEADERS = new HashSet<string>
         {
-            "Host", "Connection"
+            "Host", "Connection", "Forwarded"
         };
 
         #region Get-/Setters
@@ -106,6 +105,8 @@ namespace GenHTTP.Modules.Core.Proxy
                     req.Headers.Add(header.Key, header.Value);
                 }
             }
+
+            req.Headers.Add("Forwarded", GetForwardings(request));
 
             if (request.Cookies.Count > 0)
             {
@@ -225,6 +226,35 @@ namespace GenHTTP.Modules.Core.Proxy
                     throw;
                 }
             }
+        }
+
+        private string GetForwardings(IRequest request)
+        {
+            return string.Join(", ", request.Forwardings
+                                            .Union(new[] { new Forwarding(request.LocalClient.IPAddress, request.LocalClient.Host, request.LocalClient.Protocol) })
+                                            .Select(f => GetForwarding(f)));
+        }
+
+        private string GetForwarding(Forwarding forwarding)
+        {
+            var result = new List<string>(2);
+
+            if (forwarding.For != null)
+            {
+                result.Add($"for={forwarding.For}");
+            }
+
+            if (forwarding.Host != null)
+            {
+                result.Add($"host={forwarding.Host}");
+            }
+
+            if (forwarding.Protocol != null)
+            {
+                result.Add($"proto={forwarding.Protocol}");
+            }
+
+            return string.Join("; ", result);
         }
 
         #endregion

@@ -4,7 +4,7 @@
     /// <summary>
     /// The type of protocol to use for the response.
     /// </summary>
-    public enum ProtocolType
+    public enum HttpProtocol
     {
         /// <summary>
         /// HTTP/1.0

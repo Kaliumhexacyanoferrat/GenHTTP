@@ -82,7 +82,7 @@ namespace GenHTTP.Core.Protocol
 
         private async Task WriteStatus(IRequest request, IResponse response)
         {
-            var version = (request.ProtocolType == ProtocolType.Http_1_0) ? "1.0" : "1.1";
+            var version = (request.ProtocolType == HttpProtocol.Http_1_0) ? "1.0" : "1.1";
             var status = $"{response.Status.RawStatus} {response.Status.Phrase}";
 
             await Write($"HTTP/{version} {status}{NL}");

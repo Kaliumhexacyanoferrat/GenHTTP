@@ -23,11 +23,13 @@ namespace GenHTTP.Core
 
         public IEndPoint EndPoint { get; }
 
-        public IClient Client { get; }
+        public IClientConnection Client { get; }
+
+        public IClientConnection LocalClient { get; }
 
         public IRoutingContext? Routing { get; set; }
 
-        public ProtocolType ProtocolType { get; }
+        public HttpProtocol ProtocolType { get; }
 
         public FlexibleRequestMethod Method { get; }
 
@@ -35,13 +37,15 @@ namespace GenHTTP.Core
 
         public ICookieCollection Cookies { get; }
 
+        public IForwardingCollection Forwardings { get; }
+
         public IHeaderCollection Headers { get; }
 
         public IReadOnlyDictionary<string, string> Query { get; }
 
         public Stream? Content { get; }
 
-        public string? Host => this["Host"];
+        public string? Host => Client.Host;
 
         public string? Referer => this["Referer"];
 
@@ -64,10 +68,13 @@ namespace GenHTTP.Core
 
         #region Initialization
 
-        internal Request(IServer server, IEndPoint endPoint, IClient client, ProtocolType protocol, FlexibleRequestMethod method,
-                         string path, IHeaderCollection headers, ICookieCollection cookies, IReadOnlyDictionary<string, string> query, Stream? content)
+        internal Request(IServer server, IEndPoint endPoint, IClientConnection client, IClientConnection localClient, HttpProtocol protocol, FlexibleRequestMethod method,
+                         string path, IHeaderCollection headers, ICookieCollection cookies, IForwardingCollection forwardings,
+                         IReadOnlyDictionary<string, string> query, Stream? content)
         {
             Client = client;
+            LocalClient = localClient;
+
             Server = server;
             EndPoint = endPoint;
 
@@ -76,6 +83,7 @@ namespace GenHTTP.Core
             Path = path;
 
             Cookies = cookies;
+            Forwardings = forwardings;
             Headers = headers;
             Query = query;
 

@@ -1,18 +1,16 @@
-﻿using System;
+﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Core.Infrastructure.Configuration;
+using GenHTTP.Core.Protocol;
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-using GenHTTP.Api.Infrastructure;
-
-using GenHTTP.Core.Protocol;
-using GenHTTP.Core.Infrastructure.Configuration;
-
 namespace GenHTTP.Core
 {
 
-    internal class ClientHandler : IClient
+    internal class ClientHandler
     {
 
         #region Get-/Setter
@@ -30,14 +28,6 @@ namespace GenHTTP.Core
         private RequestParser Parser { get; }
 
         private bool? KeepAlive { get; set; }
-
-        #endregion
-
-        #region Information
-
-        public IPAddress IPAddress => ((IPEndPoint)Connection.RemoteEndPoint).Address;
-
-        public ushort Port => (ushort)((IPEndPoint)Connection.RemoteEndPoint).Port;
 
         #endregion
 
@@ -108,7 +98,9 @@ namespace GenHTTP.Core
 
         private async Task<bool> HandleRequest(RequestBuilder builder)
         {
-            using (var request = builder.Connection(Server, EndPoint, this).Build())
+            var address = ((IPEndPoint)Connection.RemoteEndPoint).Address;
+
+            using (var request = builder.Connection(Server, EndPoint, address).Build())
             {
                 if (KeepAlive == null)
                 {
