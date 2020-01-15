@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
+﻿using GenHTTP.Api.Modules.Templating;
 using GenHTTP.Api.Modules.Websites;
 
 namespace GenHTTP.Modules.Core.Websites
@@ -21,14 +16,14 @@ namespace GenHTTP.Modules.Core.Websites
         private StyleRouter Styles { get; }
 
         public IMenuProvider Menu { get; }
-        
+
         #endregion
 
         #region Initialization
 
         public WebsiteRenderer(ITheme theme,
                                IMenuProvider menu,
-                               ScriptRouter scripts, 
+                               ScriptRouter scripts,
                                StyleRouter styles)
         {
             Theme = theme;
@@ -46,7 +41,7 @@ namespace GenHTTP.Modules.Core.Websites
         public string Render(TemplateModel model)
         {
             var menu = Menu.GetMenu(model.Request);
-            
+
             var themeModel = Theme.GetModel(model.Request);
 
             var bundle = !model.Request.Server.Development;

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GenHTTP.Api.Modules.Websites
+﻿namespace GenHTTP.Api.Modules.Websites
 {
-    
+
     public class Script
     {
 

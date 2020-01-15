@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using GenHTTP.Api.Infrastructure;
+﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Modules.Websites;
 
 namespace GenHTTP.Modules.Themes.Arcana
@@ -21,7 +17,7 @@ namespace GenHTTP.Modules.Themes.Arcana
             _Title = title;
             return this;
         }
-        
+
         public ArcanaBuilder Copyright(string copyright)
         {
             _Copyright = copyright;

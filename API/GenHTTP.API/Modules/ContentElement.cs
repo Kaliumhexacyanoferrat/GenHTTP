@@ -1,7 +1,6 @@
-﻿using GenHTTP.Api.Protocol;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
+
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Modules
 {
@@ -12,20 +11,20 @@ namespace GenHTTP.Api.Modules
         #region Get-/Setters
 
         public string Path { get; }
-        
+
         public IEnumerable<ContentElement>? Children { get; }
 
         public string Title { get; }
 
         public long? Size { get; }
 
-        public FlexibleContentType? ContentType { get;  }
+        public FlexibleContentType? ContentType { get; }
 
         #endregion
 
         #region Initialization
 
-        public ContentElement(string path, string title, ContentType contentType, IEnumerable<ContentElement>? children) 
+        public ContentElement(string path, string title, ContentType contentType, IEnumerable<ContentElement>? children)
             : this(path, title, new FlexibleContentType(contentType), children) { }
 
         public ContentElement(string path, string title, FlexibleContentType? contentType, IEnumerable<ContentElement>? children)
@@ -38,7 +37,7 @@ namespace GenHTTP.Api.Modules
         }
 
         #endregion
-        
+
     }
 
 }

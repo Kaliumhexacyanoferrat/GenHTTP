@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using GenHTTP.Api.Infrastructure;
+﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Modules;
+using GenHTTP.Api.Modules.Websites;
 
 namespace GenHTTP.Modules.Themes.Lorahost
 {
-    
-    public class LorahostBuilder : IBuilder<LorahostTheme>
+
+    public class LorahostBuilder : IThemeBuilder<LorahostTheme>
     {
         private string? _Copyright, _Title, _Subtitle, _Action, _ActionTitle;
 
@@ -47,9 +44,9 @@ namespace GenHTTP.Modules.Themes.Lorahost
         {
             _Header = headerProvider;
             return this;
-        } 
+        }
 
-        public LorahostTheme Build()
+        public ITheme Build()
         {
             return new LorahostTheme(_Header, _Copyright, _Title, _Subtitle, _Action, _ActionTitle);
         }

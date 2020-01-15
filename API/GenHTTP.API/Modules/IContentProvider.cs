@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Modules
 {
@@ -14,7 +12,7 @@ namespace GenHTTP.Api.Modules
     /// </remarks>
     public interface IContentProvider : IContentDescription
     {
-        
+
         /// <summary>
         /// Handles the given request, generating the response
         /// to be send to the client.

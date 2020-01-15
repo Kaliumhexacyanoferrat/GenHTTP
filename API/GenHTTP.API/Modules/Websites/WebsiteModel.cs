@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Modules.Templating;
 using GenHTTP.Api.Protocol;
@@ -26,7 +24,7 @@ namespace GenHTTP.Api.Modules.Websites
         public object? Model { get; }
 
         public List<ContentElement> Menu { get; }
-        
+
         #endregion
 
         #region Initialization

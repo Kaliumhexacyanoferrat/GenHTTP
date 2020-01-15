@@ -1,20 +1,22 @@
-﻿using GenHTTP.Api.Modules;
+﻿using System;
+using System.Collections.Generic;
+
+using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
 using GenHTTP.Api.Modules.Websites;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
+
 using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Core.Websites;
 using GenHTTP.Modules.Scriban;
-using System;
-using System.Collections.Generic;
 
 namespace GenHTTP.Modules.Themes.Lorahost
 {
 
     public class LorahostTheme : ITheme
     {
-        private string? _Copyright, _Title, _Subtitle, _Action, _ActionTitle;
+        private readonly string? _Copyright, _Title, _Subtitle, _Action, _ActionTitle;
 
         #region Supporting data structures
 

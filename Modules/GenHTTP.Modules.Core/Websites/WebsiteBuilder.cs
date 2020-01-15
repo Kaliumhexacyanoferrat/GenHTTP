@@ -19,9 +19,9 @@ namespace GenHTTP.Modules.Core.Websites
 
         private IBuilder<IMenuProvider>? _Menu;
 
-        private List<Script> _Scripts = new List<Script>();
+        private readonly List<Script> _Scripts = new List<Script>();
 
-        private List<Style> _Styles = new List<Style>();
+        private readonly List<Style> _Styles = new List<Style>();
 
         #region Functionality
 
@@ -58,11 +58,11 @@ namespace GenHTTP.Modules.Core.Websites
             return this;
         }
 
-        public WebsiteBuilder AddScript(string name, IBuilder<IResourceProvider> provider, bool async = false) => AddScript(name, provider.Build(), async);
+        public WebsiteBuilder AddScript(string name, IBuilder<IResourceProvider> provider, bool asynchronous = false) => AddScript(name, provider.Build(), asynchronous);
 
-        public WebsiteBuilder AddScript(string name, IResourceProvider provider, bool async = false)
+        public WebsiteBuilder AddScript(string name, IResourceProvider provider, bool asynchronous = false)
         {
-            _Scripts.Add(new Script(name, async, provider));
+            _Scripts.Add(new Script(name, asynchronous, provider));
             return this;
         }
 

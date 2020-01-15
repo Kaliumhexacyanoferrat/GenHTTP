@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Websites;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.Websites
 {
@@ -14,7 +13,7 @@ namespace GenHTTP.Modules.Core.Websites
 
         #region Get-/Setters
 
-        private List<ContentElement> _Menu = new List<ContentElement>();
+        private readonly List<ContentElement> _Menu = new List<ContentElement>();
 
         #endregion
 

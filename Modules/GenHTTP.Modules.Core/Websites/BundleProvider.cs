@@ -19,7 +19,7 @@ namespace GenHTTP.Modules.Core.Websites
         private IEnumerable<IResourceProvider> Items { get; }
 
         #endregion
-        
+
         #region Initialization
 
         public BundleProvider(IEnumerable<IResourceProvider> items, FlexibleContentType contentType)

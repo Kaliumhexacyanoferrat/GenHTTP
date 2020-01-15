@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 using GenHTTP.Api.Modules.Templating;
 using GenHTTP.Api.Protocol;
@@ -8,7 +7,7 @@ using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Api.Modules.Websites
 {
-    
+
     public interface ITheme
     {
 

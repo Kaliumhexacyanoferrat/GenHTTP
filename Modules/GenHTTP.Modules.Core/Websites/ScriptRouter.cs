@@ -1,13 +1,11 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Collections.Generic;
-using System.Text;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
 using GenHTTP.Api.Modules.Websites;
-using GenHTTP.Api.Routing;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Routing;
 
 using GenHTTP.Modules.Core.General;
 
@@ -18,7 +16,7 @@ namespace GenHTTP.Modules.Core.Websites
     {
 
         #region Get-/Setters
-        
+
         private Dictionary<string, Script> Scripts { get; }
 
         public bool Empty => Scripts.Count == 0;
@@ -58,7 +56,7 @@ namespace GenHTTP.Modules.Core.Websites
                     new ScriptReference("scripts/bundle.js", false)
                 };
             }
-            
+
             return Scripts.Values.Select(s => new ScriptReference($"scripts/{s.Name}", s.Async)).ToList();
         }
 
@@ -87,7 +85,7 @@ namespace GenHTTP.Modules.Core.Websites
         {
             return Parent.Route(path, currentDepth);
         }
-        
+
         #endregion
 
     }

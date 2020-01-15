@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
@@ -26,7 +25,7 @@ namespace GenHTTP.Modules.Core.Websites
         private StyleRouter Styles { get; }
 
         public IMenuProvider Menu { get; }
-        
+
         private IRouter? Resources { get; }
 
         private ITheme Theme { get; }
@@ -151,7 +150,7 @@ namespace GenHTTP.Modules.Core.Websites
                 {
                     return Api.Routing.Route.GetRelation(currentDepth - 1) + path.Substring(segment.Length + 1);
                 }
-                
+
                 return Api.Routing.Route.GetRelation(currentDepth - 1);
             }
 

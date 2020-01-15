@@ -17,9 +17,9 @@ namespace GenHTTP.Modules.Themes.Arcana
 
     public class ArcanaTheme : ITheme
     {
-        public string? _Title, _Copyright, _Footer1Title, _Footer2Title;
+        private readonly string? _Title, _Copyright, _Footer1Title, _Footer2Title;
 
-        private IMenuProvider? _FooterMenu1, _FooterMenu2;
+        private readonly IMenuProvider? _FooterMenu1, _FooterMenu2;
 
         #region Supporting data structures
 

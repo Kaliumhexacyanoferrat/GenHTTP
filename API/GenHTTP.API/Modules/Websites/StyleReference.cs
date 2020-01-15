@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GenHTTP.Api.Modules.Websites
+﻿namespace GenHTTP.Api.Modules.Websites
 {
 
     public class StyleReference
@@ -11,7 +7,7 @@ namespace GenHTTP.Api.Modules.Websites
         #region Get-/Setters
 
         public string Path { get; }
-        
+
         #endregion
 
         #region Functionality
