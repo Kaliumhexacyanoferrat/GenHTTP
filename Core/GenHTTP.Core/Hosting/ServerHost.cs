@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
@@ -70,7 +69,7 @@ namespace GenHTTP.Core.Hosting
         #region Get-/Setters
 
         public IServer? Instance { get; private set; }
-        
+
         #endregion
 
         #region Functionality
@@ -81,25 +80,25 @@ namespace GenHTTP.Core.Hosting
             try
             {
 #endif
-                using var waitEvent = new AutoResetEvent(false);
+            using var waitEvent = new AutoResetEvent(false);
 
-                AppDomain.CurrentDomain.ProcessExit += (_, __) =>
-                {
-                    waitEvent.Set();
-                };
+            AppDomain.CurrentDomain.ProcessExit += (_, __) =>
+            {
+                waitEvent.Set();
+            };
 
-                Start();
+            Start();
 
-                try
-                {
-                    waitEvent.WaitOne();
-                }
-                finally
-                {
-                    Stop();
-                }
+            try
+            {
+                waitEvent.WaitOne();
+            }
+            finally
+            {
+                Stop();
+            }
 
-                return 0;
+            return 0;
 #if !DEBUG
             }
             catch
@@ -133,7 +132,7 @@ namespace GenHTTP.Core.Hosting
             return this;
         }
 
-#endregion
+        #endregion
 
     }
 

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using GenHTTP.Modules.Core.Websites;
+﻿using GenHTTP.Modules.Core.Websites;
 
 namespace GenHTTP.Modules.Core
 {
-    
+
     public static class Website
     {
 

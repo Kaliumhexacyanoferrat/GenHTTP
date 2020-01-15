@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
@@ -75,7 +74,7 @@ namespace GenHTTP.Modules.Themes.Arcana
         }
 
         public IRouter Resources { get; }
-        
+
         #endregion
 
         #region Initialization
