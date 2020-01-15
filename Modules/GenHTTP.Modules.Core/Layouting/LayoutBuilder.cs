@@ -2,7 +2,9 @@
 
 using GenHTTP.Api.Routing;
 using GenHTTP.Api.Modules;
+
 using GenHTTP.Modules.Core.General;
+using GenHTTP.Modules.Core.Websites;
 
 namespace GenHTTP.Modules.Core.Layouting
 {
@@ -19,7 +21,7 @@ namespace GenHTTP.Modules.Core.Layouting
         private Dictionary<string, IRouter> Routes { get; }
 
         private Dictionary<string, IContentProvider> Content { get; }
-
+        
         #endregion
 
         #region Initialization
@@ -70,6 +72,7 @@ namespace GenHTTP.Modules.Core.Layouting
         public LayoutBuilder Add(string route, IRouter router, bool index = false)
         {
             Routes.Add(route, router);
+            
             return (index) ? Index(route) : this;
         }
 

@@ -19,13 +19,17 @@ namespace GenHTTP.Testing.Acceptance.Core
 
             public ICookieCollection? Cookies { get; private set; }
 
+            public FlexibleContentType? ContentType => new FlexibleContentType(Api.Protocol.ContentType.TextHtml);
+
+            public string? Title => null;
+
             public IResponseBuilder Handle(IRequest request)
             {
                 Cookies = request.Cookies;
 
                 return request.Respond()
                               .Cookie(new Cookie("TestCookie", "TestValue"))
-                              .Content(new MemoryStream(Encoding.UTF8.GetBytes("I ❤ Cookies!")), ContentType.TextHtml);
+                              .Content(new MemoryStream(Encoding.UTF8.GetBytes("I ❤ Cookies!")), ContentType!.RawType);
 
             }
 

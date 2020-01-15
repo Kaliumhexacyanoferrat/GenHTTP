@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
-using GenHTTP.Api.Routing;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Routing;
 
 using GenHTTP.Modules.Core.General;
 
@@ -75,23 +77,38 @@ namespace GenHTTP.Modules.Core.Layouting
             }
 
             // route by default
-            if (DefaultRouter != null)
+            if (string.IsNullOrEmpty(segment) && DefaultContent != null)
+            {
+                current.Scope(this);
+                current.RegisterContent(DefaultContent);
+                return;
+            }
+            else if (DefaultRouter != null)
             {
                 current.Scope(this);
                 DefaultRouter.HandleContext(current);
                 return;
             }
 
-            // default content
-            if (DefaultContent != null)
-            {
-                current.Scope(this);
-                current.RegisterContent(DefaultContent);
-                return;
-            }
-
             // no route found
             current.Scope(this);
+        }
+
+        public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
+        {
+            foreach (var route in Routes)
+            {
+                var childPath = $"{basePath}{route.Key}/";
+
+                yield return new ContentElement(childPath, route.Key, ContentType.TextHtml, route.Value.GetContent(request, childPath));
+            }
+
+            foreach (var content in Content)
+            {
+                var childPath = $"{basePath}{content.Key}";
+
+                yield return new ContentElement(childPath, content.Value.Title ?? content.Key, content.Value.ContentType, null);
+            }
         }
 
         public override string? Route(string path, int currentDepth)
@@ -100,6 +117,13 @@ namespace GenHTTP.Modules.Core.Layouting
 
             if (Content.ContainsKey(segment) || Routes.ContainsKey(segment))
             {
+                var indexRoute = Content.FirstOrDefault(kv => kv.Key == segment);
+
+                if ((DefaultContent != null) && (DefaultContent == indexRoute.Value))
+                {
+                    return Api.Routing.Route.GetRelation(currentDepth);
+                }
+
                 return Api.Routing.Route.GetRelation(currentDepth) + path;
             }
 

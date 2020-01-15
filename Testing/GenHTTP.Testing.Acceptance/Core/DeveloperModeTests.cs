@@ -17,6 +17,10 @@ namespace GenHTTP.Testing.Acceptance.Core
         private class ThrowingProvider : IContentProvider
         {
 
+            public FlexibleContentType? ContentType => null;
+
+            public string? Title => null;
+
             public IResponseBuilder Handle(IRequest request)
             {
                 throw new InvalidOperationException("Nope!");

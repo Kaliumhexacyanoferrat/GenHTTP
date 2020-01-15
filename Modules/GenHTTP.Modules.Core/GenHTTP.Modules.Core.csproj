@@ -25,6 +25,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Websites\Error.html" />
+    <None Remove="Websites\Template.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Websites\Templates\Error.html" />
+    <EmbeddedResource Include="Websites\Templates\Template.html" />
+  </ItemGroup>
+
+  <ItemGroup>
 
     <None Include="..\..\LICENSE">
       <Pack>True</Pack>

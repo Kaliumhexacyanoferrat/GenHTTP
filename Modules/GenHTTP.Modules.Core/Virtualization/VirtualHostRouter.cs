@@ -2,6 +2,7 @@
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
 using GenHTTP.Modules.Core.General;
@@ -49,29 +50,37 @@ namespace GenHTTP.Modules.Core.Virtualization
         public override void HandleContext(IEditableRoutingContext current)
         {
             current.Scope(this);
+            
+            GetRouter(current.Request)?.HandleContext(current);
+        }
 
-            var host = current.Request.HostWithoutPort();
+        public override string? Route(string path, int currentDepth)
+        {
+            return Parent.Route(path, currentDepth);
+        }
+
+        public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
+        {
+            var router = GetRouter(request);
+
+            return router?.GetContent(request, basePath) ?? new List<ContentElement>();
+        }
+
+        private IRouter? GetRouter(IRequest request)
+        {
+            var host = request.HostWithoutPort();
 
             // try to find a regular route
             if (host != null)
             {
                 if (Hosts.ContainsKey(host))
                 {
-                    Hosts[host].HandleContext(current);
-                    return;
+                    return Hosts[host];
                 }
             }
 
             // route by default
-            if (DefaultRoute != null)
-            {
-                DefaultRoute.HandleContext(current);
-            }
-        }
-
-        public override string? Route(string path, int currentDepth)
-        {
-            return Parent.Route(path, currentDepth);
+            return DefaultRoute;
         }
 
         #endregion

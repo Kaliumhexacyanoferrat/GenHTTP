@@ -31,6 +31,10 @@ namespace GenHTTP.Modules.Core.Proxy
 
         public TimeSpan ReadTimeout { get; }
 
+        public override string? Title => null;
+
+        public override FlexibleContentType? ContentType => null;
+
         #endregion
 
         #region Initialization

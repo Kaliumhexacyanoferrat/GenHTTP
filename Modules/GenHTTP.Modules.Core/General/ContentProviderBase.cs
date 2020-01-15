@@ -11,6 +11,10 @@ namespace GenHTTP.Modules.Core.General
 
         public ResponseModification? Modification { get; }
 
+        public abstract string? Title { get; }
+
+        public abstract FlexibleContentType? ContentType { get; }
+
         #endregion
 
         #region Initialization

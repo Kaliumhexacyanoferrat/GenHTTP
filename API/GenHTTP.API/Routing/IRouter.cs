@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
@@ -49,6 +50,8 @@ namespace GenHTTP.Api.Routing
         /// <param name="cause">The error which has occurred (if any)</param>
         /// <returns>The content provider which will generate the error response</returns>
         IContentProvider GetErrorHandler(IRequest request, ResponseStatus responseType, Exception? cause);
+
+        IEnumerable<ContentElement> GetContent(IRequest request, string basePath);
 
         /// <summary>
         /// Determines the relative path to be used to navigate to the

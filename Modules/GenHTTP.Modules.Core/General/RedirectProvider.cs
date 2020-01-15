@@ -13,6 +13,10 @@ namespace GenHTTP.Modules.Core.General
 
         public bool Temporary { get; }
 
+        public override string? Title => null;
+
+        public override FlexibleContentType? ContentType => null;
+
         #endregion
 
         #region Initialization

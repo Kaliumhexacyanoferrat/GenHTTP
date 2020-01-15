@@ -9,6 +9,7 @@ using GenHTTP.Api.Routing;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Modules.Templating;
+using System.Collections.Generic;
 
 namespace GenHTTP.Testing.Acceptance.Core
 {
@@ -20,6 +21,11 @@ namespace GenHTTP.Testing.Acceptance.Core
         {
 
             public IRouter Parent { get => throw new NotImplementedException(); set { } }
+
+            public IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
+            {
+                throw new NotImplementedException();
+            }
 
             public IContentProvider GetErrorHandler(IRequest request, ResponseStatus responseType, Exception? cause)
             {

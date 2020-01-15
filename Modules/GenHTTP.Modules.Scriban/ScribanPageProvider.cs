@@ -20,7 +20,9 @@ namespace GenHTTP.Modules.Scriban
 
         public ScribanRenderer<T> Renderer { get; }
 
-        public string? Title { get; }
+        public override string? Title { get; }
+
+        public override FlexibleContentType? ContentType => new FlexibleContentType(Api.Protocol.ContentType.TextHtml);
 
         #endregion
 

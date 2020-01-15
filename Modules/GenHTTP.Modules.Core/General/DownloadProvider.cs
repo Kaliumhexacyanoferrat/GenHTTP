@@ -11,13 +11,15 @@ namespace GenHTTP.Modules.Core.General
 
         public IResourceProvider ResourceProvider { get; }
 
-        public ContentType ContentType { get; }
+        public override string? Title => null;
 
+        public override FlexibleContentType ContentType { get; }
+        
         #endregion
 
         #region Initialization
 
-        public DownloadProvider(IResourceProvider resourceProvider, ContentType contentType, ResponseModification? mod) : base(mod)
+        public DownloadProvider(IResourceProvider resourceProvider, FlexibleContentType contentType, ResponseModification? mod) : base(mod)
         {
             ResourceProvider = resourceProvider;
             ContentType = contentType;
@@ -32,7 +34,7 @@ namespace GenHTTP.Modules.Core.General
             if (request.HasType(RequestMethod.GET, RequestMethod.HEAD))
             {
                 return request.Respond()
-                              .Content(ResourceProvider.GetResource(), ContentType);
+                              .Content(ResourceProvider.GetResource(), ContentType.RawType);
             }
 
             return request.Respond(ResponseStatus.MethodNotAllowed);

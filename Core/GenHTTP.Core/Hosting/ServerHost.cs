@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
@@ -76,8 +77,10 @@ namespace GenHTTP.Core.Hosting
 
         public int Run()
         {
+#if !DEBUG
             try
             {
+#endif
                 using var waitEvent = new AutoResetEvent(false);
 
                 AppDomain.CurrentDomain.ProcessExit += (_, __) =>
@@ -97,11 +100,13 @@ namespace GenHTTP.Core.Hosting
                 }
 
                 return 0;
+#if !DEBUG
             }
             catch
             {
                 return -1;
             }
+#endif
         }
 
         public IServerHost Start()
@@ -128,7 +133,7 @@ namespace GenHTTP.Core.Hosting
             return this;
         }
 
-        #endregion
+#endregion
 
     }
 

@@ -10,7 +10,7 @@ namespace GenHTTP.Api.Modules
     /// <remarks>
     /// Content providers can be registered at routers.
     /// </remarks>
-    public interface IContentProvider
+    public interface IContentProvider : IContentDescription
     {
 
         /// <summary>

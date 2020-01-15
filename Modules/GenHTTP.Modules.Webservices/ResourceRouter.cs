@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
-using GenHTTP.Api.Routing;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Routing;
 
+using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Webservices
@@ -93,6 +95,17 @@ namespace GenHTTP.Modules.Webservices
             }
 
             return Parent.Route(path, currentDepth + 1);
+        }
+
+        public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
+        {
+            // ToDo: useful?
+            foreach (var method in Methods.Where(m => m.MetaData.RequestMethod == RequestMethod.GET))
+            {
+                var path = method.MetaData.Path ?? "/";
+
+                yield return new ContentElement($"{basePath}{path}", Path.GetFileName(path), path.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
+            }
         }
 
         private List<MethodProvider> FindProviders(string path) => Methods.Where(m => m.ParsedPath?.IsMatch(path) ?? false).ToList();

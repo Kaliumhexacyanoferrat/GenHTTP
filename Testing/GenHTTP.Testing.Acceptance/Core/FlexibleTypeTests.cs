@@ -17,6 +17,10 @@ namespace GenHTTP.Testing.Acceptance.Core
         private class Provider : IContentProvider
         {
 
+            public FlexibleContentType? ContentType => new FlexibleContentType("application/x-custom");
+
+            public string? Title => null;
+
             public IResponseBuilder Handle(IRequest request)
             {
                 var stream = new MemoryStream();

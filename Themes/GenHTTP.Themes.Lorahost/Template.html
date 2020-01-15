@@ -1,0 +1,155 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <title>{{ content.title }} - {{ model.title }}</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    {{~ for style in styles ~}}
+    <link rel="stylesheet" href="{{ route style.path }}" />
+    {{~ end ~}}
+
+    <style type="text/css">
+
+        .footer-area {
+            padding-top: 0;
+        }
+
+        .hero-banner {
+            background: url({{ route 'resources/header.jpg' }}) left center no-repeat;
+        }
+
+        .hero-banner-sm {
+            padding-top: 110px;
+            padding-bottom: 20px;
+        }
+
+        .section-margin {
+            margin: 40px 0px;
+        }
+
+        .regular-list {
+            list-style-type: circle;
+            padding-left: 1em;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <header class="header_area">
+
+        <div class="main_menu">
+
+            <nav class="navbar navbar-expand-lg navbar-light">
+
+                <div class="container box_1620">
+                
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse offset" id="navbarSupportedContent">
+
+                        <ul class="nav navbar-nav menu_nav justify-content-end">
+
+                            {{~ for item in menu ~}}
+                    
+                                {{ active = (request.path | string.contains item.path) || ( ( request.path | string.ends_with("/") ) && ( (route item.path) == "./" ) ) }}
+                                                                                 
+                                {{ if item.children }}
+                                    <li class="nav-item submenu dropdown{{ if active }} active{{ end }}">
+                                                                
+                                    <a href="{{ route  item.path }}" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                                       aria-expanded="false">{{ item.title }}</a>
+
+                                    <ul class="dropdown-menu">
+                                                                    
+                                    {{ for child in item.children }}         
+                                        <li class="nav-item"><a class="nav-link" href="{{ route child.path }}">{{ child.title }}</a>          
+                                    {{ end }}
+
+                                    </ul>
+                                {{ else }}
+                                    <li class="nav-item{{ if active }} active{{ end }}"><a class="nav-link" href="{{ route item.path }}">{{ item.title }}</a></li>                                                
+                                {{ end }}
+
+                            {{ end }}
+
+                        </ul>
+                    
+                    </div>
+
+                </div>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+    {{ isRoot = ( ( request.path | string.ends_with("/") ) && ( (route "{root}") == "./" ) )}}
+
+    <section class="hero-banner {{ if !isRoot }}hero-banner-sm {{ end }} text-center">
+
+        <div class="container">
+
+            {{ if isRoot }}
+                <h1>{{ model.title }}</h1>
+            {{ else }}
+                <h1>{{ content.title }}</h1>
+            {{ end }}
+
+            {{ if isRoot }}
+                {{ if model.subtitle }}
+                    <p class="hero-subtitle">{{ model.subtitle }}</p>
+                {{end }}
+                {{ if model.action }}
+                    <a class="button button-outline" href="{{ route model.action }}">{{ model.action_title }}</a>
+                {{ end}}
+            {{ end }}
+
+        </div>
+
+    </section>
+    
+    {{ content.content }}
+
+    <footer class="footer-area section-gap">
+
+        <div class="container">
+
+            <div class="footer-bottom row align-items-center text-center text-lg-left">
+
+                <p class="footer-text m-0 col-lg-8 col-md-12">
+
+                    {{ if model.copyright }}
+                        {{ model.copyright }} | 
+                    {{ end }}
+
+                    This template is made with <i class="ti-heart" aria-hidden="true"></i> by <a href="https://colorlib.com">Colorlib</a>
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+    
+    {{~ for script in scripts ~}}
+        <script src="{{ route script.path }}"></script>
+    {{~ end ~}}
+
+</body>
+
+</html>

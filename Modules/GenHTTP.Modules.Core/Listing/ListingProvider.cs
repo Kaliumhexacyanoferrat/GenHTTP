@@ -18,6 +18,10 @@ namespace GenHTTP.Modules.Core.Listing
 
         public string Path { get; }
 
+        public override string? Title => null;
+
+        public override FlexibleContentType? ContentType => new FlexibleContentType(Api.Protocol.ContentType.TextHtml);
+
         #endregion
 
         #region Initialization

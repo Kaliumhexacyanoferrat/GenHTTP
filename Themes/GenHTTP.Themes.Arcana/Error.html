@@ -1,0 +1,33 @@
+﻿<section class="wrapper style1">
+
+    <div class="container">
+
+        <div id="content">
+            
+            <article>
+
+                <header>
+                    <h2>{{ status }}</h2>
+                </header>
+                
+                <p>
+                    {{
+                        if cause != null
+                            if request.server.development
+                                cause
+                            else 
+                                cause.message
+                            end
+                        else
+                            "The server was unable to process the request."
+                        end
+                    }}
+                </p>
+
+            </article>
+
+        </div>
+
+    </div>
+
+</section>

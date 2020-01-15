@@ -3,10 +3,11 @@ using System.Reflection;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Routing;
-
-using GenHTTP.Core.Routing;
 using GenHTTP.Core.Infrastructure.Configuration;
 using GenHTTP.Core.Infrastructure.Endpoints;
+using GenHTTP.Core.Routing;
+using GenHTTP.Modules.Core;
+using GenHTTP.Modules.Core.Websites;
 
 namespace GenHTTP.Core.Infrastructure
 {
@@ -40,7 +41,12 @@ namespace GenHTTP.Core.Infrastructure
             Version = Assembly.GetExecutingAssembly().GetName().Version;
 
             Companion = companion;
-            Router = new CoreRouter(router);
+
+            var coreWebsite = Website.Create()
+                                     .Content(router)
+                                     .Build();
+
+            Router = new CoreRouter(coreWebsite);
 
             Extensions = extensions;
             Configuration = configuration;

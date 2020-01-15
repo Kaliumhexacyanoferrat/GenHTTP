@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
@@ -37,18 +38,20 @@ namespace GenHTTP.Modules.Core.General
         #endregion
 
         #region Functionality
-
-        public IRenderer<TemplateModel> GetRenderer()
+        
+        public virtual IRenderer<TemplateModel> GetRenderer()
         {
             return Template ?? Parent.GetRenderer();
         }
 
-        public IContentProvider GetErrorHandler(IRequest request, ResponseStatus responseType, Exception? cause)
+        public virtual IContentProvider GetErrorHandler(IRequest request, ResponseStatus responseType, Exception? cause)
         {
             return ErrorHandler ?? Parent.GetErrorHandler(request, responseType, cause);
         }
 
         public abstract void HandleContext(IEditableRoutingContext current);
+
+        public abstract IEnumerable<ContentElement> GetContent(IRequest request, string basePath);
 
         public abstract string? Route(string path, int currentDepth);
 

@@ -9,6 +9,11 @@ namespace GenHTTP.Modules.Core
     public static class Page
     {
 
+        public static PageProviderBuilder From(string title, string content)
+        {
+            return From(content).Title(title);
+        }
+
         public static PageProviderBuilder From(string content)
         {
             return From(Data.FromString(content));

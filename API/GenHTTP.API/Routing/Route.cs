@@ -36,7 +36,7 @@ namespace GenHTTP.Api.Routing
         /// <returns>The string which can be used to access the given level</returns>
         public static string GetRelation(int depth)
         {
-            if (depth == 0)
+            if (depth <= 0)
             {
                 return "./";
             }
