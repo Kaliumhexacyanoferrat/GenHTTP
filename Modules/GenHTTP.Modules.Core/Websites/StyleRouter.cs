@@ -66,7 +66,10 @@ namespace GenHTTP.Modules.Core.Websites
 
             if (!current.Request.Server.Development)
             {
-                current.RegisterContent(Bundle);
+                if (current.ScopedPath.EndsWith("bundle.css"))
+                {
+                    current.RegisterContent(Bundle);
+                }
             }
             else if (Styles.TryGetValue(current.ScopedPath.Substring(1), out Style style))
             {

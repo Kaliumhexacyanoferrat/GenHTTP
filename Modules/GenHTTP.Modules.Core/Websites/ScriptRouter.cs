@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-using GenHTTP.Api.Modules;
+﻿using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
 using GenHTTP.Api.Modules.Websites;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
-
 using GenHTTP.Modules.Core.General;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace GenHTTP.Modules.Core.Websites
 {
@@ -66,7 +64,10 @@ namespace GenHTTP.Modules.Core.Websites
 
             if (!current.Request.Server.Development)
             {
-                current.RegisterContent(Bundle);
+                if (current.ScopedPath.EndsWith("bundle.js"))
+                {
+                    current.RegisterContent(Bundle);
+                }
             }
             else if (Scripts.TryGetValue(current.ScopedPath.Substring(1), out Script script))
             {
