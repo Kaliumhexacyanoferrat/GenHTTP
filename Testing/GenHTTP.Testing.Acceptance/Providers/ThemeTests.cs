@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 
+using Xunit;
+
 using GenHTTP.Api.Modules.Websites;
 using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Core.Websites;
@@ -8,19 +10,11 @@ using GenHTTP.Modules.Themes.Arcana;
 using GenHTTP.Modules.Themes.Lorahost;
 using GenHTTP.Testing.Acceptance.Domain;
 
-using Xunit;
-
 namespace GenHTTP.Testing.Acceptance.Providers
 {
 
     public class ThemeTests
     {
-
-        public static IEnumerable<object[]> Themes => new List<object[]>
-        {
-            new object[] { new LorahostBuilder().Build() },
-            new object[] { new ArcanaBuilder().Build() }
-        };
 
         [Theory]
         [MemberData(nameof(Themes))]
@@ -56,6 +50,39 @@ namespace GenHTTP.Testing.Acceptance.Providers
                           .Theme(theme)
                           .Content(layout);
         }
+
+        #region Theme registration & setup
+
+        public static IEnumerable<object[]> Themes => new List<object[]>
+        {
+            new object[] { GetLorahost() },
+            new object[] { GetArcana() }
+        };
+
+        private static ITheme GetLorahost()
+        {
+            return new LorahostBuilder().Copyright("2020 - UATs")
+                                        .Title("Some Title")
+                                        .Subtitle("Some Subtitle")
+                                        .Action("Do something", "/someaction")
+                                        .Header(Data.FromString("Broken Image :("))
+                                        .Build();
+        }
+
+        private static ITheme GetArcana()
+        {
+            var footer = Menu.Empty()
+                             .Add("page1", "Page 1")
+                             .Add("page2", "Page 2", new List<(string, string)> { ("{root}", "Root"), ("{root}/page1", "Page 1") });
+
+            return new ArcanaBuilder().Title("Some Title")
+                                      .Copyright("Copyright")
+                                      .Footer1("Footer #1", footer)
+                                      .Footer2("Footer #2", footer)                                    
+                                      .Build();
+        }
+
+        #endregion
 
     }
 
