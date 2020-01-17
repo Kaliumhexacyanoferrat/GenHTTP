@@ -39,6 +39,16 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.Equal(HttpStatusCode.OK, index.StatusCode);
         }
 
+        [Theory]
+        [MemberData(nameof(Themes))]
+        public void TestErrorHandling(ITheme theme)
+        {
+            using var runner = TestRunner.Run(GetWebsite(theme));
+
+            using var index = runner.GetResponse("/idonotexist");
+            Assert.Equal(HttpStatusCode.NotFound, index.StatusCode);
+        }
+
         private WebsiteBuilder GetWebsite(ITheme theme)
         {
             var layout = Layout.Create()

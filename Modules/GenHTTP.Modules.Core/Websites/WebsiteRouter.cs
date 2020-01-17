@@ -10,8 +10,6 @@ using GenHTTP.Api.Routing;
 namespace GenHTTP.Modules.Core.Websites
 {
 
-    // ToDo: Script-Ordner usw. konfigurierbar
-
     public class WebsiteRouter : IRouter
     {
         private IRouter? _Parent;

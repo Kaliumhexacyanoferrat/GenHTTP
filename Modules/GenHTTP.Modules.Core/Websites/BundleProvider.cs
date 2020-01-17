@@ -34,7 +34,6 @@ namespace GenHTTP.Modules.Core.Websites
 
         public IResponseBuilder Handle(IRequest request)
         {
-            // ToDo: Custom stream implementation for less copying
             var newLine = new byte[] { (byte)'\n' };
 
             var content = new MemoryStream();

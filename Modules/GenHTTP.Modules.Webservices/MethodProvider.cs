@@ -45,7 +45,7 @@ namespace GenHTTP.Modules.Webservices
 
         public string? Title => null;
 
-        public FlexibleContentType? ContentType => null; // ToDo: Best effort
+        public FlexibleContentType? ContentType => null;
 
         #endregion
 

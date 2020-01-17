@@ -70,7 +70,6 @@ namespace GenHTTP.Modules.Core.Listing
         {
             foreach (var directory in Info.GetDirectories())
             {
-                // ToDo: This needs to be recursive!
                 yield return new ContentElement($"{basePath}{directory.Name}/", directory.Name, ContentType.TextHtml, null);
             }
 

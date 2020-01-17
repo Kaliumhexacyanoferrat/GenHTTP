@@ -56,7 +56,6 @@ namespace GenHTTP.Modules.Core.StaticContent
             {
                 var childPath = Path.GetRelativePath(Directory.FullName, file.FullName);
 
-                // ToDo: better organized with folders (aka children)
                 yield return new ContentElement($"{basePath}{childPath}", file.Name, file.Name.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
             }
         }

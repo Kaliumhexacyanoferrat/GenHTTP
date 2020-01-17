@@ -99,7 +99,6 @@ namespace GenHTTP.Modules.Webservices
 
         public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
         {
-            // ToDo: useful?
             foreach (var method in Methods.Where(m => m.MetaData.RequestMethod == RequestMethod.GET))
             {
                 var path = method.MetaData.Path ?? "/";
