@@ -57,7 +57,7 @@ namespace GenHTTP.Modules.Core.Proxy
             {
                 var req = ConfigureRequest(request);
 
-                if (request.Content != null)
+                if ((request.Content != null) && CanSendBody(request))
                 {
                     using (var inputStream = req.GetRequestStream())
                     {
@@ -189,6 +189,11 @@ namespace GenHTTP.Modules.Core.Proxy
         private bool HasBody(IRequest request, HttpWebResponse response)
         {
             return !request.HasType(RequestMethod.HEAD) && (response.ContentType != null);
+        }
+
+        private bool CanSendBody(IRequest request)
+        {
+            return (request.Method != RequestMethod.GET) && (request.Method != RequestMethod.HEAD);
         }
 
         private string RewriteLocation(string location, IRequest request)
