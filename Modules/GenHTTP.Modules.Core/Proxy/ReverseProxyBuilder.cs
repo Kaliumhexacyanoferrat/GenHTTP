@@ -1,14 +1,13 @@
 ﻿using System;
 
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Modules;
-
+using GenHTTP.Api.Routing;
 using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core.Proxy
 {
 
-    public class ReverseProxyProviderBuilder : ContentBuilderBase
+    public class ReverseProxyBuilder : RouterBuilderBase<ReverseProxyRouter>
     {
         private string? _Upstream;
 
@@ -17,7 +16,7 @@ namespace GenHTTP.Modules.Core.Proxy
 
         #region Functionality
 
-        public ReverseProxyProviderBuilder Upstream(string upstream)
+        public ReverseProxyBuilder Upstream(string upstream)
         {
             _Upstream = upstream;
 
@@ -29,26 +28,26 @@ namespace GenHTTP.Modules.Core.Proxy
             return this;
         }
 
-        public ReverseProxyProviderBuilder ConnectTimeout(TimeSpan connectTimeout)
+        public ReverseProxyBuilder ConnectTimeout(TimeSpan connectTimeout)
         {
             _ConnectTimeout = connectTimeout;
             return this;
         }
 
-        public ReverseProxyProviderBuilder ReadTimeout(TimeSpan readTimeout)
+        public ReverseProxyBuilder ReadTimeout(TimeSpan readTimeout)
         {
             _ReadTimeout = readTimeout;
             return this;
         }
 
-        public override IContentProvider Build()
+        public override IRouter Build()
         {
             if (_Upstream == null)
             {
                 throw new BuilderMissingPropertyException("Upstream");
             }
 
-            return new ReverseProxyProvider(_Upstream, _ConnectTimeout, _ReadTimeout, _Modification);
+            return new ReverseProxyRouter(_Upstream, _ConnectTimeout, _ReadTimeout, _ErrorHandler);
         }
 
         #endregion

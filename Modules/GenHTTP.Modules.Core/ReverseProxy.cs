@@ -6,9 +6,9 @@ namespace GenHTTP.Modules.Core
     public static class ReverseProxy
     {
 
-        public static ReverseProxyProviderBuilder Create()
+        public static ReverseProxyBuilder Create()
         {
-            return new ReverseProxyProviderBuilder();
+            return new ReverseProxyBuilder();
         }
 
     }
