@@ -99,6 +99,14 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             Assert.Equal(redirected.Headers["Location"], $"http://localhost:{runner.Port}/target");
 
+            // test head
+            var headRequest = runner.GetRequest();
+            headRequest.Method = "HEAD";
+
+            using var headed = headRequest.GetSafeResponse();
+
+            Assert.Equal(HttpStatusCode.OK, headed.StatusCode);
+
             // test cookies
             var cookieRequest = runner.GetRequest();
             cookieRequest.CookieContainer = new CookieContainer();

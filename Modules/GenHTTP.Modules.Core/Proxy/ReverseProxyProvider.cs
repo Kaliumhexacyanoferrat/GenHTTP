@@ -178,12 +178,17 @@ namespace GenHTTP.Modules.Core.Proxy
                 builder.ContentLength((ulong)response.ContentLength);
             }
 
-            if (!request.HasType(RequestMethod.HEAD))
+            if (HasBody(request, response))
             {
                 builder.Content(response.GetResponseStream(), response.ContentType);
             }
 
             return builder;
+        }
+
+        private bool HasBody(IRequest request, HttpWebResponse response)
+        {
+            return !request.HasType(RequestMethod.HEAD) && (response.ContentType != null);
         }
 
         private string RewriteLocation(string location, IRequest request)

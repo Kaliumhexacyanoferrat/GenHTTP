@@ -77,7 +77,9 @@ namespace GenHTTP.Core.Protocol
 
             return (request.Method.KnownMethod != RequestMethod.HEAD)
                 && (knownStatus != ResponseStatus.NoContent)
-                && (knownStatus != ResponseStatus.NotModified);
+                && (knownStatus != ResponseStatus.NotModified)
+                && (knownStatus != ResponseStatus.PermanentRedirect)
+                && (knownStatus != ResponseStatus.TemporaryRedirect);
         }
 
         private async Task WriteStatus(IRequest request, IResponse response)
