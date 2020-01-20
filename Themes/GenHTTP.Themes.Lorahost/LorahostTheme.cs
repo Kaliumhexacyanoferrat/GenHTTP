@@ -55,7 +55,7 @@ namespace GenHTTP.Modules.Themes.Lorahost
                 return new List<Script>
                 {
                     GetScript("jquery.js"), GetScript("jquery.ajaxchimp.js"), GetScript("mail-script.js"),
-                    GetScript("owl.carousel.js"), GetScript("main.js")
+                    GetScript("owl.carousel.js"), GetScript("main.js"), GetScript("bootstrap.js")
                 };
             }
         }
