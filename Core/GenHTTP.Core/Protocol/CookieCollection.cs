@@ -1,7 +1,6 @@
-﻿using System;
+﻿using GenHTTP.Api.Protocol;
+using System;
 using System.Collections.Generic;
-
-using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Core.Protocol
 {
@@ -19,7 +18,10 @@ namespace GenHTTP.Core.Protocol
         {
             foreach (var cookie in Parse(header))
             {
-                Add(cookie.Name, cookie);
+                if (!ContainsKey(cookie.Name))
+                {
+                    Add(cookie.Name, cookie);
+                }
             }
         }
 
