@@ -58,7 +58,7 @@ namespace GenHTTP.Core.Protocol
             }
             else { return null; }
 
-            while (await TryReadHeader(buffer, request)) { }
+            while (await TryReadHeader(buffer, request)) { /* nop */ }
 
             if (await TryReadToken(buffer, '\r') == null)
             {
