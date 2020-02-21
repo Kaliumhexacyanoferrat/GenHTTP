@@ -173,6 +173,11 @@ namespace GenHTTP.Core.Protocol
 
             var protocol = (_EndPoint.Secure) ? ClientProtocol.HTTPS : ClientProtocol.HTTP;
 
+            if (!Headers.ContainsKey("Host"))
+            {
+                throw new ProtocolException("Mandatory 'Host' header is missing from the request");
+            }
+
             var localClient = new ClientConnection(_Address, protocol, Headers["Host"]);
 
             var client = DetermineClient() ?? localClient;

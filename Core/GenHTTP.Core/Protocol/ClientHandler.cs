@@ -1,11 +1,13 @@
-﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Core.Infrastructure.Configuration;
-using GenHTTP.Core.Protocol;
-using System;
+﻿using System;
 using System.IO;
+using System.IO.Pipelines;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+
+using GenHTTP.Api.Infrastructure;
+using GenHTTP.Core.Infrastructure.Configuration;
+using GenHTTP.Core.Protocol;
 
 namespace GenHTTP.Core
 {
@@ -25,8 +27,6 @@ namespace GenHTTP.Core
 
         internal Stream Stream { get; }
 
-        private RequestParser Parser { get; }
-
         private bool? KeepAlive { get; set; }
 
         #endregion
@@ -42,8 +42,6 @@ namespace GenHTTP.Core
             Connection = socket;
 
             Stream = stream;
-
-            Parser = new RequestParser(Stream, Configuration);
         }
 
         #endregion
@@ -54,22 +52,9 @@ namespace GenHTTP.Core
         {
             try
             {
-                var closeConnection = false;
+                var options = new StreamPipeReaderOptions(leaveOpen: true);
 
-                do
-                {
-                    var request = await Parser.GetRequest();
-
-                    if (request != null)
-                    {
-                        closeConnection = await HandleRequest(request);
-                    }
-                    else
-                    {
-                        closeConnection = true;
-                    }
-                }
-                while (!closeConnection);
+                await HandlePipe(PipeReader.Create(Stream, options));
             }
             catch (Exception e)
             {
@@ -93,6 +78,30 @@ namespace GenHTTP.Core
                 {
                     Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, e);
                 }
+            }
+        }
+
+        private async Task HandlePipe(PipeReader reader)
+        {
+            try
+            {
+                var buffer = new RequestBuffer(reader, Configuration);
+
+                var parser = new RequestParser(Configuration);
+
+                RequestBuilder? request;
+
+                while ((request = await parser.TryParseAsync(buffer)) != null)
+                {
+                    if (!await HandleRequest(request))
+                    {
+                        break;
+                    }
+                }
+            }
+            finally
+            {
+                await reader.CompleteAsync();
             }
         }
 

@@ -1,160 +1,84 @@
 ﻿using System;
 using System.Buffers;
-using System.IO;
-using System.Text;
+using System.IO.Pipelines;
 using System.Threading.Tasks;
+
+using GenHTTP.Core.Infrastructure.Configuration;
 
 namespace GenHTTP.Core.Protocol
 {
 
-    internal class RequestBuffer : IDisposable
+    internal class RequestBuffer
     {
-        private static ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
-
-        private static readonly Encoding ENCODING = Encoding.GetEncoding("ISO-8859-1");
 
         #region Get-/Setters
 
-        public MemoryStream Data { get; }
+        private PipeReader Reader { get; }
 
-        private StringBuilder? StringBuffer { get; set; }
+        private NetworkConfiguration Configuration { get; }
+
+        internal ReadOnlySequence<byte> Data { get; private set; }
+
+        internal bool InitialBuffer { get; private set; }
 
         #endregion
 
         #region Initialization
 
-        public RequestBuffer()
+        internal RequestBuffer(PipeReader reader, NetworkConfiguration configuration)
         {
-            Data = new MemoryStream();
-            StringBuffer = null;
-        }
+            Reader = reader;
+            Configuration = configuration;
 
-        public RequestBuffer(byte[] data, int length)
-        {
-            Data = new MemoryStream();
-
-            Data.Write(data, 0, length);
-            Data.Seek(0, SeekOrigin.Begin);
-
-            StringBuffer = null;
+            Data = new ReadOnlySequence<byte>();
+            InitialBuffer = true;
         }
 
         #endregion
 
         #region Functionality
 
-        public async Task Append(byte[] data, int bytesRead)
+        internal async ValueTask<long?> Read()
         {
-            Data.Seek(0, SeekOrigin.End);
-
-            await Data.WriteAsync(data, 0, bytesRead);
-
-            Data.Seek(-bytesRead, SeekOrigin.Current);
-
-            StringBuffer = null;
-        }
-
-        public string GetString()
-        {
-            if (StringBuffer != null)
+            if (Data.Length == 0)
             {
-                return StringBuffer.ToString();
-            }
-
-            var position = Data.Position;
-            var result = "";
-
-            using (var reader = new StreamReader(Data, ENCODING, false, RequestParser.READ_BUFFER_SIZE, true))
-            {
-                result = reader.ReadToEnd();
-            }
-
-            Data.Seek(position, SeekOrigin.Begin);
-
-            StringBuffer = new StringBuilder(result);
-
-            return result;
-        }
-
-        public void Advance(ushort bytes)
-        {
-            Data.Seek(bytes, SeekOrigin.Current);
-            StringBuffer?.Remove(0, bytes);
-        }
-
-        public async Task<int> Migrate(Stream target, long maxBytes)
-        {
-            var available = (int)Math.Min(Data.Length - Data.Position, maxBytes);
-
-            if (available > 0)
-            {
-                var buffer = POOL.Rent(available);
-
-                try
+                if (!InitialBuffer)
                 {
-                    await Data.ReadAsync(buffer, 0, available);
-
-                    await target.WriteAsync(buffer, 0, available);
-
-                    StringBuffer = null;
-
-                    return available;
+                    Acknowledge();
                 }
-                finally
+                else
                 {
-                    POOL.Return(buffer);
+                    InitialBuffer = false;
+                }
+
+                var data = await Reader.ReadWithTimeoutAsync(Configuration.RequestReadTimeout);
+
+                if (data != null)
+                {
+                    Data = data.Value.Buffer;
+                }
+                else
+                {
+                    return null;
                 }
             }
 
-            return 0;
+            return Data.Length;
         }
 
-        public async Task<RequestBuffer> GetNext()
+        internal void Advance(SequencePosition position)
         {
-            if (Data.Position < Data.Length)
-            {
-                var length = (int)(Data.Length - Data.Position);
-
-                var remaining = POOL.Rent(length);
-
-                try
-                {
-                    await Data.ReadAsync(remaining, 0, remaining.Length);
-                }
-                finally
-                {
-                    POOL.Return(remaining);
-                }
-
-                return new RequestBuffer(remaining, length);
-            }
-
-            return new RequestBuffer();
+            Data = Data.Slice(position);
         }
 
-        #endregion
-
-        #region IDisposable Support
-
-        private bool disposed = false;
-
-        protected virtual void Dispose(bool disposing)
+        internal void Advance(long bytes)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    Data.Dispose();
-                }
-
-                disposed = true;
-            }
+            Data = Data.Slice(bytes);
         }
 
-        public void Dispose()
+        internal void Acknowledge()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            Reader.AdvanceTo(Data.Start, Data.End);
         }
 
         #endregion
