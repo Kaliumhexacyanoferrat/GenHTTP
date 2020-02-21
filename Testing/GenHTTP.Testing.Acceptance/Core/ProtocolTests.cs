@@ -35,6 +35,21 @@ namespace GenHTTP.Testing.Acceptance.Core
 
         }
 
+        private class ContentLengthResponder : IContentProvider
+        {
+
+            public string? Title => "Content Length Responder";
+
+            public FlexibleContentType? ContentType => new FlexibleContentType(Api.Protocol.ContentType.TextPlain);
+
+            public IResponseBuilder Handle(IRequest request)
+            {
+                var stream = new MemoryStream(Encoding.UTF8.GetBytes(request.Content?.Length.ToString() ?? "No Content"));
+                return request.Respond().Content(stream, Api.Protocol.ContentType.TextPlain);
+            }
+
+        }
+
         /// <summary>
         /// As a client I can stream data to the server.
         /// </summary>
@@ -69,7 +84,7 @@ namespace GenHTTP.Testing.Acceptance.Core
         [Fact]
         public void TestPutLarge()
         {
-            using var runner = TestRunner.Run(Layout.Create().Add("test", Content.From("Yes!")));
+            using var runner = TestRunner.Run(Layout.Create().Add("test", new ContentLengthResponder()));
 
             var request = runner.GetRequest("/test");
             request.Method = "PUT";
@@ -89,9 +104,9 @@ namespace GenHTTP.Testing.Acceptance.Core
 
             using var response = request.GetSafeResponse();
 
-            Assert.Equal("Yes!", response.GetContent());
+            Assert.Equal("1310720", response.GetContent());
         }
-
+        
     }
 
 }

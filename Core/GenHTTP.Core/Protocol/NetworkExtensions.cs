@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO.Pipelines;
 using System.Threading.Tasks;
 
 namespace GenHTTP.Core.Protocol
@@ -7,20 +8,20 @@ namespace GenHTTP.Core.Protocol
     internal static class NetworkExtensions
     {
 
-        internal static async Task<int> ReadWithTimeoutAsync(this Stream stream, byte[] buffer, int offset, int count)
+        internal static async ValueTask<ReadResult?> ReadWithTimeoutAsync(this PipeReader reader, TimeSpan timeout)
         {
-            var result = 0;
+            ReadResult? result = null;
 
             var task = Task.Run(async () =>
             {
-                result = await stream.ReadAsync(buffer, offset, count);
+                result = await reader.ReadAsync();
             });
 
-            var success = await Task.WhenAny(task, Task.Delay(stream.ReadTimeout)) == task;
+            var success = await Task.WhenAny(task, Task.Delay(timeout)) == task;
 
-            if (!success || result == 0)
+            if (!success || (result == null))
             {
-                return -1;
+                return null;
             }
 
             return result;

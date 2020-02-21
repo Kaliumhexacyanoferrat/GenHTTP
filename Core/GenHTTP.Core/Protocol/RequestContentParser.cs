@@ -1,8 +1,7 @@
-﻿using System.Buffers;
+﻿using System;
+using System.Buffers;
 using System.IO;
 using System.Threading.Tasks;
-
-using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Core.Infrastructure.Configuration;
 
@@ -11,7 +10,6 @@ namespace GenHTTP.Core.Protocol
 
     internal class RequestContentParser
     {
-        private static ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
 
         #region Get-/Setters
 
@@ -33,50 +31,35 @@ namespace GenHTTP.Core.Protocol
 
         #region Functionality
 
-        public async Task<Stream> GetBody(RequestBuffer buffer, Stream inputStream)
+        internal async Task<Stream> GetBody(RequestBuffer buffer)
         {
             var body = (Length > Configuration.RequestMemoryLimit) ? TemporaryFileStream.Create() : new MemoryStream((int)Length);
 
-            var toFetch = Length - await buffer.Migrate(body, Length);
+            var toFetch = Length;
 
             while (toFetch > 0)
             {
-                var read = await Migrate(inputStream, body);
+                await buffer.Read();
 
-                if (read > 0)
+                var toRead = Math.Min(buffer.Data.Length, Math.Min(Configuration.TransferBufferSize, toFetch));
+
+                var data = buffer.Data.Slice(0, toRead);
+
+                var position = data.GetPosition(0);
+
+                while (data.TryGet(ref position, out var memory))
                 {
-                    toFetch -= read;
+                    body.Write(memory.Span);
                 }
-                else
-                {
-                    throw new NetworkException("Failed to read body from stream");
-                }
+
+                buffer.Advance(toRead);
+
+                toFetch -= toRead;
             }
-
+            
             body.Seek(0, SeekOrigin.Begin);
 
             return body;
-        }
-
-        private async Task<int> Migrate(Stream source, Stream target)
-        {
-            var buffer = POOL.Rent((int)Configuration.TransferBufferSize);
-
-            try
-            {
-                var read = await source.ReadWithTimeoutAsync(buffer, 0, buffer.Length);
-
-                if (read > 0)
-                {
-                    await target.WriteAsync(buffer, 0, read);
-                }
-
-                return read;
-            }
-            finally
-            {
-                POOL.Return(buffer);
-            }
         }
 
         #endregion
