@@ -19,8 +19,6 @@ namespace GenHTTP.Core.Protocol
 
         internal ReadOnlySequence<byte> Data { get; private set; }
 
-        internal bool InitialBuffer { get; private set; }
-
         #endregion
 
         #region Initialization
@@ -31,26 +29,16 @@ namespace GenHTTP.Core.Protocol
             Configuration = configuration;
 
             Data = new ReadOnlySequence<byte>();
-            InitialBuffer = true;
         }
 
         #endregion
 
         #region Functionality
 
-        internal async ValueTask<long?> Read()
+        internal async ValueTask<long?> Read(bool force = false)
         {
-            if (Data.Length == 0)
+            if ((Data.Length == 0) || force)
             {
-                if (!InitialBuffer)
-                {
-                    Acknowledge();
-                }
-                else
-                {
-                    InitialBuffer = false;
-                }
-
                 var data = await Reader.ReadWithTimeoutAsync(Configuration.RequestReadTimeout);
 
                 if (data != null)
@@ -69,16 +57,18 @@ namespace GenHTTP.Core.Protocol
         internal void Advance(SequencePosition position)
         {
             Data = Data.Slice(position);
+            Acknowledge();
         }
 
         internal void Advance(long bytes)
         {
             Data = Data.Slice(bytes);
+            Acknowledge();
         }
 
         internal void Acknowledge()
         {
-            Reader.AdvanceTo(Data.Start, Data.End);
+            Reader.AdvanceTo(Data.Start); // , Data.End
         }
 
         #endregion
