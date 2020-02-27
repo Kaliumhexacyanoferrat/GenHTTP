@@ -21,6 +21,8 @@
     <Description>Lightweight web server written in pure C# with few dependencies to 3rd-party libraries.</Description>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     
   </PropertyGroup>
 

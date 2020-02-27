@@ -21,6 +21,8 @@
     <Description>Provides renderers based on the Scriban templating engine that can be used to render websites in projects running on the GenHTTP webserver.</Description>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
   </PropertyGroup>
 

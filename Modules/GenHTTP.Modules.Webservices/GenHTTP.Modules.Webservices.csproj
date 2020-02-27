@@ -21,6 +21,8 @@
     <Description>Module to add REST-based webservices to a GenHTTP project.</Description>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
   </PropertyGroup>
 
