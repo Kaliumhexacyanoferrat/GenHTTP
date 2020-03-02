@@ -103,13 +103,20 @@ namespace GenHTTP.Core.Protocol
 
         private async Task<string?> TryReadToken(RequestBuffer buffer, char delimiter)
         {
-            await buffer.Read();
+            if (await buffer.Read() == null)
+            {
+                return null;
+            }
 
             var position = buffer.Data.PositionOf((byte)delimiter);
 
             if (position == null)
             {
-                await buffer.Read(true);
+                if (await buffer.Read(true) == null)
+                {
+                    return null;
+                }
+
                 position = buffer.Data.PositionOf((byte)delimiter);
             }
 
