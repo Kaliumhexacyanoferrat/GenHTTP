@@ -15,8 +15,6 @@ env:
 addons:
   sonarcloud:
     organization: "kaliumhexacyanoferrat"
-    token:
-      secure: $SONAR_TOKEN
 
 install:
   - git fetch --unshallow --tags
