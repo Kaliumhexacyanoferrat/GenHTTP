@@ -69,9 +69,12 @@ namespace GenHTTP.Core.Protocol
             {
                 if (long.TryParse(bodyLength, out var length))
                 {
-                    var parser = new RequestContentParser(length, Configuration);
+                    if (length > 0)
+                    {
+                        var parser = new RequestContentParser(length, Configuration);
 
-                    request.Content(await parser.GetBody(buffer));
+                        request.Content(await parser.GetBody(buffer));
+                    }
                 }
                 else
                 {
@@ -100,6 +103,8 @@ namespace GenHTTP.Core.Protocol
 
         private async Task<string?> TryReadToken(RequestBuffer buffer, char delimiter)
         {
+            await buffer.Read();
+
             var position = buffer.Data.PositionOf((byte)delimiter);
 
             if (position == null)

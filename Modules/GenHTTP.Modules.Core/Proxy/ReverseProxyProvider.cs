@@ -57,7 +57,7 @@ namespace GenHTTP.Modules.Core.Proxy
             {
                 var req = ConfigureRequest(request);
 
-                if (request.Content != null)
+                if ((request.Content != null) && CanSendBody(request))
                 {
                     using (var inputStream = req.GetRequestStream())
                     {
@@ -184,6 +184,11 @@ namespace GenHTTP.Modules.Core.Proxy
             }
 
             return builder;
+        }
+
+        private bool CanSendBody(IRequest request)
+        {
+            return !request.HasType(RequestMethod.GET, RequestMethod.HEAD, RequestMethod.OPTIONS);
         }
 
         private bool HasBody(IRequest request, HttpWebResponse response)
