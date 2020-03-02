@@ -131,10 +131,10 @@ namespace GenHTTP.Core
                         Connection.Disconnect(false);
                         Connection.Close();
 
-                        return true;
+                        return false;
                     }
 
-                    return false;
+                    return true;
                 }
             }
         }
