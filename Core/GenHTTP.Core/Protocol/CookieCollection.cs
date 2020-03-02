@@ -19,7 +19,10 @@ namespace GenHTTP.Core.Protocol
         {
             foreach (var cookie in Parse(header))
             {
-                Add(cookie.Name, cookie);
+                if (!ContainsKey(cookie.Name))
+                {
+                    Add(cookie.Name, cookie);
+                }
             }
         }
 
