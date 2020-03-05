@@ -21,10 +21,10 @@ jobs:
     - name: Restore tools
       run: dotnet tool restore
     - name: Begin scan
-      run: dotnet sonarscanner begin /k:"GenHTTP" /d:sonar.login="$SONAR_TOKEN" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/bin/**/*,**/obj/**/*,**/Examples/**/*,**/*.css,**/*.js,**/*.html"
+      run: dotnet sonarscanner begin /k:"GenHTTP" /d:sonar.login="$SONAR_TOKEN" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/bin/**/*,**/obj/**/*,**/Examples/**/*,**/*.css,**/*.js,**/*.html" /d:sonar.organization="kaliumhexacyanoferrat" /d:sonar.projectKey="GenHTTP" /d:sonar.sources="." /d:sonar.host.url="https://sonarcloud.io"
     - name: Build project
       run: dotnet build GenHTTP.sln -c Release
     - name: Test project
       run: dotnet test -c Release --no-build GenHTTP.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ParallelizeTestCollections=false /p:Exclude=\"[xunit.*]*,[*Test*]*,[GenHTTP.Examples.*]*\" 
     - name: Restore tools
-      run: dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
+      run: dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN" /d:sonar.organization="kaliumhexacyanoferrat" /d:sonar.projectKey="GenHTTP" /d:sonar.sources="." /d:sonar.host.url="https://sonarcloud.io"
