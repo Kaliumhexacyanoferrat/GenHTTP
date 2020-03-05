@@ -1,9 +1,7 @@
-﻿using System.IO;
-using System.IO.Compression;
+﻿using System.IO.Compression;
 
 using GenHTTP.Api.Infrastructure;
-
-using GenHTTP.Modules.Core.General;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.Compression
 {
@@ -14,10 +12,10 @@ namespace GenHTTP.Modules.Core.Compression
         public string Name => "gzip";
 
         public Priority Priority => Priority.Low;
-
-        public Stream Compress(Stream content)
+        
+        public IResponseContent Compress(IResponseContent content)
         {
-            return new FilteredStream(content, (mem) => new GZipStream(mem, CompressionLevel.Fastest, false));
+            return new CompressedContent(content, (target) => new GZipStream(target, CompressionLevel.Fastest, false));
         }
 
     }

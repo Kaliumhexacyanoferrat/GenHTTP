@@ -1,12 +1,10 @@
-﻿using System.IO;
-using System.Text;
+﻿using Xunit;
 
-using Xunit;
-
-using GenHTTP.Modules.Core;
 using GenHTTP.Testing.Acceptance.Domain;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Core;
+using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Testing.Acceptance.Core
 {
@@ -29,7 +27,8 @@ namespace GenHTTP.Testing.Acceptance.Core
 
                 return request.Respond()
                               .Cookie(new Cookie("TestCookie", "TestValue"))
-                              .Content(new MemoryStream(Encoding.UTF8.GetBytes("I ❤ Cookies!")), ContentType!.RawType);
+                              .Content(new StringContent("I ❤ Cookies!"))
+                              .Type(ContentType!);
 
             }
 

@@ -2,12 +2,11 @@
 using System.IO;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
-using System.Text;
 using System.Text.RegularExpressions;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
-
+using GenHTTP.Modules.Core.General;
 using GenHTTP.Modules.Webservices.Util;
 
 namespace GenHTTP.Modules.Webservices
@@ -172,14 +171,16 @@ namespace GenHTTP.Modules.Webservices
             // stream returned as a download
             if (result is Stream download)
             {
-                return request.Respond().Content(download, Api.Protocol.ContentType.ApplicationForceDownload);
+                return request.Respond()
+                              .Content(new StreamContent(download))
+                              .Type(Api.Protocol.ContentType.ApplicationForceDownload);
             }
 
             // basic types should produce a string value
             if (type.IsPrimitive || type == typeof(string) || type.IsEnum)
             {
-                var stream = new MemoryStream(Encoding.UTF8.GetBytes(result.ToString()));
-                return request.Respond().Content(stream, Api.Protocol.ContentType.TextPlain);
+                return request.Respond().Content(new StringContent(result.ToString()))
+                                        .Type(Api.Protocol.ContentType.TextPlain);
             }
 
             // serialize the result

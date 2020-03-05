@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-using Xunit;
+﻿using Xunit;
 
 using GenHTTP.Testing.Acceptance.Domain;
 using GenHTTP.Modules.Core;
@@ -19,8 +17,8 @@ namespace GenHTTP.Testing.Acceptance.Core
             public string Name => "custom";
 
             public Priority Priority => Priority.High;
-
-            public Stream Compress(Stream content)
+            
+            public IResponseContent Compress(IResponseContent content)
             {
                 return content;
             }

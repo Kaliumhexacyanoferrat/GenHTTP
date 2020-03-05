@@ -17,13 +17,9 @@ namespace GenHTTP.Modules.Webservices.Formats
 
         public IResponseBuilder Serialize(IRequest request, object response)
         {
-            var stream = new MemoryStream();
-
-            new XmlSerializer(response.GetType()).Serialize(stream, response);
-
-            stream.Seek(0, SeekOrigin.Begin);
-
-            return request.Respond().Content(stream, ContentType.TextXml);
+            return request.Respond()
+                          .Content(new XmlContent(response))
+                          .Type(ContentType.TextXml);
         }
 
     }

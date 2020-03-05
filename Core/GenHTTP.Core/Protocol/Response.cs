@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 
 using GenHTTP.Api.Protocol;
 using GenHTTP.Core.Protocol;
@@ -27,7 +26,7 @@ namespace GenHTTP.Core
 
         public ulong? ContentLength { get; set; }
 
-        public Stream? Content { get; set; }
+        public IResponseContent? Content { get; set; }
 
         public ICookieCollection Cookies => _Cookies;
 
@@ -89,9 +88,9 @@ namespace GenHTTP.Core
             {
                 if (disposing)
                 {
-                    if (Content != null)
+                    if (Content is IDisposable disposableContent)
                     {
-                        Content.Dispose();
+                        disposableContent.Dispose();
                     }
                 }
 

@@ -10,6 +10,7 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Testing.Acceptance.Domain;
 using GenHTTP.Modules.Core;
 using GenHTTP.Api.Modules;
+using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Testing.Acceptance.Core
 {
@@ -44,8 +45,11 @@ namespace GenHTTP.Testing.Acceptance.Core
 
             public IResponseBuilder Handle(IRequest request)
             {
-                var stream = new MemoryStream(Encoding.UTF8.GetBytes(request.Content?.Length.ToString() ?? "No Content"));
-                return request.Respond().Content(stream, Api.Protocol.ContentType.TextPlain);
+                var content = request.Content?.Length.ToString() ?? "No Content";
+
+                return request.Respond()
+                              .Content(new StringContent(content))
+                              .Type(Api.Protocol.ContentType.TextPlain);
             }
 
         }

@@ -7,8 +7,9 @@ using Xunit;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Core;
 using GenHTTP.Testing.Acceptance.Domain;
+using GenHTTP.Modules.Core;
+using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Testing.Acceptance.Core
 {
@@ -32,10 +33,9 @@ namespace GenHTTP.Testing.Acceptance.Core
 
             public IResponseBuilder Handle(IRequest request)
             {
-                var content = new MemoryStream(Encoding.UTF8.GetBytes("Hello World"));
-
                 return request.Respond()
-                              .Content(content, "text/x-custom")
+                              .Content(new StringContent("Hello World"))
+                              .Type("text/x-custom")
                               .Expires(DateTime.Now.AddYears(1))
                               .Modified(Modified)
                               .Header("X-Powered-By", "Test Runner");

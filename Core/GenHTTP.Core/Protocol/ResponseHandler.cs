@@ -14,8 +14,6 @@ namespace GenHTTP.Core.Protocol
 
     internal class ResponseHandler
     {
-        private static ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
-
         private static readonly Encoding HEADER_ENCODING = Encoding.GetEncoding("ISO-8859-1");
 
         private static readonly string NL = "\r\n";
@@ -148,42 +146,17 @@ namespace GenHTTP.Core.Protocol
         {
             if (response.Content != null)
             {
-                if (response.Content.CanSeek && (response.Content.Position != 0))
-                {
-                    response.Content.Seek(0, SeekOrigin.Begin);
-                }
-
                 if (response.ContentLength == null)
                 {
-                    int read;
+                    using var chunked = new ChunkedStream(OutputStream);
 
-                    var buffer = POOL.Rent((int)Configuration.TransferBufferSize);
-
-                    try
-                    {
-                        do
-                        {
-                            read = await response.Content.ReadAsync(buffer, 0, buffer.Length);
-
-                            if (read > 0)
-                            {
-                                await Write($"{read.ToString("X")}{NL}");
-                                await OutputStream.WriteAsync(buffer, 0, read);
-                                await Write(NL);
-                            }
-                        }
-                        while (read > 0);
-                    }
-                    finally
-                    {
-                        POOL.Return(buffer);
-                    }
-
-                    await Write($"0{NL}{NL}");
+                    await response.Content.Write(chunked, Configuration.TransferBufferSize);
+                    
+                    chunked.Finish();
                 }
                 else
                 {
-                    await response.Content.CopyToAsync(OutputStream, (int)Configuration.TransferBufferSize);
+                    await response.Content.Write(OutputStream, Configuration.TransferBufferSize);
                 }
             }
         }

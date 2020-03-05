@@ -34,7 +34,8 @@ namespace GenHTTP.Modules.Core.General
             if (request.HasType(RequestMethod.GET, RequestMethod.HEAD))
             {
                 return request.Respond()
-                              .Content(ResourceProvider.GetResource(), ContentType.RawType);
+                              .Content(new StreamContent(ResourceProvider.GetResource()))
+                              .Type(ContentType);
             }
 
             return request.Respond(ResponseStatus.MethodNotAllowed);
