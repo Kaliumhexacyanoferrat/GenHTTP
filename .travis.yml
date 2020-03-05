@@ -12,9 +12,9 @@ solution: GenHTTP.sln
 env:
   - DOTNET_ROLL_FORWARD=Major
 
-#addons:
-#  sonarcloud:
-#    organization: "kaliumhexacyanoferrat"
+addons:
+  sonarcloud:
+    organization: "kaliumhexacyanoferrat"
 
 install:
   - git fetch --unshallow --tags
