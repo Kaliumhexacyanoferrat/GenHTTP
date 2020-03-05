@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 
 namespace GenHTTP.Api.Protocol
 {
@@ -69,6 +68,9 @@ namespace GenHTTP.Api.Protocol
         /// </summary>
         FlexibleContentType? ContentType { get; set; }
 
+        /// <summary>
+        /// The encoding of the content (e.g. "br").
+        /// </summary>
         string? ContentEncoding { get; set; }
 
         /// <summary>
@@ -79,7 +81,7 @@ namespace GenHTTP.Api.Protocol
         /// <summary>
         /// The response that will be sent to the requesting client.
         /// </summary>
-        Stream? Content { get; set; }
+        IResponseContent? Content { get; set; }
 
         #endregion
 

@@ -1,10 +1,9 @@
 ﻿using System;
-using System.IO;
-using System.Text;
 
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Api.Modules.Templating;
+
+using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core.Templating
 {
@@ -22,10 +21,9 @@ namespace GenHTTP.Modules.Core.Templating
             var content = response.Request.Routing.Router
                                           .GetRenderer()
                                           .Render(model);
-
-            var stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
-
-            return response.Content(stream, ContentType.TextHtml);
+            
+            return response.Content(content)
+                           .Type(ContentType.TextHtml);
         }
 
     }

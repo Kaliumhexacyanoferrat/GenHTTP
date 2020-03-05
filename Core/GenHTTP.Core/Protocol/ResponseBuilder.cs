@@ -4,6 +4,7 @@ using System.IO;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Core.Protocol
 {
@@ -12,7 +13,7 @@ namespace GenHTTP.Core.Protocol
     {
         private FlexibleResponseStatus? _Status;
 
-        private Stream? _Content;
+        private IResponseContent? _Content;
         private ulong? _ContentLength;
         private FlexibleContentType? _ContentType;
         private string? _ContentEncoding;
@@ -42,32 +43,33 @@ namespace GenHTTP.Core.Protocol
 
         #region Functionality
 
-        public IResponseBuilder ContentLength(ulong length)
+        public IResponseBuilder Length(ulong length)
         {
             _ContentLength = length;
             return this;
         }
 
-        public IResponseBuilder Content(Stream body, ContentType contentType)
-        {
-            return Content(body, new FlexibleContentType(contentType));
-        }
+        public IResponseBuilder Content(Stream body, ContentType contentType) => Content(body, new FlexibleContentType(contentType));
 
-        public IResponseBuilder Content(Stream body, string contentType)
-        {
-            return Content(body, new FlexibleContentType(contentType));
-        }
+        public IResponseBuilder Content(Stream body, string contentType) => Content(body, new FlexibleContentType(contentType));
 
         public IResponseBuilder Content(Stream body, FlexibleContentType contentType)
         {
-            _Content = body;
+            Content(new StreamContent(body));
+            return Type(contentType);
+        }
+
+        public IResponseBuilder Content(IResponseContent content)
+        {
+            _Content = content;
+            _ContentLength = content.Length;
+
+            return this;
+        }
+
+        public IResponseBuilder Type(FlexibleContentType contentType)
+        {
             _ContentType = contentType;
-
-            if (body.CanSeek && body.Length > 0)
-            {
-                _ContentLength = (ulong)body.Length;
-            }
-
             return this;
         }
 

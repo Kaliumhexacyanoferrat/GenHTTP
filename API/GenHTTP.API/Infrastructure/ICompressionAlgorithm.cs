@@ -1,5 +1,7 @@
 ﻿using System.IO;
 
+using GenHTTP.Api.Protocol;
+
 namespace GenHTTP.Api.Infrastructure
 {
 
@@ -24,11 +26,11 @@ namespace GenHTTP.Api.Infrastructure
         Priority Priority { get; }
 
         /// <summary>
-        /// Returns a stream allowing the server to read the compressed content.
+        /// Returns a content instance allowing the server to stream the compressed content.
         /// </summary>
         /// <param name="content">The content of the response to be compressed</param>
-        /// <returns>A stream representing the compressed content</returns>
-        Stream Compress(Stream content);
+        /// <returns>A result representing the compressed content</returns>
+        IResponseContent Compress(IResponseContent content);
 
     }
 

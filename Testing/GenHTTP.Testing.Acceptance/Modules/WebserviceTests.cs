@@ -10,6 +10,7 @@ using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Webservices;
+using GenHTTP.Modules.Core.General;
 
 using GenHTTP.Testing.Acceptance.Domain;
 
@@ -54,7 +55,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
             [Method("requestResponse")]
             public IResponseBuilder RequestResponse(IRequest request)
             {
-                return request.Respond().Content(new MemoryStream(Encoding.UTF8.GetBytes("Hello World")), ContentType.TextPlain);
+                return request.Respond()
+                              .Content("Hello World")
+                              .Type(ContentType.TextPlain);
             }
 
             [Method("exception")]

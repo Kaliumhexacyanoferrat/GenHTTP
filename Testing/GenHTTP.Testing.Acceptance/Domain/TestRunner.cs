@@ -78,7 +78,11 @@ namespace GenHTTP.Testing.Acceptance.Domain
         public HttpWebRequest GetRequest(string? uri = null)
         {
             var request = WebRequest.CreateHttp($"http://localhost:{Port}{uri ?? ""}");
+
+#if !DEBUG
             request.Timeout = 3000;
+#endif
+
             request.AllowAutoRedirect = false;
 
             return request;
@@ -89,9 +93,9 @@ namespace GenHTTP.Testing.Acceptance.Domain
             return GetRequest(uri).GetSafeResponse();
         }
 
-        #endregion
+#endregion
 
-        #region IDisposable Support
+#region IDisposable Support
 
         private bool disposed = false;
 
@@ -114,7 +118,7 @@ namespace GenHTTP.Testing.Acceptance.Domain
             GC.SuppressFinalize(this);
         }
 
-        #endregion
+#endregion
 
     }
 

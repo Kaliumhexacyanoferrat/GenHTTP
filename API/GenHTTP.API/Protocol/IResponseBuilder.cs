@@ -68,6 +68,7 @@ namespace GenHTTP.Api.Protocol
         /// </summary>
         /// <param name="body">The content to be send to the client</param>
         /// <param name="contentType">The type of content</param>
+        [Obsolete("Replaced by the IResponseContent API")]
         IResponseBuilder Content(Stream body, ContentType contentType);
 
         /// <summary>
@@ -75,13 +76,26 @@ namespace GenHTTP.Api.Protocol
         /// </summary>
         /// <param name="body">The content to be send to the client</param>
         /// <param name="contentType">The type of content</param>
+        [Obsolete("Replaced by the IResponseContent API")]
         IResponseBuilder Content(Stream body, string contentType);
 
+        /// <summary>
+        /// Specifies the content to be sent to the client.
+        /// </summary>
+        /// <param name="content">The content to be send to the client</param>
+        IResponseBuilder Content(IResponseContent content);
+
+        /// <summary>
+        /// Specifies the content type of this response.
+        /// </summary>
+        /// <param name="contentType">The content type of this response</param>
+        IResponseBuilder Type(FlexibleContentType contentType);
+                
         /// <summary>
         /// Specifies the length of the content stream, if known.
         /// </summary>
         /// <param name="length">The length of the content stream</param>
-        IResponseBuilder ContentLength(ulong length);
+        IResponseBuilder Length(ulong length);
 
         /// <summary>
         /// Sets the encoding of the content.

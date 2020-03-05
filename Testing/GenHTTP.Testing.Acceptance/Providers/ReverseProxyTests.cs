@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Net;
 using System.Text;
 
@@ -8,6 +7,7 @@ using Xunit;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Core;
+using GenHTTP.Modules.Core.General;
 using GenHTTP.Testing.Acceptance.Domain;
 
 using Cookie = GenHTTP.Api.Protocol.Cookie;
@@ -31,11 +31,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
                 {
                     return request.Respond().Header("Location", $"http://localhost:{request.EndPoint.Port}/target");
                 }
-
-                var content = new MemoryStream(Encoding.ASCII.GetBytes("Hello World!"));
-
+                
                 var response = request.Respond()
-                                      .Content(content, ContentType!.RawType);
+                                      .Content("Hello World!")
+                                      .Type(ContentType!);
 
                 if (request.Cookies.Count > 0)
                 {

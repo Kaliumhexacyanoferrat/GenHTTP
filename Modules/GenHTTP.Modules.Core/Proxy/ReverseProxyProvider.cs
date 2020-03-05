@@ -175,12 +175,13 @@ namespace GenHTTP.Modules.Core.Proxy
 
             if (response.ContentLength > 0)
             {
-                builder.ContentLength((ulong)response.ContentLength);
+                builder.Length((ulong)response.ContentLength);
             }
 
             if (HasBody(request, response))
             {
-                builder.Content(response.GetResponseStream(), response.ContentType);
+                builder.Content(response.GetResponseStream())
+                       .Type(response.ContentType);
             }
 
             return builder;

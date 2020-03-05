@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Modules;
@@ -8,6 +7,8 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
 using GenHTTP.Core.Routing;
+using GenHTTP.Modules.Core.General;
+using GenHTTP.Modules.Core;
 
 namespace GenHTTP.Core.Protocol
 {
@@ -208,11 +209,10 @@ namespace GenHTTP.Core.Protocol
 
         private IResponse GenericError(IRequest request, Exception? cause)
         {
-            var stream = new MemoryStream(Encoding.UTF8.GetBytes("Internal Server Error"));
-
             return request.Respond()
                           .Status(DeriveStatus(cause))
-                          .Content(stream, ContentType.TextPlain)
+                          .Content(new StringContent("Internal Server Error"))
+                          .Type(ContentType.TextPlain)
                           .Build();
         }
 

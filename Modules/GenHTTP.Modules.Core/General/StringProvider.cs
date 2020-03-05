@@ -1,7 +1,4 @@
-﻿using System.IO;
-using System.Text;
-
-using GenHTTP.Api.Modules;
+﻿using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.General
@@ -12,7 +9,7 @@ namespace GenHTTP.Modules.Core.General
 
         #region Get-/Setters
         
-        private byte[] Buffer { get; }
+        private StringContent Content { get; }
 
         public override string? Title => null;
 
@@ -24,7 +21,7 @@ namespace GenHTTP.Modules.Core.General
 
         public StringProvider(string data, FlexibleContentType contentType, ResponseModification? mod) : base(mod)
         {
-            Buffer = Encoding.UTF8.GetBytes(data);
+            Content = new StringContent(data);
             ContentType = contentType;
         }
 
@@ -35,7 +32,8 @@ namespace GenHTTP.Modules.Core.General
         protected override IResponseBuilder HandleInternal(IRequest request)
         {
             return request.Respond()
-                          .Content(new MemoryStream(Buffer), ContentType.RawType);
+                          .Content(Content)
+                          .Type(ContentType);
         }
 
         #endregion
