@@ -27,4 +27,4 @@ jobs:
     - name: Test project
       run: dotnet test -c Release --no-build GenHTTP.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ParallelizeTestCollections=false /p:Exclude=\"[xunit.*]*,[*Test*]*,[GenHTTP.Examples.*]*\" 
     - name: Restore tools
-      run: dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN" /o:"kaliumhexacyanoferrat" /k:"GenHTTP" /d:sonar.sources="." /d:sonar.host.url="https://sonarcloud.io"
+      run: dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN" /d:sonar.sources="." /d:sonar.host.url="https://sonarcloud.io"
