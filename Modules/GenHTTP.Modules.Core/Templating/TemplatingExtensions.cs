@@ -3,8 +3,6 @@
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Modules.Templating;
 
-using GenHTTP.Modules.Core.General;
-
 namespace GenHTTP.Modules.Core.Templating
 {
 
