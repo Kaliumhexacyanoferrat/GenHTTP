@@ -27,7 +27,7 @@ namespace GenHTTP.Testing.Acceptance.Core
 
                 return request.Respond()
                               .Cookie(new Cookie("TestCookie", "TestValue"))
-                              .Content(new StringContent("I ❤ Cookies!"))
+                              .Content("I ❤ Cookies!")
                               .Type(ContentType!);
 
             }

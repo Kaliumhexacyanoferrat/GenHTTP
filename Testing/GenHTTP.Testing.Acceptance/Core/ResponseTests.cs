@@ -34,7 +34,7 @@ namespace GenHTTP.Testing.Acceptance.Core
             public IResponseBuilder Handle(IRequest request)
             {
                 return request.Respond()
-                              .Content(new StringContent("Hello World"))
+                              .Content("Hello World")
                               .Type("text/x-custom")
                               .Expires(DateTime.Now.AddYears(1))
                               .Modified(Modified)

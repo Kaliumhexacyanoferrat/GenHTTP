@@ -54,11 +54,9 @@ namespace GenHTTP.Core.Protocol
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            var size = (count - offset);
-
-            if (size > 0)
+            if (count > 0)
             {
-                Write($"{size.ToString("X")}{NL}");
+                Write($"{count.ToString("X")}{NL}");
                 Target.Write(buffer, offset, count);
                 Write(NL);
             }

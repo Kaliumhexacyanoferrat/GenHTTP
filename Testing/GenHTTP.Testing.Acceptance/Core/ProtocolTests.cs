@@ -48,7 +48,7 @@ namespace GenHTTP.Testing.Acceptance.Core
                 var content = request.Content?.Length.ToString() ?? "No Content";
 
                 return request.Respond()
-                              .Content(new StringContent(content))
+                              .Content(content)
                               .Type(Api.Protocol.ContentType.TextPlain);
             }
 

@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Core.General;
+using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Webservices.Util;
 
 namespace GenHTTP.Modules.Webservices
@@ -172,14 +173,14 @@ namespace GenHTTP.Modules.Webservices
             if (result is Stream download)
             {
                 return request.Respond()
-                              .Content(new StreamContent(download))
+                              .Content(download)
                               .Type(Api.Protocol.ContentType.ApplicationForceDownload);
             }
 
             // basic types should produce a string value
             if (type.IsPrimitive || type == typeof(string) || type.IsEnum)
             {
-                return request.Respond().Content(new StringContent(result.ToString()))
+                return request.Respond().Content(result.ToString())
                                         .Type(Api.Protocol.ContentType.TextPlain);
             }
 

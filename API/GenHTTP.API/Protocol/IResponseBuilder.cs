@@ -79,18 +79,18 @@ namespace GenHTTP.Api.Protocol
         [Obsolete("Replaced by the IResponseContent API")]
         IResponseBuilder Content(Stream body, string contentType);
 
-        // ToDo: Documentation
-
+        /// <summary>
+        /// Specifies the content to be sent to the client.
+        /// </summary>
+        /// <param name="content">The content to be send to the client</param>
         IResponseBuilder Content(IResponseContent content);
 
+        /// <summary>
+        /// Specifies the content type of this response.
+        /// </summary>
+        /// <param name="contentType">The content type of this response</param>
         IResponseBuilder Type(FlexibleContentType contentType);
-
-        // ToDo: Extensions!
-
-        IResponseBuilder Type(ContentType contentType) => Type(new FlexibleContentType(contentType));
-
-        IResponseBuilder Type(string contentType) => Type(new FlexibleContentType(contentType));
-        
+                
         /// <summary>
         /// Specifies the length of the content stream, if known.
         /// </summary>

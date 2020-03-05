@@ -180,7 +180,7 @@ namespace GenHTTP.Modules.Core.Proxy
 
             if (HasBody(request, response))
             {
-                builder.Content(new StreamContent(response.GetResponseStream()))
+                builder.Content(response.GetResponseStream())
                        .Type(response.ContentType);
             }
 

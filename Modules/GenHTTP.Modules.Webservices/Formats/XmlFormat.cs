@@ -3,6 +3,7 @@ using System.IO;
 using System.Xml.Serialization;
 
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Core;
 
 namespace GenHTTP.Modules.Webservices.Formats
 {

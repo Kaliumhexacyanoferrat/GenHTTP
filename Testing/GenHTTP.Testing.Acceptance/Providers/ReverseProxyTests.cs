@@ -33,7 +33,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
                 }
                 
                 var response = request.Respond()
-                                      .Content(new StringContent("Hello World!"))
+                                      .Content("Hello World!")
                                       .Type(ContentType!);
 
                 if (request.Cookies.Count > 0)

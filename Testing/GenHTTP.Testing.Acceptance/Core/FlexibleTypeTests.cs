@@ -25,7 +25,7 @@ namespace GenHTTP.Testing.Acceptance.Core
             public IResponseBuilder Handle(IRequest request)
             {
                 return request.Respond()
-                              .Content(new StringContent("Hello World!"))
+                              .Content("Hello World!")
                               .Type("application/x-custom")
                               .Status(256, "Custom Status");
             }

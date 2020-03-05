@@ -56,7 +56,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
             public IResponseBuilder RequestResponse(IRequest request)
             {
                 return request.Respond()
-                              .Content(new StringContent("Hello World"))
+                              .Content("Hello World")
                               .Type(ContentType.TextPlain);
             }
 

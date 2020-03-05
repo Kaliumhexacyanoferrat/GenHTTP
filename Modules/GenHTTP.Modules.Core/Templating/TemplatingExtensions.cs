@@ -22,7 +22,7 @@ namespace GenHTTP.Modules.Core.Templating
                                           .GetRenderer()
                                           .Render(model);
             
-            return response.Content(new StringContent(content))
+            return response.Content(content)
                            .Type(ContentType.TextHtml);
         }
 

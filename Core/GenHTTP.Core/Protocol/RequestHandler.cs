@@ -8,6 +8,7 @@ using GenHTTP.Api.Routing;
 
 using GenHTTP.Core.Routing;
 using GenHTTP.Modules.Core.General;
+using GenHTTP.Modules.Core;
 
 namespace GenHTTP.Core.Protocol
 {

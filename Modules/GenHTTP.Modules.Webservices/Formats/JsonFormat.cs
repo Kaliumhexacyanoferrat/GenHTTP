@@ -2,6 +2,7 @@
 using System.IO;
 
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Core;
 
 using Newtonsoft.Json;
 

@@ -34,7 +34,7 @@ namespace GenHTTP.Modules.Core.General
             if (request.HasType(RequestMethod.GET, RequestMethod.HEAD))
             {
                 return request.Respond()
-                              .Content(new StreamContent(ResourceProvider.GetResource()))
+                              .Content(ResourceProvider.GetResource())
                               .Type(ContentType);
             }
 
