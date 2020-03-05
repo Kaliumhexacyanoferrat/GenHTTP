@@ -7,7 +7,6 @@ using Xunit;
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Core;
-using GenHTTP.Modules.Core.General;
 using GenHTTP.Testing.Acceptance.Domain;
 
 using Cookie = GenHTTP.Api.Protocol.Cookie;

@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Core.General;
 using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Webservices.Util;
 

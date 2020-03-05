@@ -158,9 +158,8 @@ namespace GenHTTP.Modules.Core
         public static string GetResourceAsString(this IResourceProvider resourceProvider)
         {
             using var stream = resourceProvider.GetResource();
-            using var reader = new StreamReader(stream);
 
-            return reader.ReadToEnd();
+            return new StreamReader(stream).ReadToEnd();
         }
 
         #endregion
