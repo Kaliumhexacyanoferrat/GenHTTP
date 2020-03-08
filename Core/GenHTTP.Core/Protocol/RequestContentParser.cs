@@ -49,7 +49,7 @@ namespace GenHTTP.Core.Protocol
 
                 while (data.TryGet(ref position, out var memory))
                 {
-                    body.Write(memory.Span);
+                    await body.WriteAsync(memory);
                 }
 
                 buffer.Advance(toRead);
