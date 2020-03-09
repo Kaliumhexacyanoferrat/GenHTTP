@@ -21,14 +21,14 @@ namespace GenHTTP.Modules.Core
 
         public static FileDataProviderBuilder FromFile(string file)
         {
-            return new FileDataProviderBuilder().File(file);
+            return FromFile(new FileInfo(file));
         }
-
+        
         public static FileDataProviderBuilder FromFile(FileInfo file)
         {
             return new FileDataProviderBuilder().File(file);
         }
-
+        
         public static StringDataProviderBuilder FromString(string data)
         {
             return new StringDataProviderBuilder().Content(data);

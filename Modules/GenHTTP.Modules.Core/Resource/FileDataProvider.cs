@@ -12,13 +12,13 @@ namespace GenHTTP.Modules.Core.Resource
 
         public FileInfo File { get; }
 
-        public bool AllowCache => false;
+        public bool AllowCache { get; private set; }
 
         #endregion
 
         #region Initialization
 
-        public FileDataProvider(FileInfo file)
+        public FileDataProvider(FileInfo file, bool allowCaching)
         {
             if (!file.Exists)
             {
@@ -26,6 +26,7 @@ namespace GenHTTP.Modules.Core.Resource
             }
 
             File = file;
+            AllowCache = allowCaching;
         }
 
         #endregion
