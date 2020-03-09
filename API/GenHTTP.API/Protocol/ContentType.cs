@@ -194,7 +194,7 @@ namespace GenHTTP.Api.Protocol
     /// <summary>
     /// The type of content which is sent to or received from a client.
     /// </summary>
-    public class FlexibleContentType
+    public struct FlexibleContentType
     {
 
         #region Get-/Setters
@@ -269,6 +269,10 @@ namespace GenHTTP.Api.Protocol
             if (MAPPING_REVERSE.TryGetValue(rawType, out var knownType))
             {
                 KnownType = knownType;
+            }
+            else
+            {
+                KnownType = null;
             }
         }
 

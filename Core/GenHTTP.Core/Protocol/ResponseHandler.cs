@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,8 @@ namespace GenHTTP.Core.Protocol
         private static readonly Encoding HEADER_ENCODING = Encoding.GetEncoding("ISO-8859-1");
 
         private static readonly string NL = "\r\n";
+
+        private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
 
         #region Get-/Setters
 
@@ -82,7 +85,7 @@ namespace GenHTTP.Core.Protocol
         private async Task WriteStatus(IRequest request, IResponse response)
         {
             var version = (request.ProtocolType == HttpProtocol.Http_1_0) ? "1.0" : "1.1";
-            var status = $"{response.Status.RawStatus} {response.Status.Phrase}";
+            var status = $"{response.Status.RawStatus.ToString()} {response.Status.Phrase}";
 
             await Write($"HTTP/{version} {status}{NL}");
         }
@@ -97,7 +100,7 @@ namespace GenHTTP.Core.Protocol
 
             if (!(response.ContentType is null))
             {
-                await WriteHeaderLine("Content-Type", response.ContentType.RawType);
+                await WriteHeaderLine("Content-Type", response.ContentType.Value.RawType);
             }
 
             if (response.ContentEncoding != null)
@@ -107,7 +110,7 @@ namespace GenHTTP.Core.Protocol
 
             if (response.ContentLength != null)
             {
-                await WriteHeaderLine("Content-Length", $"{response.ContentLength}");
+                await WriteHeaderLine("Content-Length", response.ContentLength.ToString());
             }
 
             if (response.Modified != null)
@@ -180,7 +183,7 @@ namespace GenHTTP.Core.Protocol
 
             if (cookie.MaxAge != null)
             {
-                value += $"; Max-Age={cookie.MaxAge.Value}";
+                value += $"; Max-Age={cookie.MaxAge.Value.ToString()}";
             }
 
             value += "; Path=/";
@@ -190,8 +193,20 @@ namespace GenHTTP.Core.Protocol
 
         private async Task Write(string text)
         {
-            var buffer = HEADER_ENCODING.GetBytes(text);
-            await OutputStream.WriteAsync(buffer, 0, buffer.Length);
+            var count = HEADER_ENCODING.GetByteCount(text);
+
+            var buffer = POOL.Rent(count);
+
+            try
+            {
+                HEADER_ENCODING.GetBytes(text, 0, text.Length, buffer, 0);
+
+                await OutputStream.WriteAsync(buffer, 0, count);
+            }
+            finally
+            {
+                POOL.Return(buffer);
+            }
         }
 
         #endregion

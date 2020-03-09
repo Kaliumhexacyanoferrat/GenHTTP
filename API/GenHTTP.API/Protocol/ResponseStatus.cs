@@ -116,7 +116,7 @@ namespace GenHTTP.Api.Protocol
     /// <summary>
     /// The status of the response send to the client.
     /// </summary>
-    public class FlexibleResponseStatus
+    public struct FlexibleResponseStatus
     {
 
         #region Get-/Setters
@@ -205,6 +205,10 @@ namespace GenHTTP.Api.Protocol
             if (Enum.IsDefined(typeof(ResponseStatus), status))
             {
                 KnownStatus = (ResponseStatus)status;
+            }
+            else
+            {
+                KnownStatus = null;
             }
         }
 

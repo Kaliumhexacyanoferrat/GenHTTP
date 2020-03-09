@@ -12,8 +12,10 @@ namespace GenHTTP.Examples.CoreApp
 
             return Host.Create()
                        .Router(project)
+#if DEBUG
                        .Console()
                        .Debug()
+#endif
                        .Run();
         }
 

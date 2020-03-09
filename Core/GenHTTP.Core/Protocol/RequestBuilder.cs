@@ -182,7 +182,7 @@ namespace GenHTTP.Core.Protocol
 
             var client = DetermineClient() ?? localClient;
 
-            return new Request(_Server, _EndPoint, client, localClient, (HttpProtocol)_Protocol, _RequestMethod, _Path, Headers, _Cookies, _Forwardings, _Query, _Content);
+            return new Request(_Server, _EndPoint, client, localClient, (HttpProtocol)_Protocol, _RequestMethod.Value, _Path, Headers, _Cookies, _Forwardings, _Query, _Content);
         }
 
         private IClientConnection? DetermineClient()

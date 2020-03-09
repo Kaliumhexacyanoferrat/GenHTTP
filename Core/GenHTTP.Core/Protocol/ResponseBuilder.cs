@@ -125,10 +125,10 @@ namespace GenHTTP.Core.Protocol
         {
             if (_Status == null)
             {
-                throw new BuilderMissingPropertyException("Type");
+                throw new BuilderMissingPropertyException("Status");
             }
 
-            return new Response(_Status, _Headers, _Cookies, _RawCookies)
+            return new Response(_Status!.Value, _Headers, _Cookies, _RawCookies)
             {
                 Content = _Content,
                 ContentEncoding = _ContentEncoding,

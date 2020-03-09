@@ -13,7 +13,7 @@ namespace GenHTTP.Modules.Core.General
 
         public override string? Title => null;
 
-        public override FlexibleContentType ContentType { get; }
+        public override FlexibleContentType? ContentType { get; }
 
         #endregion
 
@@ -33,7 +33,7 @@ namespace GenHTTP.Modules.Core.General
         {
             return request.Respond()
                           .Content(Content)
-                          .Type(ContentType);
+                          .Type(ContentType!.Value);
         }
 
         #endregion
