@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
@@ -30,9 +31,9 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         #region Basic Information
 
-        public IPAddress IPAddress => Endpoint.Address;
+        public IPAddress IPAddress { get; }
 
-        public ushort Port => (ushort)Endpoint.Port;
+        public ushort Port { get; }
 
         public abstract bool Secure { get; }
 
@@ -46,6 +47,9 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
             Endpoint = endPoint;
             Configuration = configuration;
+
+            IPAddress = endPoint.Address;
+            Port = (ushort)endPoint.Port;
 
             try
             {
@@ -88,7 +92,11 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         private void Handle(Socket client)
         {
-            Task.Run(() => Accept(client));
+            Task.Factory.StartNew(async state =>
+            {
+                var socket = (Socket)state;
+                await Accept(socket);
+            }, client, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
         }
 
         protected abstract Task Accept(Socket client);

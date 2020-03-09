@@ -35,7 +35,7 @@ namespace GenHTTP.Modules.Core.Compression
         public async Task Write(Stream target, uint bufferSize)
         {
             using var compressed = Generator(target);
-            
+
             await OriginalContent.Write(compressed, bufferSize);
         }
 
@@ -63,7 +63,7 @@ namespace GenHTTP.Modules.Core.Compression
 
         ~CompressedContent()
         {
-          Dispose(false);
+            Dispose(false);
         }
 
         public void Dispose()

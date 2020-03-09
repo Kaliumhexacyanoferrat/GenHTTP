@@ -24,7 +24,7 @@ namespace GenHTTP.Api.Protocol
     /// <summary>
     /// The kind of request sent by the client.
     /// </summary>
-    public class FlexibleRequestMethod
+    public struct FlexibleRequestMethod
     {
 
         #region Get-/Setters
@@ -40,14 +40,14 @@ namespace GenHTTP.Api.Protocol
         public string RawMethod { get; }
 
         #endregion
-
+        
         #region Initialization
-
+        
         /// <summary>
         /// Creates a new request method instance from a known type.
         /// </summary>
         /// <param name="method">The known type to be used</param>
-        public FlexibleRequestMethod(RequestMethod method)
+        public FlexibleRequestMethod(RequestMethod method) 
         {
             KnownMethod = method;
             RawMethod = method.ToString();
@@ -64,6 +64,10 @@ namespace GenHTTP.Api.Protocol
             if (Enum.TryParse<RequestMethod>(rawType, out var type))
             {
                 KnownMethod = type;
+            }
+            else
+            {
+                KnownMethod = null;
             }
         }
 

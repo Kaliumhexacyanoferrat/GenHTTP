@@ -8,8 +8,9 @@ namespace GenHTTP.Core.Protocol
 
     internal class HeaderCollection : Dictionary<string, string>, IHeaderCollection
     {
+        private const int DEFAULT_SIZE = 32;
 
-        internal HeaderCollection() : base(StringComparer.InvariantCultureIgnoreCase)
+        internal HeaderCollection() : base(DEFAULT_SIZE, StringComparer.InvariantCultureIgnoreCase)
         {
 
         }

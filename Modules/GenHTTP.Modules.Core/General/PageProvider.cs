@@ -16,7 +16,7 @@ namespace GenHTTP.Modules.Core.General
 
         public IResourceProvider Content { get; }
 
-        public override FlexibleContentType ContentType => new FlexibleContentType(Api.Protocol.ContentType.TextHtml);
+        public override FlexibleContentType? ContentType => new FlexibleContentType(Api.Protocol.ContentType.TextHtml);
 
         #endregion
 
@@ -39,7 +39,8 @@ namespace GenHTTP.Modules.Core.General
                 var templateModel = new TemplateModel(request, Title ?? "Untitled Page", Content.GetResourceAsString());
 
                 return request.Respond()
-                              .Content(templateModel);
+                              .Content(templateModel)
+                              .Type(ContentType!.Value);
             }
 
             return request.Respond(ResponseStatus.MethodNotAllowed);

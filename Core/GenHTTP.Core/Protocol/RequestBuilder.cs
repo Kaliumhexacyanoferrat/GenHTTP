@@ -115,13 +115,11 @@ namespace GenHTTP.Core.Protocol
 
         public RequestBuilder Header(string key, string value)
         {
-            var lowerKey = key.ToLower();
-
-            if (lowerKey == "cookie")
+            if (string.Equals(key, "cookie", StringComparison.OrdinalIgnoreCase))
             {
                 _Cookies.Add(value);
             }
-            else if (lowerKey == "forwarded")
+            else if (string.Equals(key, "forwarded", StringComparison.OrdinalIgnoreCase))
             {
                 _Forwardings.Add(value);
             }
@@ -182,7 +180,7 @@ namespace GenHTTP.Core.Protocol
 
             var client = DetermineClient() ?? localClient;
 
-            return new Request(_Server, _EndPoint, client, localClient, (HttpProtocol)_Protocol, _RequestMethod, _Path, Headers, _Cookies, _Forwardings, _Query, _Content);
+            return new Request(_Server, _EndPoint, client, localClient, (HttpProtocol)_Protocol, _RequestMethod.Value, _Path, Headers, _Cookies, _Forwardings, _Query, _Content);
         }
 
         private IClientConnection? DetermineClient()

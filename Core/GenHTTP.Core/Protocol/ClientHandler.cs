@@ -14,6 +14,9 @@ namespace GenHTTP.Core
 
     internal class ClientHandler
     {
+        private static readonly StreamPipeReaderOptions READER_OPTIONS = new StreamPipeReaderOptions(leaveOpen: true);
+
+        private static readonly LingerOption LINGER_OPTION = new LingerOption(true, 1);
 
         #region Get-/Setter
 
@@ -52,9 +55,7 @@ namespace GenHTTP.Core
         {
             try
             {
-                var options = new StreamPipeReaderOptions(leaveOpen: true);
-
-                await HandlePipe(PipeReader.Create(Stream, options));
+                await HandlePipe(PipeReader.Create(Stream, READER_OPTIONS));
             }
             catch (Exception e)
             {
@@ -127,7 +128,7 @@ namespace GenHTTP.Core
 
                     if (!success || !keepAlive)
                     {
-                        Connection.LingerState = new LingerOption(true, 1);
+                        Connection.LingerState = LINGER_OPTION;
                         Connection.Disconnect(false);
                         Connection.Close();
 

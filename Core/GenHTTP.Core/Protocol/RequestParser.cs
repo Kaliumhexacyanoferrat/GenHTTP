@@ -1,18 +1,23 @@
-﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Core.Infrastructure.Configuration;
-using System.Buffers;
+﻿using System.Buffers;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+
+using GenHTTP.Api.Protocol;
+using GenHTTP.Core.Infrastructure.Configuration;
 
 namespace GenHTTP.Core.Protocol
 {
 
     internal class RequestParser
     {
+        private RequestBuilder? _Builder;
 
         #region Get-/Setters
 
         private NetworkConfiguration Configuration { get; }
+
+        private RequestBuilder Request => _Builder ?? (_Builder = new RequestBuilder());
 
         #endregion
 
@@ -29,43 +34,50 @@ namespace GenHTTP.Core.Protocol
 
         internal async Task<RequestBuilder?> TryParseAsync(RequestBuffer buffer)
         {
-            var request = new RequestBuilder();
-
             string? method, path, protocol;
 
             if ((method = await TryReadToken(buffer, ' ')) != null)
             {
-                request.Type(method);
+                Request.Type(method);
             }
-            else { return null; }
+            else
+            {
+                return null;
+            }
 
             if ((path = await TryReadToken(buffer, ' ')) != null)
             {
-                request.Path(path);
+                Request.Path(path);
             }
-            else { return null; }
+            else
+            {
+                return null;
+            }
 
             if ((protocol = await TryReadToken(buffer, '\r')) != null)
             {
                 if (protocol.StartsWith("HTTP/"))
                 {
-                    request.Protocol(protocol.Substring(5));
+                    Request.Protocol(protocol.Substring(5));
                 }
                 else
                 {
                     throw new ProtocolException($"Unrecognized HTTP protocol '{protocol}'");
                 }
             }
-            else { return null; }
+            else
+            {
+                return null;
+            }
 
-            while (await TryReadHeader(buffer, request)) { /* nop */ }
+            while (await TryReadHeader(buffer, Request)) { /* nop */ }
 
             if (await TryReadToken(buffer, '\r') == null)
             {
                 return null;
             }
 
-            if (request.Headers.TryGetValue("Content-Length", out var bodyLength))
+            if (Request.Headers.TryGetValue("Content-Length", out var bodyLength))
             {
                 if (long.TryParse(bodyLength, out var length))
                 {
@@ -73,7 +85,7 @@ namespace GenHTTP.Core.Protocol
                     {
                         var parser = new RequestContentParser(length, Configuration);
 
-                        request.Content(await parser.GetBody(buffer));
+                        Request.Content(await parser.GetBody(buffer));
                     }
                 }
                 else
@@ -81,10 +93,14 @@ namespace GenHTTP.Core.Protocol
                     throw new ProtocolException("Content-Length header is expected to be a numeric value");
                 }
             }
-            
-            return request;
+
+            var result = Request;
+            _Builder = null;
+
+            return result;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private async Task<bool> TryReadHeader(RequestBuffer buffer, RequestBuilder request)
         {
             string? key, value;
@@ -101,6 +117,7 @@ namespace GenHTTP.Core.Protocol
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private async Task<string?> TryReadToken(RequestBuffer buffer, char delimiter)
         {
             if (await buffer.Read() == null)
@@ -149,13 +166,9 @@ namespace GenHTTP.Core.Protocol
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private string GetString(ReadOnlySequence<byte> buffer)
         {
-            if (buffer.IsSingleSegment)
-            {
-                return Encoding.ASCII.GetString(buffer.First.Span);
-            }
-
             return string.Create((int)buffer.Length, buffer, (span, sequence) =>
             {
                 foreach (var segment in sequence)

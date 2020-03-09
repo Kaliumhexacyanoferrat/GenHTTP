@@ -18,6 +18,8 @@ namespace GenHTTP.Modules.Themes.Lorahost
     {
         private readonly string? _Copyright, _Title, _Subtitle, _Action, _ActionTitle;
 
+        private readonly IRenderer<WebsiteModel> _Renderer;
+        
         #region Supporting data structures
 
         public class ThemeModel
@@ -96,6 +98,8 @@ namespace GenHTTP.Modules.Themes.Lorahost
             }
 
             Resources = resources.Build();
+
+            _Renderer = new ScribanRenderer<WebsiteModel>(Data.FromResource("Template.html").Build());
         }
 
         #endregion
@@ -109,7 +113,7 @@ namespace GenHTTP.Modules.Themes.Lorahost
 
         public IRenderer<WebsiteModel> GetRenderer()
         {
-            return new ScribanRenderer<WebsiteModel>(Data.FromResource("Template.html").Build());
+            return _Renderer;
         }
 
         public IContentProvider? GetErrorHandler(IRequest request, ResponseStatus responseType, Exception? cause)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.IO.Pipelines;
+using System.Threading;
 using System.Threading.Tasks;
 
 using GenHTTP.Core.Infrastructure.Configuration;
@@ -39,13 +40,13 @@ namespace GenHTTP.Core.Protocol
         {
             if ((Data.Length == 0) || force)
             {
-                var data = await Reader.ReadWithTimeoutAsync(Configuration.RequestReadTimeout);
+                using var cancellation = new CancellationTokenSource(Configuration.RequestReadTimeout);
 
-                if (data != null)
+                try
                 {
-                    Data = data.Value.Buffer;
+                    Data = (await Reader.ReadAsync(cancellation.Token)).Buffer;
                 }
-                else
+                catch (OperationCanceledException)
                 {
                     return null;
                 }
@@ -57,18 +58,13 @@ namespace GenHTTP.Core.Protocol
         internal void Advance(SequencePosition position)
         {
             Data = Data.Slice(position);
-            Acknowledge();
+            Reader.AdvanceTo(Data.Start);
         }
 
         internal void Advance(long bytes)
         {
             Data = Data.Slice(bytes);
-            Acknowledge();
-        }
-
-        internal void Acknowledge()
-        {
-            Reader.AdvanceTo(Data.Start); // , Data.End
+            Reader.AdvanceTo(Data.Start);
         }
 
         #endregion

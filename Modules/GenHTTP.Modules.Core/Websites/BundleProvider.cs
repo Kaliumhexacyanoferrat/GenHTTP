@@ -13,7 +13,7 @@ namespace GenHTTP.Modules.Core.Websites
 
         public string? Title => null;
 
-        public FlexibleContentType ContentType { get; }
+        public FlexibleContentType? ContentType { get; }
 
         private IEnumerable<IResourceProvider> Items { get; }
 
@@ -35,7 +35,7 @@ namespace GenHTTP.Modules.Core.Websites
         {
             return request.Respond()
                           .Content(new BundleContent(Items))
-                          .Type(ContentType);
+                          .Type(ContentType!.Value);
         }
 
         #endregion

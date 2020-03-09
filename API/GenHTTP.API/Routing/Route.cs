@@ -28,7 +28,7 @@ namespace GenHTTP.Api.Routing
 
             return normalized;
         }
-
+        
         /// <summary>
         /// Generates an relative URI prefix to access the given level.
         /// </summary>
