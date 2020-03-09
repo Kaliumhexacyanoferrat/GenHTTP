@@ -55,9 +55,9 @@ namespace GenHTTP.Core
         {
             get
             {
-                if (Headers.ContainsKey(additionalHeader.ToLower()))
+                if (Headers.ContainsKey(additionalHeader))
                 {
-                    return Headers[additionalHeader.ToLower()];
+                    return Headers[additionalHeader];
                 }
 
                 return null;

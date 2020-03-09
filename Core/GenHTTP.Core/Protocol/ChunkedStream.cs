@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.IO;
 using System.Text;
 
@@ -8,6 +9,10 @@ namespace GenHTTP.Core.Protocol
     public class ChunkedStream : Stream
     {
         private static readonly string NL = "\r\n";
+
+        private static readonly Encoding ENCODING = Encoding.ASCII;
+
+        private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
 
         #region Get-/Setters
 
@@ -35,7 +40,6 @@ namespace GenHTTP.Core.Protocol
         #endregion
 
         #region Functionality
-
 
         public override int Read(byte[] buffer, int offset, int count)
         {
@@ -75,8 +79,20 @@ namespace GenHTTP.Core.Protocol
 
         private void Write(string text)
         {
-            var buffer = Encoding.ASCII.GetBytes(text);
-            Target.Write(buffer, 0, buffer.Length);
+            var length = text.Length;
+
+            var buffer = POOL.Rent(length);
+
+            try
+            {
+                ENCODING.GetBytes(text, 0, length, buffer, 0);
+
+                Target.Write(buffer, 0, length);
+            }
+            finally
+            {
+                POOL.Return(buffer);
+            }
         }
 
         #endregion

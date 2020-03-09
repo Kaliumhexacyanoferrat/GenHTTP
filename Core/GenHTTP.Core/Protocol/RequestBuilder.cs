@@ -115,13 +115,11 @@ namespace GenHTTP.Core.Protocol
 
         public RequestBuilder Header(string key, string value)
         {
-            var lowerKey = key.ToLower();
-
-            if (lowerKey == "cookie")
+            if (string.Equals(key, "cookie", StringComparison.OrdinalIgnoreCase))
             {
                 _Cookies.Add(value);
             }
-            else if (lowerKey == "forwarded")
+            else if (string.Equals(key, "forwarded", StringComparison.OrdinalIgnoreCase))
             {
                 _Forwardings.Add(value);
             }

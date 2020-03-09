@@ -20,6 +20,8 @@ namespace GenHTTP.Modules.Themes.Arcana
 
         private readonly IMenuProvider? _FooterMenu1, _FooterMenu2;
 
+        private readonly IRenderer<WebsiteModel> _Renderer;
+
         #region Supporting data structures
 
         public class ThemeModel
@@ -91,6 +93,8 @@ namespace GenHTTP.Modules.Themes.Arcana
             _Footer2Title = footer2Title;
 
             Resources = Resources = Static.Resources("Arcana.resources").Build();
+
+            _Renderer = new ScribanRenderer<WebsiteModel>(Data.FromResource("Template.html").Build());
         }
 
         #endregion
@@ -99,7 +103,7 @@ namespace GenHTTP.Modules.Themes.Arcana
 
         public IRenderer<WebsiteModel> GetRenderer()
         {
-            return new ScribanRenderer<WebsiteModel>(Data.FromResource("Template.html").Build());
+            return _Renderer;
         }
 
         private static Script GetScript(string name)

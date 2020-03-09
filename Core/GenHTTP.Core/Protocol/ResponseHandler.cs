@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -85,14 +86,26 @@ namespace GenHTTP.Core.Protocol
         private async Task WriteStatus(IRequest request, IResponse response)
         {
             var version = (request.ProtocolType == HttpProtocol.Http_1_0) ? "1.0" : "1.1";
-            var status = $"{response.Status.RawStatus.ToString()} {response.Status.Phrase}";
 
-            await Write($"HTTP/{version} {status}{NL}");
+            await Write("HTTP/");
+            await Write(version);
+
+            await Write(" ");
+
+            await Write(response.Status.RawStatus.ToString());
+
+            await Write(" ");
+
+            await Write(response.Status.Phrase);
+
+            await Write(NL);
         }
 
         private async Task WriteHeader(IResponse response, bool keepAlive)
         {
-            await WriteHeaderLine("Server", $"GenHTTP/{Server.Version}");
+            await Write("Server: GenHTTP/");
+            await Write(Server.Version.ToString());
+            await Write(NL);
 
             await WriteHeaderLine("Date", DateTime.Now);
 
@@ -105,7 +118,7 @@ namespace GenHTTP.Core.Protocol
 
             if (response.ContentEncoding != null)
             {
-                await WriteHeaderLine("Content-Encoding", $"{response.ContentEncoding}");
+                await WriteHeaderLine("Content-Encoding", response.ContentEncoding.ToString());
             }
 
             if (response.ContentLength != null)
@@ -167,30 +180,42 @@ namespace GenHTTP.Core.Protocol
 
         #region Helpers
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private async Task WriteHeaderLine(string key, string value)
         {
-            await Write($"{key}: {value}{NL}");
+            await Write(key);
+            await Write(": ");
+            await Write(value);
+            await Write(NL);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private async Task WriteHeaderLine(string key, DateTime value)
         {
             await WriteHeaderLine(key, value.ToUniversalTime().ToString("r"));
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private async Task WriteCookie(Cookie cookie)
         {
-            var value = $"{cookie.Name}={cookie.Value}";
+            await Write("Set-Cookie: ");
+
+            await Write(cookie.Name);
+            await Write("=");
+            await Write(cookie.Value);
 
             if (cookie.MaxAge != null)
             {
-                value += $"; Max-Age={cookie.MaxAge.Value.ToString()}";
+                await Write("; Max-Age=");
+                await Write(cookie.MaxAge.Value.ToString());
             }
 
-            value += "; Path=/";
+            await Write("; Path=/");
 
-            await WriteHeaderLine("Set-Cookie", value);
+            await Write(NL);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private async Task Write(string text)
         {
             var count = HEADER_ENCODING.GetByteCount(text);

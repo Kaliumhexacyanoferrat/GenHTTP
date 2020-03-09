@@ -169,11 +169,6 @@ namespace GenHTTP.Core.Protocol
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private string GetString(ReadOnlySequence<byte> buffer)
         {
-            if (buffer.IsSingleSegment)
-            {
-                return Encoding.ASCII.GetString(buffer.First.Span);
-            }
-
             return string.Create((int)buffer.Length, buffer, (span, sequence) =>
             {
                 foreach (var segment in sequence)
