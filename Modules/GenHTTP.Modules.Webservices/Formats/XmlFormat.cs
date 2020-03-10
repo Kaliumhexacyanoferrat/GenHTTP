@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 using GenHTTP.Api.Protocol;
@@ -11,9 +12,11 @@ namespace GenHTTP.Modules.Webservices.Formats
     public class XmlFormat : ISerializationFormat
     {
 
-        public object Deserialize(Stream stream, Type type)
+        public Task<object> Deserialize(Stream stream, Type type)
         {
-            return new XmlSerializer(type).Deserialize(stream);
+            var result = new XmlSerializer(type).Deserialize(stream);
+
+            return Task.FromResult(result);
         }
 
         public IResponseBuilder Serialize(IRequest request, object response)

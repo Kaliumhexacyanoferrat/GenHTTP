@@ -10,7 +10,6 @@ using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Webservices;
-using GenHTTP.Modules.Core.General;
 
 using GenHTTP.Testing.Acceptance.Domain;
 
@@ -135,14 +134,14 @@ namespace GenHTTP.Testing.Acceptance.Modules
         [Fact]
         public void TestEntityWithNulls()
         {
-            var entity = "{\"ID\":42}";
+            var entity = "{\"id\":42}";
             WithResponse("entity", "POST", entity, null, null, r => Assert.Equal(entity, r.GetContent()));
         }
 
         [Fact]
         public void TestEntityWithNoNulls()
         {
-            var entity = "{\"ID\":42,\"Nullable\":123.456}";
+            var entity = "{\"id\":42,\"nullable\":123.456}";
             WithResponse("entity", "POST", entity, null, null, r => Assert.Equal(entity, r.GetContent()));
         }
 
@@ -155,7 +154,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
         [Fact]
         public void TestUnsupportedDownloadEnforcesDefault()
         {
-            var entity = "{\"ID\":42,\"Nullable\":123.456}";
+            var entity = "{\"id\":42,\"nullable\":123.456}";
             WithResponse("entity", "POST", entity, null, "bla/blubb", r => Assert.Equal(entity, r.GetContent()));
         }
 

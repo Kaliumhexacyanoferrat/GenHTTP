@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
@@ -136,7 +137,7 @@ namespace GenHTTP.Modules.Webservices
                         throw new ProviderException(ResponseStatus.BadRequest, "Request body expected");
                     }
 
-                    targetArguments[i] = deserializer.Deserialize(request.Content, par.ParameterType);
+                    targetArguments[i] = Task.Run(async () => await deserializer.Deserialize(request.Content, par.ParameterType)).Result;
                     continue;
                 }
             }

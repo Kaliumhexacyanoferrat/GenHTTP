@@ -1,19 +1,14 @@
 ﻿using System.IO;
-using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
-using Newtonsoft.Json;
 
 namespace GenHTTP.Modules.Webservices.Formats
 {
 
     public class JsonContent : IResponseContent
     {
-        private static readonly JsonSerializerSettings SETTINGS = new JsonSerializerSettings()
-        {
-            NullValueHandling = NullValueHandling.Ignore
-        };
 
         #region Get-/Setters
 
@@ -21,13 +16,16 @@ namespace GenHTTP.Modules.Webservices.Formats
 
         private object Data { get; }
 
+        private JsonSerializerOptions Options { get; }
+
         #endregion
 
         #region Initialization
 
-        public JsonContent(object data)
+        public JsonContent(object data, JsonSerializerOptions options)
         {
             Data = data;
+            Options = options;
         }
 
         #endregion
@@ -36,17 +34,7 @@ namespace GenHTTP.Modules.Webservices.Formats
 
         public async Task Write(Stream target, uint bufferSize)
         {
-            var streamWriter = new StreamWriter(target, Encoding.UTF8, (int)bufferSize, true);
-
-            var jsonWriter = new JsonTextWriter(streamWriter);
-            
-            var serializer = JsonSerializer.Create(SETTINGS);
-
-            serializer.Serialize(jsonWriter, Data);
-
-            await jsonWriter.FlushAsync();
-
-            await streamWriter.FlushAsync();
+            await JsonSerializer.SerializeAsync(target, Data, Data.GetType(), Options);
         }
 
         #endregion

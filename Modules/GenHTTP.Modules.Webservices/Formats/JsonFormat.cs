@@ -1,32 +1,33 @@
 ﻿using System;
 using System.IO;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Core;
 
-using Newtonsoft.Json;
 
 namespace GenHTTP.Modules.Webservices.Formats
 {
 
     public class JsonFormat : ISerializationFormat
     {
-
-        public object Deserialize(Stream stream, Type type)
+        private static readonly JsonSerializerOptions OPTIONS = new JsonSerializerOptions()
         {
-            var streamReader = new StreamReader(stream);
+            IgnoreNullValues = true,
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
 
-            var jsonReader = new JsonTextReader(streamReader);
-
-            var serializer = new JsonSerializer();
-
-            return serializer.Deserialize(jsonReader, type)!;
+        public async Task<object> Deserialize(Stream stream, Type type)
+        {
+            return await JsonSerializer.DeserializeAsync(stream, type, OPTIONS);
         }
 
         public IResponseBuilder Serialize(IRequest request, object response)
         {
             return request.Respond()
-                          .Content(new JsonContent(response))
+                          .Content(new JsonContent(response, OPTIONS))
                           .Type(ContentType.ApplicationJson);
         }
 

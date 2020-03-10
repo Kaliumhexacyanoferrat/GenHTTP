@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
 
@@ -24,7 +25,7 @@ namespace GenHTTP.Modules.Webservices
         /// <param name="stream">The stream providing the data to be deserialized</param>
         /// <param name="type">The type to be deserialized</param>
         /// <returns>The object deserialized from the given stream</returns>
-        object Deserialize(Stream stream, Type type);
+        Task<object> Deserialize(Stream stream, Type type);
 
         /// <summary>
         /// Serializes the given response into a new response for the
