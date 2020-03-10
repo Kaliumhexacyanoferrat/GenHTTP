@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 using GenHTTP.Api.Protocol;
 using GenHTTP.Core.Protocol;
@@ -9,7 +8,8 @@ namespace GenHTTP.Core
 
     internal class Response : IResponse
     {
-        private readonly CookieCollection _Cookies;
+        private CookieCollection? _Cookies;
+
         private readonly HeaderCollection _Headers;
 
         #region Get-/Setters
@@ -28,10 +28,11 @@ namespace GenHTTP.Core
 
         public IResponseContent? Content { get; set; }
 
-        public ICookieCollection Cookies => _Cookies;
-
-        public List<string> RawCookies { get; set; }
-
+        public ICookieCollection Cookies
+        {
+            get { return _Cookies ?? (_Cookies = new CookieCollection()); }
+        }
+        
         public IHeaderCollection Headers => _Headers;
 
         public string? this[string field]
@@ -57,27 +58,16 @@ namespace GenHTTP.Core
 
         #region Initialization
 
-        internal Response(FlexibleResponseStatus type, HeaderCollection headers, CookieCollection cookies, List<string> rawCookies)
+        internal Response(FlexibleResponseStatus type, HeaderCollection headers, CookieCollection? cookies)
         {
             Status = type;
 
             _Headers = headers;
-
             _Cookies = cookies;
-            RawCookies = rawCookies;
         }
 
         #endregion
-
-        #region Functionality
-
-        public void AddCookie(Cookie cookie)
-        {
-            _Cookies[cookie.Name] = cookie;
-        }
-
-        #endregion
-
+        
         #region IDisposable Support
 
         private bool disposed = false;

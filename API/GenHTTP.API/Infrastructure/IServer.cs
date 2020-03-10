@@ -19,7 +19,7 @@ namespace GenHTTP.Api.Infrastructure
         /// This property is for informational use only. Do not change
         /// your code depending on the version you are working with.
         /// </remarks>
-        Version Version { get; }
+        string Version { get; }
 
         /// <summary>
         /// If enabled, components may provide additional information

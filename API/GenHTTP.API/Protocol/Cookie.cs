@@ -4,7 +4,7 @@
     /// <summary>
     /// Represents a cookie that can be send to or received from a client.
     /// </summary>
-    public class Cookie
+    public struct Cookie
     {
 
         #region Get-/Setters
@@ -37,6 +37,8 @@
         {
             Name = name;
             Value = value;
+
+            MaxAge = null;
         }
 
         /// <summary>
@@ -47,8 +49,6 @@
         /// <param name="maxAge">The number of seconds until the cookie will be discarded</param>
         public Cookie(string name, string value, ulong maxAge) : this(name, value)
         {
-            Name = name;
-            Value = value;
             MaxAge = maxAge;
         }
 
