@@ -37,28 +37,17 @@ namespace GenHTTP.Api.Protocol
         /// <param name="field">The name of the header field</param>
         /// <returns>The value of the header field</returns>
         string? this[string field] { get; set; }
-
-        /// <summary>
-        /// Add a cookie to send to the client.
-        /// </summary>
-        /// <param name="cookie">The cookie to send</param>
-        void AddCookie(Cookie cookie);
-
+        
         /// <summary>
         /// The headers of the HTTP response.
         /// </summary>
         IHeaderCollection Headers { get; }
 
         /// <summary>
-        /// The cookies to be send to the client.
+        /// The cookies to be sent to the client.
         /// </summary>
         ICookieCollection Cookies { get; }
-
-        /// <summary>
-        /// Raw cookie headers.
-        /// </summary>
-        List<string> RawCookies { get; }
-
+        
         #endregion
 
         #region Content

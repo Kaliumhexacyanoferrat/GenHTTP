@@ -16,6 +16,11 @@ namespace GenHTTP.Core
     /// </summary>
     internal class Request : IRequest
     {
+        private ICookieCollection? _Cookies;
+
+        private IForwardingCollection? _Forwardings;
+
+        private IReadOnlyDictionary<string, string>? _Query;
 
         #region Get-/Setters
 
@@ -35,13 +40,7 @@ namespace GenHTTP.Core
 
         public string Path { get; }
 
-        public ICookieCollection Cookies { get; }
-
-        public IForwardingCollection Forwardings { get; }
-
         public IHeaderCollection Headers { get; }
-
-        public IReadOnlyDictionary<string, string> Query { get; }
 
         public Stream? Content { get; }
 
@@ -64,13 +63,28 @@ namespace GenHTTP.Core
             }
         }
 
+        public ICookieCollection Cookies
+        {
+            get { return _Cookies ?? (_Cookies = new CookieCollection()); }
+        }
+
+        public IForwardingCollection Forwardings
+        {
+            get { return _Forwardings ?? (_Forwardings = new ForwardingCollection()); }
+        }
+
+        public IReadOnlyDictionary<string, string> Query
+        {
+            get { return _Query ?? (_Query = new Dictionary<string, string>()); }
+        }
+
         #endregion
 
         #region Initialization
 
         internal Request(IServer server, IEndPoint endPoint, IClientConnection client, IClientConnection localClient, HttpProtocol protocol, FlexibleRequestMethod method,
-                         string path, IHeaderCollection headers, ICookieCollection cookies, IForwardingCollection forwardings,
-                         IReadOnlyDictionary<string, string> query, Stream? content)
+                         string path, IHeaderCollection headers, ICookieCollection? cookies, IForwardingCollection? forwardings,
+                         IReadOnlyDictionary<string, string>? query, Stream? content)
         {
             Client = client;
             LocalClient = localClient;
@@ -82,10 +96,11 @@ namespace GenHTTP.Core
             Method = method;
             Path = path;
 
-            Cookies = cookies;
-            Forwardings = forwardings;
+            _Cookies = cookies;
+            _Forwardings = forwardings;
+            _Query = query;
+
             Headers = headers;
-            Query = query;
 
             Content = content;
         }

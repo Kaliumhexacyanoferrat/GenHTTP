@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
 
 using GenHTTP.Api.Infrastructure;
@@ -24,14 +25,29 @@ namespace GenHTTP.Core.Protocol
 
         private Stream? _Content;
 
-        private readonly Dictionary<string, string> _Query = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+        private Dictionary<string, string>? _Query;
 
-        private readonly CookieCollection _Cookies = new CookieCollection();
+        private CookieCollection? _Cookies;
 
-        private readonly ForwardingCollection _Forwardings = new ForwardingCollection();
+        private ForwardingCollection? _Forwardings;
 
         #region Get-/Setters
 
+        private Dictionary<string, string> Query
+        {
+            get {  return _Query ?? (_Query = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) ); }
+        }
+        
+        private CookieCollection Cookies
+        {
+            get { return _Cookies ?? (_Cookies = new CookieCollection()); }
+        }
+
+        private ForwardingCollection Forwardings
+        {
+            get { return _Forwardings ?? (_Forwardings = new ForwardingCollection()); }
+        }
+        
         internal HeaderCollection Headers { get; }
 
         #endregion
@@ -97,12 +113,12 @@ namespace GenHTTP.Core.Protocol
 
                 foreach (Match m in Pattern.GET_PARAMETER.Matches(query))
                 {
-                    _Query[m.Groups[1].Value] = Uri.UnescapeDataString(m.Groups[2].Value.Replace('+', ' '));
+                    Query[m.Groups[1].Value] = Uri.UnescapeDataString(m.Groups[2].Value.Replace('+', ' '));
                 }
 
-                if (_Query.Count == 0)
+                if (Query.Count == 0)
                 {
-                    _Query[query] = string.Empty;
+                    Query[query] = string.Empty;
                 }
             }
             else
@@ -117,15 +133,15 @@ namespace GenHTTP.Core.Protocol
         {
             if (string.Equals(key, "cookie", StringComparison.OrdinalIgnoreCase))
             {
-                _Cookies.Add(value);
+                Cookies.Add(value);
             }
             else if (string.Equals(key, "forwarded", StringComparison.OrdinalIgnoreCase))
             {
-                _Forwardings.Add(value);
+                Forwardings.Add(value);
             }
             else
             {
-                Headers[key] = value.Trim();
+                Headers[key] = value;
             }
 
             return this;
@@ -185,9 +201,9 @@ namespace GenHTTP.Core.Protocol
 
         private IClientConnection? DetermineClient()
         {
-            if (_Forwardings.Count > 0)
+            if (_Forwardings != null)
             {
-                foreach (var forwarding in _Forwardings)
+                foreach (var forwarding in Forwardings)
                 {
                     if (forwarding.For != null)
                     {

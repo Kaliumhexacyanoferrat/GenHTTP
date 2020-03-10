@@ -1,16 +1,17 @@
-﻿using System.Buffers;
+﻿using GenHTTP.Api.Protocol;
+using GenHTTP.Core.Infrastructure.Configuration;
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-
-using GenHTTP.Api.Protocol;
-using GenHTTP.Core.Infrastructure.Configuration;
 
 namespace GenHTTP.Core.Protocol
 {
 
     internal class RequestParser
     {
+        private static readonly Encoding HEADER_ENCODING = Encoding.GetEncoding("ISO-8859-1");
+
         private RequestBuilder? _Builder;
 
         #region Get-/Setters
@@ -54,7 +55,7 @@ namespace GenHTTP.Core.Protocol
                 return null;
             }
 
-            if ((protocol = await TryReadToken(buffer, '\r')) != null)
+            if ((protocol = await TryReadToken(buffer, '\r', 1)) != null)
             {
                 if (protocol.StartsWith("HTTP/"))
                 {
@@ -72,7 +73,7 @@ namespace GenHTTP.Core.Protocol
 
             while (await TryReadHeader(buffer, Request)) { /* nop */ }
 
-            if (await TryReadToken(buffer, '\r') == null)
+            if (await TryReadToken(buffer, '\r', 1) == null)
             {
                 return null;
             }
@@ -105,9 +106,9 @@ namespace GenHTTP.Core.Protocol
         {
             string? key, value;
 
-            if ((key = await TryReadToken(buffer, ':')) != null)
+            if ((key = await TryReadToken(buffer, ':', 1)) != null)
             {
-                if ((value = await TryReadToken(buffer, '\r')) != null)
+                if ((value = await TryReadToken(buffer, '\r', 1)) != null)
                 {
                     request.Header(key, value);
                     return true;
@@ -118,7 +119,7 @@ namespace GenHTTP.Core.Protocol
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private async Task<string?> TryReadToken(RequestBuffer buffer, char delimiter)
+        private async Task<string?> TryReadToken(RequestBuffer buffer, char delimiter, ushort skipNext = 0)
         {
             if (await buffer.Read() == null)
             {
@@ -155,10 +156,7 @@ namespace GenHTTP.Core.Protocol
                 var data = GetString(buffer.Data.Slice(0, position.Value));
                 buffer.Advance(buffer.Data.GetPosition(1, position.Value));
 
-                if (delimiter == '\r')
-                {
-                    buffer.Advance(1);
-                }
+                buffer.Advance(skipNext);
 
                 return data;
             }

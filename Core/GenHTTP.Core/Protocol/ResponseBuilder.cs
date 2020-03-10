@@ -21,13 +21,17 @@ namespace GenHTTP.Core.Protocol
         private DateTime? _Expires;
         private DateTime? _Modified;
 
-        private readonly List<string> _RawCookies = new List<string>();
-        private readonly CookieCollection _Cookies = new CookieCollection();
+        private CookieCollection? _Cookies;
 
         private readonly HeaderCollection _Headers = new HeaderCollection();
 
         #region Get-/Setters
 
+        private CookieCollection Cookies
+        {
+            get { return _Cookies ?? (_Cookies = new CookieCollection()); }
+        }
+        
         public IRequest Request { get; }
 
         #endregion
@@ -75,13 +79,13 @@ namespace GenHTTP.Core.Protocol
 
         public IResponseBuilder Cookie(Cookie cookie)
         {
-            _Cookies[cookie.Name] = cookie;
+            Cookies[cookie.Name] = cookie;
             return this;
         }
 
         public IResponseBuilder Cookie(string cookie)
         {
-            _RawCookies.Add(cookie);
+            Cookies.Add(cookie);
             return this;
         }
 
@@ -128,7 +132,7 @@ namespace GenHTTP.Core.Protocol
                 throw new BuilderMissingPropertyException("Status");
             }
 
-            return new Response(_Status!.Value, _Headers, _Cookies, _RawCookies)
+            return new Response(_Status!.Value, _Headers, _Cookies)
             {
                 Content = _Content,
                 ContentEncoding = _ContentEncoding,

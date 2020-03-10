@@ -8,7 +8,7 @@ namespace GenHTTP.Core.Protocol
 
     internal class CookieCollection : Dictionary<string, Cookie>, ICookieCollection
     {
-        private const int DEFAULT_SIZE = 16;
+        internal const int DEFAULT_SIZE = 4;
 
         internal CookieCollection() : base(DEFAULT_SIZE, StringComparer.InvariantCultureIgnoreCase)
         {
@@ -26,8 +26,10 @@ namespace GenHTTP.Core.Protocol
             }
         }
 
-        private IEnumerable<Cookie> Parse(string value)
+        private List<Cookie> Parse(string value)
         {
+            var result = new List<Cookie>(2);
+
             var cookies = value.Split("; ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
             foreach (var kv in cookies)
@@ -36,10 +38,11 @@ namespace GenHTTP.Core.Protocol
 
                 if (index > -1)
                 {
-                    var cookie = new Cookie(kv.Substring(0, index), kv.Substring(index + 1));
-                    yield return cookie;
+                    result.Add(new Cookie(kv.Substring(0, index), kv.Substring(index + 1)));
                 }
             }
+
+            return result;
         }
 
     }

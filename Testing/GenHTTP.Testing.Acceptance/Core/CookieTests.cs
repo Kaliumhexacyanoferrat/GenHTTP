@@ -65,7 +65,7 @@ namespace GenHTTP.Testing.Acceptance.Core
 
             using var _ = request.GetSafeResponse();
 
-            Assert.Equal("4", provider.Cookies?["3"]?.Value);
+            Assert.Equal("4", provider.Cookies?["3"].Value);
         }
 
     }

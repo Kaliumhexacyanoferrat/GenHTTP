@@ -9,6 +9,7 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Core.Infrastructure.Configuration;
+using GenHTTP.Core.Utilities;
 
 namespace GenHTTP.Core.Protocol
 {
@@ -20,7 +21,7 @@ namespace GenHTTP.Core.Protocol
         private static readonly string NL = "\r\n";
 
         private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
-
+        
         #region Get-/Setters
 
         private IServer Server { get; }
@@ -93,7 +94,7 @@ namespace GenHTTP.Core.Protocol
             await Write(" ");
 
             await Write(response.Status.RawStatus.ToString());
-
+            
             await Write(" ");
 
             await Write(response.Status.Phrase);
@@ -104,10 +105,10 @@ namespace GenHTTP.Core.Protocol
         private async Task WriteHeader(IResponse response, bool keepAlive)
         {
             await Write("Server: GenHTTP/");
-            await Write(Server.Version.ToString());
+            await Write(Server.Version);
             await Write(NL);
 
-            await WriteHeaderLine("Date", DateTime.Now);
+            await WriteHeaderLine("Date", DateHeader.Value);
 
             await WriteHeaderLine("Connection", (keepAlive) ? "Keep-Alive" : "Close");
 
@@ -118,7 +119,7 @@ namespace GenHTTP.Core.Protocol
 
             if (response.ContentEncoding != null)
             {
-                await WriteHeaderLine("Content-Encoding", response.ContentEncoding.ToString());
+                await WriteHeaderLine("Content-Encoding", response.ContentEncoding!);
             }
 
             if (response.ContentLength != null)
@@ -146,14 +147,9 @@ namespace GenHTTP.Core.Protocol
                 await WriteHeaderLine(header.Key, header.Value);
             }
 
-            foreach (var cookie in response.Cookies.Values)
+            foreach (var cookie in response.Cookies)
             {
-                await WriteCookie(cookie);
-            }
-
-            foreach (var cookie in response.RawCookies)
-            {
-                await WriteHeaderLine("Set-Cookie", cookie);
+                await WriteCookie(cookie.Value);
             }
         }
 
