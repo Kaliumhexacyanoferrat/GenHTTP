@@ -1,17 +1,16 @@
-﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Core.Infrastructure.Configuration;
-using System.Buffers;
+﻿using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+
+using GenHTTP.Api.Protocol;
+using GenHTTP.Core.Infrastructure.Configuration;
 
 namespace GenHTTP.Core.Protocol
 {
 
     internal class RequestParser
     {
-        private static readonly Encoding HEADER_ENCODING = Encoding.GetEncoding("ISO-8859-1");
-
         private RequestBuilder? _Builder;
 
         #region Get-/Setters
@@ -55,16 +54,9 @@ namespace GenHTTP.Core.Protocol
                 return null;
             }
 
-            if ((protocol = await TryReadToken(buffer, '\r', 1)) != null)
+            if ((protocol = await TryReadToken(buffer, '\r', 1, 5)) != null)
             {
-                if (protocol.StartsWith("HTTP/"))
-                {
-                    Request.Protocol(protocol.Substring(5));
-                }
-                else
-                {
-                    throw new ProtocolException($"Unrecognized HTTP protocol '{protocol}'");
-                }
+                Request.Protocol(protocol);
             }
             else
             {
@@ -119,7 +111,7 @@ namespace GenHTTP.Core.Protocol
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private async Task<string?> TryReadToken(RequestBuffer buffer, char delimiter, ushort skipNext = 0)
+        private async Task<string?> TryReadToken(RequestBuffer buffer, char delimiter, ushort skipNext = 0, ushort skipFirst = 0)
         {
             if (await buffer.Read() == null)
             {
@@ -135,6 +127,12 @@ namespace GenHTTP.Core.Protocol
                     return null;
                 }
 
+                position = buffer.Data.PositionOf((byte)delimiter);
+            }
+
+            if (skipFirst > 0)
+            {
+                buffer.Advance(skipFirst);
                 position = buffer.Data.PositionOf((byte)delimiter);
             }
 

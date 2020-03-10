@@ -9,7 +9,6 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Core.Infrastructure.Configuration;
-using GenHTTP.Core.Utilities;
 
 namespace GenHTTP.Core.Protocol
 {
