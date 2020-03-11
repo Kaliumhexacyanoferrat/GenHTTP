@@ -21,6 +21,10 @@ namespace GenHTTP.Testing.Acceptance.Units
 
             Assert.True(dict.ContainsKey("one"));
 
+#pragma warning disable xUnit2017
+            Assert.True(dict.Contains(new KeyValuePair<string, string>("one", "Two")));
+#pragma warning restore
+
             Assert.Equal("Two", dict["one"]);
         }
 
