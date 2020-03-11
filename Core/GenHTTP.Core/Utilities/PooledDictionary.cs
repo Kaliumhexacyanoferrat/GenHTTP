@@ -13,21 +13,39 @@ namespace GenHTTP.Core.Utilities
         private short _Enumerator = -1;
         private ushort _Index = 0;
 
-        private KeyValuePair<TKey, TValue>[] _Entries;
+        private KeyValuePair<TKey, TValue>[]? _Entries;
 
         private readonly IEqualityComparer<TKey> _Comparer;
 
         #region Get-/Setters
 
+        private KeyValuePair<TKey, TValue>[] Entries
+        {
+            get
+            {
+                if (_Entries == null)
+                {
+                    _Entries = POOL.Rent(Capacity);
+                }
+
+                return _Entries!;
+            }
+        }
+
+        private bool HasEntries => _Entries != null;
+
         public TValue this[TKey key]
         {
             get
             {
-                for (int i = 0; i < _Index; i++)
+                if (HasEntries)
                 {
-                    if (_Comparer.Equals(_Entries[i].Key, key))
+                    for (int i = 0; i < _Index; i++)
                     {
-                        return _Entries[i].Value;
+                        if (_Comparer.Equals(Entries[i].Key, key))
+                        {
+                            return Entries[i].Value;
+                        }
                     }
                 }
 
@@ -35,12 +53,15 @@ namespace GenHTTP.Core.Utilities
             }
             set
             {
-                for (int i = 0; i < _Index; i++)
+                if (HasEntries)
                 {
-                    if (_Comparer.Equals(_Entries[i].Key, key))
+                    for (int i = 0; i < _Index; i++)
                     {
-                        _Entries[i] = new KeyValuePair<TKey, TValue>(key, value);
-                        return;
+                        if (_Comparer.Equals(Entries[i].Key, key))
+                        {
+                            Entries[i] = new KeyValuePair<TKey, TValue>(key, value);
+                            return;
+                        }
                     }
                 }
 
@@ -54,9 +75,12 @@ namespace GenHTTP.Core.Utilities
             {
                 var result = new List<TKey>(_Index);
 
-                for (int i = 0; i < _Index; i++)
+                if (HasEntries)
                 {
-                    result.Add(_Entries[i].Key);
+                    for (int i = 0; i < _Index; i++)
+                    {
+                        result.Add(Entries[i].Key);
+                    }
                 }
 
                 return result;
@@ -69,9 +93,12 @@ namespace GenHTTP.Core.Utilities
             {
                 var result = new List<TValue>(_Index);
 
-                for (int i = 0; i < _Index; i++)
+                if (HasEntries)
                 {
-                    result.Add(_Entries[i].Value);
+                    for (int i = 0; i < _Index; i++)
+                    {
+                        result.Add(Entries[i].Value);
+                    }
                 }
 
                 return result;
@@ -86,9 +113,9 @@ namespace GenHTTP.Core.Utilities
 
         IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
 
-        public KeyValuePair<TKey, TValue> Current => _Entries[_Enumerator];
+        public KeyValuePair<TKey, TValue> Current => Entries[_Enumerator];
 
-        object IEnumerator.Current => _Entries[_Enumerator];
+        object IEnumerator.Current => Entries[_Enumerator];
 
         public int Capacity { get; private set; }
 
@@ -101,7 +128,6 @@ namespace GenHTTP.Core.Utilities
             Capacity = initialCapacity;
 
             _Comparer = comparer;
-            _Entries = POOL.Rent(initialCapacity);
         }
 
         #endregion
@@ -111,13 +137,13 @@ namespace GenHTTP.Core.Utilities
         public void Add(TKey key, TValue value)
         {
             CheckResize();
-            _Entries[_Index++] = new KeyValuePair<TKey, TValue>(key, value);
+            Entries[_Index++] = new KeyValuePair<TKey, TValue>(key, value);
         }
 
         public void Add(KeyValuePair<TKey, TValue> item)
         {
             CheckResize();
-            _Entries[_Index++] = item;
+            Entries[_Index++] = item;
         }
 
         public void Clear()
@@ -127,11 +153,14 @@ namespace GenHTTP.Core.Utilities
 
         public bool Contains(KeyValuePair<TKey, TValue> item)
         {
-            for (int i = 0; i < _Index; i++)
+            if (HasEntries)
             {
-                if (_Comparer.Equals(_Entries[i].Key, item.Key))
+                for (int i = 0; i < _Index; i++)
                 {
-                    return true;
+                    if (_Comparer.Equals(Entries[i].Key, item.Key))
+                    {
+                        return true;
+                    }
                 }
             }
 
@@ -140,11 +169,14 @@ namespace GenHTTP.Core.Utilities
 
         public bool ContainsKey(TKey key)
         {
-            for (int i = 0; i < _Index; i++)
+            if (HasEntries)
             {
-                if (_Comparer.Equals(_Entries[i].Key, key))
+                for (int i = 0; i < _Index; i++)
                 {
-                    return true;
+                    if (_Comparer.Equals(Entries[i].Key, key))
+                    {
+                        return true;
+                    }
                 }
             }
 
@@ -205,9 +237,9 @@ namespace GenHTTP.Core.Utilities
 
         private void CheckResize()
         {
-            if (_Index >= _Entries.Length)
+            if (_Index >= Entries.Length)
             {
-                var oldEntries = _Entries;
+                var oldEntries = Entries;
 
                 try
                 {
@@ -217,7 +249,7 @@ namespace GenHTTP.Core.Utilities
 
                     for (int i = 0; i < _Index; i++)
                     {
-                        _Entries[i] = oldEntries[i];
+                        Entries[i] = oldEntries[i];
                     }
                 }
                 finally
@@ -239,7 +271,10 @@ namespace GenHTTP.Core.Utilities
             {
                 if (disposing)
                 {
-                    POOL.Return(_Entries);
+                    if (HasEntries)
+                    {
+                        POOL.Return(Entries);
+                    }
                 }
 
                 disposedValue = true;

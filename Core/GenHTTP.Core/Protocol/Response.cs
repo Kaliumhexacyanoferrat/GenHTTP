@@ -8,7 +8,7 @@ namespace GenHTTP.Core
 
     internal class Response : IResponse
     {
-        private CookieCollection? _Cookies;
+        private ICookieCollection? _Cookies;
 
         private readonly HeaderCollection _Headers;
 
