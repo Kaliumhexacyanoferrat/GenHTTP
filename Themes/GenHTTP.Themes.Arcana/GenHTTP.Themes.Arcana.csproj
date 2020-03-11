@@ -21,6 +21,8 @@
     <Description>Arcana theme to be used with the website module of the GenHTTP webserver</Description>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
   </PropertyGroup>
 
