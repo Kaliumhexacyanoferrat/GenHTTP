@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,7 +9,7 @@ using GenHTTP.Core.Utilities;
 namespace GenHTTP.Core.Protocol
 {
 
-    internal class NoCookieCollection : ICookieCollection
+    internal class NoCookieCollection : ICookieCollection, IDisposable
     {
 
         #region Get-/Setters
@@ -39,6 +40,11 @@ namespace GenHTTP.Core.Protocol
         public IEnumerator<KeyValuePair<string, Cookie>> GetEnumerator() => EmptyEnumerator<KeyValuePair<string, Cookie>>.Instance;
 
         IEnumerator IEnumerable.GetEnumerator() => EmptyEnumerator.Instance;
+
+        public void Dispose()
+        {
+            // nothing to do
+        }
 
         #endregion
 

@@ -78,6 +78,10 @@ namespace GenHTTP.Core
             {
                 if (disposing)
                 {
+                    Headers.Dispose();
+
+                    _Cookies?.Dispose();
+
                     if (Content is IDisposable disposableContent)
                     {
                         disposableContent.Dispose();

@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 
 using GenHTTP.Api.Protocol;
+using GenHTTP.Core.Utilities;
 
 namespace GenHTTP.Core.Protocol
 {
 
-    internal class CookieCollection : Dictionary<string, Cookie>, ICookieCollection
+    internal class CookieCollection : PooledDictionary<string, Cookie>, ICookieCollection
     {
         internal const int DEFAULT_SIZE = 4;
 

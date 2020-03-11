@@ -126,10 +126,11 @@ namespace GenHTTP.Core
             {
                 if (disposing)
                 {
-                    if (Content != null)
-                    {
-                        Content.Dispose();
-                    }
+                    Headers.Dispose();
+
+                    _Cookies?.Dispose();
+
+                    Content?.Dispose();
                 }
 
                 disposed = true;

@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 
 using GenHTTP.Api.Protocol;
+using GenHTTP.Core.Utilities;
 
 namespace GenHTTP.Core.Protocol
 {
 
-    internal class HeaderCollection : Dictionary<string, string>, IHeaderCollection
+    internal class HeaderCollection : PooledDictionary<string, string>, IHeaderCollection
     {
         private const int DEFAULT_SIZE = 16;
 
