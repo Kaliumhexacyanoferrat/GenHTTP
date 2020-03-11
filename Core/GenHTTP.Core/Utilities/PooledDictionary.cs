@@ -158,7 +158,7 @@ namespace GenHTTP.Core.Utilities
 
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
-            _Enumerator = 0;
+            _Enumerator = -1;
             return this;
         }
 
@@ -180,7 +180,7 @@ namespace GenHTTP.Core.Utilities
                 return true;
             }
 
-#pragma warning disable CS8653
+#pragma warning disable CS8653, CS8601
             value = default;
 #pragma warning restore
 
