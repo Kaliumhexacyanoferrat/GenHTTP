@@ -8,7 +8,7 @@ namespace GenHTTP.Core
 
     internal class Response : IResponse
     {
-        private CookieCollection? _Cookies;
+        private ICookieCollection? _Cookies;
 
         private readonly HeaderCollection _Headers;
 
@@ -78,6 +78,10 @@ namespace GenHTTP.Core
             {
                 if (disposing)
                 {
+                    Headers.Dispose();
+
+                    _Cookies?.Dispose();
+
                     if (Content is IDisposable disposableContent)
                     {
                         disposableContent.Dispose();

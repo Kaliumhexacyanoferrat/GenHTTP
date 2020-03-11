@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 
 using GenHTTP.Api.Infrastructure;
@@ -20,7 +19,7 @@ namespace GenHTTP.Core
 
         private IForwardingCollection? _Forwardings;
 
-        private IReadOnlyDictionary<string, string>? _Query;
+        private IRequestQuery? _Query;
 
         #region Get-/Setters
 
@@ -73,9 +72,9 @@ namespace GenHTTP.Core
             get { return _Forwardings ?? (_Forwardings = new ForwardingCollection()); }
         }
 
-        public IReadOnlyDictionary<string, string> Query
+        public IRequestQuery Query
         {
-            get { return _Query ?? (_Query = new Dictionary<string, string>()); }
+            get { return _Query ?? (_Query = new RequestQuery()); }
         }
 
         #endregion
@@ -84,7 +83,7 @@ namespace GenHTTP.Core
 
         internal Request(IServer server, IEndPoint endPoint, IClientConnection client, IClientConnection localClient, HttpProtocol protocol, FlexibleRequestMethod method,
                          string path, IHeaderCollection headers, ICookieCollection? cookies, IForwardingCollection? forwardings,
-                         IReadOnlyDictionary<string, string>? query, Stream? content)
+                         IRequestQuery? query, Stream? content)
         {
             Client = client;
             LocalClient = localClient;
@@ -126,10 +125,13 @@ namespace GenHTTP.Core
             {
                 if (disposing)
                 {
-                    if (Content != null)
-                    {
-                        Content.Dispose();
-                    }
+                    Headers.Dispose();
+
+                    _Query?.Dispose();
+
+                    _Cookies?.Dispose();
+
+                    Content?.Dispose();
                 }
 
                 disposed = true;

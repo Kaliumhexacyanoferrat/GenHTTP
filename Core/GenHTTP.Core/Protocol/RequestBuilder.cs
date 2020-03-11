@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -24,7 +23,7 @@ namespace GenHTTP.Core.Protocol
 
         private Stream? _Content;
 
-        private Dictionary<string, string>? _Query;
+        private RequestQuery? _Query;
 
         private CookieCollection? _Cookies;
 
@@ -32,11 +31,11 @@ namespace GenHTTP.Core.Protocol
 
         #region Get-/Setters
 
-        private Dictionary<string, string> Query
+        private RequestQuery Query
         {
-            get {  return _Query ?? (_Query = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) ); }
+            get { return _Query ?? (_Query = new RequestQuery()); }
         }
-        
+
         private CookieCollection Cookies
         {
             get { return _Cookies ?? (_Cookies = new CookieCollection()); }
@@ -46,7 +45,7 @@ namespace GenHTTP.Core.Protocol
         {
             get { return _Forwardings ?? (_Forwardings = new ForwardingCollection()); }
         }
-        
+
         internal HeaderCollection Headers { get; }
 
         #endregion
@@ -154,48 +153,60 @@ namespace GenHTTP.Core.Protocol
 
         public IRequest Build()
         {
-            if (_Server == null)
+            try
             {
-                throw new BuilderMissingPropertyException("Server");
-            }
+                if (_Server == null)
+                {
+                    throw new BuilderMissingPropertyException("Server");
+                }
 
-            if (_EndPoint == null)
+                if (_EndPoint == null)
+                {
+                    throw new BuilderMissingPropertyException("EndPoint");
+                }
+
+                if (_Address == null)
+                {
+                    throw new BuilderMissingPropertyException("Address");
+                }
+
+                if (_Protocol == null)
+                {
+                    throw new BuilderMissingPropertyException("Protocol");
+                }
+
+                if (_RequestMethod is null)
+                {
+                    throw new BuilderMissingPropertyException("Type");
+                }
+
+                if (_Path == null)
+                {
+                    throw new BuilderMissingPropertyException("Path");
+                }
+
+                var protocol = (_EndPoint.Secure) ? ClientProtocol.HTTPS : ClientProtocol.HTTP;
+
+                if (!Headers.ContainsKey("Host"))
+                {
+                    throw new ProtocolException("Mandatory 'Host' header is missing from the request");
+                }
+
+                var localClient = new ClientConnection(_Address, protocol, Headers["Host"]);
+
+                var client = DetermineClient() ?? localClient;
+
+                return new Request(_Server, _EndPoint, client, localClient, (HttpProtocol)_Protocol, _RequestMethod.Value, _Path, Headers, _Cookies, _Forwardings, _Query, _Content);
+            }
+            catch (Exception)
             {
-                throw new BuilderMissingPropertyException("EndPoint");
+                Headers.Dispose();
+
+                _Query?.Dispose();
+                _Cookies?.Dispose();
+
+                throw;
             }
-
-            if (_Address == null)
-            {
-                throw new BuilderMissingPropertyException("Address");
-            }
-
-            if (_Protocol == null)
-            {
-                throw new BuilderMissingPropertyException("Protocol");
-            }
-
-            if (_RequestMethod is null)
-            {
-                throw new BuilderMissingPropertyException("Type");
-            }
-
-            if (_Path == null)
-            {
-                throw new BuilderMissingPropertyException("Path");
-            }
-
-            var protocol = (_EndPoint.Secure) ? ClientProtocol.HTTPS : ClientProtocol.HTTP;
-
-            if (!Headers.ContainsKey("Host"))
-            {
-                throw new ProtocolException("Mandatory 'Host' header is missing from the request");
-            }
-
-            var localClient = new ClientConnection(_Address, protocol, Headers["Host"]);
-
-            var client = DetermineClient() ?? localClient;
-
-            return new Request(_Server, _EndPoint, client, localClient, (HttpProtocol)_Protocol, _RequestMethod.Value, _Path, Headers, _Cookies, _Forwardings, _Query, _Content);
         }
 
         private IClientConnection? DetermineClient()

@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-using GenHTTP.Api.Infrastructure;
+﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Core.General;
+using System;
+using System.IO;
 
 namespace GenHTTP.Core.Protocol
 {
@@ -31,7 +29,7 @@ namespace GenHTTP.Core.Protocol
         {
             get { return _Cookies ?? (_Cookies = new CookieCollection()); }
         }
-        
+
         public IRequest Request { get; }
 
         #endregion
@@ -127,20 +125,30 @@ namespace GenHTTP.Core.Protocol
 
         public IResponse Build()
         {
-            if (_Status == null)
+            try
             {
-                throw new BuilderMissingPropertyException("Status");
-            }
+                if (_Status == null)
+                {
+                    throw new BuilderMissingPropertyException("Status");
+                }
 
-            return new Response(_Status!.Value, _Headers, _Cookies)
+                return new Response(_Status!.Value, _Headers, _Cookies)
+                {
+                    Content = _Content,
+                    ContentEncoding = _ContentEncoding,
+                    ContentLength = _ContentLength,
+                    ContentType = _ContentType,
+                    Expires = _Expires,
+                    Modified = _Modified
+                };
+            }
+            catch (Exception)
             {
-                Content = _Content,
-                ContentEncoding = _ContentEncoding,
-                ContentLength = _ContentLength,
-                ContentType = _ContentType,
-                Expires = _Expires,
-                Modified = _Modified
-            };
+                _Headers.Dispose();
+                _Cookies?.Dispose();
+
+                throw;
+            }
         }
 
         #endregion

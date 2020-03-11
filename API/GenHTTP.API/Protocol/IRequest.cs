@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 
 using GenHTTP.Api.Infrastructure;
@@ -91,7 +90,7 @@ namespace GenHTTP.Api.Protocol
         /// <summary>
         /// The query parameters passed by the client.
         /// </summary>
-        IReadOnlyDictionary<string, string> Query { get; }
+        IRequestQuery Query { get; }
 
         /// <summary>
         /// The cookies passed by the client.
