@@ -114,8 +114,7 @@ namespace GenHTTP.Modules.Core.Proxy
 
             if (request.Cookies.Count > 0)
             {
-                var cookieHeader = request.Cookies.Values
-                                                  .Select(c => $"{c.Name}={c.Value}");
+                var cookieHeader = request.Cookies.Select(c => $"{c.Value.Name}={c.Value.Value}");
 
                 req.Headers.Add("Cookie", string.Join("; ", cookieHeader));
             }

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace GenHTTP.Core.Utilities
 {
 
-    internal class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>, IEnumerator<KeyValuePair<TKey, TValue>>, IDisposable where TKey : IEquatable<TKey>
+    internal class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>, IEnumerator<KeyValuePair<TKey, TValue>> where TKey : IEquatable<TKey>
     {
         private static readonly ArrayPool<KeyValuePair<TKey, TValue>> POOL = ArrayPool<KeyValuePair<TKey, TValue>>.Shared;
 
@@ -122,6 +122,11 @@ namespace GenHTTP.Core.Utilities
         #endregion
 
         #region Initialization
+
+        internal PooledDictionary() : this(4, EqualityComparer<TKey>.Default)
+        {
+
+        }
 
         internal PooledDictionary(int initialCapacity, IEqualityComparer<TKey> comparer)
         {
@@ -243,7 +248,14 @@ namespace GenHTTP.Core.Utilities
 
                 try
                 {
-                    Capacity *= 2;
+                    if (oldEntries.Length > Capacity)
+                    {
+                        Capacity = oldEntries.Length * 2;
+                    }
+                    else
+                    {
+                        Capacity *= 2;
+                    }
 
                     _Entries = POOL.Rent(Capacity);
 
