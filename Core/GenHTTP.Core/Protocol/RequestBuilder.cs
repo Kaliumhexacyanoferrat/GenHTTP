@@ -24,7 +24,7 @@ namespace GenHTTP.Core.Protocol
 
         private Stream? _Content;
 
-        private Dictionary<string, string>? _Query;
+        private RequestQuery? _Query;
 
         private CookieCollection? _Cookies;
 
@@ -32,9 +32,9 @@ namespace GenHTTP.Core.Protocol
 
         #region Get-/Setters
 
-        private Dictionary<string, string> Query
+        private RequestQuery Query
         {
-            get { return _Query ?? (_Query = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)); }
+            get { return _Query ?? (_Query = new RequestQuery()); }
         }
 
         private CookieCollection Cookies
@@ -202,6 +202,8 @@ namespace GenHTTP.Core.Protocol
             catch (Exception)
             {
                 Headers.Dispose();
+
+                _Query?.Dispose();
                 _Cookies?.Dispose();
 
                 throw;
