@@ -162,7 +162,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var runner = setup.Runner;
 
-            using var redirected = runner.GetResponse("/?location=1");
+            using var redirected = runner.GetResponse("/");
 
             Assert.Equal(redirected.Headers["Location"], $"http://localhost:{runner.Port}/target");
         }
@@ -260,13 +260,13 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var runner = setup.Runner;
 
-            using var r1 = runner.GetResponse("/?echoPath=1");
+            using var r1 = runner.GetResponse("/");
             Assert.Equal("/", r1.GetContent());
 
-            using var r2 = runner.GetResponse("/login/?echoPath=1");
+            using var r2 = runner.GetResponse("/login/");
             Assert.Equal("/login/", r2.GetContent());
 
-            using var r3 = runner.GetResponse("/login?echoPath=1");
+            using var r3 = runner.GetResponse("/login");
             Assert.Equal("/login", r3.GetContent());
         }
 
