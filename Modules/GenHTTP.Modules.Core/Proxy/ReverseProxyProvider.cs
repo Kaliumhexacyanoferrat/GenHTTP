@@ -1,11 +1,12 @@
-﻿using GenHTTP.Api.Modules;
-using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Core.General;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web;
+
+using GenHTTP.Api.Modules;
+using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core.Proxy
 {
