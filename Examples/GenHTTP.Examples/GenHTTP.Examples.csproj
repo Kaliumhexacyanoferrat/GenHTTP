@@ -19,8 +19,6 @@
     <ProjectReference Include="..\..\Modules\GenHTTP.Modules.Core\GenHTTP.Modules.Core.csproj" />
     <ProjectReference Include="..\..\Modules\GenHTTP.Modules.Webservices\GenHTTP.Modules.Webservices.csproj" />
     <ProjectReference Include="..\..\Modules\GenHTTP.Modules.Scriban\GenHTTP.Modules.Scriban.csproj" />
-    <ProjectReference Include="..\..\Themes\GenHTTP.Themes.Arcana\GenHTTP.Themes.Arcana.csproj" />
-    <ProjectReference Include="..\..\Themes\GenHTTP.Themes.Lorahost\GenHTTP.Themes.Lorahost.csproj" />
   </ItemGroup>
 
 </Project>

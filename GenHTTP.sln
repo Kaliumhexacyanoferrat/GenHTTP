@@ -11,7 +11,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{22
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8514DD10-DC8A-4C5C-B8CD-F2C97F5684C9}"
 	ProjectSection(SolutionItems) = preProject
-		.travis.yml = .travis.yml
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
@@ -35,12 +34,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Testing.Acceptance", "Testing\GenHTTP.Testing.Acceptance\GenHTTP.Testing.Acceptance.csproj", "{3B00D7C4-B8E9-4163-9E4C-67044BB26B34}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Webservices", "Modules\GenHTTP.Modules.Webservices\GenHTTP.Modules.Webservices.csproj", "{3096F48C-60D7-4471-A7E4-315B6227C351}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Themes", "Themes", "{B3F144E8-760B-4C30-993B-E42AD239A4E9}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Themes.Arcana", "Themes\GenHTTP.Themes.Arcana\GenHTTP.Themes.Arcana.csproj", "{9073FAE2-F40A-47EB-BF25-7BB8E76E5FB4}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Themes.Lorahost", "Themes\GenHTTP.Themes.Lorahost\GenHTTP.Themes.Lorahost.csproj", "{26F9B204-6C5F-4284-A4BD-922478D3CACC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -80,14 +73,6 @@ Global
 		{3096F48C-60D7-4471-A7E4-315B6227C351}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3096F48C-60D7-4471-A7E4-315B6227C351}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3096F48C-60D7-4471-A7E4-315B6227C351}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9073FAE2-F40A-47EB-BF25-7BB8E76E5FB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9073FAE2-F40A-47EB-BF25-7BB8E76E5FB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9073FAE2-F40A-47EB-BF25-7BB8E76E5FB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9073FAE2-F40A-47EB-BF25-7BB8E76E5FB4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{26F9B204-6C5F-4284-A4BD-922478D3CACC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{26F9B204-6C5F-4284-A4BD-922478D3CACC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{26F9B204-6C5F-4284-A4BD-922478D3CACC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{26F9B204-6C5F-4284-A4BD-922478D3CACC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -101,8 +86,6 @@ Global
 		{287D54F1-2A86-452B-A3BA-51ED11E8AD38} = {2287FAF2-0917-4B92-AA53-0E544DDFF0AA}
 		{3B00D7C4-B8E9-4163-9E4C-67044BB26B34} = {A7930BE4-0549-4197-B139-B1A73E74B464}
 		{3096F48C-60D7-4471-A7E4-315B6227C351} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
-		{9073FAE2-F40A-47EB-BF25-7BB8E76E5FB4} = {B3F144E8-760B-4C30-993B-E42AD239A4E9}
-		{26F9B204-6C5F-4284-A4BD-922478D3CACC} = {B3F144E8-760B-4C30-993B-E42AD239A4E9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}

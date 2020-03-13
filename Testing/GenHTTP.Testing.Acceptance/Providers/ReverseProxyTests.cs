@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using System.Linq;
 
 using Xunit;
 
@@ -270,9 +271,27 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.Equal("/login", r3.GetContent());
         }
 
-        /// <summary>
-        /// As a developer, I excpect the proxy to return correct status codes.
-        /// </summary>
+        [Fact]
+        public void TestQuery()
+        {
+            using var setup = TestSetup.Create((r) =>
+            {
+                var result = string.Join('|', r.Query.Select(kv => $"{kv.Key}={kv.Value}"));
+                return r.Respond().Content(result);
+            });
+
+            var runner = setup.Runner;
+
+            using var r1 = runner.GetResponse("/");
+            Assert.Equal("", r1.GetContent());
+
+            using var r2 = runner.GetResponse("/?one=two");
+            Assert.Equal("one=two", r2.GetContent());
+
+            using var r3 = runner.GetResponse("/?one=two&three=four");
+            Assert.Equal("one=two|three=four", r3.GetContent());
+        }
+        
         [Fact]
         public void TestBadGateway()
         {

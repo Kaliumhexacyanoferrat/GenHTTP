@@ -28,6 +28,5 @@ The web server was originally developed in 2008 to run on a netbook with an Inte
 
 ## Thanks
 
-- [colorlib.](https://colorlib.com/) for the template of the website
+- [.NET Core](https://github.com/dotnet/core) for a nice platform
 - [scriban](https://github.com/lunet-io/scriban) for the templating engine
-- [Raspberry Pi Foundation](https://www.raspberrypi.org/) and [.NET Core](https://github.com/dotnet/core) for a nice playground
