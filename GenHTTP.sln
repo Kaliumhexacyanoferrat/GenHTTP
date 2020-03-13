@@ -19,7 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{06A861A6-D03
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Api", "API\GenHTTP.API\GenHTTP.Api.csproj", "{C2D2B8D0-CA23-4790-8C71-B245A0AB81FB}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Content", "Content", "{23B23225-275E-4F52-8B29-6F44C85B6ACE}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{23B23225-275E-4F52-8B29-6F44C85B6ACE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Core", "Modules\GenHTTP.Modules.Core\GenHTTP.Modules.Core.csproj", "{0CB8D077-0F88-4D9F-9FB3-508BE884EA99}"
 EndProject
@@ -34,6 +34,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Testing.Acceptance", "Testing\GenHTTP.Testing.Acceptance\GenHTTP.Testing.Acceptance.csproj", "{3B00D7C4-B8E9-4163-9E4C-67044BB26B34}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Webservices", "Modules\GenHTTP.Modules.Webservices\GenHTTP.Modules.Webservices.csproj", "{3096F48C-60D7-4471-A7E4-315B6227C351}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Razor", "Modules\GenHTTP.Modules.Razor\GenHTTP.Modules.Razor.csproj", "{9022F8C2-B465-40FD-BC59-428C034C4470}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -73,6 +75,10 @@ Global
 		{3096F48C-60D7-4471-A7E4-315B6227C351}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3096F48C-60D7-4471-A7E4-315B6227C351}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3096F48C-60D7-4471-A7E4-315B6227C351}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9022F8C2-B465-40FD-BC59-428C034C4470}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9022F8C2-B465-40FD-BC59-428C034C4470}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9022F8C2-B465-40FD-BC59-428C034C4470}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9022F8C2-B465-40FD-BC59-428C034C4470}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -86,9 +92,10 @@ Global
 		{287D54F1-2A86-452B-A3BA-51ED11E8AD38} = {2287FAF2-0917-4B92-AA53-0E544DDFF0AA}
 		{3B00D7C4-B8E9-4163-9E4C-67044BB26B34} = {A7930BE4-0549-4197-B139-B1A73E74B464}
 		{3096F48C-60D7-4471-A7E4-315B6227C351} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
+		{9022F8C2-B465-40FD-BC59-428C034C4470} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
 		LessCompiler = 2603124e-1287-4d61-9540-6ac3efad4eb9
+		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
 	EndGlobalSection
 EndGlobal

@@ -8,7 +8,7 @@ using Scriban.Runtime;
 namespace GenHTTP.Modules.Scriban
 {
 
-    public class ScribanRenderer<T> : IRenderer<T> where T : IBaseModel
+    public class ScribanRenderer<T> : IRenderer<T> where T : class, IBaseModel
     {
         private Template? _Template;
 

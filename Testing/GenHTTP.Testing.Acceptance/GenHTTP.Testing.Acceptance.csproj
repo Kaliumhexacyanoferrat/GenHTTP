@@ -51,6 +51,7 @@
     <ProjectReference Include="..\..\API\GenHTTP.API\GenHTTP.Api.csproj" />
     <ProjectReference Include="..\..\Core\GenHTTP.Core\GenHTTP.Core.csproj" />
     <ProjectReference Include="..\..\Modules\GenHTTP.Modules.Core\GenHTTP.Modules.Core.csproj" />
+    <ProjectReference Include="..\..\Modules\GenHTTP.Modules.Razor\GenHTTP.Modules.Razor.csproj" />
     <ProjectReference Include="..\..\Modules\GenHTTP.Modules.Scriban\GenHTTP.Modules.Scriban.csproj" />
     <ProjectReference Include="..\..\Modules\GenHTTP.Modules.Webservices\GenHTTP.Modules.Webservices.csproj" />
   </ItemGroup>

@@ -5,7 +5,7 @@
     /// Allows to render models of the given type.
     /// </summary>
     /// <typeparam name="T">The type of the model to be rendered</typeparam>
-    public interface IRenderer<in T> where T : IBaseModel
+    public interface IRenderer<in T> where T : class, IBaseModel
     {
 
         /// <summary>

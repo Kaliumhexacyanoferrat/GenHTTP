@@ -1,29 +1,36 @@
-﻿using Xunit;
+﻿using System.Collections.Generic;
 
-using GenHTTP.Modules.Core;
-using GenHTTP.Modules.Scriban;
-using GenHTTP.Testing.Acceptance.Domain;
+using Xunit;
+
+using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
 using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.Core;
+using GenHTTP.Modules.Razor;
+using GenHTTP.Modules.Scriban;
+
+using GenHTTP.Testing.Acceptance.Domain;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
 
+    #region Supporting data structures
+
+    public class CustomModel : PageModel
+    {
+
+        public string World => "World";
+
+        public CustomModel(IRequest request) : base(request) { }
+
+    }
+
+    #endregion
+
     public class PageTests
     {
 
-        private class CustomModel : PageModel
-        {
-
-            public string World => "World";
-
-            public CustomModel(IRequest request) : base(request) { }
-
-        }
-
-        /// <summary>
-        /// As a developer, I can provide pages with plain text.
-        /// </summary>
         [Fact]
         public void TestStringPage()
         {
@@ -41,70 +48,63 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.Equal("text/html", response.GetResponseHeader("Content-Type"));
         }
 
-        /// <summary>
-        /// As a developer, I can provide pages with placeholders.
-        /// </summary>
         [Fact]
-        public void TestPlaceholderPage()
+        public void TestRendering()
         {
-            var page = Data.FromString("Hello [World]!");
-            var layout = Layout.Create().Add("page", Placeholders.Page(page, (r) => new CustomModel(r)));
+            ModelProvider<CustomModel> modelProvider = (r) => new CustomModel(r);
 
-            using var runner = TestRunner.Run(layout);
+            var providers = new List<IContentProvider>()
+            {
+                ModScriban.Page(Data.FromString("Hello {{ world }}!"), modelProvider).Build(),
+                ModRazor.Page(Data.FromString("Hello @Model.World!"), modelProvider).Build(),
+                Placeholders.Page(Data.FromString("Hello [World]!"), modelProvider).Build()
+            };
 
-            using var response = runner.GetResponse("/page");
+            foreach (var provider in providers)
+            {
+                var layout = Layout.Create().Add("page", provider);
 
-            var content = response.GetContent();
+                using var runner = TestRunner.Run(layout);
 
-            Assert.NotEqual("Hello World!", content);
-            Assert.Contains("Hello World!", content);
+                using var response = runner.GetResponse("/page");
+
+                var content = response.GetContent();
+
+                Assert.NotEqual("Hello World!", content);
+                Assert.Contains("Hello World!", content);
+            }
         }
 
-        /// <summary>
-        /// As a developer, I can provide pages with Scriban templates.
-        /// </summary>
         [Fact]
-        public void TestScribanPage()
+        public void TestRouting()
         {
-            var page = Data.FromString("Hello {{ world }}!");
-            var layout = Layout.Create().Add("page", ModScriban.Page(page, (r) => new CustomModel(r)));
+            var providers = new List<IContentProvider>()
+            {
+                ModScriban.Page(Data.FromString("{{ route 'https://google.de' }}|{{ route 'res/123' }}|{{ route 'other/456/' }}|{{ route './relative' }}")).Build(),
+                ModRazor.Page(Data.FromString("@Model.Request.Routing.Route(\"https://google.de\")|@Model.Request.Routing.Route(\"res/123\")|@Model.Request.Routing.Route(\"other/456/\")|@Model.Request.Routing.Route(\"./relative\")")).Build(),
+            };
 
-            using var runner = TestRunner.Run(layout);
+            foreach (var provider in providers)
+            {
+                var inner = Layout.Create()
+                                   .Add("page", provider);
 
-            using var response = runner.GetResponse("/page");
+                var outer = Layout.Create()
+                                  .Add("res", Layout.Create())
+                                  .Add("inner", inner);
 
-            var content = response.GetContent();
+                var layout = Layout.Create()
+                                   .Add("other", Layout.Create())
+                                   .Add("outer", outer);
 
-            Assert.NotEqual("Hello World!", content);
-            Assert.Contains("Hello World!", content);
-        }
+                using var runner = TestRunner.Run(layout);
 
-        /// <summary>
-        /// As a developer, I can generate links in Scriban pages.
-        /// </summary>
-        [Fact]
-        public void TestScribanPageRouting()
-        {
-            var page = Data.FromString("{{ route 'https://google.de' }}|{{ route 'res/123' }}|{{ route 'other/456/' }}|{{ route './relative' }}");
+                using var response = runner.GetResponse("/outer/inner/page");
 
-            var inner = Layout.Create()
-                               .Add("page", ModScriban.Page(page));
+                var content = response.GetContent();
 
-            var outer = Layout.Create()
-                              .Add("res", Layout.Create())
-                              .Add("inner", inner);
-
-            var layout = Layout.Create()
-                               .Add("other", Layout.Create())
-                               .Add("outer", outer);
-
-            using var runner = TestRunner.Run(layout);
-
-            using var response = runner.GetResponse("/outer/inner/page");
-
-            var content = response.GetContent();
-
-            Assert.Contains("https://google.de|../res/123|../../other/456/|./relative", content);
+                Assert.Contains("https://google.de|../res/123|../../other/456/|./relative", content);
+            }
         }
 
     }
