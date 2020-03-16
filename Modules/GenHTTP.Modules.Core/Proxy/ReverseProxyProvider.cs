@@ -154,13 +154,6 @@ namespace GenHTTP.Modules.Core.Proxy
                     {
                         builder.Header(key, RewriteLocation(response.Headers[key], request));
                     }
-                    else if (key == "Set-Cookie")
-                    {
-                        foreach (var cookie in BrokenCookieHeaderParser.GetCookies(response.Headers[key]))
-                        {
-                            builder.Cookie(cookie);
-                        }
-                    }
                     else
                     {
                         builder.Header(key, response.Headers[key]);
