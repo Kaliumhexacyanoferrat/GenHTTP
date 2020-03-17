@@ -22,6 +22,8 @@ namespace GenHTTP.Modules.Core.Websites
 
         private StyleRouter Styles { get; }
 
+        private IContentProvider? Favicon { get; }
+
         public IMenuProvider Menu { get; }
 
         private IRouter? Resources { get; }
@@ -43,6 +45,7 @@ namespace GenHTTP.Modules.Core.Websites
         public WebsiteRouter(IRouter content,
                              ScriptRouter scripts,
                              StyleRouter styles,
+                             IResourceProvider? favicon,
                              IMenuProvider menu,
                              ITheme theme,
                              IContentProvider? errorHandler)
@@ -55,6 +58,13 @@ namespace GenHTTP.Modules.Core.Websites
 
             Styles = styles;
             Styles.Parent = this;
+
+            if (favicon != null)
+            {
+                Favicon = Download.From(favicon)
+                                  .Type(ContentType.ImageIcon)
+                                  .Build();
+            }
 
             Resources = theme.Resources;
 
@@ -104,6 +114,10 @@ namespace GenHTTP.Modules.Core.Websites
                 current.Scope(Resources, segment);
                 Resources.HandleContext(current);
             }
+            else if (segment == "favicon.ico" && Favicon != null)
+            {
+                current.RegisterContent(Favicon);
+            }
             else
             {
                 Content.HandleContext(current);
@@ -125,6 +139,11 @@ namespace GenHTTP.Modules.Core.Websites
             foreach (var resource in Styles.GetContent(request, $"{basePath}resources/"))
             {
                 yield return resource;
+            }
+
+            if (Favicon != null)
+            {
+                yield return new ContentElement($"{basePath}favicon.ico", "Favicon", ContentType.ImageIcon, null);
             }
 
             foreach (var content in Content.GetContent(request, basePath))

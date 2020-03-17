@@ -218,7 +218,7 @@ namespace GenHTTP.Api.Protocol
             { ContentType.TextHtml, "text/html" },
             { ContentType.TextCss, "text/css" },
             { ContentType.ApplicationJavaScript, "application/javascript" },
-            { ContentType.ImageIcon, "image/vnd.microsoft.icon" },
+            { ContentType.ImageIcon, "image/x-icon" },
             { ContentType.ImageGif, "image/gif" },
             { ContentType.ImageJpg, "image/jpg" },
             { ContentType.ImagePng, "image/png" },

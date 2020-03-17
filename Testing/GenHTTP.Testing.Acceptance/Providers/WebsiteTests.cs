@@ -135,13 +135,24 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.Equal(HttpStatusCode.NotFound, noFile.StatusCode);
         }
 
+        [Fact]
+        public void TestFavicon()
+        {
+            using var runner = TestRunner.Run(GetWebsite());
+
+            using var file = runner.GetResponse("/favicon.ico");
+            Assert.Equal(HttpStatusCode.OK, file.StatusCode);
+            Assert.Equal("image/x-icon", file.ContentType);
+        }
+
         private WebsiteBuilder GetWebsite()
         {
             var content = Layout.Create();
 
             return Website.Create()
                           .Theme(new Theme())
-                          .Content(content);
+                          .Content(content)
+                          .Favicon(Data.FromString("This is a favicon"));
         }
 
     }

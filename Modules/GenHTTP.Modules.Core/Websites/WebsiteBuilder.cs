@@ -19,6 +19,8 @@ namespace GenHTTP.Modules.Core.Websites
 
         private IBuilder<IMenuProvider>? _Menu;
 
+        private IResourceProvider? _Favicon;
+
         private readonly List<Script> _Scripts = new List<Script>();
 
         private readonly List<Style> _Styles = new List<Style>();
@@ -50,6 +52,14 @@ namespace GenHTTP.Modules.Core.Websites
             return this;
         }
 
+        public WebsiteBuilder Favicon(IBuilder<IResourceProvider> resourceProvider) => Favicon(resourceProvider.Build());
+
+        public WebsiteBuilder Favicon(IResourceProvider resourceProvider)
+        {
+            _Favicon = resourceProvider;
+            return this;
+        }
+
         public WebsiteBuilder AddStyle(string name, IBuilder<IResourceProvider> provider) => AddStyle(name, provider.Build());
 
         public WebsiteBuilder AddStyle(string name, IResourceProvider provider)
@@ -78,7 +88,7 @@ namespace GenHTTP.Modules.Core.Websites
 
             var menu = _Menu ?? Core.Menu.From(content);
 
-            return new WebsiteRouter(content, scripts, styles, menu.Build(), theme, _ErrorHandler);
+            return new WebsiteRouter(content, scripts, styles, _Favicon, menu.Build(), theme, _ErrorHandler);
         }
 
         #endregion
