@@ -48,11 +48,11 @@ namespace GenHTTP.Core.Protocol
         {
             try
             {
-                WriteStatus(request, response);
+                await WriteStatus(request, response);
 
-                WriteHeader(response, keepAlive);
+                await WriteHeader(response, keepAlive);
 
-                Write(NL);
+                await Write(NL);
 
                 if (ShouldSendBody(request, response))
                 {
@@ -81,76 +81,76 @@ namespace GenHTTP.Core.Protocol
                 && (knownStatus != ResponseStatus.TemporaryRedirect);
         }
 
-        private void WriteStatus(IRequest request, IResponse response)
+        private async ValueTask WriteStatus(IRequest request, IResponse response)
         {
             var version = (request.ProtocolType == HttpProtocol.Http_1_0) ? "1.0" : "1.1";
 
-            Write("HTTP/");
-            Write(version);
+            await Write("HTTP/");
+            await Write(version);
 
-            Write(" ");
+            await Write(" ");
 
-            Write(response.Status.RawStatus.ToString());
-            
-            Write(" ");
+            await Write(response.Status.RawStatus.ToString());
 
-            Write(response.Status.Phrase);
+            await Write(" ");
 
-            Write(NL);
+            await Write(response.Status.Phrase);
+
+            await Write(NL);
         }
 
-        private void WriteHeader(IResponse response, bool keepAlive)
+        private async ValueTask WriteHeader(IResponse response, bool keepAlive)
         {
-            Write("Server: GenHTTP/");
-            Write(Server.Version);
-            Write(NL);
+            await Write("Server: GenHTTP/");
+            await Write(Server.Version);
+            await Write(NL);
 
-            WriteHeaderLine("Date", DateHeader.Value);
+            await WriteHeaderLine("Date", DateHeader.Value);
 
-            WriteHeaderLine("Connection", (keepAlive) ? "Keep-Alive" : "Close");
+            await WriteHeaderLine("Connection", (keepAlive) ? "Keep-Alive" : "Close");
 
             if (!(response.ContentType is null))
             {
-                WriteHeaderLine("Content-Type", response.ContentType.Value.RawType);
+                await WriteHeaderLine("Content-Type", response.ContentType.Value.RawType);
             }
 
             if (response.ContentEncoding != null)
             {
-                WriteHeaderLine("Content-Encoding", response.ContentEncoding!);
+                await WriteHeaderLine("Content-Encoding", response.ContentEncoding!);
             }
 
             if (response.ContentLength != null)
             {
-                WriteHeaderLine("Content-Length", response.ContentLength.ToString());
+                await WriteHeaderLine("Content-Length", response.ContentLength.ToString());
             }
 
             if (response.Modified != null)
             {
-                WriteHeaderLine("Last-Modified", (DateTime)response.Modified);
+                await WriteHeaderLine("Last-Modified", (DateTime)response.Modified);
             }
 
             if (response.Expires != null)
             {
-                WriteHeaderLine("Expires", (DateTime)response.Expires);
+                await WriteHeaderLine("Expires", (DateTime)response.Expires);
             }
 
             if ((response.Content != null) && (response.ContentLength == null))
             {
-                WriteHeaderLine("Transfer-Encoding", "chunked");
+                await WriteHeaderLine("Transfer-Encoding", "chunked");
             }
 
             foreach (var header in response.Headers)
             {
-                WriteHeaderLine(header.Key, header.Value);
+                await WriteHeaderLine(header.Key, header.Value);
             }
 
             foreach (var cookie in response.Cookies)
             {
-                WriteCookie(cookie.Value);
+                await WriteCookie(cookie.Value);
             }
         }
 
-        private async Task WriteBody(IResponse response)
+        private async ValueTask WriteBody(IResponse response)
         {
             if (response.Content != null)
             {
@@ -174,42 +174,42 @@ namespace GenHTTP.Core.Protocol
         #region Helpers
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void WriteHeaderLine(string key, string value)
+        private async ValueTask WriteHeaderLine(string key, string value)
         {
-            Write(key);
-            Write(": ");
-            Write(value);
-            Write(NL);
+            await Write(key);
+            await Write(": ");
+            await Write(value);
+            await Write(NL);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void WriteHeaderLine(string key, DateTime value)
+        private async ValueTask WriteHeaderLine(string key, DateTime value)
         {
-            WriteHeaderLine(key, value.ToUniversalTime().ToString("r"));
+            await WriteHeaderLine(key, value.ToUniversalTime().ToString("r"));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void WriteCookie(Cookie cookie)
+        private async ValueTask WriteCookie(Cookie cookie)
         {
-            Write("Set-Cookie: ");
+            await Write("Set-Cookie: ");
 
-            Write(cookie.Name);
-            Write("=");
-            Write(cookie.Value);
+            await Write("=");
+            await Write(cookie.Value);
+            await Write(cookie.Name);
 
             if (cookie.MaxAge != null)
             {
-                Write("; Max-Age=");
-                Write(cookie.MaxAge.Value.ToString());
+                await Write("; Max-Age=");
+                await Write(cookie.MaxAge.Value.ToString());
             }
 
-            Write("; Path=/");
+            await Write("; Path=/");
 
-            Write(NL);
+            await Write(NL);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Write(string text)
+        private async ValueTask Write(string text)
         {
             var count = HEADER_ENCODING.GetByteCount(text);
 
@@ -219,7 +219,7 @@ namespace GenHTTP.Core.Protocol
             {
                 HEADER_ENCODING.GetBytes(text, 0, text.Length, buffer, 0);
 
-                OutputStream.Write(buffer, 0, count);
+                await OutputStream.WriteAsync(buffer.AsMemory(0, count));
             }
             finally
             {
