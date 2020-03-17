@@ -32,7 +32,7 @@ namespace GenHTTP.Core.Protocol
 
         #region Functionality
 
-        internal async Task<RequestBuilder?> TryParseAsync(RequestBuffer buffer)
+        internal async ValueTask<RequestBuilder?> TryParseAsync(RequestBuffer buffer)
         {
             string? method, path, protocol;
 
@@ -94,7 +94,7 @@ namespace GenHTTP.Core.Protocol
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private async Task<bool> TryReadHeader(RequestBuffer buffer, RequestBuilder request)
+        private async ValueTask<bool> TryReadHeader(RequestBuffer buffer, RequestBuilder request)
         {
             string? key, value;
 
@@ -111,13 +111,8 @@ namespace GenHTTP.Core.Protocol
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private async Task<string?> TryReadToken(RequestBuffer buffer, char delimiter, ushort skipNext = 0, ushort skipFirst = 0)
+        private async ValueTask<string?> TryReadToken(RequestBuffer buffer, char delimiter, ushort skipNext = 0, ushort skipFirst = 0)
         {
-            if (await buffer.Read() == null)
-            {
-                return null;
-            }
-
             var position = buffer.Data.PositionOf((byte)delimiter);
 
             if (position == null)
@@ -130,14 +125,14 @@ namespace GenHTTP.Core.Protocol
                 position = buffer.Data.PositionOf((byte)delimiter);
             }
 
-            if (skipFirst > 0)
-            {
-                buffer.Advance(skipFirst);
-                position = buffer.Data.PositionOf((byte)delimiter);
-            }
-
             if (position != null)
             {
+                if (skipFirst > 0)
+                {
+                    buffer.Advance(skipFirst);
+                    position = buffer.Data.PositionOf((byte)delimiter)!;
+                }
+
                 if (delimiter != '\r')
                 {
                     var lineBreakPosition = buffer.Data.PositionOf((byte)'\r');

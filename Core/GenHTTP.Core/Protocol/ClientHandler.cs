@@ -106,7 +106,7 @@ namespace GenHTTP.Core
             }
         }
 
-        private async Task<bool> HandleRequest(RequestBuilder builder)
+        private async ValueTask<bool> HandleRequest(RequestBuilder builder)
         {
             var address = ((IPEndPoint)Connection.RemoteEndPoint).Address;
 
