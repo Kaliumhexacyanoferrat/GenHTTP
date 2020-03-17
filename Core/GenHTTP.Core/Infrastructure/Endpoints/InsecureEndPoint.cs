@@ -30,11 +30,8 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         #region Functionality
 
-        protected override async Task Accept(Socket client)
-        {
-            await Handle(client, new NetworkStream(client));
-        }
-
+        protected override Task Accept(Socket client) => Handle(client, new NetworkStream(client));
+        
         #endregion
 
     }

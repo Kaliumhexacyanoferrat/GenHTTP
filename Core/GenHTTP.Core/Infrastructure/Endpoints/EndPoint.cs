@@ -92,19 +92,15 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         private void Handle(Socket client)
         {
-            Task.Factory.StartNew(async state =>
-            {
-                var socket = (Socket)state;
-                await Accept(socket);
-            }, client, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
+            Task.Factory.StartNew(state => Accept((Socket)state), client, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
         }
 
         protected abstract Task Accept(Socket client);
 
-        protected async Task Handle(Socket client, Stream inputStream)
+        protected Task Handle(Socket client, Stream inputStream)
         {
             inputStream.ReadTimeout = (int)Configuration.RequestReadTimeout.TotalMilliseconds;
-            await new ClientHandler(client, inputStream, Server, this, Configuration).Run();
+            return new ClientHandler(client, inputStream, Server, this, Configuration).Run();
         }
 
         #endregion
