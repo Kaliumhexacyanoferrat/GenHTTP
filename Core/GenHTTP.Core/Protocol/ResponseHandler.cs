@@ -183,9 +183,9 @@ namespace GenHTTP.Core.Protocol
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private async ValueTask WriteHeaderLine(string key, DateTime value)
+        private ValueTask WriteHeaderLine(string key, DateTime value)
         {
-            await WriteHeaderLine(key, value.ToUniversalTime().ToString("r"));
+            return WriteHeaderLine(key, value.ToUniversalTime().ToString("r"));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -193,9 +193,9 @@ namespace GenHTTP.Core.Protocol
         {
             await Write("Set-Cookie: ");
 
+            await Write(cookie.Name);
             await Write("=");
             await Write(cookie.Value);
-            await Write(cookie.Name);
 
             if (cookie.MaxAge != null)
             {
