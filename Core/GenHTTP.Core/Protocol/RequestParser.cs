@@ -93,7 +93,6 @@ namespace GenHTTP.Core.Protocol
             return result;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private async ValueTask<bool> TryReadHeader(RequestBuffer buffer, RequestBuilder request)
         {
             string? key, value;
@@ -110,7 +109,6 @@ namespace GenHTTP.Core.Protocol
             return false;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private async ValueTask<string?> TryReadToken(RequestBuffer buffer, char delimiter, ushort skipNext = 0, ushort skipFirst = 0)
         {
             var position = buffer.Data.PositionOf((byte)delimiter);
@@ -157,7 +155,6 @@ namespace GenHTTP.Core.Protocol
             return null;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private string GetString(ReadOnlySequence<byte> buffer)
         {
             return string.Create((int)buffer.Length, buffer, (span, sequence) =>

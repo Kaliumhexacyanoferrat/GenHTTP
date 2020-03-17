@@ -173,7 +173,6 @@ namespace GenHTTP.Core.Protocol
 
         #region Helpers
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private async ValueTask WriteHeaderLine(string key, string value)
         {
             await Write(key);
@@ -182,13 +181,11 @@ namespace GenHTTP.Core.Protocol
             await Write(NL);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private ValueTask WriteHeaderLine(string key, DateTime value)
         {
             return WriteHeaderLine(key, value.ToUniversalTime().ToString("r"));
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private async ValueTask WriteCookie(Cookie cookie)
         {
             await Write("Set-Cookie: ");
@@ -208,7 +205,6 @@ namespace GenHTTP.Core.Protocol
             await Write(NL);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private async ValueTask Write(string text)
         {
             var count = HEADER_ENCODING.GetByteCount(text);
