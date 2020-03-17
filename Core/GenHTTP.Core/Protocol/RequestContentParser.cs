@@ -39,7 +39,7 @@ namespace GenHTTP.Core.Protocol
 
             while (toFetch > 0)
             {
-                await buffer.Read();
+                await buffer.Read().ConfigureAwait(false);
 
                 var toRead = Math.Min(buffer.Data.Length, Math.Min(Configuration.TransferBufferSize, toFetch));
 
@@ -49,7 +49,7 @@ namespace GenHTTP.Core.Protocol
 
                 while (data.TryGet(ref position, out var memory))
                 {
-                    await body.WriteAsync(memory);
+                    await body.WriteAsync(memory).ConfigureAwait(false);
                 }
 
                 buffer.Advance(toRead);

@@ -51,11 +51,11 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         protected override async Task Accept(Socket client)
         {
-            var stream = await TryAuthenticate(client);
+            var stream = await TryAuthenticate(client).ConfigureAwait(false);
 
             if (stream != null)
             {
-                await Handle(client, stream);
+                await Handle(client, stream).ConfigureAwait(false);
             }
             else
             {
@@ -77,7 +77,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
             {
                 var stream = new SslStream(new NetworkStream(client), false);
 
-                await stream.AuthenticateAsServerAsync(AuthenticationOptions, CancellationToken.None);
+                await stream.AuthenticateAsServerAsync(AuthenticationOptions, CancellationToken.None).ConfigureAwait(false);
 
                 return stream;
             }

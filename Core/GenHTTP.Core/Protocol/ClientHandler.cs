@@ -55,7 +55,7 @@ namespace GenHTTP.Core
         {
             try
             {
-                await HandlePipe(PipeReader.Create(Stream, READER_OPTIONS));
+                await HandlePipe(PipeReader.Create(Stream, READER_OPTIONS)).ConfigureAwait(false); ;
             }
             catch (Exception e)
             {
@@ -92,7 +92,7 @@ namespace GenHTTP.Core
 
                 RequestBuilder? request;
 
-                while ((request = await parser.TryParseAsync(buffer)) != null)
+                while ((request = await parser.TryParseAsync(buffer).ConfigureAwait(false)) != null)
                 {
                     if (!await HandleRequest(request))
                     {
@@ -102,7 +102,7 @@ namespace GenHTTP.Core
             }
             finally
             {
-                await reader.CompleteAsync();
+                await reader.CompleteAsync().ConfigureAwait(false);
             }
         }
 
@@ -110,34 +110,32 @@ namespace GenHTTP.Core
         {
             var address = ((IPEndPoint)Connection.RemoteEndPoint).Address;
 
-            using (var request = builder.Connection(Server, EndPoint, address).Build())
+            using var request = builder.Connection(Server, EndPoint, address).Build();
+            
+            if (KeepAlive == null)
             {
-                if (KeepAlive == null)
-                {
-                    KeepAlive = request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? false;
-                }
-
-                bool keepAlive = (bool)KeepAlive;
-
-                var responseHandler = new ResponseHandler(Server, Stream, Configuration);
-                var requestHandler = new RequestHandler(Server);
-
-                using (var response = requestHandler.Handle(request, out Exception? error))
-                {
-                    var success = await responseHandler.Handle(request, response, keepAlive, error);
-
-                    if (!success || !keepAlive)
-                    {
-                        Connection.LingerState = LINGER_OPTION;
-                        Connection.Disconnect(false);
-                        Connection.Close();
-
-                        return false;
-                    }
-
-                    return true;
-                }
+                KeepAlive = request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? false;
             }
+
+            bool keepAlive = (bool)KeepAlive;
+
+            var responseHandler = new ResponseHandler(Server, Stream, Configuration);
+            var requestHandler = new RequestHandler(Server);
+
+            using var response = requestHandler.Handle(request, out Exception? error);
+            
+            var success = await responseHandler.Handle(request, response, keepAlive, error).ConfigureAwait(false);
+
+            if (!success || !keepAlive)
+            {
+                Connection.LingerState = LINGER_OPTION;
+                Connection.Disconnect(false);
+                Connection.Close();
+
+                return false;
+            }
+
+            return true;
         }
 
         #endregion

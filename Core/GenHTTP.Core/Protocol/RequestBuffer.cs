@@ -44,7 +44,7 @@ namespace GenHTTP.Core.Protocol
 
                 try
                 {
-                    Data = (await Reader.ReadAsync(cancellation.Token)).Buffer;
+                    Data = (await Reader.ReadAsync(cancellation.Token).ConfigureAwait(false)).Buffer;
                 }
                 catch (OperationCanceledException)
                 {

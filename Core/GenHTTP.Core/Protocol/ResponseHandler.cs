@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Buffers;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,8 +14,6 @@ namespace GenHTTP.Core.Protocol
 
     internal class ResponseHandler
     {
-        private static readonly Encoding HEADER_ENCODING = Encoding.GetEncoding("ISO-8859-1");
-
         private static readonly string NL = "\r\n";
 
         private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
@@ -48,15 +45,15 @@ namespace GenHTTP.Core.Protocol
         {
             try
             {
-                await WriteStatus(request, response);
+                await WriteStatus(request, response).ConfigureAwait(false);
 
-                await WriteHeader(response, keepAlive);
+                await WriteHeader(response, keepAlive).ConfigureAwait(false);
 
-                await Write(NL);
+                await Write(NL).ConfigureAwait(false);
 
                 if (ShouldSendBody(request, response))
                 {
-                    await WriteBody(response);
+                    await WriteBody(response).ConfigureAwait(false);
                 }
 
                 Server.Companion?.OnRequestHandled(request, response, error);
@@ -85,68 +82,68 @@ namespace GenHTTP.Core.Protocol
         {
             var version = (request.ProtocolType == HttpProtocol.Http_1_0) ? "1.0" : "1.1";
 
-            await Write("HTTP/");
-            await Write(version);
+            await Write("HTTP/").ConfigureAwait(false);
+            await Write(version).ConfigureAwait(false);
 
-            await Write(" ");
+            await Write(" ").ConfigureAwait(false);
 
-            await Write(response.Status.RawStatus.ToString());
+            await Write(response.Status.RawStatus.ToString()).ConfigureAwait(false);
 
-            await Write(" ");
+            await Write(" ").ConfigureAwait(false);
 
-            await Write(response.Status.Phrase);
+            await Write(response.Status.Phrase).ConfigureAwait(false);
 
-            await Write(NL);
+            await Write(NL).ConfigureAwait(false);
         }
 
         private async ValueTask WriteHeader(IResponse response, bool keepAlive)
         {
-            await Write("Server: GenHTTP/");
-            await Write(Server.Version);
-            await Write(NL);
+            await Write("Server: GenHTTP/").ConfigureAwait(false);
+            await Write(Server.Version).ConfigureAwait(false);
+            await Write(NL).ConfigureAwait(false);
 
-            await WriteHeaderLine("Date", DateHeader.Value);
+            await WriteHeaderLine("Date", DateHeader.Value).ConfigureAwait(false);
 
-            await WriteHeaderLine("Connection", (keepAlive) ? "Keep-Alive" : "Close");
+            await WriteHeaderLine("Connection", (keepAlive) ? "Keep-Alive" : "Close").ConfigureAwait(false);
 
             if (!(response.ContentType is null))
             {
-                await WriteHeaderLine("Content-Type", response.ContentType.Value.RawType);
+                await WriteHeaderLine("Content-Type", response.ContentType.Value.RawType).ConfigureAwait(false);
             }
 
             if (response.ContentEncoding != null)
             {
-                await WriteHeaderLine("Content-Encoding", response.ContentEncoding!);
+                await WriteHeaderLine("Content-Encoding", response.ContentEncoding!).ConfigureAwait(false);
             }
 
             if (response.ContentLength != null)
             {
-                await WriteHeaderLine("Content-Length", response.ContentLength.ToString());
+                await WriteHeaderLine("Content-Length", response.ContentLength.ToString()).ConfigureAwait(false);
             }
 
             if (response.Modified != null)
             {
-                await WriteHeaderLine("Last-Modified", (DateTime)response.Modified);
+                await WriteHeaderLine("Last-Modified", (DateTime)response.Modified).ConfigureAwait(false);
             }
 
             if (response.Expires != null)
             {
-                await WriteHeaderLine("Expires", (DateTime)response.Expires);
+                await WriteHeaderLine("Expires", (DateTime)response.Expires).ConfigureAwait(false);
             }
 
             if ((response.Content != null) && (response.ContentLength == null))
             {
-                await WriteHeaderLine("Transfer-Encoding", "chunked");
+                await WriteHeaderLine("Transfer-Encoding", "chunked").ConfigureAwait(false);
             }
 
             foreach (var header in response.Headers)
             {
-                await WriteHeaderLine(header.Key, header.Value);
+                await WriteHeaderLine(header.Key, header.Value).ConfigureAwait(false);
             }
 
             foreach (var cookie in response.Cookies)
             {
-                await WriteCookie(cookie.Value);
+                await WriteCookie(cookie.Value).ConfigureAwait(false);
             }
         }
 
@@ -158,13 +155,13 @@ namespace GenHTTP.Core.Protocol
                 {
                     using var chunked = new ChunkedStream(OutputStream);
 
-                    await response.Content.Write(chunked, Configuration.TransferBufferSize);
+                    await response.Content.Write(chunked, Configuration.TransferBufferSize).ConfigureAwait(false);
                     
                     chunked.Finish();
                 }
                 else
                 {
-                    await response.Content.Write(OutputStream, Configuration.TransferBufferSize);
+                    await response.Content.Write(OutputStream, Configuration.TransferBufferSize).ConfigureAwait(false);
                 }
             }
         }
@@ -175,10 +172,10 @@ namespace GenHTTP.Core.Protocol
 
         private async ValueTask WriteHeaderLine(string key, string value)
         {
-            await Write(key);
-            await Write(": ");
-            await Write(value);
-            await Write(NL);
+            await Write(key).ConfigureAwait(false);
+            await Write(": ").ConfigureAwait(false);
+            await Write(value).ConfigureAwait(false);
+            await Write(NL).ConfigureAwait(false);
         }
 
         private ValueTask WriteHeaderLine(string key, DateTime value)
@@ -188,34 +185,32 @@ namespace GenHTTP.Core.Protocol
 
         private async ValueTask WriteCookie(Cookie cookie)
         {
-            await Write("Set-Cookie: ");
+            await Write("Set-Cookie: ").ConfigureAwait(false);
 
-            await Write(cookie.Name);
-            await Write("=");
-            await Write(cookie.Value);
+            await Write(cookie.Name).ConfigureAwait(false);
+            await Write("=").ConfigureAwait(false);
+            await Write(cookie.Value).ConfigureAwait(false);
 
             if (cookie.MaxAge != null)
             {
-                await Write("; Max-Age=");
-                await Write(cookie.MaxAge.Value.ToString());
+                await Write("; Max-Age=").ConfigureAwait(false);
+                await Write(cookie.MaxAge.Value.ToString()).ConfigureAwait(false);
             }
 
-            await Write("; Path=/");
+            await Write("; Path=/").ConfigureAwait(false);
 
-            await Write(NL);
+            await Write(NL).ConfigureAwait(false);
         }
 
         private async ValueTask Write(string text)
         {
-            var count = HEADER_ENCODING.GetByteCount(text);
-
-            var buffer = POOL.Rent(count);
+            var buffer = POOL.Rent(text.Length);
 
             try
             {
-                HEADER_ENCODING.GetBytes(text, 0, text.Length, buffer, 0);
+                Encoding.ASCII.GetBytes(text, 0, text.Length, buffer, 0);
 
-                await OutputStream.WriteAsync(buffer.AsMemory(0, count));
+                await OutputStream.WriteAsync(buffer.AsMemory(0, text.Length)).ConfigureAwait(false);
             }
             finally
             {

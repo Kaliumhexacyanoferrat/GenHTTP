@@ -36,7 +36,7 @@ namespace GenHTTP.Core.Protocol
         {
             string? method, path, protocol;
 
-            if ((method = await TryReadToken(buffer, ' ')) != null)
+            if ((method = await TryReadToken(buffer, ' ').ConfigureAwait(false)) != null)
             {
                 Request.Type(method);
             }
@@ -45,7 +45,7 @@ namespace GenHTTP.Core.Protocol
                 return null;
             }
 
-            if ((path = await TryReadToken(buffer, ' ')) != null)
+            if ((path = await TryReadToken(buffer, ' ').ConfigureAwait(false)) != null)
             {
                 Request.Path(path);
             }
@@ -54,7 +54,7 @@ namespace GenHTTP.Core.Protocol
                 return null;
             }
 
-            if ((protocol = await TryReadToken(buffer, '\r', 1, 5)) != null)
+            if ((protocol = await TryReadToken(buffer, '\r', 1, 5).ConfigureAwait(false)) != null)
             {
                 Request.Protocol(protocol);
             }
@@ -63,9 +63,9 @@ namespace GenHTTP.Core.Protocol
                 return null;
             }
 
-            while (await TryReadHeader(buffer, Request)) { /* nop */ }
+            while (await TryReadHeader(buffer, Request).ConfigureAwait(false)) { /* nop */ }
 
-            if (await TryReadToken(buffer, '\r', 1) == null)
+            if ((await TryReadToken(buffer, '\r', 1).ConfigureAwait(false)) == null)
             {
                 return null;
             }
@@ -78,7 +78,7 @@ namespace GenHTTP.Core.Protocol
                     {
                         var parser = new RequestContentParser(length, Configuration);
 
-                        Request.Content(await parser.GetBody(buffer));
+                        Request.Content(await parser.GetBody(buffer).ConfigureAwait(false));
                     }
                 }
                 else
@@ -97,9 +97,9 @@ namespace GenHTTP.Core.Protocol
         {
             string? key, value;
 
-            if ((key = await TryReadToken(buffer, ':', 1)) != null)
+            if ((key = await TryReadToken(buffer, ':', 1).ConfigureAwait(false)) != null)
             {
-                if ((value = await TryReadToken(buffer, '\r', 1)) != null)
+                if ((value = await TryReadToken(buffer, '\r', 1).ConfigureAwait(false)) != null)
                 {
                     request.Header(key, value);
                     return true;
@@ -115,7 +115,7 @@ namespace GenHTTP.Core.Protocol
 
             if (position == null)
             {
-                if (await buffer.Read(true) == null)
+                if ((await buffer.Read(true).ConfigureAwait(false)) == null)
                 {
                     return null;
                 }

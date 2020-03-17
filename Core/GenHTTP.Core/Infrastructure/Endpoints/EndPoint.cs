@@ -63,8 +63,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
                 throw new BindingException($"Failed to bind to {endPoint}.", e);
             }
 
-
-            Task = Task.Run(() => Listen());
+            Task = Task.Factory.StartNew(() => Listen(), CancellationToken.None, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
         #endregion
@@ -77,7 +76,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
             {
                 do
                 {
-                    Handle(await Socket.AcceptAsync());
+                    Handle(await Socket.AcceptAsync().ConfigureAwait(false));
                 }
                 while (!shuttingDown);
             }
@@ -92,15 +91,17 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         private void Handle(Socket client)
         {
-            Task.Factory.StartNew(state => Accept((Socket)state), client, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
+            Task.Factory.StartNew(state => Accept((Socket)state), client, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default)
+                        .ConfigureAwait(false);
         }
 
         protected abstract Task Accept(Socket client);
 
-        protected Task Handle(Socket client, Stream inputStream)
+        protected async Task Handle(Socket client, Stream inputStream)
         {
             inputStream.ReadTimeout = (int)Configuration.RequestReadTimeout.TotalMilliseconds;
-            return new ClientHandler(client, inputStream, Server, this, Configuration).Run();
+
+            await new ClientHandler(client, inputStream, Server, this, Configuration).Run().ConfigureAwait(false);
         }
 
         #endregion
