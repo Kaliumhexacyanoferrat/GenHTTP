@@ -91,8 +91,8 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         private void Handle(Socket client)
         {
-            Task.Factory.StartNew(state => Accept((Socket)state), client, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default)
-                        .ConfigureAwait(false);
+            Task.Run(async () => await Accept(client).ConfigureAwait(false))
+                .ConfigureAwait(false);
         }
 
         protected abstract Task Accept(Socket client);
