@@ -20,6 +20,8 @@ namespace GenHTTP.Core.Protocol
 
         internal ReadOnlySequence<byte> Data { get; private set; }
 
+        internal bool ReadRequired => Data.IsEmpty;
+
         #endregion
 
         #region Initialization
