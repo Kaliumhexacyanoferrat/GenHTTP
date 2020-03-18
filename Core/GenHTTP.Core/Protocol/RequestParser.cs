@@ -111,6 +111,11 @@ namespace GenHTTP.Core.Protocol
 
         private async ValueTask<string?> TryReadToken(RequestBuffer buffer, char delimiter, ushort skipNext = 0, ushort skipFirst = 0)
         {
+            if (buffer.ReadRequired)
+            {
+                await buffer.Read().ConfigureAwait(false);
+            }
+
             var position = buffer.Data.PositionOf((byte)delimiter);
 
             if (position == null)
