@@ -113,7 +113,10 @@ namespace GenHTTP.Core.Protocol
         {
             if (buffer.ReadRequired)
             {
-                await buffer.Read().ConfigureAwait(false);
+                if ((await buffer.Read().ConfigureAwait(false)) == null)
+                {
+                    return null;
+                }
             }
 
             var position = buffer.Data.PositionOf((byte)delimiter);
