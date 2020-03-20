@@ -55,7 +55,7 @@ namespace GenHTTP.Core
         {
             try
             {
-                await HandlePipe(PipeReader.Create(Stream, READER_OPTIONS)).ConfigureAwait(false); ;
+                await HandlePipe(PipeReader.Create(Stream, READER_OPTIONS)).ConfigureAwait(false);
             }
             catch (Exception e)
             {
