@@ -89,7 +89,7 @@ namespace GenHTTP.Core.Protocol
 
         public IResponseBuilder Header(string key, string value)
         {
-            _Headers[key] = value;
+            _Headers.Add(key, value);
             return this;
         }
 

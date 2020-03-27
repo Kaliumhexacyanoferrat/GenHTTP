@@ -191,7 +191,11 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             using var setup = TestSetup.Create((r) =>
             {
-                return r.Respond().Content("Hello World!").Cookie(new Cookie("Bla", "Blubb"));
+                Assert.Equal("World", r.Cookies["Hello"].Value);
+
+                return r.Respond().Content("Hello World!")
+                                  .Cookie(new Cookie("One", "1"))
+                                  .Cookie(new Cookie("Two", "2"));
             });
 
             var runner = setup.Runner;
@@ -202,7 +206,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var cookied = cookieRequest.GetSafeResponse();
 
-            Assert.True(cookied.Cookies.Count > 0);
+            Assert.Equal("1", cookied.Cookies["One"].Value);
+            Assert.Equal("2", cookied.Cookies["Two"].Value);
         }
 
         [Fact]
