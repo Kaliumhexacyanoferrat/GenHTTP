@@ -88,7 +88,9 @@ namespace GenHTTP.Modules.Core.Websites
 
             var menu = _Menu ?? Core.Menu.From(content);
 
-            return new WebsiteRouter(content, scripts, styles, _Favicon, menu.Build(), theme, _ErrorHandler);
+            var sitemap = Sitemap.From(content).Build();
+
+            return new WebsiteRouter(content, scripts, styles, sitemap, _Favicon, menu.Build(), theme, _ErrorHandler);
         }
 
         #endregion

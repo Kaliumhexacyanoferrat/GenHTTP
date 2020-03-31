@@ -24,6 +24,8 @@ namespace GenHTTP.Modules.Core.Websites
 
         private IContentProvider? Favicon { get; }
 
+        private IRouter? Sitemaps { get; }
+
         public IMenuProvider Menu { get; }
 
         private IRouter? Resources { get; }
@@ -45,6 +47,7 @@ namespace GenHTTP.Modules.Core.Websites
         public WebsiteRouter(IRouter content,
                              ScriptRouter scripts,
                              StyleRouter styles,
+                             IRouter? sitemaps,
                              IResourceProvider? favicon,
                              IMenuProvider menu,
                              ITheme theme,
@@ -58,6 +61,13 @@ namespace GenHTTP.Modules.Core.Websites
 
             Styles = styles;
             Styles.Parent = this;
+
+            Sitemaps = sitemaps;
+
+            if (Sitemaps != null)
+            {
+                Sitemaps.Parent = this;
+            }
 
             if (favicon != null)
             {
@@ -118,6 +128,11 @@ namespace GenHTTP.Modules.Core.Websites
             {
                 current.RegisterContent(Favicon);
             }
+            else if (segment == "sitemaps" && Sitemaps != null)
+            {
+                current.Scope(Sitemaps, segment);
+                Sitemaps.HandleContext(current);
+            }
             else
             {
                 Content.HandleContext(current);
@@ -146,6 +161,14 @@ namespace GenHTTP.Modules.Core.Websites
                 yield return new ContentElement($"{basePath}favicon.ico", "Favicon", ContentType.ImageIcon, null);
             }
 
+            if (Sitemaps != null)
+            {
+                foreach (var sitemap in Sitemaps.GetContent(request, $"{basePath}sitemaps/"))
+                {
+                    yield return sitemap;
+                }
+            }
+
             foreach (var content in Content.GetContent(request, basePath))
             {
                 yield return content;
@@ -156,7 +179,7 @@ namespace GenHTTP.Modules.Core.Websites
         {
             var segment = Api.Routing.Route.GetSegment(path);
 
-            if (segment == "scripts" || segment == "styles" || segment == "resources")
+            if (segment == "scripts" || segment == "styles" || segment == "resources" || segment == "sitemaps")
             {
                 return Api.Routing.Route.GetRelation(currentDepth - 1) + path;
             }

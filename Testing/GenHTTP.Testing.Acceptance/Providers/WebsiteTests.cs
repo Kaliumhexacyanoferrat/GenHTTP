@@ -139,6 +139,17 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.Equal("image/x-icon", file.ContentType);
         }
 
+        [Fact]
+        public void TestSitemap()
+        {
+            using var runner = TestRunner.Run(GetWebsite());
+
+            using var file = runner.GetResponse("/sitemaps/sitemap.xml");
+
+            Assert.Equal(HttpStatusCode.OK, file.StatusCode);
+            Assert.Equal("text/xml", file.ContentType);
+        }
+
         private WebsiteBuilder GetWebsite()
         {
             var content = Layout.Create();

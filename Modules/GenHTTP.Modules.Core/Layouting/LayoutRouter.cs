@@ -100,14 +100,33 @@ namespace GenHTTP.Modules.Core.Layouting
             {
                 var childPath = $"{basePath}{route.Key}/";
 
-                yield return new ContentElement(childPath, route.Key, ContentType.TextHtml, route.Value.GetContent(request, childPath));
+                foreach (var child in route.Value.GetContent(request, childPath))
+                {
+                    yield return child;
+                }
             }
 
             foreach (var content in Content)
             {
-                var childPath = $"{basePath}{content.Key}";
+                if (content.Value != DefaultContent)
+                {
+                    var childPath = $"{basePath}{content.Key}";
 
-                yield return new ContentElement(childPath, content.Value.Title ?? content.Key, content.Value.ContentType, null);
+                    yield return new ContentElement(childPath, content.Value.Title ?? content.Key, content.Value.ContentType, null);
+                }
+            }
+
+            if (DefaultRouter != null)
+            {
+                foreach (var content in DefaultRouter.GetContent(request, basePath))
+                {
+                    yield return content;
+                }
+            }
+
+            if (DefaultContent != null)
+            {
+                yield return new ContentElement(basePath, DefaultContent?.Title ?? "Index", DefaultContent?.ContentType, null);
             }
         }
 
