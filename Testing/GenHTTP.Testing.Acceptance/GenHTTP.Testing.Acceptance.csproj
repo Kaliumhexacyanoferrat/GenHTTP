@@ -34,8 +34,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     
-    <PackageReference Include="GenHTTP.Themes.Lorahost" Version="1.1.0" />
-    
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
     
     <PackageReference Include="xunit" Version="2.4.1" />

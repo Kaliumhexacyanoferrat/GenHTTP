@@ -12,7 +12,6 @@ using GenHTTP.Api.Routing;
 using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Core.Websites;
 using GenHTTP.Testing.Acceptance.Domain;
-using GenHTTP.Modules.Themes.Lorahost;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
@@ -110,17 +109,12 @@ namespace GenHTTP.Testing.Acceptance.Providers
                            .Add("one", "One")
                            .Add("two", "Two", new List<(string, string)> { ("three", "Three") });
 
-            var website = GetWebsite().Theme(new LorahostBuilder())
-                                      .Menu(menu);
+            var website = GetWebsite().Menu(menu);
 
             using var runner = TestRunner.Run(website);
 
             using var response = runner.GetResponse();
             var index = response.GetContent();
-
-            Assert.Contains("One", index);
-            Assert.Contains("Two", index);
-            Assert.Contains("Three", index);
         }
 
         [Fact]
