@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace GenHTTP.Api.Protocol
 {
@@ -37,7 +36,7 @@ namespace GenHTTP.Api.Protocol
         /// <param name="field">The name of the header field</param>
         /// <returns>The value of the header field</returns>
         string? this[string field] { get; set; }
-        
+
         /// <summary>
         /// The headers of the HTTP response.
         /// </summary>
@@ -47,7 +46,7 @@ namespace GenHTTP.Api.Protocol
         /// The cookies to be sent to the client.
         /// </summary>
         ICookieCollection Cookies { get; }
-        
+
         #endregion
 
         #region Content
