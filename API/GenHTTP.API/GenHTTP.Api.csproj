@@ -8,9 +8,9 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     
-    <AssemblyVersion>2.11.0.0</AssemblyVersion>    
-    <FileVersion>2.11.0.0</FileVersion>    
-    <Version>2.11.0</Version>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>    
+    <FileVersion>3.0.0.0</FileVersion>    
+    <Version>3.0.0</Version>
     
     <Authors>Andreas Nägeli</Authors>    
     <Company />
