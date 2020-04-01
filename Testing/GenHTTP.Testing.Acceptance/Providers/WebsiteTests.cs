@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using System.Net;
 
-using Xunit;
-
 using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
 using GenHTTP.Api.Modules.Websites;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 using GenHTTP.Modules.Core;
+using GenHTTP.Modules.Core.Layouting;
 using GenHTTP.Modules.Core.Websites;
+using GenHTTP.Modules.Scriban;
 using GenHTTP.Testing.Acceptance.Domain;
+
+using Xunit;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
@@ -97,7 +99,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var style = runner.GetResponse("/styles/bundle.css");
             Assert.Contains("my", style.GetContent());
-            
+
             using var script = runner.GetResponse("/scripts/bundle.js");
             Assert.Contains("my", script.GetContent());
         }
@@ -151,6 +153,20 @@ namespace GenHTTP.Testing.Acceptance.Providers
         }
 
         [Fact]
+        public void TestWebsiteContent()
+        {
+            var outer = Website.Create()
+                               .Theme(new Theme())
+                               .Content(GetWebsite());
+
+            using var runner = TestRunner.Run(outer);
+
+            using var file = runner.GetResponse("/sitemaps/sitemap.xml");
+
+            Assert.Equal(HttpStatusCode.OK, file.StatusCode);
+        }
+
+        [Fact]
         public void TestRobots()
         {
             using var runner = TestRunner.Run(GetWebsite());
@@ -161,13 +177,63 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.Equal("text/plain", file.ContentType);
         }
 
-        private WebsiteBuilder GetWebsite()
+        [Fact]
+        public void TestCoreWebsiteWithoutResources()
         {
-            var content = Layout.Create();
+            using var runner = TestRunner.Run();
 
+            using var robots = runner.GetResponse("/robots.txt");
+            Assert.Equal(HttpStatusCode.NotFound, robots.StatusCode);
+
+            using var favicon = runner.GetResponse("/favicon.ico");
+            Assert.Equal(HttpStatusCode.NotFound, favicon.StatusCode);
+
+            using var sitemap = runner.GetResponse("/sitemaps/sitemap.xml");
+            Assert.Equal(HttpStatusCode.NotFound, sitemap.StatusCode);
+        }
+
+        [Fact]
+        public void TestWebsiteRouting()
+        {
+            var template = @"script = {{ route 'scripts/s.js' }}
+                             style = {{ route 'styles/s.css' }}
+                             resource = {{ route 'resources/r.txt' }}
+                             sitemap = {{ route 'sitemaps/s.xml' }}
+                             favicon = {{ route 'favicon.ico' }}
+                             robots = {{ route 'robots.txt' }}
+                             root = {{ route '{root}' }}
+                             root-appended = {{ route '{root}/my/file.txt' }}
+                             else = {{ route 'something/else/' }}";
+
+            var sub = Layout.Create()
+                            .Add("index", ModScriban.Page(Data.FromString(template)), true);
+
+            var content = Layout.Create()
+                                .Add("sub", sub);
+
+            using var runner = TestRunner.Run(content);
+
+            using var response = runner.GetResponse("/sub/");
+
+            var result = response.GetContent();
+
+            Assert.Contains("script = ../scripts/s.js", result);
+            Assert.Contains("style = ../styles/s.css", result);
+            Assert.Contains("resource = ../resources/r.txt", result);
+
+            Assert.Contains("sitemap = ../sitemaps/s.xml", result);
+            Assert.Contains("favicon = ../favicon.ico", result);
+            Assert.Contains("robots = ../robots.txt", result);
+
+            Assert.Contains("root = ../", result);
+            Assert.Contains("root-appended = ../my/file.txt", result);
+        }
+
+        private WebsiteBuilder GetWebsite(LayoutBuilder? content = null)
+        {
             return Website.Create()
                           .Theme(new Theme())
-                          .Content(content)
+                          .Content(content ?? Layout.Create())
                           .Favicon(Data.FromString("This is a favicon"));
         }
 
