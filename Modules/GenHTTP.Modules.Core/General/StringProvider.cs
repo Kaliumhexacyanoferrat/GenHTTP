@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
+using System.Collections.Generic;
 
 namespace GenHTTP.Modules.Core.General
 {
@@ -14,6 +15,8 @@ namespace GenHTTP.Modules.Core.General
         public override string? Title => null;
 
         public override FlexibleContentType? ContentType { get; }
+
+        protected override HashSet<FlexibleRequestMethod>? SupportedMethods => _GET;
 
         #endregion
 

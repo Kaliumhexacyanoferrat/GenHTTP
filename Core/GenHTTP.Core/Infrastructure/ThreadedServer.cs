@@ -44,6 +44,8 @@ namespace GenHTTP.Core.Infrastructure
 
             var coreWebsite = Website.Create()
                                      .Content(router)
+                                     .Sitemap(false)
+                                     .Robots(false)
                                      .Build();
 
             Router = new CoreRouter(coreWebsite);

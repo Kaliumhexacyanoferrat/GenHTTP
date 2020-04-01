@@ -36,6 +36,8 @@ namespace GenHTTP.Modules.Core.Proxy
 
         public override FlexibleContentType? ContentType => null;
 
+        protected override HashSet<FlexibleRequestMethod>? SupportedMethods => null;
+
         #endregion
 
         #region Initialization

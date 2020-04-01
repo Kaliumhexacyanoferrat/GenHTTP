@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Web;
 
 using GenHTTP.Api.Modules;
@@ -21,6 +22,8 @@ namespace GenHTTP.Modules.Core.Listing
         public override string? Title => null;
 
         public override FlexibleContentType? ContentType => new FlexibleContentType(Api.Protocol.ContentType.TextHtml);
+
+        protected override HashSet<FlexibleRequestMethod>? SupportedMethods => _GET;
 
         #endregion
 
