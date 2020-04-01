@@ -9,6 +9,7 @@ using GenHTTP.Modules.Core.General;
 
 using GenHTTP.Testing.Acceptance.Domain;
 using GenHTTP.Api.Modules;
+using System.Collections.Generic;
 
 namespace GenHTTP.Testing.Acceptance.Routing
 {
@@ -27,6 +28,8 @@ namespace GenHTTP.Testing.Acceptance.Routing
             public override string? Title => null;
 
             public override FlexibleContentType? ContentType => null;
+
+            protected override HashSet<FlexibleRequestMethod>? SupportedMethods => null;
 
             protected override IResponseBuilder HandleInternal(IRequest request)
             {

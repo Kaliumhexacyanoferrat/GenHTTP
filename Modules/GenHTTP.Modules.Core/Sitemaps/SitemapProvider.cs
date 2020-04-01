@@ -1,9 +1,9 @@
-﻿using GenHTTP.Api.Modules;
+﻿using System.Collections.Generic;
+
+using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 using GenHTTP.Modules.Core.General;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace GenHTTP.Modules.Core.Sitemaps
 {
@@ -18,6 +18,8 @@ namespace GenHTTP.Modules.Core.Sitemaps
         public override string? Title => "Sitemap";
 
         public override FlexibleContentType? ContentType => new FlexibleContentType(Api.Protocol.ContentType.TextXml);
+
+        protected override HashSet<FlexibleRequestMethod>? SupportedMethods => _GET;
 
         #endregion
 

@@ -150,6 +150,17 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.Equal("text/xml", file.ContentType);
         }
 
+        [Fact]
+        public void TestRobots()
+        {
+            using var runner = TestRunner.Run(GetWebsite());
+
+            using var file = runner.GetResponse("/robots.txt");
+
+            Assert.Equal(HttpStatusCode.OK, file.StatusCode);
+            Assert.Equal("text/plain", file.ContentType);
+        }
+
         private WebsiteBuilder GetWebsite()
         {
             var content = Layout.Create();

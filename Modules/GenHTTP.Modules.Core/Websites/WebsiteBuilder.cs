@@ -25,6 +25,8 @@ namespace GenHTTP.Modules.Core.Websites
 
         private readonly List<Style> _Styles = new List<Style>();
 
+        private bool _Sitemap = true, _Robots = true;
+
         #region Functionality
 
         public WebsiteBuilder Theme(IBuilder<ITheme> theme) => Theme(theme.Build());
@@ -76,6 +78,18 @@ namespace GenHTTP.Modules.Core.Websites
             return this;
         }
 
+        public WebsiteBuilder Sitemap(bool enabled)
+        {
+            _Sitemap = enabled;
+            return this;
+        }
+
+        public WebsiteBuilder Robots(bool enabled)
+        {
+            _Robots = enabled;
+            return this;
+        }
+
         public override IRouter Build()
         {
             var content = _Content ?? throw new BuilderMissingPropertyException("content");
@@ -88,9 +102,16 @@ namespace GenHTTP.Modules.Core.Websites
 
             var menu = _Menu ?? Core.Menu.From(content);
 
-            var sitemap = Sitemap.From(content).Build();
+            var sitemap = (_Sitemap) ? Core.Sitemap.From(content).Build() : null;
 
-            return new WebsiteRouter(content, scripts, styles, sitemap, _Favicon, menu.Build(), theme, _ErrorHandler);
+            var robots = (_Robots) ? Core.Robots.Default() : null;
+
+            if (_Sitemap)
+            {
+                robots?.Sitemap();
+            }
+
+            return new WebsiteRouter(content, scripts, styles, sitemap, robots?.Build(), _Favicon, menu.Build(), theme, _ErrorHandler);
         }
 
         #endregion

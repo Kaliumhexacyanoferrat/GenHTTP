@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Modules;
 using GenHTTP.Api.Protocol;
+using System.Collections.Generic;
 
 namespace GenHTTP.Modules.Core.General
 {
@@ -14,7 +15,9 @@ namespace GenHTTP.Modules.Core.General
         public override string? Title => null;
 
         public override FlexibleContentType? ContentType { get; }
-        
+
+        protected override HashSet<FlexibleRequestMethod>? SupportedMethods => _GET;
+
         #endregion
 
         #region Initialization
@@ -31,14 +34,9 @@ namespace GenHTTP.Modules.Core.General
 
         protected override IResponseBuilder HandleInternal(IRequest request)
         {
-            if (request.HasType(RequestMethod.GET, RequestMethod.HEAD))
-            {
-                return request.Respond()
-                              .Content(ResourceProvider.GetResource())
-                              .Type(ContentType!.Value);
-            }
-
-            return request.Respond(ResponseStatus.MethodNotAllowed);
+            return request.Respond()
+                          .Content(ResourceProvider.GetResource())
+                          .Type(ContentType!.Value);
         }
 
         #endregion

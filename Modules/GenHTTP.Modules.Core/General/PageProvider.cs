@@ -1,7 +1,8 @@
-﻿using GenHTTP.Api.Modules;
+﻿using System.Collections.Generic;
+
+using GenHTTP.Api.Modules;
 using GenHTTP.Api.Modules.Templating;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Core.Templating;
 
 namespace GenHTTP.Modules.Core.General
@@ -17,6 +18,8 @@ namespace GenHTTP.Modules.Core.General
         public IResourceProvider Content { get; }
 
         public override FlexibleContentType? ContentType => new FlexibleContentType(Api.Protocol.ContentType.TextHtml);
+
+        protected override HashSet<FlexibleRequestMethod>? SupportedMethods => _GET_POST;
 
         #endregion
 
@@ -34,16 +37,11 @@ namespace GenHTTP.Modules.Core.General
 
         protected override IResponseBuilder HandleInternal(IRequest request)
         {
-            if (request.HasType(RequestMethod.HEAD, RequestMethod.GET, RequestMethod.POST))
-            {
-                var templateModel = new TemplateModel(request, Title ?? "Untitled Page", Content.GetResourceAsString());
+            var templateModel = new TemplateModel(request, Title ?? "Untitled Page", Content.GetResourceAsString());
 
-                return request.Respond()
-                              .Content(templateModel)
-                              .Type(ContentType!.Value);
-            }
-
-            return request.Respond(ResponseStatus.MethodNotAllowed);
+            return request.Respond()
+                          .Content(templateModel)
+                          .Type(ContentType!.Value);
         }
 
         #endregion
