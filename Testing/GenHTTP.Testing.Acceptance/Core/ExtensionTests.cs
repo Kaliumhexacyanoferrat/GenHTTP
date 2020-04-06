@@ -5,7 +5,7 @@ using Xunit;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
 
 using GenHTTP.Testing.Acceptance.Domain;
 

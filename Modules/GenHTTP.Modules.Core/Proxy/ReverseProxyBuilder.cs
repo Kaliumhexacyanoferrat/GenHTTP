@@ -1,13 +1,12 @@
 ﻿using System;
 
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Routing;
-using GenHTTP.Modules.Core.General;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.Proxy
 {
 
-    public class ReverseProxyBuilder : RouterBuilderBase<ReverseProxyRouter>
+    public class ReverseProxyBuilder : IHandlerBuilder
     {
         private string? _Upstream;
 
@@ -40,14 +39,14 @@ namespace GenHTTP.Modules.Core.Proxy
             return this;
         }
 
-        public override IRouter Build()
+        public IHandler Build(IHandler parent)
         {
             if (_Upstream == null)
             {
                 throw new BuilderMissingPropertyException("Upstream");
             }
 
-            return new ReverseProxyRouter(_Upstream, _ConnectTimeout, _ReadTimeout, _ErrorHandler);
+            return new ReverseProxyRouter(parent, _Upstream, _ConnectTimeout, _ReadTimeout);
         }
 
         #endregion

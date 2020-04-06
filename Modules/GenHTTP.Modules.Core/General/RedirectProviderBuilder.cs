@@ -1,10 +1,11 @@
 ﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.General
 {
 
-    public class RedirectProviderBuilder : ContentBuilderBase
+    public class RedirectProviderBuilder : IHandlerBuilder
     {
         private bool _Temporary = false;
 
@@ -24,14 +25,14 @@ namespace GenHTTP.Modules.Core.General
             return this;
         }
 
-        public override IContentProvider Build()
+        public IHandler Build(IHandler parent)
         {
             if (_Location == null)
             {
                 throw new BuilderMissingPropertyException("Location");
             }
 
-            return new RedirectProvider(_Location, _Temporary, _Modification);
+            return new RedirectProvider(parent, _Location, _Temporary);
         }
 
         #endregion

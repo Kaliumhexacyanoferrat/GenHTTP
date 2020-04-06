@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
-using GenHTTP.Api.Modules.Websites;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Templating;
+using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 

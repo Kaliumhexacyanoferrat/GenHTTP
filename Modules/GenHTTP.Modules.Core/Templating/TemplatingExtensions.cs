@@ -1,7 +1,7 @@
 ﻿using System;
 
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Content.Templating;
 
 namespace GenHTTP.Modules.Core.Templating
 {

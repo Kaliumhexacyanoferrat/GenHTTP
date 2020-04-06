@@ -4,14 +4,14 @@ using System.Linq;
 using System.Net;
 using System.Web;
 
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core.Proxy
 {
 
-    public class ReverseProxyProvider : ContentProviderBase
+    public class ReverseProxyProvider : IHandler
     {
         private static readonly HashSet<string> RESERVED_RESPONSE_HEADERS = new HashSet<string>
         {
@@ -26,24 +26,21 @@ namespace GenHTTP.Modules.Core.Proxy
 
         #region Get-/Setters
 
+        public IHandler Parent { get; }
+
         public string Upstream { get; }
 
         public TimeSpan ConnectTimeout { get; }
 
         public TimeSpan ReadTimeout { get; }
 
-        public override string? Title => null;
-
-        public override FlexibleContentType? ContentType => null;
-
-        protected override HashSet<FlexibleRequestMethod>? SupportedMethods => null;
-
         #endregion
 
         #region Initialization
 
-        public ReverseProxyProvider(string upstream, TimeSpan connectTimeout, TimeSpan readTimeout, ResponseModification? mod) : base(mod)
+        public ReverseProxyProvider(IHandler parent, string upstream, TimeSpan connectTimeout, TimeSpan readTimeout)
         {
+            Parent = parent;
             Upstream = upstream;
 
             ConnectTimeout = connectTimeout;
@@ -54,7 +51,7 @@ namespace GenHTTP.Modules.Core.Proxy
 
         #region Functionality
 
-        protected override IResponseBuilder HandleInternal(IRequest request)
+        public IResponse Handle(IRequest request)
         {
             try
             {
@@ -70,23 +67,16 @@ namespace GenHTTP.Modules.Core.Proxy
 
                 var resp = GetSafeResponse(req);
 
-                return GetResponse(resp, request);
+                return GetResponse(resp, request).Build();
             }
             catch (OperationCanceledException e)
             {
-                return request.Respond(ResponseStatus.GatewayTimeout, e);
+                return request.Respond(ResponseStatus.GatewayTimeout, e).Build();
             }
             catch (WebException e)
             {
-                return request.Respond(ResponseStatus.BadGateway, e);
+                return request.Respond(ResponseStatus.BadGateway, e).Build();
             }
-        }
-
-        private string GetRequestUri(IRequest request)
-        {
-            var path = request.Routing?.ScopedPath ?? throw new InvalidOperationException("No routing context available");
-
-            return Upstream + path + GetQueryString(request);
         }
 
         private HttpWebRequest ConfigureRequest(IRequest request)
@@ -123,6 +113,16 @@ namespace GenHTTP.Modules.Core.Proxy
             }
 
             return req;
+        }
+
+
+        private string GetRequestUri(IRequest request)
+        {
+            //var path = request.Routing?.ScopedPath ?? throw new InvalidOperationException("No routing context available");
+
+            //return Upstream + path + GetQueryString(request);
+
+            return string.Empty; // Todo!
         }
 
         private string GetQueryString(IRequest request)
@@ -201,7 +201,9 @@ namespace GenHTTP.Modules.Core.Proxy
 
         private string RewriteLocation(string location, IRequest request)
         {
-            if (location.StartsWith(Upstream))
+            return location; // ToDo!
+
+            /*if (location.StartsWith(Upstream))
             {
                 var routing = request.Routing ?? throw new InvalidOperationException("No routing context available");
 
@@ -221,7 +223,7 @@ namespace GenHTTP.Modules.Core.Proxy
                 return location.Replace(Upstream, protocol + request.Host + relativePath);
             }
 
-            return location;
+            return location;*/
         }
 
         private HttpWebResponse GetSafeResponse(WebRequest request)
@@ -272,6 +274,12 @@ namespace GenHTTP.Modules.Core.Proxy
             }
 
             return string.Join("; ", result);
+        }
+
+        public IEnumerable<ContentElement> GetContent(IRequest request)
+        {
+            // we cannot tell the content available on the target site
+            return new List<ContentElement>();
         }
 
         #endregion

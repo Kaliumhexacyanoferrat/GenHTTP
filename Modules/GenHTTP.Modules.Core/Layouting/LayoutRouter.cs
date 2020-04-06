@@ -1,64 +1,54 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
-
-using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core.Layouting
 {
 
-    public class LayoutRouter : RouterBase
+    public class LayoutRouter : IHandler
     {
 
         #region Get-/Setters
 
-        private Dictionary<string, IRouter> Routes { get; }
+        public IHandler Parent { get; }
 
-        private Dictionary<string, IContentProvider> Content { get; }
+        private Dictionary<string, IHandler> Folders { get; }
 
-        private IRouter? DefaultRouter { get; }
+        private Dictionary<string, IHandler> Files { get; }
 
-        private IContentProvider? DefaultContent { get; }
+        private IHandler? Index { get; }
+
+        private IHandler? Fallback { get; }
 
         #endregion
 
         #region Initialization
 
-        public LayoutRouter(Dictionary<string, IRouter> routes,
-                            Dictionary<string, IContentProvider> content,
-                            IRouter? defaultRouter,
-                            IContentProvider? defaultContent,
-                            IRenderer<TemplateModel>? template,
-                            IContentProvider? errorHandler) : base(template, errorHandler)
+        public LayoutRouter(IHandler parent,
+                            Dictionary<string, IHandlerBuilder> folders,
+                            Dictionary<string, IHandlerBuilder> files,
+                            IHandlerBuilder? index,
+                            IHandlerBuilder? fallback)
         {
-            Routes = routes;
-            DefaultRouter = defaultRouter;
+            Parent = parent;
 
-            Content = content;
-            DefaultContent = defaultContent;
+            Folders = folders.ToDictionary(kv => kv.Key, kv => kv.Value.Build(this));
+            Files = files.ToDictionary(kv => kv.Key, kv => kv.Value.Build(this));
 
-            foreach (var route in routes)
-            {
-                route.Value.Parent = this;
-            }
-
-            if (defaultRouter != null)
-            {
-                defaultRouter.Parent = this;
-            }
+            Index = index?.Build(this);
+            Fallback = fallback?.Build(this);
         }
 
         #endregion
 
         #region Functionality
 
-        public override void HandleContext(IEditableRoutingContext current)
+        public IResponse? Handle(IRequest request)
         {
-            var segment = Api.Routing.Route.GetSegment(current.ScopedPath);
+            /*var segment = Api.Routing.Route.GetSegment(current.ScopedPath);
 
             // is there a matching content provider?
             if (Content.ContainsKey(segment))
@@ -91,10 +81,17 @@ namespace GenHTTP.Modules.Core.Layouting
             }
 
             // no route found
-            current.Scope(this);
+            current.Scope(this);*/
+
+            return null;
         }
 
-        public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
+        public IEnumerable<ContentElement> GetContent(IRequest request)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        /*public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
         {
             foreach (var route in Routes)
             {
@@ -128,9 +125,9 @@ namespace GenHTTP.Modules.Core.Layouting
             {
                 yield return new ContentElement(basePath, DefaultContent?.Title ?? "Index", DefaultContent?.ContentType, null);
             }
-        }
+        }*/
 
-        public override string? Route(string path, int currentDepth)
+        /*public override string? Route(string path, int currentDepth)
         {
             var segment = Api.Routing.Route.GetSegment(path);
 
@@ -147,7 +144,7 @@ namespace GenHTTP.Modules.Core.Layouting
             }
 
             return Parent.Route(path, currentDepth + 1);
-        }
+        }*/
 
         #endregion
 

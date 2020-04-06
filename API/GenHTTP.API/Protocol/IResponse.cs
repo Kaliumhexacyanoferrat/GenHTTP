@@ -40,7 +40,7 @@ namespace GenHTTP.Api.Protocol
         /// <summary>
         /// The headers of the HTTP response.
         /// </summary>
-        IHeaderCollection Headers { get; }
+        IEditableHeaderCollection Headers { get; }
 
         /// <summary>
         /// The cookies to be sent to the client.

@@ -1,17 +1,12 @@
 ﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Routing;
-
-using GenHTTP.Modules.Core.General;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.Listing
 {
 
-    public class ListingRouterBuilder : RouterBuilderBase<ListingRouter>
+    public class ListingRouterBuilder : IHandlerBuilder
     {
         private string? _Directory;
-
-        private ResponseModification? _Modification;
 
         #region Functionality
 
@@ -21,17 +16,11 @@ namespace GenHTTP.Modules.Core.Listing
             return this;
         }
 
-        public ListingRouterBuilder Modify(ResponseModification modification)
-        {
-            _Modification = modification;
-            return this;
-        }
-
-        public override IRouter Build()
+        public IHandler Build(IHandler parent)
         {
             var directory = _Directory ?? throw new BuilderMissingPropertyException("directory");
 
-            return new ListingRouter(directory, _Modification, _Template, _ErrorHandler);
+            return new ListingRouter(parent, directory);
         }
 
         #endregion

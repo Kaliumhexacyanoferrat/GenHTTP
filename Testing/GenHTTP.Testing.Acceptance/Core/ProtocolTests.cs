@@ -9,7 +9,7 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Testing.Acceptance.Domain;
 using GenHTTP.Modules.Core;
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
 using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Testing.Acceptance.Core

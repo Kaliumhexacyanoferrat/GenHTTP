@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.Websites
 {
 
-    public class BundleBuilder : IBuilder<BundleProvider>
+    public class BundleBuilder : IHandlerBuilder
     {
         private readonly List<IResourceProvider> _Items = new List<IResourceProvider>();
 
@@ -29,9 +29,9 @@ namespace GenHTTP.Modules.Core.Websites
             return this;
         }
 
-        public BundleProvider Build()
+        public IHandler Build(IHandler parent)
         {
-            return new BundleProvider(_Items, _ContentType);
+            return new BundleProvider(parent, _Items, _ContentType);
         }
 
         #endregion

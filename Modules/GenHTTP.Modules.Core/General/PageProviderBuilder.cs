@@ -1,10 +1,11 @@
 ﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.General
 {
 
-    public class PageProviderBuilder : ContentBuilderBase
+    public class PageProviderBuilder : IHandlerBuilder
     {
         private IResourceProvider? _Content;
         private string? _Title;
@@ -23,14 +24,14 @@ namespace GenHTTP.Modules.Core.General
             return this;
         }
 
-        public override IContentProvider Build()
+        public IHandler Build(IHandler parent)
         {
             if (_Content == null)
             {
                 throw new BuilderMissingPropertyException("Content");
             }
 
-            return new PageProvider(_Title, _Content, _Modification);
+            return new PageProvider(parent, _Title, _Content);
         }
 
         #endregion

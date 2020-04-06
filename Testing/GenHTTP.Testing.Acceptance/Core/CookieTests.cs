@@ -1,7 +1,7 @@
 ﻿using Xunit;
 
 using GenHTTP.Testing.Acceptance.Domain;
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Core;
 

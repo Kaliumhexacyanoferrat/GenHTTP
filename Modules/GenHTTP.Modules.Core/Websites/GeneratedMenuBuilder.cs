@@ -1,28 +1,28 @@
 ﻿
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Modules.Websites;
-using GenHTTP.Api.Routing;
+using GenHTTP.Api.Content.Websites;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.Websites
 {
 
     public class GeneratedMenuBuilder : IBuilder<IMenuProvider>
     {
-        private IRouter? _Router;
+        private IHandler? _Handler;
 
         #region Functionality
 
-        public GeneratedMenuBuilder Router(IRouter router)
+        public GeneratedMenuBuilder Router(IHandler handler)
         {
-            _Router = router;
+            _Handler = handler;
             return this;
         }
 
         public IMenuProvider Build()
         {
-            var router = _Router ?? throw new BuilderMissingPropertyException("router");
+            var handler = _Handler ?? throw new BuilderMissingPropertyException("handler");
 
-            return new GeneratedMenuProvider(router);
+            return new GeneratedMenuProvider(handler);
         }
 
         #endregion

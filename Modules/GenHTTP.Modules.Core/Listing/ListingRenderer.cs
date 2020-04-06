@@ -3,7 +3,7 @@ using System.Web;
 using System.Linq;
 using System.Text;
 
-using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Content.Templating;
 
 namespace GenHTTP.Modules.Core.Listing
 {

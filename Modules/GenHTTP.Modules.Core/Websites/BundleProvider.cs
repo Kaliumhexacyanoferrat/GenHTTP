@@ -1,19 +1,19 @@
 ﻿using System.Collections.Generic;
 
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.Websites
 {
 
-    public class BundleProvider : IContentProvider
+    public class BundleProvider : IHandler
     {
 
         #region Get-/Setters
 
-        public string? Title => null;
+        public IHandler Parent { get; }
 
-        public FlexibleContentType? ContentType { get; }
+        public FlexibleContentType ContentType { get; }
 
         private IEnumerable<IResourceProvider> Items { get; }
 
@@ -21,8 +21,10 @@ namespace GenHTTP.Modules.Core.Websites
 
         #region Initialization
 
-        public BundleProvider(IEnumerable<IResourceProvider> items, FlexibleContentType contentType)
+        public BundleProvider(IHandler parent, IEnumerable<IResourceProvider> items, FlexibleContentType contentType)
         {
+            Parent = parent;
+
             ContentType = contentType;
             Items = items;
         }
@@ -31,11 +33,17 @@ namespace GenHTTP.Modules.Core.Websites
 
         #region Functionality
 
-        public IResponseBuilder Handle(IRequest request)
+        public IResponse? Handle(IRequest request)
         {
             return request.Respond()
                           .Content(new BundleContent(Items))
-                          .Type(ContentType!.Value);
+                          .Type(ContentType)
+                          .Build();
+        }
+
+        public IEnumerable<ContentElement> GetContent(IRequest request)
+        {
+            throw new System.NotImplementedException();
         }
 
         #endregion

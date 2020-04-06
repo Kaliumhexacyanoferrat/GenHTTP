@@ -3,33 +3,31 @@ using System.Collections.Generic;
 using System.IO;
 using System.Web;
 
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
 
 using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core.Listing
 {
 
-    public class ListingRouter : RouterBase
+    public class ListingRouter : IHandler
     {
 
         #region Get-/Setters
 
         private DirectoryInfo Info { get; }
 
-        private ResponseModification? Modification { get; }
+        public IHandler Parent { get; }
 
         #endregion
 
         #region Initialization
 
-        public ListingRouter(string directory, ResponseModification? modification,
-                             IRenderer<TemplateModel>? template, IContentProvider? errorHandler) : base(template, errorHandler)
+        public ListingRouter(IHandler parent, string directory)
         {
-            Modification = modification;
+            Parent = parent;
 
             Info = new DirectoryInfo(directory);
 
@@ -43,9 +41,9 @@ namespace GenHTTP.Modules.Core.Listing
 
         #region Functionality
 
-        public override void HandleContext(IEditableRoutingContext current)
+        public IResponse? Handle(IRequest request)
         {
-            current.Scope(this);
+            /*current.Scope(this);
 
             var path = Path.Combine(Info.FullName, "." + HttpUtility.UrlDecode(current.ScopedPath));
 
@@ -63,10 +61,17 @@ namespace GenHTTP.Modules.Core.Listing
             else if (Directory.Exists(path))
             {
                 current.RegisterContent(new ListingProvider(path, Modification));
-            }
+            }*/
+
+            return null; // Todo!
         }
 
-        public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
+        public IEnumerable<ContentElement> GetContent(IRequest request)
+        {
+            throw new NotImplementedException();
+        }
+
+        /*public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
         {
             foreach (var directory in Info.GetDirectories())
             {
@@ -83,8 +88,8 @@ namespace GenHTTP.Modules.Core.Listing
         public override string? Route(string path, int currentDepth)
         {
             throw new NotImplementedException();
-        }
-        
+        }*/
+
         #endregion
 
     }

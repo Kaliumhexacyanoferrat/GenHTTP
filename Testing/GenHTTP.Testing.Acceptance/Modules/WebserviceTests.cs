@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 
 using Xunit;
 
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Webservices;

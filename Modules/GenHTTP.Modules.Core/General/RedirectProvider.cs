@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.General
 {
 
-    public class RedirectProvider : ContentProviderBase
+    public class RedirectProvider : IHandler
     {
 
         #region Get-/Setters
@@ -15,18 +15,16 @@ namespace GenHTTP.Modules.Core.General
 
         public bool Temporary { get; }
 
-        public override string? Title => null;
-
-        public override FlexibleContentType? ContentType => null;
-
-        protected override HashSet<FlexibleRequestMethod>? SupportedMethods => null;
+        public IHandler Parent { get; }
 
         #endregion
 
         #region Initialization
 
-        public RedirectProvider(string location, bool temporary, ResponseModification? modification) : base(modification)
+        public RedirectProvider(IHandler parent, string location, bool temporary)
         {
+            Parent = parent;
+
             Location = location;
             Temporary = temporary;
         }
@@ -35,26 +33,31 @@ namespace GenHTTP.Modules.Core.General
 
         #region Functionality
 
-        protected override IResponseBuilder HandleInternal(IRequest request)
+        public IResponse? Handle(IRequest request)
         {
             var response = request.Respond()
                                   .Header("Location", Location);
 
             if (Temporary)
             {
-                return response.Status(ResponseStatus.TemporaryRedirect);
+                return response.Status(ResponseStatus.TemporaryRedirect).Build();
             }
             else
             {
                 if (request.Method.KnownMethod == RequestMethod.GET)
                 {
-                    return response.Status(ResponseStatus.MovedPermanently);
+                    return response.Status(ResponseStatus.MovedPermanently).Build();
                 }
                 else
                 {
-                    return response.Status(ResponseStatus.PermanentRedirect);
+                    return response.Status(ResponseStatus.PermanentRedirect).Build();
                 }
             }
+        }
+
+        public IEnumerable<ContentElement> GetContent(IRequest request)
+        {
+            throw new System.NotImplementedException();
         }
 
         #endregion

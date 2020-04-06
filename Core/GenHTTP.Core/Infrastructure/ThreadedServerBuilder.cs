@@ -258,7 +258,7 @@ namespace GenHTTP.Core.Infrastructure
                     algorithms.Add("br", new BrotliCompression());
                 }
 
-                extensions.Add(new CompressionExtension(algorithms));
+                extensions.Add(new CompressionHandler(algorithms));
             }
 
             if (endpoints.Any(e => e.Security != null))
@@ -270,7 +270,7 @@ namespace GenHTTP.Core.Infrastructure
 
                 if (_StrictTransport)
                 {
-                    extensions.Add(new StrictTransportExtension(_StrictTransportPolicy));
+                    extensions.Add(new StrictTransportConcern(_StrictTransportPolicy));
                 }
             }
 

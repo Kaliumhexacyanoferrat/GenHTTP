@@ -1,5 +1,5 @@
-﻿using GenHTTP.Api.Modules.Templating;
-using GenHTTP.Api.Modules.Websites;
+﻿using GenHTTP.Api.Content.Templating;
+using GenHTTP.Api.Content.Websites;
 
 namespace GenHTTP.Modules.Core.Websites
 {

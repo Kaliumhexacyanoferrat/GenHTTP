@@ -1,5 +1,5 @@
-﻿using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
+﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Templating;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;

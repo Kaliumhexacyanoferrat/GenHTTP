@@ -3,7 +3,7 @@ using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
-using GenHTTP.Api.Routing;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Infrastructure
 {
@@ -21,17 +21,7 @@ namespace GenHTTP.Api.Infrastructure
 
         #region Content
 
-        /// <summary>
-        /// Registers the router which will be used to handle all requests.
-        /// </summary>
-        /// <param name="routerBuilder">The router to be registered</param>
-        T Router(IRouterBuilder routerBuilder);
-
-        /// <summary>
-        /// Registers the router which will be used to handle all requests.
-        /// </summary>
-        /// <param name="routerBuilder">The router to be registered</param>
-        T Router(IRouter router);
+        T Content(IHandlerBuilder content);
 
         #endregion
 
@@ -49,18 +39,6 @@ namespace GenHTTP.Api.Infrastructure
         /// </summary>
         /// <param name="companion">The companion to be used by the server</param>
         T Companion(IServerCompanion companion);
-
-        /// <summary>
-        /// Registers the given extension in the server.
-        /// </summary>
-        /// <param name="extension">The extension to be registerd</param>
-        T Extension(IServerExtensionBuilder extension);
-
-        /// <summary>
-        /// Registers the given extension in the server.
-        /// </summary>
-        /// <param name="extension">The extension to be registerd</param>
-        T Extension(IServerExtension extension);
 
         /// <summary>
         /// Enables or disables the development mode on the server instance. When in

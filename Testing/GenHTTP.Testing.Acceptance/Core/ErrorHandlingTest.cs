@@ -6,9 +6,9 @@ using Xunit;
 using GenHTTP.Testing.Acceptance.Domain;
 
 using GenHTTP.Api.Routing;
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Content.Templating;
 using System.Collections.Generic;
 
 namespace GenHTTP.Testing.Acceptance.Core

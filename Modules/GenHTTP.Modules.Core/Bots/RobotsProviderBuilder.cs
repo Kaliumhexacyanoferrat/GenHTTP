@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-using GenHTTP.Api.Modules;
-using GenHTTP.Modules.Core.General;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.Bots
 {
 
-    public class RobotsProviderBuilder : ContentBuilderBase
+    public class RobotsProviderBuilder : IHandlerBuilder
     {
         private readonly List<RobotsDirective> _Directives = new List<RobotsDirective>();
 
@@ -42,9 +41,9 @@ namespace GenHTTP.Modules.Core.Bots
             return this;
         }
 
-        public override IContentProvider Build()
+        public IHandler Build(IHandler parent)
         {
-            return new RobotsProvider(_Directives, _Sitemap, _Modification);
+            return new RobotsProvider(parent, _Directives, _Sitemap);
         }
 
         #endregion

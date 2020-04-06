@@ -1,6 +1,6 @@
 ﻿using System;
 
-using GenHTTP.Api.Routing;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Infrastructure
 {
@@ -39,16 +39,10 @@ namespace GenHTTP.Api.Infrastructure
         IServerCompanion? Companion { get; }
 
         /// <summary>
-        /// The extensions which are registered with the server and will
-        /// be invoked for every handled request.
-        /// </summary>
-        IExtensionCollection Extensions { get; }
-
-        /// <summary>
         /// The main router that will be used by the server to dispatch
         /// incoming HTTP requests.
         /// </summary>
-        IRouter Router { get; }
+        IHandler Content { get; }
 
     }
 

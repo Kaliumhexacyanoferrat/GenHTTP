@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.Listing

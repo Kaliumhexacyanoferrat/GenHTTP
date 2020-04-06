@@ -1,11 +1,11 @@
 ﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.General
 {
 
-    public class StringProviderBuilder : ContentBuilderBase
+    public class StringProviderBuilder : IHandlerBuilder
     {
         private string? _Data;
         private ContentType? _ContentType;
@@ -24,7 +24,7 @@ namespace GenHTTP.Modules.Core.General
             return this;
         }
 
-        public override IContentProvider Build()
+        public IHandler Build(IHandler parent)
         {
             if (_Data == null)
             {
@@ -36,7 +36,7 @@ namespace GenHTTP.Modules.Core.General
                 throw new BuilderMissingPropertyException("Content Type");
             }
 
-            return new StringProvider(_Data, new FlexibleContentType((ContentType)_ContentType), _Modification);
+            return new StringProvider(parent, _Data, new FlexibleContentType((ContentType)_ContentType));
         }
 
         #endregion

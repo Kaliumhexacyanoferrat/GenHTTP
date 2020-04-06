@@ -1,32 +1,32 @@
 ﻿using System.Collections.Generic;
 
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Core.Templating;
 
 namespace GenHTTP.Modules.Core.General
 {
 
-    public class PageProvider : ContentProviderBase
+    public class PageProvider : IHandler
     {
 
         #region Get-/Setters
 
-        public override string? Title { get; }
+        public string? Title { get; }
 
         public IResourceProvider Content { get; }
 
-        public override FlexibleContentType? ContentType => new FlexibleContentType(Api.Protocol.ContentType.TextHtml);
-
-        protected override HashSet<FlexibleRequestMethod>? SupportedMethods => _GET_POST;
+        public IHandler Parent { get; }
 
         #endregion
 
         #region Initialization
 
-        public PageProvider(string? title, IResourceProvider content, ResponseModification? mod) : base(mod)
+        public PageProvider(IHandler parent, string? title, IResourceProvider content)
         {
+            Parent = parent;
+
             Title = title;
             Content = content;
         }
@@ -35,13 +35,19 @@ namespace GenHTTP.Modules.Core.General
 
         #region Functionality
 
-        protected override IResponseBuilder HandleInternal(IRequest request)
+        public IResponse? Handle(IRequest request)
         {
             var templateModel = new TemplateModel(request, Title ?? "Untitled Page", Content.GetResourceAsString());
 
             return request.Respond()
                           .Content(templateModel)
-                          .Type(ContentType!.Value);
+                          .Type(ContentType.TextHtml)
+                          .Build();
+        }
+
+        public IEnumerable<ContentElement> GetContent(IRequest request)
+        {
+            throw new System.NotImplementedException();
         }
 
         #endregion

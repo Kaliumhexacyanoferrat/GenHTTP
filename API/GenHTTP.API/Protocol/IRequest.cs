@@ -2,7 +2,6 @@
 using System.IO;
 
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Api.Protocol
 {
@@ -36,11 +35,6 @@ namespace GenHTTP.Api.Protocol
         /// the information of the proxy.
         /// </summary>
         IClientConnection LocalClient { get; }
-
-        /// <summary>
-        /// The routing context of the request, if applicable.
-        /// </summary>
-        IRoutingContext? Routing { get; set; }
 
         #endregion
 

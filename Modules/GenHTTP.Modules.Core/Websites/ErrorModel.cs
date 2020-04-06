@@ -1,6 +1,6 @@
 ﻿using System;
 
-using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.Websites

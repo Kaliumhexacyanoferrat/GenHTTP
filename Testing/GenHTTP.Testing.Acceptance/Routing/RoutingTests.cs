@@ -8,7 +8,7 @@ using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Core.General;
 
 using GenHTTP.Testing.Acceptance.Domain;
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
 using System.Collections.Generic;
 
 namespace GenHTTP.Testing.Acceptance.Routing
