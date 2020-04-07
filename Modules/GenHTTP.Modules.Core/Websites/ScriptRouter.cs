@@ -2,7 +2,6 @@
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
 using GenHTTP.Modules.Core.General;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,25 +9,27 @@ using System.Linq;
 namespace GenHTTP.Modules.Core.Websites
 {
 
-    public class ScriptRouter : RouterBase
+    public class ScriptRouter : IHandler
     {
 
         #region Get-/Setters
+
+        public IHandler Parent { get; }
 
         private Dictionary<string, Script> Scripts { get; }
 
         public bool Empty => Scripts.Count == 0;
 
-        private IContentProvider Bundle { get; }
+        private IHandler Bundle { get; }
 
         #endregion
 
         #region Initialization
 
-        public ScriptRouter(List<Script> scripts,
-                            IRenderer<TemplateModel>? template,
-                            IContentProvider? errorHandler) : base(template, errorHandler)
+        public ScriptRouter(IHandler parent, List<Script> scripts)
         {
+            Parent = parent;
+
             Scripts = scripts.ToDictionary(s => s.Name);
 
             var bundle = Core.Bundle.Create().ContentType(ContentType.ApplicationJavaScript);
@@ -38,7 +39,7 @@ namespace GenHTTP.Modules.Core.Websites
                 bundle.Add(script.Provider);
             }
 
-            Bundle = bundle.Build();
+            Bundle = bundle.Build(this);
         }
 
         #endregion
@@ -58,9 +59,9 @@ namespace GenHTTP.Modules.Core.Websites
             return Scripts.Values.Select(s => new ScriptReference($"scripts/{s.Name}", s.Async)).ToList();
         }
 
-        public override void HandleContext(IEditableRoutingContext current)
+        public IResponse? Handle(IRequest request)
         {
-            current.Scope(this);
+            /*current.Scope(this);
 
             if (!current.Request.Server.Development)
             {
@@ -74,17 +75,15 @@ namespace GenHTTP.Modules.Core.Websites
                 current.RegisterContent(Download.From(script.Provider)
                                                 .Type(ContentType.ApplicationJavaScript)
                                                 .Build());
-            }
+            }*/
+
+            return null; // ToDo
         }
 
-        public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
+        public IEnumerable<ContentElement> GetContent(IRequest request)
         {
-            return Scripts.Values.Select(s => new ContentElement($"{basePath}{s.Name}", s.Name, ContentType.ApplicationJavaScript, null));
-        }
-
-        public override string? Route(string path, int currentDepth)
-        {
-            return Parent.Route(path, currentDepth);
+            // ToDo: Basepath
+            return Scripts.Values.Select(s => new ContentElement($"{s.Name}", s.Name, ContentType.ApplicationJavaScript, null));
         }
 
         #endregion

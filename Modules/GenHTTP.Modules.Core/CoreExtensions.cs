@@ -15,11 +15,13 @@ namespace GenHTTP.Modules.Core
 
         #region Request
 
-        public static IResponseBuilder Respond(this IRequest request, ResponseStatus status, Exception? cause = null)
+        /*
+         * Todo! 
+         * public static IResponseBuilder Respond(this IRequest request, ResponseStatus status, Exception? cause = null)
         {
             var provider = request.Routing?.Router.GetErrorHandler(request, status, cause) ?? throw new InvalidOperationException("Routing context is missing");
             return provider.Handle(request).Status(status);
-        }
+        }*/
 
         public static bool HasType(this IRequest request, params RequestMethod[] methods)
         {

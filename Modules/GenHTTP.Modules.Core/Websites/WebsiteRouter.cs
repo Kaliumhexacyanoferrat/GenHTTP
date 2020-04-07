@@ -5,100 +5,82 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Core.Websites
 {
 
-    public class WebsiteRouter : IRouter
+    public class WebsiteRouter : IHandler
     {
-        private IRouter? _Parent;
 
         #region Get-/Setters
 
-        private IRouter Content { get; }
+        public IHandler Parent { get; }
 
-        private ScriptRouter Scripts { get; }
+        private IHandler Content { get; }
 
-        private StyleRouter Styles { get; }
+        private IHandler Scripts { get; }
 
-        private IContentProvider? Favicon { get; }
+        private IHandler Styles { get; }
 
-        private IContentProvider? Robots { get; }
+        private IHandler? Favicon { get; }
 
-        private IRouter? Sitemaps { get; }
+        private IHandler? Robots { get; }
+
+        private IHandler? Sitemaps { get; }
 
         public IMenuProvider Menu { get; }
 
-        private IRouter? Resources { get; }
+        private IHandler? Resources { get; }
 
         private ITheme Theme { get; }
-
-        private IContentProvider? ErrorHandler { get; }
-
-        public IRouter Parent
-        {
-            get { return _Parent ?? throw new InvalidOperationException("Parent has not been set"); }
-            set { _Parent = value; }
-        }
 
         #endregion
 
         #region Initialization
 
-        public WebsiteRouter(IRouter content,
-                             ScriptRouter scripts,
-                             StyleRouter styles,
-                             IRouter? sitemaps,
-                             IContentProvider? robots,
+        public WebsiteRouter(IHandler parent,
+                             IHandlerBuilder content,
+                             IHandlerBuilder scripts,
+                             IHandlerBuilder styles,
                              IResourceProvider? favicon,
-                             IMenuProvider menu,
-                             ITheme theme,
-                             IContentProvider? errorHandler)
+                             IMenuProvider? menu,
+                             ITheme theme)
         {
-            Content = content;
-            Content.Parent = this;
+            Parent = parent;
 
-            Scripts = scripts;
-            Scripts.Parent = this;
+            Content = content.Build(this);
 
-            Styles = styles;
-            Styles.Parent = this;
+            Scripts = scripts.Build(this);
+            Styles = styles.Build(this);
 
-            Sitemaps = sitemaps;
+            Sitemaps = Sitemap.Create()
+                              .Build(this);
 
-            if (Sitemaps != null)
-            {
-                Sitemaps.Parent = this;
-            }
-
-            Robots = robots;
+            Robots = Core.Robots.Default()
+                                .Sitemap()
+                                .Build(this);
 
             if (favicon != null)
             {
                 Favicon = Download.From(favicon)
                                   .Type(ContentType.ImageIcon)
-                                  .Build();
+                                  .Build(this);
             }
 
             Resources = theme.Resources;
 
-            if (Resources != null)
-            {
-                Resources.Parent = this;
-            }
-
-            ErrorHandler = errorHandler;
             Theme = theme;
 
-            Menu = menu;
+            Menu = menu ?? Core.Menu.From(Content).Build();
         }
 
         #endregion
 
         #region Functionality
 
-        public IRenderer<TemplateModel> GetRenderer()
+        // ToDo: Proper error handling via interfaces
+
+        /*public IRenderer<TemplateModel> GetRenderer()
         {
             return new WebsiteRenderer(Theme, Menu, Scripts, Styles);
         }
@@ -106,11 +88,11 @@ namespace GenHTTP.Modules.Core.Websites
         public IContentProvider GetErrorHandler(IRequest request, ResponseStatus responseType, Exception? cause)
         {
             return ErrorHandler ?? Theme.GetErrorHandler(request, responseType, cause) ?? Parent.GetErrorHandler(request, responseType, cause);
-        }
+        }*/
 
-        public void HandleContext(IEditableRoutingContext current)
+        public IResponse? Handle(IRequest request)
         {
-            current.Scope(this);
+            /*current.Scope(this);
 
             var segment = Api.Routing.Route.GetSegment(current.ScopedPath);
 
@@ -145,12 +127,14 @@ namespace GenHTTP.Modules.Core.Websites
             else
             {
                 Content.HandleContext(current);
-            }
+            }*/
+
+            return null;
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
+        public IEnumerable<ContentElement> GetContent(IRequest request)
         {
-            foreach (var script in Scripts.GetContent(request, $"{basePath}scripts/"))
+            /*foreach (var script in Scripts.GetContent(request, $"{basePath}scripts/"))
             {
                 yield return script;
             }
@@ -186,10 +170,12 @@ namespace GenHTTP.Modules.Core.Websites
             foreach (var content in Content.GetContent(request, basePath))
             {
                 yield return content;
-            }
+            }*/
+
+            return new List<ContentElement>();
         }
 
-        public string? Route(string path, int currentDepth)
+        /*public string? Route(string path, int currentDepth)
         {
             var segment = Api.Routing.Route.GetSegment(path);
 
@@ -209,7 +195,7 @@ namespace GenHTTP.Modules.Core.Websites
             }
 
             return Parent.Route(path, currentDepth);
-        }
+        }*/
 
         #endregion
 

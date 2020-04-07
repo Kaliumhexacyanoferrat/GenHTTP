@@ -69,13 +69,19 @@ namespace GenHTTP.Modules.Core.Proxy
 
                 return GetResponse(resp, request).Build();
             }
-            catch (OperationCanceledException e)
+            catch (OperationCanceledException) // e)
             {
-                return request.Respond(ResponseStatus.GatewayTimeout, e).Build();
+                return request.Respond()
+                              .Status(ResponseStatus.GatewayTimeout)
+                              .Build();
+                // ToDo: return request.Respond(ResponseStatus.GatewayTimeout, e).Build();
             }
-            catch (WebException e)
+            catch (WebException) // e)
             {
-                return request.Respond(ResponseStatus.BadGateway, e).Build();
+                return request.Respond()
+                              .Status(ResponseStatus.BadGateway)
+                              .Build();
+                // ToDo: return request.Respond(ResponseStatus.BadGateway, e).Build();
             }
         }
 

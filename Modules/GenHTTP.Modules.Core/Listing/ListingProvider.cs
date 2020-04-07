@@ -46,7 +46,9 @@ namespace GenHTTP.Modules.Core.Listing
 
             var templateModel = new TemplateModel(request, $"Index of {HttpUtility.UrlDecode(request.Path)}", renderer.Render(model));
 
-            return request.Respond(ResponseStatus.OK).Content(templateModel).Build();
+            return request.Respond()
+                          .Content(templateModel)
+                          .Build();
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request)

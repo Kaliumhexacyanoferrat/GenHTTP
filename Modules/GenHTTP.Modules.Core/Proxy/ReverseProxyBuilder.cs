@@ -46,7 +46,7 @@ namespace GenHTTP.Modules.Core.Proxy
                 throw new BuilderMissingPropertyException("Upstream");
             }
 
-            return new ReverseProxyRouter(parent, _Upstream, _ConnectTimeout, _ReadTimeout);
+            return new ReverseProxyProvider(parent, _Upstream, _ConnectTimeout, _ReadTimeout);
         }
 
         #endregion

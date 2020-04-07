@@ -11,16 +11,16 @@ namespace GenHTTP.Modules.Core.Templating
 
         public static IResponseBuilder Content(this IResponseBuilder response, TemplateModel model)
         {
-            if (response.Request.Routing == null)
+            /*if (response.Request.Routing == null)
             {
                 throw new InvalidOperationException("Routing context is not available");
             }
 
             var content = response.Request.Routing.Router
                                           .GetRenderer()
-                                          .Render(model);
+                                          .Render(model);*/
             
-            return response.Content(content)
+            return response.Content("ToDo") // ToDo
                            .Type(ContentType.TextHtml);
         }
 

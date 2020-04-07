@@ -4,16 +4,15 @@ using System.Linq;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Websites;
-using GenHTTP.Api.Routing;
 
-using GenHTTP.Modules.Core.General;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.Websites
 {
 
-    public class WebsiteBuilder : RouterBuilderBase<WebsiteBuilder>
+    public class WebsiteBuilder : IHandlerBuilder
     {
-        private IRouter? _Content;
+        private IHandlerBuilder? _Content;
 
         private ITheme? _Theme;
 
@@ -21,11 +20,9 @@ namespace GenHTTP.Modules.Core.Websites
 
         private IResourceProvider? _Favicon;
 
-        private readonly List<Script> _Scripts = new List<Script>();
+        private readonly StyleRouterBuilder _Styles = new StyleRouterBuilder();
 
-        private readonly List<Style> _Styles = new List<Style>();
-
-        private bool _Sitemap = true, _Robots = true;
+        private readonly ScriptRouterBuilder _Scripts = new ScriptRouterBuilder();
 
         #region Functionality
 
@@ -37,12 +34,7 @@ namespace GenHTTP.Modules.Core.Websites
             return this;
         }
 
-        public WebsiteBuilder Content(IRouterBuilder content)
-        {
-            return Content(content.Build());
-        }
-
-        public WebsiteBuilder Content(IRouter content)
+        public WebsiteBuilder Content(IHandlerBuilder content)
         {
             _Content = content;
             return this;
@@ -66,7 +58,7 @@ namespace GenHTTP.Modules.Core.Websites
 
         public WebsiteBuilder AddStyle(string name, IResourceProvider provider)
         {
-            _Styles.Add(new Style(name, provider));
+            _Styles.Add(name, provider);
             return this;
         }
 
@@ -74,44 +66,20 @@ namespace GenHTTP.Modules.Core.Websites
 
         public WebsiteBuilder AddScript(string name, IResourceProvider provider, bool asynchronous = false)
         {
-            _Scripts.Add(new Script(name, asynchronous, provider));
+            _Scripts.Add(name, provider, asynchronous);
             return this;
         }
 
-        public WebsiteBuilder Sitemap(bool enabled)
-        {
-            _Sitemap = enabled;
-            return this;
-        }
-
-        public WebsiteBuilder Robots(bool enabled)
-        {
-            _Robots = enabled;
-            return this;
-        }
-
-        public override IRouter Build()
+        public IHandler Build(IHandler parent)
         {
             var content = _Content ?? throw new BuilderMissingPropertyException("content");
 
             var theme = _Theme ?? new CoreTheme();
 
-            var scripts = new ScriptRouter(theme.Scripts.Union(_Scripts).ToList(), null, null);
+            _Styles.Theme(theme);
+            _Scripts.Theme(theme);
 
-            var styles = new StyleRouter(theme.Styles.Union(_Styles).ToList(), null, null);
-
-            var menu = _Menu ?? Core.Menu.From(content);
-
-            var sitemap = (_Sitemap) ? Core.Sitemap.From(content).Build() : null;
-
-            var robots = (_Robots) ? Core.Robots.Default() : null;
-
-            if (_Sitemap)
-            {
-                robots?.Sitemap();
-            }
-
-            return new WebsiteRouter(content, scripts, styles, sitemap, robots?.Build(), _Favicon, menu.Build(), theme, _ErrorHandler);
+            return new WebsiteRouter(parent, content, _Scripts, _Styles, _Favicon, _Menu?.Build(), theme);
         }
 
         #endregion

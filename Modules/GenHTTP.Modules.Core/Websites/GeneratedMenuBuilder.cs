@@ -12,7 +12,7 @@ namespace GenHTTP.Modules.Core.Websites
 
         #region Functionality
 
-        public GeneratedMenuBuilder Router(IHandler handler)
+        public GeneratedMenuBuilder Handler(IHandler handler)
         {
             _Handler = handler;
             return this;

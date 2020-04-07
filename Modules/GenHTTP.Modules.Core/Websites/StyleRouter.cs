@@ -2,35 +2,33 @@
 using System.Linq;
 
 using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
-
-using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core.Websites
 {
 
-    public class StyleRouter : RouterBase
+    public class StyleRouter : IHandler
     {
 
         #region Get-/Setters
+
+        public IHandler Parent { get; }
 
         private Dictionary<string, Style> Styles { get; }
 
         public bool Empty => Styles.Count == 0;
 
-        private IContentProvider Bundle { get; }
+        private IHandler Bundle { get; }
 
         #endregion
 
         #region Initialization
 
-        public StyleRouter(List<Style> styles,
-                           IRenderer<TemplateModel>? template,
-                           IContentProvider? errorHandler) : base(template, errorHandler)
+        public StyleRouter(IHandler parent, List<Style> styles)
         {
+            Parent = parent;
+
             Styles = styles.ToDictionary(s => s.Name);
 
             var bundle = Core.Bundle.Create().ContentType(ContentType.TextCss);
@@ -40,7 +38,7 @@ namespace GenHTTP.Modules.Core.Websites
                 bundle.Add(style.Provider);
             }
 
-            Bundle = bundle.Build();
+            Bundle = bundle.Build(this);
         }
 
         #endregion
@@ -60,8 +58,9 @@ namespace GenHTTP.Modules.Core.Websites
             return Styles.Values.Select(s => new StyleReference($"styles/{s.Name}")).ToList();
         }
 
-        public override void HandleContext(IEditableRoutingContext current)
+        public IResponse? Handle(IRequest request)
         {
+            /*
             current.Scope(this);
 
             if (!current.Request.Server.Development)
@@ -76,17 +75,15 @@ namespace GenHTTP.Modules.Core.Websites
                 current.RegisterContent(Download.From(style.Provider)
                                                 .Type(ContentType.TextCss)
                                                 .Build());
-            }
+            }*/
+
+            return null; // ToDo
         }
 
-        public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
+        public IEnumerable<ContentElement> GetContent(IRequest request)
         {
-            return Styles.Values.Select(s => new ContentElement($"{basePath}{s.Name}", s.Name, ContentType.TextCss, null));
-        }
-
-        public override string? Route(string path, int currentDepth)
-        {
-            return Parent.Route(path, currentDepth);
+            // ToDo: Basepath
+            return Styles.Values.Select(s => new ContentElement($"{s.Name}", s.Name, ContentType.TextCss, null));
         }
 
         #endregion
