@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Core.Protocol
 {
@@ -19,7 +20,7 @@ namespace GenHTTP.Core.Protocol
         private FlexibleRequestMethod? _RequestMethod;
         private HttpProtocol? _Protocol;
 
-        private string? _Path;
+        private RoutingTarget? _Target;
 
         private Stream? _Content;
 
@@ -30,11 +31,6 @@ namespace GenHTTP.Core.Protocol
         private ForwardingCollection? _Forwardings;
 
         #region Get-/Setters
-
-        private RequestQuery Query
-        {
-            get { return _Query ?? (_Query = new RequestQuery()); }
-        }
 
         private CookieCollection Cookies
         {
@@ -99,9 +95,11 @@ namespace GenHTTP.Core.Protocol
             return this;
         }
 
-        public RequestBuilder Path(string path)
+        public RequestBuilder Path(WebPath path)
         {
-            var index = path.IndexOf('?');
+            // ToDo: Propery Query parsing!
+
+            /*var index = path.IndexOf('?');
 
             if (index > -1)
             {
@@ -122,8 +120,15 @@ namespace GenHTTP.Core.Protocol
             else
             {
                 _Path = path;
-            }
+            }*/
 
+            _Target = new RoutingTarget(path);
+            return this;
+        }
+
+        public RequestBuilder Query(RequestQuery query)
+        {
+            _Query = query;
             return this;
         }
 
@@ -180,9 +185,9 @@ namespace GenHTTP.Core.Protocol
                     throw new BuilderMissingPropertyException("Type");
                 }
 
-                if (_Path == null)
+                if (_Target == null)
                 {
-                    throw new BuilderMissingPropertyException("Path");
+                    throw new BuilderMissingPropertyException("Target");
                 }
 
                 var protocol = (_EndPoint.Secure) ? ClientProtocol.HTTPS : ClientProtocol.HTTP;
@@ -196,7 +201,8 @@ namespace GenHTTP.Core.Protocol
 
                 var client = DetermineClient() ?? localClient;
 
-                return new Request(_Server, _EndPoint, client, localClient, (HttpProtocol)_Protocol, _RequestMethod.Value, _Path, Headers, _Cookies, _Forwardings, _Query, _Content);
+                return new Request(_Server, _EndPoint, client, localClient, (HttpProtocol)_Protocol, _RequestMethod.Value, 
+                                   _Target, Headers, _Cookies, _Forwardings, _Query, _Content);
             }
             catch (Exception)
             {

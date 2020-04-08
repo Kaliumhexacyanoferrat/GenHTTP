@@ -44,7 +44,7 @@ namespace GenHTTP.Modules.Core.Listing
 
             var renderer = new ListingRenderer();
 
-            var templateModel = new TemplateModel(request, $"Index of {HttpUtility.UrlDecode(request.Path)}", renderer.Render(model));
+            var templateModel = new TemplateModel(request, $"Index of {request.Target.Path}", renderer.Render(model));
 
             return request.Respond()
                           .Content(templateModel)

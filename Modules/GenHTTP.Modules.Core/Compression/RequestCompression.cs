@@ -6,6 +6,7 @@ using System.Linq;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Core.Compression
 {
@@ -45,7 +46,7 @@ namespace GenHTTP.Modules.Core.Compression
             {
                 if (response.ContentEncoding == null)
                 {
-                    if ((response.Content != null) && ShouldCompress(request.Path, response.ContentType?.KnownType))
+                    if ((response.Content != null) && ShouldCompress(request.Target.Path, response.ContentType?.KnownType))
                     {
                         if (request.Headers.TryGetValue("Accept-Encoding", out var header))
                         {
@@ -73,7 +74,7 @@ namespace GenHTTP.Modules.Core.Compression
             return response;
         }
 
-        private bool ShouldCompress(string path, ContentType? type)
+        private bool ShouldCompress(WebPath path, ContentType? type)
         {
             if (type != null)
             {
@@ -101,9 +102,9 @@ namespace GenHTTP.Modules.Core.Compression
                 }
             }
 
-            if (path.Contains("."))
+            if (path.File != null)
             {
-                switch (Path.GetExtension(path))
+                switch (Path.GetExtension(path.File))
                 {
                     case ".rrd": return true;
                 }

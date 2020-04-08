@@ -261,7 +261,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             using var setup = TestSetup.Create((r) =>
             {
-                return r.Respond().Content(r.Path);
+                return r.Respond().Content(r.Target.Path.ToString());
             });
 
             var runner = setup.Runner;
@@ -287,14 +287,14 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var runner = setup.Runner;
 
-            using var r1 = runner.GetResponse("/");
-            Assert.Equal("", r1.GetContent());
-
             using var r2 = runner.GetResponse("/?one=two");
             Assert.Equal("one=two", r2.GetContent());
 
             using var r3 = runner.GetResponse("/?one=two&three=four");
             Assert.Equal("one=two|three=four", r3.GetContent());
+
+            using var r1 = runner.GetResponse("/");
+            Assert.Equal("", r1.GetContent());
         }
         
         [Fact]

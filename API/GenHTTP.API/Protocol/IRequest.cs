@@ -2,6 +2,7 @@
 using System.IO;
 
 using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Api.Protocol
 {
@@ -53,7 +54,7 @@ namespace GenHTTP.Api.Protocol
         /// <summary>
         /// The path requested by the client (with no query parameters attached).
         /// </summary>
-        string Path { get; }
+        RoutingTarget Target { get; }
 
         #endregion
 

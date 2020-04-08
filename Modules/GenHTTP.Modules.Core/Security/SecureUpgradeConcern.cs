@@ -82,7 +82,7 @@ namespace GenHTTP.Modules.Core.Security
 
             var port = (targetPort == 443) ? string.Empty : $":{targetPort}";
 
-            return $"https://{request.HostWithoutPort()}{port}{request.Path}";
+            return $"https://{request.HostWithoutPort()}{port}{request.Target}";
         }
 
         private ushort GetTargetPort(IRequest request)
