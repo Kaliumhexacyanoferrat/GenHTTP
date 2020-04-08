@@ -6,11 +6,12 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
+
 using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Core.Layouting;
 using GenHTTP.Modules.Core.Websites;
 using GenHTTP.Modules.Scriban;
+
 using GenHTTP.Testing.Acceptance.Domain;
 
 using Xunit;
@@ -35,12 +36,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
                 get { return new List<Style> { new Style("custom.css", Data.FromString(" ").Build()) }; }
             }
 
-            public IRouter? Resources => Layout.Create().Add("some.txt", Content.From("Text")).Build();
-
-            public IContentProvider? GetErrorHandler(IRequest request, ResponseStatus responseType, Exception? cause)
-            {
-                return Content.From("Error!").Build();
-            }
+            public IHandlerBuilder? Resources => Layout.Create().File("some.txt", Content.From("Text"));
 
             public object? GetModel(IRequest request)
             {
@@ -60,7 +56,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             using var runner = new TestRunner();
 
-            runner.Host.Router(GetWebsite())
+            runner.Host.Handler(GetWebsite())
                        .Development(true)
                        .Start();
 
@@ -206,10 +202,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
                              else = {{ route 'something/else/' }}";
 
             var sub = Layout.Create()
-                            .Add("index", ModScriban.Page(Data.FromString(template)), true);
+                            .Index(ModScriban.Page(Data.FromString(template)));
 
             var content = Layout.Create()
-                                .Add("sub", sub);
+                                .Section("sub", sub);
 
             using var runner = TestRunner.Run(content);
 

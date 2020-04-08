@@ -1,9 +1,12 @@
-﻿using Xunit;
+﻿using System.Collections.Generic;
+
+using Xunit;
 
 using GenHTTP.Testing.Acceptance.Domain;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Core;
+using System;
 
 namespace GenHTTP.Testing.Acceptance.Core
 {
@@ -11,23 +14,27 @@ namespace GenHTTP.Testing.Acceptance.Core
     public class CookieTests
     {
 
-        private class TestProvider : IContentProvider
+        private class TestProvider : IHandler
         {
 
             public ICookieCollection? Cookies { get; private set; }
 
-            public FlexibleContentType? ContentType => new FlexibleContentType(Api.Protocol.ContentType.TextHtml);
+            public IHandler Parent => throw new NotSupportedException();
 
-            public string? Title => null;
+            public IEnumerable<ContentElement> GetContent(IRequest request)
+            {
+                throw new System.NotImplementedException();
+            }
 
-            public IResponseBuilder Handle(IRequest request)
+            public IResponse? Handle(IRequest request)
             {
                 Cookies = request.Cookies;
 
                 return request.Respond()
                               .Cookie(new Cookie("TestCookie", "TestValue"))
                               .Content("I ❤ Cookies!")
-                              .Type(ContentType!.Value);
+                              .Type(ContentType.TextHtml)
+                              .Build();
 
             }
 
@@ -39,11 +46,9 @@ namespace GenHTTP.Testing.Acceptance.Core
         [Fact]
         public void TestCookiesCanBeReturned()
         {
-            var layout = Layout.Create().Add("test", new TestProvider());
+            using var runner = TestRunner.Run(new TestProvider());
 
-            using var runner = TestRunner.Run(layout);
-
-            using var response = runner.GetResponse("/test");
+            using var response = runner.GetResponse();
 
             Assert.Equal("TestCookie=TestValue; Path=/", response.Headers["Set-Cookie"]);
         }
@@ -56,7 +61,7 @@ namespace GenHTTP.Testing.Acceptance.Core
         {
             var provider = new TestProvider();
 
-            var layout = Layout.Create().Add("test", provider);
+            var layout = Layout.Create().Section("test", provider.Wrap());
 
             using var runner = TestRunner.Run(layout);
 

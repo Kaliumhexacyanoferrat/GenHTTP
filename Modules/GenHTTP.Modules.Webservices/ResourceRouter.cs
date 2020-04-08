@@ -5,20 +5,18 @@ using System.Linq;
 using System.Reflection;
 
 using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
-
 using GenHTTP.Modules.Core;
-using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Webservices
 {
 
-    public class ResourceRouter : RouterBase
+    public class ResourceRouter : IHandler
     {
 
         #region Get-/Setters
+
+        public IHandler Parent { get; }
 
         private Type Type { get; }
 
@@ -32,11 +30,10 @@ namespace GenHTTP.Modules.Webservices
 
         #region Initialization
 
-        public ResourceRouter(object instance,
-                              SerializationRegistry formats,
-                              IRenderer<TemplateModel>? template,
-                              IContentProvider? errorHandler) : base(template, errorHandler)
+        public ResourceRouter(IHandler parent, object instance, SerializationRegistry formats)
         {
+            Parent = parent;
+
             Instance = instance;
             Type = instance.GetType();
 
@@ -53,7 +50,7 @@ namespace GenHTTP.Modules.Webservices
 
                 if (attribute != null)
                 {
-                    yield return new MethodProvider(method, Instance, attribute, Serialization);
+                    yield return new MethodProvider(Parent, method, Instance, attribute, Serialization);
                 }
             }
         }
@@ -62,9 +59,11 @@ namespace GenHTTP.Modules.Webservices
 
         #region Functionality
 
-        public override void HandleContext(IEditableRoutingContext current)
+        public IResponse? Handle(IRequest request)
         {
-            current.Scope(this);
+            // ToDo
+
+            /*current.Scope(this);
 
             var methods = FindProviders(current.ScopedPath);
 
@@ -84,10 +83,12 @@ namespace GenHTTP.Modules.Webservices
                 {
                     throw new ProviderException(ResponseStatus.MethodNotAllowed, $"There is no method of a matching request type");
                 }
-            }
+            }*/
+
+            return null;
         }
 
-        public override string? Route(string path, int currentDepth)
+        /*public override string? Route(string path, int currentDepth)
         {
             if (FindProviders($"/{path}").Any())
             {
@@ -95,15 +96,16 @@ namespace GenHTTP.Modules.Webservices
             }
 
             return Parent.Route(path, currentDepth + 1);
-        }
+        }*/
 
-        public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
+        public IEnumerable<ContentElement> GetContent(IRequest request)
         {
+            // ToDo: basepath
             foreach (var method in Methods.Where(m => m.MetaData.RequestMethod == RequestMethod.GET))
             {
                 var path = method.MetaData.Path ?? "/";
 
-                yield return new ContentElement($"{basePath}{path}", Path.GetFileName(path), path.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
+                yield return new ContentElement($"{path}", Path.GetFileName(path), path.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
             }
         }
 

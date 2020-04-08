@@ -3,9 +3,8 @@ using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
-
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Core.Hosting
 {
@@ -40,19 +39,13 @@ namespace GenHTTP.Core.Hosting
 
         public IServerHost Development(bool developmentMode = true) { _Builder.Development(developmentMode); return this; }
 
-        public IServerHost Extension(IServerExtensionBuilder extension) { _Builder.Extension(extension); return this; }
-
-        public IServerHost Extension(IServerExtension extension) { _Builder.Extension(extension); return this; }
-
         public IServerHost Port(ushort port) { _Builder.Port(port); return this; }
 
         public IServerHost RequestMemoryLimit(uint limit) { _Builder.RequestMemoryLimit(limit); return this; }
 
         public IServerHost RequestReadTimeout(TimeSpan timeout) { _Builder.RequestReadTimeout(timeout); return this; }
 
-        public IServerHost Router(IRouterBuilder routerBuilder) { _Builder.Router(routerBuilder); return this; }
-
-        public IServerHost Router(IRouter router) { _Builder.Router(router); return this; }
+        public IServerHost Handler(IHandlerBuilder handler) { _Builder.Handler(handler); return this; }
 
         public IServerHost SecureUpgrade(SecureUpgrade upgradeMode) { _Builder.SecureUpgrade(upgradeMode); return this; }
 

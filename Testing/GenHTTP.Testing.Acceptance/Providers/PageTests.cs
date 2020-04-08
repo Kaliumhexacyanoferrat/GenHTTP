@@ -34,7 +34,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestStringPage()
         {
-            var layout = Layout.Create().Add("page", Page.From("Hello World!"));
+            var layout = Layout.Create().File("page", Page.From("Hello World!"));
 
             using var runner = TestRunner.Run(layout);
 
@@ -53,16 +53,16 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             ModelProvider<CustomModel> modelProvider = (r) => new CustomModel(r);
 
-            var providers = new List<IContentProvider>()
+            var providers = new List<IHandlerBuilder>()
             {
-                ModScriban.Page(Data.FromString("Hello {{ world }}!"), modelProvider).Build(),
-                ModRazor.Page(Data.FromString("Hello @Model.World!"), modelProvider).Build(),
-                Placeholders.Page(Data.FromString("Hello [World]!"), modelProvider).Build()
+                ModScriban.Page(Data.FromString("Hello {{ world }}!"), modelProvider),
+                ModRazor.Page(Data.FromString("Hello @Model.World!"), modelProvider),
+                Placeholders.Page(Data.FromString("Hello [World]!"), modelProvider)
             };
 
             foreach (var provider in providers)
             {
-                var layout = Layout.Create().Add("page", provider);
+                var layout = Layout.Create().File("page", provider);
 
                 using var runner = TestRunner.Run(layout);
 
@@ -78,24 +78,24 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestRouting()
         {
-            var providers = new List<IContentProvider>()
+            var providers = new List<IHandlerBuilder>()
             {
-                ModScriban.Page(Data.FromString("{{ route 'https://google.de' }}|{{ route 'res/123' }}|{{ route 'other/456/' }}|{{ route './relative' }}")).Build(),
-                ModRazor.Page(Data.FromString("@Model.Request.Routing.Route(\"https://google.de\")|@Model.Request.Routing.Route(\"res/123\")|@Model.Request.Routing.Route(\"other/456/\")|@Model.Request.Routing.Route(\"./relative\")")).Build(),
+                ModScriban.Page(Data.FromString("{{ route 'https://google.de' }}|{{ route 'res/123' }}|{{ route 'other/456/' }}|{{ route './relative' }}")),
+                ModRazor.Page(Data.FromString("@Model.Request.Routing.Route(\"https://google.de\")|@Model.Request.Routing.Route(\"res/123\")|@Model.Request.Routing.Route(\"other/456/\")|@Model.Request.Routing.Route(\"./relative\")")),
             };
 
             foreach (var provider in providers)
             {
                 var inner = Layout.Create()
-                                   .Add("page", provider);
+                                  .File("page", provider);
 
                 var outer = Layout.Create()
-                                  .Add("res", Layout.Create())
-                                  .Add("inner", inner);
+                                  .Section("res", Layout.Create())
+                                  .Section("inner", inner);
 
                 var layout = Layout.Create()
-                                   .Add("other", Layout.Create())
-                                   .Add("outer", outer);
+                                   .Section("other", Layout.Create())
+                                   .Section("outer", outer);
 
                 using var runner = TestRunner.Run(layout);
 

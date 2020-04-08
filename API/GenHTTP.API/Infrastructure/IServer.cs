@@ -1,6 +1,5 @@
 ﻿using System;
-
-using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Content;
 
 namespace GenHTTP.Api.Infrastructure
 {
@@ -42,7 +41,7 @@ namespace GenHTTP.Api.Infrastructure
         /// The main router that will be used by the server to dispatch
         /// incoming HTTP requests.
         /// </summary>
-        IHandler Content { get; }
+        IHandler Handler { get; }
 
     }
 

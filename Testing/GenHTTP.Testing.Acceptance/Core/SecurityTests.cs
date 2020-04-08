@@ -190,7 +190,7 @@ namespace GenHTTP.Testing.Acceptance.Core
 
         private static void RunSecure(Action<ushort, ushort> logic, Action<IServerHost>? adjustments = null, SecureUpgrade? mode = null, string host = "localhost")
         {
-            var content = Layout.Create().Add("index", Content.From("Hello Alice!"), true);
+            var content = Layout.Create().Index(Content.From("Hello Alice!"));
 
             using var runner = new TestRunner();
 
@@ -198,7 +198,7 @@ namespace GenHTTP.Testing.Acceptance.Core
 
             using var cert = GetCertificate();
 
-            runner.Host.Router(content)
+            runner.Host.Handler(content)
                        .Bind(IPAddress.Any, runner.Port)
                        .Bind(IPAddress.Any, port, new PickyCertificateProvider(host, cert), SslProtocols.Tls12);
 

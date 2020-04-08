@@ -10,6 +10,7 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Testing.Acceptance.Domain;
 using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Core.General;
+using System.Collections.Generic;
 
 namespace GenHTTP.Testing.Acceptance.Core
 {
@@ -17,28 +18,32 @@ namespace GenHTTP.Testing.Acceptance.Core
     public class ResponseTests
     {
 
-        private class ResponseProvider : IContentProvider
+        private class ResponseProvider : IHandler
         {
 
             public DateTime Modified { get; }
 
-            public FlexibleContentType? ContentType => new FlexibleContentType("text/x-custom");
-
-            public string? Title => null;
+            public IHandler Parent => throw new NotImplementedException();
 
             public ResponseProvider()
             {
                 Modified = DateTime.Now.AddDays(-10);
             }
 
-            public IResponseBuilder Handle(IRequest request)
+            public IResponse Handle(IRequest request)
             {
                 return request.Respond()
                               .Content("Hello World")
                               .Type("text/x-custom")
                               .Expires(DateTime.Now.AddYears(1))
                               .Modified(Modified)
-                              .Header("X-Powered-By", "Test Runner");
+                              .Header("X-Powered-By", "Test Runner")
+                              .Build();
+            }
+
+            public IEnumerable<ContentElement> GetContent(IRequest request)
+            {
+                throw new NotImplementedException();
             }
 
         }
@@ -51,7 +56,7 @@ namespace GenHTTP.Testing.Acceptance.Core
         {
             var provider = new ResponseProvider();
 
-            var router = Layout.Create().Add("_", provider, true);
+            var router = Layout.Create().Index(provider.Wrap());
 
             using var runner = TestRunner.Run(router);
 

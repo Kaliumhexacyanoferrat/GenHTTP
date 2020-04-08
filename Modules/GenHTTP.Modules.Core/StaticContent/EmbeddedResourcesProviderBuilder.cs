@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
-
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.StaticContent
 {

@@ -1,7 +1,7 @@
 ﻿
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content.Websites;
-using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Content;
 
 namespace GenHTTP.Modules.Core.Websites
 {

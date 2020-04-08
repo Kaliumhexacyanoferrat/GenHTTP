@@ -6,13 +6,12 @@ using System.Linq;
 using System.Collections.Generic;
 
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Routing;
 
 using GenHTTP.Core.Infrastructure.Endpoints;
 using GenHTTP.Core.Infrastructure.Configuration;
 
-using GenHTTP.Modules.Core.Compression;
 using GenHTTP.Modules.Core.Security;
+using GenHTTP.Api.Content;
 
 namespace GenHTTP.Core.Infrastructure
 {
@@ -34,10 +33,8 @@ namespace GenHTTP.Core.Infrastructure
         private bool _StrictTransport = true;
         private StrictTransportPolicy _StrictTransportPolicy = new StrictTransportPolicy(TimeSpan.FromDays(365), true, true);
 
-        private IRouter? _Router;
+        private IHandlerBuilder? _Handler;
         private IServerCompanion? _Companion;
-
-        private readonly List<IServerExtension> _Extensions = new List<IServerExtension>();
 
         private Dictionary<string, ICompressionAlgorithm>? _Compression = new Dictionary<string, ICompressionAlgorithm>(StringComparer.InvariantCultureIgnoreCase);
 
@@ -45,14 +42,9 @@ namespace GenHTTP.Core.Infrastructure
 
         #region Content
 
-        public IServerBuilder Router(IRouterBuilder routerBuilder)
+        public IServerBuilder Handler(IHandlerBuilder handler)
         {
-            return Router(routerBuilder.Build());
-        }
-
-        public IServerBuilder Router(IRouter router)
-        {
-            _Router = router;
+            _Handler = handler;
             return this;
         }
 
@@ -69,17 +61,6 @@ namespace GenHTTP.Core.Infrastructure
         public IServerBuilder Companion(IServerCompanion companion)
         {
             _Companion = companion;
-            return this;
-        }
-
-        public IServerBuilder Extension(IServerExtensionBuilder extension)
-        {
-            return Extension(extension.Build());
-        }
-
-        public IServerBuilder Extension(IServerExtension extension)
-        {
-            _Extensions.Add(extension);
             return this;
         }
 
@@ -224,9 +205,9 @@ namespace GenHTTP.Core.Infrastructure
 
         public IServer Build()
         {
-            if (_Router == null)
+            if (_Handler == null)
             {
-                throw new BuilderMissingPropertyException("Router");
+                throw new BuilderMissingPropertyException("Handler");
             }
 
             var network = new NetworkConfiguration(_RequestReadTimeout, _RequestMemoryLimit, _TransferBufferSize, _Backlog);
@@ -241,10 +222,9 @@ namespace GenHTTP.Core.Infrastructure
 
             var config = new ServerConfiguration(_Development, endpoints, network);
 
-            var extensions = new ExtensionCollection();
-            extensions.AddRange(_Extensions);
+            // ToDo: Rework those into concerns
 
-            if (_Compression != null)
+            /*if (_Compression != null)
             {
                 var algorithms = new Dictionary<string, ICompressionAlgorithm>(_Compression);
 
@@ -272,9 +252,11 @@ namespace GenHTTP.Core.Infrastructure
                 {
                     extensions.Add(new StrictTransportConcern(_StrictTransportPolicy));
                 }
-            }
+            }*/
 
-            return new ThreadedServer(_Companion, config, extensions, _Router);
+            var handler = new CoreRouter(_Handler);
+
+            return new ThreadedServer(_Companion, config, handler);
         }
 
         #endregion

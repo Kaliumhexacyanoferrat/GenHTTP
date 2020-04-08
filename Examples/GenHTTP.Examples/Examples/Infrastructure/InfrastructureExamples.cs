@@ -1,4 +1,4 @@
-﻿using GenHTTP.Api.Routing;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Modules.Core;
 
 namespace GenHTTP.Examples.Examples.Infrastructure
@@ -7,14 +7,14 @@ namespace GenHTTP.Examples.Examples.Infrastructure
     public static class InfrastructureExamples
     {
 
-        public static IRouterBuilder Create()
+        public static IHandlerBuilder Create()
         {
             var proxy = ReverseProxy.Create()
                                     .Upstream("https://genhttp.org/");
 
             return Layout.Create()
-                         .Add("exceptions", new ExceptionProvider())
-                         .Add("proxy", proxy);
+                         .Section("exceptions", new ExceptionProviderBuilder())
+                         .Section("proxy", proxy);
         }
 
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
@@ -21,10 +22,12 @@ namespace GenHTTP.Modules.Webservices
     /// the required arguments. The result of the method is analyzed and
     /// converted into a HTTP response.
     /// </remarks>
-    public class MethodProvider : IContentProvider
+    public class MethodProvider : IHandler
     {
 
         #region Get-/Setters
+
+        public IHandler Parent { get; }
 
         /// <summary>
         /// The meta data the method has been annotated with.
@@ -43,16 +46,14 @@ namespace GenHTTP.Modules.Webservices
 
         private SerializationRegistry Serialization { get; }
 
-        public string? Title => null;
-
-        public FlexibleContentType? ContentType => null;
-
         #endregion
 
         #region Initialization
 
-        public MethodProvider(MethodInfo method, object instance, MethodAttribute metaData, SerializationRegistry formats)
+        public MethodProvider(IHandler parent, MethodInfo method, object instance, MethodAttribute metaData, SerializationRegistry formats)
         {
+            Parent = parent;
+
             Method = method;
             MetaData = metaData;
             Instance = instance;
@@ -65,7 +66,7 @@ namespace GenHTTP.Modules.Webservices
 
         #region Functionality
 
-        public IResponseBuilder Handle(IRequest request)
+        public IResponse? Handle(IRequest request)
         {
             return GetResponse(request, Invoke(request));
         }
@@ -76,7 +77,7 @@ namespace GenHTTP.Modules.Webservices
 
             var targetArguments = new object?[targetParameters.Length];
 
-            var sourceParameters = ParsedPath.Match(request.Routing!.ScopedPath);
+            var sourceParameters = ParsedPath.Match(""); // ToDo: request.Routing!.ScopedPath
 
             for (int i = 0; i < targetParameters.Length; i++)
             {
@@ -153,12 +154,12 @@ namespace GenHTTP.Modules.Webservices
             }
         }
 
-        private IResponseBuilder GetResponse(IRequest request, object? result)
+        private IResponse GetResponse(IRequest request, object? result)
         {
             // no result = 204
             if (result == null)
             {
-                return request.Respond().Status(ResponseStatus.NoContent);
+                return request.Respond().Status(ResponseStatus.NoContent).Build();
             }
 
             var type = result.GetType();
@@ -166,7 +167,7 @@ namespace GenHTTP.Modules.Webservices
             // response returned by the method
             if (result is IResponseBuilder response)
             {
-                return response;
+                return response.Build();
             }
 
             // stream returned as a download
@@ -174,14 +175,16 @@ namespace GenHTTP.Modules.Webservices
             {
                 return request.Respond()
                               .Content(download)
-                              .Type(Api.Protocol.ContentType.ApplicationForceDownload);
+                              .Type(ContentType.ApplicationForceDownload)
+                              .Build();
             }
 
             // basic types should produce a string value
             if (type.IsPrimitive || type == typeof(string) || type.IsEnum)
             {
                 return request.Respond().Content(result.ToString())
-                                        .Type(Api.Protocol.ContentType.TextPlain);
+                                        .Type(ContentType.TextPlain)
+                                        .Build();
             }
 
             // serialize the result
@@ -192,7 +195,8 @@ namespace GenHTTP.Modules.Webservices
                 throw new ProviderException(ResponseStatus.UnsupportedMediaType, "Requested format is not supported");
             }
 
-            return serializer.Serialize(request, result);
+            return serializer.Serialize(request, result)
+                             .Build();
         }
 
         private object ChangeType(string value, Type type)
@@ -210,6 +214,11 @@ namespace GenHTTP.Modules.Webservices
             {
                 throw new ProviderException(ResponseStatus.BadRequest, $"Unable to convert value '{value}' to type '{type}'", e);
             }
+        }
+
+        public IEnumerable<ContentElement> GetContent(IRequest request)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 
-using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Api.Protocol
+namespace GenHTTP.Api.Content
 {
-    
+
     public interface IHandler
     {
 
@@ -17,5 +17,5 @@ namespace GenHTTP.Api.Protocol
         // bool Route();
 
     }
-    
+
 }

@@ -2,8 +2,7 @@
 using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-
-using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Content;
 
 namespace GenHTTP.Api.Infrastructure
 {
@@ -21,7 +20,7 @@ namespace GenHTTP.Api.Infrastructure
 
         #region Content
 
-        T Content(IHandlerBuilder content);
+        T Handler(IHandlerBuilder handler);
 
         #endregion
 

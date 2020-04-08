@@ -2,8 +2,8 @@
 using System.Net;
 using System.Net.Cache;
 
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Routing;
 using GenHTTP.Modules.Core;
 
 namespace GenHTTP.Testing.Acceptance.Domain
@@ -34,7 +34,7 @@ namespace GenHTTP.Testing.Acceptance.Domain
             Port = NextPort();
 
             Host = GenHTTP.Core.Host.Create()
-                                    .Router(Layout.Create())
+                                    .Handler(Layout.Create())
                                     .Port(Port);
         }
 
@@ -55,13 +55,13 @@ namespace GenHTTP.Testing.Acceptance.Domain
             return runner;
         }
 
-        public static TestRunner Run(IRouterBuilder router) => Run(router.Build());
+        public static TestRunner Run(IHandler handler) => Run(handler.Wrap());
 
-        public static TestRunner Run(IRouter router)
+        public static TestRunner Run(IHandlerBuilder handlerBuilder)
         {
             var runner = new TestRunner();
 
-            runner.Host.Router(router).Start();
+            runner.Host.Handler(handlerBuilder).Start();
 
             return runner;
         }

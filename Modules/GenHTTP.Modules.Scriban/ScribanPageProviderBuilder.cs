@@ -2,12 +2,10 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 
-using GenHTTP.Modules.Core.General;
-
 namespace GenHTTP.Modules.Scriban
 {
 
-    public class ScribanPageProviderBuilder<T> : ContentBuilderBase where T : PageModel
+    public class ScribanPageProviderBuilder<T> : IHandlerBuilder where T : PageModel
     {
         protected IResourceProvider? _TemplateProvider;
         protected ModelProvider<T>? _ModelProvider;
@@ -33,7 +31,7 @@ namespace GenHTTP.Modules.Scriban
             return this;
         }
 
-        public override IContentProvider Build()
+        public IHandler Build(IHandler parent)
         {
             if (_TemplateProvider == null)
             {
@@ -45,7 +43,7 @@ namespace GenHTTP.Modules.Scriban
                 throw new BuilderMissingPropertyException("Model Provider");
             }
 
-            return new ScribanPageProvider<T>(_TemplateProvider, _ModelProvider, _Title, _Modification);
+            return new ScribanPageProvider<T>(parent, _TemplateProvider, _ModelProvider, _Title);
         }
 
         #endregion

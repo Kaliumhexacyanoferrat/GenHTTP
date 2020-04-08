@@ -14,7 +14,7 @@ namespace GenHTTP.Api.Content.Websites
 
         List<Style> Styles { get; }
 
-        IHandler? Resources { get; }
+        IHandlerBuilder? Resources { get; }
 
         IRenderer<WebsiteModel> GetRenderer();
 

@@ -36,7 +36,7 @@ namespace GenHTTP.Modules.Scriban
             var obj = new ScriptObject();
 
             obj.Import(model);
-            obj.SetValue("route", new RoutingMethod(model.Request.Routing), true);
+            obj.SetValue("route", new RoutingMethod(), true); // ToDo
 
             return template.Render(obj);
         }

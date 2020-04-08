@@ -1,15 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 
 using Xunit;
 
 using GenHTTP.Testing.Acceptance.Domain;
 
-using GenHTTP.Api.Routing;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Content.Templating;
-using System.Collections.Generic;
 
 namespace GenHTTP.Testing.Acceptance.Core
 {
@@ -17,32 +15,17 @@ namespace GenHTTP.Testing.Acceptance.Core
     public class ErrorHandlingTest
     {
 
-        private class MalfunctioningRouter : IRouter
+        private class MalfunctioningRouter : IHandler
         {
 
-            public IRouter Parent { get => throw new NotImplementedException(); set { } }
+            public IHandler Parent { get => throw new NotImplementedException(); }
 
-            public IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
+            public IEnumerable<ContentElement> GetContent(IRequest request)
             {
                 throw new NotImplementedException();
             }
 
-            public IContentProvider GetErrorHandler(IRequest request, ResponseStatus responseType, Exception? cause)
-            {
-                throw new NotImplementedException();
-            }
-
-            public IRenderer<TemplateModel> GetRenderer()
-            {
-                throw new NotImplementedException();
-            }
-
-            public void HandleContext(IEditableRoutingContext current)
-            {
-                throw new NotImplementedException();
-            }
-
-            public string? Route(string path, int currentDepth)
+            public IResponse? Handle(IRequest request)
             {
                 throw new NotImplementedException();
             }

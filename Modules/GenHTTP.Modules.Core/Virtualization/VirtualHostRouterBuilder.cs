@@ -1,4 +1,4 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Content;
 using System;
 using System.Collections.Generic;
 

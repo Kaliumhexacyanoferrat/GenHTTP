@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-
-using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Content;
 
 namespace GenHTTP.Modules.Core.Bots
 {

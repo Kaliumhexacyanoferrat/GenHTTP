@@ -3,7 +3,6 @@ using System.IO;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
 
 using GenHTTP.Core.Protocol;
 
@@ -30,8 +29,6 @@ namespace GenHTTP.Core
         public IClientConnection Client { get; }
 
         public IClientConnection LocalClient { get; }
-
-        public IRoutingContext? Routing { get; set; }
 
         public HttpProtocol ProtocolType { get; }
 

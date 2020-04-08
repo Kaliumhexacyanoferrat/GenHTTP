@@ -1,6 +1,5 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Websites;
-using GenHTTP.Api.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +7,7 @@ using System.Text;
 
 namespace GenHTTP.Modules.Core.Websites
 {
-    
+
     public class StyleRouterBuilder : IHandlerBuilder
     {
         private readonly List<Style> _Styles = new List<Style>();

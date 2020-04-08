@@ -1,4 +1,4 @@
-﻿using GenHTTP.Api.Routing;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Core.Bots;
 using GenHTTP.Testing.Acceptance.Domain;
@@ -83,11 +83,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
             return response.GetContent().Replace($":{runner.Port}", string.Empty);
         }
 
-        private IRouter GetTest(RobotsProviderBuilder robots)
+        private IHandlerBuilder GetTest(RobotsProviderBuilder robots)
         {
             return Layout.Create()
-                         .Add("robots.txt", robots)
-                         .Build();
+                         .File("robots.txt", robots);
         }
 
     }

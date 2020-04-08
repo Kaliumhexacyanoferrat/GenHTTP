@@ -1,4 +1,4 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Content;
 using System.Collections.Generic;
 
 namespace GenHTTP.Modules.Core.Layouting
@@ -40,7 +40,9 @@ namespace GenHTTP.Modules.Core.Layouting
             return this;
         }
 
-        public LayoutBuilder Folder(string name, IHandlerBuilder handler)
+        // ToDo: Rework again into "Add" and use a specific interface for something like IDirectContent
+
+        public LayoutBuilder Section(string name, IHandlerBuilder handler)
         {
             Folders.Add(name, handler);
             return this;

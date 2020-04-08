@@ -11,7 +11,7 @@ namespace GenHTTP.Examples.CoreApp
             var project = Project.Build();
 
             return Host.Create()
-                       .Router(project)
+                       .Handler(project)
 #if DEBUG
                        .Console()
                        .Debug()

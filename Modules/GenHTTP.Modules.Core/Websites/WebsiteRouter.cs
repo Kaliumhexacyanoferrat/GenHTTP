@@ -67,7 +67,7 @@ namespace GenHTTP.Modules.Core.Websites
                                   .Build(this);
             }
 
-            Resources = theme.Resources;
+            Resources = theme.Resources?.Build(this);
 
             Theme = theme;
 

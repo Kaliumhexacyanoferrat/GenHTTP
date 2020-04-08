@@ -1,6 +1,5 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Websites;
-using GenHTTP.Api.Protocol;
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -8,7 +7,7 @@ using System.Text;
 
 namespace GenHTTP.Modules.Core.Websites
 {
-    
+
     public class ScriptRouterBuilder : IHandlerBuilder
     {
         private readonly List<Script> _Scripts = new List<Script>();

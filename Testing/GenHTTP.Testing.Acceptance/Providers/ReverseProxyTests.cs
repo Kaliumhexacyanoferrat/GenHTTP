@@ -9,9 +9,7 @@ using Xunit;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
 using GenHTTP.Modules.Core;
-using GenHTTP.Modules.Core.General;
 using GenHTTP.Testing.Acceptance.Domain;
 
 using Cookie = GenHTTP.Api.Protocol.Cookie;
@@ -47,7 +45,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
                                         .ReadTimeout(TimeSpan.FromSeconds(5))
                                         .Upstream("http://localhost:" + testServer.Port);
 
-                var layout = Layout.Create().Add("_", proxy, true);
+                var layout = Layout.Create().Fallback(proxy);
 
                 var runner = TestRunner.Run(layout);
 
@@ -81,46 +79,46 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
         }
 
-        private class ProxiedRouter : RouterBase
+        private class ProxiedRouter : IHandler
         {
             private Func<IRequest, IResponseBuilder?> _Response;
 
-            public ProxiedRouter(Func<IRequest, IResponseBuilder?> response) : base(null, null)
+            public ProxiedRouter(Func<IRequest, IResponseBuilder?> response)
             {
                 _Response = response;
             }
 
-            public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
+            public IHandler Parent => throw new NotImplementedException();
+
+            public IEnumerable<ContentElement> GetContent(IRequest request)
             {
                 return new List<ContentElement>();
             }
 
-            public override void HandleContext(IEditableRoutingContext current)
+            public IResponse? Handle(IRequest request)
             {
-                current.RegisterContent(new ProxiedProvider(_Response));
-            }
-
-            public override string? Route(string path, int currentDepth)
-            {
-                return null;
+                return new ProxiedProvider(_Response).Handle(request);
             }
 
         }
 
-        private class ProxiedProvider : IContentProvider
+        private class ProxiedProvider : IHandler
         {
             private Func<IRequest, IResponseBuilder?> _Response;
-
-            public FlexibleContentType? ContentType => new FlexibleContentType(Api.Protocol.ContentType.TextPlain);
-
-            public string? Title => null;
 
             public ProxiedProvider(Func<IRequest, IResponseBuilder?> response)
             {
                 _Response = response;
             }
 
-            public IResponseBuilder Handle(IRequest request)
+            public IHandler Parent => throw new NotImplementedException();
+
+            public IEnumerable<ContentElement> GetContent(IRequest request)
+            {
+                throw new NotImplementedException();
+            }
+
+            public IResponse? Handle(IRequest request)
             {
                 Assert.NotEqual(request.Client, request.LocalClient);
                 Assert.NotEmpty(request.Forwardings);
@@ -129,10 +127,12 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
                 if (response != null)
                 {
-                    return response;
+                    return response.Build();
                 }
 
-                return request.Respond(ResponseStatus.InternalServerError);
+                return request.Respond()
+                              .Status(ResponseStatus.InternalServerError)
+                              .Build();
             }
 
         }
@@ -303,7 +303,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var proxy = ReverseProxy.Create()
                                     .Upstream("http://127.0.0.2");
 
-            var layout = Layout.Create().Add("_", proxy, true);
+            var layout = Layout.Create().Fallback(proxy);
 
             using var runner = TestRunner.Run(layout);
 

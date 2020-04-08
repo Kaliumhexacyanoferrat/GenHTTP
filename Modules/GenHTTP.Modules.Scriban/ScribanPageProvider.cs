@@ -4,16 +4,17 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Core.General;
 using GenHTTP.Modules.Core.Templating;
 
 namespace GenHTTP.Modules.Scriban
 {
 
-    public class ScribanPageProvider<T> : ContentProviderBase where T : PageModel
+    public class ScribanPageProvider<T> : IHandler where T : PageModel
     {
 
         #region Get-/Setters
+
+        public IHandler Parent { get; }
 
         public IResourceProvider TemplateProvider { get; }
 
@@ -21,18 +22,16 @@ namespace GenHTTP.Modules.Scriban
 
         public ScribanRenderer<T> Renderer { get; }
 
-        public override string? Title { get; }
-
-        public override FlexibleContentType? ContentType => new FlexibleContentType(Api.Protocol.ContentType.TextHtml);
-
-        protected override HashSet<FlexibleRequestMethod>? SupportedMethods => _GET_POST;
+        public string? Title { get; }
 
         #endregion
 
         #region Initialization
 
-        public ScribanPageProvider(IResourceProvider templateProvider, ModelProvider<T> modelProvider, string? title, ResponseModification? mod) : base(mod)
+        public ScribanPageProvider(IHandler parent, IResourceProvider templateProvider, ModelProvider<T> modelProvider, string? title)
         {
+            Parent = parent;
+
             TemplateProvider = templateProvider;
             ModelProvider = modelProvider;
             Title = title;
@@ -44,8 +43,10 @@ namespace GenHTTP.Modules.Scriban
 
         #region Functionality
 
-        protected override IResponseBuilder HandleInternal(IRequest request)
+        public IResponse? Handle(IRequest request)
         {
+            // ToDo: ScribanContent, make IRenderer async, RenderedContent?
+
             var model = ModelProvider(request);
 
             var content = Renderer.Render(model);
@@ -53,7 +54,13 @@ namespace GenHTTP.Modules.Scriban
             var templateModel = new TemplateModel(request, model.Title ?? Title ?? "Untitled Page", content);
 
             return request.Respond()
-                          .Content(templateModel);
+                          .Content(templateModel)
+                          .Build();
+        }
+
+        public IEnumerable<ContentElement> GetContent(IRequest request)
+        {
+            throw new System.NotImplementedException();
         }
 
         #endregion

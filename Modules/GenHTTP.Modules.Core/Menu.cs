@@ -1,4 +1,4 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Modules.Core.Websites;
 
 namespace GenHTTP.Modules.Core

@@ -3,7 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Xml.Serialization;
 
-using GenHTTP.Api.Routing;
+using GenHTTP.Api.Content;
 using GenHTTP.Modules.Core;
 using GenHTTP.Testing.Acceptance.Domain;
 
@@ -75,27 +75,27 @@ namespace GenHTTP.Testing.Acceptance.Providers
             return sitemap.Entries.Select(u => u.Loc!.Replace(":" + runner.Port, string.Empty)).ToHashSet();
         }
 
-        private IRouter GetContent()
+        private IHandlerBuilder GetContent()
         {
             var root = Layout.Create();
 
             var children = Layout.Create();
 
-            children.Add("child-index", Page.From("Child Index Page", "Child Index"), true);
-            children.Add("child-other", Page.From("Child Other Page", "Child Other"), false);
+            children.Index(Page.From("Child Index Page", "Child Index"));
+            children.File("child-other", Page.From("Child Other Page", "Child Other"));
 
             var content = Layout.Create();
 
-            content.Add("index", Page.From("Index Page", "Index"), true);
-            content.Add("other", Page.From("Other Page", "Other"), false);
+            content.Index(Page.From("Index Page", "Index"));
+            content.File("other", Page.From("Other Page", "Other"));
 
-            content.Add("children", children);
+            content.Section("children", children);
 
-            root.Add("sitemaps", Sitemap.From(content.Build()));
+            root.Section("sitemaps", Sitemap.Create());
 
-            root.Default(content);
+            root.Fallback(content);
 
-            return root.Build();
+            return root;
         }
 
     }

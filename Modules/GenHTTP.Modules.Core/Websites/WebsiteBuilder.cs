@@ -5,8 +5,6 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Websites;
 
-using GenHTTP.Api.Protocol;
-
 namespace GenHTTP.Modules.Core.Websites
 {
 

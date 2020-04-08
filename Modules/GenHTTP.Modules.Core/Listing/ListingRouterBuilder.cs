@@ -1,5 +1,5 @@
-﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Modules.Core.Listing
 {

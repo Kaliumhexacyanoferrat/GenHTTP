@@ -22,7 +22,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             try
             {
-                var layout = Layout.Create().Add("file", Download.FromFile(file));
+                var layout = Layout.Create().File("file", Download.FromFile(file));
 
                 using (var runner = TestRunner.Run(layout))
                 {
@@ -44,7 +44,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestGetDownloadFromResource()
         {
-            var layout = Layout.Create().Add("file", Download.FromResource("File.txt"));
+            var layout = Layout.Create().File("file", Download.FromResource("File.txt"));
 
             using (var runner = TestRunner.Run(layout))
             {

@@ -40,7 +40,7 @@ namespace GenHTTP.Modules.Core.Websites
 
         public List<Style> Styles => new List<Style>();
 
-        public IHandler? Resources => null;
+        public IHandlerBuilder? Resources => null;
 
         private IRenderer<WebsiteModel> Template { get; }
 
