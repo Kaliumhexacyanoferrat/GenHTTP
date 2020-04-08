@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace GenHTTP.Core.Protocol
 {
@@ -15,6 +14,7 @@ namespace GenHTTP.Core.Protocol
     internal class RequestParser
     {
         private static char[] LINE_ENDING = new char[] { '\r' };
+        private static char[] PATH_ENDING = new char[] { '\r', '?', ' ' };
 
         private RequestBuilder? _Builder;
 
@@ -113,13 +113,11 @@ namespace GenHTTP.Core.Protocol
 
             var parts = new List<string>(4);
 
-            var boundary = new char[] { '\r', '?', ' ' };
-
             string? part;
 
-            while ((part = await ReadToken(buffer, '/', boundary).ConfigureAwait(false)) != null)
+            while ((part = await ReadToken(buffer, '/', PATH_ENDING).ConfigureAwait(false)) != null)
             {
-                parts.Add(HttpUtility.UrlDecode(part));
+                parts.Add(Uri.UnescapeDataString(part));
             }
 
             // find the delimiter (either '?' or ' ')
@@ -132,7 +130,7 @@ namespace GenHTTP.Core.Protocol
                     return new WebPath(parts, true);
                 }
 
-                parts.Add(HttpUtility.UrlDecode(remainder));
+                parts.Add(Uri.UnescapeDataString(remainder));
                 return new WebPath(parts, false);
             }
 
@@ -151,12 +149,12 @@ namespace GenHTTP.Core.Protocol
 
                 foreach (Match m in Pattern.GET_PARAMETER.Matches(queryString))
                 {
-                    query[m.Groups[1].Value] = Uri.UnescapeDataString(m.Groups[2].Value.Replace('+', ' '));
+                    query[Uri.UnescapeDataString(m.Groups[1].Value)] = Uri.UnescapeDataString(m.Groups[2].Value);
                 }
 
                 if (query.Count == 0)
                 {
-                    query[queryString] = string.Empty;
+                    query[Uri.UnescapeDataString(queryString)] = string.Empty;
                 }
 
                 return query;
