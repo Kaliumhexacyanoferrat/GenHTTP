@@ -28,7 +28,7 @@ namespace GenHTTP.Api.Routing
 
         #region Functionality
 
-        public RoutingTarget Advance()
+        public void Advance()
         {
             if (Ended)
             {
@@ -36,7 +36,6 @@ namespace GenHTTP.Api.Routing
             }
             
             _Index++;
-            return this;
         }
 
         #endregion

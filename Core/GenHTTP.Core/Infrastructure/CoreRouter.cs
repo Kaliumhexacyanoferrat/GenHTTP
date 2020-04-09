@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.Core;
+using System;
+using System.Collections.Generic;
 
 namespace GenHTTP.Core.Infrastructure
 {
@@ -28,9 +25,7 @@ namespace GenHTTP.Core.Infrastructure
 
         internal CoreRouter(IHandlerBuilder content)
         {
-            Content = Website.Create()
-                             .Content(content)
-                             .Build(this); // ToDo: Sitemap & Robots
+            Content = content.Build(this);
         }
 
         #endregion

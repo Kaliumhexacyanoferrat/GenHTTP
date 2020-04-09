@@ -16,7 +16,9 @@ namespace GenHTTP.Api.Content.Websites
 
         IHandlerBuilder? Resources { get; }
 
-        IRenderer<WebsiteModel> GetRenderer();
+        IRenderer<ErrorModel> ErrorHandler { get; }
+
+        IRenderer<WebsiteModel> Renderer { get; }
 
         object? GetModel(IRequest request);
 

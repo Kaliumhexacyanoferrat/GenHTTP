@@ -48,7 +48,7 @@ namespace GenHTTP.Modules.Core.Websites
 
             var websiteModel = new WebsiteModel(model.Request, model, Theme, themeModel, menu, Scripts.GetReferences(bundle), Styles.GetReferences(bundle));
 
-            return Theme.GetRenderer().Render(websiteModel);
+            return Theme.Renderer.Render(websiteModel);
         }
 
         #endregion

@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Templating;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace GenHTTP.Modules.Core.Layouting
 {
@@ -48,41 +46,46 @@ namespace GenHTTP.Modules.Core.Layouting
 
         public IResponse? Handle(IRequest request)
         {
-            /*var segment = Api.Routing.Route.GetSegment(current.ScopedPath);
+            var current = request.Target.Current;
 
-            // is there a matching content provider?
-            if (Content.ContainsKey(segment))
+            if (current != null)
             {
-                current.Scope(this, segment);
-                current.RegisterContent(Content[segment]);
-                return;
+                // is there a matching file?
+                if (Files.ContainsKey(current))
+                {
+                    return Files[current].Handle(request);
+                }
+
+                // are there any matching routes? 
+                if (Folders.ContainsKey(current))
+                {
+                    request.Target.Advance();
+                    return Folders[current].Handle(request);
+                }
+            }
+            else
+            {
+                // force a trailing slash to prevent duplicate content
+                if (!request.Target.Path.TrailingSlash)
+                {
+                    // todo
+                }
+
+                if (Index != null)
+                {
+                    return Index.Handle(request);
+                }
             }
 
-            // are there any matching routes? 
-            if (Routes.ContainsKey(segment))
+            if (Fallback != null)
             {
-                current.Scope(this, segment);
-                Routes[segment].HandleContext(current);
-                return;
+                return Fallback.Handle(request);
             }
 
-            // route by default
-            if (string.IsNullOrEmpty(segment) && DefaultContent != null)
-            {
-                current.Scope(this);
-                current.RegisterContent(DefaultContent);
-                return;
-            }
-            else if (DefaultRouter != null)
-            {
-                current.Scope(this);
-                DefaultRouter.HandleContext(current);
-                return;
-            }
-
-            // no route found
-            current.Scope(this);*/
-
+            // not found
+            // ToDo:
+            // 1. Render error model
+            // 2. Render error html into website
             return null;
         }
 

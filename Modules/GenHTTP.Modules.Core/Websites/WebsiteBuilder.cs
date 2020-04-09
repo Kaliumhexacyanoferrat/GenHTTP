@@ -72,7 +72,7 @@ namespace GenHTTP.Modules.Core.Websites
         {
             var content = _Content ?? throw new BuilderMissingPropertyException("content");
 
-            var theme = _Theme ?? new CoreTheme();
+            var theme = _Theme ?? throw new BuilderMissingPropertyException("theme");
 
             _Styles.Theme(theme);
             _Scripts.Theme(theme);

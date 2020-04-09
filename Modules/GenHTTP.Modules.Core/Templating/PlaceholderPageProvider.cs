@@ -47,9 +47,8 @@ namespace GenHTTP.Modules.Core.Templating
 
             var templateModel = new TemplateModel(request, model.Title ?? Title ?? "Untitled Page", content);
 
-            return request.Respond()
-                          .Content(templateModel)
-                          .Build();
+            return this.Page(templateModel)
+                       .Build();
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request)

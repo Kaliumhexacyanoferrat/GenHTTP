@@ -61,23 +61,27 @@ namespace GenHTTP.Modules.Core.Websites
 
         public IResponse? Handle(IRequest request)
         {
-            /*current.Scope(this);
+            var file = request.Target.Current;
 
-            if (!current.Request.Server.Development)
+            if (file != null)
             {
-                if (current.ScopedPath.EndsWith("bundle.js"))
+                if (!request.Server.Development)
                 {
-                    current.RegisterContent(Bundle);
+                    if (file == "bundle.js")
+                    {
+                        return Bundle.Handle(request);
+                    }
+                }
+                else if (Scripts.TryGetValue(file, out Script script))
+                {
+                    return Download.From(script.Provider)
+                                   .Type(ContentType.ApplicationJavaScript)
+                                   .Build(this)
+                                   .Handle(request);
                 }
             }
-            else if (Scripts.TryGetValue(current.ScopedPath.Substring(1), out Script script))
-            {
-                current.RegisterContent(Download.From(script.Provider)
-                                                .Type(ContentType.ApplicationJavaScript)
-                                                .Build());
-            }*/
 
-            return null; // ToDo
+            return null;
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request)

@@ -4,7 +4,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Core.Templating;
+using GenHTTP.Modules.Core;
 
 namespace GenHTTP.Modules.Scriban
 {
@@ -45,17 +45,14 @@ namespace GenHTTP.Modules.Scriban
 
         public IResponse? Handle(IRequest request)
         {
-            // ToDo: ScribanContent, make IRenderer async, RenderedContent?
-
             var model = ModelProvider(request);
 
             var content = Renderer.Render(model);
 
             var templateModel = new TemplateModel(request, model.Title ?? Title ?? "Untitled Page", content);
 
-            return request.Respond()
-                          .Content(templateModel)
-                          .Build();
+            return this.Page(templateModel)
+                       .Build();
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request)

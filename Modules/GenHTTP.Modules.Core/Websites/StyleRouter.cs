@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace GenHTTP.Modules.Core.Websites
 {
@@ -60,24 +59,27 @@ namespace GenHTTP.Modules.Core.Websites
 
         public IResponse? Handle(IRequest request)
         {
-            /*
-            current.Scope(this);
+            var file = request.Target.Current;
 
-            if (!current.Request.Server.Development)
+            if (file != null)
             {
-                if (current.ScopedPath.EndsWith("bundle.css"))
+                if (!request.Server.Development)
                 {
-                    current.RegisterContent(Bundle);
+                    if (file == "bundle.css")
+                    {
+                        return Bundle.Handle(request);
+                    }
+                }
+                else if (Styles.TryGetValue(file, out Style style))
+                {
+                    return Download.From(style.Provider)
+                                   .Type(ContentType.TextCss)
+                                   .Build(this)
+                                   .Handle(request);
                 }
             }
-            else if (Styles.TryGetValue(current.ScopedPath.Substring(1), out Style style))
-            {
-                current.RegisterContent(Download.From(style.Provider)
-                                                .Type(ContentType.TextCss)
-                                                .Build());
-            }*/
 
-            return null; // ToDo
+            return null;
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request)

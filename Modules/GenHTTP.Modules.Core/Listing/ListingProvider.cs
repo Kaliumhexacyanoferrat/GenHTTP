@@ -36,19 +36,16 @@ namespace GenHTTP.Modules.Core.Listing
 
         public IResponse Handle(IRequest request)
         {
-            // var scoped = request.Routing!.ScopedPath;
-
             var info = new DirectoryInfo(Path);
 
-            var model = new ListingModel(request, info.GetDirectories(), info.GetFiles(), true); // todo: scoped != "/");
+            var model = new ListingModel(request, info.GetDirectories(), info.GetFiles(), !request.Target.Ended);
 
             var renderer = new ListingRenderer();
 
             var templateModel = new TemplateModel(request, $"Index of {request.Target.Path}", renderer.Render(model));
 
-            return request.Respond()
-                          .Content(templateModel)
-                          .Build();
+            return this.Page(templateModel)
+                       .Build();
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request)

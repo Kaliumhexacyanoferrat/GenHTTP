@@ -24,8 +24,19 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
         #region Supporting data structures
 
+        public class TestRenderer<T> : IRenderer<T> where T : class, IBaseModel
+        {
+
+            public string Render(T model)
+            {
+                return model.ToString() ?? "No Model!";
+            }
+
+        }
+
         public class Theme : ITheme
         {
+
             public List<Script> Scripts
             {
                 get { return new List<Script> { new Script("custom.js", true, Data.FromString(" ").Build()) }; }
@@ -38,15 +49,15 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             public IHandlerBuilder? Resources => Layout.Create().File("some.txt", Content.From("Text"));
 
+            public IRenderer<ErrorModel> ErrorHandler => new TestRenderer<ErrorModel>();
+
+            public IRenderer<WebsiteModel> Renderer => new TestRenderer<WebsiteModel>();
+
             public object? GetModel(IRequest request)
             {
                 return new { key = "value" };
             }
 
-            public IRenderer<WebsiteModel> GetRenderer()
-            {
-                throw new NotImplementedException();
-            }
         }
 
         #endregion
@@ -146,20 +157,6 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             Assert.Equal(HttpStatusCode.OK, file.StatusCode);
             Assert.Equal("text/xml", file.ContentType);
-        }
-
-        [Fact]
-        public void TestWebsiteContent()
-        {
-            var outer = Website.Create()
-                               .Theme(new Theme())
-                               .Content(GetWebsite());
-
-            using var runner = TestRunner.Run(outer);
-
-            using var file = runner.GetResponse("/sitemaps/sitemap.xml");
-
-            Assert.Equal(HttpStatusCode.OK, file.StatusCode);
         }
 
         [Fact]

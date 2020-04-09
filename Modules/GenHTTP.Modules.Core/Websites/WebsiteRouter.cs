@@ -1,38 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
+using System;
+using System.Collections.Generic;
 
 namespace GenHTTP.Modules.Core.Websites
 {
 
-    public class WebsiteRouter : IHandler
+    public class WebsiteRouter : IHandler, IErrorHandler, IPageRenderer
     {
 
         #region Get-/Setters
 
         public IHandler Parent { get; }
 
-        private IHandler Content { get; }
-
-        private IHandler Scripts { get; }
-
-        private IHandler Styles { get; }
-
-        private IHandler? Favicon { get; }
-
-        private IHandler? Robots { get; }
-
-        private IHandler? Sitemaps { get; }
-
         public IMenuProvider Menu { get; }
 
-        private IHandler? Resources { get; }
-
         private ITheme Theme { get; }
+
+        private IHandler Handler { get; }
+
+        private WebsiteRenderer Renderer { get; }
 
         #endregion
 
@@ -48,88 +37,64 @@ namespace GenHTTP.Modules.Core.Websites
         {
             Parent = parent;
 
-            Content = content.Build(this);
-
-            Scripts = scripts.Build(this);
-            Styles = styles.Build(this);
-
-            Sitemaps = Sitemap.Create()
-                              .Build(this);
-
-            Robots = Core.Robots.Default()
-                                .Sitemap()
-                                .Build(this);
+            var layout = Layout.Create()
+                               .Section("scripts", scripts)
+                               .Section("styles", styles)
+                               .Section("sitemaps", Sitemap.Create())
+                               .File("robots.txt", Robots.Default().Sitemap())
+                               .Fallback(content);
 
             if (favicon != null)
             {
-                Favicon = Download.From(favicon)
-                                  .Type(ContentType.ImageIcon)
-                                  .Build(this);
+                layout.File("favicon.ico", Download.From(favicon).Type(ContentType.ImageIcon));
             }
 
-            Resources = theme.Resources?.Build(this);
+            if (theme.Resources != null)
+            {
+                layout.Section("resources", theme.Resources);
+            }
+
+            Handler = layout.Build(this);
 
             Theme = theme;
 
-            Menu = menu ?? Core.Menu.From(Content).Build();
+            Menu = menu ?? Core.Menu.From(content.Build(this)).Build();
+
+            // ToDO
+            var scriptRouter = (ScriptRouter)scripts.Build(this);
+            var styleRouter = (StyleRouter)styles.Build(this);
+
+            Renderer = new WebsiteRenderer(Theme, Menu, scriptRouter, styleRouter);
         }
 
         #endregion
 
         #region Functionality
 
-        // ToDo: Proper error handling via interfaces
-
-        /*public IRenderer<TemplateModel> GetRenderer()
-        {
-            return new WebsiteRenderer(Theme, Menu, Scripts, Styles);
-        }
-
-        public IContentProvider GetErrorHandler(IRequest request, ResponseStatus responseType, Exception? cause)
-        {
-            return ErrorHandler ?? Theme.GetErrorHandler(request, responseType, cause) ?? Parent.GetErrorHandler(request, responseType, cause);
-        }*/
-
         public IResponse? Handle(IRequest request)
         {
-            /*current.Scope(this);
+            // ToDo: Error handling as a concern on the layout (can be reused everywhere ... corerouter etc.)
 
-            var segment = Api.Routing.Route.GetSegment(current.ScopedPath);
+            try
+            {
+                var response = Handler.Handle(request);
 
-            if (segment == "scripts" && !Scripts.Empty)
-            {
-                current.Scope(Scripts, segment);
-                Scripts.HandleContext(current);
-            }
-            else if (segment == "styles" && !Styles.Empty)
-            {
-                current.Scope(Styles, segment);
-                Styles.HandleContext(current);
-            }
-            else if (segment == "resources" && Resources != null)
-            {
-                current.Scope(Resources, segment);
-                Resources.HandleContext(current);
-            }
-            else if (segment == "favicon.ico" && Favicon != null)
-            {
-                current.RegisterContent(Favicon);
-            }
-            else if (segment == "robots.txt" && Robots != null)
-            {
-                current.RegisterContent(Robots);
-            }
-            else if (segment == "sitemaps" && Sitemaps != null)
-            {
-                current.Scope(Sitemaps, segment);
-                Sitemaps.HandleContext(current);
-            }
-            else
-            {
-                Content.HandleContext(current);
-            }*/
+                if (response == null)
+                {
+                    return this.NotFound(request)
+                               .Build();
+                }
 
-            return null;
+                return response;
+            }
+            catch (Exception e)
+            {
+                var model = new ErrorModel(request, ResponseStatus.InternalServerError, 
+                                           "Internal Server Error", "The server failed to handle this request.", e);
+
+                return this.Error(model)
+                           .Build();
+            }
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
@@ -173,6 +138,18 @@ namespace GenHTTP.Modules.Core.Websites
             }*/
 
             return new List<ContentElement>();
+        }
+
+        public TemplateModel Render(ErrorModel error)
+        {
+            return new TemplateModel(error.Request, error.Title ?? "Error", Theme.ErrorHandler.Render(error));
+        }
+
+        public IResponseBuilder Render(TemplateModel model)
+        {
+            return model.Request.Respond()
+                                .Content(Renderer.Render(model))
+                                .Type(ContentType.TextHtml);
         }
 
         /*public string? Route(string path, int currentDepth)
