@@ -1,7 +1,8 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.Layouting
 {
@@ -13,9 +14,7 @@ namespace GenHTTP.Modules.Core.Layouting
 
         public IHandler Parent { get; }
 
-        private Dictionary<string, IHandler> Folders { get; }
-
-        private Dictionary<string, IHandler> Files { get; }
+        private Dictionary<string, IHandler> Handlers { get; }
 
         private IHandler? Index { get; }
 
@@ -26,15 +25,13 @@ namespace GenHTTP.Modules.Core.Layouting
         #region Initialization
 
         public LayoutRouter(IHandler parent,
-                            Dictionary<string, IHandlerBuilder> folders,
-                            Dictionary<string, IHandlerBuilder> files,
+                            Dictionary<string, IHandlerBuilder> handlers,
                             IHandlerBuilder? index,
                             IHandlerBuilder? fallback)
         {
             Parent = parent;
 
-            Folders = folders.ToDictionary(kv => kv.Key, kv => kv.Value.Build(this));
-            Files = files.ToDictionary(kv => kv.Key, kv => kv.Value.Build(this));
+            Handlers = handlers.ToDictionary(kv => kv.Key, kv => kv.Value.Build(this));
 
             Index = index?.Build(this);
             Fallback = fallback?.Build(this);
@@ -50,17 +47,10 @@ namespace GenHTTP.Modules.Core.Layouting
 
             if (current != null)
             {
-                // is there a matching file?
-                if (Files.ContainsKey(current))
-                {
-                    return Files[current].Handle(request);
-                }
-
-                // are there any matching routes? 
-                if (Folders.ContainsKey(current))
+                if (Handlers.ContainsKey(current))
                 {
                     request.Target.Advance();
-                    return Folders[current].Handle(request);
+                    return Handlers[current].Handle(request);
                 }
             }
             else
@@ -82,10 +72,6 @@ namespace GenHTTP.Modules.Core.Layouting
                 return Fallback.Handle(request);
             }
 
-            // not found
-            // ToDo:
-            // 1. Render error model
-            // 2. Render error html into website
             return null;
         }
 

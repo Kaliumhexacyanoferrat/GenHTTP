@@ -1,13 +1,17 @@
-﻿using GenHTTP.Api.Infrastructure;
+﻿using System.Collections.Generic;
+
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
 
 namespace GenHTTP.Modules.Core.General
 {
 
-    public class PageProviderBuilder : IHandlerBuilder
+    public class PageProviderBuilder : IHandlerBuilder<PageProviderBuilder>
     {
         private IResourceProvider? _Content;
         private string? _Title;
+
+        private List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 
@@ -23,6 +27,12 @@ namespace GenHTTP.Modules.Core.General
             return this;
         }
 
+        public PageProviderBuilder Add(IConcernBuilder concern)
+        {
+            _Concerns.Add(concern);
+            return this;
+        }
+
         public IHandler Build(IHandler parent)
         {
             if (_Content == null)
@@ -30,7 +40,7 @@ namespace GenHTTP.Modules.Core.General
                 throw new BuilderMissingPropertyException("Content");
             }
 
-            return new PageProvider(parent, _Title, _Content);
+            return Concerns.Chain(parent, _Concerns, (p) => new PageProvider(p, _Title, _Content));
         }
 
         #endregion

@@ -8,14 +8,14 @@ namespace GenHTTP.Modules.Scriban
     public static class ModScriban
     {
 
-        public static ScribanRendererBuilder Template(IBuilder<IResourceProvider> templateProvider)
+        public static ScribanRendererBuilder<T> Template<T>(IBuilder<IResourceProvider> templateProvider) where T : class, IBaseModel
         {
-            return Template(templateProvider.Build());
+            return Template<T>(templateProvider.Build());
         }
 
-        public static ScribanRendererBuilder Template(IResourceProvider templateProvider)
+        public static ScribanRendererBuilder<T> Template<T>(IResourceProvider templateProvider) where T : class, IBaseModel
         {
-            return new ScribanRendererBuilder().TemplateProvider(templateProvider);
+            return new ScribanRendererBuilder<T>().TemplateProvider(templateProvider);
         }
 
         public static ScribanPageProviderBuilder<PageModel> Page(IBuilder<IResourceProvider> templateProvider)

@@ -61,29 +61,25 @@ namespace GenHTTP.Modules.Webservices
 
         public IResponse? Handle(IRequest request)
         {
-            // ToDo
-
-            /*current.Scope(this);
-
-            var methods = FindProviders(current.ScopedPath);
+            var methods = FindProviders(request.Target.Remaining.ToString());
 
             if (methods.Any())
             {
-                var matchingMethods = methods.Where(m => current.Request.Method.Equals(m.MetaData.RequestMethod)).ToList();
+                var matchingMethods = methods.Where(m => request.Method.Equals(m.MetaData.RequestMethod)).ToList();
 
                 if (matchingMethods.Count == 1)
                 {
-                    current.RegisterContent(matchingMethods.First());
+                    return matchingMethods.First().Handle(request);
                 }
                 else if (methods.Count > 1)
                 {
-                    throw new ProviderException(ResponseStatus.BadRequest, $"There are multiple methods matching '{current.Request.Path}'");
+                    throw new ProviderException(ResponseStatus.BadRequest, $"There are multiple methods matching '{request.Target.Path}'");
                 }
                 else
                 {
                     throw new ProviderException(ResponseStatus.MethodNotAllowed, $"There is no method of a matching request type");
                 }
-            }*/
+            }
 
             return null;
         }

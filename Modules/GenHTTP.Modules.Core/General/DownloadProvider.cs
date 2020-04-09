@@ -1,6 +1,8 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Collections.Generic;
+using System.Linq;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using System.Collections.Generic;
 
 namespace GenHTTP.Modules.Core.General
 {
@@ -34,7 +36,10 @@ namespace GenHTTP.Modules.Core.General
 
         public IResponse? Handle(IRequest request)
         {
-            // ToDo: Handle filename
+            if (!request.HasType(RequestMethod.GET, RequestMethod.HEAD))
+            {
+                return this.MethodNotAllowed(request).Build();
+            }
 
             return request.Respond()
                           .Content(ResourceProvider.GetResource())
@@ -42,10 +47,7 @@ namespace GenHTTP.Modules.Core.General
                           .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request)
-        {
-            throw new System.NotImplementedException();
-        }
+        public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();
 
         #endregion
 

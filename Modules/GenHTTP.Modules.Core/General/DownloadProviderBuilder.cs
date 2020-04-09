@@ -1,14 +1,18 @@
-﻿using GenHTTP.Api.Infrastructure;
+﻿using System.Collections.Generic;
+
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.General
 {
 
-    public class DownloadProviderBuilder : IHandlerBuilder
+    public class DownloadProviderBuilder : IHandlerBuilder<DownloadProviderBuilder>
     {
         private IResourceProvider? _ResourceProvider;
         private ContentType? _ContentType;
+
+        private List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 
@@ -24,6 +28,12 @@ namespace GenHTTP.Modules.Core.General
             return this;
         }
 
+        public DownloadProviderBuilder Add(IConcernBuilder concern)
+        {
+            _Concerns.Add(concern);
+            return this;
+        }
+
         public IHandler Build(IHandler parent)
         {
             if (_ResourceProvider == null)
@@ -36,7 +46,7 @@ namespace GenHTTP.Modules.Core.General
                 throw new BuilderMissingPropertyException("Content Type");
             }
 
-            return new DownloadProvider(parent, _ResourceProvider, new FlexibleContentType((ContentType)_ContentType));
+            return Concerns.Chain(parent, _Concerns, (p) => new DownloadProvider(p, _ResourceProvider, new FlexibleContentType((ContentType)_ContentType)));
         }
 
         #endregion

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace GenHTTP.Api.Routing
 {
@@ -14,6 +15,8 @@ namespace GenHTTP.Api.Routing
         public string? Current => (_Index < Path.Parts.Count) ? Path.Parts[_Index] : null;
 
         public bool Ended => (_Index >= Path.Parts.Count);
+
+        public WebPath Remaining => new WebPath(Path.Parts.Skip(_Index).ToList(), Path.TrailingSlash);
 
         #endregion
 

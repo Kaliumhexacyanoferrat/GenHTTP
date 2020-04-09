@@ -1,18 +1,19 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Websites;
-using System;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Collections.Generic;
-using System.Text;
+
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Websites;
 
 namespace GenHTTP.Modules.Core.Websites
 {
 
-    public class ScriptRouterBuilder : IHandlerBuilder
+    public class ScriptRouterBuilder : IHandlerBuilder<ScriptRouterBuilder>
     {
         private readonly List<Script> _Scripts = new List<Script>();
 
         private ITheme? _Theme;
+
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 
@@ -28,11 +29,17 @@ namespace GenHTTP.Modules.Core.Websites
             return this;
         }
 
+        public ScriptRouterBuilder Add(IConcernBuilder concern)
+        {
+            _Concerns.Add(concern);
+            return this;
+        }
+
         public IHandler Build(IHandler parent)
         {
             var scripts = (_Theme != null) ? _Theme.Scripts.Union(_Scripts) : _Scripts;
 
-            return new ScriptRouter(parent, scripts.ToList());
+            return Concerns.Chain(parent, _Concerns, (p) => new ScriptRouter(p, scripts.ToList()));
         }
 
         #endregion

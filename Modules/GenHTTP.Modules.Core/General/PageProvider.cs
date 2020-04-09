@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.Core;
 
 namespace GenHTTP.Modules.Core.General
 {
@@ -44,10 +43,7 @@ namespace GenHTTP.Modules.Core.General
                        .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request)
-        {
-            throw new System.NotImplementedException();
-        }
+        public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();
 
         #endregion
 

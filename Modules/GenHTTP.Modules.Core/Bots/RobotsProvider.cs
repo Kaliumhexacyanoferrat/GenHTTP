@@ -42,8 +42,6 @@ namespace GenHTTP.Modules.Core.Bots
         {
             string? sitemapUrl = null;
 
-            // Todo: route to {sitemap} ?!
-
             if (Sitemap != null)
             {
                 if (!Sitemap.StartsWith("http"))

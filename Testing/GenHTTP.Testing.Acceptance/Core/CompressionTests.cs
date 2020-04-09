@@ -11,6 +11,9 @@ namespace GenHTTP.Testing.Acceptance.Core
     public class CompressionTests
     {
 
+        // ToDo
+
+        /*
         private class CustomAlgorithm : ICompressionAlgorithm
         {
 
@@ -115,6 +118,7 @@ namespace GenHTTP.Testing.Acceptance.Core
 
             Assert.Null(response.ContentEncoding);
         }
+        */
 
     }
 

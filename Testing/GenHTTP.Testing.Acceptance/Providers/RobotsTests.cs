@@ -86,7 +86,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         private IHandlerBuilder GetTest(RobotsProviderBuilder robots)
         {
             return Layout.Create()
-                         .File("robots.txt", robots);
+                         .Add("robots.txt", robots);
         }
 
     }

@@ -1,14 +1,18 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Modules.Core.StaticContent
 {
 
-    public class EmbeddedResourcesProviderBuilder : IHandlerBuilder
+    public class EmbeddedResourcesProviderBuilder : IHandlerBuilder<EmbeddedResourcesProviderBuilder>
     {
         private Assembly? _Assembly;
         private string? _Root;
+
+        private List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 
@@ -24,6 +28,12 @@ namespace GenHTTP.Modules.Core.StaticContent
             return this;
         }
 
+        public EmbeddedResourcesProviderBuilder Add(IConcernBuilder concern)
+        {
+            _Concerns.Add(concern);
+            return this;
+        }
+
         public IHandler Build(IHandler parent)
         {
             if (_Root == null)
@@ -36,7 +46,7 @@ namespace GenHTTP.Modules.Core.StaticContent
                 _Assembly = System.Reflection.Assembly.GetCallingAssembly();
             }
 
-            return new EmbeddedResourcesProvider(parent, _Assembly, _Root);
+            return Concerns.Chain(parent, _Concerns, (p) => new EmbeddedResourcesProvider(p, _Assembly, _Root));
         }
 
         #endregion

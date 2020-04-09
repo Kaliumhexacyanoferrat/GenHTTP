@@ -61,7 +61,7 @@ namespace GenHTTP.Testing.Acceptance.Core
         {
             var provider = new TestProvider();
 
-            var layout = Layout.Create().Section("test", provider.Wrap());
+            var layout = Layout.Create().Add("test", provider.Wrap());
 
             using var runner = TestRunner.Run(layout);
 

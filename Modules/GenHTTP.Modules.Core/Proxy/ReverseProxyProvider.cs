@@ -5,6 +5,7 @@ using System.Net;
 using System.Web;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Core.General;
 
@@ -69,19 +70,13 @@ namespace GenHTTP.Modules.Core.Proxy
 
                 return GetResponse(resp, request).Build();
             }
-            catch (OperationCanceledException) // e)
+            catch (OperationCanceledException e)
             {
-                return request.Respond()
-                              .Status(ResponseStatus.GatewayTimeout)
-                              .Build();
-                // ToDo: return request.Respond(ResponseStatus.GatewayTimeout, e).Build();
+                return this.Error(new ErrorModel(request, ResponseStatus.GatewayTimeout, "Gateway Timeout", "The gateway did not respond in time.", e)).Build();
             }
-            catch (WebException) // e)
+            catch (WebException e)
             {
-                return request.Respond()
-                              .Status(ResponseStatus.BadGateway)
-                              .Build();
-                // ToDo: return request.Respond(ResponseStatus.BadGateway, e).Build();
+                return this.Error(new ErrorModel(request, ResponseStatus.BadGateway, "Bad Gateway", "Unable to retrieve a response from the gateway.", e)).Build();
             }
         }
 
@@ -121,14 +116,9 @@ namespace GenHTTP.Modules.Core.Proxy
             return req;
         }
 
-
         private string GetRequestUri(IRequest request)
         {
-            //var path = request.Routing?.ScopedPath ?? throw new InvalidOperationException("No routing context available");
-
-            //return Upstream + path + GetQueryString(request);
-
-            return string.Empty; // Todo!
+            return Upstream + request.Target.Remaining + GetQueryString(request);
         }
 
         private string GetQueryString(IRequest request)
@@ -207,21 +197,20 @@ namespace GenHTTP.Modules.Core.Proxy
 
         private string RewriteLocation(string location, IRequest request)
         {
-            return location; // ToDo!
-
-            /*if (location.StartsWith(Upstream))
+            if (location.StartsWith(Upstream))
             {
-                var routing = request.Routing ?? throw new InvalidOperationException("No routing context available");
+                var path = request.Target.Path.ToString();
+                var scoped = request.Target.Remaining.ToString();
 
                 string relativePath;
 
-                if (routing.ScopedPath != "/")
+                if (scoped != "/")
                 {
-                    relativePath = request.Path.Substring(0, request.Path.Length - routing.ScopedPath.Length);
+                    relativePath = path.Substring(0, path.Length - scoped.Length);
                 }
                 else
                 {
-                    relativePath = request.Path.Substring(1);
+                    relativePath = path.Substring(1);
                 }
 
                 var protocol = request.EndPoint.Secure ? "https://" : "http://";
@@ -229,7 +218,7 @@ namespace GenHTTP.Modules.Core.Proxy
                 return location.Replace(Upstream, protocol + request.Host + relativePath);
             }
 
-            return location;*/
+            return location;
         }
 
         private HttpWebResponse GetSafeResponse(WebRequest request)

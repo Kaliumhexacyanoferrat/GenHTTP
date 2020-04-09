@@ -24,16 +24,6 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
         #region Supporting data structures
 
-        public class TestRenderer<T> : IRenderer<T> where T : class, IBaseModel
-        {
-
-            public string Render(T model)
-            {
-                return model.ToString() ?? "No Model!";
-            }
-
-        }
-
         public class Theme : ITheme
         {
 
@@ -47,11 +37,11 @@ namespace GenHTTP.Testing.Acceptance.Providers
                 get { return new List<Style> { new Style("custom.css", Data.FromString(" ").Build()) }; }
             }
 
-            public IHandlerBuilder? Resources => Layout.Create().File("some.txt", Content.From("Text"));
+            public IHandlerBuilder? Resources => Layout.Create().Add("some.txt", Content.From("Text"));
 
-            public IRenderer<ErrorModel> ErrorHandler => new TestRenderer<ErrorModel>();
+            public IRenderer<ErrorModel> ErrorHandler => ModScriban.Template<ErrorModel>(Data.FromResource("Error.html")).Build();
 
-            public IRenderer<WebsiteModel> Renderer => new TestRenderer<WebsiteModel>();
+            public IRenderer<WebsiteModel> Renderer => ModScriban.Template<WebsiteModel>(Data.FromResource("Template.html")).Build();
 
             public object? GetModel(IRequest request)
             {
@@ -61,6 +51,23 @@ namespace GenHTTP.Testing.Acceptance.Providers
         }
 
         #endregion
+
+        [Fact]
+        public void TestErrorHandler()
+        {
+            using var runner = TestRunner.Run(GetWebsite());
+
+            using var file = runner.GetResponse("/blubb");
+
+            Assert.Equal(HttpStatusCode.NotFound, file.StatusCode);
+            Assert.Equal("text/xml", file.ContentType);
+
+            var content = file.GetContent();
+
+            Assert.Contains("This is an error!", content);
+
+            Assert.Contains("This is the template!", content);
+        }
 
         [Fact]
         public void TestDevelopmentResourcesWithoutBundle()
@@ -202,7 +209,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
                             .Index(ModScriban.Page(Data.FromString(template)));
 
             var content = Layout.Create()
-                                .Section("sub", sub);
+                                .Add("sub", sub);
 
             using var runner = TestRunner.Run(content);
 

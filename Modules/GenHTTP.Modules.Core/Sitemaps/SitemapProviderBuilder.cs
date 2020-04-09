@@ -1,19 +1,26 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Infrastructure;
+﻿using System.Collections.Generic;
 
-using GenHTTP.Modules.Core.General;
+using GenHTTP.Api.Content;
 
 namespace GenHTTP.Modules.Core.Sitemaps
 {
 
-    public class SitemapProviderBuilder : IHandlerBuilder
+    public class SitemapProviderBuilder : IHandlerBuilder<SitemapProviderBuilder>
     {
+
+        private List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 
+        public SitemapProviderBuilder Add(IConcernBuilder concern)
+        {
+            _Concerns.Add(concern);
+            return this;
+        }
+
         public IHandler Build(IHandler parent)
         {
-            return new SitemapProvider(parent);
+            return Concerns.Chain(parent, _Concerns, (p) => new SitemapProvider(p));
         }
 
         #endregion

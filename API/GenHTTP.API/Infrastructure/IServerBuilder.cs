@@ -52,29 +52,6 @@ namespace GenHTTP.Api.Infrastructure
 
         #endregion
 
-        #region Compression
-
-        /// <summary>
-        /// Registers the given compression algorithm to be used by the server.
-        /// </summary>
-        /// <param name="algorithm">The algorithm to be registered</param>
-        T Compression(IBuilder<ICompressionAlgorithm> algorithm);
-
-        /// <summary>
-        /// Registers the given compression algorithm to be used by the server.
-        /// </summary>
-        /// <param name="algorithm">The algorithm to be registered</param>
-        T Compression(ICompressionAlgorithm algorithm);
-
-        /// <summary>
-        /// Enables or disables compression for this server instance. By default,
-        /// the server will compress content using the gzip algorithm, if applicable.
-        /// </summary>
-        /// <param name="enabled">Whether compression is enabled for this server</param>
-        T Compression(bool enabled);
-
-        #endregion
-
         #region Binding
 
         /// <summary>
@@ -141,30 +118,9 @@ namespace GenHTTP.Api.Infrastructure
 
         #endregion
 
-        #region Security
+        #region Extensibility
 
-        /// <summary>
-        /// Specifies the upgrade mode used to upgrade insecure requests
-        /// to HTTPS secured endpoints.
-        /// </summary>
-        /// <param name="upgradeMode">The upgrade mode to be used</param>
-        T SecureUpgrade(SecureUpgrade upgradeMode);
-
-        /// <summary>
-        /// Configures the HSTS to be applied by the server when serving content
-        /// over secure endpoints.
-        /// </summary>
-        /// <param name="maximumAge">The maximum age of this policy</param>
-        /// <param name="includeSubdomains">Whether subdomains are included in the policy or not</param>
-        /// <param name="preload">Whether the policy is allowed to be preloaded</param>
-        T StrictTransport(TimeSpan maximumAge, bool includeSubdomains = true, bool preload = true);
-
-        /// <summary>
-        /// Enables or disables the strict transport policy (HSTS), which is
-        /// enabled by default.
-        /// </summary>
-        /// <param name="enabled">Whether the strict transport policy is enabled</param>
-        T StrictTransport(bool enabled);
+        T Add(IConcernBuilder concern);
 
         #endregion
 

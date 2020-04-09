@@ -77,7 +77,7 @@ namespace GenHTTP.Modules.Webservices
 
             var targetArguments = new object?[targetParameters.Length];
 
-            var sourceParameters = ParsedPath.Match(""); // ToDo: request.Routing!.ScopedPath
+            var sourceParameters = ParsedPath.Match(request.Target.Remaining.ToString());
 
             for (int i = 0; i < targetParameters.Length; i++)
             {

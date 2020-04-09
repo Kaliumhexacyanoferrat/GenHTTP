@@ -1,15 +1,18 @@
-﻿using GenHTTP.Api.Content;
-using System;
+﻿using System;
 using System.Collections.Generic;
+
+using GenHTTP.Api.Content;
 
 namespace GenHTTP.Modules.Core.Virtualization
 {
 
-    public class VirtualHostRouterBuilder : IHandlerBuilder
+    public class VirtualHostRouterBuilder : IHandlerBuilder<VirtualHostRouterBuilder>
     {
         private readonly Dictionary<string, IHandlerBuilder> _Hosts = new Dictionary<string, IHandlerBuilder>();
 
         private IHandlerBuilder? _DefaultRoute;
+
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 
@@ -30,9 +33,15 @@ namespace GenHTTP.Modules.Core.Virtualization
             return this;
         }
 
+        public VirtualHostRouterBuilder Add(IConcernBuilder concern)
+        {
+            _Concerns.Add(concern);
+            return this;
+        }
+
         public IHandler Build(IHandler parent)
         {
-            return new VirtualHostRouter(parent, _Hosts, _DefaultRoute);
+            return Concerns.Chain(parent, _Concerns, (p) => new VirtualHostRouter(p, _Hosts, _DefaultRoute));
         }
 
         #endregion

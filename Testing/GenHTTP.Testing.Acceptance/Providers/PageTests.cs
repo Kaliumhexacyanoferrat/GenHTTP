@@ -34,7 +34,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestStringPage()
         {
-            var layout = Layout.Create().File("page", Page.From("Hello World!"));
+            var layout = Layout.Create().Add("page", Page.From("Hello World!"));
 
             using var runner = TestRunner.Run(layout);
 
@@ -62,7 +62,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             foreach (var provider in providers)
             {
-                var layout = Layout.Create().File("page", provider);
+                var layout = Layout.Create().Add("page", provider);
 
                 using var runner = TestRunner.Run(layout);
 
@@ -87,15 +87,15 @@ namespace GenHTTP.Testing.Acceptance.Providers
             foreach (var provider in providers)
             {
                 var inner = Layout.Create()
-                                  .File("page", provider);
+                                  .Add("page", provider);
 
                 var outer = Layout.Create()
-                                  .Section("res", Layout.Create())
-                                  .Section("inner", inner);
+                                  .Add("res", Layout.Create())
+                                  .Add("inner", inner);
 
                 var layout = Layout.Create()
-                                   .Section("other", Layout.Create())
-                                   .Section("outer", outer);
+                                   .Add("other", Layout.Create())
+                                   .Add("outer", outer);
 
                 using var runner = TestRunner.Run(layout);
 

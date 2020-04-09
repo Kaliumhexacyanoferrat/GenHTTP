@@ -74,7 +74,7 @@ namespace GenHTTP.Testing.Acceptance.Core
 
             var str = "From client with ❤";
 
-            using var runner = TestRunner.Run();
+            using var runner = TestRunner.Run(recorder.Wrap());
 
             var request = runner.GetRequest();
             request.Method = "POST";

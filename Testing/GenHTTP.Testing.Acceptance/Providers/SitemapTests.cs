@@ -82,16 +82,16 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var children = Layout.Create();
 
             children.Index(Page.From("Child Index Page", "Child Index"));
-            children.File("child-other", Page.From("Child Other Page", "Child Other"));
+            children.Add("child-other", Page.From("Child Other Page", "Child Other"));
 
             var content = Layout.Create();
 
             content.Index(Page.From("Index Page", "Index"));
-            content.File("other", Page.From("Other Page", "Other"));
+            content.Add("other", Page.From("Other Page", "Other"));
 
-            content.Section("children", children);
+            content.Add("children", children);
 
-            root.Section("sitemaps", Sitemap.Create());
+            root.Add("sitemaps", Sitemap.Create());
 
             root.Fallback(content);
 

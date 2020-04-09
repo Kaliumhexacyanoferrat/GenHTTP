@@ -69,7 +69,7 @@ namespace GenHTTP.Testing.Acceptance.Core
         [Fact]
         public void TestEncodedQuery()
         {
-            using var runner = TestRunner.Run(new PathReturner().Wrap());
+            using var runner = TestRunner.Run(new QueryReturner().Wrap());
 
             using var respose = runner.GetResponse("/?söme key=💕");
 

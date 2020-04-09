@@ -32,24 +32,19 @@ namespace GenHTTP.Modules.Core.StaticContent
 
         public IResponse? Handle(IRequest request)
         {
-            // ToDo
+            var scoped = request.Target.Remaining.ToString().Substring(1);
 
-            /*current.Scope(this);
-
-            var file = Path.Combine(Directory.FullName, current.ScopedPath.Substring(1));
+            var file = Path.Combine(Directory.FullName, scoped);
 
             if (File.Exists(file))
             {
-                current.RegisterContent(Download.FromFile(file).Build());
-            }*/
+                return Download.FromFile(file)
+                               .Build(this)
+                               .Handle(request);
+            }
 
             return null;
         }
-
-        /*public override string? Route(string path, int currentDepth)
-        {
-            return Parent.Route(path, currentDepth);
-        }*/
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {

@@ -7,11 +7,13 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Core.Websites
 {
 
-    public class BundleBuilder : IHandlerBuilder
+    public class BundleBuilder : IHandlerBuilder<BundleBuilder>
     {
         private readonly List<IResourceProvider> _Items = new List<IResourceProvider>();
 
         private FlexibleContentType _ContentType = new FlexibleContentType(Api.Protocol.ContentType.ApplicationForceDownload);
+
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 
@@ -29,9 +31,15 @@ namespace GenHTTP.Modules.Core.Websites
             return this;
         }
 
+        public BundleBuilder Add(IConcernBuilder concern)
+        {
+            _Concerns.Add(concern);
+            return this;
+        }
+
         public IHandler Build(IHandler parent)
         {
-            return new BundleProvider(parent, _Items, _ContentType);
+            return Concerns.Chain(parent, _Concerns, (p) => new BundleProvider(parent, _Items, _ContentType));
         }
 
         #endregion

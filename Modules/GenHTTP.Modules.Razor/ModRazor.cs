@@ -8,14 +8,14 @@ namespace GenHTTP.Modules.Razor
     public static class ModRazor
     {
 
-        public static RazorRendererBuilder Template(IBuilder<IResourceProvider> templateProvider)
+        public static RazorRendererBuilder<T> Template<T>(IBuilder<IResourceProvider> templateProvider) where T : class, IBaseModel
         {
-            return Template(templateProvider.Build());
+            return Template<T>(templateProvider.Build());
         }
 
-        public static RazorRendererBuilder Template(IResourceProvider templateProvider)
+        public static RazorRendererBuilder<T> Template<T>(IResourceProvider templateProvider) where T : class, IBaseModel
         {
-            return new RazorRendererBuilder().TemplateProvider(templateProvider);
+            return new RazorRendererBuilder<T>().TemplateProvider(templateProvider);
         }
 
         public static RazorPageProviderBuilder<PageModel> Page(IBuilder<IResourceProvider> templateProvider)

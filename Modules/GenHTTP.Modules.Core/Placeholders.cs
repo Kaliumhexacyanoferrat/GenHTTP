@@ -10,14 +10,14 @@ namespace GenHTTP.Modules.Core
     public static class Placeholders
     {
 
-        public static PlaceholderRendererBuilder Template(IBuilder<IResourceProvider> templateProvider)
+        public static PlaceholderRendererBuilder<T> Template<T>(IBuilder<IResourceProvider> templateProvider) where T : class, IBaseModel
         {
-            return Template(templateProvider.Build());
+            return Template<T>(templateProvider.Build());
         }
 
-        public static PlaceholderRendererBuilder Template(IResourceProvider templateProvider)
+        public static PlaceholderRendererBuilder<T> Template<T>(IResourceProvider templateProvider) where T : class, IBaseModel
         {
-            return new PlaceholderRendererBuilder().TemplateProvider(templateProvider);
+            return new PlaceholderRendererBuilder<T>().TemplateProvider(templateProvider);
         }
 
         public static PlaceholderPageProviderBuilder<PageModel> Page(IBuilder<IResourceProvider> templateProvider)

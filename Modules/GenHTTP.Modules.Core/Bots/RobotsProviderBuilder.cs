@@ -5,9 +5,11 @@ using GenHTTP.Api.Content;
 namespace GenHTTP.Modules.Core.Bots
 {
 
-    public class RobotsProviderBuilder : IHandlerBuilder
+    public class RobotsProviderBuilder : IHandlerBuilder<RobotsProviderBuilder>
     {
         private readonly List<RobotsDirective> _Directives = new List<RobotsDirective>();
+
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         private string? _Sitemap;
 
@@ -40,9 +42,15 @@ namespace GenHTTP.Modules.Core.Bots
             return this;
         }
 
+        public RobotsProviderBuilder Add(IConcernBuilder concern)
+        {
+            _Concerns.Add(concern);
+            return this;
+        }
+
         public IHandler Build(IHandler parent)
         {
-            return new RobotsProvider(parent, _Directives, _Sitemap);
+            return Concerns.Chain(parent, _Concerns, (p) => new RobotsProvider(p, _Directives, _Sitemap));
         }
 
         #endregion

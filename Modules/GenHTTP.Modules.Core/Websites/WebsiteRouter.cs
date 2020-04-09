@@ -1,9 +1,9 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Collections.Generic;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
-using System;
-using System.Collections.Generic;
 
 namespace GenHTTP.Modules.Core.Websites
 {
@@ -29,6 +29,7 @@ namespace GenHTTP.Modules.Core.Websites
 
         public WebsiteRouter(IHandler parent,
                              IHandlerBuilder content,
+                             IEnumerable<IConcernBuilder> concerns,
                              IHandlerBuilder scripts,
                              IHandlerBuilder styles,
                              IResourceProvider? favicon,
@@ -38,20 +39,25 @@ namespace GenHTTP.Modules.Core.Websites
             Parent = parent;
 
             var layout = Layout.Create()
-                               .Section("scripts", scripts)
-                               .Section("styles", styles)
-                               .Section("sitemaps", Sitemap.Create())
-                               .File("robots.txt", Robots.Default().Sitemap())
+                               .Add("scripts", scripts)
+                               .Add("styles", styles)
+                               .Add("sitemaps", Sitemap.Create())
+                               .Add("robots.txt", Robots.Default().Sitemap())
                                .Fallback(content);
+
+            foreach (var concern in concerns)
+            {
+                layout.Add(concern);
+            }
 
             if (favicon != null)
             {
-                layout.File("favicon.ico", Download.From(favicon).Type(ContentType.ImageIcon));
+                layout.Add("favicon.ico", Download.From(favicon).Type(ContentType.ImageIcon));
             }
 
             if (theme.Resources != null)
             {
-                layout.Section("resources", theme.Resources);
+                layout.Add("resources", theme.Resources);
             }
 
             Handler = layout.Build(this);
@@ -71,31 +77,7 @@ namespace GenHTTP.Modules.Core.Websites
 
         #region Functionality
 
-        public IResponse? Handle(IRequest request)
-        {
-            // ToDo: Error handling as a concern on the layout (can be reused everywhere ... corerouter etc.)
-
-            try
-            {
-                var response = Handler.Handle(request);
-
-                if (response == null)
-                {
-                    return this.NotFound(request)
-                               .Build();
-                }
-
-                return response;
-            }
-            catch (Exception e)
-            {
-                var model = new ErrorModel(request, ResponseStatus.InternalServerError, 
-                                           "Internal Server Error", "The server failed to handle this request.", e);
-
-                return this.Error(model)
-                           .Build();
-            }
-        }
+        public IResponse? Handle(IRequest request) => Handler.Handle(request);
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {

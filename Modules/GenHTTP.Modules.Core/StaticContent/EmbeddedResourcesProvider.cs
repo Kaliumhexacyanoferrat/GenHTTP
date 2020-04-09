@@ -42,16 +42,12 @@ namespace GenHTTP.Modules.Core.StaticContent
 
         public IResponse? Handle(IRequest request)
         {
-            // Todo
-
-            /*current.Scope(this);
-
-            var identifier = current.ScopedPath.Replace('/', '.');
+            var identifier = request.Target.Remaining.ToString().Replace('/', '.');
 
             if (QualifiedNames.ContainsKey(identifier))
             {
-                current.RegisterContent(QualifiedNames[identifier]);
-            }*/
+                return QualifiedNames[identifier].Handle(request);
+            }
 
             return null;
         }

@@ -1,18 +1,19 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Websites;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Websites;
 
 namespace GenHTTP.Modules.Core.Websites
 {
 
-    public class StyleRouterBuilder : IHandlerBuilder
+    public class StyleRouterBuilder : IHandlerBuilder<StyleRouterBuilder>
     {
         private readonly List<Style> _Styles = new List<Style>();
 
         private ITheme? _Theme;
+
+        private List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 
@@ -25,6 +26,12 @@ namespace GenHTTP.Modules.Core.Websites
         public StyleRouterBuilder Theme(ITheme theme)
         {
             _Theme = theme;
+            return this;
+        }
+
+        public StyleRouterBuilder Add(IConcernBuilder concern)
+        {
+            _Concerns.Add(concern);
             return this;
         }
 

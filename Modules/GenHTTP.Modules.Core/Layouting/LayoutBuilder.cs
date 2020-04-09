@@ -1,18 +1,19 @@
-﻿using GenHTTP.Api.Content;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+
+using GenHTTP.Api.Content;
 
 namespace GenHTTP.Modules.Core.Layouting
 {
 
-    public class LayoutBuilder : IHandlerBuilder
+    public class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
     {
         private IHandlerBuilder? _Index, _Fallback;
 
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+
         #region Get-/Setters
 
-        private Dictionary<string, IHandlerBuilder> Folders { get; }
-
-        private Dictionary<string, IHandlerBuilder> Files { get; }
+        private Dictionary<string, IHandlerBuilder> Handlers { get; }
 
         #endregion
 
@@ -20,8 +21,7 @@ namespace GenHTTP.Modules.Core.Layouting
 
         public LayoutBuilder()
         {
-            Folders = new Dictionary<string, IHandlerBuilder>();
-            Files = new Dictionary<string, IHandlerBuilder>();
+            Handlers = new Dictionary<string, IHandlerBuilder>();
         }
 
         #endregion
@@ -40,23 +40,21 @@ namespace GenHTTP.Modules.Core.Layouting
             return this;
         }
 
-        // ToDo: Rework again into "Add" and use a specific interface for something like IDirectContent
-
-        public LayoutBuilder Section(string name, IHandlerBuilder handler)
+        public LayoutBuilder Add(string name, IHandlerBuilder handler)
         {
-            Folders.Add(name, handler);
+            Handlers.Add(name, handler);
             return this;
         }
 
-        public LayoutBuilder File(string name, IHandlerBuilder handler)
+        public LayoutBuilder Add(IConcernBuilder concern)
         {
-            Files.Add(name, handler);
+            _Concerns.Add(concern);
             return this;
         }
 
         public IHandler Build(IHandler parent)
         {
-            return new LayoutRouter(parent, Folders, Files, _Index, _Fallback);
+            return Concerns.Chain(parent, _Concerns, (p) => new LayoutRouter(p, Handlers, _Index, _Fallback));
         }
 
         #endregion

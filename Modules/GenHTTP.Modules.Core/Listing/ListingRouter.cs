@@ -43,27 +43,20 @@ namespace GenHTTP.Modules.Core.Listing
 
         public IResponse? Handle(IRequest request)
         {
-            /*current.Scope(this);
-
-            var path = Path.Combine(Info.FullName, "." + HttpUtility.UrlDecode(current.ScopedPath));
+            var path = Path.Combine(Info.FullName, "." + request.Target.Remaining);
 
             if (File.Exists(path))
             {
-                var download = Download.FromFile(path);
-
-                if (Modification != null)
-                {
-                    download.Modify(Modification);
-                }
-
-                current.RegisterContent(download.Build());
+                return Download.FromFile(path)
+                               .Build(this)
+                               .Handle(request);
             }
             else if (Directory.Exists(path))
             {
-                current.RegisterContent(new ListingProvider(path, Modification));
-            }*/
+                return new ListingProvider(this, path).Handle(request);
+            }
 
-            return null; // Todo!
+            return null;
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request)

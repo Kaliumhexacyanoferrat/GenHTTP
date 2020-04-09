@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Transactions;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
@@ -9,6 +9,16 @@ namespace GenHTTP.Modules.Core
 
     public static class HandlerExtensions
     {
+
+        public static IResponseBuilder MethodNotAllowed(this IHandler handler, IRequest request, string? title = null, string? message = null)
+        {
+            var actualTitle = title ?? "Method Not Allowed";
+            var actualMessage = message ?? "The specified resource cannot be accessed with the given HTTP verb.";
+
+            var model = new ErrorModel(request, ResponseStatus.MethodNotAllowed, actualTitle, actualMessage, null);
+
+            return handler.Error(model);
+        }
 
         public static IResponseBuilder NotFound(this IHandler handler, IRequest request, string? title = null, string? message = null)
         {
@@ -39,17 +49,20 @@ namespace GenHTTP.Modules.Core
         {
             var current = handler;
 
-            while (current != root)
+            while (true)
             {
                 if (current is T found)
                 {
                     return found;
                 }
 
+                if (current == root)
+                {
+                    return null;
+                }
+
                 current = current.Parent;
             }
-
-            return null;
         }
 
     }

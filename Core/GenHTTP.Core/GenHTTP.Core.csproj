@@ -25,6 +25,18 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     
   </PropertyGroup>
+  
+  <ItemGroup>
+    <None Remove="Resources\Error.html" />
+    <None Remove="Resources\ErrorStacked.html" />
+    <None Remove="Resources\Template.html" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ErrorStacked.html" />
+    <EmbeddedResource Include="Resources\Error.html" />
+    <EmbeddedResource Include="Resources\Template.html" />
+  </ItemGroup>
 
   <ItemGroup>
 

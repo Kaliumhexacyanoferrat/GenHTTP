@@ -13,8 +13,8 @@ namespace GenHTTP.Examples.Examples.Infrastructure
                                     .Upstream("https://genhttp.org/");
 
             return Layout.Create()
-                         .Section("exceptions", new ExceptionProviderBuilder())
-                         .Section("proxy", proxy);
+                         .Add("exceptions", new ExceptionProviderBuilder())
+                         .Add("proxy", proxy);
         }
 
     }

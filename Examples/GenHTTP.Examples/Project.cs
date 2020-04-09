@@ -18,10 +18,10 @@ namespace GenHTTP.Examples
                                   .Title("Examples");
 
             return Layout.Create()
-                         .Section("plaintext", Content.From("Hello, World!"))
-                         .Section("infrastructure", InfrastructureExamples.Create())
-                         .Section("webservice", WebserviceExamples.Create())
-                         .Section("listing", ListingExamples.Create())
+                         .Add("plaintext", Content.From("Hello, World!"))
+                         .Add("infrastructure", InfrastructureExamples.Create())
+                         .Add("webservice", WebserviceExamples.Create())
+                         .Add("listing", ListingExamples.Create())
                          .Index(index);
         }
 

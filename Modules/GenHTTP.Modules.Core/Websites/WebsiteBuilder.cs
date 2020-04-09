@@ -1,14 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Websites;
+using GenHTTP.Api.Infrastructure;
+
+using GenHTTP.Modules.Core.Errors;
 
 namespace GenHTTP.Modules.Core.Websites
 {
 
-    public class WebsiteBuilder : IHandlerBuilder
+    public class WebsiteBuilder : IHandlerBuilder<WebsiteBuilder>
     {
         private IHandlerBuilder? _Content;
 
@@ -21,6 +23,10 @@ namespace GenHTTP.Modules.Core.Websites
         private readonly StyleRouterBuilder _Styles = new StyleRouterBuilder();
 
         private readonly ScriptRouterBuilder _Scripts = new ScriptRouterBuilder();
+
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+
+        private ErrorHandlingProviderBuilder? _ErrorHandling;
 
         #region Functionality
 
@@ -68,6 +74,20 @@ namespace GenHTTP.Modules.Core.Websites
             return this;
         }
 
+        public WebsiteBuilder Add(IConcernBuilder concern)
+        {
+            if (concern is ErrorHandlingProviderBuilder errorConcern)
+            {
+                _ErrorHandling = errorConcern;
+            }
+            else
+            {
+                _Concerns.Add(concern);
+            }
+
+            return this;
+        }
+
         public IHandler Build(IHandler parent)
         {
             var content = _Content ?? throw new BuilderMissingPropertyException("content");
@@ -77,7 +97,9 @@ namespace GenHTTP.Modules.Core.Websites
             _Styles.Theme(theme);
             _Scripts.Theme(theme);
 
-            return new WebsiteRouter(parent, content, _Scripts, _Styles, _Favicon, _Menu?.Build(), theme);
+            var concerns = _Concerns.Concat(new IConcernBuilder[] { _ErrorHandling ?? ErrorHandling.Default() });
+
+            return new WebsiteRouter(parent, content, concerns, _Scripts, _Styles, _Favicon, _Menu?.Build(), theme);
         }
 
         #endregion
