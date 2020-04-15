@@ -3,6 +3,7 @@ using System.IO;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Core.StaticContent
 {
@@ -48,13 +49,16 @@ namespace GenHTTP.Modules.Core.StaticContent
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
-            // ToDo: basePath
+            var root = new List<string>(this.GetRoot(request.Server.Handler, false).Parts);
 
             foreach (var file in Directory.EnumerateFiles("*.*", SearchOption.AllDirectories))
             {
                 var childPath = Path.GetRelativePath(Directory.FullName, file.FullName);
 
-                yield return new ContentElement($"{childPath}", file.Name, file.Name.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
+                var child = new List<string>(root);
+                child.Add(childPath);
+
+                yield return new ContentElement(new WebPath(child, false), file.Name, file.Name.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
             }
         }
 

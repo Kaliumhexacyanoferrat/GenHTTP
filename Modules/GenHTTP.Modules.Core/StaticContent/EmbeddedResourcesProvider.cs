@@ -5,6 +5,8 @@ using System.Linq;
 
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Routing;
+using System.Xml.Schema;
 
 namespace GenHTTP.Modules.Core.StaticContent
 {
@@ -59,10 +61,13 @@ namespace GenHTTP.Modules.Core.StaticContent
                 var slashPath = qn.Key.Replace('.', '/');
                 var fileName = Path.GetFileName(slashPath);
 
-                yield return new ContentElement(slashPath, fileName, fileName.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
+                var path = new List<string>(this.GetRoot(request.Server.Handler, false).Parts);
+                path.Add(slashPath);
+
+                yield return new ContentElement(new WebPath(path, false), fileName, fileName.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
             }
         }
-        
+
         #endregion
 
     }

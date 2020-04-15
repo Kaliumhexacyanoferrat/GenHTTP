@@ -1,12 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Web;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.Core.Templating;
 
 namespace GenHTTP.Modules.Core.Listing
 {
@@ -42,16 +39,15 @@ namespace GenHTTP.Modules.Core.Listing
 
             var renderer = new ListingRenderer();
 
-            var templateModel = new TemplateModel(request, $"Index of {request.Target.Path}", renderer.Render(model));
+            var templateModel = new TemplateModel(request, GetTitle(request), renderer.Render(model));
 
             return this.Page(templateModel)
                        .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request)
-        {
-            throw new System.NotImplementedException();
-        }
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, GetTitle(request), ContentType.TextHtml);
+
+        private string GetTitle(IRequest request) => $"Index of {request.Target.Path}";
 
         #endregion
 

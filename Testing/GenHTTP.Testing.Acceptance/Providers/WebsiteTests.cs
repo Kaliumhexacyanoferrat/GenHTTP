@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
 
 using GenHTTP.Api.Content;
@@ -60,7 +59,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var file = runner.GetResponse("/blubb");
 
             Assert.Equal(HttpStatusCode.NotFound, file.StatusCode);
-            Assert.Equal("text/xml", file.ContentType);
+            Assert.Equal("text/html", file.ContentType);
 
             var content = file.GetContent();
 
@@ -160,7 +159,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             using var runner = TestRunner.Run(GetWebsite());
 
-            using var file = runner.GetResponse("/sitemaps/sitemap.xml");
+            using var file = runner.GetResponse("/sitemap.xml");
 
             Assert.Equal(HttpStatusCode.OK, file.StatusCode);
             Assert.Equal("text/xml", file.ContentType);

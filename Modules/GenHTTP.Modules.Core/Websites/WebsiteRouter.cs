@@ -41,7 +41,7 @@ namespace GenHTTP.Modules.Core.Websites
             var layout = Layout.Create()
                                .Add("scripts", scripts)
                                .Add("styles", styles)
-                               .Add("sitemaps", Sitemap.Create())
+                               .Add("sitemap.xml", Sitemap.Create())
                                .Add("robots.txt", Robots.Default().Sitemap())
                                .Fallback(content);
 
@@ -79,48 +79,7 @@ namespace GenHTTP.Modules.Core.Websites
 
         public IResponse? Handle(IRequest request) => Handler.Handle(request);
 
-        public IEnumerable<ContentElement> GetContent(IRequest request)
-        {
-            /*foreach (var script in Scripts.GetContent(request, $"{basePath}scripts/"))
-            {
-                yield return script;
-            }
-
-            foreach (var style in Styles.GetContent(request, $"{basePath}styles/"))
-            {
-                yield return style;
-            }
-
-            foreach (var resource in Styles.GetContent(request, $"{basePath}resources/"))
-            {
-                yield return resource;
-            }
-
-            if (Favicon != null)
-            {
-                yield return new ContentElement($"{basePath}favicon.ico", "Favicon", ContentType.ImageIcon, null);
-            }
-
-            if (Robots != null)
-            {
-                yield return new ContentElement($"{basePath}robots.txt", "Robots Instruction File", ContentType.TextPlain, null);
-            }
-
-            if (Sitemaps != null)
-            {
-                foreach (var sitemap in Sitemaps.GetContent(request, $"{basePath}sitemaps/"))
-                {
-                    yield return sitemap;
-                }
-            }
-
-            foreach (var content in Content.GetContent(request, basePath))
-            {
-                yield return content;
-            }*/
-
-            return new List<ContentElement>();
-        }
+        public IEnumerable<ContentElement> GetContent(IRequest request) => Handler.GetContent(request);
 
         public TemplateModel Render(ErrorModel error)
         {

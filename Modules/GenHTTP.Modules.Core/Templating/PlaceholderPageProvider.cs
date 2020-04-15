@@ -51,10 +51,7 @@ namespace GenHTTP.Modules.Core.Templating
                        .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request)
-        {
-            throw new System.NotImplementedException();
-        }
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Title ?? "Untitled Page", ContentType.TextHtml);
 
         #endregion
 

@@ -3,11 +3,12 @@ using System.Linq;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Core.Layouting
 {
 
-    public class LayoutRouter : IHandler
+    public class LayoutRouter : IHandler, IRootPathAppender
     {
 
         #region Get-/Setters
@@ -77,44 +78,47 @@ namespace GenHTTP.Modules.Core.Layouting
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
-            throw new System.NotImplementedException();
+            var result = new List<ContentElement>();
+
+            if (Index != null)
+            {
+                result.AddRange(Index.GetContent(request));
+            }
+
+            if (Fallback != null)
+            {
+                result.AddRange(Fallback.GetContent(request));
+            }
+
+            foreach (var handler in Handlers.Values)
+            {
+                result.AddRange(handler.GetContent(request));
+            }
+
+            return result;
         }
 
-        /*public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
+        public void Append(PathBuilder builder, IHandler? child = null)
         {
-            foreach (var route in Routes)
+            if (child != null)
             {
-                var childPath = $"{basePath}{route.Key}/";
-
-                foreach (var child in route.Value.GetContent(request, childPath))
+                if (child == Index)
                 {
-                    yield return child;
+                    builder.TrailingSlash(true);
+                }
+                else
+                {
+                    foreach (var entry in Handlers)
+                    {
+                        if (entry.Value == child)
+                        {
+                            builder.Preprend(entry.Key);
+                            break;
+                        }
+                    }
                 }
             }
-
-            foreach (var content in Content)
-            {
-                if (content.Value != DefaultContent)
-                {
-                    var childPath = $"{basePath}{content.Key}";
-
-                    yield return new ContentElement(childPath, content.Value.Title ?? content.Key, content.Value.ContentType, null);
-                }
-            }
-
-            if (DefaultRouter != null)
-            {
-                foreach (var content in DefaultRouter.GetContent(request, basePath))
-                {
-                    yield return content;
-                }
-            }
-
-            if (DefaultContent != null)
-            {
-                yield return new ContentElement(basePath, DefaultContent?.Title ?? "Index", DefaultContent?.ContentType, null);
-            }
-        }*/
+        }
 
         /*public override string? Route(string path, int currentDepth)
         {

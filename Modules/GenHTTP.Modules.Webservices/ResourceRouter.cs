@@ -6,6 +6,7 @@ using System.Reflection;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Routing;
 using GenHTTP.Modules.Core;
 
 namespace GenHTTP.Modules.Webservices
@@ -96,12 +97,23 @@ namespace GenHTTP.Modules.Webservices
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
-            // ToDo: basepath
             foreach (var method in Methods.Where(m => m.MetaData.RequestMethod == RequestMethod.GET))
             {
-                var path = method.MetaData.Path ?? "/";
+                var parts = new List<string>(this.GetRoot(request.Server.Handler, false).Parts);
 
-                yield return new ContentElement($"{path}", Path.GetFileName(path), path.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
+                WebPath path;
+
+                if (method.MetaData.Path == null)
+                {
+                    path = new WebPath(parts, true);
+                }
+                else
+                {
+                    parts.Add(method.MetaData.Path);
+                    path = new WebPath(parts, false);
+                }
+
+                yield return new ContentElement(path, Path.GetFileName(path.ToString()), path.ToString().GuessContentType() ?? ContentType.ApplicationForceDownload, null);
             }
         }
 

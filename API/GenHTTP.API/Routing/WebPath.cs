@@ -34,8 +34,6 @@ namespace GenHTTP.Api.Routing
 
         #region Initialization
 
-        // ToDo: UrlDecode!!
-
         public WebPath(IReadOnlyList<string> parts, bool trailingSlash)
         {
             Parts = parts;

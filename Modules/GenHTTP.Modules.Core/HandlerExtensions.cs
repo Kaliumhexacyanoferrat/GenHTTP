@@ -1,8 +1,10 @@
 ﻿using System;
-using System.Transactions;
+using System.Collections.Generic;
+using System.Runtime.InteropServices.ComTypes;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Core
 {
@@ -63,6 +65,47 @@ namespace GenHTTP.Modules.Core
 
                 current = current.Parent;
             }
+        }
+
+        public static WebPath GetRoot(this IHandler handler, IHandler root, bool trailingSlash)
+        {
+            var path = new PathBuilder(trailingSlash);
+
+            var current = handler;
+
+            IHandler? child = null;
+
+            while (true)
+            {
+                if (current is IRootPathAppender appender)
+                {
+                    appender.Append(path, child);
+                }
+
+                if (current == root)
+                {
+                    return path.Build();
+                }
+
+                child = current;
+                current = current.Parent;
+            }
+        }
+
+        public static IEnumerable<ContentElement> GetContent(this IHandler handler, IRequest request, string title, ContentType contentType)
+        {
+            return new List<ContentElement>()
+            {
+                new ContentElement(GetRoot(handler, request.Server.Handler, false), title, contentType, null)
+            };
+        }
+        
+        public static IEnumerable<ContentElement> GetContent(this IHandler handler, IRequest request, string title, FlexibleContentType contentType)
+        {
+            return new List<ContentElement>()
+            {
+                new ContentElement(GetRoot(handler, request.Server.Handler, false), title, contentType, null)
+            };
         }
 
     }

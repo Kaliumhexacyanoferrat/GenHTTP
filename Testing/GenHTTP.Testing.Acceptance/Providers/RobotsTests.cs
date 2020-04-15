@@ -53,7 +53,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var result = GetRobots(runner);
 
-            Assert.Contains("Sitemap: http://localhost/sitemaps/sitemap.xml", result);
+            Assert.Contains("Sitemap: http://localhost/sitemap.xml", result);
         }
 
         [Fact]

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Api.Content
 {
@@ -10,7 +11,7 @@ namespace GenHTTP.Api.Content
 
         #region Get-/Setters
 
-        public string Path { get; }
+        public WebPath Path { get; }
 
         public IEnumerable<ContentElement>? Children { get; }
 
@@ -24,10 +25,10 @@ namespace GenHTTP.Api.Content
 
         #region Initialization
 
-        public ContentElement(string path, string title, ContentType contentType, IEnumerable<ContentElement>? children = null)
+        public ContentElement(WebPath path, string title, ContentType contentType, IEnumerable<ContentElement>? children = null)
             : this(path, title, new FlexibleContentType(contentType), children) { }
 
-        public ContentElement(string path, string title, FlexibleContentType? contentType, IEnumerable<ContentElement>? children = null)
+        public ContentElement(WebPath path, string title, FlexibleContentType? contentType, IEnumerable<ContentElement>? children = null)
         {
             Path = path;
             Title = title;

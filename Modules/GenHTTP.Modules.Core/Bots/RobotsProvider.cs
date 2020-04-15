@@ -33,11 +33,6 @@ namespace GenHTTP.Modules.Core.Bots
 
         #region Functionality
 
-        public IEnumerable<ContentElement> GetContent(IRequest request)
-        {
-            throw new System.NotImplementedException();
-        }
-
         public IResponse? Handle(IRequest request)
         {
             string? sitemapUrl = null;
@@ -63,6 +58,8 @@ namespace GenHTTP.Modules.Core.Bots
                           .Content(new RobotsContent(Directives, sitemapUrl))
                           .Build();
         }
+
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, "Robots Instruction File", ContentType.TextPlain);
 
         #endregion
 

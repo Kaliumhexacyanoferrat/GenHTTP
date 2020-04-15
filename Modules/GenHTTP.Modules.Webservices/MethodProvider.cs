@@ -218,7 +218,8 @@ namespace GenHTTP.Modules.Webservices
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
-            throw new NotImplementedException();
+            // ToDo
+            return new List<ContentElement>();
         }
 
         #endregion

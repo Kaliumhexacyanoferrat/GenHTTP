@@ -43,7 +43,7 @@ namespace GenHTTP.Modules.Core.General
                        .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Title ?? "Untitled Page", ContentType.TextHtml);
 
         #endregion
 

@@ -1,9 +1,10 @@
-﻿using GenHTTP.Api.Content;
+﻿using System;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Core.General;
-using System;
 
 namespace GenHTTP.Core.Protocol
 {

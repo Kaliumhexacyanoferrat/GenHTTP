@@ -24,9 +24,7 @@ namespace GenHTTP.Modules.Core.Sitemaps
 
         public IResponse Handle(IRequest request)
         {
-            // ToDo: Handle file requests ("sitemap.xml")
-
-            var baseUri = $"{request.Client.Protocol.ToString().ToLower()}://{request.Host}/";
+            var baseUri = $"{request.Client.Protocol.ToString().ToLower()}://{request.Host}";
 
             var elements = new List<ContentElement>();
 
@@ -36,14 +34,14 @@ namespace GenHTTP.Modules.Core.Sitemaps
             }
 
             return request.Respond()
-                          .Content(new SitemapContent(elements))
+                          .Content(new SitemapContent(baseUri, elements))
                           .Type(ContentType.TextXml)
                           .Build();
         }
 
         private void Flatten(ContentElement item, List<ContentElement> into)
         {
-            if (item.ContentType?.KnownType == Api.Protocol.ContentType.TextHtml)
+            if (item.ContentType?.KnownType == ContentType.TextHtml)
             {
                 into.Add(item);
             }
@@ -57,10 +55,7 @@ namespace GenHTTP.Modules.Core.Sitemaps
             }
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request)
-        {
-            yield return new ContentElement("sitemap.xml", "Sitemap", ContentType.TextXml);
-        }
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, "Sitemap", ContentType.TextXml);
 
         #endregion
 

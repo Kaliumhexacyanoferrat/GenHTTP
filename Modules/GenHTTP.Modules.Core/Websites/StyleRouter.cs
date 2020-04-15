@@ -1,8 +1,10 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Collections.Generic;
+using System.Linq;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
-using System.Collections.Generic;
-using System.Linq;
+using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Core.Websites
 {
@@ -84,8 +86,15 @@ namespace GenHTTP.Modules.Core.Websites
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
-            // ToDo: Basepath
-            return Styles.Values.Select(s => new ContentElement($"{s.Name}", s.Name, ContentType.TextCss, null));
+            var path = this.GetRoot(request.Server.Handler, false);
+
+            return Styles.Values.Select(s =>
+            {
+                var childPath = new List<string>(path.Parts);
+                childPath.Add(s.Name);
+
+                return new ContentElement(new WebPath(childPath, false), s.Name, ContentType.TextCss, null);
+            });
         }
 
         #endregion

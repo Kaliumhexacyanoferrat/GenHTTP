@@ -52,23 +52,11 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.Equal(4, sitemap.Count);
         }
 
-        [Fact]
-        public void TestNotFounds()
-        {
-            using var runner = TestRunner.Run(GetContent());
-
-            using var indexResponse = runner.GetResponse("/sitemaps/");
-            Assert.Equal(HttpStatusCode.NotFound, indexResponse.StatusCode);
-
-            using var fileResponse = runner.GetResponse("/sitemaps/some.txt");
-            Assert.Equal(HttpStatusCode.NotFound, fileResponse.StatusCode);
-        }
-
         private HashSet<string> GetSitemap(TestRunner runner)
         {
             var serializer = new XmlSerializer(typeof(UrlSet));
 
-            using var response = runner.GetResponse("/sitemaps/sitemap.xml");
+            using var response = runner.GetResponse("/sitemap.xml");
 
             var sitemap = (UrlSet)serializer.Deserialize(response.GetResponseStream());
 
@@ -91,7 +79,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             content.Add("children", children);
 
-            root.Add("sitemaps", Sitemap.Create());
+            root.Add("sitemap.xml", Sitemap.Create());
 
             root.Fallback(content);
 
