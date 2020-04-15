@@ -102,7 +102,7 @@ namespace GenHTTP.Core.Protocol
             await Write(Server.Version).ConfigureAwait(false);
             await Write(NL).ConfigureAwait(false);
 
-            await WriteHeaderLine("Date", DateHeader.Value).ConfigureAwait(false);
+            await WriteHeaderLine("Date", DateTime.UtcNow.ToString("r")).ConfigureAwait(false);
 
             await WriteHeaderLine("Connection", (keepAlive) ? "Keep-Alive" : "Close").ConfigureAwait(false);
 
