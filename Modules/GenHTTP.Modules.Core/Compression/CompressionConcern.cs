@@ -11,7 +11,7 @@ using GenHTTP.Api.Routing;
 namespace GenHTTP.Modules.Core.Compression
 {
 
-    public class RequestCompression : IConcern
+    public class CompressionConcern : IConcern
     {
 
         #region Get-/Setters
@@ -26,10 +26,10 @@ namespace GenHTTP.Modules.Core.Compression
 
         #region Initialization
 
-        public RequestCompression(IHandler parent, IHandler content, IReadOnlyDictionary<string, ICompressionAlgorithm> algorithms)
+        public CompressionConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, IReadOnlyDictionary<string, ICompressionAlgorithm> algorithms)
         {
             Parent = parent;
-            Content = content;
+            Content = contentFactory(this);
 
             Algorithms = algorithms;
         }

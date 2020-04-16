@@ -1,6 +1,8 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
+﻿using System;
 using System.Collections.Generic;
+
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.Security
 {
@@ -23,10 +25,10 @@ namespace GenHTTP.Modules.Core.Security
 
         #region Initialization
 
-        public StrictTransportConcern(IHandler parent, IHandler content, StrictTransportPolicy policy)
+        public StrictTransportConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, StrictTransportPolicy policy)
         {
-            Parent = Parent;
-            Content = Content;
+            Parent = parent;
+            Content = contentFactory(this);
 
             Policy = policy;
             HeaderValue = GetPolicyHeader();
@@ -73,10 +75,7 @@ namespace GenHTTP.Modules.Core.Security
             return result;
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request)
-        {
-            return Parent.GetContent(request);
-        }
+        public IEnumerable<ContentElement> GetContent(IRequest request) => Content.GetContent(request);
 
         #endregion
 

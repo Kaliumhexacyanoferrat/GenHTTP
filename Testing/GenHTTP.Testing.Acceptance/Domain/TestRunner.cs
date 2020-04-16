@@ -29,13 +29,18 @@ namespace GenHTTP.Testing.Acceptance.Domain
             HttpWebRequest.DefaultCachePolicy = new HttpRequestCachePolicy(HttpRequestCacheLevel.NoCacheNoStore);
         }
 
-        public TestRunner()
+        public TestRunner(bool defaults = false)
         {
             Port = NextPort();
 
             Host = GenHTTP.Core.Host.Create()
                                     .Handler(Layout.Create())
                                     .Port(Port);
+
+            if (defaults)
+            {
+                Host.Defaults();
+            }
         }
 
         public static ushort NextPort()
@@ -46,20 +51,20 @@ namespace GenHTTP.Testing.Acceptance.Domain
             }
         }
 
-        public static TestRunner Run()
+        public static TestRunner Run(bool defaults = true)
         {
-            var runner = new TestRunner();
+            var runner = new TestRunner(defaults);
 
             runner.Host.Start();
 
             return runner;
         }
 
-        public static TestRunner Run(IHandler handler) => Run(handler.Wrap());
+        public static TestRunner Run(IHandler handler, bool defaults = true) => Run(handler.Wrap(), defaults);
 
-        public static TestRunner Run(IHandlerBuilder handlerBuilder)
+        public static TestRunner Run(IHandlerBuilder handlerBuilder, bool defaults = true)
         {
-            var runner = new TestRunner();
+            var runner = new TestRunner(defaults);
 
             runner.Host.Handler(handlerBuilder).Start();
 

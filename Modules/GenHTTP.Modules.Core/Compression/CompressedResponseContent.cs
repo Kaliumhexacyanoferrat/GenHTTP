@@ -7,7 +7,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Core.Compression
 {
 
-    public class CompressedContent : IResponseContent, IDisposable
+    public class CompressedResponseContent : IResponseContent, IDisposable
     {
 
         #region Get-/Setters
@@ -22,7 +22,7 @@ namespace GenHTTP.Modules.Core.Compression
 
         #region Initialization
 
-        public CompressedContent(IResponseContent originalContent, Func<Stream, Stream> generator)
+        public CompressedResponseContent(IResponseContent originalContent, Func<Stream, Stream> generator)
         {
             OriginalContent = originalContent;
             Generator = generator;
@@ -61,7 +61,7 @@ namespace GenHTTP.Modules.Core.Compression
             }
         }
 
-        ~CompressedContent()
+        ~CompressedResponseContent()
         {
             Dispose(false);
         }

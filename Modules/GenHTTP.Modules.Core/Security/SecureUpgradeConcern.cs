@@ -24,10 +24,10 @@ namespace GenHTTP.Modules.Core.Security
 
         #region Initialization
 
-        public SecureUpgradeConcern(IHandler parent, IHandler content, SecureUpgrade mode)
+        public SecureUpgradeConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, SecureUpgrade mode)
         {
             Parent = parent;
-            Content = content;
+            Content = contentFactory(this);
 
             Mode = mode;
         }
@@ -36,37 +36,37 @@ namespace GenHTTP.Modules.Core.Security
 
         #region Functionality
 
-        public IEnumerable<ContentElement> GetContent(IRequest request)
-        {
-            return Content.GetContent(request);
-        }
-
         public IResponse? Handle(IRequest request)
         {
             if (!request.EndPoint.Secure)
             {
-                if (Mode == SecureUpgrade.Force)
+                var endpoints = request.Server.EndPoints.Where(e => e.Secure)
+                                                        .ToList();
+
+                if (endpoints.Count > 0)
                 {
-                    // todo: inefficient?
-                    return Redirect.To(GetRedirectLocation(request))
-                                   .Build(this)
-                                   .Handle(request);
-                }
-                else if (Mode == SecureUpgrade.Allow)
-                {
-                    if (request.Method.KnownMethod == RequestMethod.GET)
+                    if (Mode == SecureUpgrade.Force)
                     {
-                        if (request.Headers.TryGetValue("Upgrade-Insecure-Requests", out var flag))
+                        return Redirect.To(GetRedirectLocation(request, endpoints))
+                                       .Build(this)
+                                       .Handle(request);
+                    }
+                    else if (Mode == SecureUpgrade.Allow)
+                    {
+                        if (request.Method.KnownMethod == RequestMethod.GET)
                         {
-                            if (flag == "1")
+                            if (request.Headers.TryGetValue("Upgrade-Insecure-Requests", out var flag))
                             {
-                                var response = Redirect.To(GetRedirectLocation(request), true)
-                                                       .Build(this)
-                                                       .Handle(request)!;
+                                if (flag == "1")
+                                {
+                                    var response = Redirect.To(GetRedirectLocation(request, endpoints), true)
+                                                           .Build(this)
+                                                           .Handle(request)!;
 
-                                response.Headers.Add("Vary", "Upgrade-Insecure-Requests");
+                                    response.Headers.Add("Vary", "Upgrade-Insecure-Requests");
 
-                                return response;
+                                    return response;
+                                }
                             }
                         }
                     }
@@ -76,21 +76,19 @@ namespace GenHTTP.Modules.Core.Security
             return Content.Handle(request);
         }
 
-        private string GetRedirectLocation(IRequest request)
+        private string GetRedirectLocation(IRequest request, List<IEndPoint> endPoints)
         {
-            var targetPort = GetTargetPort(request);
+            var targetPort = GetTargetPort(request, endPoints);
 
             var port = (targetPort == 443) ? string.Empty : $":{targetPort}";
 
-            return $"https://{request.HostWithoutPort()}{port}{request.Target}";
+            return $"https://{request.HostWithoutPort()}{port}{request.Target.Path}";
         }
 
-        private ushort GetTargetPort(IRequest request)
+        private ushort GetTargetPort(IRequest request, List<IEndPoint> endPoints)
         {
-            var endpoints = request.Server.EndPoints.Where(e => e.Secure).ToList();
-
             // this extension can only be added if there are secure endpoints available
-            if (endpoints.Count == 0)
+            if (endPoints.Count == 0)
             {
                 throw new NotSupportedException("No secure endpoints available");
             }
@@ -98,20 +96,22 @@ namespace GenHTTP.Modules.Core.Security
             // if there is a correlated port, use this one
             var correlated = (ushort)(request.EndPoint.Port + (443 - 80));
 
-            if (endpoints.Any(e => e.Port == correlated))
+            if (endPoints.Any(e => e.Port == correlated))
             {
                 return correlated;
             }
 
             // default to 443, if available
-            if (endpoints.Any(e => e.Port == 443))
+            if (endPoints.Any(e => e.Port == 443))
             {
                 return 443;
             }
 
             // use the first secure endpoint
-            return endpoints.First().Port;
+            return endPoints.First().Port;
         }
+
+        public IEnumerable<ContentElement> GetContent(IRequest request) => Content.GetContent(request);
 
         #endregion
 
