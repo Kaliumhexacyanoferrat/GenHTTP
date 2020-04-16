@@ -27,6 +27,11 @@ namespace GenHTTP.Api.Content.Templating
         /// </summary>
         public IRequest Request { get; }
 
+        /// <summary>
+        /// The handler responsible to render the response.
+        /// </summary>
+        public IHandler Handler { get; }
+
         #endregion
 
         #region Initialization
@@ -35,14 +40,16 @@ namespace GenHTTP.Api.Content.Templating
         /// Creates a new model instance.
         /// </summary>
         /// <param name="request">The request which caused this call</param>
+        /// <param name="handler">The handler responsible to render the response</param>
         /// <param name="title">The title to be rendered within the template</param>
         /// <param name="content">The content to be rendered within the template</param>
-        public TemplateModel(IRequest request, string title, string content)
+        public TemplateModel(IRequest request, IHandler handler, string title, string content)
         {
             Title = title;
             Content = content;
 
             Request = request;
+            Handler = handler;
         }
 
         #endregion

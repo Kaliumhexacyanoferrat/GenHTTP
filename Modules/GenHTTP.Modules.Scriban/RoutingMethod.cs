@@ -4,6 +4,9 @@ using Scriban;
 using Scriban.Runtime;
 using Scriban.Syntax;
 
+using GenHTTP.Api.Content.Templating;
+using GenHTTP.Modules.Core;
+
 namespace GenHTTP.Modules.Scriban
 {
 
@@ -12,13 +15,15 @@ namespace GenHTTP.Modules.Scriban
 
         #region Get-/Setters
 
+        private IBaseModel Model { get; }
+
         #endregion
 
         #region Initialization
 
-        public RoutingMethod()
+        public RoutingMethod(IBaseModel model)
         {
-
+            Model = model;
         }
 
         #endregion
@@ -28,8 +33,7 @@ namespace GenHTTP.Modules.Scriban
         public object Invoke(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
         {
             var route = (string)arguments[0];
-            // ToDo: return Context?.Route(route) ?? "";
-            return "";
+            return Model.Handler.Route(Model.Request, route) ?? "";
         }
 
         public ValueTask<object> InvokeAsync(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)

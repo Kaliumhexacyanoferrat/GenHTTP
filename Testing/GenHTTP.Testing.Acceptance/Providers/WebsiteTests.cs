@@ -197,7 +197,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var template = @"script = {{ route 'scripts/s.js' }}
                              style = {{ route 'styles/s.css' }}
                              resource = {{ route 'resources/r.txt' }}
-                             sitemap = {{ route 'sitemaps/s.xml' }}
+                             sitemap = {{ route 'sitemap.xml' }}
                              favicon = {{ route 'favicon.ico' }}
                              robots = {{ route 'robots.txt' }}
                              root = {{ route '{root}' }}
@@ -210,7 +210,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var content = Layout.Create()
                                 .Add("sub", sub);
 
-            using var runner = TestRunner.Run(content);
+            using var runner = TestRunner.Run(GetWebsite(content));
 
             using var response = runner.GetResponse("/sub/");
 
@@ -220,7 +220,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.Contains("style = ../styles/s.css", result);
             Assert.Contains("resource = ../resources/r.txt", result);
 
-            Assert.Contains("sitemap = ../sitemaps/s.xml", result);
+            Assert.Contains("sitemap = ../sitemap.xml", result);
             Assert.Contains("favicon = ../favicon.ico", result);
             Assert.Contains("robots = ../robots.txt", result);
 

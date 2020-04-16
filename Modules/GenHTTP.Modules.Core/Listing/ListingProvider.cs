@@ -35,11 +35,11 @@ namespace GenHTTP.Modules.Core.Listing
         {
             var info = new DirectoryInfo(Path);
 
-            var model = new ListingModel(request, info.GetDirectories(), info.GetFiles(), !request.Target.Ended);
+            var model = new ListingModel(request, this, info.GetDirectories(), info.GetFiles(), !request.Target.Ended);
 
             var renderer = new ListingRenderer();
 
-            var templateModel = new TemplateModel(request, GetTitle(request), renderer.Render(model));
+            var templateModel = new TemplateModel(request, this, GetTitle(request), renderer.Render(model));
 
             return this.Page(templateModel)
                        .Build();

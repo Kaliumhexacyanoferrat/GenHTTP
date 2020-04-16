@@ -41,11 +41,11 @@ namespace GenHTTP.Modules.Core.Templating
         {
             var renderer = new PlaceholderRender<T>(TemplateProvider);
 
-            var model = ModelProvider(request);
+            var model = ModelProvider(request, this);
 
             var content = renderer.Render(model);
 
-            var templateModel = new TemplateModel(request, model.Title ?? Title ?? "Untitled Page", content);
+            var templateModel = new TemplateModel(request, this, model.Title ?? Title ?? "Untitled Page", content);
 
             return this.Page(templateModel)
                        .Build();

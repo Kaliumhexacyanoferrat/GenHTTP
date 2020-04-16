@@ -15,6 +15,11 @@ namespace GenHTTP.Api.Content.Templating
         /// </summary>
         IRequest Request { get; }
 
+        /// <summary>
+        /// The handler responsible for the current rendering call.
+        /// </summary>
+        IHandler Handler { get; }
+
     }
 
 }

@@ -80,9 +80,8 @@ namespace GenHTTP.Testing.Acceptance.Modules
             [Method("enum")]
             public TestEnum Enum(TestEnum input) => input;
 
-            // ToDo!
-            //[Method("route")]
-            //public string? Route(IRequest request) => request.Routing!.Route("enum");
+            [Method("request")]
+            public string? Request(IHandler handler, IRequest request) => "yes";
 
         }
 
@@ -186,7 +185,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
         [Fact]
         public void TestRouting()
         {
-            WithResponse("route", r => Assert.Equal("./enum", r.GetContent()));
+            WithResponse("request", r => Assert.Equal("yes", r.GetContent()));
         }
 
         [Fact]

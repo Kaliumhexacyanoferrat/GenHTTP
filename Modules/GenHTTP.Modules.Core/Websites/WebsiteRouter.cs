@@ -4,11 +4,12 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Core.Websites
 {
 
-    public class WebsiteRouter : IHandler, IErrorHandler, IPageRenderer
+    public class WebsiteRouter : IHandler, IErrorHandler, IPageRenderer, IHandlerResolver
     {
 
         #region Get-/Setters
@@ -66,7 +67,7 @@ namespace GenHTTP.Modules.Core.Websites
 
             Menu = menu ?? Core.Menu.From(content.Build(this)).Build();
 
-            // ToDO
+            // ToDo
             var scriptRouter = (ScriptRouter)scripts.Build(this);
             var styleRouter = (StyleRouter)styles.Build(this);
 
@@ -83,7 +84,7 @@ namespace GenHTTP.Modules.Core.Websites
 
         public TemplateModel Render(ErrorModel error)
         {
-            return new TemplateModel(error.Request, error.Title ?? "Error", Theme.ErrorHandler.Render(error));
+            return new TemplateModel(error.Request, this, error.Title ?? "Error", Theme.ErrorHandler.Render(error));
         }
 
         public IResponseBuilder Render(TemplateModel model)
@@ -93,27 +94,15 @@ namespace GenHTTP.Modules.Core.Websites
                                 .Type(ContentType.TextHtml);
         }
 
-        /*public string? Route(string path, int currentDepth)
+        public IHandler? Find(string segment)
         {
-            var segment = Api.Routing.Route.GetSegment(path);
-
-            if (segment == "scripts" || segment == "styles" || segment == "resources" || segment == "sitemaps" || segment == "favicon.ico" || segment == "robots.txt")
+            if (segment == "{root}" || segment == "{website}")
             {
-                return Api.Routing.Route.GetRelation(currentDepth - 1) + path;
+                return this;
             }
 
-            if (segment == "{root}")
-            {
-                if (path != segment)
-                {
-                    return Api.Routing.Route.GetRelation(currentDepth - 1) + path.Substring(segment.Length + 1);
-                }
-
-                return Api.Routing.Route.GetRelation(currentDepth - 1);
-            }
-
-            return Parent.Route(path, currentDepth);
-        }*/
+            return null;
+        }
 
         #endregion
 

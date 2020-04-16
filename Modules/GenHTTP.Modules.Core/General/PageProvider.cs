@@ -37,7 +37,7 @@ namespace GenHTTP.Modules.Core.General
 
         public IResponse? Handle(IRequest request)
         {
-            var templateModel = new TemplateModel(request, Title ?? "Untitled Page", Content.GetResourceAsString());
+            var templateModel = new TemplateModel(request, this, Title ?? "Untitled Page", Content.GetResourceAsString());
 
             return this.Page(templateModel)
                        .Build();

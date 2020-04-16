@@ -19,6 +19,8 @@ namespace GenHTTP.Api.Content.Websites
 
         public IRequest Request { get; }
 
+        public IHandler Handler { get; }
+
         public ITheme Theme { get; }
 
         public object? Model { get; }
@@ -30,6 +32,7 @@ namespace GenHTTP.Api.Content.Websites
         #region Initialization
 
         public WebsiteModel(IRequest request,
+                            IHandler handler,
                             TemplateModel content,
                             ITheme theme,
                             object? themeModel,
@@ -38,6 +41,7 @@ namespace GenHTTP.Api.Content.Websites
                             List<StyleReference> styles)
         {
             Request = request;
+            Handler = handler;
 
             Content = content;
             Scripts = scripts;

@@ -27,7 +27,7 @@ namespace GenHTTP.Modules.Core
 
         public static PlaceholderPageProviderBuilder<PageModel> Page(IResourceProvider templateProvider)
         {
-            return new PlaceholderPageProviderBuilder<PageModel>().Template(templateProvider).Model(r => new PageModel(r));
+            return new PlaceholderPageProviderBuilder<PageModel>().Template(templateProvider).Model((r, h) => new PageModel(r, h));
         }
 
         public static PlaceholderPageProviderBuilder<T> Page<T>(IBuilder<IResourceProvider> templateProvider, ModelProvider<T> modelProvider) where T : PageModel

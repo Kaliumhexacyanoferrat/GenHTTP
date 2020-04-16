@@ -8,7 +8,8 @@ namespace GenHTTP.Api.Content.Templating
     /// </summary>
     /// <typeparam name="T">The type of model to be returned</typeparam>
     /// <param name="request">The current request</param>
+    /// <param name="handler">The handler responsible for this request</param>
     /// <returns>The newly created model instance</returns>
-    public delegate T ModelProvider<out T>(IRequest request);
+    public delegate T ModelProvider<out T>(IRequest request, IHandler handler);
 
 }

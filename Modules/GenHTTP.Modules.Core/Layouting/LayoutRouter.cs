@@ -8,7 +8,7 @@ using GenHTTP.Api.Routing;
 namespace GenHTTP.Modules.Core.Layouting
 {
 
-    public class LayoutRouter : IHandler, IRootPathAppender
+    public class LayoutRouter : IHandler, IRootPathAppender, IHandlerResolver
     {
 
         #region Get-/Setters
@@ -120,24 +120,25 @@ namespace GenHTTP.Modules.Core.Layouting
             }
         }
 
-        /*public override string? Route(string path, int currentDepth)
+        public IHandler? Find(string segment)
         {
-            var segment = Api.Routing.Route.GetSegment(path);
-
-            if (Content.ContainsKey(segment) || Routes.ContainsKey(segment))
+            if (Handlers.ContainsKey(segment))
             {
-                var indexRoute = Content.FirstOrDefault(kv => kv.Key == segment);
-
-                if ((DefaultContent != null) && (DefaultContent == indexRoute.Value))
-                {
-                    return Api.Routing.Route.GetRelation(currentDepth);
-                }
-
-                return Api.Routing.Route.GetRelation(currentDepth) + path;
+                return Handlers[segment];
             }
 
-            return Parent.Route(path, currentDepth + 1);
-        }*/
+            if ((Index != null) && (segment == "{index}"))
+            {
+                return Index;
+            }
+
+            if ((Fallback != null) && (segment == "{fallback}"))
+            {
+                return Fallback;
+            }
+
+            return null;
+        }
 
         #endregion
 

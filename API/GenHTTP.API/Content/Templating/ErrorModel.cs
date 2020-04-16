@@ -22,7 +22,7 @@ namespace GenHTTP.Api.Content.Templating
 
         #region Initialization
 
-        public ErrorModel(IRequest request, ResponseStatus status, string title, string message, Exception? cause) : base(request)
+        public ErrorModel(IRequest request, IHandler handler, ResponseStatus status, string title, string message, Exception? cause) : base(request, handler)
         {
             Status = status;
             DevelopmentMode = request.Server.Development;

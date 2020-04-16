@@ -50,14 +50,14 @@ namespace GenHTTP.Modules.Core.Errors
             }
             catch (ProviderException e)
             {
-                var model = new ErrorModel(request, e.Status, e.Status.ToString(), e.Message, e);
+                var model = new ErrorModel(request, this, e.Status, e.Status.ToString(), e.Message, e);
 
                 return this.Error(model)
                            .Build();
             }
             catch (Exception e)
             {
-                var model = new ErrorModel(request, ResponseStatus.InternalServerError,
+                var model = new ErrorModel(request, this, ResponseStatus.InternalServerError,
                                            "Internal Server Error", "The server failed to handle this request.", e);
 
                 return this.Error(model)

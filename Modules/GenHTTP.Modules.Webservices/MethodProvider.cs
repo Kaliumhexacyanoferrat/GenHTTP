@@ -83,10 +83,17 @@ namespace GenHTTP.Modules.Webservices
             {
                 var par = targetParameters[i];
 
-                // is this the request?
+                // request
                 if (par.ParameterType == typeof(IRequest))
                 {
                     targetArguments[i] = request;
+                    continue;
+                }
+
+                // handler
+                if (par.ParameterType == typeof(IHandler))
+                {
+                    targetArguments[i] = this;
                     continue;
                 }
 

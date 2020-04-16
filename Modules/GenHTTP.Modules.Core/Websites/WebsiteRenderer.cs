@@ -46,7 +46,7 @@ namespace GenHTTP.Modules.Core.Websites
 
             var bundle = !model.Request.Server.Development;
 
-            var websiteModel = new WebsiteModel(model.Request, model, Theme, themeModel, menu, Scripts.GetReferences(bundle), Styles.GetReferences(bundle));
+            var websiteModel = new WebsiteModel(model.Request, model.Handler, model, Theme, themeModel, menu, Scripts.GetReferences(bundle), Styles.GetReferences(bundle));
 
             return Theme.Renderer.Render(websiteModel);
         }

@@ -72,11 +72,11 @@ namespace GenHTTP.Modules.Core.Proxy
             }
             catch (OperationCanceledException e)
             {
-                return this.Error(new ErrorModel(request, ResponseStatus.GatewayTimeout, "Gateway Timeout", "The gateway did not respond in time.", e)).Build();
+                return this.Error(new ErrorModel(request, this, ResponseStatus.GatewayTimeout, "Gateway Timeout", "The gateway did not respond in time.", e)).Build();
             }
             catch (WebException e)
             {
-                return this.Error(new ErrorModel(request, ResponseStatus.BadGateway, "Bad Gateway", "Unable to retrieve a response from the gateway.", e)).Build();
+                return this.Error(new ErrorModel(request, this, ResponseStatus.BadGateway, "Bad Gateway", "Unable to retrieve a response from the gateway.", e)).Build();
             }
         }
 

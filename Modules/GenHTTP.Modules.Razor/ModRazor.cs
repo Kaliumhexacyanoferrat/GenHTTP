@@ -25,7 +25,7 @@ namespace GenHTTP.Modules.Razor
 
         public static RazorPageProviderBuilder<PageModel> Page(IResourceProvider templateProvider)
         {
-            return new RazorPageProviderBuilder<PageModel>().Template(templateProvider).Model(r => new PageModel(r));
+            return new RazorPageProviderBuilder<PageModel>().Template(templateProvider).Model((r, h) => new PageModel(r, h));
         }
 
         public static RazorPageProviderBuilder<T> Page<T>(IBuilder<IResourceProvider> templateProvider, ModelProvider<T> modelProvider) where T : PageModel

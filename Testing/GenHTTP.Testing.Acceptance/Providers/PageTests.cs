@@ -22,7 +22,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
         public string World => "World";
 
-        public CustomModel(IRequest request) : base(request) { }
+        public CustomModel(IRequest request, IHandler handler) : base(request, handler) { }
 
     }
 
@@ -51,7 +51,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestRendering()
         {
-            ModelProvider<CustomModel> modelProvider = (r) => new CustomModel(r);
+            ModelProvider<CustomModel> modelProvider = (r, h) => new CustomModel(r, h);
 
             var providers = new List<IHandlerBuilder>()
             {
@@ -81,7 +81,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var providers = new List<IHandlerBuilder>()
             {
                 ModScriban.Page(Data.FromString("{{ route 'https://google.de' }}|{{ route 'res/123' }}|{{ route 'other/456/' }}|{{ route './relative' }}")),
-                ModRazor.Page(Data.FromString("@Model.Request.Routing.Route(\"https://google.de\")|@Model.Request.Routing.Route(\"res/123\")|@Model.Request.Routing.Route(\"other/456/\")|@Model.Request.Routing.Route(\"./relative\")")),
+                ModRazor.Page(Data.FromString("@Model.Route(\"https://google.de\")|@Model.Route(\"res/123\")|@Model.Route(\"other/456/\")|@Model.Route(\"./relative\")")),
             };
 
             foreach (var provider in providers)

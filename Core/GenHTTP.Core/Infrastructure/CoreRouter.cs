@@ -58,7 +58,7 @@ namespace GenHTTP.Core.Infrastructure
 
         public TemplateModel Render(ErrorModel error)
         {
-            return new TemplateModel(error.Request, error.Title ?? "Error", ErrorRenderer.Render(error));
+            return new TemplateModel(error.Request, error.Handler, error.Title ?? "Error", ErrorRenderer.Render(error));
         }
 
         public IResponseBuilder Render(TemplateModel model)

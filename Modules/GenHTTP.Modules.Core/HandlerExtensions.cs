@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.ComTypes;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
@@ -17,7 +17,7 @@ namespace GenHTTP.Modules.Core
             var actualTitle = title ?? "Method Not Allowed";
             var actualMessage = message ?? "The specified resource cannot be accessed with the given HTTP verb.";
 
-            var model = new ErrorModel(request, ResponseStatus.MethodNotAllowed, actualTitle, actualMessage, null);
+            var model = new ErrorModel(request, handler, ResponseStatus.MethodNotAllowed, actualTitle, actualMessage, null);
 
             return handler.Error(model);
         }
@@ -27,7 +27,7 @@ namespace GenHTTP.Modules.Core
             var actualTitle = title ?? "Not Found";
             var actualMessage = message ?? "The specified resource could not be found on this server.";
 
-            var model = new ErrorModel(request, ResponseStatus.NotFound, actualTitle, actualMessage, null);
+            var model = new ErrorModel(request, handler, ResponseStatus.NotFound, actualTitle, actualMessage, null);
 
             return handler.Error(model);
         }
@@ -99,13 +99,77 @@ namespace GenHTTP.Modules.Core
                 new ContentElement(GetRoot(handler, request.Server.Handler, false), title, contentType, null)
             };
         }
-        
+
         public static IEnumerable<ContentElement> GetContent(this IHandler handler, IRequest request, string title, FlexibleContentType contentType)
         {
             return new List<ContentElement>()
             {
                 new ContentElement(GetRoot(handler, request.Server.Handler, false), title, contentType, null)
             };
+        }
+
+        public static string? Route(this IHandler handler, IRequest request, string route)
+        {
+            if (route.StartsWith(".") || route.StartsWith('/') || route.StartsWith("http"))
+            {
+                return route;
+            }
+
+            if (route != null)
+            {
+                var root = request.Server.Handler;
+
+                var parts = route.Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+
+                if (parts.Length > 0)
+                {
+                    var target = parts[0];
+
+                    foreach (var resolver in FindParents<IHandlerResolver>(handler, root))
+                    {
+                        var responsible = resolver.Find(target);
+
+                        if (responsible != null)
+                        {
+                            var targetParts = new List<string>(responsible.GetRoot(root, false).Parts);
+
+                            for (int i = 1; i < parts.Length; i++)
+                            {
+                                targetParts.Add(parts[i]);
+                            }
+
+                            var targetPath = new WebPath(targetParts, route.EndsWith('/'));
+
+                            return request.Target.Path.RelativeTo(targetPath);
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        public static IEnumerable<T> FindParents<T>(this IHandler handler, IHandler root)
+        {
+            var current = handler;
+
+            IHandler? child = null;
+
+            while (true)
+            {
+                if (current is T found)
+                {
+                    yield return found;
+                }
+
+                if (current == root)
+                {
+                    break;
+                }
+
+                child = current;
+                current = current.Parent;
+            }
         }
 
     }

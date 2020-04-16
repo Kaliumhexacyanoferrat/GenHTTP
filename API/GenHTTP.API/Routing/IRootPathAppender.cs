@@ -1,6 +1,6 @@
-﻿using GenHTTP.Api.Routing;
+﻿using GenHTTP.Api.Content;
 
-namespace GenHTTP.Api.Content
+namespace GenHTTP.Api.Routing
 {
     
     public interface IRootPathAppender

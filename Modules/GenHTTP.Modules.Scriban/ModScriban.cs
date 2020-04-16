@@ -25,7 +25,7 @@ namespace GenHTTP.Modules.Scriban
 
         public static ScribanPageProviderBuilder<PageModel> Page(IResourceProvider templateProvider)
         {
-            return new ScribanPageProviderBuilder<PageModel>().Template(templateProvider).Model(r => new PageModel(r));
+            return new ScribanPageProviderBuilder<PageModel>().Template(templateProvider).Model((r, h) => new PageModel(r, h));
         }
 
         public static ScribanPageProviderBuilder<T> Page<T>(IBuilder<IResourceProvider> templateProvider, ModelProvider<T> modelProvider) where T : PageModel
