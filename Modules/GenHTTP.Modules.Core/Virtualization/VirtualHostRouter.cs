@@ -2,7 +2,6 @@
 using System.Linq;
 
 using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.Virtualization
@@ -41,11 +40,6 @@ namespace GenHTTP.Modules.Core.Virtualization
         {
             return GetRouter(request)?.Handle(request);
         }
-
-        /*public override string? Route(string path, int currentDepth)
-        {
-            return Parent.Route(path, currentDepth);
-        }*/
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {

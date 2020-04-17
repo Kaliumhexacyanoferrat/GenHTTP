@@ -10,7 +10,7 @@ namespace GenHTTP.Modules.Core.Listing
     {
         private string? _Directory;
 
-        private List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 

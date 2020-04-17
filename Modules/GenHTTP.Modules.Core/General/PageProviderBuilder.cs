@@ -11,7 +11,7 @@ namespace GenHTTP.Modules.Core.General
         private IResourceProvider? _Content;
         private string? _Title;
 
-        private List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 

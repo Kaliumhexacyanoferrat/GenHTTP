@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text.RegularExpressions;
@@ -77,7 +78,7 @@ namespace GenHTTP.Modules.Webservices
 
             var targetArguments = new object?[targetParameters.Length];
 
-            var sourceParameters = ParsedPath.Match(request.Target.Remaining.ToString());
+            var sourceParameters = ParsedPath.Match(request.Target.GetRemaining().ToString());
 
             for (int i = 0; i < targetParameters.Length; i++)
             {
@@ -223,11 +224,7 @@ namespace GenHTTP.Modules.Webservices
             }
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request)
-        {
-            // ToDo
-            return new List<ContentElement>();
-        }
+        public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();
 
         #endregion
 

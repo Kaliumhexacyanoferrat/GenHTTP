@@ -1,5 +1,4 @@
-﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Core.Sitemaps;
+﻿using GenHTTP.Modules.Core.Sitemaps;
 
 namespace GenHTTP.Modules.Core
 {

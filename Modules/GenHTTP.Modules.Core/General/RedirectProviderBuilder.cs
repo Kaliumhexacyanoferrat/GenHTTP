@@ -12,7 +12,7 @@ namespace GenHTTP.Modules.Core.General
 
         private string? _Location;
 
-        private List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 

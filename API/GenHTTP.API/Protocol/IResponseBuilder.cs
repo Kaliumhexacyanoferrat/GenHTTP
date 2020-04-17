@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 
 using GenHTTP.Api.Infrastructure;
 
@@ -68,7 +67,7 @@ namespace GenHTTP.Api.Protocol
         /// </summary>
         /// <param name="contentType">The content type of this response</param>
         IResponseBuilder Type(FlexibleContentType contentType);
-                
+
         /// <summary>
         /// Specifies the length of the content stream, if known.
         /// </summary>

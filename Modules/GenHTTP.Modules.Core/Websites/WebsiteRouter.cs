@@ -67,7 +67,6 @@ namespace GenHTTP.Modules.Core.Websites
 
             Menu = menu ?? Core.Menu.From(content.Build(this)).Build();
 
-            // ToDo
             var scriptRouter = (ScriptRouter)scripts.Build(this);
             var styleRouter = (StyleRouter)styles.Build(this);
 

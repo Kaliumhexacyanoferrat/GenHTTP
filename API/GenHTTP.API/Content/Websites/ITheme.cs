@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;

@@ -6,7 +6,6 @@ using System.Linq;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Routing;
-using System.Xml.Schema;
 
 namespace GenHTTP.Modules.Core.StaticContent
 {
@@ -44,7 +43,7 @@ namespace GenHTTP.Modules.Core.StaticContent
 
         public IResponse? Handle(IRequest request)
         {
-            var identifier = request.Target.Remaining.ToString().Replace('/', '.');
+            var identifier = request.Target.GetRemaining().ToString().Replace('/', '.');
 
             if (QualifiedNames.ContainsKey(identifier))
             {

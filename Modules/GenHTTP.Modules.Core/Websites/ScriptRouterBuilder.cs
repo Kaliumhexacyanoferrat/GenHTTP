@@ -23,15 +23,15 @@ namespace GenHTTP.Modules.Core.Websites
             return this;
         }
 
-        public ScriptRouterBuilder Theme(ITheme theme)
-        {
-            _Theme = theme;
-            return this;
-        }
-
         public ScriptRouterBuilder Add(IConcernBuilder concern)
         {
             _Concerns.Add(concern);
+            return this;
+        }
+
+        public ScriptRouterBuilder Theme(ITheme theme)
+        {
+            _Theme = theme;
             return this;
         }
 

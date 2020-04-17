@@ -108,15 +108,15 @@ namespace GenHTTP.Modules.Core
             };
         }
 
-        public static string? Route(this IHandler handler, IRequest request, string route)
+        public static string? Route(this IHandler handler, IRequest request, string? route)
         {
-            if (route.StartsWith(".") || route.StartsWith('/') || route.StartsWith("http"))
-            {
-                return route;
-            }
-
             if (route != null)
             {
+                if (route.StartsWith(".") || route.StartsWith('/') || route.StartsWith("http"))
+                {
+                    return route;
+                }
+
                 var root = request.Server.Handler;
 
                 var parts = route.Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
@@ -153,8 +153,6 @@ namespace GenHTTP.Modules.Core
         {
             var current = handler;
 
-            IHandler? child = null;
-
             while (true)
             {
                 if (current is T found)
@@ -167,7 +165,6 @@ namespace GenHTTP.Modules.Core
                     break;
                 }
 
-                child = current;
                 current = current.Parent;
             }
         }

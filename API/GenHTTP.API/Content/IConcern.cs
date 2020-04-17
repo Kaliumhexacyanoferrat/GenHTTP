@@ -1,9 +1,4 @@
-﻿using GenHTTP.Api.Content;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GenHTTP.Api.Content
+﻿namespace GenHTTP.Api.Content
 {
 
     public interface IConcern : IHandler

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 
-using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
@@ -23,17 +22,17 @@ namespace GenHTTP.Modules.Core.Websites
             return this;
         }
 
+        public BundleBuilder Add(IConcernBuilder concern)
+        {
+            _Concerns.Add(concern);
+            return this;
+        }
+
         public BundleBuilder ContentType(ContentType type) => ContentType(new FlexibleContentType(type));
 
         public BundleBuilder ContentType(FlexibleContentType type)
         {
             _ContentType = type;
-            return this;
-        }
-
-        public BundleBuilder Add(IConcernBuilder concern)
-        {
-            _Concerns.Add(concern);
             return this;
         }
 

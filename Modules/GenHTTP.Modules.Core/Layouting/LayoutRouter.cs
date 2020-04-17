@@ -59,7 +59,9 @@ namespace GenHTTP.Modules.Core.Layouting
                 // force a trailing slash to prevent duplicate content
                 if (!request.Target.Path.TrailingSlash)
                 {
-                    // todo
+                    return Redirect.To(request, $"{request.Target.Path}/", false)
+                                   .Build(this)
+                                   .Handle(request);
                 }
 
                 if (Index != null)
@@ -98,13 +100,13 @@ namespace GenHTTP.Modules.Core.Layouting
             return result;
         }
 
-        public void Append(PathBuilder builder, IHandler? child = null)
+        public void Append(PathBuilder path, IHandler? child = null)
         {
             if (child != null)
             {
                 if (child == Index)
                 {
-                    builder.TrailingSlash(true);
+                    path.TrailingSlash(true);
                 }
                 else
                 {
@@ -112,7 +114,7 @@ namespace GenHTTP.Modules.Core.Layouting
                     {
                         if (entry.Value == child)
                         {
-                            builder.Preprend(entry.Key);
+                            path.Preprend(entry.Key);
                             break;
                         }
                     }

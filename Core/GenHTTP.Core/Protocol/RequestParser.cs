@@ -139,8 +139,6 @@ namespace GenHTTP.Core.Protocol
 
         private async ValueTask<RequestQuery?> TryReadQuery(RequestBuffer buffer)
         {
-            // ToDo: This should be done using the parser instead of string operations
-
             var queryString = await ReadToken(buffer, ' ');
 
             if (queryString?.Length > 0)

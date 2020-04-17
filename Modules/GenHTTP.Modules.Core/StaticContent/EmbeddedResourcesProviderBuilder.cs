@@ -12,7 +12,7 @@ namespace GenHTTP.Modules.Core.StaticContent
         private Assembly? _Assembly;
         private string? _Root;
 
-        private List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 

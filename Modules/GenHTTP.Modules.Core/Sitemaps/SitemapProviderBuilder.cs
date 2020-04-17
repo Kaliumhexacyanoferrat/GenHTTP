@@ -7,8 +7,7 @@ namespace GenHTTP.Modules.Core.Sitemaps
 
     public class SitemapProviderBuilder : IHandlerBuilder<SitemapProviderBuilder>
     {
-
-        private List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 

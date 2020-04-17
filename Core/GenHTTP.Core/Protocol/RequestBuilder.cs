@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Net;
-using System.Text.RegularExpressions;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
@@ -97,31 +96,6 @@ namespace GenHTTP.Core.Protocol
 
         public RequestBuilder Path(WebPath path)
         {
-            // ToDo: Propery Query parsing!
-
-            /*var index = path.IndexOf('?');
-
-            if (index > -1)
-            {
-                _Path = path.Substring(0, index);
-
-                var query = (path.Length > index) ? path.Substring(index + 1) : "";
-
-                foreach (Match m in Pattern.GET_PARAMETER.Matches(query))
-                {
-                    Query[m.Groups[1].Value] = Uri.UnescapeDataString(m.Groups[2].Value.Replace('+', ' '));
-                }
-
-                if (Query.Count == 0)
-                {
-                    Query[query] = string.Empty;
-                }
-            }
-            else
-            {
-                _Path = path;
-            }*/
-
             _Target = new RoutingTarget(path);
             return this;
         }

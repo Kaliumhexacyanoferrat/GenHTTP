@@ -51,6 +51,29 @@ namespace GenHTTP.Testing.Acceptance.Routing
             }
         }
 
+        /// <summary>
+        /// As the developer of a web application, I don't want my application
+        /// to produce duplicate content for missing trailing slashes.
+        /// </summary>
+        [Fact]
+        public void TestRedirect()
+        {
+            var layout = Layout.Create()
+                               .Add("section", Layout.Create().Index(Content.From("Hello World!")));
+
+            using var runner = TestRunner.Run(layout);
+
+            using var response = runner.GetResponse("/section/");
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal("Hello World!", response.GetContent());
+
+            using var redirected = runner.GetResponse("/section");
+
+            Assert.Equal(HttpStatusCode.MovedPermanently, redirected.StatusCode);
+            Assert.EndsWith("/section/", redirected.Headers["Location"]);
+        }
+
     }
 
 }

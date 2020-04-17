@@ -7,7 +7,6 @@ using System.Web;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core.Proxy
 {
@@ -118,7 +117,7 @@ namespace GenHTTP.Modules.Core.Proxy
 
         private string GetRequestUri(IRequest request)
         {
-            return Upstream + request.Target.Remaining + GetQueryString(request);
+            return Upstream + request.Target.GetRemaining() + GetQueryString(request);
         }
 
         private string GetQueryString(IRequest request)
@@ -200,7 +199,7 @@ namespace GenHTTP.Modules.Core.Proxy
             if (location.StartsWith(Upstream))
             {
                 var path = request.Target.Path.ToString();
-                var scoped = request.Target.Remaining.ToString();
+                var scoped = request.Target.GetRemaining().ToString();
 
                 string relativePath;
 

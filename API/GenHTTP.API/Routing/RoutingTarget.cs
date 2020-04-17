@@ -16,8 +16,6 @@ namespace GenHTTP.Api.Routing
 
         public bool Ended => (_Index >= Path.Parts.Count);
 
-        public WebPath Remaining => new WebPath(Path.Parts.Skip(_Index).ToList(), Path.TrailingSlash);
-
         #endregion
 
         #region Initialization
@@ -40,6 +38,8 @@ namespace GenHTTP.Api.Routing
             
             _Index++;
         }
+
+        public WebPath GetRemaining() => new WebPath(Path.Parts.Skip(_Index).ToList(), Path.TrailingSlash);
 
         #endregion
 

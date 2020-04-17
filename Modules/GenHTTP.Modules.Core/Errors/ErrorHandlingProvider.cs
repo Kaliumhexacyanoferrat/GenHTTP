@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Core.Errors
 {

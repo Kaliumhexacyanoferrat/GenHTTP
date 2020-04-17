@@ -62,7 +62,7 @@ namespace GenHTTP.Modules.Webservices
 
         public IResponse? Handle(IRequest request)
         {
-            var methods = FindProviders(request.Target.Remaining.ToString());
+            var methods = FindProviders(request.Target.GetRemaining().ToString());
 
             if (methods.Any())
             {
@@ -84,16 +84,6 @@ namespace GenHTTP.Modules.Webservices
 
             return null;
         }
-
-        /*public override string? Route(string path, int currentDepth)
-        {
-            if (FindProviders($"/{path}").Any())
-            {
-                return Api.Routing.Route.GetRelation(currentDepth) + path;
-            }
-
-            return Parent.Route(path, currentDepth + 1);
-        }*/
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {

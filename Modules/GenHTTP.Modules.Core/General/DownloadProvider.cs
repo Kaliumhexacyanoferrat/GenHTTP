@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Core.General
 {

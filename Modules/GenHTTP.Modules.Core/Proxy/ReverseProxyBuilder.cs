@@ -14,7 +14,7 @@ namespace GenHTTP.Modules.Core.Proxy
         private TimeSpan _ConnectTimeout = TimeSpan.FromSeconds(10);
         private TimeSpan _ReadTimeout = TimeSpan.FromSeconds(60);
 
-        private List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 

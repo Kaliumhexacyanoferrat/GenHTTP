@@ -13,7 +13,7 @@ namespace GenHTTP.Modules.Core.Websites
 
         private ITheme? _Theme;
 
-        private List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 
@@ -23,15 +23,15 @@ namespace GenHTTP.Modules.Core.Websites
             return this;
         }
 
-        public StyleRouterBuilder Theme(ITheme theme)
-        {
-            _Theme = theme;
-            return this;
-        }
-
         public StyleRouterBuilder Add(IConcernBuilder concern)
         {
             _Concerns.Add(concern);
+            return this;
+        }
+
+        public StyleRouterBuilder Theme(ITheme theme)
+        {
+            _Theme = theme;
             return this;
         }
 

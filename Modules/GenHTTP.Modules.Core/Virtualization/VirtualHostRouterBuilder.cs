@@ -27,15 +27,15 @@ namespace GenHTTP.Modules.Core.Virtualization
             return this;
         }
 
-        public VirtualHostRouterBuilder Default(IHandlerBuilder handler)
-        {
-            _DefaultRoute = handler;
-            return this;
-        }
-
         public VirtualHostRouterBuilder Add(IConcernBuilder concern)
         {
             _Concerns.Add(concern);
+            return this;
+        }
+
+        public VirtualHostRouterBuilder Default(IHandlerBuilder handler)
+        {
+            _DefaultRoute = handler;
             return this;
         }
 

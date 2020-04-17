@@ -33,7 +33,7 @@ namespace GenHTTP.Modules.Core.StaticContent
 
         public IResponse? Handle(IRequest request)
         {
-            var scoped = request.Target.Remaining.ToString().Substring(1);
+            var scoped = request.Target.GetRemaining().ToString().Substring(1);
 
             var file = Path.Combine(Directory.FullName, scoped);
 
