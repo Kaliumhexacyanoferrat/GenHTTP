@@ -89,10 +89,11 @@ namespace GenHTTP.Modules.Core.Websites
             var path = this.GetRoot(request.Server.Handler, false);
 
             return Scripts.Values.Select(s => {
-                var childPath = new List<string>(path.Parts);
-                childPath.Add(s.Name);
+                var childPath = path.Edit(false)
+                                    .Append(s.Name)
+                                    .Build();
 
-                return new ContentElement(new WebPath(childPath, false), s.Name, ContentType.ApplicationJavaScript, null);
+                return new ContentElement(childPath, s.Name, ContentType.ApplicationJavaScript, null);
             });
         }
 

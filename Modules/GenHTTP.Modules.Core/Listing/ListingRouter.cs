@@ -57,23 +57,26 @@ namespace GenHTTP.Modules.Core.Listing
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
-            var root = new List<string>(this.GetRoot(this, false).Parts);
+            var root = this.GetRoot(this, false);
 
             foreach (var directory in Info.GetDirectories())
             {
-                var path = new List<string>(root);
-                path.Add(directory.Name);
+                var path = root.Edit(true)
+                               .Append(directory.Name)
+                               .Build();
 
-                yield return new ContentElement(new WebPath(path, true), directory.Name, ContentType.TextHtml, null);
+                yield return new ContentElement(path, directory.Name, ContentType.TextHtml, null);
             }
 
             foreach (var file in Info.GetFiles())
             {
-                var path = new List<string>(root);
-                path.Add(file.Name);
+                var path = root.Edit(false)
+                               .Append(file.Name)
+                               .Build();
 
                 var guessed = file.Name.GuessContentType() ?? ContentType.ApplicationForceDownload;
-                yield return new ContentElement(new WebPath(path, false), file.Name, guessed, null);
+
+                yield return new ContentElement(path, file.Name, guessed, null);
             }
         }
 

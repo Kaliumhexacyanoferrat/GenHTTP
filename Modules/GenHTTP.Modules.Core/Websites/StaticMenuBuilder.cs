@@ -32,10 +32,9 @@ namespace GenHTTP.Modules.Core.Websites
 
                 foreach (var child in children)
                 {
-                    var childParts = new List<string>(webPath.Parts);
-                    childParts.Add(child.childPath);
-
-                    var childPath = new WebPath(childParts, false);
+                    var childPath = webPath.Edit(false)
+                                           .Append(child.childPath)
+                                           .Build();                          
 
                     childElements.Add(new ContentElement(childPath, child.childTitle, ContentType.TextHtml, null));
                 }

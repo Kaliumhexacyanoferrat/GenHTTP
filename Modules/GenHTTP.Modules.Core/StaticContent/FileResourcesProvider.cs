@@ -49,16 +49,17 @@ namespace GenHTTP.Modules.Core.StaticContent
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
-            var root = new List<string>(this.GetRoot(request.Server.Handler, false).Parts);
+            var root = this.GetRoot(request.Server.Handler, false);
 
             foreach (var file in Directory.EnumerateFiles("*.*", SearchOption.AllDirectories))
             {
                 var childPath = Path.GetRelativePath(Directory.FullName, file.FullName);
 
-                var child = new List<string>(root);
-                child.Add(childPath);
+                var child = root.Edit(false)
+                                .Append(childPath)
+                                .Build();
 
-                yield return new ContentElement(new WebPath(child, false), file.Name, file.Name.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
+                yield return new ContentElement(child, file.Name, file.Name.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
             }
         }
 

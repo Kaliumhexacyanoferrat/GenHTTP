@@ -90,10 +90,11 @@ namespace GenHTTP.Modules.Core.Websites
 
             return Styles.Values.Select(s =>
             {
-                var childPath = new List<string>(path.Parts);
-                childPath.Add(s.Name);
+                var childPath = path.Edit(false)
+                                    .Append(s.Name)
+                                    .Build();
 
-                return new ContentElement(new WebPath(childPath, false), s.Name, ContentType.TextCss, null);
+                return new ContentElement(childPath, s.Name, ContentType.TextCss, null);
             });
         }
 

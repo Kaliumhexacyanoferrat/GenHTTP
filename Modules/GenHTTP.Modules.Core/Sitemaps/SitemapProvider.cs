@@ -41,7 +41,7 @@ namespace GenHTTP.Modules.Core.Sitemaps
 
         private void Flatten(ContentElement item, List<ContentElement> into)
         {
-            if (item.ContentType?.KnownType == ContentType.TextHtml)
+            if (item.ContentType.KnownType == ContentType.TextHtml)
             {
                 into.Add(item);
             }
