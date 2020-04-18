@@ -1,8 +1,7 @@
-﻿using GenHTTP.Api.Infrastructure;
+﻿using System;
+
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Core.General;
-using System;
-using System.IO;
 
 namespace GenHTTP.Core.Protocol
 {
