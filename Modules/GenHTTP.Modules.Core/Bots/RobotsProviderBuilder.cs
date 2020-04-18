@@ -1,21 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-
-using GenHTTP.Api.Modules;
-using GenHTTP.Modules.Core.General;
+using GenHTTP.Api.Content;
 
 namespace GenHTTP.Modules.Core.Bots
 {
 
-    public class RobotsProviderBuilder : ContentBuilderBase
+    public class RobotsProviderBuilder : IHandlerBuilder<RobotsProviderBuilder>
     {
         private readonly List<RobotsDirective> _Directives = new List<RobotsDirective>();
+
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         private string? _Sitemap;
 
         #region Functionality
 
-        public RobotsProviderBuilder Sitemap() => Sitemap("/sitemaps/sitemap.xml");
+        public RobotsProviderBuilder Sitemap() => Sitemap("/sitemap.xml");
 
         public RobotsProviderBuilder Sitemap(string url)
         {
@@ -42,9 +42,15 @@ namespace GenHTTP.Modules.Core.Bots
             return this;
         }
 
-        public override IContentProvider Build()
+        public RobotsProviderBuilder Add(IConcernBuilder concern)
         {
-            return new RobotsProvider(_Directives, _Sitemap, _Modification);
+            _Concerns.Add(concern);
+            return this;
+        }
+
+        public IHandler Build(IHandler parent)
+        {
+            return Concerns.Chain(parent, _Concerns, (p) => new RobotsProvider(p, _Directives, _Sitemap));
         }
 
         #endregion

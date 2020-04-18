@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.Websites

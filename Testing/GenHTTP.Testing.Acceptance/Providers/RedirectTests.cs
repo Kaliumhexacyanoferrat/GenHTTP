@@ -20,7 +20,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             var redirect = Redirect.To("https://google.de/", true);
 
-            var router = Layout.Create().Add("_", redirect, true);
+            var router = Layout.Create().Index(redirect);
 
             using var runner = TestRunner.Run(router);
 
@@ -39,7 +39,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             var redirect = Redirect.To("https://google.de/");
 
-            var router = Layout.Create().Add("_", redirect, true);
+            var router = Layout.Create().Index(redirect);
 
             using var runner = TestRunner.Run(router);
 

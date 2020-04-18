@@ -3,7 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Xml.Serialization;
 
-using GenHTTP.Api.Routing;
+using GenHTTP.Api.Content;
 using GenHTTP.Modules.Core;
 using GenHTTP.Testing.Acceptance.Domain;
 
@@ -52,50 +52,38 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.Equal(4, sitemap.Count);
         }
 
-        [Fact]
-        public void TestNotFounds()
-        {
-            using var runner = TestRunner.Run(GetContent());
-
-            using var indexResponse = runner.GetResponse("/sitemaps/");
-            Assert.Equal(HttpStatusCode.NotFound, indexResponse.StatusCode);
-
-            using var fileResponse = runner.GetResponse("/sitemaps/some.txt");
-            Assert.Equal(HttpStatusCode.NotFound, fileResponse.StatusCode);
-        }
-
         private HashSet<string> GetSitemap(TestRunner runner)
         {
             var serializer = new XmlSerializer(typeof(UrlSet));
 
-            using var response = runner.GetResponse("/sitemaps/sitemap.xml");
+            using var response = runner.GetResponse("/sitemap.xml");
 
             var sitemap = (UrlSet)serializer.Deserialize(response.GetResponseStream());
 
             return sitemap.Entries.Select(u => u.Loc!.Replace(":" + runner.Port, string.Empty)).ToHashSet();
         }
 
-        private IRouter GetContent()
+        private IHandlerBuilder GetContent()
         {
             var root = Layout.Create();
 
             var children = Layout.Create();
 
-            children.Add("child-index", Page.From("Child Index Page", "Child Index"), true);
-            children.Add("child-other", Page.From("Child Other Page", "Child Other"), false);
+            children.Index(Page.From("Child Index Page", "Child Index"));
+            children.Add("child-other", Page.From("Child Other Page", "Child Other"));
 
             var content = Layout.Create();
 
-            content.Add("index", Page.From("Index Page", "Index"), true);
-            content.Add("other", Page.From("Other Page", "Other"), false);
+            content.Index(Page.From("Index Page", "Index"));
+            content.Add("other", Page.From("Other Page", "Other"));
 
             content.Add("children", children);
 
-            root.Add("sitemaps", Sitemap.From(content.Build()));
+            root.Add("sitemap.xml", Sitemap.Create());
 
-            root.Default(content);
+            root.Fallback(content);
 
-            return root.Build();
+            return root;
         }
 
     }

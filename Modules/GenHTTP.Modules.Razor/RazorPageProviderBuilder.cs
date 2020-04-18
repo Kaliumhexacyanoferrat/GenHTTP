@@ -1,13 +1,11 @@
 ﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
-
-using GenHTTP.Modules.Core.General;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Templating;
 
 namespace GenHTTP.Modules.Razor
 {
 
-    public class RazorPageProviderBuilder<T> : ContentBuilderBase where T : PageModel
+    public class RazorPageProviderBuilder<T> : IHandlerBuilder where T : PageModel
     {
         protected IResourceProvider? _TemplateProvider;
         protected ModelProvider<T>? _ModelProvider;
@@ -33,7 +31,7 @@ namespace GenHTTP.Modules.Razor
             return this;
         }
 
-        public override IContentProvider Build()
+        public IHandler Build(IHandler parent)
         {
             if (_TemplateProvider == null)
             {
@@ -45,7 +43,7 @@ namespace GenHTTP.Modules.Razor
                 throw new BuilderMissingPropertyException("Model Provider");
             }
 
-            return new RazorPageProvider<T>(_TemplateProvider, _ModelProvider, _Title, _Modification);
+            return new RazorPageProvider<T>(parent, _TemplateProvider, _ModelProvider, _Title);
         }
 
         #endregion

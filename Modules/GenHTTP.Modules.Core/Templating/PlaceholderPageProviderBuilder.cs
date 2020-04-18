@@ -1,17 +1,19 @@
-﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
+﻿using System.Collections.Generic;
 
-using GenHTTP.Modules.Core.General;
+using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Templating;
 
 namespace GenHTTP.Modules.Core.Templating
 {
 
-    public class PlaceholderPageProviderBuilder<T> : ContentBuilderBase where T : PageModel
+    public class PlaceholderPageProviderBuilder<T> : IHandlerBuilder<PlaceholderPageProviderBuilder<T>> where T : PageModel
     {
         private IResourceProvider? _TemplateProvider;
         private ModelProvider<T>? _ModelProvider;
         private string? _Title;
+
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 
@@ -33,7 +35,13 @@ namespace GenHTTP.Modules.Core.Templating
             return this;
         }
 
-        public override IContentProvider Build()
+        public PlaceholderPageProviderBuilder<T> Add(IConcernBuilder concern)
+        {
+            _Concerns.Add(concern);
+            return this;
+        }
+
+        public IHandler Build(IHandler parent)
         {
             if (_TemplateProvider == null)
             {
@@ -45,7 +53,7 @@ namespace GenHTTP.Modules.Core.Templating
                 throw new BuilderMissingPropertyException("Model Provider");
             }
 
-            return new PlaceholderPageProvider<T>(_TemplateProvider, _ModelProvider, _Title, _Modification);
+            return Concerns.Chain(parent, _Concerns, (p) => new PlaceholderPageProvider<T>(p, _TemplateProvider, _ModelProvider, _Title));
         }
 
         #endregion

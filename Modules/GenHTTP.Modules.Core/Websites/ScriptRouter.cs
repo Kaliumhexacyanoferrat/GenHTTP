@@ -1,34 +1,35 @@
-﻿using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
-using GenHTTP.Api.Modules.Websites;
+﻿using System.Collections.Generic;
+using System.Linq;
+
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
-using GenHTTP.Modules.Core.General;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace GenHTTP.Modules.Core.Websites
 {
 
-    public class ScriptRouter : RouterBase
+    public class ScriptRouter : IHandler
     {
 
         #region Get-/Setters
+
+        public IHandler Parent { get; }
 
         private Dictionary<string, Script> Scripts { get; }
 
         public bool Empty => Scripts.Count == 0;
 
-        private IContentProvider Bundle { get; }
+        private IHandler Bundle { get; }
 
         #endregion
 
         #region Initialization
 
-        public ScriptRouter(List<Script> scripts,
-                            IRenderer<TemplateModel>? template,
-                            IContentProvider? errorHandler) : base(template, errorHandler)
+        public ScriptRouter(IHandler parent, List<Script> scripts)
         {
+            Parent = parent;
+
             Scripts = scripts.ToDictionary(s => s.Name);
 
             var bundle = Core.Bundle.Create().ContentType(ContentType.ApplicationJavaScript);
@@ -38,7 +39,7 @@ namespace GenHTTP.Modules.Core.Websites
                 bundle.Add(script.Provider);
             }
 
-            Bundle = bundle.Build();
+            Bundle = bundle.Build(this);
         }
 
         #endregion
@@ -58,33 +59,42 @@ namespace GenHTTP.Modules.Core.Websites
             return Scripts.Values.Select(s => new ScriptReference($"scripts/{s.Name}", s.Async)).ToList();
         }
 
-        public override void HandleContext(IEditableRoutingContext current)
+        public IResponse? Handle(IRequest request)
         {
-            current.Scope(this);
+            var file = request.Target.Current;
 
-            if (!current.Request.Server.Development)
+            if (file != null)
             {
-                if (current.ScopedPath.EndsWith("bundle.js"))
+                if (!request.Server.Development)
                 {
-                    current.RegisterContent(Bundle);
+                    if (file == "bundle.js")
+                    {
+                        return Bundle.Handle(request);
+                    }
+                }
+                else if (Scripts.TryGetValue(file, out Script script))
+                {
+                    return Download.From(script.Provider)
+                                   .Type(ContentType.ApplicationJavaScript)
+                                   .Build(this)
+                                   .Handle(request);
                 }
             }
-            else if (Scripts.TryGetValue(current.ScopedPath.Substring(1), out Script script))
-            {
-                current.RegisterContent(Download.From(script.Provider)
-                                                .Type(ContentType.ApplicationJavaScript)
-                                                .Build());
-            }
+
+            return null;
         }
 
-        public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
+        public IEnumerable<ContentElement> GetContent(IRequest request)
         {
-            return Scripts.Values.Select(s => new ContentElement($"{basePath}{s.Name}", s.Name, ContentType.ApplicationJavaScript, null));
-        }
+            var path = this.GetRoot(request.Server.Handler, false);
 
-        public override string? Route(string path, int currentDepth)
-        {
-            return Parent.Route(path, currentDepth);
+            return Scripts.Values.Select(s => {
+                var childPath = path.Edit(false)
+                                    .Append(s.Name)
+                                    .Build();
+
+                return new ContentElement(childPath, s.Name, ContentType.ApplicationJavaScript, null);
+            });
         }
 
         #endregion

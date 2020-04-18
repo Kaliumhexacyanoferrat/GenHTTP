@@ -4,7 +4,6 @@ using System.IO;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
-
 using GenHTTP.Core.Protocol;
 
 namespace GenHTTP.Core
@@ -31,13 +30,11 @@ namespace GenHTTP.Core
 
         public IClientConnection LocalClient { get; }
 
-        public IRoutingContext? Routing { get; set; }
-
         public HttpProtocol ProtocolType { get; }
 
         public FlexibleRequestMethod Method { get; }
 
-        public string Path { get; }
+        public RoutingTarget Target { get; }
 
         public IHeaderCollection Headers { get; }
 
@@ -82,7 +79,7 @@ namespace GenHTTP.Core
         #region Initialization
 
         internal Request(IServer server, IEndPoint endPoint, IClientConnection client, IClientConnection localClient, HttpProtocol protocol, FlexibleRequestMethod method,
-                         string path, IHeaderCollection headers, ICookieCollection? cookies, IForwardingCollection? forwardings,
+                         RoutingTarget target, IHeaderCollection headers, ICookieCollection? cookies, IForwardingCollection? forwardings,
                          IRequestQuery? query, Stream? content)
         {
             Client = client;
@@ -93,7 +90,7 @@ namespace GenHTTP.Core
 
             ProtocolType = protocol;
             Method = method;
-            Path = path;
+            Target = target;
 
             _Cookies = cookies;
             _Forwardings = forwardings;

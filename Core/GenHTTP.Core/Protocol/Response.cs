@@ -33,7 +33,7 @@ namespace GenHTTP.Core
             get { return _Cookies ?? (_Cookies = new CookieCollection()); }
         }
         
-        public IHeaderCollection Headers => _Headers;
+        public IEditableHeaderCollection Headers => _Headers;
 
         public string? this[string field]
         {

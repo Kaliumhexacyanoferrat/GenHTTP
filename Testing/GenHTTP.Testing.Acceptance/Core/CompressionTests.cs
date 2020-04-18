@@ -74,9 +74,7 @@ namespace GenHTTP.Testing.Acceptance.Core
         [Fact]
         public void TestCompressionDisabled()
         {
-            using var runner = new TestRunner();
-
-            runner.Host.Compression(false).Start();
+            using var runner = TestRunner.Run(false);
 
             using var response = runner.GetResponse();
 
@@ -91,7 +89,7 @@ namespace GenHTTP.Testing.Acceptance.Core
         {
             using var runner = new TestRunner();
 
-            runner.Host.Compression(new CustomAlgorithmBuilder()).Start();
+            runner.Host.Add(CompressedContent.Default().Add(new CustomAlgorithm())).Start();
 
             var request = runner.GetRequest();
             request.Headers.Add("Accept-Encoding", "custom");
@@ -109,7 +107,7 @@ namespace GenHTTP.Testing.Acceptance.Core
         {
             var image = Content.From("Image!").Type(ContentType.ImageJpg);
 
-            using var runner = TestRunner.Run(Layout.Create().Add("/uncompressed", image));
+            using var runner = TestRunner.Run(Layout.Create().Add("uncompressed", image));
 
             using var response = runner.GetResponse("/uncompressed");
 

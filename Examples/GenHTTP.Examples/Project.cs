@@ -1,10 +1,10 @@
-﻿using GenHTTP.Api.Routing;
-using GenHTTP.Modules.Core;
+﻿using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Scriban;
 
 using GenHTTP.Examples.Examples.Infrastructure;
 using GenHTTP.Examples.Examples.Webservices;
 using GenHTTP.Examples.Examples.Listing;
+using GenHTTP.Api.Content;
 
 namespace GenHTTP.Examples
 {
@@ -12,7 +12,7 @@ namespace GenHTTP.Examples
     public static class Project
     {
 
-        public static IRouterBuilder Build()
+        public static IHandlerBuilder Build()
         {
             var index = ModScriban.Page(Data.FromResource("Index.html"))
                                   .Title("Examples");
@@ -22,7 +22,7 @@ namespace GenHTTP.Examples
                          .Add("infrastructure", InfrastructureExamples.Create())
                          .Add("webservice", WebserviceExamples.Create())
                          .Add("listing", ListingExamples.Create())
-                         .Add("index", index, true);
+                         .Index(index);
         }
 
     }

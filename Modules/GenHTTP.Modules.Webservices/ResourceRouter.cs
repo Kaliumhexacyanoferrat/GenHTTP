@@ -4,21 +4,20 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
-
 using GenHTTP.Modules.Core;
-using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Webservices
 {
 
-    public class ResourceRouter : RouterBase
+    public class ResourceRouter : IHandler
     {
 
         #region Get-/Setters
+
+        public IHandler Parent { get; }
 
         private Type Type { get; }
 
@@ -32,11 +31,10 @@ namespace GenHTTP.Modules.Webservices
 
         #region Initialization
 
-        public ResourceRouter(object instance,
-                              SerializationRegistry formats,
-                              IRenderer<TemplateModel>? template,
-                              IContentProvider? errorHandler) : base(template, errorHandler)
+        public ResourceRouter(IHandler parent, object instance, SerializationRegistry formats)
         {
+            Parent = parent;
+
             Instance = instance;
             Type = instance.GetType();
 
@@ -53,7 +51,7 @@ namespace GenHTTP.Modules.Webservices
 
                 if (attribute != null)
                 {
-                    yield return new MethodProvider(method, Instance, attribute, Serialization);
+                    yield return new MethodProvider(Parent, method, Instance, attribute, Serialization);
                 }
             }
         }
@@ -62,48 +60,50 @@ namespace GenHTTP.Modules.Webservices
 
         #region Functionality
 
-        public override void HandleContext(IEditableRoutingContext current)
+        public IResponse? Handle(IRequest request)
         {
-            current.Scope(this);
-
-            var methods = FindProviders(current.ScopedPath);
+            var methods = FindProviders(request.Target.GetRemaining().ToString());
 
             if (methods.Any())
             {
-                var matchingMethods = methods.Where(m => current.Request.Method.Equals(m.MetaData.RequestMethod)).ToList();
+                var matchingMethods = methods.Where(m => request.Method.Equals(m.MetaData.RequestMethod)).ToList();
 
                 if (matchingMethods.Count == 1)
                 {
-                    current.RegisterContent(matchingMethods.First());
+                    return matchingMethods.First().Handle(request);
                 }
                 else if (methods.Count > 1)
                 {
-                    throw new ProviderException(ResponseStatus.BadRequest, $"There are multiple methods matching '{current.Request.Path}'");
+                    throw new ProviderException(ResponseStatus.BadRequest, $"There are multiple methods matching '{request.Target.Path}'");
                 }
                 else
                 {
                     throw new ProviderException(ResponseStatus.MethodNotAllowed, $"There is no method of a matching request type");
                 }
             }
+
+            return null;
         }
 
-        public override string? Route(string path, int currentDepth)
-        {
-            if (FindProviders($"/{path}").Any())
-            {
-                return Api.Routing.Route.GetRelation(currentDepth) + path;
-            }
-
-            return Parent.Route(path, currentDepth + 1);
-        }
-
-        public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
+        public IEnumerable<ContentElement> GetContent(IRequest request)
         {
             foreach (var method in Methods.Where(m => m.MetaData.RequestMethod == RequestMethod.GET))
             {
-                var path = method.MetaData.Path ?? "/";
+                var parts = new List<string>(this.GetRoot(request.Server.Handler, false).Parts);
 
-                yield return new ContentElement($"{basePath}{path}", Path.GetFileName(path), path.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
+                WebPath path;
+
+                if (method.MetaData.Path == null)
+                {
+                    path = new WebPath(parts, true);
+                }
+                else
+                {
+                    parts.Add(method.MetaData.Path);
+                    path = new WebPath(parts, false);
+                }
+
+                yield return new ContentElement(path, Path.GetFileName(path.ToString()), path.ToString().GuessContentType() ?? ContentType.ApplicationForceDownload, null);
             }
         }
 

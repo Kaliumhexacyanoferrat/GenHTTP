@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Xml;
 
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.Sitemaps
@@ -21,15 +21,18 @@ namespace GenHTTP.Modules.Core.Sitemaps
 
         public ulong? Length => null;
 
+        private string BaseUri { get; }
+
         private IEnumerable<ContentElement> Elements { get; }
 
         #endregion
 
         #region Initialization
 
-        public SitemapContent(IEnumerable<ContentElement> elements)
+        public SitemapContent(string baseUri, IEnumerable<ContentElement> elements)
         {
             Elements = elements;
+            BaseUri = baseUri;
         }
 
         #endregion
@@ -49,7 +52,7 @@ namespace GenHTTP.Modules.Core.Sitemaps
                     {
                         await writer.WriteStartElementAsync(null, "url", null);
 
-                        await writer.WriteElementStringAsync(null, "loc", null, element.Path);
+                        await writer.WriteElementStringAsync(null, "loc", null, BaseUri + element.Path.ToString());
 
                         await writer.WriteEndElementAsync();
                     }

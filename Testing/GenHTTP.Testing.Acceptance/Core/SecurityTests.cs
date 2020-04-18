@@ -1,14 +1,15 @@
 ﻿using System;
-using System.Net;
 using System.IO;
+using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
 using Xunit;
 
-using GenHTTP.Testing.Acceptance.Domain;
-using GenHTTP.Modules.Core;
 using GenHTTP.Api.Infrastructure;
+using GenHTTP.Modules.Core;
+using GenHTTP.Modules.Core.Security;
+using GenHTTP.Testing.Acceptance.Domain;
 
 namespace GenHTTP.Testing.Acceptance.Core
 {
@@ -68,7 +69,7 @@ namespace GenHTTP.Testing.Acceptance.Core
                 using var response = request.GetSafeResponse();
 
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            }, null, SecureUpgrade.Allow);
+            }, mode: SecureUpgrade.Allow);
         }
 
         /// <summary>
@@ -89,7 +90,7 @@ namespace GenHTTP.Testing.Acceptance.Core
                 Assert.Equal(HttpStatusCode.TemporaryRedirect, response.StatusCode);
                 Assert.Equal($"https://localhost:{sec}/", response.Headers["Location"]);
                 Assert.Equal($"Upgrade-Insecure-Requests", response.Headers["Vary"]);
-            }, null, SecureUpgrade.Allow);
+            }, mode: SecureUpgrade.Allow);
         }
 
         /// <summary>
@@ -116,33 +117,7 @@ namespace GenHTTP.Testing.Acceptance.Core
                 Assert.Equal(HttpStatusCode.OK, secureResponse.StatusCode);
                 Assert.Equal("max-age=31536000; includeSubDomains; preload", secureResponse.Headers["Strict-Transport-Security"]);
 
-            }, null, SecureUpgrade.None);
-        }
-
-        /// <summary>
-        /// As the hoster of a web application, i would like to be able to disable
-        /// HSTS so the server doesn't mess with my domain.
-        /// </summary>
-        [Fact]
-        public void TestTransportPolicyDisabled()
-        {
-            static void adjustments(IServerHost b)
-            {
-                b.StrictTransport(TimeSpan.FromSeconds(10), false, false);
-                b.StrictTransport(false);
-            }
-
-            RunSecure((insec, sec) =>
-            {
-                var secureRequest = WebRequest.CreateHttp($"https://localhost:{sec}");
-                secureRequest.IgnoreSecurityErrors();
-
-                using var secureResponse = secureRequest.GetSafeResponse();
-
-                Assert.Equal(HttpStatusCode.OK, secureResponse.StatusCode);
-                Assert.Null(secureResponse.Headers["Strict-Transport-Security"]);
-
-            }, adjustments);
+            }, mode: SecureUpgrade.None);
         }
 
         /// <summary>
@@ -188,26 +163,25 @@ namespace GenHTTP.Testing.Acceptance.Core
             }, host: "myserver");
         }
 
-        private static void RunSecure(Action<ushort, ushort> logic, Action<IServerHost>? adjustments = null, SecureUpgrade? mode = null, string host = "localhost")
+        private static void RunSecure(Action<ushort, ushort> logic, SecureUpgrade? mode = null, string host = "localhost")
         {
-            var content = Layout.Create().Add("index", Content.From("Hello Alice!"), true);
+            var content = Layout.Create().Index(Content.From("Hello Alice!"));
 
-            using var runner = new TestRunner();
+            using var runner = new TestRunner(mode == null);
 
             var port = TestRunner.NextPort();
 
             using var cert = GetCertificate();
 
-            runner.Host.Router(content)
+            runner.Host.Handler(content)
                        .Bind(IPAddress.Any, runner.Port)
                        .Bind(IPAddress.Any, port, new PickyCertificateProvider(host, cert), SslProtocols.Tls12);
 
             if (mode != null)
             {
                 runner.Host.SecureUpgrade(mode.Value);
+                runner.Host.StrictTransport(new StrictTransportPolicy(TimeSpan.FromDays(365), true, true));
             }
-
-            adjustments?.Invoke(runner.Host);
 
             runner.Start();
 

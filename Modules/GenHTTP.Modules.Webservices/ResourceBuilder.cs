@@ -1,11 +1,10 @@
-﻿using GenHTTP.Api.Infrastructure;
-
-using GenHTTP.Modules.Core.General;
+﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Modules.Webservices
 {
 
-    public class ResourceBuilder : RouterBuilderBase<ResourceBuilder, ResourceRouter>
+    public class ResourceBuilder : IHandlerBuilder
     {
         private object? _Instance;
 
@@ -27,13 +26,13 @@ namespace GenHTTP.Modules.Webservices
             return this;
         }
 
-        public override ResourceRouter Build()
+        public IHandler Build(IHandler parent)
         {
             var formats = (_Formats ?? Serialization.Default()).Build();
 
             var instance = _Instance ?? throw new BuilderMissingPropertyException("instance");
 
-            return new ResourceRouter(instance, formats, _Template, _ErrorHandler);
+            return new ResourceRouter(parent, instance, formats);
         }
 
         #endregion

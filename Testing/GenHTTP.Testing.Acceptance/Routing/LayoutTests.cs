@@ -1,10 +1,9 @@
-﻿using System.Net;
+﻿using Xunit;
 
-using Xunit;
+using System.Net;
 
-using GenHTTP.Testing.Acceptance.Domain;
 using GenHTTP.Modules.Core;
-using GenHTTP.Modules.Scriban;
+using GenHTTP.Testing.Acceptance.Domain;
 
 namespace GenHTTP.Testing.Acceptance.Routing
 {
@@ -19,32 +18,18 @@ namespace GenHTTP.Testing.Acceptance.Routing
         public void TestGetIndex()
         {
             var layout = Layout.Create()
-                               .Add("index", Content.From("Hello World!"), true);
-
-            using (var runner = TestRunner.Run(layout))
-            {
-                using var response = runner.GetResponse();
-
-                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-                Assert.Equal("Hello World!", response.GetContent());
-            }
-        }
-
-        /// <summary>
-        /// As a developer I can set templates for pages to be rendered in.
-        /// </summary>
-        [Fact]
-        public void TestWithTemplate()
-        {
-            var layout = Layout.Create()
-                               .Template(ModScriban.Template(Data.FromString("{{ title }}{{ content }}")))
-                               .Add("index", Page.From("Hello World!").Title("Hey there: "), true);
+                               .Index(Content.From("Hello World!"));
 
             using var runner = TestRunner.Run(layout);
 
             using var response = runner.GetResponse();
 
-            Assert.Equal("Hey there: Hello World!", response.GetContent());
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal("Hello World!", response.GetContent());
+
+            using var notFound = runner.GetResponse("/notfound");
+
+            Assert.Equal(HttpStatusCode.NotFound, notFound.StatusCode);
         }
 
         /// <summary>
@@ -53,14 +38,40 @@ namespace GenHTTP.Testing.Acceptance.Routing
         [Fact]
         public void TestDefaultContent()
         {
-            var layout = Layout.Create().Default(Content.From("Hello World!"));
+            var layout = Layout.Create().Fallback(Content.From("Hello World!"));
 
             using var runner = TestRunner.Run(layout);
 
-            using var response = runner.GetResponse();
+            foreach (var path in new string[] { "/something", "/" })
+            {
+                using var response = runner.GetResponse("/somethingelse");
+
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                Assert.Equal("Hello World!", response.GetContent());
+            }
+        }
+
+        /// <summary>
+        /// As the developer of a web application, I don't want my application
+        /// to produce duplicate content for missing trailing slashes.
+        /// </summary>
+        [Fact]
+        public void TestRedirect()
+        {
+            var layout = Layout.Create()
+                               .Add("section", Layout.Create().Index(Content.From("Hello World!")));
+
+            using var runner = TestRunner.Run(layout);
+
+            using var response = runner.GetResponse("/section/");
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Equal("Hello World!", response.GetContent());
+
+            using var redirected = runner.GetResponse("/section");
+
+            Assert.Equal(HttpStatusCode.MovedPermanently, redirected.StatusCode);
+            Assert.EndsWith("/section/", redirected.Headers["Location"]);
         }
 
     }

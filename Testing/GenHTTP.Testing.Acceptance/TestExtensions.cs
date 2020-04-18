@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GenHTTP.Api.Content;
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Security;
@@ -9,6 +10,23 @@ namespace GenHTTP.Testing.Acceptance
 
     public static class TestExtensions
     {
+
+        #region Supporting data structures
+
+        private class HandlerBuilder : IHandlerBuilder
+        {
+            private IHandler _Handler;
+
+            public HandlerBuilder(IHandler handler) { _Handler = handler; }
+
+            public IHandler Build(IHandler parent)
+            {
+                return _Handler;
+            }
+
+        }
+
+        #endregion
 
         public static string GetContent(this HttpWebResponse response)
         {
@@ -51,6 +69,8 @@ namespace GenHTTP.Testing.Acceptance
                 return true;
             };
         }
+
+        public static IHandlerBuilder Wrap(this IHandler handler) => new HandlerBuilder(handler);
 
     }
 

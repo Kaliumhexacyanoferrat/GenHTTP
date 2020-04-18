@@ -1,5 +1,5 @@
-﻿using GenHTTP.Api.Modules.Templating;
-using GenHTTP.Api.Modules.Websites;
+﻿using GenHTTP.Api.Content.Templating;
+using GenHTTP.Api.Content.Websites;
 
 namespace GenHTTP.Modules.Core.Websites
 {
@@ -46,9 +46,9 @@ namespace GenHTTP.Modules.Core.Websites
 
             var bundle = !model.Request.Server.Development;
 
-            var websiteModel = new WebsiteModel(model.Request, model, Theme, themeModel, menu, Scripts.GetReferences(bundle), Styles.GetReferences(bundle));
+            var websiteModel = new WebsiteModel(model.Request, model.Handler, model, Theme, themeModel, menu, Scripts.GetReferences(bundle), Styles.GetReferences(bundle));
 
-            return Theme.GetRenderer().Render(websiteModel);
+            return Theme.Renderer.Render(websiteModel);
         }
 
         #endregion

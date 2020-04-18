@@ -1,19 +1,20 @@
 ﻿using System.Collections.Generic;
 
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Core.General;
-using GenHTTP.Modules.Core.Templating;
+using GenHTTP.Modules.Core;
 
 namespace GenHTTP.Modules.Scriban
 {
 
-    public class ScribanPageProvider<T> : ContentProviderBase where T : PageModel
+    public class ScribanPageProvider<T> : IHandler where T : PageModel
     {
 
         #region Get-/Setters
+
+        public IHandler Parent { get; }
 
         public IResourceProvider TemplateProvider { get; }
 
@@ -21,18 +22,16 @@ namespace GenHTTP.Modules.Scriban
 
         public ScribanRenderer<T> Renderer { get; }
 
-        public override string? Title { get; }
-
-        public override FlexibleContentType? ContentType => new FlexibleContentType(Api.Protocol.ContentType.TextHtml);
-
-        protected override HashSet<FlexibleRequestMethod>? SupportedMethods => _GET_POST;
+        public string? Title { get; }
 
         #endregion
 
         #region Initialization
 
-        public ScribanPageProvider(IResourceProvider templateProvider, ModelProvider<T> modelProvider, string? title, ResponseModification? mod) : base(mod)
+        public ScribanPageProvider(IHandler parent, IResourceProvider templateProvider, ModelProvider<T> modelProvider, string? title)
         {
+            Parent = parent;
+
             TemplateProvider = templateProvider;
             ModelProvider = modelProvider;
             Title = title;
@@ -44,17 +43,19 @@ namespace GenHTTP.Modules.Scriban
 
         #region Functionality
 
-        protected override IResponseBuilder HandleInternal(IRequest request)
+        public IResponse? Handle(IRequest request)
         {
-            var model = ModelProvider(request);
+            var model = ModelProvider(request, this);
 
             var content = Renderer.Render(model);
 
-            var templateModel = new TemplateModel(request, model.Title ?? Title ?? "Untitled Page", content);
+            var templateModel = new TemplateModel(request, this, model.Title ?? Title ?? "Untitled Page", content);
 
-            return request.Respond()
-                          .Content(templateModel);
+            return this.Page(templateModel)
+                       .Build();
         }
+
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Title ?? "Untitled Page", ContentType.TextHtml);
 
         #endregion
 

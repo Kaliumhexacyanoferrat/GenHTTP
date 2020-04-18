@@ -1,29 +1,30 @@
-﻿using GenHTTP.Api.Modules;
+﻿using System.Collections.Generic;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using System.Collections.Generic;
 
 namespace GenHTTP.Modules.Core.General
 {
 
-    public class StringProvider : ContentProviderBase
+    public class StringProvider : IHandler
     {
 
         #region Get-/Setters
         
+        public IHandler Parent { get; }
+
         private StringContent Content { get; }
 
-        public override string? Title => null;
-
-        public override FlexibleContentType? ContentType { get; }
-
-        protected override HashSet<FlexibleRequestMethod>? SupportedMethods => _GET;
+        private FlexibleContentType ContentType { get; }
 
         #endregion
 
         #region Initialization
 
-        public StringProvider(string data, FlexibleContentType contentType, ResponseModification? mod) : base(mod)
+        public StringProvider(IHandler parent, string data, FlexibleContentType contentType)
         {
+            Parent = parent;
+
             Content = new StringContent(data);
             ContentType = contentType;
         }
@@ -32,12 +33,15 @@ namespace GenHTTP.Modules.Core.General
 
         #region Functionality
 
-        protected override IResponseBuilder HandleInternal(IRequest request)
+        public IResponse? Handle(IRequest request)
         {
             return request.Respond()
                           .Content(Content)
-                          .Type(ContentType!.Value);
+                          .Type(ContentType)
+                          .Build();
         }
+
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, "String Data", Api.Protocol.ContentType.TextPlain);
 
         #endregion
 

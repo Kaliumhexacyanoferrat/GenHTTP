@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 
 using GenHTTP.Api.Infrastructure;
 
@@ -58,28 +57,6 @@ namespace GenHTTP.Api.Protocol
         IResponseBuilder Cookie(Cookie cookie);
 
         /// <summary>
-        /// Adds the given raw cookie to the resonse.
-        /// </summary>
-        /// <param name="cookie">The raw cookie string to be added</param>
-        IResponseBuilder Cookie(string cookie);
-
-        /// <summary>
-        /// Specifies the content to be send to the client.
-        /// </summary>
-        /// <param name="body">The content to be send to the client</param>
-        /// <param name="contentType">The type of content</param>
-        [Obsolete("Replaced by the IResponseContent API")]
-        IResponseBuilder Content(Stream body, ContentType contentType);
-
-        /// <summary>
-        /// Specifies the content to be send to the client.
-        /// </summary>
-        /// <param name="body">The content to be send to the client</param>
-        /// <param name="contentType">The type of content</param>
-        [Obsolete("Replaced by the IResponseContent API")]
-        IResponseBuilder Content(Stream body, string contentType);
-
-        /// <summary>
         /// Specifies the content to be sent to the client.
         /// </summary>
         /// <param name="content">The content to be send to the client</param>
@@ -90,7 +67,7 @@ namespace GenHTTP.Api.Protocol
         /// </summary>
         /// <param name="contentType">The content type of this response</param>
         IResponseBuilder Type(FlexibleContentType contentType);
-                
+
         /// <summary>
         /// Specifies the length of the content stream, if known.
         /// </summary>

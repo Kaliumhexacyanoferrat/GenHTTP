@@ -1,13 +1,11 @@
-﻿using System.IO;
-using System.Text;
+﻿using Xunit;
 
-using Xunit;
-
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Testing.Acceptance.Domain;
 using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Core.General;
+using System.Collections.Generic;
 
 namespace GenHTTP.Testing.Acceptance.Core
 {
@@ -15,19 +13,23 @@ namespace GenHTTP.Testing.Acceptance.Core
     public class FlexibleTypeTests
     {
 
-        private class Provider : IContentProvider
+        private class Provider : IHandler
         {
 
-            public FlexibleContentType? ContentType => new FlexibleContentType("application/x-custom");
+            public IHandler Parent => throw new System.NotImplementedException();
 
-            public string? Title => null;
+            public IEnumerable<ContentElement> GetContent(IRequest request)
+            {
+                throw new System.NotImplementedException();
+            }
 
-            public IResponseBuilder Handle(IRequest request)
+            public IResponse? Handle(IRequest request)
             {
                 return request.Respond()
                               .Content("Hello World!")
                               .Type("application/x-custom")
-                              .Status(256, "Custom Status");
+                              .Status(256, "Custom Status")
+                              .Build();
             }
 
         }
@@ -39,7 +41,7 @@ namespace GenHTTP.Testing.Acceptance.Core
         [Fact]
         public void TestFlexibleStatus()
         {
-            var content = Layout.Create().Add("index", new Provider(), true);
+            var content = Layout.Create().Index(new Provider().Wrap());
 
             using var runner = TestRunner.Run(content);
 

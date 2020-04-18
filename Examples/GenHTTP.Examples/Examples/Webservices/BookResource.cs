@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
 
 using GenHTTP.Modules.Webservices;
 

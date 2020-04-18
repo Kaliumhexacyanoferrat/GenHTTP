@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Websites;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Core.Websites
 {
@@ -13,15 +12,15 @@ namespace GenHTTP.Modules.Core.Websites
 
         #region Get-/Setters
 
-        private IRouter Router { get; }
+        private IHandler Handler { get; }
 
         #endregion
 
         #region Initialization 
 
-        public GeneratedMenuProvider(IRouter router)
+        public GeneratedMenuProvider(IHandler handler)
         {
-            Router = router;
+            Handler = handler;
         }
 
         #endregion
@@ -30,7 +29,7 @@ namespace GenHTTP.Modules.Core.Websites
 
         public List<ContentElement> GetMenu(IRequest request)
         {
-            var elements = Router.GetContent(request, "");
+            var elements = Handler.GetContent(request);
 
             return new List<ContentElement>(elements);
         }

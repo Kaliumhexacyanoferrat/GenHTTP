@@ -4,37 +4,35 @@ using System.Reflection;
 using System.Linq;
 
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Routing;
-
-using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core.StaticContent
 {
 
-    public class EmbeddedResourcesProvider : RouterBase
+    public class EmbeddedResourcesProvider : IHandler
     {
 
         #region Get-/Setters
 
-        private Dictionary<string, IContentProvider> QualifiedNames { get; }
+        public IHandler Parent { get; }
+
+        private Dictionary<string, IHandler> QualifiedNames { get; }
         
         #endregion
 
         #region Initialization
 
-        public EmbeddedResourcesProvider(Assembly assembly,
-                                         string root,
-                                         IRenderer<TemplateModel>? template,
-                                         IContentProvider? errorHandler) : base(template, errorHandler)
+        public EmbeddedResourcesProvider(IHandler parent, Assembly assembly, string root)
         {
+            Parent = parent;
+
             QualifiedNames = assembly.GetManifestResourceNames()
                                      .Where(n => n.Contains(root))
                                      .Select(n => new
                                      {
                                          Key = n.Substring(n.IndexOf(root) + root.Length),
-                                         Value = Download.FromResource(assembly, n).Build()
+                                         Value = Download.FromResource(assembly, n).Build(this)
                                      })
                                      .ToDictionary(n => n.Key!, n => n.Value!);
         }
@@ -43,34 +41,32 @@ namespace GenHTTP.Modules.Core.StaticContent
 
         #region Functionality
 
-        public override void HandleContext(IEditableRoutingContext current)
+        public IResponse? Handle(IRequest request)
         {
-            current.Scope(this);
-
-            var identifier = current.ScopedPath.Replace('/', '.');
+            var identifier = request.Target.GetRemaining().ToString().Replace('/', '.');
 
             if (QualifiedNames.ContainsKey(identifier))
             {
-                current.RegisterContent(QualifiedNames[identifier]);
+                return QualifiedNames[identifier].Handle(request);
             }
+
+            return null;
         }
 
-        public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
+        public IEnumerable<ContentElement> GetContent(IRequest request)
         {
             foreach (var qn in QualifiedNames)
             {
                 var slashPath = qn.Key.Replace('.', '/');
                 var fileName = Path.GetFileName(slashPath);
 
-                yield return new ContentElement(basePath + slashPath, fileName, fileName.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
+                var path = new List<string>(this.GetRoot(request.Server.Handler, false).Parts);
+                path.Add(slashPath);
+
+                yield return new ContentElement(new WebPath(path, false), fileName, fileName.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
             }
         }
 
-        public override string? Route(string path, int currentDepth)
-        {
-            return Parent.Route(path, currentDepth);
-        }
-        
         #endregion
 
     }

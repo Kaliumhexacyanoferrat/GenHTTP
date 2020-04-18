@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Websites;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Core.Websites
 {
@@ -23,17 +24,23 @@ namespace GenHTTP.Modules.Core.Websites
         {
             List<ContentElement>? childElements = null;
 
+            var webPath = new WebPath(new List<string>() { path }, false);
+
             if (children != null)
             {
                 childElements = new List<ContentElement>(children.Count);
 
                 foreach (var child in children)
                 {
-                    childElements.Add(new ContentElement(path + child.childPath, child.childTitle, ContentType.TextHtml, null));
+                    var childPath = webPath.Edit(false)
+                                           .Append(child.childPath)
+                                           .Build();                          
+
+                    childElements.Add(new ContentElement(childPath, child.childTitle, ContentType.TextHtml, null));
                 }
             }
 
-            _Menu.Add(new ContentElement(path, title, ContentType.TextHtml, childElements));
+            _Menu.Add(new ContentElement(webPath, title, ContentType.TextHtml, childElements));
 
             return this;
         }

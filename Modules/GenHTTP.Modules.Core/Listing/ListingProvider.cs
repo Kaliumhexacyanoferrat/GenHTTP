@@ -1,36 +1,29 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Web;
 
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.Core.General;
-using GenHTTP.Modules.Core.Templating;
 
 namespace GenHTTP.Modules.Core.Listing
 {
 
-    public class ListingProvider : ContentProviderBase
+    public class ListingProvider : IHandler
     {
 
         #region Get-/Setters
 
         public string Path { get; }
 
-        public override string? Title => null;
-
-        public override FlexibleContentType? ContentType => new FlexibleContentType(Api.Protocol.ContentType.TextHtml);
-
-        protected override HashSet<FlexibleRequestMethod>? SupportedMethods => _GET;
+        public IHandler Parent { get; }
 
         #endregion
 
         #region Initialization
 
-        public ListingProvider(string path, ResponseModification? modification) : base(modification)
+        public ListingProvider(IHandler parent, string path)
         {
+            Parent = parent;
             Path = path;
         }
 
@@ -38,20 +31,23 @@ namespace GenHTTP.Modules.Core.Listing
 
         #region Functionality
 
-        protected override IResponseBuilder HandleInternal(IRequest request)
+        public IResponse Handle(IRequest request)
         {
-            var scoped = request.Routing!.ScopedPath;
-
             var info = new DirectoryInfo(Path);
 
-            var model = new ListingModel(request, info.GetDirectories(), info.GetFiles(), scoped != "/");
+            var model = new ListingModel(request, this, info.GetDirectories(), info.GetFiles(), !request.Target.Ended);
 
             var renderer = new ListingRenderer();
 
-            var templateModel = new TemplateModel(request, $"Index of {HttpUtility.UrlDecode(request.Path)}", renderer.Render(model));
+            var templateModel = new TemplateModel(request, this, GetTitle(request), renderer.Render(model));
 
-            return request.Respond(ResponseStatus.OK).Content(templateModel);
+            return this.Page(templateModel)
+                       .Build();
         }
+
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, GetTitle(request), ContentType.TextHtml);
+
+        private string GetTitle(IRequest request) => $"Index of {request.Target.Path}";
 
         #endregion
 

@@ -1,6 +1,6 @@
 ﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Templating;
 
 namespace GenHTTP.Modules.Razor
 {
@@ -8,14 +8,14 @@ namespace GenHTTP.Modules.Razor
     public static class ModRazor
     {
 
-        public static RazorRendererBuilder Template(IBuilder<IResourceProvider> templateProvider)
+        public static RazorRendererBuilder<T> Template<T>(IBuilder<IResourceProvider> templateProvider) where T : class, IBaseModel
         {
-            return Template(templateProvider.Build());
+            return Template<T>(templateProvider.Build());
         }
 
-        public static RazorRendererBuilder Template(IResourceProvider templateProvider)
+        public static RazorRendererBuilder<T> Template<T>(IResourceProvider templateProvider) where T : class, IBaseModel
         {
-            return new RazorRendererBuilder().TemplateProvider(templateProvider);
+            return new RazorRendererBuilder<T>().TemplateProvider(templateProvider);
         }
 
         public static RazorPageProviderBuilder<PageModel> Page(IBuilder<IResourceProvider> templateProvider)
@@ -25,7 +25,7 @@ namespace GenHTTP.Modules.Razor
 
         public static RazorPageProviderBuilder<PageModel> Page(IResourceProvider templateProvider)
         {
-            return new RazorPageProviderBuilder<PageModel>().Template(templateProvider).Model(r => new PageModel(r));
+            return new RazorPageProviderBuilder<PageModel>().Template(templateProvider).Model((r, h) => new PageModel(r, h));
         }
 
         public static RazorPageProviderBuilder<T> Page<T>(IBuilder<IResourceProvider> templateProvider, ModelProvider<T> modelProvider) where T : PageModel

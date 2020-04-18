@@ -1,36 +1,35 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
-using GenHTTP.Api.Modules.Websites;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
-
-using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core.Websites
 {
 
-    public class StyleRouter : RouterBase
+    public class StyleRouter : IHandler
     {
 
         #region Get-/Setters
+
+        public IHandler Parent { get; }
 
         private Dictionary<string, Style> Styles { get; }
 
         public bool Empty => Styles.Count == 0;
 
-        private IContentProvider Bundle { get; }
+        private IHandler Bundle { get; }
 
         #endregion
 
         #region Initialization
 
-        public StyleRouter(List<Style> styles,
-                           IRenderer<TemplateModel>? template,
-                           IContentProvider? errorHandler) : base(template, errorHandler)
+        public StyleRouter(IHandler parent, List<Style> styles)
         {
+            Parent = parent;
+
             Styles = styles.ToDictionary(s => s.Name);
 
             var bundle = Core.Bundle.Create().ContentType(ContentType.TextCss);
@@ -40,7 +39,7 @@ namespace GenHTTP.Modules.Core.Websites
                 bundle.Add(style.Provider);
             }
 
-            Bundle = bundle.Build();
+            Bundle = bundle.Build(this);
         }
 
         #endregion
@@ -60,33 +59,43 @@ namespace GenHTTP.Modules.Core.Websites
             return Styles.Values.Select(s => new StyleReference($"styles/{s.Name}")).ToList();
         }
 
-        public override void HandleContext(IEditableRoutingContext current)
+        public IResponse? Handle(IRequest request)
         {
-            current.Scope(this);
+            var file = request.Target.Current;
 
-            if (!current.Request.Server.Development)
+            if (file != null)
             {
-                if (current.ScopedPath.EndsWith("bundle.css"))
+                if (!request.Server.Development)
                 {
-                    current.RegisterContent(Bundle);
+                    if (file == "bundle.css")
+                    {
+                        return Bundle.Handle(request);
+                    }
+                }
+                else if (Styles.TryGetValue(file, out Style style))
+                {
+                    return Download.From(style.Provider)
+                                   .Type(ContentType.TextCss)
+                                   .Build(this)
+                                   .Handle(request);
                 }
             }
-            else if (Styles.TryGetValue(current.ScopedPath.Substring(1), out Style style))
+
+            return null;
+        }
+
+        public IEnumerable<ContentElement> GetContent(IRequest request)
+        {
+            var path = this.GetRoot(request.Server.Handler, false);
+
+            return Styles.Values.Select(s =>
             {
-                current.RegisterContent(Download.From(style.Provider)
-                                                .Type(ContentType.TextCss)
-                                                .Build());
-            }
-        }
+                var childPath = path.Edit(false)
+                                    .Append(s.Name)
+                                    .Build();
 
-        public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
-        {
-            return Styles.Values.Select(s => new ContentElement($"{basePath}{s.Name}", s.Name, ContentType.TextCss, null));
-        }
-
-        public override string? Route(string path, int currentDepth)
-        {
-            return Parent.Route(path, currentDepth);
+                return new ContentElement(childPath, s.Name, ContentType.TextCss, null);
+            });
         }
 
         #endregion

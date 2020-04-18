@@ -4,14 +4,14 @@ using System.Linq;
 using System.Net;
 using System.Web;
 
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core.Proxy
 {
 
-    public class ReverseProxyProvider : ContentProviderBase
+    public class ReverseProxyProvider : IHandler
     {
         private static readonly HashSet<string> RESERVED_RESPONSE_HEADERS = new HashSet<string>
         {
@@ -26,24 +26,21 @@ namespace GenHTTP.Modules.Core.Proxy
 
         #region Get-/Setters
 
+        public IHandler Parent { get; }
+
         public string Upstream { get; }
 
         public TimeSpan ConnectTimeout { get; }
 
         public TimeSpan ReadTimeout { get; }
 
-        public override string? Title => null;
-
-        public override FlexibleContentType? ContentType => null;
-
-        protected override HashSet<FlexibleRequestMethod>? SupportedMethods => null;
-
         #endregion
 
         #region Initialization
 
-        public ReverseProxyProvider(string upstream, TimeSpan connectTimeout, TimeSpan readTimeout, ResponseModification? mod) : base(mod)
+        public ReverseProxyProvider(IHandler parent, string upstream, TimeSpan connectTimeout, TimeSpan readTimeout)
         {
+            Parent = parent;
             Upstream = upstream;
 
             ConnectTimeout = connectTimeout;
@@ -54,7 +51,7 @@ namespace GenHTTP.Modules.Core.Proxy
 
         #region Functionality
 
-        protected override IResponseBuilder HandleInternal(IRequest request)
+        public IResponse Handle(IRequest request)
         {
             try
             {
@@ -70,23 +67,16 @@ namespace GenHTTP.Modules.Core.Proxy
 
                 var resp = GetSafeResponse(req);
 
-                return GetResponse(resp, request);
+                return GetResponse(resp, request).Build();
             }
             catch (OperationCanceledException e)
             {
-                return request.Respond(ResponseStatus.GatewayTimeout, e);
+                return this.Error(new ErrorModel(request, this, ResponseStatus.GatewayTimeout, "Gateway Timeout", "The gateway did not respond in time.", e)).Build();
             }
             catch (WebException e)
             {
-                return request.Respond(ResponseStatus.BadGateway, e);
+                return this.Error(new ErrorModel(request, this, ResponseStatus.BadGateway, "Bad Gateway", "Unable to retrieve a response from the gateway.", e)).Build();
             }
-        }
-
-        private string GetRequestUri(IRequest request)
-        {
-            var path = request.Routing?.ScopedPath ?? throw new InvalidOperationException("No routing context available");
-
-            return Upstream + path + GetQueryString(request);
         }
 
         private HttpWebRequest ConfigureRequest(IRequest request)
@@ -123,6 +113,11 @@ namespace GenHTTP.Modules.Core.Proxy
             }
 
             return req;
+        }
+
+        private string GetRequestUri(IRequest request)
+        {
+            return Upstream + request.Target.GetRemaining() + GetQueryString(request);
         }
 
         private string GetQueryString(IRequest request)
@@ -203,17 +198,18 @@ namespace GenHTTP.Modules.Core.Proxy
         {
             if (location.StartsWith(Upstream))
             {
-                var routing = request.Routing ?? throw new InvalidOperationException("No routing context available");
+                var path = request.Target.Path.ToString();
+                var scoped = request.Target.GetRemaining().ToString();
 
                 string relativePath;
 
-                if (routing.ScopedPath != "/")
+                if (scoped != "/")
                 {
-                    relativePath = request.Path.Substring(0, request.Path.Length - routing.ScopedPath.Length);
+                    relativePath = path.Substring(0, path.Length - scoped.Length);
                 }
                 else
                 {
-                    relativePath = request.Path.Substring(1);
+                    relativePath = path.Substring(1);
                 }
 
                 var protocol = request.EndPoint.Secure ? "https://" : "http://";
@@ -272,6 +268,12 @@ namespace GenHTTP.Modules.Core.Proxy
             }
 
             return string.Join("; ", result);
+        }
+
+        public IEnumerable<ContentElement> GetContent(IRequest request)
+        {
+            // we cannot tell the content available on the target site
+            return new List<ContentElement>();
         }
 
         #endregion

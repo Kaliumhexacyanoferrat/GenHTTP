@@ -1,152 +1,145 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
-
-using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core.Layouting
 {
 
-    public class LayoutRouter : RouterBase
+    public class LayoutRouter : IHandler, IRootPathAppender, IHandlerResolver
     {
 
         #region Get-/Setters
 
-        private Dictionary<string, IRouter> Routes { get; }
+        public IHandler Parent { get; }
 
-        private Dictionary<string, IContentProvider> Content { get; }
+        private Dictionary<string, IHandler> Handlers { get; }
 
-        private IRouter? DefaultRouter { get; }
+        private IHandler? Index { get; }
 
-        private IContentProvider? DefaultContent { get; }
+        private IHandler? Fallback { get; }
 
         #endregion
 
         #region Initialization
 
-        public LayoutRouter(Dictionary<string, IRouter> routes,
-                            Dictionary<string, IContentProvider> content,
-                            IRouter? defaultRouter,
-                            IContentProvider? defaultContent,
-                            IRenderer<TemplateModel>? template,
-                            IContentProvider? errorHandler) : base(template, errorHandler)
+        public LayoutRouter(IHandler parent,
+                            Dictionary<string, IHandlerBuilder> handlers,
+                            IHandlerBuilder? index,
+                            IHandlerBuilder? fallback)
         {
-            Routes = routes;
-            DefaultRouter = defaultRouter;
+            Parent = parent;
 
-            Content = content;
-            DefaultContent = defaultContent;
+            Handlers = handlers.ToDictionary(kv => kv.Key, kv => kv.Value.Build(this));
 
-            foreach (var route in routes)
-            {
-                route.Value.Parent = this;
-            }
-
-            if (defaultRouter != null)
-            {
-                defaultRouter.Parent = this;
-            }
+            Index = index?.Build(this);
+            Fallback = fallback?.Build(this);
         }
 
         #endregion
 
         #region Functionality
 
-        public override void HandleContext(IEditableRoutingContext current)
+        public IResponse? Handle(IRequest request)
         {
-            var segment = Api.Routing.Route.GetSegment(current.ScopedPath);
+            var current = request.Target.Current;
 
-            // is there a matching content provider?
-            if (Content.ContainsKey(segment))
+            if (current != null)
             {
-                current.Scope(this, segment);
-                current.RegisterContent(Content[segment]);
-                return;
+                if (Handlers.ContainsKey(current))
+                {
+                    request.Target.Advance();
+                    return Handlers[current].Handle(request);
+                }
+            }
+            else
+            {
+                // force a trailing slash to prevent duplicate content
+                if (!request.Target.Path.TrailingSlash)
+                {
+                    return Redirect.To(request, $"{request.Target.Path}/", false)
+                                   .Build(this)
+                                   .Handle(request);
+                }
+
+                if (Index != null)
+                {
+                    return Index.Handle(request);
+                }
             }
 
-            // are there any matching routes? 
-            if (Routes.ContainsKey(segment))
+            if (Fallback != null)
             {
-                current.Scope(this, segment);
-                Routes[segment].HandleContext(current);
-                return;
+                return Fallback.Handle(request);
             }
 
-            // route by default
-            if (string.IsNullOrEmpty(segment) && DefaultContent != null)
-            {
-                current.Scope(this);
-                current.RegisterContent(DefaultContent);
-                return;
-            }
-            else if (DefaultRouter != null)
-            {
-                current.Scope(this);
-                DefaultRouter.HandleContext(current);
-                return;
-            }
-
-            // no route found
-            current.Scope(this);
+            return null;
         }
 
-        public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
+        public IEnumerable<ContentElement> GetContent(IRequest request)
         {
-            foreach (var route in Routes)
-            {
-                var childPath = $"{basePath}{route.Key}/";
+            var result = new List<ContentElement>();
 
-                foreach (var child in route.Value.GetContent(request, childPath))
-                {
-                    yield return child;
-                }
+            if (Index != null)
+            {
+                result.AddRange(Index.GetContent(request));
             }
 
-            foreach (var content in Content)
+            if (Fallback != null)
             {
-                if (content.Value != DefaultContent)
-                {
-                    var childPath = $"{basePath}{content.Key}";
-
-                    yield return new ContentElement(childPath, content.Value.Title ?? content.Key, content.Value.ContentType, null);
-                }
+                result.AddRange(Fallback.GetContent(request));
             }
 
-            if (DefaultRouter != null)
+            foreach (var handler in Handlers.Values)
             {
-                foreach (var content in DefaultRouter.GetContent(request, basePath))
-                {
-                    yield return content;
-                }
+                result.AddRange(handler.GetContent(request));
             }
 
-            if (DefaultContent != null)
+            return result;
+        }
+
+        public void Append(PathBuilder path, IHandler? child = null)
+        {
+            if (child != null)
             {
-                yield return new ContentElement(basePath, DefaultContent?.Title ?? "Index", DefaultContent?.ContentType, null);
+                if (child == Index)
+                {
+                    path.TrailingSlash(true);
+                }
+                else
+                {
+                    foreach (var entry in Handlers)
+                    {
+                        if (entry.Value == child)
+                        {
+                            path.Preprend(entry.Key);
+                            break;
+                        }
+                    }
+                }
             }
         }
 
-        public override string? Route(string path, int currentDepth)
+        public IHandler? Find(string segment)
         {
-            var segment = Api.Routing.Route.GetSegment(path);
-
-            if (Content.ContainsKey(segment) || Routes.ContainsKey(segment))
+            if (Handlers.ContainsKey(segment))
             {
-                var indexRoute = Content.FirstOrDefault(kv => kv.Key == segment);
-
-                if ((DefaultContent != null) && (DefaultContent == indexRoute.Value))
-                {
-                    return Api.Routing.Route.GetRelation(currentDepth);
-                }
-
-                return Api.Routing.Route.GetRelation(currentDepth) + path;
+                return Handlers[segment];
             }
 
-            return Parent.Route(path, currentDepth + 1);
+            if ((Index != null) && (segment == "{index}"))
+            {
+                return Index;
+            }
+
+            if ((Fallback != null) && (segment == "{fallback}"))
+            {
+                return Fallback;
+            }
+
+            return null;
         }
 
         #endregion

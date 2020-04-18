@@ -1,14 +1,18 @@
-﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Modules;
+﻿using System.Collections.Generic;
+
+using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Content;
 
 namespace GenHTTP.Modules.Core.General
 {
 
-    public class RedirectProviderBuilder : ContentBuilderBase
+    public class RedirectProviderBuilder : IHandlerBuilder<RedirectProviderBuilder>
     {
         private bool _Temporary = false;
 
         private string? _Location;
+
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 
@@ -24,14 +28,20 @@ namespace GenHTTP.Modules.Core.General
             return this;
         }
 
-        public override IContentProvider Build()
+        public RedirectProviderBuilder Add(IConcernBuilder concern)
+        {
+            _Concerns.Add(concern);
+            return this;
+        }
+
+        public IHandler Build(IHandler parent)
         {
             if (_Location == null)
             {
                 throw new BuilderMissingPropertyException("Location");
             }
 
-            return new RedirectProvider(_Location, _Temporary, _Modification);
+            return Concerns.Chain(parent, _Concerns, (p) => new RedirectProvider(p, _Location, _Temporary));
         }
 
         #endregion

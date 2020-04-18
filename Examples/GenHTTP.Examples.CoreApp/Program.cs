@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Core;
+using GenHTTP.Modules.Core;
 
 namespace GenHTTP.Examples.CoreApp
 {
@@ -11,7 +12,8 @@ namespace GenHTTP.Examples.CoreApp
             var project = Project.Build();
 
             return Host.Create()
-                       .Router(project)
+                       .Handler(project)
+                       .Defaults()
 #if DEBUG
                        .Console()
                        .Debug()

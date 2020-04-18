@@ -1,17 +1,18 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Routing;
-
-using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core.StaticContent
 {
 
-    public class EmbeddedResourcesProviderBuilder : RouterBuilderBase<EmbeddedResourcesProviderBuilder>
+    public class EmbeddedResourcesProviderBuilder : IHandlerBuilder<EmbeddedResourcesProviderBuilder>
     {
         private Assembly? _Assembly;
         private string? _Root;
+
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 
@@ -27,7 +28,13 @@ namespace GenHTTP.Modules.Core.StaticContent
             return this;
         }
 
-        public override IRouter Build()
+        public EmbeddedResourcesProviderBuilder Add(IConcernBuilder concern)
+        {
+            _Concerns.Add(concern);
+            return this;
+        }
+
+        public IHandler Build(IHandler parent)
         {
             if (_Root == null)
             {
@@ -39,7 +46,7 @@ namespace GenHTTP.Modules.Core.StaticContent
                 _Assembly = System.Reflection.Assembly.GetCallingAssembly();
             }
 
-            return new EmbeddedResourcesProvider(_Assembly, _Root, _Template, _ErrorHandler);
+            return Concerns.Chain(parent, _Concerns, (p) => new EmbeddedResourcesProvider(p, _Assembly, _Root));
         }
 
         #endregion

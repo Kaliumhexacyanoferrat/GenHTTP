@@ -1,5 +1,5 @@
-﻿using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
+﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Templating;
 using GenHTTP.Modules.Core;
 
 using Scriban;
@@ -36,7 +36,7 @@ namespace GenHTTP.Modules.Scriban
             var obj = new ScriptObject();
 
             obj.Import(model);
-            obj.SetValue("route", new RoutingMethod(model.Request.Routing), true);
+            obj.SetValue("route", new RoutingMethod(model), true);
 
             return template.Render(obj);
         }

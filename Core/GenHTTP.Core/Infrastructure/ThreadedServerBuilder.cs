@@ -1,18 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using System.Linq;
-using System.Collections.Generic;
 
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Routing;
 
-using GenHTTP.Core.Infrastructure.Endpoints;
 using GenHTTP.Core.Infrastructure.Configuration;
+using GenHTTP.Core.Infrastructure.Endpoints;
 
-using GenHTTP.Modules.Core.Compression;
-using GenHTTP.Modules.Core.Security;
+using GenHTTP.Modules.Core;
 
 namespace GenHTTP.Core.Infrastructure
 {
@@ -29,30 +28,18 @@ namespace GenHTTP.Core.Infrastructure
 
         private TimeSpan _RequestReadTimeout = TimeSpan.FromSeconds(10);
 
-        private SecureUpgrade _SecureUpgrade = Api.Infrastructure.SecureUpgrade.Force;
-
-        private bool _StrictTransport = true;
-        private StrictTransportPolicy _StrictTransportPolicy = new StrictTransportPolicy(TimeSpan.FromDays(365), true, true);
-
-        private IRouter? _Router;
+        private IHandlerBuilder? _Handler;
         private IServerCompanion? _Companion;
-
-        private readonly List<IServerExtension> _Extensions = new List<IServerExtension>();
-
-        private Dictionary<string, ICompressionAlgorithm>? _Compression = new Dictionary<string, ICompressionAlgorithm>(StringComparer.InvariantCultureIgnoreCase);
 
         private readonly List<EndPointConfiguration> _EndPoints = new List<EndPointConfiguration>();
 
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+
         #region Content
 
-        public IServerBuilder Router(IRouterBuilder routerBuilder)
+        public IServerBuilder Handler(IHandlerBuilder handler)
         {
-            return Router(routerBuilder.Build());
-        }
-
-        public IServerBuilder Router(IRouter router)
-        {
-            _Router = router;
+            _Handler = handler;
             return this;
         }
 
@@ -69,17 +56,6 @@ namespace GenHTTP.Core.Infrastructure
         public IServerBuilder Companion(IServerCompanion companion)
         {
             _Companion = companion;
-            return this;
-        }
-
-        public IServerBuilder Extension(IServerExtensionBuilder extension)
-        {
-            return Extension(extension.Build());
-        }
-
-        public IServerBuilder Extension(IServerExtension extension)
-        {
-            _Extensions.Add(extension);
             return this;
         }
 
@@ -162,59 +138,11 @@ namespace GenHTTP.Core.Infrastructure
 
         #endregion
 
-        #region Compression
+        #region Extensibility
 
-        public IServerBuilder Compression(IBuilder<ICompressionAlgorithm> algorithm)
+        public IServerBuilder Add(IConcernBuilder concern)
         {
-            return Compression(algorithm.Build());
-        }
-
-        public IServerBuilder Compression(ICompressionAlgorithm algorithm)
-        {
-            if (_Compression == null)
-            {
-                _Compression = new Dictionary<string, ICompressionAlgorithm>();
-            }
-
-            _Compression[algorithm.Name] = algorithm;
-
-            return this;
-        }
-
-        public IServerBuilder Compression(bool enabled)
-        {
-            if (enabled)
-            {
-                _Compression = new Dictionary<string, ICompressionAlgorithm>();
-            }
-            else
-            {
-                _Compression = null;
-            }
-
-            return this;
-        }
-
-        #endregion
-
-        #region Security
-
-        public IServerBuilder SecureUpgrade(SecureUpgrade upgradeMode)
-        {
-            _SecureUpgrade = upgradeMode;
-            return this;
-        }
-
-        public IServerBuilder StrictTransport(TimeSpan maximumAge, bool includeSubdomains = true, bool preload = true)
-        {
-            _StrictTransport = true;
-            _StrictTransportPolicy = new StrictTransportPolicy(maximumAge, includeSubdomains, preload);
-            return this;
-        }
-
-        public IServerBuilder StrictTransport(bool enabled)
-        {
-            _StrictTransport = enabled;
+            _Concerns.Add(concern);
             return this;
         }
 
@@ -224,9 +152,9 @@ namespace GenHTTP.Core.Infrastructure
 
         public IServer Build()
         {
-            if (_Router == null)
+            if (_Handler == null)
             {
-                throw new BuilderMissingPropertyException("Router");
+                throw new BuilderMissingPropertyException("Handler");
             }
 
             var network = new NetworkConfiguration(_RequestReadTimeout, _RequestMemoryLimit, _TransferBufferSize, _Backlog);
@@ -241,40 +169,11 @@ namespace GenHTTP.Core.Infrastructure
 
             var config = new ServerConfiguration(_Development, endpoints, network);
 
-            var extensions = new ExtensionCollection();
-            extensions.AddRange(_Extensions);
+            var concerns = new IConcernBuilder[] { ErrorHandling.Default() }.Concat(_Concerns);
 
-            if (_Compression != null)
-            {
-                var algorithms = new Dictionary<string, ICompressionAlgorithm>(_Compression);
+            var handler = new CoreRouter(_Handler, concerns, _Development);
 
-                if (!algorithms.ContainsKey("gzip"))
-                {
-                    algorithms.Add("gzip", new GzipAlgorithm());
-                }
-
-                if (!algorithms.ContainsKey("br"))
-                {
-                    algorithms.Add("br", new BrotliCompression());
-                }
-
-                extensions.Add(new CompressionExtension(algorithms));
-            }
-
-            if (endpoints.Any(e => e.Security != null))
-            {
-                if (_SecureUpgrade != Api.Infrastructure.SecureUpgrade.None)
-                {
-                    extensions.Add(new SecureUpgradeExtension(_SecureUpgrade));
-                }
-
-                if (_StrictTransport)
-                {
-                    extensions.Add(new StrictTransportExtension(_StrictTransportPolicy));
-                }
-            }
-
-            return new ThreadedServer(_Companion, config, extensions, _Router);
+            return new ThreadedServer(_Companion, config, handler);
         }
 
         #endregion

@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 
 using Xunit;
 
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Webservices;
@@ -80,8 +80,8 @@ namespace GenHTTP.Testing.Acceptance.Modules
             [Method("enum")]
             public TestEnum Enum(TestEnum input) => input;
 
-            [Method("route")]
-            public string? Route(IRequest request) => request.Routing!.Route("enum");
+            [Method("request")]
+            public string? Request(IHandler handler, IRequest request) => "yes";
 
         }
 
@@ -185,7 +185,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
         [Fact]
         public void TestRouting()
         {
-            WithResponse("route", r => Assert.Equal("./enum", r.GetContent()));
+            WithResponse("request", r => Assert.Equal("yes", r.GetContent()));
         }
 
         [Fact]

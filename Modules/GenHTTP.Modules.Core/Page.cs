@@ -1,5 +1,5 @@
 ﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
 
 using GenHTTP.Modules.Core.General;
 

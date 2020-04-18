@@ -11,7 +11,7 @@ namespace GenHTTP.Core.Infrastructure
 
         public void OnRequestHandled(IRequest request, IResponse response, Exception? error)
         {
-            Console.WriteLine($"REQ - {request.Client.IPAddress} - {request.Method.RawMethod} {request.Path} - {response.Status.RawStatus} - {response.ContentLength ?? 0}");
+            Console.WriteLine($"REQ - {request.Client.IPAddress} - {request.Method.RawMethod} {request.Target.Path} - {response.Status.RawStatus} - {response.ContentLength ?? 0}");
 
             if (error != null)
             {

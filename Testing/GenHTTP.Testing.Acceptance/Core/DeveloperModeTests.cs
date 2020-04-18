@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using Xunit;
 
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Testing.Acceptance.Domain;
@@ -14,14 +15,17 @@ namespace GenHTTP.Testing.Acceptance.Core
     public class DeveloperModeTests
     {
 
-        private class ThrowingProvider : IContentProvider
+        private class ThrowingProvider : IHandler
         {
 
-            public FlexibleContentType? ContentType => null;
+            public IHandler Parent => throw new NotImplementedException();
 
-            public string? Title => null;
+            public IEnumerable<ContentElement> GetContent(IRequest request)
+            {
+                throw new NotImplementedException();
+            }
 
-            public IResponseBuilder Handle(IRequest request)
+            public IResponse? Handle(IRequest request)
             {
                 throw new InvalidOperationException("Nope!");
             }
@@ -37,9 +41,9 @@ namespace GenHTTP.Testing.Acceptance.Core
         {
             using var runner = new TestRunner();
 
-            var router = Layout.Create().Add("index", new ThrowingProvider(), true);
+            var router = Layout.Create().Index(new ThrowingProvider().Wrap());
 
-            runner.Host.Router(router).Development().Start();
+            runner.Host.Handler(router).Development().Start();
 
             using var response = runner.GetResponse();
 
@@ -53,7 +57,7 @@ namespace GenHTTP.Testing.Acceptance.Core
         [Fact]
         public void TestExceptionsWithNoTrace()
         {
-            var router = Layout.Create().Add("index", new ThrowingProvider(), true);
+            var router = Layout.Create().Index(new ThrowingProvider().Wrap());
 
             using var runner = TestRunner.Run(router);
 

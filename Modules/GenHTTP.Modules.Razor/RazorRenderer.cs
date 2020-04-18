@@ -1,7 +1,8 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Templating;
 using GenHTTP.Modules.Core;
 
 using RazorEngineCore;
@@ -11,7 +12,7 @@ namespace GenHTTP.Modules.Razor
 
     public class RazorRenderer<T> : IRenderer<T> where T : class, IBaseModel
     {
-        private static RazorEngine _Engine = new RazorEngine();
+        private readonly static RazorEngine _Engine = new RazorEngine();
 
         private RazorEngineCompiledTemplate<RazorEngineTemplateBase<T>>? _Template;
 
@@ -57,6 +58,11 @@ namespace GenHTTP.Modules.Razor
             return _Engine.Compile<RazorEngineTemplateBase<T>>(TemplateProvider.GetResourceAsString(), (builder) =>
             {
                 builder.AddAssemblyReference(Assembly.GetCallingAssembly());
+                builder.AddAssemblyReference(Assembly.GetExecutingAssembly());
+                builder.AddAssemblyReference(typeof(Page).Assembly);
+
+                builder.AddUsing("GenHTTP.Modules.Core");
+                builder.AddUsing("GenHTTP.Modules.Razor");
             });
         }
 

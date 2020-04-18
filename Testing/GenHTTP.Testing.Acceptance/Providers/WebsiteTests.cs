@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
 
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
-using GenHTTP.Api.Modules.Websites;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Templating;
+using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
+
 using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Core.Layouting;
 using GenHTTP.Modules.Core.Websites;
 using GenHTTP.Modules.Scriban;
+
 using GenHTTP.Testing.Acceptance.Domain;
 
 using Xunit;
@@ -25,6 +25,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
         public class Theme : ITheme
         {
+
             public List<Script> Scripts
             {
                 get { return new List<Script> { new Script("custom.js", true, Data.FromString(" ").Build()) }; }
@@ -35,32 +36,44 @@ namespace GenHTTP.Testing.Acceptance.Providers
                 get { return new List<Style> { new Style("custom.css", Data.FromString(" ").Build()) }; }
             }
 
-            public IRouter? Resources => Layout.Create().Add("some.txt", Content.From("Text")).Build();
+            public IHandlerBuilder? Resources => Layout.Create().Add("some.txt", Content.From("Text"));
 
-            public IContentProvider? GetErrorHandler(IRequest request, ResponseStatus responseType, Exception? cause)
-            {
-                return Content.From("Error!").Build();
-            }
+            public IRenderer<ErrorModel> ErrorHandler => ModScriban.Template<ErrorModel>(Data.FromResource("Error.html")).Build();
+
+            public IRenderer<WebsiteModel> Renderer => ModScriban.Template<WebsiteModel>(Data.FromResource("Template.html")).Build();
 
             public object? GetModel(IRequest request)
             {
                 return new { key = "value" };
             }
 
-            public IRenderer<WebsiteModel> GetRenderer()
-            {
-                throw new NotImplementedException();
-            }
         }
 
         #endregion
+
+        [Fact]
+        public void TestErrorHandler()
+        {
+            using var runner = TestRunner.Run(GetWebsite());
+
+            using var file = runner.GetResponse("/blubb");
+
+            Assert.Equal(HttpStatusCode.NotFound, file.StatusCode);
+            Assert.Equal("text/html", file.ContentType);
+
+            var content = file.GetContent();
+
+            Assert.Contains("This is an error!", content);
+
+            Assert.Contains("This is the template!", content);
+        }
 
         [Fact]
         public void TestDevelopmentResourcesWithoutBundle()
         {
             using var runner = new TestRunner();
 
-            runner.Host.Router(GetWebsite())
+            runner.Host.Handler(GetWebsite())
                        .Development(true)
                        .Start();
 
@@ -146,24 +159,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             using var runner = TestRunner.Run(GetWebsite());
 
-            using var file = runner.GetResponse("/sitemaps/sitemap.xml");
+            using var file = runner.GetResponse("/sitemap.xml");
 
             Assert.Equal(HttpStatusCode.OK, file.StatusCode);
             Assert.Equal("text/xml", file.ContentType);
-        }
-
-        [Fact]
-        public void TestWebsiteContent()
-        {
-            var outer = Website.Create()
-                               .Theme(new Theme())
-                               .Content(GetWebsite());
-
-            using var runner = TestRunner.Run(outer);
-
-            using var file = runner.GetResponse("/sitemaps/sitemap.xml");
-
-            Assert.Equal(HttpStatusCode.OK, file.StatusCode);
         }
 
         [Fact]
@@ -198,7 +197,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var template = @"script = {{ route 'scripts/s.js' }}
                              style = {{ route 'styles/s.css' }}
                              resource = {{ route 'resources/r.txt' }}
-                             sitemap = {{ route 'sitemaps/s.xml' }}
+                             sitemap = {{ route 'sitemap.xml' }}
                              favicon = {{ route 'favicon.ico' }}
                              robots = {{ route 'robots.txt' }}
                              root = {{ route '{root}' }}
@@ -206,12 +205,12 @@ namespace GenHTTP.Testing.Acceptance.Providers
                              else = {{ route 'something/else/' }}";
 
             var sub = Layout.Create()
-                            .Add("index", ModScriban.Page(Data.FromString(template)), true);
+                            .Index(ModScriban.Page(Data.FromString(template)));
 
             var content = Layout.Create()
                                 .Add("sub", sub);
 
-            using var runner = TestRunner.Run(content);
+            using var runner = TestRunner.Run(GetWebsite(content));
 
             using var response = runner.GetResponse("/sub/");
 
@@ -221,7 +220,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.Contains("style = ../styles/s.css", result);
             Assert.Contains("resource = ../resources/r.txt", result);
 
-            Assert.Contains("sitemap = ../sitemaps/s.xml", result);
+            Assert.Contains("sitemap = ../sitemap.xml", result);
             Assert.Contains("favicon = ../favicon.ico", result);
             Assert.Contains("robots = ../robots.txt", result);
 

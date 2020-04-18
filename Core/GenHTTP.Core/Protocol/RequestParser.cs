@@ -1,16 +1,21 @@
-﻿using System.Buffers;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Routing;
 using GenHTTP.Core.Infrastructure.Configuration;
+using System;
+using System.Buffers;
+using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace GenHTTP.Core.Protocol
 {
 
     internal class RequestParser
     {
+        private static char[] LINE_ENDING = new char[] { '\r' };
+        private static char[] PATH_ENDING = new char[] { '\r', '?', ' ' };
+
         private RequestBuilder? _Builder;
 
         #region Get-/Setters
@@ -34,9 +39,12 @@ namespace GenHTTP.Core.Protocol
 
         internal async ValueTask<RequestBuilder?> TryParseAsync(RequestBuffer buffer)
         {
-            string? method, path, protocol;
+            WebPath? path;
+            RequestQuery? query;
 
-            if ((method = await TryReadToken(buffer, ' ').ConfigureAwait(false)) != null)
+            string? method, protocol;
+
+            if ((method = await ReadToken(buffer, ' ').ConfigureAwait(false)) != null)
             {
                 Request.Type(method);
             }
@@ -45,7 +53,7 @@ namespace GenHTTP.Core.Protocol
                 return null;
             }
 
-            if ((path = await TryReadToken(buffer, ' ').ConfigureAwait(false)) != null)
+            if ((path = await TryReadPath(buffer).ConfigureAwait(false)) != null)
             {
                 Request.Path(path);
             }
@@ -54,7 +62,12 @@ namespace GenHTTP.Core.Protocol
                 return null;
             }
 
-            if ((protocol = await TryReadToken(buffer, '\r', 1, 5).ConfigureAwait(false)) != null)
+            if ((query = await TryReadQuery(buffer).ConfigureAwait(false)) != null)
+            {
+                Request.Query(query);
+            }
+
+            if ((protocol = await ReadToken(buffer, '\r', 1, 5).ConfigureAwait(false)) != null)
             {
                 Request.Protocol(protocol);
             }
@@ -65,7 +78,7 @@ namespace GenHTTP.Core.Protocol
 
             while (await TryReadHeader(buffer, Request).ConfigureAwait(false)) { /* nop */ }
 
-            if ((await TryReadToken(buffer, '\r', 1).ConfigureAwait(false)) == null)
+            if ((await ReadToken(buffer, '\r', 1).ConfigureAwait(false)) == null)
             {
                 return null;
             }
@@ -93,13 +106,68 @@ namespace GenHTTP.Core.Protocol
             return result;
         }
 
+        private async ValueTask<WebPath?> TryReadPath(RequestBuffer buffer)
+        {
+            // ignore the slash at the beginning
+            buffer.Advance(1);
+
+            var parts = new List<string>(4);
+
+            string? part;
+
+            while ((part = await ReadToken(buffer, '/', PATH_ENDING).ConfigureAwait(false)) != null)
+            {
+                parts.Add(Uri.UnescapeDataString(part));
+            }
+
+            // find the delimiter (either '?' or ' ')
+            var remainder = await ReadToken(buffer, '?') ?? await ReadToken(buffer, ' ');
+
+            if (remainder != null)
+            {
+                if (string.IsNullOrEmpty(remainder))
+                {
+                    return new WebPath(parts, true);
+                }
+
+                parts.Add(Uri.UnescapeDataString(remainder));
+                return new WebPath(parts, false);
+            }
+
+            return null;
+        }
+
+        private async ValueTask<RequestQuery?> TryReadQuery(RequestBuffer buffer)
+        {
+            var queryString = await ReadToken(buffer, ' ');
+
+            if (queryString?.Length > 0)
+            {
+                var query = new RequestQuery();
+
+                foreach (Match m in Pattern.GET_PARAMETER.Matches(queryString))
+                {
+                    query[Uri.UnescapeDataString(m.Groups[1].Value)] = Uri.UnescapeDataString(m.Groups[2].Value);
+                }
+
+                if (query.Count == 0)
+                {
+                    query[Uri.UnescapeDataString(queryString)] = string.Empty;
+                }
+
+                return query;
+            }
+
+            return null;
+        }
+
         private async ValueTask<bool> TryReadHeader(RequestBuffer buffer, RequestBuilder request)
         {
             string? key, value;
 
-            if ((key = await TryReadToken(buffer, ':', 1).ConfigureAwait(false)) != null)
+            if ((key = await ReadToken(buffer, ':', 1).ConfigureAwait(false)) != null)
             {
-                if ((value = await TryReadToken(buffer, '\r', 1).ConfigureAwait(false)) != null)
+                if ((value = await ReadToken(buffer, '\r', 1).ConfigureAwait(false)) != null)
                 {
                     request.Header(key, value);
                     return true;
@@ -109,7 +177,7 @@ namespace GenHTTP.Core.Protocol
             return false;
         }
 
-        private async ValueTask<string?> TryReadToken(RequestBuffer buffer, char delimiter, ushort skipNext = 0, ushort skipFirst = 0)
+        private async ValueTask<SequencePosition?> FindPosition(RequestBuffer buffer, char delimiter)
         {
             if (buffer.ReadRequired)
             {
@@ -131,6 +199,18 @@ namespace GenHTTP.Core.Protocol
                 position = buffer.Data.PositionOf((byte)delimiter);
             }
 
+            return position;
+        }
+
+        private ValueTask<string?> ReadToken(RequestBuffer buffer, char delimiter, ushort skipNext = 0, ushort skipFirst = 0, bool skipDelimiter = true)
+        {
+            return ReadToken(buffer, delimiter, LINE_ENDING, skipNext, skipFirst, skipDelimiter);
+        }
+
+        private async ValueTask<string?> ReadToken(RequestBuffer buffer, char delimiter, char[] boundaries, ushort skipNext = 0, ushort skipFirst = 0, bool skipDelimiter = true)
+        {
+            var position = await FindPosition(buffer, delimiter);
+
             if (position != null)
             {
                 if (skipFirst > 0)
@@ -139,23 +219,33 @@ namespace GenHTTP.Core.Protocol
                     position = buffer.Data.PositionOf((byte)delimiter)!;
                 }
 
-                if (delimiter != '\r')
+                foreach (var boundary in boundaries)
                 {
-                    var lineBreakPosition = buffer.Data.PositionOf((byte)'\r');
-
-                    if (lineBreakPosition != null)
+                    if (boundary != delimiter)
                     {
-                        if (position.Value.GetInteger() > lineBreakPosition.Value.GetInteger())
+                        var boundaryPosition = buffer.Data.PositionOf((byte)boundary);
+
+                        if (boundaryPosition != null)
                         {
-                            return null;
+                            if (position.Value.GetInteger() > boundaryPosition.Value.GetInteger())
+                            {
+                                return null;
+                            }
                         }
                     }
                 }
 
                 var data = GetString(buffer.Data.Slice(0, position.Value));
-                buffer.Advance(buffer.Data.GetPosition(1, position.Value));
 
-                buffer.Advance(skipNext);
+                if (skipDelimiter)
+                {
+                    buffer.Advance(buffer.Data.GetPosition(1, position.Value));
+                }
+
+                if (skipNext > 0)
+                {
+                    buffer.Advance(skipNext);
+                }
 
                 return data;
             }

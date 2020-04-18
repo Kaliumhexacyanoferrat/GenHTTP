@@ -15,7 +15,7 @@ namespace GenHTTP.Modules.Core.Compression
         
         public IResponseContent Compress(IResponseContent content)
         {
-            return new CompressedContent(content, (target) => new GZipStream(target, CompressionLevel.Fastest, false));
+            return new CompressedResponseContent(content, (target) => new GZipStream(target, CompressionLevel.Fastest, false));
         }
 
     }

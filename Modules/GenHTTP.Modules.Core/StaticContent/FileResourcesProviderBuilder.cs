@@ -1,16 +1,17 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Routing;
-
-using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core.StaticContent
 {
 
-    public class FileResourcesProviderBuilder : RouterBuilderBase<FileResourcesProviderBuilder>
+    public class FileResourcesProviderBuilder : IHandlerBuilder<FileResourcesProviderBuilder>
     {
         private DirectoryInfo? _Directory;
+
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 
@@ -20,7 +21,13 @@ namespace GenHTTP.Modules.Core.StaticContent
             return this;
         }
 
-        public override IRouter Build()
+        public FileResourcesProviderBuilder Add(IConcernBuilder concern)
+        {
+            _Concerns.Add(concern);
+            return this;
+        }
+
+        public IHandler Build(IHandler parent)
         {
             if (_Directory == null)
             {
@@ -32,7 +39,7 @@ namespace GenHTTP.Modules.Core.StaticContent
                 throw new DirectoryNotFoundException($"The given directory does not exist: '{_Directory.FullName}'");
             }
 
-            return new FileResourcesProvider(_Directory, _Template, _ErrorHandler);
+            return Concerns.Chain(parent, _Concerns, (p) => new FileResourcesProvider(parent, _Directory));
         }
 
         #endregion

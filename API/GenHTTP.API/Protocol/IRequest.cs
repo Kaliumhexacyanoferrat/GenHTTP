@@ -37,11 +37,6 @@ namespace GenHTTP.Api.Protocol
         /// </summary>
         IClientConnection LocalClient { get; }
 
-        /// <summary>
-        /// The routing context of the request, if applicable.
-        /// </summary>
-        IRoutingContext? Routing { get; set; }
-
         #endregion
 
         #region HTTP Protocol
@@ -59,7 +54,7 @@ namespace GenHTTP.Api.Protocol
         /// <summary>
         /// The path requested by the client (with no query parameters attached).
         /// </summary>
-        string Path { get; }
+        RoutingTarget Target { get; }
 
         #endregion
 

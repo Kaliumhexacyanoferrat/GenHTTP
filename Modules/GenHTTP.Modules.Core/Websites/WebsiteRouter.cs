@@ -1,214 +1,106 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
-using GenHTTP.Api.Modules.Websites;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Templating;
+using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Core.Websites
 {
 
-    public class WebsiteRouter : IRouter
+    public class WebsiteRouter : IHandler, IErrorHandler, IPageRenderer, IHandlerResolver
     {
-        private IRouter? _Parent;
 
         #region Get-/Setters
 
-        private IRouter Content { get; }
-
-        private ScriptRouter Scripts { get; }
-
-        private StyleRouter Styles { get; }
-
-        private IContentProvider? Favicon { get; }
-
-        private IContentProvider? Robots { get; }
-
-        private IRouter? Sitemaps { get; }
+        public IHandler Parent { get; }
 
         public IMenuProvider Menu { get; }
 
-        private IRouter? Resources { get; }
-
         private ITheme Theme { get; }
 
-        private IContentProvider? ErrorHandler { get; }
+        private IHandler Handler { get; }
 
-        public IRouter Parent
-        {
-            get { return _Parent ?? throw new InvalidOperationException("Parent has not been set"); }
-            set { _Parent = value; }
-        }
+        private WebsiteRenderer Renderer { get; }
 
         #endregion
 
         #region Initialization
 
-        public WebsiteRouter(IRouter content,
-                             ScriptRouter scripts,
-                             StyleRouter styles,
-                             IRouter? sitemaps,
-                             IContentProvider? robots,
+        public WebsiteRouter(IHandler parent,
+                             IHandlerBuilder content,
+                             IEnumerable<IConcernBuilder> concerns,
+                             IHandlerBuilder scripts,
+                             IHandlerBuilder styles,
                              IResourceProvider? favicon,
-                             IMenuProvider menu,
-                             ITheme theme,
-                             IContentProvider? errorHandler)
+                             IMenuProvider? menu,
+                             ITheme theme)
         {
-            Content = content;
-            Content.Parent = this;
+            Parent = parent;
 
-            Scripts = scripts;
-            Scripts.Parent = this;
+            var layout = Layout.Create()
+                               .Add("scripts", scripts)
+                               .Add("styles", styles)
+                               .Add("sitemap.xml", Sitemap.Create())
+                               .Add("robots.txt", Robots.Default().Sitemap())
+                               .Fallback(content);
 
-            Styles = styles;
-            Styles.Parent = this;
-
-            Sitemaps = sitemaps;
-
-            if (Sitemaps != null)
+            foreach (var concern in concerns)
             {
-                Sitemaps.Parent = this;
+                layout.Add(concern);
             }
-
-            Robots = robots;
 
             if (favicon != null)
             {
-                Favicon = Download.From(favicon)
-                                  .Type(ContentType.ImageIcon)
-                                  .Build();
+                layout.Add("favicon.ico", Download.From(favicon).Type(ContentType.ImageIcon));
             }
 
-            Resources = theme.Resources;
-
-            if (Resources != null)
+            if (theme.Resources != null)
             {
-                Resources.Parent = this;
+                layout.Add("resources", theme.Resources);
             }
 
-            ErrorHandler = errorHandler;
+            Handler = layout.Build(this);
+
             Theme = theme;
 
-            Menu = menu;
+            Menu = menu ?? Core.Menu.From(content.Build(this)).Build();
+
+            var scriptRouter = (ScriptRouter)scripts.Build(this);
+            var styleRouter = (StyleRouter)styles.Build(this);
+
+            Renderer = new WebsiteRenderer(Theme, Menu, scriptRouter, styleRouter);
         }
 
         #endregion
 
         #region Functionality
 
-        public IRenderer<TemplateModel> GetRenderer()
+        public IResponse? Handle(IRequest request) => Handler.Handle(request);
+
+        public IEnumerable<ContentElement> GetContent(IRequest request) => Handler.GetContent(request);
+
+        public TemplateModel Render(ErrorModel error)
         {
-            return new WebsiteRenderer(Theme, Menu, Scripts, Styles);
+            return new TemplateModel(error.Request, this, error.Title ?? "Error", Theme.ErrorHandler.Render(error));
         }
 
-        public IContentProvider GetErrorHandler(IRequest request, ResponseStatus responseType, Exception? cause)
+        public IResponseBuilder Render(TemplateModel model)
         {
-            return ErrorHandler ?? Theme.GetErrorHandler(request, responseType, cause) ?? Parent.GetErrorHandler(request, responseType, cause);
+            return model.Request.Respond()
+                                .Content(Renderer.Render(model))
+                                .Type(ContentType.TextHtml);
         }
 
-        public void HandleContext(IEditableRoutingContext current)
+        public IHandler? Find(string segment)
         {
-            current.Scope(this);
-
-            var segment = Api.Routing.Route.GetSegment(current.ScopedPath);
-
-            if (segment == "scripts" && !Scripts.Empty)
+            if (segment == "{root}" || segment == "{website}")
             {
-                current.Scope(Scripts, segment);
-                Scripts.HandleContext(current);
-            }
-            else if (segment == "styles" && !Styles.Empty)
-            {
-                current.Scope(Styles, segment);
-                Styles.HandleContext(current);
-            }
-            else if (segment == "resources" && Resources != null)
-            {
-                current.Scope(Resources, segment);
-                Resources.HandleContext(current);
-            }
-            else if (segment == "favicon.ico" && Favicon != null)
-            {
-                current.RegisterContent(Favicon);
-            }
-            else if (segment == "robots.txt" && Robots != null)
-            {
-                current.RegisterContent(Robots);
-            }
-            else if (segment == "sitemaps" && Sitemaps != null)
-            {
-                current.Scope(Sitemaps, segment);
-                Sitemaps.HandleContext(current);
-            }
-            else
-            {
-                Content.HandleContext(current);
-            }
-        }
-
-        public IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
-        {
-            foreach (var script in Scripts.GetContent(request, $"{basePath}scripts/"))
-            {
-                yield return script;
+                return this;
             }
 
-            foreach (var style in Styles.GetContent(request, $"{basePath}styles/"))
-            {
-                yield return style;
-            }
-
-            foreach (var resource in Styles.GetContent(request, $"{basePath}resources/"))
-            {
-                yield return resource;
-            }
-
-            if (Favicon != null)
-            {
-                yield return new ContentElement($"{basePath}favicon.ico", "Favicon", ContentType.ImageIcon, null);
-            }
-
-            if (Robots != null)
-            {
-                yield return new ContentElement($"{basePath}robots.txt", "Robots Instruction File", ContentType.TextPlain, null);
-            }
-
-            if (Sitemaps != null)
-            {
-                foreach (var sitemap in Sitemaps.GetContent(request, $"{basePath}sitemaps/"))
-                {
-                    yield return sitemap;
-                }
-            }
-
-            foreach (var content in Content.GetContent(request, basePath))
-            {
-                yield return content;
-            }
-        }
-
-        public string? Route(string path, int currentDepth)
-        {
-            var segment = Api.Routing.Route.GetSegment(path);
-
-            if (segment == "scripts" || segment == "styles" || segment == "resources" || segment == "sitemaps" || segment == "favicon.ico" || segment == "robots.txt")
-            {
-                return Api.Routing.Route.GetRelation(currentDepth - 1) + path;
-            }
-
-            if (segment == "{root}")
-            {
-                if (path != segment)
-                {
-                    return Api.Routing.Route.GetRelation(currentDepth - 1) + path.Substring(segment.Length + 1);
-                }
-
-                return Api.Routing.Route.GetRelation(currentDepth - 1);
-            }
-
-            return Parent.Route(path, currentDepth);
+            return null;
         }
 
         #endregion

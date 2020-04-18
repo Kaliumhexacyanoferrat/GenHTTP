@@ -1,17 +1,16 @@
-﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Routing;
+﻿using System.Collections.Generic;
 
-using GenHTTP.Modules.Core.General;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Modules.Core.Listing
 {
 
-    public class ListingRouterBuilder : RouterBuilderBase<ListingRouter>
+    public class ListingRouterBuilder : IHandlerBuilder<ListingRouterBuilder>
     {
         private string? _Directory;
 
-        private ResponseModification? _Modification;
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 
@@ -21,17 +20,17 @@ namespace GenHTTP.Modules.Core.Listing
             return this;
         }
 
-        public ListingRouterBuilder Modify(ResponseModification modification)
+        public ListingRouterBuilder Add(IConcernBuilder concern)
         {
-            _Modification = modification;
+            _Concerns.Add(concern);
             return this;
         }
 
-        public override IRouter Build()
+        public IHandler Build(IHandler parent)
         {
             var directory = _Directory ?? throw new BuilderMissingPropertyException("directory");
 
-            return new ListingRouter(directory, _Modification, _Template, _ErrorHandler);
+            return Concerns.Chain(parent, _Concerns, (p) => new ListingRouter(p, directory));
         }
 
         #endregion

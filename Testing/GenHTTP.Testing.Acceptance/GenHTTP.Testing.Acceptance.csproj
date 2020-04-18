@@ -14,22 +14,26 @@
 
   <ItemGroup>
     <None Remove="Resources\Certificate.pfx" />
+    <None Remove="Resources\Error.html" />
     <None Remove="Resources\File.txt" />
+    <None Remove="Resources\Template.html" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\Certificate.pfx">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Error.html" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\File.txt" />
+    <EmbeddedResource Include="Resources\Template.html" />
   </ItemGroup>
 
   <ItemGroup>
     
-    <PackageReference Include="coverlet.msbuild" Version="2.8.0">
+    <PackageReference Include="coverlet.msbuild" Version="2.8.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
 
 namespace GenHTTP.Modules.Core.Resource
 {

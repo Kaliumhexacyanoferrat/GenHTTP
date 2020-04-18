@@ -1,29 +1,30 @@
-﻿using GenHTTP.Api.Modules;
+﻿using System.Collections.Generic;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using System.Collections.Generic;
 
 namespace GenHTTP.Modules.Core.General
 {
 
-    public class DownloadProvider : ContentProviderBase
+    public class DownloadProvider : IHandler
     {
 
         #region Get-/Setters
 
+        public IHandler Parent { get; }
+
         public IResourceProvider ResourceProvider { get; }
 
-        public override string? Title => null;
-
-        public override FlexibleContentType? ContentType { get; }
-
-        protected override HashSet<FlexibleRequestMethod>? SupportedMethods => _GET;
+        private FlexibleContentType ContentType { get; }
 
         #endregion
 
         #region Initialization
 
-        public DownloadProvider(IResourceProvider resourceProvider, FlexibleContentType contentType, ResponseModification? mod) : base(mod)
+        public DownloadProvider(IHandler parent, IResourceProvider resourceProvider, FlexibleContentType contentType)
         {
+            Parent = parent;
+
             ResourceProvider = resourceProvider;
             ContentType = contentType;
         }
@@ -32,12 +33,20 @@ namespace GenHTTP.Modules.Core.General
 
         #region Functionality
 
-        protected override IResponseBuilder HandleInternal(IRequest request)
+        public IResponse? Handle(IRequest request)
         {
+            if (!request.HasType(RequestMethod.GET, RequestMethod.HEAD))
+            {
+                return this.MethodNotAllowed(request).Build();
+            }
+
             return request.Respond()
                           .Content(ResourceProvider.GetResource())
-                          .Type(ContentType!.Value);
+                          .Type(ContentType)
+                          .Build();
         }
+
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, "Download", ContentType);
 
         #endregion
 

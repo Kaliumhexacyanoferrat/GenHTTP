@@ -1,72 +1,54 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
-
-using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core.Virtualization
 {
 
-    public class VirtualHostRouter : RouterBase
+    public class VirtualHostRouter : IHandler
     {
 
         #region Get-/Setters
 
-        private Dictionary<string, IRouter> Hosts { get; }
+        public IHandler Parent { get; }
 
-        private IRouter? DefaultRoute { get; }
+        private Dictionary<string, IHandler> Hosts { get; }
+
+        private IHandler? DefaultRoute { get; }
 
         #endregion
 
         #region Initialization
 
-        public VirtualHostRouter(Dictionary<string, IRouter> hosts,
-                                 IRouter? defaultRoute,
-                                 IRenderer<TemplateModel>? template,
-                                 IContentProvider? errorHandler) : base(template, errorHandler)
+        public VirtualHostRouter(IHandler parent,
+                                 Dictionary<string, IHandlerBuilder> hosts,
+                                 IHandlerBuilder? defaultRoute)
         {
-            foreach (var router in hosts.Values)
-            {
-                router.Parent = this;
-            }
+            Parent = parent;
 
-            Hosts = hosts;
-
-            if (defaultRoute != null)
-            {
-                defaultRoute.Parent = this;
-            }
-
-            DefaultRoute = defaultRoute;
+            Hosts = hosts.ToDictionary(kv => kv.Key, kv => kv.Value.Build(this));
+            DefaultRoute = defaultRoute?.Build(this);
         }
 
         #endregion
 
         #region Functionality
 
-        public override void HandleContext(IEditableRoutingContext current)
+        public IResponse? Handle(IRequest request)
         {
-            current.Scope(this);
-            
-            GetRouter(current.Request)?.HandleContext(current);
+            return GetRouter(request)?.Handle(request);
         }
 
-        public override string? Route(string path, int currentDepth)
-        {
-            return Parent.Route(path, currentDepth);
-        }
-
-        public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
+        public IEnumerable<ContentElement> GetContent(IRequest request)
         {
             var router = GetRouter(request);
 
-            return router?.GetContent(request, basePath) ?? new List<ContentElement>();
+            return router?.GetContent(request) ?? new List<ContentElement>();
         }
 
-        private IRouter? GetRouter(IRequest request)
+        private IHandler? GetRouter(IRequest request)
         {
             var host = request.HostWithoutPort();
 

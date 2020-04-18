@@ -1,16 +1,15 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Collections.Generic;
 
 using Xunit;
 
-using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Content;
 
 using GenHTTP.Testing.Acceptance.Domain;
 using GenHTTP.Modules.Core;
-using GenHTTP.Api.Modules;
-using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Testing.Acceptance.Core
 {
@@ -18,38 +17,49 @@ namespace GenHTTP.Testing.Acceptance.Core
     public class ProtocolTests
     {
 
-        private class TestExtension : IServerExtension
+        private class ValueRecorder : IHandler
         {
 
             public string? Value { get; private set; }
 
-            public IContentProvider? Intercept(IRequest request) => null;
+            public IHandler Parent => throw new NotImplementedException();
 
-            public void Intercept(IRequest request, IResponse response)
+            public IEnumerable<ContentElement> GetContent(IRequest request)
+            {
+                throw new NotImplementedException();
+            }
+
+            public IResponse? Handle(IRequest request)
             {
                 if (request.Content != null)
                 {
                     using var reader = new StreamReader(request.Content);
                     Value = reader.ReadToEnd();
                 }
+
+                return request.Respond().Build();
             }
 
         }
 
-        private class ContentLengthResponder : IContentProvider
+        private class ContentLengthResponder : IHandler
         {
 
-            public string? Title => "Content Length Responder";
+            public IHandler Parent => throw new NotImplementedException();
 
-            public FlexibleContentType? ContentType => new FlexibleContentType(Api.Protocol.ContentType.TextPlain);
+            public IEnumerable<ContentElement> GetContent(IRequest request)
+            {
+                throw new NotImplementedException();
+            }
 
-            public IResponseBuilder Handle(IRequest request)
+            public IResponse Handle(IRequest request)
             {
                 var content = request.Content?.Length.ToString() ?? "No Content";
 
                 return request.Respond()
                               .Content(content)
-                              .Type(Api.Protocol.ContentType.TextPlain);
+                              .Type(ContentType.TextPlain)
+                              .Build();
             }
 
         }
@@ -60,13 +70,11 @@ namespace GenHTTP.Testing.Acceptance.Core
         [Fact]
         public void TestPost()
         {
-            var test = new TestExtension();
+            var recorder = new ValueRecorder();
 
             var str = "From client with ❤";
 
-            using var runner = new TestRunner();
-
-            runner.Host.Extension(test).Start();
+            using var runner = TestRunner.Run(recorder.Wrap());
 
             var request = runner.GetRequest();
             request.Method = "POST";
@@ -79,7 +87,7 @@ namespace GenHTTP.Testing.Acceptance.Core
 
             using var __ = request.GetSafeResponse();
 
-            Assert.Equal(str, test.Value);
+            Assert.Equal(str, recorder.Value);
         }
 
         /// <summary>
@@ -88,9 +96,9 @@ namespace GenHTTP.Testing.Acceptance.Core
         [Fact]
         public void TestPutLarge()
         {
-            using var runner = TestRunner.Run(Layout.Create().Add("test", new ContentLengthResponder()));
+            using var runner = TestRunner.Run(new ContentLengthResponder());
 
-            var request = runner.GetRequest("/test");
+            var request = runner.GetRequest();
             request.Method = "PUT";
 
             using (var input = request.GetRequestStream())

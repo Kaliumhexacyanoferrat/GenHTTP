@@ -1,6 +1,6 @@
 ﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Templating;
 
 namespace GenHTTP.Modules.Scriban
 {
@@ -8,14 +8,14 @@ namespace GenHTTP.Modules.Scriban
     public static class ModScriban
     {
 
-        public static ScribanRendererBuilder Template(IBuilder<IResourceProvider> templateProvider)
+        public static ScribanRendererBuilder<T> Template<T>(IBuilder<IResourceProvider> templateProvider) where T : class, IBaseModel
         {
-            return Template(templateProvider.Build());
+            return Template<T>(templateProvider.Build());
         }
 
-        public static ScribanRendererBuilder Template(IResourceProvider templateProvider)
+        public static ScribanRendererBuilder<T> Template<T>(IResourceProvider templateProvider) where T : class, IBaseModel
         {
-            return new ScribanRendererBuilder().TemplateProvider(templateProvider);
+            return new ScribanRendererBuilder<T>().TemplateProvider(templateProvider);
         }
 
         public static ScribanPageProviderBuilder<PageModel> Page(IBuilder<IResourceProvider> templateProvider)
@@ -25,7 +25,7 @@ namespace GenHTTP.Modules.Scriban
 
         public static ScribanPageProviderBuilder<PageModel> Page(IResourceProvider templateProvider)
         {
-            return new ScribanPageProviderBuilder<PageModel>().Template(templateProvider).Model(r => new PageModel(r));
+            return new ScribanPageProviderBuilder<PageModel>().Template(templateProvider).Model((r, h) => new PageModel(r, h));
         }
 
         public static ScribanPageProviderBuilder<T> Page<T>(IBuilder<IResourceProvider> templateProvider, ModelProvider<T> modelProvider) where T : PageModel

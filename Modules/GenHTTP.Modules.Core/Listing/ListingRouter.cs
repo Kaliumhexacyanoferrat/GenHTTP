@@ -1,35 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Web;
 
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Modules.Templating;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
-
-using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core.Listing
 {
 
-    public class ListingRouter : RouterBase
+    public class ListingRouter : IHandler
     {
 
         #region Get-/Setters
 
         private DirectoryInfo Info { get; }
 
-        private ResponseModification? Modification { get; }
+        public IHandler Parent { get; }
 
         #endregion
 
         #region Initialization
 
-        public ListingRouter(string directory, ResponseModification? modification,
-                             IRenderer<TemplateModel>? template, IContentProvider? errorHandler) : base(template, errorHandler)
+        public ListingRouter(IHandler parent, string directory)
         {
-            Modification = modification;
+            Parent = parent;
 
             Info = new DirectoryInfo(directory);
 
@@ -43,48 +37,49 @@ namespace GenHTTP.Modules.Core.Listing
 
         #region Functionality
 
-        public override void HandleContext(IEditableRoutingContext current)
+        public IResponse? Handle(IRequest request)
         {
-            current.Scope(this);
-
-            var path = Path.Combine(Info.FullName, "." + HttpUtility.UrlDecode(current.ScopedPath));
+            var path = Path.Combine(Info.FullName, "." + request.Target.GetRemaining());
 
             if (File.Exists(path))
             {
-                var download = Download.FromFile(path);
-
-                if (Modification != null)
-                {
-                    download.Modify(Modification);
-                }
-
-                current.RegisterContent(download.Build());
+                return Download.FromFile(path)
+                               .Build(this)
+                               .Handle(request);
             }
             else if (Directory.Exists(path))
             {
-                current.RegisterContent(new ListingProvider(path, Modification));
+                return new ListingProvider(this, path).Handle(request);
             }
+
+            return null;
         }
 
-        public override IEnumerable<ContentElement> GetContent(IRequest request, string basePath)
+        public IEnumerable<ContentElement> GetContent(IRequest request)
         {
+            var root = this.GetRoot(this, false);
+
             foreach (var directory in Info.GetDirectories())
             {
-                yield return new ContentElement($"{basePath}{directory.Name}/", directory.Name, ContentType.TextHtml, null);
+                var path = root.Edit(true)
+                               .Append(directory.Name)
+                               .Build();
+
+                yield return new ContentElement(path, directory.Name, ContentType.TextHtml, null);
             }
 
             foreach (var file in Info.GetFiles())
             {
+                var path = root.Edit(false)
+                               .Append(file.Name)
+                               .Build();
+
                 var guessed = file.Name.GuessContentType() ?? ContentType.ApplicationForceDownload;
-                yield return new ContentElement($"{basePath}{file.Name}", file.Name, guessed, null);
+
+                yield return new ContentElement(path, file.Name, guessed, null);
             }
         }
 
-        public override string? Route(string path, int currentDepth)
-        {
-            throw new NotImplementedException();
-        }
-        
         #endregion
 
     }

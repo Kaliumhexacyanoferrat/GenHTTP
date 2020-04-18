@@ -1,33 +1,30 @@
 ﻿using System.Collections.Generic;
 
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Core.General;
 
 namespace GenHTTP.Modules.Core.Bots
 {
 
-    public class RobotsProvider : ContentProviderBase
+    public class RobotsProvider : IHandler
     {
 
         #region Get-/Setters
-
-        public override string? Title => "Robots Instruction File";
-
-        public override FlexibleContentType? ContentType => new FlexibleContentType(Api.Protocol.ContentType.TextPlain);
-
-        protected override HashSet<FlexibleRequestMethod>? SupportedMethods => _GET;
 
         private List<RobotsDirective> Directives { get; }
 
         private string? Sitemap { get; }
 
+        public IHandler Parent { get; }
+
         #endregion
 
         #region Initialization
 
-        public RobotsProvider(List<RobotsDirective> directives, string? sitemap, ResponseModification? modification) : base(modification)
+        public RobotsProvider(IHandler parent, List<RobotsDirective> directives, string? sitemap)
         {
+            Parent = parent;
+
             Directives = directives;
             Sitemap = sitemap;
         }
@@ -36,7 +33,7 @@ namespace GenHTTP.Modules.Core.Bots
 
         #region Functionality
 
-        protected override IResponseBuilder HandleInternal(IRequest request)
+        public IResponse? Handle(IRequest request)
         {
             string? sitemapUrl = null;
 
@@ -57,9 +54,12 @@ namespace GenHTTP.Modules.Core.Bots
             }
 
             return request.Respond()
-                          .Type(Api.Protocol.ContentType.TextPlain)
-                          .Content(new RobotsContent(Directives, sitemapUrl));
+                          .Type(ContentType.TextPlain)
+                          .Content(new RobotsContent(Directives, sitemapUrl))
+                          .Build();
         }
+
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, "Robots Instruction File", ContentType.TextPlain);
 
         #endregion
 

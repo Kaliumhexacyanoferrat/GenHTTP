@@ -1,25 +1,19 @@
 ﻿using System.Collections.Generic;
 
-using GenHTTP.Api.Modules;
-using GenHTTP.Api.Routing;
-
-using GenHTTP.Modules.Core.General;
+using GenHTTP.Api.Content;
 
 namespace GenHTTP.Modules.Core.Layouting
 {
 
-    public class LayoutBuilder : RouterBuilderBase<LayoutBuilder>
+    public class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
     {
-        private string? _Index;
+        private IHandlerBuilder? _Index, _Fallback;
 
-        private IRouter? _DefaultRouter;
-        private IContentProvider? _DefaultContent;
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Get-/Setters
 
-        private Dictionary<string, IRouter> Routes { get; }
-
-        private Dictionary<string, IContentProvider> Content { get; }
+        private Dictionary<string, IHandlerBuilder> Handlers { get; }
 
         #endregion
 
@@ -27,83 +21,40 @@ namespace GenHTTP.Modules.Core.Layouting
 
         public LayoutBuilder()
         {
-            Routes = new Dictionary<string, IRouter>();
-            Content = new Dictionary<string, IContentProvider>();
+            Handlers = new Dictionary<string, IHandlerBuilder>();
         }
 
         #endregion
 
         #region Functionality
 
-        public LayoutBuilder Index(string index)
+        public LayoutBuilder Index(IHandlerBuilder handler)
         {
-            _Index = index;
+            _Index = handler;
             return this;
         }
 
-        public LayoutBuilder Default(IRouterBuilder router)
+        public LayoutBuilder Fallback(IHandlerBuilder handler)
         {
-            return Default(router.Build());
-        }
-
-        public LayoutBuilder Default(IRouter router)
-        {
-            _DefaultRouter = router;
+            _Fallback = handler;
             return this;
         }
 
-        public LayoutBuilder Default(IContentBuilder content)
+        public LayoutBuilder Add(string name, IHandlerBuilder handler)
         {
-            return Default(content.Build());
-        }
-
-        public LayoutBuilder Default(IContentProvider content)
-        {
-            _DefaultContent = content;
+            Handlers.Add(name, handler);
             return this;
         }
 
-        public LayoutBuilder Add(string route, IRouterBuilder router, bool index = false)
+        public LayoutBuilder Add(IConcernBuilder concern)
         {
-            return Add(route, router.Build(), index);
+            _Concerns.Add(concern);
+            return this;
         }
 
-        public LayoutBuilder Add(string route, IRouter router, bool index = false)
+        public IHandler Build(IHandler parent)
         {
-            Routes.Add(route, router);
-
-            return (index) ? Index(route) : this;
-        }
-
-        public LayoutBuilder Add(string file, IContentBuilder content, bool index = false)
-        {
-            return Add(file, content.Build(), index);
-        }
-
-        public LayoutBuilder Add(string file, IContentProvider content, bool index = false)
-        {
-            Content.Add(file, content);
-            return (index) ? Index(file) : this;
-        }
-
-        public override IRouter Build()
-        {
-            var defaultRouter = _DefaultRouter;
-            var defaultContent = _DefaultContent;
-
-            if (_Index != null)
-            {
-                if (Routes.ContainsKey(_Index))
-                {
-                    defaultRouter = Routes[_Index];
-                }
-                else if (Content.ContainsKey(_Index))
-                {
-                    defaultContent = Content[_Index];
-                }
-            }
-
-            return new LayoutRouter(Routes, Content, defaultRouter, defaultContent, _Template, _ErrorHandler);
+            return Concerns.Chain(parent, _Concerns, (p) => new LayoutRouter(p, Handlers, _Index, _Fallback));
         }
 
         #endregion

@@ -1,14 +1,17 @@
 ﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Modules;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+using System.Collections.Generic;
 
 namespace GenHTTP.Modules.Core.General
 {
 
-    public class StringProviderBuilder : ContentBuilderBase
+    public class StringProviderBuilder : IHandlerBuilder<StringProviderBuilder>
     {
         private string? _Data;
         private ContentType? _ContentType;
+
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 
@@ -24,7 +27,13 @@ namespace GenHTTP.Modules.Core.General
             return this;
         }
 
-        public override IContentProvider Build()
+        public StringProviderBuilder Add(IConcernBuilder concern)
+        {
+            _Concerns.Add(concern);
+            return this;
+        }
+
+        public IHandler Build(IHandler parent)
         {
             if (_Data == null)
             {
@@ -36,7 +45,7 @@ namespace GenHTTP.Modules.Core.General
                 throw new BuilderMissingPropertyException("Content Type");
             }
 
-            return new StringProvider(_Data, new FlexibleContentType((ContentType)_ContentType), _Modification);
+            return Concerns.Chain(parent, _Concerns, (p) => new StringProvider(p, _Data, new FlexibleContentType((ContentType)_ContentType)));
         }
 
         #endregion
