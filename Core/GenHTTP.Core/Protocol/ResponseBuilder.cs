@@ -51,16 +51,6 @@ namespace GenHTTP.Core.Protocol
             return this;
         }
 
-        public IResponseBuilder Content(Stream body, ContentType contentType) => Content(body, new FlexibleContentType(contentType));
-
-        public IResponseBuilder Content(Stream body, string contentType) => Content(body, new FlexibleContentType(contentType));
-
-        public IResponseBuilder Content(Stream body, FlexibleContentType contentType)
-        {
-            Content(new StreamContent(body));
-            return Type(contentType);
-        }
-
         public IResponseBuilder Content(IResponseContent content)
         {
             _Content = content;
@@ -78,12 +68,6 @@ namespace GenHTTP.Core.Protocol
         public IResponseBuilder Cookie(Cookie cookie)
         {
             Cookies[cookie.Name] = cookie;
-            return this;
-        }
-
-        public IResponseBuilder Cookie(string cookie)
-        {
-            Cookies.Add(cookie);
             return this;
         }
 
