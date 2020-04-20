@@ -20,9 +20,9 @@ namespace GenHTTP.Core.Hosting
 
         public IServerHost Bind(IPAddress address, ushort port) { _Builder.Bind(address, port); return this; }
 
-        public IServerHost Bind(IPAddress address, ushort port, string host, X509Certificate2 certificate) { _Builder.Bind(address, port, host, certificate); return this; }
+        public IServerHost Bind(IPAddress address, ushort port, X509Certificate2 certificate) { _Builder.Bind(address, port, certificate); return this; }
 
-        public IServerHost Bind(IPAddress address, ushort port, string host, X509Certificate2 certificate, SslProtocols protocols) { _Builder.Bind(address, port, host, certificate, protocols); return this; }
+        public IServerHost Bind(IPAddress address, ushort port, X509Certificate2 certificate, SslProtocols protocols) { _Builder.Bind(address, port, certificate, protocols); return this; }
 
         public IServerHost Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider) { _Builder.Bind(address, port, certificateProvider); return this; }
 

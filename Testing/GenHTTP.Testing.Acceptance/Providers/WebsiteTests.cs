@@ -129,7 +129,22 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var runner = TestRunner.Run(website);
 
             using var response = runner.GetResponse();
-            var index = response.GetContent();
+
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        [Fact]
+        public void TestDynamicMenu()
+        {
+            var menu = Menu.From("{website}");
+
+            var website = GetWebsite().Menu(menu);
+
+            using var runner = TestRunner.Run(website);
+
+            using var response = runner.GetResponse();
+
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [Fact]
@@ -228,7 +243,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.Contains("root-appended = ../my/file.txt", result);
         }
 
-        private WebsiteBuilder GetWebsite(LayoutBuilder? content = null)
+        public static WebsiteBuilder GetWebsite(LayoutBuilder? content = null)
         {
             return Website.Create()
                           .Theme(new Theme())

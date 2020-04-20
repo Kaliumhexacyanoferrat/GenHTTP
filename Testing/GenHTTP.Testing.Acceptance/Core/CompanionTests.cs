@@ -18,7 +18,7 @@ namespace GenHTTP.Testing.Acceptance.Core
 
             public bool Called { get; private set; }
 
-            public void OnRequestHandled(IRequest request, IResponse response, Exception? error)
+            public void OnRequestHandled(IRequest request, IResponse response)
             {
                 Called = true;
             }

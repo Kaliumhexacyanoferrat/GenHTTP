@@ -41,7 +41,7 @@ namespace GenHTTP.Core.Protocol
 
         #region Functionality
 
-        internal async ValueTask<bool> Handle(IRequest request, IResponse response, bool keepAlive, Exception? error)
+        internal async ValueTask<bool> Handle(IRequest request, IResponse response, bool keepAlive)
         {
             try
             {
@@ -56,7 +56,7 @@ namespace GenHTTP.Core.Protocol
                     await WriteBody(response).ConfigureAwait(false);
                 }
 
-                Server.Companion?.OnRequestHandled(request, response, error);
+                Server.Companion?.OnRequestHandled(request, response);
 
                 return true;
             }

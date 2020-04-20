@@ -120,11 +120,10 @@ namespace GenHTTP.Core
             bool keepAlive = (bool)KeepAlive;
 
             var responseHandler = new ResponseHandler(Server, Stream, Configuration);
-            var requestHandler = new RequestHandler(Server);
 
-            using var response = requestHandler.Handle(request, out Exception? error);
+            using var response = Server.Handler.Handle(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
             
-            var success = await responseHandler.Handle(request, response, keepAlive, error).ConfigureAwait(false);
+            var success = await responseHandler.Handle(request, response, keepAlive).ConfigureAwait(false);
 
             if (!success || !keepAlive)
             {
