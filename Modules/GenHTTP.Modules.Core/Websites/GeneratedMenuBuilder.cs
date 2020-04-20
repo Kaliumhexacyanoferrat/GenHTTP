@@ -1,28 +1,31 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
+
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Core.Websites
 {
 
     public class GeneratedMenuBuilder : IBuilder<IMenuProvider>
     {
-        private IHandler? _Handler;
+        private Func<IRequest, IHandler, IEnumerable<ContentElement>>? _Provider;
 
         #region Functionality
 
-        public GeneratedMenuBuilder Handler(IHandler handler)
+        public GeneratedMenuBuilder Provider(Func<IRequest, IHandler, IEnumerable<ContentElement>> provider)
         {
-            _Handler = handler;
+            _Provider = provider;
             return this;
         }
 
         public IMenuProvider Build()
         {
-            var handler = _Handler ?? throw new BuilderMissingPropertyException("handler");
+            var provider = _Provider ?? throw new BuilderMissingPropertyException("provider");
 
-            return new GeneratedMenuProvider(handler);
+            return new GeneratedMenuProvider(provider);
         }
 
         #endregion

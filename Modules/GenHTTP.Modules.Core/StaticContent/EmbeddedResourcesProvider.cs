@@ -1,10 +1,11 @@
-﻿using System.IO;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text;
 
-using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Core.StaticContent
@@ -18,7 +19,7 @@ namespace GenHTTP.Modules.Core.StaticContent
         public IHandler Parent { get; }
 
         private Dictionary<string, IHandler> QualifiedNames { get; }
-        
+
         #endregion
 
         #region Initialization
@@ -57,14 +58,32 @@ namespace GenHTTP.Modules.Core.StaticContent
         {
             foreach (var qn in QualifiedNames)
             {
-                var slashPath = qn.Key.Replace('.', '/');
-                var fileName = Path.GetFileName(slashPath);
+                var fileRef = ResourceToFile(qn.Key);
+                
+                var fileName = Path.GetFileName(fileRef);
 
                 var path = new List<string>(this.GetRoot(request.Server.Handler, false).Parts);
-                path.Add(slashPath);
+                path.Add(fileRef);
 
                 yield return new ContentElement(new WebPath(path, false), fileName, fileName.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
             }
+        }
+
+        private static string ResourceToFile(string resourceKey)
+        {
+            var replaced = resourceKey.Replace('.', '/');
+
+            var editor = new StringBuilder(replaced);
+
+            var index = replaced.LastIndexOf('/');
+
+            if (index > 0)
+            {
+                editor[index] = '.';
+            }
+
+            return editor.ToString()
+                         .Substring(1);
         }
 
         #endregion

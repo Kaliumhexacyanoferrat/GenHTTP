@@ -8,7 +8,7 @@ namespace GenHTTP.Api.Content.Websites
     public interface IMenuProvider
     {
 
-        List<ContentElement> GetMenu(IRequest request);
+        List<ContentElement> GetMenu(IRequest request, IHandler handler);
 
     }
 

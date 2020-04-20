@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
@@ -12,26 +13,24 @@ namespace GenHTTP.Modules.Core.Websites
 
         #region Get-/Setters
 
-        private IHandler Handler { get; }
+        private Func<IRequest, IHandler, IEnumerable<ContentElement>> Provider { get; }
 
         #endregion
 
         #region Initialization 
 
-        public GeneratedMenuProvider(IHandler handler)
+        public GeneratedMenuProvider(Func<IRequest, IHandler, IEnumerable<ContentElement>> provider)
         {
-            Handler = handler;
+            Provider = provider;
         }
 
         #endregion
 
         #region Functionality
 
-        public List<ContentElement> GetMenu(IRequest request)
+        public List<ContentElement> GetMenu(IRequest request, IHandler handler)
         {
-            var elements = Handler.GetContent(request);
-
-            return new List<ContentElement>(elements);
+            return new List<ContentElement>(Provider(request, handler).Where(c => c.ContentType == ContentType.TextHtml));
         }
 
         #endregion

@@ -42,7 +42,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             public IRenderer<WebsiteModel> Renderer => ModScriban.Template<WebsiteModel>(Data.FromResource("Template.html")).Build();
 
-            public object? GetModel(IRequest request)
+            public object? GetModel(IRequest request, IHandler handler)
             {
                 return new { key = "value" };
             }
@@ -200,8 +200,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
                              sitemap = {{ route 'sitemap.xml' }}
                              favicon = {{ route 'favicon.ico' }}
                              robots = {{ route 'robots.txt' }}
-                             root = {{ route '{root}' }}
-                             root-appended = {{ route '{root}/my/file.txt' }}
+                             root = {{ route '{website}' }}
+                             root-appended = {{ route '{website}/my/file.txt' }}
                              else = {{ route 'something/else/' }}";
 
             var sub = Layout.Create()

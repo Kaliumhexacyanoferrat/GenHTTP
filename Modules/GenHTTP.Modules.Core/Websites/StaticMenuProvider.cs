@@ -27,7 +27,7 @@ namespace GenHTTP.Modules.Core.Websites
 
         #region Functionality
 
-        public List<ContentElement> GetMenu(IRequest request) => Menu;
+        public List<ContentElement> GetMenu(IRequest request, IHandler handler) => Menu;
 
         #endregion
 

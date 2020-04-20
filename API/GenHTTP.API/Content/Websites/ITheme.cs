@@ -19,7 +19,7 @@ namespace GenHTTP.Api.Content.Websites
 
         IRenderer<WebsiteModel> Renderer { get; }
 
-        object? GetModel(IRequest request);
+        object? GetModel(IRequest request, IHandler handler);
 
     }
 

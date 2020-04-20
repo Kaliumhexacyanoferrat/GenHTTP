@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
+using System.Collections.Generic;
 
 namespace GenHTTP.Api.Content
 {
@@ -17,7 +16,7 @@ namespace GenHTTP.Api.Content
         /// <summary>
         /// The absolute path of the element.
         /// </summary>
-        public WebPath Path { get; }
+        public string Path { get; }
 
         /// <summary>
         /// The children available below this element, if any.
@@ -40,9 +39,15 @@ namespace GenHTTP.Api.Content
         #region Initialization
 
         public ContentElement(WebPath path, string title, ContentType contentType, IEnumerable<ContentElement>? children = null)
+            : this(path.ToString(), title, new FlexibleContentType(contentType), children) { }
+
+        public ContentElement(string path, string title, ContentType contentType, IEnumerable<ContentElement>? children = null)
             : this(path, title, new FlexibleContentType(contentType), children) { }
 
         public ContentElement(WebPath path, string title, FlexibleContentType contentType, IEnumerable<ContentElement>? children = null)
+             : this(path.ToString(), title, contentType, children) { }
+
+        public ContentElement(string path, string title, FlexibleContentType contentType, IEnumerable<ContentElement>? children = null)
         {
             Path = path;
             Title = title;

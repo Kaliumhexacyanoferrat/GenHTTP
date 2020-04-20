@@ -40,9 +40,9 @@ namespace GenHTTP.Modules.Core.Websites
 
         public string Render(TemplateModel model)
         {
-            var menu = Menu.GetMenu(model.Request);
+            var menu = Menu.GetMenu(model.Request, model.Handler);
 
-            var themeModel = Theme.GetModel(model.Request);
+            var themeModel = Theme.GetModel(model.Request, model.Handler);
 
             var bundle = !model.Request.Server.Development;
 

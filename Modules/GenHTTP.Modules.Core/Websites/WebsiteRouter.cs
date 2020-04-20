@@ -65,7 +65,7 @@ namespace GenHTTP.Modules.Core.Websites
 
             Theme = theme;
 
-            Menu = menu ?? Core.Menu.From(content.Build(this)).Build();
+            Menu = menu ?? Core.Menu.Create((r, _) => GetContent(r)).Build();
 
             var scriptRouter = (ScriptRouter)scripts.Build(this);
             var styleRouter = (StyleRouter)styles.Build(this);
@@ -95,7 +95,7 @@ namespace GenHTTP.Modules.Core.Websites
 
         public IHandler? Find(string segment)
         {
-            if (segment == "{root}" || segment == "{website}")
+            if (segment == "{website}")
             {
                 return this;
             }

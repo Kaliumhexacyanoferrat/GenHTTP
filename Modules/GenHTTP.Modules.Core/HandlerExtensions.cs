@@ -149,6 +149,16 @@ namespace GenHTTP.Modules.Core
             return null;
         }
 
+        public static string? Route(this IHandler handler, IRequest request, WebPath? route)
+        {
+            if (route != null)
+            {
+                return handler.Route(request, route.ToString());
+            }
+
+            return null;
+        }
+
         public static IEnumerable<T> FindParents<T>(this IHandler handler, IHandler root)
         {
             var current = handler;

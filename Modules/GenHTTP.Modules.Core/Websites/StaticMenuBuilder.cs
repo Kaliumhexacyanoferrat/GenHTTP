@@ -24,23 +24,17 @@ namespace GenHTTP.Modules.Core.Websites
         {
             List<ContentElement>? childElements = null;
 
-            var webPath = new WebPath(new List<string>() { path }, false);
-
             if (children != null)
             {
                 childElements = new List<ContentElement>(children.Count);
 
                 foreach (var child in children)
-                {
-                    var childPath = webPath.Edit(false)
-                                           .Append(child.childPath)
-                                           .Build();                          
-
-                    childElements.Add(new ContentElement(childPath, child.childTitle, ContentType.TextHtml, null));
+                {                 
+                    childElements.Add(new ContentElement($"{path}{child.childPath}", child.childTitle, ContentType.TextHtml, null));
                 }
             }
 
-            _Menu.Add(new ContentElement(webPath, title, ContentType.TextHtml, childElements));
+            _Menu.Add(new ContentElement(path, title, ContentType.TextHtml, childElements));
 
             return this;
         }

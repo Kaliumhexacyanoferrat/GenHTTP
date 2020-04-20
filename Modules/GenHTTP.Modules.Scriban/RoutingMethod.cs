@@ -6,6 +6,8 @@ using Scriban.Syntax;
 
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Modules.Core;
+using System;
+using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Scriban
 {
@@ -32,8 +34,22 @@ namespace GenHTTP.Modules.Scriban
 
         public object Invoke(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
         {
-            var route = (string)arguments[0];
-            return Model.Handler.Route(Model.Request, route) ?? "";
+            if (arguments.Count != 1)
+            {
+                throw new InvalidOperationException("Routing method expects exactly one argument");
+            }
+
+            if (arguments[0] is string strRoute)
+            {
+                return Model.Handler.Route(Model.Request, strRoute) ?? string.Empty;
+            }
+
+            if (arguments[0] is WebPath pthRoute)
+            {
+                return Model.Handler.Route(Model.Request, pthRoute) ?? string.Empty;
+            }
+
+            return string.Empty;
         }
 
         public ValueTask<object> InvokeAsync(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
