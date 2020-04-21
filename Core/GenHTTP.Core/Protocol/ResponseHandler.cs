@@ -56,7 +56,7 @@ namespace GenHTTP.Core.Protocol
                     await WriteBody(response).ConfigureAwait(false);
                 }
 
-                await OutputStream.FlushAsync();
+                await OutputStream.FlushAsync().ConfigureAwait(false);
 
                 Server.Companion?.OnRequestHandled(request, response);
 
@@ -77,7 +77,8 @@ namespace GenHTTP.Core.Protocol
                 && (knownStatus != ResponseStatus.NoContent)
                 && (knownStatus != ResponseStatus.NotModified)
                 && (knownStatus != ResponseStatus.PermanentRedirect)
-                && (knownStatus != ResponseStatus.TemporaryRedirect);
+                && (knownStatus != ResponseStatus.TemporaryRedirect)
+                && (knownStatus != ResponseStatus.MovedPermanently);
         }
 
         private async ValueTask WriteStatus(IRequest request, IResponse response)

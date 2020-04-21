@@ -158,7 +158,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             using var setup = TestSetup.Create((r) =>
             {
-                return r.Respond().Header("Location", $"http://localhost:{r.EndPoint.Port}/target");
+                return r.Respond().Header("Location", $"http://localhost:{r.EndPoint.Port}/target").Status(ResponseStatus.TemporaryRedirect);
             });
 
             var runner = setup.Runner;
