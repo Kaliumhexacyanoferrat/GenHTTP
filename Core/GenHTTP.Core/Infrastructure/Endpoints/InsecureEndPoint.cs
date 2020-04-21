@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
@@ -18,7 +19,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         #endregion
 
-        #region 
+        #region Initialization 
 
         internal InsecureEndPoint(IServer server, IPEndPoint endPoint, NetworkConfiguration configuration)
             : base(server, endPoint, configuration)
@@ -30,7 +31,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         #region Functionality
 
-        protected override Task Accept(Socket client) => Handle(client, new NetworkStream(client));
+        protected override Task Accept(Socket client) => Handle(client, new BufferedStream(new NetworkStream(client)));
         
         #endregion
 
