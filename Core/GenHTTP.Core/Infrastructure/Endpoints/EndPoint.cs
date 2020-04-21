@@ -99,8 +99,6 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
         protected async Task Handle(Socket client, Stream inputStream)
         {
-            inputStream.ReadTimeout = (int)Configuration.RequestReadTimeout.TotalMilliseconds;
-
             await new ClientHandler(client, inputStream, Server, this, Configuration).Run().ConfigureAwait(false);
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
@@ -55,7 +56,7 @@ namespace GenHTTP.Core.Infrastructure.Endpoints
 
             if (stream != null)
             {
-                await Handle(client, stream).ConfigureAwait(false);
+                await Handle(client, new BufferedStream(stream)).ConfigureAwait(false);
             }
             else
             {

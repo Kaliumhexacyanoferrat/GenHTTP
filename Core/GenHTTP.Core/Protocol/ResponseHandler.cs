@@ -56,6 +56,8 @@ namespace GenHTTP.Core.Protocol
                     await WriteBody(response).ConfigureAwait(false);
                 }
 
+                await OutputStream.FlushAsync();
+
                 Server.Companion?.OnRequestHandled(request, response);
 
                 return true;
