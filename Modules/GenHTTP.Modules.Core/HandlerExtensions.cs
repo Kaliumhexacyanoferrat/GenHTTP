@@ -63,6 +63,11 @@ namespace GenHTTP.Modules.Core
                     return null;
                 }
 
+                if (current.Parent == current)
+                {
+                    throw new InvalidOperationException($"Router '{current}' returned itself as parent");
+                }
+
                 current = current.Parent;
             }
         }
@@ -85,6 +90,11 @@ namespace GenHTTP.Modules.Core
                 if (current == root)
                 {
                     return path.Build();
+                }
+
+                if (current.Parent == current)
+                {
+                    throw new InvalidOperationException($"Router '{current}' returned itself as parent");
                 }
 
                 child = current;
@@ -173,6 +183,11 @@ namespace GenHTTP.Modules.Core
                 if (current == root)
                 {
                     break;
+                }
+
+                if (current.Parent == current)
+                {
+                    throw new InvalidOperationException($"Router '{current}' returned itself as parent");
                 }
 
                 current = current.Parent;
