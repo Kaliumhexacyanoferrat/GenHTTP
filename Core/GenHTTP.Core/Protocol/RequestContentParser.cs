@@ -43,6 +43,11 @@ namespace GenHTTP.Core.Protocol
 
                 var toRead = Math.Min(buffer.Data.Length, Math.Min(Configuration.TransferBufferSize, toFetch));
 
+                if (toRead == 0)
+                {
+                    throw new InvalidOperationException($"No data read from the transport but {toFetch} bytes are remaining");
+                }
+
                 var data = buffer.Data.Slice(0, toRead);
 
                 var position = data.GetPosition(0);

@@ -1,16 +1,17 @@
-﻿using GenHTTP.Api.Content;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Core.General;
 using GenHTTP.Testing.Acceptance.Domain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+
 using Xunit;
 
 namespace GenHTTP.Testing.Acceptance.Core
 {
-    
+
     public class ParserTests
     {
 
@@ -74,6 +75,46 @@ namespace GenHTTP.Testing.Acceptance.Core
             using var respose = runner.GetResponse("/?söme key=💕");
 
             Assert.Equal("söme key=💕", respose.GetContent());
+        }
+
+        [Fact]
+        public void TestMultipleSlashes()
+        {
+            using var runner = TestRunner.Run(new PathReturner().Wrap());
+
+            using var respose = runner.GetResponse("//one//two//three//");
+
+            Assert.Equal("//one//two//three//", respose.GetContent());
+        }
+
+        [Fact]
+        public void TestEmptyQuery()
+        {
+            using var runner = TestRunner.Run(new QueryReturner().Wrap());
+
+            using var respose = runner.GetResponse("/?");
+
+            Assert.Equal(string.Empty, respose.GetContent());
+        }
+
+        [Fact]
+        public void TestUnkeyedQuery()
+        {
+            using var runner = TestRunner.Run(new QueryReturner().Wrap());
+
+            using var respose = runner.GetResponse("/?query");
+
+            Assert.Equal("query=", respose.GetContent());
+        }
+
+        [Fact]
+        public void TestQueryWithSlashes()
+        {
+            using var runner = TestRunner.Run(new QueryReturner().Wrap());
+
+            using var respose = runner.GetResponse("/?key=/one/two");
+
+            Assert.Equal("key=/one/two", respose.GetContent());
         }
 
     }

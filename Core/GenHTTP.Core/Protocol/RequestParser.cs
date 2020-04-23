@@ -1,12 +1,13 @@
-﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
-using GenHTTP.Core.Infrastructure.Configuration;
-using System;
+﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
+using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Routing;
+using GenHTTP.Core.Infrastructure.Configuration;
 
 namespace GenHTTP.Core.Protocol
 {
@@ -14,7 +15,7 @@ namespace GenHTTP.Core.Protocol
     internal class RequestParser
     {
         private static char[] LINE_ENDING = new char[] { '\r' };
-        private static char[] PATH_ENDING = new char[] { '\r', '?', ' ' };
+        private static char[] PATH_ENDING = new char[] { '\r', '\n', '?', ' ' };
 
         private RequestBuilder? _Builder;
 
