@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.IO;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,16 +25,21 @@ namespace GenHTTP.Core.Protocol
 
         private Stream OutputStream { get; }
 
+        private Socket Socket { get; }
+
         internal NetworkConfiguration Configuration { get; }
 
         #endregion
 
         #region Initialization
 
-        internal ResponseHandler(IServer server, Stream outputstream, NetworkConfiguration configuration)
+        internal ResponseHandler(IServer server, Stream outputstream, Socket socket, NetworkConfiguration configuration)
         {
             Server = server;
+
             OutputStream = outputstream;
+            Socket = socket;
+
             Configuration = configuration;
         }
 
@@ -56,7 +62,11 @@ namespace GenHTTP.Core.Protocol
                     await WriteBody(response).ConfigureAwait(false);
                 }
 
+                Socket.NoDelay = true;
+
                 await OutputStream.FlushAsync().ConfigureAwait(false);
+
+                Socket.NoDelay = false;
 
                 Server.Companion?.OnRequestHandled(request, response);
 

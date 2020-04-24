@@ -69,7 +69,6 @@ namespace GenHTTP.Core.Protocol
         public void Finish()
         {
             Write($"0{NL}{NL}");
-            Flush();
         }
 
         public override void Flush()
