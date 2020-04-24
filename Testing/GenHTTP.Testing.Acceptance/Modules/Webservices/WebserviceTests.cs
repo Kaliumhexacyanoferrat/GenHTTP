@@ -13,7 +13,7 @@ using GenHTTP.Modules.Webservices;
 
 using GenHTTP.Testing.Acceptance.Domain;
 
-namespace GenHTTP.Testing.Acceptance.Modules
+namespace GenHTTP.Testing.Acceptance.Modules.Webservices
 {
 
     public class WebserviceTests

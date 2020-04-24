@@ -124,6 +124,12 @@ namespace GenHTTP.Api.Protocol
 
         #endregion
 
+        #region Extensibility
+
+        IRequestProperties Properties { get; }
+
+        #endregion
+
     }
 
 }

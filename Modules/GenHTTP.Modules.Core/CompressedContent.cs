@@ -27,6 +27,8 @@ namespace GenHTTP.Modules.Core
             return host;
         }
 
+        public static IServerHost Compression(this IServerHost host) => host.Compression(Default());
+
         #endregion
 
     }
