@@ -4,6 +4,7 @@ using System.IO;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
+
 using GenHTTP.Core.Protocol;
 
 namespace GenHTTP.Core
@@ -19,6 +20,8 @@ namespace GenHTTP.Core
         private IForwardingCollection? _Forwardings;
 
         private IRequestQuery? _Query;
+
+        private IRequestProperties? _Properties;
 
         #region Get-/Setters
 
@@ -72,6 +75,11 @@ namespace GenHTTP.Core
         public IRequestQuery Query
         {
             get { return _Query ?? (_Query = new RequestQuery()); }
+        }
+
+        public IRequestProperties Properties
+        {
+            get { return _Properties ?? (_Properties = new RequestProperties()); }
         }
 
         #endregion

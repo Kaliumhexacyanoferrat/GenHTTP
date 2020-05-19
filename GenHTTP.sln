@@ -37,6 +37,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Webservices
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Razor", "Modules\GenHTTP.Modules.Razor\GenHTTP.Modules.Razor.csproj", "{9022F8C2-B465-40FD-BC59-428C034C4470}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Authentication", "Modules\GenHTTP.Modules.Authentication\GenHTTP.Modules.Authentication.csproj", "{9BB6732E-BFE1-4ABE-B8A6-4522DF72EDDD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -79,6 +81,10 @@ Global
 		{9022F8C2-B465-40FD-BC59-428C034C4470}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9022F8C2-B465-40FD-BC59-428C034C4470}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9022F8C2-B465-40FD-BC59-428C034C4470}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BB6732E-BFE1-4ABE-B8A6-4522DF72EDDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BB6732E-BFE1-4ABE-B8A6-4522DF72EDDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BB6732E-BFE1-4ABE-B8A6-4522DF72EDDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BB6732E-BFE1-4ABE-B8A6-4522DF72EDDD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -93,9 +99,10 @@ Global
 		{3B00D7C4-B8E9-4163-9E4C-67044BB26B34} = {A7930BE4-0549-4197-B139-B1A73E74B464}
 		{3096F48C-60D7-4471-A7E4-315B6227C351} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 		{9022F8C2-B465-40FD-BC59-428C034C4470} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
+		{9BB6732E-BFE1-4ABE-B8A6-4522DF72EDDD} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		LessCompiler = 2603124e-1287-4d61-9540-6ac3efad4eb9
 		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
+		LessCompiler = 2603124e-1287-4d61-9540-6ac3efad4eb9
 	EndGlobalSection
 EndGlobal
