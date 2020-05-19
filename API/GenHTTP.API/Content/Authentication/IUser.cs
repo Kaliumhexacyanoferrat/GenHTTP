@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GenHTTP.Api.Content.Authentication
+﻿namespace GenHTTP.Api.Content.Authentication
 {
     
     public interface IUser
