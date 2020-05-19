@@ -128,6 +128,38 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
+        [Fact]
+        public void TestOtherAuthenticationIsNotAccepted()
+        {
+            var content = GetContent().Authentication(BasicAuthentication.Create());
+
+            using var runner = TestRunner.Run(content);
+
+            var request = runner.GetRequest();
+            
+            request.Headers.Add("Authorization", "Bearer 123");
+
+            using var response = request.GetSafeResponse();
+
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+        
+        [Fact]
+        public void TestNoValidBase64()
+        {
+            var content = GetContent().Authentication(BasicAuthentication.Create());
+
+            using var runner = TestRunner.Run(content);
+
+            var request = runner.GetRequest();
+            
+            request.Headers.Add("Authorization", "Basic 123");
+
+            using var response = request.GetSafeResponse();
+
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
         private HttpWebResponse GetResponse(TestRunner runner, string user, string password)
         {
             var request = runner.GetRequest();

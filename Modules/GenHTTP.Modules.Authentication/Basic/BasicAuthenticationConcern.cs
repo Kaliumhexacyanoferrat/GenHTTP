@@ -80,15 +80,22 @@ namespace GenHTTP.Modules.Authentication.Basic
 
         private bool TryDecode(string header, out (string username, string password) credentials)
         {
-            var bytes = Convert.FromBase64String(header);
-            var str = Encoding.UTF8.GetString(bytes);
-
-            var colon = str.IndexOf(':');
-
-            if ((colon > -1) && (str.Length > colon))
+            try
             {
-                credentials = (str.Substring(0, colon), str.Substring(colon + 1));
-                return true;
+                var bytes = Convert.FromBase64String(header);
+                var str = Encoding.UTF8.GetString(bytes);
+
+                var colon = str.IndexOf(':');
+
+                if ((colon > -1) && (str.Length > colon))
+                {
+                    credentials = (str.Substring(0, colon), str.Substring(colon + 1));
+                    return true;
+                }
+            }
+            catch (FormatException)
+            {
+                // invalid base 64 encoded string 
             }
 
             credentials = (string.Empty, string.Empty);
