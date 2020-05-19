@@ -126,6 +126,13 @@ namespace GenHTTP.Api.Protocol
 
         #region Extensibility
 
+        /// <summary>
+        /// Additional properties that have been attached to the request.
+        /// </summary>
+        /// <remarks>
+        /// Can be used to store additional state on request level if needed.
+        /// Should be avoided in favor of more strict coupling.
+        /// </remarks>
         IRequestProperties Properties { get; }
 
         #endregion
