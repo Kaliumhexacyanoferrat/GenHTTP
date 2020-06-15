@@ -131,7 +131,9 @@ namespace GenHTTP.Modules.Core.Proxy
                     query[kv.Key] = kv.Value;
                 }
 
-                return "?" + query.ToString();
+                return "?" + query.ToString()
+                                  .Replace("+", "%20")
+                                  .Replace("%2b", "+");
             }
 
             return string.Empty;

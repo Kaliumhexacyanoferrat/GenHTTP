@@ -296,7 +296,22 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var r1 = runner.GetResponse("/");
             Assert.Equal("", r1.GetContent());
         }
-        
+
+        [Fact]
+        public void TestQuerySpecialChars()
+        {
+            using var setup = TestSetup.Create((r) =>
+            {
+                var result = string.Join('|', r.Query.Select(kv => $"{kv.Key}={kv.Value}"));
+                return r.Respond().Content(result);
+            });
+
+            var runner = setup.Runner;
+
+            using var r = runner.GetResponse("/?key=%20%3C+");
+            Assert.Equal("key= <+", r.GetContent());
+        }
+
         [Fact]
         public void TestBadGateway()
         {

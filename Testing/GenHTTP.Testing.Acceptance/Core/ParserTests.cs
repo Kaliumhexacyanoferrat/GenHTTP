@@ -117,6 +117,16 @@ namespace GenHTTP.Testing.Acceptance.Core
             Assert.Equal("key=/one/two", respose.GetContent());
         }
 
+        [Fact]
+        public void TestQueryWithSpaces()
+        {
+            using var runner = TestRunner.Run(new QueryReturner().Wrap());
+
+            using var respose = runner.GetResponse("/?path=/Some+Folder/With%20Subfolders/");
+
+            Assert.Equal("path=/Some+Folder/With Subfolders/", respose.GetContent());
+        }
+
     }
 
 }
