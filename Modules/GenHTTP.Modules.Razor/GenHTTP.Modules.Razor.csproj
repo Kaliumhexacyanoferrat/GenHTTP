@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="RazorEngineCore" Version="2020.3.3" />
+    <PackageReference Include="RazorEngineCore" Version="2020.5.2" />
   </ItemGroup>
 
   <ItemGroup>
