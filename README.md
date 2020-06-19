@@ -35,4 +35,3 @@ The web server was originally developed in 2008 to run on a netbook with an Inte
 ## Thanks
 
 - [.NET Core](https://github.com/dotnet/core) for a nice platform
-- [scriban](https://github.com/lunet-io/scriban) for the templating engine
