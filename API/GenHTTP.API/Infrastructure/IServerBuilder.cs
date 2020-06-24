@@ -20,6 +20,11 @@ namespace GenHTTP.Api.Infrastructure
 
         #region Content
 
+        /// <summary>
+        /// Specifies the root handler that will be invoked when
+        /// a client request needs to be handled.
+        /// </summary>
+        /// <param name="handler">The handler to be invoked to handle requests</param>
         T Handler(IHandlerBuilder handler);
 
         #endregion
@@ -120,6 +125,11 @@ namespace GenHTTP.Api.Infrastructure
 
         #region Extensibility
 
+        /// <summary>
+        /// Adds a concern to the server instance which will be executed before
+        /// and after the root handler is invoked.
+        /// </summary>
+        /// <param name="concern">The concern to be added to the instance</param>
         T Add(IConcernBuilder concern);
 
         #endregion

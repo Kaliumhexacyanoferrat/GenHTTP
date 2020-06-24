@@ -15,6 +15,12 @@ namespace GenHTTP.Api.Infrastructure
     {
 
         /// <summary>
+        /// Errors which occur within the regular lifecycle, 
+        /// such as startup errors.
+        /// </summary>
+        General,
+
+        /// <summary>
         /// Errors which occur when listening for requests or
         /// when handling them.
         /// </summary>

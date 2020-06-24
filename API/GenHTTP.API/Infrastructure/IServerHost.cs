@@ -31,7 +31,7 @@
 
         /// <summary>
         /// Builds a server instance from the current configuration
-        /// and keeps it running until the applications process exists.
+        /// and keeps it running until the application process exits.
         /// </summary>
         /// <remarks>
         /// Convenience method that can be used as a one-liner by

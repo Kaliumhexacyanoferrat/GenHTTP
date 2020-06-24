@@ -1,11 +1,11 @@
-﻿using System;
+﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
+using System;
+using System.Diagnostics;
 using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
-
-using GenHTTP.Api.Content;
-using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Core.Hosting
 {
@@ -60,36 +60,48 @@ namespace GenHTTP.Core.Hosting
 
         public int Run()
         {
-#if !DEBUG
             try
             {
-#endif
-            using var waitEvent = new AutoResetEvent(false);
+                var waitEvent = new AutoResetEvent(false);
+                
+                AppDomain.CurrentDomain.ProcessExit += (_, __) =>
+                {
+                    waitEvent.Set();
+                };
 
-            AppDomain.CurrentDomain.ProcessExit += (_, __) =>
-            {
-                waitEvent.Set();
-            };
+                Start();
 
-            Start();
+                try
+                {
+                    waitEvent.WaitOne();
+                }
+                finally
+                {
+                    Stop();
+                }
 
-            try
-            {
-                waitEvent.WaitOne();
+                return 0;
             }
-            finally
+            catch (Exception e)
             {
-                Stop();
-            }
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
 
-            return 0;
-#if !DEBUG
-            }
-            catch
-            {
+                var companion = Instance?.Companion;
+
+                if (companion != null)
+                {
+                    companion.OnServerError(ServerErrorScope.General, e);
+                }
+                else
+                {
+                    System.Console.WriteLine(e);
+                }
+
                 return -1;
             }
-#endif
         }
 
         public IServerHost Start()
