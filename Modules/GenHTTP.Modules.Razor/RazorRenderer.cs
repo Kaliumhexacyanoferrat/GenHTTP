@@ -14,7 +14,7 @@ namespace GenHTTP.Modules.Razor
     {
         private readonly static RazorEngine _Engine = new RazorEngine();
 
-        private RazorEngineCompiledTemplate<RazorEngineTemplateBase<T>>? _Template;
+        private IRazorEngineCompiledTemplate<RazorEngineTemplateBase<T>>? _Template;
 
         #region Get-/Setters
 
@@ -43,7 +43,7 @@ namespace GenHTTP.Modules.Razor
             });
         }
 
-        private RazorEngineCompiledTemplate<RazorEngineTemplateBase<T>> GetTemplate()
+        private IRazorEngineCompiledTemplate<RazorEngineTemplateBase<T>> GetTemplate()
         {
             if (TemplateProvider.AllowCache)
             {
@@ -53,7 +53,7 @@ namespace GenHTTP.Modules.Razor
             return LoadTemplate();
         }
 
-        private RazorEngineCompiledTemplate<RazorEngineTemplateBase<T>> LoadTemplate()
+        private IRazorEngineCompiledTemplate<RazorEngineTemplateBase<T>> LoadTemplate()
         {
             return _Engine.Compile<RazorEngineTemplateBase<T>>(TemplateProvider.GetResourceAsString(), (builder) =>
             {
