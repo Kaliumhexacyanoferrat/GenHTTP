@@ -25,6 +25,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var content = response.GetContent();
 
             Assert.Contains("Subdirectory", content);
+            Assert.Contains("With%20Spaces", content);
+
             Assert.Contains("my.txt", content);
 
             Assert.DoesNotContain("..", content);
@@ -68,6 +70,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Directory.CreateDirectory(tempFolder);
 
             Directory.CreateDirectory(Path.Combine(tempFolder, "Subdirectory"));
+
+            Directory.CreateDirectory(Path.Combine(tempFolder, "With Spaces"));
 
             File.WriteAllText(Path.Combine(tempFolder, "my.txt"), "Hello World!");
 

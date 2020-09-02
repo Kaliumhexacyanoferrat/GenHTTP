@@ -32,12 +32,12 @@ namespace GenHTTP.Modules.Core.Listing
 
             foreach (var dir in model.Directories.OrderBy(d => d.Name))
             {
-                Append(content, $"./{HttpUtility.UrlEncode(dir.Name)}/", dir.Name, null, dir.LastWriteTime);
+                Append(content, $"./{HttpUtility.UrlPathEncode(dir.Name)}/", dir.Name, null, dir.LastWriteTime);
             }
 
             foreach (var file in model.Files.OrderBy(f => f.Name))
             {
-                Append(content, $"./{HttpUtility.UrlEncode(file.Name)}", file.Name, file.Length, file.LastWriteTime);
+                Append(content, $"./{HttpUtility.UrlPathEncode(file.Name)}", file.Name, file.Length, file.LastWriteTime);
             }
 
             content.AppendLine("</table>");
