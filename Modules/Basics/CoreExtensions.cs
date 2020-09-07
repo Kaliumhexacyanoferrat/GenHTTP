@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace GenHTTP.Modules.Basics
 {
@@ -177,6 +178,45 @@ namespace GenHTTP.Modules.Basics
             var trailing = target.TrailingSlash || !added;
 
             return new WebPath(relativeParts, trailing).ToString().Substring(1);
+        }
+
+        public static WebPath Combine(this WebPath path, WebPath target)
+        {
+            var parts = new List<string>(path.Parts);
+
+            if (target.Parts.Count > 0)
+            {
+                var index = 0;
+
+                while (target.Parts.Count > index)
+                {
+                    if (target.Parts[index] == ".")
+                    {
+                        index++;
+                    }
+                    else if (target.Parts[index] == "..")
+                    {
+                        if (parts.Count > 0)
+                        {
+                            parts.RemoveAt(parts.Count - 1);
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException($"Target path '{target}' does exceed the hierarchy levels of path '{path}' and cannot be combined");
+                        }
+
+                        index++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                parts.AddRange(target.Parts.Skip(index));
+            }
+
+            return new WebPath(parts, target.TrailingSlash);
         }
 
         private static int CommonParts(WebPath one, WebPath two)

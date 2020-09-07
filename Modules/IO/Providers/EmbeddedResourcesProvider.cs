@@ -65,7 +65,7 @@ namespace GenHTTP.Modules.IO.Providers
 
                 var fileName = Path.GetFileName(fileRef);
 
-                var path = new List<string>(this.GetRoot(request.Server.Handler, false).Parts);
+                var path = new List<string>(this.GetRoot(request, false).Parts);
                 path.Add(fileRef);
 
                 var info = ContentInfo.Create()

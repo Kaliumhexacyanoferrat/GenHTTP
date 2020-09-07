@@ -1,4 +1,6 @@
-﻿namespace GenHTTP.Modules.Webservices
+﻿using GenHTTP.Modules.Webservices.Provider;
+
+namespace GenHTTP.Modules.Webservices
 {
 
     /// <summary>

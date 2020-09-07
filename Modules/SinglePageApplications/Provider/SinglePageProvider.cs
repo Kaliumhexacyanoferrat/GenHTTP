@@ -75,7 +75,7 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
-            var root = this.GetRoot(this, false);
+            var root = this.GetRoot(request, false);
 
             foreach (var file in Info.GetFiles())
             {

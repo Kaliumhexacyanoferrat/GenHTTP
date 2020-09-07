@@ -89,7 +89,7 @@ namespace GenHTTP.Modules.Websites.Resources
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
-            var path = this.GetRoot(request.Server.Handler, false);
+            var path = this.GetRoot(request, false);
 
             return Scripts.Values.Select(s =>
             {

@@ -87,7 +87,7 @@ namespace GenHTTP.Testing.Acceptance
             var request = WebRequest.CreateHttp($"http://localhost:{Port}{uri ?? ""}");
 
 #if !DEBUG
-            request.Timeout = 3000;
+            request.Timeout = 5000;
 #endif
 
             request.AllowAutoRedirect = false;
@@ -100,7 +100,12 @@ namespace GenHTTP.Testing.Acceptance
             return GetRequest(uri).GetSafeResponse();
         }
 
-#endregion
+        public HttpWebResponse GetResponse(HttpWebRequest request)
+        {
+            return request.GetSafeResponse();
+        }
+
+        #endregion
 
         #region IDisposable Support
 

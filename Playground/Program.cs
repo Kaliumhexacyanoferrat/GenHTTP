@@ -11,10 +11,13 @@ namespace Playground
 
         public static int Main(string[] args)
         {
+            var handler = Content.From("Hello World");
+
             return Host.Create()
-                       .Handler(Content.From("Hello World!"))
+                       .Handler(handler)
                        .Console()
                        .Defaults()
+                       .Development()
                        .Run();
         }
 

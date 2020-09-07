@@ -1,9 +1,15 @@
-﻿using GenHTTP.Api.Content;
-using System;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using System.Xml;
+using System.Xml.Linq;
+using System.Xml.XPath;
+
+using GenHTTP.Api.Content;
 
 namespace GenHTTP.Testing.Acceptance
 {
@@ -34,6 +40,21 @@ namespace GenHTTP.Testing.Acceptance
             using var reader = new StreamReader(stream);
 
             return reader.ReadToEnd();
+        }
+
+        public static HashSet<string> GetSitemap(this HttpWebResponse response)
+        {
+            var content = response.GetContent();
+
+            var sitemap = XDocument.Parse(content);
+
+            var namespaces = new XmlNamespaceManager(new NameTable());
+
+            namespaces.AddNamespace("n", "http://www.sitemaps.org/schemas/sitemap/0.9");
+
+            return sitemap.Root.XPathSelectElements("//n:loc", namespaces)
+                               .Select(x => new Uri(x.Value).AbsolutePath)
+                               .ToHashSet();
         }
 
         public static HttpWebResponse GetSafeResponse(this WebRequest request)

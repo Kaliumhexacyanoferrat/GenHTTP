@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -9,10 +11,11 @@ namespace GenHTTP.Modules.Basics.Providers
 
     public class RedirectProvider : IHandler
     {
+        private static readonly Regex PROTOCOL_MATCHER = new Regex("^[a-zA-Z_-]+://", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         #region Get-/Setters
 
-        public string Location { get; }
+        public string Target { get; }
 
         public bool Temporary { get; }
 
@@ -26,7 +29,7 @@ namespace GenHTTP.Modules.Basics.Providers
         {
             Parent = parent;
 
-            Location = location;
+            Target = location;
             Temporary = temporary;
         }
 
@@ -34,29 +37,51 @@ namespace GenHTTP.Modules.Basics.Providers
 
         #region Functionality
 
+        public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();
+
         public IResponse? Handle(IRequest request)
         {
-            var response = request.Respond()
-                                  .Header("Location", Location);
+            var resolved = ResolveRoute(request, Target);
 
-            if (Temporary)
+            var response = request.Respond()
+                                  .Header("Location", resolved);
+
+            var status = MapStatus(request, Temporary);
+
+            return response.Status(status)
+                           .Build();
+        }
+
+        private string ResolveRoute(IRequest request, string route)
+        {
+            if (PROTOCOL_MATCHER.IsMatch(route))
             {
-                return response.Status(ResponseStatus.TemporaryRedirect).Build();
+                return route;
+            }
+
+            var resolved = this.Route(request, route, false);
+
+            if (resolved == null)
+            {
+                throw new InvalidOperationException($"Unable to determine route to '{route}'");
+            }
+
+            var protocol = request.EndPoint.Secure ? "https://" : "http://";
+
+            return $"{protocol}{request.Host}{resolved}";
+        }
+
+        private ResponseStatus MapStatus(IRequest request, bool temporary)
+        {
+            if (request.HasType(RequestMethod.GET, RequestMethod.HEAD))
+            {
+               return (temporary) ? ResponseStatus.TemporaryRedirect : ResponseStatus.MovedPermanently;
             }
             else
             {
-                if (request.Method.KnownMethod == RequestMethod.GET)
-                {
-                    return response.Status(ResponseStatus.MovedPermanently).Build();
-                }
-                else
-                {
-                    return response.Status(ResponseStatus.PermanentRedirect).Build();
-                }
+                return (temporary) ? ResponseStatus.SeeOther : ResponseStatus.PermanentRedirect;
             }
         }
-
-        public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();
 
         #endregion
 

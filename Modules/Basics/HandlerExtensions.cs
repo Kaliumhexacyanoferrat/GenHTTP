@@ -76,11 +76,13 @@ namespace GenHTTP.Modules.Basics
             }
         }
 
-        public static WebPath GetRoot(this IHandler handler, IHandler root, bool trailingSlash)
+        public static WebPath GetRoot(this IHandler handler, IRequest request, bool trailingSlash)
         {
             var path = new PathBuilder(trailingSlash);
 
             var current = handler;
+
+            var root = request.Server.Handler;
 
             IHandler? child = null;
 
@@ -88,7 +90,7 @@ namespace GenHTTP.Modules.Basics
             {
                 if (current is IRootPathAppender appender)
                 {
-                    appender.Append(path, child);
+                    appender.Append(path, request, child);
                 }
 
                 if (current == root)
@@ -110,7 +112,7 @@ namespace GenHTTP.Modules.Basics
         {
             return new List<ContentElement>()
             {
-                new ContentElement(handler.GetRoot(request.Server.Handler, false), details, contentType, null)
+                new ContentElement(handler.GetRoot(request, false), details, contentType, null)
             };
         }
 
@@ -118,16 +120,29 @@ namespace GenHTTP.Modules.Basics
         {
             return new List<ContentElement>()
             {
-                new ContentElement(handler.GetRoot(request.Server.Handler, false), details, contentType, null)
+                new ContentElement(handler.GetRoot(request, false), details, contentType, null)
             };
         }
 
-        public static string? Route(this IHandler handler, IRequest request, string? route)
+        public static string? Route(this IHandler handler, IRequest request, string? route, bool relative = true)
         {
             if (route != null)
             {
-                if (route.StartsWith(".") || route.StartsWith('/') || route.StartsWith("http"))
+                if (route.StartsWith("http") || route.StartsWith('/'))
                 {
+                    return route;
+                }
+
+                if (route.StartsWith("."))
+                {
+                    if (!relative)
+                    {
+                        var routePath = new PathBuilder(route).Build();
+
+                        return request.Target.Path.Combine(routePath)
+                                                  .ToString();
+                    }
+
                     return route;
                 }
 
@@ -145,7 +160,7 @@ namespace GenHTTP.Modules.Basics
 
                         if (responsible != null)
                         {
-                            var targetParts = new List<string>(responsible.GetRoot(root, false).Parts);
+                            var targetParts = new List<string>(responsible.GetRoot(request, false).Parts);
 
                             for (int i = 1; i < parts.Length; i++)
                             {
@@ -154,7 +169,12 @@ namespace GenHTTP.Modules.Basics
 
                             var targetPath = new WebPath(targetParts, route.EndsWith('/'));
 
-                            return request.Target.Path.RelativeTo(targetPath);
+                            if (relative)
+                            {
+                                return request.Target.Path.RelativeTo(targetPath);
+                            }
+
+                            return targetPath.ToString();
                         }
                     }
                 }

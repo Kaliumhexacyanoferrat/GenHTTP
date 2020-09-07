@@ -31,6 +31,7 @@
     <ProjectReference Include="..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj" />
     <ProjectReference Include="..\Modules\Basics\GenHTTP.Modules.Basics.csproj" />
     <ProjectReference Include="..\Modules\Practices\GenHTTP.Modules.Practices.csproj" />
+    <ProjectReference Include="..\Modules\Controllers\GenHTTP.Modules.Controllers.csproj" />
     
   </ItemGroup>
   
