@@ -34,7 +34,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             }
             finally
             {
-                File.Delete(file);
+                try { File.Delete(file); } catch { /* nop */ }
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using GenHTTP.Api.Infrastructure;
 
@@ -14,6 +15,12 @@ namespace GenHTTP.Api.Routing
 
         private bool _TrailingSlash;
 
+        #region Get-/Setters
+
+        public bool IsEmpty => _Segments.Count == 0;
+
+        #endregion
+
         #region Initialization
 
         public PathBuilder(bool trailingSlash)
@@ -26,6 +33,12 @@ namespace GenHTTP.Api.Routing
         {
             _Segments = new List<string>(parts);
             _TrailingSlash = trailingSlash;
+        }
+
+        public PathBuilder(string path)
+        {
+            _Segments = new List<string>(path.Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries));
+            _TrailingSlash = path.EndsWith('/');
         }
 
         #endregion
@@ -43,12 +56,32 @@ namespace GenHTTP.Api.Routing
         }
 
         /// <summary>
+        /// Adds the given path to the beginning of the resulting path.
+        /// </summary>
+        /// <param name="path">The path to be prepended</param>
+        public PathBuilder Preprend(WebPath path)
+        {
+            _Segments.InsertRange(0, path.Parts);
+            return this;
+        }
+
+        /// <summary>
         /// Adds the given segment to the end of the resulting path.
         /// </summary>
         /// <param name="segment">The segment to be appended</param>
         public PathBuilder Append(string segment)
         {
             _Segments.Add(segment);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the given path to the end of the resulting path.
+        /// </summary>
+        /// <param name="path">The path to be appended</param>
+        public PathBuilder Append(WebPath path)
+        {
+            _Segments.AddRange(path.Parts);
             return this;
         }
 

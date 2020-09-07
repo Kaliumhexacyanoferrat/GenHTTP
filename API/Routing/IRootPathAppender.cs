@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Routing
 {
@@ -16,8 +17,9 @@ namespace GenHTTP.Api.Routing
         /// the given path.
         /// </summary>
         /// <param name="path">The path the segment should be appended to</param>
+        /// <param name="request">The currently handled request (if it somehow influences the path)</param>
         /// <param name="child">The child which caused this call</param>
-        void Append(PathBuilder path, IHandler? child = null);
+        void Append(PathBuilder path, IRequest request, IHandler? child = null);
 
     }
 

@@ -1,6 +1,7 @@
 ﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
+using GenHTTP.Modules.Scriban.Providers;
 
 namespace GenHTTP.Modules.Scriban
 {

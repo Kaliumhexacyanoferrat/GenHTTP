@@ -33,6 +33,8 @@ namespace GenHTTP.Api.Protocol
 
         Found = 302,
 
+        SeeOther = 303,
+
         NotModified = 304,
 
         TemporaryRedirect = 307,
@@ -161,6 +163,7 @@ namespace GenHTTP.Api.Protocol
             { ResponseStatus.PartialContent, "Partial Content"},
             { ResponseStatus.MultiStatus, "Multi-Status"},
             { ResponseStatus.AlreadyReported, "Already Reported"},
+            { ResponseStatus.SeeOther, "See Other" },
             { ResponseStatus.TemporaryRedirect, "Temporary Redirect"},
             { ResponseStatus.PermanentRedirect, "Permanent Redirect"},
             { ResponseStatus.Continue, "Continue" },

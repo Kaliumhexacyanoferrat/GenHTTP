@@ -60,7 +60,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
-            var root = this.GetRoot(this, false);
+            var root = this.GetRoot(request, false);
 
             foreach (var directory in Info.GetDirectories())
             {

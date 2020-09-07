@@ -238,7 +238,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             using var setup = TestSetup.Create((r) =>
             {
-                var reader = new StreamReader(r.Content!);
+                using var reader = new StreamReader(r.Content!);
                 return r.Respond().Content(reader.ReadToEnd());
             });
 
@@ -255,7 +255,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
                 stream.Write(input, 0, input.Length);
             }
 
-            Assert.Equal("Input", request.GetSafeResponse().GetContent());
+            using var response = request.GetSafeResponse();
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal("Input", response.GetContent());
         }
 
         [Fact]

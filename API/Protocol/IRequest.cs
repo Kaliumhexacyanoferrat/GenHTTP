@@ -112,6 +112,11 @@ namespace GenHTTP.Api.Protocol
         /// </summary>
         Stream? Content { get; }
 
+        /// <summary>
+        /// The type of content transmitted by the client, if any. 
+        /// </summary>
+        FlexibleContentType? ContentType { get; }
+
         #endregion
 
         #region Functionality

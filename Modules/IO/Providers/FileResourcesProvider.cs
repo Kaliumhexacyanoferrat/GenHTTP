@@ -51,7 +51,7 @@ namespace GenHTTP.Modules.IO.Providers
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
-            var root = this.GetRoot(request.Server.Handler, false);
+            var root = this.GetRoot(request, false);
 
             foreach (var file in Directory.EnumerateFiles("*.*", SearchOption.AllDirectories))
             {

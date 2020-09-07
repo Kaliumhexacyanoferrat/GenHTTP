@@ -185,7 +185,12 @@ namespace GenHTTP.Api.Protocol
         /// <summary>
         /// Scalable Vector Graphics (compressed, .svgz)
         /// </summary>
-        ImageScalableVectorGraphicsCompressed
+        ImageScalableVectorGraphicsCompressed,
+
+        /// <summary>
+        /// Url encoded form data.
+        /// </summary>
+        ApplicationWwwFormUrlEncoded
 
     }
 
@@ -249,7 +254,8 @@ namespace GenHTTP.Api.Protocol
             { ContentType.FontWoff2, "font/woff2" },
             { ContentType.ImageScalableVectorGraphics, "image/svg" },
             { ContentType.ImageScalableVectorGraphicsCompressed, "image/svgz" },
-            { ContentType.ApplicationJson, "application/json" }
+            { ContentType.ApplicationJson, "application/json" },
+            { ContentType.ApplicationWwwFormUrlEncoded, "application/x-www-form-urlencoded" }
         };
 
         private static readonly Dictionary<string, ContentType> MAPPING_REVERSE = MAPPING.ToDictionary(x => x.Value, x => x.Key);

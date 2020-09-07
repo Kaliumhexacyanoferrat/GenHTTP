@@ -23,6 +23,8 @@ namespace GenHTTP.Engine
 
         private IRequestProperties? _Properties;
 
+        private FlexibleContentType? _ContentType;
+
         #region Get-/Setters
 
         public IServer Server { get; }
@@ -42,6 +44,26 @@ namespace GenHTTP.Engine
         public IHeaderCollection Headers { get; }
 
         public Stream? Content { get; }
+
+        public FlexibleContentType? ContentType
+        {
+            get
+            {
+                if (_ContentType != null)
+                {
+                    return _ContentType;
+                }
+
+                var type = this["Content-Type"];
+
+                if (type != null)
+                {
+                    return _ContentType = new FlexibleContentType(type);
+                }
+
+                return null;
+            }
+        }
 
         public string? Host => Client.Host;
 
@@ -64,22 +86,22 @@ namespace GenHTTP.Engine
 
         public ICookieCollection Cookies
         {
-            get { return _Cookies ?? (_Cookies = new CookieCollection()); }
+            get { return _Cookies ??= new CookieCollection(); }
         }
 
         public IForwardingCollection Forwardings
         {
-            get { return _Forwardings ?? (_Forwardings = new ForwardingCollection()); }
+            get { return _Forwardings ??= new ForwardingCollection(); }
         }
 
         public IRequestQuery Query
         {
-            get { return _Query ?? (_Query = new RequestQuery()); }
+            get { return _Query ??= new RequestQuery(); }
         }
 
         public IRequestProperties Properties
         {
-            get { return _Properties ?? (_Properties = new RequestProperties()); }
+            get { return _Properties ??= new RequestProperties(); }
         }
 
         #endregion
