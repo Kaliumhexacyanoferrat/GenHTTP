@@ -8,6 +8,10 @@ namespace GenHTTP.Core.Infrastructure
 
     internal class ConsoleCompanion : IServerCompanion
     {
+        public void OnRequestRecieved(IRequest request)
+        {
+            Console.WriteLine($"Before REQ - {request.Client.IPAddress} - {request.Method.RawMethod} {request.Target.Path}");
+        }
 
         public void OnRequestHandled(IRequest request, IResponse response)
         {

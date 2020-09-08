@@ -65,6 +65,11 @@ namespace GenHTTP.Api.Infrastructure
     /// </remarks>
     public interface IServerCompanion
     {
+        /// <summary>
+        /// Will be invoked before request has been handled by the server.
+        /// </summary>
+        /// <param name="request">The request which will be handled</param>
+        void OnRequestRecieved(IRequest request);
 
         /// <summary>
         /// Will be invoked after request has been handled by the server.

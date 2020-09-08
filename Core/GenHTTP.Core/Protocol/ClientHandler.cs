@@ -119,7 +119,9 @@ namespace GenHTTP.Core
 
             bool keepAlive = (bool)KeepAlive;
 
-            var responseHandler = new ResponseHandler(Server, Stream, Connection, Configuration);
+            Server.Companion?.OnRequestRecieved(request);
+
+            var responseHandler = new ResponseHandler(Server, Stream, Connection, Configuration);            
 
             using var response = Server.Handler.Handle(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
             
