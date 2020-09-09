@@ -129,10 +129,8 @@ namespace GenHTTP.Core.Protocol
                 await WriteHeaderLine("Content-Encoding", response.ContentEncoding!).ConfigureAwait(false);
             }
 
-            if (response.ContentLength != null)
-            {
-                await WriteHeaderLine("Content-Length", response.ContentLength.ToString()).ConfigureAwait(false);
-            }
+            string contentLength = response.ContentLength != null ? response.ContentLength.ToString() : "0";
+            await WriteHeaderLine("Content-Length", contentLength).ConfigureAwait(false);
 
             if (response.Modified != null)
             {
