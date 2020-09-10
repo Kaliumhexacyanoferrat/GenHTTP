@@ -21,12 +21,12 @@ jobs:
     - name: Restore tools
       run: dotnet tool restore
     - name: Begin scan
-      if: env.SONAR_TOKEN != null
+      if: env.SONAR_TOKEN != null && env.SONAR_TOKEN != ''
       run: dotnet sonarscanner begin /k:"GenHTTP" /d:sonar.login="$SONAR_TOKEN" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/bin/**/*,**/obj/**/*,**/Examples/**/*,**/*.css,**/*.js,**/*.html" /o:"kaliumhexacyanoferrat" /k:"GenHTTP" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.branch.name="${GITHUB_REF##*/}"
     - name: Build project
       run: dotnet build GenHTTP.sln -c Release
     - name: Test project
       run: dotnet test -c Release --no-build GenHTTP.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ParallelizeTestCollections=false /p:Exclude=\"[xunit.*]*,[*Test*]*,[GenHTTP.Examples.*]*\" 
     - name: End scan
-      if: env.SONAR_TOKEN != null
+      if: env.SONAR_TOKEN != null && env.SONAR_TOKEN != ''
       run: dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
