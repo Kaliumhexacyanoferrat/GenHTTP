@@ -32,13 +32,23 @@ namespace GenHTTP.Testing.Acceptance.Core
 
             public IResponse Handle(IRequest request)
             {
-                return request.Respond()
-                              .Content("Hello World")
-                              .Type("text/x-custom")
-                              .Expires(DateTime.Now.AddYears(1))
-                              .Modified(Modified)
-                              .Header("X-Powered-By", "Test Runner")
-                              .Build();
+                switch (request.Method.KnownMethod)
+                {
+                    case RequestMethod.POST:
+                        return request.Respond()
+                            .Content("")
+                            .Type("")
+                            .Build();
+                    default:
+                        return request.Respond()
+                         .Content("Hello World")
+                         .Type("text/x-custom")
+                         .Expires(DateTime.Now.AddYears(1))
+                         .Modified(Modified)
+                         .Header("X-Powered-By", "Test Runner")
+                         .Build();
+                }
+                
             }
 
             public IEnumerable<ContentElement> GetContent(IRequest request)
@@ -71,6 +81,31 @@ namespace GenHTTP.Testing.Acceptance.Core
             Assert.NotNull(response.Headers["Expires"]);
 
             Assert.Equal("Test Runner", response.Headers["X-Powered-By"]);
+        }
+
+        /// <summary>
+        /// As a client, I'd like a response containing an empty body to return a Content-Length of 0.
+        /// </summary>
+        [Fact]
+        public void TestEmptyBody()
+        {
+            var provider = new ResponseProvider();
+
+            var router = Layout.Create().Index(provider.Wrap());
+
+            using var runner = TestRunner.Run(router);
+
+            var request = runner.GetRequest();
+            request.Method = "POST";
+            request.KeepAlive = true;
+
+            using var response = request.GetResponse();
+
+            Assert.Equal("", response.ContentType);
+
+            Assert.Equal(0, response.ContentLength);
+
+            Assert.Equal("Keep-Alive", response.Headers["Connection"]);
         }
 
     }
