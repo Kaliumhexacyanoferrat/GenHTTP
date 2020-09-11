@@ -133,6 +133,17 @@ namespace GenHTTP.Core.Protocol
             {
                 await WriteHeaderLine("Content-Length", response.ContentLength.ToString()).ConfigureAwait(false);
             }
+            else
+            {
+                if (response.Content != null)
+                {
+                    await WriteHeaderLine("Transfer-Encoding", "chunked").ConfigureAwait(false);
+                }
+                else
+                {
+                    await WriteHeaderLine("Content-Length", "0").ConfigureAwait(false);
+                }
+            }
 
             if (response.Modified != null)
             {
@@ -142,11 +153,6 @@ namespace GenHTTP.Core.Protocol
             if (response.Expires != null)
             {
                 await WriteHeaderLine("Expires", (DateTime)response.Expires).ConfigureAwait(false);
-            }
-
-            if ((response.Content != null) && (response.ContentLength == null))
-            {
-                await WriteHeaderLine("Transfer-Encoding", "chunked").ConfigureAwait(false);
             }
 
             foreach (var header in response.Headers)
