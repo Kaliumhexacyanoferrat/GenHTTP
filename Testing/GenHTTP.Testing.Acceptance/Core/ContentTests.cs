@@ -38,6 +38,7 @@ namespace GenHTTP.Testing.Acceptance.Core
             {
                 return request.Respond()
                               .Content(new JsonContent(Content.GetContent(request), new JsonSerializerOptions()))
+                              .Type(ContentType.ApplicationJson)
                               .Build();
             }
 
