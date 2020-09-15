@@ -81,14 +81,11 @@ namespace GenHTTP.Core.Protocol
 
         private bool ShouldSendBody(IRequest request, IResponse response)
         {
-            var knownStatus = response.Status.KnownStatus;
-
-            return (request.Method.KnownMethod != RequestMethod.HEAD)
-                && (knownStatus != ResponseStatus.NoContent)
-                && (knownStatus != ResponseStatus.NotModified)
-                && (knownStatus != ResponseStatus.PermanentRedirect)
-                && (knownStatus != ResponseStatus.TemporaryRedirect)
-                && (knownStatus != ResponseStatus.MovedPermanently);
+            return (request.Method.KnownMethod != RequestMethod.HEAD) &&
+                   (
+                     (response.ContentLength > 0) || (response.Content?.Length > 0) ||
+                     (response.ContentType != null) || (response.ContentEncoding != null)
+                   );
         }
 
         private async ValueTask WriteStatus(IRequest request, IResponse response)
