@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\GenHTTP.Core\GenHTTP.Core.csproj" />
+	<ProjectReference Include="..\..\Engine\GenHTTP.Engine.csproj" />
     <ProjectReference Include="..\GenHTTP.Examples\GenHTTP.Examples.csproj" />
   </ItemGroup>
 

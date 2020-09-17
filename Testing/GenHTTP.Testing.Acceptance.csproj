@@ -1,0 +1,62 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    
+    <IsPackable>false</IsPackable>
+    
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\Certificate.pfx" />
+    <None Remove="Resources\Error.html" />
+    <None Remove="Resources\File.txt" />
+    <None Remove="Resources\Template.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Certificate.pfx">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Error.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\File.txt" />
+    <EmbeddedResource Include="Resources\Template.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    
+    <PackageReference Include="coverlet.msbuild" Version="2.9.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+    
+    <PackageReference Include="xunit" Version="2.4.1" />
+    
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>   
+    
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\API\GenHTTP.Api.csproj" />
+    <ProjectReference Include="..\Engine\GenHTTP.Engine.csproj" />
+    <ProjectReference Include="..\Modules\Authentication\GenHTTP.Modules.Authentication.csproj" />
+    <ProjectReference Include="..\Modules\Core\GenHTTP.Modules.Core.csproj" />
+    <ProjectReference Include="..\Modules\Razor\GenHTTP.Modules.Razor.csproj" />
+    <ProjectReference Include="..\Modules\Scriban\GenHTTP.Modules.Scriban.csproj" />
+    <ProjectReference Include="..\Modules\Webservices\GenHTTP.Modules.Webservices.csproj" />
+  </ItemGroup>
+
+</Project>
