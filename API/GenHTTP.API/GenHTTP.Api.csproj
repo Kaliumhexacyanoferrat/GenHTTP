@@ -19,19 +19,20 @@
     <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
     
     <Description>Public API of the GenHTTP webserver. This package is at least required to build a project that can be executed with the GenHTTP webserver.</Description>
+    <PackageTags>HTTP Embedded Webserver Website Server Library C# Standard API</PackageTags>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
+    <PackageIcon>icon.png</PackageIcon>
+
   </PropertyGroup>
 
   <ItemGroup>
     
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
+    <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\" />
     
   </ItemGroup>
 

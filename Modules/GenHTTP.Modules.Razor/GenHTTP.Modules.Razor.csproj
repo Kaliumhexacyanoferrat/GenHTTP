@@ -19,19 +19,20 @@
     <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
     <Description>Provides renderers based on the Razor templating engine that can be used to render websites in projects running on the GenHTTP webserver.</Description>
-
+    <PackageTags>HTTP Webserver Website C# Standard Module Templating Rendering Razor Engine</PackageTags>
+    
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
+    <PackageIcon>icon.png</PackageIcon>
+    
   </PropertyGroup>
 
   <ItemGroup>
 
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
+    <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\" />
 
   </ItemGroup>
 

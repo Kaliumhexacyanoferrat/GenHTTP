@@ -19,19 +19,20 @@
     <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
     <Description>Module to add REST-based webservices to a GenHTTP project.</Description>
-
+    <PackageTags>HTTP Webserver C# Standard Module Webservices Services REST JSON Framework</PackageTags>
+    
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
+    <PackageIcon>icon.png</PackageIcon>
+    
   </PropertyGroup>
 
   <ItemGroup>
 
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
+    <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\" />
 
   </ItemGroup>
 

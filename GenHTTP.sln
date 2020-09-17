@@ -39,6 +39,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Razor", "Mo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Authentication", "Modules\GenHTTP.Modules.Authentication\GenHTTP.Modules.Authentication.csproj", "{9BB6732E-BFE1-4ABE-B8A6-4522DF72EDDD}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Resources", "Resources", "{20BDA6E9-76E1-4EC5-8C95-40A335D1F39F}"
+	ProjectSection(SolutionItems) = preProject
+		Resources\icon.png = Resources\icon.png
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -100,9 +105,10 @@ Global
 		{3096F48C-60D7-4471-A7E4-315B6227C351} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 		{9022F8C2-B465-40FD-BC59-428C034C4470} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 		{9BB6732E-BFE1-4ABE-B8A6-4522DF72EDDD} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
+		{20BDA6E9-76E1-4EC5-8C95-40A335D1F39F} = {8514DD10-DC8A-4C5C-B8CD-F2C97F5684C9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
 		LessCompiler = 2603124e-1287-4d61-9540-6ac3efad4eb9
+		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
 	EndGlobalSection
 EndGlobal
