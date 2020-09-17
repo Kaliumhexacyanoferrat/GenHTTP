@@ -19,7 +19,7 @@
     <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
     <Description>Adds authentication features to applications hosted on a GenHTTP webserver.</Description>
-    <PackageTags>HTTP Webserver Website C# Standard Module Authentication Authorization Security Basic</PackageTags>
+    <PackageTags>HTTP Webserver C# Module Authentication Authorization Security Basic</PackageTags>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>

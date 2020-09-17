@@ -1,7 +1,7 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Modules.Core;
-using GenHTTP.Modules.Core.Bots;
-
+using GenHTTP.Modules.Robots;
+using GenHTTP.Modules.Robots.Provider;
 using Xunit;
 
 namespace GenHTTP.Testing.Acceptance.Providers
@@ -13,7 +13,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestDefault()
         {
-            using var runner = TestRunner.Run(GetTest(Robots.Default()));
+            using var runner = TestRunner.Run(GetTest(BotInstructions.Default()));
 
             var result = GetRobots(runner);
 
@@ -26,7 +26,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestDirective()
         {
-            var robots = Robots.Empty()
+            var robots = BotInstructions.Empty()
                                .Directive(new string[] { "MyAgent 1", "MyAgent 2" },
                                           new string[] { "/allowed", "/alsoallowed" },
                                           new string[] { "/disallowed/", "/alsodisallowed" });
@@ -48,7 +48,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestSitemap()
         {
-            using var runner = TestRunner.Run(GetTest(Robots.Default().Sitemap()));
+            using var runner = TestRunner.Run(GetTest(BotInstructions.Default().Sitemap()));
 
             var result = GetRobots(runner);
 
@@ -58,7 +58,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestCustomSitemap()
         {
-            using var runner = TestRunner.Run(GetTest(Robots.Default().Sitemap("sitemap.xml")));
+            using var runner = TestRunner.Run(GetTest(BotInstructions.Default().Sitemap("sitemap.xml")));
 
             var result = GetRobots(runner);
 
@@ -68,7 +68,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestAbsoluteSitemap()
         {
-            using var runner = TestRunner.Run(GetTest(Robots.Default().Sitemap("http://my/sitemap.xml")));
+            using var runner = TestRunner.Run(GetTest(BotInstructions.Default().Sitemap("http://my/sitemap.xml")));
 
             var result = GetRobots(runner);
 

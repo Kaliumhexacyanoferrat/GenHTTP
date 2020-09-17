@@ -10,6 +10,7 @@ using Xunit;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Core;
+using GenHTTP.Modules.ReverseProxy;
 
 using Cookie = GenHTTP.Api.Protocol.Cookie;
 
@@ -39,10 +40,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
                 var testServer = TestRunner.Run(new ProxiedRouter(response));
 
                 // proxying server
-                var proxy = ReverseProxy.Create()
-                                        .ConnectTimeout(TimeSpan.FromSeconds(2))
-                                        .ReadTimeout(TimeSpan.FromSeconds(5))
-                                        .Upstream("http://localhost:" + testServer.Port);
+                var proxy = Proxy.Create()
+                                 .ConnectTimeout(TimeSpan.FromSeconds(2))
+                                 .ReadTimeout(TimeSpan.FromSeconds(5))
+                                 .Upstream("http://localhost:" + testServer.Port);
 
                 var layout = Layout.Create().Fallback(proxy);
 
@@ -314,8 +315,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestBadGateway()
         {
-            var proxy = ReverseProxy.Create()
-                                    .Upstream("http://127.0.0.2");
+            var proxy = Proxy.Create()
+                             .Upstream("http://127.0.0.2");
 
             var layout = Layout.Create().Fallback(proxy);
 

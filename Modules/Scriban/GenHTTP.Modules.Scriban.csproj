@@ -19,7 +19,7 @@
     <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
     <Description>Provides renderers based on the Scriban templating engine that can be used to render websites in projects running on the GenHTTP webserver.</Description>
-    <PackageTags>HTTP Webserver Website C# Standard Module Templating Rendering Scriban Engine</PackageTags>
+    <PackageTags>HTTP Webserver C# Module Templating Rendering Scriban Engine</PackageTags>
     
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>

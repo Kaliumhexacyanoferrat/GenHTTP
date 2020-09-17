@@ -18,9 +18,9 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
-    <Description>Provides renderers based on the Razor templating engine that can be used to render websites in projects running on the GenHTTP webserver.</Description>
-    <PackageTags>HTTP Webserver C# Module Templating Rendering Razor Engine</PackageTags>
-    
+    <Description>Allows to distribute load e.g. to reverse proxies.</Description>
+    <PackageTags>HTTP Webserver C# Module Load Balancer Balancing</PackageTags>
+
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -37,13 +37,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="RazorEngineCore" Version="2020.6.1" />
-  </ItemGroup>
-
-  <ItemGroup>
     
     <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />    
     <ProjectReference Include="..\Core\GenHTTP.Modules.Core.csproj" />
+    <ProjectReference Include="..\ReverseProxy\GenHTTP.Modules.ReverseProxy.csproj" />
 
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>
@@ -53,3 +50,4 @@
   </ItemGroup>
 
 </Project>
+ 

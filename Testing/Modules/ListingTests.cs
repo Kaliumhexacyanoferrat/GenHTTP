@@ -2,7 +2,7 @@
 
 using Xunit;
 
-using GenHTTP.Modules.Core;
+using GenHTTP.Modules.DirectoryBrowsing;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {

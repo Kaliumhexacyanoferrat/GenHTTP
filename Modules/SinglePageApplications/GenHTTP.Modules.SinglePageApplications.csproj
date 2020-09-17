@@ -18,9 +18,9 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
-    <Description>Provides renderers based on the Razor templating engine that can be used to render websites in projects running on the GenHTTP webserver.</Description>
-    <PackageTags>HTTP Webserver C# Module Templating Rendering Razor Engine</PackageTags>
-    
+    <Description>Simple way to serve already built Single Page Applications.</Description>
+    <PackageTags>HTTP Webserver C# Module SPA Single Page Application Hosting Host</PackageTags>
+
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -37,10 +37,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="RazorEngineCore" Version="2020.6.1" />
-  </ItemGroup>
-
-  <ItemGroup>
     
     <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />    
     <ProjectReference Include="..\Core\GenHTTP.Modules.Core.csproj" />
@@ -53,3 +49,4 @@
   </ItemGroup>
 
 </Project>
+ 

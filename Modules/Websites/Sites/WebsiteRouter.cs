@@ -5,7 +5,10 @@ using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
+
 using GenHTTP.Modules.Core;
+using GenHTTP.Modules.Robots;
+using GenHTTP.Modules.Sitemaps;
 using GenHTTP.Modules.Websites.Resources;
 
 namespace GenHTTP.Modules.Websites.Sites
@@ -45,7 +48,7 @@ namespace GenHTTP.Modules.Websites.Sites
                                .Add("scripts", scripts)
                                .Add("styles", styles)
                                .Add("sitemap.xml", Sitemap.Create())
-                               .Add("robots.txt", Robots.Default().Sitemap())
+                               .Add("robots.txt", BotInstructions.Default().Sitemap())
                                .Fallback(content);
 
             foreach (var concern in concerns)

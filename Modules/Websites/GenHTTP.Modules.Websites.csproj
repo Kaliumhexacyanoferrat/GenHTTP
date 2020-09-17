@@ -19,7 +19,7 @@
     <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
     <Description>Allows to design and serve web applications to clients.</Description>
-    <PackageTags>HTTP Webserver Website C# Standard Module Bundles Apps Applications Web</PackageTags>
+    <PackageTags>HTTP Webserver C# Module Website Websites Bundles Apps Applications Web</PackageTags>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
@@ -40,6 +40,8 @@
     
     <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />    
     <ProjectReference Include="..\Core\GenHTTP.Modules.Core.csproj" />
+    <ProjectReference Include="..\Sitemaps\GenHTTP.Modules.Sitemaps.csproj" />
+    <ProjectReference Include="..\Robots\GenHTTP.Modules.Robots.csproj" />
 
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>

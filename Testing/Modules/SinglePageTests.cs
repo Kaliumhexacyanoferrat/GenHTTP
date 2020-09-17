@@ -3,7 +3,7 @@ using System.Net;
 
 using Xunit;
 
-using GenHTTP.Modules.Core;
+using GenHTTP.Modules.SinglePageApplications;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {

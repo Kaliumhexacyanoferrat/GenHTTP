@@ -1,7 +1,9 @@
 ﻿using System.Net;
 
 using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Modules.Core;
+using GenHTTP.Modules.LoadBalancing;
 
 using Xunit;
 
