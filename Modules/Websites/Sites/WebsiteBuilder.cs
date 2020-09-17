@@ -5,9 +5,11 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Infrastructure;
 
+using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Core.Errors;
+using GenHTTP.Modules.Websites.Resources;
 
-namespace GenHTTP.Modules.Core.Websites
+namespace GenHTTP.Modules.Websites.Sites
 {
 
     public class WebsiteBuilder : IHandlerBuilder<WebsiteBuilder>

@@ -5,8 +5,10 @@ using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
+using GenHTTP.Modules.Core;
+using GenHTTP.Modules.Websites.Resources;
 
-namespace GenHTTP.Modules.Core.Websites
+namespace GenHTTP.Modules.Websites.Sites
 {
 
     public class WebsiteRouter : IHandler, IErrorHandler, IPageRenderer, IHandlerResolver
@@ -65,7 +67,7 @@ namespace GenHTTP.Modules.Core.Websites
 
             Theme = theme;
 
-            Menu = menu ?? Core.Menu.Create((r, _) => GetContent(r)).Build();
+            Menu = menu ?? Websites.Menu.Create((r, _) => GetContent(r)).Build();
 
             var scriptRouter = (ScriptRouter)scripts.Build(this);
             var styleRouter = (StyleRouter)styles.Build(this);

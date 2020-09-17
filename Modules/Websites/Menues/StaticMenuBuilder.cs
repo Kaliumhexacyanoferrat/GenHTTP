@@ -5,7 +5,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Core.Websites
+namespace GenHTTP.Modules.Websites.Menues
 {
 
     public class StaticMenuBuilder : IBuilder<IMenuProvider>
@@ -28,7 +28,7 @@ namespace GenHTTP.Modules.Core.Websites
                 childElements = new List<ContentElement>(children.Count);
 
                 foreach (var child in children)
-                {                 
+                {
                     childElements.Add(new ContentElement($"{path}{child.childPath}", child.childTitle, ContentType.TextHtml, null));
                 }
             }

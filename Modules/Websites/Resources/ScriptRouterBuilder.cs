@@ -4,7 +4,7 @@ using System.Linq;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Websites;
 
-namespace GenHTTP.Modules.Core.Websites
+namespace GenHTTP.Modules.Websites.Resources
 {
 
     public class ScriptRouterBuilder : IHandlerBuilder<ScriptRouterBuilder>
@@ -37,7 +37,7 @@ namespace GenHTTP.Modules.Core.Websites
 
         public IHandler Build(IHandler parent)
         {
-            var scripts = (_Theme != null) ? _Theme.Scripts.Union(_Scripts) : _Scripts;
+            var scripts = _Theme != null ? _Theme.Scripts.Union(_Scripts) : _Scripts;
 
             return Concerns.Chain(parent, _Concerns, (p) => new ScriptRouter(p, scripts.ToList()));
         }

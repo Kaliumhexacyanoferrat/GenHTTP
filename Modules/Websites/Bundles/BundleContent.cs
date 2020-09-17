@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Core.Websites
+namespace GenHTTP.Modules.Websites.Bundles
 {
 
     public class BundleContent : IResponseContent

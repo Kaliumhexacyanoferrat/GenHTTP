@@ -8,8 +8,9 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Core.Layouting;
-using GenHTTP.Modules.Core.Websites;
 using GenHTTP.Modules.Scriban;
+using GenHTTP.Modules.Websites;
+using GenHTTP.Modules.Websites.Sites;
 
 using Xunit;
 

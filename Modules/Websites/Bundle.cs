@@ -1,6 +1,6 @@
-﻿using GenHTTP.Modules.Core.Websites;
+﻿using GenHTTP.Modules.Websites.Bundles;
 
-namespace GenHTTP.Modules.Core
+namespace GenHTTP.Modules.Websites
 {
 
     public static class Bundle

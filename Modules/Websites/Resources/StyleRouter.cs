@@ -4,9 +4,9 @@ using System.Linq;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
+using GenHTTP.Modules.Core;
 
-namespace GenHTTP.Modules.Core.Websites
+namespace GenHTTP.Modules.Websites.Resources
 {
 
     public class StyleRouter : IHandler
@@ -32,7 +32,7 @@ namespace GenHTTP.Modules.Core.Websites
 
             Styles = styles.ToDictionary(s => s.Name);
 
-            var bundle = Core.Bundle.Create().ContentType(ContentType.TextCss);
+            var bundle = Websites.Bundle.Create().ContentType(ContentType.TextCss);
 
             foreach (var style in Styles.Values)
             {

@@ -4,7 +4,7 @@ using System.Linq;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Core.Websites
+namespace GenHTTP.Modules.Websites.Bundles
 {
 
     public class BundleProvider : IHandler

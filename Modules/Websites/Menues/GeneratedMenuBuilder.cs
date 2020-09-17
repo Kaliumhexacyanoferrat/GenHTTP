@@ -6,7 +6,7 @@ using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Core.Websites
+namespace GenHTTP.Modules.Websites.Menues
 {
 
     public class GeneratedMenuBuilder : IBuilder<IMenuProvider>

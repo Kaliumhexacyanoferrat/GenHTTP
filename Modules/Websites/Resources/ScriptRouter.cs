@@ -4,9 +4,9 @@ using System.Linq;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
+using GenHTTP.Modules.Core;
 
-namespace GenHTTP.Modules.Core.Websites
+namespace GenHTTP.Modules.Websites.Resources
 {
 
     public class ScriptRouter : IHandler
@@ -32,7 +32,7 @@ namespace GenHTTP.Modules.Core.Websites
 
             Scripts = scripts.ToDictionary(s => s.Name);
 
-            var bundle = Core.Bundle.Create().ContentType(ContentType.ApplicationJavaScript);
+            var bundle = Websites.Bundle.Create().ContentType(ContentType.ApplicationJavaScript);
 
             foreach (var script in Scripts.Values)
             {
@@ -88,7 +88,8 @@ namespace GenHTTP.Modules.Core.Websites
         {
             var path = this.GetRoot(request.Server.Handler, false);
 
-            return Scripts.Values.Select(s => {
+            return Scripts.Values.Select(s =>
+            {
                 var childPath = path.Edit(false)
                                     .Append(s.Name)
                                     .Build();

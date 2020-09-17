@@ -19,6 +19,7 @@
     <ProjectReference Include="..\..\Modules\Core\GenHTTP.Modules.Core.csproj" />
     <ProjectReference Include="..\..\Modules\Webservices\GenHTTP.Modules.Webservices.csproj" />
     <ProjectReference Include="..\..\Modules\Scriban\GenHTTP.Modules.Scriban.csproj" />
+    <ProjectReference Include="..\..\Modules\Websites\GenHTTP.Modules.Websites.csproj" />
   </ItemGroup>
 
 </Project>

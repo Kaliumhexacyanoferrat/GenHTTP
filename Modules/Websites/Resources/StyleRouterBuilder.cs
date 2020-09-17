@@ -4,7 +4,7 @@ using System.Linq;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Websites;
 
-namespace GenHTTP.Modules.Core.Websites
+namespace GenHTTP.Modules.Websites.Resources
 {
 
     public class StyleRouterBuilder : IHandlerBuilder<StyleRouterBuilder>
@@ -37,7 +37,7 @@ namespace GenHTTP.Modules.Core.Websites
 
         public IHandler Build(IHandler parent)
         {
-            var styles = (_Theme != null) ? _Theme.Styles.Union(_Styles) : _Styles;
+            var styles = _Theme != null ? _Theme.Styles.Union(_Styles) : _Styles;
 
             return new StyleRouter(parent, styles.ToList());
         }

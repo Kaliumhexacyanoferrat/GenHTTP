@@ -57,6 +57,7 @@
     <ProjectReference Include="..\Modules\Razor\GenHTTP.Modules.Razor.csproj" />
     <ProjectReference Include="..\Modules\Scriban\GenHTTP.Modules.Scriban.csproj" />
     <ProjectReference Include="..\Modules\Webservices\GenHTTP.Modules.Webservices.csproj" />
+    <ProjectReference Include="..\Modules\Websites\GenHTTP.Modules.Websites.csproj" />
   </ItemGroup>
 
 </Project>

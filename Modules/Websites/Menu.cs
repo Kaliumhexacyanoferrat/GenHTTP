@@ -6,9 +6,10 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
-using GenHTTP.Modules.Core.Websites;
+using GenHTTP.Modules.Core;
+using GenHTTP.Modules.Websites.Menues;
 
-namespace GenHTTP.Modules.Core
+namespace GenHTTP.Modules.Websites
 {
 
     public static class Menu
