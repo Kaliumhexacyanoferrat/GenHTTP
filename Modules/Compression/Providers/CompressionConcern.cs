@@ -8,7 +8,7 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
-namespace GenHTTP.Modules.Core.Compression
+namespace GenHTTP.Modules.Compression.Providers
 {
 
     public class CompressionConcern : IConcern
@@ -46,7 +46,7 @@ namespace GenHTTP.Modules.Core.Compression
             {
                 if (response.ContentEncoding == null)
                 {
-                    if ((response.Content != null) && ShouldCompress(request.Target.Path, response.ContentType?.KnownType))
+                    if (response.Content != null && ShouldCompress(request.Target.Path, response.ContentType?.KnownType))
                     {
                         if (request.Headers.TryGetValue("Accept-Encoding", out var header))
                         {

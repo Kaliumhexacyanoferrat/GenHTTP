@@ -38,7 +38,9 @@
 
   <ItemGroup>
     
-    <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />    
+    <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
+
+    <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
     <ProjectReference Include="..\Core\GenHTTP.Modules.Core.csproj" />
 
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">

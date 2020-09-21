@@ -64,18 +64,6 @@ namespace GenHTTP.Modules.Core
         /// <param name="contentType">The content type of this response</param>
         public static IResponseBuilder Type(this IResponseBuilder builder, string contentType) => builder.Type(new FlexibleContentType(contentType));
 
-        /// <summary>
-        /// Sends the given stream to the client.
-        /// </summary>
-        /// <param name="stream">The stream to be sent</param>
-        public static IResponseBuilder Content(this IResponseBuilder builder, Stream stream) => builder.Content(new StreamContent(stream));
-
-        /// <summary>
-        /// Sends the given string to the client.
-        /// </summary>
-        /// <param name="text">The string to be sent</param>
-        public static IResponseBuilder Content(this IResponseBuilder builder, string text) => builder.Content(new StringContent(text));
-
         #endregion
 
         #region Content types

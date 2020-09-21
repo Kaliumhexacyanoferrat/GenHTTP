@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Core.Compression
+namespace GenHTTP.Modules.Compression.Providers
 {
 
     public class CompressedResponseContent : IResponseContent, IDisposable

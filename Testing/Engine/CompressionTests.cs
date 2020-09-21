@@ -1,8 +1,11 @@
 ﻿using Xunit;
 
-using GenHTTP.Modules.Core;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.Core;
+using GenHTTP.Modules.Compression;
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {

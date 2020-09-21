@@ -18,7 +18,7 @@ namespace GenHTTP.Modules.Core
         {
             if (compression)
             {
-                host.Compression(CompressedContent.Default());
+                // ToDo: host.Compression(CompressedContent.Default());
             }
 
             if (secureUpgrade)

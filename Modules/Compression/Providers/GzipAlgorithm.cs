@@ -3,7 +3,7 @@
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Core.Compression
+namespace GenHTTP.Modules.Compression.Providers
 {
 
     public class GzipAlgorithm : ICompressionAlgorithm
@@ -12,7 +12,7 @@ namespace GenHTTP.Modules.Core.Compression
         public string Name => "gzip";
 
         public Priority Priority => Priority.Low;
-        
+
         public IResponseContent Compress(IResponseContent content)
         {
             return new CompressedResponseContent(content, (target) => new GZipStream(target, CompressionLevel.Fastest, false));

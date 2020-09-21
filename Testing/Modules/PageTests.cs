@@ -9,6 +9,8 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Razor;
 using GenHTTP.Modules.Scriban;
+using GenHTTP.Modules.Placeholders;
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {

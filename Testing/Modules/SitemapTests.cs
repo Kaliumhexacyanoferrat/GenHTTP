@@ -4,6 +4,7 @@ using System.Xml.Serialization;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Modules.Core;
+using GenHTTP.Modules.Placeholders;
 using GenHTTP.Modules.Sitemaps;
 
 using Xunit;

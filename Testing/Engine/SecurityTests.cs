@@ -10,6 +10,7 @@ using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Core.Security;
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {

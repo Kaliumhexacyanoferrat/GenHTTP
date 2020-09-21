@@ -2,7 +2,7 @@
 
 using GenHTTP.Api.Infrastructure;
 
-using GenHTTP.Modules.Core;
+using GenHTTP.Modules.IO;
 using GenHTTP.Modules.LoadBalancing;
 
 using Xunit;

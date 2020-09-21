@@ -1,10 +1,9 @@
 ﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
+using GenHTTP.Modules.Placeholders.Providers;
 
-using GenHTTP.Modules.Core.Templating;
-
-namespace GenHTTP.Modules.Core
+namespace GenHTTP.Modules.Placeholders
 {
 
     public static class Placeholders
@@ -32,7 +31,7 @@ namespace GenHTTP.Modules.Core
 
         public static PlaceholderPageProviderBuilder<T> Page<T>(IBuilder<IResourceProvider> templateProvider, ModelProvider<T> modelProvider) where T : PageModel
         {
-            return Page<T>(templateProvider.Build(), modelProvider);
+            return Page(templateProvider.Build(), modelProvider);
         }
 
         public static PlaceholderPageProviderBuilder<T> Page<T>(IResourceProvider templateProvider, ModelProvider<T> modelProvider) where T : PageModel

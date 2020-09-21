@@ -4,6 +4,7 @@ using Xunit;
 
 using GenHTTP.Modules.Core;
 using GenHTTP.Modules.VirtualHosting;
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Modules
 {

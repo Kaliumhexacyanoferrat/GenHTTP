@@ -3,7 +3,7 @@
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Core.Compression
+namespace GenHTTP.Modules.Compression.Providers
 {
 
     public class BrotliCompression : ICompressionAlgorithm

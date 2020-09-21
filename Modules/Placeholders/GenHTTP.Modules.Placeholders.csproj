@@ -18,8 +18,8 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
-    <Description>Allows to serve content from a remote upstream server.</Description>
-    <PackageTags>HTTP Webserver C# Module Reverse Proxy Proxies</PackageTags>
+    <Description>Simple providers to generate pages with basic replacement mechanisms</Description>
+    <PackageTags>HTTP Webserver C# Module Placeholders Templates</PackageTags>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>

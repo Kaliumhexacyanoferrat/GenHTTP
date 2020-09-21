@@ -6,8 +6,9 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Core.General;
+using GenHTTP.Modules.Core;
 
-namespace GenHTTP.Modules.Core
+namespace GenHTTP.Modules.IO
 {
 
     public static class Download

@@ -18,8 +18,8 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
-    <Description>Allows to serve content from a remote upstream server.</Description>
-    <PackageTags>HTTP Webserver C# Module Reverse Proxy Proxies</PackageTags>
+    <Description>Allows to compress generated content using various algorithms.</Description>
+    <PackageTags>HTTP Webserver C# Module Compression Brotli Gzip</PackageTags>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
@@ -38,9 +38,7 @@
 
   <ItemGroup>
     
-    <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
-
-    <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
+    <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />    
     <ProjectReference Include="..\Core\GenHTTP.Modules.Core.csproj" />
 
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">

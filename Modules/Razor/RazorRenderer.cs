@@ -59,9 +59,7 @@ namespace GenHTTP.Modules.Razor
             {
                 builder.AddAssemblyReference(Assembly.GetCallingAssembly());
                 builder.AddAssemblyReference(Assembly.GetExecutingAssembly());
-                builder.AddAssemblyReference(typeof(Page).Assembly);
 
-                builder.AddUsing("GenHTTP.Modules.Core");
                 builder.AddUsing("GenHTTP.Modules.Razor");
             });
         }

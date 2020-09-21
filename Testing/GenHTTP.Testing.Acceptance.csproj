@@ -67,7 +67,10 @@
     <ProjectReference Include="..\Modules\LoadBalancing\GenHTTP.Modules.LoadBalancing.csproj" />
     <ProjectReference Include="..\Modules\ReverseProxy\GenHTTP.Modules.ReverseProxy.csproj" />
     <ProjectReference Include="..\Modules\VirtualHosting\GenHTTP.Modules.VirtualHosting.csproj" />
+    <ProjectReference Include="..\Modules\Compression\GenHTTP.Modules.Compression.csproj" />
     <ProjectReference Include="..\Modules\DirectoryBrowsing\GenHTTP.Modules.DirectoryBrowsing.csproj" />
+    <ProjectReference Include="..\Modules\Placeholders\GenHTTP.Modules.Placeholders.csproj" />
+    <ProjectReference Include="..\Modules\IO\GenHTTP.Modules.IO.csproj" />
     
   </ItemGroup>
 

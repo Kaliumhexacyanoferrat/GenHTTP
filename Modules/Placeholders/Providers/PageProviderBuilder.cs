@@ -3,7 +3,7 @@
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
 
-namespace GenHTTP.Modules.Core.General
+namespace GenHTTP.Modules.Placeholders.Providers
 {
 
     public class PageProviderBuilder : IHandlerBuilder<PageProviderBuilder>

@@ -40,6 +40,7 @@
     
     <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />    
     <ProjectReference Include="..\Core\GenHTTP.Modules.Core.csproj" />
+    <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
     <ProjectReference Include="..\Sitemaps\GenHTTP.Modules.Sitemaps.csproj" />
     <ProjectReference Include="..\Robots\GenHTTP.Modules.Robots.csproj" />
 

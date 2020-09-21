@@ -5,7 +5,7 @@ using System.Linq;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
-namespace GenHTTP.Modules.Core.Compression
+namespace GenHTTP.Modules.Compression.Providers
 {
 
     public class CompressionConcernBuilder : IConcernBuilder

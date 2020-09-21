@@ -2,7 +2,7 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 
-namespace GenHTTP.Modules.Core.Templating
+namespace GenHTTP.Modules.Placeholders.Providers
 {
 
     public class PlaceholderRendererBuilder<T> : IBuilder<IRenderer<T>> where T : class, IBaseModel

@@ -3,7 +3,7 @@ using System.Reflection;
 
 using GenHTTP.Modules.Core.StaticContent;
 
-namespace GenHTTP.Modules.Core
+namespace GenHTTP.Modules.IO
 {
 
     public static class Static

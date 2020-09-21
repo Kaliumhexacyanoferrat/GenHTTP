@@ -4,7 +4,7 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 
-namespace GenHTTP.Modules.Core.Templating
+namespace GenHTTP.Modules.Placeholders.Providers
 {
 
     public class PlaceholderPageProviderBuilder<T> : IHandlerBuilder<PlaceholderPageProviderBuilder<T>> where T : PageModel

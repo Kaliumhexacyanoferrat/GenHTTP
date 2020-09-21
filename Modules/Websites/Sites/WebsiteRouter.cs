@@ -7,6 +7,7 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
 using GenHTTP.Modules.Core;
+using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Robots;
 using GenHTTP.Modules.Sitemaps;
 using GenHTTP.Modules.Websites.Resources;

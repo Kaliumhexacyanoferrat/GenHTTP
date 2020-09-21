@@ -3,6 +3,7 @@
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.IO.Providers;
 
 namespace GenHTTP.Modules.Core.General
 {

@@ -3,7 +3,7 @@ using System.Reflection;
 
 using GenHTTP.Modules.Core.Resource;
 
-namespace GenHTTP.Modules.Core
+namespace GenHTTP.Modules.IO
 {
 
     public static class Data
@@ -23,12 +23,12 @@ namespace GenHTTP.Modules.Core
         {
             return FromFile(new FileInfo(file));
         }
-        
+
         public static FileDataProviderBuilder FromFile(FileInfo file)
         {
             return new FileDataProviderBuilder().File(file);
         }
-        
+
         public static StringDataProviderBuilder FromString(string data)
         {
             return new StringDataProviderBuilder().Content(data);

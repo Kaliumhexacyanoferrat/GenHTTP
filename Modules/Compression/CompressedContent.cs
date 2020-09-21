@@ -1,9 +1,10 @@
 ﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Modules.Core.Compression;
 
-namespace GenHTTP.Modules.Core
+using GenHTTP.Modules.Compression.Providers;
+
+namespace GenHTTP.Modules.Compression
 {
-    
+
     public static class CompressedContent
     {
 

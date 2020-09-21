@@ -2,7 +2,7 @@
 
 using GenHTTP.Modules.Core.General;
 
-namespace GenHTTP.Modules.Core
+namespace GenHTTP.Modules.IO
 {
 
     public static class Content

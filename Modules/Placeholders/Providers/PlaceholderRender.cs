@@ -1,12 +1,14 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Templating;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace GenHTTP.Modules.Core.Templating
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Templating;
+
+using GenHTTP.Modules.Core;
+
+namespace GenHTTP.Modules.Placeholders.Providers
 {
 
     public class PlaceholderRender<T> : IRenderer<T> where T : class, IBaseModel

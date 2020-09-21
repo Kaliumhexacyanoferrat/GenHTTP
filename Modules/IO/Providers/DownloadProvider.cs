@@ -2,8 +2,9 @@
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Core;
 
-namespace GenHTTP.Modules.Core.General
+namespace GenHTTP.Modules.IO.Providers
 {
 
     public class DownloadProvider : IHandler

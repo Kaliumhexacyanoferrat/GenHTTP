@@ -4,7 +4,9 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Core.General
+using GenHTTP.Modules.Core;
+
+namespace GenHTTP.Modules.Placeholders.Providers
 {
 
     public class PageProvider : IHandler

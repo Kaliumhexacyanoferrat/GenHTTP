@@ -9,6 +9,7 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Content;
 
 using GenHTTP.Modules.Core;
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {

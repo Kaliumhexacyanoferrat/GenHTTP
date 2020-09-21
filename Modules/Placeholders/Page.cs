@@ -1,9 +1,10 @@
-﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 
-using GenHTTP.Modules.Core.General;
+using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Placeholders.Providers;
 
-namespace GenHTTP.Modules.Core
+namespace GenHTTP.Modules.Placeholders
 {
 
     public static class Page

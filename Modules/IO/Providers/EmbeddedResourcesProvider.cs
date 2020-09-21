@@ -7,6 +7,7 @@ using System.Text;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.Core.StaticContent
 {

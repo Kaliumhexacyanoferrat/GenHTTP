@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Xunit;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Core;
-using System;
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {
