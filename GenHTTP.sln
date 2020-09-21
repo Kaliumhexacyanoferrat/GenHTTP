@@ -66,6 +66,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.ErrorHandli
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Layouting", "Modules\Layouting\GenHTTP.Modules.Layouting.csproj", "{46DA2F18-4776-455F-8D3A-7CC244E8302E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Practices", "Modules\Practices\GenHTTP.Modules.Practices.csproj", "{129F68BE-654C-4B99-BDF1-EB6855C66067}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -160,6 +162,10 @@ Global
 		{46DA2F18-4776-455F-8D3A-7CC244E8302E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46DA2F18-4776-455F-8D3A-7CC244E8302E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{46DA2F18-4776-455F-8D3A-7CC244E8302E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{129F68BE-654C-4B99-BDF1-EB6855C66067}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{129F68BE-654C-4B99-BDF1-EB6855C66067}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{129F68BE-654C-4B99-BDF1-EB6855C66067}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{129F68BE-654C-4B99-BDF1-EB6855C66067}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -188,6 +194,7 @@ Global
 		{D9723770-F470-4632-80F3-F26321FC60B3} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 		{22E175DA-FBBE-44BC-A9DE-7C31883E865C} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 		{46DA2F18-4776-455F-8D3A-7CC244E8302E} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
+		{129F68BE-654C-4B99-BDF1-EB6855C66067} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		LessCompiler = 2603124e-1287-4d61-9540-6ac3efad4eb9

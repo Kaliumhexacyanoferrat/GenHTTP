@@ -74,6 +74,7 @@
     <ProjectReference Include="..\Modules\Layouting\GenHTTP.Modules.Layouting.csproj" />
     <ProjectReference Include="..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj" />
     <ProjectReference Include="..\Modules\Basics\GenHTTP.Modules.Basics.csproj" />
+    <ProjectReference Include="..\Modules\Practices\GenHTTP.Modules.Practices.csproj" />
     
   </ItemGroup>
 
