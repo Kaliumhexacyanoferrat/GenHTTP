@@ -12,6 +12,13 @@ namespace GenHTTP.Modules.Practices
     public static class Extensions
     {
 
+        /// <summary>
+        /// Configures the server host with default policies for compression and security.
+        /// </summary>
+        /// <param name="host">The host to be configured</param>
+        /// <param name="compression">Whether responses sent by the server should automatically be compressed</param>
+        /// <param name="secureUpgrade">Whether the server should automatically upgrade insecure requests</param>
+        /// <param name="strictTransport">Whether the server should send a strict transport policy</param>
         public static IServerHost Defaults(this IServerHost host,
                                            bool compression = true,
                                            bool secureUpgrade = true,
@@ -24,7 +31,7 @@ namespace GenHTTP.Modules.Practices
 
             if (secureUpgrade)
             {
-                host.SecureUpgrade(Api.Infrastructure.SecureUpgrade.Force);
+                host.SecureUpgrade(SecureUpgrade.Force);
             }
 
             if (strictTransport)
