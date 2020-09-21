@@ -31,8 +31,8 @@
 
   <ItemGroup>
     
-    <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
-    <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\" />
+    <None Include="..\LICENSE" Pack="true" PackagePath="\" />
+    <None Include="..\Resources\icon.png" Pack="true" PackagePath="\" />
     
   </ItemGroup>
 

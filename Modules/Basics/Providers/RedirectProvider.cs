@@ -4,7 +4,7 @@ using System.Linq;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Core.General
+namespace GenHTTP.Modules.Basics.Providers
 {
 
     public class RedirectProvider : IHandler

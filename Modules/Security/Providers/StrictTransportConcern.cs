@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Core.Security
+namespace GenHTTP.Modules.Security.Providers
 {
 
     public class StrictTransportConcern : IConcern

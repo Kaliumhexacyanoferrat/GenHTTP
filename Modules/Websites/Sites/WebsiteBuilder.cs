@@ -5,8 +5,8 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Infrastructure;
 
-using GenHTTP.Modules.Core;
-using GenHTTP.Modules.Core.Errors;
+using GenHTTP.Modules.ErrorHandling;
+using GenHTTP.Modules.ErrorHandling.Provider;
 using GenHTTP.Modules.Websites.Resources;
 
 namespace GenHTTP.Modules.Websites.Sites
@@ -99,7 +99,7 @@ namespace GenHTTP.Modules.Websites.Sites
             _Styles.Theme(theme);
             _Scripts.Theme(theme);
 
-            var concerns = _Concerns.Concat(new IConcernBuilder[] { _ErrorHandling ?? ErrorHandling.Default() });
+            var concerns = _Concerns.Concat(new IConcernBuilder[] { _ErrorHandling ?? ErrorHandler.Default() });
 
             return new WebsiteRouter(parent, content, concerns, _Scripts, _Styles, _Favicon, _Menu?.Build(), theme);
         }

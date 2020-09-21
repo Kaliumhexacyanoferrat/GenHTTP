@@ -7,7 +7,8 @@ using System.Reflection;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
-using GenHTTP.Modules.Core;
+
+using GenHTTP.Modules.Basics;
 
 namespace GenHTTP.Modules.Webservices
 {

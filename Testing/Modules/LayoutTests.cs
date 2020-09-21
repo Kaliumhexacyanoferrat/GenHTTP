@@ -2,8 +2,8 @@
 
 using System.Net;
 
-using GenHTTP.Modules.Core;
 using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Layouting;
 
 namespace GenHTTP.Testing.Acceptance.Modules
 {

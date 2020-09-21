@@ -3,7 +3,7 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
-namespace GenHTTP.Modules.Core.Security
+namespace GenHTTP.Modules.Security.Providers
 {
 
     public class SecureUpgradeConcernBuilder : IConcernBuilder

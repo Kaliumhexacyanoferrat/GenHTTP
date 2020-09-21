@@ -6,14 +6,15 @@ using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Core;
-using GenHTTP.Modules.Core.Layouting;
+using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Scriban;
 using GenHTTP.Modules.Websites;
 using GenHTTP.Modules.Websites.Sites;
 
 using Xunit;
+using GenHTTP.Modules.Core;
+using GenHTTP.Modules.Layouting.Provider;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {

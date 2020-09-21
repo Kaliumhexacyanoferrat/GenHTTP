@@ -1,7 +1,8 @@
-﻿using GenHTTP.Api.Content;
-using System;
+﻿using System;
 
-namespace GenHTTP.Modules.Core.Errors
+using GenHTTP.Api.Content;
+
+namespace GenHTTP.Modules.ErrorHandling.Provider
 {
 
     public class ErrorHandlingProviderBuilder : IConcernBuilder

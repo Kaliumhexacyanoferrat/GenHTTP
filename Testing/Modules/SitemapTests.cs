@@ -3,7 +3,8 @@ using System.Linq;
 using System.Xml.Serialization;
 
 using GenHTTP.Api.Content;
-using GenHTTP.Modules.Core;
+
+using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Placeholders;
 using GenHTTP.Modules.Sitemaps;
 

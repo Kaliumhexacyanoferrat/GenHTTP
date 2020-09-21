@@ -3,7 +3,7 @@
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
 
-namespace GenHTTP.Modules.Core.Resource
+namespace GenHTTP.Modules.IO.Providers
 {
 
     public class FileDataProviderBuilder : IBuilder<IResourceProvider>
@@ -12,7 +12,7 @@ namespace GenHTTP.Modules.Core.Resource
         private bool _AllowCaching = true;
 
         #region Functionality
-        
+
         public FileDataProviderBuilder File(FileInfo file)
         {
             _File = file;

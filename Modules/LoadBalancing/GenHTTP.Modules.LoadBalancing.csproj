@@ -38,8 +38,7 @@
 
   <ItemGroup>
     
-    <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />    
-    <ProjectReference Include="..\Core\GenHTTP.Modules.Core.csproj" />
+    <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
     <ProjectReference Include="..\ReverseProxy\GenHTTP.Modules.ReverseProxy.csproj" />
 
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">

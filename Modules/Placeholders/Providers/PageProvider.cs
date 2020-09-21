@@ -4,7 +4,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Core;
+using GenHTTP.Modules.Basics;
 
 namespace GenHTTP.Modules.Placeholders.Providers
 {

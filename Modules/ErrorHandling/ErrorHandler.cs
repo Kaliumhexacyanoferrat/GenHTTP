@@ -1,9 +1,9 @@
-﻿using GenHTTP.Modules.Core.Errors;
+﻿using GenHTTP.Modules.ErrorHandling.Provider;
 
-namespace GenHTTP.Modules.Core
+namespace GenHTTP.Modules.ErrorHandling
 {
 
-    public static class ErrorHandling
+    public static class ErrorHandler
     {
 
         public static ErrorHandlingProviderBuilder Default() => new ErrorHandlingProviderBuilder();

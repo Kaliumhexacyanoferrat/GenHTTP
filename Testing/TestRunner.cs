@@ -4,7 +4,10 @@ using System.Net.Cache;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Modules.Core;
+
+using GenHTTP.Modules.Compression;
+using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Security;
 
 namespace GenHTTP.Testing.Acceptance
 {
@@ -39,7 +42,8 @@ namespace GenHTTP.Testing.Acceptance
 
             if (defaults)
             {
-                Host.Defaults();
+                Host.Harden();
+                Host.Compression();
             }
         }
 

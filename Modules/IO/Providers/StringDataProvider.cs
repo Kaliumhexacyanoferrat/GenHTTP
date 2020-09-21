@@ -3,7 +3,7 @@ using System.Text;
 
 using GenHTTP.Api.Content;
 
-namespace GenHTTP.Modules.Core.Resource
+namespace GenHTTP.Modules.IO.Providers
 {
 
     public class StringDataProvider : IResourceProvider

@@ -1,7 +1,7 @@
 ﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
 
-namespace GenHTTP.Modules.Core.Resource
+namespace GenHTTP.Modules.IO.Providers
 {
 
     public class StringDataProviderBuilder : IBuilder<IResourceProvider>

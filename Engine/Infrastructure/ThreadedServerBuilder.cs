@@ -7,9 +7,11 @@ using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Engine.Infrastructure.Configuration;
 using GenHTTP.Engine.Infrastructure.Endpoints;
-using GenHTTP.Modules.Core;
+
+using GenHTTP.Modules.ErrorHandling;
 
 namespace GenHTTP.Engine.Infrastructure
 {
@@ -167,7 +169,7 @@ namespace GenHTTP.Engine.Infrastructure
 
             var config = new ServerConfiguration(_Development, endpoints, network);
 
-            var concerns = new IConcernBuilder[] { ErrorHandling.Default() }.Concat(_Concerns);
+            var concerns = new IConcernBuilder[] { ErrorHandler.Default() }.Concat(_Concerns);
 
             var handler = new CoreRouter(_Handler, concerns, _Development);
 

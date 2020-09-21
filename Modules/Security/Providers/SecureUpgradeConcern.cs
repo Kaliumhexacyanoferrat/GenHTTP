@@ -6,7 +6,9 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Core.Security
+using GenHTTP.Modules.Basics;
+
+namespace GenHTTP.Modules.Security.Providers
 {
 
     public class SecureUpgradeConcern : IConcern
@@ -80,7 +82,7 @@ namespace GenHTTP.Modules.Core.Security
         {
             var targetPort = GetTargetPort(request, endPoints);
 
-            var port = (targetPort == 443) ? string.Empty : $":{targetPort}";
+            var port = targetPort == 443 ? string.Empty : $":{targetPort}";
 
             return $"https://{request.HostWithoutPort()}{port}{request.Target.Path}";
         }

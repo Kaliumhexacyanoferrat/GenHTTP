@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Reflection;
-
-using GenHTTP.Modules.Core.StaticContent;
+using GenHTTP.Modules.IO.Providers;
 
 namespace GenHTTP.Modules.IO
 {

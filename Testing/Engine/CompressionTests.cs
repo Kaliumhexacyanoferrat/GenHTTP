@@ -3,9 +3,9 @@
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Compression;
 using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Layouting;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {

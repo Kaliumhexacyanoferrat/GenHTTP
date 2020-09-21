@@ -3,10 +3,10 @@ using System.IO;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
-using GenHTTP.Modules.IO;
 
-namespace GenHTTP.Modules.Core.StaticContent
+using GenHTTP.Modules.Basics;
+
+namespace GenHTTP.Modules.IO.Providers
 {
 
     public class FileResourcesProvider : IHandler

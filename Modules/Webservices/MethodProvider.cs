@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Core;
+using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Webservices.Util;
 

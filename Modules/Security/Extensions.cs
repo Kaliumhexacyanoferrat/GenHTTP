@@ -1,29 +1,23 @@
 ﻿using System;
 
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Modules.Core.Security;
 
-using Infra = GenHTTP.Api.Infrastructure;
+using GenHTTP.Modules.Security.Providers;
 
-namespace GenHTTP.Modules.Core
+namespace GenHTTP.Modules.Security
 {
-    
-    public static class ServerBuilderExtensions
+
+    public static class Extensions
     {
 
-        public static IServerHost Defaults(this IServerHost host, 
-                                           bool compression = true, 
+
+        public static IServerHost Harden(this IServerHost host,
                                            bool secureUpgrade = true,
                                            bool strictTransport = true)
         {
-            if (compression)
-            {
-                // ToDo: host.Compression(CompressedContent.Default());
-            }
-
             if (secureUpgrade)
             {
-                host.SecureUpgrade(Infra.SecureUpgrade.Force);
+                host.SecureUpgrade(Api.Infrastructure.SecureUpgrade.Force);
             }
 
             if (strictTransport)
@@ -36,7 +30,7 @@ namespace GenHTTP.Modules.Core
 
         public static IServerHost SecureUpgrade(this IServerHost host, SecureUpgrade mode)
         {
-            if (mode != Infra.SecureUpgrade.None)
+            if (mode != Api.Infrastructure.SecureUpgrade.None)
             {
                 host.Add(new SecureUpgradeConcernBuilder().Mode(mode));
             }

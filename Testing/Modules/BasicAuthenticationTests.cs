@@ -5,11 +5,12 @@ using System.Net;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Authentication;
 using GenHTTP.Modules.Authentication.Basic;
-using GenHTTP.Modules.Core;
-using GenHTTP.Modules.Core.General;
-using GenHTTP.Modules.Core.Layouting;
+using GenHTTP.Modules.IO.Providers;
+using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Layouting.Provider;
 
 using Xunit;
 

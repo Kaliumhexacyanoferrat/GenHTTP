@@ -2,7 +2,7 @@
 
 using GenHTTP.Api.Content;
 
-namespace GenHTTP.Modules.Core.Layouting
+namespace GenHTTP.Modules.Layouting.Provider
 {
 
     public class LayoutBuilder : IHandlerBuilder<LayoutBuilder>

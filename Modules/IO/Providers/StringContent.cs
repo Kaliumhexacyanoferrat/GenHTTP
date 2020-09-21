@@ -1,11 +1,10 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Core.General
+namespace GenHTTP.Modules.IO.Providers
 {
 
     public class StringContent : IResponseContent

@@ -1,6 +1,7 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
-using GenHTTP.Modules.Core;
+
+using GenHTTP.Modules.Basics;
 
 using Scriban;
 using Scriban.Runtime;

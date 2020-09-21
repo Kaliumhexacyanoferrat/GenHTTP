@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GenHTTP.Modules.Core.Security
+namespace GenHTTP.Modules.Security.Providers
 {
 
     public class StrictTransportPolicy

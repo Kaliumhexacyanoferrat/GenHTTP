@@ -2,7 +2,7 @@
 
 using GenHTTP.Api.Content;
 
-namespace GenHTTP.Modules.Core.Resource
+namespace GenHTTP.Modules.IO.Providers
 {
 
     public class FileDataProvider : IResourceProvider

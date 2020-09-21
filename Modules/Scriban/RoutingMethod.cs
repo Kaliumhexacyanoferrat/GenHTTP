@@ -1,13 +1,14 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 using Scriban;
 using Scriban.Runtime;
 using Scriban.Syntax;
 
 using GenHTTP.Api.Content.Templating;
-using GenHTTP.Modules.Core;
-using System;
 using GenHTTP.Api.Routing;
+
+using GenHTTP.Modules.Basics;
 
 namespace GenHTTP.Modules.Scriban
 {

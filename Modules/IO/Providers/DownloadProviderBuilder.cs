@@ -3,9 +3,8 @@
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.IO.Providers;
 
-namespace GenHTTP.Modules.Core.General
+namespace GenHTTP.Modules.IO.Providers
 {
 
     public class DownloadProviderBuilder : IHandlerBuilder<DownloadProviderBuilder>

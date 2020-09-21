@@ -4,7 +4,7 @@ using System.Reflection;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
-namespace GenHTTP.Modules.Core.StaticContent
+namespace GenHTTP.Modules.IO.Providers
 {
 
     public class EmbeddedResourcesProviderBuilder : IHandlerBuilder<EmbeddedResourcesProviderBuilder>

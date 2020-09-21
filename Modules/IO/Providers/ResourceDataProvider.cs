@@ -5,7 +5,7 @@ using System.IO;
 
 using GenHTTP.Api.Content;
 
-namespace GenHTTP.Modules.Core.Resource
+namespace GenHTTP.Modules.IO.Providers
 {
 
     public class ResourceDataProvider : IResourceProvider

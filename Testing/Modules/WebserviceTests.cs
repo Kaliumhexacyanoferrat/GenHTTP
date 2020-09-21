@@ -9,9 +9,10 @@ using Xunit;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Core;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Webservices;
+using GenHTTP.Modules.Basics;
+using GenHTTP.Modules.Layouting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Webservices
 {

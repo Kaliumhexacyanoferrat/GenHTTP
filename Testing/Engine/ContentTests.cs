@@ -4,8 +4,7 @@ using System.Text.Json;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.Core;
+using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.DirectoryBrowsing;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Webservices.Formats;

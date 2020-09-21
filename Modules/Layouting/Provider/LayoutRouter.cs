@@ -5,7 +5,9 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
-namespace GenHTTP.Modules.Core.Layouting
+using GenHTTP.Modules.Basics;
+
+namespace GenHTTP.Modules.Layouting.Provider
 {
 
     public class LayoutRouter : IHandler, IRootPathAppender, IHandlerResolver
@@ -129,12 +131,12 @@ namespace GenHTTP.Modules.Core.Layouting
                 return Handlers[segment];
             }
 
-            if ((Index != null) && (segment == "{index}"))
+            if (Index != null && segment == "{index}")
             {
                 return Index;
             }
 
-            if ((Fallback != null) && (segment == "{fallback}"))
+            if (Fallback != null && segment == "{fallback}")
             {
                 return Fallback;
             }

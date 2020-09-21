@@ -38,11 +38,13 @@
 
   <ItemGroup>
     
-    <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />    
-    <ProjectReference Include="..\Core\GenHTTP.Modules.Core.csproj" />
+    <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
+    
     <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
     <ProjectReference Include="..\Sitemaps\GenHTTP.Modules.Sitemaps.csproj" />
     <ProjectReference Include="..\Robots\GenHTTP.Modules.Robots.csproj" />
+    <ProjectReference Include="..\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj" />
+    <ProjectReference Include="..\Layouting\GenHTTP.Modules.Layouting.csproj" />
 
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>

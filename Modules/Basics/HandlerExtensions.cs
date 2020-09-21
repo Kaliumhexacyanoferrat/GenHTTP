@@ -6,7 +6,7 @@ using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
-namespace GenHTTP.Modules.Core
+namespace GenHTTP.Modules.Basics
 {
 
     public static class HandlerExtensions
@@ -106,7 +106,7 @@ namespace GenHTTP.Modules.Core
         {
             return new List<ContentElement>()
             {
-                new ContentElement(GetRoot(handler, request.Server.Handler, false), title, contentType, null)
+                new ContentElement(handler.GetRoot(request.Server.Handler, false), title, contentType, null)
             };
         }
 
@@ -114,7 +114,7 @@ namespace GenHTTP.Modules.Core
         {
             return new List<ContentElement>()
             {
-                new ContentElement(GetRoot(handler, request.Server.Handler, false), title, contentType, null)
+                new ContentElement(handler.GetRoot(request.Server.Handler, false), title, contentType, null)
             };
         }
 
@@ -135,7 +135,7 @@ namespace GenHTTP.Modules.Core
                 {
                     var target = parts[0];
 
-                    foreach (var resolver in FindParents<IHandlerResolver>(handler, root))
+                    foreach (var resolver in handler.FindParents<IHandlerResolver>(root))
                     {
                         var responsible = resolver.Find(target);
 

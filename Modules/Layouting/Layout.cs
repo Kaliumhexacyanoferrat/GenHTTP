@@ -1,6 +1,6 @@
-﻿using GenHTTP.Modules.Core.Layouting;
+﻿using GenHTTP.Modules.Layouting.Provider;
 
-namespace GenHTTP.Modules.Core
+namespace GenHTTP.Modules.Layouting
 {
 
     public static class Layout

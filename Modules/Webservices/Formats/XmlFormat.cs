@@ -4,7 +4,8 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Core;
+
+using GenHTTP.Modules.Basics;
 
 namespace GenHTTP.Modules.Webservices.Formats
 {

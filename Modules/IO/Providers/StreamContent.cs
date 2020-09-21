@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Core.General
+namespace GenHTTP.Modules.IO.Providers
 {
 
     public class StreamContent : IResponseContent, IDisposable
@@ -42,7 +42,7 @@ namespace GenHTTP.Modules.Core.General
 
         public async Task Write(Stream target, uint bufferSize)
         {
-            if (Content.CanSeek && (Content.Position != 0))
+            if (Content.CanSeek && Content.Position != 0)
             {
                 Content.Seek(0, SeekOrigin.Begin);
             }
@@ -64,7 +64,7 @@ namespace GenHTTP.Modules.Core.General
                 {
                     Content.Dispose();
                 }
-                
+
                 disposedValue = true;
             }
         }

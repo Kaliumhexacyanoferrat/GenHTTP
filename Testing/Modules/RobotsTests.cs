@@ -1,8 +1,10 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Modules.Core;
+﻿using Xunit;
+
+using GenHTTP.Api.Content;
+
+using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Robots;
 using GenHTTP.Modules.Robots.Provider;
-using Xunit;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {

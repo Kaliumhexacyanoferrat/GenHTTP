@@ -4,8 +4,7 @@ using System.Linq;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Core.General;
-
+using GenHTTP.Modules.IO.Providers;
 using Xunit;
 
 namespace GenHTTP.Testing.Acceptance.Engine

@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Content.Templating;
-using GenHTTP.Modules.Core;
+
+using GenHTTP.Modules.Basics;
 
 namespace GenHTTP.Modules.Razor
 {

@@ -5,7 +5,9 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Core.Errors
+using GenHTTP.Modules.Basics;
+
+namespace GenHTTP.Modules.ErrorHandling.Provider
 {
 
     public class ErrorHandlingProvider : IConcern

@@ -6,7 +6,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
-using GenHTTP.Modules.Core;
+using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Websites.Menues;
 
 namespace GenHTTP.Modules.Websites

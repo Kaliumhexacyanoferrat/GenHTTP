@@ -8,9 +8,10 @@ using Xunit;
 
 using GenHTTP.Api.Infrastructure;
 
-using GenHTTP.Modules.Core;
-using GenHTTP.Modules.Core.Security;
+using GenHTTP.Modules.Security;
 using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Security.Providers;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {

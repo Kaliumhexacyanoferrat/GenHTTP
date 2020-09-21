@@ -1,4 +1,4 @@
-﻿using GenHTTP.Modules.Core.Layouting;
+﻿using GenHTTP.Modules.Layouting.Provider;
 
 namespace GenHTTP.Modules.Webservices
 {

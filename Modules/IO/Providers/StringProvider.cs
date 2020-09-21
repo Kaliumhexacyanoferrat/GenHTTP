@@ -3,14 +3,16 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Core.General
+using GenHTTP.Modules.Basics;
+
+namespace GenHTTP.Modules.IO.Providers
 {
 
     public class StringProvider : IHandler
     {
 
         #region Get-/Setters
-        
+
         public IHandler Parent { get; }
 
         private StringContent Content { get; }

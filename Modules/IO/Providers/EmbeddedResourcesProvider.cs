@@ -7,9 +7,10 @@ using System.Text;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
-using GenHTTP.Modules.IO;
 
-namespace GenHTTP.Modules.Core.StaticContent
+using GenHTTP.Modules.Basics;
+
+namespace GenHTTP.Modules.IO.Providers
 {
 
     public class EmbeddedResourcesProvider : IHandler
@@ -60,7 +61,7 @@ namespace GenHTTP.Modules.Core.StaticContent
             foreach (var qn in QualifiedNames)
             {
                 var fileRef = ResourceToFile(qn.Key);
-                
+
                 var fileName = Path.GetFileName(fileRef);
 
                 var path = new List<string>(this.GetRoot(request.Server.Handler, false).Parts);

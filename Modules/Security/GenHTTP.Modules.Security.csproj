@@ -18,15 +18,15 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
-    <Description>Core modules of the GenHTTP webserver. Provides basic features such as navigation, layouting, static content or downloads.</Description>
-    <PackageTags>HTTP Embedded Webserver Website Server Library C# Standard Module</PackageTags>
-    
+    <Description>Adds security features to web applications such as secure upgrade modes or strict transport policies.</Description>
+    <PackageTags>HTTP Webserver C# Module Security </PackageTags>
+
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
     <PackageIcon>icon.png</PackageIcon>
-  
+    
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,16 +35,18 @@
     <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\" />
 
   </ItemGroup>
-  
+
   <ItemGroup>
     
-    <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
+    <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />    
+    <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
 
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-
+    
   </ItemGroup>
 
 </Project>
+ 
