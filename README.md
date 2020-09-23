@@ -12,15 +12,15 @@ To create a simple hello world project, follow the official <a href="https://gen
 
 ## Building the Server
 
-To build the server from source, clone this repository and run the example project launcher for .NET Core:
+To build the server from source, clone this repository and run the playground project launcher for .NET Core:
 
 ```sh
 git clone https://github.com/Kaliumhexacyanoferrat/GenHTTP.git
-cd ./GenHTTP/Examples/GenHTTP.Examples.CoreApp
+cd ./GenHTTP/Playground
 dotnet run
 ```
 
-This will build the example project launcher for .NET Core with all the server dependencies and launch the server process on port 8080. You can access the examples in the browser via http://localhost:8080.
+This will build the playground project launcher for .NET Core with all the server dependencies and launch the server process on port 8080. You can access the playground in the browser via http://localhost:8080.
 
 ## History
 
