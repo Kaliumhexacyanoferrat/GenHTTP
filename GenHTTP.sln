@@ -68,6 +68,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Layouting",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Practices", "Modules\Practices\GenHTTP.Modules.Practices.csproj", "{129F68BE-654C-4B99-BDF1-EB6855C66067}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Packages", "Packages", "{E7697B84-4CED-49EC-BEF2-AD9C9766D97E}"
+	ProjectSection(SolutionItems) = preProject
+		Packages\GenHTTP.Core.nuspec = Packages\GenHTTP.Core.nuspec
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -195,9 +200,10 @@ Global
 		{22E175DA-FBBE-44BC-A9DE-7C31883E865C} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 		{46DA2F18-4776-455F-8D3A-7CC244E8302E} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 		{129F68BE-654C-4B99-BDF1-EB6855C66067} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
+		{E7697B84-4CED-49EC-BEF2-AD9C9766D97E} = {8514DD10-DC8A-4C5C-B8CD-F2C97F5684C9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		LessCompiler = 2603124e-1287-4d61-9540-6ac3efad4eb9
 		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
+		LessCompiler = 2603124e-1287-4d61-9540-6ac3efad4eb9
 	EndGlobalSection
 EndGlobal
