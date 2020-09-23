@@ -1,0 +1,47 @@
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  
+  <metadata>
+  
+    <id>GenHTTP.Core</id>
+    <version>4.0.0</version>
+  
+    <description>Basic dependencies for projects using the GenHTTP framework, including the engine itself</description>
+    <copyright></copyright>
+    
+    <projectUrl>https://genhttp.org/</projectUrl>
+    
+    <authors>Andreas Nägeli</authors>
+    <owners></owners>
+    
+    <icon>images\icon.png</icon>
+    
+    <license type="file">LICENSE</license>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    
+    <tags>HTTP Webserver Library C#</tags>
+    
+    <dependencies>
+    
+      <group>
+      
+        <dependency id="GenHTTP.Api" version="4.0.0" />
+        
+        <dependency id="GenHTTP.Engine" version="4.0.0" />
+        
+        <dependency id="GenHTTP.Modules.Practices" version="4.0.0" />
+        
+        <dependency id="GenHTTP.Modules.Basics" version="4.0.0" />
+        <dependency id="GenHTTP.Modules.Layouting" version="4.0.0" />
+        
+      </group>
+      
+    </dependencies>
+    
+  </metadata>
+  
+  <files>
+    <file src="..\Resources\icon.png" target="images\" />
+    <file src="..\LICENSE" target="LICENSE" />
+  </files>
+  
+</package>

@@ -1,0 +1,81 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    
+    <IsPackable>false</IsPackable>
+    
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\Certificate.pfx" />
+    <None Remove="Resources\Error.html" />
+    <None Remove="Resources\File.txt" />
+    <None Remove="Resources\Template.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Certificate.pfx">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Error.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\File.txt" />
+    <EmbeddedResource Include="Resources\Template.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    
+    <PackageReference Include="coverlet.msbuild" Version="2.9.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+    
+    <PackageReference Include="xunit" Version="2.4.1" />
+    
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>   
+    
+  </ItemGroup>
+
+  <ItemGroup>
+    
+    <ProjectReference Include="..\API\GenHTTP.Api.csproj" />
+    
+    <ProjectReference Include="..\Engine\GenHTTP.Engine.csproj" />
+    
+    <ProjectReference Include="..\Modules\Authentication\GenHTTP.Modules.Authentication.csproj" />
+    <ProjectReference Include="..\Modules\Razor\GenHTTP.Modules.Razor.csproj" />
+    <ProjectReference Include="..\Modules\Scriban\GenHTTP.Modules.Scriban.csproj" />
+    <ProjectReference Include="..\Modules\Webservices\GenHTTP.Modules.Webservices.csproj" />
+    <ProjectReference Include="..\Modules\Websites\GenHTTP.Modules.Websites.csproj" />
+    <ProjectReference Include="..\Modules\Sitemaps\GenHTTP.Modules.Sitemaps.csproj" />
+    <ProjectReference Include="..\Modules\Robots\GenHTTP.Modules.Robots.csproj" />
+    <ProjectReference Include="..\Modules\SinglePageApplications\GenHTTP.Modules.SinglePageApplications.csproj" />
+    <ProjectReference Include="..\Modules\LoadBalancing\GenHTTP.Modules.LoadBalancing.csproj" />
+    <ProjectReference Include="..\Modules\ReverseProxy\GenHTTP.Modules.ReverseProxy.csproj" />
+    <ProjectReference Include="..\Modules\VirtualHosting\GenHTTP.Modules.VirtualHosting.csproj" />
+    <ProjectReference Include="..\Modules\Compression\GenHTTP.Modules.Compression.csproj" />
+    <ProjectReference Include="..\Modules\DirectoryBrowsing\GenHTTP.Modules.DirectoryBrowsing.csproj" />
+    <ProjectReference Include="..\Modules\Placeholders\GenHTTP.Modules.Placeholders.csproj" />
+    <ProjectReference Include="..\Modules\IO\GenHTTP.Modules.IO.csproj" />
+    <ProjectReference Include="..\Modules\Security\GenHTTP.Modules.Security.csproj" />
+    <ProjectReference Include="..\Modules\Layouting\GenHTTP.Modules.Layouting.csproj" />
+    <ProjectReference Include="..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj" />
+    <ProjectReference Include="..\Modules\Basics\GenHTTP.Modules.Basics.csproj" />
+    <ProjectReference Include="..\Modules\Practices\GenHTTP.Modules.Practices.csproj" />
+    
+  </ItemGroup>
+
+</Project>

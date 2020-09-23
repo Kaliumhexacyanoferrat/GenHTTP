@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    
+    <TargetFramework>netstandard2.1</TargetFramework>
+
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <AssemblyVersion>4.0.0.0</AssemblyVersion>
+    <FileVersion>4.0.0.0</FileVersion>
+    <Version>4.0.0</Version>
+
+    <Authors>Andreas Nägeli</Authors>
+    <Company />
+
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
+
+    <Description>Adds security features to web applications such as secure upgrade modes or strict transport policies.</Description>
+    <PackageTags>HTTP Webserver C# Module Security </PackageTags>
+
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <PackageIcon>icon.png</PackageIcon>
+    
+  </PropertyGroup>
+
+  <ItemGroup>
+
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
+    <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\" />
+
+  </ItemGroup>
+
+  <ItemGroup>
+    
+    <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />    
+    <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
+
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    
+  </ItemGroup>
+
+</Project>
+ 
