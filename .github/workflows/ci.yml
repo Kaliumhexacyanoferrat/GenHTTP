@@ -13,7 +13,8 @@ jobs:
       DOTNET_ROLL_FORWARD: Major
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
