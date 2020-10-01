@@ -56,6 +56,8 @@
     <ProjectReference Include="..\Engine\GenHTTP.Engine.csproj" />
     
     <ProjectReference Include="..\Modules\Authentication\GenHTTP.Modules.Authentication.csproj" />
+    
+    <ProjectReference Include="..\Modules\Markdown\GenHTTP.Modules.Markdown.csproj" />
     <ProjectReference Include="..\Modules\Razor\GenHTTP.Modules.Razor.csproj" />
     <ProjectReference Include="..\Modules\Scriban\GenHTTP.Modules.Scriban.csproj" />
     <ProjectReference Include="..\Modules\Webservices\GenHTTP.Modules.Webservices.csproj" />
@@ -76,6 +78,12 @@
     <ProjectReference Include="..\Modules\Basics\GenHTTP.Modules.Basics.csproj" />
     <ProjectReference Include="..\Modules\Practices\GenHTTP.Modules.Practices.csproj" />
     
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Resources\legal.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
