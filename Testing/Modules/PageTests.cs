@@ -1,16 +1,13 @@
-﻿using System.Collections.Generic;
-
-using Xunit;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.Razor;
-using GenHTTP.Modules.Scriban;
-using GenHTTP.Modules.Placeholders;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Placeholders;
+using GenHTTP.Modules.Razor;
+using GenHTTP.Modules.Scriban;
+using System.Collections.Generic;
+using Xunit;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
@@ -78,27 +75,32 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestDescription()
         {
-            ModelProvider<CustomModel> modelProvider = (r, h) => new CustomModel(r, h);
+            var page = Page.From("Hello world!")
+                           .Title("My Title")
+                           .Description("My Description");
 
-            var providers = new List<IHandlerBuilder>()
-            {
-                ModScriban.Page(Data.FromString("Hello {{ world }}!"), modelProvider).Description("My Description"),
-                ModRazor.Page(Data.FromString("Hello @Model.World!"), modelProvider).Description("My Description"),
-                Placeholders.Page(Data.FromString("Hello [World]!"), modelProvider).Description("My Description"),
-                Page.From("Hello world!").Title("My Title").Description("My Description")
-            };
-            foreach (var page in providers)
-            {
-                var layout = Layout.Create().Add("page", page);
+            using var runner = TestRunner.Run(page);
 
-                using var runner = TestRunner.Run(layout);
+            using var response = runner.GetResponse();
 
-                using var response = runner.GetResponse("/page");
+            var content = response.GetContent();
 
-                var content = response.GetContent();
+            Assert.Contains("<meta name=\"description\" content=\"My Description\"/>", content);
+        }
 
-                Assert.Contains("<meta name=\"description\" content=\"My Description\"/>", content);
-            }
+        [Fact]
+        public void TestNoDescription()
+        {
+            var page = Page.From("Hello world!")
+                           .Title("My Title");
+
+            using var runner = TestRunner.Run(page);
+
+            using var response = runner.GetResponse();
+
+            var content = response.GetContent();
+
+            Assert.Contains("<meta name=\"description\" content=\"\"/>", content);
         }
 
         [Fact]

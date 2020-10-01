@@ -68,7 +68,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
                                .Append(directory.Name)
                                .Build();
 
-                yield return new ContentElement(path, directory.Name, String.Empty, ContentType.TextHtml, null);
+                yield return new ContentElement(path, directory.Name, null, ContentType.TextHtml, null);
             }
 
             foreach (var file in Info.GetFiles())
@@ -79,7 +79,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
                 var guessed = file.Name.GuessContentType() ?? ContentType.ApplicationForceDownload;
 
-                yield return new ContentElement(path, file.Name, String.Empty, guessed, null);
+                yield return new ContentElement(path, file.Name, null, guessed, null);
             }
         }
 

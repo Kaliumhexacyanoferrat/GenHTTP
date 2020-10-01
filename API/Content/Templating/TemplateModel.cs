@@ -17,7 +17,10 @@ namespace GenHTTP.Api.Content.Templating
         /// </summary>
         public string Title { get; }
 
-        public string Description { get; }
+        /// <summary>
+        /// The description to be rendered within the template.
+        /// </summary>
+        public string? Description { get; }
 
         /// <summary>
         /// The HTML content to be rendered within the template.
@@ -44,9 +47,9 @@ namespace GenHTTP.Api.Content.Templating
         /// <param name="request">The request which caused this call</param>
         /// <param name="handler">The handler responsible to render the response</param>
         /// <param name="title">The title to be rendered within the template</param>
-        /// <param name="description"></param>
+        /// <param name="description">The description to be rendered within the template</param>
         /// <param name="content">The content to be rendered within the template</param>
-        public TemplateModel(IRequest request, IHandler handler, string title, string description, string content)
+        public TemplateModel(IRequest request, IHandler handler, string title, string? description, string content)
         {
             Title = title;
             Description = description;

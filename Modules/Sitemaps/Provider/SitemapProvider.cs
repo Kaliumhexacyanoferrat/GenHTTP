@@ -58,7 +58,7 @@ namespace GenHTTP.Modules.Sitemaps.Provider
             }
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, "Sitemap", String.Empty, ContentType.TextXml);
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, "Sitemap", null, ContentType.TextXml);
 
         #endregion
 

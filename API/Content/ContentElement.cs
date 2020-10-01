@@ -29,9 +29,9 @@ namespace GenHTTP.Api.Content
         public string Title { get; }
 
         /// <summary>
-        /// Meta description
+        /// The description of the element.
         /// </summary>
-        public string Description { get; }
+        public string? Description { get; }
 
         /// <summary>
         /// The content type of the element. Can be used to filter
@@ -43,17 +43,16 @@ namespace GenHTTP.Api.Content
 
         #region Initialization
 
-        public ContentElement(WebPath path, string title, string description, ContentType contentType,
-            IEnumerable<ContentElement>? children = null)
+        public ContentElement(WebPath path, string title, string? description, ContentType contentType,IEnumerable<ContentElement>? children = null)
             : this(path.ToString(), title, description, new FlexibleContentType(contentType), children) { }
 
-        public ContentElement(string path, string title, string description, ContentType contentType, IEnumerable<ContentElement>? children = null)
+        public ContentElement(string path, string title, string? description, ContentType contentType, IEnumerable<ContentElement>? children = null)
             : this(path, title, description, new FlexibleContentType(contentType), children) { }
 
-        public ContentElement(WebPath path, string title, string description, FlexibleContentType contentType, IEnumerable<ContentElement>? children = null)
+        public ContentElement(WebPath path, string title, string? description, FlexibleContentType contentType, IEnumerable<ContentElement>? children = null)
              : this(path.ToString(), title, description, contentType, children) { }
 
-        public ContentElement(string path, string title, string description, FlexibleContentType contentType, IEnumerable<ContentElement>? children = null)
+        public ContentElement(string path, string title, string? description, FlexibleContentType contentType, IEnumerable<ContentElement>? children = null)
         {
             Path = path;
             Title = title;

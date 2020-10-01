@@ -102,8 +102,7 @@ namespace GenHTTP.Modules.Basics
             }
         }
 
-        public static IEnumerable<ContentElement> GetContent(this IHandler handler, IRequest request, string title,
-            string description, ContentType contentType)
+        public static IEnumerable<ContentElement> GetContent(this IHandler handler, IRequest request, string title, string? description, ContentType contentType)
         {
             return new List<ContentElement>()
             {
@@ -111,7 +110,7 @@ namespace GenHTTP.Modules.Basics
             };
         }
 
-        public static IEnumerable<ContentElement> GetContent(this IHandler handler, IRequest request, string title, string description, FlexibleContentType contentType)
+        public static IEnumerable<ContentElement> GetContent(this IHandler handler, IRequest request, string title, string? description, FlexibleContentType contentType)
         {
             return new List<ContentElement>()
             {

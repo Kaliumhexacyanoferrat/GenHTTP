@@ -52,13 +52,13 @@ namespace GenHTTP.Modules.Scriban
 
             var content = Renderer.Render(model);
 
-            var templateModel = new TemplateModel(request, this, model.Title ?? Title ?? "Untitled Page", model.Description ?? Description ?? String.Empty, content);
+            var templateModel = new TemplateModel(request, this, model.Title ?? Title ?? "Untitled Page", model.Description ?? Description, content);
 
             return this.Page(templateModel)
                        .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Title ?? "Untitled Page", Description ?? String.Empty, ContentType.TextHtml);
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Title ?? "Untitled Page", Description, ContentType.TextHtml);
 
         #endregion
 

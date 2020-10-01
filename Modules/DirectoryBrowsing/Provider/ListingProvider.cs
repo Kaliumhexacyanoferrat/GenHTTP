@@ -42,13 +42,13 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
             var renderer = new ListingRenderer();
 
-            var templateModel = new TemplateModel(request, this, GetTitle(request), String.Empty,  renderer.Render(model));
+            var templateModel = new TemplateModel(request, this, GetTitle(request), null, renderer.Render(model));
 
             return this.Page(templateModel)
                        .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, GetTitle(request), String.Empty, ContentType.TextHtml);
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, GetTitle(request), null, ContentType.TextHtml);
 
         private string GetTitle(IRequest request) => $"Index of {request.Target.Path}";
 

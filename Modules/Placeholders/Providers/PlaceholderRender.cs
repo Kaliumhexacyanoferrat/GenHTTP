@@ -76,7 +76,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
                 if (path.Count() == 1)
                 {
-                    return data?.ToString() ?? fullPath;
+                    return data?.ToString();
                 }
                 else
                 {

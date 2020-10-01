@@ -16,6 +16,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
         #region Get-/Setters
 
         public string? Title { get; }
+
         public string? Description { get; }
 
         public IResourceProvider Content { get; }
@@ -41,13 +42,13 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         public IResponse? Handle(IRequest request)
         {
-            var templateModel = new TemplateModel(request, this, Title ?? "Untitled Page", Description ?? String.Empty, Content.GetResourceAsString());
+            var templateModel = new TemplateModel(request, this, Title ?? "Untitled Page", Description, Content.GetResourceAsString());
 
             return this.Page(templateModel)
                        .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Title ?? "Untitled Page", Description ?? String.Empty, ContentType.TextHtml);
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Title ?? "Untitled Page", Description, ContentType.TextHtml);
 
         #endregion
 

@@ -62,7 +62,7 @@ namespace GenHTTP.Modules.Robots.Provider
                           .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, "Robots Instruction File", String.Empty, ContentType.TextPlain);
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, "Robots Instruction File", null, ContentType.TextPlain);
 
         #endregion
 

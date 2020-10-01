@@ -49,7 +49,7 @@ namespace GenHTTP.Modules.IO.Providers
                           .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, "Download", String.Empty,  ContentType);
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, "Download", null,  ContentType);
 
         #endregion
 
