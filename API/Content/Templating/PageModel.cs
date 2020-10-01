@@ -17,6 +17,8 @@ namespace GenHTTP.Api.Content.Templating
         /// </summary>
         public string? Title { get; set; }
 
+        public string? Description { get; set; }
+
         /// <summary>
         /// The request which caused this rendering call.
         /// </summary>

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
@@ -16,6 +17,8 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         public string? Title { get; }
 
+        public string? Description { get; }
+
         public IResourceProvider Content { get; }
 
         public IHandler Parent { get; }
@@ -24,11 +27,12 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         #region Initialization
 
-        public PageProvider(IHandler parent, string? title, IResourceProvider content)
+        public PageProvider(IHandler parent, string? title, string? description, IResourceProvider content)
         {
             Parent = parent;
 
             Title = title;
+            Description = description;
             Content = content;
         }
 
@@ -38,13 +42,13 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         public IResponse? Handle(IRequest request)
         {
-            var templateModel = new TemplateModel(request, this, Title ?? "Untitled Page", Content.GetResourceAsString());
+            var templateModel = new TemplateModel(request, this, Title ?? "Untitled Page", Description, Content.GetResourceAsString());
 
             return this.Page(templateModel)
                        .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Title ?? "Untitled Page", ContentType.TextHtml);
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Title ?? "Untitled Page", Description, ContentType.TextHtml);
 
         #endregion
 

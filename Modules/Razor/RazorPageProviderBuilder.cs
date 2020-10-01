@@ -10,6 +10,7 @@ namespace GenHTTP.Modules.Razor
         protected IResourceProvider? _TemplateProvider;
         protected ModelProvider<T>? _ModelProvider;
         protected string? _Title;
+        private string? _Description;
 
         #region Functionality
 
@@ -31,6 +32,12 @@ namespace GenHTTP.Modules.Razor
             return this;
         }
 
+        public RazorPageProviderBuilder<T> Description(string description)
+        {
+            _Description = description;
+            return this;
+        }
+
         public IHandler Build(IHandler parent)
         {
             if (_TemplateProvider == null)
@@ -43,7 +50,7 @@ namespace GenHTTP.Modules.Razor
                 throw new BuilderMissingPropertyException("Model Provider");
             }
 
-            return new RazorPageProvider<T>(parent, _TemplateProvider, _ModelProvider, _Title);
+            return new RazorPageProvider<T>(parent, _TemplateProvider, _ModelProvider, _Title, _Description);
         }
 
         #endregion

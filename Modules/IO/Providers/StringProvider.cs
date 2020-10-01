@@ -43,7 +43,7 @@ namespace GenHTTP.Modules.IO.Providers
                           .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, "String Data", Api.Protocol.ContentType.TextPlain);
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, "String Data", null, Api.Protocol.ContentType.TextPlain);
 
         #endregion
 

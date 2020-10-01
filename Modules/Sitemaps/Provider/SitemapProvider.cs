@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -57,7 +58,7 @@ namespace GenHTTP.Modules.Sitemaps.Provider
             }
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, "Sitemap", ContentType.TextXml);
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, "Sitemap", null, ContentType.TextXml);
 
         #endregion
 

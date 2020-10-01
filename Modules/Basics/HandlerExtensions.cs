@@ -102,19 +102,19 @@ namespace GenHTTP.Modules.Basics
             }
         }
 
-        public static IEnumerable<ContentElement> GetContent(this IHandler handler, IRequest request, string title, ContentType contentType)
+        public static IEnumerable<ContentElement> GetContent(this IHandler handler, IRequest request, string title, string? description, ContentType contentType)
         {
             return new List<ContentElement>()
             {
-                new ContentElement(handler.GetRoot(request.Server.Handler, false), title, contentType, null)
+                new ContentElement(handler.GetRoot(request.Server.Handler, false), title, description, contentType, null)
             };
         }
 
-        public static IEnumerable<ContentElement> GetContent(this IHandler handler, IRequest request, string title, FlexibleContentType contentType)
+        public static IEnumerable<ContentElement> GetContent(this IHandler handler, IRequest request, string title, string? description, FlexibleContentType contentType)
         {
             return new List<ContentElement>()
             {
-                new ContentElement(handler.GetRoot(request.Server.Handler, false), title, contentType, null)
+                new ContentElement(handler.GetRoot(request.Server.Handler, false), title, description, contentType, null)
             };
         }
 

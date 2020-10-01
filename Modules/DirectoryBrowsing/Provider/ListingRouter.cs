@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 using GenHTTP.Api.Content;
@@ -67,7 +68,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
                                .Append(directory.Name)
                                .Build();
 
-                yield return new ContentElement(path, directory.Name, ContentType.TextHtml, null);
+                yield return new ContentElement(path, directory.Name, null, ContentType.TextHtml, null);
             }
 
             foreach (var file in Info.GetFiles())
@@ -78,7 +79,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
                 var guessed = file.Name.GuessContentType() ?? ContentType.ApplicationForceDownload;
 
-                yield return new ContentElement(path, file.Name, guessed, null);
+                yield return new ContentElement(path, file.Name, null, guessed, null);
             }
         }
 

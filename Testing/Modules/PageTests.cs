@@ -1,16 +1,13 @@
-﻿using System.Collections.Generic;
-
-using Xunit;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.Razor;
-using GenHTTP.Modules.Scriban;
-using GenHTTP.Modules.Placeholders;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Placeholders;
+using GenHTTP.Modules.Razor;
+using GenHTTP.Modules.Scriban;
+using System.Collections.Generic;
+using Xunit;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
@@ -73,6 +70,37 @@ namespace GenHTTP.Testing.Acceptance.Providers
                 Assert.NotEqual("Hello World!", content);
                 Assert.Contains("Hello World!", content);
             }
+        }
+
+        [Fact]
+        public void TestDescription()
+        {
+            var page = Page.From("Hello world!")
+                           .Title("My Title")
+                           .Description("My Description");
+
+            using var runner = TestRunner.Run(page);
+
+            using var response = runner.GetResponse();
+
+            var content = response.GetContent();
+
+            Assert.Contains("<meta name=\"description\" content=\"My Description\"/>", content);
+        }
+
+        [Fact]
+        public void TestNoDescription()
+        {
+            var page = Page.From("Hello world!")
+                           .Title("My Title");
+
+            using var runner = TestRunner.Run(page);
+
+            using var response = runner.GetResponse();
+
+            var content = response.GetContent();
+
+            Assert.Contains("<meta name=\"description\" content=\"\"/>", content);
         }
 
         [Fact]

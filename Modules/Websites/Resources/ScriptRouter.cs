@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using GenHTTP.Api.Content;
@@ -96,7 +97,7 @@ namespace GenHTTP.Modules.Websites.Resources
                                     .Append(s.Name)
                                     .Build();
 
-                return new ContentElement(childPath, s.Name, ContentType.ApplicationJavaScript, null);
+                return new ContentElement(childPath, s.Name, null, ContentType.ApplicationJavaScript, null);
             });
         }
 
