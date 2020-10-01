@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
@@ -90,7 +91,7 @@ namespace GenHTTP.Modules.Websites.Sites
 
         public TemplateModel Render(ErrorModel error)
         {
-            return new TemplateModel(error.Request, this, error.Title ?? "Error", Theme.ErrorHandler.Render(error));
+            return new TemplateModel(error.Request, this, error.Title ?? "Error", error.Description ?? String.Empty, Theme.ErrorHandler.Render(error));
         }
 
         public IResponseBuilder Render(TemplateModel model)

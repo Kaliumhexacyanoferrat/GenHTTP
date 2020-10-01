@@ -76,6 +76,32 @@ namespace GenHTTP.Testing.Acceptance.Providers
         }
 
         [Fact]
+        public void TestDescription()
+        {
+            ModelProvider<CustomModel> modelProvider = (r, h) => new CustomModel(r, h);
+
+            var providers = new List<IHandlerBuilder>()
+            {
+                ModScriban.Page(Data.FromString("Hello {{ world }}!"), modelProvider).Description("My Description"),
+                ModRazor.Page(Data.FromString("Hello @Model.World!"), modelProvider).Description("My Description"),
+                Placeholders.Page(Data.FromString("Hello [World]!"), modelProvider).Description("My Description"),
+                Page.From("Hello world!").Title("My Title").Description("My Description")
+            };
+            foreach (var page in providers)
+            {
+                var layout = Layout.Create().Add("page", page);
+
+                using var runner = TestRunner.Run(layout);
+
+                using var response = runner.GetResponse("/page");
+
+                var content = response.GetContent();
+
+                Assert.Contains("<meta name=\"description\" content=\"My Description\"/>", content);
+            }
+        }
+
+        [Fact]
         public void TestRouting()
         {
             var providers = new List<IHandlerBuilder>()

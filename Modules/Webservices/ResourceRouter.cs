@@ -104,7 +104,7 @@ namespace GenHTTP.Modules.Webservices
                     path = new WebPath(parts, false);
                 }
 
-                yield return new ContentElement(path, Path.GetFileName(path.ToString()), path.ToString().GuessContentType() ?? ContentType.ApplicationForceDownload, null);
+                yield return new ContentElement(path, Path.GetFileName(path.ToString()), String.Empty, path.ToString().GuessContentType() ?? ContentType.ApplicationForceDownload, null);
             }
         }
 

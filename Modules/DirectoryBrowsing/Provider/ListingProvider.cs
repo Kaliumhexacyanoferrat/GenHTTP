@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 using GenHTTP.Api.Content;
@@ -41,13 +42,13 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
             var renderer = new ListingRenderer();
 
-            var templateModel = new TemplateModel(request, this, GetTitle(request), renderer.Render(model));
+            var templateModel = new TemplateModel(request, this, GetTitle(request), String.Empty,  renderer.Render(model));
 
             return this.Page(templateModel)
                        .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, GetTitle(request), ContentType.TextHtml);
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, GetTitle(request), String.Empty, ContentType.TextHtml);
 
         private string GetTitle(IRequest request) => $"Index of {request.Target.Path}";
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -67,7 +68,7 @@ namespace GenHTTP.Modules.IO.Providers
                 var path = new List<string>(this.GetRoot(request.Server.Handler, false).Parts);
                 path.Add(fileRef);
 
-                yield return new ContentElement(new WebPath(path, false), fileName, fileName.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
+                yield return new ContentElement(new WebPath(path, false), fileName, String.Empty, fileName.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
             }
         }
 

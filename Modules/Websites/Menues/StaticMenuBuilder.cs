@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
@@ -29,11 +30,11 @@ namespace GenHTTP.Modules.Websites.Menues
 
                 foreach (var child in children)
                 {
-                    childElements.Add(new ContentElement($"{path}{child.childPath}", child.childTitle, ContentType.TextHtml, null));
+                    childElements.Add(new ContentElement($"{path}{child.childPath}", child.childTitle, String.Empty, ContentType.TextHtml, null));
                 }
             }
 
-            _Menu.Add(new ContentElement(path, title, ContentType.TextHtml, childElements));
+            _Menu.Add(new ContentElement(path, title, String.Empty, ContentType.TextHtml, childElements));
 
             return this;
         }

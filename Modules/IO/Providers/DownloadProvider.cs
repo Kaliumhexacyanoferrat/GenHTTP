@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -48,7 +49,7 @@ namespace GenHTTP.Modules.IO.Providers
                           .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, "Download", ContentType);
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, "Download", String.Empty,  ContentType);
 
         #endregion
 

@@ -14,6 +14,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
         private string? _Title;
 
         private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private string? _Description;
 
         #region Functionality
 
@@ -35,6 +36,12 @@ namespace GenHTTP.Modules.Placeholders.Providers
             return this;
         }
 
+        public PlaceholderPageProviderBuilder<T> Description(string description)
+        {
+            _Description = description;
+            return this;
+        }
+
         public PlaceholderPageProviderBuilder<T> Add(IConcernBuilder concern)
         {
             _Concerns.Add(concern);
@@ -53,7 +60,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
                 throw new BuilderMissingPropertyException("Model Provider");
             }
 
-            return Concerns.Chain(parent, _Concerns, (p) => new PlaceholderPageProvider<T>(p, _TemplateProvider, _ModelProvider, _Title));
+            return Concerns.Chain(parent, _Concerns, (p) => new PlaceholderPageProvider<T>(p, _TemplateProvider, _ModelProvider, _Title, _Description));
         }
 
         #endregion

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 using GenHTTP.Api.Content;
@@ -60,7 +61,7 @@ namespace GenHTTP.Modules.IO.Providers
                                 .Append(childPath)
                                 .Build();
 
-                yield return new ContentElement(child, file.Name, file.Name.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
+                yield return new ContentElement(child, file.Name, String.Empty, file.Name.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
             }
         }
 

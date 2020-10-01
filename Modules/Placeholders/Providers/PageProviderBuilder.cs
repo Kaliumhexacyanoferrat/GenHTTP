@@ -10,6 +10,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
     {
         private IResourceProvider? _Content;
         private string? _Title;
+        private string? _Description;
 
         private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
@@ -18,6 +19,12 @@ namespace GenHTTP.Modules.Placeholders.Providers
         public PageProviderBuilder Title(string title)
         {
             _Title = title;
+            return this;
+        }
+
+        public PageProviderBuilder Description(string description)
+        {
+            _Description = description;
             return this;
         }
 
@@ -40,11 +47,10 @@ namespace GenHTTP.Modules.Placeholders.Providers
                 throw new BuilderMissingPropertyException("Content");
             }
 
-            return Concerns.Chain(parent, _Concerns, (p) => new PageProvider(p, _Title, _Content));
+            return Concerns.Chain(parent, _Concerns, (p) => new PageProvider(p, _Title, _Description, _Content));
         }
 
         #endregion
-
     }
 
 }

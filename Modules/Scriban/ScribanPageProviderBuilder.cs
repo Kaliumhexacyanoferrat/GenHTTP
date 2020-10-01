@@ -10,6 +10,7 @@ namespace GenHTTP.Modules.Scriban
         protected IResourceProvider? _TemplateProvider;
         protected ModelProvider<T>? _ModelProvider;
         protected string? _Title;
+        private string? _Description;
 
         #region Functionality
 
@@ -31,6 +32,12 @@ namespace GenHTTP.Modules.Scriban
             return this;
         }
 
+        public ScribanPageProviderBuilder<T> Description(string description)
+        {
+            _Description = description;
+            return this;
+        }
+
         public IHandler Build(IHandler parent)
         {
             if (_TemplateProvider == null)
@@ -43,7 +50,7 @@ namespace GenHTTP.Modules.Scriban
                 throw new BuilderMissingPropertyException("Model Provider");
             }
 
-            return new ScribanPageProvider<T>(parent, _TemplateProvider, _ModelProvider, _Title);
+            return new ScribanPageProvider<T>(parent, _TemplateProvider, _ModelProvider, _Title, _Description);
         }
 
         #endregion
