@@ -85,7 +85,11 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
 
                 var guessed = file.Name.GuessContentType() ?? ContentType.ApplicationForceDownload;
 
-                yield return new ContentElement(path, file.Name, null, guessed, null);
+                var info = ContentInfo.Create()
+                                     .Title(file.Name)
+                                     .Build();
+
+                yield return new ContentElement(path, info, guessed, null);
             }
         }
 

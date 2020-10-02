@@ -6,11 +6,11 @@ using GenHTTP.Api.Content;
 namespace GenHTTP.Modules.Placeholders.Providers
 {
 
-    public class PageProviderBuilder : IHandlerBuilder<PageProviderBuilder>
+    public class PageProviderBuilder : IHandlerBuilder<PageProviderBuilder>, IContentInfoBuilder<PageProviderBuilder>
     {
         private IResourceProvider? _Content;
-        private string? _Title;
-        private string? _Description;
+
+        private readonly ContentInfoBuilder _Info = new ContentInfoBuilder();
 
         private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
@@ -18,13 +18,13 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         public PageProviderBuilder Title(string title)
         {
-            _Title = title;
+            _Info.Title(title);
             return this;
         }
 
         public PageProviderBuilder Description(string description)
         {
-            _Description = description;
+            _Info.Description(description);
             return this;
         }
 
@@ -47,7 +47,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
                 throw new BuilderMissingPropertyException("Content");
             }
 
-            return Concerns.Chain(parent, _Concerns, (p) => new PageProvider(p, _Title, _Description, _Content));
+            return Concerns.Chain(parent, _Concerns, (p) => new PageProvider(p, _Info.Build(), _Content));
         }
 
         #endregion

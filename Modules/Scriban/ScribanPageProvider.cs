@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
@@ -23,21 +22,20 @@ namespace GenHTTP.Modules.Scriban
 
         public ScribanRenderer<T> Renderer { get; }
 
-        public string? Title { get; }
-        public string? Description { get; }
+        public ContentInfo PageInfo { get; }
 
         #endregion
 
         #region Initialization
 
-        public ScribanPageProvider(IHandler parent, IResourceProvider templateProvider, ModelProvider<T> modelProvider, string? title, string? description)
+        public ScribanPageProvider(IHandler parent, IResourceProvider templateProvider, ModelProvider<T> modelProvider, ContentInfo pageInfo)
         {
             Parent = parent;
 
             TemplateProvider = templateProvider;
             ModelProvider = modelProvider;
-            Title = title;
-            Description = description;
+
+            PageInfo = pageInfo;
 
             Renderer = new ScribanRenderer<T>(TemplateProvider);
         }
@@ -52,13 +50,13 @@ namespace GenHTTP.Modules.Scriban
 
             var content = Renderer.Render(model);
 
-            var templateModel = new TemplateModel(request, this, model.Title ?? Title ?? "Untitled Page", model.Description ?? Description, content);
+            var templateModel = new TemplateModel(request, this, PageInfo, content);
 
             return this.Page(templateModel)
                        .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Title ?? "Untitled Page", Description, ContentType.TextHtml);
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, PageInfo, ContentType.TextHtml);
 
         #endregion
 

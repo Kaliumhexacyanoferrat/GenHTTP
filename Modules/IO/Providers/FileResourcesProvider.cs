@@ -61,7 +61,11 @@ namespace GenHTTP.Modules.IO.Providers
                                 .Append(childPath)
                                 .Build();
 
-                yield return new ContentElement(child, file.Name, null, file.Name.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
+                var info = ContentInfo.Create()
+                                      .Title(file.Name)
+                                      .Build();
+
+                yield return new ContentElement(child, info, file.Name.GuessContentType() ?? ContentType.ApplicationForceDownload, null);
             }
         }
 

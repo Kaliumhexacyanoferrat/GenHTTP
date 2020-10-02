@@ -1,6 +1,6 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using System.Collections.Generic;
+using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
-using System.Collections.Generic;
 
 namespace GenHTTP.Api.Content
 {
@@ -24,14 +24,9 @@ namespace GenHTTP.Api.Content
         public IEnumerable<ContentElement>? Children { get; }
 
         /// <summary>
-        /// The title of this element.
+        /// Additional meta information describing this element.
         /// </summary>
-        public string Title { get; }
-
-        /// <summary>
-        /// The description of the element.
-        /// </summary>
-        public string? Description { get; }
+        public ContentInfo Details { get; }
 
         /// <summary>
         /// The content type of the element. Can be used to filter
@@ -43,20 +38,20 @@ namespace GenHTTP.Api.Content
 
         #region Initialization
 
-        public ContentElement(WebPath path, string title, string? description, ContentType contentType,IEnumerable<ContentElement>? children = null)
-            : this(path.ToString(), title, description, new FlexibleContentType(contentType), children) { }
+        public ContentElement(WebPath path, ContentInfo details, ContentType contentType,IEnumerable<ContentElement>? children = null)
+            : this(path.ToString(), details, new FlexibleContentType(contentType), children) { }
 
-        public ContentElement(string path, string title, string? description, ContentType contentType, IEnumerable<ContentElement>? children = null)
-            : this(path, title, description, new FlexibleContentType(contentType), children) { }
+        public ContentElement(string path, ContentInfo details, ContentType contentType, IEnumerable<ContentElement>? children = null)
+            : this(path, details, new FlexibleContentType(contentType), children) { }
 
-        public ContentElement(WebPath path, string title, string? description, FlexibleContentType contentType, IEnumerable<ContentElement>? children = null)
-             : this(path.ToString(), title, description, contentType, children) { }
+        public ContentElement(WebPath path, ContentInfo details, FlexibleContentType contentType, IEnumerable<ContentElement>? children = null)
+             : this(path.ToString(), details, contentType, children) { }
 
-        public ContentElement(string path, string title, string? description, FlexibleContentType contentType, IEnumerable<ContentElement>? children = null)
+        public ContentElement(string path, ContentInfo details, FlexibleContentType contentType, IEnumerable<ContentElement>? children = null)
         {
             Path = path;
-            Title = title;
-            Description = description;
+            Details = details;
+
             Children = children;
 
             ContentType = contentType;

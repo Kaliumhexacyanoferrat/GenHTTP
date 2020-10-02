@@ -15,24 +15,21 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         #region Get-/Setters
 
-        public string? Title { get; }
+        public IHandler Parent { get; }
 
-        public string? Description { get; }
+        public ContentInfo PageInfo { get; }
 
         public IResourceProvider Content { get; }
-
-        public IHandler Parent { get; }
 
         #endregion
 
         #region Initialization
 
-        public PageProvider(IHandler parent, string? title, string? description, IResourceProvider content)
+        public PageProvider(IHandler parent, ContentInfo pageInfo, IResourceProvider content)
         {
             Parent = parent;
 
-            Title = title;
-            Description = description;
+            PageInfo = pageInfo;
             Content = content;
         }
 
@@ -42,13 +39,13 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         public IResponse? Handle(IRequest request)
         {
-            var templateModel = new TemplateModel(request, this, Title ?? "Untitled Page", Description, Content.GetResourceAsString());
+            var templateModel = new TemplateModel(request, this, PageInfo, Content.GetResourceAsString());
 
             return this.Page(templateModel)
                        .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Title ?? "Untitled Page", Description, ContentType.TextHtml);
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, PageInfo, ContentType.TextHtml);
 
         #endregion
 

@@ -97,7 +97,11 @@ namespace GenHTTP.Modules.Websites.Resources
                                     .Append(s.Name)
                                     .Build();
 
-                return new ContentElement(childPath, s.Name, null, ContentType.ApplicationJavaScript, null);
+                var info = ContentInfo.Create()
+                                      .Title(s.Name)
+                                      .Build();
+
+                return new ContentElement(childPath, info, ContentType.ApplicationJavaScript, null);
             });
         }
 

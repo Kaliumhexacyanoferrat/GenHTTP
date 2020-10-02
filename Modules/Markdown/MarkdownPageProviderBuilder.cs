@@ -1,15 +1,21 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Collections.Generic;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Modules.Markdown
 {
-    public class MarkdownPageProviderBuilder<T> : IHandlerBuilder where T : PageModel
+
+    public class MarkdownPageProviderBuilder<T> : IHandlerBuilder<MarkdownPageProviderBuilder<T>>, IContentInfoBuilder<MarkdownPageProviderBuilder<T>> where T : PageModel
     {
         private IResourceProvider? _FileProvider;
 
-        private string? _Title;
-        private string? _Description;
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+
+        private readonly ContentInfoBuilder _Info = new ContentInfoBuilder();
+
+        #region Functionality
 
         public MarkdownPageProviderBuilder<T> File(IResourceProvider fileProvider)
         {
@@ -19,13 +25,19 @@ namespace GenHTTP.Modules.Markdown
 
         public MarkdownPageProviderBuilder<T> Title(string title)
         {
-            _Title = title;
+            _Info.Title(title);
             return this;
         }
 
         public MarkdownPageProviderBuilder<T> Description(string description)
         {
-            _Description = description;
+            _Info.Description(description);
+            return this;
+        }
+
+        public MarkdownPageProviderBuilder<T> Add(IConcernBuilder concern)
+        {
+            _Concerns.Add(concern);
             return this;
         }
 
@@ -36,7 +48,11 @@ namespace GenHTTP.Modules.Markdown
                 throw new BuilderMissingPropertyException("File Provider");
             }
 
-            return new MarkdownPageProvider<T>(parent, _FileProvider, _Title, _Description);
+            return Concerns.Chain(parent, _Concerns, (p) => new MarkdownPageProvider<T>(p, _FileProvider, _Info.Build()));
         }
+
+        #endregion
+
     }
+
 }

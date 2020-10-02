@@ -11,10 +11,21 @@ namespace GenHTTP.Modules.Sitemaps.Provider
 
     public class SitemapProvider : IHandler
     {
+        private ContentInfo? _Info;
 
         #region Get-/Setters
 
         public IHandler Parent { get; }
+
+        private ContentInfo Info
+        {
+            get
+            {
+                return _Info ??= ContentInfo.Create()
+                                            .Title("Sitemap")
+                                            .Build();
+            }
+        }
 
         #endregion
 
@@ -58,7 +69,7 @@ namespace GenHTTP.Modules.Sitemaps.Provider
             }
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, "Sitemap", null, ContentType.TextXml);
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Info, ContentType.TextXml);
 
         #endregion
 

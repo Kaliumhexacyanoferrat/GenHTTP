@@ -30,11 +30,19 @@ namespace GenHTTP.Modules.Websites.Menues
 
                 foreach (var child in children)
                 {
-                    childElements.Add(new ContentElement($"{path}{child.childPath}", child.childTitle, null, ContentType.TextHtml, null));
+                    var childInfo = ContentInfo.Create()
+                                               .Title(child.childTitle)
+                                               .Build();
+
+                    childElements.Add(new ContentElement($"{path}{child.childPath}", childInfo, ContentType.TextHtml, null));
                 }
             }
 
-            _Menu.Add(new ContentElement(path, title, null, ContentType.TextHtml, childElements));
+            var info = ContentInfo.Create()
+                                  .Title(title)
+                                  .Build();
+
+            _Menu.Add(new ContentElement(path, info, ContentType.TextHtml, childElements));
 
             return this;
         }

@@ -14,29 +14,33 @@ namespace GenHTTP.Modules.Basics
 
         public static IResponseBuilder MethodNotAllowed(this IHandler handler, IRequest request, string? title = null, string? message = null)
         {
-            var actualTitle = title ?? "Method Not Allowed";
             var actualMessage = message ?? "The specified resource cannot be accessed with the given HTTP verb.";
 
-            var model = new ErrorModel(request, handler, ResponseStatus.MethodNotAllowed, actualTitle, actualMessage, null);
+            var model = new ErrorModel(request, handler, ResponseStatus.MethodNotAllowed, actualMessage, null);
 
-            return handler.Error(model);
+            var info = ContentInfo.Create()
+                                  .Title(title ?? "Method Not Allowed");
+
+            return handler.Error(model, info.Build());
         }
 
         public static IResponseBuilder NotFound(this IHandler handler, IRequest request, string? title = null, string? message = null)
         {
-            var actualTitle = title ?? "Not Found";
             var actualMessage = message ?? "The specified resource could not be found on this server.";
 
-            var model = new ErrorModel(request, handler, ResponseStatus.NotFound, actualTitle, actualMessage, null);
+            var model = new ErrorModel(request, handler, ResponseStatus.NotFound, actualMessage, null);
 
-            return handler.Error(model);
+            var info = ContentInfo.Create()
+                                  .Title(title ?? "Not Found");
+
+            return handler.Error(model, info.Build());
         }
 
-        public static IResponseBuilder Error(this IHandler handler, ErrorModel model)
+        public static IResponseBuilder Error(this IHandler handler, ErrorModel model, ContentInfo details)
         {
             var renderer = handler.FindParent<IErrorHandler>(model.Request.Server.Handler) ?? throw new InvalidOperationException("There is no error handler available in the routing tree");
 
-            return handler.Page(renderer.Render(model))
+            return handler.Page(renderer.Render(model, details))
                           .Status(model.Status);
         }
 
@@ -102,19 +106,19 @@ namespace GenHTTP.Modules.Basics
             }
         }
 
-        public static IEnumerable<ContentElement> GetContent(this IHandler handler, IRequest request, string title, string? description, ContentType contentType)
+        public static IEnumerable<ContentElement> GetContent(this IHandler handler, IRequest request, ContentInfo details, ContentType contentType)
         {
             return new List<ContentElement>()
             {
-                new ContentElement(handler.GetRoot(request.Server.Handler, false), title, description, contentType, null)
+                new ContentElement(handler.GetRoot(request.Server.Handler, false), details, contentType, null)
             };
         }
 
-        public static IEnumerable<ContentElement> GetContent(this IHandler handler, IRequest request, string title, string? description, FlexibleContentType contentType)
+        public static IEnumerable<ContentElement> GetContent(this IHandler handler, IRequest request, ContentInfo details, FlexibleContentType contentType)
         {
             return new List<ContentElement>()
             {
-                new ContentElement(handler.GetRoot(request.Server.Handler, false), title, description, contentType, null)
+                new ContentElement(handler.GetRoot(request.Server.Handler, false), details, contentType, null)
             };
         }
 

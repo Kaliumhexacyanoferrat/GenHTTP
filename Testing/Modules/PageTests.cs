@@ -1,12 +1,17 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Collections.Generic;
+using System.Net;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Markdown;
 using GenHTTP.Modules.Placeholders;
 using GenHTTP.Modules.Razor;
 using GenHTTP.Modules.Scriban;
-using System.Collections.Generic;
+
 using Xunit;
 
 namespace GenHTTP.Testing.Acceptance.Providers
@@ -31,11 +36,13 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestStringPage()
         {
-            var layout = Layout.Create().Add("page", Page.From("Hello World!"));
+            var layout = Page.From("Hello World!")
+                             .Title("My Page")
+                             .Description("My Description");
 
             using var runner = TestRunner.Run(layout);
 
-            using var response = runner.GetResponse("/page");
+            using var response = runner.GetResponse();
 
             var content = response.GetContent();
 
@@ -46,15 +53,31 @@ namespace GenHTTP.Testing.Acceptance.Providers
         }
 
         [Fact]
+        public void TestMarkdownPage()
+        {
+            var page = ModMarkdown.Page(Data.FromString("# Hello World!"))
+                                  .Title("Markdown Page")
+                                  .Description("A page rendered with markdown");
+
+            using var runner = TestRunner.Run(page);
+
+            using var response = runner.GetResponse();
+
+            var content = response.GetContent();
+
+            Assert.Contains("<h1 id=\"hello-world\">Hello World!</h1>", content);
+        }
+
+        [Fact]
         public void TestRendering()
         {
             ModelProvider<CustomModel> modelProvider = (r, h) => new CustomModel(r, h);
 
             var providers = new List<IHandlerBuilder>()
             {
-                ModScriban.Page(Data.FromString("Hello {{ world }}!"), modelProvider),
-                ModRazor.Page(Data.FromString("Hello @Model.World!"), modelProvider),
-                Placeholders.Page(Data.FromString("Hello [World]!"), modelProvider)
+                ModScriban.Page(Data.FromString("Hello {{ world }}!"), modelProvider).Title("1").Description("2"),
+                ModRazor.Page(Data.FromString("Hello @Model.World!"), modelProvider).Title("1").Description("2"),
+                Placeholders.Page(Data.FromString("Hello [World]!"), modelProvider).Title("1").Description("2")
             };
 
             foreach (var provider in providers)
@@ -73,7 +96,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         }
 
         [Fact]
-        public void TestDescription()
+        public void TestContentInfo()
         {
             var page = Page.From("Hello world!")
                            .Title("My Title")
@@ -85,14 +108,16 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var content = response.GetContent();
 
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            Assert.Contains("<title>My Title</title>", content);
             Assert.Contains("<meta name=\"description\" content=\"My Description\"/>", content);
         }
 
         [Fact]
-        public void TestNoDescription()
+        public void TestNoContentInfo()
         {
-            var page = Page.From("Hello world!")
-                           .Title("My Title");
+            var page = Page.From("Hello world!");
 
             using var runner = TestRunner.Run(page);
 
@@ -100,6 +125,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var content = response.GetContent();
 
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            Assert.Contains("<title>Untitled Page</title>", content);
             Assert.Contains("<meta name=\"description\" content=\"\"/>", content);
         }
 

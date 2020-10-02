@@ -80,10 +80,4 @@
     
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Resources\legal.md">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

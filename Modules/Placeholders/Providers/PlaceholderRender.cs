@@ -82,7 +82,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
                 {
                     if (data == null)
                     {
-                        return fullPath;
+                        return null;
                     }
 
                     return GetValue(fullPath, path.Skip(1), data);

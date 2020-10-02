@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
@@ -89,9 +88,9 @@ namespace GenHTTP.Modules.Websites.Sites
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Handler.GetContent(request);
 
-        public TemplateModel Render(ErrorModel error)
+        public TemplateModel Render(ErrorModel error, ContentInfo pageInfo)
         {
-            return new TemplateModel(error.Request, this, error.Title ?? "Error", error.Description, Theme.ErrorHandler.Render(error));
+            return new TemplateModel(error.Request, this, pageInfo, Theme.ErrorHandler.Render(error));
         }
 
         public IResponseBuilder Render(TemplateModel model)

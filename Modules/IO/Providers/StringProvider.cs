@@ -9,7 +9,8 @@ namespace GenHTTP.Modules.IO.Providers
 {
 
     public class StringProvider : IHandler
-    {
+    { 
+        private ContentInfo? _Info;
 
         #region Get-/Setters
 
@@ -18,6 +19,16 @@ namespace GenHTTP.Modules.IO.Providers
         private StringContent Content { get; }
 
         private FlexibleContentType ContentType { get; }
+
+        private ContentInfo Info
+        {
+            get
+            {
+                return _Info ??= ContentInfo.Create()
+                                            .Title("String Data")
+                                            .Build();
+            }
+        }
 
         #endregion
 
@@ -43,7 +54,7 @@ namespace GenHTTP.Modules.IO.Providers
                           .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, "String Data", null, Api.Protocol.ContentType.TextPlain);
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Info, Api.Protocol.ContentType.TextPlain);
 
         #endregion
 

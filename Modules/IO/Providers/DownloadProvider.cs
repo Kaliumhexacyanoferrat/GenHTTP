@@ -11,6 +11,7 @@ namespace GenHTTP.Modules.IO.Providers
 
     public class DownloadProvider : IHandler
     {
+        private ContentInfo? _Info;
 
         #region Get-/Setters
 
@@ -19,6 +20,16 @@ namespace GenHTTP.Modules.IO.Providers
         public IResourceProvider ResourceProvider { get; }
 
         private FlexibleContentType ContentType { get; }
+
+        private ContentInfo Info
+        {
+            get
+            {
+                return _Info ??= ContentInfo.Create()
+                                            .Title("Download")
+                                            .Build();
+            }
+        }
 
         #endregion
 
@@ -49,7 +60,7 @@ namespace GenHTTP.Modules.IO.Providers
                           .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, "Download", null,  ContentType);
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Info, ContentType);
 
         #endregion
 

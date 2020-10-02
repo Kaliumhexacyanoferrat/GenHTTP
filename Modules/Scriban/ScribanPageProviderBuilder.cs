@@ -1,16 +1,21 @@
-﻿using GenHTTP.Api.Infrastructure;
+﻿using System.Collections.Generic;
+
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 
 namespace GenHTTP.Modules.Scriban
 {
 
-    public class ScribanPageProviderBuilder<T> : IHandlerBuilder where T : PageModel
+    public class ScribanPageProviderBuilder<T> : IHandlerBuilder<ScribanPageProviderBuilder<T>>, IContentInfoBuilder<ScribanPageProviderBuilder<T>> where T : PageModel
     {
         protected IResourceProvider? _TemplateProvider;
+
         protected ModelProvider<T>? _ModelProvider;
-        protected string? _Title;
-        private string? _Description;
+
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+
+        private readonly ContentInfoBuilder _Info = new ContentInfoBuilder();
 
         #region Functionality
 
@@ -28,13 +33,19 @@ namespace GenHTTP.Modules.Scriban
 
         public ScribanPageProviderBuilder<T> Title(string title)
         {
-            _Title = title;
+            _Info.Title(title);
             return this;
         }
 
         public ScribanPageProviderBuilder<T> Description(string description)
         {
-            _Description = description;
+            _Info.Description(description);
+            return this;
+        }
+
+        public ScribanPageProviderBuilder<T> Add(IConcernBuilder concern)
+        {
+            _Concerns.Add(concern);
             return this;
         }
 
@@ -50,7 +61,7 @@ namespace GenHTTP.Modules.Scriban
                 throw new BuilderMissingPropertyException("Model Provider");
             }
 
-            return new ScribanPageProvider<T>(parent, _TemplateProvider, _ModelProvider, _Title, _Description);
+            return Concerns.Chain(parent, _Concerns, (p) => new ScribanPageProvider<T>(p, _TemplateProvider, _ModelProvider, _Info.Build()));
         }
 
         #endregion

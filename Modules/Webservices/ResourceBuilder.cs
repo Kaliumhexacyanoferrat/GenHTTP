@@ -1,14 +1,18 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Collections.Generic;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Modules.Webservices
 {
 
-    public class ResourceBuilder : IHandlerBuilder
+    public class ResourceBuilder : IHandlerBuilder<ResourceBuilder>
     {
         private object? _Instance;
 
         private IBuilder<SerializationRegistry>? _Formats;
+
+        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 
@@ -26,13 +30,19 @@ namespace GenHTTP.Modules.Webservices
             return this;
         }
 
+        public ResourceBuilder Add(IConcernBuilder concern)
+        {
+            _Concerns.Add(concern);
+            return this;
+        }
+
         public IHandler Build(IHandler parent)
         {
             var formats = (_Formats ?? Serialization.Default()).Build();
 
             var instance = _Instance ?? throw new BuilderMissingPropertyException("instance");
 
-            return new ResourceRouter(parent, instance, formats);
+            return Concerns.Chain(parent, _Concerns, (p) => new ResourceRouter(p, instance, formats));
         }
 
         #endregion

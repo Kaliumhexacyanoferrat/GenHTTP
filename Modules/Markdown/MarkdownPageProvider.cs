@@ -13,34 +13,43 @@ namespace GenHTTP.Modules.Markdown
     public class MarkdownPageProvider<T> : IHandler where T : PageModel
     {
 
+        #region Get-/Setters
+
         public IHandler Parent { get; }
-
-        public string? Title { get; }
-
-        public string? Description { get; }
 
         public MarkdownRenderer<T> Renderer { get; }
 
-        public MarkdownPageProvider(IHandler parent, IResourceProvider fileProvider, string? title, string? description)
+        public ContentInfo PageInfo { get; }
+
+        #endregion
+
+        #region Initialization
+
+        public MarkdownPageProvider(IHandler parent, IResourceProvider fileProvider, ContentInfo pageInfo)
         {
-            Title = title;
-            Description = description;
             Parent = parent;
 
+            PageInfo = pageInfo;
             Renderer = new MarkdownRenderer<T>(fileProvider);
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Title ?? "Untitled Page", Description, ContentType.TextHtml);
+        #endregion
+
+        #region Functionality
+
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, PageInfo, ContentType.TextHtml);
 
         public IResponse Handle(IRequest request)
         {
             var content = Renderer.Render(null);
 
-            var templateModel = new TemplateModel(request, this, Title ?? "Untitled Page", Description, content);
+            var templateModel = new TemplateModel(request, this, PageInfo, content);
 
             return this.Page(templateModel)
                        .Build();
         }
+
+        #endregion
 
     }
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -11,6 +10,7 @@ namespace GenHTTP.Modules.Robots.Provider
 
     public class RobotsProvider : IHandler
     {
+        private ContentInfo? _Info;
 
         #region Get-/Setters
 
@@ -19,6 +19,16 @@ namespace GenHTTP.Modules.Robots.Provider
         private string? Sitemap { get; }
 
         public IHandler Parent { get; }
+
+        private ContentInfo Info
+        {
+            get
+            {
+                return _Info ??= ContentInfo.Create()
+                                            .Title("Robots Instruction File")
+                                            .Build();
+            }
+        }
 
         #endregion
 
@@ -62,7 +72,7 @@ namespace GenHTTP.Modules.Robots.Provider
                           .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, "Robots Instruction File", null, ContentType.TextPlain);
+        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Info, ContentType.TextPlain);
 
         #endregion
 

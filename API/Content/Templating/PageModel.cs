@@ -13,13 +13,6 @@ namespace GenHTTP.Api.Content.Templating
         #region Get-/Setters
 
         /// <summary>
-        /// The title of the page to be rendered.
-        /// </summary>
-        public string? Title { get; set; }
-
-        public string? Description { get; set; }
-
-        /// <summary>
         /// The request which caused this rendering call.
         /// </summary>
         public IRequest Request { get; }

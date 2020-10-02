@@ -50,7 +50,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             }
             finally
             {
-                file.Delete();
+                try { file.Delete(); } catch { /* nop */ }
             }
         }
 

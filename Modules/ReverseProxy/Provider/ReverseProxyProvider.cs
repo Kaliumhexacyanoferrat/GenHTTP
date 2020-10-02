@@ -74,11 +74,19 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             }
             catch (OperationCanceledException e)
             {
-                return this.Error(new ErrorModel(request, this, ResponseStatus.GatewayTimeout, "Gateway Timeout", "The gateway did not respond in time.", e)).Build();
+                var info = ContentInfo.Create()
+                                      .Title("Gateway Timeout")
+                                      .Build();
+
+                return this.Error(new ErrorModel(request, this, ResponseStatus.GatewayTimeout, "The gateway did not respond in time.", e), info).Build();
             }
             catch (WebException e)
             {
-                return this.Error(new ErrorModel(request, this, ResponseStatus.BadGateway, "Bad Gateway", "Unable to retrieve a response from the gateway.", e)).Build();
+                var info = ContentInfo.Create()
+                                        .Title("Bad Gateway")
+                                        .Build();
+
+                return this.Error(new ErrorModel(request, this, ResponseStatus.BadGateway, "Unable to retrieve a response from the gateway.", e), info).Build();
             }
         }
 

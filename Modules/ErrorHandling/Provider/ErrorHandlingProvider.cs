@@ -51,17 +51,22 @@ namespace GenHTTP.Modules.ErrorHandling.Provider
             }
             catch (ProviderException e)
             {
-                var model = new ErrorModel(request, this, e.Status, e.Status.ToString(), e.Message, e);
+                var model = new ErrorModel(request, this, e.Status, e.Message, e);
 
-                return this.Error(model)
+                var details = ContentInfo.Create()
+                                         .Title(e.Status.ToString());
+
+                return this.Error(model, details.Build())
                            .Build();
             }
             catch (Exception e)
             {
-                var model = new ErrorModel(request, this, ResponseStatus.InternalServerError,
-                                           "Internal Server Error", "The server failed to handle this request.", e);
+                var model = new ErrorModel(request, this, ResponseStatus.InternalServerError, "The server failed to handle this request.", e);
 
-                return this.Error(model)
+                var details = ContentInfo.Create()
+                                         .Title("Internal Server Error");
+
+                return this.Error(model, details.Build())
                            .Build();
             }
         }

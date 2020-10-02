@@ -13,14 +13,9 @@ namespace GenHTTP.Api.Content.Templating
         #region Get-/Setters
 
         /// <summary>
-        /// The title to be rendered within the template.
+        /// Additional information about the page to be rendered.
         /// </summary>
-        public string Title { get; }
-
-        /// <summary>
-        /// The description to be rendered within the template.
-        /// </summary>
-        public string? Description { get; }
+        public ContentInfo Meta { get; }
 
         /// <summary>
         /// The HTML content to be rendered within the template.
@@ -46,14 +41,18 @@ namespace GenHTTP.Api.Content.Templating
         /// </summary>
         /// <param name="request">The request which caused this call</param>
         /// <param name="handler">The handler responsible to render the response</param>
-        /// <param name="title">The title to be rendered within the template</param>
-        /// <param name="description">The description to be rendered within the template</param>
+        /// <param name="pageInfo">Information about the page to be rendered</param>
         /// <param name="content">The content to be rendered within the template</param>
-        public TemplateModel(IRequest request, IHandler handler, string title, string? description, string content)
+        public TemplateModel(IRequest request, IHandler handler, ContentInfo pageInfo, string content)
         {
-            Title = title;
-            Description = description;
             Content = content;
+
+            Meta = pageInfo;
+
+            if (string.IsNullOrEmpty(Meta.Title))
+            {
+                Meta.Title = "Untitled Page";
+            }
 
             Request = request;
             Handler = handler;
