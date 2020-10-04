@@ -1,6 +1,4 @@
-﻿using System;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Infrastructure;
 

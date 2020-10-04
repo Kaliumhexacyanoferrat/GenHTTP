@@ -88,9 +88,9 @@ namespace GenHTTP.Modules.Websites.Sites
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Handler.GetContent(request);
 
-        public TemplateModel Render(ErrorModel error, ContentInfo pageInfo)
+        public TemplateModel Render(ErrorModel error, ContentInfo details)
         {
-            return new TemplateModel(error.Request, this, pageInfo, Theme.ErrorHandler.Render(error));
+            return new TemplateModel(error.Request, this, details, Theme.ErrorHandler.Render(error));
         }
 
         public IResponseBuilder Render(TemplateModel model)

@@ -58,9 +58,9 @@ namespace GenHTTP.Engine.Infrastructure
             return Content.GetContent(request);
         }
 
-        public TemplateModel Render(ErrorModel error, ContentInfo pageInfo)
+        public TemplateModel Render(ErrorModel error, ContentInfo details)
         {
-            return new TemplateModel(error.Request, error.Handler, pageInfo, ErrorRenderer.Render(error));
+            return new TemplateModel(error.Request, error.Handler, details, ErrorRenderer.Render(error));
         }
 
         public IResponseBuilder Render(TemplateModel model)
