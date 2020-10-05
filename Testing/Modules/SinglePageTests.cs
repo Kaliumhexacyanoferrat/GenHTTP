@@ -4,6 +4,8 @@ using System.Net;
 using Xunit;
 
 using GenHTTP.Modules.SinglePageApplications;
+using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Sitemaps;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
@@ -67,6 +69,28 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var index = runner.GetResponse("/nope.txt");
 
             Assert.Equal(HttpStatusCode.NotFound, index.StatusCode);
+        }
+
+        [Fact]
+        public void TestContent()
+        {
+            var root = CreateRoot();
+
+            File.WriteAllText(Path.Combine(root, "index.html"), "Index");
+            File.WriteAllText(Path.Combine(root, "file.html"), "File");
+
+            var layout = Layout.Create()
+                               .Add("spa", SinglePageApplication.From(root))
+                               .Add("sitemap", Sitemap.Create());
+
+            using var runner = TestRunner.Run(layout);
+
+            using var response = runner.GetResponse("/sitemap");
+
+            var sitemap = response.GetSitemap();
+
+            Assert.Contains("/spa/index.html", sitemap);
+            Assert.Contains("/spa/file.html", sitemap);
         }
 
         private static string CreateRoot()
