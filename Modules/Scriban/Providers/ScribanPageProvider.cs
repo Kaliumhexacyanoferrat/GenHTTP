@@ -20,7 +20,7 @@ namespace GenHTTP.Modules.Scriban.Providers
 
         public ModelProvider<T> ModelProvider { get; }
 
-        public ScribanRenderer<T> Renderer { get; }
+        public IRenderer<T> Renderer { get; }
 
         public ContentInfo PageInfo { get; }
 
@@ -37,7 +37,7 @@ namespace GenHTTP.Modules.Scriban.Providers
 
             PageInfo = pageInfo;
 
-            Renderer = new ScribanRenderer<T>(TemplateProvider);
+            Renderer = ModScriban.Template<T>(templateProvider).Build();
         }
 
         #endregion

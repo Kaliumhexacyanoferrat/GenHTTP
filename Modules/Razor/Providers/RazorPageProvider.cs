@@ -20,7 +20,7 @@ namespace GenHTTP.Modules.Razor.Providers
 
         public ModelProvider<T> ModelProvider { get; }
 
-        public RazorRenderer<T> Renderer { get; }
+        public IRenderer<T> Renderer { get; }
 
         public ContentInfo PageInfo { get; }
 
@@ -36,7 +36,7 @@ namespace GenHTTP.Modules.Razor.Providers
             ModelProvider = modelProvider;
             PageInfo = pageInfo;
 
-            Renderer = new RazorRenderer<T>(TemplateProvider);
+            Renderer = ModRazor.Template<T>(templateProvider).Build();
         }
 
         #endregion

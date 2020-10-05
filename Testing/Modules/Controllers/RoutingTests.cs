@@ -52,6 +52,11 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
                 return Redirect.To("{index}/", true);
             }
 
+            public IHandlerBuilder DoSomethingWithParent()
+            {
+                return Redirect.To("{fallback}/test", true);
+            }
+
             public IHandlerBuilder DoSomethingWithAppenders()
             {
                 return Redirect.To("appenders/1/2/", true);
@@ -155,6 +160,16 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
         }
 
         [Fact]
+        public void TestRoutingToParent()
+        {
+            using var runner = Setup();
+
+            using var response = runner.GetResponse("/r/do-something-with-parent/");
+
+            Assert.Equal("/test", new Uri(response.Headers["Location"]).AbsolutePath);
+        }
+
+        [Fact]
         public void TestRoutingToAppender()
         {
             using var runner = Setup();
@@ -171,7 +186,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
         private TestRunner Setup()
         {
             var layout = Layout.Create()
-                               .AddController<RouteController>("r");
+                               .AddController<RouteController>("r")
+                               .Fallback(Content.From("Blubb"));
 
             return TestRunner.Run(layout);
         }

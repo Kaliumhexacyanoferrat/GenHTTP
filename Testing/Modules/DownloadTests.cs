@@ -1,4 +1,6 @@
 ﻿using System.IO;
+using System.Net;
+using System.Text;
 
 using Xunit;
 
@@ -53,6 +55,28 @@ namespace GenHTTP.Testing.Acceptance.Providers
                 Assert.Equal("This is text!", response.GetContent());
                 Assert.Equal("text/plain", response.GetResponseHeader("Content-Type"));
             }
+        }
+
+        [Fact]
+        public void DownloadsCannotBeModified()
+        {
+            var download = Download.FromResource("File.txt");
+
+            using var runner = TestRunner.Run(download);
+
+            var request = runner.GetRequest();
+
+            request.Method = "PUT";
+            request.ContentType = "text/plain";
+
+            using (var input = request.GetRequestStream())
+            {
+                input.Write(Encoding.UTF8.GetBytes("Hello World!"));
+            }
+
+            using var response = runner.GetResponse(request);
+
+            Assert.Equal(HttpStatusCode.MethodNotAllowed, response.StatusCode);
         }
 
     }

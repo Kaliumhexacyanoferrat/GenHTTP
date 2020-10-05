@@ -47,7 +47,7 @@ namespace GenHTTP.Modules.Razor.Providers
         {
             if (TemplateProvider.AllowCache)
             {
-                return _Template ?? (_Template = LoadTemplate());
+                return _Template ??= LoadTemplate();
             }
 
             return LoadTemplate();
@@ -58,7 +58,9 @@ namespace GenHTTP.Modules.Razor.Providers
             return _Engine.Compile<RazorEngineTemplateBase<T>>(TemplateProvider.GetResourceAsString(), (builder) =>
             {
                 builder.AddAssemblyReference(Assembly.GetCallingAssembly());
-                builder.AddAssemblyReference(Assembly.GetExecutingAssembly());
+
+                builder.AddAssemblyReferenceByName("GenHTTP.Api");
+                builder.AddAssemblyReferenceByName("GenHTTP.Modules.Razor");
 
                 builder.AddUsing("GenHTTP.Modules.Razor");
                 builder.AddUsing("GenHTTP.Modules.Razor.Providers");

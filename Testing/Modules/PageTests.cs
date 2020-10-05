@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
-
+using GenHTTP.Api.Routing;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Markdown;
@@ -28,11 +29,20 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
     }
 
+    public class PathModel : PageModel
+    {
+
+        public WebPath Path => new PathBuilder("/test/1").Build();
+
+        public PathModel(IRequest r, IHandler h) : base(r, h) { }
+
+    }
+
     #endregion
 
     public class PageTests
     {
-
+        
         [Fact]
         public void TestStringPage()
         {
@@ -160,6 +170,32 @@ namespace GenHTTP.Testing.Acceptance.Providers
                 var content = response.GetContent();
 
                 Assert.Contains("https://google.de|../res/123|../../other/456/|./relative", content);
+            }
+        }
+
+        [Fact]
+        public void TestRoutingToPath()
+        {
+            var providers = new List<IHandlerBuilder>()
+            {
+                ModScriban.Page(Data.FromString("{{ route path }}"), (IRequest r, IHandler h) => new PathModel(r, h)),
+                ModRazor.Page(Data.FromString("@Model.Route(Model.Path)"), (IRequest r, IHandler h) => new PathModel(r, h)),
+            };
+
+            foreach (var provider in providers)
+            {
+                var layout = Layout.Create()
+                                   .Add("page", provider)
+                                   .Add("test", Content.From("test"));
+                
+                using var runner = TestRunner.Run(layout);
+
+                using var response = runner.GetResponse("/page");
+
+                var content = response.GetContent();
+
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                Assert.Contains("/test/1", content);
             }
         }
 
