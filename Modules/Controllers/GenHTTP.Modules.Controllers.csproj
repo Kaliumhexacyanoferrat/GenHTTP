@@ -19,19 +19,20 @@
     <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
     <Description>Allows to use controllers to handle incoming requests.</Description>
+    <PackageTags>HTTP Webserver C# Module Authentication Authorization Security Basic</PackageTags>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
+    <PackageIcon>icon.png</PackageIcon>
+    
   </PropertyGroup>
 
   <ItemGroup>
 
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
+    <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\" />
 
   </ItemGroup>
 
