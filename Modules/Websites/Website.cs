@@ -1,6 +1,6 @@
 ﻿using GenHTTP.Modules.Websites.Sites;
 
-namespace GenHTTP.Modules.Core
+namespace GenHTTP.Modules.Websites
 {
 
     public static class Website

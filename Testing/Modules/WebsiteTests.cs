@@ -13,7 +13,6 @@ using GenHTTP.Modules.Websites;
 using GenHTTP.Modules.Websites.Sites;
 
 using Xunit;
-using GenHTTP.Modules.Core;
 using GenHTTP.Modules.Layouting.Provider;
 
 namespace GenHTTP.Testing.Acceptance.Providers
