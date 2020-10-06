@@ -11,15 +11,13 @@
     <projectUrl>https://genhttp.org/</projectUrl>
     
     <authors>Andreas Nägeli</authors>
-    <owners></owners>
+    <tags>HTTP Webserver Library C# Server Embeddable Embedded Host</tags>
     
     <icon>images\icon.png</icon>
     
     <license type="file">LICENSE</license>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    
-    <tags>HTTP Webserver Library C#</tags>
-    
+        
     <dependencies>
     
       <group>
