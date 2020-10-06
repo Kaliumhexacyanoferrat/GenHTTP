@@ -59,6 +59,8 @@ namespace GenHTTP.Modules.Razor.Providers
             {
                 builder.AddAssemblyReference(Assembly.GetCallingAssembly());
 
+                builder.AddAssemblyReferenceByName("System");
+
                 builder.AddAssemblyReferenceByName("GenHTTP.Api");
                 builder.AddAssemblyReferenceByName("GenHTTP.Modules.Razor");
 
