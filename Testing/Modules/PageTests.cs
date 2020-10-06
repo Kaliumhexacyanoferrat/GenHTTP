@@ -94,7 +94,11 @@ namespace GenHTTP.Testing.Acceptance.Providers
             {
                 var layout = Layout.Create().Add("page", provider);
 
-                using var runner = TestRunner.Run(layout);
+                using var runner = new TestRunner();
+
+                runner.Host.Development()
+                           .Handler(layout)
+                           .Start();
 
                 using var response = runner.GetResponse("/page");
 
