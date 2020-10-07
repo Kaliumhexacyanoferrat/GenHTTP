@@ -37,6 +37,11 @@ namespace GenHTTP.Modules.Conversion
                     else if (value == "0" || value == "off") return false;
                 }
 
+                if (actualType == typeof(Guid))
+                {
+                    return Guid.Parse(value);
+                }
+
                 return Convert.ChangeType(value, actualType, CultureInfo.InvariantCulture);
             }
             catch (Exception e)

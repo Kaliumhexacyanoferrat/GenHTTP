@@ -46,6 +46,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
             [ResourceMethod("primitive")]
             public int Primitive(int input) => input;
 
+            [ResourceMethod("guid")]
+            public Guid Guid(Guid id) => id;
+
             [ResourceMethod(RequestMethod.POST, "entity")]
             public TestEntity Entity(TestEntity entity) => entity;
 
@@ -127,6 +130,14 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         public void TestNullableNotSet()
         {
             WithResponse("nullable", r => Assert.Equal(HttpStatusCode.NoContent, r.StatusCode));
+        }
+
+        [Fact]
+        public void TestGuid()
+        {
+            var id = Guid.NewGuid().ToString();
+
+            WithResponse($"guid?id={id}", r => Assert.Equal(id, r.GetContent()));
         }
 
         [Fact]

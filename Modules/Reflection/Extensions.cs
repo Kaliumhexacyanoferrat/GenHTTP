@@ -14,7 +14,7 @@ namespace GenHTTP.Modules.Reflection
         /// <returns><c>true</c>, if the given parameter can be passed via the URL</returns>
         public static bool CheckSimple(this ParameterInfo info)
         {
-            return info.CheckNullable() || info.ParameterType.IsPrimitive || info.ParameterType == typeof(string) || info.ParameterType.IsEnum;
+            return info.CheckNullable() || info.ParameterType.IsPrimitive || info.ParameterType == typeof(string) || info.ParameterType.IsEnum || info.ParameterType == typeof(Guid);
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace GenHTTP.Modules.Reflection
         /// <returns>The newly created expression</returns>
         public static string ToParameter(this string name)
         {
-            return @$"(?<{name}>[a-z0-9]+)";
+            return @$"(?<{name}>[^/]+)";
         }
 
     }

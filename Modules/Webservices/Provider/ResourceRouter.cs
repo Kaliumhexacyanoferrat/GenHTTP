@@ -117,7 +117,7 @@ namespace GenHTTP.Modules.Webservices.Provider
             }
 
             // basic types should produce a string value
-            if (type.IsPrimitive || type == typeof(string) || type.IsEnum)
+            if (type.IsPrimitive || type == typeof(string) || type.IsEnum || type == typeof(Guid))
             {
                 return request.Respond().Content(result.ToString())
                                         .Type(ContentType.TextPlain)
