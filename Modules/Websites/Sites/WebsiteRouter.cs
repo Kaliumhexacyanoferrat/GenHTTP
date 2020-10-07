@@ -90,7 +90,7 @@ namespace GenHTTP.Modules.Websites.Sites
 
         public TemplateModel Render(ErrorModel error, ContentInfo details)
         {
-            return new TemplateModel(error.Request, this, details, Theme.ErrorHandler.Render(error));
+            return new TemplateModel(error.Request, error.Handler, details, Theme.ErrorHandler.Render(error));
         }
 
         public IResponseBuilder Render(TemplateModel model)
