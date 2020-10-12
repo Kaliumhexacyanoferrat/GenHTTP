@@ -4,8 +4,7 @@ GenHTTP is a lightweight web server written in pure C# with few dependencies to 
 
 As an example, the website of this project is hosted on a Raspberry Pi behind a GenHTTP-based [reverse proxy](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Gateway): [genhttp.org](https://genhttp.org/)
 
-![CI](https://github.com/Kaliumhexacyanoferrat/GenHTTP/workflows/Build/badge.svg) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GenHTTP&metric=coverage)](https://sonarcloud.io/dashboard?id=GenHTTP) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FKaliumhexacyanoferrat%2FGenHTTP.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FKaliumhexacyanoferrat%2FGenHTTP?ref=badge_shield)
- [![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Core.svg)](https://www.nuget.org/packages/GenHTTP.Core/) 
+![CI](https://github.com/Kaliumhexacyanoferrat/GenHTTP/workflows/Build/badge.svg) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GenHTTP&metric=coverage)](https://sonarcloud.io/dashboard?id=GenHTTP) [![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Core.svg)](https://www.nuget.org/packages/GenHTTP.Core/) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FKaliumhexacyanoferrat%2FGenHTTP.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FKaliumhexacyanoferrat%2FGenHTTP?ref=badge_shield)
 
 ## Getting Started
 
@@ -36,7 +35,3 @@ The web server was originally developed in 2008 to run on a netbook with an Inte
 ## Thanks
 
 - [.NET Core](https://github.com/dotnet/core) for a nice platform
-
-
-## License
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FKaliumhexacyanoferrat%2FGenHTTP.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FKaliumhexacyanoferrat%2FGenHTTP?ref=badge_large)
