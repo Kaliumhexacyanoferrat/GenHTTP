@@ -4,7 +4,7 @@ GenHTTP is a lightweight web server written in pure C# with few dependencies to 
 
 As an example, the website of this project is hosted on a Raspberry Pi behind a GenHTTP-based [reverse proxy](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Gateway): [genhttp.org](https://genhttp.org/)
 
-![CI](https://github.com/Kaliumhexacyanoferrat/GenHTTP/workflows/Build/badge.svg) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GenHTTP&metric=coverage)](https://sonarcloud.io/dashboard?id=GenHTTP) [![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Core.svg)](https://www.nuget.org/packages/GenHTTP.Core/) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FKaliumhexacyanoferrat%2FGenHTTP.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FKaliumhexacyanoferrat%2FGenHTTP?ref=badge_shield)
+![CI](https://github.com/Kaliumhexacyanoferrat/GenHTTP/workflows/Build/badge.svg) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FKaliumhexacyanoferrat%2FGenHTTP.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FKaliumhexacyanoferrat%2FGenHTTP?ref=badge_shield) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GenHTTP&metric=coverage)](https://sonarcloud.io/dashboard?id=GenHTTP) [![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Core.svg)](https://www.nuget.org/packages/GenHTTP.Core/)
 
 ## Getting Started
 
