@@ -26,11 +26,11 @@ This will build the playground project launcher for .NET Core with all the serve
 
 The web server was originally developed in 2008 to run on a netbook with an Intel Atom processor. Both IIS and Apache failed to render dynamic pages on such a slow CPU back then. The original project description can still be found on [archive.org](https://web.archive.org/web/20100706192130/http://gene.homeip.net/GenHTTPWebsite/). In 2019, the source code has been moved to GitHub with the goal to rework the project to be able to run dockerized web applications written in C#.
 
-## Related Projects
+## Links
 
-- [GenHTTP.Website](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Website)
-- [GenHTTP.Themes](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes)
-- [GenHTTP.Gateway](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Gateway)
+- Related to GenHTTP: [Themes](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes), [Website](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Website)
+- Related projects: [GenHTTP Gateway](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Gateway)
+- Similar projects: [EmbedIO](https://github.com/unosquare/embedio)
 
 ## Thanks
 
