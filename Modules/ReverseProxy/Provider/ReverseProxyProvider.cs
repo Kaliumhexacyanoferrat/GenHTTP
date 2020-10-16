@@ -128,7 +128,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
         private string GetRequestUri(IRequest request)
         {
-            return Upstream + request.Target.GetRemaining() + GetQueryString(request);
+            return Upstream + request.Target.GetRemaining().ToString(true) + GetQueryString(request);
         }
 
         private string GetQueryString(IRequest request)

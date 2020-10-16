@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace GenHTTP.Api.Routing
@@ -67,11 +69,15 @@ namespace GenHTTP.Api.Routing
         /// <returns>The newly created builder instance</returns>
         public PathBuilder Edit(bool trailingSlash) => new PathBuilder(Parts, trailingSlash);
 
-        public override string ToString()
+        public override string ToString() => ToString(false);
+
+        public string ToString(bool encoded)
         {
             if (!IsRoot)
             {
-                return "/" + string.Join('/', Parts) + ((TrailingSlash) ? "/" : "");
+                var parts = Parts.Select(p => (encoded) ? Uri.EscapeDataString(p) : p);
+
+                return "/" + string.Join('/', parts) + ((TrailingSlash) ? "/" : "");
             }
 
             return "/";
