@@ -18,6 +18,8 @@ namespace GenHTTP.Modules.Conversion.Providers.Json
 
         private JsonSerializerOptions Options { get; }
 
+        public ulong? Checksum => (ulong)Data.GetHashCode();
+
         #endregion
 
         #region Initialization

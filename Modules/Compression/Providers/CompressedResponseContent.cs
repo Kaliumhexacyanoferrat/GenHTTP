@@ -18,6 +18,8 @@ namespace GenHTTP.Modules.Compression.Providers
 
         private Func<Stream, Stream> Generator { get; }
 
+        public ulong? Checksum => OriginalContent.Checksum;
+
         #endregion
 
         #region Initialization

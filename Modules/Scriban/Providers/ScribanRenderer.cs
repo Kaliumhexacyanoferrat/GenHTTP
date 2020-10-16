@@ -2,6 +2,7 @@
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
+using GenHTTP.Modules.IO;
 
 using Scriban;
 using Scriban.Runtime;
@@ -15,7 +16,7 @@ namespace GenHTTP.Modules.Scriban.Providers
 
         #region Get-/Setters
 
-        public IResourceProvider TemplateProvider { get; }
+        public CachedResource TemplateProvider { get; }
 
         #endregion
 
@@ -23,7 +24,7 @@ namespace GenHTTP.Modules.Scriban.Providers
 
         public ScribanRenderer(IResourceProvider templateProvider)
         {
-            TemplateProvider = templateProvider;
+            TemplateProvider = new CachedResource(templateProvider);
         }
 
         #endregion
@@ -44,12 +45,12 @@ namespace GenHTTP.Modules.Scriban.Providers
 
         private Template GetTemplate()
         {
-            if (TemplateProvider.AllowCache)
+            if (TemplateProvider.Changed)
             {
-                return _Template ?? (_Template = LoadTemplate());
+                _Template = LoadTemplate();
             }
 
-            return LoadTemplate();
+            return _Template!;
         }
 
         private Template LoadTemplate()

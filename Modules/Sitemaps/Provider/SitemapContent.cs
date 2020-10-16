@@ -25,6 +25,24 @@ namespace GenHTTP.Modules.Sitemaps.Provider
 
         private IEnumerable<ContentElement> Elements { get; }
 
+        public ulong? Checksum
+        {
+            get
+            {
+                unchecked
+                {
+                    ulong hash = 17;
+
+                    foreach (var element in Elements)
+                    {
+                        hash = hash * 23 + (ulong)element.Path.ToString().GetHashCode();
+                    }
+
+                    return hash;
+                }
+            }
+        }
+
         #endregion
 
         #region Initialization

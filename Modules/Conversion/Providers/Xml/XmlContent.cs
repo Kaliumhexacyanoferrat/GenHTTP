@@ -16,6 +16,8 @@ namespace GenHTTP.Modules.Conversion.Providers.Xml
 
         private object Data { get; }
 
+        public ulong? Checksum => (ulong)Data.GetHashCode();
+
         #endregion
 
         #region Initialization

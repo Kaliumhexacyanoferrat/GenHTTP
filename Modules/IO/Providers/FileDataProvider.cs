@@ -12,21 +12,18 @@ namespace GenHTTP.Modules.IO.Providers
 
         public FileInfo File { get; }
 
-        public bool AllowCache { get; private set; }
-
         #endregion
 
         #region Initialization
 
-        public FileDataProvider(FileInfo file, bool allowCaching)
+        public FileDataProvider(FileInfo file)
         {
             if (!file.Exists)
             {
-                throw new FileNotFoundException("Template file does not exist", file.FullName);
+                throw new FileNotFoundException("File does not exist", file.FullName);
             }
 
             File = file;
-            AllowCache = allowCaching;
         }
 
         #endregion
@@ -36,6 +33,19 @@ namespace GenHTTP.Modules.IO.Providers
         public Stream GetResource()
         {
             return File.OpenRead();
+        }
+
+        public ulong GetChecksum()
+        {
+            unchecked
+            {
+                ulong hash = 17;
+
+                hash = hash * 23 + (ulong)File.LastWriteTimeUtc.GetHashCode();
+                hash = hash * 23 + (ulong)File.Length;
+
+                return hash;
+            }
         }
 
         #endregion

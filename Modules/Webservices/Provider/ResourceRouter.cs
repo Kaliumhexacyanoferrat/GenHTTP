@@ -110,8 +110,10 @@ namespace GenHTTP.Modules.Webservices.Provider
             // stream returned as a download
             if (result is Stream download)
             {
+                var checksum = download.CalculateChecksum();
+
                 return request.Respond()
-                              .Content(download)
+                              .Content(download, () => checksum)
                               .Type(ContentType.ApplicationForceDownload)
                               .Build();
             }

@@ -9,6 +9,7 @@ namespace GenHTTP.Modules.IO.Providers
 
     public class StreamContent : IResponseContent, IDisposable
     {
+        private readonly Func<ulong?> _ChecksumProvider;
 
         #region Get-/Setters
 
@@ -27,13 +28,16 @@ namespace GenHTTP.Modules.IO.Providers
             }
         }
 
+        public ulong? Checksum => _ChecksumProvider();
+
         #endregion
 
         #region Initialization
 
-        public StreamContent(Stream content)
+        public StreamContent(Stream content, Func<ulong?> checksumProvider)
         {
             Content = content;
+            _ChecksumProvider = checksumProvider;
         }
 
         #endregion

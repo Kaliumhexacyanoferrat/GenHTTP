@@ -10,14 +10,13 @@ namespace GenHTTP.Modules.IO.Providers
 
     public class ResourceDataProvider : IResourceProvider
     {
+        private readonly ulong _Checksum;
 
         #region Get-/Setters
 
         public Assembly Source { get; }
 
         public string QualifiedName { get; }
-
-        public bool AllowCache => true;
 
         #endregion
 
@@ -30,6 +29,10 @@ namespace GenHTTP.Modules.IO.Providers
 
             QualifiedName = fqn ?? throw new InvalidOperationException($"Resource '{name}' does not exist in assembly '{source}'");
             Source = source;
+
+            using var stream = GetResource();
+
+            _Checksum = stream.CalculateChecksum() ?? throw new InvalidOperationException("Unable to calculate checksum of assembly resource");
         }
 
         #endregion
@@ -40,6 +43,8 @@ namespace GenHTTP.Modules.IO.Providers
         {
             return Source.GetManifestResourceStream(QualifiedName);
         }
+
+        public ulong GetChecksum() => _Checksum;
 
         #endregion
 

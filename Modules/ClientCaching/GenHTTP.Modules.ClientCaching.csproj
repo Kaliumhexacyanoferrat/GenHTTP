@@ -18,8 +18,8 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
-    <Description>Best practices to configure a GenHTTP webserver instance for production</Description>
-    <PackageTags>HTTP Webserver C# Module Best Practices Configuration</PackageTags>
+    <Description>Allows to control client-side caching of content.</Description>
+    <PackageTags>HTTP Webserver C# Module Caching ETag Cache</PackageTags>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
@@ -40,10 +40,8 @@
     
     <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
     
-    <ProjectReference Include="..\Compression\GenHTTP.Modules.Compression.csproj" />
-    <ProjectReference Include="..\Security\GenHTTP.Modules.Security.csproj" />
-    <ProjectReference Include="..\ClientCaching\GenHTTP.Modules.ClientCaching.csproj" />
-
+    <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
+    
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
