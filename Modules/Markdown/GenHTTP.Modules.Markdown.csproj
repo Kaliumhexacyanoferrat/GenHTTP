@@ -41,7 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.DocAsCode.MarkdownLite" Version="2.56.2" />
+    <PackageReference Include="Microsoft.DocAsCode.MarkdownLite" Version="2.56.3" />
   </ItemGroup>
 
   <ItemGroup>
