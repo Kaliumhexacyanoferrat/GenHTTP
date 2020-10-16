@@ -10,7 +10,7 @@ namespace GenHTTP.Modules.IO.Providers
 
     public class ResourceDataProvider : IResourceProvider
     {
-        private ulong _Checksum;
+        private readonly ulong _Checksum;
 
         #region Get-/Setters
 

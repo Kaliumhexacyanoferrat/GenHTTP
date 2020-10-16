@@ -20,7 +20,7 @@ namespace GenHTTP.Modules.Practices
         /// <param name="compression">Whether responses sent by the server should automatically be compressed</param>
         /// <param name="secureUpgrade">Whether the server should automatically upgrade insecure requests</param>
         /// <param name="strictTransport">Whether the server should send a strict transport policy</param>
-        /// <param name="clientCaching">Whether the server should add ETags to the responses so the client and server save resources when they are requested again</param>
+        /// <param name="clientCaching">Validates the cached entries of the client by sending an ETag header and evaluating it when a request is processed (returning HTTP 304 if the content did not change)</param>
         public static IServerHost Defaults(this IServerHost host,
                                            bool compression = true,
                                            bool secureUpgrade = true,
