@@ -4,6 +4,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
+using GenHTTP.Modules.IO;
 
 using RazorEngineCore;
 
@@ -18,7 +19,7 @@ namespace GenHTTP.Modules.Razor.Providers
 
         #region Get-/Setters
 
-        public IResourceProvider TemplateProvider { get; }
+        public CachedResource TemplateProvider { get; }
 
         #endregion
 
@@ -26,7 +27,7 @@ namespace GenHTTP.Modules.Razor.Providers
 
         public RazorRenderer(IResourceProvider templateProvider)
         {
-            TemplateProvider = templateProvider;
+            TemplateProvider = new CachedResource(templateProvider);
         }
 
         #endregion
@@ -45,12 +46,12 @@ namespace GenHTTP.Modules.Razor.Providers
 
         private IRazorEngineCompiledTemplate<RazorEngineTemplateBase<T>> GetTemplate()
         {
-            if (TemplateProvider.AllowCache)
+            if (TemplateProvider.Changed)
             {
-                return _Template ??= LoadTemplate();
+                _Template = LoadTemplate();
             }
 
-            return LoadTemplate();
+            return _Template!;
         }
 
         private IRazorEngineCompiledTemplate<RazorEngineTemplateBase<T>> LoadTemplate()

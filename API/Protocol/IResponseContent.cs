@@ -28,6 +28,18 @@ namespace GenHTTP.Api.Protocol
         ulong? Length { get; }
 
         /// <summary>
+        /// A checksum of the content represented by this instance. 
+        /// </summary>
+        /// <remarks>
+        /// The checksum calculation should be as fast as possible but
+        /// still allow to reliably detect changes. For efficient processing,
+        /// this also means that the content should actually be expanded
+        /// when the Write call is invoked, not when the content instance
+        /// is constructed.
+        /// </remarks>
+        ulong? Checksum { get; }
+
+        /// <summary>
         /// Writes the content to the specified target stream.
         /// </summary>
         /// <param name="target">The stream to write the data to</param>

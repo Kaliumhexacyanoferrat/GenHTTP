@@ -85,6 +85,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Controllers
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Conversion", "Modules\Conversion\GenHTTP.Modules.Conversion.csproj", "{55328AAB-6956-4A60-87D8-2D526C4FC632}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.ClientCaching", "Modules\ClientCaching\GenHTTP.Modules.ClientCaching.csproj", "{3BDF19ED-5EAF-4AFA-84AE-8314A41BEAC6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -203,6 +205,10 @@ Global
 		{55328AAB-6956-4A60-87D8-2D526C4FC632}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55328AAB-6956-4A60-87D8-2D526C4FC632}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55328AAB-6956-4A60-87D8-2D526C4FC632}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BDF19ED-5EAF-4AFA-84AE-8314A41BEAC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BDF19ED-5EAF-4AFA-84AE-8314A41BEAC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BDF19ED-5EAF-4AFA-84AE-8314A41BEAC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BDF19ED-5EAF-4AFA-84AE-8314A41BEAC6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -238,9 +244,10 @@ Global
 		{D990E16A-91AC-4283-A3A3-24CD7408F835} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 		{44824207-8F3A-44AB-91C4-33AC342A0D36} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 		{55328AAB-6956-4A60-87D8-2D526C4FC632} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
+		{3BDF19ED-5EAF-4AFA-84AE-8314A41BEAC6} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
 		LessCompiler = 2603124e-1287-4d61-9540-6ac3efad4eb9
+		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
 	EndGlobalSection
 EndGlobal

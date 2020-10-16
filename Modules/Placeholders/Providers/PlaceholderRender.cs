@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -8,6 +7,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.Placeholders.Providers
 {
@@ -20,7 +20,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         #region Get-/Setters
 
-        public IResourceProvider TemplateProvider { get; }
+        public CachedResource TemplateProvider { get; }
 
         #endregion
 
@@ -28,7 +28,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         public PlaceholderRender(IResourceProvider templateProvider)
         {
-            TemplateProvider = templateProvider;
+            TemplateProvider = new CachedResource(templateProvider);
         }
 
         #endregion
@@ -50,17 +50,12 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         private string GetTemplate()
         {
-            if (TemplateProvider.AllowCache)
+            if (TemplateProvider.Changed)
             {
-                return _Template ?? (_Template = LoadTemplate());
+                _Template = TemplateProvider.GetResourceAsString();
             }
 
-            return LoadTemplate();
-        }
-
-        private string LoadTemplate()
-        {
-            return TemplateProvider.GetResourceAsString();
+            return _Template!;
         }
 
         private string? GetValue(string fullPath, IEnumerable<string> path, object model)

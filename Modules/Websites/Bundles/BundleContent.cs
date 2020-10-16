@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
+using GenHTTP.Modules.IO;
+
 namespace GenHTTP.Modules.Websites.Bundles
 {
 
@@ -17,6 +19,35 @@ namespace GenHTTP.Modules.Websites.Bundles
         public ulong? Length => null;
 
         private IEnumerable<IResourceProvider> Items { get; }
+
+        public ulong? Checksum
+        {
+            get
+            {
+                unchecked
+                {
+                    ulong hash = 17;
+
+                    foreach (var item in Items)
+                    {
+                        using var source = item.GetResource();
+
+                        var checksum = source.CalculateChecksum();
+
+                        if (checksum != null)
+                        {
+                            hash = hash * 23 + (ulong)checksum;
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+
+                    return hash;
+                }
+            }
+        }
 
         #endregion
 

@@ -190,7 +190,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
             if (HasBody(request, response))
             {
-                builder.Content(response.GetResponseStream())
+                builder.Content(response.GetResponseStream(), () => null)
                        .Type(response.ContentType);
             }
 

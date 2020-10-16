@@ -54,7 +54,7 @@ namespace GenHTTP.Modules.IO.Providers
             }
 
             return request.Respond()
-                          .Content(ResourceProvider.GetResource())
+                          .Content(ResourceProvider)
                           .Type(ContentType)
                           .Build();
         }

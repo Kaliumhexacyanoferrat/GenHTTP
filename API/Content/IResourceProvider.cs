@@ -17,14 +17,10 @@ namespace GenHTTP.Api.Content
     {
 
         /// <summary>
-        /// Specifies, whether a consumer of this resource is allowed to 
-        /// cache content derived from the resource. 
+        /// Calculates the checksum of the resource.
         /// </summary>
-        /// <remarks>
-        /// For content which may change externally (e.g. files), this property
-        /// should return <code>false</code>.
-        /// </remarks>
-        bool AllowCache { get; }
+        /// <returns>The checksum of the resource</returns>
+        ulong GetChecksum();
 
         /// <summary>
         /// Returns the read-only stream of the resource to be accessed.

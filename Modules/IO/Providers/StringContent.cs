@@ -16,6 +16,24 @@ namespace GenHTTP.Modules.IO.Providers
 
         private byte[] Buffer { get; }
 
+        public ulong? Checksum
+        {
+            get
+            {
+                unchecked
+                {
+                    ulong hash = 17;
+
+                    for (int i = 0; i < Buffer.Length; i++)
+                    {
+                        hash = hash * 23 + Buffer[i];
+                    }
+
+                    return hash;
+                }
+            }
+        }
+
         #endregion
 
         #region Initialization

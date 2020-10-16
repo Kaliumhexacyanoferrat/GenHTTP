@@ -13,8 +13,6 @@ namespace GenHTTP.Modules.IO.Providers
 
         public string Content { get; }
 
-        public bool AllowCache => true;
-
         #endregion
 
         #region Initialization
@@ -32,6 +30,8 @@ namespace GenHTTP.Modules.IO.Providers
         {
             return new MemoryStream(Encoding.UTF8.GetBytes(Content));
         }
+
+        public ulong GetChecksum() => (ulong)Content.GetHashCode();
 
         #endregion
 

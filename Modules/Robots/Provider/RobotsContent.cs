@@ -19,6 +19,37 @@ namespace GenHTTP.Modules.Robots.Provider
 
         private string? Sitemap { get; }
 
+        public ulong? Checksum
+        {
+            get
+            {
+                unchecked
+                {
+                    ulong hash = 17;
+
+                    foreach (var directive in Directives)
+                    {
+                        foreach (var allowed in directive.Allowed)
+                        {
+                            hash = hash * 23 + (ulong)allowed.GetHashCode();
+                        }
+
+                        foreach (var disallowed in directive.Disallowed)
+                        {
+                            hash = hash * 23 + (ulong)disallowed.GetHashCode();
+                        }
+
+                        foreach (var agent in directive.UserAgents)
+                        {
+                            hash = hash * 23 + (ulong)agent.GetHashCode();
+                        }
+                    }
+
+                    return hash;
+                }
+            }
+        }
+
         #endregion
 
         #region Initialization
