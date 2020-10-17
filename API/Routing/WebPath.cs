@@ -70,6 +70,11 @@ namespace GenHTTP.Api.Routing
 
         public override string ToString() => ToString(false);
 
+        /// <summary>
+        /// Generates the string representation of this path.
+        /// </summary>
+        /// <param name="encoded">Specifies, whether special characters in the path should be percent encoded</param>
+        /// <returns>The string representation of the path</returns>
         public string ToString(bool encoded)
         {
             if (!IsRoot)

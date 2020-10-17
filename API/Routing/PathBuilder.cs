@@ -17,24 +17,42 @@ namespace GenHTTP.Api.Routing
 
         #region Get-/Setters
 
+        /// <summary>
+        /// True, if no segments have (yet) been added to
+        /// this path.
+        /// </summary>
         public bool IsEmpty => _Segments.Count == 0;
 
         #endregion
 
         #region Initialization
 
+        /// <summary>
+        /// Creates a new, empty path builder.
+        /// </summary>
+        /// <param name="trailingSlash">Whether the resulting path should end with a slash</param>
         public PathBuilder(bool trailingSlash)
         {
             _Segments = new List<string>();
             _TrailingSlash = trailingSlash;
         }
 
+        /// <summary>
+        /// Creates a new path builder with the given segments.
+        /// </summary>
+        /// <param name="parts">The segments of the path</param>
+        /// <param name="trailingSlash">Whether the resulting path should end with a slash</param>
         public PathBuilder(IEnumerable<string> parts, bool trailingSlash)
         {
             _Segments = new List<string>(parts);
             _TrailingSlash = trailingSlash;
         }
 
+        /// <summary>
+        /// Creates a new path builder from the given absolute
+        /// or relative path.
+        /// </summary>
+        /// <param name="path">The path to be parsed</param>
         public PathBuilder(string path)
         {
             _Segments = new List<string>(path.Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries));
