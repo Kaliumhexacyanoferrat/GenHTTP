@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO.Providers;
@@ -15,7 +15,7 @@ namespace GenHTTP.Modules.IO
         /// Sends the given resource to the client.
         /// </summary>
         /// <param name="resource">The resource to be sent</param>
-        public static IResponseBuilder Content(this IResponseBuilder builder, IResourceProvider resource) => builder.Content(resource.GetResource(), () => resource.GetChecksum());
+        public static IResponseBuilder Content(this IResponseBuilder builder, IResource resource) => builder.Content(resource.GetContent(), () => resource.GetChecksum());
 
         /// <summary>
         /// Sends the given stream to the client.

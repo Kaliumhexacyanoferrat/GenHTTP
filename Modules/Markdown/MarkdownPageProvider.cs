@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
@@ -25,7 +26,7 @@ namespace GenHTTP.Modules.Markdown
 
         #region Initialization
 
-        public MarkdownPageProvider(IHandler parent, IResourceProvider fileProvider, ContentInfo pageInfo)
+        public MarkdownPageProvider(IHandler parent, IResource fileProvider, ContentInfo pageInfo)
         {
             Parent = parent;
 

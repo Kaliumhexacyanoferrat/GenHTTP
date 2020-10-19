@@ -1,12 +1,11 @@
 ﻿using System.IO;
 using System.Text;
-
-using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 
 namespace GenHTTP.Modules.IO.Providers
 {
 
-    public class StringDataProvider : IResourceProvider
+    public class StringDataProvider : IResource
     {
 
         #region Get-/Setters
@@ -26,7 +25,7 @@ namespace GenHTTP.Modules.IO.Providers
 
         #region Functionality
 
-        public Stream GetResource()
+        public Stream GetContent()
         {
             return OptimizedStream.From(Encoding.UTF8.GetBytes(Content));
         }

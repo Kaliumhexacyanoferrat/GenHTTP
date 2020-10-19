@@ -2,8 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-
-using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
@@ -26,7 +25,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         #region Initialization
 
-        public PlaceholderRender(IResourceProvider templateProvider)
+        public PlaceholderRender(IResource templateProvider)
         {
             TemplateProvider = new CachedResource(templateProvider);
         }

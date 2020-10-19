@@ -2,6 +2,7 @@
 using System.Linq;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Websites;
 
 namespace GenHTTP.Modules.Websites.Resources
@@ -17,7 +18,7 @@ namespace GenHTTP.Modules.Websites.Resources
 
         #region Functionality
 
-        public ScriptRouterBuilder Add(string name, IResourceProvider provider, bool asynchronous = false)
+        public ScriptRouterBuilder Add(string name, IResource provider, bool asynchronous = false)
         {
             _Scripts.Add(new Script(name, asynchronous, provider));
             return this;

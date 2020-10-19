@@ -2,11 +2,11 @@
 using System.Reflection;
 
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO.Providers;
+using GenHTTP.Api.Content.IO;
 
 namespace GenHTTP.Modules.IO
 {
@@ -21,7 +21,7 @@ namespace GenHTTP.Modules.IO
 
         public static DownloadProviderBuilder FromFile(FileInfo file)
         {
-            return From(Data.FromFile(file).Build()).Type(file.FullName.GuessContentType() ?? ContentType.ApplicationForceDownload);
+            return From(Resource.FromFile(file).Build()).Type(file.FullName.GuessContentType() ?? ContentType.ApplicationForceDownload);
         }
 
         public static DownloadProviderBuilder FromResource(string name)
@@ -31,15 +31,15 @@ namespace GenHTTP.Modules.IO
 
         public static DownloadProviderBuilder FromResource(Assembly source, string name)
         {
-            return From(Data.FromResource(source, name).Build()).Type(name.GuessContentType() ?? ContentType.ApplicationForceDownload);
+            return From(Resource.FromAssembly(source, name).Build()).Type(name.GuessContentType() ?? ContentType.ApplicationForceDownload);
         }
 
-        public static DownloadProviderBuilder From(IBuilder<IResourceProvider> resource)
+        public static DownloadProviderBuilder From(IBuilder<IResource> resource)
         {
             return From(resource.Build());
         }
 
-        public static DownloadProviderBuilder From(IResourceProvider resource)
+        public static DownloadProviderBuilder From(IResource resource)
         {
             return new DownloadProviderBuilder().Resource(resource)
                                                 .Type(ContentType.ApplicationForceDownload);

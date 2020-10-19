@@ -6,17 +6,19 @@ using GenHTTP.Modules.IO.Providers;
 namespace GenHTTP.Modules.IO
 {
 
-    public static class Data
+    public static class Resource
     {
 
-        public static ResourceDataProviderBuilder FromResource(string name)
+        public static ResourceDataProviderBuilder FromAssembly(string name)
         {
-            return new ResourceDataProviderBuilder().Name(name).Assembly(Assembly.GetCallingAssembly());
+            return new ResourceDataProviderBuilder().Name(name)
+                                                    .Assembly(Assembly.GetCallingAssembly());
         }
 
-        public static ResourceDataProviderBuilder FromResource(Assembly assembly, string name)
+        public static ResourceDataProviderBuilder FromAssembly(Assembly assembly, string name)
         {
-            return new ResourceDataProviderBuilder().Assembly(assembly).Name(name);
+            return new ResourceDataProviderBuilder().Assembly(assembly)
+                                                    .Name(name);
         }
 
         public static FileDataProviderBuilder FromFile(string file)

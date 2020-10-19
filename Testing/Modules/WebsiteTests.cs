@@ -28,19 +28,19 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             public List<Script> Scripts
             {
-                get { return new List<Script> { new Script("custom.js", true, Data.FromString(" ").Build()) }; }
+                get { return new List<Script> { new Script("custom.js", true, Resource.FromString(" ").Build()) }; }
             }
 
             public List<Style> Styles
             {
-                get { return new List<Style> { new Style("custom.css", Data.FromString(" ").Build()) }; }
+                get { return new List<Style> { new Style("custom.css", Resource.FromString(" ").Build()) }; }
             }
 
             public IHandlerBuilder? Resources => Layout.Create().Add("some.txt", Content.From("Text"));
 
-            public IRenderer<ErrorModel> ErrorHandler => ModScriban.Template<ErrorModel>(Data.FromResource("Error.html")).Build();
+            public IRenderer<ErrorModel> ErrorHandler => ModScriban.Template<ErrorModel>(Resource.FromAssembly("Error.html")).Build();
 
-            public IRenderer<WebsiteModel> Renderer => ModScriban.Template<WebsiteModel>(Data.FromResource("Template.html")).Build();
+            public IRenderer<WebsiteModel> Renderer => ModScriban.Template<WebsiteModel>(Resource.FromAssembly("Template.html")).Build();
 
             public object? GetModel(IRequest request, IHandler handler)
             {
@@ -105,8 +105,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestCustomContent()
         {
-            var website = GetWebsite().AddScript("my.js", Data.FromString("my"))
-                                      .AddStyle("my.css", Data.FromString("my"));
+            var website = GetWebsite().AddScript("my.js", Resource.FromString("my"))
+                                      .AddStyle("my.css", Resource.FromString("my"));
 
             using var runner = TestRunner.Run(website);
 
@@ -220,7 +220,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
                              else = {{ route 'something/else/' }}";
 
             var sub = Layout.Create()
-                            .Index(ModScriban.Page(Data.FromString(template)));
+                            .Index(ModScriban.Page(Resource.FromString(template)));
 
             var content = Layout.Create()
                                 .Add("sub", sub);
@@ -248,7 +248,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             return Website.Create()
                           .Theme(new Theme())
                           .Content(content ?? Layout.Create())
-                          .Favicon(Data.FromString("This is a favicon"));
+                          .Favicon(Resource.FromString("This is a favicon"));
         }
 
     }

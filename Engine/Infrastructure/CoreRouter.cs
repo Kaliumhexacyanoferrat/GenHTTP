@@ -37,10 +37,10 @@ namespace GenHTTP.Engine.Infrastructure
         {
             Content = Concerns.Chain(this, concerns, (p) => content.Build(p));
 
-            Template = Placeholders.Template<TemplateModel>(Data.FromResource("Template.html"))
+            Template = Placeholders.Template<TemplateModel>(Resource.FromAssembly("Template.html"))
                                    .Build();
 
-            ErrorRenderer = Placeholders.Template<ErrorModel>(Data.FromResource(development ? "ErrorStacked.html" : "Error.html"))
+            ErrorRenderer = Placeholders.Template<ErrorModel>(Resource.FromAssembly(development ? "ErrorStacked.html" : "Error.html"))
                                         .Build();
         }
 

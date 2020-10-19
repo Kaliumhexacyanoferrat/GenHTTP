@@ -3,13 +3,14 @@
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
+using GenHTTP.Api.Content.IO;
 
 namespace GenHTTP.Modules.Razor.Providers
 {
 
     public class RazorPageProviderBuilder<T> : IHandlerBuilder<RazorPageProviderBuilder<T>>, IContentInfoBuilder<RazorPageProviderBuilder<T>> where T : PageModel
     {
-        protected IResourceProvider? _TemplateProvider;
+        protected IResource? _TemplateProvider;
 
         protected ModelProvider<T>? _ModelProvider;
 
@@ -19,7 +20,7 @@ namespace GenHTTP.Modules.Razor.Providers
 
         #region Functionality
 
-        public RazorPageProviderBuilder<T> Template(IResourceProvider templateProvider)
+        public RazorPageProviderBuilder<T> Template(IResource templateProvider)
         {
             _TemplateProvider = templateProvider;
             return this;

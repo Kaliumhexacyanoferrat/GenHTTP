@@ -1,4 +1,4 @@
-﻿using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
@@ -23,7 +23,7 @@ namespace GenHTTP.Modules.Markdown
 
         #region Initialization
 
-        public MarkdownRenderer(IResourceProvider fileProvider)
+        public MarkdownRenderer(IResource fileProvider)
         {
             File = new CachedResource(fileProvider);
         }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
@@ -16,7 +17,7 @@ namespace GenHTTP.Modules.IO.Providers
 
         public IHandler Parent { get; }
 
-        public IResourceProvider ResourceProvider { get; }
+        public IResource ResourceProvider { get; }
 
         private FlexibleContentType ContentType { get; }
 
@@ -34,7 +35,7 @@ namespace GenHTTP.Modules.IO.Providers
 
         #region Initialization
 
-        public DownloadProvider(IHandler parent, IResourceProvider resourceProvider, FlexibleContentType contentType)
+        public DownloadProvider(IHandler parent, IResource resourceProvider, FlexibleContentType contentType)
         {
             Parent = parent;
 

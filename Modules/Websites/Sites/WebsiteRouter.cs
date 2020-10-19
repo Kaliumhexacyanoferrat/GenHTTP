@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
@@ -40,7 +41,7 @@ namespace GenHTTP.Modules.Websites.Sites
                              IEnumerable<IConcernBuilder> concerns,
                              IHandlerBuilder scripts,
                              IHandlerBuilder styles,
-                             IResourceProvider? favicon,
+                             IResource? favicon,
                              IMenuProvider? menu,
                              ITheme theme)
         {

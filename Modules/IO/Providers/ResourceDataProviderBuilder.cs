@@ -1,12 +1,12 @@
 ﻿using System.Reflection;
 
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 
 namespace GenHTTP.Modules.IO.Providers
 {
 
-    public class ResourceDataProviderBuilder : IBuilder<IResourceProvider>
+    public class ResourceDataProviderBuilder : IBuilder<IResource>
     {
         private Assembly? _Assembly;
         private string? _Name;
@@ -25,7 +25,7 @@ namespace GenHTTP.Modules.IO.Providers
             return this;
         }
 
-        public IResourceProvider Build()
+        public IResource Build()
         {
             if (_Name == null)
             {

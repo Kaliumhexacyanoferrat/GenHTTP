@@ -1,6 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
-namespace GenHTTP.Api.Content
+using GenHTTP.Api.Protocol;
+
+namespace GenHTTP.Api.Content.IO
 {
 
     /// <summary>
@@ -13,8 +16,14 @@ namespace GenHTTP.Api.Content
     /// is provided as a resource), content providers must not
     /// cache the results of a method call.
     /// </remarks>
-    public interface IResourceProvider
+    public interface IResource
     {
+
+        string? Name { get; }
+
+        DateTime? Modified { get; }
+
+        FlexibleContentType? ContentType { get; }
 
         /// <summary>
         /// Calculates the checksum of the resource.
@@ -26,7 +35,7 @@ namespace GenHTTP.Api.Content
         /// Returns the read-only stream of the resource to be accessed.
         /// </summary>
         /// <returns>The resource to be accessed</returns>
-        Stream GetResource();
+        Stream GetContent();
 
     }
 

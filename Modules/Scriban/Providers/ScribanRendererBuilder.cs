@@ -1,4 +1,4 @@
-﻿using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Infrastructure;
 
@@ -7,11 +7,11 @@ namespace GenHTTP.Modules.Scriban.Providers
 
     public class ScribanRendererBuilder<T> : IBuilder<IRenderer<T>> where T : class, IBaseModel
     {
-        protected IResourceProvider? _TemplateProvider;
+        protected IResource? _TemplateProvider;
 
         #region Functionality
 
-        public ScribanRendererBuilder<T> TemplateProvider(IResourceProvider templateProvider)
+        public ScribanRendererBuilder<T> TemplateProvider(IResource templateProvider)
         {
             _TemplateProvider = templateProvider;
             return this;

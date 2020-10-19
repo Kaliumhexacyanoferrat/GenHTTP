@@ -2,6 +2,7 @@
 using System.Linq;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Websites.Bundles
@@ -16,13 +17,13 @@ namespace GenHTTP.Modules.Websites.Bundles
 
         public FlexibleContentType ContentType { get; }
 
-        private IEnumerable<IResourceProvider> Items { get; }
+        private IEnumerable<IResource> Items { get; }
 
         #endregion
 
         #region Initialization
 
-        public BundleProvider(IHandler parent, IEnumerable<IResourceProvider> items, FlexibleContentType contentType)
+        public BundleProvider(IHandler parent, IEnumerable<IResource> items, FlexibleContentType contentType)
         {
             Parent = parent;
 

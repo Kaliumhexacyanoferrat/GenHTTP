@@ -2,13 +2,12 @@
 using System.Reflection;
 using System.Linq;
 using System.IO;
-
-using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 
 namespace GenHTTP.Modules.IO.Providers
 {
 
-    public class ResourceDataProvider : IResourceProvider
+    public class ResourceDataProvider : IResource
     {
         private readonly ulong _Checksum;
 
@@ -30,7 +29,7 @@ namespace GenHTTP.Modules.IO.Providers
             QualifiedName = fqn ?? throw new InvalidOperationException($"Resource '{name}' does not exist in assembly '{source}'");
             Source = source;
 
-            using var stream = GetResource();
+            using var stream = GetContent();
 
             _Checksum = stream.CalculateChecksum() ?? throw new InvalidOperationException("Unable to calculate checksum of assembly resource");
         }
@@ -39,7 +38,7 @@ namespace GenHTTP.Modules.IO.Providers
 
         #region Functionality
 
-        public Stream GetResource()
+        public Stream GetContent()
         {
             return Source.GetManifestResourceStream(QualifiedName);
         }

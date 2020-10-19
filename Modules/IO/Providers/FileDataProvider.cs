@@ -1,11 +1,10 @@
 ﻿using System.IO;
-
-using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 
 namespace GenHTTP.Modules.IO.Providers
 {
 
-    public class FileDataProvider : IResourceProvider
+    public class FileDataProvider : IResource
     {
 
         #region Get-/Setters
@@ -30,7 +29,7 @@ namespace GenHTTP.Modules.IO.Providers
 
         #region Functionality
 
-        public Stream GetResource()
+        public Stream GetContent()
         {
             return File.OpenRead();
         }

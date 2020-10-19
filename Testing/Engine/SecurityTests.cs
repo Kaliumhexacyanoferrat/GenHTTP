@@ -192,7 +192,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
         private static X509Certificate2 GetCertificate()
         {
-            using (var stream = Data.FromResource("Certificate.pfx").Build().GetResource())
+            using (var stream = Resource.FromAssembly("Certificate.pfx").Build().GetContent())
             {
                 using (var mem = new MemoryStream())
                 {

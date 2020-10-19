@@ -32,6 +32,11 @@ namespace GenHTTP.Api.Routing
         /// </summary>
         public bool Ended => (_Index >= Path.Parts.Count);
 
+        /// <summary>
+        /// Specifies, whether the last part of the path has been reached.
+        /// </summary>
+        public bool Last => (_Index == Path.Parts.Count - 1);
+
         #endregion
 
         #region Initialization

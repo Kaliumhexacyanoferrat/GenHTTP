@@ -3,20 +3,21 @@
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Content.IO;
 
 namespace GenHTTP.Modules.IO.Providers
 {
 
     public class DownloadProviderBuilder : IHandlerBuilder<DownloadProviderBuilder>
     {
-        private IResourceProvider? _ResourceProvider;
+        private IResource? _ResourceProvider;
         private ContentType? _ContentType;
 
         private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 
-        public DownloadProviderBuilder Resource(IResourceProvider resource)
+        public DownloadProviderBuilder Resource(IResource resource)
         {
             _ResourceProvider = resource;
             return this;

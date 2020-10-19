@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
-
-using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
@@ -25,7 +24,7 @@ namespace GenHTTP.Modules.Razor.Providers
 
         #region Initialization
 
-        public RazorRenderer(IResourceProvider templateProvider)
+        public RazorRenderer(IResource templateProvider)
         {
             TemplateProvider = new CachedResource(templateProvider);
         }

@@ -1,17 +1,17 @@
 ﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
+using GenHTTP.Api.Content.IO;
 
 namespace GenHTTP.Modules.Razor.Providers
 {
 
     public class RazorRendererBuilder<T> : IBuilder<IRenderer<T>> where T : class, IBaseModel
     {
-        protected IResourceProvider? _TemplateProvider;
+        protected IResource? _TemplateProvider;
 
         #region Functionality
 
-        public RazorRendererBuilder<T> TemplateProvider(IResourceProvider templateProvider)
+        public RazorRendererBuilder<T> TemplateProvider(IResource templateProvider)
         {
             _TemplateProvider = templateProvider;
             return this;

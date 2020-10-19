@@ -1,10 +1,10 @@
 ﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 
 namespace GenHTTP.Modules.IO.Providers
 {
 
-    public class StringDataProviderBuilder : IBuilder<IResourceProvider>
+    public class StringDataProviderBuilder : IBuilder<IResource>
     {
         private string? _Content;
 
@@ -16,7 +16,7 @@ namespace GenHTTP.Modules.IO.Providers
             return this;
         }
 
-        public IResourceProvider Build()
+        public IResource Build()
         {
             if (_Content == null)
             {

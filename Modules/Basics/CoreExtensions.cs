@@ -1,4 +1,4 @@
-﻿using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 using System;
@@ -136,9 +136,9 @@ namespace GenHTTP.Modules.Basics
 
         #region Resource provider
 
-        public static string GetResourceAsString(this IResourceProvider resourceProvider)
+        public static string GetResourceAsString(this IResource resourceProvider)
         {
-            using var stream = resourceProvider.GetResource();
+            using var stream = resourceProvider.GetContent();
 
             return new StreamReader(stream).ReadToEnd();
         }

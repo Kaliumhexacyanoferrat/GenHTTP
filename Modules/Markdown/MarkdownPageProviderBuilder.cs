@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Infrastructure;
 
@@ -9,7 +10,7 @@ namespace GenHTTP.Modules.Markdown
 
     public class MarkdownPageProviderBuilder<T> : IHandlerBuilder<MarkdownPageProviderBuilder<T>>, IContentInfoBuilder<MarkdownPageProviderBuilder<T>> where T : PageModel
     {
-        private IResourceProvider? _FileProvider;
+        private IResource? _FileProvider;
 
         private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
@@ -17,7 +18,7 @@ namespace GenHTTP.Modules.Markdown
 
         #region Functionality
 
-        public MarkdownPageProviderBuilder<T> File(IResourceProvider fileProvider)
+        public MarkdownPageProviderBuilder<T> File(IResource fileProvider)
         {
             _FileProvider = fileProvider;
             return this;

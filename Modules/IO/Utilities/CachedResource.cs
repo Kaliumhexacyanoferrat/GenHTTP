@@ -1,17 +1,16 @@
 ﻿using System.IO;
-
-using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 
 namespace GenHTTP.Modules.IO
 {
 
-    public class CachedResource : IResourceProvider
+    public class CachedResource : IResource
     {
         private ulong? _LastChecksum;
 
         #region Get-/Setters
 
-        protected IResourceProvider Source { get; }
+        protected IResource Source { get; }
 
         public bool Changed => GetChecksum() != _LastChecksum;
 
@@ -19,7 +18,7 @@ namespace GenHTTP.Modules.IO
 
         #region Initialization
 
-        public CachedResource(IResourceProvider source)
+        public CachedResource(IResource source)
         {
             Source = source;
         }
@@ -30,11 +29,11 @@ namespace GenHTTP.Modules.IO
 
         public ulong GetChecksum() => Source.GetChecksum();
 
-        public Stream GetResource()
+        public Stream GetContent()
         {
             _LastChecksum = GetChecksum();
 
-            return Source.GetResource();
+            return Source.GetContent();
         }
 
         #endregion

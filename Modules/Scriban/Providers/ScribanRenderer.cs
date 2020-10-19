@@ -1,4 +1,4 @@
-﻿using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
@@ -22,7 +22,7 @@ namespace GenHTTP.Modules.Scriban.Providers
 
         #region Initialization
 
-        public ScribanRenderer(IResourceProvider templateProvider)
+        public ScribanRenderer(IResource templateProvider)
         {
             TemplateProvider = new CachedResource(templateProvider);
         }

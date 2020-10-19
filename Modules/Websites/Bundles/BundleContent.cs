@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-
-using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO;
@@ -18,7 +17,7 @@ namespace GenHTTP.Modules.Websites.Bundles
 
         public ulong? Length => null;
 
-        private IEnumerable<IResourceProvider> Items { get; }
+        private IEnumerable<IResource> Items { get; }
 
         public ulong? Checksum
         {
@@ -30,7 +29,7 @@ namespace GenHTTP.Modules.Websites.Bundles
 
                     foreach (var item in Items)
                     {
-                        using var source = item.GetResource();
+                        using var source = item.GetContent();
 
                         var checksum = source.CalculateChecksum();
 
@@ -53,7 +52,7 @@ namespace GenHTTP.Modules.Websites.Bundles
 
         #region Initialization
 
-        public BundleContent(IEnumerable<IResourceProvider> items)
+        public BundleContent(IEnumerable<IResource> items)
         {
             Items = items;
         }
@@ -66,7 +65,7 @@ namespace GenHTTP.Modules.Websites.Bundles
         {
             foreach (var item in Items)
             {
-                using var source = item.GetResource();
+                using var source = item.GetContent();
                 await source.CopyToAsync(target, (int)bufferSize);
 
                 await target.WriteAsync(_NewLine, 0, 1);
