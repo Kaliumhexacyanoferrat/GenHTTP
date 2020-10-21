@@ -65,7 +65,12 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestMarkdownPage()
         {
-            var page = ModMarkdown.Page(Data.FromString("# Hello World!"))
+            var md = @"# Hello World!
+```csharp
+// code
+```";
+
+            var page = ModMarkdown.Page(Data.FromString(md))
                                   .Title("Markdown Page")
                                   .Description("A page rendered with markdown");
 
@@ -76,6 +81,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var content = response.GetContent();
 
             Assert.Contains("<h1 id=\"hello-world\">Hello World!</h1>", content);
+
+            Assert.Contains("<pre><code class=\"language-csharp\">// code", content);
         }
 
         [Fact]

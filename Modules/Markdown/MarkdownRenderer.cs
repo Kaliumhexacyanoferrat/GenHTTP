@@ -4,14 +4,14 @@ using GenHTTP.Api.Content.Templating;
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO;
 
-using Microsoft.DocAsCode.MarkdownLite;
+using Markdig;
 
 namespace GenHTTP.Modules.Markdown
 {
 
     public class MarkdownRenderer<T> : IRenderer<T> where T : class, IBaseModel
     {
-        private static readonly IMarkdownEngine _Engine = new GfmEngineBuilder(new Options()).CreateEngine(new HtmlRenderer());
+        private static readonly MarkdownPipeline PIPELINE = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
 
         private string? _Markdown;
 
@@ -32,7 +32,7 @@ namespace GenHTTP.Modules.Markdown
 
         #region Functionality
 
-        public string Render(T? model) => _Engine.Markup(LoadFile());
+        public string Render(T? model) => Markdig.Markdown.ToHtml(LoadFile(), PIPELINE);
 
         private string LoadFile()
         {
