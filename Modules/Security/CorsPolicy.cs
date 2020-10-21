@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-
-using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Security.Cors;
+﻿using GenHTTP.Modules.Security.Cors;
 
 namespace GenHTTP.Modules.Security
 {

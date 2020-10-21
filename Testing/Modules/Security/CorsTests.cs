@@ -48,6 +48,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.Security
             Assert.Equal("true", response.GetResponseHeader("Access-Control-Allow-Credentials"));
 
             Assert.Equal("86400", response.GetResponseHeader("Access-Control-Max-Age"));
+
+            Assert.Equal("Hello World", response.GetContent());
         }
 
         [Fact]
@@ -74,7 +76,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Security
         public void TestCustom()
         {
             var policy = CorsPolicy.Restrictive()
-                                   .Add("http://google.de", new List<FlexibleRequestMethod>() { new FlexibleRequestMethod(RequestMethod.GET) }, null, null, false);
+                                   .Add("http://google.de", new List<FlexibleRequestMethod>() { new FlexibleRequestMethod(RequestMethod.GET) }, null, new List<string>() { "Accept" }, false);
 
             using var runner = GetRunner(policy);
 
@@ -89,6 +91,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.Security
             Assert.Equal("http://google.de", response.GetResponseHeader("Access-Control-Allow-Origin"));
 
             Assert.Equal("GET", response.GetResponseHeader("Access-Control-Allow-Methods"));
+
+            Assert.Equal("Accept", response.GetResponseHeader("Access-Control-Expose-Headers"));
 
             Assert.Equal("Origin", response.GetResponseHeader("Vary"));
         }
