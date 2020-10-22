@@ -8,7 +8,7 @@ As an example, the website of this project is hosted on a Raspberry Pi behind a 
 
 ## Getting Started
 
-To create a simple hello world project, follow the official <a href="https://genhttp.org/documentation/">starting guide</a>.
+To get familiar with the framework, follow the official <a href="https://genhttp.org/documentation/">starting guide</a>.
 
 ## Building the Server
 
@@ -28,7 +28,7 @@ The web server was originally developed in 2008 to run on a netbook with an Inte
 
 ## Links
 
-- Related to GenHTTP: [Themes](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes), [Website](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Website)
+- Related to GenHTTP: [Themes](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes), [Website]()
 - Related projects: [GenHTTP Gateway](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Gateway)
 - Similar projects: [EmbedIO](https://github.com/unosquare/embedio)
 
