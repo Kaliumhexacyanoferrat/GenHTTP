@@ -42,32 +42,35 @@ namespace GenHTTP.Modules.Security.Providers
         {
             if (!request.EndPoint.Secure)
             {
-                var endpoints = request.Server.EndPoints.Where(e => e.Secure)
-                                                        .ToList();
-
-                if (endpoints.Count > 0)
+                if (request.Server.EndPoints.Any(e => e.Secure))
                 {
-                    if (Mode == SecureUpgrade.Force)
+                    var endpoints = request.Server.EndPoints.Where(e => e.Secure)
+                                                            .ToList();
+
+                    if (endpoints.Count > 0)
                     {
-                        return Redirect.To(GetRedirectLocation(request, endpoints))
-                                       .Build(this)
-                                       .Handle(request);
-                    }
-                    else if (Mode == SecureUpgrade.Allow)
-                    {
-                        if (request.Method.KnownMethod == RequestMethod.GET)
+                        if (Mode == SecureUpgrade.Force)
                         {
-                            if (request.Headers.TryGetValue("Upgrade-Insecure-Requests", out var flag))
+                            return Redirect.To(GetRedirectLocation(request, endpoints))
+                                           .Build(this)
+                                           .Handle(request);
+                        }
+                        else if (Mode == SecureUpgrade.Allow)
+                        {
+                            if (request.Method.KnownMethod == RequestMethod.GET)
                             {
-                                if (flag == "1")
+                                if (request.Headers.TryGetValue("Upgrade-Insecure-Requests", out var flag))
                                 {
-                                    var response = Redirect.To(GetRedirectLocation(request, endpoints), true)
-                                                           .Build(this)
-                                                           .Handle(request)!;
+                                    if (flag == "1")
+                                    {
+                                        var response = Redirect.To(GetRedirectLocation(request, endpoints), true)
+                                                               .Build(this)
+                                                               .Handle(request)!;
 
-                                    response.Headers.Add("Vary", "Upgrade-Insecure-Requests");
+                                        response.Headers.Add("Vary", "Upgrade-Insecure-Requests");
 
-                                    return response;
+                                        return response;
+                                    }
                                 }
                             }
                         }

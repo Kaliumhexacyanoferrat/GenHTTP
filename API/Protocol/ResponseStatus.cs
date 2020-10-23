@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace GenHTTP.Api.Protocol
@@ -196,6 +197,8 @@ namespace GenHTTP.Api.Protocol
             { ResponseStatus.NetworkAuthenticationRequired, "Network Authentication Required" }
         };
 
+        private static readonly Dictionary<int, ResponseStatus> CODE_MAPPING = MAPPING.Keys.ToDictionary((k) => (int)k, (k) => k);
+
         #endregion
 
         #region Initialization
@@ -205,9 +208,9 @@ namespace GenHTTP.Api.Protocol
             RawStatus = status;
             Phrase = phrase;
 
-            if (Enum.IsDefined(typeof(ResponseStatus), status))
+            if (CODE_MAPPING.TryGetValue(status, out var known))
             {
-                KnownStatus = (ResponseStatus)status;
+                KnownStatus = known;
             }
             else
             {

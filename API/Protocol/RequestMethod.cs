@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace GenHTTP.Api.Protocol
 {
@@ -40,14 +41,36 @@ namespace GenHTTP.Api.Protocol
         public string RawMethod { get; }
 
         #endregion
-        
+
+        #region Mapping
+
+        private static readonly Dictionary<string, RequestMethod> MAPPING = new Dictionary<string, RequestMethod>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "GET", RequestMethod.GET },
+            { "HEAD", RequestMethod.HEAD },
+            { "POST", RequestMethod.POST },
+            { "PUT", RequestMethod.PUT },
+            { "PATCH", RequestMethod.PATCH },
+            { "DELETE", RequestMethod.DELETE },
+            { "OPTIONS", RequestMethod.OPTIONS },
+            { "PROPFIND", RequestMethod.PROPFIND },
+            { "PROPPATCH", RequestMethod.PROPPATCH },
+            { "MKCOL", RequestMethod.MKCOL },
+            { "COPY", RequestMethod.COPY },
+            { "MOVE", RequestMethod.MOVE },
+            { "LOCK", RequestMethod.LOCK },
+            { "UNLOCK", RequestMethod.UNLOCK }
+        };
+
+        #endregion
+
         #region Initialization
-        
+
         /// <summary>
         /// Creates a new request method instance from a known type.
         /// </summary>
         /// <param name="method">The known type to be used</param>
-        public FlexibleRequestMethod(RequestMethod method) 
+        public FlexibleRequestMethod(RequestMethod method)
         {
             KnownMethod = method;
             RawMethod = method.ToString();
@@ -61,7 +84,7 @@ namespace GenHTTP.Api.Protocol
         {
             RawMethod = rawType;
 
-            if (Enum.TryParse<RequestMethod>(rawType, out var type))
+            if (MAPPING.TryGetValue(rawType, out var type))
             {
                 KnownMethod = type;
             }

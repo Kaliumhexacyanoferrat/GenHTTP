@@ -12,7 +12,11 @@
     <ProjectReference Include="..\Engine\GenHTTP.Engine.csproj" />
 
     <ProjectReference Include="..\Modules\Authentication\GenHTTP.Modules.Authentication.csproj" />
+    <ProjectReference Include="..\Modules\ClientCaching\GenHTTP.Modules.ClientCaching.csproj" />
+    <ProjectReference Include="..\Modules\Conversion\GenHTTP.Modules.Conversion.csproj" />
+    <ProjectReference Include="..\Modules\Markdown\GenHTTP.Modules.Markdown.csproj" />
     <ProjectReference Include="..\Modules\Razor\GenHTTP.Modules.Razor.csproj" />
+    <ProjectReference Include="..\Modules\Reflection\GenHTTP.Modules.Reflection.csproj" />
     <ProjectReference Include="..\Modules\Scriban\GenHTTP.Modules.Scriban.csproj" />
     <ProjectReference Include="..\Modules\Webservices\GenHTTP.Modules.Webservices.csproj" />
     <ProjectReference Include="..\Modules\Websites\GenHTTP.Modules.Websites.csproj" />

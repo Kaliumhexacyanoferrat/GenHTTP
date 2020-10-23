@@ -1,8 +1,10 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Basics;
-using System;
+﻿using System;
 using System.Collections.Generic;
+
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.Basics;
 
 namespace GenHTTP.Modules.ClientCaching.Provider
 {
@@ -33,10 +35,10 @@ namespace GenHTTP.Modules.ClientCaching.Provider
 
         public IResponse? Handle(IRequest request)
         {
+            var response = Content.Handle(request);
+
             if (request.HasType(RequestMethod.GET, RequestMethod.HEAD))
             {
-                var response = Content.Handle(request);
-
                 if ((response != null) && (response.Content != null))
                 {
                     var eTag = CalculateETag(response);
@@ -46,9 +48,9 @@ namespace GenHTTP.Modules.ClientCaching.Provider
                     if ((cached != null) && (cached == eTag))
                     {
                         response.Status = new FlexibleResponseStatus(ResponseStatus.NotModified);
-                        
+
                         response.Content = null;
-                        
+
                         response.ContentEncoding = null;
                         response.ContentLength = null;
                         response.ContentType = null;
@@ -59,20 +61,18 @@ namespace GenHTTP.Modules.ClientCaching.Provider
                         response.Headers[ETAG_HEADER] = eTag;
                     }
                 }
-
-                return response;
             }
 
-            return Content.Handle(request);
+            return response;
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Content.GetContent(request);
 
         private static string? CalculateETag(IResponse response)
         {
-            if (response.Headers.ContainsKey(ETAG_HEADER))
+            if (response.Headers.TryGetValue(ETAG_HEADER, out var eTag))
             {
-                return response.Headers[ETAG_HEADER];
+                return eTag;
             }
 
             if (response.Content != null)

@@ -9,6 +9,7 @@ namespace GenHTTP.Modules.IO.Providers
 
     public class StringContent : IResponseContent
     {
+        private static readonly Encoding UTF8 = Encoding.UTF8;
 
         #region Get-/Setters
 
@@ -38,7 +39,7 @@ namespace GenHTTP.Modules.IO.Providers
 
         #region Initialization
 
-        public StringContent(string content) : this(content, Encoding.UTF8) { }
+        public StringContent(string content) : this(content, UTF8) { }
 
         public StringContent(string content, Encoding encoding)
         {
