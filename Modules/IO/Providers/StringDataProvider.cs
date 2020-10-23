@@ -28,7 +28,7 @@ namespace GenHTTP.Modules.IO.Providers
 
         public Stream GetResource()
         {
-            return new MemoryStream(Encoding.UTF8.GetBytes(Content));
+            return OptimizedStream.From(Encoding.UTF8.GetBytes(Content));
         }
 
         public ulong GetChecksum() => (ulong)Content.GetHashCode();

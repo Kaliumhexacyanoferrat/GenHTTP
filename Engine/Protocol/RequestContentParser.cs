@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Buffers;
 using System.IO;
 using System.Threading.Tasks;
 
 using GenHTTP.Engine.Infrastructure.Configuration;
+
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Engine.Protocol
 {
@@ -33,7 +34,7 @@ namespace GenHTTP.Engine.Protocol
 
         internal async Task<Stream> GetBody(RequestBuffer buffer)
         {
-            var body = (Length > Configuration.RequestMemoryLimit) ? TemporaryFileStream.Create() : new MemoryStream((int)Length);
+            var body = (Length > Configuration.RequestMemoryLimit) ? TemporaryFileStream.Create() : OptimizedStream.Create();
 
             var toFetch = Length;
 
@@ -61,7 +62,7 @@ namespace GenHTTP.Engine.Protocol
 
                 toFetch -= toRead;
             }
-            
+
             body.Seek(0, SeekOrigin.Begin);
 
             return body;
