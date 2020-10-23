@@ -3,10 +3,10 @@ using System.IO;
 using System.IO.Pipelines;
 using System.Net;
 using System.Net.Sockets;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Engine.Infrastructure.Configuration;
 using GenHTTP.Engine.Protocol;
 
