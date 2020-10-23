@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Pipelines;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
@@ -15,8 +16,6 @@ namespace GenHTTP.Engine
     internal class ClientHandler
     {
         private static readonly StreamPipeReaderOptions READER_OPTIONS = new StreamPipeReaderOptions(leaveOpen: true);
-
-        private static readonly LingerOption LINGER_OPTION = new LingerOption(true, 1);
 
         #region Get-/Setter
 
@@ -65,15 +64,23 @@ namespace GenHTTP.Engine
             {
                 try
                 {
+                    Stream.Dispose();
+                }
+                catch (Exception e)
+                {
+                    Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, e);
+                }
+
+                try
+                {
                     if (Connection.Connected)
                     {
+                        Connection.Shutdown(SocketShutdown.Both);
                         Connection.Disconnect(false);
                         Connection.Close();
                     }
 
                     Connection.Dispose();
-
-                    Stream.Dispose();
                 }
                 catch (Exception e)
                 {
@@ -127,7 +134,7 @@ namespace GenHTTP.Engine
 
             if (!success || !keepAlive)
             {
-                Connection.LingerState = LINGER_OPTION;
+                Connection.Shutdown(SocketShutdown.Both);
                 Connection.Disconnect(false);
                 Connection.Close();
 

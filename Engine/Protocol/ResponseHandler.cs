@@ -17,6 +17,8 @@ namespace GenHTTP.Engine.Protocol
     {
         private static readonly string NL = "\r\n";
 
+        private static readonly Encoding ASCII = Encoding.ASCII;
+
         private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
         
         #region Get-/Setters
@@ -220,13 +222,15 @@ namespace GenHTTP.Engine.Protocol
 
         private async ValueTask Write(string text)
         {
-            var buffer = POOL.Rent(text.Length);
+            var length = text.Length;
+
+            var buffer = POOL.Rent(length);
 
             try
             {
-                Encoding.ASCII.GetBytes(text, 0, text.Length, buffer, 0);
+                ASCII.GetBytes(text, 0, length, buffer, 0);
 
-                await OutputStream.WriteAsync(buffer.AsMemory(0, text.Length)).ConfigureAwait(false);
+                await OutputStream.WriteAsync(buffer.AsMemory(0, length)).ConfigureAwait(false);
             }
             finally
             {

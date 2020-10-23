@@ -63,7 +63,7 @@ namespace GenHTTP.Engine.Hosting
         {
             try
             {
-                var waitEvent = new AutoResetEvent(false);
+                var waitEvent = new ManualResetEvent(false);
 
                 AppDomain.CurrentDomain.ProcessExit += (_, __) =>
                 {

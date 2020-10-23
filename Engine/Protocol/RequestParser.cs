@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -16,6 +17,8 @@ namespace GenHTTP.Engine.Protocol
     {
         private static char[] LINE_ENDING = new char[] { '\r' };
         private static char[] PATH_ENDING = new char[] { '\r', '\n', '?', ' ' };
+
+        private static readonly Encoding ASCII = Encoding.ASCII;
 
         private RequestBuilder? _Builder;
 
@@ -260,7 +263,7 @@ namespace GenHTTP.Engine.Protocol
             {
                 foreach (var segment in sequence)
                 {
-                    Encoding.ASCII.GetChars(segment.Span, span);
+                    ASCII.GetChars(segment.Span, span);
                     span = span.Slice(segment.Length);
                 }
             });
