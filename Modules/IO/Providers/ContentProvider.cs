@@ -47,15 +47,6 @@ namespace GenHTTP.Modules.IO.Providers
 
         public IResponse? Handle(IRequest request)
         {
-            // todo: in tatsächlichen download-provider schieben?
-
-            /*if (!request.HasType(RequestMethod.GET, RequestMethod.HEAD))
-            {
-                return this.MethodNotAllowed(request).Build();
-            }*/
-
-            // todo: attachment-name? optional für richtige downloads? sowas wie "DownloadFileName?"
-
             return request.Respond()
                           .Content(Resource)
                           .Type(ContentType)

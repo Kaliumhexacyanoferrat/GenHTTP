@@ -7,7 +7,7 @@ using Xunit;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 
-namespace GenHTTP.Testing.Acceptance.Providers
+namespace GenHTTP.Testing.Acceptance.Modules.IO
 {
 
     public class DownloadTests
@@ -24,7 +24,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             try
             {
-                var layout = Layout.Create().Add("file", Content.FromFile(file));
+                var layout = Layout.Create().Add("file", Download.FromFile(file));
 
                 using (var runner = TestRunner.Run(layout))
                 {
@@ -46,7 +46,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestGetDownloadFromResource()
         {
-            var layout = Layout.Create().Add("file", Content.FromResource("File.txt"));
+            var layout = Layout.Create().Add("file", Download.FromResource("File.txt"));
 
             using (var runner = TestRunner.Run(layout))
             {
@@ -57,9 +57,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             }
         }
 
-        // todo: revisit 
-
-        /*[Fact]
+        [Fact]
         public void DownloadsCannotBeModified()
         {
             var download = Download.FromResource("File.txt");
@@ -79,7 +77,32 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var response = runner.GetResponse(request);
 
             Assert.Equal(HttpStatusCode.MethodNotAllowed, response.StatusCode);
-        }*/
+        }
+
+        [Fact]
+        public void TestFileName()
+        {
+            var download = Download.FromString("Some File")
+                                   .FileName("myfile.txt");
+
+            using var runner = TestRunner.Run(download);
+
+            using var response = runner.GetResponse();
+
+            Assert.Equal("attachment; filename=\"myfile.txt\"", response.GetResponseHeader("Content-Disposition"));
+        }
+
+        [Fact]
+        public void TestNoFileName()
+        {
+            var download = Download.FromString("Some File");
+
+            using var runner = TestRunner.Run(download);
+
+            using var response = runner.GetResponse();
+
+            Assert.Equal("attachment", response.GetResponseHeader("Content-Disposition"));
+        }
 
     }
 
