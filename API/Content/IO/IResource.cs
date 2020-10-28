@@ -19,12 +19,31 @@ namespace GenHTTP.Api.Content.IO
     public interface IResource
     {
 
+        /// <summary>
+        /// The name of this resource, if known. 
+        /// </summary>
         string? Name { get; }
 
+        /// <summary>
+        /// The point in time, when the resource was last modified, if known.
+        /// </summary>
         DateTime? Modified { get; }
 
+        /// <summary>
+        /// The content type of this resource, if known.
+        /// </summary>
         FlexibleContentType? ContentType { get; }
 
+        /// <summary>
+        /// The number of bytes provided by this resource.
+        /// </summary>
+        /// <remarks>
+        /// This field will not be used to control the HTTP flow, but
+        /// just as meta information (e.g. to be rendered by the
+        /// directory listing handler). For optimzed data transfer,
+        /// the stream provided by this resource should be seekable
+        /// and return a sane length.
+        /// </remarks>
         ulong? Length { get; }
 
         /// <summary>

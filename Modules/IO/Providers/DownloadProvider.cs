@@ -28,7 +28,7 @@ namespace GenHTTP.Modules.IO.Providers
             get
             {
                 return _Info ??= ContentInfo.Create()
-                                            .Title(Resource.Name ?? "Download")
+                                            .Title(FileName ?? "Download")
                                             .Build();
             }
         }
