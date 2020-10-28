@@ -16,7 +16,7 @@ namespace GenHTTP.Modules.IO
     public static class Content
     {
 
-        public static ContentProviderBuilder FromString(string content) => From(Resource.FromString(content).Type(new FlexibleContentType(ContentType.TextPlain)));
+        public static ContentProviderBuilder FromString(string content) => From(Resource.FromString(content).Type(ContentType.TextPlain));
 
         public static ContentProviderBuilder FromFile(string file) => FromFile(new FileInfo(file));
 

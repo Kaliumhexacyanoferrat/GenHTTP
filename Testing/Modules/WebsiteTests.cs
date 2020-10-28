@@ -2,6 +2,7 @@
 using System.Net;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
@@ -248,7 +249,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             return Website.Create()
                           .Theme(new Theme())
                           .Content(content ?? Layout.Create())
-                          .Favicon(Resource.FromString("This is a favicon").Type(new FlexibleContentType(ContentType.ImageIcon)));
+                          .Favicon(Resource.FromString("This is a favicon").Type(ContentType.ImageIcon));
         }
 
     }

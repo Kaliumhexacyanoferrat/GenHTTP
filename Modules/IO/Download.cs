@@ -13,7 +13,7 @@ namespace GenHTTP.Modules.IO
     public static class Download
     {
 
-        public static DownloadProviderBuilder FromString(string content) => From(Resource.FromString(content).Type(new FlexibleContentType(ContentType.TextPlain)));
+        public static DownloadProviderBuilder FromString(string content) => From(Resource.FromString(content).Type(ContentType.TextPlain));
 
         public static DownloadProviderBuilder FromFile(string file) => FromFile(new FileInfo(file));
 

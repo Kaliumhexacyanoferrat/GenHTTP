@@ -1,6 +1,5 @@
-﻿using System;
-
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
+using System;
 
 namespace GenHTTP.Api.Content.IO
 {
@@ -23,14 +22,6 @@ namespace GenHTTP.Api.Content.IO
         /// Sets the content type of the resource.
         /// </summary>
         /// <param name="contentType">The content type of the resource</param>
-        // ToDo: does not work?
-        // ToDo: replace all wrong places as soon as it works
-        T Type(ContentType contentType) => Type(new FlexibleContentType(contentType));
-
-        /// <summary>
-        /// Sets the content type of the resource.
-        /// </summary>
-        /// <param name="contentType">The content type of the resource</param>
         T Type(FlexibleContentType contentType);
 
         /// <summary>
@@ -38,6 +29,17 @@ namespace GenHTTP.Api.Content.IO
         /// </summary>
         /// <param name="modified">The modification date and time of the resource</param>
         T Modified(DateTime modified);
+
+    }
+
+    public static class IResourceMetaDataBuilderExtensions
+    {
+
+        /// <summary>
+        /// Sets the content type of the resource.
+        /// </summary>
+        /// <param name="contentType">The content type of the resource</param>
+        public static T Type<T>(this IResourceMetaDataBuilder<T> builder, ContentType contentType) => builder.Type(new FlexibleContentType(contentType));
 
     }
 
