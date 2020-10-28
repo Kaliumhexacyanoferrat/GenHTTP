@@ -61,7 +61,7 @@ namespace GenHTTP.Modules.Websites.Sites
 
             if (favicon != null)
             {
-                layout.Add("favicon.ico", Download.From(favicon));
+                layout.Add("favicon.ico", Content.From(favicon));
             }
 
             if (theme.Resources != null)

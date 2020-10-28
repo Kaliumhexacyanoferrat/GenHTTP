@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
@@ -17,9 +15,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
         public IHandler Handler { get; }
 
-        public List<DirectoryInfo> Directories { get; }
-
-        public List<FileInfo> Files { get; }
+        public IResourceContainer Container { get; }
 
         public bool HasParent { get; }
 
@@ -27,13 +23,12 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
         #region Intialization
 
-        public ListingModel(IRequest request, IHandler handler, DirectoryInfo[] directories, FileInfo[] files, bool hasParent)
+        public ListingModel(IRequest request, IHandler handler, IResourceContainer container, bool hasParent)
         {
             Request = request;
             Handler = handler;
 
-            Directories = new List<DirectoryInfo>(directories);
-            Files = new List<FileInfo>(files);
+            Container = container;
 
             HasParent = hasParent;
         }

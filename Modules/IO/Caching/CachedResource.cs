@@ -23,6 +23,8 @@ namespace GenHTTP.Modules.IO.Caching
 
         public FlexibleContentType? ContentType => Source.ContentType;
 
+        public ulong? Length => Source.Length;
+
         #endregion
 
         #region Initialization

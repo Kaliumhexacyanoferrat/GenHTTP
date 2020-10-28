@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace GenHTTP.Api.Content.IO
+﻿namespace GenHTTP.Api.Content.IO
 {
 
     public interface IResourceNode : IResourceContainer
@@ -9,7 +7,6 @@ namespace GenHTTP.Api.Content.IO
         string Name { get; }
 
         IResourceContainer Parent { get; }
-
 
     }
 

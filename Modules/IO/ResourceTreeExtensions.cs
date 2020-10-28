@@ -13,7 +13,7 @@ namespace GenHTTP.Modules.IO
     public static class ResourceTreeExtensions
     {
 
-        public static IResource? Find(this IResourceContainer node, RoutingTarget target)
+        public static (IResourceContainer? node, IResource? resource) Find(this IResourceContainer node, RoutingTarget target)
         {
             var current = target.Current;
 
@@ -23,10 +23,14 @@ namespace GenHTTP.Modules.IO
                 {
                     if (node.TryGetResource(current, out var resource))
                     {
-                        return resource;
+                        return (node, resource);
+                    }
+                    else if (node.TryGetNode(current, out var childNode))
+                    {
+                        return (childNode, null);
                     }
 
-                    return null;
+                    return (null, null);
                 }
                 else
                 {
@@ -38,12 +42,12 @@ namespace GenHTTP.Modules.IO
                 }
             }
 
-            return null;
+            return (node, null);
         }
 
-        public static IEnumerable<ContentElement> GetContent(this IResourceContainer node, IRequest request)
+        public static IEnumerable<ContentElement> GetContent(this IResourceContainer node, IRequest request, IHandler handler)
         {
-            var path = node.GetPath(request);
+            var path = node.GetPath(request, handler);
 
             foreach (var childNode in node.GetNodes())
             {
@@ -54,7 +58,7 @@ namespace GenHTTP.Modules.IO
                 // ToDo: Allow providers (e.g. listing) to influence this entry
                 // ToDo: Allow to just have the structure but no actual content
 
-                yield return new ContentElement(nodePath, new ContentInfo(), ContentType.ApplicationForceDownload, childNode.GetContent(request));
+                yield return new ContentElement(nodePath, new ContentInfo(), ContentType.ApplicationForceDownload, childNode.GetContent(request, handler));
             }
 
             foreach (var resource in node.GetResources())
@@ -76,7 +80,7 @@ namespace GenHTTP.Modules.IO
             }
         }
 
-        public static WebPath GetPath(this IResourceContainer node, IRequest request)
+        public static WebPath GetPath(this IResourceContainer node, IRequest request, IHandler handler)
         {
             var segments = new List<string>();
 
@@ -91,7 +95,8 @@ namespace GenHTTP.Modules.IO
 
             segments.Reverse();
 
-            var path = new PathBuilder(true).Append(request.Target.Path);
+            var path = handler.GetRoot(request, true)
+                              .Edit(true);
 
             foreach (var segment in segments)
             {

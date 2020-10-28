@@ -1,14 +1,12 @@
-﻿using GenHTTP.Modules.IO.Embedded;
-using GenHTTP.Modules.IO.FileSystem;
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Reflection;
-using System.Text;
+
+using GenHTTP.Modules.IO.Embedded;
+using GenHTTP.Modules.IO.FileSystem;
 
 namespace GenHTTP.Modules.IO
 {
-    
+
     public static class ResourceTree
     {
 

@@ -32,20 +32,20 @@ namespace GenHTTP.Modules.IO.Providers
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
-            return Tree.GetContent(request);
+            return Tree.GetContent(request, this);
         }
 
         public IResponse? Handle(IRequest request)
         {
-            var found = Tree.Find(request.Target);
+            var (_, resource) = Tree.Find(request.Target);
 
-            if (found != null)
+            if (resource != null)
             {
                 // ToDo: Improve performance, don't build?
 
-                return Download.From(found)
-                               .Build(this)
-                               .Handle(request);
+                return Content.From(resource)
+                              .Build(this)
+                              .Handle(request);
             }
 
             return null;

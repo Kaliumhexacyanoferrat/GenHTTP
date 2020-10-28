@@ -100,7 +100,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Security
         private TestRunner GetRunner(CorsPolicyBuilder policy)
         {
             var handler = Layout.Create()
-                                .Add("t", Content.From("Hello World"))
+                                .Add("t", Content.FromString("Hello World"))
                                 .Add(policy);
 
             return TestRunner.Run(handler);

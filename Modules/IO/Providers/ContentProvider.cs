@@ -9,7 +9,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.IO.Providers
 {
 
-    public class DownloadProvider : IHandler
+    public class ContentProvider : IHandler
     {
         private ContentInfo? _Info;
 
@@ -35,7 +35,7 @@ namespace GenHTTP.Modules.IO.Providers
 
         #region Initialization
 
-        public DownloadProvider(IHandler parent, IResource resourceProvider)
+        public ContentProvider(IHandler parent, IResource resourceProvider)
         {
             Parent = parent;
             Resource = resourceProvider;

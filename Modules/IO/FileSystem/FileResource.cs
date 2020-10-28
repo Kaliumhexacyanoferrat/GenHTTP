@@ -22,6 +22,8 @@ namespace GenHTTP.Modules.IO.FileSystem
 
         public FlexibleContentType? ContentType { get; }
 
+        public ulong? Length => (ulong)File.Length;
+
         #endregion
 
         #region Initialization

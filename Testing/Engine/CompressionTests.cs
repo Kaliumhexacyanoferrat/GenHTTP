@@ -109,7 +109,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
         {
             var image = Resource.FromString("Image!").Type(new FlexibleContentType(ContentType.ImageJpg));
 
-            using var runner = TestRunner.Run(Layout.Create().Add("uncompressed", Download.From(image)));
+            using var runner = TestRunner.Run(Layout.Create().Add("uncompressed", Content.From(image)));
 
             using var response = runner.GetResponse("/uncompressed");
 

@@ -1,5 +1,6 @@
-﻿using GenHTTP.Api.Protocol;
-using System;
+﻿using System;
+
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Content.IO
 {

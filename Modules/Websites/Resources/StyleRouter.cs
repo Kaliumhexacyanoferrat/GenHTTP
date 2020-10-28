@@ -77,7 +77,7 @@ namespace GenHTTP.Modules.Websites.Resources
                 }
                 else if (Styles.TryGetValue(file, out Style style))
                 {
-                    return Download.From(style.Provider)
+                    return Content.From(style.Provider)
                                    .Build(this)
                                    .Handle(request);
                 }

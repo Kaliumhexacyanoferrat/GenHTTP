@@ -1,12 +1,10 @@
-﻿using GenHTTP.Api.Content.IO;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
+﻿using System.Reflection;
+
+using GenHTTP.Api.Content.IO;
 
 namespace GenHTTP.Modules.IO.Embedded
 {
-    
+
     internal class EmbeddedResourceTree : EmbeddedResourceContainer, IResourceTree
     {
 

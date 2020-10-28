@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Modules.SinglePageApplications.Provider
@@ -8,7 +9,7 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
 
     public class SinglePageBuilder : IHandlerBuilder<SinglePageBuilder>
     {
-        private string? _Directory;
+        private IResourceTree? _Tree;
 
         private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
@@ -20,17 +21,19 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
             return this;
         }
 
-        public SinglePageBuilder Directory(string directory)
+        public SinglePageBuilder Tree(IResourceTree tree)
         {
-            _Directory = directory;
+            _Tree = tree;
             return this;
         }
 
+        public SinglePageBuilder Tree(IBuilder<IResourceTree> tree) => Tree(tree.Build());
+
         public IHandler Build(IHandler parent)
         {
-            var directory = _Directory ?? throw new BuilderMissingPropertyException("directory");
+            var tree = _Tree ?? throw new BuilderMissingPropertyException("tree");
 
-            return Concerns.Chain(parent, _Concerns, (p) => new SinglePageProvider(p, directory));
+            return Concerns.Chain(parent, _Concerns, (p) => new SinglePageProvider(p, tree));
         }
 
         #endregion

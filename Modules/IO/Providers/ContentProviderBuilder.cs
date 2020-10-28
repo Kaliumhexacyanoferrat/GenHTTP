@@ -7,7 +7,7 @@ using GenHTTP.Api.Content.IO;
 namespace GenHTTP.Modules.IO.Providers
 {
 
-    public class DownloadProviderBuilder : IHandlerBuilder<DownloadProviderBuilder>
+    public class ContentProviderBuilder : IHandlerBuilder<ContentProviderBuilder>
     {
         private IResource? _ResourceProvider;
 
@@ -15,13 +15,13 @@ namespace GenHTTP.Modules.IO.Providers
 
         #region Functionality
 
-        public DownloadProviderBuilder Resource(IResource resource)
+        public ContentProviderBuilder Resource(IResource resource)
         {
             _ResourceProvider = resource;
             return this;
         }
 
-        public DownloadProviderBuilder Add(IConcernBuilder concern)
+        public ContentProviderBuilder Add(IConcernBuilder concern)
         {
             _Concerns.Add(concern);
             return this;
@@ -31,7 +31,7 @@ namespace GenHTTP.Modules.IO.Providers
         {            
             var resource = _ResourceProvider ?? throw new BuilderMissingPropertyException("resourceProvider");
 
-            return Concerns.Chain(parent, _Concerns, (p) => new DownloadProvider(p, resource));
+            return Concerns.Chain(parent, _Concerns, (p) => new ContentProvider(p, resource));
         }
 
         #endregion

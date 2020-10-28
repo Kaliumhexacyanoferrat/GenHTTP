@@ -82,7 +82,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
         [Fact]
         public void TestDirectoryListing()
         {
-            using var runner = TestRunner.Run(DirectoryListing.From("./").Add(new ContentPrinterBuilder()));
+            using var runner = TestRunner.Run(Listing.FromDirectory("./").Add(new ContentPrinterBuilder()));
 
             using var response = runner.GetResponse();
 

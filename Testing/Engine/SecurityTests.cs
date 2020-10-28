@@ -167,7 +167,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
         private static void RunSecure(Action<ushort, ushort> logic, SecureUpgrade? mode = null, string host = "localhost")
         {
-            var content = Layout.Create().Index(Content.From("Hello Alice!"));
+            var content = Layout.Create().Index(Content.FromString("Hello Alice!"));
 
             using var runner = new TestRunner(mode == null);
 

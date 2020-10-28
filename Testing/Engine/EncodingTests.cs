@@ -15,7 +15,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
         [Fact]
         public void TestUtf8DefaultEncoding()
         {
-            var layout = Layout.Create().Add("utf8", Content.From("From GenHTTP with ❤"));
+            var layout = Layout.Create().Add("utf8", Content.FromString("From GenHTTP with ❤"));
 
             using (var runner = TestRunner.Run(layout))
             {

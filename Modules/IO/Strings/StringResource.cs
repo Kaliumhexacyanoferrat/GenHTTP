@@ -23,6 +23,8 @@ namespace GenHTTP.Modules.IO.Strings
 
         public FlexibleContentType? ContentType { get; }
 
+        public ulong? Length => (ulong)Content.Length;
+
         #endregion
 
         #region Initialization

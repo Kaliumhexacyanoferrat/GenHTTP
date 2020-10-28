@@ -24,6 +24,8 @@ namespace GenHTTP.Modules.IO.Embedded
 
         public FlexibleContentType? ContentType { get; }
 
+        public ulong? Length { get; }
+
         #endregion
 
         #region Initialization
@@ -37,6 +39,8 @@ namespace GenHTTP.Modules.IO.Embedded
             Source = source;
 
             using var stream = GetContent();
+
+            Length = (ulong)stream.Length;
 
             _Checksum = stream.CalculateChecksum() ?? throw new InvalidOperationException("Unable to calculate checksum of assembly resource");
 

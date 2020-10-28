@@ -25,6 +25,8 @@ namespace GenHTTP.Api.Content.IO
 
         FlexibleContentType? ContentType { get; }
 
+        ulong? Length { get; }
+
         /// <summary>
         /// Calculates the checksum of the resource.
         /// </summary>

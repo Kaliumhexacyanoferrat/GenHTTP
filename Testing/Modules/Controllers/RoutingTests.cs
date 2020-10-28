@@ -40,7 +40,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
                              .Add((i + 1).ToString(), Controller.From<RouteController>());
             }
 
-            public IHandlerBuilder Index() => Content.From("Index");
+            public IHandlerBuilder Index() => Content.FromString("Index");
 
             public IHandlerBuilder DoSomethingWithController()
             {
@@ -94,7 +94,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
             public IResponse? Handle(IRequest request)
             {
-                return Content.From(GetContent(request).Select(c => c.Path).First())
+                return Content.FromString(GetContent(request).Select(c => c.Path).First())
                               .Build(this)
                               .Handle(request);
             }
@@ -187,7 +187,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
         {
             var layout = Layout.Create()
                                .AddController<RouteController>("r")
-                               .Fallback(Content.From("Blubb"));
+                               .Fallback(Content.FromString("Blubb"));
 
             return TestRunner.Run(layout);
         }
