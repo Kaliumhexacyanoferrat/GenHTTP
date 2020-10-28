@@ -107,9 +107,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
         [Fact]
         public void TestNoAdditionalCompression()
         {
-            var image = Content.From("Image!").Type(ContentType.ImageJpg);
+            var image = Resource.FromString("Image!").Type(new FlexibleContentType(ContentType.ImageJpg));
 
-            using var runner = TestRunner.Run(Layout.Create().Add("uncompressed", image));
+            using var runner = TestRunner.Run(Layout.Create().Add("uncompressed", Download.From(image)));
 
             using var response = runner.GetResponse("/uncompressed");
 

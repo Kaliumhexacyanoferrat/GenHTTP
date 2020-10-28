@@ -1,10 +1,8 @@
 ﻿namespace GenHTTP.Api.Content.IO
 {
 
-    public interface IResourceTree : IResourceNode
+    public interface IResourceTree : IResourceContainer
     {
-
-
 
     }
 

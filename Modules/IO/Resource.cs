@@ -1,7 +1,9 @@
 ﻿using System.IO;
 using System.Reflection;
 
-using GenHTTP.Modules.IO.Providers;
+using GenHTTP.Modules.IO.Embedded;
+using GenHTTP.Modules.IO.FileSystem;
+using GenHTTP.Modules.IO.Strings;
 
 namespace GenHTTP.Modules.IO
 {
@@ -9,32 +11,19 @@ namespace GenHTTP.Modules.IO
     public static class Resource
     {
 
-        public static ResourceDataProviderBuilder FromAssembly(string name)
-        {
-            return new ResourceDataProviderBuilder().Name(name)
-                                                    .Assembly(Assembly.GetCallingAssembly());
-        }
+        // todo: fromStream(factory)?
+        
+        // todo: cached()
 
-        public static ResourceDataProviderBuilder FromAssembly(Assembly assembly, string name)
-        {
-            return new ResourceDataProviderBuilder().Assembly(assembly)
-                                                    .Name(name);
-        }
+        public static StringResourceBuilder FromString(string data) => new StringResourceBuilder().Content(data);
 
-        public static FileDataProviderBuilder FromFile(string file)
-        {
-            return FromFile(new FileInfo(file));
-        }
+        public static EmbeddedResourceBuilder FromAssembly(string name) => new EmbeddedResourceBuilder().Path(name).Assembly(Assembly.GetCallingAssembly());
 
-        public static FileDataProviderBuilder FromFile(FileInfo file)
-        {
-            return new FileDataProviderBuilder().File(file);
-        }
+        public static EmbeddedResourceBuilder FromAssembly(Assembly assembly, string name) => new EmbeddedResourceBuilder().Assembly(assembly).Path(name);
 
-        public static StringDataProviderBuilder FromString(string data)
-        {
-            return new StringDataProviderBuilder().Content(data);
-        }
+        public static FileResourceBuilder FromFile(string file) => FromFile(new FileInfo(file));
+
+        public static FileResourceBuilder FromFile(FileInfo file) => new FileResourceBuilder().File(file);
 
     }
 

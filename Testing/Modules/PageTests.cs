@@ -70,7 +70,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 // code
 ```";
 
-            var page = ModMarkdown.Page(Data.FromString(md))
+            var page = ModMarkdown.Page(Resource.FromString(md))
                                   .Title("Markdown Page")
                                   .Description("A page rendered with markdown");
 

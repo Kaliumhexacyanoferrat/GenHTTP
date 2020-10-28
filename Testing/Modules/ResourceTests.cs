@@ -1,14 +1,14 @@
 ﻿using System.IO;
 
-using Xunit;
-
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+
+using Xunit;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
 
-    public class StaticTests
+    public class ResourceTests
     {
 
         /// <summary>
@@ -17,14 +17,13 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestGetDownloadFromResource()
         {
-            var layout = Layout.Create().Add("res", Resources.Resources("Resources"));
+            var resources = Resources.FromAssembly("Resources");
 
-            using (var runner = TestRunner.Run(layout))
-            {
-                using var response = runner.GetResponse("/res/File.txt");
+            using var runner = TestRunner.Run(resources);
 
-                Assert.Equal("This is text!", response.GetContent());
-            }
+            using var response = runner.GetResponse("/File.txt");
+
+            Assert.Equal("This is text!", response.GetContent());
         }
 
         /// <summary>
@@ -38,7 +37,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             try
             {
-                var layout = Layout.Create().Add("res", Resources.Files(file.Directory.FullName));
+                var layout = Layout.Create().Add("res", Resources.FromDirectory(file.Directory.FullName));
 
                 using (var runner = TestRunner.Run(layout))
                 {

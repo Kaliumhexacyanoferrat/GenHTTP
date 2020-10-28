@@ -1,14 +1,15 @@
 ﻿using System;
 using System.IO;
+
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.IO.Providers;
+using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.IO
 {
 
-    public static class Extensions
+    public static class ResponseBuilderExtensions
     {
 
         /// <summary>
@@ -28,7 +29,7 @@ namespace GenHTTP.Modules.IO
         /// Sends the given string to the client.
         /// </summary>
         /// <param name="text">The string to be sent</param>
-        public static IResponseBuilder Content(this IResponseBuilder builder, string text) => builder.Content(new StringContent(text));
+        public static IResponseBuilder Content(this IResponseBuilder builder, string text) => builder.Content(Resource.FromString(text).Type(new FlexibleContentType(ContentType.TextPlain)).Build());
 
         /// <summary>
         /// Efficiently calculates the checksum of the stream, beginning

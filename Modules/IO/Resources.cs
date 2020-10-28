@@ -1,33 +1,29 @@
 ﻿using System.IO;
 using System.Reflection;
 
+using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Modules.IO.Providers;
 
 namespace GenHTTP.Modules.IO
 {
 
+    
     public static class Resources
     {
 
-        public static EmbeddedResourcesProviderBuilder FromAssembly(string root)
-        {
-            return FromAssembly(Assembly.GetCallingAssembly(), root);
-        }
+        public static ResourceHandlerBuilder From(IBuilder<IResourceTree> tree) => From(tree.Build());
 
-        public static EmbeddedResourcesProviderBuilder FromAssembly(Assembly source, string root)
-        {
-            return new EmbeddedResourcesProviderBuilder().Assembly(source).Root(root);
-        }
+        public static ResourceHandlerBuilder From(IResourceTree tree) => new ResourceHandlerBuilder().Tree(tree);
 
-        public static FileResourcesProviderBuilder FromDirectory(string directory)
-        {
-            return FromDirectory(new DirectoryInfo(directory));
-        }
+        public static ResourceHandlerBuilder FromAssembly(string root) => FromAssembly(Assembly.GetCallingAssembly(), root);
 
-        public static FileResourcesProviderBuilder FromDirectory(DirectoryInfo directory)
-        {
-            return new FileResourcesProviderBuilder().Directory(directory);
-        }
+        public static ResourceHandlerBuilder FromAssembly(Assembly source, string root) => From(ResourceTree.FromAssembly(source, root));
+
+        public static ResourceHandlerBuilder FromDirectory(string directory) => FromDirectory(new DirectoryInfo(directory));
+
+        public static ResourceHandlerBuilder FromDirectory(DirectoryInfo directory) => From(ResourceTree.FromDirectory(directory));
 
     }
 

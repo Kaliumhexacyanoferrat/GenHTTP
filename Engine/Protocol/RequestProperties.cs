@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Utilities;
@@ -30,7 +31,7 @@ namespace GenHTTP.Engine.Protocol
 
         #region Functionality
 
-        public bool TryGet<T>(string key, out T entry)
+        public bool TryGet<T>(string key, [MaybeNullWhen(returnValue: false)] out T entry)
         {
             if (Data.ContainsKey(key))
             {
@@ -41,10 +42,7 @@ namespace GenHTTP.Engine.Protocol
                 } 
             }
 
-#pragma warning disable CS8653, CS8601
             entry = default;
-#pragma warning restore
-
             return false;
         }
 

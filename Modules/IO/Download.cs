@@ -3,10 +3,9 @@ using System.Reflection;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.IO.Providers;
 using GenHTTP.Api.Content.IO;
+
+using GenHTTP.Modules.IO.Providers;
 
 namespace GenHTTP.Modules.IO
 {
@@ -14,36 +13,29 @@ namespace GenHTTP.Modules.IO
     public static class Download
     {
 
-        public static DownloadProviderBuilder FromFile(string file)
-        {
-            return FromFile(new FileInfo(file));
-        }
+        public static DownloadProviderBuilder FromString(string content) => From(Resource.FromString(content).Type(new FlexibleContentType(ContentType.TextPlain)));
 
-        public static DownloadProviderBuilder FromFile(FileInfo file)
-        {
-            return From(Resource.FromFile(file).Build()).Type(file.FullName.GuessContentType() ?? ContentType.ApplicationForceDownload);
-        }
+        public static DownloadProviderBuilder FromFile(string file) => FromFile(new FileInfo(file));
 
-        public static DownloadProviderBuilder FromResource(string name)
-        {
-            return FromResource(Assembly.GetCallingAssembly(), name);
-        }
+        public static DownloadProviderBuilder FromFile(FileInfo file) => From(Resource.FromFile(file));
 
-        public static DownloadProviderBuilder FromResource(Assembly source, string name)
-        {
-            return From(Resource.FromAssembly(source, name).Build()).Type(name.GuessContentType() ?? ContentType.ApplicationForceDownload);
-        }
+        public static DownloadProviderBuilder FromResource(string fileName) => FromResource(Assembly.GetCallingAssembly(), fileName);
 
-        public static DownloadProviderBuilder From(IBuilder<IResource> resource)
-        {
-            return From(resource.Build());
-        }
+        public static DownloadProviderBuilder FromResource(Assembly source, string fileName) => From(Resource.FromAssembly(source, fileName).Name(fileName));
 
-        public static DownloadProviderBuilder From(IResource resource)
-        {
-            return new DownloadProviderBuilder().Resource(resource)
-                                                .Type(ContentType.ApplicationForceDownload);
-        }
+        public static DownloadProviderBuilder From(IBuilder<IResource> resource) => From(resource.Build());
+
+        public static DownloadProviderBuilder From(IResource resource) => new DownloadProviderBuilder().Resource(resource);
+
+    }
+
+    public static class Content
+    {
+
+        // todo: unterscheidung von content und download (z.B. download nur get/head, content egal, disposition)
+        // todo: alle stellen ändern, von content anstatt download sinn ergibt 
+
+        public static DownloadProviderBuilder From(string content) => Download.FromString(content);
 
     }
 

@@ -1,21 +1,32 @@
-﻿using System.IO;
-using GenHTTP.Api.Content.IO;
+﻿using System;
+using System.IO;
 
-namespace GenHTTP.Modules.IO.Providers
+using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.Basics;
+
+namespace GenHTTP.Modules.IO.FileSystem
 {
 
-    public class FileDataProvider : IResource
+    public class FileResource : IResource
     {
 
         #region Get-/Setters
 
         public FileInfo File { get; }
 
+        public string? Name { get; }
+
+        public DateTime? Modified { get; }
+
+        public FlexibleContentType? ContentType { get; }
+
         #endregion
 
         #region Initialization
 
-        public FileDataProvider(FileInfo file)
+        public FileResource(FileInfo file, string? name, FlexibleContentType? contentType, DateTime? modified)
         {
             if (!file.Exists)
             {
@@ -23,6 +34,11 @@ namespace GenHTTP.Modules.IO.Providers
             }
 
             File = file;
+
+            Name = name ?? file.Name;
+            Modified = modified ?? file.LastWriteTimeUtc;
+
+            ContentType = contentType ?? new FlexibleContentType(Name.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload);
         }
 
         #endregion

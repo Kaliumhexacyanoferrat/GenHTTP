@@ -17,16 +17,16 @@ namespace GenHTTP.Modules.IO.Providers
 
         public IHandler Parent { get; }
 
-        public IResource ResourceProvider { get; }
+        public IResource Resource { get; }
 
-        private FlexibleContentType ContentType { get; }
+        private FlexibleContentType ContentType => Resource.ContentType ?? new FlexibleContentType(Api.Protocol.ContentType.ApplicationForceDownload);
 
         private ContentInfo Info
         {
             get
             {
                 return _Info ??= ContentInfo.Create()
-                                            .Title("Download")
+                                            .Title(Resource.Name ?? "Download")
                                             .Build();
             }
         }
@@ -35,12 +35,10 @@ namespace GenHTTP.Modules.IO.Providers
 
         #region Initialization
 
-        public DownloadProvider(IHandler parent, IResource resourceProvider, FlexibleContentType contentType)
+        public DownloadProvider(IHandler parent, IResource resourceProvider)
         {
             Parent = parent;
-
-            ResourceProvider = resourceProvider;
-            ContentType = contentType;
+            Resource = resourceProvider;
         }
 
         #endregion
@@ -49,13 +47,17 @@ namespace GenHTTP.Modules.IO.Providers
 
         public IResponse? Handle(IRequest request)
         {
-            if (!request.HasType(RequestMethod.GET, RequestMethod.HEAD))
+            // todo: in tatsächlichen download-provider schieben?
+
+            /*if (!request.HasType(RequestMethod.GET, RequestMethod.HEAD))
             {
                 return this.MethodNotAllowed(request).Build();
-            }
+            }*/
+
+            // todo: attachment-name? optional für richtige downloads? sowas wie "DownloadFileName?"
 
             return request.Respond()
-                          .Content(ResourceProvider)
+                          .Content(Resource)
                           .Type(ContentType)
                           .Build();
         }

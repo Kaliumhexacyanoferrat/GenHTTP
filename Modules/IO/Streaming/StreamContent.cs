@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.IO.Providers
+namespace GenHTTP.Modules.IO.Streaming
 {
 
     public class StreamContent : IResponseContent, IDisposable
@@ -19,7 +19,7 @@ namespace GenHTTP.Modules.IO.Providers
         {
             get
             {
-                if (Content.CanSeek && Content.Length > 0)
+                if (Content.CanSeek)
                 {
                     return (ulong)Content.Length;
                 }

@@ -62,7 +62,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
         [Fact]
         public void TestEmbeddedResources()
         {
-            using var runner = TestRunner.Run(Resources.Resources("Resources").Add(new ContentPrinterBuilder()));
+            using var runner = TestRunner.Run(Resources.FromAssembly("Resources").Add(new ContentPrinterBuilder()));
 
             using var response = runner.GetResponse();
 
@@ -72,7 +72,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
         [Fact]
         public void TestStaticResources()
         {
-            using var runner = TestRunner.Run(Resources.Files("./").Add(new ContentPrinterBuilder()));
+            using var runner = TestRunner.Run(Resources.FromDirectory("./").Add(new ContentPrinterBuilder()));
 
             using var response = runner.GetResponse();
 

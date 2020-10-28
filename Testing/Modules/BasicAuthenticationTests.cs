@@ -8,7 +8,7 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Authentication;
 using GenHTTP.Modules.Authentication.Basic;
-using GenHTTP.Modules.IO.Providers;
+using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Layouting.Provider;
 
@@ -43,7 +43,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             public IResponse? Handle(IRequest request)
             {
-                var content = new StringContent(request.GetUser<IUser>()?.DisplayName ?? throw new ProviderException(ResponseStatus.BadRequest, "No user!"));
+                var content = request.GetUser<IUser>()?.DisplayName ?? throw new ProviderException(ResponseStatus.BadRequest, "No user!");
 
                 return request.Respond()
                               .Content(content)

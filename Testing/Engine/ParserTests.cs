@@ -4,7 +4,9 @@ using System.Linq;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.IO.Providers;
+
+using GenHTTP.Modules.IO;
+
 using Xunit;
 
 namespace GenHTTP.Testing.Acceptance.Engine
@@ -28,7 +30,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
             public IResponse? Handle(IRequest request)
             {
                 return request.Respond()
-                              .Content(new StringContent(request.Target.Path.ToString()))
+                              .Content(request.Target.Path.ToString())
                               .Build();
             }
 
@@ -47,7 +49,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
             public IResponse? Handle(IRequest request)
             {
                 return request.Respond()
-                              .Content(new StringContent(string.Join('|', request.Query.Select(kv => kv.Key + "=" + kv.Value))))
+                              .Content(string.Join('|', request.Query.Select(kv => kv.Key + "=" + kv.Value)))
                               .Build();
             }
 

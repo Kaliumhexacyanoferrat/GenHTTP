@@ -7,6 +7,8 @@ namespace GenHTTP.Modules.DirectoryBrowsing
 
     public static class DirectoryListing
     {
+        
+        // todo: resource trees!
 
         public static ListingRouterBuilder From(DirectoryInfo directory) => From(directory.FullName);
 

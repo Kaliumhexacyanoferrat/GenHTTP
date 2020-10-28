@@ -2,8 +2,7 @@
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.IO;
-
+using GenHTTP.Modules.IO.Caching;
 using Markdig;
 
 namespace GenHTTP.Modules.Markdown

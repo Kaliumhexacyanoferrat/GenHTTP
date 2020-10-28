@@ -1,10 +1,11 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Collections.Generic;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
+
 using GenHTTP.Modules.Basics;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace GenHTTP.Modules.IO
 {
@@ -12,7 +13,7 @@ namespace GenHTTP.Modules.IO
     public static class ResourceTreeExtensions
     {
 
-        public static IResource? Find(this IResourceNode node, RoutingTarget target)
+        public static IResource? Find(this IResourceContainer node, RoutingTarget target)
         {
             var current = target.Current;
 
@@ -20,7 +21,7 @@ namespace GenHTTP.Modules.IO
             {
                 if (target.Last)
                 {
-                    if (node.GetResources().TryGetValue(current, out var resource))
+                    if (node.TryGetResource(current, out var resource))
                     {
                         return resource;
                     }
@@ -29,7 +30,7 @@ namespace GenHTTP.Modules.IO
                 }
                 else
                 {
-                    if (node.GetNodes().TryGetValue(current, out var childNode))
+                    if (node.TryGetNode(current, out var childNode))
                     {
                         target.Advance();
                         return childNode.Find(target);
@@ -40,52 +41,52 @@ namespace GenHTTP.Modules.IO
             return null;
         }
 
-        public static IEnumerable<ContentElement> GetContent(this IResourceNode node, IRequest request)
+        public static IEnumerable<ContentElement> GetContent(this IResourceContainer node, IRequest request)
         {
             var path = node.GetPath(request);
 
             foreach (var childNode in node.GetNodes())
             {
                 var nodePath = path.Edit(false)
-                                   .Append(childNode.Key)
+                                   .Append(childNode.Name)
                                    .Build();
 
                 // ToDo: Allow providers (e.g. listing) to influence this entry
                 // ToDo: Allow to just have the structure but no actual content
 
-                yield return new ContentElement(nodePath, new ContentInfo(), ContentType.ApplicationForceDownload, childNode.Value.GetContent(request));
+                yield return new ContentElement(nodePath, new ContentInfo(), ContentType.ApplicationForceDownload, childNode.GetContent(request));
             }
 
             foreach (var resource in node.GetResources())
             {
-                var resourcePath = path.Edit(false)
-                                       .Append(resource.Key)
-                                       .Build();
+                var name = resource.Name;
 
-                // ToDo: Add content information to IResource as well?
+                if (name != null)
+                {
+                    var resourcePath = path.Edit(false)
+                                           .Append(name)
+                                           .Build();
 
-                var contentType = resource.Value.ContentType ?? new FlexibleContentType(resource.Key.GuessContentType() ?? ContentType.ApplicationForceDownload);
+                    // ToDo: Add content information to IResource as well?
 
-                yield return new ContentElement(resourcePath, new ContentInfo(), contentType);
+                    var contentType = resource.ContentType ?? new FlexibleContentType(name.GuessContentType() ?? ContentType.ApplicationForceDownload);
+
+                    yield return new ContentElement(resourcePath, new ContentInfo(), contentType);
+                }
             }
         }
 
-        public static WebPath GetPath(this IResourceNode node, IRequest request)
+        public static WebPath GetPath(this IResourceContainer node, IRequest request)
         {
             var segments = new List<string>();
 
             var current = node;
 
-            while (!current.IsRoot)
+            while (current is IResourceNode currentNode)
             {
-                var name = current.GetName();
+                segments.Add(currentNode.Name);
 
-                if (name != null)
-                {
-                    segments.Add(name);
-                }
-
-                current = current.Parent;
+                current = currentNode.Parent;
             }
 
             segments.Reverse();
@@ -98,19 +99,6 @@ namespace GenHTTP.Modules.IO
             }
 
             return path.Build();
-        }
-
-        public static string? GetName(this IResourceNode node)
-        {
-            if (!node.IsRoot)
-            {
-                return node.Parent.GetNodes()
-                                  .Where(kv => kv.Value == node)
-                                  .Select(kv => kv.Key)
-                                  .FirstOrDefault();
-            }
-
-            return null;
         }
 
     }

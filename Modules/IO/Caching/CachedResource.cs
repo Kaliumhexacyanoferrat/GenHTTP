@@ -1,7 +1,10 @@
-﻿using System.IO;
-using GenHTTP.Api.Content.IO;
+﻿using System;
+using System.IO;
 
-namespace GenHTTP.Modules.IO
+using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Protocol;
+
+namespace GenHTTP.Modules.IO.Caching
 {
 
     public class CachedResource : IResource
@@ -13,6 +16,12 @@ namespace GenHTTP.Modules.IO
         protected IResource Source { get; }
 
         public bool Changed => GetChecksum() != _LastChecksum;
+
+        public string? Name => Source.Name;
+
+        public DateTime? Modified => Source.Modified;
+
+        public FlexibleContentType? ContentType => Source.ContentType;
 
         #endregion
 

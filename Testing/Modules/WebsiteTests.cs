@@ -248,7 +248,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             return Website.Create()
                           .Theme(new Theme())
                           .Content(content ?? Layout.Create())
-                          .Favicon(Resource.FromString("This is a favicon"));
+                          .Favicon(Resource.FromString("This is a favicon").Type(new FlexibleContentType(ContentType.ImageIcon)));
         }
 
     }

@@ -4,7 +4,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.IO.Resources
+namespace GenHTTP.Modules.IO.Providers
 {
 
     public class ResourceHandler : IHandler
@@ -41,7 +41,7 @@ namespace GenHTTP.Modules.IO.Resources
 
             if (found != null)
             {
-                // ToDo: Improve performance, don't build
+                // ToDo: Improve performance, don't build?
 
                 return Download.From(found)
                                .Build(this)

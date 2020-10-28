@@ -3,11 +3,12 @@ using System.Reflection;
 using System.Linq;
 using System.IO;
 using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.IO.Providers
+namespace GenHTTP.Modules.IO.Embedded
 {
 
-    public class ResourceDataProvider : IResource
+    public class EmbeddedResource : IResource
     {
         private readonly ulong _Checksum;
 
@@ -17,21 +18,31 @@ namespace GenHTTP.Modules.IO.Providers
 
         public string QualifiedName { get; }
 
+        public string? Name { get; }
+
+        public DateTime? Modified { get; }
+
+        public FlexibleContentType? ContentType { get; }
+
         #endregion
 
         #region Initialization
 
-        public ResourceDataProvider(Assembly source, string name)
+        public EmbeddedResource(Assembly source, string path, string? name, FlexibleContentType? contentType, DateTime? modified)
         {
             var fqn = source.GetManifestResourceNames()
-                            .FirstOrDefault(n => n.EndsWith(name));
+                            .FirstOrDefault(n => n.EndsWith(path));
 
-            QualifiedName = fqn ?? throw new InvalidOperationException($"Resource '{name}' does not exist in assembly '{source}'");
+            QualifiedName = fqn ?? throw new InvalidOperationException($"Resource '{path}' does not exist in assembly '{source}'");
             Source = source;
 
             using var stream = GetContent();
 
             _Checksum = stream.CalculateChecksum() ?? throw new InvalidOperationException("Unable to calculate checksum of assembly resource");
+
+            Name = name;
+            ContentType = contentType;
+            Modified = modified;
         }
 
         #endregion

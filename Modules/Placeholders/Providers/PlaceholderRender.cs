@@ -6,7 +6,7 @@ using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.IO;
+using GenHTTP.Modules.IO.Caching;
 
 namespace GenHTTP.Modules.Placeholders.Providers
 {

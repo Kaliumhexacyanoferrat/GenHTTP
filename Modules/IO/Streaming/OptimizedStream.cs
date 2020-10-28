@@ -2,7 +2,7 @@
 
 using Microsoft.IO;
 
-namespace GenHTTP.Modules.IO
+namespace GenHTTP.Modules.IO.Streaming
 {
 
     /// <summary>

@@ -3,16 +3,13 @@
 namespace GenHTTP.Api.Content.IO
 {
 
-    public interface IResourceNode
+    public interface IResourceNode : IResourceContainer
     {
 
-        bool IsRoot { get; }
+        string Name { get; }
 
-        IResourceNode Parent { get; }
+        IResourceContainer Parent { get; }
 
-        IDictionary<string, IResourceNode> GetNodes();
-
-        IDictionary<string, IResource> GetResources();
 
     }
 
