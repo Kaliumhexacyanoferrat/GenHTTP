@@ -147,6 +147,8 @@ namespace GenHTTP.Engine.Utilities
                     POOL.Return(Buffer);
                 }
             }
+
+            base.Dispose(disposing);
         }
 
         #endregion
