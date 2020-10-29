@@ -2,7 +2,7 @@
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.IO.Caching;
+using GenHTTP.Modules.IO.Tracking;
 using Markdig;
 
 namespace GenHTTP.Modules.Markdown
@@ -16,7 +16,7 @@ namespace GenHTTP.Modules.Markdown
 
         #region Get-/Setters
 
-        public CachedResource File { get; }
+        public ChangeTrackingResource File { get; }
 
         #endregion
 
@@ -24,7 +24,7 @@ namespace GenHTTP.Modules.Markdown
 
         public MarkdownRenderer(IResource fileProvider)
         {
-            File = new CachedResource(fileProvider);
+            File = new ChangeTrackingResource(fileProvider);
         }
 
         #endregion

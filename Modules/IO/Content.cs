@@ -10,9 +10,6 @@ using GenHTTP.Modules.IO.Providers;
 namespace GenHTTP.Modules.IO
 {
 
-    // todo: unterscheidung von content und download (z.B. download nur get/head, content egal, disposition)
-    // todo: alle stellen ändern, von content anstatt download sinn ergibt 
-
     public static class Content
     {
 

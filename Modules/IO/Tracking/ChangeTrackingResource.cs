@@ -4,10 +4,10 @@ using System.IO;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.IO.Caching
+namespace GenHTTP.Modules.IO.Tracking
 {
 
-    public class CachedResource : IResource
+    public class ChangeTrackingResource : IResource
     {
         private ulong? _LastChecksum;
 
@@ -15,6 +15,11 @@ namespace GenHTTP.Modules.IO.Caching
 
         protected IResource Source { get; }
 
+        /// <summary>
+        /// True, if the content of the resource has changed
+        /// since <see cref="GetContent()" /> has been called
+        /// the last time.
+        /// </summary>
         public bool Changed => GetChecksum() != _LastChecksum;
 
         public string? Name => Source.Name;
@@ -29,7 +34,7 @@ namespace GenHTTP.Modules.IO.Caching
 
         #region Initialization
 
-        public CachedResource(IResource source)
+        public ChangeTrackingResource(IResource source)
         {
             Source = source;
         }

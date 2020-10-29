@@ -3,6 +3,7 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Basics;
 
 namespace GenHTTP.Modules.IO.Providers
 {
@@ -41,11 +42,12 @@ namespace GenHTTP.Modules.IO.Providers
 
             if (resource != null)
             {
-                // ToDo: Improve performance, don't build?
+                var type = resource.ContentType ?? new FlexibleContentType(resource.Name?.GuessContentType() ?? ContentType.ApplicationForceDownload);
 
-                return Content.From(resource)
-                              .Build(this)
-                              .Handle(request);
+                return request.Respond()
+                              .Content(resource)
+                              .Type(type)
+                              .Build();
             }
 
             return null;

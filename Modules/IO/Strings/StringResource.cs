@@ -12,6 +12,7 @@ namespace GenHTTP.Modules.IO.Strings
 
     public class StringResource : IResource
     {
+        private static readonly Encoding UTF8 = Encoding.UTF8;
 
         #region Get-/Setters
 
@@ -42,12 +43,7 @@ namespace GenHTTP.Modules.IO.Strings
 
         #region Functionality
 
-        public Stream GetContent()
-        {
-            // todo: share a common array pool for all things (see OptimizedStream)?
-            // todo: use array pool for this?
-            return OptimizedStream.From(Encoding.UTF8.GetBytes(Content));
-        }
+        public Stream GetContent() => OptimizedStream.From(UTF8.GetBytes(Content));
 
         public ulong GetChecksum() => (ulong)Content.GetHashCode();
 

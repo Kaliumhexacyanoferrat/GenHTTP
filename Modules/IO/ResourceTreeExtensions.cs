@@ -71,8 +71,6 @@ namespace GenHTTP.Modules.IO
                                            .Append(name)
                                            .Build();
 
-                    // ToDo: Add content information to IResource as well?
-
                     var contentType = resource.ContentType ?? new FlexibleContentType(name.GuessContentType() ?? ContentType.ApplicationForceDownload);
 
                     yield return new ContentElement(resourcePath, new ContentInfo(), contentType);

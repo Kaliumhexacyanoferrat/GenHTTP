@@ -10,11 +10,7 @@ namespace GenHTTP.Modules.IO
 
     public static class Resource
     {
-
-        // todo: fromStream(factory)?
-        
-        // todo: cached()
-
+                
         public static StringResourceBuilder FromString(string data) => new StringResourceBuilder().Content(data);
 
         public static EmbeddedResourceBuilder FromAssembly(string name) => new EmbeddedResourceBuilder().Path(name).Assembly(Assembly.GetCallingAssembly());

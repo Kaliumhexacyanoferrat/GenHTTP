@@ -6,7 +6,7 @@ using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.IO.Caching;
+using GenHTTP.Modules.IO.Tracking;
 
 namespace GenHTTP.Modules.Placeholders.Providers
 {
@@ -19,7 +19,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         #region Get-/Setters
 
-        public CachedResource TemplateProvider { get; }
+        public ChangeTrackingResource TemplateProvider { get; }
 
         #endregion
 
@@ -27,7 +27,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         public PlaceholderRender(IResource templateProvider)
         {
-            TemplateProvider = new CachedResource(templateProvider);
+            TemplateProvider = new ChangeTrackingResource(templateProvider);
         }
 
         #endregion
