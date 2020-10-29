@@ -10,6 +10,8 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Engine.Infrastructure.Configuration;
 using GenHTTP.Engine.Protocol;
 
+using PooledAwait;
+
 namespace GenHTTP.Engine
 {
 
@@ -50,7 +52,7 @@ namespace GenHTTP.Engine
 
         #region Functionality
 
-        internal async Task Run()
+        internal async PooledValueTask Run()
         {
             try
             {
@@ -64,7 +66,7 @@ namespace GenHTTP.Engine
             {
                 try
                 {
-                    Stream.Dispose();
+                    await Stream.DisposeAsync().ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
@@ -89,7 +91,7 @@ namespace GenHTTP.Engine
             }
         }
 
-        private async Task HandlePipe(PipeReader reader)
+        private async PooledValueTask HandlePipe(PipeReader reader)
         {
             try
             {
@@ -101,7 +103,7 @@ namespace GenHTTP.Engine
 
                 while ((request = await parser.TryParseAsync(buffer).ConfigureAwait(false)) != null)
                 {
-                    if (!await HandleRequest(request))
+                    if (!await HandleRequest(request).ConfigureAwait(false))
                     {
                         break;
                     }

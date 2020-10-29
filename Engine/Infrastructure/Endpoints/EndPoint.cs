@@ -9,6 +9,8 @@ using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Infrastructure.Configuration;
 
+using PooledAwait;
+
 namespace GenHTTP.Engine.Infrastructure.Endpoints
 {
 
@@ -95,9 +97,9 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
                 .ConfigureAwait(false);
         }
 
-        protected abstract Task Accept(Socket client);
+        protected abstract PooledValueTask Accept(Socket client);
 
-        protected async Task Handle(Socket client, Stream inputStream)
+        protected async PooledValueTask Handle(Socket client, Stream inputStream)
         {
             await new ClientHandler(client, inputStream, Server, this, Configuration).Run().ConfigureAwait(false);
         }

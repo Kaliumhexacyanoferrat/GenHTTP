@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
@@ -9,7 +8,11 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Engine.Infrastructure.Configuration;
+using GenHTTP.Engine.Utilities;
+
+using PooledAwait;
 
 namespace GenHTTP.Engine.Infrastructure.Endpoints
 {
@@ -50,13 +53,13 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
 
         #region Functionality
 
-        protected override async Task Accept(Socket client)
+        protected override async PooledValueTask Accept(Socket client)
         {
             var stream = await TryAuthenticate(client).ConfigureAwait(false);
 
             if (stream != null)
             {
-                await Handle(client, new BufferedStream(stream)).ConfigureAwait(false);
+                await Handle(client, new PoolBufferedStream(stream)).ConfigureAwait(false);
             }
             else
             {

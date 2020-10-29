@@ -45,7 +45,8 @@ namespace GenHTTP.Modules.IO
         private static readonly RecyclableMemoryStreamManager _StreamManager = new RecyclableMemoryStreamManager(SMALL_BLOCK_SIZE, LARGE_BLOCK_SIZE, SINGLE_STREAM_LIMIT)
         {
             MaximumFreeLargePoolBytes = LARGE_CACHE_LIMIT,
-            MaximumFreeSmallPoolBytes = SMALL_CACHE_LIMIT
+            MaximumFreeSmallPoolBytes = SMALL_CACHE_LIMIT,
+            GenerateCallStacks = false
         };
 
         public static Stream Create() => _StreamManager.GetStream();

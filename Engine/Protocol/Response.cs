@@ -30,9 +30,11 @@ namespace GenHTTP.Engine
 
         public ICookieCollection Cookies
         {
-            get { return _Cookies ?? (_Cookies = new CookieCollection()); }
+            get { return _Cookies ??= new CookieCollection(); }
         }
-        
+
+        public bool HasCookies => (_Cookies != null) && (_Cookies.Count > 0);
+
         public IEditableHeaderCollection Headers => _Headers;
 
         public string? this[string field]
