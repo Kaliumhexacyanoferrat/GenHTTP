@@ -15,9 +15,6 @@ namespace Playground
 
             return Host.Create()
                        .Handler(handler)
-                       .Console()
-                       .Defaults()
-                       .Development()
                        .Run();
         }
 

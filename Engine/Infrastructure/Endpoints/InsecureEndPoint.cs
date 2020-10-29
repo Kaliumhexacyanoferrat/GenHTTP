@@ -1,11 +1,11 @@
-﻿using System.IO;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Infrastructure.Configuration;
+using GenHTTP.Engine.Utilities;
 
 namespace GenHTTP.Engine.Infrastructure.Endpoints
 {
@@ -31,7 +31,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
 
         #region Functionality
 
-        protected override Task Accept(Socket client) => Handle(client, new BufferedStream(new NetworkStream(client)));
+        protected override Task Accept(Socket client) => Handle(client, new PoolBufferedStream(new NetworkStream(client), Configuration.TransferBufferSize));
         
         #endregion
 

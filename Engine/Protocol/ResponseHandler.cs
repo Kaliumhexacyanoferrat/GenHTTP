@@ -230,7 +230,7 @@ namespace GenHTTP.Engine.Protocol
             {
                 ASCII.GetBytes(text, 0, length, buffer, 0);
 
-                await OutputStream.WriteAsync(buffer.AsMemory(0, length)).ConfigureAwait(false);
+                await OutputStream.WriteAsync(buffer, 0, length).ConfigureAwait(false);
             }
             finally
             {
