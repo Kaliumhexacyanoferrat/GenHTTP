@@ -36,11 +36,11 @@ namespace GenHTTP.Engine.Utilities
 
         #region Initialization
 
-        public PoolBufferedStream(Stream stream, uint bufferSize)
+        public PoolBufferedStream(Stream stream)
         {
             Stream = stream;
 
-            Buffer = POOL.Rent((int)bufferSize);
+            Buffer = POOL.Rent(8192);
             Current = 0;
         }
 

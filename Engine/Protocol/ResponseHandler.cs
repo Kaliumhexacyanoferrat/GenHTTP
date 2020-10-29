@@ -9,6 +9,7 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Engine.Infrastructure.Configuration;
+using GenHTTP.Engine.Utilities;
 
 namespace GenHTTP.Engine.Protocol
 {
@@ -20,7 +21,7 @@ namespace GenHTTP.Engine.Protocol
         private static readonly Encoding ASCII = Encoding.ASCII;
 
         private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
-        
+
         #region Get-/Setters
 
         private IServer Server { get; }
@@ -99,7 +100,7 @@ namespace GenHTTP.Engine.Protocol
 
             await Write(" ").ConfigureAwait(false);
 
-            await Write(response.Status.RawStatus.ToString()).ConfigureAwait(false);
+            await Write(ConvertToString(response.Status.RawStatus)).ConfigureAwait(false);
 
             await Write(" ").ConfigureAwait(false);
 
@@ -114,7 +115,7 @@ namespace GenHTTP.Engine.Protocol
             await Write(Server.Version).ConfigureAwait(false);
             await Write(NL).ConfigureAwait(false);
 
-            await WriteHeaderLine("Date", DateTime.UtcNow.ToString("r")).ConfigureAwait(false);
+            await WriteHeaderLine("Date", DateHeader.GetValue()).ConfigureAwait(false);
 
             await WriteHeaderLine("Connection", (keepAlive) ? "Keep-Alive" : "Close").ConfigureAwait(false);
 
@@ -130,7 +131,7 @@ namespace GenHTTP.Engine.Protocol
 
             if (response.ContentLength != null)
             {
-                await WriteHeaderLine("Content-Length", response.ContentLength.ToString()).ConfigureAwait(false);
+                await WriteHeaderLine("Content-Length", ConvertToString((ulong)response.ContentLength)).ConfigureAwait(false);
             }
             else
             {
@@ -159,9 +160,12 @@ namespace GenHTTP.Engine.Protocol
                 await WriteHeaderLine(header.Key, header.Value).ConfigureAwait(false);
             }
 
-            foreach (var cookie in response.Cookies)
+            if (response.HasCookies)
             {
-                await WriteCookie(cookie.Value).ConfigureAwait(false);
+                foreach (var cookie in response.Cookies)
+                {
+                    await WriteCookie(cookie.Value).ConfigureAwait(false);
+                }
             }
         }
 
@@ -174,7 +178,7 @@ namespace GenHTTP.Engine.Protocol
                     using var chunked = new ChunkedStream(OutputStream);
 
                     await response.Content.Write(chunked, Configuration.TransferBufferSize).ConfigureAwait(false);
-                    
+
                     chunked.Finish();
                 }
                 else
@@ -212,7 +216,7 @@ namespace GenHTTP.Engine.Protocol
             if (cookie.MaxAge != null)
             {
                 await Write("; Max-Age=").ConfigureAwait(false);
-                await Write(cookie.MaxAge.Value.ToString()).ConfigureAwait(false);
+                await Write(ConvertToString(cookie.MaxAge.Value)).ConfigureAwait(false);
             }
 
             await Write("; Path=/").ConfigureAwait(false);
@@ -236,6 +240,25 @@ namespace GenHTTP.Engine.Protocol
             {
                 POOL.Return(buffer);
             }
+        }
+
+        private static string ConvertToString(int number) => NumberStringCache.Convert(number);
+
+        private static string ConvertToString(ulong number)
+        {
+            if (number < 1024)
+            {
+                return NumberStringCache.Convert((int)number);
+            }
+
+            Span<char> status = stackalloc char[20];
+
+            if (number.TryFormat(status, out int length))
+            {
+                return new string(status.Slice(0, length));
+            }
+
+            return number.ToString();
         }
 
         #endregion

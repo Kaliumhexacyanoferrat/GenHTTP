@@ -47,6 +47,11 @@ namespace GenHTTP.Api.Protocol
         /// </summary>
         ICookieCollection Cookies { get; }
 
+        /// <summary>
+        /// True, if there are cookies to be sent with this respone.
+        /// </summary>
+        bool HasCookies { get; }
+
         #endregion
 
         #region Content
