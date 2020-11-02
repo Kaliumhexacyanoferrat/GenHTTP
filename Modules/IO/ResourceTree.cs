@@ -10,7 +10,12 @@ namespace GenHTTP.Modules.IO
     public static class ResourceTree
     {
 
-        // todo: Root von Assembly.GetFullName oder sowas?
+        public static EmbeddedResourceTreeBuilder FromAssembly()
+        {
+            var assembly = Assembly.GetCallingAssembly();
+
+            return FromAssembly(assembly, assembly.GetName().Name);
+        }
 
         public static EmbeddedResourceTreeBuilder FromAssembly(string root) => FromAssembly(Assembly.GetCallingAssembly(), root);
 

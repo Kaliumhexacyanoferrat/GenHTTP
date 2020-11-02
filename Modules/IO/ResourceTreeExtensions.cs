@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
@@ -47,6 +48,14 @@ namespace GenHTTP.Modules.IO
 
         public static IEnumerable<ContentElement> GetContent(this IResourceContainer node, IRequest request, IHandler handler)
         {
+            return node.GetContent(request, handler, (path, children) =>
+            {
+                return new ContentElement(path, new ContentInfo(), ContentType.ApplicationForceDownload, children);
+            });
+        }
+
+        public static IEnumerable<ContentElement> GetContent(this IResourceContainer node, IRequest request, IHandler handler, Func<WebPath, IEnumerable<ContentElement>, ContentElement> indexProvider)
+        {
             var path = node.GetPath(request, handler);
 
             foreach (var childNode in node.GetNodes())
@@ -55,10 +64,7 @@ namespace GenHTTP.Modules.IO
                                    .Append(childNode.Name)
                                    .Build();
 
-                // ToDo: Allow providers (e.g. listing) to influence this entry
-                // ToDo: Allow to just have the structure but no actual content
-
-                yield return new ContentElement(nodePath, new ContentInfo(), ContentType.ApplicationForceDownload, childNode.GetContent(request, handler));
+                yield return indexProvider(nodePath, childNode.GetContent(request, handler, indexProvider));
             }
 
             foreach (var resource in node.GetResources())

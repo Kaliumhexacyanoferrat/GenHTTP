@@ -51,9 +51,18 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
             return null;
         }
 
-        // todo: somehow add index pages
+        public IEnumerable<ContentElement> GetContent(IRequest request) 
+        {
+            return Tree.GetContent(request, this, (path, children) =>
+            {
+                var info = new ContentInfo() 
+                {
+                    Title = $"Index of {path}"
+                };
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => Tree.GetContent(request, this);
+                return new ContentElement(path, info, ContentType.TextHtml, children);
+            });
+        }
 
         #endregion
 

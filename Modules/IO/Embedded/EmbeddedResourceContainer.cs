@@ -29,9 +29,6 @@ namespace GenHTTP.Modules.IO.Embedded
 
                     if (parts.Length <= 2)
                     {
-                        // e.g. "readme.md" or "readme"
-                        // todo: somehow make this smarter (e.g. GetResourceInfo)
-
                         var file = Resource.FromAssembly(source, resource)
                                            .Name(remainder)
                                            .Build();

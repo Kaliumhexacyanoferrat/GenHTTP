@@ -46,9 +46,18 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
                        .Build();
         }
 
-        // todo: same as with the listingrouter
+        public IEnumerable<ContentElement> GetContent(IRequest request)
+        {
+            return Container.GetContent(request, this, (path, children) =>
+            {
+                var info = new ContentInfo()
+                {
+                    Title = $"Index of {path}"
+                };
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => Container.GetContent(request, this);
+                return new ContentElement(path, info, ContentType.TextHtml, children);
+            });
+        }
 
         private ContentInfo GetPageInfo(IRequest request)
         {
