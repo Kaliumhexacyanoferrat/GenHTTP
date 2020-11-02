@@ -39,11 +39,14 @@ namespace GenHTTP.Modules.IO.Embedded
                     {
                         var childName = parts[0];
 
-                        var childPrefix = $"{prefix}.{childName}";
+                        if (!_Nodes.ContainsKey(childName))
+                        {
+                            var childPrefix = $"{prefix}.{childName}";
 
-                        var node = new EmbeddedResourceNode(source, childPrefix, this, childName);
+                            var node = new EmbeddedResourceNode(source, childPrefix, this, childName);
 
-                        _Nodes.Add(childName, node);
+                            _Nodes.Add(childName, node);
+                        }
                     }
                 }
             }

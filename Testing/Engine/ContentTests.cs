@@ -9,7 +9,7 @@ using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Conversion.Providers.Json;
 using GenHTTP.Modules.DirectoryBrowsing;
 using GenHTTP.Modules.IO;
-
+using GenHTTP.Modules.SinglePageApplications;
 using GenHTTP.Testing.Acceptance.Providers;
 
 using Xunit;
@@ -60,9 +60,10 @@ namespace GenHTTP.Testing.Acceptance.Engine
         #endregion
 
         [Fact]
-        public void TestEmbeddedResources()
+        public void TestResources()
         {
-            using var runner = TestRunner.Run(Resources.FromAssembly("Resources").Add(new ContentPrinterBuilder()));
+            using var runner = TestRunner.Run(Resources.From(ResourceTree.FromAssembly("Resources"))
+                                         .Add(new ContentPrinterBuilder()));
 
             using var response = runner.GetResponse();
 
@@ -70,23 +71,25 @@ namespace GenHTTP.Testing.Acceptance.Engine
         }
 
         [Fact]
-        public void TestStaticResources()
+        public void TestDirectoryListing()
         {
-            using var runner = TestRunner.Run(Resources.FromDirectory("./").Add(new ContentPrinterBuilder()));
+            using var runner = TestRunner.Run(Listing.From(ResourceTree.FromAssembly("Resources"))
+                                         .Add(new ContentPrinterBuilder()));
 
             using var response = runner.GetResponse();
 
-            Assert.Contains("Acceptance", response.GetContent());
+            Assert.Contains("Error.html", response.GetContent());
         }
 
         [Fact]
-        public void TestDirectoryListing()
+        public void TestSinglePageApplication()
         {
-            using var runner = TestRunner.Run(Listing.FromDirectory("./").Add(new ContentPrinterBuilder()));
+            using var runner = TestRunner.Run(SinglePageApplication.From(ResourceTree.FromAssembly("Resources"))
+                                         .Add(new ContentPrinterBuilder()));
 
             using var response = runner.GetResponse();
 
-            Assert.Contains("Acceptance", response.GetContent());
+            Assert.Contains("Error.html", response.GetContent());
         }
 
         [Fact]

@@ -37,7 +37,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
                 get { return new List<Style> { new Style("custom.css", Resource.FromString(" ").Build()) }; }
             }
 
-            public IHandlerBuilder? Resources => Layout.Create().Add("some.txt", Content.FromString("Text"));
+            public IHandlerBuilder? Resources => Layout.Create().Add("some.txt", Content.From(Resource.FromString("Text")));
 
             public IRenderer<ErrorModel> ErrorHandler => ModScriban.Template<ErrorModel>(Resource.FromAssembly("Error.html")).Build();
 

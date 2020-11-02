@@ -193,7 +193,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             {
                 var layout = Layout.Create()
                                    .Add("page", provider)
-                                   .Add("test", Content.FromString("test"));
+                                   .Add("test", Content.From(Resource.FromString("test")));
                 
                 using var runner = TestRunner.Run(layout);
 

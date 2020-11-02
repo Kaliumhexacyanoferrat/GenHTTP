@@ -17,6 +17,8 @@ namespace GenHTTP.Modules.IO
             return FromAssembly(assembly, assembly.GetName().Name);
         }
 
+        public static EmbeddedResourceTreeBuilder FromAssembly(Assembly source) => new EmbeddedResourceTreeBuilder().Source(source).Root(source.GetName().Name);
+
         public static EmbeddedResourceTreeBuilder FromAssembly(string root) => FromAssembly(Assembly.GetCallingAssembly(), root);
 
         public static EmbeddedResourceTreeBuilder FromAssembly(Assembly source, string root) => new EmbeddedResourceTreeBuilder().Source(source).Root(root);

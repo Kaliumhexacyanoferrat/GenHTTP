@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Net;
+﻿using System.Net;
 using System.Text;
 
 using Xunit;
@@ -13,54 +12,36 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
     public class DownloadTests
     {
 
-        /// <summary>
-        /// As a developer, I can provide downloads from file-based resources.
-        /// </summary>
         [Fact]
-        public void TestGetDownloadFromFile()
+        public void TestDownload()
         {
-            var file = Path.GetTempFileName();
-            File.WriteAllText(file, "Hello File!");
+            using var runner = TestRunner.Run(Download.From(Resource.FromAssembly("File.txt")));
 
-            try
-            {
-                var layout = Layout.Create().Add("file", Download.FromFile(file));
+            using var response = runner.GetResponse();
 
-                using (var runner = TestRunner.Run(layout))
-                {
-                    using (var response = runner.GetResponse("/file"))
-                    {
-                        Assert.Equal("Hello File!", response.GetContent());
-                    }
-                }
-            }
-            finally
-            {
-                try { File.Delete(file); } catch { /* nop */ }
-            }
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            Assert.Equal("This is text!", response.GetContent());
+            Assert.Equal("text/plain", response.GetResponseHeader("Content-Type"));
         }
 
-        /// <summary>
-        /// As a developer, I can provide downloads from embedded files.
-        /// </summary>
         [Fact]
-        public void TestGetDownloadFromResource()
+        public void TestDownloadDoesNotAcceptRouting()
         {
-            var layout = Layout.Create().Add("file", Download.FromResource("File.txt"));
+            var layout = Layout.Create()
+                               .Add("file.txt", Download.From(Resource.FromAssembly("File.txt")));
 
-            using (var runner = TestRunner.Run(layout))
-            {
-                using var response = runner.GetResponse("/file");
+            using var runner = TestRunner.Run(layout);
 
-                Assert.Equal("This is text!", response.GetContent());
-                Assert.Equal("text/plain", response.GetResponseHeader("Content-Type"));
-            }
+            using var response = runner.GetResponse("/file.txt/blubb");
+
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [Fact]
         public void DownloadsCannotBeModified()
         {
-            var download = Download.FromResource("File.txt");
+            var download = Download.From(Resource.FromAssembly("File.txt"));
 
             using var runner = TestRunner.Run(download);
 
@@ -82,7 +63,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         [Fact]
         public void TestFileName()
         {
-            var download = Download.FromString("Some File")
+            var download = Download.From(Resource.FromAssembly("File.txt"))
                                    .FileName("myfile.txt");
 
             using var runner = TestRunner.Run(download);
@@ -95,13 +76,25 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         [Fact]
         public void TestNoFileName()
         {
-            var download = Download.FromString("Some File");
+            var download = Download.From(Resource.FromAssembly("File.txt"));
 
             using var runner = TestRunner.Run(download);
 
             using var response = runner.GetResponse();
 
             Assert.Equal("attachment", response.GetResponseHeader("Content-Disposition"));
+        }
+        
+        [Fact]
+        public void TestFileNameFromResource()
+        {
+            var download = Download.From(Resource.FromAssembly("File.txt").Name("myfile.txt"));
+
+            using var runner = TestRunner.Run(download);
+
+            using var response = runner.GetResponse();
+
+            Assert.Equal("attachment; filename=\"myfile.txt\"", response.GetResponseHeader("Content-Disposition"));
         }
 
     }

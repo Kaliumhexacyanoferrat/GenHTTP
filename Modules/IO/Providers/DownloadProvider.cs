@@ -54,6 +54,11 @@ namespace GenHTTP.Modules.IO.Providers
 
         public IResponse? Handle(IRequest request)
         {
+            if (!request.Target.Ended)
+            {
+                return null;
+            }
+
             if (!request.HasType(RequestMethod.GET, RequestMethod.HEAD))
             {
                 return this.MethodNotAllowed(request).Build();
@@ -63,9 +68,11 @@ namespace GenHTTP.Modules.IO.Providers
                                   .Content(Resource)
                                   .Type(ContentType);
 
-            if (FileName != null)
+            var fileName = FileName ?? Resource.Name;
+
+            if (fileName != null)
             {
-                response.Header("Content-Disposition", $"attachment; filename=\"{FileName}\"");
+                response.Header("Content-Disposition", $"attachment; filename=\"{fileName}\"");
             }
             else
             {

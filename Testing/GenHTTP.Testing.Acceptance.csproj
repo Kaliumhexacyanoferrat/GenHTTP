@@ -16,6 +16,7 @@
     <None Remove="Resources\Certificate.pfx" />
     <None Remove="Resources\Error.html" />
     <None Remove="Resources\File.txt" />
+    <None Remove="Resources\Subdirectory\AnotherFile.txt" />
     <None Remove="Resources\Template.html" />
   </ItemGroup>
 
@@ -28,6 +29,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\File.txt" />
+    <EmbeddedResource Include="Resources\Subdirectory\AnotherFile.txt" />
     <EmbeddedResource Include="Resources\Template.html" />
   </ItemGroup>
 

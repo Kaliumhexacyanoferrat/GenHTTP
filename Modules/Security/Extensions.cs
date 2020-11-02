@@ -12,8 +12,8 @@ namespace GenHTTP.Modules.Security
 
 
         public static IServerHost Harden(this IServerHost host,
-                                           bool secureUpgrade = true,
-                                           bool strictTransport = true)
+                                         bool secureUpgrade = true,
+                                         bool strictTransport = true)
         {
             if (secureUpgrade)
             {

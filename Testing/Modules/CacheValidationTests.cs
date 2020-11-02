@@ -14,7 +14,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
         [Fact]
         public void TestETagIsGenerated()
         {
-            using var runner = TestRunner.Run(Content.FromString("Hello World!"));
+            using var runner = TestRunner.Run(Content.From(Resource.FromString("Hello World!")));
 
             using var response = runner.GetResponse();
 
@@ -29,7 +29,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
         [Fact]
         public void TestServerReturnsUnmodified()
         {
-            using var runner = TestRunner.Run(Content.FromString("Hello World!"));
+            using var runner = TestRunner.Run(Content.From(Resource.FromString("Hello World!")));
 
             using var response = runner.GetResponse();
 
@@ -49,7 +49,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
         [Fact]
         public void TestServerReturnsModified()
         {
-            using var runner = TestRunner.Run(Content.FromString("Hello World!"));
+            using var runner = TestRunner.Run(Content.From(Resource.FromString("Hello World!")));
 
             var request = runner.GetRequest();
 
@@ -78,7 +78,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
         [Fact]
         public void TestOtherMethodNoETag()
         {
-            using var runner = TestRunner.Run(Content.FromString("Hello World!"));
+            using var runner = TestRunner.Run(Content.From(Resource.FromString("Hello World!")));
 
             var request = runner.GetRequest();
 

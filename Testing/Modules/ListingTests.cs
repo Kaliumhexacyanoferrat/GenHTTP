@@ -4,6 +4,7 @@ using System.Net;
 using Xunit;
 
 using GenHTTP.Modules.DirectoryBrowsing;
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
@@ -85,7 +86,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             File.WriteAllText(Path.Combine(tempFolder, "my.txt"), "Hello World!");
 
-            var listing = Listing.FromDirectory(tempFolder);
+            var listing = Listing.From(ResourceTree.FromDirectory(tempFolder));
 
             return TestRunner.Run(listing);
         }

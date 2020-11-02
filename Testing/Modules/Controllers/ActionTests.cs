@@ -30,39 +30,39 @@ namespace GenHTTP.Testing.Acceptance.Modules.Mvc
 
             public IHandlerBuilder Index()
             {
-                return Content.FromString("Hello World!");
+                return Content.From(Resource.FromString("Hello World!"));
             }
 
             public IHandlerBuilder Action(int? query)
             {
-                return Content.FromString(query?.ToString() ?? "Action");
+                return Content.From(Resource.FromString(query?.ToString() ?? "Action"));
             }
 
             [ControllerAction(RequestMethod.PUT)]
             public IHandlerBuilder Action(int? value1, string value2)
             {
-                return Content.FromString((value1?.ToString() ?? "Action") + $" {value2}");
+                return Content.From(Resource.FromString((value1?.ToString() ?? "Action") + $" {value2}"));
             }
 
             public IHandlerBuilder SimpleAction([FromPath] int id)
             {
-                return Content.FromString(id.ToString());
+                return Content.From(Resource.FromString(id.ToString()));
             }
 
             public IHandlerBuilder ComplexAction(int three, [FromPath] int one, [FromPath] int two)
             {
-                return Content.FromString((one + two + three).ToString());
+                return Content.From(Resource.FromString((one + two + three).ToString()));
             }
 
             [ControllerAction(RequestMethod.POST)]
             public IHandlerBuilder Action(Model data)
             {
-                return Content.FromString(data.Field ?? "no content");
+                return Content.From(Resource.FromString(data.Field ?? "no content"));
             }
 
             public IHandlerBuilder HypenCAsing99()
             {
-                return Content.FromString("OK");
+                return Content.From(Resource.FromString("OK"));
             }
 
             public void Void() { }

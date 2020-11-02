@@ -22,12 +22,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.Mvc
 
             public IHandlerBuilder HandlerBuilder()
             {
-                return Content.FromString("HandlerBuilder");
+                return Content.From(Resource.FromString("HandlerBuilder"));
             }
 
             public IHandler Handler(IHandler parent)
             {
-                return Content.FromString("Handler").Build(parent);
+                return Content.From(Resource.FromString("Handler")).Build(parent);
             }
 
             public IResponseBuilder ResponseBuilder(IRequest request)

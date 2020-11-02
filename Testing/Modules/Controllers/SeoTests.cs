@@ -22,13 +22,13 @@ namespace GenHTTP.Testing.Acceptance.Modules.Mvc
 
             public IHandlerBuilder Action()
             {
-                return Content.FromString("Action");
+                return Content.From(Resource.FromString("Action"));
             }
 
             [ControllerAction(RequestMethod.DELETE)]
             public IHandlerBuilder Action([FromPath] int id) 
             {
-                return Content.FromString(id.ToString());
+                return Content.From(Resource.FromString(id.ToString()));
             }
 
         }

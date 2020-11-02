@@ -20,9 +20,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
         public void TestDomains()
         {
             var hosts = VirtualHosts.Create()
-                                    .Add("domain1.com", Layout.Create().Fallback(Content.FromString("domain1.com")))
-                                    .Add("domain2.com", Layout.Create().Fallback(Content.FromString("domain2.com")))
-                                    .Default(Layout.Create().Index(Content.FromString("default")));
+                                    .Add("domain1.com", Layout.Create().Fallback(Content.From(Resource.FromString("domain1.com"))))
+                                    .Add("domain2.com", Layout.Create().Fallback(Content.From(Resource.FromString("domain2.com"))))
+                                    .Default(Layout.Create().Index(Content.From(Resource.FromString("default"))));
 
             using var runner = TestRunner.Run(hosts);
 

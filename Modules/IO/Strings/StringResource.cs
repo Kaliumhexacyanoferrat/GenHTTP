@@ -35,7 +35,7 @@ namespace GenHTTP.Modules.IO.Strings
             Content = content;
 
             Name = name;
-            ContentType = contentType;
+            ContentType = contentType ?? new FlexibleContentType(Api.Protocol.ContentType.TextPlain);
             Modified = modified;
         }
 
