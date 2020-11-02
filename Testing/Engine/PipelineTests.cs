@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.Net.Sockets;
 using System.Text;
 
@@ -17,7 +15,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
         [Fact]
         public void ServerSupportsPipelining()
         {
-            using var runner = TestRunner.Run(Content.From("Hello World!"));
+            using var runner = TestRunner.Run(Content.From(Resource.FromString("Hello World!")));
 
             using var client = new TcpClient("127.0.0.1", runner.Port)
             {
