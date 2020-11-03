@@ -5,6 +5,7 @@ using Xunit;
 
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Modules.IO
@@ -126,6 +127,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             {
                 Assert.Equal(now, resource.Modified);
             }
+        }
+
+        [Fact]
+        public void TestNonExistentFile()
+        {
+            Assert.Throws<FileNotFoundException>(() => Resource.FromFile("blubb.txt").Build());
         }
 
     }
