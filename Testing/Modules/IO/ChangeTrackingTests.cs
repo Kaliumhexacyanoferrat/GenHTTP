@@ -44,6 +44,19 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             Assert.True(Resource.FromAssembly("File.txt").BuildWithTracking().Changed);
         }
 
+        [Fact]
+        public void TestMetaInformation()
+        {
+            var resource = Resource.FromAssembly("File.txt").Build();
+
+            var tracked = resource.Track();
+
+            Assert.Equal(resource.Name, tracked.Name);
+            Assert.Equal(resource.Length, tracked.Length);
+            Assert.Equal(resource.Modified, tracked.Modified);
+            Assert.Equal(resource.ContentType, tracked.ContentType);
+        }
+
     }
 
 }
