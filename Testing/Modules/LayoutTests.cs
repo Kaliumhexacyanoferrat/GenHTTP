@@ -18,7 +18,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
         public void TestGetIndex()
         {
             var layout = Layout.Create()
-                               .Index(Content.From("Hello World!"));
+                               .Index(Content.From(Resource.FromString("Hello World!")));
 
             using var runner = TestRunner.Run(layout);
 
@@ -38,7 +38,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
         [Fact]
         public void TestDefaultContent()
         {
-            var layout = Layout.Create().Fallback(Content.From("Hello World!"));
+            var layout = Layout.Create().Fallback(Content.From(Resource.FromString("Hello World!")));
 
             using var runner = TestRunner.Run(layout);
 
@@ -59,7 +59,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
         public void TestRedirect()
         {
             var layout = Layout.Create()
-                               .Add("section", Layout.Create().Index(Content.From("Hello World!")));
+                               .Add("section", Layout.Create().Index(Content.From(Resource.FromString("Hello World!"))));
 
             using var runner = TestRunner.Run(layout);
 

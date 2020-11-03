@@ -3,13 +3,14 @@
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
+using GenHTTP.Api.Content.IO;
 
 namespace GenHTTP.Modules.Placeholders.Providers
 {
 
     public class PlaceholderPageProviderBuilder<T> : IHandlerBuilder<PlaceholderPageProviderBuilder<T>>, IContentInfoBuilder<PlaceholderPageProviderBuilder<T>> where T : PageModel
     {
-        private IResourceProvider? _TemplateProvider;
+        private IResource? _TemplateProvider;
 
         private ModelProvider<T>? _ModelProvider;
 
@@ -19,7 +20,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         #region Functionality
 
-        public PlaceholderPageProviderBuilder<T> Template(IResourceProvider templateProvider)
+        public PlaceholderPageProviderBuilder<T> Template(IResource templateProvider)
         {
             _TemplateProvider = templateProvider;
             return this;

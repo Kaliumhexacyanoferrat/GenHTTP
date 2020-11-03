@@ -3,13 +3,14 @@
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
+using GenHTTP.Api.Content.IO;
 
 namespace GenHTTP.Modules.Scriban.Providers
 {
 
     public class ScribanPageProviderBuilder<T> : IHandlerBuilder<ScribanPageProviderBuilder<T>>, IContentInfoBuilder<ScribanPageProviderBuilder<T>> where T : PageModel
     {
-        protected IResourceProvider? _TemplateProvider;
+        protected IResource? _TemplateProvider;
 
         protected ModelProvider<T>? _ModelProvider;
 
@@ -19,7 +20,7 @@ namespace GenHTTP.Modules.Scriban.Providers
 
         #region Functionality
 
-        public ScribanPageProviderBuilder<T> Template(IResourceProvider templateProvider)
+        public ScribanPageProviderBuilder<T> Template(IResource templateProvider)
         {
             _TemplateProvider = templateProvider;
             return this;

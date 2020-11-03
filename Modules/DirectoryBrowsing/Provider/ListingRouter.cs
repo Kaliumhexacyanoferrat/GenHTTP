@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.DirectoryBrowsing.Provider
@@ -16,24 +14,18 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
         #region Get-/Setters
 
-        private DirectoryInfo Info { get; }
-
         public IHandler Parent { get; }
+
+        private IResourceTree Tree { get; }
 
         #endregion
 
         #region Initialization
 
-        public ListingRouter(IHandler parent, string directory)
+        public ListingRouter(IHandler parent, IResourceTree tree)
         {
             Parent = parent;
-
-            Info = new DirectoryInfo(directory);
-
-            if (!Info.Exists)
-            {
-                throw new DirectoryNotFoundException($"Directory with path '{directory}' does not exist");
-            }
+            Tree = tree;
         }
 
         #endregion
@@ -42,17 +34,17 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
         public IResponse? Handle(IRequest request)
         {
-            var path = Path.Combine(Info.FullName, "." + request.Target.GetRemaining());
+            var (node, resource) = Tree.Find(request.Target);
 
-            if (File.Exists(path))
+            if (resource != null)
             {
-                return Download.FromFile(path)
-                               .Build(this)
-                               .Handle(request);
+                return Content.From(resource)
+                              .Build(this)
+                              .Handle(request);
             }
-            else if (Directory.Exists(path))
+            else if (node != null)
             {
-                return new ListingProvider(this, path).Handle(request);
+                return new ListingProvider(this, node).Handle(request);
             }
 
             return null;
@@ -60,35 +52,15 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
-            var root = this.GetRoot(request, false);
-
-            foreach (var directory in Info.GetDirectories())
+            return Tree.GetContent(request, this, (path, children) =>
             {
-                var path = root.Edit(true)
-                               .Append(directory.Name)
-                               .Build();
+                var info = new ContentInfo()
+                {
+                    Title = $"Index of {path}"
+                };
 
-                var info = ContentInfo.Create()
-                                      .Title(directory.Name)
-                                      .Build();
-
-                yield return new ContentElement(path, info, ContentType.TextHtml, null);
-            }
-
-            foreach (var file in Info.GetFiles())
-            {
-                var path = root.Edit(false)
-                               .Append(file.Name)
-                               .Build();
-
-                var guessed = file.Name.GuessContentType() ?? ContentType.ApplicationForceDownload;
-               
-                var info = ContentInfo.Create()
-                                      .Title(file.Name)
-                                      .Build();
-
-                yield return new ContentElement(path, info, guessed, null);
-            }
+                return new ContentElement(path, info, ContentType.TextHtml, children);
+            });
         }
 
         #endregion

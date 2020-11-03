@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
@@ -15,18 +16,18 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
         #region Get-/Setters
 
-        public string Path { get; }
-
         public IHandler Parent { get; }
+
+        public IResourceContainer Container { get; }
 
         #endregion
 
         #region Initialization
 
-        public ListingProvider(IHandler parent, string path)
+        public ListingProvider(IHandler parent, IResourceContainer container)
         {
             Parent = parent;
-            Path = path;
+            Container = container;
         }
 
         #endregion
@@ -35,9 +36,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
         public IResponse Handle(IRequest request)
         {
-            var info = new DirectoryInfo(Path);
-
-            var model = new ListingModel(request, this, info.GetDirectories(), info.GetFiles(), !request.Target.Ended);
+            var model = new ListingModel(request, this, Container, !request.Target.Ended);
 
             var renderer = new ListingRenderer();
 
@@ -47,7 +46,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
                        .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, GetPageInfo(request), ContentType.TextHtml);
+        public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();
 
         private ContentInfo GetPageInfo(IRequest request)
         {

@@ -76,7 +76,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             var layout = Layout.Create()
                                .Add("redirect", Redirect.To("{index}"))
-                               .Index(Content.From("Hello World"));
+                               .Index(Content.From(Resource.FromString("Hello World")));
 
             using var runner = TestRunner.Run(layout);
 

@@ -6,6 +6,7 @@ using Xunit;
 using GenHTTP.Modules.SinglePageApplications;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Sitemaps;
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
@@ -20,7 +21,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             File.WriteAllText(Path.Combine(root, "index.html"), "This is the index!");
 
-            using var runner = TestRunner.Run(SinglePageApplication.From(root));
+            using var runner = TestRunner.Run(SinglePageApplication.From(ResourceTree.FromDirectory(root)));
 
             using var index = runner.GetResponse("/");
 
@@ -35,7 +36,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestNoIndex()
         {
-            using var runner = TestRunner.Run(SinglePageApplication.From(CreateRoot()));
+            using var runner = TestRunner.Run(SinglePageApplication.From(ResourceTree.FromDirectory(CreateRoot())));
 
             using var index = runner.GetResponse("/");
 
@@ -49,7 +50,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             File.WriteAllText(Path.Combine(root, "some.txt"), "This is some text file :)");
 
-            using var runner = TestRunner.Run(SinglePageApplication.From(root));
+            using var runner = TestRunner.Run(SinglePageApplication.From(ResourceTree.FromDirectory(root)));
 
             using var index = runner.GetResponse("/some.txt");
 
@@ -64,7 +65,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestNoFile()
         {
-            using var runner = TestRunner.Run(SinglePageApplication.From(CreateRoot()));
+            using var runner = TestRunner.Run(SinglePageApplication.From(ResourceTree.FromDirectory(CreateRoot())));
 
             using var index = runner.GetResponse("/nope.txt");
 
@@ -80,7 +81,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             File.WriteAllText(Path.Combine(root, "file.html"), "File");
 
             var layout = Layout.Create()
-                               .Add("spa", SinglePageApplication.From(root))
+                               .Add("spa", SinglePageApplication.From(ResourceTree.FromDirectory(root)))
                                .Add("sitemap", Sitemap.Create());
 
             using var runner = TestRunner.Run(layout);

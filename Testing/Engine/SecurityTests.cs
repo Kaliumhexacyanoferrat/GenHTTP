@@ -167,7 +167,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
         private static void RunSecure(Action<ushort, ushort> logic, SecureUpgrade? mode = null, string host = "localhost")
         {
-            var content = Layout.Create().Index(Content.From("Hello Alice!"));
+            var content = Layout.Create().Index(Content.From(Resource.FromString("Hello Alice!")));
 
             using var runner = new TestRunner(mode == null);
 
@@ -192,7 +192,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
         private static X509Certificate2 GetCertificate()
         {
-            using (var stream = Data.FromResource("Certificate.pfx").Build().GetResource())
+            using (var stream = Resource.FromAssembly("Certificate.pfx").Build().GetContent())
             {
                 using (var mem = new MemoryStream())
                 {

@@ -1,8 +1,10 @@
 ﻿using System.IO;
+using System.Net;
 
 using Xunit;
 
 using GenHTTP.Modules.DirectoryBrowsing;
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
@@ -62,6 +64,16 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.Equal("Hello World!", response.GetContent());
         }
 
+        [Fact]
+        public void TestNonExistingFolder()
+        {
+            using var runner = GetEnvironment();
+
+            using var response = runner.GetResponse("/idonotexist/");
+
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
         private TestRunner GetEnvironment()
         {
             var tempFolder = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
@@ -74,7 +86,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             File.WriteAllText(Path.Combine(tempFolder, "my.txt"), "Hello World!");
 
-            var listing = DirectoryListing.From(tempFolder);
+            var listing = Listing.From(ResourceTree.FromDirectory(tempFolder));
 
             return TestRunner.Run(listing);
         }

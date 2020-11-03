@@ -16,7 +16,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestProxy()
         {
-            using var upstream = TestRunner.Run(Content.From("Proxy!"));
+            using var upstream = TestRunner.Run(Content.From(Resource.FromString("Proxy!")));
 
             var loadbalancer = LoadBalancer.Create()
                                            .Proxy($"http://localhost:{upstream.Port}");
@@ -47,7 +47,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         public void TestCustomHandler()
         {
             var loadbalancer = LoadBalancer.Create()
-                                           .Add(Content.From("My Content!"));
+                                           .Add(Content.From(Resource.FromString("My Content!")));
 
             using var runner = TestRunner.Run(loadbalancer);
 
@@ -61,8 +61,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
         public void TestPriorities()
         {
             var loadbalancer = LoadBalancer.Create()
-                                           .Add(Content.From("Prio A"), r => Priority.High)
-                                           .Add(Content.From("Prio B"), r => Priority.Low);
+                                           .Add(Content.From(Resource.FromString("Prio A")), r => Priority.High)
+                                           .Add(Content.From(Resource.FromString("Prio B")), r => Priority.Low);
 
             using var runner = TestRunner.Run(loadbalancer);
 
@@ -75,9 +75,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
         public void TestMultiplePriorities()
         {
             var loadbalancer = LoadBalancer.Create()
-                                           .Add(Content.From("Prio A1"), r => Priority.High)
-                                           .Add(Content.From("Prio A2"), r => Priority.High)
-                                           .Add(Content.From("Prio A3"), r => Priority.High);
+                                           .Add(Content.From(Resource.FromString("Prio A1")), r => Priority.High)
+                                           .Add(Content.From(Resource.FromString("Prio A2")), r => Priority.High)
+                                           .Add(Content.From(Resource.FromString("Prio A3")), r => Priority.High);
 
             using var runner = TestRunner.Run(loadbalancer);
 

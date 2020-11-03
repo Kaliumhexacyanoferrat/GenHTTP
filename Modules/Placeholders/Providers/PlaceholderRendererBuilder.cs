@@ -1,17 +1,17 @@
 ﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
+using GenHTTP.Api.Content.IO;
 
 namespace GenHTTP.Modules.Placeholders.Providers
 {
 
     public class PlaceholderRendererBuilder<T> : IBuilder<IRenderer<T>> where T : class, IBaseModel
     {
-        private IResourceProvider? _TemplateProvider;
+        private IResource? _TemplateProvider;
 
         #region Functionality
 
-        public PlaceholderRendererBuilder<T> TemplateProvider(IResourceProvider templateProvider)
+        public PlaceholderRendererBuilder<T> TemplateProvider(IResource templateProvider)
         {
             _TemplateProvider = templateProvider;
             return this;

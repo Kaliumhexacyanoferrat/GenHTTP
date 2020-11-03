@@ -14,7 +14,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
         private const double TERABYTES = GIGABYTES * 1024;
 
-        public static string Format(long? bytes)
+        public static string Format(ulong? bytes)
         {
             if (bytes != null)
             {

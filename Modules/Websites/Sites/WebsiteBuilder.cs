@@ -2,6 +2,7 @@
 using System.Linq;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Infrastructure;
 
@@ -20,7 +21,7 @@ namespace GenHTTP.Modules.Websites.Sites
 
         private IBuilder<IMenuProvider>? _Menu;
 
-        private IResourceProvider? _Favicon;
+        private IResource? _Favicon;
 
         private readonly StyleRouterBuilder _Styles = new StyleRouterBuilder();
 
@@ -52,25 +53,25 @@ namespace GenHTTP.Modules.Websites.Sites
             return this;
         }
 
-        public WebsiteBuilder Favicon(IBuilder<IResourceProvider> resourceProvider) => Favicon(resourceProvider.Build());
+        public WebsiteBuilder Favicon(IBuilder<IResource> resourceProvider) => Favicon(resourceProvider.Build());
 
-        public WebsiteBuilder Favicon(IResourceProvider resourceProvider)
+        public WebsiteBuilder Favicon(IResource resourceProvider)
         {
             _Favicon = resourceProvider;
             return this;
         }
 
-        public WebsiteBuilder AddStyle(string name, IBuilder<IResourceProvider> provider) => AddStyle(name, provider.Build());
+        public WebsiteBuilder AddStyle(string name, IBuilder<IResource> provider) => AddStyle(name, provider.Build());
 
-        public WebsiteBuilder AddStyle(string name, IResourceProvider provider)
+        public WebsiteBuilder AddStyle(string name, IResource provider)
         {
             _Styles.Add(name, provider);
             return this;
         }
 
-        public WebsiteBuilder AddScript(string name, IBuilder<IResourceProvider> provider, bool asynchronous = false) => AddScript(name, provider.Build(), asynchronous);
+        public WebsiteBuilder AddScript(string name, IBuilder<IResource> provider, bool asynchronous = false) => AddScript(name, provider.Build(), asynchronous);
 
-        public WebsiteBuilder AddScript(string name, IResourceProvider provider, bool asynchronous = false)
+        public WebsiteBuilder AddScript(string name, IResource provider, bool asynchronous = false)
         {
             _Scripts.Add(name, provider, asynchronous);
             return this;

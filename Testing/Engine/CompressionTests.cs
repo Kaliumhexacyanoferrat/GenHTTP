@@ -2,6 +2,7 @@
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Content.IO;
 
 using GenHTTP.Modules.Compression;
 using GenHTTP.Modules.IO;
@@ -107,9 +108,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
         [Fact]
         public void TestNoAdditionalCompression()
         {
-            var image = Content.From("Image!").Type(ContentType.ImageJpg);
+            var image = Resource.FromString("Image!").Type(ContentType.ImageJpg);
 
-            using var runner = TestRunner.Run(Layout.Create().Add("uncompressed", image));
+            using var runner = TestRunner.Run(Layout.Create().Add("uncompressed", Content.From(image)));
 
             using var response = runner.GetResponse("/uncompressed");
 

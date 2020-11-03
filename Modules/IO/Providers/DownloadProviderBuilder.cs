@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 
-using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.IO.Providers
@@ -9,22 +10,33 @@ namespace GenHTTP.Modules.IO.Providers
 
     public class DownloadProviderBuilder : IHandlerBuilder<DownloadProviderBuilder>
     {
-        private IResourceProvider? _ResourceProvider;
-        private ContentType? _ContentType;
+        private IResource? _ResourceProvider;
+
+        private string? _FileName;
+
+        private FlexibleContentType? _ContentType;
 
         private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 
-        public DownloadProviderBuilder Resource(IResourceProvider resource)
+        public DownloadProviderBuilder Resource(IResource resource)
         {
             _ResourceProvider = resource;
             return this;
         }
 
-        public DownloadProviderBuilder Type(ContentType contentType)
+        public DownloadProviderBuilder Type(ContentType contentType) => Type(new FlexibleContentType(contentType));
+
+        public DownloadProviderBuilder Type(FlexibleContentType contentType)
         {
             _ContentType = contentType;
+            return this;
+        }
+
+        public DownloadProviderBuilder FileName(string fileName)
+        {
+            _FileName = fileName;
             return this;
         }
 
@@ -36,17 +48,9 @@ namespace GenHTTP.Modules.IO.Providers
 
         public IHandler Build(IHandler parent)
         {
-            if (_ResourceProvider == null)
-            {
-                throw new BuilderMissingPropertyException("Resource Provider");
-            }
+            var resource = _ResourceProvider ?? throw new BuilderMissingPropertyException("resourceProvider");
 
-            if (_ContentType == null)
-            {
-                throw new BuilderMissingPropertyException("Content Type");
-            }
-
-            return Concerns.Chain(parent, _Concerns, (p) => new DownloadProvider(p, _ResourceProvider, new FlexibleContentType((ContentType)_ContentType)));
+            return Concerns.Chain(parent, _Concerns, (p) => new DownloadProvider(p, resource, _FileName, _ContentType));
         }
 
         #endregion

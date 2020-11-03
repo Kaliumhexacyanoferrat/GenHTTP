@@ -3,8 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 
 using GenHTTP.Engine.Infrastructure.Configuration;
-
-using GenHTTP.Modules.IO;
+using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Engine.Protocol
 {

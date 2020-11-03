@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
@@ -44,6 +45,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
                 testServer.Host.Handler(new ProxiedRouter(response).Wrap())
                                .Development()
                                .Start();
+
+                Thread.Sleep(100);
 
                 // proxying server
                 var proxy = Proxy.Create()

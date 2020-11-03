@@ -11,7 +11,7 @@ namespace Playground
 
         public static int Main(string[] args)
         {
-            var handler = Content.From("Hello World");
+            var handler = Content.From(Resource.FromString("Hello World"));
 
             return Host.Create()
                        .Handler(handler)

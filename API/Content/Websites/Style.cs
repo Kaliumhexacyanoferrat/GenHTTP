@@ -1,4 +1,6 @@
-﻿namespace GenHTTP.Api.Content.Websites
+﻿using GenHTTP.Api.Content.IO;
+
+namespace GenHTTP.Api.Content.Websites
 {
 
     public class Style
@@ -8,13 +10,13 @@
 
         public string Name { get; }
 
-        public IResourceProvider Provider { get; }
+        public IResource Provider { get; }
 
         #endregion
 
         #region Initialization
 
-        public Style(string name, IResourceProvider provider)
+        public Style(string name, IResource provider)
         {
             Name = name;
             Provider = provider;

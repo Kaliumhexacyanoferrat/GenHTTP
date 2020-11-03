@@ -77,8 +77,7 @@ namespace GenHTTP.Modules.Websites.Resources
                 }
                 else if (Scripts.TryGetValue(file, out Script script))
                 {
-                    return Download.From(script.Provider)
-                                   .Type(ContentType.ApplicationJavaScript)
+                    return Content.From(script.Provider)
                                    .Build(this)
                                    .Handle(request);
                 }

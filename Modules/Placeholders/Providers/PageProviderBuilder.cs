@@ -2,13 +2,14 @@
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 
 namespace GenHTTP.Modules.Placeholders.Providers
 {
 
     public class PageProviderBuilder : IHandlerBuilder<PageProviderBuilder>, IContentInfoBuilder<PageProviderBuilder>
     {
-        private IResourceProvider? _Content;
+        private IResource? _Content;
 
         private readonly ContentInfoBuilder _Info = new ContentInfoBuilder();
 
@@ -28,7 +29,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
             return this;
         }
 
-        public PageProviderBuilder Content(IResourceProvider templateProvider)
+        public PageProviderBuilder Content(IResource templateProvider)
         {
             _Content = templateProvider;
             return this;

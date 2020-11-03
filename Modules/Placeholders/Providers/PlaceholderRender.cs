@@ -2,12 +2,11 @@
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-
-using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.IO;
+using GenHTTP.Modules.IO.Tracking;
 
 namespace GenHTTP.Modules.Placeholders.Providers
 {
@@ -20,15 +19,15 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         #region Get-/Setters
 
-        public CachedResource TemplateProvider { get; }
+        public ChangeTrackingResource TemplateProvider { get; }
 
         #endregion
 
         #region Initialization
 
-        public PlaceholderRender(IResourceProvider templateProvider)
+        public PlaceholderRender(IResource templateProvider)
         {
-            TemplateProvider = new CachedResource(templateProvider);
+            TemplateProvider = new ChangeTrackingResource(templateProvider);
         }
 
         #endregion

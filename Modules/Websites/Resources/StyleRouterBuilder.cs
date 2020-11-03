@@ -2,6 +2,7 @@
 using System.Linq;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Websites;
 
 namespace GenHTTP.Modules.Websites.Resources
@@ -17,7 +18,7 @@ namespace GenHTTP.Modules.Websites.Resources
 
         #region Functionality
 
-        public StyleRouterBuilder Add(string name, IResourceProvider provider)
+        public StyleRouterBuilder Add(string name, IResource provider)
         {
             _Styles.Add(new Style(name, provider));
             return this;

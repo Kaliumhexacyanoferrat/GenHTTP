@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
+
 using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Modules.DirectoryBrowsing.Provider
@@ -8,17 +10,19 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
     public class ListingRouterBuilder : IHandlerBuilder<ListingRouterBuilder>
     {
-        private string? _Directory;
+        private IResourceTree? _Tree;
 
         private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
 
         #region Functionality
 
-        public ListingRouterBuilder Directory(string directory)
+        public ListingRouterBuilder Tree(IResourceTree tree)
         {
-            _Directory = directory;
+            _Tree = tree;
             return this;
         }
+
+        public ListingRouterBuilder Tree(IBuilder<IResourceTree> tree) => Tree(tree.Build());
 
         public ListingRouterBuilder Add(IConcernBuilder concern)
         {
@@ -28,9 +32,9 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
         public IHandler Build(IHandler parent)
         {
-            var directory = _Directory ?? throw new BuilderMissingPropertyException("directory");
+            var tree = _Tree ?? throw new BuilderMissingPropertyException("tree");
 
-            return Concerns.Chain(parent, _Concerns, (p) => new ListingRouter(p, directory));
+            return Concerns.Chain(parent, _Concerns, (p) => new ListingRouter(p, tree));
         }
 
         #endregion

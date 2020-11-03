@@ -1,11 +1,9 @@
 ﻿using System.Reflection;
-
-using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.IO;
-
+using GenHTTP.Modules.IO.Tracking;
 using RazorEngineCore;
 
 namespace GenHTTP.Modules.Razor.Providers
@@ -19,15 +17,15 @@ namespace GenHTTP.Modules.Razor.Providers
 
         #region Get-/Setters
 
-        public CachedResource TemplateProvider { get; }
+        public ChangeTrackingResource TemplateProvider { get; }
 
         #endregion
 
         #region Initialization
 
-        public RazorRenderer(IResourceProvider templateProvider)
+        public RazorRenderer(IResource templateProvider)
         {
-            TemplateProvider = new CachedResource(templateProvider);
+            TemplateProvider = new ChangeTrackingResource(templateProvider);
         }
 
         #endregion

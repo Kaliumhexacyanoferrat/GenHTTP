@@ -1,4 +1,4 @@
-﻿using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Modules.IO;
@@ -17,15 +17,15 @@ namespace GenHTTP.Modules.Placeholders
 
         public static PageProviderBuilder From(string content)
         {
-            return From(Data.FromString(content));
+            return From(Resource.FromString(content));
         }
 
-        public static PageProviderBuilder From(IBuilder<IResourceProvider> content)
+        public static PageProviderBuilder From(IBuilder<IResource> content)
         {
             return From(content.Build());
         }
 
-        public static PageProviderBuilder From(IResourceProvider content)
+        public static PageProviderBuilder From(IResource content)
         {
             return new PageProviderBuilder().Content(content);
         }

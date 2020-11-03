@@ -70,7 +70,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 // code
 ```";
 
-            var page = ModMarkdown.Page(Data.FromString(md))
+            var page = ModMarkdown.Page(Resource.FromString(md))
                                   .Title("Markdown Page")
                                   .Description("A page rendered with markdown");
 
@@ -92,9 +92,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var providers = new List<IHandlerBuilder>()
             {
-                ModScriban.Page(Data.FromString("Hello {{ world }}!"), modelProvider).Title("1").Description("2"),
-                ModRazor.Page(Data.FromString("Hello @Model.World!"), modelProvider).Title("1").Description("2"),
-                Placeholders.Page(Data.FromString("Hello [World]!"), modelProvider).Title("1").Description("2")
+                ModScriban.Page(Resource.FromString("Hello {{ world }}!"), modelProvider).Title("1").Description("2"),
+                ModRazor.Page(Resource.FromString("Hello @Model.World!"), modelProvider).Title("1").Description("2"),
+                Placeholders.Page(Resource.FromString("Hello [World]!"), modelProvider).Title("1").Description("2")
             };
 
             foreach (var provider in providers)
@@ -153,8 +153,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             var providers = new List<IHandlerBuilder>()
             {
-                ModScriban.Page(Data.FromString("{{ route 'https://google.de' }}|{{ route 'res/123' }}|{{ route 'other/456/' }}|{{ route './relative' }}")),
-                ModRazor.Page(Data.FromString("@Model.Route(\"https://google.de\")|@Model.Route(\"res/123\")|@Model.Route(\"other/456/\")|@Model.Route(\"./relative\")")),
+                ModScriban.Page(Resource.FromString("{{ route 'https://google.de' }}|{{ route 'res/123' }}|{{ route 'other/456/' }}|{{ route './relative' }}")),
+                ModRazor.Page(Resource.FromString("@Model.Route(\"https://google.de\")|@Model.Route(\"res/123\")|@Model.Route(\"other/456/\")|@Model.Route(\"./relative\")")),
             };
 
             foreach (var provider in providers)
@@ -185,15 +185,15 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             var providers = new List<IHandlerBuilder>()
             {
-                ModScriban.Page(Data.FromString("{{ route path }}"), (IRequest r, IHandler h) => new PathModel(r, h)),
-                ModRazor.Page(Data.FromString("@Model.Route(Model.Path)"), (IRequest r, IHandler h) => new PathModel(r, h)),
+                ModScriban.Page(Resource.FromString("{{ route path }}"), (IRequest r, IHandler h) => new PathModel(r, h)),
+                ModRazor.Page(Resource.FromString("@Model.Route(Model.Path)"), (IRequest r, IHandler h) => new PathModel(r, h)),
             };
 
             foreach (var provider in providers)
             {
                 var layout = Layout.Create()
                                    .Add("page", provider)
-                                   .Add("test", Content.From("test"));
+                                   .Add("test", Content.From(Resource.FromString("test")));
                 
                 using var runner = TestRunner.Run(layout);
 

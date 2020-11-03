@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.SinglePageApplications.Provider
@@ -22,26 +21,31 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
 
         public IHandler Parent { get; }
 
-        private DirectoryInfo Info { get; }
+        private IResourceTree Tree { get; }
 
         private IHandler? Index { get; }
+
+        private IHandler Resources { get; }
 
         #endregion
 
         #region Initialization
 
-        public SinglePageProvider(IHandler parent, string directory)
+        public SinglePageProvider(IHandler parent, IResourceTree tree)
         {
             Parent = parent;
 
-            Info = new DirectoryInfo(directory);
+            Tree = tree;
 
-            foreach (var file in Info.GetFiles())
-            {
-                if (INDEX_FILES.Contains(file.Name))
-                {
-                    Index = Download.FromFile(file)
+            Resources = IO.Resources.From(tree)
                                     .Build(this);
+
+            foreach (var index in INDEX_FILES)
+            {
+                if (tree.TryGetResource(index, out var indexFile))
+                {
+                    Index = Content.From(indexFile)
+                                   .Build(this);
 
                     break;
                 }
@@ -60,38 +64,11 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
             }
             else
             {
-                var path = Path.Combine(Info.FullName, "." + request.Target.GetRemaining());
-
-                if (File.Exists(path))
-                {
-                    return Download.FromFile(path)
-                                   .Build(this)
-                                   .Handle(request);
-                }
-            }
-
-            return null;
-        }
-
-        public IEnumerable<ContentElement> GetContent(IRequest request)
-        {
-            var root = this.GetRoot(request, false);
-
-            foreach (var file in Info.GetFiles())
-            {
-                var path = root.Edit(false)
-                               .Append(file.Name)
-                               .Build();
-
-                var guessed = file.Name.GuessContentType() ?? ContentType.ApplicationForceDownload;
-
-                var info = ContentInfo.Create()
-                                      .Title(file.Name)
-                                      .Build();
-
-                yield return new ContentElement(path, info, guessed, null);
+                return Resources.Handle(request);
             }
         }
+
+        public IEnumerable<ContentElement> GetContent(IRequest request) => Tree.GetContent(request, this);
 
         #endregion
 

@@ -30,14 +30,14 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
                 Append(content, "../", "..", null, null);
             }
 
-            foreach (var dir in model.Directories.OrderBy(d => d.Name))
+            foreach (var dir in model.Container.GetNodes().OrderBy(d => d.Name))
             {
-                Append(content, $"./{HttpUtility.UrlPathEncode(dir.Name)}/", dir.Name, null, dir.LastWriteTime);
+                Append(content, $"./{HttpUtility.UrlPathEncode(dir.Name)}/", dir.Name, null, null);
             }
 
-            foreach (var file in model.Files.OrderBy(f => f.Name))
+            foreach (var file in model.Container.GetResources().Where(f => f.Name != null).OrderBy(f => f.Name))
             {
-                Append(content, $"./{HttpUtility.UrlPathEncode(file.Name)}", file.Name, file.Length, file.LastWriteTime);
+                Append(content, $"./{HttpUtility.UrlPathEncode(file.Name)}", file.Name!, file.Length, file.Modified);
             }
 
             content.AppendLine("</table>");
@@ -45,7 +45,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
             return content.ToString();
         }
 
-        private void Append(StringBuilder builder, string path, string name, long? size, DateTime? modified)
+        private void Append(StringBuilder builder, string path, string name, ulong? size, DateTime? modified)
         {
             builder.AppendLine("<tr>");
             builder.AppendLine($"  <td><a href=\"{path}\">{name}</a></td>");

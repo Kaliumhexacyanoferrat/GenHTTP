@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
@@ -18,13 +19,13 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         public ContentInfo PageInfo { get; }
 
-        public IResourceProvider Content { get; }
+        public IResource Content { get; }
 
         #endregion
 
         #region Initialization
 
-        public PageProvider(IHandler parent, ContentInfo pageInfo, IResourceProvider content)
+        public PageProvider(IHandler parent, ContentInfo pageInfo, IResource content)
         {
             Parent = parent;
 

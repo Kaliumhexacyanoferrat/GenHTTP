@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
@@ -16,7 +17,7 @@ namespace GenHTTP.Modules.Scriban.Providers
 
         public IHandler Parent { get; }
 
-        public IResourceProvider TemplateProvider { get; }
+        public IResource TemplateProvider { get; }
 
         public ModelProvider<T> ModelProvider { get; }
 
@@ -28,7 +29,7 @@ namespace GenHTTP.Modules.Scriban.Providers
 
         #region Initialization
 
-        public ScribanPageProvider(IHandler parent, IResourceProvider templateProvider, ModelProvider<T> modelProvider, ContentInfo pageInfo)
+        public ScribanPageProvider(IHandler parent, IResource templateProvider, ModelProvider<T> modelProvider, ContentInfo pageInfo)
         {
             Parent = parent;
 

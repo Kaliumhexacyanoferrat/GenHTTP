@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Websites.Bundles
@@ -8,7 +9,7 @@ namespace GenHTTP.Modules.Websites.Bundles
 
     public class BundleBuilder : IHandlerBuilder<BundleBuilder>
     {
-        private readonly List<IResourceProvider> _Items = new List<IResourceProvider>();
+        private readonly List<IResource> _Items = new List<IResource>();
 
         private FlexibleContentType _ContentType = new FlexibleContentType(Api.Protocol.ContentType.ApplicationForceDownload);
 
@@ -16,7 +17,7 @@ namespace GenHTTP.Modules.Websites.Bundles
 
         #region Functionality
 
-        public BundleBuilder Add(IResourceProvider resource)
+        public BundleBuilder Add(IResource resource)
         {
             _Items.Add(resource);
             return this;

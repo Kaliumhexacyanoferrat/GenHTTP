@@ -1,7 +1,7 @@
 ﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Modules.Placeholders.Providers;
+using GenHTTP.Api.Content.IO;
 
 namespace GenHTTP.Modules.Placeholders
 {
@@ -9,32 +9,32 @@ namespace GenHTTP.Modules.Placeholders
     public static class Placeholders
     {
 
-        public static PlaceholderRendererBuilder<T> Template<T>(IBuilder<IResourceProvider> templateProvider) where T : class, IBaseModel
+        public static PlaceholderRendererBuilder<T> Template<T>(IBuilder<IResource> templateProvider) where T : class, IBaseModel
         {
             return Template<T>(templateProvider.Build());
         }
 
-        public static PlaceholderRendererBuilder<T> Template<T>(IResourceProvider templateProvider) where T : class, IBaseModel
+        public static PlaceholderRendererBuilder<T> Template<T>(IResource templateProvider) where T : class, IBaseModel
         {
             return new PlaceholderRendererBuilder<T>().TemplateProvider(templateProvider);
         }
 
-        public static PlaceholderPageProviderBuilder<PageModel> Page(IBuilder<IResourceProvider> templateProvider)
+        public static PlaceholderPageProviderBuilder<PageModel> Page(IBuilder<IResource> templateProvider)
         {
             return Page(templateProvider.Build());
         }
 
-        public static PlaceholderPageProviderBuilder<PageModel> Page(IResourceProvider templateProvider)
+        public static PlaceholderPageProviderBuilder<PageModel> Page(IResource templateProvider)
         {
             return new PlaceholderPageProviderBuilder<PageModel>().Template(templateProvider).Model((r, h) => new PageModel(r, h));
         }
 
-        public static PlaceholderPageProviderBuilder<T> Page<T>(IBuilder<IResourceProvider> templateProvider, ModelProvider<T> modelProvider) where T : PageModel
+        public static PlaceholderPageProviderBuilder<T> Page<T>(IBuilder<IResource> templateProvider, ModelProvider<T> modelProvider) where T : PageModel
         {
             return Page(templateProvider.Build(), modelProvider);
         }
 
-        public static PlaceholderPageProviderBuilder<T> Page<T>(IResourceProvider templateProvider, ModelProvider<T> modelProvider) where T : PageModel
+        public static PlaceholderPageProviderBuilder<T> Page<T>(IResource templateProvider, ModelProvider<T> modelProvider) where T : PageModel
         {
             return new PlaceholderPageProviderBuilder<T>().Template(templateProvider).Model(modelProvider);
         }

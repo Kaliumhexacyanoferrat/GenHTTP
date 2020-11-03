@@ -1,4 +1,6 @@
-﻿namespace GenHTTP.Api.Content.Websites
+﻿using GenHTTP.Api.Content.IO;
+
+namespace GenHTTP.Api.Content.Websites
 {
 
     public class Script
@@ -10,13 +12,13 @@
 
         public bool Async { get; }
 
-        public IResourceProvider Provider { get; }
+        public IResource Provider { get; }
 
         #endregion
 
         #region Initialization
 
-        public Script(string name, bool asynchronous, IResourceProvider provider)
+        public Script(string name, bool asynchronous, IResource provider)
         {
             Name = name;
             Async = asynchronous;

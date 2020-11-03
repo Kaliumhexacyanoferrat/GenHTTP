@@ -1,49 +1,28 @@
-﻿using System.IO;
-using System.Reflection;
-
+﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO.Providers;
 
 namespace GenHTTP.Modules.IO
 {
 
+    /// <summary>
+    /// Generates a file download response for a given resource.
+    /// </summary>
     public static class Download
     {
 
-        public static DownloadProviderBuilder FromFile(string file)
-        {
-            return FromFile(new FileInfo(file));
-        }
+        /// <summary>
+        /// Creates a new download handler for the given resource.
+        /// </summary>
+        /// <param name="resource">The resource to be provided</param>
+        public static DownloadProviderBuilder From(IBuilder<IResource> resource) => From(resource.Build());
 
-        public static DownloadProviderBuilder FromFile(FileInfo file)
-        {
-            return From(Data.FromFile(file).Build()).Type(file.FullName.GuessContentType() ?? ContentType.ApplicationForceDownload);
-        }
-
-        public static DownloadProviderBuilder FromResource(string name)
-        {
-            return FromResource(Assembly.GetCallingAssembly(), name);
-        }
-
-        public static DownloadProviderBuilder FromResource(Assembly source, string name)
-        {
-            return From(Data.FromResource(source, name).Build()).Type(name.GuessContentType() ?? ContentType.ApplicationForceDownload);
-        }
-
-        public static DownloadProviderBuilder From(IBuilder<IResourceProvider> resource)
-        {
-            return From(resource.Build());
-        }
-
-        public static DownloadProviderBuilder From(IResourceProvider resource)
-        {
-            return new DownloadProviderBuilder().Resource(resource)
-                                                .Type(ContentType.ApplicationForceDownload);
-        }
+        /// <summary>
+        /// Creates a new download handler for the given resource.
+        /// </summary>
+        /// <param name="resource">The resource to be provided</param>
+        public static DownloadProviderBuilder From(IResource resource) => new DownloadProviderBuilder().Resource(resource);
 
     }
 
