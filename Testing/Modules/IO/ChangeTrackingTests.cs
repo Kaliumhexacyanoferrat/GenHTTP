@@ -27,7 +27,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
                 Assert.False(resource.Changed);
 
-                File.WriteAllText(file, "Two");
+                // modification timestamp is in seconds on unix, so we need another length
+                File.WriteAllText(file, "Three");
 
                 Assert.True(resource.Changed);
             }
