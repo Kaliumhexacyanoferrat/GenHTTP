@@ -30,7 +30,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
                 File.WriteAllText(file, "Two");
 
                 Assert.True(resource.Changed);
-                Assert.True(resource.Changed);
             }
             finally
             {
