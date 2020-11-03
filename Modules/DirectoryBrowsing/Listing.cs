@@ -1,7 +1,4 @@
-﻿using System.IO;
-using System.Reflection;
-
-using GenHTTP.Api.Content.IO;
+﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Modules.DirectoryBrowsing.Provider;

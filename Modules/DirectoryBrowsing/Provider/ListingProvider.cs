@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
@@ -6,7 +7,6 @@ using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 {
@@ -46,18 +46,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
                        .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request)
-        {
-            return Container.GetContent(request, this, (path, children) =>
-            {
-                var info = new ContentInfo()
-                {
-                    Title = $"Index of {path}"
-                };
-
-                return new ContentElement(path, info, ContentType.TextHtml, children);
-            });
-        }
+        public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();
 
         private ContentInfo GetPageInfo(IRequest request)
         {

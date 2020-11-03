@@ -4,7 +4,6 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.DirectoryBrowsing.Provider
@@ -51,11 +50,11 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
             return null;
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) 
+        public IEnumerable<ContentElement> GetContent(IRequest request)
         {
             return Tree.GetContent(request, this, (path, children) =>
             {
-                var info = new ContentInfo() 
+                var info = new ContentInfo()
                 {
                     Title = $"Index of {path}"
                 };

@@ -16,8 +16,6 @@ namespace GenHTTP.Modules.IO.FileSystem
 
         private FlexibleContentType? _Type;
 
-        private DateTime? _Modified;
-
         #region Functionality
 
         public FileResourceBuilder File(FileInfo file)
@@ -40,8 +38,7 @@ namespace GenHTTP.Modules.IO.FileSystem
 
         public FileResourceBuilder Modified(DateTime modified)
         {
-            _Modified = modified;
-            return this;
+            throw new NotSupportedException("Modification date of file resources cannot be changed");
         }
 
         public IResource Build()
@@ -53,7 +50,7 @@ namespace GenHTTP.Modules.IO.FileSystem
                 throw new FileNotFoundException("The given file does not exist", file.FullName);
             }
 
-            return new FileResource(file, _Name, _Type, _Modified);
+            return new FileResource(file, _Name, _Type);
         }
 
         #endregion
