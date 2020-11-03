@@ -105,7 +105,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             }
         }
 
-        private void TestMetaData<T>(IResourceMetaDataBuilder<T> builder, bool modified = true) where T : IResourceMetaDataBuilder<T>
+        private void TestMetaData<T>(IResourceBuilder<T> builder, bool modified = true) where T : IResourceBuilder<T>
         {
             var now = DateTime.UtcNow;
 

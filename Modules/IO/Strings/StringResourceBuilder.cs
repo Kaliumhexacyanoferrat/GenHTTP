@@ -7,7 +7,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.IO.Strings
 {
 
-    public class StringResourceBuilder : IBuilder<IResource>, IResourceMetaDataBuilder<StringResourceBuilder>
+    public class StringResourceBuilder : IResourceBuilder<StringResourceBuilder>
     {
         private string? _Content, _Name;
 

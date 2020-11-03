@@ -8,7 +8,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.IO.FileSystem
 {
 
-    public class FileResourceBuilder : IBuilder<IResource>, IResourceMetaDataBuilder<FileResourceBuilder>
+    public class FileResourceBuilder : IResourceBuilder<FileResourceBuilder>
     {
         private FileInfo? _File;
 

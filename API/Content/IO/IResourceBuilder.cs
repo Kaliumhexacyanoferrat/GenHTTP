@@ -11,7 +11,7 @@ namespace GenHTTP.Api.Content.IO
     /// this interface allows to configure common properties of
     /// resources in an unified way.
     /// </summary>
-    public interface IResourceMetaDataBuilder<out T> : IBuilder<IResource> where T : IResourceMetaDataBuilder<T>
+    public interface IResourceBuilder<out T> : IBuilder<IResource> where T : IResourceBuilder<T>
     {
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace GenHTTP.Api.Content.IO
         /// Sets the content type of the resource.
         /// </summary>
         /// <param name="contentType">The content type of the resource</param>
-        public static T Type<T>(this IResourceMetaDataBuilder<T> builder, ContentType contentType) where T : IResourceMetaDataBuilder<T> => builder.Type(new FlexibleContentType(contentType));
+        public static T Type<T>(this IResourceBuilder<T> builder, ContentType contentType) where T : IResourceBuilder<T> => builder.Type(new FlexibleContentType(contentType));
 
     }
 

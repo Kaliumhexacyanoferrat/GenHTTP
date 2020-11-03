@@ -10,7 +10,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.IO.Embedded
 {
 
-    public class EmbeddedResourceBuilder : IBuilder<IResource>, IResourceMetaDataBuilder<EmbeddedResourceBuilder>
+    public class EmbeddedResourceBuilder : IResourceBuilder<EmbeddedResourceBuilder>
     {
         private Assembly? _Assembly;
 
