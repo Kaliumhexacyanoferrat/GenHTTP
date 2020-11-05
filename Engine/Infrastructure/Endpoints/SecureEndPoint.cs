@@ -75,7 +75,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
             }
         }
 
-        private async Task<SslStream?> TryAuthenticate(Socket client)
+        private async PooledValueTask<SslStream?> TryAuthenticate(Socket client)
         {
             try
             {

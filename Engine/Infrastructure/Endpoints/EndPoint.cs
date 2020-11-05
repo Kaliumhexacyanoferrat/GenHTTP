@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
@@ -71,7 +72,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
 
         #region Functionality
 
-        private async Task Listen()
+        private async PooledValueTask Listen()
         {
             try
             {
@@ -92,6 +93,8 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
 
         private void Handle(Socket client)
         {
+            using var _ = ExecutionContext.SuppressFlow();
+
             Task.Run(() => Accept(client).ConfigureAwait(false))
                 .ConfigureAwait(false);
         }
