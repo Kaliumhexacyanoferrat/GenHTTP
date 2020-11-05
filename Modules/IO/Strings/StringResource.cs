@@ -16,7 +16,7 @@ namespace GenHTTP.Modules.IO.Strings
 
         #region Get-/Setters
 
-        public string Content { get; }
+        public byte[] Content { get; }
 
         public string? Name { get; }
 
@@ -32,7 +32,7 @@ namespace GenHTTP.Modules.IO.Strings
 
         public StringResource(string content, string? name, FlexibleContentType? contentType, DateTime? modified)
         {
-            Content = content;
+            Content = UTF8.GetBytes(content);
 
             Name = name;
             ContentType = contentType ?? new FlexibleContentType(Api.Protocol.ContentType.TextPlain);
@@ -43,7 +43,7 @@ namespace GenHTTP.Modules.IO.Strings
 
         #region Functionality
 
-        public Stream GetContent() => OptimizedStream.From(UTF8.GetBytes(Content));
+        public Stream GetContent() => OptimizedStream.From(Content);
 
         public ulong GetChecksum() => (ulong)Content.GetHashCode();
 

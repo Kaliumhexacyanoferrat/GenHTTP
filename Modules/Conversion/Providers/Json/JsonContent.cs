@@ -34,9 +34,9 @@ namespace GenHTTP.Modules.Conversion.Providers.Json
 
         #region Functionality
 
-        public async Task Write(Stream target, uint bufferSize)
+        public Task Write(Stream target, uint bufferSize)
         {
-            await JsonSerializer.SerializeAsync(target, Data, Data.GetType(), Options);
+            return JsonSerializer.SerializeAsync(target, Data, Data.GetType(), Options);
         }
 
         #endregion

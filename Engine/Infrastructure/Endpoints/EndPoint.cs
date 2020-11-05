@@ -2,7 +2,6 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
@@ -65,7 +64,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
                 throw new BindingException($"Failed to bind to {endPoint}.", e);
             }
 
-            Task = Task.Factory.StartNew(() => Listen(), CancellationToken.None, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            Task = Task.Run(() => Listen());
         }
 
         #endregion
@@ -93,15 +92,15 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
 
         private void Handle(Socket client)
         {
-            Task.Run(async () => await Accept(client).ConfigureAwait(false))
+            Task.Run(() => Accept(client).ConfigureAwait(false))
                 .ConfigureAwait(false);
         }
 
         protected abstract PooledValueTask Accept(Socket client);
 
-        protected async PooledValueTask Handle(Socket client, Stream inputStream)
+        protected PooledValueTask Handle(Socket client, Stream inputStream)
         {
-            await new ClientHandler(client, inputStream, Server, this, Configuration).Run().ConfigureAwait(false);
+            return new ClientHandler(client, inputStream, Server, this, Configuration).Run();
         }
 
         #endregion

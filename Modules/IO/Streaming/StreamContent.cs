@@ -1,14 +1,19 @@
 ﻿using System;
+using System.Buffers;
 using System.IO;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
+
+using PooledAwait;
 
 namespace GenHTTP.Modules.IO.Streaming
 {
 
     public class StreamContent : IResponseContent, IDisposable
     {
+        private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
+
         private readonly Func<ulong?> _ChecksumProvider;
 
         #region Get-/Setters
@@ -44,14 +49,41 @@ namespace GenHTTP.Modules.IO.Streaming
 
         #region Functionality
 
-        public async Task Write(Stream target, uint bufferSize)
+        public Task Write(Stream target, uint bufferSize)
         {
-            if (Content.CanSeek && Content.Position != 0)
-            {
-                Content.Seek(0, SeekOrigin.Begin);
-            }
+            return DoWrite(this, target, bufferSize);
 
-            await Content.CopyToAsync(target, (int)bufferSize);
+            static async PooledTask DoWrite(StreamContent self, Stream target, uint bufferSize)
+            {
+                if (self.Content.CanSeek && self.Content.Position != 0)
+                {
+                    self.Content.Seek(0, SeekOrigin.Begin);
+                }
+
+                var buffer = POOL.Rent((int)bufferSize);
+
+                var memory = buffer.AsMemory();
+
+                try
+                {
+                    int read;
+
+                    do
+                    {
+                        read = await self.Content.ReadAsync(memory);
+
+                        if (read > 0)
+                        {
+                            await target.WriteAsync(memory.Slice(0, read));
+                        }
+                    } 
+                    while (read > 0);
+                }
+                finally
+                {
+                    POOL.Return(buffer);
+                }
+            }
         }
 
         #endregion

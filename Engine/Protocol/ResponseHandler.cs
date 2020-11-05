@@ -11,6 +11,8 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Infrastructure.Configuration;
 using GenHTTP.Engine.Utilities;
 
+using PooledAwait;
+
 namespace GenHTTP.Engine.Protocol
 {
 
@@ -224,7 +226,7 @@ namespace GenHTTP.Engine.Protocol
             await Write(NL).ConfigureAwait(false);
         }
 
-        private async ValueTask Write(string text)
+        private async PooledValueTask Write(string text)
         {
             var length = text.Length;
 
