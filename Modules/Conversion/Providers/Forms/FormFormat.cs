@@ -18,7 +18,7 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
 
         private static readonly object[] EMPTY_ARGS = new object[0];
 
-        public async Task<object> Deserialize(Stream stream, Type type)
+        public async ValueTask<object> DeserializeAsync(Stream stream, Type type)
         {
             using var reader = new StreamReader(stream);
 
@@ -62,11 +62,13 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
             return result;
         }
 
-        public IResponseBuilder Serialize(IRequest request, object response)
+        public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)
         {
-            return request.Respond()
-                          .Content(new FormContent(response.GetType(), response))
-                          .Type(ContentType.ApplicationWwwFormUrlEncoded);
+            var result = request.Respond()
+                                .Content(new FormContent(response.GetType(), response))
+                                .Type(ContentType.ApplicationWwwFormUrlEncoded);
+
+            return new ValueTask<IResponseBuilder>(result);
         }
 
         public Dictionary<string, string>? GetContent(IRequest request)

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
@@ -44,16 +45,17 @@ namespace GenHTTP.Modules.Razor.Providers
 
         #region Functionality
 
-        public IResponse Handle(IRequest request)
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var model = ModelProvider(request, this);
 
-            var content = Renderer.Render(model);
+            var content = await Renderer.RenderAsync(model).ConfigureAwait(false);
 
             var templateModel = new TemplateModel(request, this, PageInfo, content);
 
-            return this.Page(templateModel)
-                       .Build();
+            var page = await this.GetPageAsync(templateModel).ConfigureAwait(false);
+
+            return page.Build();
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, PageInfo, ContentType.TextHtml);

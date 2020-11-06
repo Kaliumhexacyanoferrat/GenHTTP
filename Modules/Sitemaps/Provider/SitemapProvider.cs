@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -36,7 +36,7 @@ namespace GenHTTP.Modules.Sitemaps.Provider
             Parent = parent;
         }
 
-        public IResponse Handle(IRequest request)
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var baseUri = $"{request.Client.Protocol.ToString().ToLower()}://{request.Host}";
 
@@ -47,10 +47,12 @@ namespace GenHTTP.Modules.Sitemaps.Provider
                 Flatten(element, elements);
             }
 
-            return request.Respond()
-                          .Content(new SitemapContent(baseUri, elements))
-                          .Type(ContentType.TextXml)
-                          .Build();
+            var response = request.Respond()
+                                  .Content(new SitemapContent(baseUri, elements))
+                                  .Type(ContentType.TextXml)
+                                  .Build();
+
+            return new ValueTask<IResponse?>(response);
         }
 
         private void Flatten(ContentElement item, List<ContentElement> into)

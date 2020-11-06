@@ -2,11 +2,15 @@
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO.Tracking;
+
+using PooledAwait;
 
 namespace GenHTTP.Modules.Placeholders.Providers
 {
@@ -34,9 +38,9 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         #region Functionality
 
-        public string Render(T model)
+        public async ValueTask<string> RenderAsync(T model)
         {
-            var template = GetTemplate();
+            var template = await GetTemplate();
 
             return PLACEHOLDER.Replace(template, (match) =>
             {
@@ -47,11 +51,11 @@ namespace GenHTTP.Modules.Placeholders.Providers
             });
         }
 
-        private string GetTemplate()
+        private async PooledValueTask<string> GetTemplate()
         {
-            if (TemplateProvider.Changed)
+            if (await TemplateProvider.HasChanged())
             {
-                _Template = TemplateProvider.GetResourceAsString();
+                _Template = await TemplateProvider.GetResourceAsStringAsync();
             }
 
             return _Template!;

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
@@ -32,19 +33,21 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
         #region Functionality
 
-        public IResponse? Handle(IRequest request)
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var (node, resource) = Tree.Find(request.Target);
 
             if (resource != null)
             {
-                return Content.From(resource)
-                              .Build(this)
-                              .Handle(request);
+                return await Content.From(resource)
+                                    .Build(this)
+                                    .HandleAsync(request)
+                                    .ConfigureAwait(false);
             }
             else if (node != null)
             {
-                return new ListingProvider(this, node).Handle(request);
+                return await new ListingProvider(this, node).HandleAsync(request)
+                                                            .ConfigureAwait(false);
             }
 
             return null;

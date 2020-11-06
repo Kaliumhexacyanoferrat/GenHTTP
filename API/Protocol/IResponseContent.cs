@@ -37,14 +37,14 @@ namespace GenHTTP.Api.Protocol
         /// when the Write call is invoked, not when the content instance
         /// is constructed.
         /// </remarks>
-        ulong? Checksum { get; }
+        ValueTask<ulong?> CalculateChecksumAsync();
 
         /// <summary>
         /// Writes the content to the specified target stream.
         /// </summary>
         /// <param name="target">The stream to write the data to</param>
         /// <param name="bufferSize">The buffer size to be used to write the data</param>
-        Task Write(Stream target, uint bufferSize);
+        ValueTask WriteAsync(Stream target, uint bufferSize);
 
     }
 

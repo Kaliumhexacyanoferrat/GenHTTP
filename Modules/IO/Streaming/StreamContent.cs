@@ -14,7 +14,7 @@ namespace GenHTTP.Modules.IO.Streaming
     {
         private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
 
-        private readonly Func<ulong?> _ChecksumProvider;
+        private readonly Func<ValueTask<ulong?>> _ChecksumProvider;
 
         #region Get-/Setters
 
@@ -33,13 +33,11 @@ namespace GenHTTP.Modules.IO.Streaming
             }
         }
 
-        public ulong? Checksum => _ChecksumProvider();
-
         #endregion
 
         #region Initialization
 
-        public StreamContent(Stream content, Func<ulong?> checksumProvider)
+        public StreamContent(Stream content, Func<ValueTask<ulong?>> checksumProvider)
         {
             Content = content;
             _ChecksumProvider = checksumProvider;
@@ -49,11 +47,13 @@ namespace GenHTTP.Modules.IO.Streaming
 
         #region Functionality
 
-        public Task Write(Stream target, uint bufferSize)
+        public ValueTask<ulong?> CalculateChecksumAsync() => _ChecksumProvider();
+
+        public ValueTask WriteAsync(Stream target, uint bufferSize)
         {
             return DoWrite(this, target, bufferSize);
 
-            static async PooledTask DoWrite(StreamContent self, Stream target, uint bufferSize)
+            static async PooledValueTask DoWrite(StreamContent self, Stream target, uint bufferSize)
             {
                 if (self.Content.CanSeek && self.Content.Position != 0)
                 {

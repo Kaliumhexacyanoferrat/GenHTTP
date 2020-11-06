@@ -19,16 +19,18 @@ namespace GenHTTP.Modules.Conversion.Providers.Json
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        public async Task<object> Deserialize(Stream stream, Type type)
+        public ValueTask<object> DeserializeAsync(Stream stream, Type type)
         {
-            return await JsonSerializer.DeserializeAsync(stream, type, OPTIONS);
+            return JsonSerializer.DeserializeAsync(stream, type, OPTIONS);
         }
 
-        public IResponseBuilder Serialize(IRequest request, object response)
+        public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)
         {
-            return request.Respond()
-                          .Content(new JsonContent(response, OPTIONS))
-                          .Type(ContentType.ApplicationJson);
+            var result = request.Respond()
+                                .Content(new JsonContent(response, OPTIONS))
+                                .Type(ContentType.ApplicationJson);
+
+            return new ValueTask<IResponseBuilder>(result);
         }
 
     }

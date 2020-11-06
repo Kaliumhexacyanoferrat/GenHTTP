@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
@@ -40,14 +40,14 @@ namespace GenHTTP.Modules.Markdown
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, PageInfo, ContentType.TextHtml);
 
-        public IResponse Handle(IRequest request)
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var content = Renderer.Render(null);
+            var content = await Renderer.RenderAsync(null)
+                                        .ConfigureAwait(false);
 
             var templateModel = new TemplateModel(request, this, PageInfo, content);
 
-            return this.Page(templateModel)
-                       .Build();
+            return (await this.GetPageAsync(templateModel).ConfigureAwait(false)).Build();
         }
 
         #endregion

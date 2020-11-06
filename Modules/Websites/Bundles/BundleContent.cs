@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
@@ -19,35 +20,6 @@ namespace GenHTTP.Modules.Websites.Bundles
 
         private IEnumerable<IResource> Items { get; }
 
-        public ulong? Checksum
-        {
-            get
-            {
-                unchecked
-                {
-                    ulong hash = 17;
-
-                    foreach (var item in Items)
-                    {
-                        using var source = item.GetContent();
-
-                        var checksum = source.CalculateChecksum();
-
-                        if (checksum != null)
-                        {
-                            hash = hash * 23 + (ulong)checksum;
-                        }
-                        else
-                        {
-                            return null;
-                        }
-                    }
-
-                    return hash;
-                }
-            }
-        }
-
         #endregion
 
         #region Initialization
@@ -61,14 +33,40 @@ namespace GenHTTP.Modules.Websites.Bundles
 
         #region Functionality
 
-        public async Task Write(Stream target, uint bufferSize)
+        public async ValueTask WriteAsync(Stream target, uint bufferSize)
         {
             foreach (var item in Items)
             {
-                using var source = item.GetContent();
+                using var source = await item.GetContentAsync();
                 await source.CopyToAsync(target, (int)bufferSize);
 
                 await target.WriteAsync(_NewLine, 0, 1);
+            }
+        }
+
+        public async ValueTask<ulong?> CalculateChecksumAsync()
+        {
+            unchecked
+            {
+                ulong hash = 17;
+
+                foreach (var item in Items)
+                {
+                    using var source = await item.GetContentAsync();
+
+                    var checksum = await source.CalculateChecksumAsync();
+
+                    if (checksum != null)
+                    {
+                        hash = hash * 23 + (ulong)checksum;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+
+                return hash;
             }
         }
 

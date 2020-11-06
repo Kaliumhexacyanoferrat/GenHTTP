@@ -1,9 +1,13 @@
 ﻿using System.Reflection;
+using System.Threading.Tasks;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO.Tracking;
+
+using PooledAwait;
+
 using RazorEngineCore;
 
 namespace GenHTTP.Modules.Razor.Providers
@@ -32,29 +36,29 @@ namespace GenHTTP.Modules.Razor.Providers
 
         #region Functionality
 
-        public string Render(T model)
+        public async ValueTask<string> RenderAsync(T model)
         {
-            var template = GetTemplate();
+            var template = await GetTemplate();
 
-            return template.Run((instance) =>
+            return await template.RunAsync((instance) =>
             {
                 instance.Model = model;
             });
         }
 
-        private IRazorEngineCompiledTemplate<RazorEngineTemplateBase<T>> GetTemplate()
+        private async PooledValueTask<IRazorEngineCompiledTemplate<RazorEngineTemplateBase<T>>> GetTemplate()
         {
-            if (TemplateProvider.Changed)
+            if (await TemplateProvider.HasChanged())
             {
-                _Template = LoadTemplate();
+                _Template = await LoadTemplate();
             }
 
             return _Template!;
         }
 
-        private IRazorEngineCompiledTemplate<RazorEngineTemplateBase<T>> LoadTemplate()
+        private async PooledValueTask<IRazorEngineCompiledTemplate<RazorEngineTemplateBase<T>>> LoadTemplate()
         {
-            return _Engine.Compile<RazorEngineTemplateBase<T>>(TemplateProvider.GetResourceAsString(), (builder) =>
+            return await _Engine.CompileAsync<RazorEngineTemplateBase<T>>(await TemplateProvider.GetResourceAsStringAsync(), (builder) =>
             {
                 builder.AddAssemblyReference(Assembly.GetCallingAssembly());
 

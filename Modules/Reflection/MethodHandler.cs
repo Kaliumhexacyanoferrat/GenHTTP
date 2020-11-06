@@ -44,7 +44,7 @@ namespace GenHTTP.Modules.Reflection
 
         private Func<object> InstanceProvider { get; }
 
-        private Func<IRequest, IHandler, object?, IResponse?> ResponseProvider { get; }
+        private Func<IRequest, IHandler, object?, ValueTask<IResponse?>> ResponseProvider { get; }
 
         private SerializationRegistry Serialization { get; }
 
@@ -53,7 +53,7 @@ namespace GenHTTP.Modules.Reflection
         #region Initialization
 
         public MethodHandler(IHandler parent, MethodInfo method, MethodRouting routing, Func<object> instanceProvider, MethodAttribute metaData,
-            Func<IRequest, IHandler, object?, IResponse?> responseProvider, SerializationRegistry serialization)
+            Func<IRequest, IHandler, object?, ValueTask<IResponse?>> responseProvider, SerializationRegistry serialization)
         {
             Parent = parent;
 
@@ -73,7 +73,7 @@ namespace GenHTTP.Modules.Reflection
 
         #region Functionality
 
-        public IResponse? Handle(IRequest request)
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var arguments = GetArguments(request);
 
@@ -172,7 +172,7 @@ namespace GenHTTP.Modules.Reflection
                         throw new ProviderException(ResponseStatus.BadRequest, "Request body expected");
                     }
 
-                    targetArguments[i] = Task.Run(async () => await deserializer.Deserialize(request.Content, par.ParameterType)).Result;
+                    targetArguments[i] = Task.Run(async () => await deserializer.DeserializeAsync(request.Content, par.ParameterType)).Result;
                     continue;
                 }
             }

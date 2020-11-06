@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Buffers;
 using System.IO;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
@@ -11,6 +13,13 @@ namespace GenHTTP.Modules.IO
 
     public static class ResponseBuilderExtensions
     {
+        private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
+
+        /// <summary>
+        /// Sends the given string to the client.
+        /// </summary>
+        /// <param name="text">The string to be sent</param>
+        public static ValueTask<IResponseBuilder> SetContentAsync(this IResponseBuilder builder, string text) => builder.SetContentAsync(Resource.FromString(text).Type(ContentType.TextPlain).Build());
 
         /// <summary>
         /// Sends the given resource to the client.
@@ -20,20 +29,14 @@ namespace GenHTTP.Modules.IO
         /// This method will set the content, but not the content
         /// type of the response.
         /// </remarks>
-        public static IResponseBuilder Content(this IResponseBuilder builder, IResource resource) => builder.Content(resource.GetContent(), () => resource.GetChecksum());
+        public async static ValueTask<IResponseBuilder> SetContentAsync(this IResponseBuilder builder, IResource resource) => builder.Content(await resource.GetContentAsync().ConfigureAwait(false), async () => await resource.CalculateChecksumAsync().ConfigureAwait(false));
 
         /// <summary>
         /// Sends the given stream to the client.
         /// </summary>
         /// <param name="stream">The stream to be sent</param>
         /// <param name="checksumProvider">The logic to efficiently calculate checksums</param>
-        public static IResponseBuilder Content(this IResponseBuilder builder, Stream stream, Func<ulong?> checksumProvider) => builder.Content(new StreamContent(stream, checksumProvider));
-
-        /// <summary>
-        /// Sends the given string to the client.
-        /// </summary>
-        /// <param name="text">The string to be sent</param>
-        public static IResponseBuilder Content(this IResponseBuilder builder, string text) => builder.Content(Resource.FromString(text).Type(ContentType.TextPlain).Build());
+        public static IResponseBuilder Content(this IResponseBuilder builder, Stream stream, Func<ValueTask<ulong?>> checksumProvider) => builder.Content(new StreamContent(stream, checksumProvider));
 
         /// <summary>
         /// Efficiently calculates the checksum of the stream, beginning
@@ -41,7 +44,7 @@ namespace GenHTTP.Modules.IO
         /// one.
         /// </summary>
         /// <returns>The checksum of the stream</returns>
-        public static ulong? CalculateChecksum(this Stream stream)
+        public static async ValueTask<ulong?> CalculateChecksumAsync(this Stream stream)
         {
             if (stream.CanSeek)
             {
@@ -53,20 +56,27 @@ namespace GenHTTP.Modules.IO
                     {
                         ulong hash = 17;
 
-                        Span<byte> buffer = stackalloc byte[128];
+                        var buffer = POOL.Rent(4096);
 
-                        var read = 0;
-
-                        do
+                        try
                         {
-                            read = stream.Read(buffer);
+                            var read = 0;
 
-                            for (int i = 0; i < read; i++)
+                            do
                             {
-                                hash = hash * 23 + buffer[i];
+                                read = await stream.ReadAsync(buffer).ConfigureAwait(false);
+
+                                for (int i = 0; i < read; i++)
+                                {
+                                    hash = hash * 23 + buffer[i];
+                                }
                             }
+                            while (read > 0);
                         }
-                        while (read > 0);
+                        finally
+                        {
+                            POOL.Return(buffer);
+                        }
 
                         return hash;
                     }

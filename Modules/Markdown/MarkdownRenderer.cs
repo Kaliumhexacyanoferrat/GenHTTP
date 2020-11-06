@@ -1,9 +1,14 @@
-﻿using GenHTTP.Api.Content.IO;
+﻿using System.Threading.Tasks;
+
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO.Tracking;
+
 using Markdig;
+
+using PooledAwait;
 
 namespace GenHTTP.Modules.Markdown
 {
@@ -31,13 +36,13 @@ namespace GenHTTP.Modules.Markdown
 
         #region Functionality
 
-        public string Render(T? model) => Markdig.Markdown.ToHtml(LoadFile(), PIPELINE);
+        public async ValueTask<string> RenderAsync(T? model) => Markdig.Markdown.ToHtml(await LoadFile(), PIPELINE);
 
-        private string LoadFile()
+        private async PooledValueTask<string> LoadFile()
         {
-            if (File.Changed)
+            if (await File.HasChanged())
             {
-                _Markdown = File.GetResourceAsString();
+                _Markdown = await File.GetResourceAsStringAsync();
             }
 
             return _Markdown!;

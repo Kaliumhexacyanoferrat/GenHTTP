@@ -2,6 +2,7 @@
 using System.Web;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content.Templating;
 
@@ -11,7 +12,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
     public class ListingRenderer : IRenderer<ListingModel>
     {
 
-        public string Render(ListingModel model)
+        public ValueTask<string> RenderAsync(ListingModel model)
         {
             var content = new StringBuilder();
 
@@ -42,7 +43,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
             content.AppendLine("</table>");
 
-            return content.ToString();
+            return new ValueTask<string>(content.ToString());
         }
 
         private void Append(StringBuilder builder, string path, string name, ulong? size, DateTime? modified)

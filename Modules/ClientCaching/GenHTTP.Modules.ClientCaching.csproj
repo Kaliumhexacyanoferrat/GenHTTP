@@ -41,6 +41,8 @@
     <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
     
     <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
+
+    <PackageReference Include="PooledAwait" Version="1.0.49" />
     
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>

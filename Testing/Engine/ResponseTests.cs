@@ -10,6 +10,7 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Layouting;
+using System.Threading.Tasks;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {
@@ -29,18 +30,18 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 Modified = DateTime.Now.AddDays(-10);
             }
 
-            public IResponse Handle(IRequest request)
+            public async ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 switch (request.Method.KnownMethod)
                 {
                     case RequestMethod.POST:
-                        return request.Respond()
-                            .Content("")
+                        return (await request.Respond()
+                            .SetContentAsync(""))
                             .Type("")
                             .Build();
                     default:
-                        return request.Respond()
-                         .Content("Hello World")
+                        return (await request.Respond()
+                         .SetContentAsync("Hello World"))
                          .Type("text/x-custom")
                          .Expires(DateTime.Now.AddYears(1))
                          .Modified(Modified)

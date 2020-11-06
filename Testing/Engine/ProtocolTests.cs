@@ -9,6 +9,8 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Content;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Basics;
+using System.Threading.Tasks;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {
@@ -28,7 +30,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 throw new NotImplementedException();
             }
 
-            public IResponse? Handle(IRequest request)
+            public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 if (request.Content != null)
                 {
@@ -36,7 +38,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
                     Value = reader.ReadToEnd();
                 }
 
-                return request.Respond().Build();
+                return new ValueTask<IResponse?>(request.Respond().Build());
             }
 
         }
@@ -51,12 +53,12 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 throw new NotImplementedException();
             }
 
-            public IResponse Handle(IRequest request)
+            public async ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 var content = request.Content?.Length.ToString() ?? "No Content";
 
-                return request.Respond()
-                              .Content(content)
+                return (await request.Respond()
+                              .SetContentAsync(content))
                               .Type(ContentType.TextPlain)
                               .Build();
             }

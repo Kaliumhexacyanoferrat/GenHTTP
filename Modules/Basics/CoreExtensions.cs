@@ -1,10 +1,12 @@
-﻿using GenHTTP.Api.Content.IO;
-using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+
+using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Basics
 {
@@ -136,11 +138,11 @@ namespace GenHTTP.Modules.Basics
 
         #region Resource provider
 
-        public static string GetResourceAsString(this IResource resourceProvider)
+        public static async ValueTask<string> GetResourceAsStringAsync(this IResource resourceProvider)
         {
-            using var stream = resourceProvider.GetContent();
+            using var stream = await resourceProvider.GetContentAsync();
 
-            return new StreamReader(stream).ReadToEnd();
+            return await new StreamReader(stream).ReadToEndAsync();
         }
 
         #endregion

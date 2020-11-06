@@ -2,6 +2,8 @@
 using System.Reflection;
 using System.Linq;
 using System.IO;
+using System.Threading.Tasks;
+
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
@@ -10,7 +12,7 @@ namespace GenHTTP.Modules.IO.Embedded
 
     public class EmbeddedResource : IResource
     {
-        private readonly ulong _Checksum;
+        private ulong? _Checksum, _Length;
 
         #region Get-/Setters
 
@@ -24,7 +26,7 @@ namespace GenHTTP.Modules.IO.Embedded
 
         public FlexibleContentType? ContentType { get; }
 
-        public ulong? Length { get; }
+        public ulong? Length => _Length;
 
         #endregion
 
@@ -38,12 +40,6 @@ namespace GenHTTP.Modules.IO.Embedded
             QualifiedName = fqn ?? throw new InvalidOperationException($"Resource '{path}' does not exist in assembly '{source}'");
             Source = source;
 
-            using var stream = GetContent();
-
-            Length = (ulong)stream.Length;
-
-            _Checksum = stream.CalculateChecksum() ?? throw new InvalidOperationException("Unable to calculate checksum of assembly resource");
-
             Name = name;
             ContentType = contentType;
             Modified = modified;
@@ -53,12 +49,23 @@ namespace GenHTTP.Modules.IO.Embedded
 
         #region Functionality
 
-        public Stream GetContent()
+        public ValueTask<Stream> GetContentAsync()
         {
-            return Source.GetManifestResourceStream(QualifiedName);
+            return new ValueTask<Stream>(Source.GetManifestResourceStream(QualifiedName));
         }
 
-        public ulong GetChecksum() => _Checksum;
+        public async ValueTask<ulong> CalculateChecksumAsync()
+        {
+            if (_Checksum == null)
+            {
+                using var stream = await GetContentAsync();
+
+                _Checksum = await stream.CalculateChecksumAsync() ?? throw new InvalidOperationException("Unable to calculate checksum of assembly resource");
+                _Length = (ulong)stream.Length;
+            }
+
+            return _Checksum.Value;
+        }
 
         #endregion
 

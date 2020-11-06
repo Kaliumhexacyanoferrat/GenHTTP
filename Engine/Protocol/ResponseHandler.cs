@@ -179,13 +179,13 @@ namespace GenHTTP.Engine.Protocol
                 {
                     using var chunked = new ChunkedStream(OutputStream);
 
-                    await response.Content.Write(chunked, Configuration.TransferBufferSize).ConfigureAwait(false);
+                    await response.Content.WriteAsync(chunked, Configuration.TransferBufferSize).ConfigureAwait(false);
 
                     chunked.Finish();
                 }
                 else
                 {
-                    await response.Content.Write(OutputStream, Configuration.TransferBufferSize).ConfigureAwait(false);
+                    await response.Content.WriteAsync(OutputStream, Configuration.TransferBufferSize).ConfigureAwait(false);
                 }
             }
         }

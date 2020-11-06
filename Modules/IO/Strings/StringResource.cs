@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-
+using System.Threading.Tasks;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
@@ -43,9 +43,12 @@ namespace GenHTTP.Modules.IO.Strings
 
         #region Functionality
 
-        public Stream GetContent() => OptimizedStream.From(Content);
+        public ValueTask<Stream> GetContentAsync() => new ValueTask<Stream>(OptimizedStream.From(Content));
 
-        public ulong GetChecksum() => (ulong)Content.GetHashCode();
+        public ValueTask<ulong> CalculateChecksumAsync()
+        {
+            return new ValueTask<ulong>((ulong)Content.GetHashCode());
+        }
 
         #endregion
 

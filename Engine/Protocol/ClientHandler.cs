@@ -131,7 +131,7 @@ namespace GenHTTP.Engine
 
             var responseHandler = new ResponseHandler(Server, Stream, Connection, Configuration);
 
-            using var response = Server.Handler.Handle(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
+            using var response = await Server.Handler.HandleAsync(request).ConfigureAwait(false) ?? throw new InvalidOperationException("The root request handler did not return a response");
             
             var success = await responseHandler.Handle(request, response, keepAlive).ConfigureAwait(false);
 

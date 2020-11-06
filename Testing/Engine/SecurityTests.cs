@@ -12,6 +12,7 @@ using GenHTTP.Modules.Security;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Security.Providers;
+using System.Threading.Tasks;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {
@@ -23,9 +24,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// As a developer I would like to serve my application in a secure manner.
         /// </summary>
         [Fact]
-        public void TestSecure()
+        public ValueTask TestSecure()
         {
-            RunSecure((insec, sec) =>
+            return RunSecure((insec, sec) =>
             {
                 var request = WebRequest.CreateHttp($"https://localhost:{sec}");
                 request.IgnoreSecurityErrors();
@@ -42,9 +43,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// by default.
         /// </summary>
         [Fact]
-        public void TestDefaultRedirection()
+        public ValueTask TestDefaultRedirection()
         {
-            RunSecure((insec, sec) =>
+            return RunSecure((insec, sec) =>
             {
                 var request = WebRequest.CreateHttp($"http://localhost:{insec}");
                 request.AllowAutoRedirect = false;
@@ -61,9 +62,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// upgrades are allowed but not requested by the client.
         /// </summary>
         [Fact]
-        public void TestNoRedirectionWithAllowed()
+        public ValueTask TestNoRedirectionWithAllowed()
         {
-            RunSecure((insec, sec) =>
+            return RunSecure((insec, sec) =>
             {
                 var request = WebRequest.CreateHttp($"http://localhost:{insec}");
                 request.AllowAutoRedirect = false;
@@ -79,9 +80,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// by the client.
         /// </summary>
         [Fact]
-        public void TestRedirectionWhenRequested()
+        public ValueTask TestRedirectionWhenRequested()
         {
-            RunSecure((insec, sec) =>
+            return RunSecure((insec, sec) =>
             {
                 var request = WebRequest.CreateHttp($"http://localhost:{insec}");
                 request.Headers.Add("Upgrade-Insecure-Requests", "1");
@@ -100,9 +101,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// transport security, so that man-in-the-middle attacks can be avoided to some extend.
         /// </summary>
         [Fact]
-        public void TestTransportPolicy()
+        public ValueTask TestTransportPolicy()
         {
-            RunSecure((insec, sec) =>
+            return RunSecure((insec, sec) =>
             {
                 var insecureRequest = WebRequest.CreateHttp($"http://localhost:{insec}");
 
@@ -127,9 +128,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// normal operation after a security error has happened.
         /// </summary>
         [Fact]
-        public void TestSecurityError()
+        public ValueTask TestSecurityError()
         {
-            RunSecure((insec, sec) =>
+            return RunSecure((insec, sec) =>
             {
                 Assert.Throws<WebException>(() =>
                 {
@@ -151,9 +152,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// abort the server SSL handshake.
         /// </summary>
         [Fact]
-        public void TestNoCertificate()
+        public ValueTask TestNoCertificate()
         {
-            RunSecure((insec, sec) =>
+            return RunSecure((insec, sec) =>
             {
                 Assert.Throws<WebException>(() =>
                 {
@@ -165,7 +166,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
             }, host: "myserver");
         }
 
-        private static void RunSecure(Action<ushort, ushort> logic, SecureUpgrade? mode = null, string host = "localhost")
+        private static async ValueTask RunSecure(Action<ushort, ushort> logic, SecureUpgrade? mode = null, string host = "localhost")
         {
             var content = Layout.Create().Index(Content.From(Resource.FromString("Hello Alice!")));
 
@@ -173,7 +174,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             var port = TestRunner.NextPort();
 
-            using var cert = GetCertificate();
+            using var cert = await GetCertificate();
 
             runner.Host.Handler(content)
                        .Bind(IPAddress.Any, runner.Port)
@@ -190,13 +191,13 @@ namespace GenHTTP.Testing.Acceptance.Engine
             logic(runner.Port, port);
         }
 
-        private static X509Certificate2 GetCertificate()
+        private static async ValueTask<X509Certificate2> GetCertificate()
         {
-            using (var stream = Resource.FromAssembly("Certificate.pfx").Build().GetContent())
+            using (var stream = await Resource.FromAssembly("Certificate.pfx").Build().GetContentAsync())
             {
                 using (var mem = new MemoryStream())
                 {
-                    stream.CopyTo(mem);
+                    await stream.CopyToAsync(mem);
                     return new X509Certificate2(mem.ToArray());
                 }
             }

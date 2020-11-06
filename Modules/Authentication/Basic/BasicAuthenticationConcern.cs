@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
@@ -20,13 +21,13 @@ namespace GenHTTP.Modules.Authentication.Basic
 
         private string Realm { get; }
 
-        private Func<string, string, IUser?> Authenticator { get; }
+        private Func<string, string, ValueTask<IUser?>> Authenticator { get; }
 
         #endregion
 
         #region Initialization
 
-        public BasicAuthenticationConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, string realm, Func<string, string, IUser?> authenticator)
+        public BasicAuthenticationConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, string realm, Func<string, string, ValueTask<IUser?>> authenticator)
         {
             Parent = parent;
             Content = contentFactory(this);
@@ -41,7 +42,7 @@ namespace GenHTTP.Modules.Authentication.Basic
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Content.GetContent(request);
 
-        public IResponse? Handle(IRequest request)
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             if (!request.Headers.TryGetValue("Authorization", out var authHeader))
             {
@@ -58,7 +59,7 @@ namespace GenHTTP.Modules.Authentication.Basic
                 return GetChallenge(request);
             }
 
-            var user = Authenticator(credentials.username, credentials.password);
+            var user = await Authenticator(credentials.username, credentials.password).ConfigureAwait(false);
 
             if (user == null)
             {
@@ -67,7 +68,7 @@ namespace GenHTTP.Modules.Authentication.Basic
 
             request.SetUser(user);
 
-            return Content.Handle(request);
+            return await Content.HandleAsync(request).ConfigureAwait(false);
         }
 
         private IResponse GetChallenge(IRequest request)

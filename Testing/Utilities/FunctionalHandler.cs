@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Threading.Tasks;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
@@ -34,7 +34,7 @@ namespace GenHTTP.Testing.Acceptance.Utilities
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => (_ContentProvider != null) ? _ContentProvider(request) : Enumerable.Empty<ContentElement>();
 
-        public IResponse? Handle(IRequest request) => (_ResponseProvider != null) ? _ResponseProvider(request) : null;
+        public ValueTask<IResponse?> HandleAsync(IRequest request) => new ValueTask<IResponse?>((_ResponseProvider != null) ? _ResponseProvider(request) : null);
 
         #endregion
 

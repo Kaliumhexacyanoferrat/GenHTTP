@@ -1,5 +1,7 @@
 ﻿using GenHTTP.Api.Content.Templating;
 
+using System.Threading.Tasks;
+
 namespace GenHTTP.Api.Content
 {
 
@@ -17,7 +19,7 @@ namespace GenHTTP.Api.Content
         /// <param name="error">The error to be handled</param>
         /// <param name="details">Additional details about the error</param>
         /// <returns>The page to be rendered into the template</returns>
-        TemplateModel Render(ErrorModel error, ContentInfo details);
+        ValueTask<TemplateModel> RenderAsync(ErrorModel error, ContentInfo details);
 
     }
 

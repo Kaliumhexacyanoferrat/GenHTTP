@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -89,9 +90,9 @@ namespace GenHTTP.Modules.Webservices.Provider
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Methods.GetContent(request);
 
-        public IResponse? Handle(IRequest request) => Methods.Handle(request);
+        public ValueTask<IResponse?> HandleAsync(IRequest request) => Methods.HandleAsync(request);
 
-        private IResponse GetResponse(IRequest request, IHandler _, object? result)
+        private async ValueTask<IResponse?> GetResponse(IRequest request, IHandler _, object? result)
         {
             // no result = 204
             if (result == null)
@@ -102,28 +103,50 @@ namespace GenHTTP.Modules.Webservices.Provider
             var type = result.GetType();
 
             // response returned by the method
-            if (result is IResponseBuilder response)
+            if (result is IResponseBuilder responseBuilder)
             {
-                return response.Build();
+                return responseBuilder.Build();
+            }
+            else if (result is ValueTask<IResponseBuilder> responseBuilderTask)
+            {
+                return (await responseBuilderTask).Build();
+            }
+            else if (result is ValueTask<IResponseBuilder?> optionalResponseBuilderTask)
+            {
+                return (await optionalResponseBuilderTask)?.Build();
+            }
+
+            if (result is IResponse response)
+            {
+                return response;
+            }
+            else if (result is ValueTask<IResponse> responseTask)
+            {
+                return await responseTask;
+            }
+            else if (result is ValueTask<IResponse?> optionalResponseTask)
+            {
+                return await optionalResponseTask;
             }
 
             // stream returned as a download
             if (result is Stream download)
             {
-                var checksum = download.CalculateChecksum();
+                var downloadResponse = request.Respond()
+                                              .Content(download, () => download.CalculateChecksumAsync())
+                                              .Type(ContentType.ApplicationForceDownload)
+                                              .Build();
 
-                return request.Respond()
-                              .Content(download, () => checksum)
-                              .Type(ContentType.ApplicationForceDownload)
-                              .Build();
+                return downloadResponse;
             }
 
             // basic types should produce a string value
             if (type.IsPrimitive || type == typeof(string) || type.IsEnum || type == typeof(Guid))
             {
-                return request.Respond().Content(result.ToString())
-                                        .Type(ContentType.TextPlain)
-                                        .Build();
+                var textResponse = await request.Respond().SetContentAsync(result.ToString());
+
+                return textResponse.Type(ContentType.TextPlain)
+                                   .Build();
             }
 
             // serialize the result
@@ -134,8 +157,9 @@ namespace GenHTTP.Modules.Webservices.Provider
                 throw new ProviderException(ResponseStatus.UnsupportedMediaType, "Requested format is not supported");
             }
 
-            return serializer.Serialize(request, result)
-                             .Build();
+            var serializedResult = await serializer.SerializeAsync(request, result);
+            
+            return serializedResult.Build();
         }
 
         #endregion

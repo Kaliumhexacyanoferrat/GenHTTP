@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
@@ -52,7 +53,7 @@ namespace GenHTTP.Modules.IO.Providers
 
         #region Functionality
 
-        public IResponse? Handle(IRequest request)
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             if (!request.Target.Ended)
             {
@@ -61,12 +62,12 @@ namespace GenHTTP.Modules.IO.Providers
 
             if (!request.HasType(RequestMethod.GET, RequestMethod.HEAD))
             {
-                return this.MethodNotAllowed(request).Build();
+                return (await this.GetMethodNotAllowedAsync(request).ConfigureAwait(false)).Build();
             }
 
-            var response = request.Respond()
-                                  .Content(Resource)
-                                  .Type(ContentType);
+            var response = await request.Respond().SetContentAsync(Resource);
+
+            response.Type(ContentType);
 
             var fileName = FileName ?? Resource.Name;
 

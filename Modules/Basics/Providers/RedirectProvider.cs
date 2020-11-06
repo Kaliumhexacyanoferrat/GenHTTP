@@ -1,10 +1,10 @@
-﻿using System;
+﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-
-using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
+using System.Threading.Tasks;
 
 namespace GenHTTP.Modules.Basics.Providers
 {
@@ -39,7 +39,7 @@ namespace GenHTTP.Modules.Basics.Providers
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();
 
-        public IResponse? Handle(IRequest request)
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var resolved = ResolveRoute(request, Target);
 
@@ -48,8 +48,7 @@ namespace GenHTTP.Modules.Basics.Providers
 
             var status = MapStatus(request, Temporary);
 
-            return response.Status(status)
-                           .Build();
+            return new ValueTask<IResponse?>(response.Status(status).Build());
         }
 
         private string ResolveRoute(IRequest request, string route)
@@ -75,7 +74,7 @@ namespace GenHTTP.Modules.Basics.Providers
         {
             if (request.HasType(RequestMethod.GET, RequestMethod.HEAD))
             {
-               return (temporary) ? ResponseStatus.TemporaryRedirect : ResponseStatus.MovedPermanently;
+                return (temporary) ? ResponseStatus.TemporaryRedirect : ResponseStatus.MovedPermanently;
             }
             else
             {

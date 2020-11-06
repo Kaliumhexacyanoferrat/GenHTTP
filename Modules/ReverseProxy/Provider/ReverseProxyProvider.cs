@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 
 using GenHTTP.Api.Content;
@@ -10,6 +11,7 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO;
+using PooledAwait;
 
 namespace GenHTTP.Modules.ReverseProxy.Provider
 {
@@ -54,7 +56,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
         #region Functionality
 
-        public IResponse Handle(IRequest request)
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             try
             {
@@ -62,13 +64,14 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
                 if (request.Content != null && CanSendBody(request))
                 {
-                    using (var inputStream = req.GetRequestStream())
+                    using (var inputStream = await req.GetRequestStreamAsync().ConfigureAwait(false))
                     {
-                        request.Content.CopyTo(inputStream);
+                        // ToDo: CopyToPooled
+                        await request.Content.CopyToAsync(inputStream).ConfigureAwait(false);
                     }
                 }
 
-                var resp = GetSafeResponse(req);
+                var resp = await GetSafeResponse(req).ConfigureAwait(false);
 
                 return GetResponse(resp, request).Build();
             }
@@ -78,7 +81,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
                                       .Title("Gateway Timeout")
                                       .Build();
 
-                return this.Error(new ErrorModel(request, this, ResponseStatus.GatewayTimeout, "The gateway did not respond in time.", e), info).Build();
+                return (await this.GetErrorAsync(new ErrorModel(request, this, ResponseStatus.GatewayTimeout, "The gateway did not respond in time.", e), info).ConfigureAwait(false)).Build();
             }
             catch (WebException e)
             {
@@ -86,7 +89,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
                                         .Title("Bad Gateway")
                                         .Build();
 
-                return this.Error(new ErrorModel(request, this, ResponseStatus.BadGateway, "Unable to retrieve a response from the gateway.", e), info).Build();
+                return (await this.GetErrorAsync(new ErrorModel(request, this, ResponseStatus.BadGateway, "Unable to retrieve a response from the gateway.", e), info).ConfigureAwait(false)).Build();
             }
         }
 
@@ -190,7 +193,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
             if (HasBody(request, response))
             {
-                builder.Content(response.GetResponseStream(), () => null)
+                builder.Content(response.GetResponseStream(), () => new ValueTask<ulong?>())
                        .Type(response.ContentType);
             }
 
@@ -233,11 +236,11 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             return location;
         }
 
-        private HttpWebResponse GetSafeResponse(WebRequest request)
+        private async PooledValueTask<HttpWebResponse> GetSafeResponse(WebRequest request)
         {
             try
             {
-                return (HttpWebResponse)request.GetResponse();
+                return (HttpWebResponse)await request.GetResponseAsync().ConfigureAwait(false);
             }
             catch (WebException e)
             {
@@ -283,11 +286,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             return string.Join("; ", result);
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request)
-        {
-            // we cannot tell the content available on the target site
-            return new List<ContentElement>();
-        }
+        public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();
 
         #endregion
 

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-
+using System.Threading.Tasks;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
@@ -50,12 +50,12 @@ namespace GenHTTP.Modules.IO.FileSystem
 
         #region Functionality
 
-        public Stream GetContent()
+        public ValueTask<Stream> GetContentAsync()
         {
-            return File.OpenRead();
+            return new ValueTask<Stream>(File.OpenRead());
         }
 
-        public ulong GetChecksum()
+        public ValueTask<ulong> CalculateChecksumAsync()
         {
             unchecked
             {
@@ -66,7 +66,7 @@ namespace GenHTTP.Modules.IO.FileSystem
                 hash = hash * 23 + (ulong)Modified.GetHashCode();
                 hash = hash * 23 + _Length;
 
-                return hash;
+                return new ValueTask<ulong>(hash);
             }
         }
 

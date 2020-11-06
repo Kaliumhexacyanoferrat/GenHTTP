@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
@@ -38,9 +39,9 @@ namespace GenHTTP.Modules.Compression.Providers
 
         #region Functionality
 
-        public IResponse? Handle(IRequest request)
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var response = Content.Handle(request);
+            var response = await Content.HandleAsync(request).ConfigureAwait(false);
 
             if (response != null)
             {

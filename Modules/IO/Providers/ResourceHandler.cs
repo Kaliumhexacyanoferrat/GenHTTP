@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Basics;
 
 namespace GenHTTP.Modules.IO.Providers
@@ -36,7 +38,7 @@ namespace GenHTTP.Modules.IO.Providers
             return Tree.GetContent(request, this);
         }
 
-        public IResponse? Handle(IRequest request)
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var (_, resource) = Tree.Find(request.Target);
 
@@ -44,10 +46,12 @@ namespace GenHTTP.Modules.IO.Providers
             {
                 var type = resource.ContentType ?? new FlexibleContentType(resource.Name?.GuessContentType() ?? ContentType.ApplicationForceDownload);
 
-                return request.Respond()
-                              .Content(resource)
-                              .Type(type)
-                              .Build();
+                var response = await request.Respond()
+                                            .SetContentAsync(resource)
+                                            .ConfigureAwait(false);
+
+                return response.Type(type)
+                               .Build();
             }
 
             return null;

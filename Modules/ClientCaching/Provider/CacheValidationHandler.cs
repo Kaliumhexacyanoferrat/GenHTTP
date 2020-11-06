@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
+
+using PooledAwait;
 
 namespace GenHTTP.Modules.ClientCaching.Provider
 {
@@ -33,15 +36,15 @@ namespace GenHTTP.Modules.ClientCaching.Provider
 
         #region Functionality
 
-        public IResponse? Handle(IRequest request)
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var response = Content.Handle(request);
+            var response = await Content.HandleAsync(request).ConfigureAwait(false);
 
             if (request.HasType(RequestMethod.GET, RequestMethod.HEAD))
             {
                 if ((response != null) && (response.Content != null))
                 {
-                    var eTag = CalculateETag(response);
+                    var eTag = await CalculateETag(response);
 
                     var cached = request["If-None-Match"];
 
@@ -68,7 +71,7 @@ namespace GenHTTP.Modules.ClientCaching.Provider
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Content.GetContent(request);
 
-        private static string? CalculateETag(IResponse response)
+        private static async PooledValueTask<string?> CalculateETag(IResponse response)
         {
             if (response.Headers.TryGetValue(ETAG_HEADER, out var eTag))
             {
@@ -77,7 +80,7 @@ namespace GenHTTP.Modules.ClientCaching.Provider
 
             if (response.Content != null)
             {
-                var checksum = response.Content.Checksum;
+                var checksum = await response.Content.CalculateChecksumAsync().ConfigureAwait(false);
 
                 if (checksum != null)
                 {

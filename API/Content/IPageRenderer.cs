@@ -1,4 +1,6 @@
-﻿using GenHTTP.Api.Content.Templating;
+﻿using System.Threading.Tasks;
+
+using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Content
@@ -16,7 +18,7 @@ namespace GenHTTP.Api.Content
         /// </summary>
         /// <param name="model">The model to be rendered</param>
         /// <returns>The response to be returned to the client</returns>
-        IResponseBuilder Render(TemplateModel model);
+        ValueTask<IResponseBuilder> RenderAsync(TemplateModel model);
 
     }
 

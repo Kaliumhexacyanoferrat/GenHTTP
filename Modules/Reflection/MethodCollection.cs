@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -34,7 +35,7 @@ namespace GenHTTP.Modules.Reflection
 
         #region Functionality
 
-        public IResponse? Handle(IRequest request)
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var methods = FindProviders(request.Target.GetRemaining().ToString());
 
@@ -44,7 +45,7 @@ namespace GenHTTP.Modules.Reflection
 
                 if (matchingMethods.Count == 1)
                 {
-                    return matchingMethods.First().Handle(request);
+                    return matchingMethods.First().HandleAsync(request);
                 }
                 else if (methods.Count > 1)
                 {
@@ -56,7 +57,7 @@ namespace GenHTTP.Modules.Reflection
                 }
             }
 
-            return null;
+            return new ValueTask<IResponse?>();
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request)

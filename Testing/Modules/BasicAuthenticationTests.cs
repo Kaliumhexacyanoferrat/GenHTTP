@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-
+using System.Threading.Tasks;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
 using GenHTTP.Api.Protocol;
@@ -41,12 +41,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();
 
-            public IResponse? Handle(IRequest request)
+            public async ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 var content = request.GetUser<IUser>()?.DisplayName ?? throw new ProviderException(ResponseStatus.BadRequest, "No user!");
 
-                return request.Respond()
-                              .Content(content)
+                return (await request.Respond()
+                              .SetContentAsync(content))
                               .Build();
             }
 
@@ -107,7 +107,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
         [Fact]
         public void TestCustomUser()
         {
-            var content = GetContent().Authentication(BasicAuthentication.Create((u, p) => new BasicAuthenticationUser("my")));
+            var content = GetContent().Authentication(BasicAuthentication.Create((u, p) => new ValueTask<IUser?>(new BasicAuthenticationUser("my"))));
 
             using var runner = TestRunner.Run(content);
 
@@ -119,7 +119,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
         [Fact]
         public void TestNoCustomUser()
         {
-            var content = GetContent().Authentication(BasicAuthentication.Create((u, p) => null));
+            var content = GetContent().Authentication(BasicAuthentication.Create((u, p) => new ValueTask<IUser?>()));
 
             using var runner = TestRunner.Run(content);
 

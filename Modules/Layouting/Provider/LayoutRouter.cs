@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -44,7 +45,7 @@ namespace GenHTTP.Modules.Layouting.Provider
 
         #region Functionality
 
-        public IResponse? Handle(IRequest request)
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var current = request.Target.Current;
 
@@ -53,7 +54,8 @@ namespace GenHTTP.Modules.Layouting.Provider
                 if (Handlers.ContainsKey(current))
                 {
                     request.Target.Advance();
-                    return Handlers[current].Handle(request);
+
+                    return Handlers[current].HandleAsync(request);
                 }
             }
             else
@@ -63,21 +65,21 @@ namespace GenHTTP.Modules.Layouting.Provider
                 {
                     return Redirect.To($"{request.Target.Path}/")
                                    .Build(this)
-                                   .Handle(request);
+                                   .HandleAsync(request);
                 }
 
                 if (Index != null)
                 {
-                    return Index.Handle(request);
+                    return Index.HandleAsync(request);
                 }
             }
 
             if (Fallback != null)
             {
-                return Fallback.Handle(request);
+                return Fallback.HandleAsync(request);
             }
 
-            return null;
+            return new ValueTask<IResponse?>();
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request)

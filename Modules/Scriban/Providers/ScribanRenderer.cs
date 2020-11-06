@@ -1,8 +1,13 @@
-﻿using GenHTTP.Api.Content.IO;
+﻿using System.Threading.Tasks;
+
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO.Tracking;
+
+using PooledAwait;
+
 using Scriban;
 using Scriban.Runtime;
 
@@ -30,31 +35,31 @@ namespace GenHTTP.Modules.Scriban.Providers
 
         #region Functionality
 
-        public string Render(T model)
+        public async ValueTask<string> RenderAsync(T model)
         {
-            var template = GetTemplate();
+            var template = await GetTemplateAsync();
 
             var obj = new ScriptObject();
 
             obj.Import(model);
             obj.SetValue("route", new RoutingMethod(model), true);
 
-            return template.Render(obj);
+            return await template.RenderAsync(obj);
         }
 
-        private Template GetTemplate()
+        private async PooledValueTask<Template> GetTemplateAsync()
         {
-            if (TemplateProvider.Changed)
+            if (await TemplateProvider.HasChanged())
             {
-                _Template = LoadTemplate();
+                _Template = await LoadTemplate();
             }
 
             return _Template!;
         }
 
-        private Template LoadTemplate()
+        private async PooledValueTask<Template> LoadTemplate()
         {
-            return Template.Parse(TemplateProvider.GetResourceAsString());
+            return Template.Parse(await TemplateProvider.GetResourceAsStringAsync());
         }
 
         #endregion

@@ -1,4 +1,6 @@
-﻿namespace GenHTTP.Api.Content.Templating
+﻿using System.Threading.Tasks;
+
+namespace GenHTTP.Api.Content.Templating
 {
 
     /// <summary>
@@ -13,7 +15,7 @@
         /// </summary>
         /// <param name="model">The model to be rendered</param>
         /// <returns>The rendered model</returns>
-        string Render(T model);
+        ValueTask<string> RenderAsync(T model);
 
     }
 

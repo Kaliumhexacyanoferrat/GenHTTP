@@ -1,5 +1,8 @@
-﻿using GenHTTP.Api.Content.Templating;
+﻿using System.Threading.Tasks;
+
+using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Content.Websites;
+
 using GenHTTP.Modules.Websites.Resources;
 
 namespace GenHTTP.Modules.Websites.Sites
@@ -39,7 +42,7 @@ namespace GenHTTP.Modules.Websites.Sites
 
         #region Functionality
 
-        public string Render(TemplateModel model)
+        public async ValueTask<string> RenderAsync(TemplateModel model)
         {
             var menu = Menu.GetMenu(model.Request, model.Handler);
 
@@ -49,7 +52,7 @@ namespace GenHTTP.Modules.Websites.Sites
 
             var websiteModel = new WebsiteModel(model.Request, model.Handler, model, Theme, themeModel, menu, Scripts.GetReferences(bundle), Styles.GetReferences(bundle));
 
-            return Theme.Renderer.Render(websiteModel);
+            return await Theme.Renderer.RenderAsync(websiteModel);
         }
 
         #endregion

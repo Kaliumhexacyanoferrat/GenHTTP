@@ -1,9 +1,12 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Basics;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.Basics;
 
 namespace GenHTTP.Modules.Security.Cors
 {
@@ -42,7 +45,7 @@ namespace GenHTTP.Modules.Security.Cors
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Content.GetContent(request);
 
-        public IResponse? Handle(IRequest request)
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var (origin, policy) = GetPolicy(request);
 
@@ -56,7 +59,7 @@ namespace GenHTTP.Modules.Security.Cors
             }
             else
             {
-                response = Content.Handle(request);
+                response = await Content.HandleAsync(request).ConfigureAwait(false);
             }
 
             if ((response != null) && (policy != null))
