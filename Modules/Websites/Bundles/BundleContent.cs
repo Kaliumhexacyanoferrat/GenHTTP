@@ -6,6 +6,7 @@ using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO;
+using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.Websites.Bundles
 {
@@ -38,7 +39,8 @@ namespace GenHTTP.Modules.Websites.Bundles
             foreach (var item in Items)
             {
                 using var source = await item.GetContentAsync();
-                await source.CopyToAsync(target, (int)bufferSize);
+
+                await source.CopyPooledAsync(target, bufferSize);
 
                 await target.WriteAsync(_NewLine, 0, 1);
             }

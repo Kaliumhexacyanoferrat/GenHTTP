@@ -11,6 +11,8 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO;
+using GenHTTP.Modules.IO.Streaming;
+
 using PooledAwait;
 
 namespace GenHTTP.Modules.ReverseProxy.Provider
@@ -18,6 +20,8 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
     public class ReverseProxyProvider : IHandler
     {
+        private static uint BUFFER_SIZE = 8192;
+
         private static readonly HashSet<string> RESERVED_RESPONSE_HEADERS = new HashSet<string>
         {
             "Server", "Date", "Content-Encoding", "Transfer-Encoding", "Content-Type",
@@ -66,8 +70,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
                 {
                     using (var inputStream = await req.GetRequestStreamAsync().ConfigureAwait(false))
                     {
-                        // ToDo: CopyToPooled
-                        await request.Content.CopyToAsync(inputStream).ConfigureAwait(false);
+                        await request.Content.CopyPooledAsync(inputStream, BUFFER_SIZE).ConfigureAwait(false);
                     }
                 }
 
