@@ -41,13 +41,13 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();
 
-            public async ValueTask<IResponse?> HandleAsync(IRequest request)
+            public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 var content = request.GetUser<IUser>()?.DisplayName ?? throw new ProviderException(ResponseStatus.BadRequest, "No user!");
 
-                return (await request.Respond()
-                              .SetContentAsync(content))
-                              .Build();
+                return request.Respond()
+                              .Content(content)
+                              .BuildTask();
             }
 
         }

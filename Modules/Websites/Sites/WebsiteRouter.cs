@@ -97,11 +97,9 @@ namespace GenHTTP.Modules.Websites.Sites
 
         public async ValueTask<IResponseBuilder> RenderAsync(TemplateModel model)
         {
-            var response = await model.Request.Respond()
-                                              .SetContentAsync(await Renderer.RenderAsync(model).ConfigureAwait(false))
-                                              .ConfigureAwait(false);
-
-            return response.Type(ContentType.TextHtml);
+            return model.Request.Respond()
+                                .Content(await Renderer.RenderAsync(model).ConfigureAwait(false))
+                                .Type(ContentType.TextHtml);
         }
 
         public IHandler? Find(string segment)

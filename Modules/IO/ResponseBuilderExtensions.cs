@@ -7,6 +7,7 @@ using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO.Streaming;
+using PooledAwait;
 
 namespace GenHTTP.Modules.IO
 {
@@ -19,7 +20,7 @@ namespace GenHTTP.Modules.IO
         /// Sends the given string to the client.
         /// </summary>
         /// <param name="text">The string to be sent</param>
-        public static ValueTask<IResponseBuilder> SetContentAsync(this IResponseBuilder builder, string text) => builder.SetContentAsync(Resource.FromString(text).Type(ContentType.TextPlain).Build());
+        public static IResponseBuilder Content(this IResponseBuilder builder, string text) => builder.Content(Resource.FromString(text).Type(ContentType.TextPlain).Build());
 
         /// <summary>
         /// Sends the given resource to the client.
@@ -29,7 +30,7 @@ namespace GenHTTP.Modules.IO
         /// This method will set the content, but not the content
         /// type of the response.
         /// </remarks>
-        public async static ValueTask<IResponseBuilder> SetContentAsync(this IResponseBuilder builder, IResource resource) => builder.Content(await resource.GetContentAsync().ConfigureAwait(false), async () => await resource.CalculateChecksumAsync().ConfigureAwait(false));
+        public static IResponseBuilder Content(this IResponseBuilder builder, IResource resource) => builder.Content(new ResourceContent(resource));
 
         /// <summary>
         /// Sends the given stream to the client.
@@ -89,6 +90,8 @@ namespace GenHTTP.Modules.IO
 
             return null;
         }
+
+        public static ValueTask<IResponse?> BuildTask(this IResponseBuilder builder) => new ValueTask<IResponse?>(builder.Build());
 
     }
 

@@ -30,23 +30,23 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 Modified = DateTime.Now.AddDays(-10);
             }
 
-            public async ValueTask<IResponse?> HandleAsync(IRequest request)
+            public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 switch (request.Method.KnownMethod)
                 {
                     case RequestMethod.POST:
-                        return (await request.Respond()
-                            .SetContentAsync(""))
-                            .Type("")
-                            .Build();
+                        return request.Respond()
+                                      .Content("")
+                                      .Type("")
+                                      .BuildTask();
                     default:
-                        return (await request.Respond()
-                         .SetContentAsync("Hello World"))
-                         .Type("text/x-custom")
-                         .Expires(DateTime.Now.AddYears(1))
-                         .Modified(Modified)
-                         .Header("X-Powered-By", "Test Runner")
-                         .Build();
+                        return request.Respond()
+                                      .Content("Hello World")
+                                      .Type("text/x-custom")
+                                      .Expires(DateTime.Now.AddYears(1))
+                                      .Modified(Modified)
+                                      .Header("X-Powered-By", "Test Runner")
+                                      .BuildTask();
                 }
 
             }

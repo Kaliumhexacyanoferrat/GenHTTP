@@ -57,11 +57,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
             public Stream Stream(Stream input) => new MemoryStream(Encoding.UTF8.GetBytes(input.Length.ToString()));
 
             [ResourceMethod("requestResponse")]
-            public async ValueTask<IResponseBuilder> RequestResponse(IRequest request)
+            public ValueTask<IResponse?> RequestResponse(IRequest request)
             {
-                return (await request.Respond()
-                              .SetContentAsync("Hello World"))
-                              .Type(ContentType.TextPlain);
+                return request.Respond()
+                              .Content("Hello World")
+                              .Type(ContentType.TextPlain)
+                              .BuildTask();
             }
 
             [ResourceMethod("exception")]

@@ -27,11 +27,11 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 throw new NotImplementedException();
             }
 
-            public async ValueTask<IResponse?> HandleAsync(IRequest request)
+            public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
-                return (await request.Respond()
-                              .SetContentAsync(request.Target.Path.ToString()))
-                              .Build();
+                return request.Respond()
+                              .Content(request.Target.Path.ToString())
+                              .BuildTask();
             }
 
         }
@@ -46,11 +46,11 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 throw new NotImplementedException();
             }
 
-            public async ValueTask<IResponse?> HandleAsync(IRequest request)
+            public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
-                return (await request.Respond()
-                              .SetContentAsync(string.Join('|', request.Query.Select(kv => kv.Key + "=" + kv.Value))))
-                              .Build();
+                return request.Respond()
+                              .Content(string.Join('|', request.Query.Select(kv => kv.Key + "=" + kv.Value)))
+                              .BuildTask();
             }
 
         }

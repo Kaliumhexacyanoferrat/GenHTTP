@@ -39,7 +39,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
                 _Target = target;
             }
 
-            public static TestSetup Create(Func<IRequest, ValueTask<IResponseBuilder?>> response)
+            public static TestSetup Create(Func<IRequest, IResponse?> response)
             {
                 // server hosting the actuall web app
                 var testServer = new TestRunner();
@@ -96,9 +96,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
         private class ProxiedRouter : IHandler
         {
-            private Func<IRequest, ValueTask<IResponseBuilder?>> _Response;
+            private Func<IRequest, IResponse?> _Response;
 
-            public ProxiedRouter(Func<IRequest, ValueTask<IResponseBuilder?>> response)
+            public ProxiedRouter(Func<IRequest, IResponse?> response)
             {
                 _Response = response;
             }
@@ -119,9 +119,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
         private class ProxiedProvider : IHandler
         {
-            private Func<IRequest, ValueTask<IResponseBuilder?>> _Response;
+            private Func<IRequest, IResponse?> _Response;
 
-            public ProxiedProvider(Func<IRequest, ValueTask<IResponseBuilder?>> response)
+            public ProxiedProvider(Func<IRequest, IResponse?> response)
             {
                 _Response = response;
             }
@@ -133,23 +133,21 @@ namespace GenHTTP.Testing.Acceptance.Providers
                 throw new NotImplementedException();
             }
 
-            public async ValueTask<IResponse?> HandleAsync(IRequest request)
+            public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 Assert.NotEqual(request.Client, request.LocalClient);
                 Assert.NotEmpty(request.Forwardings);
 
-                var response = await _Response.Invoke(request);
+                var response = _Response.Invoke(request);
 
                 if (response != null)
                 {
-                    return response.Build();
+                    return new ValueTask<IResponse?>(response);
                 }
 
-                var result = request.Respond()
-                                    .Status(ResponseStatus.InternalServerError)
-                                    .Build();
-
-                return result;
+                return request.Respond()
+                              .Status(ResponseStatus.InternalServerError)
+                              .BuildTask();
             }
 
         }
@@ -159,9 +157,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestBasics()
         {
-            using var setup = TestSetup.Create(async (r) =>
+            using var setup = TestSetup.Create((r) =>
             {
-                return await r.Respond().SetContentAsync("Hello World!");
+                return r.Respond().Content("Hello World!").Build();
             });
 
             var runner = setup.Runner;
@@ -175,7 +173,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             using var setup = TestSetup.Create((r) =>
             {
-                return new ValueTask<IResponseBuilder?>(r.Respond().Header("Location", $"http://localhost:{r.EndPoint.Port}/target").Status(ResponseStatus.TemporaryRedirect));
+                return r.Respond().Header("Location", $"http://localhost:{r.EndPoint.Port}/target").Status(ResponseStatus.TemporaryRedirect).Build();
             });
 
             var runner = setup.Runner;
@@ -188,9 +186,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestHead()
         {
-            using var setup = TestSetup.Create(async (r) =>
+            using var setup = TestSetup.Create((r) =>
             {
-                return await r.Respond().SetContentAsync("Hello World!");
+                return r.Respond().Content("Hello World!").Build();
             });
 
             var runner = setup.Runner;
@@ -206,13 +204,15 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestCookies()
         {
-            using var setup = TestSetup.Create(async (r) =>
+            using var setup = TestSetup.Create((r) =>
             {
                 Assert.Equal("World", r.Cookies["Hello"].Value);
 
-                return (await r.Respond().SetContentAsync("Hello World!"))
-                               .Cookie(new Cookie("One", "1"))
-                               .Cookie(new Cookie("Two", "2"));
+                return r.Respond()
+                        .Content("Hello World!")
+                        .Cookie(new Cookie("One", "1"))
+                        .Cookie(new Cookie("Two", "2"))
+                        .Build();
             });
 
             var runner = setup.Runner;
@@ -230,11 +230,12 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestHeaders()
         {
-            using var setup = TestSetup.Create(async (r) =>
+            using var setup = TestSetup.Create( (r) =>
             {
-                return (await r.Respond()
-                               .SetContentAsync("Hello World"))
-                               .Header("X-Custom-Header", r.Headers["X-Custom-Header"]);
+                return r.Respond()
+                        .Content("Hello World")
+                        .Header("X-Custom-Header", r.Headers["X-Custom-Header"])
+                        .Build();
             });
 
             var runner = setup.Runner;
@@ -251,10 +252,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestPost()
         {
-            using var setup = TestSetup.Create(async (r) =>
+            using var setup = TestSetup.Create((r) =>
             {
                 using var reader = new StreamReader(r.Content!);
-                return await r.Respond().SetContentAsync(reader.ReadToEnd());
+                return r.Respond().Content(reader.ReadToEnd()).Build();
             });
 
             var runner = setup.Runner;
@@ -279,9 +280,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestPathing()
         {
-            using var setup = TestSetup.Create(async (r) =>
+            using var setup = TestSetup.Create((r) =>
             {
-                return await r.Respond().SetContentAsync(r.Target.Path.ToString());
+                return r.Respond().Content(r.Target.Path.ToString()).Build();
             });
 
             var runner = setup.Runner;
@@ -299,10 +300,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestQuery()
         {
-            using var setup = TestSetup.Create(async (r) =>
+            using var setup = TestSetup.Create((r) =>
             {
                 var result = string.Join('|', r.Query.Select(kv => $"{kv.Key}={kv.Value}"));
-                return await r.Respond().SetContentAsync(result);
+                return r.Respond().Content(result).Build();
             });
 
             var runner = setup.Runner;
@@ -320,10 +321,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestQuerySpecialChars()
         {
-            using var setup = TestSetup.Create(async (r) =>
+            using var setup = TestSetup.Create((r) =>
             {
                 var result = string.Join('|', r.Query.Select(kv => $"{kv.Key}={kv.Value}"));
-                return await r.Respond().SetContentAsync(result);
+                return r.Respond().Content(result).Build();
             });
 
             var runner = setup.Runner;
@@ -335,9 +336,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [Fact]
         public void TestPathSpecialChars()
         {
-            using var setup = TestSetup.Create(async (r) =>
+            using var setup = TestSetup.Create((r) =>
             {
-                return await r.Respond().SetContentAsync(r.Target.Path.ToString(true));
+                return r.Respond().Content(r.Target.Path.ToString(true)).Build();
             });
 
             var runner = setup.Runner;

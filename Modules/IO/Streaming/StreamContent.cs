@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Buffers;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -12,8 +11,6 @@ namespace GenHTTP.Modules.IO.Streaming
 
     public class StreamContent : IResponseContent, IDisposable
     {
-        private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
-
         private readonly Func<ValueTask<ulong?>> _ChecksumProvider;
 
         #region Get-/Setters
@@ -53,36 +50,9 @@ namespace GenHTTP.Modules.IO.Streaming
         {
             return DoWrite(this, target, bufferSize);
 
-            static async PooledValueTask DoWrite(StreamContent self, Stream target, uint bufferSize)
+            static PooledValueTask DoWrite(StreamContent self, Stream target, uint bufferSize)
             {
-                if (self.Content.CanSeek && self.Content.Position != 0)
-                {
-                    self.Content.Seek(0, SeekOrigin.Begin);
-                }
-
-                var buffer = POOL.Rent((int)bufferSize);
-
-                var memory = buffer.AsMemory();
-
-                try
-                {
-                    int read;
-
-                    do
-                    {
-                        read = await self.Content.ReadAsync(memory);
-
-                        if (read > 0)
-                        {
-                            await target.WriteAsync(memory.Slice(0, read));
-                        }
-                    } 
-                    while (read > 0);
-                }
-                finally
-                {
-                    POOL.Return(buffer);
-                }
+                return self.Content.CopyPooledAsync(target, bufferSize);
             }
         }
 

@@ -143,10 +143,10 @@ namespace GenHTTP.Modules.Webservices.Provider
             // basic types should produce a string value
             if (type.IsPrimitive || type == typeof(string) || type.IsEnum || type == typeof(Guid))
             {
-                var textResponse = await request.Respond().SetContentAsync(result.ToString());
-
-                return textResponse.Type(ContentType.TextPlain)
-                                   .Build();
+                return request.Respond()
+                              .Content(result.ToString())
+                              .Type(ContentType.TextPlain)
+                              .Build();
             }
 
             // serialize the result

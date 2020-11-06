@@ -26,13 +26,13 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 throw new System.NotImplementedException();
             }
 
-            public async ValueTask<IResponse?> HandleAsync(IRequest request)
+            public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
-                return (await request.Respond()
-                              .SetContentAsync("Hello World!"))
+                return request.Respond()
+                              .Content("Hello World!")
                               .Type("application/x-custom")
                               .Status(256, "Custom Status")
-                              .Build();
+                              .BuildTask();
             }
 
         }

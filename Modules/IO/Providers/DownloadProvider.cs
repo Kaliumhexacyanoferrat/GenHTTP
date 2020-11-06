@@ -65,9 +65,9 @@ namespace GenHTTP.Modules.IO.Providers
                 return (await this.GetMethodNotAllowedAsync(request).ConfigureAwait(false)).Build();
             }
 
-            var response = await request.Respond().SetContentAsync(Resource);
-
-            response.Type(ContentType);
+            var response = request.Respond()
+                                  .Content(Resource)
+                                  .Type(ContentType);
 
             var fileName = FileName ?? Resource.Name;
 

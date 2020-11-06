@@ -46,15 +46,12 @@ namespace GenHTTP.Modules.IO.Providers
 
         #region Functionality
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var response = await request.Respond()
-                                        .SetContentAsync(Resource)
-                                        .ConfigureAwait(false);
-                                         
-
-            return response.Type(ContentType)
-                           .Build();
+            return request.Respond()
+                          .Content(Resource)
+                          .Type(ContentType)
+                          .BuildTask();
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Info, ContentType);

@@ -31,14 +31,14 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
                 return Content.From(Resource.FromString("Handler")).Build(parent);
             }
 
-            public async ValueTask<IResponseBuilder> ResponseBuilder(IRequest request)
+            public IResponseBuilder ResponseBuilder(IRequest request)
             {
-                return await request.Respond().SetContentAsync("ResponseBuilder");
+                return request.Respond().Content("ResponseBuilder");
             }
 
-            public async ValueTask<IResponse> Response(IRequest request)
+            public IResponse Response(IRequest request)
             {
-                return (await request.Respond().SetContentAsync("Response")).Build();
+                return request.Respond().Content("Response").Build();
             }
 
         }

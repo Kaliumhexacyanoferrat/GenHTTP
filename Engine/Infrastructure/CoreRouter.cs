@@ -65,11 +65,9 @@ namespace GenHTTP.Engine.Infrastructure
 
         public async ValueTask<IResponseBuilder> RenderAsync(TemplateModel model)
         {
-            var response = await model.Request.Respond()
-                                              .SetContentAsync(await Template.RenderAsync(model))
-                                              .ConfigureAwait(false);
-
-            return response.Type(ContentType.TextHtml);
+            return model.Request.Respond()
+                                .Content(await Template.RenderAsync(model))
+                                .Type(ContentType.TextHtml);
         }
 
         #endregion

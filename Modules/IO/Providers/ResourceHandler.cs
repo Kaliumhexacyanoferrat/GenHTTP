@@ -38,7 +38,7 @@ namespace GenHTTP.Modules.IO.Providers
             return Tree.GetContent(request, this);
         }
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var (_, resource) = Tree.Find(request.Target);
 
@@ -46,15 +46,13 @@ namespace GenHTTP.Modules.IO.Providers
             {
                 var type = resource.ContentType ?? new FlexibleContentType(resource.Name?.GuessContentType() ?? ContentType.ApplicationForceDownload);
 
-                var response = await request.Respond()
-                                            .SetContentAsync(resource)
-                                            .ConfigureAwait(false);
-
-                return response.Type(type)
-                               .Build();
+                return request.Respond()
+                              .Content(resource)
+                              .Type(type)
+                              .BuildTask();
             }
 
-            return null;
+            return new ValueTask<IResponse?>();
         }
 
         #endregion

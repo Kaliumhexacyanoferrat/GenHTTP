@@ -29,15 +29,15 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 throw new NotImplementedException();
             }
 
-            public async ValueTask<IResponse?> HandleAsync(IRequest request)
+            public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 Cookies = request.Cookies;
 
-                return (await request.Respond()
+                return request.Respond()
                               .Cookie(new Cookie("TestCookie", "TestValue"))
-                              .SetContentAsync("I ❤ Cookies!"))
+                              .Content("I ❤ Cookies!")
                               .Type(ContentType.TextHtml)
-                              .Build();
+                              .BuildTask();
 
             }
 

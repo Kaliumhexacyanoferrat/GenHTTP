@@ -53,14 +53,14 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 throw new NotImplementedException();
             }
 
-            public async ValueTask<IResponse?> HandleAsync(IRequest request)
+            public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 var content = request.Content?.Length.ToString() ?? "No Content";
 
-                return (await request.Respond()
-                              .SetContentAsync(content))
+                return request.Respond()
+                              .Content(content)
                               .Type(ContentType.TextPlain)
-                              .Build();
+                              .BuildTask();
             }
 
         }
