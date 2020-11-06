@@ -33,7 +33,7 @@ namespace GenHTTP.Engine.Protocol
 
         internal async Task<Stream> GetBody(RequestBuffer buffer)
         {
-            var body = (Length > Configuration.RequestMemoryLimit) ? TemporaryFileStream.Create() : OptimizedStream.Create();
+            var body = (Length > Configuration.RequestMemoryLimit) ? TemporaryFileStream.Create() : new MemoryStream((int)Length);
 
             var toFetch = Length;
 

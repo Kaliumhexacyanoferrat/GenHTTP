@@ -2,10 +2,9 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.IO.Strings
 {
@@ -43,7 +42,7 @@ namespace GenHTTP.Modules.IO.Strings
 
         #region Functionality
 
-        public ValueTask<Stream> GetContentAsync() => new ValueTask<Stream>(OptimizedStream.From(Content));
+        public ValueTask<Stream> GetContentAsync() => new ValueTask<Stream>(new MemoryStream(Content));
 
         public ValueTask<ulong> CalculateChecksumAsync()
         {
