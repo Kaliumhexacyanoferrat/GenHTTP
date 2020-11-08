@@ -17,7 +17,7 @@ namespace GenHTTP.Modules.Webservices
         /// <param name="path">The path the resource should be available at</param>
         public static LayoutBuilder AddService<T>(this LayoutBuilder layout, string path) where T : new()
         {
-            return layout.Add(path, Resource.From<T>());
+            return layout.Add(path, ServiceResource.From<T>());
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace GenHTTP.Modules.Webservices
         /// <param name="instance">The webservice resource instance</param>
         public static LayoutBuilder AddService(this LayoutBuilder layout, string path, object instance)
         {
-            return layout.Add(path, Resource.From(instance));
+            return layout.Add(path, ServiceResource.From(instance));
         }
 
     }

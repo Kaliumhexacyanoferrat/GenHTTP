@@ -8,7 +8,7 @@ using GenHTTP.Modules.Conversion.Providers;
 namespace GenHTTP.Modules.Webservices.Provider
 {
 
-    public class ResourceBuilder : IHandlerBuilder<ResourceBuilder>
+    public class ServiceResourceBuilder : IHandlerBuilder<ServiceResourceBuilder>
     {
         private object? _Instance;
 
@@ -18,21 +18,21 @@ namespace GenHTTP.Modules.Webservices.Provider
 
         #region Functionality
 
-        public ResourceBuilder Type<T>() where T : new() => Instance(new T());
+        public ServiceResourceBuilder Type<T>() where T : new() => Instance(new T());
 
-        public ResourceBuilder Instance(object instance)
+        public ServiceResourceBuilder Instance(object instance)
         {
             _Instance = instance;
             return this;
         }
 
-        public ResourceBuilder Formats(IBuilder<SerializationRegistry> registry)
+        public ServiceResourceBuilder Formats(IBuilder<SerializationRegistry> registry)
         {
             _Formats = registry;
             return this;
         }
 
-        public ResourceBuilder Add(IConcernBuilder concern)
+        public ServiceResourceBuilder Add(IConcernBuilder concern)
         {
             _Concerns.Add(concern);
             return this;
@@ -44,7 +44,7 @@ namespace GenHTTP.Modules.Webservices.Provider
 
             var instance = _Instance ?? throw new BuilderMissingPropertyException("instance");
 
-            return Concerns.Chain(parent, _Concerns, (p) => new ResourceRouter(p, instance, formats));
+            return Concerns.Chain(parent, _Concerns, (p) => new ServiceResourceRouter(p, instance, formats));
         }
 
         #endregion

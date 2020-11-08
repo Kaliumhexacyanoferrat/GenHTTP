@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
+using PooledAwait;
 
 namespace GenHTTP.Modules.Conversion.Providers.Json
 {
@@ -39,7 +40,12 @@ namespace GenHTTP.Modules.Conversion.Providers.Json
 
         public ValueTask WriteAsync(Stream target, uint bufferSize)
         {
-            return new ValueTask(JsonSerializer.SerializeAsync(target, Data, Data.GetType(), Options));
+            return DoWrite(this, target);
+
+            static async PooledValueTask DoWrite(JsonContent self, Stream target)
+            {
+                await JsonSerializer.SerializeAsync(target, self.Data, self.Data.GetType(), self.Options);
+            }
         }
 
         #endregion
