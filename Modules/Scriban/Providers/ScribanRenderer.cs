@@ -49,7 +49,7 @@ namespace GenHTTP.Modules.Scriban.Providers
 
         private async PooledValueTask<Template> GetTemplateAsync()
         {
-            if (await TemplateProvider.HasChanged())
+            if (_Template == null || await TemplateProvider.HasChanged())
             {
                 _Template = await LoadTemplate();
             }

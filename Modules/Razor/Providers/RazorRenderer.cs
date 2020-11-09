@@ -1,5 +1,7 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Threading.Tasks;
+using System.Web;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 
@@ -48,7 +50,7 @@ namespace GenHTTP.Modules.Razor.Providers
 
         private async PooledValueTask<IRazorEngineCompiledTemplate<RazorEngineTemplateBase<T>>> GetTemplate()
         {
-            if (await TemplateProvider.HasChanged())
+            if (_Template == null || await TemplateProvider.HasChanged())
             {
                 _Template = await LoadTemplate();
             }
@@ -60,6 +62,11 @@ namespace GenHTTP.Modules.Razor.Providers
         {
             return await _Engine.CompileAsync<RazorEngineTemplateBase<T>>(await TemplateProvider.GetResourceAsStringAsync(), (builder) =>
             {
+                builder.AddAssemblyReferenceByName("System.Collections");
+
+                builder.AddAssemblyReference(typeof(HttpUtility));
+                builder.AddUsing("System.Web");
+
                 builder.AddAssemblyReference(Assembly.GetCallingAssembly());
 
                 builder.AddAssemblyReferenceByName("GenHTTP.Api");
