@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading.Tasks;
 
 using Xunit;
 
@@ -11,26 +12,26 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
     {
 
         [Fact]
-        public void TestChanges()
+        public async ValueTask TestChanges()
         {
             var file = Path.GetTempFileName();
 
             try
             {
-                File.WriteAllText(file, "One");
+                await File.WriteAllTextAsync(file, "One");
 
                 var resource = Resource.FromFile(file)
                                        .Build()
                                        .Track();
 
-                using (var _ = resource.GetContent()) { }
+                using (var _ = await resource.GetContentAsync()) { }
 
-                Assert.False(resource.Changed);
+                Assert.False(await resource.HasChanged());
 
                 // modification timestamp is in seconds on unix, so we need another length
-                File.WriteAllText(file, "Three");
+                await File.WriteAllTextAsync(file, "Three");
 
-                Assert.True(resource.Changed);
+                Assert.True(await resource.HasChanged());
             }
             finally
             {
@@ -39,9 +40,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         }
 
         [Fact]
-        public void TestBuildWithTracking()
+        public async ValueTask TestBuildWithTracking()
         {
-            Assert.True(Resource.FromAssembly("File.txt").BuildWithTracking().Changed);
+            Assert.True(await Resource.FromAssembly("File.txt").BuildWithTracking().HasChanged());
         }
 
         [Fact]

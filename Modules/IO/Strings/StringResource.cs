@@ -1,11 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.IO.Strings
 {
@@ -16,7 +15,7 @@ namespace GenHTTP.Modules.IO.Strings
 
         #region Get-/Setters
 
-        public string Content { get; }
+        public byte[] Content { get; }
 
         public string? Name { get; }
 
@@ -32,7 +31,7 @@ namespace GenHTTP.Modules.IO.Strings
 
         public StringResource(string content, string? name, FlexibleContentType? contentType, DateTime? modified)
         {
-            Content = content;
+            Content = UTF8.GetBytes(content);
 
             Name = name;
             ContentType = contentType ?? new FlexibleContentType(Api.Protocol.ContentType.TextPlain);
@@ -43,9 +42,12 @@ namespace GenHTTP.Modules.IO.Strings
 
         #region Functionality
 
-        public Stream GetContent() => OptimizedStream.From(UTF8.GetBytes(Content));
+        public ValueTask<Stream> GetContentAsync() => new ValueTask<Stream>(new MemoryStream(Content));
 
-        public ulong GetChecksum() => (ulong)Content.GetHashCode();
+        public ValueTask<ulong> CalculateChecksumAsync()
+        {
+            return new ValueTask<ulong>((ulong)Content.GetHashCode());
+        }
 
         #endregion
 

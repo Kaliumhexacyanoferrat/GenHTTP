@@ -22,8 +22,6 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
 
         private object Data { get; }
 
-        public ulong? Checksum => (ulong)Data.GetHashCode();
-
         #endregion
 
         #region Initialization
@@ -38,7 +36,12 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
 
         #region Functionality
 
-        public async Task Write(Stream target, uint bufferSize)
+        public ValueTask<ulong?> CalculateChecksumAsync()
+        {
+            return new ValueTask<ulong?>((ulong)Data.GetHashCode());
+        }
+
+        public async ValueTask WriteAsync(Stream target, uint bufferSize)
         {
             using var writer = new StreamWriter(target, Encoding.UTF8, (int)bufferSize, true);
 

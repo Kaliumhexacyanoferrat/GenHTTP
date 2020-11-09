@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
@@ -35,7 +36,7 @@ namespace GenHTTP.Modules.LoadBalancing.Provider
 
         #region Functionality
 
-        public IResponse? Handle(IRequest request)
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             // get the handlers that share the highest priority
             var priorityGroup = _Nodes.GroupBy(n => n.Item2(request))
@@ -51,16 +52,16 @@ namespace GenHTTP.Modules.LoadBalancing.Provider
                 {
                     var index = _Random.Next(0, priorityGroup.Count);
 
-                    return priorityGroup[index].Handle(request);
+                    return priorityGroup[index].HandleAsync(request);
                 }
                 else
                 {
                     return priorityGroup.First()
-                                        .Handle(request);
+                                        .HandleAsync(request);
                 }
             }
 
-            return null;
+            return new ValueTask<IResponse?>();
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();

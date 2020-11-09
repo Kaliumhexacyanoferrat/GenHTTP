@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -38,16 +39,14 @@ namespace GenHTTP.Modules.VirtualHosting.Provider
 
         #region Functionality
 
-        public IResponse? Handle(IRequest request)
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            return GetRouter(request)?.Handle(request);
+            return GetRouter(request)?.HandleAsync(request) ?? new ValueTask<IResponse?>();
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
-            var router = GetRouter(request);
-
-            return router?.GetContent(request) ?? new List<ContentElement>();
+            return GetRouter(request)?.GetContent(request) ?? new List<ContentElement>();
         }
 
         private IHandler? GetRouter(IRequest request)

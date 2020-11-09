@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -38,9 +39,9 @@ namespace GenHTTP.Modules.Security.Providers
 
         #region Functionality
 
-        public IResponse? Handle(IRequest request)
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var response = Content.Handle(request);
+            var response = await Content.HandleAsync(request).ConfigureAwait(false);
 
             if (response != null)
             {

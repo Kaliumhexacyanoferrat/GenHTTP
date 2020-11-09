@@ -1,6 +1,5 @@
 ﻿using System;
 
-using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Protocol
@@ -8,26 +7,9 @@ namespace GenHTTP.Engine.Protocol
 
     internal class ResponseBuilder : IResponseBuilder
     {
-        private FlexibleResponseStatus? _Status;
-
-        private IResponseContent? _Content;
-        private ulong? _ContentLength;
-        private FlexibleContentType? _ContentType;
-        private string? _ContentEncoding;
-
-        private DateTime? _Expires;
-        private DateTime? _Modified;
-
-        private CookieCollection? _Cookies;
-
-        private readonly HeaderCollection _Headers = new HeaderCollection();
+        private readonly Response _Response = new Response();
 
         #region Get-/Setters
-
-        private CookieCollection Cookies
-        {
-            get { return _Cookies ?? (_Cookies = new CookieCollection()); }
-        }
 
         public IRequest Request { get; }
 
@@ -46,93 +28,67 @@ namespace GenHTTP.Engine.Protocol
 
         public IResponseBuilder Length(ulong length)
         {
-            _ContentLength = length;
+            _Response.ContentLength = length;
             return this;
         }
 
         public IResponseBuilder Content(IResponseContent content)
         {
-            _Content = content;
-            _ContentLength = content.Length;
+            _Response.Content = content;
+            _Response.ContentLength = content.Length;
 
             return this;
         }
 
         public IResponseBuilder Type(FlexibleContentType contentType)
         {
-            _ContentType = contentType;
+            _Response.ContentType = contentType;
             return this;
         }
 
         public IResponseBuilder Cookie(Cookie cookie)
         {
-            Cookies[cookie.Name] = cookie;
+            _Response.WriteableCookies[cookie.Name] = cookie;
             return this;
         }
 
         public IResponseBuilder Header(string key, string value)
         {
-            _Headers.Add(key, value);
+            _Response.Headers.Add(key, value);
             return this;
         }
 
         public IResponseBuilder Encoding(string encoding)
         {
-            _ContentEncoding = encoding;
+            _Response.ContentEncoding = encoding;
             return this;
         }
 
         public IResponseBuilder Expires(DateTime expiryDate)
         {
-            _Expires = expiryDate;
+            _Response.Expires = expiryDate;
             return this;
         }
 
         public IResponseBuilder Modified(DateTime modificationDate)
         {
-            _Modified = modificationDate;
+            _Response.Modified = modificationDate;
             return this;
         }
 
         public IResponseBuilder Status(ResponseStatus status)
         {
-            _Status = new FlexibleResponseStatus(status);
+            _Response.Status = new FlexibleResponseStatus(status);
             return this;
         }
 
         public IResponseBuilder Status(int status, string reason)
         {
-            _Status = new FlexibleResponseStatus(status, reason);
+            _Response.Status = new FlexibleResponseStatus(status, reason);
             return this;
         }
 
-        public IResponse Build()
-        {
-            try
-            {
-                if (_Status == null)
-                {
-                    throw new BuilderMissingPropertyException("Status");
-                }
-
-                return new Response(_Status!.Value, _Headers, _Cookies)
-                {
-                    Content = _Content,
-                    ContentEncoding = _ContentEncoding,
-                    ContentLength = _ContentLength,
-                    ContentType = _ContentType,
-                    Expires = _Expires,
-                    Modified = _Modified
-                };
-            }
-            catch (Exception)
-            {
-                _Headers.Dispose();
-                _Cookies?.Dispose();
-
-                throw;
-            }
-        }
+        public IResponse Build() => _Response;
 
         #endregion
 

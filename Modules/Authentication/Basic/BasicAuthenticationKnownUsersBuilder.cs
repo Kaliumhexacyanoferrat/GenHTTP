@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Authentication;
+
 using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Modules.Authentication.Basic
@@ -37,11 +40,11 @@ namespace GenHTTP.Modules.Authentication.Basic
                 {
                     if (password == expected)
                     {
-                        return new BasicAuthenticationUser(user);
+                        return new ValueTask<IUser?>(new BasicAuthenticationUser(user));
                     }
                 }
 
-                return null;
+                return new ValueTask<IUser?>();
             });
         }
 

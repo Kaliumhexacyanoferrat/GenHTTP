@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -37,12 +38,14 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             public IEnumerable<ContentElement> GetContent(IRequest request) => Content.GetContent(request);
 
-            public IResponse? Handle(IRequest request)
+            public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
-                return request.Respond()
+                var response = request.Respond()
                               .Content(new JsonContent(Content.GetContent(request), new JsonSerializerOptions()))
                               .Type(ContentType.ApplicationJson)
                               .Build();
+
+                return new ValueTask<IResponse?>(response);
             }
 
         }

@@ -10,7 +10,7 @@ using PooledAwait;
 namespace GenHTTP.Engine.Protocol
 {
 
-    internal class RequestBuffer
+    internal class RequestBuffer : IDisposable
     {
 
         #region Get-/Setters
@@ -18,6 +18,8 @@ namespace GenHTTP.Engine.Protocol
         private PipeReader Reader { get; }
 
         private NetworkConfiguration Configuration { get; }
+
+        private CancellationTokenSource? Cancellation { get; set; }
 
         internal ReadOnlySequence<byte> Data { get; private set; }
 
@@ -43,14 +45,24 @@ namespace GenHTTP.Engine.Protocol
         {
             if ((Data.Length == 0) || force)
             {
-                using var cancellation = new CancellationTokenSource(Configuration.RequestReadTimeout);
+                if (Cancellation == null)
+                {
+                    Cancellation = new CancellationTokenSource();
+                }
 
                 try
                 {
-                    Data = (await Reader.ReadAsync(cancellation.Token).ConfigureAwait(false)).Buffer;
+                    Cancellation.CancelAfter(Configuration.RequestReadTimeout);
+
+                    Data = (await Reader.ReadAsync(Cancellation.Token).ConfigureAwait(false)).Buffer;
+
+                    Cancellation.CancelAfter(int.MaxValue);
                 }
                 catch (OperationCanceledException)
                 {
+                    Cancellation.Dispose();
+                    Cancellation = null;
+
                     return null;
                 }
             }
@@ -68,6 +80,35 @@ namespace GenHTTP.Engine.Protocol
         {
             Data = Data.Slice(bytes);
             Reader.AdvanceTo(Data.Start);
+        }
+
+        #endregion
+
+        #region Disposing 
+
+        private bool disposedValue;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    if (Cancellation != null)
+                    {
+                        Cancellation.Dispose();
+                        Cancellation = null;
+                    }
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion

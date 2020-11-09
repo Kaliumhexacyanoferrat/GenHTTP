@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
@@ -38,7 +39,7 @@ namespace GenHTTP.Modules.Security.Providers
 
         #region Functionality
 
-        public IResponse? Handle(IRequest request)
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             if (!request.EndPoint.Secure)
             {
@@ -51,9 +52,10 @@ namespace GenHTTP.Modules.Security.Providers
                     {
                         if (Mode == SecureUpgrade.Force)
                         {
-                            return Redirect.To(GetRedirectLocation(request, endpoints))
-                                           .Build(this)
-                                           .Handle(request);
+                            return await Redirect.To(GetRedirectLocation(request, endpoints))
+                                                 .Build(this)
+                                                 .HandleAsync(request)
+                                                 .ConfigureAwait(false);
                         }
                         else if (Mode == SecureUpgrade.Allow)
                         {
@@ -63,11 +65,12 @@ namespace GenHTTP.Modules.Security.Providers
                                 {
                                     if (flag == "1")
                                     {
-                                        var response = Redirect.To(GetRedirectLocation(request, endpoints), true)
-                                                               .Build(this)
-                                                               .Handle(request)!;
+                                        var response = await Redirect.To(GetRedirectLocation(request, endpoints), true)
+                                                                     .Build(this)
+                                                                     .HandleAsync(request)
+                                                                     .ConfigureAwait(false);
 
-                                        response.Headers.Add("Vary", "Upgrade-Insecure-Requests");
+                                        response?.Headers.Add("Vary", "Upgrade-Insecure-Requests");
 
                                         return response;
                                     }
@@ -78,7 +81,7 @@ namespace GenHTTP.Modules.Security.Providers
                 }
             }
 
-            return Content.Handle(request);
+            return await Content.HandleAsync(request).ConfigureAwait(false);
         }
 
         private string GetRedirectLocation(IRequest request, List<IEndPoint> endPoints)

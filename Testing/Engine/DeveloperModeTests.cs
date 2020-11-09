@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Xunit;
 
@@ -24,7 +25,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 throw new NotImplementedException();
             }
 
-            public IResponse? Handle(IRequest request)
+            public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 throw new InvalidOperationException("Nope!");
             }

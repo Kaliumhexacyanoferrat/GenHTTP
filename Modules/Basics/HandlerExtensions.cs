@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
@@ -12,7 +13,7 @@ namespace GenHTTP.Modules.Basics
     public static class HandlerExtensions
     {
 
-        public static IResponseBuilder MethodNotAllowed(this IHandler handler, IRequest request, string? title = null, string? message = null)
+        public static ValueTask<IResponseBuilder> GetMethodNotAllowedAsync(this IHandler handler, IRequest request, string? title = null, string? message = null)
         {
             var actualMessage = message ?? "The specified resource cannot be accessed with the given HTTP verb.";
 
@@ -21,10 +22,10 @@ namespace GenHTTP.Modules.Basics
             var info = ContentInfo.Create()
                                   .Title(title ?? "Method Not Allowed");
 
-            return handler.Error(model, info.Build());
+            return handler.GetErrorAsync(model, info.Build());
         }
 
-        public static IResponseBuilder NotFound(this IHandler handler, IRequest request, string? title = null, string? message = null)
+        public static ValueTask<IResponseBuilder> GetNotFoundAsync(this IHandler handler, IRequest request, string? title = null, string? message = null)
         {
             var actualMessage = message ?? "The specified resource could not be found on this server.";
 
@@ -33,22 +34,23 @@ namespace GenHTTP.Modules.Basics
             var info = ContentInfo.Create()
                                   .Title(title ?? "Not Found");
 
-            return handler.Error(model, info.Build());
+            return handler.GetErrorAsync(model, info.Build());
         }
 
-        public static IResponseBuilder Error(this IHandler handler, ErrorModel model, ContentInfo details)
+        public static async ValueTask<IResponseBuilder> GetErrorAsync(this IHandler handler, ErrorModel model, ContentInfo details)
         {
             var renderer = handler.FindParent<IErrorHandler>(model.Request.Server.Handler) ?? throw new InvalidOperationException("There is no error handler available in the routing tree");
 
-            return handler.Page(renderer.Render(model, details))
-                          .Status(model.Status);
+            var page = await handler.GetPageAsync(await renderer.RenderAsync(model, details));
+
+            return page.Status(model.Status);
         }
 
-        public static IResponseBuilder Page(this IHandler handler, TemplateModel model)
+        public static ValueTask<IResponseBuilder> GetPageAsync(this IHandler handler, TemplateModel model)
         {
             var renderer = handler.FindParent<IPageRenderer>(model.Request.Server.Handler) ?? throw new InvalidOperationException("There is no page renderer available in the routing tree");
 
-            return renderer.Render(model);
+            return renderer.RenderAsync(model);
         }
 
         public static T? FindParent<T>(this IHandler handler, IHandler root) where T : class

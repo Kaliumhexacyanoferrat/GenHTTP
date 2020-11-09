@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
@@ -85,19 +86,19 @@ namespace GenHTTP.Modules.Websites.Sites
 
         #region Functionality
 
-        public IResponse? Handle(IRequest request) => Handler.Handle(request);
+        public ValueTask<IResponse?> HandleAsync(IRequest request) => Handler.HandleAsync(request);
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Handler.GetContent(request);
 
-        public TemplateModel Render(ErrorModel error, ContentInfo details)
+        public async ValueTask<TemplateModel> RenderAsync(ErrorModel error, ContentInfo details)
         {
-            return new TemplateModel(error.Request, error.Handler, details, Theme.ErrorHandler.Render(error));
+            return new TemplateModel(error.Request, error.Handler, details, await Theme.ErrorHandler.RenderAsync(error).ConfigureAwait(false));
         }
 
-        public IResponseBuilder Render(TemplateModel model)
+        public async ValueTask<IResponseBuilder> RenderAsync(TemplateModel model)
         {
             return model.Request.Respond()
-                                .Content(Renderer.Render(model))
+                                .Content(await Renderer.RenderAsync(model).ConfigureAwait(false))
                                 .Type(ContentType.TextHtml);
         }
 

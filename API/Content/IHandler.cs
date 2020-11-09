@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
 
@@ -33,7 +34,7 @@ namespace GenHTTP.Api.Content
         /// </remarks>
         /// <param name="request">The request to be handled</param>
         /// <returns>The response to be sent to the requesting client</returns>
-        IResponse? Handle(IRequest request);
+        ValueTask<IResponse?> HandleAsync(IRequest request);
 
     }
 

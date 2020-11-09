@@ -11,6 +11,8 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Infrastructure.Configuration;
 using GenHTTP.Engine.Utilities;
 
+using PooledAwait;
+
 namespace GenHTTP.Engine.Protocol
 {
 
@@ -109,7 +111,7 @@ namespace GenHTTP.Engine.Protocol
             await Write(NL).ConfigureAwait(false);
         }
 
-        private async ValueTask WriteHeader(IResponse response, bool keepAlive)
+        private async PooledValueTask WriteHeader(IResponse response, bool keepAlive)
         {
             await Write("Server: GenHTTP/").ConfigureAwait(false);
             await Write(Server.Version).ConfigureAwait(false);
@@ -169,7 +171,7 @@ namespace GenHTTP.Engine.Protocol
             }
         }
 
-        private async ValueTask WriteBody(IResponse response)
+        private async PooledValueTask WriteBody(IResponse response)
         {
             if (response.Content != null)
             {
@@ -177,13 +179,13 @@ namespace GenHTTP.Engine.Protocol
                 {
                     using var chunked = new ChunkedStream(OutputStream);
 
-                    await response.Content.Write(chunked, Configuration.TransferBufferSize).ConfigureAwait(false);
+                    await response.Content.WriteAsync(chunked, Configuration.TransferBufferSize).ConfigureAwait(false);
 
-                    chunked.Finish();
+                    await chunked.FinishAsync();
                 }
                 else
                 {
-                    await response.Content.Write(OutputStream, Configuration.TransferBufferSize).ConfigureAwait(false);
+                    await response.Content.WriteAsync(OutputStream, Configuration.TransferBufferSize).ConfigureAwait(false);
                 }
             }
         }
@@ -224,7 +226,7 @@ namespace GenHTTP.Engine.Protocol
             await Write(NL).ConfigureAwait(false);
         }
 
-        private async ValueTask Write(string text)
+        private async PooledValueTask Write(string text)
         {
             var length = text.Length;
 

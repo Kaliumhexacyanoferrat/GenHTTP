@@ -11,6 +11,7 @@ using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+using System.Threading.Tasks;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 { 
@@ -92,11 +93,11 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
                 yield return new ContentElement(root, info, ContentType.ApplicationForceDownload);
             }
 
-            public IResponse? Handle(IRequest request)
+            public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 return Content.From(Resource.FromString(GetContent(request).Select(c => c.Path).First()))
                               .Build(this)
-                              .Handle(request);
+                              .HandleAsync(request);
             }
 
         }

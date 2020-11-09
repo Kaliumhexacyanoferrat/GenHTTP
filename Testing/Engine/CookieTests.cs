@@ -9,6 +9,7 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Layouting;
+using System.Threading.Tasks;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {
@@ -28,7 +29,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 throw new NotImplementedException();
             }
 
-            public IResponse? Handle(IRequest request)
+            public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 Cookies = request.Cookies;
 
@@ -36,7 +37,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
                               .Cookie(new Cookie("TestCookie", "TestValue"))
                               .Content("I ❤ Cookies!")
                               .Type(ContentType.TextHtml)
-                              .Build();
+                              .BuildTask();
 
             }
 

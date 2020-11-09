@@ -10,7 +10,7 @@ using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Mvc
+namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 {
 
     public class ActionTests
@@ -22,7 +22,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Mvc
         {
 
             public string? Field { get; set; }
-                            
+
         }
 
         public class TestController
@@ -66,7 +66,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Mvc
             }
 
             public void Void() { }
-              
+
         }
 
         #endregion

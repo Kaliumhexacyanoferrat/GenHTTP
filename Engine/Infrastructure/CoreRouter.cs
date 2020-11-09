@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
@@ -48,9 +48,9 @@ namespace GenHTTP.Engine.Infrastructure
 
         #region Functionality
 
-        public IResponse? Handle(IRequest request)
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            return Content.Handle(request);
+            return await Content.HandleAsync(request).ConfigureAwait(false);
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
@@ -58,15 +58,15 @@ namespace GenHTTP.Engine.Infrastructure
             return Content.GetContent(request);
         }
 
-        public TemplateModel Render(ErrorModel error, ContentInfo details)
+        public async ValueTask<TemplateModel> RenderAsync(ErrorModel error, ContentInfo details)
         {
-            return new TemplateModel(error.Request, error.Handler, details, ErrorRenderer.Render(error));
+            return new TemplateModel(error.Request, error.Handler, details, await ErrorRenderer.RenderAsync(error).ConfigureAwait(false));
         }
 
-        public IResponseBuilder Render(TemplateModel model)
+        public async ValueTask<IResponseBuilder> RenderAsync(TemplateModel model)
         {
             return model.Request.Respond()
-                                .Content(Template.Render(model))
+                                .Content(await Template.RenderAsync(model))
                                 .Type(ContentType.TextHtml);
         }
 

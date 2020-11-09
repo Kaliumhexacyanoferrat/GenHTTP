@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
@@ -34,16 +35,15 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
         #region Functionality
 
-        public IResponse Handle(IRequest request)
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var model = new ListingModel(request, this, Container, !request.Target.Ended);
 
             var renderer = new ListingRenderer();
 
-            var templateModel = new TemplateModel(request, this, GetPageInfo(request), renderer.Render(model));
+            var templateModel = new TemplateModel(request, this, GetPageInfo(request), await renderer.RenderAsync(model).ConfigureAwait(false));
 
-            return this.Page(templateModel)
-                       .Build();
+            return (await this.GetPageAsync(templateModel).ConfigureAwait(false)).Build();
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();

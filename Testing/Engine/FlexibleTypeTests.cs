@@ -8,6 +8,7 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Layouting;
+using System.Threading.Tasks;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {
@@ -25,13 +26,13 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 throw new System.NotImplementedException();
             }
 
-            public IResponse? Handle(IRequest request)
+            public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 return request.Respond()
                               .Content("Hello World!")
                               .Type("application/x-custom")
                               .Status(256, "Custom Status")
-                              .Build();
+                              .BuildTask();
             }
 
         }

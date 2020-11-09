@@ -4,12 +4,14 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
 
+using PooledAwait;
+
 namespace GenHTTP.Modules.IO.Streaming
 {
 
     public class StreamContent : IResponseContent, IDisposable
     {
-        private readonly Func<ulong?> _ChecksumProvider;
+        private readonly Func<ValueTask<ulong?>> _ChecksumProvider;
 
         #region Get-/Setters
 
@@ -28,13 +30,11 @@ namespace GenHTTP.Modules.IO.Streaming
             }
         }
 
-        public ulong? Checksum => _ChecksumProvider();
-
         #endregion
 
         #region Initialization
 
-        public StreamContent(Stream content, Func<ulong?> checksumProvider)
+        public StreamContent(Stream content, Func<ValueTask<ulong?>> checksumProvider)
         {
             Content = content;
             _ChecksumProvider = checksumProvider;
@@ -44,14 +44,16 @@ namespace GenHTTP.Modules.IO.Streaming
 
         #region Functionality
 
-        public async Task Write(Stream target, uint bufferSize)
-        {
-            if (Content.CanSeek && Content.Position != 0)
-            {
-                Content.Seek(0, SeekOrigin.Begin);
-            }
+        public ValueTask<ulong?> CalculateChecksumAsync() => _ChecksumProvider();
 
-            await Content.CopyToAsync(target, (int)bufferSize);
+        public ValueTask WriteAsync(Stream target, uint bufferSize)
+        {
+            return DoWrite(this, target, bufferSize);
+
+            static PooledValueTask DoWrite(StreamContent self, Stream target, uint bufferSize)
+            {
+                return self.Content.CopyPooledAsync(target, bufferSize);
+            }
         }
 
         #endregion

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -32,12 +33,12 @@ namespace GenHTTP.Modules.LoadBalancing.Provider
         #endregion
 
         #region Functionality
-
-        public IResponse? Handle(IRequest request)
+        
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             return Redirect.To(Root + request.Target.Current, true)
                            .Build(this)
-                           .Handle(request);
+                           .HandleAsync(request);
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
@@ -26,7 +27,7 @@ namespace GenHTTP.Modules.Authentication
         /// <param name="authenticator">The lambda to be evaluated</param>
         /// <param name="realm">The name of the realm returned to the client</param>
         /// <returns>The newly created basic authentication concern</returns>
-        public static BasicAuthenticationConcernBuilder Create(Func<string, string, IUser?> authenticator, string realm = DEFAULT_REALM)
+        public static BasicAuthenticationConcernBuilder Create(Func<string, string, ValueTask<IUser?>> authenticator, string realm = DEFAULT_REALM)
         {
             return new BasicAuthenticationConcernBuilder().Handler(authenticator)
                                                           .Realm(realm);
@@ -53,7 +54,7 @@ namespace GenHTTP.Modules.Authentication
         /// </summary>
         /// <param name="authenticator">The lambda to be evaluated on request</param>
         /// <param name="realm">The name of the realm to be returned to the client</param>
-        public static T Authentication<T>(this T builder, Func<string, string, IUser?> authenticator, string realm = DEFAULT_REALM) where T : IHandlerBuilder<T>
+        public static T Authentication<T>(this T builder, Func<string, string, ValueTask<IUser?>> authenticator, string realm = DEFAULT_REALM) where T : IHandlerBuilder<T>
         {
             builder.Add(Create(authenticator, realm));
             return builder;

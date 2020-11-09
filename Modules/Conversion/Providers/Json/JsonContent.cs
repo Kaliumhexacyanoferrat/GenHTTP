@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
+using PooledAwait;
 
 namespace GenHTTP.Modules.Conversion.Providers.Json
 {
@@ -18,8 +19,6 @@ namespace GenHTTP.Modules.Conversion.Providers.Json
 
         private JsonSerializerOptions Options { get; }
 
-        public ulong? Checksum => (ulong)Data.GetHashCode();
-
         #endregion
 
         #region Initialization
@@ -34,9 +33,19 @@ namespace GenHTTP.Modules.Conversion.Providers.Json
 
         #region Functionality
 
-        public async Task Write(Stream target, uint bufferSize)
+        public ValueTask<ulong?> CalculateChecksumAsync()
         {
-            await JsonSerializer.SerializeAsync(target, Data, Data.GetType(), Options);
+            return new ValueTask<ulong?>((ulong)Data.GetHashCode());
+        }
+
+        public ValueTask WriteAsync(Stream target, uint bufferSize)
+        {
+            return DoWrite(this, target);
+
+            static async PooledValueTask DoWrite(JsonContent self, Stream target)
+            {
+                await JsonSerializer.SerializeAsync(target, self.Data, self.Data.GetType(), self.Options);
+            }
         }
 
         #endregion

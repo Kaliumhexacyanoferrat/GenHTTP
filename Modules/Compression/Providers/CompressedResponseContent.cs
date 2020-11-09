@@ -18,8 +18,6 @@ namespace GenHTTP.Modules.Compression.Providers
 
         private Func<Stream, Stream> Generator { get; }
 
-        public ulong? Checksum => OriginalContent.Checksum;
-
         #endregion
 
         #region Initialization
@@ -34,11 +32,16 @@ namespace GenHTTP.Modules.Compression.Providers
 
         #region Functionality
 
-        public async Task Write(Stream target, uint bufferSize)
+        public async ValueTask WriteAsync(Stream target, uint bufferSize)
         {
             using var compressed = Generator(target);
 
-            await OriginalContent.Write(compressed, bufferSize);
+            await OriginalContent.WriteAsync(compressed, bufferSize);
+        }
+
+        public ValueTask<ulong?> CalculateChecksumAsync()
+        {
+            return OriginalContent.CalculateChecksumAsync();
         }
 
         #endregion

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-
+using System.Threading.Tasks;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
@@ -46,12 +46,12 @@ namespace GenHTTP.Modules.IO.Providers
 
         #region Functionality
 
-        public IResponse? Handle(IRequest request)
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             return request.Respond()
                           .Content(Resource)
                           .Type(ContentType)
-                          .Build();
+                          .BuildTask();
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Info, ContentType);

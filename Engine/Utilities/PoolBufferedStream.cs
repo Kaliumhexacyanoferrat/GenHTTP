@@ -1,4 +1,5 @@
-﻿using System.Buffers;
+﻿using PooledAwait;
+using System.Buffers;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -75,24 +76,29 @@ namespace GenHTTP.Engine.Utilities
             }
         }
 
-        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            if (count < (Buffer.Length - Current))
+            return DoWriteAsync(this, buffer, offset, count, cancellationToken);
+
+            static async PooledTask DoWriteAsync(PoolBufferedStream self, byte[] buffer, int offset, int count, CancellationToken cancellationToken)
             {
-                System.Buffer.BlockCopy(buffer, offset, Buffer, Current, count);
-
-                Current += count;
-
-                if (Current == Buffer.Length)
+                if (count < (self.Buffer.Length - self.Current))
                 {
-                    await WriteBufferAsync(cancellationToken).ConfigureAwait(false);
-                }
-            }
-            else
-            {
-                await WriteBufferAsync(cancellationToken).ConfigureAwait(false);
+                    System.Buffer.BlockCopy(buffer, offset, self.Buffer, self.Current, count);
 
-                await Stream.WriteAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
+                    self.Current += count;
+
+                    if (self.Current == self.Buffer.Length)
+                    {
+                        await self.WriteBufferAsync(cancellationToken).ConfigureAwait(false);
+                    }
+                }
+                else
+                {
+                    await self.WriteBufferAsync(cancellationToken).ConfigureAwait(false);
+
+                    await self.Stream.WriteAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
+                }
             }
         }
 
@@ -103,11 +109,16 @@ namespace GenHTTP.Engine.Utilities
             Stream.Flush();
         }
 
-        public override async Task FlushAsync(CancellationToken cancellationToken)
+        public override Task FlushAsync(CancellationToken cancellationToken)
         {
-            await WriteBufferAsync(cancellationToken).ConfigureAwait(false);
+            return DoFlushAsync(this, cancellationToken);
 
-            await Stream.FlushAsync(cancellationToken).ConfigureAwait(false);
+            static async PooledTask DoFlushAsync(PoolBufferedStream self, CancellationToken cancellationToken)
+            {
+                await self.WriteBufferAsync(cancellationToken).ConfigureAwait(false);
+
+                await self.Stream.FlushAsync(cancellationToken).ConfigureAwait(false);
+            }
         }
 
         private void WriteBuffer()
@@ -120,7 +131,7 @@ namespace GenHTTP.Engine.Utilities
             }
         }
 
-        private async ValueTask WriteBufferAsync(CancellationToken cancellationToken)
+        private async PooledValueTask WriteBufferAsync(CancellationToken cancellationToken)
         {
             if (Current > 0)
             {

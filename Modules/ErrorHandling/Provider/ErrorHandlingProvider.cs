@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
@@ -35,16 +36,16 @@ namespace GenHTTP.Modules.ErrorHandling.Provider
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Content.GetContent(request);
 
-        public IResponse? Handle(IRequest request)
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             try
             {
-                var response = Content.Handle(request);
+                var response = await Content.HandleAsync(request)
+                                            .ConfigureAwait(false);
 
                 if (response == null)
                 {
-                    return Content.NotFound(request)
-                                  .Build();
+                    return (await Content.GetNotFoundAsync(request).ConfigureAwait(false)).Build();
                 }
 
                 return response;
@@ -56,8 +57,7 @@ namespace GenHTTP.Modules.ErrorHandling.Provider
                 var details = ContentInfo.Create()
                                          .Title(e.Status.ToString());
 
-                return this.Error(model, details.Build())
-                           .Build();
+                return (await this.GetErrorAsync(model, details.Build()).ConfigureAwait(false)).Build();
             }
             catch (Exception e)
             {
@@ -66,8 +66,7 @@ namespace GenHTTP.Modules.ErrorHandling.Provider
                 var details = ContentInfo.Create()
                                          .Title("Internal Server Error");
 
-                return this.Error(model, details.Build())
-                           .Build();
+                return (await this.GetErrorAsync(model, details.Build()).ConfigureAwait(false)).Build();
             }
         }
 

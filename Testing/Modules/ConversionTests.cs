@@ -10,6 +10,7 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Conversion.Providers;
 using GenHTTP.Modules.Conversion.Providers.Forms;
+using System.Threading.Tasks;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Conversion
 {
@@ -83,11 +84,11 @@ namespace GenHTTP.Testing.Acceptance.Modules.Conversion
 
             public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();
 
-            public IResponse? Handle(IRequest request)
+            public async ValueTask<IResponse?> HandleAsync(IRequest request)
             {
-                var obj = Format.Deserialize(request.Content!, typeof(T)).Result;
+                var obj = await Format.DeserializeAsync(request.Content!, typeof(T));
 
-                return Format.Serialize(request, obj).Build();
+                return (await Format.SerializeAsync(request, obj)).Build();
             }
 
         }

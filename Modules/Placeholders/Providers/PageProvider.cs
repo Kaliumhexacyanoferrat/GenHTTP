@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
+
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
@@ -37,12 +39,13 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         #region Functionality
 
-        public IResponse? Handle(IRequest request)
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var templateModel = new TemplateModel(request, this, PageInfo, Content.GetResourceAsString());
+            var templateModel = new TemplateModel(request, this, PageInfo, await Content.GetResourceAsStringAsync().ConfigureAwait(false));
 
-            return this.Page(templateModel)
-                       .Build();
+            var page = await this.GetPageAsync(templateModel).ConfigureAwait(false);
+             
+            return page.Build();
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, PageInfo, ContentType.TextHtml);

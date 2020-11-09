@@ -208,9 +208,9 @@ namespace GenHTTP.Engine.Protocol
             return position;
         }
 
-        private async PooledValueTask<string?> ReadToken(RequestBuffer buffer, char delimiter, ushort skipNext = 0, ushort skipFirst = 0, bool skipDelimiter = true)
+        private PooledValueTask<string?> ReadToken(RequestBuffer buffer, char delimiter, ushort skipNext = 0, ushort skipFirst = 0, bool skipDelimiter = true)
         {
-            return await ReadToken(buffer, delimiter, LINE_ENDING, skipNext, skipFirst, skipDelimiter);
+            return ReadToken(buffer, delimiter, LINE_ENDING, skipNext, skipFirst, skipDelimiter);
         }
 
         private async PooledValueTask<string?> ReadToken(RequestBuffer buffer, char delimiter, char[] boundaries, ushort skipNext = 0, ushort skipFirst = 0, bool skipDelimiter = true)

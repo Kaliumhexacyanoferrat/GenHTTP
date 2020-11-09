@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-
+using System.Threading.Tasks;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Content.IO
@@ -50,13 +50,13 @@ namespace GenHTTP.Api.Content.IO
         /// Calculates the checksum of the resource.
         /// </summary>
         /// <returns>The checksum of the resource</returns>
-        ulong GetChecksum();
+        ValueTask<ulong> CalculateChecksumAsync();
 
         /// <summary>
         /// Returns the read-only stream of the resource to be accessed.
         /// </summary>
         /// <returns>The resource to be accessed</returns>
-        Stream GetContent();
+        ValueTask<Stream> GetContentAsync();
 
     }
 

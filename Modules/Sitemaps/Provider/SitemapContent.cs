@@ -25,24 +25,6 @@ namespace GenHTTP.Modules.Sitemaps.Provider
 
         private IEnumerable<ContentElement> Elements { get; }
 
-        public ulong? Checksum
-        {
-            get
-            {
-                unchecked
-                {
-                    ulong hash = 17;
-
-                    foreach (var element in Elements)
-                    {
-                        hash = hash * 23 + (ulong)element.Path.ToString().GetHashCode();
-                    }
-
-                    return hash;
-                }
-            }
-        }
-
         #endregion
 
         #region Initialization
@@ -57,7 +39,22 @@ namespace GenHTTP.Modules.Sitemaps.Provider
 
         #region Functionality
 
-        public async Task Write(Stream target, uint bufferSize)
+        public ValueTask<ulong?> CalculateChecksumAsync()
+        {
+            unchecked
+            {
+                ulong hash = 17;
+
+                foreach (var element in Elements)
+                {
+                    hash = hash * 23 + (ulong)element.Path.ToString().GetHashCode();
+                }
+
+                return new ValueTask<ulong?>(hash);
+            }
+        }
+
+        public async ValueTask WriteAsync(Stream target, uint bufferSize)
         {
             using (var writer = XmlWriter.Create(target, SETTINGS))
             {

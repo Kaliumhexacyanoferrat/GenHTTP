@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
@@ -11,7 +12,7 @@ namespace GenHTTP.Modules.Authentication.Basic
     {
         private string? _Realm;
 
-        private Func<string, string, IUser?>? _Handler;
+        private Func<string, string, ValueTask<IUser?>>? _Handler;
 
         #region Functionality
 
@@ -21,7 +22,7 @@ namespace GenHTTP.Modules.Authentication.Basic
             return this;
         }
 
-        public BasicAuthenticationConcernBuilder Handler(Func<string, string, IUser?> handler)
+        public BasicAuthenticationConcernBuilder Handler(Func<string, string, ValueTask<IUser?>> handler)
         {
             _Handler = handler;
             return this;

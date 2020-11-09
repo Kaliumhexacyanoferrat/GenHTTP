@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Basics;
 
 namespace GenHTTP.Modules.IO.Providers
@@ -36,7 +38,7 @@ namespace GenHTTP.Modules.IO.Providers
             return Tree.GetContent(request, this);
         }
 
-        public IResponse? Handle(IRequest request)
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var (_, resource) = Tree.Find(request.Target);
 
@@ -47,10 +49,10 @@ namespace GenHTTP.Modules.IO.Providers
                 return request.Respond()
                               .Content(resource)
                               .Type(type)
-                              .Build();
+                              .BuildTask();
             }
 
-            return null;
+            return new ValueTask<IResponse?>();
         }
 
         #endregion

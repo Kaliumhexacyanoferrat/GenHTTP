@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -34,29 +35,27 @@ namespace GenHTTP.Modules.Reflection
 
         #region Functionality
 
-        public IResponse? Handle(IRequest request)
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var methods = FindProviders(request.Target.GetRemaining().ToString());
+            var methods = FindProviders(request.Target.GetRemaining().ToString(), request.Method, out var foundOthers);
 
-            if (methods.Any())
+            if (methods.Count == 1)
             {
-                var matchingMethods = methods.Where(m => m.MetaData.SupportedMethods.Contains(request.Method)).ToList();
-
-                if (matchingMethods.Count == 1)
-                {
-                    return matchingMethods.First().Handle(request);
-                }
-                else if (methods.Count > 1)
-                {
-                    throw new ProviderException(ResponseStatus.BadRequest, $"There are multiple methods matching '{request.Target.Path}'");
-                }
-                else
+                return methods[0].HandleAsync(request);
+            }
+            else if (methods.Count > 1)
+            {
+                throw new ProviderException(ResponseStatus.BadRequest, $"There are multiple methods matching '{request.Target.Path}'");
+            }
+            else
+            {
+                if (foundOthers)
                 {
                     throw new ProviderException(ResponseStatus.MethodNotAllowed, $"There is no method of a matching request type");
                 }
-            }
 
-            return null;
+                return new ValueTask<IResponse?>();
+            }
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
@@ -64,7 +63,43 @@ namespace GenHTTP.Modules.Reflection
             return Methods.SelectMany(m => m.GetContent(request));
         }
 
-        private List<MethodHandler> FindProviders(string path) => Methods.Where(m => m.Routing.ParsedPath?.IsMatch(path) ?? false).ToList();
+        private List<MethodHandler> FindProviders(string path, FlexibleRequestMethod requestedMethod, out bool foundOthers)
+        {
+            foundOthers = false;
+
+            var result = new List<MethodHandler>(2);
+
+            foreach (var method in Methods)
+            {
+                if (method.Routing.IsIndex && path == "/")
+                {
+                    if (method.MetaData.SupportedMethods.Contains(requestedMethod))
+                    {
+                        result.Add(method);
+                    }
+                    else
+                    {
+                        foundOthers = true;
+                    }
+                }
+                else
+                {
+                    if (method.Routing.ParsedPath.IsMatch(path))
+                    {
+                        if (method.MetaData.SupportedMethods.Contains(requestedMethod))
+                        {
+                            result.Add(method);
+                        }
+                        else
+                        {
+                            foundOthers = true;
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
 
         public IHandler? Find(string segment)
         {

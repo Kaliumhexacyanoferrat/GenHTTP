@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-
+using System.Threading.Tasks;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
@@ -14,13 +14,6 @@ namespace GenHTTP.Modules.IO.Tracking
         #region Get-/Setters
 
         protected IResource Source { get; }
-
-        /// <summary>
-        /// True, if the content of the resource has changed
-        /// since <see cref="GetContent()" /> has been called
-        /// the last time.
-        /// </summary>
-        public bool Changed => GetChecksum() != _LastChecksum;
 
         public string? Name => Source.Name;
 
@@ -43,13 +36,26 @@ namespace GenHTTP.Modules.IO.Tracking
 
         #region Functionality
 
-        public ulong GetChecksum() => Source.GetChecksum();
-
-        public Stream GetContent()
+        public async ValueTask<Stream> GetContentAsync()
         {
-            _LastChecksum = GetChecksum();
+            _LastChecksum = await CalculateChecksumAsync();
 
-            return Source.GetContent();
+            return await Source.GetContentAsync();
+        }
+
+        public ValueTask<ulong> CalculateChecksumAsync()
+        {
+            return Source.CalculateChecksumAsync();
+        }
+
+        /// <summary>
+        /// True, if the content of the resource has changed
+        /// since <see cref="GetContentAsync()" /> has been called
+        /// the last time.
+        /// </summary>
+        public async ValueTask<bool> HasChanged()
+        {
+            return await CalculateChecksumAsync() != _LastChecksum;
         }
 
         #endregion

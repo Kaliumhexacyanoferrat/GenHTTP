@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -46,7 +47,7 @@ namespace GenHTTP.Modules.Robots.Provider
 
         #region Functionality
 
-        public IResponse? Handle(IRequest request)
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             string? sitemapUrl = null;
 
@@ -66,10 +67,12 @@ namespace GenHTTP.Modules.Robots.Provider
                 }
             }
 
-            return request.Respond()
-                          .Type(ContentType.TextPlain)
-                          .Content(new RobotsContent(Directives, sitemapUrl))
-                          .Build();
+            var response = request.Respond()
+                                  .Type(ContentType.TextPlain)
+                                  .Content(new RobotsContent(Directives, sitemapUrl))
+                                  .Build();
+
+            return new ValueTask<IResponse?>(response);
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Info, ContentType.TextPlain);

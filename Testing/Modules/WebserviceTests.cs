@@ -13,6 +13,7 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Webservices;
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Layouting;
+using System.Threading.Tasks;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Webservices
 {
@@ -56,11 +57,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
             public Stream Stream(Stream input) => new MemoryStream(Encoding.UTF8.GetBytes(input.Length.ToString()));
 
             [ResourceMethod("requestResponse")]
-            public IResponseBuilder RequestResponse(IRequest request)
+            public ValueTask<IResponse?> RequestResponse(IRequest request)
             {
                 return request.Respond()
                               .Content("Hello World")
-                              .Type(ContentType.TextPlain);
+                              .Type(ContentType.TextPlain)
+                              .BuildTask();
             }
 
             [ResourceMethod("exception")]

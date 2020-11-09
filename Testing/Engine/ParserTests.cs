@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Threading.Tasks;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
@@ -27,11 +27,11 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 throw new NotImplementedException();
             }
 
-            public IResponse? Handle(IRequest request)
+            public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 return request.Respond()
                               .Content(request.Target.Path.ToString())
-                              .Build();
+                              .BuildTask();
             }
 
         }
@@ -46,11 +46,11 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 throw new NotImplementedException();
             }
 
-            public IResponse? Handle(IRequest request)
+            public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 return request.Respond()
                               .Content(string.Join('|', request.Query.Select(kv => kv.Key + "=" + kv.Value)))
-                              .Build();
+                              .BuildTask();
             }
 
         }

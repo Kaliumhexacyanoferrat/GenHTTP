@@ -25,7 +25,7 @@ namespace GenHTTP.Modules.Conversion.Providers
         /// <param name="stream">The stream providing the data to be deserialized</param>
         /// <param name="type">The type to be deserialized</param>
         /// <returns>The object deserialized from the given stream</returns>
-        Task<object> Deserialize(Stream stream, Type type);
+        ValueTask<object> DeserializeAsync(Stream stream, Type type);
 
         /// <summary>
         /// Serializes the given response into a new response for the
@@ -34,7 +34,7 @@ namespace GenHTTP.Modules.Conversion.Providers
         /// <param name="request">The request to generate a response for</param>
         /// <param name="response">The object to be serialized</param>
         /// <returns>The response representing the serialized object</returns>
-        IResponseBuilder Serialize(IRequest request, object response);
+        ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response);
 
     }
 

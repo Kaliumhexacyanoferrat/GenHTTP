@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 
 using Xunit;
 
@@ -15,14 +16,14 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
     {
 
         [Fact]
-        public void TestStringResource()
+        public async ValueTask TestStringResource()
         {
             var resource = Resource.FromString("Hello World")
                                    .Build();
 
             Assert.Equal(ContentType.TextPlain, resource.ContentType?.KnownType);
 
-            using var content = resource.GetContent();
+            using var content = await resource.GetContentAsync();
 
             Assert.Equal(11, content.Length);
 
@@ -33,18 +34,18 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         }
 
         [Fact]
-        public void TestFileResource()
+        public async ValueTask TestFileResource()
         {
             var file = Path.GetTempFileName();
 
             try
             {
-                File.WriteAllText(file, "Hello World");
+                await File.WriteAllTextAsync(file, "Hello World");
 
                 var resource = Resource.FromFile(file)
                                        .Build();
 
-                using var content = resource.GetContent();
+                using var content = await resource.GetContentAsync();
 
                 Assert.Equal(11, content.Length);
 
@@ -60,14 +61,14 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         }
 
         [Fact]
-        public void TestAssemblyResource()
+        public async ValueTask TestAssemblyResource()
         {
             var resource = Resource.FromAssembly("File.txt")
                                    .Build();
 
             Assert.Equal(ContentType.TextPlain, resource.ContentType?.KnownType);
 
-            using var content = resource.GetContent();
+            using var content = await resource.GetContentAsync();
 
             Assert.Equal(16, content.Length);
 

@@ -19,37 +19,6 @@ namespace GenHTTP.Modules.Robots.Provider
 
         private string? Sitemap { get; }
 
-        public ulong? Checksum
-        {
-            get
-            {
-                unchecked
-                {
-                    ulong hash = 17;
-
-                    foreach (var directive in Directives)
-                    {
-                        foreach (var allowed in directive.Allowed)
-                        {
-                            hash = hash * 23 + (ulong)allowed.GetHashCode();
-                        }
-
-                        foreach (var disallowed in directive.Disallowed)
-                        {
-                            hash = hash * 23 + (ulong)disallowed.GetHashCode();
-                        }
-
-                        foreach (var agent in directive.UserAgents)
-                        {
-                            hash = hash * 23 + (ulong)agent.GetHashCode();
-                        }
-                    }
-
-                    return hash;
-                }
-            }
-        }
-
         #endregion
 
         #region Initialization
@@ -64,7 +33,35 @@ namespace GenHTTP.Modules.Robots.Provider
 
         #region Functionality
 
-        public async Task Write(Stream target, uint bufferSize)
+        public ValueTask<ulong?> CalculateChecksumAsync()
+        {
+            unchecked
+            {
+                ulong hash = 17;
+
+                foreach (var directive in Directives)
+                {
+                    foreach (var allowed in directive.Allowed)
+                    {
+                        hash = hash * 23 + (ulong)allowed.GetHashCode();
+                    }
+
+                    foreach (var disallowed in directive.Disallowed)
+                    {
+                        hash = hash * 23 + (ulong)disallowed.GetHashCode();
+                    }
+
+                    foreach (var agent in directive.UserAgents)
+                    {
+                        hash = hash * 23 + (ulong)agent.GetHashCode();
+                    }
+                }
+
+                return new ValueTask<ulong?>(hash);
+            }
+        }
+
+        public async ValueTask WriteAsync(Stream target, uint bufferSize)
         {
             using (var writer = new StreamWriter(target, Encoding.UTF8, (int)bufferSize, true))
             {

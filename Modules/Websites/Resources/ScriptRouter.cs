@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Websites;
@@ -62,7 +62,7 @@ namespace GenHTTP.Modules.Websites.Resources
             return Scripts.Values.Select(s => new ScriptReference($"scripts/{s.Name}", s.Async)).ToList();
         }
 
-        public IResponse? Handle(IRequest request)
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var file = request.Target.Current;
 
@@ -72,18 +72,18 @@ namespace GenHTTP.Modules.Websites.Resources
                 {
                     if (file == "bundle.js")
                     {
-                        return Bundle.Handle(request);
+                        return Bundle.HandleAsync(request);
                     }
                 }
                 else if (Scripts.TryGetValue(file, out Script script))
                 {
                     return Content.From(script.Provider)
                                    .Build(this)
-                                   .Handle(request);
+                                   .HandleAsync(request);
                 }
             }
 
-            return null;
+            return new ValueTask<IResponse?>();
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request)

@@ -16,8 +16,6 @@ namespace GenHTTP.Modules.Conversion.Providers.Xml
 
         private object Data { get; }
 
-        public ulong? Checksum => (ulong)Data.GetHashCode();
-
         #endregion
 
         #region Initialization
@@ -31,12 +29,17 @@ namespace GenHTTP.Modules.Conversion.Providers.Xml
 
         #region Functionality
 
-        public Task Write(Stream target, uint bufferSize)
+        public ValueTask<ulong?> CalculateChecksumAsync()
+        {
+            return new ValueTask<ulong?>((ulong)Data.GetHashCode());
+        }
+
+        public ValueTask WriteAsync(Stream target, uint bufferSize)
         {
             var serializer = new XmlSerializer(Data.GetType());
             serializer.Serialize(target, Data);
 
-            return Task.CompletedTask;
+            return new ValueTask();
         }
 
         #endregion

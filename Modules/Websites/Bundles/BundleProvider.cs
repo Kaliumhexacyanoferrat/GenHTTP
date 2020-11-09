@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
@@ -35,12 +36,14 @@ namespace GenHTTP.Modules.Websites.Bundles
 
         #region Functionality
 
-        public IResponse? Handle(IRequest request)
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            return request.Respond()
-                          .Content(new BundleContent(Items))
-                          .Type(ContentType)
-                          .Build();
+            var response = request.Respond()
+                                  .Content(new BundleContent(Items))
+                                  .Type(ContentType)
+                                  .Build();
+
+            return new ValueTask<IResponse?>(response);
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.IO;
 using System.IO.Pipelines;
 using System.Net;
@@ -17,7 +18,7 @@ namespace GenHTTP.Engine
 
     internal class ClientHandler
     {
-        private static readonly StreamPipeReaderOptions READER_OPTIONS = new StreamPipeReaderOptions(leaveOpen: true);
+        private static readonly StreamPipeReaderOptions READER_OPTIONS = new StreamPipeReaderOptions(pool: MemoryPool<byte>.Shared, leaveOpen: true);
 
         #region Get-/Setter
 
@@ -95,7 +96,7 @@ namespace GenHTTP.Engine
         {
             try
             {
-                var buffer = new RequestBuffer(reader, Configuration);
+                using var buffer = new RequestBuffer(reader, Configuration);
 
                 var parser = new RequestParser(Configuration);
 
@@ -130,7 +131,7 @@ namespace GenHTTP.Engine
 
             var responseHandler = new ResponseHandler(Server, Stream, Connection, Configuration);
 
-            using var response = Server.Handler.Handle(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
+            using var response = await Server.Handler.HandleAsync(request).ConfigureAwait(false) ?? throw new InvalidOperationException("The root request handler did not return a response");
             
             var success = await responseHandler.Handle(request, response, keepAlive).ConfigureAwait(false);
 

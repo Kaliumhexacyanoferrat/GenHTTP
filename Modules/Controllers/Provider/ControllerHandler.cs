@@ -1,21 +1,21 @@
-﻿using System;
+﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Routing;
+using GenHTTP.Modules.Conversion.Providers;
+using GenHTTP.Modules.Reflection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
-
-using GenHTTP.Modules.Conversion.Providers;
-using GenHTTP.Modules.Reflection;
+using System.Threading.Tasks;
 
 namespace GenHTTP.Modules.Controllers.Provider
 {
 
     public class ControllerHandler<T> : IHandler, IHandlerResolver where T : new()
     {
-        private static readonly MethodRouting EMPTY = new MethodRouting("/", "^(/|)$", null);
+        private static readonly MethodRouting EMPTY = new MethodRouting("/", "^(/|)$", null, true);
 
         #region Get-/Setters
 
@@ -55,7 +55,7 @@ namespace GenHTTP.Modules.Controllers.Provider
 
             if (method.Name == "Index")
             {
-                return pathArgs.Length > 0 ? new MethodRouting($"/{rawArgs}/", $"^/{pathArgs}/", null) : EMPTY;
+                return pathArgs.Length > 0 ? new MethodRouting($"/{rawArgs}/", $"^/{pathArgs}/", null, false) : EMPTY;
             }
             else
             {
@@ -63,7 +63,7 @@ namespace GenHTTP.Modules.Controllers.Provider
 
                 var path = $"^/{name}";
 
-                return pathArgs.Length > 0 ? new MethodRouting($"/{name}/{rawArgs}/", $"{path}/{pathArgs}/", name) : new MethodRouting($"/{name}", $"{path}/", name) ;
+                return pathArgs.Length > 0 ? new MethodRouting($"/{name}/{rawArgs}/", $"{path}/{pathArgs}/", name, false) : new MethodRouting($"/{name}", $"{path}/", name, false);
             }
         }
 
@@ -105,33 +105,54 @@ namespace GenHTTP.Modules.Controllers.Provider
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Provider.GetContent(request);
 
-        public IResponse? Handle(IRequest request) => Provider.Handle(request);
+        public ValueTask<IResponse?> HandleAsync(IRequest request) => Provider.HandleAsync(request);
 
-        private IResponse? GetResponse(IRequest request, IHandler methodProvider, object? result)
+        private async ValueTask<IResponse?> GetResponse(IRequest request, IHandler methodProvider, object? result)
         {
             if (result == null)
             {
-                return request.Respond().Status(ResponseStatus.NoContent).Build();
+                return request.Respond()
+                              .Status(ResponseStatus.NoContent)
+                              .Build();
             }
 
             if (result is IHandlerBuilder handlerBuilder)
             {
-                return handlerBuilder.Build(methodProvider).Handle(request);
+                return await handlerBuilder.Build(methodProvider)
+                                           .HandleAsync(request)
+                                           .ConfigureAwait(false);
             }
 
             if (result is IHandler handler)
             {
-                return handler.Handle(request);
+                return await handler.HandleAsync(request)
+                                    .ConfigureAwait(false);
             }
 
             if (result is IResponseBuilder responseBuilder)
             {
                 return responseBuilder.Build();
             }
+            else if (result is ValueTask<IResponseBuilder> responseBuilderTask)
+            {
+                return (await responseBuilderTask.ConfigureAwait(false)).Build();
+            }
+            else if (result is ValueTask<IResponseBuilder?> optionalResponseBuilderTask)
+            {
+                return (await optionalResponseBuilderTask.ConfigureAwait(false))?.Build();
+            }
 
             if (result is IResponse response)
             {
                 return response;
+            }
+            else if (result is ValueTask<IResponse> responseTask)
+            {
+                return await responseTask.ConfigureAwait(false);
+            }
+            else if (result is ValueTask<IResponse?> optionalResponseTask)
+            {
+                return await optionalResponseTask.ConfigureAwait(false);
             }
 
             throw new ProviderException(ResponseStatus.InternalServerError, "Result type of controller methods must be one of: IHandlerBuilder, IHandler, IResponseBuilder, IResponse");
@@ -152,7 +173,7 @@ namespace GenHTTP.Modules.Controllers.Provider
             return null;
         }
 
-        
+
         #endregion
 
     }

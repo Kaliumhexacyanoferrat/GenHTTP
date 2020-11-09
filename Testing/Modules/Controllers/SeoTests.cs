@@ -9,7 +9,7 @@ using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Mvc
+namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 {
 
     public class SeoTests
@@ -26,7 +26,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Mvc
             }
 
             [ControllerAction(RequestMethod.DELETE)]
-            public IHandlerBuilder Action([FromPath] int id) 
+            public IHandlerBuilder Action([FromPath] int id)
             {
                 return Content.From(Resource.FromString(id.ToString()));
             }

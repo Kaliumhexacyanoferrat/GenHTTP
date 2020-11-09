@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Threading.Tasks;
 
 using Xunit;
 
@@ -6,10 +7,10 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Controllers;
-using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Layouting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Mvc
+namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 {
 
     public class ResultTypeTests
@@ -32,15 +33,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.Mvc
 
             public IResponseBuilder ResponseBuilder(IRequest request)
             {
-                return request.Respond()
-                              .Content("ResponseBuilder");
+                return request.Respond().Content("ResponseBuilder");
             }
 
             public IResponse Response(IRequest request)
             {
-                return request.Respond()
-                              .Content("Response")
-                              .Build();
+                return request.Respond().Content("Response").Build();
             }
 
         }

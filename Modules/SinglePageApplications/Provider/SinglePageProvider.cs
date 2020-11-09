@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
@@ -56,15 +57,15 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
 
         #region Functionality
 
-        public IResponse? Handle(IRequest request)
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             if (request.Target.Ended)
             {
-                return Index?.Handle(request);
+                return Index?.HandleAsync(request) ?? new ValueTask<IResponse?>();
             }
             else
             {
-                return Resources.Handle(request);
+                return Resources.HandleAsync(request);
             }
         }
 
