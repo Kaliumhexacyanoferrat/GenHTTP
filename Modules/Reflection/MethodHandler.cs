@@ -5,15 +5,17 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
-
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Providers;
 using GenHTTP.Modules.Conversion.Providers.Forms;
+
+using PooledAwait;
 
 namespace GenHTTP.Modules.Reflection
 {
@@ -28,7 +30,9 @@ namespace GenHTTP.Modules.Reflection
     /// </remarks>
     public class MethodHandler : IHandler
     {
-        private static FormFormat _FormFormat = new FormFormat();
+        private static readonly FormFormat FORM_FORMAT = new FormFormat();
+
+        private static readonly object?[] NO_ARGUMENTS = new object?[0];
 
         #region Get-/Setters
 
@@ -41,6 +45,8 @@ namespace GenHTTP.Modules.Reflection
         public MethodInfo Method { get; }
 
         private Guid ID { get; }
+
+        private string MatchedPathKey { get; }
 
         private Func<object> InstanceProvider { get; }
 
@@ -67,122 +73,140 @@ namespace GenHTTP.Modules.Reflection
             Routing = routing;
 
             ID = Guid.NewGuid();
+            MatchedPathKey = $"_{ID}_matchedPath";
         }
 
         #endregion
 
         #region Functionality
 
-        public ValueTask<IResponse?> HandleAsync(IRequest request)
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var arguments = GetArguments(request);
+            var arguments = await GetArguments(request);
 
-            return ResponseProvider(request, this, Invoke(arguments));
+            return await ResponseProvider(request, this, Invoke(arguments));
         }
 
-        private object?[] GetArguments(IRequest request)
+        private async PooledValueTask<object?[]> GetArguments(IRequest request)
         {
             var targetParameters = Method.GetParameters();
 
-            var targetArguments = new object?[targetParameters.Length];
+            Match? sourceParameters = null;
 
-            var sourceParameters = Routing.ParsedPath.Match(request.Target.GetRemaining().ToString());
-
-            var matchedPath = new PathBuilder(sourceParameters.Value).Build();
-
-            foreach (var _ in matchedPath.Parts) request.Target.Advance();
-
-            request.Properties[$"_{ID}_matchedPath"] = matchedPath;
-
-            var bodyArguments = (targetParameters.Length > 0) ? _FormFormat.GetContent(request) : null;
-
-            for (int i = 0; i < targetParameters.Length; i++)
+            if (Routing.IsIndex)
             {
-                var par = targetParameters[i];
+                request.Properties[MatchedPathKey] = "/";
+            }
+            else
+            {
+                sourceParameters = Routing.ParsedPath.Match(request.Target.GetRemaining().ToString());
 
-                // request
-                if (par.ParameterType == typeof(IRequest))
-                {
-                    targetArguments[i] = request;
-                    continue;
-                }
+                var matchedPath = new PathBuilder(sourceParameters.Value).Build();
 
-                // handler
-                if (par.ParameterType == typeof(IHandler))
-                {
-                    targetArguments[i] = this;
-                    continue;
-                }
+                foreach (var _ in matchedPath.Parts) request.Target.Advance();
 
-                // input stream
-                if (par.ParameterType == typeof(Stream))
-                {
-                    if (request.Content == null)
-                    {
-                        throw new ProviderException(ResponseStatus.BadRequest, "Request body expected");
-                    }
-
-                    targetArguments[i] = request.Content;
-                    continue;
-                }
-
-                if (par.CheckSimple())
-                {
-                    // is there a named parameter?
-                    var sourceArgument = sourceParameters.Groups[par.Name];
-
-                    if (sourceArgument.Success)
-                    {
-                        targetArguments[i] = sourceArgument.Value.ConvertTo(par.ParameterType);
-                        continue;
-                    }
-
-                    // is there a query parameter?
-                    if (request.Query.TryGetValue(par.Name, out var queryValue))
-                    {
-                        targetArguments[i] = queryValue.ConvertTo(par.ParameterType);
-                        continue;
-                    }
-
-                    // is there a parameter from the body?
-                    if (bodyArguments != null)
-                    {
-                        if (bodyArguments.TryGetValue(par.Name, out var bodyValue))
-                        {
-                            targetArguments[i] = bodyValue.ConvertTo(par.ParameterType);
-                            continue;
-                        }
-                    }
-
-                    // assume the default value
-                    continue;
-                }
-                else
-                {
-                    // deserialize from body
-                    var deserializer = Serialization.GetDeserialization(request);
-
-                    if (deserializer == null)
-                    {
-                        throw new ProviderException(ResponseStatus.UnsupportedMediaType, "Requested format is not supported");
-                    }
-
-                    if (request.Content == null)
-                    {
-                        throw new ProviderException(ResponseStatus.BadRequest, "Request body expected");
-                    }
-
-                    targetArguments[i] = Task.Run(async () => await deserializer.DeserializeAsync(request.Content, par.ParameterType)).Result;
-                    continue;
-                }
+                request.Properties[MatchedPathKey] = matchedPath;
             }
 
-            return targetArguments;
+            if (targetParameters.Length > 0)
+            {
+                var targetArguments = new object?[targetParameters.Length];
+
+                var bodyArguments = (targetParameters.Length > 0) ? FORM_FORMAT.GetContent(request) : null;
+
+                for (int i = 0; i < targetParameters.Length; i++)
+                {
+                    var par = targetParameters[i];
+
+                    // request
+                    if (par.ParameterType == typeof(IRequest))
+                    {
+                        targetArguments[i] = request;
+                        continue;
+                    }
+
+                    // handler
+                    if (par.ParameterType == typeof(IHandler))
+                    {
+                        targetArguments[i] = this;
+                        continue;
+                    }
+
+                    // input stream
+                    if (par.ParameterType == typeof(Stream))
+                    {
+                        if (request.Content == null)
+                        {
+                            throw new ProviderException(ResponseStatus.BadRequest, "Request body expected");
+                        }
+
+                        targetArguments[i] = request.Content;
+                        continue;
+                    }
+
+                    if (par.CheckSimple())
+                    {
+                        // is there a named parameter?
+                        if (sourceParameters != null)
+                        {
+                            var sourceArgument = sourceParameters.Groups[par.Name];
+
+                            if (sourceArgument.Success)
+                            {
+                                targetArguments[i] = sourceArgument.Value.ConvertTo(par.ParameterType);
+                                continue;
+                            }
+                        }
+
+                        // is there a query parameter?
+                        if (request.Query.TryGetValue(par.Name, out var queryValue))
+                        {
+                            targetArguments[i] = queryValue.ConvertTo(par.ParameterType);
+                            continue;
+                        }
+
+                        // is there a parameter from the body?
+                        if (bodyArguments != null)
+                        {
+                            if (bodyArguments.TryGetValue(par.Name, out var bodyValue))
+                            {
+                                targetArguments[i] = bodyValue.ConvertTo(par.ParameterType);
+                                continue;
+                            }
+                        }
+
+                        // assume the default value
+                        continue;
+                    }
+                    else
+                    {
+                        // deserialize from body
+                        var deserializer = Serialization.GetDeserialization(request);
+
+                        if (deserializer == null)
+                        {
+                            throw new ProviderException(ResponseStatus.UnsupportedMediaType, "Requested format is not supported");
+                        }
+
+                        if (request.Content == null)
+                        {
+                            throw new ProviderException(ResponseStatus.BadRequest, "Request body expected");
+                        }
+
+                        targetArguments[i] = await deserializer.DeserializeAsync(request.Content, par.ParameterType);
+                        continue;
+                    }
+                }
+
+                return targetArguments;
+            }
+
+            return NO_ARGUMENTS;
         }
 
         public WebPath? GetMatchedPath(IRequest request)
         {
-            if (request.Properties.TryGet($"_{ID}_matchedPath", out WebPath result))
+            if (request.Properties.TryGet(MatchedPathKey, out WebPath result))
             {
                 return result;
             }
@@ -279,7 +303,7 @@ namespace GenHTTP.Modules.Reflection
 
             if (TryResolvePath(input, out var path))
             {
-                request.Properties[$"_{ID}_matchedPath"] = path;
+                request.Properties[MatchedPathKey] = path;
             }
             else
             {

@@ -15,7 +15,7 @@ namespace GenHTTP.Modules.Controllers.Provider
 
     public class ControllerHandler<T> : IHandler, IHandlerResolver where T : new()
     {
-        private static readonly MethodRouting EMPTY = new MethodRouting("/", "^(/|)$", null);
+        private static readonly MethodRouting EMPTY = new MethodRouting("/", "^(/|)$", null, true);
 
         #region Get-/Setters
 
@@ -55,7 +55,7 @@ namespace GenHTTP.Modules.Controllers.Provider
 
             if (method.Name == "Index")
             {
-                return pathArgs.Length > 0 ? new MethodRouting($"/{rawArgs}/", $"^/{pathArgs}/", null) : EMPTY;
+                return pathArgs.Length > 0 ? new MethodRouting($"/{rawArgs}/", $"^/{pathArgs}/", null, false) : EMPTY;
             }
             else
             {
@@ -63,7 +63,7 @@ namespace GenHTTP.Modules.Controllers.Provider
 
                 var path = $"^/{name}";
 
-                return pathArgs.Length > 0 ? new MethodRouting($"/{name}/{rawArgs}/", $"{path}/{pathArgs}/", name) : new MethodRouting($"/{name}", $"{path}/", name);
+                return pathArgs.Length > 0 ? new MethodRouting($"/{name}/{rawArgs}/", $"{path}/{pathArgs}/", name, false) : new MethodRouting($"/{name}", $"{path}/", name, false);
             }
         }
 

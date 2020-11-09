@@ -111,7 +111,7 @@ namespace GenHTTP.Engine.Protocol
             await Write(NL).ConfigureAwait(false);
         }
 
-        private async ValueTask WriteHeader(IResponse response, bool keepAlive)
+        private async PooledValueTask WriteHeader(IResponse response, bool keepAlive)
         {
             await Write("Server: GenHTTP/").ConfigureAwait(false);
             await Write(Server.Version).ConfigureAwait(false);
@@ -171,7 +171,7 @@ namespace GenHTTP.Engine.Protocol
             }
         }
 
-        private async ValueTask WriteBody(IResponse response)
+        private async PooledValueTask WriteBody(IResponse response)
         {
             if (response.Content != null)
             {
@@ -181,7 +181,7 @@ namespace GenHTTP.Engine.Protocol
 
                     await response.Content.WriteAsync(chunked, Configuration.TransferBufferSize).ConfigureAwait(false);
 
-                    chunked.Finish();
+                    await chunked.FinishAsync();
                 }
                 else
                 {

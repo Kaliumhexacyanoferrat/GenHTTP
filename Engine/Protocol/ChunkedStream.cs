@@ -2,6 +2,10 @@
 using System.Buffers;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+using PooledAwait;
 
 namespace GenHTTP.Engine.Protocol
 {
@@ -60,21 +64,42 @@ namespace GenHTTP.Engine.Protocol
         {
             if (count > 0)
             {
-                Write($"{count.ToString("X")}{NL}");
+                Write(count.ToString("X"));
+                Write(NL);
+
                 Target.Write(buffer, offset, count);
+                
                 Write(NL);
             }
         }
 
-        public void Finish()
+        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            Write($"0{NL}{NL}");
+            if (count > 0)
+            {
+                await WriteAsync(count.ToString("X")).ConfigureAwait(false);
+                await WriteAsync(NL);
+
+                await Target.WriteAsync(buffer, offset, count);
+
+                await WriteAsync(NL);
+            }
+        }
+
+        public async PooledValueTask FinishAsync()
+        {
+            await WriteAsync("0").ConfigureAwait(false);
+            await WriteAsync(NL);
+
+            await WriteAsync(NL);
         }
 
         public override void Flush()
         {
             Target.Flush();
         }
+
+        public override Task FlushAsync(CancellationToken cancellationToken) => Target.FlushAsync(cancellationToken);
 
         private void Write(string text)
         {
@@ -87,6 +112,24 @@ namespace GenHTTP.Engine.Protocol
                 ENCODING.GetBytes(text, 0, length, buffer, 0);
 
                 Target.Write(buffer, 0, length);
+            }
+            finally
+            {
+                POOL.Return(buffer);
+            }
+        }
+
+        private async PooledValueTask WriteAsync(string text)
+        {
+            var length = text.Length;
+
+            var buffer = POOL.Rent(length);
+
+            try
+            {
+                ENCODING.GetBytes(text, 0, length, buffer, 0);
+
+                await Target.WriteAsync(buffer, 0, length);
             }
             finally
             {

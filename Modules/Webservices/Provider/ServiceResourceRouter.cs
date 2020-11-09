@@ -19,7 +19,7 @@ namespace GenHTTP.Modules.Webservices.Provider
 
     public class ServiceResourceRouter : IHandler
     {
-        private static readonly MethodRouting EMPTY = new MethodRouting("/", "^(/|)$", null);
+        private static readonly MethodRouting EMPTY = new MethodRouting("/", "^(/|)$", null, true);
 
         private static readonly Regex VAR_PATTERN = new Regex(@"\:([a-z]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
@@ -78,7 +78,7 @@ namespace GenHTTP.Modules.Webservices.Provider
 
                 var splitted = path.Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-                return new MethodRouting(path, $"^/{builder}$", (splitted.Length > 0) ? splitted[0] : null);
+                return new MethodRouting(path, $"^/{builder}$", (splitted.Length > 0) ? splitted[0] : null, true);
             }
 
             return EMPTY;
