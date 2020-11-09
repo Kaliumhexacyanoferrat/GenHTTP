@@ -37,15 +37,11 @@ namespace GenHTTP.Modules.Reflection
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var methods = FindProviders(request.Target.GetRemaining().ToString(), request.Method);
+            var methods = FindProviders(request.Target.GetRemaining().ToString(), request.Method, out var foundOthers);
 
             if (methods.Count == 1)
             {
                 return methods[0].HandleAsync(request);
-            }
-            else if (methods.Count == 0)
-            {
-                return new ValueTask<IResponse?>();
             }
             else if (methods.Count > 1)
             {
@@ -53,7 +49,12 @@ namespace GenHTTP.Modules.Reflection
             }
             else
             {
-                throw new ProviderException(ResponseStatus.MethodNotAllowed, $"There is no method of a matching request type");
+                if (foundOthers)
+                {
+                    throw new ProviderException(ResponseStatus.MethodNotAllowed, $"There is no method of a matching request type");
+                }
+
+                return new ValueTask<IResponse?>();
             }
         }
 
@@ -62,23 +63,36 @@ namespace GenHTTP.Modules.Reflection
             return Methods.SelectMany(m => m.GetContent(request));
         }
 
-        private List<MethodHandler> FindProviders(string path, FlexibleRequestMethod requestedMethod)
+        private List<MethodHandler> FindProviders(string path, FlexibleRequestMethod requestedMethod, out bool foundOthers)
         {
+            foundOthers = false;
+
             var result = new List<MethodHandler>(2);
 
             foreach (var method in Methods)
             {
-                if (method.MetaData.SupportedMethods.Contains(requestedMethod))
+                if (method.Routing.IsIndex && path == "/")
                 {
-                    if (method.Routing.IsIndex && path == "/")
+                    if (method.MetaData.SupportedMethods.Contains(requestedMethod))
                     {
                         result.Add(method);
                     }
                     else
                     {
-                        if (method.Routing.ParsedPath.IsMatch(path))
+                        foundOthers = true;
+                    }
+                }
+                else
+                {
+                    if (method.Routing.ParsedPath.IsMatch(path))
+                    {
+                        if (method.MetaData.SupportedMethods.Contains(requestedMethod))
                         {
                             result.Add(method);
+                        }
+                        else
+                        {
+                            foundOthers = true;
                         }
                     }
                 }

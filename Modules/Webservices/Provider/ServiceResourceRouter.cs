@@ -78,7 +78,7 @@ namespace GenHTTP.Modules.Webservices.Provider
 
                 var splitted = path.Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-                return new MethodRouting(path, $"^/{builder}$", (splitted.Length > 0) ? splitted[0] : null, true);
+                return new MethodRouting(path, $"^/{builder}$", (splitted.Length > 0) ? splitted[0] : null, false);
             }
 
             return EMPTY;
