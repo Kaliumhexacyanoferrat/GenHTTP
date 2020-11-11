@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
@@ -18,7 +19,7 @@ namespace GenHTTP.Modules.Webservices.Provider
 
         #region Functionality
 
-        public ServiceResourceBuilder Type<T>() where T : new() => Instance(new T());
+        public ServiceResourceBuilder Type<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>() where T : new() => Instance(new T());
 
         public ServiceResourceBuilder Instance(object instance)
         {
