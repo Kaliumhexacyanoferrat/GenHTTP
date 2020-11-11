@@ -4,7 +4,7 @@ using System.Net;
 using System.Text;
 using System.Xml.Serialization;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 namespace GenHTTP.Testing.Acceptance.Modules.Webservices
 {
 
+    [TestClass]
     public class WebserviceTests
     {
 
@@ -98,152 +99,154 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
 
         #region Tests
 
-        [Fact]
+        [TestMethod]
         public void TestEmpty()
         {
-            WithResponse("", r => Assert.Equal(HttpStatusCode.NoContent, r.StatusCode));
+            WithResponse("", r => Assert.AreEqual(HttpStatusCode.NoContent, r.StatusCode));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestVoidReturn()
         {
-            WithResponse("nothing", r => Assert.Equal(HttpStatusCode.NoContent, r.StatusCode));
+            WithResponse("nothing", r => Assert.AreEqual(HttpStatusCode.NoContent, r.StatusCode));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestPrimitives()
         {
-            WithResponse("primitive?input=42", r => Assert.Equal("42", r.GetContent()));
+            WithResponse("primitive?input=42", r => Assert.AreEqual("42", r.GetContent()));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestEnums()
         {
-            WithResponse("enum?input=One", r => Assert.Equal("One", r.GetContent()));
+            WithResponse("enum?input=One", r => Assert.AreEqual("One", r.GetContent()));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNullableSet()
         {
-            WithResponse("nullable?input=1", r => Assert.Equal("1", r.GetContent()));
+            WithResponse("nullable?input=1", r => Assert.AreEqual("1", r.GetContent()));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNullableNotSet()
         {
-            WithResponse("nullable", r => Assert.Equal(HttpStatusCode.NoContent, r.StatusCode));
+            WithResponse("nullable", r => Assert.AreEqual(HttpStatusCode.NoContent, r.StatusCode));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestGuid()
         {
             var id = Guid.NewGuid().ToString();
 
-            WithResponse($"guid?id={id}", r => Assert.Equal(id, r.GetContent()));
+            WithResponse($"guid?id={id}", r => Assert.AreEqual(id, r.GetContent()));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestParam()
         {
-            WithResponse("param/42", r => Assert.Equal("42", r.GetContent()));
+            WithResponse("param/42", r => Assert.AreEqual("42", r.GetContent()));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestConversionFailure()
         {
-            WithResponse("param/abc", r => Assert.Equal(HttpStatusCode.BadRequest, r.StatusCode));
+            WithResponse("param/abc", r => Assert.AreEqual(HttpStatusCode.BadRequest, r.StatusCode));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestRegex()
         {
-            WithResponse("regex/42", r => Assert.Equal("42", r.GetContent()));
+            WithResponse("regex/42", r => Assert.AreEqual("42", r.GetContent()));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestEntityWithNulls()
         {
             var entity = "{\"id\":42}";
-            WithResponse("entity", "POST", entity, null, null, r => Assert.Equal(entity, r.GetContent()));
+            WithResponse("entity", "POST", entity, null, null, r => Assert.AreEqual(entity, r.GetContent()));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestEntityWithNoNulls()
         {
             var entity = "{\"id\":42,\"nullable\":123.456}";
-            WithResponse("entity", "POST", entity, null, null, r => Assert.Equal(entity, r.GetContent()));
+            WithResponse("entity", "POST", entity, null, null, r => Assert.AreEqual(entity, r.GetContent()));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNotSupportedUpload()
         {
-            WithResponse("entity", "POST", "123", "bla/blubb", null, r => Assert.Equal(HttpStatusCode.UnsupportedMediaType, r.StatusCode));
+            WithResponse("entity", "POST", "123", "bla/blubb", null, r => Assert.AreEqual(HttpStatusCode.UnsupportedMediaType, r.StatusCode));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestUnsupportedDownloadEnforcesDefault()
         {
             var entity = "{\"id\":42,\"nullable\":123.456}";
-            WithResponse("entity", "POST", entity, null, "bla/blubb", r => Assert.Equal(entity, r.GetContent()));
+            WithResponse("entity", "POST", entity, null, "bla/blubb", r => Assert.AreEqual(entity, r.GetContent()));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestWrongMethod()
         {
-            WithResponse("entity", "PUT", "123", null, null, r => Assert.Equal(HttpStatusCode.MethodNotAllowed, r.StatusCode));
+            WithResponse("entity", "PUT", "123", null, null, r => Assert.AreEqual(HttpStatusCode.MethodNotAllowed, r.StatusCode));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNoMethod()
         {
-            WithResponse("idonotexist", r => Assert.Equal(HttpStatusCode.NotFound, r.StatusCode));
+            WithResponse("idonotexist", r => Assert.AreEqual(HttpStatusCode.NotFound, r.StatusCode));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestStream()
         {
-            WithResponse("stream", "PUT", "123456", null, null, r => Assert.Equal("6", r.GetContent()));
+            WithResponse("stream", "PUT", "123456", null, null, r => Assert.AreEqual("6", r.GetContent()));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestRequestResponse()
         {
-            WithResponse("requestResponse", r => Assert.Equal("Hello World", r.GetContent()));
+            WithResponse("requestResponse", r => Assert.AreEqual("Hello World", r.GetContent()));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestRouting()
         {
-            WithResponse("request", r => Assert.Equal("yes", r.GetContent()));
+            WithResponse("request", r => Assert.AreEqual("yes", r.GetContent()));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestEntityAsXML()
         {
             var entity = "<TestEntity><ID>1</ID><Nullable>1234.56</Nullable></TestEntity>";
 
             WithResponse("entity", "POST", entity, "text/xml", "text/xml", r =>
             {
-                var result = (TestEntity)new XmlSerializer(typeof(TestEntity)).Deserialize(r.GetResponseStream());
+                var result = new XmlSerializer(typeof(TestEntity)).Deserialize(r.GetResponseStream()) as TestEntity;
 
-                Assert.Equal(1, result.ID);
-                Assert.Equal(1234.56, result.Nullable);
+                Assert.IsNotNull(result);
+
+                Assert.AreEqual(1, result!.ID);
+                Assert.AreEqual(1234.56, result!.Nullable);
             });
         }
 
-        [Fact]
+        [TestMethod]
         public void TestException()
         {
-            WithResponse("exception", r => Assert.Equal(HttpStatusCode.AlreadyReported, r.StatusCode));
+            WithResponse("exception", r => Assert.AreEqual(HttpStatusCode.AlreadyReported, r.StatusCode));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestDuplicate()
         {
-            WithResponse("duplicate", r => Assert.Equal(HttpStatusCode.BadRequest, r.StatusCode));
+            WithResponse("duplicate", r => Assert.AreEqual(HttpStatusCode.BadRequest, r.StatusCode));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestWithInstance()
         {
             var layout = Layout.Create().AddService("t", new TestResource());
@@ -252,7 +255,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
 
             using var response = runner.GetResponse("/t");
 
-            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
         }
 
         #endregion

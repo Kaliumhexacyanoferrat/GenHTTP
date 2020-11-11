@@ -1,4 +1,4 @@
-﻿using Xunit;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using System.Net;
 
@@ -8,13 +8,14 @@ using GenHTTP.Modules.Layouting;
 namespace GenHTTP.Testing.Acceptance.Modules
 {
 
+    [TestClass]
     public class LayoutTests
     {
 
         /// <summary>
         /// As a developer I can define the default route to be devlivered.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestGetIndex()
         {
             var layout = Layout.Create()
@@ -24,18 +25,18 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             using var response = runner.GetResponse();
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("Hello World!", response.GetContent());
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual("Hello World!", response.GetContent());
 
             using var notFound = runner.GetResponse("/notfound");
 
-            Assert.Equal(HttpStatusCode.NotFound, notFound.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, notFound.StatusCode);
         }
 
         /// <summary>
         /// As a developer I can set a default handler to be used for requests.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestDefaultContent()
         {
             var layout = Layout.Create().Fallback(Content.From(Resource.FromString("Hello World!")));
@@ -46,8 +47,8 @@ namespace GenHTTP.Testing.Acceptance.Modules
             {
                 using var response = runner.GetResponse("/somethingelse");
 
-                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-                Assert.Equal("Hello World!", response.GetContent());
+                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+                Assert.AreEqual("Hello World!", response.GetContent());
             }
         }
 
@@ -55,7 +56,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
         /// As the developer of a web application, I don't want my application
         /// to produce duplicate content for missing trailing slashes.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestRedirect()
         {
             var layout = Layout.Create()
@@ -65,13 +66,13 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             using var response = runner.GetResponse("/section/");
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("Hello World!", response.GetContent());
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual("Hello World!", response.GetContent());
 
             using var redirected = runner.GetResponse("/section");
 
-            Assert.Equal(HttpStatusCode.MovedPermanently, redirected.StatusCode);
-            Assert.EndsWith("/section/", redirected.Headers["Location"]);
+            Assert.AreEqual(HttpStatusCode.MovedPermanently, redirected.StatusCode);
+            AssertX.EndsWith("/section/", redirected.Headers["Location"]!);
         }
 
     }

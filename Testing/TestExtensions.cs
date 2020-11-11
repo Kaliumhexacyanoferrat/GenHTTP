@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Security;
+using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml;
 using System.Xml.Linq;
@@ -52,9 +53,9 @@ namespace GenHTTP.Testing.Acceptance
 
             namespaces.AddNamespace("n", "http://www.sitemaps.org/schemas/sitemap/0.9");
 
-            return sitemap.Root.XPathSelectElements("//n:loc", namespaces)
-                               .Select(x => new Uri(x.Value).AbsolutePath)
-                               .ToHashSet();
+            return sitemap.Root?.XPathSelectElements("//n:loc", namespaces)
+                                .Select(x => new Uri(x.Value).AbsolutePath)
+                                .ToHashSet() ?? new HashSet<string>();
         }
 
         public static HttpWebResponse GetSafeResponse(this WebRequest request)
@@ -78,6 +79,27 @@ namespace GenHTTP.Testing.Acceptance
             }
         }
 
+        public static async Task<HttpWebResponse> GetSafeResponseAsync(this WebRequest request)
+        {
+            try
+            {
+                return (HttpWebResponse)await request.GetResponseAsync();
+            }
+            catch (WebException e)
+            {
+                var response = e.Response as HttpWebResponse;
+
+                if (response != null)
+                {
+                    return response;
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
         public static DateTime WithoutMS(this DateTime date)
         {
             return new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Kind);
@@ -85,7 +107,7 @@ namespace GenHTTP.Testing.Acceptance
 
         public static void IgnoreSecurityErrors(this HttpWebRequest request)
         {
-            request.ServerCertificateValidationCallback = (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) =>
+            request.ServerCertificateValidationCallback = (object sender, X509Certificate? certificate, X509Chain? chain, SslPolicyErrors sslPolicyErrors) =>
             {
                 return true;
             };

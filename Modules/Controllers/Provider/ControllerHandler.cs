@@ -87,6 +87,11 @@ namespace GenHTTP.Modules.Controllers.Provider
                         throw new InvalidOperationException("Parameters marked as 'FromPath' are not allowed to be nullable");
                     }
 
+                    if (parameter.Name == null)
+                    {
+                        throw new InvalidOperationException("Parameters marked as 'FromPath' must have a name");
+                    }
+
                     found.Add(parameter.Name);
                 }
             }

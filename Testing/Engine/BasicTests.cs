@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Net;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {
 
+    [TestClass]
     public class BasicTests
     {
 
-        [Fact]
+        [TestMethod]
         public void TestBuilder()
         {
             using var runner = new TestRunner();
@@ -23,10 +24,10 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = runner.GetResponse();
 
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestLegacyHttp()
         {
             using var runner = TestRunner.Run();
@@ -36,10 +37,10 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = request.GetSafeResponse();
 
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestConnectionClose()
         {
             using var runner = TestRunner.Run();
@@ -49,15 +50,15 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = request.GetSafeResponse();
 
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestEmptyQuery()
         {
             using var response = TestRunner.Run().GetResponse("/?");
 
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
     }

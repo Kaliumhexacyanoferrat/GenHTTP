@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 namespace GenHTTP.Testing.Acceptance.Engine
 {
 
+    [TestClass]
     public class CookieTests
     {
 
@@ -46,20 +47,20 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// <summary>
         /// As a developer, I want to be able to set cookies to be accepted by the browser.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestCookiesCanBeReturned()
         {
             using var runner = TestRunner.Run(new TestProvider());
 
             using var response = runner.GetResponse();
 
-            Assert.Equal("TestCookie=TestValue; Path=/", response.Headers["Set-Cookie"]);
+            Assert.AreEqual("TestCookie=TestValue; Path=/", response.Headers["Set-Cookie"]);
         }
 
         /// <summary>
         /// As a developer, I want to be able to read cookies from the client.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestCookiesCanBeRead()
         {
             var provider = new TestProvider();
@@ -73,7 +74,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var _ = request.GetSafeResponse();
 
-            Assert.Equal("4", provider.Cookies?["3"].Value);
+            Assert.AreEqual("4", provider.Cookies?["3"].Value);
         }
 
     }

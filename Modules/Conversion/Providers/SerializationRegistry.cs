@@ -36,7 +36,7 @@ namespace GenHTTP.Modules.Conversion.Providers
 
         public ISerializationFormat? GetDeserialization(IRequest request)
         {
-            if (request.Headers.TryGetValue("Content-Type", out string requested))
+            if (request.Headers.TryGetValue("Content-Type", out string? requested))
             {
                 return GetFormat(new FlexibleContentType(requested));
             }
@@ -46,7 +46,7 @@ namespace GenHTTP.Modules.Conversion.Providers
 
         public ISerializationFormat? GetSerialization(IRequest request)
         {
-            if (request.Headers.TryGetValue("Accept", out string accepted))
+            if (request.Headers.TryGetValue("Accept", out string? accepted))
             {
                 return GetFormat(new FlexibleContentType(accepted)) ?? GetFormat(Default);
             }

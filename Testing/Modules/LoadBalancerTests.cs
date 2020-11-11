@@ -5,15 +5,16 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.LoadBalancing;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
 
+    [TestClass]
     public class LoadBalancerTests
     {
 
-        [Fact]
+        [TestMethod]
         public void TestProxy()
         {
             using var upstream = TestRunner.Run(Content.From(Resource.FromString("Proxy!")));
@@ -25,11 +26,11 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = runner.GetResponse();
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("Proxy!", response.GetContent());                
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual("Proxy!", response.GetContent());                
         }
 
-        [Fact]
+        [TestMethod]
         public void TestRedirect()
         {
             var loadbalancer = LoadBalancer.Create()
@@ -39,11 +40,11 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = runner.GetResponse("/page");
 
-            Assert.Equal(HttpStatusCode.TemporaryRedirect, response.StatusCode);
-            Assert.Equal("http://node/page", response.GetResponseHeader("Location"));
+            Assert.AreEqual(HttpStatusCode.TemporaryRedirect, response.StatusCode);
+            Assert.AreEqual("http://node/page", response.GetResponseHeader("Location"));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestCustomHandler()
         {
             var loadbalancer = LoadBalancer.Create()
@@ -53,11 +54,11 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = runner.GetResponse();
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("My Content!", response.GetContent());
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual("My Content!", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestPriorities()
         {
             var loadbalancer = LoadBalancer.Create()
@@ -68,10 +69,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = runner.GetResponse();
 
-            Assert.Equal("Prio A", response.GetContent());
+            Assert.AreEqual("Prio A", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestMultiplePriorities()
         {
             var loadbalancer = LoadBalancer.Create()
@@ -83,17 +84,17 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = runner.GetResponse();
 
-            Assert.StartsWith("Prio A", response.GetContent());
+            AssertX.StartsWith("Prio A", response.GetContent());
         }
         
-        [Fact]
+        [TestMethod]
         public void TestNoNodes()
         {
             using var runner = TestRunner.Run(LoadBalancer.Create());
 
             using var response = runner.GetResponse();
 
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
     }

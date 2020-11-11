@@ -7,11 +7,12 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {
 
+    [TestClass]
     public class ParserTests
     {
 
@@ -57,74 +58,74 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
         #endregion
 
-        [Fact]
+        [TestMethod]
         public void TestEndodedUri()
         {
             using var runner = TestRunner.Run(new PathReturner().Wrap());
 
             using var respose = runner.GetResponse("/söme/ürl/with specialities/");
 
-            Assert.Equal("/söme/ürl/with specialities/", respose.GetContent());
+            Assert.AreEqual("/söme/ürl/with specialities/", respose.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestEncodedQuery()
         {
             using var runner = TestRunner.Run(new QueryReturner().Wrap());
 
             using var respose = runner.GetResponse("/?söme key=💕");
 
-            Assert.Equal("söme key=💕", respose.GetContent());
+            Assert.AreEqual("söme key=💕", respose.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestMultipleSlashes()
         {
             using var runner = TestRunner.Run(new PathReturner().Wrap());
 
             using var respose = runner.GetResponse("//one//two//three//");
 
-            Assert.Equal("//one//two//three//", respose.GetContent());
+            Assert.AreEqual("//one//two//three//", respose.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestEmptyQuery()
         {
             using var runner = TestRunner.Run(new QueryReturner().Wrap());
 
             using var respose = runner.GetResponse("/?");
 
-            Assert.Equal(string.Empty, respose.GetContent());
+            Assert.AreEqual(string.Empty, respose.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestUnkeyedQuery()
         {
             using var runner = TestRunner.Run(new QueryReturner().Wrap());
 
             using var respose = runner.GetResponse("/?query");
 
-            Assert.Equal("query=", respose.GetContent());
+            Assert.AreEqual("query=", respose.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestQueryWithSlashes()
         {
             using var runner = TestRunner.Run(new QueryReturner().Wrap());
 
             using var respose = runner.GetResponse("/?key=/one/two");
 
-            Assert.Equal("key=/one/two", respose.GetContent());
+            Assert.AreEqual("key=/one/two", respose.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestQueryWithSpaces()
         {
             using var runner = TestRunner.Run(new QueryReturner().Wrap());
 
             using var respose = runner.GetResponse("/?path=/Some+Folder/With%20Subfolders/");
 
-            Assert.Equal("path=/Some+Folder/With Subfolders/", respose.GetContent());
+            Assert.AreEqual("path=/Some+Folder/With Subfolders/", respose.GetContent());
         }
 
     }

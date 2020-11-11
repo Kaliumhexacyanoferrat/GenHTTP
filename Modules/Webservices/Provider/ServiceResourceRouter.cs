@@ -144,7 +144,7 @@ namespace GenHTTP.Modules.Webservices.Provider
             if (type.IsPrimitive || type == typeof(string) || type.IsEnum || type == typeof(Guid))
             {
                 return request.Respond()
-                              .Content(result.ToString())
+                              .Content(result.ToString() ?? string.Empty)
                               .Type(ContentType.TextPlain)
                               .Build();
             }

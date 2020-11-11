@@ -51,7 +51,14 @@ namespace GenHTTP.Modules.IO.Embedded
 
         public ValueTask<Stream> GetContentAsync()
         {
-            return new ValueTask<Stream>(Source.GetManifestResourceStream(QualifiedName));
+            var content = Source.GetManifestResourceStream(QualifiedName) ?? throw new InvalidOperationException($"Unable to resolve resource '{QualifiedName}' in assembly '{Source}'");
+            
+            if (_Length == null)
+            {
+                _Length = (ulong)content.Length;
+            }
+
+            return new ValueTask<Stream>(content);
         }
 
         public async ValueTask<ulong> CalculateChecksumAsync()
@@ -61,7 +68,6 @@ namespace GenHTTP.Modules.IO.Embedded
                 using var stream = await GetContentAsync();
 
                 _Checksum = await stream.CalculateChecksumAsync() ?? throw new InvalidOperationException("Unable to calculate checksum of assembly resource");
-                _Length = (ulong)stream.Length;
             }
 
             return _Checksum.Value;

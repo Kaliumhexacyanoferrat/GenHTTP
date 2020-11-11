@@ -56,7 +56,7 @@ namespace GenHTTP.Engine.Protocol
 
         #region Functionality
 
-        public RequestBuilder Connection(IServer server, IEndPoint endPoint, IPAddress address)
+        public RequestBuilder Connection(IServer server, IEndPoint endPoint, IPAddress? address)
         {
             _Server = server;
             _Address = address;

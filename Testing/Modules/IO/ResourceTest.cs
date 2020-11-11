@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
@@ -12,29 +12,30 @@ using GenHTTP.Modules.IO;
 namespace GenHTTP.Testing.Acceptance.Modules.IO
 {
 
+    [TestClass]
     public class ResourceTest
     {
 
-        [Fact]
-        public async ValueTask TestStringResource()
+        [TestMethod]
+        public async Task TestStringResource()
         {
             var resource = Resource.FromString("Hello World")
                                    .Build();
 
-            Assert.Equal(ContentType.TextPlain, resource.ContentType?.KnownType);
+            Assert.AreEqual(ContentType.TextPlain, resource.ContentType?.KnownType);
 
             using var content = await resource.GetContentAsync();
 
-            Assert.Equal(11, content.Length);
+            Assert.AreEqual(11, content.Length);
 
-            Assert.Equal((ulong)11, resource.Length!);
+            Assert.AreEqual((ulong)11, resource.Length!);
 
-            Assert.Null(resource.Modified);
-            Assert.Null(resource.Name);
+            Assert.IsNull(resource.Modified);
+            Assert.IsNull(resource.Name);
         }
 
-        [Fact]
-        public async ValueTask TestFileResource()
+        [TestMethod]
+        public async Task TestFileResource()
         {
             var file = Path.GetTempFileName();
 
@@ -47,12 +48,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
                 using var content = await resource.GetContentAsync();
 
-                Assert.Equal(11, content.Length);
+                Assert.AreEqual(11, content.Length);
 
-                Assert.Equal((ulong)11, resource.Length!);
+                Assert.AreEqual((ulong)11, resource.Length!);
 
-                Assert.NotNull(resource.Modified);
-                Assert.NotNull(resource.Name);
+                Assert.IsNotNull(resource.Modified);
+                Assert.IsNotNull(resource.Name);
             }
             finally
             {
@@ -60,36 +61,36 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             }
         }
 
-        [Fact]
-        public async ValueTask TestAssemblyResource()
+        [TestMethod]
+        public async Task TestAssemblyResource()
         {
             var resource = Resource.FromAssembly("File.txt")
                                    .Build();
 
-            Assert.Equal(ContentType.TextPlain, resource.ContentType?.KnownType);
+            Assert.AreEqual(ContentType.TextPlain, resource.ContentType?.KnownType);
 
             using var content = await resource.GetContentAsync();
 
-            Assert.Equal(16, content.Length);
+            Assert.AreEqual(16, content.Length);
 
-            Assert.Equal((ulong)16, resource.Length!);
+            Assert.AreEqual((ulong)16, resource.Length!);
 
-            Assert.NotNull(resource.Modified);
+            Assert.IsNotNull(resource.Modified);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestStringMetaData()
         {
             TestMetaData(Resource.FromString("Hello World"));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestEmbeddedMetaData()
         {
             TestMetaData(Resource.FromAssembly("File.txt"));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestFileMetaData()
         {
             var file = Path.GetTempFileName();
@@ -121,19 +122,19 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             var resource = builder.Build();
 
-            Assert.Equal("MyFile.txt", resource.Name);
-            Assert.Equal(ContentType.VideoH264, resource.ContentType?.KnownType);
+            Assert.AreEqual("MyFile.txt", resource.Name);
+            Assert.AreEqual(ContentType.VideoH264, resource.ContentType?.KnownType);
 
             if (modified)
             {
-                Assert.Equal(now, resource.Modified);
+                Assert.AreEqual(now, resource.Modified);
             }
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNonExistentFile()
         {
-            Assert.Throws<FileNotFoundException>(() => Resource.FromFile("blubb.txt").Build());
+            Assert.ThrowsException<FileNotFoundException>(() => Resource.FromFile("blubb.txt").Build());
         }
 
     }

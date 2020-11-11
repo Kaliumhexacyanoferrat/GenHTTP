@@ -2,7 +2,7 @@
   
   <PropertyGroup>
 
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
@@ -62,7 +62,7 @@
     
     <PackageReference Include="PooledAwait" Version="1.0.49" />
         
-    <PackageReference Include="System.IO.Pipelines" Version="4.7.3" />
+    <PackageReference Include="System.IO.Pipelines" Version="5.0.0" />
 
   </ItemGroup>
   

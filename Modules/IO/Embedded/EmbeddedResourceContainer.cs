@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 using GenHTTP.Api.Content.IO;
@@ -61,9 +62,9 @@ namespace GenHTTP.Modules.IO.Embedded
 
         public IEnumerable<IResource> GetResources() => _Resources.Values;
 
-        public bool TryGetNode(string name, out IResourceNode node) => _Nodes.TryGetValue(name, out node);
+        public bool TryGetNode(string name, [MaybeNullWhen(false)] out IResourceNode node) => _Nodes.TryGetValue(name, out node);
 
-        public bool TryGetResource(string name, out IResource node) => _Resources.TryGetValue(name, out node);
+        public bool TryGetResource(string name, [MaybeNullWhen(false)] out IResource node) => _Resources.TryGetValue(name, out node);
 
         #endregion
 

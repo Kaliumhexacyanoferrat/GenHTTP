@@ -55,9 +55,9 @@ namespace GenHTTP.Modules.Robots.Provider
             {
                 if (!Sitemap.StartsWith("http"))
                 {
-                    var protocol = request.Client.Protocol.ToString().ToLower();
+                    var protocol = request.Client.Protocol?.ToString().ToLower() ?? "http";
 
-                    var normalized = Sitemap.StartsWith("/") ? Sitemap.Substring(1) : Sitemap;
+                    var normalized = Sitemap.StartsWith("/") ? Sitemap[1..] : Sitemap;
 
                     sitemapUrl = $"{protocol}://{request.Host}/{normalized}";
                 }

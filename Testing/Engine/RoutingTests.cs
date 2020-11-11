@@ -1,23 +1,24 @@
 ﻿using System.Net;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {
 
+    [TestClass]
     public class RoutingTests
     {
 
         /// <summary>
         /// As a client, I expect the server to return 404 for non-existing files.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void NotFoundForUnknownRoute()
         {
             using var runner = TestRunner.Run();
 
             using var response = runner.GetResponse();
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
     }

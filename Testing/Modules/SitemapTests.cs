@@ -8,11 +8,12 @@ using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Placeholders;
 using GenHTTP.Modules.Sitemaps;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
 
+    [TestClass]
     public class SitemapTests
     {
 
@@ -37,20 +38,20 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
         #endregion
 
-        [Fact]
+        [TestMethod]
         public void TestKnownSitemap()
         {
             using var runner = TestRunner.Run(GetContent());
 
             var sitemap = GetSitemap(runner);
 
-            Assert.Contains("http://localhost/", sitemap);
-            Assert.Contains("http://localhost/other", sitemap);
+            AssertX.Contains("http://localhost/", sitemap);
+            AssertX.Contains("http://localhost/other", sitemap);
 
-            Assert.Contains("http://localhost/children/", sitemap);
-            Assert.Contains("http://localhost/children/child-other", sitemap);
+            AssertX.Contains("http://localhost/children/", sitemap);
+            AssertX.Contains("http://localhost/children/child-other", sitemap);
 
-            Assert.Equal(4, sitemap.Count);
+            Assert.AreEqual(4, sitemap.Count);
         }
 
         private HashSet<string> GetSitemap(TestRunner runner)
@@ -59,9 +60,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = runner.GetResponse("/sitemap.xml");
 
-            var sitemap = (UrlSet)serializer.Deserialize(response.GetResponseStream());
+            var sitemap = serializer.Deserialize(response.GetResponseStream()) as UrlSet;
 
-            return sitemap.Entries.Select(u => u.Loc!.Replace(":" + runner.Port, string.Empty)).ToHashSet();
+            return sitemap?.Entries?.Select(u => u.Loc!.Replace(":" + runner.Port, string.Empty)).ToHashSet() ?? new HashSet<string>();
         }
 
         private IHandlerBuilder GetContent()

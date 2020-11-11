@@ -13,11 +13,11 @@ namespace GenHTTP.Modules.Conversion.Providers.Xml
     public class XmlFormat : ISerializationFormat
     {
 
-        public ValueTask<object> DeserializeAsync(Stream stream, Type type)
+        public ValueTask<object?> DeserializeAsync(Stream stream, Type type)
         {
             var result = new XmlSerializer(type).Deserialize(stream);
 
-            return new ValueTask<object>(result);
+            return new ValueTask<object?>(result);
         }
 
         public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Net;
 using System.Net.Cache;
-
+using System.Threading;
+using System.Threading.Tasks;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
@@ -13,12 +14,11 @@ namespace GenHTTP.Testing.Acceptance
 
     public class TestRunner : IDisposable
     {
-        private static object _SyncRoot = new object();
-        private static ushort _NextPort = 20000;
+        private static volatile int _NextPort = 20000;
 
         #region Get-/Setters
 
-        public ushort Port { get; }
+        public int Port { get; }
 
         public IServerHost Host { get; protected set; }
 
@@ -37,7 +37,7 @@ namespace GenHTTP.Testing.Acceptance
 
             Host = GenHTTP.Engine.Host.Create()
                                       .Handler(Layout.Create())
-                                      .Port(Port);
+                                      .Port((ushort)Port);
 
             if (defaults)
             {
@@ -45,13 +45,7 @@ namespace GenHTTP.Testing.Acceptance
             }
         }
 
-        public static ushort NextPort()
-        {
-            lock (_SyncRoot)
-            {
-                return _NextPort++;
-            }
-        }
+        public static int NextPort() => Interlocked.Increment(ref _NextPort);
 
         public static TestRunner Run(bool defaults = true)
         {
@@ -98,6 +92,11 @@ namespace GenHTTP.Testing.Acceptance
         public HttpWebResponse GetResponse(string? uri = null)
         {
             return GetRequest(uri).GetSafeResponse();
+        }
+
+        public async Task<HttpWebResponse> GetResponseAsync(string? uri = null)
+        {
+            return await GetRequest(uri).GetSafeResponseAsync();
         }
 
         public HttpWebResponse GetResponse(HttpWebRequest request)

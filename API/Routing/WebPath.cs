@@ -40,7 +40,7 @@ namespace GenHTTP.Api.Routing
                 {
                     var part = Parts.LastOrDefault();
 
-                    return part.Contains('.') ? part : null;
+                    return (part?.Contains('.') ?? false) ? part : null;
                 }
 
                 return null;

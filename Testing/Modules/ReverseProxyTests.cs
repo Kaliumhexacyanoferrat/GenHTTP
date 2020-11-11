@@ -1,12 +1,12 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using System.Linq;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -16,12 +16,11 @@ using GenHTTP.Modules.ReverseProxy;
 using GenHTTP.Modules.Layouting;
 
 using Cookie = GenHTTP.Api.Protocol.Cookie;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
 
+    [TestClass]
     public class ReverseProxyTests
     {
 
@@ -48,19 +47,15 @@ namespace GenHTTP.Testing.Acceptance.Providers
                                .Development()
                                .Start();
 
-                Thread.Sleep(100);
-
                 // proxying server
                 var proxy = Proxy.Create()
                                  .ConnectTimeout(TimeSpan.FromSeconds(2))
                                  .ReadTimeout(TimeSpan.FromSeconds(5))
                                  .Upstream("http://localhost:" + testServer.Port);
 
-                var layout = Layout.Create().Fallback(proxy);
-
                 var runner = new TestRunner();
 
-                runner.Host.Handler(layout)
+                runner.Host.Handler(proxy)
                            .Development()
                            .Start();
 
@@ -135,8 +130,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
-                Assert.NotEqual(request.Client, request.LocalClient);
-                Assert.NotEmpty(request.Forwardings);
+                Assert.AreNotEqual(request.Client, request.LocalClient);
+                Assert.IsTrue(request.Forwardings.Count > 0);
 
                 var response = _Response.Invoke(request);
 
@@ -154,7 +149,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
         #endregion
 
-        [Fact]
+        [TestMethod]
         public void TestBasics()
         {
             using var setup = TestSetup.Create((r) =>
@@ -165,10 +160,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var runner = setup.Runner;
 
             using var response = runner.GetResponse();
-            Assert.Equal("Hello World!", response.GetContent());
+            Assert.AreEqual("Hello World!", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestRedirection()
         {
             using var setup = TestSetup.Create((r) =>
@@ -180,10 +175,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var redirected = runner.GetResponse("/");
 
-            Assert.Equal(redirected.Headers["Location"], $"http://localhost:{runner.Port}/target");
+            Assert.AreEqual($"http://localhost:{runner.Port}/target", redirected.Headers["Location"]);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestHead()
         {
             using var setup = TestSetup.Create((r) =>
@@ -198,15 +193,15 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var headed = headRequest.GetSafeResponse();
 
-            Assert.Equal(HttpStatusCode.OK, headed.StatusCode);
+            Assert.AreEqual(HttpStatusCode.OK, headed.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestCookies()
         {
             using var setup = TestSetup.Create((r) =>
             {
-                Assert.Equal("World", r.Cookies["Hello"].Value);
+                Assert.AreEqual("World", r.Cookies["Hello"].Value);
 
                 return r.Respond()
                         .Content("Hello World!")
@@ -223,14 +218,14 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var cookied = cookieRequest.GetSafeResponse();
 
-            Assert.Equal("1", cookied.Cookies["One"].Value);
-            Assert.Equal("2", cookied.Cookies["Two"].Value);
+            Assert.AreEqual("1", cookied.Cookies["One"]!.Value);
+            Assert.AreEqual("2", cookied.Cookies["Two"]!.Value);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestHeaders()
         {
-            using var setup = TestSetup.Create( (r) =>
+            using var setup = TestSetup.Create((r) =>
             {
                 return r.Respond()
                         .Content("Hello World")
@@ -246,10 +241,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = request.GetResponse();
 
-            Assert.Equal("Custom Value", response.Headers.Get("X-Custom-Header"));
+            Assert.AreEqual("Custom Value", response.Headers.Get("X-Custom-Header"));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestPost()
         {
             using var setup = TestSetup.Create((r) =>
@@ -273,11 +268,11 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = request.GetSafeResponse();
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("Input", response.GetContent());
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual("Input", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestPathing()
         {
             using var setup = TestSetup.Create((r) =>
@@ -288,16 +283,16 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var runner = setup.Runner;
 
             using var r1 = runner.GetResponse("/");
-            Assert.Equal("/", r1.GetContent());
+            Assert.AreEqual("/", r1.GetContent());
 
             using var r2 = runner.GetResponse("/login/");
-            Assert.Equal("/login/", r2.GetContent());
+            Assert.AreEqual("/login/", r2.GetContent());
 
             using var r3 = runner.GetResponse("/login");
-            Assert.Equal("/login", r3.GetContent());
+            Assert.AreEqual("/login", r3.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestQuery()
         {
             using var setup = TestSetup.Create((r) =>
@@ -309,16 +304,16 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var runner = setup.Runner;
 
             using var r2 = runner.GetResponse("/?one=two");
-            Assert.Equal("one=two", r2.GetContent());
+            Assert.AreEqual("one=two", r2.GetContent());
 
             using var r3 = runner.GetResponse("/?one=two&three=four");
-            Assert.Equal("one=two|three=four", r3.GetContent());
+            Assert.AreEqual("one=two|three=four", r3.GetContent());
 
             using var r1 = runner.GetResponse("/");
-            Assert.Equal("", r1.GetContent());
+            Assert.AreEqual("", r1.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestQuerySpecialChars()
         {
             using var setup = TestSetup.Create((r) =>
@@ -330,10 +325,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var runner = setup.Runner;
 
             using var r = runner.GetResponse("/?key=%20%3C+");
-            Assert.Equal("key= <+", r.GetContent());
+            Assert.AreEqual("key= <+", r.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestPathSpecialChars()
         {
             using var setup = TestSetup.Create((r) =>
@@ -344,10 +339,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var runner = setup.Runner;
 
             using var r = runner.GetResponse("/%3F%23%26%2F %20");
-            Assert.Equal("/%3F%23%26%2F%20%20", r.GetContent());
+            Assert.AreEqual("/%3F%23%26%2F%20%20", r.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestBadGateway()
         {
             var proxy = Proxy.Create()
@@ -359,7 +354,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = runner.GetResponse();
 
-            Assert.Equal(HttpStatusCode.BadGateway, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.BadGateway, response.StatusCode);
         }
 
     }

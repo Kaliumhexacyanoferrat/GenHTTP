@@ -4,15 +4,16 @@ using System.Text;
 
 using GenHTTP.Modules.IO;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {
 
+    [TestClass]
     public class PipelineTests
     {
 
-        [Fact]
+        [TestMethod]
         public void ServerSupportsPipelining()
         {
             using var runner = TestRunner.Run(Content.From(Resource.FromString("Hello World!")));
@@ -73,7 +74,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
             }
             catch (IOException) { }
 
-            Assert.Equal(count - 1, found); // last body does not end with \r\n
+            Assert.AreEqual(count - 1, found); // last body does not end with \r\n
         }
 
     }

@@ -13,11 +13,12 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.SinglePageApplications;
 using GenHTTP.Testing.Acceptance.Providers;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {
 
+    [TestClass]
     public class ContentTests
     {
 
@@ -62,7 +63,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
         #endregion
 
-        [Fact]
+        [TestMethod]
         public void TestResources()
         {
             using var runner = TestRunner.Run(Resources.From(ResourceTree.FromAssembly("Resources"))
@@ -70,10 +71,10 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = runner.GetResponse();
 
-            Assert.Contains("Error.html", response.GetContent());
+            Assert.IsTrue(response.GetContent().Contains("Error.html"));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestDirectoryListing()
         {
             using var runner = TestRunner.Run(Listing.From(ResourceTree.FromAssembly("Resources"))
@@ -81,10 +82,10 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = runner.GetResponse();
 
-            Assert.Contains("Error.html", response.GetContent());
+            Assert.IsTrue(response.GetContent().Contains("Error.html"));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestSinglePageApplication()
         {
             using var runner = TestRunner.Run(SinglePageApplication.From(ResourceTree.FromAssembly("Resources"))
@@ -92,10 +93,10 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = runner.GetResponse();
 
-            Assert.Contains("Error.html", response.GetContent());
+            Assert.IsTrue(response.GetContent().Contains("Error.html"));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestWebsite()
         {
             using var runner = TestRunner.Run(WebsiteTests.GetWebsite().Add(new ContentPrinterBuilder()));
@@ -104,14 +105,14 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             var content = response.GetContent();
 
-            Assert.Contains("custom.js", content);
-            Assert.Contains("custom.css", content);
+            AssertX.Contains("custom.js", content);
+            AssertX.Contains("custom.css", content);
 
-            Assert.Contains("sitemap.xml", content);
-            Assert.Contains("robots.txt", content);
+            AssertX.Contains("sitemap.xml", content);
+            AssertX.Contains("robots.txt", content);
 
-            Assert.Contains("some.txt", content);
-            Assert.Contains("favicon.ico", content);
+            AssertX.Contains("some.txt", content);
+            AssertX.Contains("favicon.ico", content);
         }
 
     }

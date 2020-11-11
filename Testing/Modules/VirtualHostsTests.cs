@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Modules.VirtualHosting;
 using GenHTTP.Modules.IO;
@@ -9,6 +9,7 @@ using GenHTTP.Modules.Layouting;
 namespace GenHTTP.Testing.Acceptance.Modules
 {
 
+    [TestClass]
     public class VirtualHostsTests
     {
 
@@ -16,7 +17,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
         /// As a hoster, I would like to provide several domains using the
         /// same server instance.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestDomains()
         {
             var hosts = VirtualHosts.Create()
@@ -36,14 +37,14 @@ namespace GenHTTP.Testing.Acceptance.Modules
         /// As a developer, I expect the server to return no content if
         /// no given route matches.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestNoDefault()
         {
             using var runner = TestRunner.Run(VirtualHosts.Create());
 
             using var response = runner.GetRequest().GetSafeResponse();
 
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         private void TestHost(TestRunner runner, string host, string? expected = null)
@@ -53,7 +54,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             using var response = request.GetSafeResponse();
 
-            Assert.Equal(expected ?? host, response.GetContent());
+            Assert.AreEqual(expected ?? host, response.GetContent());
         }
 
     }

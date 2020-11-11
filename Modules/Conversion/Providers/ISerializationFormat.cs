@@ -25,7 +25,7 @@ namespace GenHTTP.Modules.Conversion.Providers
         /// <param name="stream">The stream providing the data to be deserialized</param>
         /// <param name="type">The type to be deserialized</param>
         /// <returns>The object deserialized from the given stream</returns>
-        ValueTask<object> DeserializeAsync(Stream stream, Type type);
+        ValueTask<object?> DeserializeAsync(Stream stream, Type type);
 
         /// <summary>
         /// Serializes the given response into a new response for the

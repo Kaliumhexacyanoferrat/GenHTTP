@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Layouting;
@@ -10,10 +10,11 @@ using GenHTTP.Modules.IO;
 namespace GenHTTP.Testing.Acceptance.Providers
 {
 
+    [TestClass]
     public class RedirectTests
     {
 
-        [Fact]
+        [TestMethod]
         public void TestTemporary()
         {
             var redirect = Redirect.To("https://google.de/", true);
@@ -22,11 +23,11 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = runner.GetResponse();
 
-            Assert.Equal(HttpStatusCode.TemporaryRedirect, response.StatusCode);
-            Assert.Equal("https://google.de/", response.Headers["Location"]);
+            Assert.AreEqual(HttpStatusCode.TemporaryRedirect, response.StatusCode);
+            Assert.AreEqual("https://google.de/", response.Headers["Location"]);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestTemporaryPost()
         {
             var redirect = Redirect.To("https://google.de/", true);
@@ -38,11 +39,11 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = runner.GetResponse(request);
 
-            Assert.Equal(HttpStatusCode.SeeOther, response.StatusCode);
-            Assert.Equal("https://google.de/", response.Headers["Location"]);
+            Assert.AreEqual(HttpStatusCode.SeeOther, response.StatusCode);
+            Assert.AreEqual("https://google.de/", response.Headers["Location"]);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestPermanent()
         {
             var redirect = Redirect.To("https://google.de/");
@@ -51,11 +52,11 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = runner.GetResponse();
 
-            Assert.Equal(HttpStatusCode.MovedPermanently, response.StatusCode);
-            Assert.Equal("https://google.de/", response.Headers["Location"]);
+            Assert.AreEqual(HttpStatusCode.MovedPermanently, response.StatusCode);
+            Assert.AreEqual("https://google.de/", response.Headers["Location"]);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestPermanentPost()
         {
             var redirect = Redirect.To("https://google.de/", false);
@@ -67,11 +68,11 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = runner.GetResponse(request);
 
-            Assert.Equal(HttpStatusCode.PermanentRedirect, response.StatusCode);
-            Assert.Equal("https://google.de/", response.Headers["Location"]);
+            Assert.AreEqual(HttpStatusCode.PermanentRedirect, response.StatusCode);
+            Assert.AreEqual("https://google.de/", response.Headers["Location"]);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestSimpleRoute()
         {
             var layout = Layout.Create()
@@ -82,10 +83,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = runner.GetResponse("/redirect");
 
-            Assert.Equal("/", new Uri(response.Headers["Location"]).AbsolutePath);
+            Assert.AreEqual("/", new Uri(response.Headers["Location"]!).AbsolutePath);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestSimpleRelativeRoute()
         {
             var layout = Layout.Create()
@@ -95,10 +96,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = runner.GetResponse("/redirect/");
 
-            Assert.Equal("/redirect/me/to", new Uri(response.Headers["Location"]).AbsolutePath);
+            Assert.AreEqual("/redirect/me/to", new Uri(response.Headers["Location"]!).AbsolutePath);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNavigatedRelativeRoute()
         {
             var layout = Layout.Create()
@@ -108,10 +109,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = runner.GetResponse("/redirect/");
 
-            Assert.Equal("/me/to", new Uri(response.Headers["Location"]).AbsolutePath);
+            Assert.AreEqual("/me/to", new Uri(response.Headers["Location"]!).AbsolutePath);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestAbsoluteRoute()
         {
             var layout = Layout.Create()
@@ -121,7 +122,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = runner.GetResponse("/redirect/");
 
-            Assert.Equal("/me/to/", new Uri(response.Headers["Location"]).AbsolutePath);
+            Assert.AreEqual("/me/to/", new Uri(response.Headers["Location"]!).AbsolutePath);
         }
 
     }

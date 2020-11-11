@@ -30,7 +30,7 @@ namespace GenHTTP.Api.Infrastructure
 
         protected BuilderMissingPropertyException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
-            Property = info.GetString("Property");
+            Property = info.GetString("Property") ?? string.Empty;
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -14,8 +14,9 @@ using GenHTTP.Modules.Layouting;
 using System.Threading.Tasks;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Controllers
-{ 
+{
 
+    [TestClass]
     public class RoutingTests
     {
 
@@ -106,78 +107,78 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
         #region Tests
 
-        [Fact]
+        [TestMethod]
         public void TestAppenders()
         {
             using var runner = Setup();
 
             using var response = runner.GetResponse("/r/appenders/1/test/");
 
-            Assert.Equal("/r/appenders/1/test/", response.GetContent());
+            Assert.AreEqual("/r/appenders/1/test/", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNested()
         {
             using var runner = Setup();
 
             using var response = runner.GetResponse("/r/nested/1/test/inner");
 
-            Assert.Equal("/r/nested/1/test/inner", response.GetContent());
+            Assert.AreEqual("/r/nested/1/test/inner", response.GetContent());
         }
 
         /// <summary>
         /// Ensure that nesting of controllers is possible and
         /// routing still works as expected.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestInner()
         {
             using var runner = Setup();
 
             using var response = runner.GetResponse("/r/inner-controller/1/2/inner-controller/3/4/appenders/5/6/");
 
-            Assert.Equal("/r/inner-controller/1/2/inner-controller/3/4/appenders/5/6/", response.GetContent());
+            Assert.AreEqual("/r/inner-controller/1/2/inner-controller/3/4/appenders/5/6/", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestRoutingToController()
         {
             using var runner = Setup();
 
             using var response = runner.GetResponse("/r/do-something-with-controller/");
 
-            Assert.Equal("/r/", new Uri(response.Headers["Location"]).AbsolutePath);
+            Assert.AreEqual("/r/", new Uri(response.Headers["Location"]!).AbsolutePath);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestRoutingToIndex()
         {
             using var runner = Setup();
 
             using var response = runner.GetResponse("/r/do-something-with-index/");
 
-            Assert.Equal("/r/", new Uri(response.Headers["Location"]).AbsolutePath);
+            Assert.AreEqual("/r/", new Uri(response.Headers["Location"]!).AbsolutePath);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestRoutingToParent()
         {
             using var runner = Setup();
 
             using var response = runner.GetResponse("/r/do-something-with-parent/");
 
-            Assert.Equal("/test", new Uri(response.Headers["Location"]).AbsolutePath);
+            Assert.AreEqual("/test", new Uri(response.Headers["Location"]!).AbsolutePath);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestRoutingToAppender()
         {
             using var runner = Setup();
 
             using var response = runner.GetResponse("/r/do-something-with-appenders/");
 
-            Assert.Equal("/r/appenders/1/2/", new Uri(response.Headers["Location"]).AbsolutePath);
+            Assert.AreEqual("/r/appenders/1/2/", new Uri(response.Headers["Location"]!).AbsolutePath);
         }
 
         #endregion

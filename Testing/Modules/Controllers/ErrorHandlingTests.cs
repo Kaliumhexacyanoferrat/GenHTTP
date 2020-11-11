@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.Layouting;
@@ -9,6 +9,7 @@ using GenHTTP.Modules.Layouting;
 namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 {
 
+    [TestClass]
     public class ErrorHandlingTests
     {
 
@@ -41,28 +42,28 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
         #region Tests
 
-        [Fact]
+        [TestMethod]
         public void TestMustNotReturnSimpleType()
         {
             using var response = Run("/c/simple-type/");
 
-            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNoNullablePathArguments()
         {
-            Assert.Throws<InvalidOperationException>(() =>
+            Assert.ThrowsException<InvalidOperationException>(() =>
             {
                 var controller = Controller.From<ControllerWithNullablePath>();
                 using var _ = TestRunner.Run(controller);
             });
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNoComplexPathArguments()
         {
-            Assert.Throws<InvalidOperationException>(() =>
+            Assert.ThrowsException<InvalidOperationException>(() =>
             {
                 var controller = Controller.From<ControllerWithComplexPath>();
                 using var _ = TestRunner.Run(controller);

@@ -13,12 +13,13 @@ using GenHTTP.Modules.Scriban;
 using GenHTTP.Modules.Websites;
 using GenHTTP.Modules.Websites.Sites;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GenHTTP.Modules.Layouting.Provider;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
 
+    [TestClass]
     public class WebsiteTests
     {
 
@@ -52,24 +53,24 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
         #endregion
 
-        [Fact]
+        [TestMethod]
         public void TestErrorHandler()
         {
             using var runner = TestRunner.Run(GetWebsite());
 
             using var file = runner.GetResponse("/blubb");
 
-            Assert.Equal(HttpStatusCode.NotFound, file.StatusCode);
-            Assert.Equal("text/html", file.ContentType);
+            Assert.AreEqual(HttpStatusCode.NotFound, file.StatusCode);
+            Assert.AreEqual("text/html", file.ContentType);
 
             var content = file.GetContent();
 
-            Assert.Contains("This is an error!", content);
+            AssertX.Contains("This is an error!", content);
 
-            Assert.Contains("This is the template!", content);
+            AssertX.Contains("This is the template!", content);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestDevelopmentResourcesWithoutBundle()
         {
             using var runner = new TestRunner();
@@ -79,31 +80,31 @@ namespace GenHTTP.Testing.Acceptance.Providers
                        .Start();
 
             using var style = runner.GetResponse("/styles/custom.css");
-            Assert.Equal(HttpStatusCode.OK, style.StatusCode);
+            Assert.AreEqual(HttpStatusCode.OK, style.StatusCode);
 
             using var script = runner.GetResponse("/scripts/custom.js");
-            Assert.Equal(HttpStatusCode.OK, script.StatusCode);
+            Assert.AreEqual(HttpStatusCode.OK, script.StatusCode);
 
             using var noStyle = runner.GetResponse("/styles/no.css");
-            Assert.Equal(HttpStatusCode.NotFound, noStyle.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, noStyle.StatusCode);
 
             using var noScript = runner.GetResponse("/scripts/no.js");
-            Assert.Equal(HttpStatusCode.NotFound, noScript.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, noScript.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestBundleNotServed()
         {
             using var runner = TestRunner.Run(GetWebsite());
 
             using var noStyle = runner.GetResponse("/styles/custom.css");
-            Assert.Equal(HttpStatusCode.NotFound, noStyle.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, noStyle.StatusCode);
 
             using var noScript = runner.GetResponse("/scripts/custom.js");
-            Assert.Equal(HttpStatusCode.NotFound, noScript.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, noScript.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestCustomContent()
         {
             var website = GetWebsite().AddScript("my.js", Resource.FromString("my"))
@@ -112,13 +113,13 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var runner = TestRunner.Run(website);
 
             using var style = runner.GetResponse("/styles/bundle.css");
-            Assert.Contains("my", style.GetContent());
+            AssertX.Contains("my", style.GetContent());
 
             using var script = runner.GetResponse("/scripts/bundle.js");
-            Assert.Contains("my", script.GetContent());
+            AssertX.Contains("my", script.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestStaticMenu()
         {
             var menu = Menu.Empty()
@@ -131,10 +132,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = runner.GetResponse();
 
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestDynamicMenu()
         {
             var menu = Menu.From("{website}");
@@ -145,69 +146,69 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = runner.GetResponse();
 
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestResources()
         {
             using var runner = TestRunner.Run(GetWebsite());
 
             using var file = runner.GetResponse("/resources/some.txt");
-            Assert.Equal(HttpStatusCode.OK, file.StatusCode);
+            Assert.AreEqual(HttpStatusCode.OK, file.StatusCode);
 
             using var noFile = runner.GetResponse("/resources/other.txt");
-            Assert.Equal(HttpStatusCode.NotFound, noFile.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, noFile.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestFavicon()
         {
             using var runner = TestRunner.Run(GetWebsite());
 
             using var file = runner.GetResponse("/favicon.ico");
-            Assert.Equal(HttpStatusCode.OK, file.StatusCode);
-            Assert.Equal("image/x-icon", file.ContentType);
+            Assert.AreEqual(HttpStatusCode.OK, file.StatusCode);
+            Assert.AreEqual("image/x-icon", file.ContentType);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestSitemap()
         {
             using var runner = TestRunner.Run(GetWebsite());
 
             using var file = runner.GetResponse("/sitemap.xml");
 
-            Assert.Equal(HttpStatusCode.OK, file.StatusCode);
-            Assert.Equal("text/xml", file.ContentType);
+            Assert.AreEqual(HttpStatusCode.OK, file.StatusCode);
+            Assert.AreEqual("text/xml", file.ContentType);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestRobots()
         {
             using var runner = TestRunner.Run(GetWebsite());
 
             using var file = runner.GetResponse("/robots.txt");
 
-            Assert.Equal(HttpStatusCode.OK, file.StatusCode);
-            Assert.Equal("text/plain", file.ContentType);
+            Assert.AreEqual(HttpStatusCode.OK, file.StatusCode);
+            Assert.AreEqual("text/plain", file.ContentType);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestCoreWebsiteWithoutResources()
         {
             using var runner = TestRunner.Run();
 
             using var robots = runner.GetResponse("/robots.txt");
-            Assert.Equal(HttpStatusCode.NotFound, robots.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, robots.StatusCode);
 
             using var favicon = runner.GetResponse("/favicon.ico");
-            Assert.Equal(HttpStatusCode.NotFound, favicon.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, favicon.StatusCode);
 
             using var sitemap = runner.GetResponse("/sitemaps/sitemap.xml");
-            Assert.Equal(HttpStatusCode.NotFound, sitemap.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, sitemap.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestWebsiteRouting()
         {
             var template = @"script = {{ route 'scripts/s.js' }}
@@ -232,16 +233,16 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var result = response.GetContent();
 
-            Assert.Contains("script = ../scripts/s.js", result);
-            Assert.Contains("style = ../styles/s.css", result);
-            Assert.Contains("resource = ../resources/r.txt", result);
+            AssertX.Contains("script = ../scripts/s.js", result);
+            AssertX.Contains("style = ../styles/s.css", result);
+            AssertX.Contains("resource = ../resources/r.txt", result);
 
-            Assert.Contains("sitemap = ../sitemap.xml", result);
-            Assert.Contains("favicon = ../favicon.ico", result);
-            Assert.Contains("robots = ../robots.txt", result);
+            AssertX.Contains("sitemap = ../sitemap.xml", result);
+            AssertX.Contains("favicon = ../favicon.ico", result);
+            AssertX.Contains("robots = ../robots.txt", result);
 
-            Assert.Contains("root = ../", result);
-            Assert.Contains("root-appended = ../my/file.txt", result);
+            AssertX.Contains("root = ../", result);
+            AssertX.Contains("root-appended = ../my/file.txt", result);
         }
 
         public static WebsiteBuilder GetWebsite(LayoutBuilder? content = null)

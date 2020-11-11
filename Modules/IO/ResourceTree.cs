@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Reflection;
 
 using GenHTTP.Modules.IO.Embedded;
@@ -21,14 +22,22 @@ namespace GenHTTP.Modules.IO
         {
             var assembly = Assembly.GetCallingAssembly();
 
-            return FromAssembly(assembly, assembly.GetName().Name);
+            var name = assembly.GetName().Name ?? throw new InvalidOperationException($"Unable to determine root namespace for assembly '{assembly}'");
+
+            return FromAssembly(assembly, name);
         }
 
         /// <summary>
         /// Creates a resource tree that will provide all embedded
         /// resources provided by the given assembly.
         /// </summary>
-        public static EmbeddedResourceTreeBuilder FromAssembly(Assembly source) => new EmbeddedResourceTreeBuilder().Source(source).Root(source.GetName().Name);
+        public static EmbeddedResourceTreeBuilder FromAssembly(Assembly source)
+        {
+            var name = source.GetName().Name ?? throw new InvalidOperationException($"Unable to determine root namespace for assembly '{source}'");
+
+            return new EmbeddedResourceTreeBuilder().Source(source)
+                                                    .Root(name);
+        }
 
         /// <summary>
         /// Creates a resource tree that will provide all embedded

@@ -1,25 +1,26 @@
 ﻿using GenHTTP.Modules.IO;
 using System.Linq;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.IO
 {
 
+    [TestClass]
     public class ResourceTreeTests
     {
 
-        [Fact]
+        [TestMethod]
         public void TestAssembly()
         {
             var tree = ResourceTree.FromAssembly("Resources").Build();
 
-            Assert.True(tree.TryGetNode("Subdirectory", out var _));
+            Assert.IsTrue(tree.TryGetNode("Subdirectory", out var _));
             
-            Assert.True(tree.TryGetResource("File.txt", out var _));
+            Assert.IsTrue(tree.TryGetResource("File.txt", out var _));
 
-            Assert.Single(tree.GetNodes());
+            AssertX.Single(tree.GetNodes());
 
-            Assert.Equal(4, tree.GetResources().Count());
+            Assert.AreEqual(4, tree.GetResources().Count());
         }
 
     }

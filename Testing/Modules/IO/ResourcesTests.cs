@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
@@ -9,83 +9,84 @@ using GenHTTP.Modules.Sitemaps;
 namespace GenHTTP.Testing.Acceptance.Modules.IO
 {
 
+    [TestClass]
     public class ResourcesTests
     {
 
-        [Fact]
+        [TestMethod]
         public void TestFileDownload()
         {
             using var runner = TestRunner.Run(Resources.From(ResourceTree.FromAssembly()));
 
             using var response = runner.GetResponse("/Resources/File.txt");
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("This is text!", response.GetContent());
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual("This is text!", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestSubdirectoryFileDownload()
         {
             using var runner = TestRunner.Run(Resources.From(ResourceTree.FromAssembly()));
 
             using var response = runner.GetResponse("/Resources/Subdirectory/AnotherFile.txt");
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("This is another text!", response.GetContent());
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual("This is another text!", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNoFileDownload()
         {
             using var runner = TestRunner.Run(Resources.From(ResourceTree.FromAssembly()));
 
             using var response = runner.GetResponse("/Resources/nah.txt");
 
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNoSubdirectoryFileDownload()
         {
             using var runner = TestRunner.Run(Resources.From(ResourceTree.FromAssembly()));
 
             using var response = runner.GetResponse("/Resources/nah/File.txt");
 
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestRootDownload()
         {
             using var runner = TestRunner.Run(Resources.From(ResourceTree.FromAssembly("Resources")));
 
             using var response = runner.GetResponse("/File.txt");
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("This is text!", response.GetContent());
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual("This is text!", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestDirectory()
         {
             using var runner = TestRunner.Run(Resources.From(ResourceTree.FromAssembly()));
 
             using var response = runner.GetResponse("/Resources/nah/");
 
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNonExistingDirectory()
         {
             using var runner = TestRunner.Run(Resources.From(ResourceTree.FromAssembly()));
 
             using var response = runner.GetResponse("/Resources/nah/");
 
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestContent()
         {
             var layout = Layout.Create()
@@ -98,7 +99,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             var sitemap = response.GetSitemap();
 
-            Assert.Contains("/resources/Error.html", sitemap);
+            AssertX.Contains("/resources/Error.html", sitemap);
         }
 
     }

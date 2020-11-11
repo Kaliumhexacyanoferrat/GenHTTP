@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -8,7 +9,6 @@ using System.Web;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.IO.Streaming;
@@ -89,8 +89,8 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             catch (WebException e)
             {
                 var info = ContentInfo.Create()
-                                        .Title("Bad Gateway")
-                                        .Build();
+                                      .Title("Bad Gateway")
+                                      .Build();
 
                 return (await this.GetErrorAsync(new ErrorModel(request, this, ResponseStatus.BadGateway, "Unable to retrieve a response from the gateway.", e), info).ConfigureAwait(false)).Build();
             }
@@ -148,9 +148,9 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
                     query[kv.Key] = kv.Value;
                 }
 
-                return "?" + query.ToString()
-                                  .Replace("+", "%20")
-                                  .Replace("%2b", "+");
+                return "?" + query?.ToString()?
+                                   .Replace("+", "%20")
+                                   .Replace("%2b", "+");
             }
 
             return string.Empty;
@@ -166,20 +166,25 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             {
                 if (!RESERVED_RESPONSE_HEADERS.Contains(key))
                 {
-                    if (key == "Location")
+                    var value = response.Headers[key];
+
+                    if (value != null)
                     {
-                        builder.Header(key, RewriteLocation(response.Headers[key], request));
-                    }
-                    else if (key == "Set-Cookie")
-                    {
-                        foreach (var cookie in BrokenCookieHeaderParser.GetCookies(response.Headers[key]))
+                        if (key == "Location")
                         {
-                            builder.Header(key, cookie);
+                            builder.Header(key, RewriteLocation(value, request));
                         }
-                    }
-                    else
-                    {
-                        builder.Header(key, response.Headers[key]);
+                        else if (key == "Set-Cookie")
+                        {
+                            foreach (var cookie in BrokenCookieHeaderParser.GetCookies(value))
+                            {
+                                builder.Header(key, cookie);
+                            }
+                        }
+                        else
+                        {
+                            builder.Header(key, value);
+                        }
                     }
                 }
             }
@@ -283,7 +288,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
             if (forwarding.Protocol != null)
             {
-                result.Add($"proto={forwarding.Protocol}");
+                result.Add($"proto={forwarding.Protocol?.ToString() ?? "http"}");
             }
 
             return string.Join("; ", result);

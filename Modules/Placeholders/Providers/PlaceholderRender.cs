@@ -47,7 +47,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
                 var fullPath = match.Groups[1].Value;
                 var path = fullPath.Split('.');
 
-                return GetValue(fullPath, path, model);
+                return GetValue(fullPath, path, model) ?? string.Empty;
             });
         }
 

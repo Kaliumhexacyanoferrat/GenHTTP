@@ -1,4 +1,4 @@
-﻿using Xunit;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
@@ -11,6 +11,7 @@ using GenHTTP.Modules.Layouting;
 namespace GenHTTP.Testing.Acceptance.Engine
 {
 
+    [TestClass]
     public class CompressionTests
     {
 
@@ -41,7 +42,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// <summary>
         /// As a developer, I expect responses to be compressed out of the box.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestCompression()
         {
             using var runner = TestRunner.Run();
@@ -51,14 +52,14 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = request.GetSafeResponse();
 
-            Assert.Equal("br", response.ContentEncoding);
+            Assert.AreEqual("br", response.ContentEncoding);
         }
 
         /// <summary>
         /// As a browser, I expect only supported compression algorithms to be used
         /// to generate my response.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestSpecficAlgorithm()
         {
             using var runner = TestRunner.Run();
@@ -68,26 +69,26 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = request.GetSafeResponse();
 
-            Assert.Equal("gzip", response.ContentEncoding);
+            Assert.AreEqual("gzip", response.ContentEncoding);
         }
 
         /// <summary>
         /// As a developer, I want to be able to disable compression.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestCompressionDisabled()
         {
             using var runner = TestRunner.Run(false);
 
             using var response = runner.GetResponse();
 
-            Assert.Null(response.ContentEncoding);
+            Assert.IsNull(response.ContentEncoding);
         }
 
         /// <summary>
         /// As a developer, I want to be able to add custom compression algorithms.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestCustomCompression()
         {
             using var runner = new TestRunner();
@@ -99,13 +100,13 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = request.GetSafeResponse();
 
-            Assert.Equal("custom", response.ContentEncoding);
+            Assert.AreEqual("custom", response.ContentEncoding);
         }
 
         /// <summary>
         /// As a developer, I want already compressed content not to be compressed again.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestNoAdditionalCompression()
         {
             var image = Resource.FromString("Image!").Type(ContentType.ImageJpg);
@@ -114,7 +115,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = runner.GetResponse("/uncompressed");
 
-            Assert.Null(response.ContentEncoding);
+            Assert.IsNull(response.ContentEncoding);
         }
 
     }

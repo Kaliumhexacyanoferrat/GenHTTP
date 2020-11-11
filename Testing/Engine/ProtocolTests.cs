@@ -3,18 +3,18 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Content;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Basics;
 using System.Threading.Tasks;
-using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {
 
+    [TestClass]
     public class ProtocolTests
     {
 
@@ -68,7 +68,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// <summary>
         /// As a client I can stream data to the server.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestPost()
         {
             var recorder = new ValueRecorder();
@@ -88,13 +88,13 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var __ = request.GetSafeResponse();
 
-            Assert.Equal(str, recorder.Value);
+            Assert.AreEqual(str, recorder.Value);
         }
 
         /// <summary>
         /// As a client I can submit large data.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestPutLarge()
         {
             using var runner = TestRunner.Run(new ContentLengthResponder());
@@ -117,7 +117,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = request.GetSafeResponse();
 
-            Assert.Equal("1310720", response.GetContent());
+            Assert.AreEqual("1310720", response.GetContent());
         }
 
     }
