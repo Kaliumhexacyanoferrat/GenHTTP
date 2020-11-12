@@ -16,7 +16,7 @@ For a pull request to be merged into master, the following general rules need to
 - The test coverage on new code as reported by Sonar is not below 85%
 - There are no new issues reported by Sonar
 - Public API functions and types are documented
-- Providers and routers can be created using an `IBuilder` instance
+- Providers and handlers can be created using an `IBuilder` instance
 - The changes have been documented on the [GenHTTP.Website](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Website), if applicable
 - Architecture principles as described in the following section have not been violated
 
@@ -27,9 +27,8 @@ The GenHTTP webserver is designed as a single library that can be extended by ad
 Project | Description
 --- | ---
 `GenHTTP.Api` | Public interface of the GenHTTP webserver. Contains types that are useful for all kind of content providers. Specific types and references to 3rd party libraries are not allowed here.
-`GenHTTP.Core` | The actual implementation of the webserver. References to 3rd party libraries or other modules besides GenHTTP.Modules.Core are not allowed.
-`GenHTTP.Modules.Core` | Basic routers and content providers that are automatically available when referencing the core library. References to 3rd party libraries or other modules are not allowed.
-`GenHTTP.Modules.*` | Additional modules that can be used to add functionality to the webserver. References to 3rd party libraries are allowed. Must not reference GenHTTP.Core to stay independent from the server implementation.
+`GenHTTP.Engine` | The actual implementation of the webserver. References to 3rd party libraries or complex modules (e.g. `GenHTTP.Modules.Websites`) are not allowed.
+`GenHTTP.Modules.*` | Additional modules that can be used to add functionality to the webserver. References to 3rd party libraries are allowed. Must not reference `GenHTTP.Engine` to stay independent from the server implementation.
 
 ## Adding Modules
 
