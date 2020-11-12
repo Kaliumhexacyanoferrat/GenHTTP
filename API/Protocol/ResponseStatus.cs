@@ -238,7 +238,7 @@ namespace GenHTTP.Api.Protocol
 
         public static bool operator !=(FlexibleResponseStatus status, int rawStatus) => status.RawStatus != rawStatus;
 
-        public override bool Equals(object obj) => obj is FlexibleResponseStatus status && RawStatus == status.RawStatus;
+        public override bool Equals(object? obj) => obj is FlexibleResponseStatus status && RawStatus == status.RawStatus;
 
         public override int GetHashCode() => RawStatus.GetHashCode();
 

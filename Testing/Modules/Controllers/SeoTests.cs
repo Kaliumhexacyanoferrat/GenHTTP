@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -12,6 +12,7 @@ using GenHTTP.Modules.Layouting;
 namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 {
 
+    [TestClass]
     public class SeoTests
     {
 
@@ -41,14 +42,14 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
         /// As the developer of a web application, I don't want the MCV framework to generate duplicate content
         /// by accepting upper case letters in action names.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestActionCasingMatters()
         {
             using var runner = GetRunner();
 
             using var response = runner.GetResponse("/t/Action/");
 
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         #endregion

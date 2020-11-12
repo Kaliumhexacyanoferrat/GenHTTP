@@ -1,4 +1,6 @@
-﻿using GenHTTP.Modules.Webservices.Provider;
+﻿using System.Diagnostics.CodeAnalysis;
+
+using GenHTTP.Modules.Webservices.Provider;
 
 namespace GenHTTP.Modules.Webservices
 {
@@ -14,7 +16,7 @@ namespace GenHTTP.Modules.Webservices
         /// specified resource type to generate responses.
         /// </summary>
         /// <typeparam name="T">The resource type to be provided</typeparam>
-        public static ServiceResourceBuilder From<T>() where T : new() => new ServiceResourceBuilder().Type<T>();
+        public static ServiceResourceBuilder From<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>() where T : new() => new ServiceResourceBuilder().Type<T>();
 
         /// <summary>
         /// Provides a router that will invoke the methods of the

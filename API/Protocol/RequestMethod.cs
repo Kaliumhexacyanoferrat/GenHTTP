@@ -73,7 +73,7 @@ namespace GenHTTP.Api.Protocol
         public FlexibleRequestMethod(RequestMethod method)
         {
             KnownMethod = method;
-            RawMethod = method.ToString();
+            RawMethod = Enum.GetName(method) ?? throw new ArgumentException();
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace GenHTTP.Api.Protocol
 
         public static bool operator !=(FlexibleRequestMethod method, string rawMethod) => method.RawMethod != rawMethod;
 
-        public override bool Equals(object obj) => obj is FlexibleRequestMethod method && RawMethod == method.RawMethod;
+        public override bool Equals(object? obj) => obj is FlexibleRequestMethod method && RawMethod == method.RawMethod;
 
         public override int GetHashCode() => RawMethod.GetHashCode();
 

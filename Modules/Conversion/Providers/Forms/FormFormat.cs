@@ -1,13 +1,14 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Basics;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Basics;
 
 namespace GenHTTP.Modules.Conversion.Providers.Forms
 {
@@ -18,7 +19,7 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
 
         private static readonly object[] EMPTY_ARGS = new object[0];
 
-        public async ValueTask<object> DeserializeAsync(Stream stream, Type type)
+        public async ValueTask<object?> DeserializeAsync(Stream stream, Type type)
         {
             using var reader = new StreamReader(stream);
 
@@ -37,23 +38,26 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
 
             foreach (var key in query.AllKeys)
             {
-                var value = query[key];
-
-                if (!string.IsNullOrWhiteSpace(value))
+                if (key != null)
                 {
-                    var property = type.GetProperty(key, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                    var value = query[key];
 
-                    if (property != null)
+                    if (!string.IsNullOrWhiteSpace(value))
                     {
-                        property.SetValue(result, value.ConvertTo(property.PropertyType));
-                    }
-                    else
-                    {
-                        var field = type.GetField(key, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                        var property = type.GetProperty(key, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 
-                        if (field != null)
+                        if (property != null)
                         {
-                            field.SetValue(result, value.ConvertTo(field.FieldType));
+                            property.SetValue(result, value.ConvertTo(property.PropertyType));
+                        }
+                        else
+                        {
+                            var field = type.GetField(key, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+
+                            if (field != null)
+                            {
+                                field.SetValue(result, value.ConvertTo(field.FieldType));
+                            }
                         }
                     }
                 }
@@ -85,7 +89,12 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
 
                     foreach (var key in query.AllKeys)
                     {
-                        result.Add(key, query[key]);
+                        var value = query[key];
+
+                        if ((key != null) && (value != null))
+                        {
+                            result.Add(key, value);
+                        }
                     }
 
                     return result;
@@ -97,7 +106,14 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
 
         private string GetRequestContent(IRequest request)
         {
-            using var reader = new StreamReader(request.Content, Encoding.UTF8, true, 4096, true);
+            var requestContent = request.Content;
+
+            if (requestContent == null)
+            {
+                throw new InvalidOperationException("Request content has to be set");
+            }
+
+            using var reader = new StreamReader(requestContent, Encoding.UTF8, true, 4096, true);
 
             var content = reader.ReadToEnd();
 

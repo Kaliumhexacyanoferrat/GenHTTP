@@ -3,15 +3,16 @@
 using GenHTTP.Modules.IO;
 using GenHTTP.Testing.Acceptance.Utilities;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules
 {
 
+    [TestClass]
     public class CacheValidationTests
     {
 
-        [Fact]
+        [TestMethod]
         public void TestETagIsGenerated()
         {
             using var runner = TestRunner.Run(Content.From(Resource.FromString("Hello World!")));
@@ -20,13 +21,13 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             var eTag = response.GetResponseHeader("ETag");
 
-            Assert.NotNull(eTag);
+            Assert.IsNotNull(eTag);
 
-            Assert.StartsWith("\"", eTag);
-            Assert.EndsWith("\"", eTag);
+            AssertX.StartsWith("\"", eTag);
+            AssertX.EndsWith("\"", eTag);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestServerReturnsUnmodified()
         {
             using var runner = TestRunner.Run(Content.From(Resource.FromString("Hello World!")));
@@ -41,12 +42,12 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             using var cached = runner.GetResponse(request);
 
-            Assert.Equal(HttpStatusCode.NotModified, cached.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotModified, cached.StatusCode);
 
-            Assert.Equal("0", cached.GetResponseHeader("Content-Length"));
+            Assert.AreEqual("0", cached.GetResponseHeader("Content-Length"));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestServerReturnsModified()
         {
             using var runner = TestRunner.Run(Content.From(Resource.FromString("Hello World!")));
@@ -57,10 +58,10 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             using var reloaded = runner.GetResponse(request);
 
-            Assert.Equal(HttpStatusCode.OK, reloaded.StatusCode);
+            Assert.AreEqual(HttpStatusCode.OK, reloaded.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNoContentNoEtag()
         {
             var noContent = new FunctionalHandler(responseProvider: (r) =>
@@ -72,10 +73,10 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             using var response = runner.GetResponse();
 
-            Assert.DoesNotContain("ETag", response.Headers.AllKeys);
+            AssertX.DoesNotContain("ETag", response.Headers.AllKeys);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestOtherMethodNoETag()
         {
             using var runner = TestRunner.Run(Content.From(Resource.FromString("Hello World!")));
@@ -86,7 +87,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             using var response = runner.GetResponse(request);
 
-            Assert.DoesNotContain("ETag", response.Headers.AllKeys);
+            AssertX.DoesNotContain("ETag", response.Headers.AllKeys);
         }
 
     }

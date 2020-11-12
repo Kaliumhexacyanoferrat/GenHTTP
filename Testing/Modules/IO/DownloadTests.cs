@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Text;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
@@ -9,23 +9,24 @@ using GenHTTP.Modules.Layouting;
 namespace GenHTTP.Testing.Acceptance.Modules.IO
 {
 
+    [TestClass]
     public class DownloadTests
     {
 
-        [Fact]
+        [TestMethod]
         public void TestDownload()
         {
             using var runner = TestRunner.Run(Download.From(Resource.FromAssembly("File.txt")));
 
             using var response = runner.GetResponse();
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
-            Assert.Equal("This is text!", response.GetContent());
-            Assert.Equal("text/plain", response.GetResponseHeader("Content-Type"));
+            Assert.AreEqual("This is text!", response.GetContent());
+            Assert.AreEqual("text/plain", response.GetResponseHeader("Content-Type"));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestDownloadDoesNotAcceptRouting()
         {
             var layout = Layout.Create()
@@ -35,10 +36,10 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var response = runner.GetResponse("/file.txt/blubb");
 
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void DownloadsCannotBeModified()
         {
             var download = Download.From(Resource.FromAssembly("File.txt"));
@@ -57,10 +58,10 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var response = runner.GetResponse(request);
 
-            Assert.Equal(HttpStatusCode.MethodNotAllowed, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.MethodNotAllowed, response.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestFileName()
         {
             var download = Download.From(Resource.FromAssembly("File.txt"))
@@ -70,10 +71,10 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var response = runner.GetResponse();
 
-            Assert.Equal("attachment; filename=\"myfile.txt\"", response.GetResponseHeader("Content-Disposition"));
+            Assert.AreEqual("attachment; filename=\"myfile.txt\"", response.GetResponseHeader("Content-Disposition"));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNoFileName()
         {
             var download = Download.From(Resource.FromAssembly("File.txt"));
@@ -82,10 +83,10 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var response = runner.GetResponse();
 
-            Assert.Equal("attachment", response.GetResponseHeader("Content-Disposition"));
+            Assert.AreEqual("attachment", response.GetResponseHeader("Content-Disposition"));
         }
         
-        [Fact]
+        [TestMethod]
         public void TestFileNameFromResource()
         {
             var download = Download.From(Resource.FromAssembly("File.txt").Name("myfile.txt"));
@@ -94,7 +95,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var response = runner.GetResponse();
 
-            Assert.Equal("attachment; filename=\"myfile.txt\"", response.GetResponseHeader("Content-Disposition"));
+            Assert.AreEqual("attachment; filename=\"myfile.txt\"", response.GetResponseHeader("Content-Disposition"));
         }
 
     }

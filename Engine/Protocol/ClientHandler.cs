@@ -118,7 +118,7 @@ namespace GenHTTP.Engine
 
         private async ValueTask<bool> HandleRequest(RequestBuilder builder)
         {
-            var address = ((IPEndPoint)Connection.RemoteEndPoint).Address;
+            var address = (Connection.RemoteEndPoint as IPEndPoint)?.Address;
 
             using var request = builder.Connection(Server, EndPoint, address).Build();
             

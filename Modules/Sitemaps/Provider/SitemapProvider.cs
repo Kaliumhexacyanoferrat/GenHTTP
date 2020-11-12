@@ -38,7 +38,7 @@ namespace GenHTTP.Modules.Sitemaps.Provider
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var baseUri = $"{request.Client.Protocol.ToString().ToLower()}://{request.Host}";
+            var baseUri = $"{request.Client.Protocol?.ToString().ToLower() ?? "http"}://{request.Host}";
 
             var elements = new List<ContentElement>();
 

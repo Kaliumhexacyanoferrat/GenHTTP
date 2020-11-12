@@ -75,7 +75,7 @@ namespace GenHTTP.Modules.Websites.Resources
                         return Bundle.HandleAsync(request);
                     }
                 }
-                else if (Scripts.TryGetValue(file, out Script script))
+                else if (Scripts.TryGetValue(file, out Script? script))
                 {
                     return Content.From(script.Provider)
                                    .Build(this)

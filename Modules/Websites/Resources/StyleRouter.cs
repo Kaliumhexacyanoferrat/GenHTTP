@@ -75,7 +75,7 @@ namespace GenHTTP.Modules.Websites.Resources
                         return Bundle.HandleAsync(request);
                     }
                 }
-                else if (Styles.TryGetValue(file, out Style style))
+                else if (Styles.TryGetValue(file, out Style? style))
                 {
                     return Content.From(style.Provider)
                                    .Build(this)

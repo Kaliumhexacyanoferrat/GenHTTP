@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Engine.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Units
 {
 
+    [TestClass]
     public class PooledDictionaryTests
     {
 
-        [Fact]
+        [TestMethod]
         public void TestReplace()
         {
             using var dict = new PooledDictionary<string, string>();
@@ -19,42 +20,42 @@ namespace GenHTTP.Testing.Acceptance.Units
             dict["one"] = "One";
             dict["one"] = "Two";
 
-            Assert.True(dict.ContainsKey("one"));
+            Assert.IsTrue(dict.ContainsKey("one"));
 
 #pragma warning disable xUnit2017
-            Assert.True(dict.Contains(new KeyValuePair<string, string>("one", "Two")));
+            Assert.IsTrue(dict.Contains(new KeyValuePair<string, string>("one", "Two")));
 #pragma warning restore
 
-            Assert.Equal("Two", dict["one"]);
+            Assert.AreEqual("Two", dict["one"]);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNotFound()
         {
             using var dict = new PooledDictionary<string, string>();
 
-            Assert.Throws<KeyNotFoundException>(() => dict["nope"]);
+            Assert.ThrowsException<KeyNotFoundException>(() => dict["nope"]);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestCounts()
         {
             using var dict = new PooledDictionary<string, string>();
 
-            Assert.Equal(0, dict.Keys.Count);
-            Assert.Equal(0, dict.Values.Count);
+            Assert.AreEqual(0, dict.Keys.Count);
+            Assert.AreEqual(0, dict.Values.Count);
 
-            Assert.Empty(dict);
+            AssertX.Empty(dict);
 
             dict["one"] = "one";
 
-            Assert.Equal(1, dict.Keys.Count);
-            Assert.Equal(1, dict.Values.Count);
+            Assert.AreEqual(1, dict.Keys.Count);
+            Assert.AreEqual(1, dict.Values.Count);
 
-            Assert.Single(dict);
+            AssertX.Single(dict);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestClear()
         {
             using var dict = new PooledDictionary<string, string>();
@@ -62,10 +63,10 @@ namespace GenHTTP.Testing.Acceptance.Units
 
             dict.Clear();
 
-            Assert.False(dict.ContainsKey("one"));
+            Assert.IsFalse(dict.ContainsKey("one"));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestResize()
         {
             using var dict = new PooledDictionary<int, int>();
@@ -75,28 +76,28 @@ namespace GenHTTP.Testing.Acceptance.Units
                 dict.Add(new KeyValuePair<int, int>(i, i));
             }
 
-            Assert.True(dict.Capacity > 25);
+            Assert.IsTrue(dict.Capacity > 25);
 
             for (int i = 0; i < 25; i++)
             {
-                Assert.Equal(i, dict[i]);
+                Assert.AreEqual(i, dict[i]);
             }
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNoRemove()
         {
             using var dict = new PooledDictionary<string, string>();
 
-            Assert.Throws<NotSupportedException>(() => dict.Remove(""));
+            Assert.ThrowsException<NotSupportedException>(() => dict.Remove(""));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNoRemove2()
         {
             using var dict = new PooledDictionary<string, string>();
 
-            Assert.Throws<NotSupportedException>(() => dict.Remove(new KeyValuePair<string, string>("", "")));
+            Assert.ThrowsException<NotSupportedException>(() => dict.Remove(new KeyValuePair<string, string>("", "")));
         }
 
     }

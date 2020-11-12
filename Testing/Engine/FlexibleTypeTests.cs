@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 namespace GenHTTP.Testing.Acceptance.Engine
 {
 
+    [TestClass]
     public class FlexibleTypeTests
     {
 
@@ -41,7 +42,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// As a developer I would like to use status codes and content types
         /// not supported by the server.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestFlexibleStatus()
         {
             var content = Layout.Create().Index(new Provider().Wrap());
@@ -50,10 +51,10 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = runner.GetResponse();
 
-            Assert.Equal(256, (int)response.StatusCode);
-            Assert.Equal("Custom Status", response.StatusDescription);
+            Assert.AreEqual(256, (int)response.StatusCode);
+            Assert.AreEqual("Custom Status", response.StatusDescription);
 
-            Assert.Equal("application/x-custom", response.ContentType);
+            Assert.AreEqual("application/x-custom", response.ContentType);
         }
 
     }

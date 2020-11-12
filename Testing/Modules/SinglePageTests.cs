@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Net;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Modules.SinglePageApplications;
 using GenHTTP.Modules.Layouting;
@@ -11,10 +11,11 @@ using GenHTTP.Modules.IO;
 namespace GenHTTP.Testing.Acceptance.Providers
 {
 
+    [TestClass]
     public class SinglePageTests
     {
 
-        [Fact]
+        [TestMethod]
         public void TestIndex()
         {
             var root = CreateRoot();
@@ -25,25 +26,25 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var index = runner.GetResponse("/");
 
-            Assert.Equal(HttpStatusCode.OK, index.StatusCode);
-            Assert.Equal("text/html", index.ContentType);
+            Assert.AreEqual(HttpStatusCode.OK, index.StatusCode);
+            Assert.AreEqual("text/html", index.ContentType);
 
             var content = index.GetContent();
 
-            Assert.Equal("This is the index!", content);
+            Assert.AreEqual("This is the index!", content);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNoIndex()
         {
             using var runner = TestRunner.Run(SinglePageApplication.From(ResourceTree.FromDirectory(CreateRoot())));
 
             using var index = runner.GetResponse("/");
 
-            Assert.Equal(HttpStatusCode.NotFound, index.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, index.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestFile()
         {
             var root = CreateRoot();
@@ -54,25 +55,25 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var index = runner.GetResponse("/some.txt");
 
-            Assert.Equal(HttpStatusCode.OK, index.StatusCode);
-            Assert.Equal("text/plain", index.ContentType);
+            Assert.AreEqual(HttpStatusCode.OK, index.StatusCode);
+            Assert.AreEqual("text/plain", index.ContentType);
 
             var content = index.GetContent();
 
-            Assert.Equal("This is some text file :)", content);
+            Assert.AreEqual("This is some text file :)", content);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNoFile()
         {
             using var runner = TestRunner.Run(SinglePageApplication.From(ResourceTree.FromDirectory(CreateRoot())));
 
             using var index = runner.GetResponse("/nope.txt");
 
-            Assert.Equal(HttpStatusCode.NotFound, index.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, index.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestContent()
         {
             var root = CreateRoot();
@@ -90,8 +91,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var sitemap = response.GetSitemap();
 
-            Assert.Contains("/spa/index.html", sitemap);
-            Assert.Contains("/spa/file.html", sitemap);
+            AssertX.Contains("/spa/index.html", sitemap);
+            AssertX.Contains("/spa/file.html", sitemap);
         }
 
         private static string CreateRoot()

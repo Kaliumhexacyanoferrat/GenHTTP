@@ -67,9 +67,9 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
                 }
             }
 
-            var replaced = query.ToString()
-                                .Replace("+", "%20")
-                                .Replace("%2b", "+");
+            var replaced = query?.ToString()?
+                                 .Replace("+", "%20")
+                                 .Replace("%2b", "+");
 
             await writer.WriteAsync(replaced);
         }

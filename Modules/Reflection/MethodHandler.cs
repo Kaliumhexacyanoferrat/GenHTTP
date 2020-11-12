@@ -144,7 +144,7 @@ namespace GenHTTP.Modules.Reflection
                         continue;
                     }
 
-                    if (par.CheckSimple())
+                    if ((par.Name != null) && par.CheckSimple())
                     {
                         // is there a named parameter?
                         if (sourceParameters != null)
@@ -222,8 +222,13 @@ namespace GenHTTP.Modules.Reflection
             }
             catch (TargetInvocationException e)
             {
-                ExceptionDispatchInfo.Capture(e.InnerException).Throw();
-                return null; // nop
+                if (e.InnerException != null)
+                {
+                    ExceptionDispatchInfo.Capture(e.InnerException)
+                                                   .Throw();
+                }
+
+                throw;
             }
         }
 
@@ -330,7 +335,7 @@ namespace GenHTTP.Modules.Reflection
                 }
 
                 // set from the given input set
-                if (input.TryGetValue(par.Name, out var value))
+                if ((par.Name != null) && input.TryGetValue(par.Name, out var value))
                 {
                     targetArguments[i] = value;
                     continue;
@@ -353,7 +358,7 @@ namespace GenHTTP.Modules.Reflection
                     {
                         if (value != null)
                         {
-                            resolved.Append(Convert.ToString(value, CultureInfo.InvariantCulture));
+                            resolved.Append(Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty);
                         }
                         else
                         {

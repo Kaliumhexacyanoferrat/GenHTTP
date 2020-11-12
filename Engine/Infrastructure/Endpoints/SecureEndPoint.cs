@@ -93,7 +93,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
             }
         }
 
-        private X509Certificate SelectCertificate(object sender, string hostName)
+        private X509Certificate SelectCertificate(object sender, string? hostName)
         {
             var certificate = Options.Certificate.Provide(hostName);
 

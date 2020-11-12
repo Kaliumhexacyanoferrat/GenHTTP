@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -12,6 +12,7 @@ using GenHTTP.Modules.Layouting;
 namespace GenHTTP.Testing.Acceptance.Engine
 {
 
+    [TestClass]
     public class DeveloperModeTests
     {
 
@@ -36,7 +37,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// As a developer of a web project, I would like to see exceptions rendered 
         /// in the browser, so that I can trace an error more quickly
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestExceptionsWithTrace()
         {
             using var runner = new TestRunner();
@@ -47,14 +48,14 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = runner.GetResponse();
 
-            Assert.Contains("Exception", response.GetContent());
+            Assert.IsTrue(response.GetContent().Contains("Exception"));
         }
 
         /// <summary>
         /// As a devops member, I do not want an web application to leak internal
         /// implementation detail with exception messages
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestExceptionsWithNoTrace()
         {
             var router = Layout.Create().Index(new ThrowingProvider().Wrap());
@@ -63,7 +64,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = runner.GetResponse();
 
-            Assert.DoesNotContain("Exception", response.GetContent());
+            Assert.IsFalse(response.GetContent().Contains("Exception"));
         }
 
     }

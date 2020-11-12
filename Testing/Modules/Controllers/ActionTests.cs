@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.IO;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -13,6 +13,7 @@ using GenHTTP.Modules.Layouting;
 namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 {
 
+    [TestClass]
     public class ActionTests
     {
 
@@ -73,40 +74,40 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
         #region Tests
 
-        [Fact]
+        [TestMethod]
         public void TestIndex()
         {
             using var runner = GetRunner();
 
             using var response = runner.GetResponse("/t/");
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("Hello World!", response.GetContent());
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual("Hello World!", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestAction()
         {
             using var runner = GetRunner();
 
             using var response = runner.GetResponse("/t/action/");
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("Action", response.GetContent());
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual("Action", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestActionWithQuery()
         {
             using var runner = GetRunner();
 
             using var response = runner.GetResponse("/t/action/?query=0815");
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("815", response.GetContent());
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual("815", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestActionWithQueryFromBody()
         {
             using var runner = GetRunner();
@@ -123,11 +124,11 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
             using var response = runner.GetResponse(request);
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("Action test", response.GetContent());
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual("Action test", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestActionWithBody()
         {
             using var runner = GetRunner();
@@ -142,82 +143,82 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
             using var response = runner.GetResponse(request);
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("FieldData", response.GetContent());
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual("FieldData", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestActionWithParameter()
         {
             using var runner = GetRunner();
 
             using var response = runner.GetResponse("/t/simple-action/4711/");
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("4711", response.GetContent());
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual("4711", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestActionWithBadParameter()
         {
             using var runner = GetRunner();
 
             using var response = runner.GetResponse("/t/simple-action/string/");
 
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestActionWithMixedParameters()
         {
             using var runner = GetRunner();
 
             using var response = runner.GetResponse("/t/complex-action/1/2/?three=3");
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("6", response.GetContent());
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual("6", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestActionWithNoResult()
         {
             using var runner = GetRunner();
 
             using var response = runner.GetResponse("/t/void/");
 
-            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNonExistingAction()
         {
             using var runner = GetRunner();
 
             using var response = runner.GetResponse("/t/nope/");
 
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestHypenCasing()
         {
             using var runner = GetRunner();
 
             using var response = runner.GetResponse("/t/hypen-casing-99/");
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("OK", response.GetContent());
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual("OK", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestIndexController()
         {
             using var runner = TestRunner.Run(Layout.Create().IndexController<TestController>());
 
             using var response = runner.GetResponse("/simple-action/4711/");
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("4711", response.GetContent());
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual("4711", response.GetContent());
         }
 
         #endregion

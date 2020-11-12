@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Globalization;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Conversion
 {
-    
+
     public static class Extensions
     {
 
@@ -17,9 +18,16 @@ namespace GenHTTP.Modules.Conversion
         /// <returns>The converted value</returns>
         public static object? ConvertTo(this string? value, Type type)
         {
-            if (string.IsNullOrEmpty(value) && Nullable.GetUnderlyingType(type) != null)
+            if (string.IsNullOrEmpty(value))
             {
-                return null;
+                if (Nullable.GetUnderlyingType(type) != null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return Activator.CreateInstance(type);
+                }
             }
 
             try

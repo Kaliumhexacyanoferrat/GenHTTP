@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -11,6 +11,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Testing.Acceptance.Engine
 {
 
+    [TestClass]
     public class ErrorHandlingTest
     {
 
@@ -31,7 +32,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
         }
 
-        [Fact]
+        [TestMethod]
         public void TestGenericError()
         {
             using var runner = TestRunner.Run(new MalfunctioningRouter());
@@ -40,7 +41,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = request.GetSafeResponse();
 
-            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
         }
 
     }

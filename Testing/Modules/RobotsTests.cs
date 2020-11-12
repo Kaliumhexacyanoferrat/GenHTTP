@@ -1,4 +1,4 @@
-﻿using Xunit;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Content;
 
@@ -9,23 +9,24 @@ using GenHTTP.Modules.Robots.Provider;
 namespace GenHTTP.Testing.Acceptance.Providers
 {
 
+    [TestClass]
     public class RobotsTests
     {
 
-        [Fact]
+        [TestMethod]
         public void TestDefault()
         {
             using var runner = TestRunner.Run(GetTest(BotInstructions.Default()));
 
             var result = GetRobots(runner);
 
-            Assert.Contains("User-agent: *", result);
-            Assert.Contains("Allow: /", result);
+            AssertX.Contains("User-agent: *", result);
+            AssertX.Contains("Allow: /", result);
 
-            Assert.DoesNotContain("Sitemap", result);
+            AssertX.DoesNotContain("Sitemap", result);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestDirective()
         {
             var robots = BotInstructions.Empty()
@@ -37,44 +38,44 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var result = GetRobots(runner);
 
-            Assert.Contains("User-agent: MyAgent 1", result);
-            Assert.Contains("User-agent: MyAgent 2", result);
+            AssertX.Contains("User-agent: MyAgent 1", result);
+            AssertX.Contains("User-agent: MyAgent 2", result);
 
-            Assert.Contains("Allow: /allowed", result);
-            Assert.Contains("Allow: /alsoallowed", result);
+            AssertX.Contains("Allow: /allowed", result);
+            AssertX.Contains("Allow: /alsoallowed", result);
 
-            Assert.Contains("Disallow: /disallowed/", result);
-            Assert.Contains("Disallow: /alsodisallowed", result);
+            AssertX.Contains("Disallow: /disallowed/", result);
+            AssertX.Contains("Disallow: /alsodisallowed", result);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestSitemap()
         {
             using var runner = TestRunner.Run(GetTest(BotInstructions.Default().Sitemap()));
 
             var result = GetRobots(runner);
 
-            Assert.Contains("Sitemap: http://localhost/sitemap.xml", result);
+            AssertX.Contains("Sitemap: http://localhost/sitemap.xml", result);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestCustomSitemap()
         {
             using var runner = TestRunner.Run(GetTest(BotInstructions.Default().Sitemap("sitemap.xml")));
 
             var result = GetRobots(runner);
 
-            Assert.Contains("Sitemap: http://localhost/sitemap.xml", result);
+            AssertX.Contains("Sitemap: http://localhost/sitemap.xml", result);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestAbsoluteSitemap()
         {
             using var runner = TestRunner.Run(GetTest(BotInstructions.Default().Sitemap("http://my/sitemap.xml")));
 
             var result = GetRobots(runner);
 
-            Assert.Contains("Sitemap: http://my/sitemap.xml", result);
+            AssertX.Contains("Sitemap: http://my/sitemap.xml", result);
         }
 
         private string GetRobots(TestRunner runner)

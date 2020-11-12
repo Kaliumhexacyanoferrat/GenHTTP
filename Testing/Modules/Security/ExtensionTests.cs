@@ -1,4 +1,4 @@
-﻿using Xunit;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Security;
@@ -6,10 +6,11 @@ using GenHTTP.Modules.Security;
 namespace GenHTTP.Testing.Acceptance.Modules.Security
 {
 
+    [TestClass]
     public class ExtensionTests
     {
 
-        [Fact]
+        [TestMethod]
         public void ServerCanBeHardened()
         {
             using var runner = new TestRunner();

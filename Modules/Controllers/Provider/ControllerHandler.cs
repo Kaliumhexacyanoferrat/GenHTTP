@@ -1,19 +1,22 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
-using GenHTTP.Modules.Conversion.Providers;
-using GenHTTP.Modules.Reflection;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Routing;
+
+using GenHTTP.Modules.Conversion.Providers;
+using GenHTTP.Modules.Reflection;
+
 namespace GenHTTP.Modules.Controllers.Provider
 {
 
-    public class ControllerHandler<T> : IHandler, IHandlerResolver where T : new()
+    public class ControllerHandler<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T> : IHandler, IHandlerResolver where T : new()
     {
         private static readonly MethodRouting EMPTY = new MethodRouting("/", "^(/|)$", null, true);
 
@@ -85,6 +88,11 @@ namespace GenHTTP.Modules.Controllers.Provider
                     if (parameter.CheckNullable())
                     {
                         throw new InvalidOperationException("Parameters marked as 'FromPath' are not allowed to be nullable");
+                    }
+
+                    if (parameter.Name == null)
+                    {
+                        throw new InvalidOperationException("Parameters marked as 'FromPath' must have a name");
                     }
 
                     found.Add(parameter.Name);

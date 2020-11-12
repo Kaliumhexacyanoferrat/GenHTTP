@@ -65,14 +65,14 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
                 throw new BindingException($"Failed to bind to {endPoint}.", e);
             }
 
-            Task = Task.Run(() => Listen());
+            Task = Task.Run(() => Listen().ConfigureAwait(false));
         }
 
         #endregion
 
         #region Functionality
 
-        private async PooledValueTask Listen()
+        private async Task Listen()
         {
             try
             {

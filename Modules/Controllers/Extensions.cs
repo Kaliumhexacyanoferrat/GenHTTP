@@ -1,5 +1,7 @@
 ﻿using GenHTTP.Modules.Layouting.Provider;
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace GenHTTP.Modules.Controllers
 {
 
@@ -13,7 +15,7 @@ namespace GenHTTP.Modules.Controllers
         /// <typeparam name="T">The type of the controller used to handle requests</typeparam>
         /// <param name="builder">The layout the controller should be added to</param>
         /// <param name="path">The path that should be handled by the controller</param>
-        public static LayoutBuilder AddController<T>(this LayoutBuilder builder, string path) where T : new()
+        public static LayoutBuilder AddController<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(this LayoutBuilder builder, string path) where T : new()
         {
             builder.Add(path, Controller.From<T>());
             return builder;
@@ -29,7 +31,7 @@ namespace GenHTTP.Modules.Controllers
         /// </remarks>
         /// <typeparam name="T">The type of the controller used to handle requests</typeparam>
         /// <param name="builder">The layout the controller should be added to</param>
-        public static LayoutBuilder IndexController<T>(this LayoutBuilder builder) where T : new()
+        public static LayoutBuilder IndexController<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(this LayoutBuilder builder) where T : new()
         {
             builder.Fallback(Controller.From<T>());
             return builder;

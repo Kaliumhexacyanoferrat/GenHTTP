@@ -304,7 +304,7 @@ namespace GenHTTP.Api.Protocol
 
         public static bool operator !=(FlexibleContentType type, string rawType) => type.RawType != rawType;
 
-        public override bool Equals(object obj) => obj is FlexibleContentType type && RawType == type.RawType;
+        public override bool Equals(object? obj) => obj is FlexibleContentType type && RawType == type.RawType;
 
         public override int GetHashCode() => RawType.GetHashCode();
 

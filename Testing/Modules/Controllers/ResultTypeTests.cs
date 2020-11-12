@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -13,6 +13,7 @@ using GenHTTP.Modules.Layouting;
 namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 {
 
+    [TestClass]
     public class ResultTypeTests
     {
 
@@ -47,48 +48,48 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
         #region Tests
 
-        [Fact]
+        [TestMethod]
         public void ControllerMayReturnHandlerBuilder()
         {
             using var runner = GetRunner();
 
             using var response = runner.GetResponse("/t/handler-builder/");
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("HandlerBuilder", response.GetContent());
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual("HandlerBuilder", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void ControllerMayReturnHandler()
         {
             using var runner = GetRunner();
 
             using var response = runner.GetResponse("/t/handler/");
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("Handler", response.GetContent());
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual("Handler", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void ControllerMayReturnResponseBuilder()
         {
             using var runner = GetRunner();
 
             using var response = runner.GetResponse("/t/response-builder/");
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("ResponseBuilder", response.GetContent());
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual("ResponseBuilder", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void ControllerMayReturnResponse()
         {
             using var runner = GetRunner();
 
             using var response = runner.GetResponse("/t/response/");
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("Response", response.GetContent());
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual("Response", response.GetContent());
         }
 
         #endregion

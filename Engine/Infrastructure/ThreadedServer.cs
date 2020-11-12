@@ -34,7 +34,7 @@ namespace GenHTTP.Engine.Infrastructure
 
         internal ThreadedServer(IServerCompanion? companion, ServerConfiguration configuration, IHandler handler)
         {
-            Version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "(n/a)";
 
             Companion = companion;
             Configuration = configuration;

@@ -13,7 +13,7 @@ using GenHTTP.Modules.Placeholders;
 using GenHTTP.Modules.Razor;
 using GenHTTP.Modules.Scriban;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
@@ -40,10 +40,11 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
     #endregion
 
+    [TestClass]
     public class PageTests
     {
         
-        [Fact]
+        [TestMethod]
         public void TestStringPage()
         {
             var layout = Page.From("Hello World!")
@@ -56,13 +57,13 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var content = response.GetContent();
 
-            Assert.NotEqual("Hello World!", content);
-            Assert.Contains("Hello World!", content);
+            Assert.AreNotEqual("Hello World!", content);
+            AssertX.Contains("Hello World!", content);
 
-            Assert.Equal("text/html", response.GetResponseHeader("Content-Type"));
+            Assert.AreEqual("text/html", response.GetResponseHeader("Content-Type"));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestMarkdownPage()
         {
             var md = @"# Hello World!
@@ -80,12 +81,12 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var content = response.GetContent();
 
-            Assert.Contains("<h1 id=\"hello-world\">Hello World!</h1>", content);
+            AssertX.Contains("<h1 id=\"hello-world\">Hello World!</h1>", content);
 
-            Assert.Contains("<pre><code class=\"language-csharp\">// code", content);
+            AssertX.Contains("<pre><code class=\"language-csharp\">// code", content);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestRendering()
         {
             ModelProvider<CustomModel> modelProvider = (r, h) => new CustomModel(r, h);
@@ -107,12 +108,12 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
                 var content = response.GetContent();
 
-                Assert.NotEqual("Hello World!", content);
-                Assert.Contains("Hello World!", content);
+                Assert.AreNotEqual("Hello World!", content);
+                AssertX.Contains("Hello World!", content);
             }
         }
 
-        [Fact]
+        [TestMethod]
         public void TestContentInfo()
         {
             var page = Page.From("Hello world!")
@@ -125,13 +126,13 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var content = response.GetContent();
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
-            Assert.Contains("<title>My Title</title>", content);
-            Assert.Contains("<meta name=\"description\" content=\"My Description\"/>", content);
+            AssertX.Contains("<title>My Title</title>", content);
+            AssertX.Contains("<meta name=\"description\" content=\"My Description\"/>", content);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNoContentInfo()
         {
             var page = Page.From("Hello world!");
@@ -142,13 +143,13 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var content = response.GetContent();
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
-            Assert.Contains("<title>Untitled Page</title>", content);
-            Assert.Contains("<meta name=\"description\" content=\"\"/>", content);
+            AssertX.Contains("<title>Untitled Page</title>", content);
+            AssertX.Contains("<meta name=\"description\" content=\"\"/>", content);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestRouting()
         {
             var providers = new List<IHandlerBuilder>()
@@ -176,11 +177,11 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
                 var content = response.GetContent();
 
-                Assert.Contains("https://google.de|../res/123|../../other/456/|./relative", content);
+                AssertX.Contains("https://google.de|../res/123|../../other/456/|./relative", content);
             }
         }
 
-        [Fact]
+        [TestMethod]
         public void TestRoutingToPath()
         {
             var providers = new List<IHandlerBuilder>()
@@ -201,8 +202,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
                 var content = response.GetContent();
 
-                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-                Assert.Contains("/test/1", content);
+                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+                AssertX.Contains("/test/1", content);
             }
         }
 

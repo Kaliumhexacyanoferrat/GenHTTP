@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
@@ -9,6 +9,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Testing.Acceptance.Engine
 {
 
+    [TestClass]
     public class CompanionTests
     {
 
@@ -32,7 +33,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// <summary>
         /// As a developer, I want to configure the server to easily log to the console.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestConsole()
         {
             using var runner = new TestRunner();
@@ -45,7 +46,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// <summary>
         /// As a developer, I want to add custom companions to get notified by server actions.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestCustom()
         {
             using var runner = new TestRunner();
@@ -60,7 +61,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
             // bad hack, reconsider
             Thread.Sleep(50);
 
-            Assert.True(companion.Called);
+            Assert.IsTrue(companion.Called);
         }
 
     }

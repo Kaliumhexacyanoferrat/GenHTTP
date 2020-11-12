@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -14,6 +14,7 @@ using GenHTTP.Modules.Reflection;
 namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 {
 
+    [TestClass]
     public class ContentTests
     {
 
@@ -60,34 +61,34 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
         #region Tests
 
-        [Fact]
-        public void TestIndex() => Assert.Contains("/c/", GetSitemap());
+        [TestMethod]
+        public void TestIndex() => AssertX.Contains("/c/", GetSitemap());
 
-        [Fact]
-        public void TestComplex() => Assert.Contains("/c/complex/page", GetSitemap());
+        [TestMethod]
+        public void TestComplex() => AssertX.Contains("/c/complex/page", GetSitemap());
 
-        [Fact]
-        public void TestWithParent() => Assert.Contains("/c/with-parent/", GetSitemap());
+        [TestMethod]
+        public void TestWithParent() => AssertX.Contains("/c/with-parent/", GetSitemap());
 
-        [Fact]
-        public void TestOthersIgnored() => Assert.DoesNotContain("/c/ignored/", GetSitemap());
+        [TestMethod]
+        public void TestOthersIgnored() => AssertX.DoesNotContain("/c/ignored/", GetSitemap());
 
-        [Fact]
-        public void TestIgnoredContent() => Assert.DoesNotContain("/c/ignored-content/", GetSitemap());
+        [TestMethod]
+        public void TestIgnoredContent() => AssertX.DoesNotContain("/c/ignored-content/", GetSitemap());
 
-        [Fact]
-        public void TestPostIsIgnored() => Assert.DoesNotContain("/c/post/", GetSitemap());
+        [TestMethod]
+        public void TestPostIsIgnored() => AssertX.DoesNotContain("/c/post/", GetSitemap());
         
-        [Fact]
-        public void TestNoHintsNoContent() => Assert.DoesNotContain("/c/no-hints/", GetSitemap());
+        [TestMethod]
+        public void TestNoHintsNoContent() => AssertX.DoesNotContain("/c/no-hints/", GetSitemap());
 
-        [Fact]
+        [TestMethod]
         public void TestHints()
         {
             var sitemap = GetSitemap();
 
-            Assert.Contains("/c/with-hints/10/", sitemap);
-            Assert.Contains("/c/with-hints/12/", sitemap);
+            AssertX.Contains("/c/with-hints/10/", sitemap);
+            AssertX.Contains("/c/with-hints/12/", sitemap);
         }
 
         #endregion

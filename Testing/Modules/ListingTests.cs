@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Net;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Modules.DirectoryBrowsing;
 using GenHTTP.Modules.IO;
@@ -9,6 +9,7 @@ using GenHTTP.Modules.IO;
 namespace GenHTTP.Testing.Acceptance.Providers
 {
 
+    [TestClass]
     public class ListingTests
     {
 
@@ -16,7 +17,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         /// As an user of a web application, I can view the folders and files available
         /// on root level of a listed directory.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestGetMainListing()
         {
             using var runner = GetEnvironment();
@@ -25,19 +26,19 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var content = response.GetContent();
 
-            Assert.Contains("Subdirectory", content);
-            Assert.Contains("With%20Spaces", content);
+            AssertX.Contains("Subdirectory", content);
+            AssertX.Contains("With%20Spaces", content);
 
-            Assert.Contains("my.txt", content);
+            AssertX.Contains("my.txt", content);
 
-            Assert.DoesNotContain("..", content);
+            AssertX.DoesNotContain("..", content);
         }
 
         /// <summary>
         /// As an user of a web application, I can view the folders and files available
         /// within a subdirectory of a listed directory.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestGetSubdirectory()
         {
             using var runner = GetEnvironment();
@@ -46,7 +47,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var content = response.GetContent();
 
-            Assert.Contains("..", content);
+            AssertX.Contains("..", content);
         }
 
 
@@ -54,24 +55,24 @@ namespace GenHTTP.Testing.Acceptance.Providers
         /// As an user of a web application, I can download the files listed by the
         /// directory listing feature.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestDownload()
         {
             using var runner = GetEnvironment();
 
             using var response = runner.GetResponse("/my.txt");
 
-            Assert.Equal("Hello World!", response.GetContent());
+            Assert.AreEqual("Hello World!", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNonExistingFolder()
         {
             using var runner = GetEnvironment();
 
             using var response = runner.GetResponse("/idonotexist/");
 
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         private TestRunner GetEnvironment()

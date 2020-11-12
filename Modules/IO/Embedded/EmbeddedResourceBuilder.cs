@@ -58,7 +58,7 @@ namespace GenHTTP.Modules.IO.Embedded
 
             var assembly = _Assembly ?? System.Reflection.Assembly.GetCallingAssembly();
 
-            var sourceFile = new FileInfo(assembly.CodeBase);
+            var sourceFile = new FileInfo(assembly.Location);
 
             var modified = _Modified ?? ((sourceFile.Exists) ? sourceFile.LastWriteTimeUtc : DateTime.UtcNow);
 

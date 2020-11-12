@@ -19,7 +19,7 @@ namespace GenHTTP.Modules.Conversion.Providers.Json
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        public ValueTask<object> DeserializeAsync(Stream stream, Type type)
+        public ValueTask<object?> DeserializeAsync(Stream stream, Type type)
         {
             return JsonSerializer.DeserializeAsync(stream, type, OPTIONS);
         }

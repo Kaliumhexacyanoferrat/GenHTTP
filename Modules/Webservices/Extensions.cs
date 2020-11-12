@@ -1,4 +1,6 @@
-﻿using GenHTTP.Modules.Layouting.Provider;
+﻿using System.Diagnostics.CodeAnalysis;
+
+using GenHTTP.Modules.Layouting.Provider;
 
 namespace GenHTTP.Modules.Webservices
 {
@@ -15,7 +17,7 @@ namespace GenHTTP.Modules.Webservices
         /// </summary>
         /// <typeparam name="T">The type of the resource to be added</typeparam>
         /// <param name="path">The path the resource should be available at</param>
-        public static LayoutBuilder AddService<T>(this LayoutBuilder layout, string path) where T : new()
+        public static LayoutBuilder AddService<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(this LayoutBuilder layout, string path) where T : new()
         {
             return layout.Add(path, ServiceResource.From<T>());
         }

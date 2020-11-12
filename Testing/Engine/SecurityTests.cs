@@ -4,7 +4,7 @@ using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Infrastructure;
 
@@ -17,14 +17,15 @@ using System.Threading.Tasks;
 namespace GenHTTP.Testing.Acceptance.Engine
 {
 
+    [TestClass]
     public class SecurityTests
     {
 
         /// <summary>
         /// As a developer I would like to serve my application in a secure manner.
         /// </summary>
-        [Fact]
-        public ValueTask TestSecure()
+        [TestMethod]
+        public Task TestSecure()
         {
             return RunSecure((insec, sec) =>
             {
@@ -33,8 +34,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
                 using var response = request.GetSafeResponse();
 
-                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-                Assert.Equal("Hello Alice!", response.GetContent());
+                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+                Assert.AreEqual("Hello Alice!", response.GetContent());
             });
         }
 
@@ -42,8 +43,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// As a developer, I expect the server to redirect to a secure endpoint
         /// by default.
         /// </summary>
-        [Fact]
-        public ValueTask TestDefaultRedirection()
+        [TestMethod]
+        public Task TestDefaultRedirection()
         {
             return RunSecure((insec, sec) =>
             {
@@ -52,8 +53,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
                 using var response = request.GetSafeResponse();
 
-                Assert.Equal(HttpStatusCode.MovedPermanently, response.StatusCode);
-                Assert.Equal($"https://localhost:{sec}/", response.Headers["Location"]);
+                Assert.AreEqual(HttpStatusCode.MovedPermanently, response.StatusCode);
+                Assert.AreEqual($"https://localhost:{sec}/", response.Headers["Location"]);
             });
         }
 
@@ -61,8 +62,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// As a developer, I expect HTTP requests not to be redirected if
         /// upgrades are allowed but not requested by the client.
         /// </summary>
-        [Fact]
-        public ValueTask TestNoRedirectionWithAllowed()
+        [TestMethod]
+        public Task TestNoRedirectionWithAllowed()
         {
             return RunSecure((insec, sec) =>
             {
@@ -71,7 +72,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
                 using var response = request.GetSafeResponse();
 
-                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             }, mode: SecureUpgrade.Allow);
         }
 
@@ -79,8 +80,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// As I developer, I expect requests to be upgraded if requested
         /// by the client.
         /// </summary>
-        [Fact]
-        public ValueTask TestRedirectionWhenRequested()
+        [TestMethod]
+        public Task TestRedirectionWhenRequested()
         {
             return RunSecure((insec, sec) =>
             {
@@ -90,9 +91,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
                 using var response = request.GetSafeResponse();
 
-                Assert.Equal(HttpStatusCode.TemporaryRedirect, response.StatusCode);
-                Assert.Equal($"https://localhost:{sec}/", response.Headers["Location"]);
-                Assert.Equal($"Upgrade-Insecure-Requests", response.Headers["Vary"]);
+                Assert.AreEqual(HttpStatusCode.TemporaryRedirect, response.StatusCode);
+                Assert.AreEqual($"https://localhost:{sec}/", response.Headers["Location"]);
+                Assert.AreEqual($"Upgrade-Insecure-Requests", response.Headers["Vary"]);
             }, mode: SecureUpgrade.Allow);
         }
 
@@ -100,8 +101,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// As the hoster of a web application, I want my application to enforce strict
         /// transport security, so that man-in-the-middle attacks can be avoided to some extend.
         /// </summary>
-        [Fact]
-        public ValueTask TestTransportPolicy()
+        [TestMethod]
+        public Task TestTransportPolicy()
         {
             return RunSecure((insec, sec) =>
             {
@@ -109,16 +110,16 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
                 using var insecureResponse = insecureRequest.GetSafeResponse();
 
-                Assert.Equal(HttpStatusCode.OK, insecureResponse.StatusCode);
-                Assert.Null(insecureResponse.Headers["Strict-Transport-Security"]);
+                Assert.AreEqual(HttpStatusCode.OK, insecureResponse.StatusCode);
+                Assert.IsNull(insecureResponse.Headers["Strict-Transport-Security"]);
 
                 var secureRequest = WebRequest.CreateHttp($"https://localhost:{sec}");
                 secureRequest.IgnoreSecurityErrors();
 
                 using var secureResponse = secureRequest.GetSafeResponse();
 
-                Assert.Equal(HttpStatusCode.OK, secureResponse.StatusCode);
-                Assert.Equal("max-age=31536000; includeSubDomains; preload", secureResponse.Headers["Strict-Transport-Security"]);
+                Assert.AreEqual(HttpStatusCode.OK, secureResponse.StatusCode);
+                Assert.AreEqual("max-age=31536000; includeSubDomains; preload", secureResponse.Headers["Strict-Transport-Security"]);
 
             }, mode: SecureUpgrade.None);
         }
@@ -127,12 +128,12 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// As the operator of the server, I expect the server to resume
         /// normal operation after a security error has happened.
         /// </summary>
-        [Fact]
-        public ValueTask TestSecurityError()
+        [TestMethod]
+        public Task TestSecurityError()
         {
             return RunSecure((insec, sec) =>
             {
-                Assert.Throws<WebException>(() =>
+                Assert.ThrowsException<WebException>(() =>
                 {
                     var failedRequest = WebRequest.CreateHttp($"https://localhost:{sec}");
                     failedRequest.GetSafeResponse();
@@ -143,7 +144,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
                 using var response = okayRequest.GetSafeResponse();
 
-                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             });
         }
 
@@ -151,12 +152,12 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// As a web developer, I can decide not to return a certificate which will
         /// abort the server SSL handshake.
         /// </summary>
-        [Fact]
-        public ValueTask TestNoCertificate()
+        [TestMethod]
+        public Task TestNoCertificate()
         {
             return RunSecure((insec, sec) =>
             {
-                Assert.Throws<WebException>(() =>
+                Assert.ThrowsException<WebException>(() =>
                 {
                     var failedRequest = WebRequest.CreateHttp($"https://localhost:{sec}");
                     failedRequest.IgnoreSecurityErrors();
@@ -166,7 +167,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
             }, host: "myserver");
         }
 
-        private static async ValueTask RunSecure(Action<ushort, ushort> logic, SecureUpgrade? mode = null, string host = "localhost")
+        private static async Task RunSecure(Action<ushort, ushort> logic, SecureUpgrade? mode = null, string host = "localhost")
         {
             var content = Layout.Create().Index(Content.From(Resource.FromString("Hello Alice!")));
 
@@ -177,8 +178,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
             using var cert = await GetCertificate();
 
             runner.Host.Handler(content)
-                       .Bind(IPAddress.Any, runner.Port)
-                       .Bind(IPAddress.Any, port, new PickyCertificateProvider(host, cert), SslProtocols.Tls12);
+                       .Bind(IPAddress.Any, (ushort)runner.Port)
+                       .Bind(IPAddress.Any, (ushort)port, new PickyCertificateProvider(host, cert), SslProtocols.Tls12);
 
             if (mode != null)
             {
@@ -188,7 +189,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             runner.Start();
 
-            logic(runner.Port, port);
+            logic((ushort)runner.Port, (ushort)port);
         }
 
         private static async ValueTask<X509Certificate2> GetCertificate()

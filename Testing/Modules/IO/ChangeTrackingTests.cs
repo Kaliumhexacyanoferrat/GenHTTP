@@ -1,18 +1,19 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Modules.IO
 {
 
+    [TestClass]
     public class ChangeTrackingTests
     {
 
-        [Fact]
-        public async ValueTask TestChanges()
+        [TestMethod]
+        public async Task TestChanges()
         {
             var file = Path.GetTempFileName();
 
@@ -26,12 +27,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
                 using (var _ = await resource.GetContentAsync()) { }
 
-                Assert.False(await resource.HasChanged());
+                Assert.IsFalse(await resource.HasChanged());
 
                 // modification timestamp is in seconds on unix, so we need another length
                 await File.WriteAllTextAsync(file, "Three");
 
-                Assert.True(await resource.HasChanged());
+                Assert.IsTrue(await resource.HasChanged());
             }
             finally
             {
@@ -39,23 +40,23 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             }
         }
 
-        [Fact]
-        public async ValueTask TestBuildWithTracking()
+        [TestMethod]
+        public async Task TestBuildWithTracking()
         {
-            Assert.True(await Resource.FromAssembly("File.txt").BuildWithTracking().HasChanged());
+            Assert.IsTrue(await Resource.FromAssembly("File.txt").BuildWithTracking().HasChanged());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestMetaInformation()
         {
             var resource = Resource.FromAssembly("File.txt").Build();
 
             var tracked = resource.Track();
 
-            Assert.Equal(resource.Name, tracked.Name);
-            Assert.Equal(resource.Length, tracked.Length);
-            Assert.Equal(resource.Modified, tracked.Modified);
-            Assert.Equal(resource.ContentType, tracked.ContentType);
+            Assert.AreEqual(resource.Name, tracked.Name);
+            Assert.AreEqual(resource.Length, tracked.Length);
+            Assert.AreEqual(resource.Modified, tracked.Modified);
+            Assert.AreEqual(resource.ContentType, tracked.ContentType);
         }
 
     }

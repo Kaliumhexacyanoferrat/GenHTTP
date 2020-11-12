@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Protocol;
 
@@ -13,10 +13,11 @@ using GenHTTP.Modules.Security.Cors;
 namespace GenHTTP.Testing.Acceptance.Modules.Security
 {
 
+    [TestClass]
     public class CorsTests
     {
 
-        [Fact]
+        [TestMethod]
         public void TestPreflight()
         {
             using var runner = GetRunner(CorsPolicy.Permissive());
@@ -27,52 +28,52 @@ namespace GenHTTP.Testing.Acceptance.Modules.Security
 
             using var response = runner.GetResponse(request);
 
-            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestPermissive()
         {
             using var runner = GetRunner(CorsPolicy.Permissive());
 
             using var response = runner.GetResponse("/t");
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
-            Assert.Equal("*", response.GetResponseHeader("Access-Control-Allow-Origin"));
+            Assert.AreEqual("*", response.GetResponseHeader("Access-Control-Allow-Origin"));
 
-            Assert.Equal("*", response.GetResponseHeader("Access-Control-Allow-Methods"));
-            Assert.Equal("*", response.GetResponseHeader("Access-Control-Allow-Headers"));
-            Assert.Equal("*", response.GetResponseHeader("Access-Control-Expose-Headers"));
+            Assert.AreEqual("*", response.GetResponseHeader("Access-Control-Allow-Methods"));
+            Assert.AreEqual("*", response.GetResponseHeader("Access-Control-Allow-Headers"));
+            Assert.AreEqual("*", response.GetResponseHeader("Access-Control-Expose-Headers"));
 
-            Assert.Equal("true", response.GetResponseHeader("Access-Control-Allow-Credentials"));
+            Assert.AreEqual("true", response.GetResponseHeader("Access-Control-Allow-Credentials"));
 
-            Assert.Equal("86400", response.GetResponseHeader("Access-Control-Max-Age"));
+            Assert.AreEqual("86400", response.GetResponseHeader("Access-Control-Max-Age"));
 
-            Assert.Equal("Hello World", response.GetContent());
+            Assert.AreEqual("Hello World", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestRestrictive()
         {
             using var runner = GetRunner(CorsPolicy.Restrictive());
 
             using var response = runner.GetResponse("/t");
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
-            Assert.DoesNotContain("Access-Control-Allow-Origin", response.Headers.AllKeys);
+            AssertX.DoesNotContain("Access-Control-Allow-Origin", response.Headers.AllKeys);
 
-            Assert.DoesNotContain("Access-Control-Allow-Methods", response.Headers.AllKeys);
-            Assert.DoesNotContain("Access-Control-Allow-Headers", response.Headers.AllKeys);
-            Assert.DoesNotContain("Access-Control-Expose-Headers", response.Headers.AllKeys);
+            AssertX.DoesNotContain("Access-Control-Allow-Methods", response.Headers.AllKeys);
+            AssertX.DoesNotContain("Access-Control-Allow-Headers", response.Headers.AllKeys);
+            AssertX.DoesNotContain("Access-Control-Expose-Headers", response.Headers.AllKeys);
 
-            Assert.DoesNotContain("Access-Control-Allow-Credentials", response.Headers.AllKeys);
+            AssertX.DoesNotContain("Access-Control-Allow-Credentials", response.Headers.AllKeys);
 
-            Assert.DoesNotContain("Access-Control-Max-Age", response.Headers.AllKeys);
+            AssertX.DoesNotContain("Access-Control-Max-Age", response.Headers.AllKeys);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestCustom()
         {
             var policy = CorsPolicy.Restrictive()
@@ -86,15 +87,15 @@ namespace GenHTTP.Testing.Acceptance.Modules.Security
 
             using var response = runner.GetResponse(request);
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
-            Assert.Equal("http://google.de", response.GetResponseHeader("Access-Control-Allow-Origin"));
+            Assert.AreEqual("http://google.de", response.GetResponseHeader("Access-Control-Allow-Origin"));
 
-            Assert.Equal("GET", response.GetResponseHeader("Access-Control-Allow-Methods"));
+            Assert.AreEqual("GET", response.GetResponseHeader("Access-Control-Allow-Methods"));
 
-            Assert.Equal("Accept", response.GetResponseHeader("Access-Control-Expose-Headers"));
+            Assert.AreEqual("Accept", response.GetResponseHeader("Access-Control-Expose-Headers"));
 
-            Assert.Equal("Origin", response.GetResponseHeader("Vary"));
+            Assert.AreEqual("Origin", response.GetResponseHeader("Vary"));
         }
 
         private TestRunner GetRunner(CorsPolicyBuilder policy)

@@ -3,7 +3,7 @@ using System.Net;
 using System.Collections.Generic;
 using System.Linq;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 namespace GenHTTP.Testing.Acceptance.Modules.Conversion
 {
 
+    [TestClass]
     public class ConversionTests
     {
 
@@ -88,7 +89,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Conversion
             {
                 var obj = await Format.DeserializeAsync(request.Content!, typeof(T));
 
-                return (await Format.SerializeAsync(request, obj)).Build();
+                return (await Format.SerializeAsync(request, obj!)).Build();
             }
 
         }
@@ -97,13 +98,13 @@ namespace GenHTTP.Testing.Acceptance.Modules.Conversion
 
         #region Tests
 
-        [Fact]
+        [TestMethod]
         public void TestFormFieldSerialization() => RunTest<FormFormat, FieldData>("field=20");
 
-        [Fact]
+        [TestMethod]
         public void TestFormPropertySerialization() => RunTest<FormFormat, PropertyData>("Field=20");
 
-        [Fact]
+        [TestMethod]
         public void TestFormTypeSerialization() => RunTest<FormFormat, TypedData>("Boolean=1&Double=0.2&String=Test&Enum=One");
 
         #endregion
@@ -130,8 +131,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.Conversion
 
             using var response = request.GetSafeResponse();
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(serialized, response.GetContent());
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual(serialized, response.GetContent());
         }
 
         #endregion

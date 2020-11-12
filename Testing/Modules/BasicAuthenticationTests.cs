@@ -12,11 +12,12 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Layouting.Provider;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 {
 
+    [TestClass]
     public class BasicAuthenticationTests
     {
 
@@ -54,7 +55,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
         #endregion
 
-        [Fact]
+        [TestMethod]
         public void TestNoUser()
         {
             var content = GetContent().Authentication(BasicAuthentication.Create());
@@ -63,10 +64,10 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = runner.GetResponse();
 
-            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestValidUser()
         {
             var content = GetContent().Authentication(BasicAuthentication.Create()
@@ -76,10 +77,10 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = GetResponse(runner, "user", "password");
 
-            Assert.Equal("user", response.GetContent());
+            Assert.AreEqual("user", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestInvalidPassword()
         {
             var content = GetContent().Authentication(BasicAuthentication.Create()
@@ -89,10 +90,10 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = GetResponse(runner, "user", "p");
 
-            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestInvalidUser()
         {
             var content = GetContent().Authentication(BasicAuthentication.Create());
@@ -101,10 +102,10 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = GetResponse(runner, "u", "password");
 
-            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestCustomUser()
         {
             var content = GetContent().Authentication(BasicAuthentication.Create((u, p) => new ValueTask<IUser?>(new BasicAuthenticationUser("my"))));
@@ -113,10 +114,10 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = GetResponse(runner, "_", "_");
 
-            Assert.Equal("my", response.GetContent());
+            Assert.AreEqual("my", response.GetContent());
         }
 
-        [Fact]
+        [TestMethod]
         public void TestNoCustomUser()
         {
             var content = GetContent().Authentication(BasicAuthentication.Create((u, p) => new ValueTask<IUser?>()));
@@ -125,10 +126,10 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = GetResponse(runner, "_", "_");
 
-            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestOtherAuthenticationIsNotAccepted()
         {
             var content = GetContent().Authentication(BasicAuthentication.Create());
@@ -141,10 +142,10 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = request.GetSafeResponse();
 
-            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
         
-        [Fact]
+        [TestMethod]
         public void TestNoValidBase64()
         {
             var content = GetContent().Authentication(BasicAuthentication.Create());
@@ -157,7 +158,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = request.GetSafeResponse();
 
-            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         private HttpWebResponse GetResponse(TestRunner runner, string user, string password)

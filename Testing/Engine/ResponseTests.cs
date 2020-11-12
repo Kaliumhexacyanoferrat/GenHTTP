@@ -2,7 +2,7 @@
 using System.Net;
 using System.Collections.Generic;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 namespace GenHTTP.Testing.Acceptance.Engine
 {
 
+    [TestClass]
     public class ResponseTests
     {
 
@@ -61,7 +62,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// <summary>
         /// As a developer, I'd like to use all of the response builders methods.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestProperties()
         {
             var provider = new ResponseProvider();
@@ -72,21 +73,21 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = runner.GetResponse();
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
-            Assert.Equal("Hello World", response.GetContent());
-            Assert.Equal("text/x-custom", response.ContentType);
+            Assert.AreEqual("Hello World", response.GetContent());
+            Assert.AreEqual("text/x-custom", response.ContentType);
 
-            Assert.Equal(provider.Modified.WithoutMS(), response.LastModified.WithoutMS());
-            Assert.NotNull(response.Headers["Expires"]);
+            Assert.AreEqual(provider.Modified.WithoutMS(), response.LastModified.WithoutMS());
+            Assert.IsNotNull(response.Headers["Expires"]);
 
-            Assert.Equal("Test Runner", response.Headers["X-Powered-By"]);
+            Assert.AreEqual("Test Runner", response.Headers["X-Powered-By"]);
         }
 
         /// <summary>
         /// As a client, I'd like a response containing an empty body to return a Content-Length of 0.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestEmptyBody()
         {
             var provider = new ResponseProvider();
@@ -101,11 +102,11 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = request.GetResponse();
 
-            Assert.Equal("", response.ContentType);
+            Assert.AreEqual("", response.ContentType);
 
-            Assert.Equal(0, response.ContentLength);
+            Assert.AreEqual(0, response.ContentLength);
 
-            Assert.Equal("Keep-Alive", response.Headers["Connection"]);
+            Assert.AreEqual("Keep-Alive", response.Headers["Connection"]);
         }
 
     }
