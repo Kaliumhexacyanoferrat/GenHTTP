@@ -51,7 +51,7 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
             {
                 var value = DeriveValue(property.GetValue(Data), property.PropertyType);
 
-                if (value != null)
+                if (value is not null)
                 {
                     query[property.Name] = Convert.ToString(value, CultureInfo.InvariantCulture);
                 }
@@ -61,7 +61,7 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
             {
                 var value = DeriveValue(field.GetValue(Data), field.FieldType);
 
-                if (value != null)
+                if (value is not null)
                 {
                     query[field.Name] = Convert.ToString(value, CultureInfo.InvariantCulture);
                 }
@@ -76,7 +76,7 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
 
         private object? DeriveValue(object? value, Type sourceType)
         {
-            if (sourceType == typeof(bool) && value != null)
+            if (sourceType == typeof(bool) && value is not null)
             {
                 return ((bool)value) ? 1 : 0;
             }

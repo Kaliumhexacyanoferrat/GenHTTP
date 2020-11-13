@@ -32,7 +32,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
-                if (request.Content != null)
+                if (request.Content is not null)
                 {
                     using var reader = new StreamReader(request.Content);
                     Value = reader.ReadToEnd();

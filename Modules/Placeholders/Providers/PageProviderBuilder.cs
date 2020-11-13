@@ -43,7 +43,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         public IHandler Build(IHandler parent)
         {
-            if (_Content == null)
+            if (_Content is null)
             {
                 throw new BuilderMissingPropertyException("Content");
             }

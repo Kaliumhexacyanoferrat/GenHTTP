@@ -272,14 +272,14 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
 
             request.Method = method;
 
-            if (accept != null)
+            if (accept is not null)
             {
                 request.Accept = accept;
             }
 
-            if (body != null)
+            if (body is not null)
             {
-                if (contentType != null)
+                if (contentType is not null)
                 {
                     request.ContentType = contentType;
                 }

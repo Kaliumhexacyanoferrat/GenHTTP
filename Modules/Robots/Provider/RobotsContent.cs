@@ -85,7 +85,7 @@ namespace GenHTTP.Modules.Robots.Provider
                     await writer.WriteLineAsync();
                 }
 
-                if (Sitemap != null)
+                if (Sitemap is not null)
                 {
                     await writer.WriteLineAsync($"Sitemap: {Sitemap}");
                 }

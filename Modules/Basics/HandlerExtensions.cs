@@ -128,7 +128,7 @@ namespace GenHTTP.Modules.Basics
 
         public static string? Route(this IHandler handler, IRequest request, string? route, bool relative = true)
         {
-            if (route != null)
+            if (route is not null)
             {
                 if (route.StartsWith("http") || route.StartsWith('/'))
                 {
@@ -160,7 +160,7 @@ namespace GenHTTP.Modules.Basics
                     {
                         var responsible = resolver.Find(target);
 
-                        if (responsible != null)
+                        if (responsible is not null)
                         {
                             var targetParts = new List<string>(responsible.GetRoot(request, false).Parts);
 
@@ -187,7 +187,7 @@ namespace GenHTTP.Modules.Basics
 
         public static string? Route(this IHandler handler, IRequest request, WebPath? route)
         {
-            if (route != null)
+            if (route is not null)
             {
                 return handler.Route(request, route.ToString());
             }

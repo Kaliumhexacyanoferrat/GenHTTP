@@ -50,7 +50,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
         public IHandler Build(IHandler parent)
         {
-            if (_Upstream == null)
+            if (_Upstream is null)
             {
                 throw new BuilderMissingPropertyException("Upstream");
             }

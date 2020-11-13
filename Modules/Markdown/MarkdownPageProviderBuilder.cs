@@ -44,7 +44,7 @@ namespace GenHTTP.Modules.Markdown
 
         public IHandler Build(IHandler parent)
         {
-            if (_FileProvider == null)
+            if (_FileProvider is null)
             {
                 throw new BuilderMissingPropertyException("File Provider");
             }

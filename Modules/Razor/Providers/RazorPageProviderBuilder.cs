@@ -52,12 +52,12 @@ namespace GenHTTP.Modules.Razor.Providers
 
         public IHandler Build(IHandler parent)
         {
-            if (_TemplateProvider == null)
+            if (_TemplateProvider is null)
             {
                 throw new BuilderMissingPropertyException("Template Provider");
             }
 
-            if (_ModelProvider == null)
+            if (_ModelProvider is null)
             {
                 throw new BuilderMissingPropertyException("Model Provider");
             }

@@ -68,7 +68,7 @@ namespace GenHTTP.Testing.Acceptance
             {
                 var response = e.Response as HttpWebResponse;
 
-                if (response != null)
+                if (response is not null)
                 {
                     return response;
                 }
@@ -89,7 +89,7 @@ namespace GenHTTP.Testing.Acceptance
             {
                 var response = e.Response as HttpWebResponse;
 
-                if (response != null)
+                if (response is not null)
                 {
                     return response;
                 }

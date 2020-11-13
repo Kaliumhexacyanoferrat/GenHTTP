@@ -60,7 +60,7 @@ namespace GenHTTP.Modules.Basics.Providers
 
             var resolved = this.Route(request, route, false);
 
-            if (resolved == null)
+            if (resolved is null)
             {
                 throw new InvalidOperationException($"Unable to determine route to '{route}'");
             }

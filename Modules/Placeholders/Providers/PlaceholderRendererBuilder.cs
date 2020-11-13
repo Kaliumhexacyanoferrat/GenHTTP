@@ -19,7 +19,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         public IRenderer<T> Build()
         {
-            if (_TemplateProvider == null)
+            if (_TemplateProvider is null)
             {
                 throw new BuilderMissingPropertyException("Template Provider");
             }

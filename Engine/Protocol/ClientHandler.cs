@@ -102,7 +102,7 @@ namespace GenHTTP.Engine
 
                 RequestBuilder? request;
 
-                while ((request = await parser.TryParseAsync(buffer).ConfigureAwait(false)) != null)
+                while ((request = await parser.TryParseAsync(buffer).ConfigureAwait(false)) is not null)
                 {
                     if (!await HandleRequest(request).ConfigureAwait(false))
                     {
@@ -122,7 +122,7 @@ namespace GenHTTP.Engine
 
             using var request = builder.Connection(Server, EndPoint, address).Build();
             
-            if (KeepAlive == null)
+            if (KeepAlive is null)
             {
                 KeepAlive = request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? false;
             }

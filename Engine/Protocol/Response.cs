@@ -32,7 +32,7 @@ namespace GenHTTP.Engine
 
         public ICookieCollection Cookies => WriteableCookies;
 
-        public bool HasCookies => (_Cookies != null) && (_Cookies.Count > 0);
+        public bool HasCookies => (_Cookies is not null) && (_Cookies.Count > 0);
 
         public IEditableHeaderCollection Headers => _Headers;
 
@@ -44,7 +44,7 @@ namespace GenHTTP.Engine
             }
             set
             {
-                if (value != null)
+                if (value is not null)
                 {
                     _Headers[field] = value;
                 }

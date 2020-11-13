@@ -38,7 +38,7 @@ namespace GenHTTP.Modules.Websites.Resources
 
         public IHandler Build(IHandler parent)
         {
-            var styles = _Theme != null ? _Theme.Styles.Union(_Styles) : _Styles;
+            var styles = _Theme is not null ? _Theme.Styles.Union(_Styles) : _Styles;
 
             return new StyleRouter(parent, styles.ToList());
         }

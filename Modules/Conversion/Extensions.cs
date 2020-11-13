@@ -20,7 +20,7 @@ namespace GenHTTP.Modules.Conversion
         {
             if (string.IsNullOrEmpty(value))
             {
-                if (Nullable.GetUnderlyingType(type) != null)
+                if (Nullable.GetUnderlyingType(type) is not null)
                 {
                     return null;
                 }

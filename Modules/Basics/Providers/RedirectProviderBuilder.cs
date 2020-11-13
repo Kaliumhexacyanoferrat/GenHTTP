@@ -36,7 +36,7 @@ namespace GenHTTP.Modules.Basics.Providers
 
         public IHandler Build(IHandler parent)
         {
-            if (_Location == null)
+            if (_Location is null)
             {
                 throw new BuilderMissingPropertyException("Location");
             }

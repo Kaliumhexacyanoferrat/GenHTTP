@@ -50,7 +50,7 @@ namespace GenHTTP.Modules.Razor.Providers
 
         private async PooledValueTask<IRazorEngineCompiledTemplate<RazorEngineTemplateBase<T>>> GetTemplate()
         {
-            if (_Template == null || await TemplateProvider.HasChanged())
+            if (_Template is null || await TemplateProvider.HasChanged())
             {
                 _Template = await LoadTemplate();
             }

@@ -79,7 +79,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
                 }
                 else
                 {
-                    if (data == null)
+                    if (data is null)
                     {
                         return null;
                     }
@@ -95,7 +95,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
             var property = model.GetType().GetProperty(name, flags);
 
-            if (property != null)
+            if (property is not null)
             {
                 return property.GetValue(model);
             }

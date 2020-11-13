@@ -152,7 +152,7 @@ namespace GenHTTP.Engine.Infrastructure
 
         public IServer Build()
         {
-            if (_Handler == null)
+            if (_Handler is null)
             {
                 throw new BuilderMissingPropertyException("Handler");
             }

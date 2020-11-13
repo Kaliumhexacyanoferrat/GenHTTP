@@ -62,7 +62,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             try
             {
-                while ((line = reader.ReadLine()) != null)
+                while ((line = reader.ReadLine()) is not null)
                 {
                     if (line.Contains(searchFor))
                     {

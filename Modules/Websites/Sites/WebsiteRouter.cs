@@ -60,12 +60,12 @@ namespace GenHTTP.Modules.Websites.Sites
                 layout.Add(concern);
             }
 
-            if (favicon != null)
+            if (favicon is not null)
             {
                 layout.Add("favicon.ico", Content.From(favicon));
             }
 
-            if (theme.Resources != null)
+            if (theme.Resources is not null)
             {
                 layout.Add("resources", theme.Resources);
             }

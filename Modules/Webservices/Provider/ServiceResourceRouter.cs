@@ -53,7 +53,7 @@ namespace GenHTTP.Modules.Webservices.Provider
             {
                 var attribute = method.GetCustomAttribute<ResourceMethodAttribute>(true);
 
-                if (attribute != null)
+                if (attribute is not null)
                 {
                     var path = DeterminePath(attribute);
 
@@ -66,7 +66,7 @@ namespace GenHTTP.Modules.Webservices.Provider
         {
             var path = metaData.Path;
 
-            if (path != null)
+            if (path is not null)
             {
                 var builder = new StringBuilder(path);
 
@@ -95,7 +95,7 @@ namespace GenHTTP.Modules.Webservices.Provider
         private async ValueTask<IResponse?> GetResponse(IRequest request, IHandler _, object? result)
         {
             // no result = 204
-            if (result == null)
+            if (result is null)
             {
                 return request.Respond().Status(ResponseStatus.NoContent).Build();
             }
@@ -152,7 +152,7 @@ namespace GenHTTP.Modules.Webservices.Provider
             // serialize the result
             var serializer = Serialization.GetSerialization(request);
 
-            if (serializer == null)
+            if (serializer is null)
             {
                 throw new ProviderException(ResponseStatus.UnsupportedMediaType, "Requested format is not supported");
             }

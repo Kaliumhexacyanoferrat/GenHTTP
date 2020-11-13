@@ -43,11 +43,11 @@ namespace GenHTTP.Modules.Compression.Providers
         {
             var response = await Content.HandleAsync(request).ConfigureAwait(false);
 
-            if (response != null)
+            if (response is not null)
             {
-                if (response.ContentEncoding == null)
+                if (response.ContentEncoding is null)
                 {
-                    if (response.Content != null && ShouldCompress(request.Target.Path, response.ContentType?.KnownType))
+                    if (response.Content is not null && ShouldCompress(request.Target.Path, response.ContentType?.KnownType))
                     {
                         if (request.Headers.TryGetValue("Accept-Encoding", out var header))
                         {
@@ -77,7 +77,7 @@ namespace GenHTTP.Modules.Compression.Providers
 
         private bool ShouldCompress(WebPath path, ContentType? type)
         {
-            if (type != null)
+            if (type is not null)
             {
                 switch (type)
                 {
@@ -103,7 +103,7 @@ namespace GenHTTP.Modules.Compression.Providers
                 }
             }
 
-            if (path.File != null)
+            if (path.File is not null)
             {
                 switch (Path.GetExtension(path.File))
                 {

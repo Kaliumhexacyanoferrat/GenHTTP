@@ -45,7 +45,7 @@ namespace GenHTTP.Modules.LoadBalancing.Provider
                                       .Select(n => n.Item1)
                                       .ToList();
 
-            if (priorityGroup != null)
+            if (priorityGroup is not null)
             {
                 // let a random one handle the request
                 if (priorityGroup.Count > 1)

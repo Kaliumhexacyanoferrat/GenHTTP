@@ -36,7 +36,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
                 Append(content, $"./{HttpUtility.UrlPathEncode(dir.Name)}/", dir.Name, null, null);
             }
 
-            foreach (var file in model.Container.GetResources().Where(f => f.Name != null).OrderBy(f => f.Name))
+            foreach (var file in model.Container.GetResources().Where(f => f.Name is not null).OrderBy(f => f.Name))
             {
                 Append(content, $"./{HttpUtility.UrlPathEncode(file.Name)}", file.Name!, file.Length, file.Modified);
             }
@@ -52,7 +52,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
             builder.AppendLine($"  <td><a href=\"{path}\">{name}</a></td>");
             builder.AppendLine($"  <td>{FileSizeFormatter.Format(size)}</td>");
 
-            if (modified != null)
+            if (modified is not null)
             {
                 builder.AppendLine($"  <td>{modified}</td>");
             }

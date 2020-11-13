@@ -25,7 +25,7 @@ namespace GenHTTP.Modules.IO
         {
             var current = target.Current;
 
-            if (current != null)
+            if (current is not null)
             {
                 if (target.Last)
                 {
@@ -93,7 +93,7 @@ namespace GenHTTP.Modules.IO
             {
                 var name = resource.Name;
 
-                if (name != null)
+                if (name is not null)
                 {
                     var resourcePath = path.Edit(false)
                                            .Append(name)

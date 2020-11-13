@@ -42,13 +42,13 @@ namespace GenHTTP.Modules.ClientCaching.Provider
 
             if (request.HasType(RequestMethod.GET, RequestMethod.HEAD))
             {
-                if ((response != null) && (response.Content != null))
+                if ((response is not null) && (response.Content is not null))
                 {
                     var eTag = await CalculateETag(response);
 
                     var cached = request["If-None-Match"];
 
-                    if ((cached != null) && (cached == eTag))
+                    if ((cached is not null) && (cached == eTag))
                     {
                         response.Status = new(ResponseStatus.NotModified);
 
@@ -59,7 +59,7 @@ namespace GenHTTP.Modules.ClientCaching.Provider
                         response.ContentType = null;
                     }
 
-                    if (eTag != null)
+                    if (eTag is not null)
                     {
                         response.Headers[ETAG_HEADER] = eTag;
                     }
@@ -78,11 +78,11 @@ namespace GenHTTP.Modules.ClientCaching.Provider
                 return eTag;
             }
 
-            if (response.Content != null)
+            if (response.Content is not null)
             {
                 var checksum = await response.Content.CalculateChecksumAsync().ConfigureAwait(false);
 
-                if (checksum != null)
+                if (checksum is not null)
                 {
                     return $"\"{checksum}\"";
                 }

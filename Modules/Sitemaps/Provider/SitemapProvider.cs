@@ -62,7 +62,7 @@ namespace GenHTTP.Modules.Sitemaps.Provider
                 into.Add(item);
             }
 
-            if (item.Children != null)
+            if (item.Children is not null)
             {
                 foreach (var child in item.Children)
                 {

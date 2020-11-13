@@ -24,7 +24,7 @@ namespace GenHTTP.Modules.Reflection
         /// <returns><c>true</c>, if the given parameter is a nullable value type</returns>
         public static bool CheckNullable(this ParameterInfo info)
         {
-            return Nullable.GetUnderlyingType(info.ParameterType) != null;
+            return Nullable.GetUnderlyingType(info.ParameterType) is not null;
         }
 
         /// <summary>

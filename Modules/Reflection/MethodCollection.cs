@@ -110,7 +110,7 @@ namespace GenHTTP.Modules.Reflection
         {
             var handler = Methods.FirstOrDefault(m => m == child);
 
-            if (handler != null)
+            if (handler is not null)
             {
                 var match = handler.GetMatchedPath(request);
 
@@ -119,13 +119,13 @@ namespace GenHTTP.Modules.Reflection
                     path.TrailingSlash(true);
                 }
 
-                if (match != null)
+                if (match is not null)
                 {
                     path.Preprend(match);
                 }
                 else
                 {
-                    if (handler.Routing.Segment != null)
+                    if (handler.Routing.Segment is not null)
                     {
                         path.Preprend(handler.Routing.Segment);
                     }

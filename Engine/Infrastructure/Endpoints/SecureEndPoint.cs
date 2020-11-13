@@ -57,7 +57,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
         {
             var stream = await TryAuthenticate(client).ConfigureAwait(false);
 
-            if (stream != null)
+            if (stream is not null)
             {
                 await Handle(client, new PoolBufferedStream(stream)).ConfigureAwait(false);
             }
@@ -97,7 +97,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
         {
             var certificate = Options.Certificate.Provide(hostName);
 
-            if (certificate == null)
+            if (certificate is null)
             {
                 throw new InvalidOperationException($"The provider did not return a certificate to be used for host '{hostName}'");
             }
