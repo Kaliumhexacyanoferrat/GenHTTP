@@ -5,7 +5,7 @@ namespace GenHTTP.Engine.Utilities
 
     public static class NumberStringCache
     {
-        private static ConcurrentDictionary<int, string> _Cache = new ConcurrentDictionary<int, string>();
+        private static ConcurrentDictionary<int, string> _Cache = new();
 
         #region Functionality
 

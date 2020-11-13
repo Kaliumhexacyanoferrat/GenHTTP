@@ -28,7 +28,7 @@ namespace GenHTTP.Engine.Protocol
 
         private NetworkConfiguration Configuration { get; }
 
-        private RequestBuilder Request => _Builder ?? (_Builder = new RequestBuilder());
+        private RequestBuilder Request => _Builder ?? (_Builder = new());
 
         #endregion
 

@@ -18,7 +18,7 @@ namespace GenHTTP.Engine
 
     internal class ClientHandler
     {
-        private static readonly StreamPipeReaderOptions READER_OPTIONS = new StreamPipeReaderOptions(pool: MemoryPool<byte>.Shared, leaveOpen: true);
+        private static readonly StreamPipeReaderOptions READER_OPTIONS = new(pool: MemoryPool<byte>.Shared, leaveOpen: true);
 
         #region Get-/Setter
 

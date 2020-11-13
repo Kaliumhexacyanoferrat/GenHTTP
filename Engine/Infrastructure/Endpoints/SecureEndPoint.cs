@@ -37,12 +37,12 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
         {
             Options = options;
 
-            AuthenticationOptions = new SslServerAuthenticationOptions()
+            AuthenticationOptions = new()
             {
                 EnabledSslProtocols = Options.Protocols,
                 ClientCertificateRequired = false,
                 AllowRenegotiation = true,
-                ApplicationProtocols = new List<SslApplicationProtocol>() { SslApplicationProtocol.Http11 },
+                ApplicationProtocols = new() { SslApplicationProtocol.Http11 },
                 CertificateRevocationCheckMode = X509RevocationMode.NoCheck, // no support for client certificates yet
                 EncryptionPolicy = EncryptionPolicy.RequireEncryption,
                 ServerCertificateSelectionCallback = SelectCertificate

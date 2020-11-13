@@ -7,7 +7,7 @@ namespace GenHTTP.Engine.Protocol
 
     internal class ResponseBuilder : IResponseBuilder
     {
-        private readonly Response _Response = new Response();
+        private readonly Response _Response = new();
 
         #region Get-/Setters
 
@@ -78,13 +78,13 @@ namespace GenHTTP.Engine.Protocol
 
         public IResponseBuilder Status(ResponseStatus status)
         {
-            _Response.Status = new FlexibleResponseStatus(status);
+            _Response.Status = new(status);
             return this;
         }
 
         public IResponseBuilder Status(int status, string reason)
         {
-            _Response.Status = new FlexibleResponseStatus(status, reason);
+            _Response.Status = new(status, reason);
             return this;
         }
 

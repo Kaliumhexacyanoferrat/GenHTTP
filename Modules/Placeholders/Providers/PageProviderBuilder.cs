@@ -11,9 +11,9 @@ namespace GenHTTP.Modules.Placeholders.Providers
     {
         private IResource? _Content;
 
-        private readonly ContentInfoBuilder _Info = new ContentInfoBuilder();
+        private readonly ContentInfoBuilder _Info = new();
 
-        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new();
 
         #region Functionality
 

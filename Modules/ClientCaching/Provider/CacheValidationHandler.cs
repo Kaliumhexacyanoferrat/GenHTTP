@@ -50,7 +50,7 @@ namespace GenHTTP.Modules.ClientCaching.Provider
 
                     if ((cached != null) && (cached == eTag))
                     {
-                        response.Status = new FlexibleResponseStatus(ResponseStatus.NotModified);
+                        response.Status = new(ResponseStatus.NotModified);
 
                         response.Content = null;
 

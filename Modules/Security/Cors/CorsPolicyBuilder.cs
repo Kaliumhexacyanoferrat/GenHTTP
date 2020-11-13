@@ -9,7 +9,7 @@ namespace GenHTTP.Modules.Security.Cors
 
     public class CorsPolicyBuilder : IConcernBuilder
     {
-        private readonly Dictionary<string, OriginPolicy?> _AdditionalPolicies = new Dictionary<string, OriginPolicy?>(4);
+        private readonly Dictionary<string, OriginPolicy?> _AdditionalPolicies = new(4);
 
         private OriginPolicy? _DefaultPolicy;
 

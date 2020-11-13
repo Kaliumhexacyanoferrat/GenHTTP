@@ -34,7 +34,7 @@ namespace GenHTTP.Engine.Protocol
             Reader = reader;
             Configuration = configuration;
 
-            Data = new ReadOnlySequence<byte>();
+            Data = new();
         }
 
         #endregion
@@ -47,7 +47,7 @@ namespace GenHTTP.Engine.Protocol
             {
                 if (Cancellation == null)
                 {
-                    Cancellation = new CancellationTokenSource();
+                    Cancellation = new();
                 }
 
                 try

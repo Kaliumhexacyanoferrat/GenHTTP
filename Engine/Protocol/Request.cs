@@ -58,7 +58,7 @@ namespace GenHTTP.Engine
 
                 if (type != null)
                 {
-                    return _ContentType = new FlexibleContentType(type);
+                    return _ContentType = new(type);
                 }
 
                 return null;

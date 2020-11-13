@@ -31,9 +31,9 @@ namespace GenHTTP.Engine.Infrastructure
         private IHandlerBuilder? _Handler;
         private IServerCompanion? _Companion;
 
-        private readonly List<EndPointConfiguration> _EndPoints = new List<EndPointConfiguration>();
+        private readonly List<EndPointConfiguration> _EndPoints = new();
 
-        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new();
 
         #region Content
 
@@ -163,8 +163,8 @@ namespace GenHTTP.Engine.Infrastructure
 
             if (!endpoints.Any())
             {
-                endpoints.Add(new EndPointConfiguration(IPAddress.Any, _Port, null));
-                endpoints.Add(new EndPointConfiguration(IPAddress.IPv6Any, _Port, null));
+                endpoints.Add(new(IPAddress.Any, _Port, null));
+                endpoints.Add(new(IPAddress.IPv6Any, _Port, null));
             }
 
             var config = new ServerConfiguration(_Development, endpoints, network);

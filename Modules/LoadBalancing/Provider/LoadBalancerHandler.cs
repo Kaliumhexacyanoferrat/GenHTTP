@@ -19,7 +19,7 @@ namespace GenHTTP.Modules.LoadBalancing.Provider
 
         private readonly List<(IHandler, PriorityEvaluation)> _Nodes;
 
-        private static readonly Random _Random = new Random();
+        private static readonly Random _Random = new();
 
         #endregion
 

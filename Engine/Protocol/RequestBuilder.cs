@@ -33,12 +33,12 @@ namespace GenHTTP.Engine.Protocol
 
         private CookieCollection Cookies
         {
-            get { return _Cookies ?? (_Cookies = new CookieCollection()); }
+            get { return _Cookies ?? (_Cookies = new()); }
         }
 
         private ForwardingCollection Forwardings
         {
-            get { return _Forwardings ?? (_Forwardings = new ForwardingCollection()); }
+            get { return _Forwardings ?? (_Forwardings = new()); }
         }
 
         internal HeaderCollection Headers { get; }
@@ -49,7 +49,7 @@ namespace GenHTTP.Engine.Protocol
 
         internal RequestBuilder()
         {
-            Headers = new HeaderCollection();
+            Headers = new();
         }
 
         #endregion
@@ -90,13 +90,13 @@ namespace GenHTTP.Engine.Protocol
 
         public RequestBuilder Type(string type)
         {
-            _RequestMethod = new FlexibleRequestMethod(type);
+            _RequestMethod = new(type);
             return this;
         }
 
         public RequestBuilder Path(WebPath path)
         {
-            _Target = new RoutingTarget(path);
+            _Target = new(path);
             return this;
         }
 

@@ -8,9 +8,9 @@ namespace GenHTTP.Modules.LoadBalancing.Provider
 
     public class LoadBalancerBuilder : IHandlerBuilder<LoadBalancerBuilder>
     {
-        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new();
 
-        private readonly List<(IHandlerBuilder, PriorityEvaluation)> _Nodes = new List<(IHandlerBuilder, PriorityEvaluation)>();
+        private readonly List<(IHandlerBuilder, PriorityEvaluation)> _Nodes = new();
 
         private static readonly PriorityEvaluation DEFAULT_PRIORITY = (_) => Priority.Medium;
 

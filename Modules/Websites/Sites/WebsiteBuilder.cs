@@ -23,11 +23,11 @@ namespace GenHTTP.Modules.Websites.Sites
 
         private IResource? _Favicon;
 
-        private readonly StyleRouterBuilder _Styles = new StyleRouterBuilder();
+        private readonly StyleRouterBuilder _Styles = new();
 
-        private readonly ScriptRouterBuilder _Scripts = new ScriptRouterBuilder();
+        private readonly ScriptRouterBuilder _Scripts = new();
 
-        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new();
 
         private ErrorHandlingProviderBuilder? _ErrorHandling;
 

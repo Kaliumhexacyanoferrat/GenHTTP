@@ -22,13 +22,13 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
     {
         private static uint BUFFER_SIZE = 8192;
 
-        private static readonly HashSet<string> RESERVED_RESPONSE_HEADERS = new HashSet<string>
+        private static readonly HashSet<string> RESERVED_RESPONSE_HEADERS = new()
         {
             "Server", "Date", "Content-Encoding", "Transfer-Encoding", "Content-Type",
             "Connection", "Content-Length", "Keep-Alive"
         };
 
-        private static readonly HashSet<string> RESERVED_REQUEST_HEADERS = new HashSet<string>
+        private static readonly HashSet<string> RESERVED_REQUEST_HEADERS = new()
         {
             "Host", "Connection", "Forwarded", "Upgrade-Insecure-Requests"
         };

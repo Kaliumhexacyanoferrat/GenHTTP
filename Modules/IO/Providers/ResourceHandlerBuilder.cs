@@ -9,7 +9,7 @@ namespace GenHTTP.Modules.IO.Providers
 
     public class ResourceHandlerBuilder : IHandlerBuilder<ResourceHandlerBuilder>
     {
-        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new();
 
         private IResourceTree? _Tree;
 

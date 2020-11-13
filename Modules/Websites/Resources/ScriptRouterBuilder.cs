@@ -10,11 +10,11 @@ namespace GenHTTP.Modules.Websites.Resources
 
     public class ScriptRouterBuilder : IHandlerBuilder<ScriptRouterBuilder>
     {
-        private readonly List<Script> _Scripts = new List<Script>();
+        private readonly List<Script> _Scripts = new();
 
         private ITheme? _Theme;
 
-        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new();
 
         #region Functionality
 

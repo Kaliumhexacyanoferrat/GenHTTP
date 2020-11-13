@@ -28,7 +28,7 @@ namespace GenHTTP.Modules.Scriban.Providers
 
         public ScribanRenderer(IResource templateProvider)
         {
-            TemplateProvider = new ChangeTrackingResource(templateProvider);
+            TemplateProvider = new(templateProvider);
         }
 
         #endregion

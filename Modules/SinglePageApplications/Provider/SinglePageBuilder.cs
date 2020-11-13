@@ -11,7 +11,7 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
     {
         private IResourceTree? _Tree;
 
-        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new();
 
         #region Functionality
 

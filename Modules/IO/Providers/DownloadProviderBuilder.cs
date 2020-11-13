@@ -16,7 +16,7 @@ namespace GenHTTP.Modules.IO.Providers
 
         private FlexibleContentType? _ContentType;
 
-        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new();
 
         #region Functionality
 

@@ -14,7 +14,7 @@ namespace GenHTTP.Modules.Websites.Menues
 
         #region Get-/Setters
 
-        private readonly List<ContentElement> _Menu = new List<ContentElement>();
+        private readonly List<ContentElement> _Menu = new();
 
         #endregion
 

@@ -33,7 +33,7 @@ namespace GenHTTP.Api.Routing
         /// <param name="trailingSlash">Whether the resulting path should end with a slash</param>
         public PathBuilder(bool trailingSlash)
         {
-            _Segments = new List<string>();
+            _Segments = new();
             _TrailingSlash = trailingSlash;
         }
 
@@ -44,7 +44,7 @@ namespace GenHTTP.Api.Routing
         /// <param name="trailingSlash">Whether the resulting path should end with a slash</param>
         public PathBuilder(IEnumerable<string> parts, bool trailingSlash)
         {
-            _Segments = new List<string>(parts);
+            _Segments = new(parts);
             _TrailingSlash = trailingSlash;
         }
 
@@ -55,7 +55,7 @@ namespace GenHTTP.Api.Routing
         /// <param name="path">The path to be parsed</param>
         public PathBuilder(string path)
         {
-            _Segments = new List<string>(path.Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries));
+            _Segments = new(path.Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries));
             _TrailingSlash = path.EndsWith('/');
         }
 

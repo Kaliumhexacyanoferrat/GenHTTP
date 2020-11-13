@@ -79,7 +79,7 @@ namespace GenHTTP.Modules.Websites.Sites
             var scriptRouter = (ScriptRouter)scripts.Build(this);
             var styleRouter = (StyleRouter)styles.Build(this);
 
-            Renderer = new WebsiteRenderer(Theme, Menu, scriptRouter, styleRouter);
+            Renderer = new(Theme, Menu, scriptRouter, styleRouter);
         }
 
         #endregion

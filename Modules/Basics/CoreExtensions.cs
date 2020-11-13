@@ -70,7 +70,7 @@ namespace GenHTTP.Modules.Basics
 
         #region Content types
 
-        private static readonly Dictionary<string, ContentType> CONTENT_TYPES = new Dictionary<string, ContentType>() {
+        private static readonly Dictionary<string, ContentType> CONTENT_TYPES = new() {
             // CSS
             { "css", ContentType.TextCss },
             // HTML

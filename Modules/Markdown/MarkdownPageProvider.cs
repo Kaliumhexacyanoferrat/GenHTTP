@@ -31,7 +31,7 @@ namespace GenHTTP.Modules.Markdown
             Parent = parent;
 
             PageInfo = pageInfo;
-            Renderer = new MarkdownRenderer<T>(fileProvider);
+            Renderer = new(fileProvider);
         }
 
         #endregion

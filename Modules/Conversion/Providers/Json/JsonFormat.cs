@@ -12,7 +12,7 @@ namespace GenHTTP.Modules.Conversion.Providers.Json
 
     public class JsonFormat : ISerializationFormat
     {
-        private static readonly JsonSerializerOptions OPTIONS = new JsonSerializerOptions()
+        private static readonly JsonSerializerOptions OPTIONS = new()
         {
             IgnoreNullValues = true,
             PropertyNameCaseInsensitive = true,

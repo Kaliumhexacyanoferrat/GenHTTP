@@ -11,7 +11,7 @@ namespace GenHTTP.Modules.Sitemaps.Provider
 
     public class SitemapContent : IResponseContent
     {
-        private static readonly XmlWriterSettings SETTINGS = new XmlWriterSettings()
+        private static readonly XmlWriterSettings SETTINGS = new()
         {
             Async = true,
             CloseOutput = false

@@ -13,7 +13,7 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
 
     public class SinglePageProvider : IHandler
     {
-        private static readonly HashSet<string> INDEX_FILES = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
+        private static readonly HashSet<string> INDEX_FILES = new(StringComparer.InvariantCultureIgnoreCase)
         {
             "index.html", "index.htm"
         };

@@ -14,7 +14,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
         private TimeSpan _ConnectTimeout = TimeSpan.FromSeconds(10);
         private TimeSpan _ReadTimeout = TimeSpan.FromSeconds(60);
 
-        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new();
 
         #region Functionality
 

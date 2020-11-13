@@ -10,11 +10,11 @@ namespace GenHTTP.Modules.Websites.Resources
 
     public class StyleRouterBuilder : IHandlerBuilder<StyleRouterBuilder>
     {
-        private readonly List<Style> _Styles = new List<Style>();
+        private readonly List<Style> _Styles = new();
 
         private ITheme? _Theme;
 
-        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new();
 
         #region Functionality
 

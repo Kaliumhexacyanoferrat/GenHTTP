@@ -17,7 +17,7 @@ namespace GenHTTP.Modules.Razor.Providers
 
     public class RazorRenderer<T> : IRenderer<T> where T : class, IBaseModel
     {
-        private readonly static RazorEngine _Engine = new RazorEngine();
+        private readonly static RazorEngine _Engine = new();
 
         private IRazorEngineCompiledTemplate<RazorEngineTemplateBase<T>>? _Template;
 
@@ -31,7 +31,7 @@ namespace GenHTTP.Modules.Razor.Providers
 
         public RazorRenderer(IResource templateProvider)
         {
-            TemplateProvider = new ChangeTrackingResource(templateProvider);
+            TemplateProvider = new(templateProvider);
         }
 
         #endregion

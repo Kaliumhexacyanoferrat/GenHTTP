@@ -8,11 +8,11 @@ namespace GenHTTP.Modules.VirtualHosting.Provider
 
     public class VirtualHostRouterBuilder : IHandlerBuilder<VirtualHostRouterBuilder>
     {
-        private readonly Dictionary<string, IHandlerBuilder> _Hosts = new Dictionary<string, IHandlerBuilder>();
+        private readonly Dictionary<string, IHandlerBuilder> _Hosts = new();
 
         private IHandlerBuilder? _DefaultRoute;
 
-        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new();
 
         #region Functionality
 

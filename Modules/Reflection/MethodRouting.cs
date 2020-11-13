@@ -23,7 +23,7 @@ namespace GenHTTP.Modules.Reflection
         /// The path of the method, converted into a regular
         /// expression to be evaluated at runtime.
         /// </summary>
-        public Regex ParsedPath => _ParsedPath ??= new Regex(_PathExpression, RegexOptions.Compiled);
+        public Regex ParsedPath => _ParsedPath ??= new(_PathExpression, RegexOptions.Compiled);
 
         /// <summary>
         /// The first segment of the raw path, if any.

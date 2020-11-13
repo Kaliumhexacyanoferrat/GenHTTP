@@ -218,7 +218,7 @@ namespace GenHTTP.Api.Protocol
 
         #region Mapping
 
-        private static readonly Dictionary<ContentType, string> MAPPING = new Dictionary<ContentType, string>
+        private static readonly Dictionary<ContentType, string> MAPPING = new() 
         {
             { ContentType.TextHtml, "text/html" },
             { ContentType.TextCss, "text/css" },

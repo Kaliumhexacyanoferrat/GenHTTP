@@ -18,7 +18,7 @@ namespace GenHTTP.Modules.Controllers.Provider
 
     public class ControllerHandler<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T> : IHandler, IHandlerResolver where T : new()
     {
-        private static readonly MethodRouting EMPTY = new MethodRouting("/", "^(/|)$", null, true);
+        private static readonly MethodRouting EMPTY = new("/", "^(/|)$", null, true);
 
         #region Get-/Setters
 
@@ -34,7 +34,7 @@ namespace GenHTTP.Modules.Controllers.Provider
         {
             Parent = parent;
 
-            Provider = new MethodCollection(this, AnalyzeMethods(typeof(T), formats));
+            Provider = new(this, AnalyzeMethods(typeof(T), formats));
         }
 
         private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, SerializationRegistry formats)

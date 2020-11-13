@@ -8,9 +8,9 @@ namespace GenHTTP.Modules.Robots.Provider
 
     public class RobotsProviderBuilder : IHandlerBuilder<RobotsProviderBuilder>
     {
-        private readonly List<RobotsDirective> _Directives = new List<RobotsDirective>();
+        private readonly List<RobotsDirective> _Directives = new();
 
-        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new();
 
         private string? _Sitemap;
 

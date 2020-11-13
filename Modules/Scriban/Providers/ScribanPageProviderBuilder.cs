@@ -14,9 +14,9 @@ namespace GenHTTP.Modules.Scriban.Providers
 
         protected ModelProvider<T>? _ModelProvider;
 
-        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new();
 
-        private readonly ContentInfoBuilder _Info = new ContentInfoBuilder();
+        private readonly ContentInfoBuilder _Info = new();
 
         #region Functionality
 

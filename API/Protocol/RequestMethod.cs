@@ -44,7 +44,7 @@ namespace GenHTTP.Api.Protocol
 
         #region Mapping
 
-        private static readonly Dictionary<string, RequestMethod> MAPPING = new Dictionary<string, RequestMethod>(StringComparer.OrdinalIgnoreCase)
+        private static readonly Dictionary<string, RequestMethod> MAPPING = new(StringComparer.OrdinalIgnoreCase)
         {
             { "GET", RequestMethod.GET },
             { "HEAD", RequestMethod.HEAD },

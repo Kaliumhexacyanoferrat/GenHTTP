@@ -30,7 +30,7 @@ namespace GenHTTP.Modules.Reflection
     /// </remarks>
     public class MethodHandler : IHandler
     {
-        private static readonly FormFormat FORM_FORMAT = new FormFormat();
+        private static readonly FormFormat FORM_FORMAT = new();
 
         private static readonly object?[] NO_ARGUMENTS = new object?[0];
 

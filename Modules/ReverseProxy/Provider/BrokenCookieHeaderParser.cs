@@ -7,8 +7,8 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
     public static class BrokenCookieHeaderParser
     {
-        private static readonly Regex EXPIRATION_FIX = new Regex("expires=[A-Za-z]{3},", RegexOptions.Compiled);
-        private static readonly Regex EXPIRATION_RE_FIX = new Regex("expires=[A-Za-z]{3}-", RegexOptions.Compiled);
+        private static readonly Regex EXPIRATION_FIX = new("expires=[A-Za-z]{3},", RegexOptions.Compiled);
+        private static readonly Regex EXPIRATION_RE_FIX = new("expires=[A-Za-z]{3}-", RegexOptions.Compiled);
 
         public static List<string> GetCookies(string brokenLine)
         {

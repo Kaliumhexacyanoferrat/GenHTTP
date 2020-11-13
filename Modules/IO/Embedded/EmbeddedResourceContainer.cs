@@ -10,9 +10,9 @@ namespace GenHTTP.Modules.IO.Embedded
 
     internal class EmbeddedResourceContainer : IResourceContainer
     {
-        private readonly Dictionary<string, IResourceNode> _Nodes = new Dictionary<string, IResourceNode>();
+        private readonly Dictionary<string, IResourceNode> _Nodes = new();
 
-        private readonly Dictionary<string, IResource> _Resources = new Dictionary<string, IResource>();
+        private readonly Dictionary<string, IResource> _Resources = new();
 
         #region Initialization
 

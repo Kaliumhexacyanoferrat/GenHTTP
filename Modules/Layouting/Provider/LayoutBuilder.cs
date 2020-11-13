@@ -9,7 +9,7 @@ namespace GenHTTP.Modules.Layouting.Provider
     {
         private IHandlerBuilder? _Index, _Fallback;
 
-        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new();
 
         #region Get-/Setters
 

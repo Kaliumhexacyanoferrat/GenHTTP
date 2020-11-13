@@ -19,9 +19,9 @@ namespace GenHTTP.Modules.Webservices.Provider
 
     public class ServiceResourceRouter : IHandler
     {
-        private static readonly MethodRouting EMPTY = new MethodRouting("/", "^(/|)$", null, true);
+        private static readonly MethodRouting EMPTY = new("/", "^(/|)$", null, true);
 
-        private static readonly Regex VAR_PATTERN = new Regex(@"\:([a-z]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex VAR_PATTERN = new(@"\:([a-z]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         #region Get-/Setters
 
@@ -44,7 +44,7 @@ namespace GenHTTP.Modules.Webservices.Provider
             Instance = instance;
             Serialization = formats;
 
-            Methods = new MethodCollection(this, AnalyzeMethods(instance.GetType()));
+            Methods = new(this, AnalyzeMethods(instance.GetType()));
         }
 
         private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type)
