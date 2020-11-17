@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
@@ -30,7 +31,8 @@ namespace GenHTTP.Modules.Razor.Providers
 
         #region Initialization
 
-        public RazorPageProvider(IHandler parent, IResource templateProvider, ModelProvider<T> modelProvider, ContentInfo pageInfo)
+        public RazorPageProvider(IHandler parent, IResource templateProvider, ModelProvider<T> modelProvider, ContentInfo pageInfo,
+                                 List<Assembly> additionalReferences, List<string> additionalUsings)
         {
             Parent = parent;
 
@@ -38,7 +40,10 @@ namespace GenHTTP.Modules.Razor.Providers
             ModelProvider = modelProvider;
             PageInfo = pageInfo;
 
-            Renderer = ModRazor.Template<T>(templateProvider).Build();
+            Renderer = ModRazor.Template<T>(templateProvider)
+                               .AddAssemblyReferences(additionalReferences)
+                               .AddUsings(additionalUsings)
+                               .Build();
         }
 
         #endregion

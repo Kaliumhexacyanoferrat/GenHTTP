@@ -4,11 +4,13 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Content.IO;
+using System;
+using System.Reflection;
 
 namespace GenHTTP.Modules.Razor.Providers
 {
 
-    public class RazorPageProviderBuilder<T> : IHandlerBuilder<RazorPageProviderBuilder<T>>, IContentInfoBuilder<RazorPageProviderBuilder<T>> where T : PageModel
+    public class RazorPageProviderBuilder<T> : IHandlerBuilder<RazorPageProviderBuilder<T>>, IContentInfoBuilder<RazorPageProviderBuilder<T>>, IRazorConfigurationBuilder<RazorPageProviderBuilder<T>> where T : PageModel
     {
         protected IResource? _TemplateProvider;
 
@@ -17,6 +19,10 @@ namespace GenHTTP.Modules.Razor.Providers
         private readonly List<IConcernBuilder> _Concerns = new();
 
         private readonly ContentInfoBuilder _Info = new();
+
+        private readonly List<Assembly> _AdditionalAssemblies = new();
+
+        private readonly List<string> _AditionalUsings = new();
 
         #region Functionality
 
@@ -50,6 +56,36 @@ namespace GenHTTP.Modules.Razor.Providers
             return this;
         }
 
+        public RazorPageProviderBuilder<T> AddUsing(string nameSpace)
+        {
+            _AditionalUsings.Add(nameSpace);
+            return this;
+        }
+
+        public RazorPageProviderBuilder<T> AddAssemblyReference<Type>()
+        {
+            _AdditionalAssemblies.Add(typeof(Type).Assembly);
+            return this;
+        }
+
+        public RazorPageProviderBuilder<T> AddAssemblyReference(Type type)
+        {
+            _AdditionalAssemblies.Add(type.Assembly);
+            return this;
+        }
+
+        public RazorPageProviderBuilder<T> AddAssemblyReference(Assembly assembly)
+        {
+            _AdditionalAssemblies.Add(assembly);
+            return this;
+        }
+
+        public RazorPageProviderBuilder<T> AddAssemblyReference(string assembly)
+        {
+            _AdditionalAssemblies.Add(Assembly.Load(assembly));
+            return this;
+        }
+
         public IHandler Build(IHandler parent)
         {
             if (_TemplateProvider is null)
@@ -62,7 +98,7 @@ namespace GenHTTP.Modules.Razor.Providers
                 throw new BuilderMissingPropertyException("Model Provider");
             }
 
-            return Concerns.Chain(parent, _Concerns, (p) => new RazorPageProvider<T>(p, _TemplateProvider, _ModelProvider, _Info.Build()));
+            return Concerns.Chain(parent, _Concerns, (p) => new RazorPageProvider<T>(p, _TemplateProvider, _ModelProvider, _Info.Build(), _AdditionalAssemblies, _AditionalUsings));
         }
 
         #endregion
