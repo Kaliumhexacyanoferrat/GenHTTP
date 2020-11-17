@@ -29,14 +29,7 @@ namespace GenHTTP.Api.Content
             return this;
         }
 
-        public ContentInfo Build()
-        {
-            return new ContentInfo()
-            {
-                Title = _Title,
-                Description = _Description
-            };
-        }
+        public ContentInfo Build() => new ContentInfo(_Title, _Description);
 
         #endregion
 

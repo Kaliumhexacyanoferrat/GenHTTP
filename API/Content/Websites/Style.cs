@@ -3,27 +3,9 @@
 namespace GenHTTP.Api.Content.Websites
 {
 
-    public class Style
-    {
-
-        #region Get-/Setters
-
-        public string Name { get; }
-
-        public IResource Provider { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public Style(string name, IResource provider)
-        {
-            Name = name;
-            Provider = provider;
-        }
-
-        #endregion
-
-    }
+    /// <summary>
+    /// A stylesheet that can be used within a website.
+    /// </summary>
+    public record Style(string Name, IResource Provider);
 
 }

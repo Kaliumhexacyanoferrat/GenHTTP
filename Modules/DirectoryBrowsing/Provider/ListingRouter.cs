@@ -57,10 +57,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
         {
             return Tree.GetContent(request, this, (path, children) =>
             {
-                var info = new ContentInfo()
-                {
-                    Title = $"Index of {path}"
-                };
+                var info = new ContentInfo($"Index of {path}", null);
 
                 return new ContentElement(path, info, ContentType.TextHtml, children);
             });

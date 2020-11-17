@@ -5,24 +5,21 @@
     /// Meta information regarding an element, allowing templates
     /// to render additional information such as the page title.
     /// </summary>
-    public class ContentInfo
-    {
-
-        #region Get-/Setters
+    public record ContentInfo 
+    (
 
         /// <summary>
         /// The title of this element.
         /// </summary>
-        public string? Title { get; set; }
-
+        string? Title,
+        
         /// <summary>
         /// The description of this element.
         /// </summary>
-        public string? Description { get; set; }
+        string? Description
 
-        #endregion
-
-        #region Initialization
+    )
+    {
 
         /// <summary>
         /// Creates a new content element.
@@ -30,7 +27,10 @@
         /// <returns>The newly created element</returns>
         public static ContentInfoBuilder Create() => new ContentInfoBuilder();
 
-        #endregion
+        /// <summary>
+        /// An empty element with no additional information.
+        /// </summary>
+        public static ContentInfo Empty => new ContentInfo(null, null);
 
     }
 

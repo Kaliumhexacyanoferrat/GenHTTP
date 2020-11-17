@@ -51,7 +51,7 @@ namespace GenHTTP.Api.Content.Templating
 
             if (string.IsNullOrEmpty(Meta.Title))
             {
-                Meta.Title = "Untitled Page";
+                Meta = Meta with { Title = "Untitled Page" };
             }
 
             Request = request;

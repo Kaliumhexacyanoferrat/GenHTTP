@@ -3,30 +3,10 @@
 namespace GenHTTP.Api.Protocol
 {
 
-    public class Forwarding
-    {
-
-        #region Get-/Setters
-
-        public IPAddress? For { get; }
-
-        public string? Host { get; }
-
-        public ClientProtocol? Protocol { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public Forwarding(IPAddress? forIP, string? host, ClientProtocol? protocol)
-        {
-            For = forIP;
-            Host = host;
-            Protocol = protocol;
-        }
-
-        #endregion
-
-    }
+    /// <summary>
+    /// Stores information how a request has been proxied
+    /// to the server.
+    /// </summary>
+    public record Forwarding(IPAddress? For, string? Host, ClientProtocol? Protocol);
 
 }

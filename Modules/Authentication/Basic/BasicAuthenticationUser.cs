@@ -3,25 +3,10 @@
 namespace GenHTTP.Modules.Authentication.Basic
 {
 
-    public class BasicAuthenticationUser : IUser
+    public record BasicAuthenticationUser(string Name) : IUser
     {
 
-        #region Get-/Setters
-
         public string DisplayName => Name;
-
-        public string Name { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public BasicAuthenticationUser(string username)
-        {
-            Name = username;
-        }
-
-        #endregion
 
     }
 

@@ -64,7 +64,7 @@ namespace GenHTTP.Modules.IO
         {
             return node.GetContent(request, handler, (path, children) =>
             {
-                return new ContentElement(path, new ContentInfo(), ContentType.ApplicationForceDownload, children);
+                return new ContentElement(path, ContentInfo.Empty, ContentType.ApplicationForceDownload, children);
             });
         }
 
@@ -101,7 +101,7 @@ namespace GenHTTP.Modules.IO
 
                     var contentType = resource.ContentType ?? new FlexibleContentType(name.GuessContentType() ?? ContentType.ApplicationForceDownload);
 
-                    yield return new ContentElement(resourcePath, new ContentInfo(), contentType);
+                    yield return new ContentElement(resourcePath, ContentInfo.Empty, contentType);
                 }
             }
         }

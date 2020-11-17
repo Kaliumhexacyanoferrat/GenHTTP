@@ -3,30 +3,9 @@
 namespace GenHTTP.Api.Content.Websites
 {
 
-    public class Script
-    {
-
-        #region Get-/Setters
-
-        public string Name { get; }
-
-        public bool Async { get; }
-
-        public IResource Provider { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public Script(string name, bool asynchronous, IResource provider)
-        {
-            Name = name;
-            Async = asynchronous;
-            Provider = provider;
-        }
-
-        #endregion
-
-    }
+    /// <summary>
+    /// A script file that can be used within a website.
+    /// </summary>
+    public record Script(string Name, bool Async, IResource Provider);
 
 }

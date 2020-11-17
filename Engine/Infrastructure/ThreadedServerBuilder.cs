@@ -98,7 +98,7 @@ namespace GenHTTP.Engine.Infrastructure
 
         public IServerBuilder Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider)
         {
-            _EndPoints.Add(new EndPointConfiguration(address, port, new SecurityConfiguration(certificateProvider, SslProtocols.Tls12)));
+            _EndPoints.Add(new EndPointConfiguration(address, port, new SecurityConfiguration(certificateProvider, SslProtocols.Tls12 | SslProtocols.Tls13)));
             return this;
         }
 

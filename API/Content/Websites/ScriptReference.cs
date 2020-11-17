@@ -1,27 +1,9 @@
 ﻿namespace GenHTTP.Api.Content.Websites
 {
 
-    public class ScriptReference
-    {
-
-        #region Get-/Setters
-
-        public string Path { get; }
-
-        public bool Async { get; }
-
-        #endregion
-
-        #region Functionality
-
-        public ScriptReference(string path, bool asynchronous)
-        {
-            Path = path;
-            Async = asynchronous;
-        }
-
-        #endregion
-
-    }
+    /// <summary>
+    /// A reference to a script within a website.
+    /// </summary>
+    public record ScriptReference(string Path, bool Asynchronous);
 
 }
