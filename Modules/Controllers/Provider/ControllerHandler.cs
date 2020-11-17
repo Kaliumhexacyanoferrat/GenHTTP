@@ -18,7 +18,7 @@ namespace GenHTTP.Modules.Controllers.Provider
 
     public class ControllerHandler<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T> : IHandler, IHandlerResolver where T : new()
     {
-        private static readonly MethodRouting EMPTY = new MethodRouting("/", "^(/|)$", null, true);
+        private static readonly MethodRouting EMPTY = new("/", "^(/|)$", null, true);
 
         #region Get-/Setters
 
@@ -34,7 +34,7 @@ namespace GenHTTP.Modules.Controllers.Provider
         {
             Parent = parent;
 
-            Provider = new MethodCollection(this, AnalyzeMethods(typeof(T), formats));
+            Provider = new(this, AnalyzeMethods(typeof(T), formats));
         }
 
         private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, SerializationRegistry formats)
@@ -78,7 +78,7 @@ namespace GenHTTP.Modules.Controllers.Provider
 
             foreach (var parameter in parameters)
             {
-                if (parameter.GetCustomAttribute(typeof(FromPathAttribute), true) != null)
+                if (parameter.GetCustomAttribute(typeof(FromPathAttribute), true) is not null)
                 {
                     if (!parameter.CheckSimple())
                     {
@@ -90,7 +90,7 @@ namespace GenHTTP.Modules.Controllers.Provider
                         throw new InvalidOperationException("Parameters marked as 'FromPath' are not allowed to be nullable");
                     }
 
-                    if (parameter.Name == null)
+                    if (parameter.Name is null)
                     {
                         throw new InvalidOperationException("Parameters marked as 'FromPath' must have a name");
                     }
@@ -117,7 +117,7 @@ namespace GenHTTP.Modules.Controllers.Provider
 
         private async ValueTask<IResponse?> GetResponse(IRequest request, IHandler methodProvider, object? result)
         {
-            if (result == null)
+            if (result is null)
             {
                 return request.Respond()
                               .Status(ResponseStatus.NoContent)

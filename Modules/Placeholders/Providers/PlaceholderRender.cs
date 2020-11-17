@@ -17,7 +17,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
     public class PlaceholderRender<T> : IRenderer<T> where T : class, IBaseModel
     {
-        private readonly static Regex PLACEHOLDER = new Regex(@"\[([a-zA-Z0-9\.]+)\]", RegexOptions.Compiled);
+        private readonly static Regex PLACEHOLDER = new(@"\[([a-zA-Z0-9\.]+)\]", RegexOptions.Compiled);
 
         private string? _Template;
 
@@ -31,7 +31,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         public PlaceholderRender(IResource templateProvider)
         {
-            TemplateProvider = new ChangeTrackingResource(templateProvider);
+            TemplateProvider = new(templateProvider);
         }
 
         #endregion
@@ -79,7 +79,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
                 }
                 else
                 {
-                    if (data == null)
+                    if (data is null)
                     {
                         return null;
                     }
@@ -95,7 +95,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
             var property = model.GetType().GetProperty(name, flags);
 
-            if (property != null)
+            if (property is not null)
             {
                 return property.GetValue(model);
             }

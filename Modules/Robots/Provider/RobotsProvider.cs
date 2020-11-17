@@ -51,7 +51,7 @@ namespace GenHTTP.Modules.Robots.Provider
         {
             string? sitemapUrl = null;
 
-            if (Sitemap != null)
+            if (Sitemap is not null)
             {
                 if (!Sitemap.StartsWith("http"))
                 {

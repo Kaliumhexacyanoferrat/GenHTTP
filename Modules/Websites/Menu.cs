@@ -25,7 +25,7 @@ namespace GenHTTP.Modules.Websites
                 {
                     var responsible = resolver.Find(route);
 
-                    if (responsible != null)
+                    if (responsible is not null)
                     {
                         return responsible.GetContent(request);
                     }

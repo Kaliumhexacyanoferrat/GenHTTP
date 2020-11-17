@@ -37,14 +37,14 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
         {
             var (node, resource) = Tree.Find(request.Target);
 
-            if (resource != null)
+            if (resource is not null)
             {
                 return await Content.From(resource)
                                     .Build(this)
                                     .HandleAsync(request)
                                     .ConfigureAwait(false);
             }
-            else if (node != null)
+            else if (node is not null)
             {
                 return await new ListingProvider(this, node).HandleAsync(request)
                                                             .ConfigureAwait(false);
@@ -57,10 +57,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
         {
             return Tree.GetContent(request, this, (path, children) =>
             {
-                var info = new ContentInfo()
-                {
-                    Title = $"Index of {path}"
-                };
+                var info = new ContentInfo($"Index of {path}", null);
 
                 return new ContentElement(path, info, ContentType.TextHtml, children);
             });

@@ -171,7 +171,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
         {
             var content = Layout.Create().Index(Content.From(Resource.FromString("Hello Alice!")));
 
-            using var runner = new TestRunner(mode == null);
+            using var runner = new TestRunner(mode is null);
 
             var port = TestRunner.NextPort();
 
@@ -181,7 +181,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
                        .Bind(IPAddress.Any, (ushort)runner.Port)
                        .Bind(IPAddress.Any, (ushort)port, new PickyCertificateProvider(host, cert), SslProtocols.Tls12);
 
-            if (mode != null)
+            if (mode is not null)
             {
                 runner.Host.SecureUpgrade(mode.Value);
                 runner.Host.StrictTransport(new StrictTransportPolicy(TimeSpan.FromDays(365), true, true));

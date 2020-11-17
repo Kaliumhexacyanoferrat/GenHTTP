@@ -28,7 +28,7 @@ namespace GenHTTP.Engine.Protocol
 
         private NetworkConfiguration Configuration { get; }
 
-        private RequestBuilder Request => _Builder ?? (_Builder = new RequestBuilder());
+        private RequestBuilder Request => _Builder ?? (_Builder = new());
 
         #endregion
 
@@ -50,7 +50,7 @@ namespace GenHTTP.Engine.Protocol
 
             string? method, protocol;
 
-            if ((method = await ReadToken(buffer, ' ').ConfigureAwait(false)) != null)
+            if ((method = await ReadToken(buffer, ' ').ConfigureAwait(false)) is not null)
             {
                 Request.Type(method);
             }
@@ -59,7 +59,7 @@ namespace GenHTTP.Engine.Protocol
                 return null;
             }
 
-            if ((path = await TryReadPath(buffer).ConfigureAwait(false)) != null)
+            if ((path = await TryReadPath(buffer).ConfigureAwait(false)) is not null)
             {
                 Request.Path(path);
             }
@@ -68,12 +68,12 @@ namespace GenHTTP.Engine.Protocol
                 return null;
             }
 
-            if ((query = await TryReadQuery(buffer).ConfigureAwait(false)) != null)
+            if ((query = await TryReadQuery(buffer).ConfigureAwait(false)) is not null)
             {
                 Request.Query(query);
             }
 
-            if ((protocol = await ReadToken(buffer, '\r', 1, 5).ConfigureAwait(false)) != null)
+            if ((protocol = await ReadToken(buffer, '\r', 1, 5).ConfigureAwait(false)) is not null)
             {
                 Request.Protocol(protocol);
             }
@@ -84,7 +84,7 @@ namespace GenHTTP.Engine.Protocol
 
             while (await TryReadHeader(buffer, Request).ConfigureAwait(false)) { /* nop */ }
 
-            if ((await ReadToken(buffer, '\r', 1).ConfigureAwait(false)) == null)
+            if ((await ReadToken(buffer, '\r', 1).ConfigureAwait(false)) is null)
             {
                 return null;
             }
@@ -121,7 +121,7 @@ namespace GenHTTP.Engine.Protocol
 
             string? part;
 
-            while ((part = await ReadToken(buffer, '/', PATH_ENDING).ConfigureAwait(false)) != null)
+            while ((part = await ReadToken(buffer, '/', PATH_ENDING).ConfigureAwait(false)) is not null)
             {
                 parts.Add(Uri.UnescapeDataString(part));
             }
@@ -129,7 +129,7 @@ namespace GenHTTP.Engine.Protocol
             // find the delimiter (either '?' or ' ')
             var remainder = await ReadToken(buffer, '?') ?? await ReadToken(buffer, ' ');
 
-            if (remainder != null)
+            if (remainder is not null)
             {
                 if (string.IsNullOrEmpty(remainder))
                 {
@@ -171,9 +171,9 @@ namespace GenHTTP.Engine.Protocol
         {
             string? key, value;
 
-            if ((key = await ReadToken(buffer, ':', 1).ConfigureAwait(false)) != null)
+            if ((key = await ReadToken(buffer, ':', 1).ConfigureAwait(false)) is not null)
             {
-                if ((value = await ReadToken(buffer, '\r', 1).ConfigureAwait(false)) != null)
+                if ((value = await ReadToken(buffer, '\r', 1).ConfigureAwait(false)) is not null)
                 {
                     request.Header(key, value);
                     return true;
@@ -187,7 +187,7 @@ namespace GenHTTP.Engine.Protocol
         {
             if (buffer.ReadRequired)
             {
-                if ((await buffer.Read().ConfigureAwait(false)) == null)
+                if ((await buffer.Read().ConfigureAwait(false)) is null)
                 {
                     return null;
                 }
@@ -195,9 +195,9 @@ namespace GenHTTP.Engine.Protocol
 
             var position = buffer.Data.PositionOf((byte)delimiter);
 
-            if (position == null)
+            if (position is null)
             {
-                if ((await buffer.Read(true).ConfigureAwait(false)) == null)
+                if ((await buffer.Read(true).ConfigureAwait(false)) is null)
                 {
                     return null;
                 }
@@ -217,7 +217,7 @@ namespace GenHTTP.Engine.Protocol
         {
             var position = await FindPosition(buffer, delimiter).ConfigureAwait(false);
 
-            if (position != null)
+            if (position is not null)
             {
                 if (skipFirst > 0)
                 {
@@ -231,7 +231,7 @@ namespace GenHTTP.Engine.Protocol
                     {
                         var boundaryPosition = buffer.Data.PositionOf((byte)boundary);
 
-                        if (boundaryPosition != null)
+                        if (boundaryPosition is not null)
                         {
                             if (position.Value.GetInteger() > boundaryPosition.Value.GetInteger())
                             {

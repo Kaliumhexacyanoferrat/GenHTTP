@@ -43,7 +43,7 @@ namespace GenHTTP.Modules.Security.Providers
         {
             var response = await Content.HandleAsync(request).ConfigureAwait(false);
 
-            if (response != null)
+            if (response is not null)
             {
                 if (request.EndPoint.Secure)
                 {

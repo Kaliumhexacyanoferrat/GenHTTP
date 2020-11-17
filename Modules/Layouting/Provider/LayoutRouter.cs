@@ -49,7 +49,7 @@ namespace GenHTTP.Modules.Layouting.Provider
         {
             var current = request.Target.Current;
 
-            if (current != null)
+            if (current is not null)
             {
                 if (Handlers.ContainsKey(current))
                 {
@@ -68,13 +68,13 @@ namespace GenHTTP.Modules.Layouting.Provider
                                    .HandleAsync(request);
                 }
 
-                if (Index != null)
+                if (Index is not null)
                 {
                     return Index.HandleAsync(request);
                 }
             }
 
-            if (Fallback != null)
+            if (Fallback is not null)
             {
                 return Fallback.HandleAsync(request);
             }
@@ -86,12 +86,12 @@ namespace GenHTTP.Modules.Layouting.Provider
         {
             var result = new List<ContentElement>();
 
-            if (Index != null)
+            if (Index is not null)
             {
                 result.AddRange(Index.GetContent(request));
             }
 
-            if (Fallback != null)
+            if (Fallback is not null)
             {
                 result.AddRange(Fallback.GetContent(request));
             }
@@ -106,7 +106,7 @@ namespace GenHTTP.Modules.Layouting.Provider
 
         public void Append(PathBuilder path, IRequest request, IHandler? child = null)
         {
-            if (child != null)
+            if (child is not null)
             {
                 if (child == Index)
                 {
@@ -133,12 +133,12 @@ namespace GenHTTP.Modules.Layouting.Provider
                 return Handlers[segment];
             }
 
-            if (Index != null && segment == "{index}")
+            if (Index is not null && segment == "{index}")
             {
                 return Index;
             }
 
-            if (Fallback != null && segment == "{fallback}")
+            if (Fallback is not null && segment == "{fallback}")
             {
                 return Fallback;
             }

@@ -40,7 +40,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
         {
             var endpoint = new IPEndPoint(configuration.Address, configuration.Port);
 
-            if (configuration.Security == null)
+            if (configuration.Security is null)
             {
                 return new InsecureEndPoint(Server, endpoint, NetworkConfiguration);
             }

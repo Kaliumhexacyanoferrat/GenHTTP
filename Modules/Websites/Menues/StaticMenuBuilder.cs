@@ -14,7 +14,7 @@ namespace GenHTTP.Modules.Websites.Menues
 
         #region Get-/Setters
 
-        private readonly List<ContentElement> _Menu = new List<ContentElement>();
+        private readonly List<ContentElement> _Menu = new();
 
         #endregion
 
@@ -24,7 +24,7 @@ namespace GenHTTP.Modules.Websites.Menues
         {
             List<ContentElement>? childElements = null;
 
-            if (children != null)
+            if (children is not null)
             {
                 childElements = new List<ContentElement>(children.Count);
 

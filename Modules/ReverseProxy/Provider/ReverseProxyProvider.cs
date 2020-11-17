@@ -22,13 +22,13 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
     {
         private static uint BUFFER_SIZE = 8192;
 
-        private static readonly HashSet<string> RESERVED_RESPONSE_HEADERS = new HashSet<string>
+        private static readonly HashSet<string> RESERVED_RESPONSE_HEADERS = new()
         {
             "Server", "Date", "Content-Encoding", "Transfer-Encoding", "Content-Type",
             "Connection", "Content-Length", "Keep-Alive"
         };
 
-        private static readonly HashSet<string> RESERVED_REQUEST_HEADERS = new HashSet<string>
+        private static readonly HashSet<string> RESERVED_REQUEST_HEADERS = new()
         {
             "Host", "Connection", "Forwarded", "Upgrade-Insecure-Requests"
         };
@@ -66,7 +66,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             {
                 var req = ConfigureRequest(request);
 
-                if (request.Content != null && CanSendBody(request))
+                if (request.Content is not null && CanSendBody(request))
                 {
                     using (var inputStream = await req.GetRequestStreamAsync().ConfigureAwait(false))
                     {
@@ -168,7 +168,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
                 {
                     var value = response.Headers[key];
 
-                    if (value != null)
+                    if (value is not null)
                     {
                         if (key == "Location")
                         {
@@ -215,7 +215,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
         private bool HasBody(IRequest request, HttpWebResponse response)
         {
-            return !request.HasType(RequestMethod.HEAD) && response.ContentType != null;
+            return !request.HasType(RequestMethod.HEAD) && response.ContentType is not null;
         }
 
         private string RewriteLocation(string location, IRequest request)
@@ -254,7 +254,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             {
                 var response = e.Response as HttpWebResponse;
 
-                if (response != null)
+                if (response is not null)
                 {
                     return response;
                 }
@@ -276,17 +276,17 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
         {
             var result = new List<string>(2);
 
-            if (forwarding.For != null)
+            if (forwarding.For is not null)
             {
                 result.Add($"for={forwarding.For}");
             }
 
-            if (forwarding.Host != null)
+            if (forwarding.Host is not null)
             {
                 result.Add($"host={forwarding.Host}");
             }
 
-            if (forwarding.Protocol != null)
+            if (forwarding.Protocol is not null)
             {
                 result.Add($"proto={forwarding.Protocol?.ToString() ?? "http"}");
             }

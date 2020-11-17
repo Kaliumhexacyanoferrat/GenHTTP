@@ -25,7 +25,7 @@ namespace GenHTTP.Engine.Protocol
             }
         }
 
-        private PooledDictionary<string, object> Data =>  _Data ?? (_Data = new PooledDictionary<string, object>());
+        private PooledDictionary<string, object> Data =>  _Data ?? (_Data = new());
 
         #endregion
 

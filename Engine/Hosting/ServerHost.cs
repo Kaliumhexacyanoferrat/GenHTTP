@@ -92,7 +92,7 @@ namespace GenHTTP.Engine.Hosting
 
                 var companion = Instance?.Companion;
 
-                if (companion != null)
+                if (companion is not null)
                 {
                     companion.OnServerError(ServerErrorScope.General, e);
                 }

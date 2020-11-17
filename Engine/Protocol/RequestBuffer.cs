@@ -34,7 +34,7 @@ namespace GenHTTP.Engine.Protocol
             Reader = reader;
             Configuration = configuration;
 
-            Data = new ReadOnlySequence<byte>();
+            Data = new();
         }
 
         #endregion
@@ -45,9 +45,9 @@ namespace GenHTTP.Engine.Protocol
         {
             if ((Data.Length == 0) || force)
             {
-                if (Cancellation == null)
+                if (Cancellation is null)
                 {
-                    Cancellation = new CancellationTokenSource();
+                    Cancellation = new();
                 }
 
                 try
@@ -94,7 +94,7 @@ namespace GenHTTP.Engine.Protocol
             {
                 if (disposing)
                 {
-                    if (Cancellation != null)
+                    if (Cancellation is not null)
                     {
                         Cancellation.Dispose();
                         Cancellation = null;

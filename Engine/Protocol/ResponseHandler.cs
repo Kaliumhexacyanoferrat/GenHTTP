@@ -89,7 +89,7 @@ namespace GenHTTP.Engine.Protocol
             return (request.Method.KnownMethod != RequestMethod.HEAD) &&
                    (
                      (response.ContentLength > 0) || (response.Content?.Length > 0) ||
-                     (response.ContentType != null) || (response.ContentEncoding != null)
+                     (response.ContentType is not null) || (response.ContentEncoding is not null)
                    );
         }
 
@@ -126,18 +126,18 @@ namespace GenHTTP.Engine.Protocol
                 await WriteHeaderLine("Content-Type", response.ContentType.Value.RawType).ConfigureAwait(false);
             }
 
-            if (response.ContentEncoding != null)
+            if (response.ContentEncoding is not null)
             {
                 await WriteHeaderLine("Content-Encoding", response.ContentEncoding!).ConfigureAwait(false);
             }
 
-            if (response.ContentLength != null)
+            if (response.ContentLength is not null)
             {
                 await WriteHeaderLine("Content-Length", ConvertToString((ulong)response.ContentLength)).ConfigureAwait(false);
             }
             else
             {
-                if (response.Content != null)
+                if (response.Content is not null)
                 {
                     await WriteHeaderLine("Transfer-Encoding", "chunked").ConfigureAwait(false);
                 }
@@ -147,12 +147,12 @@ namespace GenHTTP.Engine.Protocol
                 }
             }
 
-            if (response.Modified != null)
+            if (response.Modified is not null)
             {
                 await WriteHeaderLine("Last-Modified", (DateTime)response.Modified).ConfigureAwait(false);
             }
 
-            if (response.Expires != null)
+            if (response.Expires is not null)
             {
                 await WriteHeaderLine("Expires", (DateTime)response.Expires).ConfigureAwait(false);
             }
@@ -173,9 +173,9 @@ namespace GenHTTP.Engine.Protocol
 
         private async PooledValueTask WriteBody(IResponse response)
         {
-            if (response.Content != null)
+            if (response.Content is not null)
             {
-                if (response.ContentLength == null)
+                if (response.ContentLength is null)
                 {
                     using var chunked = new ChunkedStream(OutputStream);
 
@@ -215,7 +215,7 @@ namespace GenHTTP.Engine.Protocol
             await Write("=").ConfigureAwait(false);
             await Write(cookie.Value).ConfigureAwait(false);
 
-            if (cookie.MaxAge != null)
+            if (cookie.MaxAge is not null)
             {
                 await Write("; Max-Age=").ConfigureAwait(false);
                 await Write(ConvertToString(cookie.MaxAge.Value)).ConfigureAwait(false);

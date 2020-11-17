@@ -19,7 +19,7 @@ namespace GenHTTP.Modules.LoadBalancing.Provider
 
         private readonly List<(IHandler, PriorityEvaluation)> _Nodes;
 
-        private static readonly Random _Random = new Random();
+        private static readonly Random _Random = new();
 
         #endregion
 
@@ -45,7 +45,7 @@ namespace GenHTTP.Modules.LoadBalancing.Provider
                                       .Select(n => n.Item1)
                                       .ToList();
 
-            if (priorityGroup != null)
+            if (priorityGroup is not null)
             {
                 // let a random one handle the request
                 if (priorityGroup.Count > 1)

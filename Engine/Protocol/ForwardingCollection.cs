@@ -55,7 +55,7 @@ namespace GenHTTP.Engine.Protocol
                     }
                 }
 
-                if ((address != null) || (host != null) || (protocol != null))
+                if ((address is not null) || (host is not null) || (protocol is not null))
                 {
                     yield return new Forwarding(address, host, protocol);
                 }

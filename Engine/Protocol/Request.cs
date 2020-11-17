@@ -49,16 +49,16 @@ namespace GenHTTP.Engine
         {
             get
             {
-                if (_ContentType != null)
+                if (_ContentType is not null)
                 {
                     return _ContentType;
                 }
 
                 var type = this["Content-Type"];
 
-                if (type != null)
+                if (type is not null)
                 {
-                    return _ContentType = new FlexibleContentType(type);
+                    return _ContentType = new(type);
                 }
 
                 return null;

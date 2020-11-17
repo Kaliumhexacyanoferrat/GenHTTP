@@ -23,7 +23,7 @@ namespace GenHTTP.Engine.Utilities
         {
             get
             {
-                if (_Entries == null)
+                if (_Entries is null)
                 {
                     _Entries = POOL.Rent(Capacity);
                 }
@@ -32,7 +32,7 @@ namespace GenHTTP.Engine.Utilities
             }
         }
 
-        private bool HasEntries => _Entries != null;
+        private bool HasEntries => _Entries is not null;
 
         public TValue this[TKey key]
         {
@@ -59,7 +59,7 @@ namespace GenHTTP.Engine.Utilities
                     {
                         if (_Comparer.Equals(Entries[i].Key, key))
                         {
-                            Entries[i] = new KeyValuePair<TKey, TValue>(key, value);
+                            Entries[i] = new(key, value);
                             return;
                         }
                     }
@@ -142,7 +142,7 @@ namespace GenHTTP.Engine.Utilities
         public void Add(TKey key, TValue value)
         {
             CheckResize();
-            Entries[_Index++] = new KeyValuePair<TKey, TValue>(key, value);
+            Entries[_Index++] = new(key, value);
         }
 
         public void Add(KeyValuePair<TKey, TValue> item)

@@ -10,7 +10,7 @@ namespace GenHTTP.Modules.Compression.Providers
 
     public class CompressionConcernBuilder : IConcernBuilder
     {
-        private readonly List<ICompressionAlgorithm> _Algorithms = new List<ICompressionAlgorithm>();
+        private readonly List<ICompressionAlgorithm> _Algorithms = new();
 
         #region Functionality
 

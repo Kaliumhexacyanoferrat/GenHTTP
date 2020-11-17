@@ -9,7 +9,7 @@ namespace GenHTTP.Engine
     internal static class Pattern
     {
         
-        public static readonly Regex GET_PARAMETER = new Regex("([^&=]+)=([^&]*)", RegexOptions.Compiled);
+        public static readonly Regex GET_PARAMETER = new("([^&=]+)=([^&]*)", RegexOptions.Compiled);
         
     }
 

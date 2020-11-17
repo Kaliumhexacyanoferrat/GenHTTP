@@ -1,24 +1,9 @@
 ﻿namespace GenHTTP.Api.Content.Websites
 {
 
-    public class StyleReference
-    {
-
-        #region Get-/Setters
-
-        public string Path { get; }
-
-        #endregion
-
-        #region Functionality
-
-        public StyleReference(string path)
-        {
-            Path = path;
-        }
-
-        #endregion
-
-    }
+    /// <summary>
+    /// A reference to a stylesheet within a website.
+    /// </summary>
+    public record StyleReference(string Path);
 
 }

@@ -42,7 +42,7 @@ namespace GenHTTP.Modules.IO.Providers
         {
             var (_, resource) = Tree.Find(request.Target);
 
-            if (resource != null)
+            if (resource is not null)
             {
                 var type = resource.ContentType ?? new FlexibleContentType(resource.Name?.GuessContentType() ?? ContentType.ApplicationForceDownload);
 

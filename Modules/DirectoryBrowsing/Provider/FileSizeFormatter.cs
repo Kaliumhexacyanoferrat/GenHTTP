@@ -16,7 +16,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
         public static string Format(ulong? bytes)
         {
-            if (bytes != null)
+            if (bytes is not null)
             {
                 var b = (long)bytes;
 

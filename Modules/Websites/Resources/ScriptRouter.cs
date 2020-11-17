@@ -66,7 +66,7 @@ namespace GenHTTP.Modules.Websites.Resources
         {
             var file = request.Target.Current;
 
-            if (file != null)
+            if (file is not null)
             {
                 if (!request.Server.Development)
                 {

@@ -71,7 +71,7 @@ namespace GenHTTP.Modules.IO.Providers
 
             var fileName = FileName ?? Resource.Name;
 
-            if (fileName != null)
+            if (fileName is not null)
             {
                 response.Header("Content-Disposition", $"attachment; filename=\"{fileName}\"");
             }

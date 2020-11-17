@@ -8,11 +8,11 @@ namespace GenHTTP.Engine
 
     internal class Response : IResponse
     {
-        private static FlexibleResponseStatus STATUS_OK = new FlexibleResponseStatus(ResponseStatus.OK);
+        private static FlexibleResponseStatus STATUS_OK = new(ResponseStatus.OK);
 
         private CookieCollection? _Cookies;
 
-        private readonly HeaderCollection _Headers = new HeaderCollection();
+        private readonly HeaderCollection _Headers = new();
 
         #region Get-/Setters
 
@@ -32,7 +32,7 @@ namespace GenHTTP.Engine
 
         public ICookieCollection Cookies => WriteableCookies;
 
-        public bool HasCookies => (_Cookies != null) && (_Cookies.Count > 0);
+        public bool HasCookies => (_Cookies is not null) && (_Cookies.Count > 0);
 
         public IEditableHeaderCollection Headers => _Headers;
 
@@ -44,7 +44,7 @@ namespace GenHTTP.Engine
             }
             set
             {
-                if (value != null)
+                if (value is not null)
                 {
                     _Headers[field] = value;
                 }
@@ -57,7 +57,7 @@ namespace GenHTTP.Engine
 
         internal CookieCollection WriteableCookies
         {
-            get { return _Cookies ??= new CookieCollection(); }
+            get { return _Cookies ??= new(); }
         }
 
         #endregion

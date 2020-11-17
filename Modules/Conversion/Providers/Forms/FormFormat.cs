@@ -29,7 +29,7 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
 
             var constructor = type.GetConstructor(EMPTY_CONSTRUCTOR);
 
-            if (constructor == null)
+            if (constructor is null)
             {
                 throw new ProviderException(ResponseStatus.InternalServerError, $"Instance of type '{type}' cannot be constructed as there is no parameterless constructor");
             }
@@ -38,7 +38,7 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
 
             foreach (var key in query.AllKeys)
             {
-                if (key != null)
+                if (key is not null)
                 {
                     var value = query[key];
 
@@ -46,7 +46,7 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
                     {
                         var property = type.GetProperty(key, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 
-                        if (property != null)
+                        if (property is not null)
                         {
                             property.SetValue(result, value.ConvertTo(property.PropertyType));
                         }
@@ -54,7 +54,7 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
                         {
                             var field = type.GetField(key, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 
-                            if (field != null)
+                            if (field is not null)
                             {
                                 field.SetValue(result, value.ConvertTo(field.FieldType));
                             }
@@ -77,7 +77,7 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
 
         public Dictionary<string, string>? GetContent(IRequest request)
         {
-            if ((request.Content != null) && (request.ContentType != null))
+            if ((request.Content is not null) && (request.ContentType is not null))
             {
                 if (request.ContentType.Value == ContentType.ApplicationWwwFormUrlEncoded)
                 {
@@ -91,7 +91,7 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
                     {
                         var value = query[key];
 
-                        if ((key != null) && (value != null))
+                        if ((key is not null) && (value is not null))
                         {
                             result.Add(key, value);
                         }
@@ -108,7 +108,7 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
         {
             var requestContent = request.Content;
 
-            if (requestContent == null)
+            if (requestContent is null)
             {
                 throw new InvalidOperationException("Request content has to be set");
             }

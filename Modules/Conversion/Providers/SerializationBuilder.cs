@@ -10,7 +10,7 @@ namespace GenHTTP.Modules.Conversion.Providers
     {
         private FlexibleContentType? _Default = null;
 
-        private readonly Dictionary<FlexibleContentType, ISerializationFormat> _Registry = new Dictionary<FlexibleContentType, ISerializationFormat>();
+        private readonly Dictionary<FlexibleContentType, ISerializationFormat> _Registry = new();
 
         #region Functionality
 

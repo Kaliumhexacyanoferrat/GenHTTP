@@ -54,7 +54,7 @@ namespace GenHTTP.Modules.VirtualHosting.Provider
             var host = request.HostWithoutPort();
 
             // try to find a regular route
-            if (host != null)
+            if (host is not null)
             {
                 if (Hosts.ContainsKey(host))
                 {

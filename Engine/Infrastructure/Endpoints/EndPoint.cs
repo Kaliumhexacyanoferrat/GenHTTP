@@ -55,7 +55,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
 
             try
             {
-                Socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                Socket = new(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
                 Socket.Bind(Endpoint);
                 Socket.Listen(Configuration.Backlog);

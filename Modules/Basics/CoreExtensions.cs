@@ -33,7 +33,7 @@ namespace GenHTTP.Modules.Basics
         {
             var host = request.Host;
 
-            if (host != null)
+            if (host is not null)
             {
                 var pos = host.IndexOf(':');
 
@@ -70,7 +70,7 @@ namespace GenHTTP.Modules.Basics
 
         #region Content types
 
-        private static readonly Dictionary<string, ContentType> CONTENT_TYPES = new Dictionary<string, ContentType>() {
+        private static readonly Dictionary<string, ContentType> CONTENT_TYPES = new() {
             // CSS
             { "css", ContentType.TextCss },
             // HTML
@@ -121,7 +121,7 @@ namespace GenHTTP.Modules.Basics
         {
             var extension = Path.GetExtension(fileName);
 
-            if (extension != null && extension.Length > 1)
+            if (extension is not null && extension.Length > 1)
             {
                 extension = extension.Substring(1).ToLower();
 

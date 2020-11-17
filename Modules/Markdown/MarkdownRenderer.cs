@@ -29,7 +29,7 @@ namespace GenHTTP.Modules.Markdown
 
         public MarkdownRenderer(IResource fileProvider)
         {
-            File = new ChangeTrackingResource(fileProvider);
+            File = new(fileProvider);
         }
 
         #endregion

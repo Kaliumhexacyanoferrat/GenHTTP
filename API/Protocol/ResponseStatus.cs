@@ -143,7 +143,7 @@ namespace GenHTTP.Api.Protocol
 
         #region Mapping
 
-        private static readonly Dictionary<ResponseStatus, string> MAPPING = new Dictionary<ResponseStatus, string>
+        private static readonly Dictionary<ResponseStatus, string> MAPPING = new()
         {
             { ResponseStatus.Accepted, "Accepted" },
             { ResponseStatus.BadGateway, "Bad Gateway" },

@@ -10,11 +10,11 @@ namespace GenHTTP.Modules.Websites.Resources
 
     public class ScriptRouterBuilder : IHandlerBuilder<ScriptRouterBuilder>
     {
-        private readonly List<Script> _Scripts = new List<Script>();
+        private readonly List<Script> _Scripts = new();
 
         private ITheme? _Theme;
 
-        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new();
 
         #region Functionality
 
@@ -38,7 +38,7 @@ namespace GenHTTP.Modules.Websites.Resources
 
         public IHandler Build(IHandler parent)
         {
-            var scripts = _Theme != null ? _Theme.Scripts.Union(_Scripts) : _Scripts;
+            var scripts = _Theme is not null ? _Theme.Scripts.Union(_Scripts) : _Scripts;
 
             return Concerns.Chain(parent, _Concerns, (p) => new ScriptRouter(p, scripts.ToList()));
         }

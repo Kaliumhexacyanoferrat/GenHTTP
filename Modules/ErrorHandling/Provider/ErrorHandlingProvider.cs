@@ -43,7 +43,7 @@ namespace GenHTTP.Modules.ErrorHandling.Provider
                 var response = await Content.HandleAsync(request)
                                             .ConfigureAwait(false);
 
-                if (response == null)
+                if (response is null)
                 {
                     return (await Content.GetNotFoundAsync(request).ConfigureAwait(false)).Build();
                 }

@@ -58,7 +58,7 @@ namespace GenHTTP.Modules.Websites.Bundles
 
                     var checksum = await source.CalculateChecksumAsync();
 
-                    if (checksum != null)
+                    if (checksum is not null)
                     {
                         hash = hash * 23 + (ulong)checksum;
                     }

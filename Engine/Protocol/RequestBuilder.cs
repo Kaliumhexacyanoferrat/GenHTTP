@@ -33,12 +33,12 @@ namespace GenHTTP.Engine.Protocol
 
         private CookieCollection Cookies
         {
-            get { return _Cookies ?? (_Cookies = new CookieCollection()); }
+            get { return _Cookies ?? (_Cookies = new()); }
         }
 
         private ForwardingCollection Forwardings
         {
-            get { return _Forwardings ?? (_Forwardings = new ForwardingCollection()); }
+            get { return _Forwardings ?? (_Forwardings = new()); }
         }
 
         internal HeaderCollection Headers { get; }
@@ -49,7 +49,7 @@ namespace GenHTTP.Engine.Protocol
 
         internal RequestBuilder()
         {
-            Headers = new HeaderCollection();
+            Headers = new();
         }
 
         #endregion
@@ -90,13 +90,13 @@ namespace GenHTTP.Engine.Protocol
 
         public RequestBuilder Type(string type)
         {
-            _RequestMethod = new FlexibleRequestMethod(type);
+            _RequestMethod = new(type);
             return this;
         }
 
         public RequestBuilder Path(WebPath path)
         {
-            _Target = new RoutingTarget(path);
+            _Target = new(path);
             return this;
         }
 
@@ -134,22 +134,22 @@ namespace GenHTTP.Engine.Protocol
         {
             try
             {
-                if (_Server == null)
+                if (_Server is null)
                 {
                     throw new BuilderMissingPropertyException("Server");
                 }
 
-                if (_EndPoint == null)
+                if (_EndPoint is null)
                 {
                     throw new BuilderMissingPropertyException("EndPoint");
                 }
 
-                if (_Address == null)
+                if (_Address is null)
                 {
                     throw new BuilderMissingPropertyException("Address");
                 }
 
-                if (_Protocol == null)
+                if (_Protocol is null)
                 {
                     throw new BuilderMissingPropertyException("Protocol");
                 }
@@ -159,7 +159,7 @@ namespace GenHTTP.Engine.Protocol
                     throw new BuilderMissingPropertyException("Type");
                 }
 
-                if (_Target == null)
+                if (_Target is null)
                 {
                     throw new BuilderMissingPropertyException("Target");
                 }
@@ -191,11 +191,11 @@ namespace GenHTTP.Engine.Protocol
 
         private IClientConnection? DetermineClient()
         {
-            if (_Forwardings != null)
+            if (_Forwardings is not null)
             {
                 foreach (var forwarding in Forwardings)
                 {
-                    if (forwarding.For != null)
+                    if (forwarding.For is not null)
                     {
                         return new ClientConnection(forwarding.For, forwarding.Protocol, forwarding.Host);
                     }

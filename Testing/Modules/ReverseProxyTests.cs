@@ -135,7 +135,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
                 var response = _Response.Invoke(request);
 
-                if (response != null)
+                if (response is not null)
                 {
                     return new ValueTask<IResponse?>(response);
                 }

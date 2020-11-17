@@ -9,11 +9,11 @@ namespace GenHTTP.Modules.Websites.Bundles
 
     public class BundleBuilder : IHandlerBuilder<BundleBuilder>
     {
-        private readonly List<IResource> _Items = new List<IResource>();
+        private readonly List<IResource> _Items = new();
 
-        private FlexibleContentType _ContentType = new FlexibleContentType(Api.Protocol.ContentType.ApplicationForceDownload);
+        private FlexibleContentType _ContentType = new(Api.Protocol.ContentType.ApplicationForceDownload);
 
-        private readonly List<IConcernBuilder> _Concerns = new List<IConcernBuilder>();
+        private readonly List<IConcernBuilder> _Concerns = new();
 
         #region Functionality
 

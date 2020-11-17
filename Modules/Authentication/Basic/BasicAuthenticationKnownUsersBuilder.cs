@@ -12,7 +12,7 @@ namespace GenHTTP.Modules.Authentication.Basic
 
     public class BasicAuthenticationKnownUsersBuilder : IConcernBuilder
     {
-        private readonly Dictionary<string, string> _Users = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> _Users = new(StringComparer.OrdinalIgnoreCase);
 
         private string? _Realm;
 

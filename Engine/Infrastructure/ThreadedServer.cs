@@ -39,7 +39,7 @@ namespace GenHTTP.Engine.Infrastructure
             Companion = companion;
             Configuration = configuration;
 
-            _EndPoints = new EndPointCollection(this, configuration.EndPoints, configuration.Network);
+            _EndPoints = new(this, configuration.EndPoints, configuration.Network);
 
             Handler = handler;
         }

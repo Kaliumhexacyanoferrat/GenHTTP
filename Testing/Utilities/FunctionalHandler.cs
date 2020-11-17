@@ -32,9 +32,9 @@ namespace GenHTTP.Testing.Acceptance.Utilities
 
         #region Functionality
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => (_ContentProvider != null) ? _ContentProvider(request) : Enumerable.Empty<ContentElement>();
+        public IEnumerable<ContentElement> GetContent(IRequest request) => (_ContentProvider is not null) ? _ContentProvider(request) : Enumerable.Empty<ContentElement>();
 
-        public ValueTask<IResponse?> HandleAsync(IRequest request) => new ValueTask<IResponse?>((_ResponseProvider != null) ? _ResponseProvider(request) : null);
+        public ValueTask<IResponse?> HandleAsync(IRequest request) => new ValueTask<IResponse?>((_ResponseProvider is not null) ? _ResponseProvider(request) : null);
 
         #endregion
 

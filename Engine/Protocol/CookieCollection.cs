@@ -39,7 +39,7 @@ namespace GenHTTP.Engine.Protocol
 
                 if (index > -1)
                 {
-                    result.Add(new Cookie(kv.Substring(0, index), kv.Substring(index + 1)));
+                    result.Add(new(kv.Substring(0, index), kv.Substring(index + 1)));
                 }
             }
 

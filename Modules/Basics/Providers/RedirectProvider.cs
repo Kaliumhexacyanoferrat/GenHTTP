@@ -11,7 +11,7 @@ namespace GenHTTP.Modules.Basics.Providers
 
     public class RedirectProvider : IHandler
     {
-        private static readonly Regex PROTOCOL_MATCHER = new Regex("^[a-zA-Z_-]+://", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex PROTOCOL_MATCHER = new("^[a-zA-Z_-]+://", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         #region Get-/Setters
 
@@ -60,7 +60,7 @@ namespace GenHTTP.Modules.Basics.Providers
 
             var resolved = this.Route(request, route, false);
 
-            if (resolved == null)
+            if (resolved is null)
             {
                 throw new InvalidOperationException($"Unable to determine route to '{route}'");
             }

@@ -62,7 +62,7 @@ namespace GenHTTP.Modules.Security.Cors
                 response = await Content.HandleAsync(request).ConfigureAwait(false);
             }
 
-            if ((response != null) && (policy != null))
+            if ((response is not null) && (policy is not null))
             {
                 ConfigureResponse(response, origin, policy);
             }
@@ -106,7 +106,7 @@ namespace GenHTTP.Modules.Security.Cors
         {
             var origin = request["Origin"];
 
-            if (origin != null)
+            if (origin is not null)
             {
                 if (AdditionalPolicies.TryGetValue(origin, out var policy))
                 {
@@ -119,7 +119,7 @@ namespace GenHTTP.Modules.Security.Cors
 
         private string GetListOrWildcard(List<string>? values)
         {
-            if (values != null)
+            if (values is not null)
             {
                 return string.Join(", ", values);
             }
@@ -129,7 +129,7 @@ namespace GenHTTP.Modules.Security.Cors
 
         private string GetListOrWildcard(List<FlexibleRequestMethod>? values)
         {
-            if (values != null)
+            if (values is not null)
             {
                 return string.Join(", ", values.Select(v => v.RawMethod));
             }
@@ -137,7 +137,7 @@ namespace GenHTTP.Modules.Security.Cors
             return ALLOW_ANY;
         }
 
-        private bool HasValue<T>(List<T>? list) => (list == null) || (list.Count > 0);
+        private bool HasValue<T>(List<T>? list) => (list is null) || (list.Count > 0);
 
         #endregion
 

@@ -30,7 +30,7 @@ namespace GenHTTP.Modules.Reflection
     /// </remarks>
     public class MethodHandler : IHandler
     {
-        private static readonly FormFormat FORM_FORMAT = new FormFormat();
+        private static readonly FormFormat FORM_FORMAT = new();
 
         private static readonly object?[] NO_ARGUMENTS = new object?[0];
 
@@ -135,7 +135,7 @@ namespace GenHTTP.Modules.Reflection
                     // input stream
                     if (par.ParameterType == typeof(Stream))
                     {
-                        if (request.Content == null)
+                        if (request.Content is null)
                         {
                             throw new ProviderException(ResponseStatus.BadRequest, "Request body expected");
                         }
@@ -144,10 +144,10 @@ namespace GenHTTP.Modules.Reflection
                         continue;
                     }
 
-                    if ((par.Name != null) && par.CheckSimple())
+                    if ((par.Name is not null) && par.CheckSimple())
                     {
                         // is there a named parameter?
-                        if (sourceParameters != null)
+                        if (sourceParameters is not null)
                         {
                             var sourceArgument = sourceParameters.Groups[par.Name];
 
@@ -166,7 +166,7 @@ namespace GenHTTP.Modules.Reflection
                         }
 
                         // is there a parameter from the body?
-                        if (bodyArguments != null)
+                        if (bodyArguments is not null)
                         {
                             if (bodyArguments.TryGetValue(par.Name, out var bodyValue))
                             {
@@ -183,12 +183,12 @@ namespace GenHTTP.Modules.Reflection
                         // deserialize from body
                         var deserializer = Serialization.GetDeserialization(request);
 
-                        if (deserializer == null)
+                        if (deserializer is null)
                         {
                             throw new ProviderException(ResponseStatus.UnsupportedMediaType, "Requested format is not supported");
                         }
 
-                        if (request.Content == null)
+                        if (request.Content is null)
                         {
                             throw new ProviderException(ResponseStatus.BadRequest, "Request body expected");
                         }
@@ -222,7 +222,7 @@ namespace GenHTTP.Modules.Reflection
             }
             catch (TargetInvocationException e)
             {
-                if (e.InnerException != null)
+                if (e.InnerException is not null)
                 {
                     ExceptionDispatchInfo.Capture(e.InnerException)
                                                    .Throw();
@@ -254,13 +254,13 @@ namespace GenHTTP.Modules.Reflection
 
         private List<ContentHint> GetHints(IRequest request)
         {
-            if (MetaData.ContentHints != null)
+            if (MetaData.ContentHints is not null)
             {
                 if (typeof(IContentHints).IsAssignableFrom(MetaData.ContentHints))
                 {
                     var constructor = MetaData.ContentHints.GetConstructor(new Type[0]);
 
-                    if (constructor != null)
+                    if (constructor is not null)
                     {
                         var obj = constructor.Invoke(new object[0]);
 
@@ -335,7 +335,7 @@ namespace GenHTTP.Modules.Reflection
                 }
 
                 // set from the given input set
-                if ((par.Name != null) && input.TryGetValue(par.Name, out var value))
+                if ((par.Name is not null) && input.TryGetValue(par.Name, out var value))
                 {
                     targetArguments[i] = value;
                     continue;
@@ -356,7 +356,7 @@ namespace GenHTTP.Modules.Reflection
                 {
                     if (input.TryGetValue(segment.Substring(1), out var value))
                     {
-                        if (value != null)
+                        if (value is not null)
                         {
                             resolved.Append(Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty);
                         }

@@ -25,7 +25,7 @@ namespace GenHTTP.Modules.IO
         {
             var current = target.Current;
 
-            if (current != null)
+            if (current is not null)
             {
                 if (target.Last)
                 {
@@ -64,7 +64,7 @@ namespace GenHTTP.Modules.IO
         {
             return node.GetContent(request, handler, (path, children) =>
             {
-                return new ContentElement(path, new ContentInfo(), ContentType.ApplicationForceDownload, children);
+                return new ContentElement(path, ContentInfo.Empty, ContentType.ApplicationForceDownload, children);
             });
         }
 
@@ -93,7 +93,7 @@ namespace GenHTTP.Modules.IO
             {
                 var name = resource.Name;
 
-                if (name != null)
+                if (name is not null)
                 {
                     var resourcePath = path.Edit(false)
                                            .Append(name)
@@ -101,7 +101,7 @@ namespace GenHTTP.Modules.IO
 
                     var contentType = resource.ContentType ?? new FlexibleContentType(name.GuessContentType() ?? ContentType.ApplicationForceDownload);
 
-                    yield return new ContentElement(resourcePath, new ContentInfo(), contentType);
+                    yield return new ContentElement(resourcePath, ContentInfo.Empty, contentType);
                 }
             }
         }

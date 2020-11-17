@@ -53,7 +53,7 @@ namespace GenHTTP.Modules.IO.Embedded
         {
             var content = Source.GetManifestResourceStream(QualifiedName) ?? throw new InvalidOperationException($"Unable to resolve resource '{QualifiedName}' in assembly '{Source}'");
             
-            if (_Length == null)
+            if (_Length is null)
             {
                 _Length = (ulong)content.Length;
             }
@@ -63,7 +63,7 @@ namespace GenHTTP.Modules.IO.Embedded
 
         public async ValueTask<ulong> CalculateChecksumAsync()
         {
-            if (_Checksum == null)
+            if (_Checksum is null)
             {
                 using var stream = await GetContentAsync();
 
