@@ -1,7 +1,7 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Web;
+
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 
@@ -25,13 +25,20 @@ namespace GenHTTP.Modules.Razor.Providers
 
         public ChangeTrackingResource TemplateProvider { get; }
 
+        private List<Assembly> AdditionalReferences { get; }
+
+        private List<string> AdditionalUsings { get; }
+
         #endregion
 
         #region Initialization
 
-        public RazorRenderer(IResource templateProvider)
+        public RazorRenderer(IResource templateProvider, List<Assembly> additionalReferences, List<string> additionalUsings)
         {
             TemplateProvider = new(templateProvider);
+
+            AdditionalReferences = additionalReferences;
+            AdditionalUsings = additionalUsings;
         }
 
         #endregion
@@ -62,18 +69,25 @@ namespace GenHTTP.Modules.Razor.Providers
         {
             return await _Engine.CompileAsync<RazorEngineTemplateBase<T>>(await TemplateProvider.GetResourceAsStringAsync(), (builder) =>
             {
-                builder.AddAssemblyReferenceByName("System.Collections");
-
-                builder.AddAssemblyReference(typeof(HttpUtility));
-                builder.AddUsing("System.Web");
-
-                builder.AddAssemblyReference(Assembly.GetCallingAssembly());
-
                 builder.AddAssemblyReferenceByName("GenHTTP.Api");
                 builder.AddAssemblyReferenceByName("GenHTTP.Modules.Razor");
 
+                builder.AddAssemblyReferenceByName("System.Collections");
+
+                builder.AddAssemblyReference(Assembly.GetCallingAssembly());
+
+                foreach (var reference in AdditionalReferences)
+                {
+                    builder.AddAssemblyReference(reference);
+                }
+
                 builder.AddUsing("GenHTTP.Modules.Razor");
                 builder.AddUsing("GenHTTP.Modules.Razor.Providers");
+
+                foreach (var nameSpace in AdditionalUsings)
+                {
+                    builder.AddUsing(nameSpace);
+                }
             });
         }
 

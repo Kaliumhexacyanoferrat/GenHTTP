@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 
 namespace GenHTTP.Api.Content.Templating
 {
@@ -7,7 +8,7 @@ namespace GenHTTP.Api.Content.Templating
     /// Allows to render models of the given type.
     /// </summary>
     /// <typeparam name="T">The type of the model to be rendered</typeparam>
-    public interface IRenderer<in T> where T : class, IBaseModel
+    public interface IRenderer<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] in T> where T : class, IBaseModel
     {
 
         /// <summary>
