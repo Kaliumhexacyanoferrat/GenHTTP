@@ -12,7 +12,7 @@ To get familiar with the framework, follow the official <a href="https://genhttp
 
 ## Building the Server
 
-To build the server from source, clone this repository and run the playground project launcher for .NET Core:
+To build the server from source, clone this repository and run the playground project launcher for .NET 5:
 
 ```sh
 git clone https://github.com/Kaliumhexacyanoferrat/GenHTTP.git
@@ -34,4 +34,4 @@ The web server was originally developed in 2008 to run on a netbook with an Inte
 
 ## Thanks
 
-- [.NET Core](https://github.com/dotnet/core) for a nice platform
+- [.NET 5](https://github.com/dotnet/core) for a nice platform
