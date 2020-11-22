@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
+
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Providers;
 using GenHTTP.Modules.Conversion.Providers.Forms;
@@ -30,9 +31,7 @@ namespace GenHTTP.Modules.Reflection
     /// </remarks>
     public class MethodHandler : IHandler
     {
-        private static readonly FormFormat FORM_FORMAT = new();
-
-        private static readonly object?[] NO_ARGUMENTS = new object?[0];
+        private static readonly object?[] NO_ARGUMENTS = Array.Empty<object?>();
 
         #region Get-/Setters
 
@@ -112,7 +111,7 @@ namespace GenHTTP.Modules.Reflection
             {
                 var targetArguments = new object?[targetParameters.Length];
 
-                var bodyArguments = (targetParameters.Length > 0) ? FORM_FORMAT.GetContent(request) : null;
+                var bodyArguments = (targetParameters.Length > 0) ? FormFormat.GetContent(request) : null;
 
                 for (int i = 0; i < targetParameters.Length; i++)
                 {
@@ -258,11 +257,11 @@ namespace GenHTTP.Modules.Reflection
             {
                 if (typeof(IContentHints).IsAssignableFrom(MetaData.ContentHints))
                 {
-                    var constructor = MetaData.ContentHints.GetConstructor(new Type[0]);
+                    var constructor = MetaData.ContentHints.GetConstructor(Array.Empty<Type>());
 
                     if (constructor is not null)
                     {
-                        var obj = constructor.Invoke(new object[0]);
+                        var obj = constructor.Invoke(Array.Empty<object>());
 
                         if (obj is IContentHints hints)
                         {
@@ -354,7 +353,7 @@ namespace GenHTTP.Modules.Reflection
             {
                 if (segment.StartsWith(':'))
                 {
-                    if (input.TryGetValue(segment.Substring(1), out var value))
+                    if (input.TryGetValue(segment[1..], out var value))
                     {
                         if (value is not null)
                         {

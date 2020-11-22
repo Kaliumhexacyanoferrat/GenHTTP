@@ -1,8 +1,10 @@
-﻿using PooledAwait;
-using System.Buffers;
+﻿using System.Buffers;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System;
+
+using PooledAwait;
 
 namespace GenHTTP.Engine.Utilities
 {
@@ -97,7 +99,7 @@ namespace GenHTTP.Engine.Utilities
                 {
                     await self.WriteBufferAsync(cancellationToken).ConfigureAwait(false);
 
-                    await self.Stream.WriteAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
+                    await self.Stream.WriteAsync(buffer.AsMemory(offset, count), cancellationToken).ConfigureAwait(false);
                 }
             }
         }
@@ -135,7 +137,7 @@ namespace GenHTTP.Engine.Utilities
         {
             if (Current > 0)
             {
-                await Stream.WriteAsync(Buffer, 0, Current, cancellationToken).ConfigureAwait(false);
+                await Stream.WriteAsync(Buffer.AsMemory(0, Current), cancellationToken).ConfigureAwait(false);
 
                 Current = 0;
             }

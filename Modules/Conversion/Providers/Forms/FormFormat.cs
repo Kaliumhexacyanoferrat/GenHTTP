@@ -15,9 +15,9 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
 
     public class FormFormat : ISerializationFormat
     {
-        private static readonly Type[] EMPTY_CONSTRUCTOR = new Type[0];
+        private static readonly Type[] EMPTY_CONSTRUCTOR = Array.Empty<Type>();
 
-        private static readonly object[] EMPTY_ARGS = new object[0];
+        private static readonly object[] EMPTY_ARGS = Array.Empty<object>();
 
         public async ValueTask<object?> DeserializeAsync(Stream stream, Type type)
         {
@@ -75,7 +75,7 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
             return new ValueTask<IResponseBuilder>(result);
         }
 
-        public Dictionary<string, string>? GetContent(IRequest request)
+        public static Dictionary<string, string>? GetContent(IRequest request)
         {
             if ((request.Content is not null) && (request.ContentType is not null))
             {
@@ -104,7 +104,7 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
             return null;
         }
 
-        private string GetRequestContent(IRequest request)
+        private static string GetRequestContent(IRequest request)
         {
             var requestContent = request.Content;
 

@@ -54,7 +54,7 @@ namespace GenHTTP.Modules.Authentication.Basic
                 return GetChallenge(request);
             }
 
-            if (!TryDecode(authHeader.Substring(6), out var credentials))
+            if (!TryDecode(authHeader[6..], out var credentials))
             {
                 return GetChallenge(request);
             }
@@ -79,7 +79,7 @@ namespace GenHTTP.Modules.Authentication.Basic
                           .Build();
         }
 
-        private bool TryDecode(string header, out (string username, string password) credentials)
+        private static bool TryDecode(string header, out (string username, string password) credentials)
         {
             try
             {
@@ -90,7 +90,7 @@ namespace GenHTTP.Modules.Authentication.Basic
 
                 if ((colon > -1) && (str.Length > colon))
                 {
-                    credentials = (str.Substring(0, colon), str.Substring(colon + 1));
+                    credentials = (str.Substring(0, colon), str[(colon + 1)..]);
                     return true;
                 }
             }

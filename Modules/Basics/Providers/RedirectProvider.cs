@@ -1,10 +1,11 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Basics.Providers
 {
@@ -70,7 +71,7 @@ namespace GenHTTP.Modules.Basics.Providers
             return $"{protocol}{request.Host}{resolved}";
         }
 
-        private ResponseStatus MapStatus(IRequest request, bool temporary)
+        private static ResponseStatus MapStatus(IRequest request, bool temporary)
         {
             if (request.HasType(RequestMethod.GET, RequestMethod.HEAD))
             {

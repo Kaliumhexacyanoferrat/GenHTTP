@@ -74,7 +74,7 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
             await writer.WriteAsync(replaced);
         }
 
-        private object? DeriveValue(object? value, Type sourceType)
+        private static object? DeriveValue(object? value, Type sourceType)
         {
             if (sourceType == typeof(bool) && value is not null)
             {

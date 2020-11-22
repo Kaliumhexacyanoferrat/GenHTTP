@@ -75,7 +75,7 @@ namespace GenHTTP.Modules.Compression.Providers
             return response;
         }
 
-        private bool ShouldCompress(WebPath path, ContentType? type)
+        private static bool ShouldCompress(WebPath path, ContentType? type)
         {
             if (type is not null)
             {

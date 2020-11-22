@@ -46,7 +46,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
             return new ValueTask<string>(content.ToString());
         }
 
-        private void Append(StringBuilder builder, string path, string name, ulong? size, DateTime? modified)
+        private static void Append(StringBuilder builder, string path, string name, ulong? size, DateTime? modified)
         {
             builder.AppendLine("<tr>");
             builder.AppendLine($"  <td><a href=\"{path}\">{name}</a></td>");

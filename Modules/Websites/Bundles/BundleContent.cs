@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -42,7 +43,7 @@ namespace GenHTTP.Modules.Websites.Bundles
 
                 await source.CopyPooledAsync(target, bufferSize);
 
-                await target.WriteAsync(_NewLine, 0, 1);
+                await target.WriteAsync(_NewLine.AsMemory());
             }
         }
 

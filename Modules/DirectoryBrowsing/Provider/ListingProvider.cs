@@ -48,7 +48,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();
 
-        private ContentInfo GetPageInfo(IRequest request)
+        private static ContentInfo GetPageInfo(IRequest request)
         {
             return ContentInfo.Create()
                               .Title($"Index of {request.Target.Path}")

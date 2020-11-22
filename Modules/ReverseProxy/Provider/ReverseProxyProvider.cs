@@ -20,7 +20,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
     public class ReverseProxyProvider : IHandler
     {
-        private static uint BUFFER_SIZE = 8192;
+        private static readonly uint BUFFER_SIZE = 8192;
 
         private static readonly HashSet<string> RESERVED_RESPONSE_HEADERS = new()
         {
@@ -137,7 +137,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             return Upstream + request.Target.GetRemaining().ToString(true) + GetQueryString(request);
         }
 
-        private string GetQueryString(IRequest request)
+        private static string GetQueryString(IRequest request)
         {
             if (request.Query.Count > 0)
             {
@@ -208,12 +208,12 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             return builder;
         }
 
-        private bool CanSendBody(IRequest request)
+        private static bool CanSendBody(IRequest request)
         {
             return !request.HasType(RequestMethod.GET, RequestMethod.HEAD, RequestMethod.OPTIONS);
         }
 
-        private bool HasBody(IRequest request, HttpWebResponse response)
+        private static bool HasBody(IRequest request, HttpWebResponse response)
         {
             return !request.HasType(RequestMethod.HEAD) && response.ContentType is not null;
         }
@@ -233,7 +233,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
                 }
                 else
                 {
-                    relativePath = path.Substring(1);
+                    relativePath = path[1..];
                 }
 
                 var protocol = request.EndPoint.Secure ? "https://" : "http://";
@@ -244,7 +244,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             return location;
         }
 
-        private async PooledValueTask<HttpWebResponse> GetSafeResponse(WebRequest request)
+        private static async PooledValueTask<HttpWebResponse> GetSafeResponse(WebRequest request)
         {
             try
             {
@@ -265,14 +265,14 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             }
         }
 
-        private string GetForwardings(IRequest request)
+        private static string GetForwardings(IRequest request)
         {
             return string.Join(", ", request.Forwardings
                                             .Union(new[] { new Forwarding(request.LocalClient.IPAddress, request.LocalClient.Host, request.LocalClient.Protocol) })
                                             .Select(f => GetForwarding(f)));
         }
 
-        private string GetForwarding(Forwarding forwarding)
+        private static string GetForwarding(Forwarding forwarding)
         {
             var result = new List<string>(2);
 

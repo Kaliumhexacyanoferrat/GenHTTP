@@ -18,7 +18,7 @@ namespace GenHTTP.Engine.Protocol
 
         internal void Add(string header) => AddRange(Parse(header));
 
-        private IEnumerable<Forwarding> Parse(string value)
+        private static IEnumerable<Forwarding> Parse(string value)
         {
             var forwardings = value.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
@@ -29,7 +29,7 @@ namespace GenHTTP.Engine.Protocol
 
                 string? host = null;
 
-                var fields = value.Split(';', StringSplitOptions.RemoveEmptyEntries);
+                var fields = forwarding.Split(';', StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (var field in fields)
                 {
@@ -42,7 +42,10 @@ namespace GenHTTP.Engine.Protocol
 
                         if (key == "for")
                         {
-                            IPAddress.TryParse(val, out address);
+                            if (!IPAddress.TryParse(val, out address))
+                            {
+                                address = null;
+                            }
                         }
                         else if (key == "host")
                         {

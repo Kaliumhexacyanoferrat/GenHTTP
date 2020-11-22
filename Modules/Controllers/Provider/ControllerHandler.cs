@@ -51,7 +51,7 @@ namespace GenHTTP.Modules.Controllers.Provider
             }
         }
 
-        private MethodRouting DeterminePath(MethodInfo method, List<string> arguments)
+        private static MethodRouting DeterminePath(MethodInfo method, List<string> arguments)
         {
             var pathArgs = string.Join('/', arguments.Select(a => a.ToParameter()));
             var rawArgs = string.Join('/', arguments.Select(a => $":{a}"));
@@ -70,7 +70,7 @@ namespace GenHTTP.Modules.Controllers.Provider
             }
         }
 
-        private List<string> FindPathArguments(MethodInfo method)
+        private static List<string> FindPathArguments(MethodInfo method)
         {
             var found = new List<string>();
 

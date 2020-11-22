@@ -73,7 +73,7 @@ namespace GenHTTP.Api.Protocol
         public FlexibleRequestMethod(RequestMethod method)
         {
             KnownMethod = method;
-            RawMethod = Enum.GetName(method) ?? throw new ArgumentException();
+            RawMethod = Enum.GetName(method) ?? throw new ArgumentException("The given method cannot be mapped", nameof(method));
         }
 
         /// <summary>
