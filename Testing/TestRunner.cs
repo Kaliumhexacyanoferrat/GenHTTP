@@ -21,7 +21,7 @@ namespace GenHTTP.Testing.Acceptance
 
         public int Port { get; }
 
-        public IServerHost Host { get; protected set; }
+        public IServerHost Host { get; private set; }
 
         #endregion
 

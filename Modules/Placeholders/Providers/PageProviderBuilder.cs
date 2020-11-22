@@ -7,7 +7,7 @@ using GenHTTP.Api.Content.IO;
 namespace GenHTTP.Modules.Placeholders.Providers
 {
 
-    public class PageProviderBuilder : IHandlerBuilder<PageProviderBuilder>, IContentInfoBuilder<PageProviderBuilder>
+    public sealed class PageProviderBuilder : IHandlerBuilder<PageProviderBuilder>, IContentInfoBuilder<PageProviderBuilder>
     {
         private IResource? _Content;
 

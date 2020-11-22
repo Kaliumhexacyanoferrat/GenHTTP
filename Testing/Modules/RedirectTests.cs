@@ -11,7 +11,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 {
 
     [TestClass]
-    public class RedirectTests
+    public sealed class RedirectTests
     {
 
         [TestMethod]

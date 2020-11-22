@@ -8,7 +8,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 {
 
     [TestClass]
-    public class ContentTests
+    public sealed class ContentTests
     {
 
         [TestMethod]

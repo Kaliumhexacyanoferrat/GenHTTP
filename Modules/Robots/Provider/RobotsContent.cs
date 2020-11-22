@@ -8,7 +8,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Robots.Provider
 {
 
-    public class RobotsContent : IResponseContent
+    public sealed class RobotsContent : IResponseContent
     {
 
         #region Get-/Setters

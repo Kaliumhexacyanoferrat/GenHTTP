@@ -13,12 +13,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 {
 
     [TestClass]
-    public class SeoTests
+    public sealed class SeoTests
     {
 
         #region Supporting data structures
 
-        public class TestController
+        public sealed class TestController
         {
 
             public IHandlerBuilder Action()

@@ -7,7 +7,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Websites.Bundles
 {
 
-    public class BundleBuilder : IHandlerBuilder<BundleBuilder>
+    public sealed class BundleBuilder : IHandlerBuilder<BundleBuilder>
     {
         private readonly List<IResource> _Items = new();
 

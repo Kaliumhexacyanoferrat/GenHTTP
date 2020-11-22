@@ -9,7 +9,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Sitemaps.Provider
 {
 
-    public class SitemapContent : IResponseContent
+    public sealed class SitemapContent : IResponseContent
     {
         private static readonly XmlWriterSettings SETTINGS = new()
         {

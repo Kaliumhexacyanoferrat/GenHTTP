@@ -5,7 +5,7 @@ using GenHTTP.Api.Content.IO;
 namespace GenHTTP.Modules.Placeholders.Providers
 {
 
-    public class PlaceholderRendererBuilder<T> : IBuilder<IRenderer<T>> where T : class, IBaseModel
+    public sealed class PlaceholderRendererBuilder<T> : IBuilder<IRenderer<T>> where T : class, IBaseModel
     {
         private IResource? _TemplateProvider;
 

@@ -8,7 +8,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Security.Providers
 {
 
-    public class StrictTransportConcern : IConcern
+    public sealed class StrictTransportConcern : IConcern
     {
         private const string HEADER = "Strict-Transport-Security";
 

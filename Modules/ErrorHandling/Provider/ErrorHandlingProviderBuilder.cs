@@ -5,7 +5,7 @@ using GenHTTP.Api.Content;
 namespace GenHTTP.Modules.ErrorHandling.Provider
 {
 
-    public class ErrorHandlingProviderBuilder : IConcernBuilder
+    public sealed class ErrorHandlingProviderBuilder : IConcernBuilder
     {
 
         #region Functionality

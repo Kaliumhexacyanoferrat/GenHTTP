@@ -11,7 +11,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.Security.Cors
 {
 
-    public class CorsPolicyHandler : IConcern
+    public sealed class CorsPolicyHandler : IConcern
     {
         public const string ALLOW_ANY = "*";
 
@@ -70,7 +70,7 @@ namespace GenHTTP.Modules.Security.Cors
             return response;
         }
 
-        private void ConfigureResponse(IResponse response, string origin, OriginPolicy policy)
+        private static void ConfigureResponse(IResponse response, string origin, OriginPolicy policy)
         {
             response.Headers["Access-Control-Allow-Origin"] = origin;
 
@@ -117,7 +117,7 @@ namespace GenHTTP.Modules.Security.Cors
             return (origin ?? ALLOW_ANY, DefaultPolicy);
         }
 
-        private string GetListOrWildcard(List<string>? values)
+        private static string GetListOrWildcard(List<string>? values)
         {
             if (values is not null)
             {
@@ -127,7 +127,7 @@ namespace GenHTTP.Modules.Security.Cors
             return ALLOW_ANY;
         }
 
-        private string GetListOrWildcard(List<FlexibleRequestMethod>? values)
+        private static string GetListOrWildcard(List<FlexibleRequestMethod>? values)
         {
             if (values is not null)
             {
@@ -137,7 +137,7 @@ namespace GenHTTP.Modules.Security.Cors
             return ALLOW_ANY;
         }
 
-        private bool HasValue<T>(List<T>? list) => (list is null) || (list.Count > 0);
+        private static bool HasValue<T>(List<T>? list) => (list is null) || (list.Count > 0);
 
         #endregion
 

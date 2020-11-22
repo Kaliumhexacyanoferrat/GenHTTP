@@ -11,7 +11,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Conversion.Providers.Forms
 {
 
-    public class FormContent : IResponseContent
+    public sealed class FormContent : IResponseContent
     {
 
         #region Get-/Setters
@@ -74,7 +74,7 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
             await writer.WriteAsync(replaced);
         }
 
-        private object? DeriveValue(object? value, Type sourceType)
+        private static object? DeriveValue(object? value, Type sourceType)
         {
             if (sourceType == typeof(bool) && value is not null)
             {

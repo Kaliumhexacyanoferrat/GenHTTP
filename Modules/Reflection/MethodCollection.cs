@@ -10,7 +10,7 @@ using GenHTTP.Api.Routing;
 namespace GenHTTP.Modules.Reflection
 {
 
-    public class MethodCollection : IHandler, IHandlerResolver, IRootPathAppender
+    public sealed class MethodCollection : IHandler, IHandlerResolver, IRootPathAppender
     {
 
         #region Get-/Setters

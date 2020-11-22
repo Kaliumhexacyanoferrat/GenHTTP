@@ -9,7 +9,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.IO.Strings
 {
 
-    public class StringResource : IResource
+    public sealed class StringResource : IResource
     {
         private static readonly Encoding UTF8 = Encoding.UTF8;
 

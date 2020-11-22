@@ -18,7 +18,7 @@ using GenHTTP.Modules.Websites.Resources;
 namespace GenHTTP.Modules.Websites.Sites
 {
 
-    public class WebsiteRouter : IHandler, IErrorHandler, IPageRenderer, IHandlerResolver
+    public sealed class WebsiteRouter : IHandler, IErrorHandler, IPageRenderer, IHandlerResolver
     {
 
         #region Get-/Setters

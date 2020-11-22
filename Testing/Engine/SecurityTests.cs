@@ -18,7 +18,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 {
 
     [TestClass]
-    public class SecurityTests
+    public sealed class SecurityTests
     {
 
         /// <summary>

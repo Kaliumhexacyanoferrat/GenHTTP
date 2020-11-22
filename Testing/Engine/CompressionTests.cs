@@ -12,7 +12,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 {
 
     [TestClass]
-    public class CompressionTests
+    public sealed class CompressionTests
     {
 
         private class CustomAlgorithm : ICompressionAlgorithm

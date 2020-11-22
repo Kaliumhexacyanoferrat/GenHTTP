@@ -14,19 +14,19 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 {
 
     [TestClass]
-    public class ActionTests
+    public sealed class ActionTests
     {
 
         #region Supporting data structures
 
-        public class Model
+        public sealed class Model
         {
 
             public string? Field { get; set; }
 
         }
 
-        public class TestController
+        public sealed class TestController
         {
 
             public IHandlerBuilder Index()

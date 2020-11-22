@@ -17,8 +17,8 @@ namespace GenHTTP.Engine.Protocol
 
     internal class RequestParser
     {
-        private static char[] LINE_ENDING = new char[] { '\r' };
-        private static char[] PATH_ENDING = new char[] { '\r', '\n', '?', ' ' };
+        private static readonly char[] LINE_ENDING = new char[] { '\r' };
+        private static readonly char[] PATH_ENDING = new char[] { '\r', '\n', '?', ' ' };
 
         private static readonly Encoding ASCII = Encoding.ASCII;
 
@@ -28,7 +28,7 @@ namespace GenHTTP.Engine.Protocol
 
         private NetworkConfiguration Configuration { get; }
 
-        private RequestBuilder Request => _Builder ?? (_Builder = new());
+        private RequestBuilder Request => _Builder ??= new();
 
         #endregion
 
@@ -112,7 +112,7 @@ namespace GenHTTP.Engine.Protocol
             return result;
         }
 
-        private async PooledValueTask<WebPath?> TryReadPath(RequestBuffer buffer)
+        private static async PooledValueTask<WebPath?> TryReadPath(RequestBuffer buffer)
         {
             // ignore the slash at the beginning
             buffer.Advance(1);
@@ -143,7 +143,7 @@ namespace GenHTTP.Engine.Protocol
             return null;
         }
 
-        private async PooledValueTask<RequestQuery?> TryReadQuery(RequestBuffer buffer)
+        private static async PooledValueTask<RequestQuery?> TryReadQuery(RequestBuffer buffer)
         {
             var queryString = await ReadToken(buffer, ' ');
 
@@ -167,7 +167,7 @@ namespace GenHTTP.Engine.Protocol
             return null;
         }
 
-        private async PooledValueTask<bool> TryReadHeader(RequestBuffer buffer, RequestBuilder request)
+        private static async PooledValueTask<bool> TryReadHeader(RequestBuffer buffer, RequestBuilder request)
         {
             string? key, value;
 
@@ -183,7 +183,7 @@ namespace GenHTTP.Engine.Protocol
             return false;
         }
 
-        private async PooledValueTask<SequencePosition?> FindPosition(RequestBuffer buffer, char delimiter)
+        private static async PooledValueTask<SequencePosition?> FindPosition(RequestBuffer buffer, char delimiter)
         {
             if (buffer.ReadRequired)
             {
@@ -208,12 +208,12 @@ namespace GenHTTP.Engine.Protocol
             return position;
         }
 
-        private PooledValueTask<string?> ReadToken(RequestBuffer buffer, char delimiter, ushort skipNext = 0, ushort skipFirst = 0, bool skipDelimiter = true)
+        private static PooledValueTask<string?> ReadToken(RequestBuffer buffer, char delimiter, ushort skipNext = 0, ushort skipFirst = 0, bool skipDelimiter = true)
         {
             return ReadToken(buffer, delimiter, LINE_ENDING, skipNext, skipFirst, skipDelimiter);
         }
 
-        private async PooledValueTask<string?> ReadToken(RequestBuffer buffer, char delimiter, char[] boundaries, ushort skipNext = 0, ushort skipFirst = 0, bool skipDelimiter = true)
+        private static async PooledValueTask<string?> ReadToken(RequestBuffer buffer, char delimiter, char[] boundaries, ushort skipNext = 0, ushort skipFirst = 0, bool skipDelimiter = true)
         {
             var position = await FindPosition(buffer, delimiter).ConfigureAwait(false);
 
@@ -259,14 +259,14 @@ namespace GenHTTP.Engine.Protocol
             return null;
         }
 
-        private string GetString(ReadOnlySequence<byte> buffer)
+        private static string GetString(ReadOnlySequence<byte> buffer)
         {
             return string.Create((int)buffer.Length, buffer, (span, sequence) =>
             {
                 foreach (var segment in sequence)
                 {
                     ASCII.GetChars(segment.Span, span);
-                    span = span.Slice(segment.Length);
+                    span = span[segment.Length..];
                 }
             });
         }

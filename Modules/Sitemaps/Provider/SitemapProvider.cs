@@ -9,7 +9,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.Sitemaps.Provider
 {
 
-    public class SitemapProvider : IHandler
+    public sealed class SitemapProvider : IHandler
     {
         private ContentInfo? _Info;
 

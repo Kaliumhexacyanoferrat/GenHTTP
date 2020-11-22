@@ -17,7 +17,7 @@ using GenHTTP.Modules.Reflection;
 namespace GenHTTP.Modules.Webservices.Provider
 {
 
-    public class ServiceResourceRouter : IHandler
+    public sealed class ServiceResourceRouter : IHandler
     {
         private static readonly MethodRouting EMPTY = new("/", "^(/|)$", null, true);
 

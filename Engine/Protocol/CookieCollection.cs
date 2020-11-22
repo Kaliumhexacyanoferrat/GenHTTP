@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Engine.Utilities;
 
 namespace GenHTTP.Engine.Protocol
@@ -27,7 +28,7 @@ namespace GenHTTP.Engine.Protocol
             }
         }
 
-        private List<Cookie> Parse(string value)
+        private static List<Cookie> Parse(string value)
         {
             var result = new List<Cookie>(2);
 
@@ -39,7 +40,7 @@ namespace GenHTTP.Engine.Protocol
 
                 if (index > -1)
                 {
-                    result.Add(new(kv.Substring(0, index), kv.Substring(index + 1)));
+                    result.Add(new(kv.Substring(0, index), kv[(index + 1)..]));
                 }
             }
 

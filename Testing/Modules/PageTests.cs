@@ -20,7 +20,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
     #region Supporting data structures
 
-    public class CustomModel : PageModel
+    public sealed class CustomModel : PageModel
     {
 
         public string World => "World";
@@ -29,7 +29,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
     }
 
-    public class PathModel : PageModel
+    public sealed class PathModel : PageModel
     {
 
         public WebPath Path => new PathBuilder("/test/1").Build();
@@ -41,7 +41,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
     #endregion
 
     [TestClass]
-    public class PageTests
+    public sealed class PageTests
     {
         
         [TestMethod]

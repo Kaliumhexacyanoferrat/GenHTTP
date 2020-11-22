@@ -10,7 +10,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.LoadBalancing.Provider
 {
 
-    public class LoadBalancerRedirectionHandler : IHandler
+    public sealed class LoadBalancerRedirectionHandler : IHandler
     {
 
         #region Get-/Setters

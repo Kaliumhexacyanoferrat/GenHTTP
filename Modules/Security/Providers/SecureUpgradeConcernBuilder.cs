@@ -6,7 +6,7 @@ using GenHTTP.Api.Infrastructure;
 namespace GenHTTP.Modules.Security.Providers
 {
 
-    public class SecureUpgradeConcernBuilder : IConcernBuilder
+    public sealed class SecureUpgradeConcernBuilder : IConcernBuilder
     {
         private SecureUpgrade _Mode = SecureUpgrade.Force;
 

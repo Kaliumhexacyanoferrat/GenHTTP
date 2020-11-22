@@ -15,7 +15,7 @@ using PooledAwait;
 namespace GenHTTP.Modules.Placeholders.Providers
 {
 
-    public class PlaceholderRender<T> : IRenderer<T> where T : class, IBaseModel
+    public sealed class PlaceholderRender<T> : IRenderer<T> where T : class, IBaseModel
     {
         private readonly static Regex PLACEHOLDER = new(@"\[([a-zA-Z0-9\.]+)\]", RegexOptions.Compiled);
 
@@ -61,7 +61,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
             return _Template!;
         }
 
-        private string? GetValue(string fullPath, IEnumerable<string> path, object model)
+        private static string? GetValue(string fullPath, IEnumerable<string> path, object model)
         {
             if (!path.Any())
             {
@@ -89,7 +89,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
             }
         }
 
-        private object? GetValue(string name, object model)
+        private static object? GetValue(string name, object model)
         {
             var flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase;
 

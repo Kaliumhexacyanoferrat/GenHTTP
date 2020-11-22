@@ -6,7 +6,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Compression.Providers
 {
 
-    public class BrotliCompression : ICompressionAlgorithm
+    public sealed class BrotliCompression : ICompressionAlgorithm
     {
 
         public string Name => "br";

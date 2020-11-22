@@ -7,7 +7,7 @@ namespace GenHTTP.Api.Content.Templating
     /// Model used by templates to render the actual HTML returned
     /// to the client.
     /// </summary>
-    public class TemplateModel : IBaseModel
+    public sealed class TemplateModel : IBaseModel
     {
 
         #region Get-/Setters

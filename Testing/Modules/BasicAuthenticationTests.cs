@@ -18,7 +18,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 {
 
     [TestClass]
-    public class BasicAuthenticationTests
+    public sealed class BasicAuthenticationTests
     {
 
         #region Supporting data structures

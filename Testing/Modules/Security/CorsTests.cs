@@ -14,7 +14,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Security
 {
 
     [TestClass]
-    public class CorsTests
+    public sealed class CorsTests
     {
 
         [TestMethod]

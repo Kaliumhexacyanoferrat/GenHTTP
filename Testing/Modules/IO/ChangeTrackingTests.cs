@@ -9,7 +9,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 {
 
     [TestClass]
-    public class ChangeTrackingTests
+    public sealed class ChangeTrackingTests
     {
 
         [TestMethod]

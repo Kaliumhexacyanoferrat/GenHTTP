@@ -7,7 +7,7 @@ using GenHTTP.Engine.Utilities;
 namespace GenHTTP.Engine.Protocol
 {
 
-    public class RequestProperties : IRequestProperties
+    public sealed class RequestProperties : IRequestProperties
     {
         private PooledDictionary<string, object>? _Data;
 

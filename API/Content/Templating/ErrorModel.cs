@@ -8,7 +8,7 @@ namespace GenHTTP.Api.Content.Templating
     /// <summary>
     /// Model for errors that occur when handling requests.
     /// </summary>
-    public class ErrorModel : PageModel
+    public sealed class ErrorModel : PageModel
     {
 
         #region Get-/Setters

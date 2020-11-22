@@ -5,7 +5,7 @@ using GenHTTP.Api.Routing;
 namespace GenHTTP.Modules.Reflection
 {
 
-    public class MethodRouting
+    public sealed class MethodRouting
     {
         private readonly string _PathExpression;
 

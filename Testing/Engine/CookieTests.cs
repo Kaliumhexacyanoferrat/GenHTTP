@@ -15,7 +15,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 {
 
     [TestClass]
-    public class CookieTests
+    public sealed class CookieTests
     {
 
         private class TestProvider : IHandler

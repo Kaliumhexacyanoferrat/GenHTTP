@@ -7,7 +7,6 @@ using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO.Streaming;
-using PooledAwait;
 
 namespace GenHTTP.Modules.IO
 {

@@ -11,7 +11,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 {
 
     [TestClass]
-    public class LoadBalancerTests
+    public sealed class LoadBalancerTests
     {
 
         [TestMethod]

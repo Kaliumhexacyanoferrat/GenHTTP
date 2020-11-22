@@ -9,7 +9,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.Robots.Provider
 {
 
-    public class RobotsProvider : IHandler
+    public sealed class RobotsProvider : IHandler
     {
         private ContentInfo? _Info;
 

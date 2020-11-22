@@ -10,7 +10,7 @@ using PooledAwait;
 namespace GenHTTP.Engine.Protocol
 {
 
-    public class ChunkedStream : Stream
+    public sealed class ChunkedStream : Stream
     {
         private static readonly string NL = "\r\n";
 
@@ -80,7 +80,7 @@ namespace GenHTTP.Engine.Protocol
                 await WriteAsync(count.ToString("X")).ConfigureAwait(false);
                 await WriteAsync(NL);
 
-                await Target.WriteAsync(buffer, offset, count);
+                await Target.WriteAsync(buffer.AsMemory(offset, count), cancellationToken);
 
                 await WriteAsync(NL);
             }
@@ -129,7 +129,7 @@ namespace GenHTTP.Engine.Protocol
             {
                 ENCODING.GetBytes(text, 0, length, buffer, 0);
 
-                await Target.WriteAsync(buffer, 0, length);
+                await Target.WriteAsync(buffer.AsMemory(0, length));
             }
             finally
             {

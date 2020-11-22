@@ -5,7 +5,7 @@ using GenHTTP.Api.Content;
 namespace GenHTTP.Modules.Sitemaps.Provider
 {
 
-    public class SitemapProviderBuilder : IHandlerBuilder<SitemapProviderBuilder>
+    public sealed class SitemapProviderBuilder : IHandlerBuilder<SitemapProviderBuilder>
     {
         private readonly List<IConcernBuilder> _Concerns = new();
 

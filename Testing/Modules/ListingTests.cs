@@ -10,7 +10,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 {
 
     [TestClass]
-    public class ListingTests
+    public sealed class ListingTests
     {
 
         /// <summary>

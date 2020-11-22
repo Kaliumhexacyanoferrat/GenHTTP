@@ -8,7 +8,7 @@ namespace GenHTTP.Api.Routing
     /// <summary>
     /// Specifies a resource available on the server.
     /// </summary>
-    public class WebPath
+    public sealed class WebPath
     {
 
         #region Get-/Setters
@@ -38,7 +38,7 @@ namespace GenHTTP.Api.Routing
             {
                 if (!TrailingSlash)
                 {
-                    var part = Parts.LastOrDefault();
+                    var part = (Parts.Count > 0) ? Parts[Parts.Count - 1] : null;
 
                     return (part?.Contains('.') ?? false) ? part : null;
                 }

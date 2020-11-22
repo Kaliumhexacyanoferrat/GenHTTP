@@ -12,7 +12,7 @@ using PooledAwait;
 namespace GenHTTP.Modules.ClientCaching.Provider
 {
 
-    public class CacheValidationHandler : IConcern
+    public sealed class CacheValidationHandler : IConcern
     {
         private const string ETAG_HEADER = "ETag";
 

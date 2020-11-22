@@ -10,7 +10,7 @@ namespace GenHTTP.Modules.Conversion.Providers
     /// deserialize objects sent to or received from a 
     /// service oriented handler.
     /// </summary>
-    public class SerializationRegistry
+    public sealed class SerializationRegistry
     {
 
         #region Get-/Setters

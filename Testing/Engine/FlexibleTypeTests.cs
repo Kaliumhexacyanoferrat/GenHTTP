@@ -14,7 +14,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 {
 
     [TestClass]
-    public class FlexibleTypeTests
+    public sealed class FlexibleTypeTests
     {
 
         private class Provider : IHandler

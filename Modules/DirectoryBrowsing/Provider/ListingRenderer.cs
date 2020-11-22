@@ -9,7 +9,7 @@ using GenHTTP.Api.Content.Templating;
 namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 {
 
-    public class ListingRenderer : IRenderer<ListingModel>
+    public sealed class ListingRenderer : IRenderer<ListingModel>
     {
 
         public ValueTask<string> RenderAsync(ListingModel model)
@@ -46,7 +46,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
             return new ValueTask<string>(content.ToString());
         }
 
-        private void Append(StringBuilder builder, string path, string name, ulong? size, DateTime? modified)
+        private static void Append(StringBuilder builder, string path, string name, ulong? size, DateTime? modified)
         {
             builder.AppendLine("<tr>");
             builder.AppendLine($"  <td><a href=\"{path}\">{name}</a></td>");

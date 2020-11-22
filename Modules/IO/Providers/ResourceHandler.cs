@@ -10,14 +10,14 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.IO.Providers
 {
 
-    public class ResourceHandler : IHandler
+    public sealed class ResourceHandler : IHandler
     {
 
         #region Get-/Setters
 
         public IHandler Parent { get; }
 
-        protected IResourceTree Tree { get; }
+        private IResourceTree Tree { get; }
 
         #endregion
 

@@ -8,7 +8,7 @@ using GenHTTP.Api.Content.Websites;
 namespace GenHTTP.Modules.Websites.Resources
 {
 
-    public class ScriptRouterBuilder : IHandlerBuilder<ScriptRouterBuilder>
+    public sealed class ScriptRouterBuilder : IHandlerBuilder<ScriptRouterBuilder>
     {
         private readonly List<Script> _Scripts = new();
 

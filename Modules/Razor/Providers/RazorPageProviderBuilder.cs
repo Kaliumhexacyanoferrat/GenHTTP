@@ -10,11 +10,11 @@ using System.Reflection;
 namespace GenHTTP.Modules.Razor.Providers
 {
 
-    public class RazorPageProviderBuilder<T> : IHandlerBuilder<RazorPageProviderBuilder<T>>, IContentInfoBuilder<RazorPageProviderBuilder<T>>, IRazorConfigurationBuilder<RazorPageProviderBuilder<T>> where T : PageModel
+    public sealed class RazorPageProviderBuilder<T> : IHandlerBuilder<RazorPageProviderBuilder<T>>, IContentInfoBuilder<RazorPageProviderBuilder<T>>, IRazorConfigurationBuilder<RazorPageProviderBuilder<T>> where T : PageModel
     {
-        protected IResource? _TemplateProvider;
+        private IResource? _TemplateProvider;
 
-        protected ModelProvider<T>? _ModelProvider;
+        private ModelProvider<T>? _ModelProvider;
 
         private readonly List<IConcernBuilder> _Concerns = new();
 

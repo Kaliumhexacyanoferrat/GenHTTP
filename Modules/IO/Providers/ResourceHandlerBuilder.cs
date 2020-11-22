@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace GenHTTP.Modules.IO.Providers
 {
 
-    public class ResourceHandlerBuilder : IHandlerBuilder<ResourceHandlerBuilder>
+    public sealed class ResourceHandlerBuilder : IHandlerBuilder<ResourceHandlerBuilder>
     {
         private readonly List<IConcernBuilder> _Concerns = new();
 

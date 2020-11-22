@@ -8,7 +8,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.IO.Providers
 {
 
-    public class DownloadProviderBuilder : IHandlerBuilder<DownloadProviderBuilder>
+    public sealed class DownloadProviderBuilder : IHandlerBuilder<DownloadProviderBuilder>
     {
         private IResource? _ResourceProvider;
 

@@ -15,12 +15,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 {
 
     [TestClass]
-    public class ContentTests
+    public sealed class ContentTests
     {
 
         #region Supporting data structures
 
-        public class TestController
+        public sealed class TestController
         {
             private static readonly IHandlerBuilder _Page = Page.From(string.Empty);
 
@@ -45,7 +45,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
         }
 
-        public class Hints : IContentHints
+        public sealed class Hints : IContentHints
         {
             public List<ContentHint> GetHints(IRequest request)
             {

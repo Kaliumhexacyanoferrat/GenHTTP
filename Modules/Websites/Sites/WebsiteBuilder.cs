@@ -13,7 +13,7 @@ using GenHTTP.Modules.Websites.Resources;
 namespace GenHTTP.Modules.Websites.Sites
 {
 
-    public class WebsiteBuilder : IHandlerBuilder<WebsiteBuilder>
+    public sealed class WebsiteBuilder : IHandlerBuilder<WebsiteBuilder>
     {
         private IHandlerBuilder? _Content;
 

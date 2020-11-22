@@ -15,7 +15,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 {
 
     [TestClass]
-    public class ProtocolTests
+    public sealed class ProtocolTests
     {
 
         private class ValueRecorder : IHandler

@@ -12,7 +12,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.Scriban.Providers
 {
 
-    public class ScribanPageProvider<T> : IHandler where T : PageModel
+    public sealed class ScribanPageProvider<T> : IHandler where T : PageModel
     {
 
         #region Get-/Setters

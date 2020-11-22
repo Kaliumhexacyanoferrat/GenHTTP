@@ -9,7 +9,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.IO.FileSystem
 {
 
-    public class FileResource : IResource
+    public sealed class FileResource : IResource
     {
         private ulong _Length;
 

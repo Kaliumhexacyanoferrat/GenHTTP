@@ -5,7 +5,7 @@ using GenHTTP.Api.Content;
 namespace GenHTTP.Modules.Layouting.Provider
 {
 
-    public class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
+    public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
     {
         private IHandlerBuilder? _Index, _Fallback;
 

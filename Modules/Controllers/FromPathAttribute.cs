@@ -13,7 +13,7 @@ namespace GenHTTP.Modules.Controllers
     /// path arguments as you like, but they must not be optional.
     /// </remarks>
     [AttributeUsage(AttributeTargets.Parameter)]
-    public class FromPathAttribute : Attribute
+    public sealed class FromPathAttribute : Attribute
     {
 
     }

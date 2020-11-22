@@ -11,7 +11,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.Placeholders.Providers
 {
 
-    public class PlaceholderPageProvider<T> : IHandler where T : PageModel
+    public sealed class PlaceholderPageProvider<T> : IHandler where T : PageModel
     {
 
         #region Get-/Setters

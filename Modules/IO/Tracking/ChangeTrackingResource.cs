@@ -7,13 +7,13 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.IO.Tracking
 {
 
-    public class ChangeTrackingResource : IResource
+    public sealed class ChangeTrackingResource : IResource
     {
         private ulong? _LastChecksum;
 
         #region Get-/Setters
 
-        protected IResource Source { get; }
+        private IResource Source { get; }
 
         public string? Name => Source.Name;
 

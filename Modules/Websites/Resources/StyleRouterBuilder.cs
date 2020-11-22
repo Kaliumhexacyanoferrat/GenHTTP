@@ -8,7 +8,7 @@ using GenHTTP.Api.Content.Websites;
 namespace GenHTTP.Modules.Websites.Resources
 {
 
-    public class StyleRouterBuilder : IHandlerBuilder<StyleRouterBuilder>
+    public sealed class StyleRouterBuilder : IHandlerBuilder<StyleRouterBuilder>
     {
         private readonly List<Style> _Styles = new();
 

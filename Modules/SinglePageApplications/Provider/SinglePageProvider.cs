@@ -11,7 +11,7 @@ using GenHTTP.Modules.IO;
 namespace GenHTTP.Modules.SinglePageApplications.Provider
 {
 
-    public class SinglePageProvider : IHandler
+    public sealed class SinglePageProvider : IHandler
     {
         private static readonly HashSet<string> INDEX_FILES = new(StringComparer.InvariantCultureIgnoreCase)
         {

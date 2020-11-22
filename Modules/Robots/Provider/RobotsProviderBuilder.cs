@@ -6,7 +6,7 @@ using GenHTTP.Api.Content;
 namespace GenHTTP.Modules.Robots.Provider
 {
 
-    public class RobotsProviderBuilder : IHandlerBuilder<RobotsProviderBuilder>
+    public sealed class RobotsProviderBuilder : IHandlerBuilder<RobotsProviderBuilder>
     {
         private readonly List<RobotsDirective> _Directives = new();
 

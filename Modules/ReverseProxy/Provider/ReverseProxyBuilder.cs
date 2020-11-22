@@ -7,7 +7,7 @@ using GenHTTP.Api.Infrastructure;
 namespace GenHTTP.Modules.ReverseProxy.Provider
 {
 
-    public class ReverseProxyBuilder : IHandlerBuilder<ReverseProxyBuilder>
+    public sealed class ReverseProxyBuilder : IHandlerBuilder<ReverseProxyBuilder>
     {
         private string? _Upstream;
 

@@ -9,7 +9,7 @@ namespace GenHTTP.Testing.Acceptance.Units
 {
 
     [TestClass]
-    public class PooledDictionaryTests
+    public sealed class PooledDictionaryTests
     {
 
         [TestMethod]

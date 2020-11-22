@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -11,7 +12,7 @@ using GenHTTP.Modules.IO.Streaming;
 namespace GenHTTP.Modules.Websites.Bundles
 {
 
-    public class BundleContent : IResponseContent
+    public sealed class BundleContent : IResponseContent
     {
         private readonly byte[] _NewLine = new byte[] { (byte)'\n' };
 
@@ -42,7 +43,7 @@ namespace GenHTTP.Modules.Websites.Bundles
 
                 await source.CopyPooledAsync(target, bufferSize);
 
-                await target.WriteAsync(_NewLine, 0, 1);
+                await target.WriteAsync(_NewLine.AsMemory());
             }
         }
 

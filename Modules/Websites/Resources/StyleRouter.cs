@@ -12,7 +12,7 @@ using GenHTTP.Modules.IO;
 namespace GenHTTP.Modules.Websites.Resources
 {
 
-    public class StyleRouter : IHandler
+    public sealed class StyleRouter : IHandler
     {
 
         #region Get-/Setters

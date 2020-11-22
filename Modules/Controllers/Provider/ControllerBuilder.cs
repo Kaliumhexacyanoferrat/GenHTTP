@@ -8,7 +8,7 @@ using GenHTTP.Modules.Conversion.Providers;
 namespace GenHTTP.Modules.Controllers.Provider
 {
 
-    public class ControllerBuilder<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T> : IHandlerBuilder where T : new()
+    public sealed class ControllerBuilder<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T> : IHandlerBuilder where T : new()
     {
         private IBuilder<SerializationRegistry>? _Formats;
 

@@ -6,7 +6,7 @@ using GenHTTP.Api.Content;
 namespace GenHTTP.Modules.Basics.Providers
 {
 
-    public class RedirectProviderBuilder : IHandlerBuilder<RedirectProviderBuilder>
+    public sealed class RedirectProviderBuilder : IHandlerBuilder<RedirectProviderBuilder>
     {
         private bool _Temporary = false;
 

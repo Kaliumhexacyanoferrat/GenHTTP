@@ -7,7 +7,7 @@ using GenHTTP.Api.Infrastructure;
 namespace GenHTTP.Modules.SinglePageApplications.Provider
 {
 
-    public class SinglePageBuilder : IHandlerBuilder<SinglePageBuilder>
+    public sealed class SinglePageBuilder : IHandlerBuilder<SinglePageBuilder>
     {
         private IResourceTree? _Tree;
 

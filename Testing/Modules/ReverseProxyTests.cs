@@ -21,7 +21,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 {
 
     [TestClass]
-    public class ReverseProxyTests
+    public sealed class ReverseProxyTests
     {
 
         #region Supporting data structures

@@ -8,7 +8,7 @@ using GenHTTP.Api.Content.IO;
 namespace GenHTTP.Modules.Placeholders.Providers
 {
 
-    public class PlaceholderPageProviderBuilder<T> : IHandlerBuilder<PlaceholderPageProviderBuilder<T>>, IContentInfoBuilder<PlaceholderPageProviderBuilder<T>> where T : PageModel
+    public sealed class PlaceholderPageProviderBuilder<T> : IHandlerBuilder<PlaceholderPageProviderBuilder<T>>, IContentInfoBuilder<PlaceholderPageProviderBuilder<T>> where T : PageModel
     {
         private IResource? _TemplateProvider;
 

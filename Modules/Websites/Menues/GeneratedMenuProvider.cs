@@ -9,7 +9,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Websites.Menues
 {
 
-    public class GeneratedMenuProvider : IMenuProvider
+    public sealed class GeneratedMenuProvider : IMenuProvider
     {
 
         #region Get-/Setters

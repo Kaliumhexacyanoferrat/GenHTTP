@@ -17,12 +17,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 {
 
     [TestClass]
-    public class RoutingTests
+    public sealed class RoutingTests
     {
 
         #region Supporting data structures
 
-        public class RouteController
+        public sealed class RouteController
         {
 
             public IHandlerBuilder Appenders([FromPath] int one, [FromPath] string two)
@@ -66,14 +66,14 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
         }
 
-        public class AppenderDependentHandlerBuilder : IHandlerBuilder
+        public sealed class AppenderDependentHandlerBuilder : IHandlerBuilder
         {
 
             public IHandler Build(IHandler parent) => new AppenderDependentHandler(parent);
 
         }
 
-        public class AppenderDependentHandler : IHandler
+        public sealed class AppenderDependentHandler : IHandler
         {
 
             public IHandler Parent { get; }

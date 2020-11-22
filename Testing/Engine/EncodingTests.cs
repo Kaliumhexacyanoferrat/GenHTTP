@@ -7,7 +7,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 {
 
     [TestClass]
-    public class EncodingTests
+    public sealed class EncodingTests
     {
 
         /// <summary>

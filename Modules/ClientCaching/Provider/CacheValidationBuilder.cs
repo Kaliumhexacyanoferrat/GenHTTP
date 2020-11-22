@@ -5,7 +5,7 @@ using GenHTTP.Api.Content;
 namespace GenHTTP.Modules.ClientCaching.Provider
 {
 
-    public class CacheValidationBuilder : IConcernBuilder
+    public sealed class CacheValidationBuilder : IConcernBuilder
     {
 
         public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)

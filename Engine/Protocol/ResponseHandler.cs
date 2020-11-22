@@ -84,7 +84,7 @@ namespace GenHTTP.Engine.Protocol
             }
         }
 
-        private bool ShouldSendBody(IRequest request, IResponse response)
+        private static bool ShouldSendBody(IRequest request, IResponse response)
         {
             return (request.Method.KnownMethod != RequestMethod.HEAD) &&
                    (
@@ -236,7 +236,7 @@ namespace GenHTTP.Engine.Protocol
             {
                 ASCII.GetBytes(text, 0, length, buffer, 0);
 
-                await OutputStream.WriteAsync(buffer, 0, length).ConfigureAwait(false);
+                await OutputStream.WriteAsync(buffer.AsMemory(0, length)).ConfigureAwait(false);
             }
             finally
             {

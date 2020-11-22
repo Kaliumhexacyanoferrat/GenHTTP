@@ -3,7 +3,7 @@
 namespace GenHTTP.Modules.Security.Providers
 {
 
-    public class StrictTransportPolicy
+    public sealed class StrictTransportPolicy
     {
 
         #region Get-/Setters

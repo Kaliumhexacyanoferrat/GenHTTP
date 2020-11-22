@@ -3,7 +3,7 @@
 namespace GenHTTP.Api.Content
 {
 
-    public class ContentInfoBuilder : IBuilder<ContentInfo>, IContentInfoBuilder<ContentInfoBuilder>
+    public sealed class ContentInfoBuilder : IBuilder<ContentInfo>, IContentInfoBuilder<ContentInfoBuilder>
     {
         private string? _Title, _Description;
 

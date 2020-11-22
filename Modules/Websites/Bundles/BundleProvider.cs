@@ -9,7 +9,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Websites.Bundles
 {
 
-    public class BundleProvider : IHandler
+    public sealed class BundleProvider : IHandler
     {
 
         #region Get-/Setters

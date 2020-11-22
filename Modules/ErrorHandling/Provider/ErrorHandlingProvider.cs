@@ -11,7 +11,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.ErrorHandling.Provider
 {
 
-    public class ErrorHandlingProvider : IConcern
+    public sealed class ErrorHandlingProvider : IConcern
     {
 
         #region Get-/Setters

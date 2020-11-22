@@ -19,12 +19,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
 {
 
     [TestClass]
-    public class WebserviceTests
+    public sealed class WebserviceTests
     {
 
         #region Supporting structures
 
-        public class TestEntity
+        public sealed class TestEntity
         {
 
             public int ID { get; set; }
@@ -39,7 +39,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
             Two
         }
 
-        public class TestResource
+        public sealed class TestResource
         {
 
             [ResourceMethod("nothing")]

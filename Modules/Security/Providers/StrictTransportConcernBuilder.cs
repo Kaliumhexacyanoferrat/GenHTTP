@@ -6,7 +6,7 @@ using GenHTTP.Api.Infrastructure;
 namespace GenHTTP.Modules.Security.Providers
 {
 
-    public class StrictTransportConcernBuilder : IConcernBuilder
+    public sealed class StrictTransportConcernBuilder : IConcernBuilder
     {
         private StrictTransportPolicy? _Policy;
 

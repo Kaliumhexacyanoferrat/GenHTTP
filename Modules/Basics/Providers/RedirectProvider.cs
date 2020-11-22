@@ -1,15 +1,16 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
+
 namespace GenHTTP.Modules.Basics.Providers
 {
 
-    public class RedirectProvider : IHandler
+    public sealed class RedirectProvider : IHandler
     {
         private static readonly Regex PROTOCOL_MATCHER = new("^[a-zA-Z_-]+://", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
@@ -70,7 +71,7 @@ namespace GenHTTP.Modules.Basics.Providers
             return $"{protocol}{request.Host}{resolved}";
         }
 
-        private ResponseStatus MapStatus(IRequest request, bool temporary)
+        private static ResponseStatus MapStatus(IRequest request, bool temporary)
         {
             if (request.HasType(RequestMethod.GET, RequestMethod.HEAD))
             {
