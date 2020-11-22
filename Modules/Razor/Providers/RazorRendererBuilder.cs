@@ -11,7 +11,7 @@ namespace GenHTTP.Modules.Razor.Providers
 
     public class RazorRendererBuilder<T> : IBuilder<IRenderer<T>>, IRazorConfigurationBuilder<RazorRendererBuilder<T>> where T : class, IBaseModel
     {
-        protected IResource? _TemplateProvider;
+        private IResource? _TemplateProvider;
 
         private readonly List<Assembly> _AdditionalAssemblies = new();
 

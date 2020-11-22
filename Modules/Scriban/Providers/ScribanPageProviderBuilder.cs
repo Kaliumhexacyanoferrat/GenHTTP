@@ -10,9 +10,9 @@ namespace GenHTTP.Modules.Scriban.Providers
 
     public class ScribanPageProviderBuilder<T> : IHandlerBuilder<ScribanPageProviderBuilder<T>>, IContentInfoBuilder<ScribanPageProviderBuilder<T>> where T : PageModel
     {
-        protected IResource? _TemplateProvider;
+        private IResource? _TemplateProvider;
 
-        protected ModelProvider<T>? _ModelProvider;
+        private ModelProvider<T>? _ModelProvider;
 
         private readonly List<IConcernBuilder> _Concerns = new();
 

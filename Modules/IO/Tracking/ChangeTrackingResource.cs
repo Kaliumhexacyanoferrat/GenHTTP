@@ -13,7 +13,7 @@ namespace GenHTTP.Modules.IO.Tracking
 
         #region Get-/Setters
 
-        protected IResource Source { get; }
+        private IResource Source { get; }
 
         public string? Name => Source.Name;
 
