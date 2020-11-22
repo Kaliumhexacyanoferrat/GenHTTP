@@ -7,7 +7,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Security
 {
 
     [TestClass]
-    public class ExtensionTests
+    public sealed class ExtensionTests
     {
 
         [TestMethod]

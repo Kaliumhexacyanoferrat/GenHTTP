@@ -6,7 +6,7 @@ using GenHTTP.Api.Content;
 namespace GenHTTP.Modules.VirtualHosting.Provider
 {
 
-    public class VirtualHostRouterBuilder : IHandlerBuilder<VirtualHostRouterBuilder>
+    public sealed class VirtualHostRouterBuilder : IHandlerBuilder<VirtualHostRouterBuilder>
     {
         private readonly Dictionary<string, IHandlerBuilder> _Hosts = new();
 

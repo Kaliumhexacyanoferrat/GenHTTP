@@ -16,7 +16,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 {
 
     [TestClass]
-    public class ResponseTests
+    public sealed class ResponseTests
     {
 
         private class ResponseProvider : IHandler

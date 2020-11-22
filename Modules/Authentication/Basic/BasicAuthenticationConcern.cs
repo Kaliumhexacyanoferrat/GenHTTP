@@ -10,7 +10,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Authentication.Basic
 {
 
-    public class BasicAuthenticationConcern : IConcern
+    public sealed class BasicAuthenticationConcern : IConcern
     {
 
         #region Get-/Setters

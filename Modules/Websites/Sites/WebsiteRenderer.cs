@@ -8,7 +8,7 @@ using GenHTTP.Modules.Websites.Resources;
 namespace GenHTTP.Modules.Websites.Sites
 {
 
-    public class WebsiteRenderer : IRenderer<TemplateModel>
+    public sealed class WebsiteRenderer : IRenderer<TemplateModel>
     {
 
         #region Get-/Setters

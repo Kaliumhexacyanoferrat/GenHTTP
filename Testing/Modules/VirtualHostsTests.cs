@@ -10,7 +10,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
 {
 
     [TestClass]
-    public class VirtualHostsTests
+    public sealed class VirtualHostsTests
     {
 
         /// <summary>

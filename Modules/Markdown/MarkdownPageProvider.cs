@@ -11,7 +11,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.Markdown
 {
 
-    public class MarkdownPageProvider<T> : IHandler where T : PageModel
+    public sealed class MarkdownPageProvider<T> : IHandler where T : PageModel
     {
 
         #region Get-/Setters

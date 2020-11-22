@@ -8,7 +8,7 @@ using GenHTTP.Api.Content.IO;
 namespace GenHTTP.Modules.Scriban.Providers
 {
 
-    public class ScribanPageProviderBuilder<T> : IHandlerBuilder<ScribanPageProviderBuilder<T>>, IContentInfoBuilder<ScribanPageProviderBuilder<T>> where T : PageModel
+    public sealed class ScribanPageProviderBuilder<T> : IHandlerBuilder<ScribanPageProviderBuilder<T>>, IContentInfoBuilder<ScribanPageProviderBuilder<T>> where T : PageModel
     {
         private IResource? _TemplateProvider;
 

@@ -10,7 +10,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Basics.Providers
 {
 
-    public class RedirectProvider : IHandler
+    public sealed class RedirectProvider : IHandler
     {
         private static readonly Regex PROTOCOL_MATCHER = new("^[a-zA-Z_-]+://", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 

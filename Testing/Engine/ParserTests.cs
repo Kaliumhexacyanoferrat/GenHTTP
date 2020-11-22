@@ -13,7 +13,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 {
 
     [TestClass]
-    public class ParserTests
+    public sealed class ParserTests
     {
 
         #region Supporting data structures

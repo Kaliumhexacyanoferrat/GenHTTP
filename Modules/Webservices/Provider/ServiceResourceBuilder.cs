@@ -9,7 +9,7 @@ using GenHTTP.Modules.Conversion.Providers;
 namespace GenHTTP.Modules.Webservices.Provider
 {
 
-    public class ServiceResourceBuilder : IHandlerBuilder<ServiceResourceBuilder>
+    public sealed class ServiceResourceBuilder : IHandlerBuilder<ServiceResourceBuilder>
     {
         private object? _Instance;
 

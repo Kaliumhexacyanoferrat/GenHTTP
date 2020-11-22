@@ -10,28 +10,28 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 {
 
     [TestClass]
-    public class ErrorHandlingTests
+    public sealed class ErrorHandlingTests
     {
 
         #region Supporting data structures
 
-        public class TestController
+        public sealed class TestController
         {
 
             public int SimpleType() => 42;
 
         }
 
-        public class ControllerWithNullablePath
+        public sealed class ControllerWithNullablePath
         {
 
             public int Test([FromPath] int? id) => 42;
 
         }
 
-        public class ComplexPath { }
+        public sealed class ComplexPath { }
 
-        public class ControllerWithComplexPath
+        public sealed class ControllerWithComplexPath
         {
 
             public int Test([FromPath] ComplexPath value) => 42;

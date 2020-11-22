@@ -10,7 +10,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 {
 
     [TestClass]
-    public class CompanionTests
+    public sealed class CompanionTests
     {
 
         private class CustomCompanion : IServerCompanion

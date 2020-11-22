@@ -12,7 +12,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 {
 
     [TestClass]
-    public class ErrorHandlingTest
+    public sealed class ErrorHandlingTest
     {
 
         private class MalfunctioningRouter : IHandler

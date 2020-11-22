@@ -10,7 +10,7 @@ using GenHTTP.Api.Infrastructure;
 namespace GenHTTP.Modules.Authentication.Basic
 {
 
-    public class BasicAuthenticationKnownUsersBuilder : IConcernBuilder
+    public sealed class BasicAuthenticationKnownUsersBuilder : IConcernBuilder
     {
         private readonly Dictionary<string, string> _Users = new(StringComparer.OrdinalIgnoreCase);
 

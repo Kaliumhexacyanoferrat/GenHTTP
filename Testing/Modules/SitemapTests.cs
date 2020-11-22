@@ -14,13 +14,13 @@ namespace GenHTTP.Testing.Acceptance.Providers
 {
 
     [TestClass]
-    public class SitemapTests
+    public sealed class SitemapTests
     {
 
         #region Helping data structures
 
         [XmlRoot("urlset", Namespace = "http://www.sitemaps.org/schemas/sitemap/0.9")]
-        public class UrlSet
+        public sealed class UrlSet
         {
 
             [XmlElement("url")]
@@ -28,7 +28,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
         }
 
-        public class Url
+        public sealed class Url
         {
 
             [XmlElement("loc")]

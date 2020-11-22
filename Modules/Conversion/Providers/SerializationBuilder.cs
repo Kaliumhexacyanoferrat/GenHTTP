@@ -6,7 +6,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Conversion.Providers
 {
 
-    public class SerializationBuilder : IBuilder<SerializationRegistry>
+    public sealed class SerializationBuilder : IBuilder<SerializationRegistry>
     {
         private FlexibleContentType? _Default = null;
 

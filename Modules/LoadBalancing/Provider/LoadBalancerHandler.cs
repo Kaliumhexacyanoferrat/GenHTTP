@@ -10,7 +10,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.LoadBalancing.Provider
 {
 
-    public class LoadBalancerHandler : IHandler
+    public sealed class LoadBalancerHandler : IHandler
     {
 
         #region Get-/Setters

@@ -9,7 +9,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.IO.Providers
 {
 
-    public class ContentProvider : IHandler
+    public sealed class ContentProvider : IHandler
     {
         private ContentInfo? _Info;
 

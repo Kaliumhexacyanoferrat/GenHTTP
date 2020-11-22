@@ -8,7 +8,7 @@ using GenHTTP.Api.Infrastructure;
 namespace GenHTTP.Modules.Authentication.Basic
 {
 
-    public class BasicAuthenticationConcernBuilder : IConcernBuilder
+    public sealed class BasicAuthenticationConcernBuilder : IConcernBuilder
     {
         private string? _Realm;
 

@@ -9,7 +9,7 @@ namespace GenHTTP.Api.Routing
     /// <summary>
     /// Allows to build a <c cref="WebPath" /> instance.
     /// </summary>
-    public class PathBuilder : IBuilder<WebPath>
+    public sealed class PathBuilder : IBuilder<WebPath>
     {
         private readonly List<string> _Segments;
 

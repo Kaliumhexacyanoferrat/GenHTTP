@@ -16,7 +16,7 @@ using GenHTTP.Modules.Reflection;
 namespace GenHTTP.Modules.Controllers.Provider
 {
 
-    public class ControllerHandler<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T> : IHandler, IHandlerResolver where T : new()
+    public sealed class ControllerHandler<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T> : IHandler, IHandlerResolver where T : new()
     {
         private static readonly MethodRouting EMPTY = new("/", "^(/|)$", null, true);
 

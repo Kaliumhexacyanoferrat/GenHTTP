@@ -13,7 +13,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.Scriban.Providers
 {
 
-    public class RoutingMethod : IScriptCustomFunction
+    public sealed class RoutingMethod : IScriptCustomFunction
     {
 
         #region Get-/Setters

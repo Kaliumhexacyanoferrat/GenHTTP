@@ -11,7 +11,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Conversion.Providers.Forms
 {
 
-    public class FormContent : IResponseContent
+    public sealed class FormContent : IResponseContent
     {
 
         #region Get-/Setters

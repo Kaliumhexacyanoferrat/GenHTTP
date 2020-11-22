@@ -29,7 +29,7 @@ namespace GenHTTP.Modules.Reflection
     /// the required arguments. The result of the method is analyzed and
     /// converted into a HTTP response.
     /// </remarks>
-    public class MethodHandler : IHandler
+    public sealed class MethodHandler : IHandler
     {
         private static readonly object?[] NO_ARGUMENTS = Array.Empty<object?>();
 

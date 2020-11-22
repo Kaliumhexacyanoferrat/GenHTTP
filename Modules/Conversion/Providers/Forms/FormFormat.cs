@@ -13,7 +13,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.Conversion.Providers.Forms
 {
 
-    public class FormFormat : ISerializationFormat
+    public sealed class FormFormat : ISerializationFormat
     {
         private static readonly Type[] EMPTY_CONSTRUCTOR = Array.Empty<Type>();
 

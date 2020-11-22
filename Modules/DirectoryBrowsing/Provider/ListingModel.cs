@@ -6,7 +6,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 {
 
-    public class ListingModel : IBaseModel
+    public sealed class ListingModel : IBaseModel
     {
 
         #region Get-/Setters

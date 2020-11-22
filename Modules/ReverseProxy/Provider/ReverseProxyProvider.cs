@@ -18,7 +18,7 @@ using PooledAwait;
 namespace GenHTTP.Modules.ReverseProxy.Provider
 {
 
-    public class ReverseProxyProvider : IHandler
+    public sealed class ReverseProxyProvider : IHandler
     {
         private static readonly uint BUFFER_SIZE = 8192;
 

@@ -14,7 +14,7 @@ using Scriban.Runtime;
 namespace GenHTTP.Modules.Scriban.Providers
 {
 
-    public class ScribanRenderer<T> : IRenderer<T> where T : class, IBaseModel
+    public sealed class ScribanRenderer<T> : IRenderer<T> where T : class, IBaseModel
     {
         private Template? _Template;
 

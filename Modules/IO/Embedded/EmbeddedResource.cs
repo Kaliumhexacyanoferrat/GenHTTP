@@ -10,7 +10,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.IO.Embedded
 {
 
-    public class EmbeddedResource : IResource
+    public sealed class EmbeddedResource : IResource
     {
         private ulong? _Checksum, _Length;
 

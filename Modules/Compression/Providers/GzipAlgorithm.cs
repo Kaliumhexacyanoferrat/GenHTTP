@@ -6,7 +6,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Compression.Providers
 {
 
-    public class GzipAlgorithm : ICompressionAlgorithm
+    public sealed class GzipAlgorithm : ICompressionAlgorithm
     {
 
         public string Name => "gzip";

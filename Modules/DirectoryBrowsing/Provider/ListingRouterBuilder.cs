@@ -8,7 +8,7 @@ using GenHTTP.Api.Infrastructure;
 namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 {
 
-    public class ListingRouterBuilder : IHandlerBuilder<ListingRouterBuilder>
+    public sealed class ListingRouterBuilder : IHandlerBuilder<ListingRouterBuilder>
     {
         private IResourceTree? _Tree;
 

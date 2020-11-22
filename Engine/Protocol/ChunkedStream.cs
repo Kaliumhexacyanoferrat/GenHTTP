@@ -10,7 +10,7 @@ using PooledAwait;
 namespace GenHTTP.Engine.Protocol
 {
 
-    public class ChunkedStream : Stream
+    public sealed class ChunkedStream : Stream
     {
         private static readonly string NL = "\r\n";
 

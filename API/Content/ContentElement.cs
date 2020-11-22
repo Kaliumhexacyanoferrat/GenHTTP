@@ -8,7 +8,7 @@ namespace GenHTTP.Api.Content
     /// <summary>
     /// Describes an element that is provided by this server instance.
     /// </summary>
-    public class ContentElement
+    public sealed class ContentElement
     {
 
         #region Get-/Setters

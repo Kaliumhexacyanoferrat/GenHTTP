@@ -10,7 +10,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.Conversion.Providers.Json
 {
 
-    public class JsonFormat : ISerializationFormat
+    public sealed class JsonFormat : ISerializationFormat
     {
         private static readonly JsonSerializerOptions OPTIONS = new()
         {

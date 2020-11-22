@@ -16,7 +16,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Conversion
 {
 
     [TestClass]
-    public class ConversionTests
+    public sealed class ConversionTests
     {
 
         #region Supporting data structures

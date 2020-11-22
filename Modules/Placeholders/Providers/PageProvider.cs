@@ -12,7 +12,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.Placeholders.Providers
 {
 
-    public class PageProvider : IHandler
+    public sealed class PageProvider : IHandler
     {
 
         #region Get-/Setters

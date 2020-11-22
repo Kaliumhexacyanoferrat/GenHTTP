@@ -12,7 +12,7 @@ using GenHTTP.Api.Routing;
 namespace GenHTTP.Modules.Compression.Providers
 {
 
-    public class CompressionConcern : IConcern
+    public sealed class CompressionConcern : IConcern
     {
 
         #region Get-/Setters

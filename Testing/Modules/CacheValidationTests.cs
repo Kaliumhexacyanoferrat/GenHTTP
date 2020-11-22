@@ -9,7 +9,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
 {
 
     [TestClass]
-    public class CacheValidationTests
+    public sealed class CacheValidationTests
     {
 
         [TestMethod]

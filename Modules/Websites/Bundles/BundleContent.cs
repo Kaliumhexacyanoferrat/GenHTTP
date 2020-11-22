@@ -12,7 +12,7 @@ using GenHTTP.Modules.IO.Streaming;
 namespace GenHTTP.Modules.Websites.Bundles
 {
 
-    public class BundleContent : IResponseContent
+    public sealed class BundleContent : IResponseContent
     {
         private readonly byte[] _NewLine = new byte[] { (byte)'\n' };
 

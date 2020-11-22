@@ -7,7 +7,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Razor
 {
 
     [TestClass]
-    public class ConfigurationTests
+    public sealed class ConfigurationTests
     {
 
         [TestMethod]

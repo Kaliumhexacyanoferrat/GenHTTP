@@ -8,7 +8,7 @@ using GenHTTP.Api.Infrastructure;
 namespace GenHTTP.Modules.Compression.Providers
 {
 
-    public class CompressionConcernBuilder : IConcernBuilder
+    public sealed class CompressionConcernBuilder : IConcernBuilder
     {
         private readonly List<ICompressionAlgorithm> _Algorithms = new();
 

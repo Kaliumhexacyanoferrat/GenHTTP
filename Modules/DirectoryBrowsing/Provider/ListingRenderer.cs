@@ -9,7 +9,7 @@ using GenHTTP.Api.Content.Templating;
 namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 {
 
-    public class ListingRenderer : IRenderer<ListingModel>
+    public sealed class ListingRenderer : IRenderer<ListingModel>
     {
 
         public ValueTask<string> RenderAsync(ListingModel model)

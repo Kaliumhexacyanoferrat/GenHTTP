@@ -11,7 +11,7 @@ using GenHTTP.Api.Infrastructure;
 namespace GenHTTP.Engine.Hosting
 {
 
-    public class ServerHost : IServerHost
+    public sealed class ServerHost : IServerHost
     {
         private readonly IServerBuilder _Builder = Server.Create();
 

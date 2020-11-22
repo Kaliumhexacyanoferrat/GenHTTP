@@ -12,7 +12,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 {
 
     [TestClass]
-    public class SinglePageTests
+    public sealed class SinglePageTests
     {
 
         [TestMethod]

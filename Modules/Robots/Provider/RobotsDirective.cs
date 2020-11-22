@@ -3,7 +3,7 @@
 namespace GenHTTP.Modules.Robots.Provider
 {
 
-    public class RobotsDirective
+    public sealed class RobotsDirective
     {
 
         #region Get-/Setters

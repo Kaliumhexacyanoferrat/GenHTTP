@@ -11,7 +11,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.Layouting.Provider
 {
 
-    public class LayoutRouter : IHandler, IRootPathAppender, IHandlerResolver
+    public sealed class LayoutRouter : IHandler, IRootPathAppender, IHandlerResolver
     {
 
         #region Get-/Setters

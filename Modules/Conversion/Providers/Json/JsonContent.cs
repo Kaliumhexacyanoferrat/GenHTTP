@@ -8,7 +8,7 @@ using PooledAwait;
 namespace GenHTTP.Modules.Conversion.Providers.Json
 {
 
-    public class JsonContent : IResponseContent
+    public sealed class JsonContent : IResponseContent
     {
 
         #region Get-/Setters

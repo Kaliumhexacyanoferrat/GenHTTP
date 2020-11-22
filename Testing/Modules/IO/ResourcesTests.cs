@@ -10,7 +10,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 {
 
     [TestClass]
-    public class ResourcesTests
+    public sealed class ResourcesTests
     {
 
         [TestMethod]

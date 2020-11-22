@@ -9,7 +9,7 @@ using PooledAwait;
 namespace GenHTTP.Modules.IO.Streaming
 {
 
-    public class ResourceContent : IResponseContent
+    public sealed class ResourceContent : IResponseContent
     {
 
         #region Get-/Setters

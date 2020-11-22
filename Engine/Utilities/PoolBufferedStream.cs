@@ -9,7 +9,7 @@ using PooledAwait;
 namespace GenHTTP.Engine.Utilities
 {
 
-    public class PoolBufferedStream : Stream
+    public sealed class PoolBufferedStream : Stream
     {
         private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
 

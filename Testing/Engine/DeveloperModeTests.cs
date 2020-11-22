@@ -13,7 +13,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 {
 
     [TestClass]
-    public class DeveloperModeTests
+    public sealed class DeveloperModeTests
     {
 
         private class ThrowingProvider : IHandler

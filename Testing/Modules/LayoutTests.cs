@@ -9,7 +9,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
 {
 
     [TestClass]
-    public class LayoutTests
+    public sealed class LayoutTests
     {
 
         /// <summary>

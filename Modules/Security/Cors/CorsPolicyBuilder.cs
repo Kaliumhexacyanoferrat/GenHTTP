@@ -7,7 +7,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Security.Cors
 {
 
-    public class CorsPolicyBuilder : IConcernBuilder
+    public sealed class CorsPolicyBuilder : IConcernBuilder
     {
         private readonly Dictionary<string, OriginPolicy?> _AdditionalPolicies = new(4);
 

@@ -6,7 +6,7 @@ using GenHTTP.Api.Infrastructure;
 namespace GenHTTP.Modules.IO.FileSystem
 {
 
-    public class DirectoryTreeBuilder : IBuilder<IResourceTree>
+    public sealed class DirectoryTreeBuilder : IBuilder<IResourceTree>
     {
         private DirectoryInfo? _Directory;
 

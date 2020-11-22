@@ -12,7 +12,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 {
 
-    public class ListingProvider : IHandler
+    public sealed class ListingProvider : IHandler
     {
 
         #region Get-/Setters

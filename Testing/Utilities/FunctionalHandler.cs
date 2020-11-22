@@ -8,7 +8,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Testing.Acceptance.Utilities
 {
 
-    public class FunctionalHandler : IHandler
+    public sealed class FunctionalHandler : IHandler
     {
         private readonly Func<IRequest, IEnumerable<ContentElement>>? _ContentProvider;
 

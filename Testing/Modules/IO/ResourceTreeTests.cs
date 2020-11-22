@@ -6,7 +6,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 {
 
     [TestClass]
-    public class ResourceTreeTests
+    public sealed class ResourceTreeTests
     {
 
         [TestMethod]

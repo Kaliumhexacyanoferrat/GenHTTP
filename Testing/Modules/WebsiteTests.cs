@@ -20,12 +20,12 @@ namespace GenHTTP.Testing.Acceptance.Providers
 {
 
     [TestClass]
-    public class WebsiteTests
+    public sealed class WebsiteTests
     {
 
         #region Supporting data structures
 
-        public class Theme : ITheme
+        public sealed class Theme : ITheme
         {
 
             public List<Script> Scripts

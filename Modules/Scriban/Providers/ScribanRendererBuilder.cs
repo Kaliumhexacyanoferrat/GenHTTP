@@ -5,7 +5,7 @@ using GenHTTP.Api.Infrastructure;
 namespace GenHTTP.Modules.Scriban.Providers
 {
 
-    public class ScribanRendererBuilder<T> : IBuilder<IRenderer<T>> where T : class, IBaseModel
+    public sealed class ScribanRendererBuilder<T> : IBuilder<IRenderer<T>> where T : class, IBaseModel
     {
         private IResource? _TemplateProvider;
 

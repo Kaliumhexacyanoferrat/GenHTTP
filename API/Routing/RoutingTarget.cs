@@ -11,7 +11,7 @@ namespace GenHTTP.Api.Routing
     /// Stores the state of the routing mechanism and allows handlers to
     /// get the remaining parts to be handled.
     /// </remarks>
-    public class RoutingTarget
+    public sealed class RoutingTarget
     {
         private int _Index = 0;
 

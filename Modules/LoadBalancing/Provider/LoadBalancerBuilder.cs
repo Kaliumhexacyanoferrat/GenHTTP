@@ -6,7 +6,7 @@ using GenHTTP.Api.Infrastructure;
 namespace GenHTTP.Modules.LoadBalancing.Provider
 {
 
-    public class LoadBalancerBuilder : IHandlerBuilder<LoadBalancerBuilder>
+    public sealed class LoadBalancerBuilder : IHandlerBuilder<LoadBalancerBuilder>
     {
         private readonly List<IConcernBuilder> _Concerns = new();
 

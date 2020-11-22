@@ -7,7 +7,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Conversion.Providers.Xml
 {
 
-    public class XmlContent : IResponseContent
+    public sealed class XmlContent : IResponseContent
     {
 
         #region Get-/Setters

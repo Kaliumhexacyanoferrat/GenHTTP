@@ -10,7 +10,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 {
 
     [TestClass]
-    public class RobotsTests
+    public sealed class RobotsTests
     {
 
         [TestMethod]

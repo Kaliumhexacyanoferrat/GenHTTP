@@ -12,7 +12,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.Security.Providers
 {
 
-    public class SecureUpgradeConcern : IConcern
+    public sealed class SecureUpgradeConcern : IConcern
     {
 
         #region Get-/Setters

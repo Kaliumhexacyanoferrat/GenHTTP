@@ -19,12 +19,12 @@ namespace GenHTTP.Testing.Acceptance.Engine
 {
 
     [TestClass]
-    public class ContentTests
+    public sealed class ContentTests
     {
 
         #region Supporting data structures
 
-        public class ContentPrinter : IConcern
+        public sealed class ContentPrinter : IConcern
         {
 
             public IHandler Content { get; }
@@ -51,7 +51,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
         }
 
-        public class ContentPrinterBuilder : IConcernBuilder
+        public sealed class ContentPrinterBuilder : IConcernBuilder
         {
 
             public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)

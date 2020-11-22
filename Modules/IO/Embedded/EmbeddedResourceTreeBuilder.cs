@@ -6,7 +6,7 @@ using GenHTTP.Api.Infrastructure;
 namespace GenHTTP.Modules.IO.Embedded
 {
 
-    public class EmbeddedResourceTreeBuilder : IBuilder<IResourceTree>
+    public sealed class EmbeddedResourceTreeBuilder : IBuilder<IResourceTree>
     {
         private string? _Root;
 

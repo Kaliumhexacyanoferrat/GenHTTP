@@ -10,7 +10,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 {
 
     [TestClass]
-    public class PipelineTests
+    public sealed class PipelineTests
     {
 
         [TestMethod]

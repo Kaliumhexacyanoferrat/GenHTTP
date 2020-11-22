@@ -6,7 +6,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Api.Content.Websites
 {
 
-    public class WebsiteModel : IBaseModel
+    public sealed class WebsiteModel : IBaseModel
     {
 
         #region Get-/Setters

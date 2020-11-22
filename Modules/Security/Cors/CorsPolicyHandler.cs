@@ -11,7 +11,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.Security.Cors
 {
 
-    public class CorsPolicyHandler : IConcern
+    public sealed class CorsPolicyHandler : IConcern
     {
         public const string ALLOW_ANY = "*";
 

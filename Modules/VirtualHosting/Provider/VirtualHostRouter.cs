@@ -10,7 +10,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.VirtualHosting.Provider
 {
 
-    public class VirtualHostRouter : IHandler
+    public sealed class VirtualHostRouter : IHandler
     {
 
         #region Get-/Setters

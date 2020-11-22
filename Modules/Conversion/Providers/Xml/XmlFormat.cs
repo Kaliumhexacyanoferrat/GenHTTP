@@ -10,7 +10,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.Conversion.Providers.Xml
 {
 
-    public class XmlFormat : ISerializationFormat
+    public sealed class XmlFormat : ISerializationFormat
     {
 
         public ValueTask<object?> DeserializeAsync(Stream stream, Type type)
