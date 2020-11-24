@@ -54,15 +54,12 @@
     <ProjectReference Include="..\Modules\IO\GenHTTP.Modules.IO.csproj" />
     <ProjectReference Include="..\Modules\Placeholders\GenHTTP.Modules.Placeholders.csproj" />
     <ProjectReference Include="..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj" />
-    
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    
+        
     <PackageReference Include="PooledAwait" Version="1.0.49" />
         
     <PackageReference Include="System.IO.Pipelines" Version="5.0.0" />
+
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
 
   </ItemGroup>
   

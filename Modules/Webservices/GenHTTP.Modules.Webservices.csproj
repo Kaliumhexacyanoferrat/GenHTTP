@@ -46,10 +46,7 @@
 	  <ProjectReference Include="..\Reflection\GenHTTP.Modules.Reflection.csproj" />
 	  <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
 
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     
   </ItemGroup>
 
