@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -6,7 +7,6 @@ using System.Threading.Tasks;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.IO;
 using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.Websites.Bundles
@@ -14,13 +14,13 @@ namespace GenHTTP.Modules.Websites.Bundles
 
     public sealed class BundleContent : IResponseContent
     {
-        private readonly byte[] _NewLine = new byte[] { (byte)'\n' };
+        private static readonly byte[] _NewLine = new byte[] { (byte)'\n' };
 
         #region Get-/Setters
 
         public ulong? Length => null;
 
-        private IEnumerable<IResource> Items { get; }
+        private List<IResource> Items { get; }
 
         #endregion
 
@@ -28,7 +28,7 @@ namespace GenHTTP.Modules.Websites.Bundles
 
         public BundleContent(IEnumerable<IResource> items)
         {
-            Items = items;
+            Items = items.ToList();
         }
 
         #endregion
@@ -55,18 +55,7 @@ namespace GenHTTP.Modules.Websites.Bundles
 
                 foreach (var item in Items)
                 {
-                    using var source = await item.GetContentAsync();
-
-                    var checksum = await source.CalculateChecksumAsync();
-
-                    if (checksum is not null)
-                    {
-                        hash = hash * 23 + (ulong)checksum;
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    hash = hash * 23 + await item.CalculateChecksumAsync();
                 }
 
                 return hash;
