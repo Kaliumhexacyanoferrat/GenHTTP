@@ -62,7 +62,7 @@ namespace GenHTTP.Modules.Webservices.Provider
             }
         }
 
-        private MethodRouting DeterminePath(ResourceMethodAttribute metaData)
+        private static MethodRouting DeterminePath(ResourceMethodAttribute metaData)
         {
             var path = metaData.Path;
 

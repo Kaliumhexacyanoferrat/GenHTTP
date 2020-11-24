@@ -84,7 +84,7 @@ namespace GenHTTP.Modules.Security.Providers
             return await Content.HandleAsync(request).ConfigureAwait(false);
         }
 
-        private string GetRedirectLocation(IRequest request, List<IEndPoint> endPoints)
+        private static string GetRedirectLocation(IRequest request, List<IEndPoint> endPoints)
         {
             var targetPort = GetTargetPort(request, endPoints);
 
@@ -93,7 +93,7 @@ namespace GenHTTP.Modules.Security.Providers
             return $"https://{request.HostWithoutPort()}{port}{request.Target.Path}";
         }
 
-        private ushort GetTargetPort(IRequest request, List<IEndPoint> endPoints)
+        private static ushort GetTargetPort(IRequest request, List<IEndPoint> endPoints)
         {
             // this extension can only be added if there are secure endpoints available
             if (endPoints.Count == 0)

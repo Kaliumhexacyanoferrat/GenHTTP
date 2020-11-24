@@ -4,7 +4,7 @@ using System.Reflection;
 namespace GenHTTP.Modules.Razor.Providers
 {
 
-    public interface IRazorConfigurationBuilder<T>
+    public interface IRazorConfigurationBuilder<out T>
     {
 
         T AddUsing(string nameSpace);
