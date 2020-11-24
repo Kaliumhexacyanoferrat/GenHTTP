@@ -9,8 +9,8 @@ As an example, the website of this project is hosted on a Raspberry Pi: [genhttp
 ## Features
 
 - Setup new webservices or [themed](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes) websites in a couple of minutes
-- Optimized out of the box (e.g. by bundling resources or compressing results)
-- Small memory and storage footprint
+- [Optimized](https://genhttp.org/features) out of the box (e.g. by bundling resources or compressing results)
+- Small memory and storage [footprint](https://genhttp.org/features#footprint)
 - Grade A+ security level according to SSL Labs
 
 ## Getting Started
