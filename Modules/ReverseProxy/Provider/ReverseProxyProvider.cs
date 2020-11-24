@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -293,6 +292,8 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
             return string.Join("; ", result);
         }
+
+        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();
 

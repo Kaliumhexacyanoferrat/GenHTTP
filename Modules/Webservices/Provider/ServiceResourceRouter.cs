@@ -88,6 +88,8 @@ namespace GenHTTP.Modules.Webservices.Provider
 
         #region Functionality
 
+        public ValueTask PrepareAsync() => Methods.PrepareAsync();
+
         public IEnumerable<ContentElement> GetContent(IRequest request) => Methods.GetContent(request);
 
         public ValueTask<IResponse?> HandleAsync(IRequest request) => Methods.HandleAsync(request);

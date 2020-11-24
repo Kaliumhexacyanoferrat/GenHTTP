@@ -34,6 +34,8 @@ namespace GenHTTP.Modules.ErrorHandling.Provider
 
         #region Functionality
 
+        public ValueTask PrepareAsync() => Content.PrepareAsync();
+
         public IEnumerable<ContentElement> GetContent(IRequest request) => Content.GetContent(request);
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)

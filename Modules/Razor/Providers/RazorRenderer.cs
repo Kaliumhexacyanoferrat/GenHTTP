@@ -55,6 +55,14 @@ namespace GenHTTP.Modules.Razor.Providers
             });
         }
 
+        public async ValueTask PrepareAsync()
+        {
+            if (_Template is null)
+            {
+                _Template = await LoadTemplate();
+            }
+        }
+
         private async PooledValueTask<IRazorEngineCompiledTemplate<RazorEngineTemplateBase<T>>> GetTemplate()
         {
             if (_Template is null || await TemplateProvider.HasChanged())

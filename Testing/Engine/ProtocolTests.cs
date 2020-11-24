@@ -23,6 +23,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             public string? Value { get; private set; }
 
+            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
             public IHandler Parent => throw new NotImplementedException();
 
             public IEnumerable<ContentElement> GetContent(IRequest request)
@@ -45,6 +47,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
         private class ContentLengthResponder : IHandler
         {
+
+            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
             public IHandler Parent => throw new NotImplementedException();
 

@@ -51,14 +51,27 @@ namespace GenHTTP.Modules.Placeholders.Providers
             });
         }
 
+        public async ValueTask PrepareAsync()
+        {
+            if (_Template is null)
+            {
+                await LoadTemplate();
+            }
+        }
+
         private async PooledValueTask<string> GetTemplate()
         {
             if (await TemplateProvider.HasChanged())
             {
-                _Template = await TemplateProvider.GetResourceAsStringAsync();
+                await LoadTemplate();
             }
 
             return _Template!;
+        }
+
+        private async PooledValueTask LoadTemplate()
+        {
+            _Template = await TemplateProvider.GetResourceAsStringAsync();
         }
 
         private static string? GetValue(string fullPath, IEnumerable<string> path, object model)

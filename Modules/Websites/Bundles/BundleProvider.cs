@@ -48,6 +48,8 @@ namespace GenHTTP.Modules.Websites.Bundles
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();
 
+        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
         #endregion
 
     }

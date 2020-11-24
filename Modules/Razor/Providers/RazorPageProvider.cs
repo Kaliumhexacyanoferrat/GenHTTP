@@ -63,6 +63,8 @@ namespace GenHTTP.Modules.Razor.Providers
             return page.Build();
         }
 
+        public ValueTask PrepareAsync() => Renderer.PrepareAsync();
+
         public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, PageInfo, ContentType.TextHtml);
 
         #endregion

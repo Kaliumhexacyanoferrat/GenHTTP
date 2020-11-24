@@ -110,6 +110,8 @@ namespace GenHTTP.Modules.Controllers.Provider
         #endregion
 
         #region Functionality
+        
+        public ValueTask PrepareAsync() => Provider.PrepareAsync();
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Provider.GetContent(request);
 

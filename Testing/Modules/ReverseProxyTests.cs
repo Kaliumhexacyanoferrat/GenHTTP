@@ -98,6 +98,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
                 _Response = response;
             }
 
+            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
             public IHandler Parent => throw new NotImplementedException();
 
             public IEnumerable<ContentElement> GetContent(IRequest request)
@@ -122,6 +124,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
             }
 
             public IHandler Parent => throw new NotImplementedException();
+            
+            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
             public IEnumerable<ContentElement> GetContent(IRequest request)
             {

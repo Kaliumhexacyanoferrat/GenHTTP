@@ -71,6 +71,8 @@ namespace GenHTTP.Modules.Sitemaps.Provider
             }
         }
 
+        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
         public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Info, ContentType.TextXml);
 
         #endregion

@@ -33,6 +33,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
         class UserReturningHandler : IHandler
         {
 
+            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
             public IHandler Parent { get; }
 
             public UserReturningHandler(IHandler parent)

@@ -39,6 +39,8 @@ namespace GenHTTP.Modules.Authentication.Basic
         #endregion
 
         #region Functionality
+        
+        public ValueTask PrepareAsync() => Content.PrepareAsync();
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Content.GetContent(request);
 

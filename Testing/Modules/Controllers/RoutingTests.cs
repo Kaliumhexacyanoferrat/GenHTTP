@@ -78,6 +78,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
             public IHandler Parent { get; }
 
+            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+            
             public AppenderDependentHandler(IHandler parent)
             {
                 Parent = parent;

@@ -76,6 +76,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.Conversion
             public IHandler Parent { get; }
 
             public ISerializationFormat Format { get; }
+            
+            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
             public ConversionHandler(ISerializationFormat format, IHandler parent) 
             {

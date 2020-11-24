@@ -53,6 +53,15 @@ namespace GenHTTP.Engine.Infrastructure
             return await Content.HandleAsync(request).ConfigureAwait(false);
         }
 
+        public async ValueTask PrepareAsync()
+        {
+            await Content.PrepareAsync();
+
+            await Template.PrepareAsync();
+
+            await ErrorRenderer.PrepareAsync();
+        }
+
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
             return Content.GetContent(request);

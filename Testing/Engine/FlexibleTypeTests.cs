@@ -20,6 +20,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
         private class Provider : IHandler
         {
 
+            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
             public IHandler Parent => throw new System.NotImplementedException();
 
             public IEnumerable<ContentElement> GetContent(IRequest request)

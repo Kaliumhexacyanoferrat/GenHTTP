@@ -21,6 +21,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
         private class PathReturner : IHandler
         {
 
+            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
             public IHandler Parent => throw new NotImplementedException();
 
             public IEnumerable<ContentElement> GetContent(IRequest request)
@@ -39,6 +41,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
         private class QueryReturner : IHandler
         {
+            
+            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
             public IHandler Parent => throw new NotImplementedException();
 

@@ -82,6 +82,24 @@ namespace GenHTTP.Modules.Layouting.Provider
             return new ValueTask<IResponse?>();
         }
 
+        public async ValueTask PrepareAsync()
+        {
+            if (Index != null)
+            {
+                await Index.PrepareAsync();
+            }
+
+            if (Fallback != null)
+            {
+                await Fallback.PrepareAsync();
+            }
+
+            foreach (var handler in Handlers.Values)
+            {
+                await handler.PrepareAsync();
+            }
+        }
+
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
             var result = new List<ContentElement>();

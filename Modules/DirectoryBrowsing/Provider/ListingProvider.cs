@@ -46,6 +46,8 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
             return (await this.GetPageAsync(templateModel).ConfigureAwait(false)).Build();
         }
 
+        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
         public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();
 
         private static ContentInfo GetPageInfo(IRequest request)

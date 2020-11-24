@@ -104,6 +104,8 @@ namespace GenHTTP.Modules.Websites.Resources
             });
         }
 
+        public ValueTask PrepareAsync() => Bundle.PrepareAsync();
+
         #endregion
 
     }

@@ -18,6 +18,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
         private class MalfunctioningRouter : IHandler
         {
 
+            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
             public IHandler Parent { get => throw new NotImplementedException(); }
 
             public IEnumerable<ContentElement> GetContent(IRequest request)

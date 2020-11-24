@@ -75,6 +75,8 @@ namespace GenHTTP.Modules.Robots.Provider
             return new ValueTask<IResponse?>(response);
         }
 
+        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
         public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Info, ContentType.TextPlain);
 
         #endregion
