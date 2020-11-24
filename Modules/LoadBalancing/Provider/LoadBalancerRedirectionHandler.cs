@@ -43,6 +43,8 @@ namespace GenHTTP.Modules.LoadBalancing.Provider
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();
 
+        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
         #endregion
 
     }

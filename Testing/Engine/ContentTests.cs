@@ -37,6 +37,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 Content = contentFactory(this);
             }
 
+            public ValueTask PrepareAsync() => Content.PrepareAsync();
+
             public IEnumerable<ContentElement> GetContent(IRequest request) => Content.GetContent(request);
 
             public ValueTask<IResponse?> HandleAsync(IRequest request)

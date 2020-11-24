@@ -12,6 +12,13 @@ namespace GenHTTP.Api.Content.Templating
     {
 
         /// <summary>
+        /// Asynchronously initializes the renderer so
+        /// computation heavy work does not need to be
+        /// done on first rendering request.
+        /// </summary>
+        ValueTask PrepareAsync();
+
+        /// <summary>
         /// Renders the given model.
         /// </summary>
         /// <param name="model">The model to be rendered</param>

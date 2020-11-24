@@ -64,6 +64,8 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
             builder.AppendLine("</tr>");
         }
 
+        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
     }
 
 

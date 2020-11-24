@@ -36,6 +36,14 @@ namespace GenHTTP.Modules.LoadBalancing.Provider
 
         #region Functionality
 
+        public async ValueTask PrepareAsync()
+        {
+            foreach (var entry in _Nodes)
+            {
+                await entry.Item1.PrepareAsync();
+            }
+        }
+
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             // get the handlers that share the highest priority

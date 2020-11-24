@@ -119,6 +119,8 @@ namespace GenHTTP.Modules.Security.Providers
             return endPoints.First().Port;
         }
 
+        public ValueTask PrepareAsync() => Content.PrepareAsync();
+
         public IEnumerable<ContentElement> GetContent(IRequest request) => Content.GetContent(request);
 
         #endregion

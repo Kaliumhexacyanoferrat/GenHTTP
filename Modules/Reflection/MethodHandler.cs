@@ -231,6 +231,8 @@ namespace GenHTTP.Modules.Reflection
             }
         }
 
+        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
             if (!MetaData.IgnoreContent)

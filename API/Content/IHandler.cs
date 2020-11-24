@@ -19,6 +19,20 @@ namespace GenHTTP.Api.Content
         IHandler Parent { get; }
 
         /// <summary>
+        /// Invoked to perform computation heavy or IO bound work
+        /// that initializes the handler before handling the
+        /// first requests. 
+        /// </summary>
+        /// <remarks>
+        /// Intended to keep the response time for the first
+        /// requests low. Handlers should relay this call to dependent
+        /// child handlers to initialize the whole handler chain.
+        /// May be called multiple times depending on the setup
+        /// the handler is used in.
+        /// </remarks>
+        ValueTask PrepareAsync();
+
+        /// <summary>
         /// Describes the content that is provided by this handler.
         /// </summary>
         /// <param name="request">The request to be respected when describing the content</param>

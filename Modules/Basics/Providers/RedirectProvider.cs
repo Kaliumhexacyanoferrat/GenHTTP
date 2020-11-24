@@ -38,6 +38,8 @@ namespace GenHTTP.Modules.Basics.Providers
 
         #region Functionality
 
+        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
         public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)

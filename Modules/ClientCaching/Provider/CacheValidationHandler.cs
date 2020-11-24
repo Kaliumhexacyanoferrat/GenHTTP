@@ -71,6 +71,8 @@ namespace GenHTTP.Modules.ClientCaching.Provider
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Content.GetContent(request);
 
+        public ValueTask PrepareAsync() => Content.PrepareAsync();
+
         private static async PooledValueTask<string?> CalculateETag(IResponse response)
         {
             if (response.Headers.TryGetValue(ETAG_HEADER, out var eTag))

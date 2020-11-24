@@ -23,6 +23,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             public ICookieCollection? Cookies { get; private set; }
 
+            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
             public IHandler Parent => throw new NotSupportedException();
 
             public IEnumerable<ContentElement> GetContent(IRequest request)

@@ -19,6 +19,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
         private class ThrowingProvider : IHandler
         {
 
+            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
             public IHandler Parent => throw new NotImplementedException();
 
             public IEnumerable<ContentElement> GetContent(IRequest request)

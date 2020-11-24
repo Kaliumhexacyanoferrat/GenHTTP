@@ -48,6 +48,8 @@ namespace GenHTTP.Modules.Placeholders.Providers
             return page.Build();
         }
 
+        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
         public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, PageInfo, ContentType.TextHtml);
 
         #endregion

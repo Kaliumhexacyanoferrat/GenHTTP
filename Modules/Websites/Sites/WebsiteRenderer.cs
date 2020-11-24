@@ -55,6 +55,8 @@ namespace GenHTTP.Modules.Websites.Sites
             return await Theme.Renderer.RenderAsync(websiteModel);
         }
 
+        public ValueTask PrepareAsync() => Theme.Renderer.PrepareAsync();
+
         #endregion
 
     }

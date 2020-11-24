@@ -114,6 +114,8 @@ namespace GenHTTP.Modules.Compression.Providers
             return false;
         }
 
+        public ValueTask PrepareAsync() => Content.PrepareAsync();
+
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
             return Content.GetContent(request);

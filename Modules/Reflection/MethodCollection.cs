@@ -58,6 +58,14 @@ namespace GenHTTP.Modules.Reflection
             }
         }
 
+        public async ValueTask PrepareAsync()
+        {
+            foreach (var handler in Methods)
+            {
+                await handler.PrepareAsync();
+            }
+        }
+
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
             return Methods.SelectMany(m => m.GetContent(request));

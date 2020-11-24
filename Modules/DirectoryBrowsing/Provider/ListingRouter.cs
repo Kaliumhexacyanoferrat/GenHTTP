@@ -62,6 +62,8 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
                 return new ContentElement(path, info, ContentType.TextHtml, children);
             });
         }
+        
+        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
         #endregion
 

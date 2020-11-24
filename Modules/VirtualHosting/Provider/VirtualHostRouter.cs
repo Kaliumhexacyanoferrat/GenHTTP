@@ -39,6 +39,19 @@ namespace GenHTTP.Modules.VirtualHosting.Provider
 
         #region Functionality
 
+        public async ValueTask PrepareAsync()
+        {
+            foreach (var host in Hosts.Values)
+            {
+                await host.PrepareAsync();
+            }
+
+            if (DefaultRoute != null)
+            {
+                await DefaultRoute.PrepareAsync();
+            }
+        }
+
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             return GetRouter(request)?.HandleAsync(request) ?? new ValueTask<IResponse?>();

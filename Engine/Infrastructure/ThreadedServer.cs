@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
@@ -39,9 +40,11 @@ namespace GenHTTP.Engine.Infrastructure
             Companion = companion;
             Configuration = configuration;
 
-            _EndPoints = new(this, configuration.EndPoints, configuration.Network);
-
             Handler = handler;
+
+            Task.Run(() => handler.PrepareAsync());
+
+            _EndPoints = new(this, configuration.EndPoints, configuration.Network);
         }
 
         #endregion

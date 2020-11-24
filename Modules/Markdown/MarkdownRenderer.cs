@@ -36,16 +36,29 @@ namespace GenHTTP.Modules.Markdown
 
         #region Functionality
 
-        public async ValueTask<string> RenderAsync(T? model) => Markdig.Markdown.ToHtml(await LoadFile(), PIPELINE);
+        public async ValueTask<string> RenderAsync(T? model) => Markdig.Markdown.ToHtml(await GetContent(), PIPELINE);
 
-        private async PooledValueTask<string> LoadFile()
+        public async ValueTask PrepareAsync()
+        {
+            if (_Markdown is null)
+            {
+                await LoadFile();
+            }
+        }
+
+        private async PooledValueTask<string> GetContent()
         {
             if (await File.HasChanged())
             {
-                _Markdown = await File.GetResourceAsStringAsync();
+                await LoadFile();
             }
 
             return _Markdown!;
+        }
+
+        private async PooledValueTask LoadFile()
+        {
+            _Markdown = await File.GetResourceAsStringAsync();
         }
 
         #endregion

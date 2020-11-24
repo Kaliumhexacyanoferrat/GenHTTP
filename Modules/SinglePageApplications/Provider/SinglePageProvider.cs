@@ -69,6 +69,8 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
             }
         }
 
+        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
         public IEnumerable<ContentElement> GetContent(IRequest request) => Tree.GetContent(request, this);
 
         #endregion

@@ -47,6 +47,14 @@ namespace GenHTTP.Modules.Scriban.Providers
             return await template.RenderAsync(obj);
         }
 
+        public async ValueTask PrepareAsync()
+        {
+            if (_Template is null)
+            {
+                _Template = await LoadTemplate();
+            }
+        }
+
         private async PooledValueTask<Template> GetTemplateAsync()
         {
             if (_Template is null || await TemplateProvider.HasChanged())
