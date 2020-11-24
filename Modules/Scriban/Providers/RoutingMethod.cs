@@ -20,6 +20,14 @@ namespace GenHTTP.Modules.Scriban.Providers
 
         private IBaseModel Model { get; }
 
+        public int RequiredParameterCount => 1;
+
+        public int ParameterCount => 1;
+
+        public ScriptVarParamKind VarParamKind => ScriptVarParamKind.Direct;
+
+        public Type ReturnType => typeof(string);
+
         #endregion
 
         #region Initialization
@@ -57,6 +65,8 @@ namespace GenHTTP.Modules.Scriban.Providers
         {
             return new ValueTask<object>(Invoke(context, callerContext, arguments, blockStatement));
         }
+
+        public ScriptParameterInfo GetParameterInfo(int index) => new ScriptParameterInfo(typeof(object), "route");
 
         #endregion
 
