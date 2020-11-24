@@ -18,7 +18,7 @@ namespace GenHTTP.Modules.Websites.Bundles
 
         public FlexibleContentType ContentType { get; }
 
-        private IEnumerable<IResource> Items { get; }
+        private BundleContent Bundle { get; }
 
         #endregion
 
@@ -29,7 +29,7 @@ namespace GenHTTP.Modules.Websites.Bundles
             Parent = parent;
 
             ContentType = contentType;
-            Items = items;
+            Bundle = new BundleContent(items);
         }
 
         #endregion
@@ -39,7 +39,7 @@ namespace GenHTTP.Modules.Websites.Bundles
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var response = request.Respond()
-                                  .Content(new BundleContent(Items))
+                                  .Content(Bundle)
                                   .Type(ContentType)
                                   .Build();
 
