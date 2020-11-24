@@ -79,7 +79,7 @@ namespace GenHTTP.Modules.Websites.Sites
             var scriptRouter = (ScriptRouter)scripts.Build(this);
             var styleRouter = (StyleRouter)styles.Build(this);
 
-            Renderer = new(Theme, Menu, scriptRouter, styleRouter);
+            Renderer = new WebsiteRenderer(Theme, Menu, scriptRouter, styleRouter);
         }
 
         #endregion
@@ -91,6 +91,10 @@ namespace GenHTTP.Modules.Websites.Sites
             await Handler.PrepareAsync();
 
             await Renderer.PrepareAsync();
+
+            await Theme.ErrorHandler.PrepareAsync();
+
+            await Theme.Renderer.PrepareAsync();
         }
 
         public ValueTask<IResponse?> HandleAsync(IRequest request) => Handler.HandleAsync(request);

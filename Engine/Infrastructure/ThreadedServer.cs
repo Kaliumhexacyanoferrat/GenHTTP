@@ -8,6 +8,8 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Engine.Infrastructure.Configuration;
 using GenHTTP.Engine.Infrastructure.Endpoints;
 
+using PooledAwait;
+
 namespace GenHTTP.Engine.Infrastructure
 {
 
@@ -42,9 +44,21 @@ namespace GenHTTP.Engine.Infrastructure
 
             Handler = handler;
 
-            Task.Run(() => handler.PrepareAsync());
+            Task.Run(() => PrepareHandlerAsync(handler, companion));
 
             _EndPoints = new(this, configuration.EndPoints, configuration.Network);
+        }
+
+        private static async PooledValueTask PrepareHandlerAsync(IHandler handler, IServerCompanion? companion)
+        {
+            try
+            {
+                await handler.PrepareAsync();
+            }
+            catch (Exception e)
+            {
+                companion?.OnServerError(ServerErrorScope.General, e);
+            }
         }
 
         #endregion

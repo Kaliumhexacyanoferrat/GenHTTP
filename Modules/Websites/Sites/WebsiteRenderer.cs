@@ -46,7 +46,7 @@ namespace GenHTTP.Modules.Websites.Sites
         {
             var menu = Menu.GetMenu(model.Request, model.Handler);
 
-            var themeModel = Theme.GetModel(model.Request, model.Handler);
+            var themeModel = await Theme.GetModelAsync(model.Request, model.Handler);
 
             var bundle = !model.Request.Server.Development;
 
