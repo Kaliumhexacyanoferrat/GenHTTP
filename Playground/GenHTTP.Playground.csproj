@@ -20,6 +20,7 @@
     <ProjectReference Include="..\Modules\Authentication\GenHTTP.Modules.Authentication.csproj" />
     <ProjectReference Include="..\Modules\ClientCaching\GenHTTP.Modules.ClientCaching.csproj" />
     <ProjectReference Include="..\Modules\Conversion\GenHTTP.Modules.Conversion.csproj" />
+    <ProjectReference Include="..\Modules\Caching\GenHTTP.Modules.Caching.csproj" />
     <ProjectReference Include="..\Modules\Markdown\GenHTTP.Modules.Markdown.csproj" />
     <ProjectReference Include="..\Modules\Razor\GenHTTP.Modules.Razor.csproj" />
     <ProjectReference Include="..\Modules\Reflection\GenHTTP.Modules.Reflection.csproj" />
