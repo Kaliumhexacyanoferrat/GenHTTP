@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Net;
 
 using GenHTTP.Api.Content;
@@ -8,13 +9,13 @@ using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Layouting.Provider;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Scriban;
 using GenHTTP.Modules.Websites;
 using GenHTTP.Modules.Websites.Sites;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GenHTTP.Modules.Layouting.Provider;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
@@ -44,9 +45,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             public IRenderer<WebsiteModel> Renderer => ModScriban.Template<WebsiteModel>(Resource.FromAssembly("Template.html")).Build();
 
-            public object? GetModel(IRequest request, IHandler handler)
+            public ValueTask<object?> GetModelAsync(IRequest request, IHandler handler)
             {
-                return new { key = "value" };
+                return ValueTask.FromResult<object?>(new { key = "value" });
             }
 
         }
