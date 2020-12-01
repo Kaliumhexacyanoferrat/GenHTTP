@@ -9,7 +9,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Authentication.ApiKey
 {
 
-    public class ApiKeyConcern : IConcern
+    public sealed class ApiKeyConcern : IConcern
     {
 
         #region Get-/Setters
