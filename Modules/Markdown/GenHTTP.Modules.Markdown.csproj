@@ -45,7 +45,7 @@
     <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
     <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
     
-    <PackageReference Include="Markdig" Version="0.22.0" />
+    <PackageReference Include="Markdig" Version="0.22.1" />
 
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     
