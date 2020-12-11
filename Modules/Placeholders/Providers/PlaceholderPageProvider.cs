@@ -46,7 +46,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
         {
             var renderer = new PlaceholderRender<T>(TemplateProvider);
 
-            var model = ModelProvider(request, this);
+            var model = await ModelProvider(request, this);
 
             var content = await renderer.RenderAsync(model).ConfigureAwait(false);
 

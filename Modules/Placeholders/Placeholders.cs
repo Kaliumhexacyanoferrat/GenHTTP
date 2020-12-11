@@ -1,7 +1,10 @@
-﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Content.Templating;
-using GenHTTP.Modules.Placeholders.Providers;
+﻿using System.Threading.Tasks;
+
 using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Content.Templating;
+using GenHTTP.Api.Infrastructure;
+
+using GenHTTP.Modules.Placeholders.Providers;
 
 namespace GenHTTP.Modules.Placeholders
 {
