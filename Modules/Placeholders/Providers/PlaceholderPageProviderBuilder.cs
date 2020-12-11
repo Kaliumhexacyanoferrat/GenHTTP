@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Content.Templating;
+using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Placeholders.Providers
 {
@@ -29,6 +32,12 @@ namespace GenHTTP.Modules.Placeholders.Providers
         public PlaceholderPageProviderBuilder<T> Model(ModelProvider<T> modelProvider)
         {
             _ModelProvider = modelProvider;
+            return this;
+        }
+
+        public PlaceholderPageProviderBuilder<T> Model(Func<IRequest, IHandler, T> modelProvider)
+        {
+            _ModelProvider = (r, h) => new ValueTask<T>(modelProvider(r, h));
             return this;
         }
 

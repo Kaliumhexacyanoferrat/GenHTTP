@@ -49,7 +49,7 @@ namespace GenHTTP.Modules.Scriban.Providers
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var model = ModelProvider(request, this);
+            var model = await ModelProvider(request, this);
 
             var content = await Renderer.RenderAsync(model).ConfigureAwait(false);
 

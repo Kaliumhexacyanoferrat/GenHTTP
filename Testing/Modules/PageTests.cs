@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-
+using System.Threading.Tasks;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
@@ -89,7 +89,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [TestMethod]
         public void TestRendering()
         {
-            ModelProvider<CustomModel> modelProvider = (r, h) => new CustomModel(r, h);
+            ModelProvider<CustomModel> modelProvider = (r, h) => new ValueTask<CustomModel>(new CustomModel(r, h));
 
             var providers = new List<IHandlerBuilder>()
             {
