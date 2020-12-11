@@ -33,6 +33,8 @@ namespace GenHTTP.Modules.Reflection
     {
         private static readonly object?[] NO_ARGUMENTS = Array.Empty<object?>();
 
+        private static Type? VOID_TASK_RESULT = Type.GetType("System.Threading.Tasks.VoidTaskResult");
+
         #region Get-/Setters
 
         public IHandler Parent { get; }
@@ -83,7 +85,9 @@ namespace GenHTTP.Modules.Reflection
         {
             var arguments = await GetArguments(request);
 
-            return await ResponseProvider(request, this, Invoke(arguments));
+            var result = Invoke(arguments);
+
+            return await ResponseProvider(request, this, await UnwrapAsync(result));
         }
 
         private async PooledValueTask<object?[]> GetArguments(IRequest request)
@@ -213,24 +217,6 @@ namespace GenHTTP.Modules.Reflection
             return null;
         }
 
-        private object? Invoke(object?[] arguments)
-        {
-            try
-            {
-                return Method.Invoke(InstanceProvider(), arguments);
-            }
-            catch (TargetInvocationException e)
-            {
-                if (e.InnerException is not null)
-                {
-                    ExceptionDispatchInfo.Capture(e.InnerException)
-                                                   .Throw();
-                }
-
-                throw;
-            }
-        }
-
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
@@ -250,6 +236,24 @@ namespace GenHTTP.Modules.Reflection
                         }
                     }
                 }
+            }
+        }
+
+        private object? Invoke(object?[] arguments)
+        {
+            try
+            {
+                return Method.Invoke(InstanceProvider(), arguments);
+            }
+            catch (TargetInvocationException e)
+            {
+                if (e.InnerException is not null)
+                {
+                    ExceptionDispatchInfo.Capture(e.InnerException)
+                                                   .Throw();
+                }
+
+                throw;
             }
         }
 
@@ -382,6 +386,41 @@ namespace GenHTTP.Modules.Reflection
             path = resolved.Build();
             return true;
         }
+
+        private static async ValueTask<object?> UnwrapAsync(object? result)
+        {
+            if (result == null)
+            {
+                return null;
+            }
+
+            var type = result.GetType();
+            var genericType = (type.IsGenericType) ? type.GetGenericTypeDefinition() : null;
+
+            if (genericType == typeof(ValueTask<>) || genericType == typeof(Task<>))
+            {
+                dynamic task = result;
+
+                await task;
+
+                if (type.GenericTypeArguments.Length == 1 && type.GenericTypeArguments[0] == VOID_TASK_RESULT)
+                {
+                    return null;
+                }
+
+                return task.Result;
+            }
+            else if (type == typeof(ValueTask) || type == typeof(Task) )
+            {
+                dynamic task = result;
+                
+                await task;
+
+                return null;
+            }
+ 
+            return result;
+        }  
 
         #endregion
 

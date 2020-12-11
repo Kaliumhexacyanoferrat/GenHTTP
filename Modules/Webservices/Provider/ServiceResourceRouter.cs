@@ -109,26 +109,10 @@ namespace GenHTTP.Modules.Webservices.Provider
             {
                 return responseBuilder.Build();
             }
-            else if (result is ValueTask<IResponseBuilder> responseBuilderTask)
-            {
-                return (await responseBuilderTask).Build();
-            }
-            else if (result is ValueTask<IResponseBuilder?> optionalResponseBuilderTask)
-            {
-                return (await optionalResponseBuilderTask)?.Build();
-            }
 
             if (result is IResponse response)
             {
                 return response;
-            }
-            else if (result is ValueTask<IResponse> responseTask)
-            {
-                return await responseTask;
-            }
-            else if (result is ValueTask<IResponse?> optionalResponseTask)
-            {
-                return await optionalResponseTask;
             }
 
             // stream returned as a download
