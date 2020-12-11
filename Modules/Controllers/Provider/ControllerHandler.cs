@@ -143,26 +143,10 @@ namespace GenHTTP.Modules.Controllers.Provider
             {
                 return responseBuilder.Build();
             }
-            else if (result is ValueTask<IResponseBuilder> responseBuilderTask)
-            {
-                return (await responseBuilderTask.ConfigureAwait(false)).Build();
-            }
-            else if (result is ValueTask<IResponseBuilder?> optionalResponseBuilderTask)
-            {
-                return (await optionalResponseBuilderTask.ConfigureAwait(false))?.Build();
-            }
 
             if (result is IResponse response)
             {
                 return response;
-            }
-            else if (result is ValueTask<IResponse> responseTask)
-            {
-                return await responseTask.ConfigureAwait(false);
-            }
-            else if (result is ValueTask<IResponse?> optionalResponseTask)
-            {
-                return await optionalResponseTask.ConfigureAwait(false);
             }
 
             throw new ProviderException(ResponseStatus.InternalServerError, "Result type of controller methods must be one of: IHandlerBuilder, IHandler, IResponseBuilder, IResponse");
