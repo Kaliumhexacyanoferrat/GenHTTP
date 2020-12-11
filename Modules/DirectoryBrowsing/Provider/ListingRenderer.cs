@@ -33,7 +33,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
             foreach (var dir in model.Container.GetNodes().OrderBy(d => d.Name))
             {
-                Append(content, $"./{HttpUtility.UrlPathEncode(dir.Name)}/", dir.Name, null, null);
+                Append(content, $"./{HttpUtility.UrlPathEncode(dir.Name)}/", dir.Name, null, dir.Modified);
             }
 
             foreach (var file in model.Container.GetResources().Where(f => f.Name is not null).OrderBy(f => f.Name))

@@ -15,6 +15,8 @@ namespace GenHTTP.Modules.IO.FileSystem
 
         protected DirectoryInfo Directory { get; }
 
+        public DateTime? Modified => Directory.LastWriteTimeUtc;
+
         #endregion
 
         #region Initialization

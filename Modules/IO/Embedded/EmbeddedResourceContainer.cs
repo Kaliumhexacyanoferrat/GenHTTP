@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Reflection;
 
 using GenHTTP.Api.Content.IO;
@@ -14,10 +15,20 @@ namespace GenHTTP.Modules.IO.Embedded
 
         private readonly Dictionary<string, IResource> _Resources = new();
 
+        #region Get-/Setters
+
+        public DateTime? Modified { get; }
+
+        #endregion
+
         #region Initialization
 
         protected EmbeddedResourceContainer(Assembly source, string prefix)
         {
+            var sourceFile = new FileInfo(source.Location);
+
+            Modified = ((sourceFile.Exists) ? sourceFile.LastWriteTimeUtc : DateTime.UtcNow);
+
             foreach (var resource in source.GetManifestResourceNames())
             {
                 var index = resource.IndexOf(prefix);

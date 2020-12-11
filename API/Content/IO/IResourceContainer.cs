@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace GenHTTP.Api.Content.IO
@@ -10,6 +11,11 @@ namespace GenHTTP.Api.Content.IO
     /// </summary>
     public interface IResourceContainer
     {
+
+        /// <summary>
+        /// The point in time when the container was modified (if known).
+        /// </summary>
+        DateTime? Modified { get; }
 
         /// <summary>
         /// Tries to fetch the child node with the given name.
