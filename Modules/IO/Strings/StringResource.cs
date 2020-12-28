@@ -25,6 +25,8 @@ namespace GenHTTP.Modules.IO.Strings
 
         public ulong? Length => (ulong)Content.Length;
 
+        private ulong Checksum { get; }
+
         #endregion
 
         #region Initialization
@@ -32,6 +34,7 @@ namespace GenHTTP.Modules.IO.Strings
         public StringResource(string content, string? name, FlexibleContentType? contentType, DateTime? modified)
         {
             Content = UTF8.GetBytes(content);
+            Checksum = (ulong)content.GetHashCode();
 
             Name = name;
             ContentType = contentType ?? new FlexibleContentType(Api.Protocol.ContentType.TextPlain);
@@ -46,7 +49,7 @@ namespace GenHTTP.Modules.IO.Strings
 
         public ValueTask<ulong> CalculateChecksumAsync()
         {
-            return new ValueTask<ulong>((ulong)Content.GetHashCode());
+            return new ValueTask<ulong>(Checksum);
         }
 
         #endregion
