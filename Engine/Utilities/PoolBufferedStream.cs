@@ -51,11 +51,11 @@ namespace GenHTTP.Engine.Utilities
 
         #region Functionality
 
-        public override int Read(byte[] buffer, int offset, int count) => Stream.Read(buffer, offset, count);
-
         public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) => Stream.ReadAsync(buffer, offset, count, cancellationToken);
 
         public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default) => Stream.ReadAsync(buffer, cancellationToken);
+
+        public override int Read(byte[] buffer, int offset, int count) => Stream.Read(buffer, offset, count);
 
         public override int Read(Span<byte> buffer) => Stream.Read(buffer);
 
