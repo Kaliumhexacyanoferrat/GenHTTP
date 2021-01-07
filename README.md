@@ -49,7 +49,7 @@ The web server was originally developed in 2008 to run on a netbook with an Inte
 
 - Related to GenHTTP: [Themes](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes), [Website]()
 - Related projects: [GenHTTP Gateway](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Gateway)
-- Similar projects: [EmbedIO](https://github.com/unosquare/embedio), [NetCoreServer](https://github.com/chronoxor/NetCoreServer)
+- Similar projects: [EmbedIO](https://github.com/unosquare/embedio), [NetCoreServer](https://github.com/chronoxor/NetCoreServer), [Watson Webserver](https://github.com/jchristn/WatsonWebserver)
 
 ## Thanks
 
