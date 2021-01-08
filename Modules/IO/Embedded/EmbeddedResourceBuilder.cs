@@ -1,10 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Reflection;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
-using System.IO;
+
 using GenHTTP.Modules.Basics;
 
 namespace GenHTTP.Modules.IO.Embedded
