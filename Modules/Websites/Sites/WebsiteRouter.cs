@@ -51,8 +51,8 @@ namespace GenHTTP.Modules.Websites.Sites
             var layout = Layout.Create()
                                .Add("scripts", scripts)
                                .Add("styles", styles)
-                               .Add("sitemap.xml", Sitemap.Create())
-                               .Add("robots.txt", BotInstructions.Default().Sitemap())
+                               .Add(BotInstructions.FILE_NAME, BotInstructions.Default().Sitemap())
+                               .Add(Sitemap.FILE_NAME, Sitemap.Create())
                                .Fallback(content);
 
             foreach (var concern in concerns)

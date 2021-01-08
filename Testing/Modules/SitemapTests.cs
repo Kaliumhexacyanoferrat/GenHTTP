@@ -58,7 +58,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             var serializer = new XmlSerializer(typeof(UrlSet));
 
-            using var response = runner.GetResponse("/sitemap.xml");
+            using var response = runner.GetResponse("/" + Sitemap.FILE_NAME);
 
             var sitemap = serializer.Deserialize(response.GetResponseStream()) as UrlSet;
 
@@ -81,7 +81,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             content.Add("children", children);
 
-            root.Add("sitemap.xml", Sitemap.Create());
+            root.Add(Sitemap.FILE_NAME, Sitemap.Create());
 
             root.Fallback(content);
 

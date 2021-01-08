@@ -75,6 +75,7 @@
     <ProjectReference Include="..\Modules\Controllers\GenHTTP.Modules.Controllers.csproj" />
     <ProjectReference Include="..\Modules\Conversion\GenHTTP.Modules.Conversion.csproj" />
     <ProjectReference Include="..\Modules\Reflection\GenHTTP.Modules.Reflection.csproj" />
+    <ProjectReference Include="..\Modules\StaticWebsites\GenHTTP.Modules.StaticWebsites.csproj" />
     
   </ItemGroup>
 

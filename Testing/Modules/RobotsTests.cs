@@ -5,6 +5,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Robots;
 using GenHTTP.Modules.Robots.Provider;
+using GenHTTP.Modules.Sitemaps;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
@@ -55,32 +56,32 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var result = GetRobots(runner);
 
-            AssertX.Contains("Sitemap: http://localhost/sitemap.xml", result);
+            AssertX.Contains("Sitemap: http://localhost/" + Sitemap.FILE_NAME, result);
         }
 
         [TestMethod]
         public void TestCustomSitemap()
         {
-            using var runner = TestRunner.Run(GetTest(BotInstructions.Default().Sitemap("sitemap.xml")));
+            using var runner = TestRunner.Run(GetTest(BotInstructions.Default().Sitemap(Sitemap.FILE_NAME)));
 
             var result = GetRobots(runner);
 
-            AssertX.Contains("Sitemap: http://localhost/sitemap.xml", result);
+            AssertX.Contains("Sitemap: http://localhost/" + Sitemap.FILE_NAME, result);
         }
 
         [TestMethod]
         public void TestAbsoluteSitemap()
         {
-            using var runner = TestRunner.Run(GetTest(BotInstructions.Default().Sitemap("http://my/sitemap.xml")));
+            using var runner = TestRunner.Run(GetTest(BotInstructions.Default().Sitemap("http://my/" + Sitemap.FILE_NAME)));
 
             var result = GetRobots(runner);
 
-            AssertX.Contains("Sitemap: http://my/sitemap.xml", result);
+            AssertX.Contains("Sitemap: http://my/" + Sitemap.FILE_NAME, result);
         }
 
         private string GetRobots(TestRunner runner)
         {
-            using var response = runner.GetResponse("/robots.txt");
+            using var response = runner.GetResponse("/" + BotInstructions.FILE_NAME);
 
             return response.GetContent().Replace($":{runner.Port}", string.Empty);
         }
@@ -88,7 +89,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         private IHandlerBuilder GetTest(RobotsProviderBuilder robots)
         {
             return Layout.Create()
-                         .Add("robots.txt", robots);
+                         .Add(BotInstructions.FILE_NAME, robots);
         }
 
     }

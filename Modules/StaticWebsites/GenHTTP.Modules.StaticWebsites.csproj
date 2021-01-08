@@ -18,8 +18,8 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
-    <Description>Allows to serve a robots instruction file.</Description>
-    <PackageTags>HTTP Webserver C# Module Robots Bots Robots.txt</PackageTags>
+    <Description>Serves static web applications such as a compiled Hugo app.</Description>
+    <PackageTags>HTTP Webserver C# Module Hosting Host App Application Static Content Hugo</PackageTags>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
@@ -39,9 +39,10 @@
   <ItemGroup>
     
     <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
-
-    <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
+    
+    <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
     <ProjectReference Include="..\Sitemaps\GenHTTP.Modules.Sitemaps.csproj" />
+    <ProjectReference Include="..\Robots\GenHTTP.Modules.Robots.csproj" />
 
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     

@@ -16,7 +16,7 @@ namespace GenHTTP.Modules.Robots.Provider
 
         #region Functionality
 
-        public RobotsProviderBuilder Sitemap() => Sitemap("/sitemap.xml");
+        public RobotsProviderBuilder Sitemap() => Sitemap("/" + Sitemaps.Sitemap.FILE_NAME);
 
         public RobotsProviderBuilder Sitemap(string url)
         {

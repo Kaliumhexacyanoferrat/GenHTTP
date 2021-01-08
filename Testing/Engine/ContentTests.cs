@@ -10,7 +10,10 @@ using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Conversion.Providers.Json;
 using GenHTTP.Modules.DirectoryBrowsing;
 using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Robots;
 using GenHTTP.Modules.SinglePageApplications;
+using GenHTTP.Modules.Sitemaps;
+
 using GenHTTP.Testing.Acceptance.Providers;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -110,8 +113,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
             AssertX.Contains("custom.js", content);
             AssertX.Contains("custom.css", content);
 
-            AssertX.Contains("sitemap.xml", content);
-            AssertX.Contains("robots.txt", content);
+            AssertX.Contains(Sitemap.FILE_NAME, content);
+            AssertX.Contains(BotInstructions.FILE_NAME, content);
 
             AssertX.Contains("some.txt", content);
             AssertX.Contains("favicon.ico", content);

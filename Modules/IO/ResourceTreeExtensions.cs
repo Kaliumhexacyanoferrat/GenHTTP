@@ -62,7 +62,7 @@ namespace GenHTTP.Modules.IO
         /// <returns>The content discovered from the given node</returns>
         public static IEnumerable<ContentElement> GetContent(this IResourceContainer node, IRequest request, IHandler handler)
         {
-            return node.GetContent(request, handler, (path, children) =>
+            return node.GetContent(request, handler, (_, path, children) =>
             {
                 return new ContentElement(path, ContentInfo.Empty, ContentType.ApplicationForceDownload, children);
             });
@@ -76,7 +76,7 @@ namespace GenHTTP.Modules.IO
         /// <param name="handler">The handler which provides the content</param>
         /// <param name="indexProvider">A function to provide additional information about the content provided when nodes are requested</param>
         /// <returns>The content discovered from the given node</returns>
-        public static IEnumerable<ContentElement> GetContent(this IResourceContainer node, IRequest request, IHandler handler, Func<WebPath, IEnumerable<ContentElement>, ContentElement> indexProvider)
+        public static IEnumerable<ContentElement> GetContent(this IResourceContainer node, IRequest request, IHandler handler, Func<IResourceContainer, WebPath, IEnumerable<ContentElement>, ContentElement> indexProvider)
         {
             var path = node.GetPath(request, handler);
 
@@ -86,7 +86,7 @@ namespace GenHTTP.Modules.IO
                                    .Append(childNode.Name)
                                    .Build();
 
-                yield return indexProvider(nodePath, childNode.GetContent(request, handler, indexProvider));
+                yield return indexProvider(node, nodePath, childNode.GetContent(request, handler, indexProvider));
             }
 
             foreach (var resource in node.GetResources())
