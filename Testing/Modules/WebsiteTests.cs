@@ -13,9 +13,11 @@ using GenHTTP.Modules.Layouting.Provider;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Scriban;
 using GenHTTP.Modules.Websites;
+using GenHTTP.Modules.Sitemaps;
 using GenHTTP.Modules.Websites.Sites;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GenHTTP.Modules.Robots;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
@@ -177,7 +179,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             using var runner = TestRunner.Run(GetWebsite());
 
-            using var file = runner.GetResponse("/sitemap.xml");
+            using var file = runner.GetResponse("/" + Sitemap.FILE_NAME);
 
             Assert.AreEqual(HttpStatusCode.OK, file.StatusCode);
             Assert.AreEqual("text/xml", file.ContentType);
@@ -188,7 +190,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             using var runner = TestRunner.Run(GetWebsite());
 
-            using var file = runner.GetResponse("/robots.txt");
+            using var file = runner.GetResponse("/" + BotInstructions.FILE_NAME);
 
             Assert.AreEqual(HttpStatusCode.OK, file.StatusCode);
             Assert.AreEqual("text/plain", file.ContentType);
@@ -199,13 +201,13 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             using var runner = TestRunner.Run();
 
-            using var robots = runner.GetResponse("/robots.txt");
+            using var robots = runner.GetResponse("/" + BotInstructions.FILE_NAME);
             Assert.AreEqual(HttpStatusCode.NotFound, robots.StatusCode);
 
             using var favicon = runner.GetResponse("/favicon.ico");
             Assert.AreEqual(HttpStatusCode.NotFound, favicon.StatusCode);
 
-            using var sitemap = runner.GetResponse("/sitemaps/sitemap.xml");
+            using var sitemap = runner.GetResponse("/sitemaps/" + Sitemap.FILE_NAME);
             Assert.AreEqual(HttpStatusCode.NotFound, sitemap.StatusCode);
         }
 

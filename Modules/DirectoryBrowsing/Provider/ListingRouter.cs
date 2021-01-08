@@ -55,7 +55,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
-            return Tree.GetContent(request, this, (path, children) =>
+            return Tree.GetContent(request, this, (_, path, children) =>
             {
                 var info = new ContentInfo($"Index of {path}", null);
 
