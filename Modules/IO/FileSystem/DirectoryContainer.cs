@@ -63,7 +63,7 @@ namespace GenHTTP.Modules.IO.FileSystem
             return false;
         }
 
-        public bool TryGetResource(string name, [MaybeNullWhen(returnValue: false)] out IResource node)
+        public bool TryGetResource(string name, [MaybeNullWhen(returnValue: false)] out IResource resource)
         {
             var path = Path.Combine(Directory.FullName, name);
 
@@ -71,13 +71,13 @@ namespace GenHTTP.Modules.IO.FileSystem
 
             if (file.Exists)
             {
-                node = Resource.FromFile(file)
+                resource = Resource.FromFile(file)
                                .Build();
 
                 return true;
             }
 
-            node = default;
+            resource = default;
             return false;
         }
 
