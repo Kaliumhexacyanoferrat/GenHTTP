@@ -29,12 +29,20 @@ namespace GenHTTP.Modules.StaticWebsites.Provider
             return this;
         }
 
+        /// <summary>
+        /// Sets a custom sitemap to be used by the website (or none, if set to null).
+        /// </summary>
+        /// <param name="sitemap">The sitemap to be served to the clients</param>
         public StaticWebsiteBuilder Sitemap(SitemapProviderBuilder? sitemap)
         {
             _Sitemap = sitemap;
             return this;
         }
 
+        /// <summary>
+        /// Sets a custom robots instruction file to be used by the website (or none, if set to null).
+        /// </summary>
+        /// <param name="sitemap">The robots instruction file to be served to the clients</param>
         public StaticWebsiteBuilder Robots(RobotsProviderBuilder? robots)
         {
             _Robots = robots;

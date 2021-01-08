@@ -17,7 +17,7 @@ namespace GenHTTP.Modules.StaticWebsites.Provider
 
     public sealed class StaticWebsiteHandler : IHandler
     {
-        private static readonly string[] INDEX_FILES = new[] { "index.html", "index.html" };
+        private static readonly string[] INDEX_FILES = new[] { "index.html", "index.htm" };
 
         #region Get-/Setters
 

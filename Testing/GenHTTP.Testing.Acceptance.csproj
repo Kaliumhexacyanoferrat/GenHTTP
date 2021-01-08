@@ -79,8 +79,4 @@
     
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Modules\StaticWebsites\" />
-  </ItemGroup>
-
 </Project>
