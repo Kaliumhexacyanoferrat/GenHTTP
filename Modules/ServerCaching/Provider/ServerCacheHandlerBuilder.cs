@@ -33,11 +33,7 @@ namespace GenHTTP.Modules.ServerCaching.Provider
             return this;
         }
 
-        public ServerCacheHandlerBuilder MetaStore(IBuilder<ICache<CachedResponse>> cache)
-        {
-            _Meta = cache.Build();
-            return this;
-        }
+        public ServerCacheHandlerBuilder MetaStore(IBuilder<ICache<CachedResponse>> cache) => MetaStore(cache.Build());
 
         public ServerCacheHandlerBuilder MetaStore(ICache<CachedResponse> cache)
         {
@@ -51,11 +47,7 @@ namespace GenHTTP.Modules.ServerCaching.Provider
             return this;
         }
 
-        public ServerCacheHandlerBuilder DataStore(IBuilder<ICache<Stream>> cache)
-        {
-            _Data = cache.Build();
-            return this;
-        }
+        public ServerCacheHandlerBuilder DataStore(IBuilder<ICache<Stream>> cache) => DataStore(cache.Build());
 
         public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
         {

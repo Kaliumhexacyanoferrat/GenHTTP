@@ -112,6 +112,14 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             }
         }
 
+        // preserve headers
+
+        // no content
+
+        // not OK
+
+        // predicate
+
     }
 
 }

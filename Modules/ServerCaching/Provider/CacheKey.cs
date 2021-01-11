@@ -30,7 +30,7 @@ namespace GenHTTP.Modules.ServerCaching.Provider
             }
         }
 
-        public static string GetVariationKey(this List<string>? variations)
+        public static string GetVariationKey(this Dictionary<string, string>? variations)
         {
             unchecked
             {
@@ -40,7 +40,8 @@ namespace GenHTTP.Modules.ServerCaching.Provider
                 {
                     foreach (var arg in variations)
                     {
-                        hash = hash * 23 + (ulong)arg.GetHashCode();
+                        hash = hash * 23 + (ulong)arg.Key.GetHashCode();
+                        hash = hash * 23 + (ulong)arg.Value.GetHashCode();
                     }
                 }
 

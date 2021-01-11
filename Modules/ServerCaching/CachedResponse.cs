@@ -14,7 +14,7 @@ namespace GenHTTP.Modules.ServerCaching
 
         DateTime? Modified,
 
-        List<string>? Variations,
+        Dictionary<string, string>? Variations,
 
         Dictionary<string, string> Headers,
 

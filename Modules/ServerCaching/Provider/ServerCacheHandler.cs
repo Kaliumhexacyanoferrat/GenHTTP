@@ -1,15 +1,13 @@
-﻿using System;
+﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Caching;
+using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Basics;
+using GenHTTP.Modules.IO.Streaming;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-
-using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Caching;
-using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.ServerCaching.Provider
 {
@@ -83,7 +81,7 @@ namespace GenHTTP.Modules.ServerCaching.Provider
                 {
                     if ((Predicate == null) || Predicate(response))
                     {
-                        var cached = await GetResponse(response);
+                        var cached = await GetResponse(response, request);
 
                         var variationKey = cached.Variations.GetVariationKey();
 
@@ -120,15 +118,12 @@ namespace GenHTTP.Modules.ServerCaching.Provider
                 {
                     foreach (var header in variant.Variations)
                     {
-                        if (variant.Headers.TryGetValue(header, out var expected))
+                        if (request.Headers.TryGetValue(header.Key, out var actual))
                         {
-                            if (request.Headers.TryGetValue(header, out var actual))
+                            if (header.Value == actual)
                             {
-                                if (expected == actual)
-                                {
-                                    response = variant;
-                                    return true;
-                                }
+                                response = variant;
+                                return true;
                             }
                         }
                     }
@@ -193,21 +188,24 @@ namespace GenHTTP.Modules.ServerCaching.Provider
             return response.Build();
         }
 
-        private async static ValueTask<CachedResponse> GetResponse(IResponse response)
+        private async static ValueTask<CachedResponse> GetResponse(IResponse response, IRequest request)
         {
             var headers = new Dictionary<string, string>(response.Headers);
 
             var cookies = new Dictionary<string, Cookie>(response.Cookies);
 
-            List<string>? variations = null;
+            Dictionary<string, string>? variations = null;
 
             if (response.Headers.TryGetValue("Vary", out var header))
             {
-                variations = new List<string>();
+                variations = new();
 
                 foreach (string? entry in header.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
                 {
-                    variations.Add(entry);
+                    if (request.Headers.TryGetValue(entry, out var value))
+                    {
+                        variations.Add(entry, value);
+                    }
                 }
             }
 
@@ -234,8 +232,8 @@ namespace GenHTTP.Modules.ServerCaching.Provider
                 || (!cached.ContentType.Equals(current.ContentType))
                 || (cached.Expires != current.Expires)
                 || (cached.Modified != current.Modified)
-                || (current.Headers.Count != cached.Headers.Count || cached.Headers.Except(cached.Headers).Any())
-                || (current.Cookies.Count != cached.Cookies?.Count || cached.Cookies.Except(cached.Cookies).Any());
+                || (current.Headers.Count != cached.Headers.Count || current.Headers.Except(cached.Headers).Any())
+                || (current.Cookies.Count != cached.Cookies?.Count || current.Cookies.Except(cached.Cookies).Any());
         }
 
         #endregion
