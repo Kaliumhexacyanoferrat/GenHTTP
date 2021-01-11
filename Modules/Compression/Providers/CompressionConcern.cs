@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,25 +15,33 @@ namespace GenHTTP.Modules.Compression.Providers
 
     public sealed class CompressionConcern : IConcern
     {
+        private const string ACCEPT_ENCODING = "Accept-Encoding";
+
+        private const string VARY = "Vary";
 
         #region Get-/Setters
 
         public IHandler Content { get; }
 
+        public IHandler Parent { get; }
+
         private IReadOnlyDictionary<string, ICompressionAlgorithm> Algorithms { get; }
 
-        public IHandler Parent { get; }
+        private CompressionLevel Level { get; }
 
         #endregion
 
         #region Initialization
 
-        public CompressionConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, IReadOnlyDictionary<string, ICompressionAlgorithm> algorithms)
+        public CompressionConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, 
+                                  IReadOnlyDictionary<string, ICompressionAlgorithm> algorithms,
+                                  CompressionLevel level)
         {
             Parent = parent;
             Content = contentFactory(this);
 
             Algorithms = algorithms;
+            Level = level;
         }
 
         #endregion
@@ -49,7 +58,7 @@ namespace GenHTTP.Modules.Compression.Providers
                 {
                     if (response.Content is not null && ShouldCompress(request.Target.Path, response.ContentType?.KnownType))
                     {
-                        if (request.Headers.TryGetValue("Accept-Encoding", out var header))
+                        if (request.Headers.TryGetValue(ACCEPT_ENCODING, out var header))
                         {
                             if (!string.IsNullOrEmpty(header))
                             {
@@ -59,9 +68,18 @@ namespace GenHTTP.Modules.Compression.Providers
                                 {
                                     if (supported.Contains(algorithm.Name))
                                     {
-                                        response.Content = algorithm.Compress(response.Content);
+                                        response.Content = algorithm.Compress(response.Content, Level);
                                         response.ContentEncoding = algorithm.Name;
                                         response.ContentLength = null;
+
+                                        if (response.Headers.TryGetValue(VARY, out var existing))
+                                        {
+                                            response.Headers[VARY] = $"{existing}, {ACCEPT_ENCODING}";
+                                        }
+                                        else
+                                        {
+                                            response.Headers[VARY] = ACCEPT_ENCODING;
+                                        }
 
                                         break;
                                     }

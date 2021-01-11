@@ -169,7 +169,7 @@ namespace GenHTTP.Engine.Infrastructure
 
             var config = new ServerConfiguration(_Development, endpoints, network);
 
-            var concerns = new IConcernBuilder[] { ErrorHandler.Default() }.Concat(_Concerns);
+            var concerns = new[] { ErrorHandler.Default() }.Concat(_Concerns);
 
             var handler = new CoreRouter(_Handler, concerns, _Development);
 

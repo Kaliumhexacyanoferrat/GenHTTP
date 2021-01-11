@@ -20,15 +20,23 @@ namespace GenHTTP.Testing.Acceptance
 
         #region Supporting data structures
 
-        private class HandlerBuilder : IHandlerBuilder
+        public class HandlerBuilder : IHandlerBuilder<HandlerBuilder>
         {
             private IHandler _Handler;
 
+            private readonly List<IConcernBuilder> _Concerns = new();
+
             public HandlerBuilder(IHandler handler) { _Handler = handler; }
+
+            public HandlerBuilder Add(IConcernBuilder concern)
+            {
+                _Concerns.Add(concern);
+                return this;
+            }
 
             public IHandler Build(IHandler parent)
             {
-                return _Handler;
+                return Concerns.Chain(parent, _Concerns, (p) => _Handler);
             }
 
         }
@@ -113,7 +121,7 @@ namespace GenHTTP.Testing.Acceptance
             };
         }
 
-        public static IHandlerBuilder Wrap(this IHandler handler) => new HandlerBuilder(handler);
+        public static IHandlerBuilder<HandlerBuilder> Wrap(this IHandler handler) => new HandlerBuilder(handler);
 
     }
 

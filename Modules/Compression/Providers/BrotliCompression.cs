@@ -13,9 +13,9 @@ namespace GenHTTP.Modules.Compression.Providers
 
         public Priority Priority => Priority.High;
 
-        public IResponseContent Compress(IResponseContent content)
+        public IResponseContent Compress(IResponseContent content, CompressionLevel level)
         {
-            return new CompressedResponseContent(content, (target) => new BrotliStream(target, CompressionLevel.Fastest, false));
+            return new CompressedResponseContent(content, (target) => new BrotliStream(target, level, false));
         }
 
     }

@@ -42,6 +42,8 @@
     <ProjectReference Include="..\Modules\Basics\GenHTTP.Modules.Basics.csproj" />
     <ProjectReference Include="..\Modules\Practices\GenHTTP.Modules.Practices.csproj" />
     <ProjectReference Include="..\Modules\Controllers\GenHTTP.Modules.Controllers.csproj" />
+    <ProjectReference Include="..\Modules\Caching\GenHTTP.Modules.Caching.csproj" />
+    <ProjectReference Include="..\Modules\ServerCaching\GenHTTP.Modules.ServerCaching.csproj" />
     
   </ItemGroup>
   

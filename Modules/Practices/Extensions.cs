@@ -27,9 +27,9 @@ namespace GenHTTP.Modules.Practices
                                            bool strictTransport = true,
                                            bool clientCaching = true)
         {
-            if (clientCaching)
+            if (strictTransport)
             {
-                host.ClientCaching();
+                host.StrictTransport(new StrictTransportPolicy(TimeSpan.FromDays(365), true, true));
             }
 
             if (compression)
@@ -37,14 +37,14 @@ namespace GenHTTP.Modules.Practices
                 host.Compression(CompressedContent.Default());
             }
 
+            if (clientCaching)
+            {
+                host.ClientCaching();
+            }
+
             if (secureUpgrade)
             {
                 host.SecureUpgrade(SecureUpgrade.Force);
-            }
-
-            if (strictTransport)
-            {
-                host.StrictTransport(new StrictTransportPolicy(TimeSpan.FromDays(365), true, true));
             }
 
             return host;

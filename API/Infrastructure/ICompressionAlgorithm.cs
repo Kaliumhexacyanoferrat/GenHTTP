@@ -1,4 +1,6 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using System.IO.Compression;
+
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Infrastructure
 {
@@ -27,8 +29,9 @@ namespace GenHTTP.Api.Infrastructure
         /// Returns a content instance allowing the server to stream the compressed content.
         /// </summary>
         /// <param name="content">The content of the response to be compressed</param>
+        /// <param name="level">The compression level to be applied</param>
         /// <returns>A result representing the compressed content</returns>
-        IResponseContent Compress(IResponseContent content);
+        IResponseContent Compress(IResponseContent content, CompressionLevel level);
 
     }
 

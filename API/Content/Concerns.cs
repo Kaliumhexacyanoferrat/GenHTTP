@@ -16,7 +16,9 @@ namespace GenHTTP.Api.Content
         /// </summary>
         /// <remarks>
         /// Use this utility within the handler builders to add concerns
-        /// to the resulting handler instance.
+        /// to the resulting handler instance. The last concern added
+        /// to the list of concerns will be the root handler returned by
+        /// this method.
         /// </remarks>
         /// <param name="parent">The parent handler of the chain</param>
         /// <param name="concerns">The concerns that should be wrapped around the inner handler</param>

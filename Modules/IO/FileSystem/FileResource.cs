@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
@@ -11,7 +12,6 @@ namespace GenHTTP.Modules.IO.FileSystem
 
     public sealed class FileResource : IResource
     {
-        private ulong _Length;
 
         #region Get-/Setters
 
@@ -19,11 +19,25 @@ namespace GenHTTP.Modules.IO.FileSystem
 
         public string? Name { get; }
 
-        public DateTime? Modified { get; private set; }
+        public DateTime? Modified
+        {
+            get
+            {
+                File.Refresh();
+                return File.LastWriteTimeUtc;
+            }
+        }
 
         public FlexibleContentType? ContentType { get; }
 
-        public ulong? Length => _Length;
+        public ulong? Length
+        {
+            get
+            {
+                File.Refresh();
+                return (ulong)File.Length;
+            }
+        }
 
         #endregion
 
@@ -39,9 +53,6 @@ namespace GenHTTP.Modules.IO.FileSystem
             File = file;
 
             Name = name ?? file.Name;
-
-            _Length = (ulong)file.Length;
-            Modified = file.LastWriteTimeUtc;
 
             ContentType = contentType ?? new FlexibleContentType(Name.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload);
         }
@@ -61,21 +72,13 @@ namespace GenHTTP.Modules.IO.FileSystem
             {
                 ulong hash = 17;
 
-                Refresh();
+                var length = Length;
 
                 hash = hash * 23 + (ulong)Modified.GetHashCode();
-                hash = hash * 23 + _Length;
+                hash = hash * 23 + ((length != null) ? length.Value : 0);
 
                 return new ValueTask<ulong>(hash);
             }
-        }
-
-        private void Refresh()
-        {
-            File.Refresh();
-
-            _Length = (ulong)File.Length;
-            Modified = File.LastWriteTimeUtc;
         }
 
         #endregion

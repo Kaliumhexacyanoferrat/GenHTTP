@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    
+    <TargetFramework>net5.0</TargetFramework>
+
+    <LangVersion>9.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <AssemblyVersion>5.2.0.0</AssemblyVersion>
+    <FileVersion>5.2.0.0</FileVersion>
+    <Version>5.2.0</Version>
+
+    <Authors>Andreas Nägeli</Authors>
+    <Company />
+
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
+
+    <Description>General purpose API to cache content independent from the storage backend.</Description>
+    <PackageTags>HTTP Webserver C# Module Caching Cache</PackageTags>
+
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <PackageIcon>icon.png</PackageIcon>
+    
+  </PropertyGroup>
+
+  <ItemGroup>
+
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
+    <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\" />
+
+  </ItemGroup>
+
+  <ItemGroup>
+    
+    <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
+    
+    <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
+
+    <PackageReference Include="PooledAwait" Version="1.0.49" />
+
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+
+    <PackageReference Include="System.Text.Json" Version="5.0.1" />
+    
+  </ItemGroup>
+
+</Project>
+ 
