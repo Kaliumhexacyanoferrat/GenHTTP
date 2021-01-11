@@ -24,7 +24,9 @@ namespace GenHTTP.Modules.ServerCaching
 
         string? ContentEncoding,
 
-        ulong? ContentLength
+        ulong? ContentLength,
+
+        ulong? ContentChecksum
 
     );
 

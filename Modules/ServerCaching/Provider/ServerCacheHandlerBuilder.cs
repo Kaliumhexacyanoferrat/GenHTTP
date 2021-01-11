@@ -4,6 +4,7 @@ using System.IO;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Caching;
 using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.ServerCaching.Provider
 {
@@ -14,7 +15,23 @@ namespace GenHTTP.Modules.ServerCaching.Provider
 
         private ICache<Stream>? _Data;
 
+        private bool _Invalidate = true;
+
+        private Func<IResponse, bool>? _Predicate = null;
+
         #region Functionality
+
+        public ServerCacheHandlerBuilder Invalidate(bool invalidate)
+        {
+            _Invalidate = invalidate;
+            return this;
+        }
+
+        public ServerCacheHandlerBuilder Predicate(Func<IResponse, bool> predicate)
+        {
+            _Predicate = predicate;
+            return this;
+        }
 
         public ServerCacheHandlerBuilder MetaStore(IBuilder<ICache<CachedResponse>> cache)
         {
@@ -46,7 +63,7 @@ namespace GenHTTP.Modules.ServerCaching.Provider
 
             var data = _Data ?? throw new BuilderMissingPropertyException("DataStore");
 
-            return new ServerCacheHandler(parent, contentFactory, meta, data);
+            return new ServerCacheHandler(parent, contentFactory, meta, data, _Predicate, _Invalidate);
         }
 
         #endregion

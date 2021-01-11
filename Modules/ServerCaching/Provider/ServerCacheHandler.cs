@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
@@ -8,7 +9,6 @@ using GenHTTP.Api.Content.Caching;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.IO;
 using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.ServerCaching.Provider
@@ -27,17 +27,26 @@ namespace GenHTTP.Modules.ServerCaching.Provider
 
         private ICache<Stream> Data { get; }
 
+        private bool Invalidate { get; }
+
+        private Func<IResponse, bool>? Predicate { get; }
+
         #endregion
 
         #region Initialization
 
-        public ServerCacheHandler(IHandler parent, Func<IHandler, IHandler> contentFactory, ICache<CachedResponse> meta, ICache<Stream> data)
+        public ServerCacheHandler(IHandler parent, Func<IHandler, IHandler> contentFactory,
+                                  ICache<CachedResponse> meta, ICache<Stream> data,
+                                  Func<IResponse, bool>? predicate, bool invalidate)
         {
             Parent = parent;
             Content = contentFactory(this);
 
             Meta = meta;
             Data = data;
+
+            Predicate = predicate;
+            Invalidate = invalidate;
         }
 
         #endregion
@@ -48,35 +57,46 @@ namespace GenHTTP.Modules.ServerCaching.Provider
         {
             if (request.HasType(RequestMethod.GET, RequestMethod.HEAD))
             {
+                var response = (Invalidate) ? await Content.HandleAsync(request) : null;
+
                 var key = request.GetKey();
 
                 if (TryFindMatching(await Meta.GetEntriesAsync(key), request, out var match))
                 {
                     if (match != null)
                     {
-                        var content = await Data.GetEntryAsync(key, match.Variations.GetVariationKey());
+                        if (!Invalidate || !await HasChanged(response!, match))
+                        {
+                            var content = await Data.GetEntryAsync(key, match.Variations.GetVariationKey());
 
-                        return GetResponse(request, match, content);
+                            return GetResponse(request, match, content);
+                        }
                     }
                 }
 
-                var response = await Content.HandleAsync(request);
-
-                if (response != null)
+                if (!Invalidate)
                 {
-                    var cached = GetResponse(response);
+                    response = await Content.HandleAsync(request);
+                }
 
-                    var variationKey = cached.Variations.GetVariationKey();
-
-                    await Meta.StoreAsync(key, variationKey, cached);
-
-                    if (response.Content != null)
+                if ((response != null) && (response.Status == ResponseStatus.OK))
+                {
+                    if ((Predicate == null) || Predicate(response))
                     {
-                        await Data.StoreDirectAsync(key, variationKey, (target) => response.Content.WriteAsync(target, 4096));
-                    }
-                    else
-                    {
-                        await Data.StoreAsync(key, variationKey, null);
+                        var cached = await GetResponse(response);
+
+                        var variationKey = cached.Variations.GetVariationKey();
+
+                        await Meta.StoreAsync(key, variationKey, cached);
+
+                        if (response.Content != null)
+                        {
+                            await Data.StoreDirectAsync(key, variationKey, (target) => response.Content.WriteAsync(target, 4096));
+                        }
+                        else
+                        {
+                            await Data.StoreAsync(key, variationKey, null);
+                        }
                     }
                 }
 
@@ -167,13 +187,13 @@ namespace GenHTTP.Modules.ServerCaching.Provider
 
             if (content != null)
             {
-                response.Content(new StreamContent(content, () => content.CalculateChecksumAsync()));
+                response.Content(new StreamContent(content, () => new ValueTask<ulong?>(cached.ContentChecksum)));
             }
 
             return response.Build();
         }
 
-        private static CachedResponse GetResponse(IResponse response)
+        private async static ValueTask<CachedResponse> GetResponse(IResponse response)
         {
             var headers = new Dictionary<string, string>(response.Headers);
 
@@ -191,9 +211,31 @@ namespace GenHTTP.Modules.ServerCaching.Provider
                 }
             }
 
+            ulong? checksum = null;
+
+            if (response.Content != null)
+            {
+                checksum = await response.Content.CalculateChecksumAsync();
+            }
+
             return new CachedResponse(response.Status, response.Expires, response.Modified,
                                       variations, headers, cookies, response.ContentType,
-                                      response.ContentEncoding, response.ContentLength);
+                                      response.ContentEncoding, response.ContentLength,
+                                      checksum);
+        }
+
+        private async static ValueTask<bool> HasChanged(IResponse current, CachedResponse cached)
+        {
+            var checksum = (current.Content != null) ? await current.Content.CalculateChecksumAsync() : null;
+
+            return (cached.ContentChecksum != checksum)
+                || (cached.ContentEncoding != current.ContentEncoding)
+                || (cached.ContentLength != current.ContentLength)
+                || (!cached.ContentType.Equals(current.ContentType))
+                || (cached.Expires != current.Expires)
+                || (cached.Modified != current.Modified)
+                || (current.Headers.Count != cached.Headers.Count || cached.Headers.Except(cached.Headers).Any())
+                || (current.Cookies.Count != cached.Cookies?.Count || cached.Cookies.Except(cached.Cookies).Any());
         }
 
         #endregion
