@@ -14,6 +14,9 @@ namespace GenHTTP.Modules.Compression.Providers
 
     public sealed class CompressionConcern : IConcern
     {
+        private const string ACCEPT_ENCODING = "Accept-Encoding";
+
+        private const string VARY = "Vary";
 
         #region Get-/Setters
 
@@ -49,7 +52,7 @@ namespace GenHTTP.Modules.Compression.Providers
                 {
                     if (response.Content is not null && ShouldCompress(request.Target.Path, response.ContentType?.KnownType))
                     {
-                        if (request.Headers.TryGetValue("Accept-Encoding", out var header))
+                        if (request.Headers.TryGetValue(ACCEPT_ENCODING, out var header))
                         {
                             if (!string.IsNullOrEmpty(header))
                             {
@@ -62,6 +65,15 @@ namespace GenHTTP.Modules.Compression.Providers
                                         response.Content = algorithm.Compress(response.Content);
                                         response.ContentEncoding = algorithm.Name;
                                         response.ContentLength = null;
+
+                                        if (response.Headers.TryGetValue(VARY, out var existing))
+                                        {
+                                            response.Headers[VARY] = $"{existing}, {ACCEPT_ENCODING}";
+                                        }
+                                        else
+                                        {
+                                            response.Headers[VARY] = ACCEPT_ENCODING;
+                                        }
 
                                         break;
                                     }

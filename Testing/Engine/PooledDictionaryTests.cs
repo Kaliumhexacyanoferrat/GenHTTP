@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Engine.Utilities;
 
-namespace GenHTTP.Testing.Acceptance.Units
+namespace GenHTTP.Testing.Acceptance.Engine
 {
 
     [TestClass]
