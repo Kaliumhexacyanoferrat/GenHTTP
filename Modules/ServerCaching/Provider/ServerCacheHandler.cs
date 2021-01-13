@@ -77,7 +77,7 @@ namespace GenHTTP.Modules.ServerCaching.Provider
                     response = await Content.HandleAsync(request);
                 }
 
-                if ((response != null) && (response.Status == ResponseStatus.OK))
+                if ((response != null) && (response.Status == ResponseStatus.OK || response.Status == ResponseStatus.NoContent))
                 {
                     if ((Predicate == null) || Predicate(response))
                     {

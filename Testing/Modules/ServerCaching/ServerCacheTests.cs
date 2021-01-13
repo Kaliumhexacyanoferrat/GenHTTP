@@ -1,12 +1,16 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
 
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Compression;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.ServerCaching;
+using GenHTTP.Testing.Acceptance.Utilities;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Cookie = GenHTTP.Api.Protocol.Cookie;
 
 namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 {
@@ -112,13 +116,170 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             }
         }
 
-        // preserve headers
+        [TestMethod]
+        public void TestHeadersPreserved()
+        {
+            var now = DateTime.UtcNow;
 
-        // no content
+            var handler = new FunctionalHandler(responseProvider: (r) =>
+            {
+                return r.Respond()
+                        .Type(new FlexibleContentType(ContentType.AudioWav))
+                        .Cookie(new Cookie("CKey", "CValue"))
+                        .Header("HKey", "HValue")
+                        .Content(Resource.FromString("0123456789").Build())
+                        .Length(10)
+                        .Encoding("some-encoding")
+                        .Expires(now)
+                        .Modified(now)
+                        .Build();
+            });
 
-        // not OK
+            using var runner = TestRunner.Run(handler.Wrap().Add(ServerCache.Memory().Invalidate(false)), false);
 
-        // predicate
+            using var _ = runner.GetResponse();
+
+            using var cached = runner.GetResponse();
+
+            Assert.AreEqual("audio/wav", cached.ContentType);
+
+            Assert.AreEqual("HValue", cached.GetResponseHeader("HKey"));
+            Assert.AreEqual("10", cached.GetResponseHeader("Content-Length"));
+            Assert.AreEqual("some-encoding", cached.GetResponseHeader("Content-Encoding"));
+
+            Assert.AreEqual(now.ToString(), cached.LastModified.ToUniversalTime().ToString());
+            Assert.IsTrue(cached.GetResponseHeader("Expires") != null);
+
+            Assert.AreEqual("0123456789", cached.GetContent());
+        }
+
+        [TestMethod]
+        public void TestNoContentCached()
+        {
+            var i = 0;
+
+            var handler = new FunctionalHandler(responseProvider: (r) =>
+            {
+                i++;
+
+                return r.Respond()
+                        .Status(ResponseStatus.NoContent)
+                        .Build();
+            });
+
+            using var runner = TestRunner.Run(handler.Wrap().Add(ServerCache.Memory().Invalidate(false)), false);
+
+            using var _ = runner.GetResponse();
+
+            using var __ = runner.GetResponse();
+
+            Assert.AreEqual(1, i);
+        }
+
+        [TestMethod]
+        public void TestNotOkNotCached()
+        {
+            var i = 0;
+
+            var handler = new FunctionalHandler(responseProvider: (r) =>
+            {
+                i++;
+
+                return r.Respond()
+                        .Status(ResponseStatus.InternalServerError)
+                        .Build();
+            });
+
+            using var runner = TestRunner.Run(handler.Wrap().Add(ServerCache.Memory().Invalidate(false)), false);
+
+            using var _ = runner.GetResponse();
+
+            using var __ = runner.GetResponse();
+
+            Assert.AreEqual(2, i);
+        }
+
+        [TestMethod]
+        public void TestPredicateNoMatchNoCache()
+        {
+            var i = 0;
+
+            var handler = new FunctionalHandler(responseProvider: (r) =>
+            {
+                i++;
+
+                return r.Respond()
+                        .Content(Resource.FromString("0123456789").Build())
+                        .Type(new FlexibleContentType(ContentType.TextHtml))
+                        .Build();
+            });
+
+            var cache = ServerCache.Memory()
+                                   .Predicate(r => r.ContentType?.KnownType != ContentType.TextHtml)
+                                   .Invalidate(false);
+
+            using var runner = TestRunner.Run(handler.Wrap().Add(cache), false);
+
+            using var _ = runner.GetResponse();
+
+            using var __ = runner.GetResponse();
+
+            Assert.AreEqual(2, i);
+        }
+
+        [TestMethod]
+        public void TestPredicateMatchCached()
+        {
+            var i = 0;
+
+            var handler = new FunctionalHandler(responseProvider: (r) =>
+            {
+                i++;
+
+                return r.Respond()
+                        .Content(Resource.FromString("0123456789").Build())
+                        .Type(new FlexibleContentType(ContentType.TextCss))
+                        .Build();
+            });
+
+            var cache = ServerCache.Memory()
+                                   .Predicate(r => r.ContentType?.KnownType != ContentType.TextHtml)
+                                   .Invalidate(false);
+
+            using var runner = TestRunner.Run(handler.Wrap().Add(cache), false);
+
+            using var _ = runner.GetResponse();
+
+            using var __ = runner.GetResponse();
+
+            Assert.AreEqual(1, i);
+        }
+
+        [TestMethod]
+        public void TestQueryDifferenceNotCached()
+        {
+            var i = 0;
+
+            var handler = new FunctionalHandler(responseProvider: (r) =>
+            {
+                i++;
+
+                return r.Respond()
+                        .Content(Resource.FromString("0123456789").Build())
+                        .Build();
+            });
+
+            var cache = ServerCache.Memory()
+                                   .Invalidate(false);
+
+            using var runner = TestRunner.Run(handler.Wrap().Add(cache), false);
+
+            using var _ = runner.GetResponse("/?a=1");
+
+            using var __ = runner.GetResponse("/?a=2");
+
+            Assert.AreEqual(2, i);
+        }
 
     }
 
