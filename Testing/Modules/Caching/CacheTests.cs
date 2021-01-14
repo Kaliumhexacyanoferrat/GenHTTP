@@ -84,6 +84,21 @@ namespace GenHTTP.Testing.Acceptance.Modules.Caching
         }
 
         [TestMethod]
+        public async Task TestStreamingOverwrite()
+        {
+            foreach (var cache in GetCaches<Stream>())
+            {
+                using var stream = new MemoryStream(new byte[] { 1 });
+
+                await cache.StoreAsync("k", "v", stream);
+
+                await cache.StoreAsync("k", "v", stream);
+
+                Assert.AreEqual(1, (await cache.GetEntriesAsync("k")).Length);
+            }
+        }
+
+        [TestMethod]
         public async Task TestDirectStreaming()
         {
             foreach (var cache in GetCaches<Stream>())
@@ -95,6 +110,19 @@ namespace GenHTTP.Testing.Acceptance.Modules.Caching
                 using var resultStream = (await cache.GetEntryAsync("k", "v"))!;
 
                 Assert.AreEqual(1, resultStream.Length);
+            }
+        }
+
+        [TestMethod]
+        public async Task TestDirectStreamingOverwrite()
+        {
+            foreach (var cache in GetCaches<Stream>())
+            {
+                await cache.StoreDirectAsync("k", "v", (s) => s.WriteAsync(new byte[] { 1 }));
+
+                await cache.StoreDirectAsync("k", "v", (s) => s.WriteAsync(new byte[] { 1 }));
+
+                Assert.AreEqual(1, (await cache.GetEntriesAsync("k")).Length);
             }
         }
 

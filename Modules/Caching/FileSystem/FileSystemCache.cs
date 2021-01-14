@@ -130,9 +130,10 @@ namespace GenHTTP.Modules.Caching.FileSystem
             {
                 var file = new FileInfo(Path.Combine(Directory.FullName, key, fileName));
 
-                using var target = (file.Exists) ? file.OpenWrite() : file.Create();
-
-                await asyncWriter(target);
+                using (var streamWriter = new StreamWriter(file.FullName, false))
+                {
+                    await asyncWriter(streamWriter.BaseStream);
+                }
             }
             else
             {
@@ -142,9 +143,10 @@ namespace GenHTTP.Modules.Caching.FileSystem
 
                 var file = new FileInfo(Path.Combine(Directory.FullName, key, newFile));
 
-                using var target = (file.Exists) ? file.OpenWrite() : file.Create();
-
-                await asyncWriter(target);
+                using (var streamWriter = new StreamWriter(file.FullName, false))
+                {
+                    await asyncWriter(streamWriter.BaseStream);
+                }
 
                 await StoreIndex(key, index);
             }
