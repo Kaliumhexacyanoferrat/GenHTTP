@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 
+using GenHTTP.Api.Content.Caching;
 using GenHTTP.Modules.Caching;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -17,10 +18,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.Caching
         [TestMethod]
         public async Task TestHit()
         {
-            foreach (var cacheBuilder in new[] { Cache.Memory<CachedEntry>() })
+            foreach (var cache in GetCaches<CachedEntry>())
             {
-                var cache = cacheBuilder.Build();
-
                 await cache.StoreAsync("k", "v", new CachedEntry("1"));
 
                 Assert.AreEqual(1, (await cache.GetEntriesAsync("k")).Length);
@@ -32,10 +31,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.Caching
         [TestMethod]
         public async Task TestMiss()
         {
-            foreach (var cacheBuilder in new[] { Cache.Memory<CachedEntry>() })
+            foreach (var cache in GetCaches<CachedEntry>())
             {
-                var cache = cacheBuilder.Build();
-
                 Assert.AreEqual(0, (await cache.GetEntriesAsync("k")).Length);
 
                 Assert.IsNull(await cache.GetEntryAsync("k", "v"));
@@ -45,10 +42,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.Caching
         [TestMethod]
         public async Task TestVariantMiss()
         {
-            foreach (var cacheBuilder in new[] { Cache.Memory<CachedEntry>() })
+            foreach (var cache in GetCaches<CachedEntry>())
             {
-                var cache = cacheBuilder.Build();
-
                 await cache.StoreAsync("k", "v1", new CachedEntry("1"));
 
                 Assert.IsNull(await cache.GetEntryAsync("k", "v2"));
@@ -58,10 +53,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.Caching
         [TestMethod]
         public async Task TestRemoval()
         {
-            foreach (var cacheBuilder in new[] { Cache.Memory<CachedEntry>() })
+            foreach (var cache in GetCaches<CachedEntry>())
             {
-                var cache = cacheBuilder.Build();
-
                 await cache.StoreAsync("k", "v", new CachedEntry("1"));
 
                 await cache.StoreAsync("k", "v", null);
@@ -75,10 +68,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.Caching
         [TestMethod]
         public async Task TestStreaming()
         {
-            foreach (var cacheBuilder in new[] { Cache.Memory<Stream>() })
+            foreach (var cache in GetCaches<Stream>())
             {
-                var cache = cacheBuilder.Build();
-
                 using var stream = new MemoryStream(new byte[] { 1 });
 
                 await cache.StoreAsync("k", "v", stream);
@@ -95,10 +86,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.Caching
         [TestMethod]
         public async Task TestDirectStreaming()
         {
-            foreach (var cacheBuilder in new[] { Cache.Memory<Stream>() })
+            foreach (var cache in GetCaches<Stream>())
             {
-                var cache = cacheBuilder.Build();
-
                 await cache.StoreDirectAsync("k", "v", (s) => s.WriteAsync(new byte[] { 1 }));
 
                 Assert.AreEqual(1, (await cache.GetEntriesAsync("k")).Length);
@@ -112,14 +101,27 @@ namespace GenHTTP.Testing.Acceptance.Modules.Caching
         [TestMethod]
         public async Task TestStreamingMiss()
         {
-            foreach (var cacheBuilder in new[] { Cache.Memory<Stream>() })
+            foreach (var cache in GetCaches<Stream>())
             {
-                var cache = cacheBuilder.Build();
-
                 Assert.AreEqual(0, (await cache.GetEntriesAsync("k")).Length);
 
                 Assert.IsNull(await cache.GetEntryAsync("k", "v"));
             }
+        }
+
+        [TestMethod]
+        public void TestFileCacheDisposable()
+        {
+            using var _ = Cache.TemporaryFiles<CachedEntry>().Build();
+        }
+
+        private ICache<T>[] GetCaches<T>()
+        {
+            return new ICache<T>[]
+            {
+                Cache.Memory<T>().Build(),
+                Cache.TemporaryFiles<T>().Build()
+            };
         }
 
     }

@@ -45,6 +45,8 @@
     <PackageReference Include="PooledAwait" Version="1.0.49" />
 
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+
+    <PackageReference Include="System.Text.Json" Version="5.0.1" />
     
   </ItemGroup>
 
