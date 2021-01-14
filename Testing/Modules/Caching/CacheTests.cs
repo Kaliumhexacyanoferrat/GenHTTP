@@ -49,9 +49,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Caching
             {
                 var cache = cacheBuilder.Build();
 
-                await cache.StoreAsync("k", "v", new CachedEntry("1"));
+                await cache.StoreAsync("k", "v1", new CachedEntry("1"));
 
-                Assert.IsNull(await cache.GetEntryAsync("k", "v"));
+                Assert.IsNull(await cache.GetEntryAsync("k", "v2"));
             }
         }
 
