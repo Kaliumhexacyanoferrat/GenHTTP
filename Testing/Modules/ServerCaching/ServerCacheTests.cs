@@ -3,9 +3,13 @@ using System.IO;
 using System.Net;
 
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Compression;
 using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.ServerCaching;
+using GenHTTP.Modules.Sitemaps;
+
 using GenHTTP.Testing.Acceptance.Utilities;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -279,6 +283,104 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             using var __ = runner.GetResponse("/?a=2");
 
             Assert.AreEqual(2, i);
+        }
+
+        [TestMethod]
+        public void TestPostNotCached()
+        {
+            var i = 0;
+
+            var handler = new FunctionalHandler(responseProvider: (r) =>
+            {
+                i++;
+
+                return r.Respond()
+                        .Build();
+            });
+
+            var cache = ServerCache.Memory()
+                                   .Invalidate(false);
+
+            using var runner = TestRunner.Run(handler.Wrap().Add(cache), false);
+
+            using var _ = runner.GetResponse(GetPostRequest(runner));
+
+            using var __ = runner.GetResponse(GetPostRequest(runner));
+
+            Assert.AreEqual(2, i);
+        }
+
+        private static HttpWebRequest GetPostRequest(TestRunner runner)
+        {
+            var request = runner.GetRequest();
+
+            request.Method = "POST";
+            request.ContentType = "text/plain";
+
+            using (var requestStream = request.GetRequestStream())
+            {
+                using var writer = new StreamWriter(requestStream);
+
+                writer.WriteLine("Hello World!");
+            }
+
+            return request;
+        }
+
+        [TestMethod]
+        public void TestVariationCached()
+        {
+            var i = 0;
+
+            var handler = new FunctionalHandler(responseProvider: (r) =>
+            {
+                i++;
+
+                return r.Respond()
+                        .Header("Vary", "Key")
+                        .Build();
+            });
+
+            var cache = ServerCache.Memory()
+                                   .Invalidate(false);
+
+            using var runner = TestRunner.Run(handler.Wrap().Add(cache), false);
+
+            using var _ = runner.GetResponse(GetVaryRequest(runner));
+
+            using var __ = runner.GetResponse(GetVaryRequest(runner));
+
+            Assert.AreEqual(1, i);
+        }
+
+        private static HttpWebRequest GetVaryRequest(TestRunner runner)
+        {
+            var request = runner.GetRequest();
+
+            request.Headers.Add("Key", "Value");
+
+            return request;
+        }
+
+        [TestMethod]
+        public void TestContent()
+        {
+            var cache = ServerCache.Memory();
+
+            var content = Resources.From(ResourceTree.FromAssembly("Resources"))
+                                   .Add(cache);
+
+            var app = Layout.Create()
+                            .Add(Sitemap.FILE_NAME, Sitemap.Create())
+                            .Add("app", content);
+
+            using var runner = TestRunner.Run(app, false);
+
+            using var response = runner.GetResponse("/sitemap.xml");
+
+            var sitemap = response.GetSitemap();
+
+            AssertX.Contains("/app/Template.html", sitemap);
         }
 
     }
