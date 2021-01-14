@@ -7,6 +7,9 @@ using GenHTTP.Api.Content.IO;
 using GenHTTP.Modules.Compression;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Basics;
+
+using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {
@@ -116,6 +119,41 @@ namespace GenHTTP.Testing.Acceptance.Engine
             using var response = runner.GetResponse("/uncompressed");
 
             Assert.IsNull(response.ContentEncoding);
+        }
+
+        [TestMethod]
+        public void TestVariyHeaderAdded()
+        {
+            using var runner = TestRunner.Run();
+
+            var request = runner.GetRequest();
+            request.Headers.Add("Accept-Encoding", "gzip");
+
+            using var response = request.GetSafeResponse();
+
+            Assert.AreEqual("Accept-Encoding", response.GetResponseHeader("Vary"));
+        }
+
+        [TestMethod]
+        public void TestVariyHeaderExtendedAdded()
+        {
+            var handler = new FunctionalHandler(responseProvider: (r) =>
+            {
+                return r.Respond()
+                .Header("Vary", "Host")
+                .Content(Resource.FromString("Hello World").Build())
+                .Type(ContentType.TextHtml)
+                .Build();
+            });
+
+            using var runner = TestRunner.Run(handler.Wrap());
+
+            var request = runner.GetRequest();
+            request.Headers.Add("Accept-Encoding", "gzip");
+
+            using var response = request.GetSafeResponse();
+
+            Assert.AreEqual("Host, Accept-Encoding", response.GetResponseHeader("Vary"));
         }
 
     }

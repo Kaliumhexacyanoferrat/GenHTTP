@@ -383,6 +383,32 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             AssertX.Contains("/app/Template.html", sitemap);
         }
 
+        [TestMethod]
+        public void TestDifferentStorageBackends()
+        {
+            foreach (var serverCache in new[] { ServerCache.Memory() })
+            {
+                var i = 0;
+
+                var handler = new FunctionalHandler(responseProvider: (r) =>
+                {
+                    i++;
+
+                    return r.Respond()
+                            .Content(Resource.FromString("0123456789").Build())
+                            .Build();
+                });
+
+                using var runner = TestRunner.Run(handler.Wrap().Add(serverCache.Invalidate(false)), false);
+
+                using var _ = runner.GetResponse();
+
+                using var __ = runner.GetResponse();
+
+                Assert.AreEqual(1, i);
+            }
+        }
+
     }
 
 }
