@@ -5,29 +5,9 @@ using System.Collections.Generic;
 namespace GenHTTP.Modules.ServerCaching
 {
     
-    public record CachedResponse
-    (
-
-        FlexibleResponseStatus Status,
-
-        DateTime? Expires,
-
-        DateTime? Modified,
-
-        Dictionary<string, string>? Variations,
-
-        Dictionary<string, string> Headers,
-
-        Dictionary<string, Cookie>? Cookies,
-
-        FlexibleContentType? ContentType,
-
-        string? ContentEncoding,
-
-        ulong? ContentLength,
-
-        ulong? ContentChecksum
-
-    );
+    public record CachedResponse(FlexibleResponseStatus Status, DateTime? Expires, DateTime? Modified,
+                                 Dictionary<string, string>? Variations, Dictionary<string, string> Headers,
+                                 Dictionary<string, Cookie>? Cookies, FlexibleContentType? ContentType,
+                                 string? ContentEncoding, ulong? ContentLength, ulong? ContentChecksum);
 
 }
