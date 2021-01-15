@@ -1,4 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.IO.Compression;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
@@ -25,7 +27,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             public Priority Priority => Priority.High;
 
-            public IResponseContent Compress(IResponseContent content)
+            public IResponseContent Compress(IResponseContent content, CompressionLevel level)
             {
                 return content;
             }
@@ -96,7 +98,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
         {
             using var runner = new TestRunner();
 
-            runner.Host.Compression(CompressedContent.Default().Add(new CustomAlgorithm())).Start();
+            runner.Host.Compression(CompressedContent.Default().Add(new CustomAlgorithm()).Level(CompressionLevel.Optimal)).Start();
 
             var request = runner.GetRequest();
             request.Headers.Add("Accept-Encoding", "custom");

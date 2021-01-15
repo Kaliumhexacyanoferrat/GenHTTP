@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -22,20 +23,25 @@ namespace GenHTTP.Modules.Compression.Providers
 
         public IHandler Content { get; }
 
+        public IHandler Parent { get; }
+
         private IReadOnlyDictionary<string, ICompressionAlgorithm> Algorithms { get; }
 
-        public IHandler Parent { get; }
+        private CompressionLevel Level { get; }
 
         #endregion
 
         #region Initialization
 
-        public CompressionConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, IReadOnlyDictionary<string, ICompressionAlgorithm> algorithms)
+        public CompressionConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, 
+                                  IReadOnlyDictionary<string, ICompressionAlgorithm> algorithms,
+                                  CompressionLevel level)
         {
             Parent = parent;
             Content = contentFactory(this);
 
             Algorithms = algorithms;
+            Level = level;
         }
 
         #endregion
@@ -62,7 +68,7 @@ namespace GenHTTP.Modules.Compression.Providers
                                 {
                                     if (supported.Contains(algorithm.Name))
                                     {
-                                        response.Content = algorithm.Compress(response.Content);
+                                        response.Content = algorithm.Compress(response.Content, Level);
                                         response.ContentEncoding = algorithm.Name;
                                         response.ContentLength = null;
 
