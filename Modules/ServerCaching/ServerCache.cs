@@ -21,6 +21,15 @@ namespace GenHTTP.Modules.ServerCaching
         public static ServerCacheHandlerBuilder Memory()
             => Create(Cache.Memory<CachedResponse>(), Cache.Memory<Stream>());
 
+        public static ServerCacheHandlerBuilder TemporaryFiles()
+            => Create(Cache.Memory<CachedResponse>(), Cache.TemporaryFiles<Stream>());
+
+        public static ServerCacheHandlerBuilder Persistent(string directory)
+            => Create(Cache.FileSystem<CachedResponse>(Path.Combine(directory, "meta")), Cache.FileSystem<Stream>(Path.Combine(directory, "data")));
+
+        public static ServerCacheHandlerBuilder Persistent(DirectoryInfo directory)
+            => Persistent(directory.FullName);
+
     }
 
 }

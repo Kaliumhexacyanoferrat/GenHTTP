@@ -12,6 +12,13 @@ namespace GenHTTP.Modules.Caching.FileSystem
 
     public sealed class FileSystemCache<T> : ICache<T>
     {
+        private static readonly JsonSerializerOptions _Options = new()
+        {
+            IgnoreNullValues = true,
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+
         private readonly SemaphoreSlim _Sync = new(1);
 
         #region Supporting data structures
@@ -184,7 +191,7 @@ namespace GenHTTP.Modules.Caching.FileSystem
                 {
                     using var stream = file.OpenRead();
 
-                    return (await JsonSerializer.DeserializeAsync<T>(stream));
+                    return (await JsonSerializer.DeserializeAsync<T>(stream, _Options));
                 }
             }
 
@@ -208,7 +215,7 @@ namespace GenHTTP.Modules.Caching.FileSystem
                 }
                 else
                 {
-                    await JsonSerializer.SerializeAsync(writer.BaseStream, value);
+                    await JsonSerializer.SerializeAsync(writer.BaseStream, value, _Options);
                 }
             }
         }
@@ -231,7 +238,7 @@ namespace GenHTTP.Modules.Caching.FileSystem
             {
                 using var stream = indexFile.OpenRead();
 
-                return (await JsonSerializer.DeserializeAsync<Index>(stream)) ?? new Index(new());
+                return (await JsonSerializer.DeserializeAsync<Index>(stream, _Options)) ?? new Index(new());
             }
 
             return new Index(new());
@@ -243,7 +250,7 @@ namespace GenHTTP.Modules.Caching.FileSystem
 
             using (var writer = new StreamWriter(indexFile.FullName, false))
             {
-                await JsonSerializer.SerializeAsync(writer.BaseStream, index);
+                await JsonSerializer.SerializeAsync(writer.BaseStream, index, _Options);
             }
 
             indexFile.Refresh();

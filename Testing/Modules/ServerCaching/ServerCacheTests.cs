@@ -8,6 +8,7 @@ using GenHTTP.Modules.Compression;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.ServerCaching;
+using GenHTTP.Modules.ServerCaching.Provider;
 using GenHTTP.Modules.Sitemaps;
 
 using GenHTTP.Testing.Acceptance.Utilities;
@@ -386,7 +387,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
         [TestMethod]
         public void TestDifferentStorageBackends()
         {
-            foreach (var serverCache in new[] { ServerCache.Memory() })
+            foreach (var serverCache in GetBackends())
             {
                 var i = 0;
 
@@ -407,6 +408,18 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
                 Assert.AreEqual(1, i);
             }
+        }
+
+        private static ServerCacheHandlerBuilder[] GetBackends()
+        {
+            var tempDir = new DirectoryInfo(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()));
+
+            return new ServerCacheHandlerBuilder[]
+            {
+                ServerCache.Memory(), 
+                ServerCache.TemporaryFiles(), 
+                ServerCache.Persistent(tempDir)
+            };
         }
 
     }

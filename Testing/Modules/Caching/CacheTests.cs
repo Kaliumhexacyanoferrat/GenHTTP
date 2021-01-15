@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content.Caching;
@@ -9,7 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace GenHTTP.Testing.Acceptance.Modules.Caching
 {
 
-    public record CachedEntry(string Data);
+    public record CachedEntry(string Data, DateTime? Date = null, int? Int = null);
 
     [TestClass]
     public class CacheTests
@@ -20,11 +21,17 @@ namespace GenHTTP.Testing.Acceptance.Modules.Caching
         {
             foreach (var cache in GetCaches<CachedEntry>())
             {
-                await cache.StoreAsync("k", "v", new CachedEntry("1"));
+                var now = DateTime.Now;
+
+                await cache.StoreAsync("k", "v", new CachedEntry("1", now, 42));
 
                 Assert.AreEqual(1, (await cache.GetEntriesAsync("k")).Length);
 
-                Assert.AreEqual("1", (await cache.GetEntryAsync("k", "v"))!.Data);
+                var hit = (await cache.GetEntryAsync("k", "v"))!;
+               
+                Assert.AreEqual("1", hit.Data);
+                Assert.AreEqual(now, hit.Date);
+                Assert.AreEqual(42, hit.Int);
             }
         }
 

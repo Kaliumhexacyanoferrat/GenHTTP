@@ -1,13 +1,15 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Caching;
-using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.IO.Streaming;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Caching;
+using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.Basics;
+using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.ServerCaching.Provider
 {
@@ -140,7 +142,7 @@ namespace GenHTTP.Modules.ServerCaching.Provider
         private static IResponse GetResponse(IRequest request, CachedResponse cached, Stream? content)
         {
             var response = request.Respond()
-                                  .Status(cached.Status.RawStatus, cached.Status.Phrase);
+                                  .Status(cached.StatusCode, cached.StatusPhrase);
 
             if (cached.ContentEncoding != null)
             {
@@ -154,7 +156,7 @@ namespace GenHTTP.Modules.ServerCaching.Provider
 
             if (cached.ContentType != null)
             {
-                response.Type(cached.ContentType.Value);
+                response.Type(cached.ContentType);
             }
 
             if (cached.Cookies != null)
@@ -216,8 +218,8 @@ namespace GenHTTP.Modules.ServerCaching.Provider
                 checksum = await response.Content.CalculateChecksumAsync();
             }
 
-            return new CachedResponse(response.Status, response.Expires, response.Modified,
-                                      variations, headers, cookies, response.ContentType,
+            return new CachedResponse(response.Status.RawStatus, response.Status.Phrase, response.Expires, response.Modified,
+                                      variations, headers, cookies, response.ContentType?.RawType,
                                       response.ContentEncoding, response.ContentLength,
                                       checksum);
         }
@@ -229,7 +231,7 @@ namespace GenHTTP.Modules.ServerCaching.Provider
             return (cached.ContentChecksum != checksum)
                 || (cached.ContentEncoding != current.ContentEncoding)
                 || (cached.ContentLength != current.ContentLength)
-                || (!cached.ContentType.Equals(current.ContentType))
+                || (cached.ContentType != current.ContentType?.RawType)
                 || (cached.Expires != current.Expires)
                 || (cached.Modified != current.Modified)
                 || (current.Headers.Count != cached.Headers.Count || current.Headers.Except(cached.Headers).Any())
