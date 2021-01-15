@@ -56,13 +56,13 @@ namespace GenHTTP.Modules.Caching.Memory
             }
         }
 
-        public async ValueTask StoreDirectAsync(string key, string variations, Func<Stream, ValueTask> asyncWriter)
+        public async ValueTask StoreDirectAsync(string key, string variation, Func<Stream, ValueTask> asyncWriter)
         {
             using var memoryStream = new MemoryStream();
 
             await asyncWriter(memoryStream);
 
-            await _Cache.StoreAsync(key, variations, memoryStream.ToArray());
+            await _Cache.StoreAsync(key, variation, memoryStream.ToArray());
         }
 
         #endregion

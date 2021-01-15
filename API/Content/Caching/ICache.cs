@@ -14,7 +14,7 @@ namespace GenHTTP.Api.Content.Caching
 
         ValueTask StoreAsync(string key, string variation, T? entry);
 
-        ValueTask StoreDirectAsync(string key, string variations, Func<Stream, ValueTask> asyncWriter);
+        ValueTask StoreDirectAsync(string key, string variation, Func<Stream, ValueTask> asyncWriter);
 
     }
 

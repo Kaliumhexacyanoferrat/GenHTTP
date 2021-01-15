@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content.Caching;
@@ -9,8 +10,9 @@ using GenHTTP.Api.Content.Caching;
 namespace GenHTTP.Modules.Caching.FileSystem
 {
 
-    public class FileSystemCache<T> : ICache<T>, IDisposable
+    public sealed class FileSystemCache<T> : ICache<T>
     {
+        private readonly SemaphoreSlim _Sync = new(1);
 
         #region Supporting data structures
 
@@ -37,33 +39,135 @@ namespace GenHTTP.Modules.Caching.FileSystem
 
         public async ValueTask<T[]> GetEntriesAsync(string key)
         {
-            var result = new List<T>();
+            await _Sync.WaitAsync();
 
-            var index = await GetIndex(key);
-
-            foreach (var entry in index.Entries)
+            try
             {
-                var value = await GetValue(key, entry.Value);
+                var result = new List<T>();
 
-                if (value != null)
+                var index = await GetIndex(key);
+
+                foreach (var entry in index.Entries)
                 {
-                    result.Add(value);
-                }
-            }
+                    var value = await GetValue(key, entry.Value);
 
-            return result.ToArray();
+                    if (value != null)
+                    {
+                        result.Add(value);
+                    }
+                }
+
+                return result.ToArray();
+            }
+            finally
+            {
+                _Sync.Release();
+            }
         }
 
         public async ValueTask<T?> GetEntryAsync(string key, string variation)
         {
-            var index = await GetIndex(key);
+            await _Sync.WaitAsync();
 
-            if (index.Entries.TryGetValue(variation, out var fileName))
+            try
             {
-                return await GetValue(key, fileName);
-            }
+                var index = await GetIndex(key);
 
-            return default;
+                if (index.Entries.TryGetValue(variation, out var fileName))
+                {
+                    return await GetValue(key, fileName);
+                }
+
+                return default;
+            }
+            finally
+            {
+                _Sync.Release();
+            }
+        }
+
+        public async ValueTask StoreAsync(string key, string variation, T? entry)
+        {
+            await _Sync.WaitAsync();
+
+            try
+            {
+                var index = await GetIndex(key);
+
+                EnsureDirectory(key);
+
+                if (index.Entries.TryGetValue(variation, out var fileName))
+                {
+                    if (entry == null)
+                    {
+                        Remove(key, fileName);
+
+                        index.Entries.Remove(variation);
+
+                        await StoreIndex(key, index);
+                    }
+                    else
+                    {
+                        await StoreValue(key, fileName, entry);
+                    }
+                }
+                else if (entry != null)
+                {
+                    var newFile = Guid.NewGuid().ToString();
+
+                    index.Entries.Add(variation, newFile);
+
+                    await StoreValue(key, newFile, entry);
+
+                    await StoreIndex(key, index);
+                }
+
+            }
+            finally
+            {
+                _Sync.Release();
+            }
+        }
+
+        public async ValueTask StoreDirectAsync(string key, string variation, Func<Stream, ValueTask> asyncWriter)
+        {
+            await _Sync.WaitAsync();
+
+            try
+            {
+                var index = await GetIndex(key);
+
+                EnsureDirectory(key);
+
+                if (index.Entries.TryGetValue(variation, out var fileName))
+                {
+                    var file = new FileInfo(Path.Combine(Directory.FullName, key, fileName));
+
+                    using (var streamWriter = new StreamWriter(file.FullName, false))
+                    {
+                        await asyncWriter(streamWriter.BaseStream);
+                    }
+                }
+                else
+                {
+                    var newFile = Guid.NewGuid().ToString();
+
+                    index.Entries.Add(variation, newFile);
+
+                    var file = new FileInfo(Path.Combine(Directory.FullName, key, newFile));
+
+                    using (var streamWriter = new StreamWriter(file.FullName, false))
+                    {
+                        await asyncWriter(streamWriter.BaseStream);
+                    }
+
+                    await StoreIndex(key, index);
+                }
+            }
+            finally
+            {
+                _Sync.Release();
+            }
         }
 
         private async ValueTask<T?> GetValue(string key, string fileName)
@@ -85,71 +189,6 @@ namespace GenHTTP.Modules.Caching.FileSystem
             }
 
             return default;
-        }
-
-        public async ValueTask StoreAsync(string key, string variation, T? entry)
-        {
-            var index = await GetIndex(key);
-
-            EnsureDirectory(key);
-
-            if (index.Entries.TryGetValue(variation, out var fileName))
-            {
-                if (entry == null)
-                {
-                    Remove(key, fileName);
-
-                    index.Entries.Remove(variation);
-
-                    await StoreIndex(key, index);
-                }
-                else
-                {
-                    await StoreValue(key, fileName, entry);
-                }
-            }
-            else if (entry != null)
-            {
-                var newFile = Guid.NewGuid().ToString();
-
-                index.Entries.Add(variation, newFile);
-
-                await StoreValue(key, newFile, entry);
-
-                await StoreIndex(key, index);
-            }
-        }
-
-        public async ValueTask StoreDirectAsync(string key, string variation, Func<Stream, ValueTask> asyncWriter)
-        {
-            var index = await GetIndex(key);
-
-            EnsureDirectory(key);
-
-            if (index.Entries.TryGetValue(variation, out var fileName))
-            {
-                var file = new FileInfo(Path.Combine(Directory.FullName, key, fileName));
-
-                using (var streamWriter = new StreamWriter(file.FullName, false))
-                {
-                    await asyncWriter(streamWriter.BaseStream);
-                }
-            }
-            else
-            {
-                var newFile = Guid.NewGuid().ToString();
-
-                index.Entries.Add(variation, newFile);
-
-                var file = new FileInfo(Path.Combine(Directory.FullName, key, newFile));
-
-                using (var streamWriter = new StreamWriter(file.FullName, false))
-                {
-                    await asyncWriter(streamWriter.BaseStream);
-                }
-
-                await StoreIndex(key, index);
-            }
         }
 
         private async ValueTask StoreValue(string key, string fileName, T value)
@@ -202,8 +241,8 @@ namespace GenHTTP.Modules.Caching.FileSystem
         {
             var indexFile = new FileInfo(Path.Combine(Directory.FullName, key, "index.json"));
 
-            using (var writer = new StreamWriter(indexFile.FullName, false)) 
-            { 
+            using (var writer = new StreamWriter(indexFile.FullName, false))
+            {
                 await JsonSerializer.SerializeAsync(writer.BaseStream, index);
             }
 
@@ -218,31 +257,6 @@ namespace GenHTTP.Modules.Caching.FileSystem
             {
                 subPath.Create();
             }
-        }
-
-        #endregion
-
-        #region Disposing
-
-        private bool disposedValue;
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    Directory.Delete(true);
-                }
-
-                disposedValue = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
 
         #endregion

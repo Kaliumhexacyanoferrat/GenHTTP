@@ -137,13 +137,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Caching
             }
         }
 
-        [TestMethod]
-        public void TestFileCacheDisposable()
-        {
-            using var _ = Cache.TemporaryFiles<CachedEntry>().Build();
-        }
-
-        private ICache<T>[] GetCaches<T>()
+        private static ICache<T>[] GetCaches<T>()
         {
             return new ICache<T>[]
             {
