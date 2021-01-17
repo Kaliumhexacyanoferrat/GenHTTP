@@ -2,7 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Threading;
-
+using System.Threading.Tasks;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Caching;
 using GenHTTP.Modules.Compression;
@@ -434,13 +434,11 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             var meta = Cache.Memory<CachedResponse>();
 
             var data = Cache.TemporaryFiles<Stream>()
-                            .AccessExpiration(TimeSpan.FromMilliseconds(100));
+                            .AccessExpiration(TimeSpan.FromMilliseconds(0));
 
             using var runner = TestRunner.Run(handler.Wrap().Add(ServerCache.Create(meta, data)), false);
 
             using var _ = runner.GetResponse();
-
-            Thread.Sleep(250);
 
             using var __ = runner.GetResponse();
 
