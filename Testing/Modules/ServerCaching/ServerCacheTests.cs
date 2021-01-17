@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Threading;
 
 using GenHTTP.Api.Protocol;
-
+using GenHTTP.Modules.Caching;
 using GenHTTP.Modules.Compression;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
@@ -408,6 +409,36 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
                 Assert.AreEqual(1, i);
             }
+        }
+
+        [TestMethod]
+        public void TestAccessExpiration()
+        {
+            var i = 0;
+
+            var handler = new FunctionalHandler(responseProvider: (r) =>
+            {
+                i++;
+
+                return r.Respond()
+                        .Content(Resource.FromString(Guid.NewGuid().ToString()).Build())
+                        .Build();
+            });
+
+            var meta = Cache.Memory<CachedResponse>();
+
+            var data = Cache.TemporaryFiles<Stream>()
+                            .AccessExpiration(TimeSpan.FromMilliseconds(100));
+
+            using var runner = TestRunner.Run(handler.Wrap().Add(ServerCache.Create(meta, data)), false);
+
+            using var _ = runner.GetResponse();
+
+            Thread.Sleep(250);
+
+            using var __ = runner.GetResponse();
+
+            Assert.AreEqual(2, i);
         }
 
         private static ServerCacheHandlerBuilder[] GetBackends()
