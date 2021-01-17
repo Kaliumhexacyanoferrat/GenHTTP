@@ -115,6 +115,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
                 Assert.AreEqual(HttpStatusCode.OK, brResponse.StatusCode);
                 Assert.AreEqual("br", brResponse.GetResponseHeader("Content-Encoding"));
+
+                using var uncompressedResponse = runner.GetResponse();
+
+                Assert.AreEqual(HttpStatusCode.OK, uncompressedResponse.StatusCode);
+                Assert.IsNull(uncompressedResponse.ContentEncoding);
+                Assert.AreEqual("This is some content!", uncompressedResponse.GetContent());
             }
             finally
             {
