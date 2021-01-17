@@ -1,11 +1,10 @@
-﻿using System;
+﻿using GenHTTP.Api.Content.Caching;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-
-using GenHTTP.Api.Content.Caching;
 
 namespace GenHTTP.Modules.Caching.FileSystem
 {
@@ -23,7 +22,7 @@ namespace GenHTTP.Modules.Caching.FileSystem
 
         #region Supporting data structures
 
-        internal record Index(Dictionary<string, string> Entries);
+        internal record Index(Dictionary<string, string> Entries, Dictionary<string, DateTime> Expiration);
 
         #endregion
 
@@ -31,13 +30,16 @@ namespace GenHTTP.Modules.Caching.FileSystem
 
         public DirectoryInfo Directory { get; }
 
+        public TimeSpan AccessExpiration { get; }
+
         #endregion
 
         #region Initialization
 
-        public FileSystemCache(DirectoryInfo directory)
+        public FileSystemCache(DirectoryInfo directory, TimeSpan accessExpiration)
         {
             Directory = directory;
+            AccessExpiration = accessExpiration;
         }
 
         #endregion
@@ -105,18 +107,22 @@ namespace GenHTTP.Modules.Caching.FileSystem
 
                 if (index.Entries.TryGetValue(variation, out var fileName))
                 {
+                    index.Expiration.Add(fileName, DateTime.UtcNow);
+
                     if (entry == null)
                     {
-                        Remove(key, fileName);
-
                         index.Entries.Remove(variation);
-
-                        await StoreIndex(key, index);
                     }
                     else
                     {
+                        fileName = Guid.NewGuid().ToString();
+
+                        index.Entries[variation] = fileName;
+
                         await StoreValue(key, fileName, entry);
                     }
+
+                    await StoreIndex(key, index);
                 }
                 else if (entry != null)
                 {
@@ -148,12 +154,20 @@ namespace GenHTTP.Modules.Caching.FileSystem
 
                 if (index.Entries.TryGetValue(variation, out var fileName))
                 {
+                    index.Expiration.Add(fileName, DateTime.UtcNow);
+
+                    fileName = Guid.NewGuid().ToString();
+
+                    index.Entries[variation] = fileName;
+
                     var file = new FileInfo(Path.Combine(Directory.FullName, key, fileName));
 
                     using (var streamWriter = new StreamWriter(file.FullName, false))
                     {
                         await asyncWriter(streamWriter.BaseStream);
                     }
+
+                    await StoreIndex(key, index);
                 }
                 else
                 {
@@ -220,16 +234,6 @@ namespace GenHTTP.Modules.Caching.FileSystem
             }
         }
 
-        private void Remove(string key, string fileName)
-        {
-            var file = new FileInfo(Path.Combine(Directory.FullName, key, fileName));
-
-            if (file.Exists)
-            {
-                file.Delete();
-            }
-        }
-
         private async ValueTask<Index> GetIndex(string key)
         {
             var indexFile = new FileInfo(Path.Combine(Directory.FullName, key, "index.json"));
@@ -238,14 +242,16 @@ namespace GenHTTP.Modules.Caching.FileSystem
             {
                 using var stream = indexFile.OpenRead();
 
-                return (await JsonSerializer.DeserializeAsync<Index>(stream, _Options)) ?? new Index(new());
+                return (await JsonSerializer.DeserializeAsync<Index>(stream, _Options)) ?? new Index(new(), new());
             }
 
-            return new Index(new());
+            return new Index(new(), new());
         }
 
         private async ValueTask StoreIndex(string key, Index index)
         {
+            RunHouseKeeping(key, index);
+
             var indexFile = new FileInfo(Path.Combine(Directory.FullName, key, "index.json"));
 
             using (var writer = new StreamWriter(indexFile.FullName, false))
@@ -254,6 +260,43 @@ namespace GenHTTP.Modules.Caching.FileSystem
             }
 
             indexFile.Refresh();
+        }
+
+        private void RunHouseKeeping(string key, Index index)
+        {
+            var toDelete = new List<string>();
+
+            foreach (var entry in index.Expiration)
+            {
+                if (entry.Value < DateTime.UtcNow.Add(-AccessExpiration))
+                {
+                    toDelete.Add(entry.Key);
+                }
+            }
+
+            foreach (var file in toDelete)
+            {
+                try
+                {
+                    Remove(key, file);
+
+                    index.Expiration.Remove(file);
+                }
+                catch
+                {
+                    // probably still accessed
+                }
+            }
+        }
+
+        private void Remove(string key, string fileName)
+        {
+            var file = new FileInfo(Path.Combine(Directory.FullName, key, fileName));
+
+            if (file.Exists)
+            {
+                file.Delete();
+            }
         }
 
         private void EnsureDirectory(string key)
