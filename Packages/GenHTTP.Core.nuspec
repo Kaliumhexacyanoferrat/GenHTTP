@@ -3,7 +3,7 @@
   <metadata>
   
     <id>GenHTTP.Core</id>
-    <version>5.2.0</version>
+    <version>5.3.0</version>
   
     <description>Basic dependencies for projects using the GenHTTP framework, including the engine itself</description>
     <copyright></copyright>
@@ -22,14 +22,14 @@
     
       <group>
       
-        <dependency id="GenHTTP.Api" version="5.2.0" />
+        <dependency id="GenHTTP.Api" version="5.3.0" />
         
-        <dependency id="GenHTTP.Engine" version="5.2.0" />
+        <dependency id="GenHTTP.Engine" version="5.3.0" />
         
-        <dependency id="GenHTTP.Modules.Practices" version="5.2.0" />
+        <dependency id="GenHTTP.Modules.Practices" version="5.3.0" />
         
-        <dependency id="GenHTTP.Modules.Basics" version="5.2.0" />
-        <dependency id="GenHTTP.Modules.Layouting" version="5.2.0" />
+        <dependency id="GenHTTP.Modules.Basics" version="5.3.0" />
+        <dependency id="GenHTTP.Modules.Layouting" version="5.3.0" />
         
       </group>
       
