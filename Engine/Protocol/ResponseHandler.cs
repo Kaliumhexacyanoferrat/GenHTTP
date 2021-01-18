@@ -16,8 +16,10 @@ using PooledAwait;
 namespace GenHTTP.Engine.Protocol
 {
 
-    internal class ResponseHandler
+    internal sealed class ResponseHandler
     {
+        private const string SERVER_HEADER = "Server";
+
         private static readonly string NL = "\r\n";
 
         private static readonly Encoding ASCII = Encoding.ASCII;
@@ -113,9 +115,16 @@ namespace GenHTTP.Engine.Protocol
 
         private async PooledValueTask WriteHeader(IResponse response, bool keepAlive)
         {
-            await Write("Server: GenHTTP/").ConfigureAwait(false);
-            await Write(Server.Version).ConfigureAwait(false);
-            await Write(NL).ConfigureAwait(false);
+            if (response.Headers.TryGetValue(SERVER_HEADER, out var server))
+            {
+                await WriteHeaderLine(SERVER_HEADER, server).ConfigureAwait(false);
+            }
+            else
+            {
+                await Write("Server: GenHTTP/").ConfigureAwait(false);
+                await Write(Server.Version).ConfigureAwait(false);
+                await Write(NL).ConfigureAwait(false);
+            }
 
             await WriteHeaderLine("Date", DateHeader.GetValue()).ConfigureAwait(false);
 
@@ -159,7 +168,10 @@ namespace GenHTTP.Engine.Protocol
 
             foreach (var header in response.Headers)
             {
-                await WriteHeaderLine(header.Key, header.Value).ConfigureAwait(false);
+                if (!header.Key.Equals(SERVER_HEADER, StringComparison.OrdinalIgnoreCase))
+                { 
+                    await WriteHeaderLine(header.Key, header.Value).ConfigureAwait(false);
+                }
             }
 
             if (response.HasCookies)

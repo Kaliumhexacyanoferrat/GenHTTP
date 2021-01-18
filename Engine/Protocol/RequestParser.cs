@@ -15,7 +15,7 @@ using PooledAwait;
 namespace GenHTTP.Engine.Protocol
 {
 
-    internal class RequestParser
+    internal sealed class RequestParser
     {
         private static readonly char[] LINE_ENDING = new char[] { '\r' };
         private static readonly char[] PATH_ENDING = new char[] { '\r', '\n', '?', ' ' };

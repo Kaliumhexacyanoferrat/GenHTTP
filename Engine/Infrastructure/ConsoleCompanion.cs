@@ -6,7 +6,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Engine.Infrastructure
 {
 
-    internal class ConsoleCompanion : IServerCompanion
+    internal sealed class ConsoleCompanion : IServerCompanion
     {
 
         public void OnRequestHandled(IRequest request, IResponse response)

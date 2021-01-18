@@ -7,7 +7,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Engine.Protocol
 {
 
-    internal class ForwardingCollection : List<Forwarding>, IForwardingCollection
+    internal sealed class ForwardingCollection : List<Forwarding>, IForwardingCollection
     {
         private const int DEFAULT_SIZE = 1;
 

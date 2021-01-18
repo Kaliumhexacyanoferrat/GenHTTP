@@ -15,7 +15,7 @@ using PooledAwait;
 namespace GenHTTP.Engine.Infrastructure.Endpoints
 {
 
-    internal class SecureEndPoint : EndPoint
+    internal sealed class SecureEndPoint : EndPoint
     {
 
         #region Get-/Setters

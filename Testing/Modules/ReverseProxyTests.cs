@@ -222,6 +222,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var cookied = cookieRequest.GetSafeResponse();
 
+            Assert.AreEqual(HttpStatusCode.OK, cookied.StatusCode);
+
             Assert.AreEqual("1", cookied.Cookies["One"]!.Value);
             Assert.AreEqual("2", cookied.Cookies["Two"]!.Value);
         }

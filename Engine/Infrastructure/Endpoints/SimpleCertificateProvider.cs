@@ -5,7 +5,7 @@ using GenHTTP.Api.Infrastructure;
 namespace GenHTTP.Engine.Infrastructure.Endpoints
 {
 
-    internal class SimpleCertificateProvider : ICertificateProvider
+    internal sealed class SimpleCertificateProvider : ICertificateProvider
     {
 
         #region Get-/Setters

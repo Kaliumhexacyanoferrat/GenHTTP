@@ -16,7 +16,7 @@ using GenHTTP.Modules.ErrorHandling;
 namespace GenHTTP.Engine.Infrastructure
 {
 
-    internal class ThreadedServerBuilder : IServerBuilder
+    internal sealed class ThreadedServerBuilder : IServerBuilder
     {
         private ushort _Backlog = 32;
         private ushort _Port = 8080;
