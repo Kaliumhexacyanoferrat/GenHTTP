@@ -16,7 +16,7 @@ using PooledAwait;
 namespace GenHTTP.Engine
 {
 
-    internal class ClientHandler
+    internal sealed class ClientHandler
     {
         private static readonly StreamPipeReaderOptions READER_OPTIONS = new(pool: MemoryPool<byte>.Shared, leaveOpen: true);
 

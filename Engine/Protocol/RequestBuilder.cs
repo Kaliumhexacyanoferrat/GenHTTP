@@ -9,7 +9,7 @@ using GenHTTP.Api.Routing;
 namespace GenHTTP.Engine.Protocol
 {
 
-    internal class RequestBuilder : IBuilder<IRequest>
+    internal sealed class RequestBuilder : IBuilder<IRequest>
     {
         private IServer? _Server;
         private IEndPoint? _EndPoint;
@@ -33,15 +33,15 @@ namespace GenHTTP.Engine.Protocol
 
         private CookieCollection Cookies
         {
-            get { return _Cookies ?? (_Cookies = new()); }
+            get { return _Cookies ??= new(); }
         }
 
         private ForwardingCollection Forwardings
         {
-            get { return _Forwardings ?? (_Forwardings = new()); }
+            get { return _Forwardings ??= new(); }
         }
 
-        internal HeaderCollection Headers { get; }
+        internal RequestHeaderCollection Headers { get; }
 
         #endregion
 

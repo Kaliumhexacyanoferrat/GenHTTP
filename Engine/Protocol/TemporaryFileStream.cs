@@ -4,7 +4,7 @@ using System.IO;
 namespace GenHTTP.Engine.Protocol
 {
 
-    internal class TemporaryFileStream : FileStream
+    internal sealed class TemporaryFileStream : FileStream
     {
 
         #region Get-/Setters

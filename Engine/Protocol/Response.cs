@@ -6,13 +6,14 @@ using GenHTTP.Engine.Protocol;
 namespace GenHTTP.Engine
 {
 
-    internal class Response : IResponse
+    internal sealed class Response : IResponse
     {
-        private static FlexibleResponseStatus STATUS_OK = new(ResponseStatus.OK);
+
+        private static readonly FlexibleResponseStatus STATUS_OK = new(ResponseStatus.OK);
 
         private CookieCollection? _Cookies;
 
-        private readonly HeaderCollection _Headers = new();
+        private readonly ResponseHeaderCollection _Headers = new();
 
         #region Get-/Setters
 
@@ -70,34 +71,27 @@ namespace GenHTTP.Engine
         }
 
         #endregion
-        
+
         #region IDisposable Support
 
         private bool disposed = false;
 
-        protected virtual void Dispose(bool disposing)
+        public void Dispose()
         {
             if (!disposed)
             {
-                if (disposing)
+                Headers.Dispose();
+
+                _Cookies?.Dispose();
+
+                if (Content is IDisposable disposableContent)
                 {
-                    Headers.Dispose();
-
-                    _Cookies?.Dispose();
-
-                    if (Content is IDisposable disposableContent)
-                    {
-                        disposableContent.Dispose();
-                    }
+                    disposableContent.Dispose();
                 }
 
                 disposed = true;
             }
-        }
 
-        public void Dispose()
-        {
-            Dispose(true);
             GC.SuppressFinalize(this);
         }
 

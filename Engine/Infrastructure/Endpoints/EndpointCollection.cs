@@ -8,7 +8,7 @@ using GenHTTP.Engine.Infrastructure.Configuration;
 namespace GenHTTP.Engine.Infrastructure.Endpoints
 {
 
-    internal class EndPointCollection : List<IEndPoint>, IDisposable, IEndPointCollection
+    internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPointCollection
     {
 
         #region Get-/Setters
@@ -56,34 +56,27 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
 
         private bool disposed = false;
 
-        protected virtual void Dispose(bool disposing)
+        public void Dispose()
         {
             if (!disposed)
             {
-                if (disposing)
+                foreach (IEndPoint endpoint in this)
                 {
-                    foreach (IEndPoint endpoint in this)
+                    try
                     {
-                        try
-                        {
-                            endpoint.Dispose();
-                        }
-                        catch (Exception e)
-                        {
-                            Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, e);
-                        }
+                        endpoint.Dispose();
                     }
-
-                    Clear();
+                    catch (Exception e)
+                    {
+                        Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, e);
+                    }
                 }
+
+                Clear();
 
                 disposed = true;
             }
-        }
 
-        public void Dispose()
-        {
-            Dispose(true);
             GC.SuppressFinalize(this);
         }
 

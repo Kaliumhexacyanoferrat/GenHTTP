@@ -5,7 +5,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Engine.Protocol
 {
 
-    internal class ResponseBuilder : IResponseBuilder
+    internal sealed class ResponseBuilder : IResponseBuilder
     {
         private readonly Response _Response = new();
 

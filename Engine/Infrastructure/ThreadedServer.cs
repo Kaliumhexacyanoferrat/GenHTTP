@@ -13,7 +13,7 @@ using PooledAwait;
 namespace GenHTTP.Engine.Infrastructure
 {
 
-    internal class ThreadedServer : IServer
+    internal sealed class ThreadedServer : IServer
     {
         private readonly EndPointCollection _EndPoints;
 
@@ -67,22 +67,15 @@ namespace GenHTTP.Engine.Infrastructure
 
         private bool disposed = false;
 
-        protected virtual void Dispose(bool disposing)
+        public void Dispose()
         {
             if (!disposed)
             {
-                if (disposing)
-                {
-                    _EndPoints.Dispose();
-                }
+                _EndPoints.Dispose();
 
                 disposed = true;
             }
-        }
 
-        public void Dispose()
-        {
-            Dispose(true);
             GC.SuppressFinalize(this);
         }
 

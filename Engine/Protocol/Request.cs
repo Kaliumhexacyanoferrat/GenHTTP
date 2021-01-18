@@ -13,7 +13,7 @@ namespace GenHTTP.Engine
     /// <summary>
     /// Provides methods to access a recieved http request.
     /// </summary>
-    internal class Request : IRequest
+    internal sealed class Request : IRequest
     {
         private ICookieCollection? _Cookies;
 
@@ -146,28 +146,21 @@ namespace GenHTTP.Engine
 
         private bool disposed = false;
 
-        protected virtual void Dispose(bool disposing)
+        public void Dispose()
         {
             if (!disposed)
             {
-                if (disposing)
-                {
-                    Headers.Dispose();
+                Headers.Dispose();
 
-                    _Query?.Dispose();
+                _Query?.Dispose();
 
-                    _Cookies?.Dispose();
+                _Cookies?.Dispose();
 
-                    Content?.Dispose();
-                }
+                Content?.Dispose();
 
                 disposed = true;
             }
-        }
 
-        public void Dispose()
-        {
-            Dispose(true);
             GC.SuppressFinalize(this);
         }
 

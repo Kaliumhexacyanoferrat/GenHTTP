@@ -8,7 +8,7 @@ using GenHTTP.Engine.Utilities;
 namespace GenHTTP.Engine.Protocol
 {
 
-    internal class CookieCollection : PooledDictionary<string, Cookie>, ICookieCollection
+    internal sealed class CookieCollection : PooledDictionary<string, Cookie>, ICookieCollection
     {
         internal const int DEFAULT_SIZE = 6;
 

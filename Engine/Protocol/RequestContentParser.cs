@@ -7,7 +7,7 @@ using GenHTTP.Engine.Infrastructure.Configuration;
 namespace GenHTTP.Engine.Protocol
 {
 
-    internal class RequestContentParser
+    internal sealed class RequestContentParser
     {
 
         #region Get-/Setters

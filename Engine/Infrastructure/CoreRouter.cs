@@ -12,7 +12,7 @@ using GenHTTP.Modules.Placeholders;
 namespace GenHTTP.Engine.Infrastructure
 {
 
-    internal class CoreRouter : IHandler, IErrorHandler, IPageRenderer
+    internal sealed class CoreRouter : IHandler, IErrorHandler, IPageRenderer
     {
 
         #region Get-/Setters

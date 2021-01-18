@@ -34,7 +34,7 @@ namespace GenHTTP.Engine.Utilities
 
         private bool HasEntries => _Entries is not null;
 
-        public TValue this[TKey key]
+        public virtual TValue this[TKey key]
         {
             get
             {
@@ -139,13 +139,13 @@ namespace GenHTTP.Engine.Utilities
 
         #region Functionality
 
-        public void Add(TKey key, TValue value)
+        public virtual void Add(TKey key, TValue value)
         {
             CheckResize();
             Entries[_Index++] = new(key, value);
         }
 
-        public void Add(KeyValuePair<TKey, TValue> item)
+        public virtual void Add(KeyValuePair<TKey, TValue> item)
         {
             CheckResize();
             Entries[_Index++] = item;

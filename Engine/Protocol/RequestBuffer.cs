@@ -10,7 +10,7 @@ using PooledAwait;
 namespace GenHTTP.Engine.Protocol
 {
 
-    internal class RequestBuffer : IDisposable
+    internal sealed class RequestBuffer : IDisposable
     {
 
         #region Get-/Setters
@@ -88,26 +88,19 @@ namespace GenHTTP.Engine.Protocol
 
         private bool disposedValue;
 
-        protected virtual void Dispose(bool disposing)
+        public void Dispose()
         {
             if (!disposedValue)
             {
-                if (disposing)
+                if (Cancellation is not null)
                 {
-                    if (Cancellation is not null)
-                    {
-                        Cancellation.Dispose();
-                        Cancellation = null;
-                    }
+                    Cancellation.Dispose();
+                    Cancellation = null;
                 }
 
                 disposedValue = true;
             }
-        }
 
-        public void Dispose()
-        {
-            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
