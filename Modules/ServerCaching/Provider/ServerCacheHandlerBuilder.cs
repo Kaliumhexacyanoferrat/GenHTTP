@@ -17,7 +17,7 @@ namespace GenHTTP.Modules.ServerCaching.Provider
 
         private bool _Invalidate = true;
 
-        private Func<IResponse, bool>? _Predicate = null;
+        private Func<IRequest, IResponse, bool>? _Predicate = null;
 
         #region Functionality
 
@@ -38,7 +38,7 @@ namespace GenHTTP.Modules.ServerCaching.Provider
         /// should be cached or not.
         /// </summary>
         /// <param name="predicate">The predicate to evaluate before a response is cached</param>
-        public ServerCacheHandlerBuilder Predicate(Func<IResponse, bool> predicate)
+        public ServerCacheHandlerBuilder Predicate(Func<IRequest, IResponse, bool> predicate)
         {
             _Predicate = predicate;
             return this;

@@ -41,6 +41,8 @@ dotnet run
 
 This will build the playground project launcher for .NET Core with all the server dependencies and launch the server process on port 8080. You can access the playground in the browser via http://localhost:8080.
 
+If you would like to contribute, see the [contribution guidelines](https://github.com/Kaliumhexacyanoferrat/GenHTTP/blob/master/CONTRIBUTING.md).
+
 ## History
 
 The web server was originally developed in 2008 to run on a netbook with an Intel Atom processor. Both IIS and Apache failed to render dynamic pages on such a slow CPU back then. The original project description can still be found on [archive.org](https://web.archive.org/web/20100706192130/http://gene.homeip.net/GenHTTPWebsite/). In 2019, the source code has been moved to GitHub with the goal to rework the project to be able to run dockerized web applications written in C#.

@@ -29,7 +29,7 @@ namespace GenHTTP.Modules.ServerCaching.Provider
 
         private bool Invalidate { get; }
 
-        private Func<IResponse, bool>? Predicate { get; }
+        private Func<IRequest, IResponse, bool>? Predicate { get; }
 
         #endregion
 
@@ -37,7 +37,7 @@ namespace GenHTTP.Modules.ServerCaching.Provider
 
         public ServerCacheHandler(IHandler parent, Func<IHandler, IHandler> contentFactory,
                                   ICache<CachedResponse> meta, ICache<Stream> data,
-                                  Func<IResponse, bool>? predicate, bool invalidate)
+                                  Func<IRequest, IResponse, bool>? predicate, bool invalidate)
         {
             Parent = parent;
             Content = contentFactory(this);
@@ -81,7 +81,7 @@ namespace GenHTTP.Modules.ServerCaching.Provider
 
                 if ((response != null) && (response.Status == ResponseStatus.OK || response.Status == ResponseStatus.NoContent))
                 {
-                    if ((Predicate == null) || Predicate(response))
+                    if ((Predicate == null) || Predicate(request, response))
                     {
                         var cached = await GetResponse(response, request);
 
