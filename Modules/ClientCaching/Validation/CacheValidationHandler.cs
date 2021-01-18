@@ -9,7 +9,7 @@ using GenHTTP.Modules.Basics;
 
 using PooledAwait;
 
-namespace GenHTTP.Modules.ClientCaching.Provider
+namespace GenHTTP.Modules.ClientCaching.Validation
 {
 
     public sealed class CacheValidationHandler : IConcern

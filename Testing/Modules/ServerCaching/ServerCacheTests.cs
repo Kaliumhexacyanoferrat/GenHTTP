@@ -227,7 +227,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             });
 
             var cache = ServerCache.Memory()
-                                   .Predicate(r => r.ContentType?.KnownType != ContentType.TextHtml)
+                                   .Predicate((_, r) => r.ContentType?.KnownType != ContentType.TextHtml)
                                    .Invalidate(false);
 
             using var runner = TestRunner.Run(handler.Wrap().Add(cache), false);
@@ -255,7 +255,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             });
 
             var cache = ServerCache.Memory()
-                                   .Predicate(r => r.ContentType?.KnownType != ContentType.TextHtml)
+                                   .Predicate((_, r) => r.ContentType?.KnownType != ContentType.TextHtml)
                                    .Invalidate(false);
 
             using var runner = TestRunner.Run(handler.Wrap().Add(cache), false);
