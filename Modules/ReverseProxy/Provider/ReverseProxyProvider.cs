@@ -24,7 +24,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
         private static readonly HashSet<string> RESERVED_RESPONSE_HEADERS = new()
         {
             "Server", "Date", "Content-Encoding", "Transfer-Encoding", "Content-Type",
-            "Connection", "Content-Length", "Keep-Alive"
+            "Connection", "Content-Length", "Keep-Alive", "Last-Modified", "Expires"
         };
 
         private static readonly HashSet<string> RESERVED_REQUEST_HEADERS = new()
