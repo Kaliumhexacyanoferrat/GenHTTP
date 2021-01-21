@@ -1,6 +1,6 @@
 # GenHTTP Webserver
 
-GenHTTP is a lightweight web server written in pure C# with few dependencies to 3rd-party libraries. The main purpose of this project is to serve small web applications and web services written in .NET, allowing developers to concentrate on the functionality rather than on the infrastructure.
+GenHTTP is a lightweight web server written in pure C# with few dependencies to 3rd-party libraries. The main purpose of this project is to serve small web applications and web services written in .NET, allowing developers to concentrate on the functionality rather than on handling the infrastructure.
 
 As an example, the website of this project is hosted on a Raspberry Pi: [genhttp.org](https://genhttp.org/)
 
@@ -8,9 +8,10 @@ As an example, the website of this project is hosted on a Raspberry Pi: [genhttp
 
 ## Features
 
-- Setup new webservices or [themed](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes) websites in a couple of minutes
+- Setup new webservices or websites in a couple of minutes using [project templates](https://www.nuget.org/packages/GenHTTP.Templates/)
 - [Optimized](https://genhttp.org/features) out of the box (e.g. by bundling resources or compressing results)
 - Small memory and storage [footprint](https://genhttp.org/features#footprint)
+- Several [themes](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes) available to be chosen from 
 - Grade A+ security level according to SSL Labs
 
 ## Getting Started
@@ -49,9 +50,15 @@ The web server was originally developed in 2008 to run on a netbook with an Inte
 
 ## Links
 
-- Related to GenHTTP: [Themes](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes), [Website]()
-- Related projects: [GenHTTP Gateway](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Gateway)
-- Similar projects: [EmbedIO](https://github.com/unosquare/embedio), [NetCoreServer](https://github.com/chronoxor/NetCoreServer), [Watson Webserver](https://github.com/jchristn/WatsonWebserver)
+- Related to GenHTTP
+  - [Themes](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes)
+  - [Website](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Website)
+- Reference projects
+  - [GenHTTP Gateway](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Gateway)
+- Similar projects
+  - [EmbedIO](https://github.com/unosquare/embedio)
+  - [NetCoreServer](https://github.com/chronoxor/NetCoreServer)
+  - [Watson Webserver](https://github.com/jchristn/WatsonWebserver)
 
 ## Thanks
 
