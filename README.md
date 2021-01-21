@@ -51,6 +51,7 @@ The web server was originally developed in 2008 to run on a netbook with an Inte
 ## Links
 
 - Related to GenHTTP
+  - [Templates](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Templates)
   - [Themes](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes)
   - [Website](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Website)
 - Reference projects
