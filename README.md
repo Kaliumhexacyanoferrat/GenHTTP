@@ -8,7 +8,7 @@ As an example, the website of this project is hosted on a Raspberry Pi: [genhttp
 
 ## Features
 
-- Setup new webservices or websites in a couple of minutes using [project templates](https://www.nuget.org/packages/GenHTTP.Templates/)
+- Setup new webservices or websites in a couple of minutes using [project templates](https://genhttp.org/documentation/content/templates)
 - [Optimized](https://genhttp.org/features) out of the box (e.g. by bundling resources or compressing results)
 - Small memory and storage [footprint](https://genhttp.org/features#footprint)
 - Several [themes](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes) available to be chosen from 
