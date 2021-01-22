@@ -231,11 +231,15 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [TestMethod]
         public void TestHeaders()
         {
+            var now = DateTime.UtcNow;
+
             using var setup = TestSetup.Create((r) =>
             {
                 return r.Respond()
                         .Content("Hello World")
                         .Header("X-Custom-Header", r.Headers["X-Custom-Header"])
+                        .Expires(now)
+                        .Modified(now)
                         .Build();
             });
 
@@ -248,6 +252,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var response = request.GetResponse();
 
             Assert.AreEqual("Custom Value", response.Headers.Get("X-Custom-Header"));
+
+            Assert.AreEqual(now.ToString("r"), response.Headers.Get("Expires"));
+            Assert.AreEqual(now.ToString("r"), response.Headers.Get("Last-Modified"));
         }
 
         [TestMethod]
