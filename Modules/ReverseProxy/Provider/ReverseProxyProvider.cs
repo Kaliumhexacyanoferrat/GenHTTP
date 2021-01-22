@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -24,7 +26,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
         private static readonly HashSet<string> RESERVED_RESPONSE_HEADERS = new()
         {
             "Server", "Date", "Content-Encoding", "Transfer-Encoding", "Content-Type",
-            "Connection", "Content-Length", "Keep-Alive", "Last-Modified", "Expires"
+            "Connection", "Content-Length", "Keep-Alive"
         };
 
         private static readonly HashSet<string> RESERVED_REQUEST_HEADERS = new()
@@ -173,6 +175,20 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
                         {
                             builder.Header(key, RewriteLocation(value, request));
                         }
+                        else if (key == "Expires")
+                        {
+                            if (TryParseDate(value, out var expires))
+                            {
+                                builder.Expires(expires);
+                            }
+                        }
+                        else if (key == "Last-Modified")
+                        {
+                            if (TryParseDate(value, out var modified))
+                            {
+                                builder.Modified(modified);
+                            }
+                        }
                         else if (key == "Set-Cookie")
                         {
                             foreach (var cookie in BrokenCookieHeaderParser.GetCookies(value))
@@ -291,6 +307,11 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             }
 
             return string.Join("; ", result);
+        }
+
+        private static bool TryParseDate(string value, out DateTime parsedValue)
+        {
+            return DateTime.TryParseExact(value, CultureInfo.InvariantCulture.DateTimeFormat.RFC1123Pattern, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces | DateTimeStyles.AssumeUniversal, out parsedValue);
         }
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
