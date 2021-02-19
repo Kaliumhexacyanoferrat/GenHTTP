@@ -357,9 +357,9 @@ namespace GenHTTP.Modules.Reflection
 
             foreach (var segment in Routing.Path.Parts)
             {
-                if (segment.StartsWith(':'))
+                if (segment.Value.StartsWith(':'))
                 {
-                    if (input.TryGetValue(segment[1..], out var value))
+                    if (input.TryGetValue(segment.Value[1..], out var value))
                     {
                         if (value is not null)
                         {

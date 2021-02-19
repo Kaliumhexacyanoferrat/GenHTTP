@@ -29,11 +29,11 @@ namespace GenHTTP.Modules.IO
             {
                 if (target.Last)
                 {
-                    if (node.TryGetResource(current, out var resource))
+                    if (node.TryGetResource(current.Value, out var resource))
                     {
                         return (node, resource);
                     }
-                    else if (node.TryGetNode(current, out var childNode))
+                    else if (node.TryGetNode(current.Value, out var childNode))
                     {
                         return (childNode, null);
                     }
@@ -42,7 +42,7 @@ namespace GenHTTP.Modules.IO
                 }
                 else
                 {
-                    if (node.TryGetNode(current, out var childNode))
+                    if (node.TryGetNode(current.Value, out var childNode))
                     {
                         target.Advance();
                         return childNode.Find(target);

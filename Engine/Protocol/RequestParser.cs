@@ -117,13 +117,13 @@ namespace GenHTTP.Engine.Protocol
             // ignore the slash at the beginning
             buffer.Advance(1);
 
-            var parts = new List<string>(4);
+            var parts = new List<WebPathPart>(4);
 
             string? part;
 
             while ((part = await ReadToken(buffer, '/', PATH_ENDING).ConfigureAwait(false)) is not null)
             {
-                parts.Add(Uri.UnescapeDataString(part));
+                parts.Add(new WebPathPart(part));
             }
 
             // find the delimiter (either '?' or ' ')
@@ -136,7 +136,7 @@ namespace GenHTTP.Engine.Protocol
                     return new WebPath(parts, true);
                 }
 
-                parts.Add(Uri.UnescapeDataString(remainder));
+                parts.Add(new WebPathPart(remainder));
                 return new WebPath(parts, false);
             }
 

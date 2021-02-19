@@ -11,7 +11,7 @@ namespace GenHTTP.Api.Routing
     /// </summary>
     public sealed class PathBuilder : IBuilder<WebPath>
     {
-        private readonly List<string> _Segments;
+        private readonly List<WebPathPart> _Segments;
 
         private bool _TrailingSlash;
 
@@ -42,7 +42,7 @@ namespace GenHTTP.Api.Routing
         /// </summary>
         /// <param name="parts">The segments of the path</param>
         /// <param name="trailingSlash">Whether the resulting path should end with a slash</param>
-        public PathBuilder(IEnumerable<string> parts, bool trailingSlash)
+        public PathBuilder(IEnumerable<WebPathPart> parts, bool trailingSlash)
         {
             _Segments = new(parts);
             _TrailingSlash = trailingSlash;
@@ -55,7 +55,16 @@ namespace GenHTTP.Api.Routing
         /// <param name="path">The path to be parsed</param>
         public PathBuilder(string path)
         {
-            _Segments = new(path.Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries));
+            var splitted = path.Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+
+            var parts = new List<WebPathPart>(splitted.Length);
+
+            foreach (var entry in splitted)
+            {
+                parts.Add(new WebPathPart(entry));
+            }
+
+            _Segments = parts;
             _TrailingSlash = path.EndsWith('/');
         }
 
@@ -69,7 +78,17 @@ namespace GenHTTP.Api.Routing
         /// <param name="segment">The segment to be prepended</param>
         public PathBuilder Preprend(string segment)
         {
-            _Segments.Insert(0, segment);
+            _Segments.Insert(0, new WebPathPart(segment));
+            return this;
+        }
+        
+        /// <summary>
+        /// Adds the given part to the beginning of the resulting path.
+        /// </summary>
+        /// <param name="path">The part to be prepended</param>
+        public PathBuilder Preprend(WebPathPart part)
+        {
+            _Segments.Insert(0, part);
             return this;
         }
 
@@ -88,6 +107,16 @@ namespace GenHTTP.Api.Routing
         /// </summary>
         /// <param name="segment">The segment to be appended</param>
         public PathBuilder Append(string segment)
+        {
+            _Segments.Add(new WebPathPart(segment));
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the given segment to the end of the resulting path.
+        /// </summary>
+        /// <param name="segment">The segment to be appended</param>
+        public PathBuilder Append(WebPathPart segment)
         {
             _Segments.Add(segment);
             return this;

@@ -16,7 +16,7 @@ namespace GenHTTP.Api.Routing
         /// <summary>
         /// The segments the path consists of.
         /// </summary>
-        public IReadOnlyList<string> Parts { get; }
+        public IReadOnlyList<WebPathPart> Parts { get; }
 
         /// <summary>
         /// Specifies, whether the path ends with a trailing slash.
@@ -40,7 +40,7 @@ namespace GenHTTP.Api.Routing
                 {
                     var part = (Parts.Count > 0) ? Parts[Parts.Count - 1] : null;
 
-                    return (part?.Contains('.') ?? false) ? part : null;
+                    return (part?.Value.Contains('.') ?? false) ? part.Value : null;
                 }
 
                 return null;
@@ -51,7 +51,7 @@ namespace GenHTTP.Api.Routing
 
         #region Initialization
 
-        public WebPath(IReadOnlyList<string> parts, bool trailingSlash)
+        public WebPath(IReadOnlyList<WebPathPart> parts, bool trailingSlash)
         {
             Parts = parts;
             TrailingSlash = trailingSlash;
@@ -79,7 +79,7 @@ namespace GenHTTP.Api.Routing
         {
             if (!IsRoot)
             {
-                var parts = Parts.Select(p => (encoded) ? Uri.EscapeDataString(p) : p);
+                var parts = Parts.Select(p => (encoded) ? p.Original : p.Value);
 
                 return "/" + string.Join('/', parts) + ((TrailingSlash) ? "/" : "");
             }

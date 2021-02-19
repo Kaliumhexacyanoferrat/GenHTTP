@@ -64,7 +64,7 @@ namespace GenHTTP.Modules.Websites.Resources
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var file = request.Target.Current;
+            var file = request.Target.Current?.Value;
 
             if (file is not null)
             {

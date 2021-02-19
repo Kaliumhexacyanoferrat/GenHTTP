@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
@@ -150,26 +151,29 @@ namespace GenHTTP.Modules.Basics
 
                 var root = request.Server.Handler;
 
-                var parts = route.Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                var parts = route.Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+                                 .Select(p => new WebPathPart(p))
+                                 .ToList();
 
-                if (parts.Length > 0)
+                if (parts.Count > 0)
                 {
                     var target = parts[0];
 
                     foreach (var resolver in handler.FindParents<IHandlerResolver>(root))
                     {
-                        var responsible = resolver.Find(target);
+                        var responsible = resolver.Find(target.Value);
 
                         if (responsible is not null)
                         {
-                            var targetParts = new List<string>(responsible.GetRoot(request, false).Parts);
+                            var targetParts = responsible.GetRoot(request, false)
+                                                         .Edit(route.EndsWith('/'));
 
-                            for (int i = 1; i < parts.Length; i++)
+                            for (int i = 1; i < parts.Count; i++)
                             {
-                                targetParts.Add(parts[i]);
+                                targetParts.Append(parts[i]);
                             }
 
-                            var targetPath = new WebPath(targetParts, route.EndsWith('/'));
+                            var targetPath = targetParts.Build();
 
                             if (relative)
                             {
@@ -190,6 +194,16 @@ namespace GenHTTP.Modules.Basics
             if (route is not null)
             {
                 return handler.Route(request, route.ToString());
+            }
+
+            return null;
+        }
+
+        public static string? Route(this IHandler handler, IRequest request, WebPathPart? part)
+        {
+            if (part is not null)
+            {
+                return handler.Route(request, part.Original);
             }
 
             return null;

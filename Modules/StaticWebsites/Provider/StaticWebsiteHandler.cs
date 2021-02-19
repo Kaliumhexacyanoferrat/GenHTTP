@@ -97,7 +97,7 @@ namespace GenHTTP.Modules.StaticWebsites.Provider
 
         private bool ServeInternal(RoutingTarget target, string fileName)
         {
-            if (target.Last && target.Current == fileName)
+            if (target.Last && target.Current?.Value == fileName)
             {
                 // do not serve the file if it explicitly exists in the tree
                 var (_, file) = Tree.Find(target);
