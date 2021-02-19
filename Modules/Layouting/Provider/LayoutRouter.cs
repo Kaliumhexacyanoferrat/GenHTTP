@@ -51,11 +51,11 @@ namespace GenHTTP.Modules.Layouting.Provider
 
             if (current is not null)
             {
-                if (Handlers.ContainsKey(current))
+                if (Handlers.ContainsKey(current.Value))
                 {
                     request.Target.Advance();
 
-                    return Handlers[current].HandleAsync(request);
+                    return Handlers[current.Value].HandleAsync(request);
                 }
             }
             else

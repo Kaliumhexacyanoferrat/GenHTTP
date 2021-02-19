@@ -25,7 +25,7 @@ namespace GenHTTP.Api.Routing
         /// <summary>
         /// The segment to be currently handled by the responsible handler.
         /// </summary>
-        public string? Current => (_Index < Path.Parts.Count) ? Path.Parts[_Index] : null;
+        public WebPathPart? Current => (_Index < Path.Parts.Count) ? Path.Parts[_Index] : null;
 
         /// <summary>
         /// Specifies, whether the end of the path has been reached.

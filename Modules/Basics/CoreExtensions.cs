@@ -155,18 +155,18 @@ namespace GenHTTP.Modules.Basics
 
             var hops = path.Parts.Count - common + (path.TrailingSlash ? 1 : 0) - 1;
 
-            var relativeParts = new List<string>();
+            var relativeParts = new List<WebPathPart>();
 
             if (hops > 0)
             {
                 for (int i = 0; i < hops; i++)
                 {
-                    relativeParts.Add("..");
+                    relativeParts.Add(new(".."));
                 }
             }
             else
             {
-                relativeParts.Add(".");
+                relativeParts.Add(new("."));
             }
 
             var added = false;
@@ -184,7 +184,7 @@ namespace GenHTTP.Modules.Basics
 
         public static WebPath Combine(this WebPath path, WebPath target)
         {
-            var parts = new List<string>(path.Parts);
+            var parts = new List<WebPathPart>(path.Parts);
 
             if (target.Parts.Count > 0)
             {
@@ -232,7 +232,7 @@ namespace GenHTTP.Modules.Basics
                     return common;
                 }
 
-                if (two.Parts[common] != one.Parts[common])
+                if (!two.Parts[common].Equals(one.Parts[common]))
                 {
                     return common;
                 }

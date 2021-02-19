@@ -53,6 +53,11 @@ namespace GenHTTP.Modules.Scriban.Providers
                 return Model.Handler.Route(Model.Request, strRoute) ?? string.Empty;
             }
 
+            if (arguments[0] is WebPathPart partRoute)
+            {
+                return Model.Handler.Route(Model.Request, partRoute) ?? string.Empty;
+            }
+
             if (arguments[0] is WebPath pthRoute)
             {
                 return Model.Handler.Route(Model.Request, pthRoute) ?? string.Empty;
