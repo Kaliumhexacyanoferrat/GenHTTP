@@ -32,18 +32,7 @@ namespace GenHTTP.Api.Routing
         public WebPathPart(string original)
         {
             Original = original;
-            Value = Uri.UnescapeDataString(original);
-        }
-
-        /// <summary>
-        /// Creates a new part from the given parts.
-        /// </summary>
-        /// <param name="original">The original value</param>
-        /// <param name="decoded">The decoded value</param>
-        public WebPathPart(string original, string decoded)
-        {
-            Original = original;
-            Value = decoded;
+            Value = (original.Contains('%')) ? Uri.UnescapeDataString(original) : original;
         }
 
         #endregion

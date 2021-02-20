@@ -356,6 +356,20 @@ namespace GenHTTP.Testing.Acceptance.Providers
         }
 
         [TestMethod]
+        public void TestPathPreservesSpecialChars()
+        {
+            using var setup = TestSetup.Create((r) =>
+            {
+                return r.Respond().Content(r.Target.Path.ToString(true)).Build();
+            });
+
+            var runner = setup.Runner;
+
+            using var r = runner.GetResponse("/$@:");
+            Assert.AreEqual("/$@:", r.GetContent());
+        }
+
+        [TestMethod]
         public void TestBadGateway()
         {
             var proxy = Proxy.Create()
