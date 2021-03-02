@@ -7,6 +7,7 @@ using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.Markdown
 {
@@ -49,7 +50,7 @@ namespace GenHTTP.Modules.Markdown
 
             var templateModel = new TemplateModel(request, this, PageInfo, content);
 
-            return (await this.GetPageAsync(templateModel).ConfigureAwait(false)).Build();
+            return (await this.GetPageAsync(request, templateModel).ConfigureAwait(false)).Build();
         }
 
         #endregion

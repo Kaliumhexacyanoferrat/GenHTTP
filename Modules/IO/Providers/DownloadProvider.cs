@@ -53,16 +53,16 @@ namespace GenHTTP.Modules.IO.Providers
 
         #region Functionality
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             if (!request.Target.Ended)
             {
-                return null;
+                return new ValueTask<IResponse?>();
             }
 
             if (!request.HasType(RequestMethod.GET, RequestMethod.HEAD))
             {
-                return (await this.GetMethodNotAllowedAsync(request).ConfigureAwait(false)).Build();
+                return new ValueTask<IResponse?>(this.GetMethodNotAllowed(request).Build());
             }
 
             var response = request.Respond()
@@ -80,7 +80,7 @@ namespace GenHTTP.Modules.IO.Providers
                 response.Header("Content-Disposition", "attachment");
             }
 
-            return response.Build();
+            return new ValueTask<IResponse?>(response.Build());
         }
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Info, ContentType);

@@ -85,7 +85,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
                                       .Title("Gateway Timeout")
                                       .Build();
 
-                return (await this.GetErrorAsync(new ErrorModel(request, this, ResponseStatus.GatewayTimeout, "The gateway did not respond in time.", e), info).ConfigureAwait(false)).Build();
+                return this.GetError(new ErrorModel(request, this, ResponseStatus.GatewayTimeout, "The gateway did not respond in time.", e), info).Build();
             }
             catch (WebException e)
             {
@@ -93,7 +93,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
                                       .Title("Bad Gateway")
                                       .Build();
 
-                return (await this.GetErrorAsync(new ErrorModel(request, this, ResponseStatus.BadGateway, "Unable to retrieve a response from the gateway.", e), info).ConfigureAwait(false)).Build();
+                return this.GetError(new ErrorModel(request, this, ResponseStatus.BadGateway, "Unable to retrieve a response from the gateway.", e), info).Build();
             }
         }
 

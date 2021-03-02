@@ -47,7 +47,7 @@ namespace GenHTTP.Modules.ErrorHandling.Provider
 
                 if (response is null)
                 {
-                    return (await Content.GetNotFoundAsync(request).ConfigureAwait(false)).Build();
+                    return Content.GetNotFound(request).Build();
                 }
 
                 return response;
@@ -59,7 +59,7 @@ namespace GenHTTP.Modules.ErrorHandling.Provider
                 var details = ContentInfo.Create()
                                          .Title(e.Status.ToString());
 
-                return (await this.GetErrorAsync(model, details.Build()).ConfigureAwait(false)).Build();
+                return this.GetError(model, details.Build()).Build();
             }
             catch (Exception e)
             {
@@ -68,7 +68,7 @@ namespace GenHTTP.Modules.ErrorHandling.Provider
                 var details = ContentInfo.Create()
                                          .Title("Internal Server Error");
 
-                return (await this.GetErrorAsync(model, details.Build()).ConfigureAwait(false)).Build();
+                return this.GetError(model, details.Build()).Build();
             }
         }
 

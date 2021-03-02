@@ -67,16 +67,14 @@ namespace GenHTTP.Engine.Infrastructure
             return Content.GetContent(request);
         }
 
-        public async ValueTask<TemplateModel> RenderAsync(ErrorModel error, ContentInfo details)
+        public async ValueTask<string> RenderAsync(ErrorModel error)
         {
-            return new TemplateModel(error.Request, error.Handler, details, await ErrorRenderer.RenderAsync(error).ConfigureAwait(false));
+            return  await ErrorRenderer.RenderAsync(error).ConfigureAwait(false);
         }
 
-        public async ValueTask<IResponseBuilder> RenderAsync(TemplateModel model)
+        public async ValueTask<string> RenderAsync(TemplateModel model)
         {
-            return model.Request.Respond()
-                                .Content(await Template.RenderAsync(model))
-                                .Type(ContentType.TextHtml);
+            return await Template.RenderAsync(model);
         }
 
         #endregion
