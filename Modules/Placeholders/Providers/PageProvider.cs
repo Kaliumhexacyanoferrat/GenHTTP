@@ -8,6 +8,7 @@ using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.Placeholders.Providers
 {
@@ -43,7 +44,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
         {
             var templateModel = new TemplateModel(request, this, PageInfo, await Content.GetResourceAsStringAsync().ConfigureAwait(false));
 
-            var page = await this.GetPageAsync(templateModel).ConfigureAwait(false);
+            var page = await this.GetPageAsync(request, templateModel).ConfigureAwait(false);
              
             return page.Build();
         }

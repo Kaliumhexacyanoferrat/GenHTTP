@@ -6,6 +6,7 @@ using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
+using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Basics;
 
 namespace GenHTTP.Modules.Placeholders.Providers
@@ -52,7 +53,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
             var templateModel = new TemplateModel(request, this, PageInfo, content);
 
-            var page = await this.GetPageAsync(templateModel).ConfigureAwait(false);
+            var page = await this.GetPageAsync(request, templateModel).ConfigureAwait(false);
                        
             return page.Build();
         }

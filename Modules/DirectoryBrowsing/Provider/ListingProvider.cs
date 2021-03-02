@@ -7,7 +7,7 @@ using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Basics;
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 {
@@ -43,7 +43,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
             var templateModel = new TemplateModel(request, this, GetPageInfo(request), await renderer.RenderAsync(model).ConfigureAwait(false));
 
-            return (await this.GetPageAsync(templateModel).ConfigureAwait(false)).Build();
+            return (await this.GetPageAsync(request, templateModel).ConfigureAwait(false)).Build();
         }
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;

@@ -8,7 +8,6 @@ using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
-using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Robots;
@@ -101,16 +100,14 @@ namespace GenHTTP.Modules.Websites.Sites
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Handler.GetContent(request);
 
-        public async ValueTask<TemplateModel> RenderAsync(ErrorModel error, ContentInfo details)
+        public async ValueTask<string> RenderAsync(ErrorModel error)
         {
-            return new TemplateModel(error.Request, error.Handler, details, await Theme.ErrorHandler.RenderAsync(error).ConfigureAwait(false));
+            return await Theme.ErrorHandler.RenderAsync(error).ConfigureAwait(false);
         }
 
-        public async ValueTask<IResponseBuilder> RenderAsync(TemplateModel model)
+        public async ValueTask<string> RenderAsync(TemplateModel model)
         {
-            return model.Request.Respond()
-                                .Content(await Renderer.RenderAsync(model).ConfigureAwait(false))
-                                .Type(ContentType.TextHtml);
+            return await Renderer.RenderAsync(model).ConfigureAwait(false);
         }
 
         public IHandler? Find(string segment)

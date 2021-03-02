@@ -8,6 +8,7 @@ using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
+using GenHTTP.Modules.Basics.Rendering;
 
 namespace GenHTTP.Modules.Razor.Providers
 {
@@ -18,8 +19,6 @@ namespace GenHTTP.Modules.Razor.Providers
         #region Get-/Setters
 
         public IHandler Parent { get; }
-
-        public IResource TemplateProvider { get; }
 
         public ModelProvider<T> ModelProvider { get; }
 
@@ -36,7 +35,6 @@ namespace GenHTTP.Modules.Razor.Providers
         {
             Parent = parent;
 
-            TemplateProvider = templateProvider;
             ModelProvider = modelProvider;
             PageInfo = pageInfo;
 
@@ -52,15 +50,13 @@ namespace GenHTTP.Modules.Razor.Providers
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var model = await ModelProvider(request, this);
+            var model = await ModelProvider(request, this).ConfigureAwait(false);
 
-            var content = await Renderer.RenderAsync(model).ConfigureAwait(false);
+            var content = new RenderedContent<T>(Renderer, model, PageInfo);
 
-            var templateModel = new TemplateModel(request, this, PageInfo, content);
-
-            var page = await this.GetPageAsync(templateModel).ConfigureAwait(false);
-
-            return page.Build();
+            return request.Respond()
+                          .Content(content)
+                          .Build();
         }
 
         public ValueTask PrepareAsync() => Renderer.PrepareAsync();
