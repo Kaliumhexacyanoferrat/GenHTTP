@@ -61,14 +61,18 @@ namespace GenHTTP.Engine.Infrastructure
             await ErrorRenderer.PrepareAsync();
         }
 
+        ValueTask<ulong> IRenderer<ErrorModel>.CalculateChecksumAsync() => ErrorRenderer.CalculateChecksumAsync();
+
+        ValueTask<ulong> IRenderer<TemplateModel>.CalculateChecksumAsync() => Template.CalculateChecksumAsync();
+
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
             return Content.GetContent(request);
         }
 
-        public async ValueTask<string> RenderAsync(ErrorModel error)
+        public async ValueTask<string> RenderAsync(ErrorModel model)
         {
-            return await ErrorRenderer.RenderAsync(error).ConfigureAwait(false);
+            return await ErrorRenderer.RenderAsync(model).ConfigureAwait(false);
         }
 
         public async ValueTask<string> RenderAsync(TemplateModel model)

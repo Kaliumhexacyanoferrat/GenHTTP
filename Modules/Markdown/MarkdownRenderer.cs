@@ -36,6 +36,8 @@ namespace GenHTTP.Modules.Markdown
 
         #region Functionality
 
+        public ValueTask<ulong> CalculateChecksumAsync() => File.CalculateChecksumAsync();
+
         public async ValueTask<string> RenderAsync(T? model) => Markdig.Markdown.ToHtml(await GetContent(), PIPELINE);
 
         public async ValueTask PrepareAsync()

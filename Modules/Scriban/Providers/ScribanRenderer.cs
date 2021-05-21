@@ -34,6 +34,8 @@ namespace GenHTTP.Modules.Scriban.Providers
         #endregion
 
         #region Functionality
+        
+        public ValueTask<ulong> CalculateChecksumAsync() => TemplateProvider.CalculateChecksumAsync();
 
         public async ValueTask<string> RenderAsync(T model)
         {

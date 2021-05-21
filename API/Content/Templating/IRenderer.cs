@@ -19,6 +19,12 @@ namespace GenHTTP.Api.Content.Templating
         ValueTask PrepareAsync();
 
         /// <summary>
+        /// Returns a checksum for the template used by this renderer instance.
+        /// </summary>
+        /// <returns>The checksum of the template used by this renderer</returns>
+        ValueTask<ulong> CalculateChecksumAsync();
+
+        /// <summary>
         /// Renders the given model.
         /// </summary>
         /// <param name="model">The model to be rendered</param>

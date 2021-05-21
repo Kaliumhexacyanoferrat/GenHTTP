@@ -12,6 +12,13 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
     public sealed class ListingRenderer : IRenderer<ListingModel>
     {
 
+        public ValueTask<ulong> CalculateChecksumAsync()
+        {
+            // the template used by this renderer is baked into
+            // the code so it cannot change
+            return new ValueTask<ulong>(19);
+        }
+
         public ValueTask<string> RenderAsync(ListingModel model)
         {
             var content = new StringBuilder();
