@@ -42,6 +42,8 @@ namespace GenHTTP.Modules.Websites.Sites
 
         #region Functionality
 
+        public ValueTask<ulong> CalculateChecksumAsync() => Theme.Renderer.CalculateChecksumAsync();
+
         public async ValueTask<string> RenderAsync(TemplateModel model)
         {
             var menu = Menu.GetMenu(model.Request, model.Handler);

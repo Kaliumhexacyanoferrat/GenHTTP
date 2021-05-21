@@ -96,13 +96,18 @@ namespace GenHTTP.Modules.Websites.Sites
             await Theme.Renderer.PrepareAsync();
         }
 
+
+        ValueTask<ulong> IRenderer<ErrorModel>.CalculateChecksumAsync() => Theme.ErrorHandler.CalculateChecksumAsync();
+
+        ValueTask<ulong> IRenderer<TemplateModel>.CalculateChecksumAsync() => Renderer.CalculateChecksumAsync();
+
         public ValueTask<IResponse?> HandleAsync(IRequest request) => Handler.HandleAsync(request);
 
         public IEnumerable<ContentElement> GetContent(IRequest request) => Handler.GetContent(request);
 
-        public async ValueTask<string> RenderAsync(ErrorModel error)
+        public async ValueTask<string> RenderAsync(ErrorModel model)
         {
-            return await Theme.ErrorHandler.RenderAsync(error).ConfigureAwait(false);
+            return await Theme.ErrorHandler.RenderAsync(model).ConfigureAwait(false);
         }
 
         public async ValueTask<string> RenderAsync(TemplateModel model)

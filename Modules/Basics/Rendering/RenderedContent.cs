@@ -7,8 +7,6 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Basics;
-
 namespace GenHTTP.Modules.Basics.Rendering
 {
 
@@ -42,7 +40,7 @@ namespace GenHTTP.Modules.Basics.Rendering
 
         #region Functionality
 
-        public ValueTask<ulong?> CalculateChecksumAsync()
+        public async ValueTask<ulong?> CalculateChecksumAsync()
         {
             unchecked
             {
@@ -53,9 +51,12 @@ namespace GenHTTP.Modules.Basics.Rendering
                 hash = hash * 23 + (uint)(PageInfo.Description?.GetHashCode() ?? 0);
                 hash = hash * 23 + (uint)(PageInfo.Title?.GetHashCode() ?? 0);
 
-                // ToDo: Renderer.GetHashCode()
+                var pageRenderer = GetPageRenderer(Model.Handler, Model.Request);
 
-                return new ValueTask<ulong?>(hash);
+                hash = hash * 23 + await Renderer.CalculateChecksumAsync();
+                hash = hash * 23 + await pageRenderer.CalculateChecksumAsync();
+
+                return hash;
             }
         }
 
@@ -69,13 +70,18 @@ namespace GenHTTP.Modules.Basics.Rendering
 
             var templateModel = new TemplateModel(request, handler, PageInfo, pageContent);
 
-            var templateRenderer = handler.FindParent<IPageRenderer>(request.Server.Handler) ?? throw new InvalidOperationException("There is no page renderer available in the routing tree");
+            var templateRenderer = GetPageRenderer(handler, request);
 
             var content = await templateRenderer.RenderAsync(templateModel);
 
             var buffer = _ENCODING.GetBytes(content);
 
             await target.WriteAsync(buffer.AsMemory(0, buffer.Length));
+        }
+
+        private static IPageRenderer GetPageRenderer(IHandler handler, IRequest request)
+        {
+            return handler.FindParent<IPageRenderer>(request.Server.Handler) ?? throw new InvalidOperationException("There is no page renderer available in the routing tree");
         }
 
         #endregion

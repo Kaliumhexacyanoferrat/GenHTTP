@@ -38,6 +38,8 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         #region Functionality
 
+        public ValueTask<ulong> CalculateChecksumAsync() => TemplateProvider.CalculateChecksumAsync();
+
         public async ValueTask<string> RenderAsync(T model)
         {
             var template = await GetTemplate();
