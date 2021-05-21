@@ -9,7 +9,7 @@ using GenHTTP.Api.Content.IO;
 namespace GenHTTP.Modules.Razor.Providers
 {
 
-    public sealed class RazorRendererBuilder<T> : IBuilder<IRenderer<T>>, IRazorConfigurationBuilder<RazorRendererBuilder<T>> where T : class, IBaseModel
+    public sealed class RazorRendererBuilder<T> : IBuilder<IRenderer<T>>, IRazorConfigurationBuilder<RazorRendererBuilder<T>> where T : class, IModel
     {
         private IResource? _TemplateProvider;
 

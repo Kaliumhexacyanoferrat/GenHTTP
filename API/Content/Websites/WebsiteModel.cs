@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
@@ -10,7 +11,7 @@ namespace GenHTTP.Api.Content.Websites
     /// All information that is needed by a theme to render
     /// a web page for a website.
     /// </summary>
-    public sealed class WebsiteModel : IBaseModel
+    public sealed class WebsiteModel : AbstractModel
     {
 
         #region Get-/Setters
@@ -32,16 +33,6 @@ namespace GenHTTP.Api.Content.Websites
         /// to the browser.
         /// </summary>
         public List<StyleReference> Styles { get; }
-
-        /// <summary>
-        /// The currently handled request.
-        /// </summary>
-        public IRequest Request { get; }
-
-        /// <summary>
-        /// The currently executed handler.
-        /// </summary>
-        public IHandler Handler { get; }
 
         /// <summary>
         /// The theme that is responsible to generate
@@ -70,11 +61,8 @@ namespace GenHTTP.Api.Content.Websites
                             object? themeModel,
                             List<ContentElement> menu,
                             List<ScriptReference> scripts,
-                            List<StyleReference> styles)
+                            List<StyleReference> styles) : base(request, handler)
         {
-            Request = request;
-            Handler = handler;
-
             Content = content;
             Scripts = scripts;
             Styles = styles;
@@ -83,6 +71,40 @@ namespace GenHTTP.Api.Content.Websites
 
             Theme = theme;
             Model = themeModel;
+        }
+
+        #endregion
+
+        #region Functionality
+
+        public override ValueTask<ulong> CalculateChecksumAsync()
+        {
+            unchecked
+            {
+                ulong hash = 17;
+
+                hash = hash * 23 + (uint)Content.Content.GetHashCode();
+                hash = hash * 23 + (uint)Content.Meta.GetHashCode();
+
+                foreach (var script in Scripts)
+                {
+                    hash = hash * 23 + (uint)script.GetHashCode();
+                }
+
+                foreach (var style in Styles)
+                {
+                    hash = hash * 23 + (uint)style.GetHashCode();
+                }
+
+                foreach (var item in Menu)
+                {
+                    hash = hash * 23 + item.CalculateChecksum();
+                }
+
+                hash = hash * 23 + (uint)(Model?.GetHashCode() ?? 0);
+
+                return new(hash);
+            }
         }
 
         #endregion

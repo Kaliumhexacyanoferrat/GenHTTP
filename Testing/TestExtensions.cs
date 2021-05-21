@@ -58,6 +58,8 @@ namespace GenHTTP.Testing.Acceptance
             return reader.ReadToEnd();
         }
 
+        public static string GetETag(this HttpWebResponse response) => response.GetResponseHeader("ETag");
+
         public static HashSet<string> GetSitemap(this HttpWebResponse response)
         {
             var content = response.GetContent();

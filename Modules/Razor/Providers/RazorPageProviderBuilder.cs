@@ -12,7 +12,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Razor.Providers
 {
 
-    public sealed class RazorPageProviderBuilder<T> : IHandlerBuilder<RazorPageProviderBuilder<T>>, IContentInfoBuilder<RazorPageProviderBuilder<T>>, IRazorConfigurationBuilder<RazorPageProviderBuilder<T>> where T : PageModel
+    public sealed class RazorPageProviderBuilder<T> : IHandlerBuilder<RazorPageProviderBuilder<T>>, IContentInfoBuilder<RazorPageProviderBuilder<T>>, IRazorConfigurationBuilder<RazorPageProviderBuilder<T>> where T : class, IModel
     {
         private IResource? _TemplateProvider;
 

@@ -18,7 +18,7 @@ namespace GenHTTP.Modules.Scriban.Providers
 
         #region Get-/Setters
 
-        private IBaseModel Model { get; }
+        private IModel Model { get; }
 
         public int RequiredParameterCount => 1;
 
@@ -32,7 +32,7 @@ namespace GenHTTP.Modules.Scriban.Providers
 
         #region Initialization
 
-        public RoutingMethod(IBaseModel model)
+        public RoutingMethod(IModel model)
         {
             Model = model;
         }

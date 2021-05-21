@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Protocol;
+using System.Threading.Tasks;
 
 namespace GenHTTP.Api.Content.Templating
 {
@@ -22,7 +23,7 @@ namespace GenHTTP.Api.Content.Templating
 
     }
 
-    public class ViewModel<T> : PageModel where T : class
+    public class ViewModel<T> : AbstractModel where T : class
     {
 
         #region Get-/Setters
@@ -37,6 +38,12 @@ namespace GenHTTP.Api.Content.Templating
         {
             Data = data;
         }
+
+        #endregion
+
+        #region Functionality
+
+        public override ValueTask<ulong> CalculateChecksumAsync() => new((ulong)(Data?.GetHashCode() ?? 17));
 
         #endregion
 

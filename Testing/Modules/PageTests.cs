@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
@@ -20,21 +20,25 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
     #region Supporting data structures
 
-    public sealed class CustomModel : PageModel
+    public sealed class CustomModel : AbstractModel
     {
 
         public string World => "World";
 
         public CustomModel(IRequest request, IHandler handler) : base(request, handler) { }
 
+        public override ValueTask<ulong> CalculateChecksumAsync() => new(17);
+
     }
 
-    public sealed class PathModel : PageModel
+    public sealed class PathModel : AbstractModel
     {
 
         public WebPath Path => new PathBuilder("/test/1").Build();
 
         public PathModel(IRequest r, IHandler h) : base(r, h) { }
+
+        public override ValueTask<ulong> CalculateChecksumAsync() => new(17);
 
     }
 

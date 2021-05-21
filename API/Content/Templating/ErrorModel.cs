@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
 
@@ -8,7 +9,7 @@ namespace GenHTTP.Api.Content.Templating
     /// <summary>
     /// Model for errors that occur when handling requests.
     /// </summary>
-    public sealed class ErrorModel : PageModel
+    public sealed class ErrorModel : AbstractModel
     {
 
         #region Get-/Setters
@@ -44,6 +45,27 @@ namespace GenHTTP.Api.Content.Templating
 
             Message = message;
             Cause = cause;
+        }
+
+        #endregion
+
+        #region Functionality
+
+        public override ValueTask<ulong> CalculateChecksumAsync()
+        {
+            unchecked
+            {
+                ulong hash = 17;
+
+                hash = hash * 23 + (uint)Status;
+
+                hash = hash * 23 + (uint)Message.GetHashCode();
+
+                hash = hash * 23 + (uint)(DevelopmentMode ? 1 : 0);
+                hash = hash * 23 + (uint)(Cause?.GetHashCode() ?? 0);
+
+                return new(hash);
+            }
         }
 
         #endregion

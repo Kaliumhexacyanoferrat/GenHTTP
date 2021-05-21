@@ -11,7 +11,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Scriban.Providers
 {
 
-    public sealed class ScribanPageProviderBuilder<T> : IHandlerBuilder<ScribanPageProviderBuilder<T>>, IContentInfoBuilder<ScribanPageProviderBuilder<T>> where T : PageModel
+    public sealed class ScribanPageProviderBuilder<T> : IHandlerBuilder<ScribanPageProviderBuilder<T>>, IContentInfoBuilder<ScribanPageProviderBuilder<T>> where T : class, IModel
     {
         private IResource? _TemplateProvider;
 

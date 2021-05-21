@@ -15,7 +15,7 @@ using RazorEngineCore;
 namespace GenHTTP.Modules.Razor.Providers
 {
 
-    public sealed class RazorRenderer<T> : IRenderer<T> where T : class, IBaseModel
+    public sealed class RazorRenderer<T> : IRenderer<T> where T : class, IModel
     {
         private readonly static RazorEngine _Engine = new();
 
