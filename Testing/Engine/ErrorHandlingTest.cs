@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {
@@ -15,29 +16,15 @@ namespace GenHTTP.Testing.Acceptance.Engine
     public sealed class ErrorHandlingTest
     {
 
-        private class MalfunctioningRouter : IHandler
-        {
-
-            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
-
-            public IHandler Parent { get => throw new NotImplementedException(); }
-
-            public IEnumerable<ContentElement> GetContent(IRequest request)
-            {
-                throw new NotImplementedException();
-            }
-
-            public ValueTask<IResponse?> HandleAsync(IRequest request)
-            {
-                throw new NotImplementedException();
-            }
-
-        }
-
         [TestMethod]
         public void TestGenericError()
         {
-            using var runner = TestRunner.Run(new MalfunctioningRouter());
+            var handler = new FunctionalHandler(responseProvider: (r) =>
+            {
+                throw new NotImplementedException();
+            });
+
+            using var runner = TestRunner.Run(handler);
 
             var request = runner.GetRequest();
 

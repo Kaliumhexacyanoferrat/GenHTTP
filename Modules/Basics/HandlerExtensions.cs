@@ -48,6 +48,7 @@ namespace GenHTTP.Modules.Basics
             return model.Request
                         .Respond()
                         .Content(content)
+                        .Type(ContentType.TextHtml)
                         .Status(model.Status);
         }
 

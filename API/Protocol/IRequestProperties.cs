@@ -1,4 +1,6 @@
-﻿namespace GenHTTP.Api.Protocol
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace GenHTTP.Api.Protocol
 {
 
     /// <summary>
@@ -23,7 +25,7 @@
         /// <param name="entry">The entry read from the property bag, if any</param>
         /// <typeparam name="T">The expected type of value to be returned</typeparam>
         /// <returns>True if the value could be read, false otherwise</returns>
-        bool TryGet<T>(string key, out T entry);
+        bool TryGet<T>(string key, [MaybeNullWhen(returnValue: false)] out T entry);
 
     }
 

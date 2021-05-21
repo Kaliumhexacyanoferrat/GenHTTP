@@ -15,7 +15,6 @@ namespace GenHTTP.Modules.ErrorHandling.Provider
             return new ErrorHandlingProvider(parent, contentFactory);
         }
 
-
         #endregion
 
     }
