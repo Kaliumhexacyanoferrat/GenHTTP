@@ -18,7 +18,7 @@ namespace GenHTTP.Modules.Basics.Rendering
 
         #region Get-/Setters
 
-        public ulong? Length => throw new NotImplementedException();
+        public ulong? Length => null;
 
         private IRenderer<T> Renderer { get; }
 
@@ -44,7 +44,19 @@ namespace GenHTTP.Modules.Basics.Rendering
 
         public ValueTask<ulong?> CalculateChecksumAsync()
         {
-            throw new NotImplementedException();
+            unchecked
+            {
+                ulong hash = 17;
+
+                hash = hash * 23 + (uint)Model.GetHashCode();
+
+                hash = hash * 23 + (uint)(PageInfo.Description?.GetHashCode() ?? 0);
+                hash = hash * 23 + (uint)(PageInfo.Title?.GetHashCode() ?? 0);
+
+                // ToDo: Renderer.GetHashCode()
+
+                return new ValueTask<ulong?>(hash);
+            }
         }
 
         public async ValueTask WriteAsync(Stream target, uint bufferSize)

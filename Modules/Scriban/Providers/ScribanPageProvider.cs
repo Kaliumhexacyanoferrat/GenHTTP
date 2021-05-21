@@ -52,6 +52,7 @@ namespace GenHTTP.Modules.Scriban.Providers
 
             return request.Respond()
                           .Content(content)
+                          .Type(ContentType.TextHtml)
                           .Build();
         }
 

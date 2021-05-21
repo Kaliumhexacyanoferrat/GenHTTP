@@ -56,6 +56,7 @@ namespace GenHTTP.Modules.Razor.Providers
 
             return request.Respond()
                           .Content(content)
+                          .Type(ContentType.TextHtml)
                           .Build();
         }
 

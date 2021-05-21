@@ -14,9 +14,15 @@ namespace GenHTTP.Testing.Acceptance.Utilities
 
         private readonly Func<IRequest, IResponse?>? _ResponseProvider;
 
+        private IHandler? _Parent;
+
         #region Get-/Setters
 
-        public IHandler Parent => throw new NotImplementedException();
+        public IHandler Parent
+        {
+            get { return _Parent ?? throw new InvalidOperationException(); }
+            set { _Parent = value; }
+        }
 
         #endregion
 

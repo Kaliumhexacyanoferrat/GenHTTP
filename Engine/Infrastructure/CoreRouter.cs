@@ -5,7 +5,6 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Placeholders;
 
@@ -69,7 +68,7 @@ namespace GenHTTP.Engine.Infrastructure
 
         public async ValueTask<string> RenderAsync(ErrorModel error)
         {
-            return  await ErrorRenderer.RenderAsync(error).ConfigureAwait(false);
+            return await ErrorRenderer.RenderAsync(error).ConfigureAwait(false);
         }
 
         public async ValueTask<string> RenderAsync(TemplateModel model)

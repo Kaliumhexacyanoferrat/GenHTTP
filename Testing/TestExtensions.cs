@@ -12,6 +12,8 @@ using System.Xml.XPath;
 
 using GenHTTP.Api.Content;
 
+using GenHTTP.Testing.Acceptance.Utilities;
+
 namespace GenHTTP.Testing.Acceptance
 {
 
@@ -22,7 +24,7 @@ namespace GenHTTP.Testing.Acceptance
 
         public class HandlerBuilder : IHandlerBuilder<HandlerBuilder>
         {
-            private IHandler _Handler;
+            private readonly IHandler _Handler;
 
             private readonly List<IConcernBuilder> _Concerns = new();
 
@@ -36,6 +38,11 @@ namespace GenHTTP.Testing.Acceptance
 
             public IHandler Build(IHandler parent)
             {
+                if (_Handler is FunctionalHandler func)
+                {
+                    func.Parent = parent;
+                }
+
                 return Concerns.Chain(parent, _Concerns, (p) => _Handler);
             }
 

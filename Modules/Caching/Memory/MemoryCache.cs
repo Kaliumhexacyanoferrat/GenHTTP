@@ -45,7 +45,7 @@ namespace GenHTTP.Modules.Caching.Memory
             {
                 if (_Cache.TryGetValue(key, out var entries))
                 {
-                    if (entries.TryGetValue(variation, out T value))
+                    if (entries.TryGetValue(variation, out T? value))
                     {
                         return new ValueTask<T?>(value);
                     }
