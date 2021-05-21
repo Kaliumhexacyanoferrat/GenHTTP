@@ -8,7 +8,7 @@ using GenHTTP.Api.Infrastructure;
 namespace GenHTTP.Modules.Markdown
 {
 
-    public sealed class MarkdownPageProviderBuilder<T> : IHandlerBuilder<MarkdownPageProviderBuilder<T>>, IContentInfoBuilder<MarkdownPageProviderBuilder<T>> where T : PageModel
+    public sealed class MarkdownPageProviderBuilder<T> : IHandlerBuilder<MarkdownPageProviderBuilder<T>>, IContentInfoBuilder<MarkdownPageProviderBuilder<T>> where T : class, IModel
     {
         private IResource? _FileProvider;
 

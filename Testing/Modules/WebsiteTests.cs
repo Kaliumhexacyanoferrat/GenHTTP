@@ -248,6 +248,22 @@ namespace GenHTTP.Testing.Acceptance.Providers
             AssertX.Contains("root-appended = ../my/file.txt", result);
         }
 
+        [TestMethod]
+        public void TestSamePageSameChecksum()
+        {
+            var content = Layout.Create()
+                                .Index(ModScriban.Page(Resource.FromString("Hello World!")));
+
+            using var runner = TestRunner.Run(GetWebsite(content));
+
+            using var resp1 = runner.GetResponse();
+            using var resp2 = runner.GetResponse();
+
+            Assert.IsNotNull(resp1.GetETag());
+
+            Assert.AreEqual(resp1.GetETag(), resp2.GetETag());
+        }
+
         public static WebsiteBuilder GetWebsite(LayoutBuilder? content = null)
         {
             return Website.Create()

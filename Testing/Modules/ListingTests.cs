@@ -75,7 +75,20 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-        private TestRunner GetEnvironment()
+        [TestMethod]
+        public void TestSameListingSameChecksum()
+        {
+            using var runner = GetEnvironment();
+
+            using var resp1 = runner.GetResponse();
+            using var resp2 = runner.GetResponse();
+
+            Assert.IsNotNull(resp1.GetETag());
+
+            Assert.AreEqual(resp1.GetETag(), resp2.GetETag());
+        }
+
+        private static TestRunner GetEnvironment()
         {
             var tempFolder = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 

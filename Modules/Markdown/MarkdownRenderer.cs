@@ -13,7 +13,7 @@ using PooledAwait;
 namespace GenHTTP.Modules.Markdown
 {
 
-    public sealed class MarkdownRenderer<T> : IRenderer<T> where T : class, IBaseModel
+    public sealed class MarkdownRenderer<T> : IRenderer<T> where T : class, IModel
     {
         private static readonly MarkdownPipeline PIPELINE = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
 

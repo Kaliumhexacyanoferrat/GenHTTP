@@ -9,12 +9,12 @@ namespace GenHTTP.Modules.Razor
     public static class RazorExtensions
     {
 
-        public static string? Route(this IBaseModel model, string target)
+        public static string? Route(this IModel model, string target)
         {
             return model.Handler.Route(model.Request, target);
         }
 
-        public static string? Route(this IBaseModel model, WebPath target)
+        public static string? Route(this IModel model, WebPath target)
         {
             return model.Handler.Route(model.Request, target);
         }

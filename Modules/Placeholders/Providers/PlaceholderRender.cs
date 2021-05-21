@@ -15,7 +15,7 @@ using PooledAwait;
 namespace GenHTTP.Modules.Placeholders.Providers
 {
 
-    public sealed class PlaceholderRender<T> : IRenderer<T> where T : class, IBaseModel
+    public sealed class PlaceholderRender<T> : IRenderer<T> where T : class, IModel
     {
         private readonly static Regex PLACEHOLDER = new(@"\[([a-zA-Z0-9\.]+)\]", RegexOptions.Compiled);
 

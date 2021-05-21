@@ -13,7 +13,7 @@ using GenHTTP.Modules.Basics.Rendering;
 namespace GenHTTP.Modules.Razor.Providers
 {
 
-    public sealed class RazorPageProvider<T> : IHandler where T : PageModel
+    public sealed class RazorPageProvider<T> : IHandler where T : class, IModel
     {
 
         #region Get-/Setters

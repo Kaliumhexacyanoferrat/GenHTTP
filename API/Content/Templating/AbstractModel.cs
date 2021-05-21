@@ -1,4 +1,6 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using System.Threading.Tasks;
+
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Content.Templating
 {
@@ -7,7 +9,7 @@ namespace GenHTTP.Api.Content.Templating
     /// Model for pages which can be served by an application
     /// to the clients.
     /// </summary>
-    public class PageModel : IBaseModel
+    public abstract class AbstractModel : IModel
     {
 
         #region Get-/Setters
@@ -24,18 +26,24 @@ namespace GenHTTP.Api.Content.Templating
 
         #endregion
 
-        #region Functionality
+        #region Initialization
 
         /// <summary>
         /// Creates a new page model for the given request.
         /// </summary>
         /// <param name="request">The request which caused this rendering call</param>
         /// <param name="handler">The handler responsible to render the response</param>
-        public PageModel(IRequest request, IHandler handler)
+        public AbstractModel(IRequest request, IHandler handler)
         {
             Request = request;
             Handler = handler;
         }
+
+        #endregion
+
+        #region Functionality
+
+        public abstract ValueTask<ulong> CalculateChecksumAsync();
 
         #endregion
 

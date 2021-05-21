@@ -59,6 +59,34 @@ namespace GenHTTP.Api.Content
 
         #endregion
 
+        #region Functionality
+
+        public ulong CalculateChecksum() => CalculateChecksum(this);
+
+        private static ulong CalculateChecksum(ContentElement element)
+        {
+            unchecked
+            {
+                ulong hash = 17;
+
+                hash = hash * 23 + (uint)element.Path.GetHashCode();
+                hash = hash * 23 + (uint)element.Details.GetHashCode();
+                hash = hash * 23 + (uint)element.ContentType.GetHashCode();
+
+                if (element.Children != null)
+                {
+                    foreach (var child in element.Children)
+                    {
+                        hash = hash * 23 + CalculateChecksum(child);
+                    }
+                }
+
+                return hash;
+            }
+        }
+
+        #endregion
+
     }
 
 }

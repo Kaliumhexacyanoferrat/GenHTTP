@@ -8,7 +8,7 @@ namespace GenHTTP.Api.Content.Templating
     /// Allows to render models of the given type.
     /// </summary>
     /// <typeparam name="T">The type of the model to be rendered</typeparam>
-    public interface IRenderer<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] in T> where T : class, IBaseModel
+    public interface IRenderer<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] in T> where T : class, IModel
     {
 
         /// <summary>

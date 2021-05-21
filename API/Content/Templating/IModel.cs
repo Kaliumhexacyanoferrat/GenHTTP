@@ -1,4 +1,6 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using System.Threading.Tasks;
+
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Content.Templating
 {
@@ -7,7 +9,7 @@ namespace GenHTTP.Api.Content.Templating
     /// Interface which needs to be implemented by all models
     /// used to render pages or templates.
     /// </summary>
-    public interface IBaseModel
+    public interface IModel
     {
 
         /// <summary>
@@ -19,6 +21,16 @@ namespace GenHTTP.Api.Content.Templating
         /// The handler responsible for the current rendering call.
         /// </summary>
         IHandler Handler { get; }
+
+        /// <summary>
+        /// Calculates the checksum of this model.
+        /// </summary>
+        /// <returns>The checksum of this model</returns>
+        /// <remarks>
+        /// Required to determine, whether an already cached page
+        /// needs to be refreshed or not.
+        /// </remarks>
+        ValueTask<ulong> CalculateChecksumAsync();
 
     }
 

@@ -1,4 +1,6 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using System.Threading.Tasks;
+
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Content.Templating
 {
@@ -7,7 +9,7 @@ namespace GenHTTP.Api.Content.Templating
     /// Model used by templates to render the actual HTML returned
     /// to the client.
     /// </summary>
-    public sealed class TemplateModel : IBaseModel
+    public sealed class TemplateModel : AbstractModel
     {
 
         #region Get-/Setters
@@ -22,16 +24,6 @@ namespace GenHTTP.Api.Content.Templating
         /// </summary>
         public string Content { get; }
 
-        /// <summary>
-        /// The request which caused this call.
-        /// </summary>
-        public IRequest Request { get; }
-
-        /// <summary>
-        /// The handler responsible to render the response.
-        /// </summary>
-        public IHandler Handler { get; }
-
         #endregion
 
         #region Initialization
@@ -43,7 +35,7 @@ namespace GenHTTP.Api.Content.Templating
         /// <param name="handler">The handler responsible to render the response</param>
         /// <param name="pageInfo">Information about the page to be rendered</param>
         /// <param name="content">The content to be rendered within the template</param>
-        public TemplateModel(IRequest request, IHandler handler, ContentInfo pageInfo, string content)
+        public TemplateModel(IRequest request, IHandler handler, ContentInfo pageInfo, string content) : base(request, handler)
         {
             Content = content;
 
@@ -53,9 +45,23 @@ namespace GenHTTP.Api.Content.Templating
             {
                 Meta = Meta with { Title = "Untitled Page" };
             }
+        }
 
-            Request = request;
-            Handler = handler;
+        #endregion
+
+        #region Functionality
+
+        public override ValueTask<ulong> CalculateChecksumAsync()
+        {
+            unchecked
+            {
+                ulong hash = 17;
+
+                hash = hash * 23 + (uint)Content.GetHashCode();
+                hash = hash * 23 + (uint)Meta.GetHashCode();
+
+                return new(hash);
+            }
         }
 
         #endregion

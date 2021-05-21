@@ -8,14 +8,14 @@ namespace GenHTTP.Modules.Markdown
     public static class ModMarkdown
     {
 
-        public static MarkdownPageProviderBuilder<PageModel> Page(IBuilder<IResource> templateProvider)
+        public static MarkdownPageProviderBuilder<IModel> Page(IBuilder<IResource> templateProvider)
         {
             return Page(templateProvider.Build());
         }
 
-        public static MarkdownPageProviderBuilder<PageModel> Page(IResource fileProvider)
+        public static MarkdownPageProviderBuilder<IModel> Page(IResource fileProvider)
         {
-            return new MarkdownPageProviderBuilder<PageModel>().File(fileProvider);
+            return new MarkdownPageProviderBuilder<IModel>().File(fileProvider);
         }
 
     }
