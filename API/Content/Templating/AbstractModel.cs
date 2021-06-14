@@ -33,7 +33,7 @@ namespace GenHTTP.Api.Content.Templating
         /// </summary>
         /// <param name="request">The request which caused this rendering call</param>
         /// <param name="handler">The handler responsible to render the response</param>
-        public AbstractModel(IRequest request, IHandler handler)
+        protected AbstractModel(IRequest request, IHandler handler)
         {
             Request = request;
             Handler = handler;
