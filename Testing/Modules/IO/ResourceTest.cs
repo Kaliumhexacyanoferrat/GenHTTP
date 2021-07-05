@@ -8,6 +8,7 @@ using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Layouting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.IO
 {
@@ -76,6 +77,22 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             Assert.AreEqual((ulong)16, resource.Length!);
 
             Assert.IsNotNull(resource.Modified);
+        }
+
+        [TestMethod]
+        public void TestAssemblyResourceRouting()
+        {
+            var layout = Layout.Create()
+                               .Add("1", Content.From(Resource.FromAssembly("File.txt")))
+                               .Add("2", Content.From(Resource.FromAssembly("OtherFile.txt")));
+
+            using var runner = TestRunner.Run(layout);
+
+            using var f1 = runner.GetResponse("/1");
+            Assert.AreEqual("This is text!", f1.GetContent());
+
+            using var f2 = runner.GetResponse("/2");
+            Assert.AreEqual("This is other text!", f2.GetContent());
         }
 
         [TestMethod]
