@@ -20,7 +20,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             AssertX.Single(tree.GetNodes());
 
-            Assert.AreEqual(4, tree.GetResources().Count());
+            Assert.AreEqual(5, tree.GetResources().Count());
         }
 
     }
