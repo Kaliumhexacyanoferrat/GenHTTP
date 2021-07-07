@@ -114,7 +114,7 @@ namespace GenHTTP.Modules.IO.Ranges
 
         private static IResponse GetFullRange(IRequest request, IResponse response, ulong length, ulong start, ulong end)
         {
-            if (start > end || end > length) return NotSatisfiable(request, length);
+            if (start > end || end >= length) return NotSatisfiable(request, length);
 
             return GetRange(response, start, end, length);
         }

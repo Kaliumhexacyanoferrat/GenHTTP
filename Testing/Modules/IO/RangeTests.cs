@@ -1,8 +1,6 @@
-﻿using System.Net;
-
-using GenHTTP.Modules.IO;
-
+﻿using GenHTTP.Modules.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Net;
 
 namespace GenHTTP.Testing.Acceptance.Modules.IO
 {
@@ -116,6 +114,24 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         }
 
         [TestMethod]
+        public void TestReverseRangeNotSatisfied()
+        {
+            using var response = GetResponse("bytes=8-1");
+
+            Assert.AreEqual(HttpStatusCode.RequestedRangeNotSatisfiable, response.StatusCode);
+            Assert.AreEqual("bytes */10", response.GetResponseHeader("Content-Range"));
+        }
+
+        [TestMethod]
+        public void TestOneBasedIndexDoesNotWork()
+        {
+            using var response = GetResponse("bytes=1-10");
+
+            Assert.AreEqual(HttpStatusCode.RequestedRangeNotSatisfiable, response.StatusCode);
+            Assert.AreEqual("bytes */10", response.GetResponseHeader("Content-Range"));
+        }
+
+        [TestMethod]
         public void TestHeadRequest()
         {
             using var response = GetResponse("bytes=1-8", "HEAD");
@@ -157,6 +173,27 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             using var response = runner.GetResponse();
 
             Assert.AreEqual("bytes", response.GetResponseHeader("Accept-Ranges"));
+        }
+
+        [TestMethod]
+        public void TestUnknownLengthCannotBeRanged()
+        {
+            var download = Download.From(Resource.FromAssembly("File.txt"))
+                                   .AddRangeSupport();
+
+            using var runner = TestRunner.Run(download);
+
+
+            var request = runner.GetRequest();
+
+            request.Headers.Add("Range", "bytes=1-2");
+
+            using var response = runner.GetResponse(request);
+
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+
+            Assert.AreEqual(string.Empty, response.GetResponseHeader("Accept-Ranges"));
+            Assert.AreEqual(string.Empty, response.GetResponseHeader("Content-Length"));
         }
 
         private static HttpWebResponse GetResponse(string? requestedRange, string method = "GET")
