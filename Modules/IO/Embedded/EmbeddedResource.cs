@@ -35,7 +35,7 @@ namespace GenHTTP.Modules.IO.Embedded
         public EmbeddedResource(Assembly source, string path, string? name, FlexibleContentType? contentType, DateTime? modified)
         {
             var fqn = source.GetManifestResourceNames()
-                            .FirstOrDefault(n => n.EndsWith(path));
+                            .FirstOrDefault(n => (n == path) || n.EndsWith($".{path}"));
 
             QualifiedName = fqn ?? throw new InvalidOperationException($"Resource '{path}' does not exist in assembly '{source}'");
             Source = source;

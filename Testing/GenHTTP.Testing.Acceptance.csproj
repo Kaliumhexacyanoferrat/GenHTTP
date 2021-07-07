@@ -16,6 +16,7 @@
     <None Remove="Resources\Certificate.pfx" />
     <None Remove="Resources\Error.html" />
     <None Remove="Resources\File.txt" />
+    <None Remove="Resources\OtherFile.txt" />
     <None Remove="Resources\Subdirectory\AnotherFile.txt" />
     <None Remove="Resources\Template.html" />
   </ItemGroup>
@@ -25,6 +26,7 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\Error.html" />
+    <EmbeddedResource Include="Resources\OtherFile.txt" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,8 +39,8 @@
         
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
 
-    <PackageReference Include="MSTest.TestAdapter" Version="2.2.4" />
-    <PackageReference Include="MSTest.TestFramework" Version="2.2.4" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.5" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.5" />
     
     <PackageReference Include="coverlet.collector" Version="3.0.3">
       <PrivateAssets>all</PrivateAssets>
