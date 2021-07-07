@@ -146,6 +146,19 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             Assert.AreNotEqual(withRange.GetResponseHeader("ETag"), withoutRange.GetResponseHeader("ETag"));
         }
 
+        [TestMethod]
+        public void TestAddSupportForSingleFile()
+        {
+            var download = Download.From(Resource.FromString("Hello World!"))
+                                   .AddRangeSupport();
+
+            using var runner = TestRunner.Run(download);
+
+            using var response = runner.GetResponse();
+
+            Assert.AreEqual("bytes", response.GetResponseHeader("Accept-Ranges"));
+        }
+
         private static HttpWebResponse GetResponse(string? requestedRange, string method = "GET")
         {
             using var runner = GetRunner();
