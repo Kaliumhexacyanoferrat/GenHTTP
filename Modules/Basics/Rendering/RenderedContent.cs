@@ -10,7 +10,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Basics.Rendering
 {
 
-    public class RenderedContent<T> : IResponseContent where T : class, IModel
+    public sealed class RenderedContent<T> : IResponseContent where T : class, IModel
     {
         private static readonly Encoding _ENCODING = Encoding.UTF8;
 
@@ -46,7 +46,7 @@ namespace GenHTTP.Modules.Basics.Rendering
             {
                 ulong hash = 17;
 
-                hash = hash * 23 + await Model.CalculateChecksumAsync();
+                hash = hash * 23 + await Model.CalculateChecksumAsync().ConfigureAwait(false);
 
                 hash = hash * 23 + (uint)(PageInfo.Description?.GetHashCode() ?? 0);
                 hash = hash * 23 + (uint)(PageInfo.Title?.GetHashCode() ?? 0);
