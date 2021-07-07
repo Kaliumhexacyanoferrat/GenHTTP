@@ -62,9 +62,27 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         }
 
         [TestMethod]
-        public void TestOutOfRangeNotSatisfied()
+        public void TestFullRangeNotSatisfied()
         {
             using var response = GetResponse("bytes=9-13");
+
+            Assert.AreEqual(HttpStatusCode.RequestedRangeNotSatisfiable, response.StatusCode);
+            Assert.AreEqual("bytes */10", response.GetResponseHeader("Content-Range"));
+        }
+
+        [TestMethod]
+        public void TestRangeFromStartNotSatisfied()
+        {
+            using var response = GetResponse("bytes=12-");
+
+            Assert.AreEqual(HttpStatusCode.RequestedRangeNotSatisfiable, response.StatusCode);
+            Assert.AreEqual("bytes */10", response.GetResponseHeader("Content-Range"));
+        }
+
+        [TestMethod]
+        public void TestRangeFromEndNotSatisfied()
+        {
+            using var response = GetResponse("bytes=-12");
 
             Assert.AreEqual(HttpStatusCode.RequestedRangeNotSatisfiable, response.StatusCode);
             Assert.AreEqual("bytes */10", response.GetResponseHeader("Content-Range"));
@@ -119,6 +137,15 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             Assert.AreEqual(CONTENT, response.GetContent());
         }
 
+        [TestMethod]
+        public void TestRangesAreTaggedDifferently()
+        {
+            using var withRange = GetResponse("bytes=1-8");
+            using var withoutRange = GetResponse(null);
+
+            Assert.AreNotEqual(withRange.GetResponseHeader("ETag"), withoutRange.GetResponseHeader("ETag"));
+        }
+
         private static HttpWebResponse GetResponse(string? requestedRange, string method = "GET")
         {
             using var runner = GetRunner();
@@ -137,10 +164,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
         private static TestRunner GetRunner()
         {
-            var content = Content.From(Resource.FromString(CONTENT))
-                                 .AddRangeSupport();
+            var content = Content.From(Resource.FromString(CONTENT));
 
-            return TestRunner.Run(content);
+            return TestRunner.Run(content, rangeSupport: true);
         }
 
     }

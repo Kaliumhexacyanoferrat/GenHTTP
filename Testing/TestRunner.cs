@@ -32,7 +32,7 @@ namespace GenHTTP.Testing.Acceptance
             HttpWebRequest.DefaultCachePolicy = new HttpRequestCachePolicy(HttpRequestCacheLevel.NoCacheNoStore);
         }
 
-        public TestRunner(bool defaults = false)
+        public TestRunner(bool defaults = false, bool rangeSupport = false)
         {
             Port = NextPort();
 
@@ -42,26 +42,26 @@ namespace GenHTTP.Testing.Acceptance
 
             if (defaults)
             {
-                Host.Defaults();
+                Host.Defaults(rangeSupport: rangeSupport);
             }
         }
 
         public static int NextPort() => Interlocked.Increment(ref _NextPort);
 
-        public static TestRunner Run(bool defaults = true)
+        public static TestRunner Run(bool defaults = true, bool rangeSupport = false)
         {
-            var runner = new TestRunner(defaults);
+            var runner = new TestRunner(defaults, rangeSupport);
 
             runner.Host.Start();
 
             return runner;
         }
 
-        public static TestRunner Run(IHandler handler, bool defaults = true) => Run(handler.Wrap(), defaults);
+        public static TestRunner Run(IHandler handler, bool defaults = true, bool rangeSupport = false) => Run(handler.Wrap(), defaults, rangeSupport);
 
-        public static TestRunner Run(IHandlerBuilder handlerBuilder, bool defaults = true)
+        public static TestRunner Run(IHandlerBuilder handlerBuilder, bool defaults = true, bool rangeSupport = false)
         {
-            var runner = new TestRunner(defaults);
+            var runner = new TestRunner(defaults, rangeSupport);
 
             runner.Host.Handler(handlerBuilder).Start();
 

@@ -13,7 +13,7 @@ namespace GenHTTP.Modules.IO
 
         public static T AddRangeSupport<T>(this T builder) where T : IHandlerBuilder<T>
         {
-            builder.Add(Create());
+            builder.AddRangeSupport();
             return builder;
         }
 
