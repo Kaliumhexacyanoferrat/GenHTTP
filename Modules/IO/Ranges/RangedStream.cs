@@ -4,9 +4,12 @@ using System.IO;
 namespace GenHTTP.Modules.IO.Ranges
 {
 
+    /// <summary>
+    /// A stream that can be configured to just write a specified
+    /// portion of the incoming data into the underlying stream.
+    /// </summary>
     public class RangedStream : Stream
     {
-        private long _Pos = 0;
 
         #region Get-/Setters
 
@@ -24,16 +27,19 @@ namespace GenHTTP.Modules.IO.Ranges
 
         public override long Length => (End - Start);
 
-        public override long Position
-        {
-            get => (_Pos - Start > 0) ? (_Pos - Start) : 0;
-            set => throw new NotSupportedException();
-        }
+        public override long Position { get; set; }
 
         #endregion
 
         #region Initialization
 
+        /// <summary>
+        /// Creates a ranged stream that writes the specified portion of
+        /// data to the given target stream.
+        /// </summary>
+        /// <param name="target">The stream to write to</param>
+        /// <param name="start">The zero based index of the starting position</param>
+        /// <param name="end">The zero based index of the inclusive end position</param>
         public RangedStream(Stream target, ulong start, ulong end)
         {
             Target = target;
@@ -50,18 +56,20 @@ namespace GenHTTP.Modules.IO.Ranges
 
         public override void Write(byte[] buffer, int offset, int count)
         {
+            if (Position > End) return;
+
             long actualOffset = offset;
             long actualCount = count;
 
-            if (_Pos < Start)
+            if (Position < Start)
             {
-                actualOffset += (int)(Start - _Pos);
-                actualCount -= (int)(Start - _Pos);
+                actualOffset += (int)(Start - Position);
+                actualCount -= (int)(Start - Position);
             }
 
-            if (_Pos + actualCount > End)
+            if (Start + actualCount > End + 1)
             {
-                actualCount -= (int)(_Pos + actualCount) - End;
+                actualCount = Math.Min(End - Start + 1, actualCount);
             }
 
             if (actualOffset < buffer.Length)
@@ -71,7 +79,7 @@ namespace GenHTTP.Modules.IO.Ranges
                 Target.Write(buffer, (int)actualOffset, (int)toWrite);
             }
 
-            _Pos += count;
+            Position += count;
         }
 
         public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
