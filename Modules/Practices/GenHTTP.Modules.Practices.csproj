@@ -39,7 +39,8 @@
   <ItemGroup>
     
     <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
-    
+
+    <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
     <ProjectReference Include="..\Compression\GenHTTP.Modules.Compression.csproj" />
     <ProjectReference Include="..\Security\GenHTTP.Modules.Security.csproj" />
     <ProjectReference Include="..\ClientCaching\GenHTTP.Modules.ClientCaching.csproj" />

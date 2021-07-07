@@ -18,10 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{06A861A6-D03
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Api", "API\GenHTTP.Api.csproj", "{C2D2B8D0-CA23-4790-8C71-B245A0AB81FB}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{23B23225-275E-4F52-8B29-6F44C85B6ACE}"
-	ProjectSection(SolutionItems) = preProject
-		Modules\Caching\GenHTTP.Modules.Caching.csproj = Modules\Caching\GenHTTP.Modules.Caching.csproj
-	EndProjectSection
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GenHTTP.Modules.Caching", "Modules\Caching\GenHTTP.Modules.Caching.csproj", "{23B23225-275E-4F52-8B29-6F44C85B6ACE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Scriban", "Modules\Scriban\GenHTTP.Modules.Scriban.csproj", "{7FA5BD2F-C093-4F30-ACD9-A870C7A0DAF2}"
 EndProject
