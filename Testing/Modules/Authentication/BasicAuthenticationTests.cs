@@ -123,7 +123,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
-        private HttpWebResponse GetResponse(TestRunner runner, string user, string password)
+        private static HttpWebResponse GetResponse(TestRunner runner, string user, string password)
         {
             var request = runner.GetRequest();
 
@@ -132,7 +132,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             return request.GetSafeResponse();
         }
 
-        private LayoutBuilder GetContent()
+        private static LayoutBuilder GetContent()
         {
             return Layout.Create()
                          .Index(new UserReturningHandlerBuilder());

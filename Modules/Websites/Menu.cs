@@ -17,7 +17,7 @@ namespace GenHTTP.Modules.Websites
 
         public static GeneratedMenuBuilder From(string route)
         {
-            Func<IRequest, IHandler, IEnumerable<ContentElement>> provider = (request, handler) =>
+            IEnumerable<ContentElement> provider(IRequest request, IHandler handler)
             {
                 var root = request.Server.Handler;
 
@@ -32,7 +32,7 @@ namespace GenHTTP.Modules.Websites
                 }
 
                 return Enumerable.Empty<ContentElement>();
-            };
+            }
 
             return Create(provider);
         }
@@ -42,7 +42,7 @@ namespace GenHTTP.Modules.Websites
             return new GeneratedMenuBuilder().Provider(provider);
         }
 
-        public static StaticMenuBuilder Empty() => new StaticMenuBuilder();
+        public static StaticMenuBuilder Empty() => new();
 
     }
 

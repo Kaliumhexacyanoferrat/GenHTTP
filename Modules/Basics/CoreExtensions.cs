@@ -123,7 +123,7 @@ namespace GenHTTP.Modules.Basics
 
             if (extension is not null && extension.Length > 1)
             {
-                extension = extension.Substring(1).ToLower();
+                extension = extension[1..].ToLower();
 
                 if (CONTENT_TYPES.ContainsKey(extension))
                 {
@@ -179,7 +179,7 @@ namespace GenHTTP.Modules.Basics
 
             var trailing = target.TrailingSlash || !added;
 
-            return new WebPath(relativeParts, trailing).ToString().Substring(1);
+            return new WebPath(relativeParts, trailing).ToString()[1..];
         }
 
         public static WebPath Combine(this WebPath path, WebPath target)

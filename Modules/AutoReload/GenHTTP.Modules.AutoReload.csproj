@@ -12,14 +12,14 @@
     <FileVersion>6.0.0.0</FileVersion>
     <Version>6.0.0</Version>
 
-    <Authors>Vitaly Derbin, Andreas Nägeli</Authors>
+    <Authors>Andreas Nägeli</Authors>
     <Company />
     
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
-    <Description>Provides renderers based on the Markdown engine that can be used to render websites in projects running on the GenHTTP webserver.</Description>
-    <PackageTags>HTTP Webserver C# Module Markdown Rendering Engine</PackageTags>
+    <Description></Description>
+    <PackageTags>HTTP Webserver C# Module AutoReload HotReload Reload Web Application Development</PackageTags>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
@@ -30,27 +30,27 @@
   </PropertyGroup>
 
   <ItemGroup>
+    
     <None Include="..\..\LICENSE" Link="LICENSE">
       <PackagePath>\</PackagePath>
       <Pack>true</Pack>
     </None>
+    
     <None Include="..\..\Resources\icon.png" Link="icon.png">
       <PackagePath>\</PackagePath>
       <Pack>true</Pack>
     </None>
+    
   </ItemGroup>
 
   <ItemGroup>
 
     <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
     
-    <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
-    <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
-    
-    <PackageReference Include="Markdig" Version="0.25.0" />
+  </ItemGroup>
 
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-    
+  <ItemGroup>
+    <Folder Include="Provider\" />
   </ItemGroup>
 
 </Project>

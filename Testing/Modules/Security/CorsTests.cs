@@ -98,7 +98,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Security
             Assert.AreEqual("Origin", response.GetResponseHeader("Vary"));
         }
 
-        private TestRunner GetRunner(CorsPolicyBuilder policy)
+        private static TestRunner GetRunner(CorsPolicyBuilder policy)
         {
             var handler = Layout.Create()
                                 .Add("t", Content.From(Resource.FromString("Hello World")))

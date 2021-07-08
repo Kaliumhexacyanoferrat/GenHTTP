@@ -10,7 +10,7 @@ namespace GenHTTP.Modules.IO
         /// Creates a virtual tree that may contain any other kind
         /// of tree or resource and allows to combine them.
         /// </summary>
-        public static VirtualTreeBuilder Create() => new VirtualTreeBuilder();
+        public static VirtualTreeBuilder Create() => new();
 
     }
 

@@ -66,7 +66,7 @@ namespace GenHTTP.Api.Routing
         /// </summary>
         /// <param name="trailingSlash">Specifies, whether the new path will have a trailing slash</param>
         /// <returns>The newly created builder instance</returns>
-        public PathBuilder Edit(bool trailingSlash) => new PathBuilder(Parts, trailingSlash);
+        public PathBuilder Edit(bool trailingSlash) => new(Parts, trailingSlash);
 
         public override string ToString() => ToString(false);
 

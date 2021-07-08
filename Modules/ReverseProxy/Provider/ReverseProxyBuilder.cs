@@ -24,7 +24,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
             if (_Upstream.EndsWith("/"))
             {
-                _Upstream = _Upstream.Substring(0, _Upstream.Length - 1);
+                _Upstream = _Upstream[0..^1];
             }
 
             return this;

@@ -56,7 +56,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Conversion
 
         private class ConversionHandlerBuilder<T> : IHandlerBuilder
         {
-            private ISerializationFormat _Format;
+            private readonly ISerializationFormat _Format;
 
             public ConversionHandlerBuilder(ISerializationFormat format)
             {
@@ -113,7 +113,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Conversion
 
         #region Helpers
 
-        private void RunTest<TFormat, TData>(string serialized) where TFormat : ISerializationFormat, new()
+        private static void RunTest<TFormat, TData>(string serialized) where TFormat : ISerializationFormat, new()
         {
             var handler = new ConversionHandlerBuilder<TData>(new TFormat());
 

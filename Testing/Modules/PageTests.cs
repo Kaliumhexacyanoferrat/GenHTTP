@@ -93,7 +93,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         [TestMethod]
         public void TestRendering()
         {
-            ModelProvider<CustomModel> modelProvider = (r, h) => new ValueTask<CustomModel>(new CustomModel(r, h));
+            static ValueTask<CustomModel> modelProvider(IRequest r, IHandler h) => new ValueTask<CustomModel>(new CustomModel(r, h));
 
             var providers = new List<IHandlerBuilder>()
             {

@@ -25,12 +25,12 @@
         /// Creates a new content element.
         /// </summary>
         /// <returns>The newly created element</returns>
-        public static ContentInfoBuilder Create() => new ContentInfoBuilder();
+        public static ContentInfoBuilder Create() => new();
 
         /// <summary>
         /// An empty element with no additional information.
         /// </summary>
-        public static ContentInfo Empty => new ContentInfo(null, null);
+        public static ContentInfo Empty => new(null, null);
 
     }
 

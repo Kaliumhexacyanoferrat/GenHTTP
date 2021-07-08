@@ -29,7 +29,7 @@ namespace GenHTTP.Modules.Conversion
         /// <summary>
         /// Returns an empty registry to be customized.
         /// </summary>
-        public static SerializationBuilder Empty() => new SerializationBuilder();
+        public static SerializationBuilder Empty() => new();
 
     }
 

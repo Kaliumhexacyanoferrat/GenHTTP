@@ -8,7 +8,7 @@ namespace GenHTTP.Modules.Sitemaps
 
         public const string FILE_NAME = "sitemap.xml";
 
-        public static SitemapProviderBuilder Create() => new SitemapProviderBuilder();
+        public static SitemapProviderBuilder Create() => new();
 
     }
 

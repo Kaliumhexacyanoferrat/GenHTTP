@@ -45,7 +45,7 @@ namespace GenHTTP.Modules.IO.Strings
 
         #region Functionality
 
-        public ValueTask<Stream> GetContentAsync() => new ValueTask<Stream>(new MemoryStream(Content));
+        public ValueTask<Stream> GetContentAsync() => new(new MemoryStream(Content));
 
         public ValueTask<ulong> CalculateChecksumAsync()
         {

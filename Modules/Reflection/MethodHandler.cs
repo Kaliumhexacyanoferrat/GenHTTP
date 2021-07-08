@@ -33,7 +33,7 @@ namespace GenHTTP.Modules.Reflection
     {
         private static readonly object?[] NO_ARGUMENTS = Array.Empty<object?>();
 
-        private static Type? VOID_TASK_RESULT = Type.GetType("System.Threading.Tasks.VoidTaskResult");
+        private static readonly Type? VOID_TASK_RESULT = Type.GetType("System.Threading.Tasks.VoidTaskResult");
 
         #region Get-/Setters
 

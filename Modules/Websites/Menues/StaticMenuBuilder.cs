@@ -28,13 +28,13 @@ namespace GenHTTP.Modules.Websites.Menues
             {
                 childElements = new List<ContentElement>(children.Count);
 
-                foreach (var child in children)
+                foreach (var (childPath, childTitle) in children)
                 {
                     var childInfo = ContentInfo.Create()
-                                               .Title(child.childTitle)
+                                               .Title(childTitle)
                                                .Build();
 
-                    childElements.Add(new ContentElement($"{path}{child.childPath}", childInfo, ContentType.TextHtml, null));
+                    childElements.Add(new ContentElement($"{path}{childPath}", childInfo, ContentType.TextHtml, null));
                 }
             }
 
