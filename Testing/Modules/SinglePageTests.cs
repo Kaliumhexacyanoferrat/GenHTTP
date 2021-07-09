@@ -8,6 +8,8 @@ using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Sitemaps;
 using GenHTTP.Modules.IO;
 
+using GenHTTP.Testing.Acceptance.Utilities;
+
 namespace GenHTTP.Testing.Acceptance.Providers
 {
 
@@ -20,7 +22,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             var root = CreateRoot();
 
-            File.WriteAllText(Path.Combine(root, "index.html"), "This is the index!");
+            FileUtil.WriteText(Path.Combine(root, "index.html"), "This is the index!");
 
             using var runner = TestRunner.Run(SinglePageApplication.From(ResourceTree.FromDirectory(root)));
 
@@ -49,7 +51,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             var root = CreateRoot();
 
-            File.WriteAllText(Path.Combine(root, "some.txt"), "This is some text file :)");
+            FileUtil.WriteText(Path.Combine(root, "some.txt"), "This is some text file :)");
 
             using var runner = TestRunner.Run(SinglePageApplication.From(ResourceTree.FromDirectory(root)));
 
@@ -78,8 +80,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             var root = CreateRoot();
 
-            File.WriteAllText(Path.Combine(root, "index.html"), "Index");
-            File.WriteAllText(Path.Combine(root, "file.html"), "File");
+            FileUtil.WriteText(Path.Combine(root, "index.html"), "Index");
+            FileUtil.WriteText(Path.Combine(root, "file.html"), "File");
 
             var layout = Layout.Create()
                                .Add("spa", SinglePageApplication.From(ResourceTree.FromDirectory(root)))

@@ -35,14 +35,14 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
                 using var runner = TestRunner.Run(Content.From(Resource.FromFile(file))
                                                          .Add(ServerCache.Memory()));
 
-                File.WriteAllText(file, "1");
+                FileUtil.WriteText(file, "1");
 
                 using var first = runner.GetResponse();
 
                 Assert.AreEqual(HttpStatusCode.OK, first.StatusCode);
                 Assert.AreEqual("1", first.GetContent());
 
-                File.WriteAllText(file, "2");
+                FileUtil.WriteText(file, "2");
 
                 using var second = runner.GetResponse();
 
@@ -65,14 +65,14 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
                 using var runner = TestRunner.Run(Content.From(Resource.FromFile(file))
                                                          .Add(ServerCache.Memory().Invalidate(false)));
 
-                File.WriteAllText(file, "1");
+                FileUtil.WriteText(file, "1");
 
                 using var first = runner.GetResponse();
 
                 Assert.AreEqual(HttpStatusCode.OK, first.StatusCode);
                 Assert.AreEqual("1", first.GetContent());
 
-                File.WriteAllText(file, "2");
+                FileUtil.WriteText(file, "2");
 
                 using var second = runner.GetResponse();
 
@@ -90,7 +90,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
         {
             var file = Path.GetTempFileName();
 
-            File.WriteAllText(file, "This is some content!");
+            FileUtil.WriteText(file, "This is some content!");
 
             try
             {

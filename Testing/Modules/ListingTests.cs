@@ -6,6 +6,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GenHTTP.Modules.DirectoryBrowsing;
 using GenHTTP.Modules.IO;
 
+using GenHTTP.Testing.Acceptance.Utilities;
+
 namespace GenHTTP.Testing.Acceptance.Providers
 {
 
@@ -98,7 +100,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             Directory.CreateDirectory(Path.Combine(tempFolder, "With Spaces"));
 
-            File.WriteAllText(Path.Combine(tempFolder, "my.txt"), "Hello World!");
+            FileUtil.WriteText(Path.Combine(tempFolder, "my.txt"), "Hello World!");
 
             var listing = Listing.From(ResourceTree.FromDirectory(tempFolder));
 
