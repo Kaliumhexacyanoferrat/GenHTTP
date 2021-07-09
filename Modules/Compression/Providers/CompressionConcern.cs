@@ -113,8 +113,10 @@ namespace GenHTTP.Modules.Compression.Providers
                     case ContentType.FontOpenTypeFont:
                     case ContentType.FontEmbeddedOpenTypeFont:
                     case ContentType.ImageScalableVectorGraphics:
+                    case ContentType.ImageScalableVectorGraphicsXml:
                     case ContentType.ImageBmp:
                     case ContentType.TextXml:
+                    case ContentType.TextJavaScript:
                         {
                             return true;
                         }
