@@ -209,7 +209,7 @@ namespace GenHTTP.Modules.Reflection
 
         public WebPath? GetMatchedPath(IRequest request)
         {
-            if (request.Properties.TryGet(MatchedPathKey, out WebPath result))
+            if (request.Properties.TryGet(MatchedPathKey, out WebPath? result))
             {
                 return result;
             }

@@ -10,6 +10,7 @@ using System.Web;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.IO.Streaming;
@@ -209,15 +210,16 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
                 builder.Encoding(response.ContentEncoding);
             }
 
-            if (response.ContentLength > 0)
-            {
-                builder.Length((ulong)response.ContentLength);
-            }
+            ulong? knownLength = (response.ContentLength > 0) ? (ulong)response.ContentLength : null;
 
             if (HasBody(request, response))
             {
-                builder.Content(response.GetResponseStream(), () => new ValueTask<ulong?>())
+                builder.Content(response.GetResponseStream(), knownLength, () => new ValueTask<ulong?>())
                        .Type(response.ContentType);
+            }
+            else if (knownLength != null)
+            {
+                builder.Length(knownLength.Value);
             }
 
             return builder;
