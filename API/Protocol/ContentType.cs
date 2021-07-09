@@ -103,6 +103,11 @@ namespace GenHTTP.Api.Protocol
         TextXml,
 
         /// <summary>
+        /// A JavaScript file.
+        /// </summary>
+        TextJavaScript,
+
+        /// <summary>
         /// A H.264 encoded video file.
         /// </summary>
         VideoH264,
@@ -183,6 +188,11 @@ namespace GenHTTP.Api.Protocol
         ImageScalableVectorGraphics,
 
         /// <summary>
+        /// Scalable Vector Graphics (.svg)
+        /// </summary>
+        ImageScalableVectorGraphicsXml,
+
+        /// <summary>
         /// Scalable Vector Graphics (compressed, .svgz)
         /// </summary>
         ImageScalableVectorGraphicsCompressed,
@@ -235,6 +245,7 @@ namespace GenHTTP.Api.Protocol
             { ContentType.TextCsv, "text/csv" },
             { ContentType.TextRichText, "text/richtext" },
             { ContentType.TextPlain, "text/plain" },
+            { ContentType.TextJavaScript, "text/javascript" },
             { ContentType.TextXml, "text/xml" },
             { ContentType.VideoH264, "video/H264" },
             { ContentType.VideoMp4, "video/mp4" },
@@ -253,6 +264,7 @@ namespace GenHTTP.Api.Protocol
             { ContentType.FontWoff, "font/woff" },
             { ContentType.FontWoff2, "font/woff2" },
             { ContentType.ImageScalableVectorGraphics, "image/svg" },
+            { ContentType.ImageScalableVectorGraphicsXml, "image/svg+xml" },
             { ContentType.ImageScalableVectorGraphicsCompressed, "image/svgz" },
             { ContentType.ApplicationJson, "application/json" },
             { ContentType.ApplicationWwwFormUrlEncoded, "application/x-www-form-urlencoded" }
