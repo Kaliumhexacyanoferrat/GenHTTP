@@ -370,6 +370,23 @@ namespace GenHTTP.Testing.Acceptance.Providers
         }
 
         [TestMethod]
+        public void TestContentLengthPreserved()
+        {
+            using var setup = TestSetup.Create((r) =>
+            {
+                return r.Respond()
+                        .Content("Hello World")
+                        .Type(new(ContentType.ImageJpg))
+                        .Build();
+            });
+
+            using var response = setup.Runner.GetResponse();
+
+            Assert.AreEqual(11, response.ContentLength);
+            Assert.AreEqual(string.Empty, response.GetResponseHeader("Transfer-Encoding"));
+        }
+
+        [TestMethod]
         public void TestBadGateway()
         {
             var proxy = Proxy.Create()

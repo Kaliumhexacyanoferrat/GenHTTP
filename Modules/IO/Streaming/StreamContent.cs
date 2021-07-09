@@ -13,6 +13,8 @@ namespace GenHTTP.Modules.IO.Streaming
     {
         private readonly Func<ValueTask<ulong?>> _ChecksumProvider;
 
+        private readonly ulong? _KnownLengh;
+
         #region Get-/Setters
 
         private Stream Content { get; }
@@ -21,6 +23,11 @@ namespace GenHTTP.Modules.IO.Streaming
         {
             get
             {
+                if (_KnownLengh != null)
+                {
+                    return _KnownLengh;
+                }
+
                 if (Content.CanSeek)
                 {
                     return (ulong)Content.Length;
@@ -34,9 +41,11 @@ namespace GenHTTP.Modules.IO.Streaming
 
         #region Initialization
 
-        public StreamContent(Stream content, Func<ValueTask<ulong?>> checksumProvider)
+        public StreamContent(Stream content, ulong? knownLength, Func<ValueTask<ulong?>> checksumProvider)
         {
             Content = content;
+
+            _KnownLengh = knownLength;
             _ChecksumProvider = checksumProvider;
         }
 
