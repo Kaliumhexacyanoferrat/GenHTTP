@@ -184,7 +184,7 @@ namespace GenHTTP.Modules.ServerCaching.Provider
 
             if (content != null)
             {
-                response.Content(new StreamContent(content, () => new ValueTask<ulong?>(cached.ContentChecksum)));
+                response.Content(new StreamContent(content, cached.ContentLength, () => new ValueTask<ulong?>(cached.ContentChecksum)));
             }
 
             return response.Build();

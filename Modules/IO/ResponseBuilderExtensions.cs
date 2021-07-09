@@ -35,8 +35,16 @@ namespace GenHTTP.Modules.IO
         /// Sends the given stream to the client.
         /// </summary>
         /// <param name="stream">The stream to be sent</param>
+        /// <param name="knownLength">The known length of the stream (if the stream does not propagate this information)</param>
         /// <param name="checksumProvider">The logic to efficiently calculate checksums</param>
-        public static IResponseBuilder Content(this IResponseBuilder builder, Stream stream, Func<ValueTask<ulong?>> checksumProvider) => builder.Content(new StreamContent(stream, checksumProvider));
+        public static IResponseBuilder Content(this IResponseBuilder builder, Stream stream, ulong? knownLength, Func<ValueTask<ulong?>> checksumProvider) => builder.Content(new StreamContent(stream, knownLength, checksumProvider));
+
+        /// <summary>
+        /// Sends the given stream to the client.
+        /// </summary>
+        /// <param name="stream">The stream to be sent</param>
+        /// <param name="checksumProvider">The logic to efficiently calculate checksums</param>
+        public static IResponseBuilder Content(this IResponseBuilder builder, Stream stream, Func<ValueTask<ulong?>> checksumProvider) => builder.Content(stream, null, checksumProvider);
 
         /// <summary>
         /// Efficiently calculates the checksum of the stream, beginning
