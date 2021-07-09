@@ -2,31 +2,40 @@
 
     interval: 2000,
 
-    getServerVersion: (callback) => {
+    getServerVersion: async () => {
         var options = {
             method: "HEAD"
         };
 
-        fetch(document.location, options).then((response) => {
-            callback(response.headers.get("ETag"))
-        })
+        var response = await fetch(document.location, options)
+
+        return response.headers.get("ETag")
     },
 
-    checkForModifications: (originalVersion) => {
-        this.getServerVersion((currentVersion) => {
+    checkForModifications: async (originalVersion) => {
+        try {
+            var currentVersion = await genhttp.getServerVersion()
+
             if (originalVersion !== currentVersion) {
                 window.location.reload()
             }
             else {
-                this.getServerVersion((version) => setTimeout(checkForModifications, this.interval, version))
+                setTimeout(genhttp.checkForModifications, genhttp.interval, originalVersion)
             }
-        })
+        }
+        catch {
+            setTimeout(genhttp.checkForModifications, genhttp.interval, originalVersion)
+        }
     },
 
-    onLoad: () => {
-        this.getServerVersion((version) => setTimeout(checkForModifications, this.interval, version))
+    onLoad: async () => {
+        var version = await genhttp.getServerVersion()
+
+        if (version && version.length > 0) {
+            setTimeout(genhttp.checkForModifications, genhttp.interval, version)
+        }
     }
 
 };
 
-window.addEventListener('load', genhttp.onLoad);
+window.addEventListener("load", genhttp.onLoad);
