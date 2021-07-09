@@ -10,6 +10,8 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 
+using GenHTTP.Testing.Acceptance.Utilities;
+
 namespace GenHTTP.Testing.Acceptance.Modules.IO
 {
 
@@ -42,7 +44,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             try
             {
-                await File.WriteAllTextAsync(file, "Hello World");
+                await FileUtil.WriteTextAsync(file, "Hello World");
 
                 var resource = Resource.FromFile(file)
                                        .Build();
@@ -112,7 +114,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         {
             var file = Path.GetTempFileName();
 
-            File.WriteAllText(file, "blubb");
+            FileUtil.WriteText(file, "blubb");
 
             try
             {
