@@ -5,6 +5,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Modules.IO;
 
+using GenHTTP.Testing.Acceptance.Utilities;
+
 namespace GenHTTP.Testing.Acceptance.Modules.IO
 {
 
@@ -19,7 +21,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             try
             {
-                await File.WriteAllTextAsync(file, "One");
+                await FileUtil.WriteTextAsync(file, "One");
 
                 var resource = Resource.FromFile(file)
                                        .Build()
@@ -30,7 +32,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
                 Assert.IsFalse(await resource.HasChanged());
 
                 // modification timestamp is in seconds on unix, so we need another length
-                await File.WriteAllTextAsync(file, "Three");
+                await FileUtil.WriteTextAsync(file, "Three");
 
                 Assert.IsTrue(await resource.HasChanged());
             }
