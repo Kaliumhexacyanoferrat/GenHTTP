@@ -8,9 +8,9 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
-    <AssemblyVersion>5.2.1.0</AssemblyVersion>
-    <FileVersion>5.2.1.0</FileVersion>
-    <Version>5.2.1</Version>
+    <AssemblyVersion>5.2.2.0</AssemblyVersion>
+    <FileVersion>5.2.2.0</FileVersion>
+    <Version>5.2.2</Version>
 
     <Authors>Andreas Nägeli</Authors>
     <Company />
