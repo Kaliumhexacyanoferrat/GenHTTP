@@ -42,12 +42,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
                 Assert.AreEqual(HttpStatusCode.OK, first.StatusCode);
                 Assert.AreEqual("1", first.GetContent());
 
-                FileUtil.WriteText(file, "2");
+                FileUtil.WriteText(file, "12");
 
                 using var second = runner.GetResponse();
 
                 Assert.AreEqual(HttpStatusCode.OK, second.StatusCode);
-                Assert.AreEqual("2", second.GetContent());
+                Assert.AreEqual("12", second.GetContent());
             }
             finally
             {
@@ -72,7 +72,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
                 Assert.AreEqual(HttpStatusCode.OK, first.StatusCode);
                 Assert.AreEqual("1", first.GetContent());
 
-                FileUtil.WriteText(file, "2");
+                FileUtil.WriteText(file, "12");
 
                 using var second = runner.GetResponse();
 
