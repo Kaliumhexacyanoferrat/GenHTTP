@@ -41,18 +41,7 @@ namespace GenHTTP.Api.Routing
 
         public override string ToString() => Value;
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hash = 17;
-
-                hash = hash * 23 + Original.GetHashCode();
-                hash = hash * 23 + Value.GetHashCode();
-
-                return hash;
-            }
-        }
+        public override int GetHashCode() => HashCode.Combine(Original, Value);
 
         public static bool operator ==(WebPathPart part, string value) => part.Original == value || part.Value == value;
 

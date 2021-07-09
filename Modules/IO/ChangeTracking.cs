@@ -20,7 +20,7 @@ namespace GenHTTP.Modules.IO
         /// perform computation heavy work such as parsing
         /// or interpreting the content of the resource.
         /// </remarks>
-        public static ChangeTrackingResource Track(this IResource resource) => new ChangeTrackingResource(resource);
+        public static ChangeTrackingResource Track(this IResource resource) => new(resource);
 
         /// <summary>
         /// Builds the resource and wraps it into a change tracker that can
@@ -34,7 +34,7 @@ namespace GenHTTP.Modules.IO
         /// perform computation heavy work such as parsing
         /// or interpreting the content of the resource.
         /// </remarks>
-        public static ChangeTrackingResource BuildWithTracking(this IBuilder<IResource> resourceBuilder) => new ChangeTrackingResource(resourceBuilder.Build());
+        public static ChangeTrackingResource BuildWithTracking(this IBuilder<IResource> resourceBuilder) => new(resourceBuilder.Build());
 
     }
 

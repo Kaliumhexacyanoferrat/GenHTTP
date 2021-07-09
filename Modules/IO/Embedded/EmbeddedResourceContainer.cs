@@ -35,7 +35,7 @@ namespace GenHTTP.Modules.IO.Embedded
 
                 if (index > -1)
                 {
-                    var remainder = resource.Substring(index + prefix.Length + 1);
+                    var remainder = resource[(index + prefix.Length + 1)..];
 
                     var parts = remainder.Split(".".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 

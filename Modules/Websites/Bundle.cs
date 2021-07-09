@@ -6,7 +6,7 @@ namespace GenHTTP.Modules.Websites
     public static class Bundle
     {
 
-        public static BundleBuilder Create() => new BundleBuilder();
+        public static BundleBuilder Create() => new();
 
     }
 

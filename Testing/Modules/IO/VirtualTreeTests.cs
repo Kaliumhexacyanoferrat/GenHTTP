@@ -44,7 +44,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             Assert.IsNotNull(file);
         }
 
-        private static RoutingTarget GetTarget(string path) => new RoutingTarget(new PathBuilder(path).Build());
+        private static RoutingTarget GetTarget(string path) => new(new PathBuilder(path).Build());
 
     }
 

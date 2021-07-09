@@ -10,7 +10,7 @@ namespace GenHTTP.Modules.Compression
 
         #region Builder
 
-        public static CompressionConcernBuilder Empty() => new CompressionConcernBuilder();
+        public static CompressionConcernBuilder Empty() => new();
 
         public static CompressionConcernBuilder Default()
         {

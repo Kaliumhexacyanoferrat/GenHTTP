@@ -72,7 +72,7 @@ namespace GenHTTP.Api.Routing
         /// Retrieves the part of the path that still needs to be routed.
         /// </summary>
         /// <returns>The remaining part of the path</returns>
-        public WebPath GetRemaining() => new WebPath(Path.Parts.Skip(_Index).ToList(), Path.TrailingSlash);
+        public WebPath GetRemaining() => new(Path.Parts.Skip(_Index).ToList(), Path.TrailingSlash);
 
         #endregion
 

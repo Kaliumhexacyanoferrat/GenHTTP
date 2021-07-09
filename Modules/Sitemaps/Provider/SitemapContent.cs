@@ -56,27 +56,26 @@ namespace GenHTTP.Modules.Sitemaps.Provider
 
         public async ValueTask WriteAsync(Stream target, uint bufferSize)
         {
-            using (var writer = XmlWriter.Create(target, SETTINGS))
+            using var writer = XmlWriter.Create(target, SETTINGS);
+            
+            await writer.WriteStartDocumentAsync();
+
             {
-                await writer.WriteStartDocumentAsync();
+                await writer.WriteStartElementAsync(null, "urlset", "http://www.sitemaps.org/schemas/sitemap/0.9");
 
+                foreach (var element in Elements)
                 {
-                    await writer.WriteStartElementAsync(null, "urlset", "http://www.sitemaps.org/schemas/sitemap/0.9");
+                    await writer.WriteStartElementAsync(null, "url", null);
 
-                    foreach (var element in Elements)
-                    {
-                        await writer.WriteStartElementAsync(null, "url", null);
-
-                        await writer.WriteElementStringAsync(null, "loc", null, BaseUri + element.Path.ToString());
-
-                        await writer.WriteEndElementAsync();
-                    }
+                    await writer.WriteElementStringAsync(null, "loc", null, BaseUri + element.Path.ToString());
 
                     await writer.WriteEndElementAsync();
                 }
 
-                await writer.WriteEndDocumentAsync();
+                await writer.WriteEndElementAsync();
             }
+
+            await writer.WriteEndDocumentAsync();
         }
 
         #endregion

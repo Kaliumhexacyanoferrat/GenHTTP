@@ -12,7 +12,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
         public static List<string> GetCookies(string brokenLine)
         {
-            var line = EXPIRATION_FIX.Replace(brokenLine, m => m.Value.Substring(0, m.Value.Length - 1) + "-");
+            var line = EXPIRATION_FIX.Replace(brokenLine, m => m.Value[0..^1] + "-");
 
             var parts = line.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
@@ -20,7 +20,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
             foreach (var part in parts)
             {
-                result.Add(EXPIRATION_RE_FIX.Replace(part, m => m.Value.Substring(0, m.Value.Length - 1) + ",").Trim());
+                result.Add(EXPIRATION_RE_FIX.Replace(part, m => m.Value[0..^1] + ",").Trim());
             }
 
             return result;

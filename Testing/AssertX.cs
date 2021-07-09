@@ -22,7 +22,7 @@ namespace GenHTTP.Testing.Acceptance
 
         public static void Single<T>(IEnumerable<T> collection) => Assert.IsTrue(collection.Count() == 1);
 
-        public static void Empty<T>(IEnumerable<T> collection) => Assert.IsTrue(collection.Count() == 0);
+        public static void Empty<T>(IEnumerable<T> collection) => Assert.IsFalse(collection.Any());
 
         public static void Contains<T>(T value, IEnumerable<T> collection) => Assert.IsTrue(collection.Contains(value));
 

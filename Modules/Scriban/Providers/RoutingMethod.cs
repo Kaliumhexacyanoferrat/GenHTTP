@@ -71,7 +71,7 @@ namespace GenHTTP.Modules.Scriban.Providers
             return new ValueTask<object>(Invoke(context, callerContext, arguments, blockStatement));
         }
 
-        public ScriptParameterInfo GetParameterInfo(int index) => new ScriptParameterInfo(typeof(object), "route");
+        public ScriptParameterInfo GetParameterInfo(int index) => new(typeof(object), "route");
 
         #endregion
 

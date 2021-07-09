@@ -142,7 +142,7 @@ namespace GenHTTP.Api.Routing
             return this;
         }
 
-        public WebPath Build() => new WebPath(_Segments, _TrailingSlash);
+        public WebPath Build() => new(_Segments, _TrailingSlash);
 
         #endregion 
 

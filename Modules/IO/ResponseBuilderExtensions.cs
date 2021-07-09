@@ -98,7 +98,7 @@ namespace GenHTTP.Modules.IO
             return null;
         }
 
-        public static ValueTask<IResponse?> BuildTask(this IResponseBuilder builder) => new ValueTask<IResponse?>(builder.Build());
+        public static ValueTask<IResponse?> BuildTask(this IResponseBuilder builder) => new(builder.Build());
 
     }
 

@@ -14,10 +14,11 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Scriban;
 using GenHTTP.Modules.Websites;
 using GenHTTP.Modules.Sitemaps;
+using GenHTTP.Modules.Robots;
+using GenHTTP.Modules.AutoReload;
 using GenHTTP.Modules.Websites.Sites;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GenHTTP.Modules.Robots;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
@@ -262,6 +263,24 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.IsNotNull(resp1.GetETag());
 
             Assert.AreEqual(resp1.GetETag(), resp2.GetETag());
+        }
+
+        [TestMethod]
+        public void TestAutoReload()
+        {
+            var website = GetWebsite().AutoReload();
+
+            using var runner = new TestRunner();
+
+            runner.Host.Handler(website)
+                       .Development(true)
+                       .Start();
+
+            using var script = runner.GetResponse("/scripts/genhttp-modules-autoreload.js");
+
+            Assert.AreEqual(HttpStatusCode.OK, script.StatusCode);
+
+            AssertX.Contains("checkForModifications", script.GetContent());
         }
 
         public static WebsiteBuilder GetWebsite(LayoutBuilder? content = null)

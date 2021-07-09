@@ -120,7 +120,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
         [TestMethod]
         public void TestCustomAuthenticator()
         {
-            Func<IRequest, string, ValueTask<IUser?>> authenticator = (r, k) => (k.Length == 5) ? new ValueTask<IUser?>(new ApiKeyUser(k)) : new ValueTask<IUser?>();
+            static ValueTask<IUser?> authenticator(IRequest r, string k) => (k.Length == 5) ? new ValueTask<IUser?>(new ApiKeyUser(k)) : new ValueTask<IUser?>();
 
             var auth = ApiKeyAuthentication.Create()
                                            .Authenticator(authenticator);

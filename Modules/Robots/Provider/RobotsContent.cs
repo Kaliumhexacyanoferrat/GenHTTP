@@ -63,32 +63,31 @@ namespace GenHTTP.Modules.Robots.Provider
 
         public async ValueTask WriteAsync(Stream target, uint bufferSize)
         {
-            using (var writer = new StreamWriter(target, Encoding.UTF8, (int)bufferSize, true))
+            using var writer = new StreamWriter(target, Encoding.UTF8, (int)bufferSize, true);
+            
+            foreach (var directive in Directives)
             {
-                foreach (var directive in Directives)
+                foreach (var agent in directive.UserAgents)
                 {
-                    foreach (var agent in directive.UserAgents)
-                    {
-                        await writer.WriteLineAsync($"User-agent: {agent}");
-                    }
-
-                    foreach (var path in directive.Allowed)
-                    {
-                        await writer.WriteLineAsync($"Allow: {path}");
-                    }
-
-                    foreach (var path in directive.Disallowed)
-                    {
-                        await writer.WriteLineAsync($"Disallow: {path}");
-                    }
-
-                    await writer.WriteLineAsync();
+                    await writer.WriteLineAsync($"User-agent: {agent}");
                 }
 
-                if (Sitemap is not null)
+                foreach (var path in directive.Allowed)
                 {
-                    await writer.WriteLineAsync($"Sitemap: {Sitemap}");
+                    await writer.WriteLineAsync($"Allow: {path}");
                 }
+
+                foreach (var path in directive.Disallowed)
+                {
+                    await writer.WriteLineAsync($"Disallow: {path}");
+                }
+
+                await writer.WriteLineAsync();
+            }
+
+            if (Sitemap is not null)
+            {
+                await writer.WriteLineAsync($"Sitemap: {Sitemap}");
             }
         }
 

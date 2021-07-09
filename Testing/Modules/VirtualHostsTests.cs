@@ -47,7 +47,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-        private void TestHost(TestRunner runner, string host, string? expected = null)
+        private static void TestHost(TestRunner runner, string host, string? expected = null)
         {
             var request = runner.GetRequest();
             request.Headers.Add("Host", host);

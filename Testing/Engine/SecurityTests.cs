@@ -194,14 +194,13 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
         private static async ValueTask<X509Certificate2> GetCertificate()
         {
-            using (var stream = await Resource.FromAssembly("Certificate.pfx").Build().GetContentAsync())
-            {
-                using (var mem = new MemoryStream())
-                {
-                    await stream.CopyToAsync(mem);
-                    return new X509Certificate2(mem.ToArray());
-                }
-            }
+            using var stream = await Resource.FromAssembly("Certificate.pfx").Build().GetContentAsync();
+
+            using var mem = new MemoryStream();
+            
+            await stream.CopyToAsync(mem);
+            
+            return new X509Certificate2(mem.ToArray());
         }
 
         private class PickyCertificateProvider : ICertificateProvider

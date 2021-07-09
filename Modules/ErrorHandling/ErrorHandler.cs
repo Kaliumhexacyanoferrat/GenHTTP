@@ -6,7 +6,7 @@ namespace GenHTTP.Modules.ErrorHandling
     public static class ErrorHandler
     {
 
-        public static ErrorHandlingProviderBuilder Default() => new ErrorHandlingProviderBuilder();
+        public static ErrorHandlingProviderBuilder Default() => new();
 
     }
 

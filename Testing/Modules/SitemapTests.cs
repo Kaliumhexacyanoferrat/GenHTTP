@@ -54,7 +54,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.AreEqual(4, sitemap.Count);
         }
 
-        private HashSet<string> GetSitemap(TestRunner runner)
+        private static HashSet<string> GetSitemap(TestRunner runner)
         {
             var serializer = new XmlSerializer(typeof(UrlSet));
 
@@ -65,7 +65,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             return sitemap?.Entries?.Select(u => u.Loc!.Replace(":" + runner.Port, string.Empty)).ToHashSet() ?? new HashSet<string>();
         }
 
-        private IHandlerBuilder GetContent()
+        private static IHandlerBuilder GetContent()
         {
             var root = Layout.Create();
 

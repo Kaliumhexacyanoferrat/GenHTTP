@@ -18,11 +18,11 @@ namespace GenHTTP.Testing.Acceptance.Engine
         {
             var layout = Layout.Create().Add("utf8", Content.From(Resource.FromString("From GenHTTP with ❤")));
 
-            using (var runner = TestRunner.Run(layout))
-            {
-                using var response = runner.GetResponse("/utf8");
-                Assert.AreEqual("From GenHTTP with ❤", response.GetContent());
-            }
+            using var runner = TestRunner.Run(layout);
+            
+            using var response = runner.GetResponse("/utf8");
+            
+            Assert.AreEqual("From GenHTTP with ❤", response.GetContent());
         }
 
     }

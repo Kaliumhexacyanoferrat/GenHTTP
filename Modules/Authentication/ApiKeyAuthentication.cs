@@ -23,7 +23,7 @@ namespace GenHTTP.Modules.Authentication
         /// Creates a customizable API key authentication handler that will
         /// read the key from the HTTP header named "X-API-Key".
         /// </summary>
-        public static ApiKeyConcernBuilder Create() => new ApiKeyConcernBuilder();
+        public static ApiKeyConcernBuilder Create() => new();
 
         #endregion
 

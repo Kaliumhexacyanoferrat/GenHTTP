@@ -6,7 +6,7 @@ namespace GenHTTP.Modules.Websites
     public static class Website
     {
 
-        public static WebsiteBuilder Create() => new WebsiteBuilder();
+        public static WebsiteBuilder Create() => new();
 
     }
 

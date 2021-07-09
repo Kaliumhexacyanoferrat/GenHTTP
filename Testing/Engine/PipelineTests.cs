@@ -32,7 +32,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
             ReadRequests(stream, count, "Hello World!");
         }
 
-        private void WriteRequests(Stream stream, int count)
+        private static void WriteRequests(Stream stream, int count)
         {
             using var writer = new StreamWriter(stream, leaveOpen: true);
 
@@ -50,7 +50,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
             writer.Flush();
         }
 
-        private void ReadRequests(Stream stream, int count, string searchFor)
+        private static void ReadRequests(Stream stream, int count, string searchFor)
         {
             using var reader = new StreamReader(stream, leaveOpen: true);
 

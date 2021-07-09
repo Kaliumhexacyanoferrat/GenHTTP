@@ -35,23 +35,20 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
-                switch (request.Method.KnownMethod)
+                return request.Method.KnownMethod switch
                 {
-                    case RequestMethod.POST:
-                        return request.Respond()
-                                      .Content("")
-                                      .Type("")
-                                      .BuildTask();
-                    default:
-                        return request.Respond()
-                                      .Content("Hello World")
-                                      .Type("text/x-custom")
-                                      .Expires(DateTime.Now.AddYears(1))
-                                      .Modified(Modified)
-                                      .Header("X-Powered-By", "Test Runner")
-                                      .BuildTask();
-                }
-
+                    RequestMethod.POST => request.Respond()
+                                                 .Content("")
+                                                 .Type("")
+                                                 .BuildTask(),
+                    _ => request.Respond()
+                                .Content("Hello World")
+                                .Type("text/x-custom")
+                                .Expires(DateTime.Now.AddYears(1))
+                                .Modified(Modified)
+                                .Header("X-Powered-By", "Test Runner")
+                                .BuildTask(),
+                };
             }
 
             public IEnumerable<ContentElement> GetContent(IRequest request)

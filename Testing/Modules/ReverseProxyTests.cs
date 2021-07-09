@@ -28,7 +28,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
         private class TestSetup : IDisposable
         {
-            private TestRunner _Target;
+            private readonly TestRunner _Target;
 
             public TestRunner Runner { get; }
 
@@ -91,7 +91,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
         private class ProxiedRouter : IHandler
         {
-            private Func<IRequest, IResponse?> _Response;
+            private readonly Func<IRequest, IResponse?> _Response;
 
             public ProxiedRouter(Func<IRequest, IResponse?> response)
             {
@@ -116,7 +116,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
         private class ProxiedProvider : IHandler
         {
-            private Func<IRequest, IResponse?> _Response;
+            private readonly Func<IRequest, IResponse?> _Response;
 
             public ProxiedProvider(Func<IRequest, IResponse?> response)
             {

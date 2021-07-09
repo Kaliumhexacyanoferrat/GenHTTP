@@ -216,21 +216,18 @@ namespace GenHTTP.Modules.Caching.FileSystem
         {
             var file = new FileInfo(Path.Combine(Directory.FullName, key, fileName));
 
-            using (var writer = new StreamWriter(file.FullName, false))
+            using var writer = new StreamWriter(file.FullName, false);
+            
+            if (typeof(Stream).IsAssignableFrom(typeof(T)))
             {
-                if (typeof(Stream).IsAssignableFrom(typeof(T)))
+                if (value is Stream source)
                 {
-                    var source = value as Stream;
-
-                    if (source != null)
-                    {
-                        await source.CopyToAsync(writer.BaseStream);
-                    }
+                    await source.CopyToAsync(writer.BaseStream);
                 }
-                else
-                {
-                    await JsonSerializer.SerializeAsync(writer.BaseStream, value, _Options);
-                }
+            }
+            else
+            {
+                await JsonSerializer.SerializeAsync(writer.BaseStream, value, _Options);
             }
         }
 

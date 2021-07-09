@@ -6,7 +6,7 @@ namespace GenHTTP.Modules.LoadBalancing
     public static class LoadBalancer
     {
 
-        public static LoadBalancerBuilder Create() => new LoadBalancerBuilder();
+        public static LoadBalancerBuilder Create() => new();
 
     }
 

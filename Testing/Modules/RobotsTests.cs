@@ -79,14 +79,14 @@ namespace GenHTTP.Testing.Acceptance.Providers
             AssertX.Contains("Sitemap: http://my/" + Sitemap.FILE_NAME, result);
         }
 
-        private string GetRobots(TestRunner runner)
+        private static string GetRobots(TestRunner runner)
         {
             using var response = runner.GetResponse("/" + BotInstructions.FILE_NAME);
 
             return response.GetContent().Replace($":{runner.Port}", string.Empty);
         }
 
-        private IHandlerBuilder GetTest(RobotsProviderBuilder robots)
+        private static IHandlerBuilder GetTest(RobotsProviderBuilder robots)
         {
             return Layout.Create()
                          .Add(BotInstructions.FILE_NAME, robots);
