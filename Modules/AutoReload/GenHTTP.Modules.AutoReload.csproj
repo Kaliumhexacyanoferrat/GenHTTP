@@ -18,7 +18,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
-    <Description></Description>
+    <Description>Extends a web application to automatically reload if modifications are detected</Description>
     <PackageTags>HTTP Webserver C# Module AutoReload HotReload Reload Web Application Development</PackageTags>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -28,6 +28,14 @@
     <PackageIcon>icon.png</PackageIcon>
     
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Script\AutoReload.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Script\AutoReload.js" />
+  </ItemGroup>
 
   <ItemGroup>
     
@@ -46,11 +54,9 @@
   <ItemGroup>
 
     <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
-    
-  </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Provider\" />
+    <ProjectReference Include="..\Websites\GenHTTP.Modules.Websites.csproj" />
+    
   </ItemGroup>
 
 </Project>
