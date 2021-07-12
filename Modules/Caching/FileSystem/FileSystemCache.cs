@@ -1,10 +1,11 @@
-﻿using GenHTTP.Api.Content.Caching;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+
+using GenHTTP.Api.Content.Caching;
 
 namespace GenHTTP.Modules.Caching.FileSystem
 {
@@ -177,9 +178,9 @@ namespace GenHTTP.Modules.Caching.FileSystem
 
                     var file = new FileInfo(Path.Combine(Directory.FullName, key, newFile));
 
-                    using (var streamWriter = new StreamWriter(file.FullName, false))
+                    using (var stream = file.OpenWrite())
                     {
-                        await asyncWriter(streamWriter.BaseStream);
+                        await asyncWriter(stream);
                     }
 
                     await StoreIndex(key, index);
