@@ -35,12 +35,6 @@ namespace GenHTTP.Modules.Scriban.Providers
             return this;
         }
 
-        public ScribanPageProviderBuilder<T> Model(Func<IRequest, IHandler, T> modelProvider)
-        {
-            _ModelProvider = (r, h) => new ValueTask<T>(modelProvider(r, h));
-            return this;
-        }
-
         public ScribanPageProviderBuilder<T> Title(string title)
         {
             _Info.Title(title);

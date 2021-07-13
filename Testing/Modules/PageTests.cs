@@ -190,7 +190,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             var providers = new List<IHandlerBuilder>()
             {
-                ModScriban.Page(Resource.FromString("{{ route path }}"), (IRequest r, IHandler h) => new PathModel(r, h)),
+                ModScriban.Page<PathModel>(Resource.FromString("{{ route path }}"), (IRequest r, IHandler h) => new(new PathModel(r, h))),
                 ModRazor.Page(Resource.FromString("@Model.Route(Model.Path)"), (IRequest r, IHandler h) => new PathModel(r, h)),
             };
 

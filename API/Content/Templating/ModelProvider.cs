@@ -12,6 +12,6 @@ namespace GenHTTP.Api.Content.Templating
     /// <param name="request">The current request</param>
     /// <param name="handler">The handler responsible for this request</param>
     /// <returns>The newly created model instance</returns>
-    public delegate ValueTask<T> ModelProvider<T>(IRequest request, IHandler handler);
+    public delegate ValueTask<T> ModelProvider<T>(IRequest request, IHandler handler) where T : class, IModel;
 
 }
