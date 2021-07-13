@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 
-using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Scriban.Providers;
 
@@ -32,7 +30,7 @@ namespace GenHTTP.Modules.Scriban
 
         public static ScribanPageProviderBuilder<IModel> Page(IResource templateProvider)
         {
-            return new ScribanPageProviderBuilder<IModel>().Template(templateProvider).Model((r, h) => new BasicModel(r, h));
+            return new ScribanPageProviderBuilder<IModel>().Template(templateProvider).Model((r, h) => new(new BasicModel(r, h)));
         }
 
         public static ScribanPageProviderBuilder<T> Page<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(IBuilder<IResource> templateProvider, ModelProvider<T> modelProvider) where T : class, IModel
@@ -40,17 +38,7 @@ namespace GenHTTP.Modules.Scriban
             return Page<T>(templateProvider.Build(), modelProvider);
         }
 
-        public static ScribanPageProviderBuilder<T> Page<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(IBuilder<IResource> templateProvider, Func<IRequest, IHandler, T> modelProvider) where T : class, IModel
-        {
-            return Page<T>(templateProvider.Build(), modelProvider);
-        }
-
         public static ScribanPageProviderBuilder<T> Page<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(IResource templateProvider, ModelProvider<T> modelProvider) where T : class, IModel
-        {
-            return new ScribanPageProviderBuilder<T>().Template(templateProvider).Model(modelProvider);
-        }
-
-        public static ScribanPageProviderBuilder<T> Page<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(IResource templateProvider, Func<IRequest, IHandler, T> modelProvider) where T : class, IModel
         {
             return new ScribanPageProviderBuilder<T>().Template(templateProvider).Model(modelProvider);
         }
