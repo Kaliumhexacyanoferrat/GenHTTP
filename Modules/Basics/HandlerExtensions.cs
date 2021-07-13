@@ -3,54 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 
 using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
-
-using GenHTTP.Modules.Basics.Rendering;
 
 namespace GenHTTP.Modules.Basics
 {
 
     public static class HandlerExtensions
     {
-
-        public static IResponseBuilder GetMethodNotAllowed(this IHandler handler, IRequest request, string? title = null, string? message = null)
-        {
-            var actualMessage = message ?? "The specified resource cannot be accessed with the given HTTP verb.";
-
-            var model = new ErrorModel(request, handler, ResponseStatus.MethodNotAllowed, actualMessage, null);
-
-            var info = ContentInfo.Create()
-                                  .Title(title ?? "Method Not Allowed");
-
-            return handler.GetError(model, info.Build());
-        }
-
-        public static IResponseBuilder GetNotFound(this IHandler handler, IRequest request, string? title = null, string? message = null)
-        {
-            var actualMessage = message ?? "The specified resource could not be found on this server.";
-
-            var model = new ErrorModel(request, handler, ResponseStatus.NotFound, actualMessage, null);
-
-            var info = ContentInfo.Create()
-                                  .Title(title ?? "Not Found");
-
-            return handler.GetError(model, info.Build());
-        }
-
-        public static IResponseBuilder GetError(this IHandler handler, ErrorModel model, ContentInfo details)
-        {
-            var renderer = handler.FindParent<IErrorHandler>(model.Request.Server.Handler) ?? throw new InvalidOperationException("There is no error handler available in the routing tree");
-
-            var content = new RenderedContent<ErrorModel>(renderer, model, details);
-
-            return model.Request
-                        .Respond()
-                        .Content(content)
-                        .Type(ContentType.TextHtml)
-                        .Status(model.Status);
-        }
 
         public static T? FindParent<T>(this IHandler handler, IHandler root) where T : class
         {
@@ -231,6 +191,7 @@ namespace GenHTTP.Modules.Basics
                 current = current.Parent;
             }
         }
+
 
     }
 

@@ -1,18 +1,15 @@
-﻿using System;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Basics.Rendering
+namespace GenHTTP.Modules.Pages.Rendering
 {
 
     public sealed class RenderedContent<T> : IResponseContent where T : class, IModel
     {
-        private static readonly Encoding _ENCODING = Encoding.UTF8;
 
         #region Get-/Setters
 
@@ -51,7 +48,7 @@ namespace GenHTTP.Modules.Basics.Rendering
                 hash = hash * 23 + (uint)(PageInfo.Description?.GetHashCode() ?? 0);
                 hash = hash * 23 + (uint)(PageInfo.Title?.GetHashCode() ?? 0);
 
-                var pageRenderer = GetPageRenderer(Model.Handler, Model.Request);
+                var pageRenderer = Model.Handler.GetPageRenderer(Model.Request);
 
                 hash = hash * 23 + await Renderer.CalculateChecksumAsync();
                 hash = hash * 23 + await pageRenderer.CalculateChecksumAsync();
@@ -68,20 +65,7 @@ namespace GenHTTP.Modules.Basics.Rendering
 
             var pageContent = await Renderer.RenderAsync(Model).ConfigureAwait(false);
 
-            var templateModel = new TemplateModel(request, handler, PageInfo, pageContent);
-
-            var templateRenderer = GetPageRenderer(handler, request);
-
-            var content = await templateRenderer.RenderAsync(templateModel);
-
-            var buffer = _ENCODING.GetBytes(content);
-
-            await target.WriteAsync(buffer.AsMemory(0, buffer.Length));
-        }
-
-        private static IPageRenderer GetPageRenderer(IHandler handler, IRequest request)
-        {
-            return handler.FindParent<IPageRenderer>(request.Server.Handler) ?? throw new InvalidOperationException("There is no page renderer available in the routing tree");
+            await handler.WritePageAsync(request, PageInfo, pageContent, target);
         }
 
         #endregion

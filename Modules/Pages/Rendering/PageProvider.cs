@@ -5,8 +5,9 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Basics;
 
-namespace GenHTTP.Modules.Basics.Rendering
+namespace GenHTTP.Modules.Pages.Rendering
 {
 
     /// <summary>
