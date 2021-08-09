@@ -22,8 +22,6 @@ After you added a reference to the `GenHTTP.Core` nuget package, you can spawn a
 var content = Content.From(Resource.FromString("Hello World!"));
 
 Host.Create()
-    .Console()
-    .Defaults()
     .Handler(content)
     .Run();
 ```
