@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-using GenHTTP.Api.Content.IO;
+﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Infrastructure;
 
@@ -19,7 +17,7 @@ namespace GenHTTP.Modules.Markdown
 
         public static CombinedPageBuilder AddMarkdown(this CombinedPageBuilder builder, IResource fileProvider)
         {
-            return builder.Add(new MarkdownRenderer<BasicModel>(fileProvider), (r, h) => new ValueTask<BasicModel>(new BasicModel(r, h)));
+            return builder.Add(new MarkdownRenderer<IModel>(fileProvider));
         }
 
     }
