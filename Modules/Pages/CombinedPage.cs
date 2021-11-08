@@ -1,17 +1,12 @@
-﻿using GenHTTP.Api.Content;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using GenHTTP.Modules.Pages.Combined;
 
 namespace GenHTTP.Modules.Pages
 {
-    
+
     public static class CombinedPage
     {
 
-
+        public static CombinedPageBuilder Create() => new();
 
     }
 
