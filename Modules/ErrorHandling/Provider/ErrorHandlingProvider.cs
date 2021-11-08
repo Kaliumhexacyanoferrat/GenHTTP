@@ -6,7 +6,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Basics;
+using GenHTTP.Modules.Pages;
 
 namespace GenHTTP.Modules.ErrorHandling.Provider
 {

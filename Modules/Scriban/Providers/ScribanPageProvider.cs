@@ -2,7 +2,7 @@
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 
-using GenHTTP.Modules.Basics.Rendering;
+using GenHTTP.Modules.Pages.Rendering;
 
 namespace GenHTTP.Modules.Scriban.Providers
 {

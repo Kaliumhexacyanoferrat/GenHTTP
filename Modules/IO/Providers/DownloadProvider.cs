@@ -6,6 +6,7 @@ using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
+using GenHTTP.Modules.Pages;
 
 namespace GenHTTP.Modules.IO.Providers
 {
