@@ -10,7 +10,7 @@ using GenHTTP.Modules.Scriban.Providers;
 namespace GenHTTP.Modules.Scriban
 {
     
-    public static class Extensions
+    public static class PageExtensions
     {
 
         public static CombinedPageBuilder AddScriban(this CombinedPageBuilder builder, IBuilder<IResource> template) => AddScriban(builder, template.Build());
@@ -22,7 +22,6 @@ namespace GenHTTP.Modules.Scriban
         }
 
         public static CombinedPageBuilder AddScriban<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(this CombinedPageBuilder builder, IBuilder<IResource> template, ModelProvider<T> modelProvider) where T : class, IModel => AddScriban<T>(builder, template.Build(), modelProvider);
-
 
         public static CombinedPageBuilder AddScriban<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(this CombinedPageBuilder builder, IResource template, ModelProvider<T> modelProvider) where T : class, IModel
         {

@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
-
+using System.Threading.Tasks;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Pages.Combined
 {
@@ -13,6 +14,28 @@ namespace GenHTTP.Modules.Pages.Combined
         private readonly ContentInfoBuilder _Info = new();
 
         private readonly List<PageFragment> _Fragments = new();
+
+        #region Supporting data structures
+
+        private class WrappedRenderer<T> : IRenderer<IModel> where T : class, IModel
+        {
+
+            private IRenderer<T> _Renderer;
+
+            public WrappedRenderer(IRenderer<T> renderer)
+            {
+                _Renderer = renderer;
+            }
+
+            public ValueTask<ulong> CalculateChecksumAsync() => _Renderer.CalculateChecksumAsync();
+
+            public ValueTask PrepareAsync() => _Renderer.PrepareAsync();
+
+            public ValueTask<string> RenderAsync(IModel model) => _Renderer.RenderAsync((T)model);
+
+        }
+
+        #endregion
 
         #region Functionality
 
@@ -30,7 +53,9 @@ namespace GenHTTP.Modules.Pages.Combined
 
         public CombinedPageBuilder Add<T>(IRenderer<T> renderer, ModelProvider<T> provider) where T : class, IModel
         {
-            _Fragments.Add(new((IRenderer<IModel>)renderer, (ModelProvider<IModel>)(object)provider)); // ToDo
+            async ValueTask<IModel> wrappedProvider(IRequest r, IHandler h) => await provider(r, h);
+
+            Add(new PageFragment(new WrappedRenderer<T>(renderer), wrappedProvider));
             return this;
         }
 
