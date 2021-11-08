@@ -16,12 +16,6 @@ namespace GenHTTP.Modules.Pages.Combined
 
         #region Functionality
 
-        public CombinedPageBuilder Add(IConcernBuilder concern)
-        {
-            _Concerns.Add(concern);
-            return this;
-        }
-
         public CombinedPageBuilder Description(string description)
         {
             _Info.Description(description);
@@ -51,6 +45,12 @@ namespace GenHTTP.Modules.Pages.Combined
         public CombinedPageBuilder Add(PageFragment fragment)
         {
             _Fragments.Add(fragment);
+            return this;
+        }
+
+        public CombinedPageBuilder Add(IConcernBuilder concern)
+        {
+            _Concerns.Add(concern);
             return this;
         }
 
