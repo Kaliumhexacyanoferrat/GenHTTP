@@ -30,7 +30,7 @@ When you run this sample it can be accessed in the browser via http://localhost:
 
 ## Building the Server
 
-To build the server from source, clone this repository and run the playground project launcher for .NET 5:
+To build the server from source, clone this repository and run the playground project launcher for .NET 6:
 
 ```sh
 git clone https://github.com/Kaliumhexacyanoferrat/GenHTTP.git
@@ -38,7 +38,7 @@ cd ./GenHTTP/Playground
 dotnet run
 ```
 
-This will build the playground project launcher for .NET Core with all the server dependencies and launch the server process on port 8080. You can access the playground in the browser via http://localhost:8080.
+This will build the playground project launcher with all the server dependencies and launch the server process on port 8080. You can access the playground in the browser via http://localhost:8080.
 
 If you would like to contribute, see the [contribution guidelines](https://github.com/Kaliumhexacyanoferrat/GenHTTP/blob/master/CONTRIBUTING.md).
 
@@ -61,4 +61,4 @@ The web server was originally developed in 2008 to run on a netbook with an Inte
 
 ## Thanks
 
-- [.NET 5](https://github.com/dotnet/core) for a nice platform
+- [.NET 6](https://github.com/dotnet/core) for a nice platform

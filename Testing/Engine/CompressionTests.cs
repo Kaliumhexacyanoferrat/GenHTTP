@@ -87,7 +87,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = runner.GetResponse();
 
-            Assert.IsNull(response.ContentEncoding);
+            AssertX.IsNullOrEmpty(response.ContentEncoding);
         }
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = runner.GetResponse("/uncompressed");
 
-            Assert.IsNull(response.ContentEncoding);
+            AssertX.IsNullOrEmpty(response.ContentEncoding);
         }
 
         [TestMethod]
