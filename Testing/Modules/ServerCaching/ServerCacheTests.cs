@@ -119,7 +119,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
                 using var uncompressedResponse = runner.GetResponse();
 
                 Assert.AreEqual(HttpStatusCode.OK, uncompressedResponse.StatusCode);
-                Assert.IsNull(uncompressedResponse.ContentEncoding);
+                AssertX.IsNullOrEmpty(uncompressedResponse.ContentEncoding);
                 Assert.AreEqual("This is some content!", uncompressedResponse.GetContent());
             }
             finally

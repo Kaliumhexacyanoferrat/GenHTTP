@@ -28,6 +28,8 @@ namespace GenHTTP.Testing.Acceptance
 
         public static void DoesNotContain<T>(T value, IEnumerable<T> collection) => Assert.IsFalse(collection.Contains(value));
 
+        public static void IsNullOrEmpty(string value) => Assert.IsTrue(string.IsNullOrEmpty(value));
+
     }
 
 }
