@@ -1,10 +1,12 @@
-﻿using GenHTTP.Api.Content.Caching;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+
+using GenHTTP.Api.Content.Caching;
 
 namespace GenHTTP.Modules.Caching.FileSystem
 {
@@ -13,9 +15,9 @@ namespace GenHTTP.Modules.Caching.FileSystem
     {
         private static readonly JsonSerializerOptions _Options = new()
         {
-            IgnoreNullValues = true,
             PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
 
         private readonly SemaphoreSlim _Sync = new(1);

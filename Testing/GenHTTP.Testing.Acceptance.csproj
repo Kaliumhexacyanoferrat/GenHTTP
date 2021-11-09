@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
 
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <Nullable>enable</Nullable>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+	  <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     
     <IsPackable>false</IsPackable>
     

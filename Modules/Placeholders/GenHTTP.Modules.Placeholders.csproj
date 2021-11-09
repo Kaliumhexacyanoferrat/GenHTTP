@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
 
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
@@ -43,7 +43,7 @@
     <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
     <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
 
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.0" PrivateAssets="All" />
     
   </ItemGroup>
 

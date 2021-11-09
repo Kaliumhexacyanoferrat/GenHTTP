@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
@@ -14,9 +15,9 @@ namespace GenHTTP.Modules.Conversion.Providers.Json
     {
         private static readonly JsonSerializerOptions OPTIONS = new()
         {
-            IgnoreNullValues = true,
             PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
 
         public ValueTask<object?> DeserializeAsync(Stream stream, Type type)
