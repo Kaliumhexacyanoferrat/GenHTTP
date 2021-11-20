@@ -46,7 +46,7 @@
     <ProjectReference Include="..\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj" />
     <ProjectReference Include="..\Layouting\GenHTTP.Modules.Layouting.csproj" />
 
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     
   </ItemGroup>
 

@@ -45,7 +45,7 @@
     <ProjectReference Include="..\Security\GenHTTP.Modules.Security.csproj" />
     <ProjectReference Include="..\ClientCaching\GenHTTP.Modules.ClientCaching.csproj" />
 
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     
   </ItemGroup>
 
