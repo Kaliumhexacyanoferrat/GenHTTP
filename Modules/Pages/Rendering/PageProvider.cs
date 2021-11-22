@@ -54,6 +54,8 @@ namespace GenHTTP.Modules.Pages.Rendering
 
             var content = new RenderedContent<T>(Renderer, model, PageInfo);
 
+            await content.FillBufferAsync();
+
             return request.Respond()
                           .Content(content)
                           .Type(ContentType.TextHtml)
