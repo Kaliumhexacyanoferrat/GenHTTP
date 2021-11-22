@@ -1,10 +1,11 @@
 ﻿using GenHTTP.Api.Protocol;
+using System.Collections;
 using System.Threading.Tasks;
 
 namespace GenHTTP.Api.Content.Templating
 {
 
-    public class ViewModel : ViewModel<object> 
+    public class ViewModel : ViewModel<object>
     {
 
         #region Initialization
@@ -43,7 +44,25 @@ namespace GenHTTP.Api.Content.Templating
 
         #region Functionality
 
-        public override ValueTask<ulong> CalculateChecksumAsync() => new((ulong)(Data?.GetHashCode() ?? 17));
+        public override ValueTask<ulong> CalculateChecksumAsync()
+        {
+            if (Data is IEnumerable enumerable)
+            {
+                unchecked
+                {
+                    ulong hash = 19;
+
+                    foreach (var item in enumerable)
+                    {
+                        hash = hash * 31 + (ulong)item.GetHashCode();
+                    }
+
+                    return new(hash);
+                }
+            }
+
+            return new((ulong)(Data?.GetHashCode() ?? 17));
+        }
 
         #endregion
 
