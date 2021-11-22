@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-
+using System.Text;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Scriban;
@@ -34,9 +34,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
         [TestMethod]
         public void TestNonEnumerableViewModel()
         {
-            var vm = "MyModel";
+            var vm = new StringBuilder();
 
-            var page = ModScriban.Page<ViewModel<string>>(Resource.FromString("Hello World!"), (r, h) => new(new ViewModel<string>(r, h, vm)));
+            var page = ModScriban.Page<ViewModel<StringBuilder>>(Resource.FromString("Hello World!"), (r, h) => new(new ViewModel<StringBuilder>(r, h, vm)));
 
             using var runner = TestRunner.Run(page);
 
