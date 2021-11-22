@@ -10,6 +10,7 @@ namespace GenHTTP.Modules.Pages.Rendering
 
     public sealed class RenderedContent<T> : IResponseContent where T : class, IModel
     {
+        private MemoryStream? _Buffer = null;
 
         #region Get-/Setters
 
@@ -57,7 +58,42 @@ namespace GenHTTP.Modules.Pages.Rendering
             }
         }
 
+        /// <summary>
+        /// Renders the page into a temporary buffer which is used later on to
+        /// actually write to the response stream.
+        /// </summary>
+        /// <remarks>
+        /// Required to be able to handle rendering errors, because otherwise
+        /// the response headers would have been written already.
+        /// </remarks>
+        public async ValueTask FillBufferAsync()
+        {
+            var buffer = new MemoryStream();
+
+            await WriteContent(buffer);
+
+            buffer.Seek(0, SeekOrigin.Begin);
+
+            _Buffer = buffer;
+        }
+
         public async ValueTask WriteAsync(Stream target, uint bufferSize)
+        {
+            if (_Buffer != null)
+            {
+                await _Buffer.CopyToAsync(target, (int)bufferSize);
+
+                await _Buffer.DisposeAsync();
+
+                _Buffer = null;
+            }
+            else
+            {
+                await WriteContent(target);
+            }
+        }
+
+        private async ValueTask WriteContent(Stream target)
         {
             var request = Model.Request;
 
