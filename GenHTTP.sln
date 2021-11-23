@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28621.142
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Engine", "Engine\GenHTTP.Engine.csproj", "{59E1C489-E9E9-4374-8CB9-A2005722152D}"
 EndProject
@@ -97,6 +97,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.AutoReload", "Modules\AutoReload\GenHTTP.Modules.AutoReload.csproj", "{4F2BDA0D-D206-4787-83E6-593F7673C1AB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Pages", "Modules\Pages\GenHTTP.Modules.Pages.csproj", "{69D6CA16-1332-41B6-8994-6AD943915F25}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Functional", "Modules\Functional\GenHTTP.Modules.Functional.csproj", "{2A2BCF94-BBDF-49A7-8B87-931E665507F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -240,6 +242,10 @@ Global
 		{69D6CA16-1332-41B6-8994-6AD943915F25}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69D6CA16-1332-41B6-8994-6AD943915F25}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69D6CA16-1332-41B6-8994-6AD943915F25}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A2BCF94-BBDF-49A7-8B87-931E665507F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A2BCF94-BBDF-49A7-8B87-931E665507F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A2BCF94-BBDF-49A7-8B87-931E665507F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A2BCF94-BBDF-49A7-8B87-931E665507F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -281,9 +287,10 @@ Global
 		{6F466654-D13F-4555-80B9-B36198B7CDED} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 		{4F2BDA0D-D206-4787-83E6-593F7673C1AB} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 		{69D6CA16-1332-41B6-8994-6AD943915F25} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
+		{2A2BCF94-BBDF-49A7-8B87-931E665507F0} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
 		LessCompiler = 2603124e-1287-4d61-9540-6ac3efad4eb9
+		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
 	EndGlobalSection
 EndGlobal
