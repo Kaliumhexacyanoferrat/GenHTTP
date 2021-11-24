@@ -18,8 +18,8 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
-    <Description>Allows to use controllers to handle incoming requests.</Description>
-    <PackageTags>HTTP Webserver C# Module Controller MVC</PackageTags>
+    <Description>Allows to handle requests in a functional manner.</Description>
+    <PackageTags>HTTP Webserver C# Module Functional Inline Request Response</PackageTags>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>

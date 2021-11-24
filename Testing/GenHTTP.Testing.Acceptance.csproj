@@ -84,6 +84,7 @@
     <ProjectReference Include="..\Modules\Caching\GenHTTP.Modules.Caching.csproj" />
     <ProjectReference Include="..\Modules\ServerCaching\GenHTTP.Modules.ServerCaching.csproj" />
     <ProjectReference Include="..\Modules\AutoReload\GenHTTP.Modules.AutoReload.csproj" />
+	<ProjectReference Include="..\Modules\Functional\GenHTTP.Modules.Functional.csproj" />
     
   </ItemGroup>
 

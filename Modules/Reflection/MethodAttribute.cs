@@ -12,7 +12,7 @@ namespace GenHTTP.Modules.Reflection
     /// via reflection.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class MethodAttribute : Attribute
+    public class MethodAttribute : Attribute, IMethodConfiguration
     {
 
         #region Get-/Setters
