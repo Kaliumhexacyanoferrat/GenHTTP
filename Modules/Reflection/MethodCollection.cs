@@ -81,7 +81,7 @@ namespace GenHTTP.Modules.Reflection
             {
                 if (method.Routing.IsIndex && path == "/")
                 {
-                    if (method.MetaData.SupportedMethods.Contains(requestedMethod))
+                    if (method.Configuration.SupportedMethods.Contains(requestedMethod))
                     {
                         result.Add(method);
                     }
@@ -94,7 +94,7 @@ namespace GenHTTP.Modules.Reflection
                 {
                     if (method.Routing.ParsedPath.IsMatch(path))
                     {
-                        if (method.MetaData.SupportedMethods.Contains(requestedMethod))
+                        if (method.Configuration.SupportedMethods.Contains(requestedMethod))
                         {
                             result.Add(method);
                         }

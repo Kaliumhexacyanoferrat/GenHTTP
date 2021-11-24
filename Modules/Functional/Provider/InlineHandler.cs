@@ -1,10 +1,12 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Conversion.Providers;
-using GenHTTP.Modules.Reflection;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.Conversion.Providers;
+using GenHTTP.Modules.Reflection;
 
 namespace GenHTTP.Modules.Functional.Provider
 {
@@ -16,7 +18,9 @@ namespace GenHTTP.Modules.Functional.Provider
 
         public IHandler Parent { get; }
 
-        private MethodCollection Provider { get; }
+        private MethodCollection Methods { get; }
+
+        private ResponseProvider ResponseProvider { get; }
 
         #endregion
 
@@ -26,23 +30,32 @@ namespace GenHTTP.Modules.Functional.Provider
         {
             Parent = parent;
 
-            Provider = new(this, AnalyzeMethods(functions, formats));
+            ResponseProvider = new(formats);
+
+            Methods = new(this, AnalyzeMethods(functions, formats));
         }
 
         private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(List<InlineFunction> functions, SerializationRegistry formats)
         {
-            throw new NotImplementedException();
+            foreach (var function in functions)
+            {
+                var path = PathArguments.Route(function.Path);
+
+                var target = function.Delegate.Target ?? throw new ArgumentNullException("Delegate target must not be null");
+
+                yield return (parent) => new MethodHandler(parent, function.Delegate.Method, path, () => target, function.Configuration, ResponseProvider.GetResponse, formats);
+            }
         }
 
         #endregion
 
         #region Functionality
 
-        public ValueTask PrepareAsync() => Provider.PrepareAsync();
+        public ValueTask PrepareAsync() => Methods.PrepareAsync();
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => Provider.GetContent(request);
+        public IEnumerable<ContentElement> GetContent(IRequest request) => Methods.GetContent(request);
 
-        public ValueTask<IResponse?> HandleAsync(IRequest request) => Provider.HandleAsync(request);
+        public ValueTask<IResponse?> HandleAsync(IRequest request) => Methods.HandleAsync(request);
 
         #endregion
 

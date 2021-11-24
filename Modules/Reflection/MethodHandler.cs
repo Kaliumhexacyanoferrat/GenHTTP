@@ -41,7 +41,7 @@ namespace GenHTTP.Modules.Reflection
 
         public MethodRouting Routing { get; }
 
-        public MethodAttribute MetaData { get; }
+        public IMethodConfiguration Configuration { get; }
 
         public MethodInfo Method { get; }
 
@@ -59,13 +59,13 @@ namespace GenHTTP.Modules.Reflection
 
         #region Initialization
 
-        public MethodHandler(IHandler parent, MethodInfo method, MethodRouting routing, Func<object> instanceProvider, MethodAttribute metaData,
+        public MethodHandler(IHandler parent, MethodInfo method, MethodRouting routing, Func<object> instanceProvider, IMethodConfiguration metaData,
             Func<IRequest, IHandler, object?, ValueTask<IResponse?>> responseProvider, SerializationRegistry serialization)
         {
             Parent = parent;
 
             Method = method;
-            MetaData = metaData;
+            Configuration = metaData;
             InstanceProvider = instanceProvider;
             Serialization = serialization;
 
@@ -221,9 +221,9 @@ namespace GenHTTP.Modules.Reflection
 
         public IEnumerable<ContentElement> GetContent(IRequest request)
         {
-            if (!MetaData.IgnoreContent)
+            if (!Configuration.IgnoreContent)
             {
-                if (MetaData.SupportedMethods.Contains(new FlexibleRequestMethod(RequestMethod.GET)))
+                if (Configuration.SupportedMethods.Contains(new FlexibleRequestMethod(RequestMethod.GET)))
                 {
                     foreach (var hint in GetHints(request))
                     {
@@ -259,11 +259,11 @@ namespace GenHTTP.Modules.Reflection
 
         private List<ContentHint> GetHints(IRequest request)
         {
-            if (MetaData.ContentHints is not null)
+            if (Configuration.ContentHints is not null)
             {
-                if (typeof(IContentHints).IsAssignableFrom(MetaData.ContentHints))
+                if (typeof(IContentHints).IsAssignableFrom(Configuration.ContentHints))
                 {
-                    var constructor = MetaData.ContentHints.GetConstructor(Array.Empty<Type>());
+                    var constructor = Configuration.ContentHints.GetConstructor(Array.Empty<Type>());
 
                     if (constructor is not null)
                     {

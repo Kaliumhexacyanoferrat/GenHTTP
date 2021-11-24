@@ -161,7 +161,7 @@ namespace GenHTTP.Modules.Controllers.Provider
 
             if (segment == "{index}")
             {
-                return Provider.Methods.FirstOrDefault(m => m.Method.Name == "Index" && m.MetaData.SupportedMethods.Contains(new FlexibleRequestMethod(RequestMethod.GET)));
+                return Provider.Methods.FirstOrDefault(m => m.Method.Name == "Index" && m.Configuration.SupportedMethods.Contains(new FlexibleRequestMethod(RequestMethod.GET)));
             }
 
             return null;
