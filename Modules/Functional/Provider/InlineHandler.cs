@@ -41,7 +41,7 @@ namespace GenHTTP.Modules.Functional.Provider
             {
                 var path = PathArguments.Route(function.Path);
 
-                var target = function.Delegate.Target ?? throw new ArgumentNullException("Delegate target must not be null");
+                var target = function.Delegate.Target ?? throw new InvalidOperationException("Delegate target must not be null");
 
                 yield return (parent) => new MethodHandler(parent, function.Delegate.Method, path, () => target, function.Configuration, ResponseProvider.GetResponse, formats);
             }

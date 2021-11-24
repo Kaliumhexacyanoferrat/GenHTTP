@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 namespace GenHTTP.Modules.Reflection
 {
 
-    public sealed class PathArguments
+    public static class PathArguments
     {
         private static readonly MethodRouting EMPTY = new("/", "^(/|)$", null, true);
 
