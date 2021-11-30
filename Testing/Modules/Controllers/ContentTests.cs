@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -62,30 +63,30 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
         #region Tests
 
         [TestMethod]
-        public void TestIndex() => AssertX.Contains("/c/", GetSitemap());
+        public async Task TestIndex() => AssertX.Contains("/c/", await GetSitemap());
 
         [TestMethod]
-        public void TestComplex() => AssertX.Contains("/c/complex/page", GetSitemap());
+        public async Task TestComplex() => AssertX.Contains("/c/complex/page", await GetSitemap());
 
         [TestMethod]
-        public void TestWithParent() => AssertX.Contains("/c/with-parent/", GetSitemap());
+        public async Task TestWithParent() => AssertX.Contains("/c/with-parent/", await GetSitemap());
 
         [TestMethod]
-        public void TestOthersIgnored() => AssertX.DoesNotContain("/c/ignored/", GetSitemap());
+        public async Task TestOthersIgnored() => AssertX.DoesNotContain("/c/ignored/", await GetSitemap());
 
         [TestMethod]
-        public void TestIgnoredContent() => AssertX.DoesNotContain("/c/ignored-content/", GetSitemap());
+        public async Task TestIgnoredContent() => AssertX.DoesNotContain("/c/ignored-content/", await GetSitemap());
 
         [TestMethod]
-        public void TestPostIsIgnored() => AssertX.DoesNotContain("/c/post/", GetSitemap());
+        public async Task TestPostIsIgnored() => AssertX.DoesNotContain("/c/post/", await GetSitemap());
         
         [TestMethod]
-        public void TestNoHintsNoContent() => AssertX.DoesNotContain("/c/no-hints/", GetSitemap());
+        public async Task TestNoHintsNoContent() => AssertX.DoesNotContain("/c/no-hints/", await GetSitemap());
 
         [TestMethod]
-        public void TestHints()
+        public async Task TestHints()
         {
-            var sitemap = GetSitemap();
+            var sitemap = await GetSitemap();
 
             AssertX.Contains("/c/with-hints/10/", sitemap);
             AssertX.Contains("/c/with-hints/12/", sitemap);
@@ -95,7 +96,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
         #region Helpers
 
-        private HashSet<string> GetSitemap()
+        private async Task<HashSet<string>> GetSitemap()
         {
             var root = Layout.Create()
                              .AddController<TestController>("c")
@@ -103,9 +104,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
             using var runner = TestRunner.Run(root);
 
-            using var response = runner.GetResponse("/sitemap");
+            using var response = await runner.GetResponse("/sitemap");
 
-            return response.GetSitemap();
+            return await response.GetSitemap();
         }
 
         #endregion

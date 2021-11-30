@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
 
@@ -23,57 +24,57 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
         #endregion
 
         [TestMethod]
-        public void TestGetRoot()
+        public async Task TestGetRoot()
         {
             using var host = TestRunner.Run(Inline.Create().Get(() => 42));
 
-            using var response = host.GetResponse();
+            using var response = await host.GetResponse();
 
-            Assert.AreEqual("42", response.GetContent());
+            Assert.AreEqual("42", await response.GetContent());
         }
 
         [TestMethod]
-        public void TestGetPath()
+        public async Task TestGetPath()
         {
             using var host = TestRunner.Run(Inline.Create().Get("/blubb", () => 42));
 
-            using var response = host.GetResponse("/blubb");
+            using var response = await host.GetResponse("/blubb");
 
-            Assert.AreEqual("42", response.GetContent());
+            Assert.AreEqual("42", await response.GetContent());
         }
 
         [TestMethod]
-        public void TestGetQueryParam()
+        public async Task TestGetQueryParam()
         {
             using var host = TestRunner.Run(Inline.Create().Get((int param) => param + 1));
 
-            using var response = host.GetResponse("/?param=41");
+            using var response = await host.GetResponse("/?param=41");
 
-            Assert.AreEqual("42", response.GetContent());
+            Assert.AreEqual("42", await response.GetContent());
         }
 
         [TestMethod]
-        public void TestGetPathParam()
+        public async Task TestGetPathParam()
         {
             using var host = TestRunner.Run(Inline.Create().Get(":param", (int param) => param + 1));
 
-            using var response = host.GetResponse("/41");
-
-            Assert.AreEqual("42", response.GetContent());
+            using var response = await host.GetResponse("/41");
+            
+            Assert.AreEqual("42", await response.GetContent());
         }
 
         [TestMethod]
-        public void TestNotFound()
+        public async Task TestNotFound()
         {
             using var host = TestRunner.Run(Inline.Create().Get(() => 42));
 
-            using var response = host.GetResponse("/nope");
+            using var response = await host.GetResponse("/nope");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestRaw()
+        public async Task TestRaw()
         {
             using var host = TestRunner.Run(Inline.Create().Get((IRequest request) =>
             {
@@ -82,33 +83,33 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
                               .Content("42");
             }));
 
-            using var response = host.GetResponse();
+            using var response = await host.GetResponse();
 
-            Assert.AreEqual("42", response.GetContent());
+            Assert.AreEqual("42", await response.GetContent());
         }
 
         [TestMethod]
-        public void TestStream()
+        public async Task TestStream()
         {
             using var host = TestRunner.Run(Inline.Create().Get(() => new MemoryStream(Encoding.UTF8.GetBytes("42"))));
 
-            using var response = host.GetResponse();
+            using var response = await host.GetResponse();
 
-            Assert.AreEqual("42", response.GetContent());
+            Assert.AreEqual("42", await response.GetContent());
         }
 
         [TestMethod]
-        public void TestJson()
+        public async Task TestJson()
         {
             using var host = TestRunner.Run(Inline.Create().Get(() => new MyClass("42", 42, 42.0)));
 
-            using var response = host.GetResponse();
+            using var response = await host.GetResponse();
 
-            Assert.AreEqual("{\"string\":\"42\",\"int\":42,\"double\":42}", response.GetContent());
+            Assert.AreEqual("{\"string\":\"42\",\"int\":42,\"double\":42}", await response.GetContent());
         }
 
         [TestMethod]
-        public void TestAsync()
+        public async Task TestAsync()
         {
             using var host = TestRunner.Run(Inline.Create().Get(async () =>
             {
@@ -121,9 +122,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
                 return stream;
             }));
 
-            using var response = host.GetResponse();
+            using var response = await host.GetResponse();
 
-            Assert.AreEqual("42", response.GetContent());
+            Assert.AreEqual("42", await response.GetContent());
         }
 
     }

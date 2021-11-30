@@ -1,15 +1,15 @@
 ﻿using System;
-using System.IO;
-using System.Text;
 using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
+
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Basics;
+using GenHTTP.Modules.IO;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Content;
-using GenHTTP.Modules.IO;
-using GenHTTP.Modules.Basics;
-using System.Threading.Tasks;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {
@@ -73,7 +73,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// As a client I can stream data to the server.
         /// </summary>
         [TestMethod]
-        public void TestPost()
+        public async Task TestPost()
         {
             var recorder = new ValueRecorder();
 
@@ -82,15 +82,11 @@ namespace GenHTTP.Testing.Acceptance.Engine
             using var runner = TestRunner.Run(recorder.Wrap());
 
             var request = runner.GetRequest();
-            request.Method = "POST";
 
-            using (var input = request.GetRequestStream())
-            {
-                var bytes = Encoding.UTF8.GetBytes(str);
-                input.Write(bytes, 0, bytes.Length);
-            }
+            request.Method = HttpMethod.Post;
+            request.Content = new StringContent(str);
 
-            using var __ = request.GetSafeResponse();
+            using var _ = await runner.GetResponse(request);
 
             Assert.AreEqual(str, recorder.Value);
         }
@@ -99,29 +95,32 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// As a client I can submit large data.
         /// </summary>
         [TestMethod]
-        public void TestPutLarge()
+        public async Task TestPutLarge()
         {
             using var runner = TestRunner.Run(new ContentLengthResponder());
 
-            var request = runner.GetRequest();
-            request.Method = "PUT";
+            using var content = new MemoryStream();
 
-            using (var input = request.GetRequestStream())
+            var random = new Random();
+
+            var buffer = new byte[65536];
+
+            for (int i = 0; i < 20; i++) // 1.3 MB
             {
-                var random = new Random();
-
-                var buffer = new byte[65536];
-
-                for (int i = 0; i < 20; i++) // 1.3 MB
-                {
-                    random.NextBytes(buffer);
-                    input.Write(buffer, 0, buffer.Length);
-                }
+                random.NextBytes(buffer);
+                content.Write(buffer, 0, buffer.Length);
             }
 
-            using var response = request.GetSafeResponse();
+            content.Seek(0, SeekOrigin.Begin);
 
-            Assert.AreEqual("1310720", response.GetContent());
+            var request = runner.GetRequest();
+
+            request.Method = HttpMethod.Put;
+            request.Content = new StreamContent(content);
+
+            using var response = await runner.GetResponse(request);
+
+            Assert.AreEqual("1310720", await response.GetContent());
         }
 
     }

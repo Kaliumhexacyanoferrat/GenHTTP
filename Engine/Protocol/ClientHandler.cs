@@ -124,7 +124,7 @@ namespace GenHTTP.Engine
             
             if (KeepAlive is null)
             {
-                KeepAlive = request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? false;
+                KeepAlive = request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? true;
             }
 
             bool keepAlive = (bool)KeepAlive;

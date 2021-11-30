@@ -1,4 +1,6 @@
 ﻿using System.IO.Compression;
+using System.Threading.Tasks;
+using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -48,16 +50,16 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// As a developer, I expect responses to be compressed out of the box.
         /// </summary>
         [TestMethod]
-        public void TestCompression()
+        public async Task TestCompression()
         {
             using var runner = TestRunner.Run();
 
             var request = runner.GetRequest();
             request.Headers.Add("Accept-Encoding", "gzip, br");
 
-            using var response = request.GetSafeResponse();
+            using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual("br", response.ContentEncoding);
+            Assert.AreEqual("br", response.Content.Headers.ContentEncoding.First());
         }
 
         /// <summary>
@@ -65,79 +67,79 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// to generate my response.
         /// </summary>
         [TestMethod]
-        public void TestSpecficAlgorithm()
+        public async Task TestSpecficAlgorithm()
         {
             using var runner = TestRunner.Run();
 
             var request = runner.GetRequest();
             request.Headers.Add("Accept-Encoding", "gzip");
 
-            using var response = request.GetSafeResponse();
+            using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual("gzip", response.ContentEncoding);
+            Assert.AreEqual("gzip", response.Content.Headers.ContentEncoding.First());
         }
 
         /// <summary>
         /// As a developer, I want to be able to disable compression.
         /// </summary>
         [TestMethod]
-        public void TestCompressionDisabled()
+        public async Task TestCompressionDisabled()
         {
             using var runner = TestRunner.Run(false);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            AssertX.IsNullOrEmpty(response.ContentEncoding);
+            Assert.IsFalse(response.Content.Headers.ContentEncoding.Any());
         }
 
         /// <summary>
         /// As a developer, I want to be able to add custom compression algorithms.
         /// </summary>
         [TestMethod]
-        public void TestCustomCompression()
+        public async Task TestCustomCompression()
         {
             using var runner = new TestRunner();
 
             runner.Host.Compression(CompressedContent.Default().Add(new CustomAlgorithm()).Level(CompressionLevel.Optimal)).Start();
-
+            
             var request = runner.GetRequest();
             request.Headers.Add("Accept-Encoding", "custom");
 
-            using var response = request.GetSafeResponse();
+            using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual("custom", response.ContentEncoding);
+            Assert.AreEqual("custom", response.Content.Headers.ContentEncoding.First());
         }
 
         /// <summary>
         /// As a developer, I want already compressed content not to be compressed again.
         /// </summary>
         [TestMethod]
-        public void TestNoAdditionalCompression()
+        public async Task TestNoAdditionalCompression()
         {
             var image = Resource.FromString("Image!").Type(ContentType.ImageJpg);
 
             using var runner = TestRunner.Run(Layout.Create().Add("uncompressed", Content.From(image)));
 
-            using var response = runner.GetResponse("/uncompressed");
+            using var response = await runner.GetResponse("/uncompressed");
 
-            AssertX.IsNullOrEmpty(response.ContentEncoding);
+            Assert.IsFalse(response.Content.Headers.ContentEncoding.Any());
         }
 
         [TestMethod]
-        public void TestVariyHeaderAdded()
+        public async Task TestVariyHeaderAdded()
         {
             using var runner = TestRunner.Run();
 
             var request = runner.GetRequest();
             request.Headers.Add("Accept-Encoding", "gzip");
 
-            using var response = request.GetSafeResponse();
+            using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual("Accept-Encoding", response.GetResponseHeader("Vary"));
+            Assert.AreEqual("Accept-Encoding", response.GetHeader("Vary"));
         }
 
         [TestMethod]
-        public void TestVariyHeaderExtendedAdded()
+        public async Task TestVariyHeaderExtendedAdded()
         {
             var handler = new FunctionalHandler(responseProvider: (r) =>
             {
@@ -153,9 +155,10 @@ namespace GenHTTP.Testing.Acceptance.Engine
             var request = runner.GetRequest();
             request.Headers.Add("Accept-Encoding", "gzip");
 
-            using var response = request.GetSafeResponse();
+            using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual("Host, Accept-Encoding", response.GetResponseHeader("Vary"));
+            Assert.IsTrue(response.Headers.Vary.Contains("Host"));
+            Assert.IsTrue(response.Headers.Vary.Contains("Accept-Encoding"));
         }
 
     }

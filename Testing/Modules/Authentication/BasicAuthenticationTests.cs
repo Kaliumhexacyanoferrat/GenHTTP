@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content.Authentication;
@@ -18,118 +19,114 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
     {
 
         [TestMethod]
-        public void TestNoUser()
+        public async Task TestNoUser()
         {
             var content = GetContent().Authentication(BasicAuthentication.Create());
 
             using var runner = TestRunner.Run(content);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestValidUser()
+        public async Task TestValidUser()
         {
             var content = GetContent().Authentication(BasicAuthentication.Create()
                                                                          .Add("user", "password"));
 
             using var runner = TestRunner.Run(content);
 
-            using var response = GetResponse(runner, "user", "password");
+            using var response = await GetResponse(runner, "user", "password");
 
-            Assert.AreEqual("user", response.GetContent());
+            Assert.AreEqual("user", await response.GetContent());
         }
 
         [TestMethod]
-        public void TestInvalidPassword()
+        public async Task TestInvalidPassword()
         {
             var content = GetContent().Authentication(BasicAuthentication.Create()
                                                                          .Add("user", "password"));
 
             using var runner = TestRunner.Run(content);
 
-            using var response = GetResponse(runner, "user", "p");
+            using var response = await GetResponse(runner, "user", "p");
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestInvalidUser()
+        public async Task TestInvalidUser()
         {
             var content = GetContent().Authentication(BasicAuthentication.Create());
 
             using var runner = TestRunner.Run(content);
 
-            using var response = GetResponse(runner, "u", "password");
+            using var response = await GetResponse(runner, "u", "password");
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestCustomUser()
+        public async Task TestCustomUser()
         {
             var content = GetContent().Authentication(BasicAuthentication.Create((u, p) => new ValueTask<IUser?>(new BasicAuthenticationUser("my"))));
 
             using var runner = TestRunner.Run(content);
 
-            using var response = GetResponse(runner, "_", "_");
+            using var response = await GetResponse(runner, "_", "_");
 
-            Assert.AreEqual("my", response.GetContent());
+            Assert.AreEqual("my", await response.GetContent());
         }
 
         [TestMethod]
-        public void TestNoCustomUser()
+        public async Task TestNoCustomUser()
         {
             var content = GetContent().Authentication(BasicAuthentication.Create((u, p) => new ValueTask<IUser?>()));
 
             using var runner = TestRunner.Run(content);
 
-            using var response = GetResponse(runner, "_", "_");
+            using var response = await GetResponse(runner, "_", "_");
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestOtherAuthenticationIsNotAccepted()
+        public async Task TestOtherAuthenticationIsNotAccepted()
         {
             var content = GetContent().Authentication(BasicAuthentication.Create());
 
             using var runner = TestRunner.Run(content);
-
-            var request = runner.GetRequest();
             
+            var request = runner.GetRequest();
             request.Headers.Add("Authorization", "Bearer 123");
 
-            using var response = request.GetSafeResponse();
+            using var response = await runner.GetResponse(request);
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
         
         [TestMethod]
-        public void TestNoValidBase64()
+        public async Task TestNoValidBase64()
         {
             var content = GetContent().Authentication(BasicAuthentication.Create());
 
             using var runner = TestRunner.Run(content);
 
             var request = runner.GetRequest();
-            
             request.Headers.Add("Authorization", "Basic 123");
 
-            using var response = request.GetSafeResponse();
+            using var response = await runner.GetResponse(request);
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
-        private static HttpWebResponse GetResponse(TestRunner runner, string user, string password)
+        private static async Task<HttpResponseMessage> GetResponse(TestRunner runner, string user, string password)
         {
-            var request = runner.GetRequest();
+            using var client = TestRunner.GetClient(creds: new NetworkCredential(user, password));
 
-            request.Credentials = new NetworkCredential(user, password);
-
-            return request.GetSafeResponse();
+            return await runner.GetResponse(client: client);
         }
 
         private static LayoutBuilder GetContent()

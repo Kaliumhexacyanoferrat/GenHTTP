@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -11,7 +12,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
     {
 
         [TestMethod]
-        public void TestBuilder()
+        public async Task TestBuilder()
         {
             using var runner = new TestRunner();
 
@@ -22,43 +23,56 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             runner.Start();
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestLegacyHttp()
+        public async Task TestLegacyHttp()
         {
             using var runner = TestRunner.Run();
 
-            var request = runner.GetRequest();
-            request.ProtocolVersion = new Version(1, 0);
+            using var client = TestRunner.GetClient(version: new Version(1, 0));
 
-            using var response = request.GetSafeResponse();
+            using var response = await runner.GetResponse();
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestConnectionClose()
+        public async Task TestConnectionClose()
         {
             using var runner = TestRunner.Run();
 
             var request = runner.GetRequest();
             request.Headers.Add("Connection", "close");
 
-            using var response = request.GetSafeResponse();
+            using var response = await runner.GetResponse(request);
+
+            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.IsTrue(response.Headers.Connection.Contains("Close"));
+        }
+
+        [TestMethod]
+        public async Task TestEmptyQuery()
+        {
+            using var runner = TestRunner.Run();
+
+            using var response = await runner.GetResponse("/?");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-        [TestMethod]
-        public void TestEmptyQuery()
-        {
-            using var response = TestRunner.Run().GetResponse("/?");
 
-            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+        [TestMethod]
+        public async Task TestKeepalive()
+        {
+            using var runner = TestRunner.Run();
+
+            using var response = await runner.GetResponse();
+
+            Assert.IsTrue(response.Headers.Connection.Contains("Keep-Alive"));
         }
 
     }

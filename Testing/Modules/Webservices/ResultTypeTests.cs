@@ -37,45 +37,45 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         #region Tests
 
         [TestMethod]
-        public void ControllerMayReturnTask()
+        public async Task ControllerMayReturnTask()
         {
             using var runner = GetRunner();
 
-            using var response = runner.GetResponse("/t/task");
+            using var response = await runner.GetResponse("/t/task");
 
             Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
         }
 
         [TestMethod]
-        public void ControllerMayReturnValueTask()
+        public async Task ControllerMayReturnValueTask()
         {
             using var runner = GetRunner();
 
-            using var response = runner.GetResponse("/t/value-task");
+            using var response = await runner.GetResponse("/t/value-task");
 
             Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
         }
 
         [TestMethod]
-        public void ControllerMayReturnGenericTask()
+        public async Task ControllerMayReturnGenericTask()
         {
             using var runner = GetRunner();
 
-            using var response = runner.GetResponse("/t/generic-task");
+            using var response = await runner.GetResponse("/t/generic-task");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("Task result", response.GetContent());
+            Assert.AreEqual("Task result", await response.GetContent());
         }
 
         [TestMethod]
-        public void ControllerMayReturnGenericValueTask()
+        public async Task ControllerMayReturnGenericValueTask()
         {
             using var runner = GetRunner();
 
-            using var response = runner.GetResponse("/t/generic-value-task");
+            using var response = await runner.GetResponse("/t/generic-value-task");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("ValueTask result", response.GetContent());
+            Assert.AreEqual("ValueTask result", await response.GetContent());
         }
 
         #endregion

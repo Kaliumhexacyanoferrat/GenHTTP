@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -8,7 +9,6 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Layouting;
-using System.Threading.Tasks;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {
@@ -45,18 +45,18 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// not supported by the server.
         /// </summary>
         [TestMethod]
-        public void TestFlexibleStatus()
+        public async Task TestFlexibleStatus()
         {
             var content = Layout.Create().Index(new Provider().Wrap());
 
             using var runner = TestRunner.Run(content);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
             Assert.AreEqual(256, (int)response.StatusCode);
-            Assert.AreEqual("Custom Status", response.StatusDescription);
+            Assert.AreEqual("Custom Status", response.ReasonPhrase);
 
-            Assert.AreEqual("application/x-custom", response.ContentType);
+            Assert.AreEqual("application/x-custom", response.GetContentHeader("Content-Type"));
         }
 
     }

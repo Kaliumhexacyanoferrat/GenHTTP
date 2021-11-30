@@ -17,7 +17,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Pages
     {
 
         [TestMethod]
-        public void TestMetaData()
+        public async Task TestMetaData()
         {
             var page = CombinedPage.Create()
                                    .Title("My Page")
@@ -25,33 +25,33 @@ namespace GenHTTP.Testing.Acceptance.Modules.Pages
 
             using var runner = TestRunner.Run(page);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            var content = response.GetContent();
+            var content = await response.GetContent();
 
             AssertX.Contains("My Page", content);
             AssertX.Contains("My Description", content);
 
-            Assert.AreEqual("text/html", response.GetResponseHeader("Content-Type"));
+            Assert.AreEqual("text/html", response.GetContentHeader("Content-Type"));
         }
 
         [TestMethod]
-        public void TestPlainText()
+        public async Task TestPlainText()
         {
             var page = CombinedPage.Create()
                                    .Add("Static Content");
 
             using var runner = TestRunner.Run(page);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            var content = response.GetContent();
+            var content = await response.GetContent();
 
             AssertX.Contains("Static Content", content);
         }
 
         [TestMethod]
-        public void TestRenderingEngines()
+        public async Task TestRenderingEngines()
         {
             static ValueTask<BasicModel> model(Api.Protocol.IRequest r, Api.Content.IHandler h) => new(new BasicModel(r, h));
 
@@ -62,9 +62,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Pages
 
             using var runner = TestRunner.Run(page);
 
-            using var response = runner.GetResponse("/page");
+            using var response = await runner.GetResponse("/page");
 
-            var content = response.GetContent();
+            var content = await response.GetContent();
 
             AssertX.Contains("Scriban at /page", content);
             AssertX.Contains("Razor at /page", content);
@@ -72,19 +72,19 @@ namespace GenHTTP.Testing.Acceptance.Modules.Pages
         }
 
         [TestMethod]
-        public void TestStableChecksum()
+        public async Task TestStableChecksum()
         {
             var page = CombinedPage.Create()
                                    .Add("Static Content");
 
             using var runner = TestRunner.Run(page);
 
-            using var r1 = runner.GetResponse();
-            using var r2 = runner.GetResponse();
+            using var r1 = await runner.GetResponse();
+            using var r2 = await runner.GetResponse();
 
-            Assert.IsNotNull(r1.GetResponseHeader("ETag"));
+            Assert.IsNotNull(r1.GetHeader("ETag"));
 
-            Assert.AreEqual(r1.GetResponseHeader("ETag"), r2.GetResponseHeader("ETag"));
+            Assert.AreEqual(r1.GetHeader("ETag"), r2.GetHeader("ETag"));
         }
 
     }

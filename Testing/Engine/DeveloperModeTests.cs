@@ -40,7 +40,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// in the browser, so that I can trace an error more quickly
         /// </summary>
         [TestMethod]
-        public void TestExceptionsWithTrace()
+        public async Task TestExceptionsWithTrace()
         {
             using var runner = new TestRunner();
 
@@ -48,9 +48,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             runner.Host.Handler(router).Development().Start();
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            Assert.IsTrue(response.GetContent().Contains("Exception"));
+            Assert.IsTrue((await response.GetContent()).Contains("Exception"));
         }
 
         /// <summary>
@@ -58,15 +58,15 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// implementation detail with exception messages
         /// </summary>
         [TestMethod]
-        public void TestExceptionsWithNoTrace()
+        public async Task TestExceptionsWithNoTrace()
         {
             var router = Layout.Create().Index(new ThrowingProvider().Wrap());
 
             using var runner = TestRunner.Run(router);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            Assert.IsFalse(response.GetContent().Contains("Exception"));
+            Assert.IsFalse((await response.GetContent()).Contains("Exception"));
         }
 
     }

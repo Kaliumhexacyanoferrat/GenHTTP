@@ -1,4 +1,6 @@
-﻿using GenHTTP.Modules.IO;
+﻿using System.Threading.Tasks;
+
+using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Razor;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -11,7 +13,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Razor
     {
 
         [TestMethod]
-        public void TestLinq()
+        public async Task TestLinq()
         {
             var template = Resource.FromString("100 = @Enumerable.Range(0, 100).Count()");
 
@@ -21,9 +23,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Razor
 
             using var runner = TestRunner.Run(page);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            AssertX.Contains("100 = 100", response.GetContent());
+            AssertX.Contains("100 = 100", await response.GetContent());
         }
 
     }

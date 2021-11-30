@@ -2,6 +2,8 @@
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
+using System.Net.Http;
 using System.Xml.Serialization;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -13,7 +15,6 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Webservices;
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Layouting;
-using System.Threading.Tasks;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Webservices
 {
@@ -100,132 +101,132 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         #region Tests
 
         [TestMethod]
-        public void TestEmpty()
+        public async Task TestEmpty()
         {
-            WithResponse("", r => Assert.AreEqual(HttpStatusCode.NoContent, r.StatusCode));
+            await WithResponse("", r => { Assert.AreEqual(HttpStatusCode.NoContent, r.StatusCode); return Task.CompletedTask; });
         }
 
         [TestMethod]
-        public void TestVoidReturn()
+        public async Task TestVoidReturn()
         {
-            WithResponse("nothing", r => Assert.AreEqual(HttpStatusCode.NoContent, r.StatusCode));
+            await WithResponse("nothing", r => { Assert.AreEqual(HttpStatusCode.NoContent, r.StatusCode); return Task.CompletedTask; });
         }
 
         [TestMethod]
-        public void TestPrimitives()
+        public async Task TestPrimitives()
         {
-            WithResponse("primitive?input=42", r => Assert.AreEqual("42", r.GetContent()));
+            await WithResponse("primitive?input=42", async r => Assert.AreEqual("42", await r.GetContent()));
         }
 
         [TestMethod]
-        public void TestEnums()
+        public async Task TestEnums()
         {
-            WithResponse("enum?input=One", r => Assert.AreEqual("One", r.GetContent()));
+            await WithResponse("enum?input=One", async r => Assert.AreEqual("One", await r.GetContent()));
         }
 
         [TestMethod]
-        public void TestNullableSet()
+        public async Task TestNullableSet()
         {
-            WithResponse("nullable?input=1", r => Assert.AreEqual("1", r.GetContent()));
+            await WithResponse("nullable?input=1", async r => Assert.AreEqual("1", await r.GetContent()));
         }
 
         [TestMethod]
-        public void TestNullableNotSet()
+        public async Task TestNullableNotSet()
         {
-            WithResponse("nullable", r => Assert.AreEqual(HttpStatusCode.NoContent, r.StatusCode));
+            await WithResponse("nullable", r => { Assert.AreEqual(HttpStatusCode.NoContent, r.StatusCode); return Task.CompletedTask; });
         }
 
         [TestMethod]
-        public void TestGuid()
+        public async Task TestGuid()
         {
             var id = Guid.NewGuid().ToString();
 
-            WithResponse($"guid?id={id}", r => Assert.AreEqual(id, r.GetContent()));
+            await WithResponse($"guid?id={id}", async r => Assert.AreEqual(id, await r.GetContent()));
         }
 
         [TestMethod]
-        public void TestParam()
+        public async Task TestParam()
         {
-            WithResponse("param/42", r => Assert.AreEqual("42", r.GetContent()));
+            await WithResponse("param/42", async r => Assert.AreEqual("42", await r.GetContent()));
         }
 
         [TestMethod]
-        public void TestConversionFailure()
+        public async Task TestConversionFailure()
         {
-            WithResponse("param/abc", r => Assert.AreEqual(HttpStatusCode.BadRequest, r.StatusCode));
+            await WithResponse("param/abc", r => { Assert.AreEqual(HttpStatusCode.BadRequest, r.StatusCode); return Task.CompletedTask; });
         }
 
         [TestMethod]
-        public void TestRegex()
+        public async Task TestRegex()
         {
-            WithResponse("regex/42", r => Assert.AreEqual("42", r.GetContent()));
+            await WithResponse("regex/42", async r => Assert.AreEqual("42", await r.GetContent()));
         }
 
         [TestMethod]
-        public void TestEntityWithNulls()
+        public async Task TestEntityWithNulls()
         {
             var entity = "{\"id\":42}";
-            WithResponse("entity", "POST", entity, null, null, r => Assert.AreEqual(entity, r.GetContent()));
+            await WithResponse("entity", HttpMethod.Post, entity, null, null, async r => Assert.AreEqual(entity, await r.GetContent()));
         }
 
         [TestMethod]
-        public void TestEntityWithNoNulls()
+        public async Task TestEntityWithNoNulls()
         {
             var entity = "{\"id\":42,\"nullable\":123.456}";
-            WithResponse("entity", "POST", entity, null, null, r => Assert.AreEqual(entity, r.GetContent()));
+            await WithResponse("entity", HttpMethod.Post, entity, null, null, async r => Assert.AreEqual(entity, await r.GetContent()));
         }
 
         [TestMethod]
-        public void TestNotSupportedUpload()
+        public async Task TestNotSupportedUpload()
         {
-            WithResponse("entity", "POST", "123", "bla/blubb", null, r => Assert.AreEqual(HttpStatusCode.UnsupportedMediaType, r.StatusCode));
+            await WithResponse("entity", HttpMethod.Post, "123", "bla/blubb", null, r => { Assert.AreEqual(HttpStatusCode.UnsupportedMediaType, r.StatusCode); return Task.CompletedTask; });
         }
 
         [TestMethod]
-        public void TestUnsupportedDownloadEnforcesDefault()
+        public async Task TestUnsupportedDownloadEnforcesDefault()
         {
             var entity = "{\"id\":42,\"nullable\":123.456}";
-            WithResponse("entity", "POST", entity, null, "bla/blubb", r => Assert.AreEqual(entity, r.GetContent()));
+            await WithResponse("entity", HttpMethod.Post, entity, null, "bla/blubb", async r => Assert.AreEqual(entity, await r.GetContent()));
         }
 
         [TestMethod]
-        public void TestWrongMethod()
+        public async Task TestWrongMethod()
         {
-            WithResponse("entity", "PUT", "123", null, null, r => Assert.AreEqual(HttpStatusCode.MethodNotAllowed, r.StatusCode));
+            await WithResponse("entity", HttpMethod.Put, "123", null, null, r => { Assert.AreEqual(HttpStatusCode.MethodNotAllowed, r.StatusCode); return Task.CompletedTask; });
         }
 
         [TestMethod]
-        public void TestNoMethod()
+        public async Task TestNoMethod()
         {
-            WithResponse("idonotexist", r => Assert.AreEqual(HttpStatusCode.NotFound, r.StatusCode));
+            await WithResponse("idonotexist", r => { Assert.AreEqual(HttpStatusCode.NotFound, r.StatusCode); return Task.CompletedTask; });
         }
 
         [TestMethod]
-        public void TestStream()
+        public async Task TestStream()
         {
-            WithResponse("stream", "PUT", "123456", null, null, r => Assert.AreEqual("6", r.GetContent()));
+            await WithResponse("stream", HttpMethod.Put, "123456", null, null, async r => Assert.AreEqual("6", await r.GetContent()));
         }
 
         [TestMethod]
-        public void TestRequestResponse()
+        public async Task TestRequestResponse()
         {
-            WithResponse("requestResponse", r => Assert.AreEqual("Hello World", r.GetContent()));
+            await WithResponse("requestResponse", async r => Assert.AreEqual("Hello World", await r.GetContent()));
         }
 
         [TestMethod]
-        public void TestRouting()
+        public async Task TestRouting()
         {
-            WithResponse("request", r => Assert.AreEqual("yes", r.GetContent()));
+            await WithResponse("request", async r => Assert.AreEqual("yes", await r.GetContent()));
         }
 
         [TestMethod]
-        public void TestEntityAsXML()
+        public async Task TestEntityAsXML()
         {
             var entity = "<TestEntity><ID>1</ID><Nullable>1234.56</Nullable></TestEntity>";
 
-            WithResponse("entity", "POST", entity, "text/xml", "text/xml", r =>
+            await WithResponse("entity", HttpMethod.Post, entity, "text/xml", "text/xml", async r =>
             {
-                var result = new XmlSerializer(typeof(TestEntity)).Deserialize(r.GetResponseStream()) as TestEntity;
+                var result = new XmlSerializer(typeof(TestEntity)).Deserialize(await r.Content.ReadAsStreamAsync()) as TestEntity;
 
                 Assert.IsNotNull(result);
 
@@ -235,25 +236,25 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         }
 
         [TestMethod]
-        public void TestException()
+        public async Task TestException()
         {
-            WithResponse("exception", r => Assert.AreEqual(HttpStatusCode.AlreadyReported, r.StatusCode));
+            await WithResponse("exception", r => { Assert.AreEqual(HttpStatusCode.AlreadyReported, r.StatusCode); return Task.CompletedTask; });
         }
 
         [TestMethod]
-        public void TestDuplicate()
+        public async Task TestDuplicate()
         {
-            WithResponse("duplicate", r => Assert.AreEqual(HttpStatusCode.BadRequest, r.StatusCode));
+            await WithResponse("duplicate", r => { Assert.AreEqual(HttpStatusCode.BadRequest, r.StatusCode); return Task.CompletedTask; });
         }
 
         [TestMethod]
-        public void TestWithInstance()
+        public async Task TestWithInstance()
         {
             var layout = Layout.Create().AddService("t", new TestResource());
 
             using var runner = TestRunner.Run(layout);
 
-            using var response = runner.GetResponse("/t");
+            using var response = await runner.GetResponse("/t");
 
             Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
         }
@@ -262,9 +263,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
 
         #region Helpers
 
-        private void WithResponse(string uri, Action<HttpWebResponse> logic) => WithResponse(uri, "GET", null, null, null, logic);
+        private Task WithResponse(string uri, Func<HttpResponseMessage, Task> logic) => WithResponse(uri, HttpMethod.Get, null, null, null, logic);
 
-        private void WithResponse(string uri, string method, string? body, string? contentType, string? accept, Action<HttpWebResponse> logic)
+        private async Task WithResponse(string uri, HttpMethod method, string? body, string? contentType, string? accept, Func<HttpResponseMessage, Task> logic)
         {
             using var service = GetService();
 
@@ -274,25 +275,26 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
 
             if (accept is not null)
             {
-                request.Accept = accept;
+                request.Headers.Add("Accept", accept);
             }
 
             if (body is not null)
             {
                 if (contentType is not null)
                 {
-                    request.ContentType = contentType;
+                    request.Content = new StringContent(body, null, contentType);
+                    request.Content.Headers.ContentType = new(contentType);
                 }
-
-                using (var input = request.GetRequestStream())
+                else
                 {
-                    input.Write(Encoding.UTF8.GetBytes(body));
+                    request.Content = new StringContent(body);
+                    request.Content.Headers.ContentType = null;
                 }
             }
 
-            using var response = request.GetSafeResponse();
+            using var response = await service.GetResponse(request);
 
-            logic(response);
+            await logic(response);
         }
 
         private TestRunner GetService()

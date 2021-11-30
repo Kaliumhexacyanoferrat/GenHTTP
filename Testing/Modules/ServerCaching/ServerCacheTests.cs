@@ -1,8 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Net;
-using System.Threading;
+using System.Net.Http;
 using System.Threading.Tasks;
+
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Caching;
 using GenHTTP.Modules.Compression;
@@ -26,7 +27,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
     {
 
         [TestMethod]
-        public void TestContentIsInvalidated()
+        public async Task TestContentIsInvalidated()
         {
             var file = Path.GetTempFileName();
 
@@ -37,17 +38,17 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
                 FileUtil.WriteText(file, "1");
 
-                using var first = runner.GetResponse();
+                using var first = await runner.GetResponse();
 
                 Assert.AreEqual(HttpStatusCode.OK, first.StatusCode);
-                Assert.AreEqual("1", first.GetContent());
+                Assert.AreEqual("1", await first.GetContent());
 
                 FileUtil.WriteText(file, "12");
 
-                using var second = runner.GetResponse();
+                using var second = await runner.GetResponse();
 
                 Assert.AreEqual(HttpStatusCode.OK, second.StatusCode);
-                Assert.AreEqual("12", second.GetContent());
+                Assert.AreEqual("12", await second.GetContent());
             }
             finally
             {
@@ -56,7 +57,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
         }
 
         [TestMethod]
-        public void TestContentNotInvalidated()
+        public async Task TestContentNotInvalidated()
         {
             var file = Path.GetTempFileName();
 
@@ -67,17 +68,17 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
                 FileUtil.WriteText(file, "1");
 
-                using var first = runner.GetResponse();
+                using var first = await runner.GetResponse();
 
                 Assert.AreEqual(HttpStatusCode.OK, first.StatusCode);
-                Assert.AreEqual("1", first.GetContent());
+                Assert.AreEqual("1", await first.GetContent());
 
                 FileUtil.WriteText(file, "12");
 
-                using var second = runner.GetResponse();
+                using var second = await runner.GetResponse();
 
                 Assert.AreEqual(HttpStatusCode.OK, second.StatusCode);
-                Assert.AreEqual("1", second.GetContent());
+                Assert.AreEqual("1", await second.GetContent());
             }
             finally
             {
@@ -86,7 +87,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
         }
 
         [TestMethod]
-        public void TestVariationRespected()
+        public async Task TestVariationRespected()
         {
             var file = Path.GetTempFileName();
 
@@ -102,25 +103,25 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
                 gzipRequest.Headers.Add("Accept-Encoding", "gzip");
 
-                using var gzipResponse = runner.GetResponse(gzipRequest);
+                using var gzipResponse = await runner.GetResponse(gzipRequest);
 
                 Assert.AreEqual(HttpStatusCode.OK, gzipResponse.StatusCode);
-                Assert.AreEqual("gzip", gzipResponse.GetResponseHeader("Content-Encoding"));
+                Assert.AreEqual("gzip", gzipResponse.GetContentHeader("Content-Encoding"));
 
                 var brRequest = runner.GetRequest();
 
                 brRequest.Headers.Add("Accept-Encoding", "br");
 
-                using var brResponse = runner.GetResponse(brRequest);
+                using var brResponse = await runner.GetResponse(brRequest);
 
                 Assert.AreEqual(HttpStatusCode.OK, brResponse.StatusCode);
-                Assert.AreEqual("br", brResponse.GetResponseHeader("Content-Encoding"));
+                Assert.AreEqual("br", brResponse.GetContentHeader("Content-Encoding"));
 
-                using var uncompressedResponse = runner.GetResponse();
+                using var uncompressedResponse = await runner.GetResponse();
 
                 Assert.AreEqual(HttpStatusCode.OK, uncompressedResponse.StatusCode);
-                AssertX.IsNullOrEmpty(uncompressedResponse.ContentEncoding);
-                Assert.AreEqual("This is some content!", uncompressedResponse.GetContent());
+                AssertX.IsNullOrEmpty(uncompressedResponse.GetContentHeader("Content-Encoding"));
+                Assert.AreEqual("This is some content!", await uncompressedResponse.GetContent());
             }
             finally
             {
@@ -129,17 +130,16 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
         }
 
         [TestMethod]
-        public void TestHeadersPreserved()
+        public async Task TestHeadersPreserved()
         {
             var now = DateTime.UtcNow;
 
             var handler = new FunctionalHandler(responseProvider: (r) =>
             {
                 return r.Respond()
-                        .Type(new FlexibleContentType(ContentType.AudioWav))
                         .Cookie(new Cookie("CKey", "CValue"))
                         .Header("HKey", "HValue")
-                        .Content(Resource.FromString("0123456789").Build())
+                        .Content(Resource.FromString("0123456789").Type(new(ContentType.AudioWav)).Build())
                         .Length(10)
                         .Encoding("some-encoding")
                         .Expires(now)
@@ -149,24 +149,24 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
             using var runner = TestRunner.Run(handler.Wrap().Add(ServerCache.Memory().Invalidate(false)), false);
 
-            using var _ = runner.GetResponse();
+            using var _ = await runner.GetResponse();
 
-            using var cached = runner.GetResponse();
+            using var cached = await runner.GetResponse();
 
-            Assert.AreEqual("audio/wav", cached.ContentType);
+            Assert.AreEqual("audio/wav", cached.GetContentHeader("Content-Type"));
 
-            Assert.AreEqual("HValue", cached.GetResponseHeader("HKey"));
-            Assert.AreEqual("10", cached.GetResponseHeader("Content-Length"));
-            Assert.AreEqual("some-encoding", cached.GetResponseHeader("Content-Encoding"));
+            Assert.AreEqual("HValue", cached.GetHeader("HKey"));
+            Assert.AreEqual("10", cached.GetContentHeader("Content-Length"));
+            Assert.AreEqual("some-encoding", cached.GetContentHeader("Content-Encoding"));
 
-            Assert.AreEqual(now.ToString(), cached.LastModified.ToUniversalTime().ToString());
-            Assert.IsTrue(cached.GetResponseHeader("Expires") != null);
+            Assert.AreEqual(now.ToString(), cached.Content.Headers.LastModified.GetValueOrDefault().UtcDateTime.ToString());
+            Assert.IsTrue(cached.GetContentHeader("Expires") != null);
 
-            Assert.AreEqual("0123456789", cached.GetContent());
+            Assert.AreEqual("0123456789", await cached.GetContent());
         }
 
         [TestMethod]
-        public void TestNoContentCached()
+        public async Task TestNoContentCached()
         {
             var i = 0;
 
@@ -181,15 +181,15 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
             using var runner = TestRunner.Run(handler.Wrap().Add(ServerCache.Memory().Invalidate(false)), false);
 
-            using var _ = runner.GetResponse();
+            using var _ = await runner.GetResponse();
 
-            using var __ = runner.GetResponse();
+            using var __ = await runner.GetResponse();
 
             Assert.AreEqual(1, i);
         }
 
         [TestMethod]
-        public void TestNotOkNotCached()
+        public async Task TestNotOkNotCached()
         {
             var i = 0;
 
@@ -204,15 +204,15 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
             using var runner = TestRunner.Run(handler.Wrap().Add(ServerCache.Memory().Invalidate(false)), false);
 
-            using var _ = runner.GetResponse();
+            using var _ = await runner.GetResponse();
 
-            using var __ = runner.GetResponse();
+            using var __ = await runner.GetResponse();
 
             Assert.AreEqual(2, i);
         }
 
         [TestMethod]
-        public void TestPredicateNoMatchNoCache()
+        public async Task TestPredicateNoMatchNoCache()
         {
             var i = 0;
 
@@ -232,15 +232,15 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
             using var runner = TestRunner.Run(handler.Wrap().Add(cache), false);
 
-            using var _ = runner.GetResponse();
+            using var _ = await runner.GetResponse();
 
-            using var __ = runner.GetResponse();
+            using var __ = await runner.GetResponse();
 
             Assert.AreEqual(2, i);
         }
 
         [TestMethod]
-        public void TestPredicateMatchCached()
+        public async Task TestPredicateMatchCached()
         {
             var i = 0;
 
@@ -260,15 +260,15 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
             using var runner = TestRunner.Run(handler.Wrap().Add(cache), false);
 
-            using var _ = runner.GetResponse();
+            using var _ = await runner.GetResponse();
 
-            using var __ = runner.GetResponse();
+            using var __ = await runner.GetResponse();
 
             Assert.AreEqual(1, i);
         }
 
         [TestMethod]
-        public void TestQueryDifferenceNotCached()
+        public async Task TestQueryDifferenceNotCached()
         {
             var i = 0;
 
@@ -286,15 +286,15 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
             using var runner = TestRunner.Run(handler.Wrap().Add(cache), false);
 
-            using var _ = runner.GetResponse("/?a=1");
+            using var _ = await runner.GetResponse("/?a=1");
 
-            using var __ = runner.GetResponse("/?a=2");
+            using var __ = await runner.GetResponse("/?a=2");
 
             Assert.AreEqual(2, i);
         }
 
         [TestMethod]
-        public void TestPostNotCached()
+        public async Task TestPostNotCached()
         {
             var i = 0;
 
@@ -311,32 +311,25 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
             using var runner = TestRunner.Run(handler.Wrap().Add(cache), false);
 
-            using var _ = runner.GetResponse(GetPostRequest(runner));
+            using var _ = await runner.GetResponse(GetPostRequest(runner));
 
-            using var __ = runner.GetResponse(GetPostRequest(runner));
+            using var __ = await runner.GetResponse(GetPostRequest(runner));
 
             Assert.AreEqual(2, i);
         }
 
-        private static HttpWebRequest GetPostRequest(TestRunner runner)
+        private static HttpRequestMessage GetPostRequest(TestRunner runner)
         {
             var request = runner.GetRequest();
 
-            request.Method = "POST";
-            request.ContentType = "text/plain";
-
-            using (var requestStream = request.GetRequestStream())
-            {
-                using var writer = new StreamWriter(requestStream);
-
-                writer.WriteLine("Hello World!");
-            }
+            request.Method = HttpMethod.Post;
+            request.Content = new StringContent("Hello World!");
 
             return request;
         }
 
         [TestMethod]
-        public void TestVariationCached()
+        public async Task TestVariationCached()
         {
             var i = 0;
 
@@ -354,14 +347,14 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
             using var runner = TestRunner.Run(handler.Wrap().Add(cache), false);
 
-            using var _ = runner.GetResponse(GetVaryRequest(runner));
+            using var _ = await runner.GetResponse(GetVaryRequest(runner));
 
-            using var __ = runner.GetResponse(GetVaryRequest(runner));
+            using var __ = await runner.GetResponse(GetVaryRequest(runner));
 
             Assert.AreEqual(1, i);
         }
 
-        private static HttpWebRequest GetVaryRequest(TestRunner runner)
+        private static HttpRequestMessage GetVaryRequest(TestRunner runner)
         {
             var request = runner.GetRequest();
 
@@ -371,7 +364,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
         }
 
         [TestMethod]
-        public void TestContent()
+        public async Task TestContent()
         {
             var cache = ServerCache.Memory();
 
@@ -384,15 +377,15 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
             using var runner = TestRunner.Run(app, false);
 
-            using var response = runner.GetResponse("/sitemap.xml");
+            using var response = await runner.GetResponse("/sitemap.xml");
 
-            var sitemap = response.GetSitemap();
+            var sitemap = await response.GetSitemap();
 
             AssertX.Contains("/app/Template.html", sitemap);
         }
 
         [TestMethod]
-        public void TestDifferentStorageBackends()
+        public async Task TestDifferentStorageBackends()
         {
             foreach (var serverCache in GetBackends())
             {
@@ -409,16 +402,16 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
                 using var runner = TestRunner.Run(handler.Wrap().Add(serverCache.Invalidate(false)), false);
 
-                using var _ = runner.GetResponse();
+                using var _ = await runner.GetResponse();
 
-                using var __ = runner.GetResponse();
+                using var __ = await runner.GetResponse();
 
                 Assert.AreEqual(1, i);
             }
         }
 
         [TestMethod]
-        public void TestAccessExpiration()
+        public async Task TestAccessExpiration()
         {
             var i = 0;
 
@@ -438,9 +431,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
             using var runner = TestRunner.Run(handler.Wrap().Add(ServerCache.Create(meta, data)), false);
 
-            using var _ = runner.GetResponse();
+            using var _ = await runner.GetResponse();
 
-            using var __ = runner.GetResponse();
+            using var __ = await runner.GetResponse();
 
             Assert.AreEqual(2, i);
         }

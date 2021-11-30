@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -43,11 +44,11 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
         /// by accepting upper case letters in action names.
         /// </summary>
         [TestMethod]
-        public void TestActionCasingMatters()
+        public async Task TestActionCasingMatters()
         {
             using var runner = GetRunner();
 
-            using var response = runner.GetResponse("/t/Action/");
+            using var response = await runner.GetResponse("/t/Action/");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }

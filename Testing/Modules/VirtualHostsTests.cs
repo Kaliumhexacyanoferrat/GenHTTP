@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -18,7 +19,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
         /// same server instance.
         /// </summary>
         [TestMethod]
-        public void TestDomains()
+        public async Task TestDomains()
         {
             var hosts = VirtualHosts.Create()
                                     .Add("domain1.com", Layout.Create().Fallback(Content.From(Resource.FromString("domain1.com"))))
@@ -27,10 +28,10 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             using var runner = TestRunner.Run(hosts);
 
-            TestHost(runner, "domain1.com");
-            TestHost(runner, "domain2.com");
+            await TestHost(runner, "domain1.com");
+            await TestHost(runner, "domain2.com");
 
-            TestHost(runner, "localhost", "default");
+            await TestHost(runner, "localhost", "default");
         }
 
         /// <summary>
@@ -38,23 +39,23 @@ namespace GenHTTP.Testing.Acceptance.Modules
         /// no given route matches.
         /// </summary>
         [TestMethod]
-        public void TestNoDefault()
+        public async Task TestNoDefault()
         {
             using var runner = TestRunner.Run(VirtualHosts.Create());
 
-            using var response = runner.GetRequest().GetSafeResponse();
+            using var response = await runner.GetResponse();
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-        private static void TestHost(TestRunner runner, string host, string? expected = null)
+        private static async Task TestHost(TestRunner runner, string host, string? expected = null)
         {
             var request = runner.GetRequest();
             request.Headers.Add("Host", host);
 
-            using var response = request.GetSafeResponse();
+            using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual(expected ?? host, response.GetContent());
+            Assert.AreEqual(expected ?? host, await response.GetContent());
         }
 
     }

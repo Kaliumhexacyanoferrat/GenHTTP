@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -12,22 +13,22 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
     {
 
         [TestMethod]
-        public void TestContent()
+        public async Task TestContent()
         {
             using var runner = TestRunner.Run(Content.From(Resource.FromString("Hello World!")));
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("Hello World!", response.GetContent());
+            Assert.AreEqual("Hello World!", await response.GetContent());
         }
 
         [TestMethod]
-        public void TestContentIgnoresRouting()
+        public async Task TestContentIgnoresRouting()
         {
             using var runner = TestRunner.Run(Content.From(Resource.FromString("Hello World!")));
 
-            using var response = runner.GetResponse("/some/path");
+            using var response = await runner.GetResponse("/some/path");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }

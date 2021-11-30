@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
+
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Scriban;
@@ -14,7 +16,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
     {
 
         [TestMethod]
-        public void TestEnumerableViewModel()
+        public async Task TestEnumerableViewModel()
         {
             var vm = new List<int>() { 4711 };
 
@@ -22,17 +24,17 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
             using var runner = TestRunner.Run(page);
 
-            using var r1 = runner.GetResponse();
+            using var r1 = await runner.GetResponse();
 
             vm.Add(0815);
 
-            using var r2 = runner.GetResponse();
+            using var r2 = await runner.GetResponse();
 
-            Assert.AreNotEqual(r1.GetResponseHeader("ETag"), r2.GetResponseHeader("ETag"));
+            Assert.AreNotEqual(r1.GetHeader("ETag"), r2.GetHeader("ETag"));
         }
 
         [TestMethod]
-        public void TestNonEnumerableViewModel()
+        public async Task TestNonEnumerableViewModel()
         {
             var vm = new StringBuilder();
 
@@ -40,11 +42,11 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
             using var runner = TestRunner.Run(page);
 
-            using var r1 = runner.GetResponse();
+            using var r1 = await runner.GetResponse();
 
-            using var r2 = runner.GetResponse();
+            using var r2 = await runner.GetResponse();
 
-            Assert.AreEqual(r1.GetResponseHeader("ETag"), r2.GetResponseHeader("ETag"));
+            Assert.AreEqual(r1.GetHeader("ETag"), r2.GetHeader("ETag"));
         }
 
     }

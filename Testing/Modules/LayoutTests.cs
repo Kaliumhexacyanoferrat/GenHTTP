@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using System.Net;
+using System.Threading.Tasks;
 
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
@@ -16,19 +17,19 @@ namespace GenHTTP.Testing.Acceptance.Modules
         /// As a developer I can define the default route to be devlivered.
         /// </summary>
         [TestMethod]
-        public void TestGetIndex()
+        public async Task TestGetIndex()
         {
             var layout = Layout.Create()
                                .Index(Content.From(Resource.FromString("Hello World!")));
 
             using var runner = TestRunner.Run(layout);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("Hello World!", response.GetContent());
+            Assert.AreEqual("Hello World!", await response.GetContent());
 
-            using var notFound = runner.GetResponse("/notfound");
+            using var notFound = await runner.GetResponse("/notfound");
 
             Assert.AreEqual(HttpStatusCode.NotFound, notFound.StatusCode);
         }
@@ -37,7 +38,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
         /// As a developer I can set a default handler to be used for requests.
         /// </summary>
         [TestMethod]
-        public void TestDefaultContent()
+        public async Task TestDefaultContent()
         {
             var layout = Layout.Create().Fallback(Content.From(Resource.FromString("Hello World!")));
 
@@ -45,10 +46,10 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             foreach (var path in new string[] { "/something", "/" })
             {
-                using var response = runner.GetResponse("/somethingelse");
+                using var response = await runner.GetResponse("/somethingelse");
 
                 Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-                Assert.AreEqual("Hello World!", response.GetContent());
+                Assert.AreEqual("Hello World!", await response.GetContent());
             }
         }
 
@@ -57,22 +58,22 @@ namespace GenHTTP.Testing.Acceptance.Modules
         /// to produce duplicate content for missing trailing slashes.
         /// </summary>
         [TestMethod]
-        public void TestRedirect()
+        public async Task TestRedirect()
         {
             var layout = Layout.Create()
                                .Add("section", Layout.Create().Index(Content.From(Resource.FromString("Hello World!"))));
 
             using var runner = TestRunner.Run(layout);
 
-            using var response = runner.GetResponse("/section/");
+            using var response = await runner.GetResponse("/section/");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("Hello World!", response.GetContent());
+            Assert.AreEqual("Hello World!", await response.GetContent());
 
-            using var redirected = runner.GetResponse("/section");
+            using var redirected = await runner.GetResponse("/section");
 
             Assert.AreEqual(HttpStatusCode.MovedPermanently, redirected.StatusCode);
-            AssertX.EndsWith("/section/", redirected.Headers["Location"]!);
+            AssertX.EndsWith("/section/", redirected.GetHeader("Location")!);
         }
 
     }

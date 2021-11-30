@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Net;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -20,13 +21,13 @@ namespace GenHTTP.Testing.Acceptance.Providers
         /// on root level of a listed directory.
         /// </summary>
         [TestMethod]
-        public void TestGetMainListing()
+        public async Task TestGetMainListing()
         {
             using var runner = GetEnvironment();
 
-            using var response = runner.GetResponse("/");
+            using var response = await runner.GetResponse("/");
 
-            var content = response.GetContent();
+            var content = await response.GetContent();
 
             AssertX.Contains("Subdirectory", content);
             AssertX.Contains("With%20Spaces", content);
@@ -41,13 +42,13 @@ namespace GenHTTP.Testing.Acceptance.Providers
         /// within a subdirectory of a listed directory.
         /// </summary>
         [TestMethod]
-        public void TestGetSubdirectory()
+        public async Task TestGetSubdirectory()
         {
             using var runner = GetEnvironment();
 
-            using var response = runner.GetResponse("/Subdirectory/");
+            using var response = await runner.GetResponse("/Subdirectory/");
 
-            var content = response.GetContent();
+            var content = await response.GetContent();
 
             AssertX.Contains("..", content);
         }
@@ -58,32 +59,32 @@ namespace GenHTTP.Testing.Acceptance.Providers
         /// directory listing feature.
         /// </summary>
         [TestMethod]
-        public void TestDownload()
+        public async Task TestDownload()
         {
             using var runner = GetEnvironment();
 
-            using var response = runner.GetResponse("/my.txt");
+            using var response = await runner.GetResponse("/my.txt");
 
-            Assert.AreEqual("Hello World!", response.GetContent());
+            Assert.AreEqual("Hello World!", await response.GetContent());
         }
 
         [TestMethod]
-        public void TestNonExistingFolder()
+        public async Task TestNonExistingFolder()
         {
             using var runner = GetEnvironment();
 
-            using var response = runner.GetResponse("/idonotexist/");
+            using var response = await runner.GetResponse("/idonotexist/");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestSameListingSameChecksum()
+        public async Task TestSameListingSameChecksum()
         {
             using var runner = GetEnvironment();
 
-            using var resp1 = runner.GetResponse();
-            using var resp2 = runner.GetResponse();
+            using var resp1 = await runner.GetResponse();
+            using var resp2 = await runner.GetResponse();
 
             Assert.IsNotNull(resp1.GetETag());
 

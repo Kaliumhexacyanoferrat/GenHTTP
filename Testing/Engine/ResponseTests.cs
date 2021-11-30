@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Net.Http;
 using System.Net;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -10,7 +12,6 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Layouting;
-using System.Threading.Tasks;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {
@@ -62,7 +63,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// As a developer, I'd like to use all of the response builders methods.
         /// </summary>
         [TestMethod]
-        public void TestProperties()
+        public async Task TestProperties()
         {
             var provider = new ResponseProvider();
 
@@ -70,24 +71,24 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var runner = TestRunner.Run(router);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
-            Assert.AreEqual("Hello World", response.GetContent());
-            Assert.AreEqual("text/x-custom", response.ContentType);
+            Assert.AreEqual("Hello World", await response.GetContent());
+            Assert.AreEqual("text/x-custom", response.GetContentHeader("Content-Type"));
 
-            Assert.AreEqual(provider.Modified.WithoutMS(), response.LastModified.WithoutMS());
-            Assert.IsNotNull(response.Headers["Expires"]);
+            Assert.AreEqual(provider.Modified.WithoutMS(), response.Content.Headers.LastModified);
+            Assert.IsNotNull(response.GetContentHeader("Expires"));
 
-            Assert.AreEqual("Test Runner", response.Headers["X-Powered-By"]);
+            Assert.AreEqual("Test Runner", response.GetHeader("X-Powered-By"));
         }
 
         /// <summary>
         /// As a client, I'd like a response containing an empty body to return a Content-Length of 0.
         /// </summary>
         [TestMethod]
-        public void TestEmptyBody()
+        public async Task TestEmptyBody()
         {
             var provider = new ResponseProvider();
 
@@ -96,16 +97,13 @@ namespace GenHTTP.Testing.Acceptance.Engine
             using var runner = TestRunner.Run(router);
 
             var request = runner.GetRequest();
-            request.Method = "POST";
-            request.KeepAlive = true;
+            request.Method = HttpMethod.Post;
 
-            using var response = request.GetResponse();
+            using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual("", response.ContentType);
+            AssertX.IsNullOrEmpty(response.GetContentHeader("Content-Type"));
 
-            Assert.AreEqual(0, response.ContentLength);
-
-            Assert.AreEqual("Keep-Alive", response.Headers["Connection"]);
+            Assert.AreEqual("0", response.GetContentHeader("Content-Length"));
         }
 
     }

@@ -1,16 +1,16 @@
-﻿using System.IO;
-using System.Net;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Conversion.Providers;
 using GenHTTP.Modules.Conversion.Providers.Forms;
-using System.Threading.Tasks;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Conversion
 {
@@ -76,10 +76,10 @@ namespace GenHTTP.Testing.Acceptance.Modules.Conversion
             public IHandler Parent { get; }
 
             public ISerializationFormat Format { get; }
-            
+
             public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-            public ConversionHandler(ISerializationFormat format, IHandler parent) 
+            public ConversionHandler(ISerializationFormat format, IHandler parent)
             {
                 Parent = parent;
                 Format = format;
@@ -101,19 +101,19 @@ namespace GenHTTP.Testing.Acceptance.Modules.Conversion
         #region Tests
 
         [TestMethod]
-        public void TestFormFieldSerialization() => RunTest<FormFormat, FieldData>("field=20");
+        public async Task TestFormFieldSerialization() => await RunTest<FormFormat, FieldData>("field=20");
 
         [TestMethod]
-        public void TestFormPropertySerialization() => RunTest<FormFormat, PropertyData>("Field=20");
+        public async Task TestFormPropertySerialization() => await RunTest<FormFormat, PropertyData>("Field=20");
 
         [TestMethod]
-        public void TestFormTypeSerialization() => RunTest<FormFormat, TypedData>("Boolean=1&Double=0.2&String=Test&Enum=One");
+        public async Task TestFormTypeSerialization() => await RunTest<FormFormat, TypedData>("Boolean=1&Double=0.2&String=Test&Enum=One");
 
         #endregion
 
         #region Helpers
 
-        private static void RunTest<TFormat, TData>(string serialized) where TFormat : ISerializationFormat, new()
+        private static async Task RunTest<TFormat, TData>(string serialized) where TFormat : ISerializationFormat, new()
         {
             var handler = new ConversionHandlerBuilder<TData>(new TFormat());
 
@@ -121,20 +121,13 @@ namespace GenHTTP.Testing.Acceptance.Modules.Conversion
 
             var request = runner.GetRequest();
 
-            request.Method = "POST";
+            request.Method = HttpMethod.Post;
+            request.Content = new StringContent(serialized);
 
-            using (var stream = request.GetRequestStream())
-            {
-                using (var writer = new StreamWriter(stream))
-                {
-                    writer.Write(serialized);
-                }
-            }
-
-            using var response = request.GetSafeResponse();
+            using var response = await runner.GetResponse(request);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual(serialized, response.GetContent());
+            Assert.AreEqual(serialized, await response.GetContent());
         }
 
         #endregion

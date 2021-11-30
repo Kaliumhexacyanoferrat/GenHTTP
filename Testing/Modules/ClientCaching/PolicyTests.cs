@@ -1,4 +1,7 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using System.Net.Http;
+using System.Threading.Tasks;
+
+using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.ClientCaching;
 using GenHTTP.Modules.IO;
@@ -15,20 +18,20 @@ namespace GenHTTP.Testing.Acceptance.Modules.ClientCaching
     {
 
         [TestMethod]
-        public void TestExpireHeaderSet()
+        public async Task TestExpireHeaderSet()
         {
             var content = Content.From(Resource.FromString("Content"))
                                  .Add(ClientCache.Policy().Duration(1));
 
             using var runner = TestRunner.Run(content);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            Assert.IsNotNull(response.GetResponseHeader("Expires"));
+            Assert.IsNotNull(response.GetContentHeader("Expires"));
         }
 
         [TestMethod]
-        public void TestExpireHeaderNotSetForOtherMethods()
+        public async Task TestExpireHeaderNotSetForOtherMethods()
         {
             var content = Content.From(Resource.FromString("Content"))
                                  .Add(ClientCache.Policy().Duration(1));
@@ -36,41 +39,41 @@ namespace GenHTTP.Testing.Acceptance.Modules.ClientCaching
             using var runner = TestRunner.Run(content);
 
             var request = runner.GetRequest();
-            request.Method = "HEAD";
+            request.Method = HttpMethod.Head;
 
-            using var response = runner.GetResponse(request);
+            using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual(string.Empty, response.GetResponseHeader("Expires"));
+            AssertX.IsNullOrEmpty(response.GetContentHeader("Expires"));
         }
 
         [TestMethod]
-        public void TestExpireHeaderNotSetForOtherStatus()
+        public async Task TestExpireHeaderNotSetForOtherStatus()
         {
             var content = Layout.Create()
                                 .Add(ClientCache.Policy().Duration(1));
 
             using var runner = TestRunner.Run(content);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            Assert.AreEqual(string.Empty, response.GetResponseHeader("Expires"));
+            AssertX.IsNullOrEmpty(response.GetContentHeader("Expires"));
         }
 
         [TestMethod]
-        public void TestPredicate()
+        public async Task TestPredicate()
         {
             var content = Content.From(Resource.FromString("Content"))
                                  .Add(ClientCache.Policy().Duration(1).Predicate((_, r) => r.ContentType?.RawType != "text/plain"));
 
             using var runner = TestRunner.Run(content);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            Assert.AreEqual(string.Empty, response.GetResponseHeader("Expires"));
+            AssertX.IsNullOrEmpty(response.GetContentHeader("Expires"));
         }
 
         [TestMethod]
-        public void TestContent()
+        public async Task TestContent()
         {
             var content = Layout.Create()
                                 .Index(Content.From(Resource.FromString("Index").Type(new FlexibleContentType(ContentType.TextHtml))))
@@ -79,9 +82,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ClientCaching
 
             using var runner = TestRunner.Run(content);
 
-            using var response = runner.GetResponse("/" + Sitemap.FILE_NAME);
+            using var response = await runner.GetResponse("/" + Sitemap.FILE_NAME);
 
-            Assert.AreEqual(1, response.GetSitemap().Count);
+            Assert.AreEqual(1, (await response.GetSitemap()).Count);
         }
 
     }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -21,56 +20,43 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
     {
 
         [TestMethod]
-        public void TestNoKey()
+        public async Task TestNoKey()
         {
             using var runner = GetRunnerWithKeys("123");
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestInvalidKey()
+        public async Task TestInvalidKey()
         {
             using var runner = GetRunnerWithKeys("123");
 
             var request = runner.GetRequest();
             request.Headers.Add("X-API-Key", "124");
 
-            using var response = runner.GetResponse(request);
+            using var response = await runner.GetResponse(request);
 
             Assert.AreEqual(HttpStatusCode.Forbidden, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestValidKey()
+        public async Task TestValidKey()
         {
             using var runner = GetRunnerWithKeys("123");
 
             var request = runner.GetRequest();
             request.Headers.Add("X-API-Key", "123");
 
-            using var response = runner.GetResponse(request);
+            using var response = await runner.GetResponse(request);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestValidKeyWithWhitespace()
-        {
-            using var runner = GetRunnerWithKeys("123");
-
-            var request = runner.GetRequest();
-            request.Headers.Add("X-API-Key", " 123 ");
-
-            using var response = runner.GetResponse(request);
-
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-        }
-
-        [TestMethod]
-        public void TestValidKeyFromQuery()
+        public async Task TestValidKeyFromQuery()
         {
             var auth = ApiKeyAuthentication.Create()
                                            .WithQueryParameter("key")
@@ -78,13 +64,13 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var runner = GetRunnerWithAuth(auth);
 
-            using var response = runner.GetResponse("/?key=123");
+            using var response = await runner.GetResponse("/?key=123");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestValidKeyFromHeader()
+        public async Task TestValidKeyFromHeader()
         {
             var auth = ApiKeyAuthentication.Create()
                                            .WithHeader("key")
@@ -93,15 +79,15 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             using var runner = GetRunnerWithAuth(auth);
 
             var request = runner.GetRequest();
-            request.Headers.Add("key", " 123 ");
+            request.Headers.Add("key", "123");
 
-            using var response = runner.GetResponse(request);
+            using var response = await runner.GetResponse(request);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestCustomExtractor()
+        public async Task TestCustomExtractor()
         {
             var auth = ApiKeyAuthentication.Create()
                                            .Extractor((r) => r.UserAgent)
@@ -110,15 +96,15 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             using var runner = GetRunnerWithAuth(auth);
 
             var request = runner.GetRequest();
-            request.UserAgent = "123";
+            request.Headers.Add("User-Agent", "123");
 
-            using var response = runner.GetResponse(request);
+            using var response = await runner.GetResponse(request);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestCustomAuthenticator()
+        public async Task TestCustomAuthenticator()
         {
             static ValueTask<IUser?> authenticator(IRequest r, string k) => (k.Length == 5) ? new ValueTask<IUser?>(new ApiKeyUser(k)) : new ValueTask<IUser?>();
 
@@ -130,7 +116,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             var request = runner.GetRequest();
             request.Headers.Add("X-API-Key", "12345");
 
-            using var response = runner.GetResponse(request);
+            using var response = await runner.GetResponse(request);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }

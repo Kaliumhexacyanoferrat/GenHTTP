@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -13,11 +14,11 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// As a client, I expect the server to return 404 for non-existing files.
         /// </summary>
         [TestMethod]
-        public void NotFoundForUnknownRoute()
+        public async Task NotFoundForUnknownRoute()
         {
             using var runner = TestRunner.Run();
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 

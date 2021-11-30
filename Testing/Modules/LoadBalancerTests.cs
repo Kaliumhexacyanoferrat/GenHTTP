@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
 
@@ -15,7 +16,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
     {
 
         [TestMethod]
-        public void TestProxy()
+        public async Task TestProxy()
         {
             using var upstream = TestRunner.Run(Content.From(Resource.FromString("Proxy!")));
 
@@ -24,42 +25,42 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var runner = TestRunner.Run(loadbalancer);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("Proxy!", response.GetContent());                
+            Assert.AreEqual("Proxy!", await response.GetContent());                
         }
 
         [TestMethod]
-        public void TestRedirect()
+        public async Task TestRedirect()
         {
             var loadbalancer = LoadBalancer.Create()
                                            .Redirect($"http://node");
 
             using var runner = TestRunner.Run(loadbalancer);
 
-            using var response = runner.GetResponse("/page");
+            using var response = await runner.GetResponse("/page");
 
             Assert.AreEqual(HttpStatusCode.TemporaryRedirect, response.StatusCode);
-            Assert.AreEqual("http://node/page", response.GetResponseHeader("Location"));
+            Assert.AreEqual("http://node/page", response.GetHeader("Location"));
         }
 
         [TestMethod]
-        public void TestCustomHandler()
+        public async Task TestCustomHandler()
         {
             var loadbalancer = LoadBalancer.Create()
                                            .Add(Content.From(Resource.FromString("My Content!")));
 
             using var runner = TestRunner.Run(loadbalancer);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("My Content!", response.GetContent());
+            Assert.AreEqual("My Content!", await response.GetContent());
         }
 
         [TestMethod]
-        public void TestPriorities()
+        public async Task TestPriorities()
         {
             var loadbalancer = LoadBalancer.Create()
                                            .Add(Content.From(Resource.FromString("Prio A")), r => Priority.High)
@@ -67,13 +68,13 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var runner = TestRunner.Run(loadbalancer);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            Assert.AreEqual("Prio A", response.GetContent());
+            Assert.AreEqual("Prio A", await response.GetContent());
         }
 
         [TestMethod]
-        public void TestMultiplePriorities()
+        public async Task TestMultiplePriorities()
         {
             var loadbalancer = LoadBalancer.Create()
                                            .Add(Content.From(Resource.FromString("Prio A1")), r => Priority.High)
@@ -82,17 +83,17 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var runner = TestRunner.Run(loadbalancer);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            AssertX.StartsWith("Prio A", response.GetContent());
+            AssertX.StartsWith("Prio A", await response.GetContent());
         }
         
         [TestMethod]
-        public void TestNoNodes()
+        public async Task TestNoNodes()
         {
             using var runner = TestRunner.Run(LoadBalancer.Create());
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
