@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Net.Http;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
@@ -51,7 +51,25 @@ namespace GenHTTP.Testing.Acceptance
 
         public static string? GetETag(this HttpResponseMessage response) => response.GetHeader("ETag");
 
-        public static string? GetHeader(this HttpResponseMessage response, string key) => response.Headers.GetValues(key).FirstOrDefault();
+        public static string? GetHeader(this HttpResponseMessage response, string key)
+        {
+            if (response.Headers.TryGetValues(key, out var values))
+            {
+                return values.FirstOrDefault();
+            }
+
+            return null;
+        }
+
+        public static string? GetContentHeader(this HttpResponseMessage response, string key)
+        {
+            if (response.Content.Headers.TryGetValues(key, out var values))
+            {
+                return values.FirstOrDefault();
+            }
+
+            return null;
+        }
 
         public static async Task<HashSet<string>> GetSitemap(this HttpResponseMessage response)
         {

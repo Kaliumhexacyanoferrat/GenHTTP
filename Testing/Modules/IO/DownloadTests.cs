@@ -24,8 +24,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
-            Assert.AreEqual("This is text!", response.GetContent());
-            Assert.AreEqual("text/plain", response.GetHeader("Content-Type"));
+            Assert.AreEqual("This is text!", await response.GetContent());
+            Assert.AreEqual("text/plain", response.GetContentHeader("Content-Type"));
         }
 
         [TestMethod]
@@ -68,7 +68,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual("attachment; filename=\"myfile.txt\"", response.GetHeader("Content-Disposition"));
+            Assert.AreEqual("attachment; filename=\"myfile.txt\"", response.GetContentHeader("Content-Disposition"));
         }
 
         [TestMethod]
@@ -80,7 +80,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual("attachment", response.GetHeader("Content-Disposition"));
+            Assert.AreEqual("attachment", response.GetContentHeader("Content-Disposition"));
         }
         
         [TestMethod]
@@ -92,7 +92,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual("attachment; filename=\"myfile.txt\"", response.GetHeader("Content-Disposition"));
+            Assert.AreEqual("attachment; filename=\"myfile.txt\"", response.GetContentHeader("Content-Disposition"));
         }
 
     }

@@ -46,7 +46,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             Assert.AreEqual(HttpStatusCode.NotModified, cached.StatusCode);
 
-            Assert.AreEqual("0", cached.GetHeader("Content-Length"));
+            Assert.AreEqual("0", cached.GetContentHeader("Content-Length"));
         }
 
         [TestMethod]

@@ -66,9 +66,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
         {
             var provider = new TestProvider();
 
-            var layout = Layout.Create().Add("test", provider.Wrap());
-
-            using var runner = TestRunner.Run(layout);
+            using var runner = TestRunner.Run(provider);
 
             var request = runner.GetRequest();
             request.Headers.Add("Cookie", "1=2; 3=4");

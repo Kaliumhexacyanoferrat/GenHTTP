@@ -1,5 +1,6 @@
 ﻿using System.IO.Compression;
 using System.Threading.Tasks;
+using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -58,7 +59,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual("br", response.GetHeader("Content-Encoding"));
+            Assert.AreEqual("br", response.Content.Headers.ContentEncoding.First());
         }
 
         /// <summary>
@@ -75,7 +76,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual("gzip", response.GetHeader("Content-Encoding"));
+            Assert.AreEqual("gzip", response.Content.Headers.ContentEncoding.First());
         }
 
         /// <summary>
@@ -88,7 +89,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = await runner.GetResponse();
 
-            AssertX.IsNullOrEmpty(response.GetHeader("Content-Encoding"));
+            Assert.IsFalse(response.Content.Headers.ContentEncoding.Any());
         }
 
         /// <summary>
@@ -106,7 +107,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual("custom", response.GetHeader("Content-Encoding"));
+            Assert.AreEqual("custom", response.Content.Headers.ContentEncoding.First());
         }
 
         /// <summary>
@@ -121,7 +122,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = await runner.GetResponse("/uncompressed");
 
-            AssertX.IsNullOrEmpty(response.GetHeader("Content-Encoding"));
+            Assert.IsFalse(response.Content.Headers.ContentEncoding.Any());
         }
 
         [TestMethod]
@@ -156,7 +157,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual("Host, Accept-Encoding", response.GetHeader("Vary"));
+            Assert.IsTrue(response.Headers.Vary.Contains("Host"));
+            Assert.IsTrue(response.Headers.Vary.Contains("Accept-Encoding"));
         }
 
     }

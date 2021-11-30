@@ -32,7 +32,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Pages
             AssertX.Contains("My Page", content);
             AssertX.Contains("My Description", content);
 
-            Assert.AreEqual("text/html", response.GetHeader("Content-Type"));
+            Assert.AreEqual("text/html", response.GetContentHeader("Content-Type"));
         }
 
         [TestMethod]

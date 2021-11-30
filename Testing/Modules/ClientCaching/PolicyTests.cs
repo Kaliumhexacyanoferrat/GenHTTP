@@ -27,7 +27,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ClientCaching
 
             using var response = await runner.GetResponse();
 
-            Assert.IsNotNull(response.GetHeader("Expires"));
+            Assert.IsNotNull(response.GetContentHeader("Expires"));
         }
 
         [TestMethod]
@@ -43,7 +43,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ClientCaching
 
             using var response = await runner.GetResponse(request);
 
-            AssertX.IsNullOrEmpty(response.GetHeader("Expires"));
+            AssertX.IsNullOrEmpty(response.GetContentHeader("Expires"));
         }
 
         [TestMethod]
@@ -56,7 +56,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ClientCaching
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual(string.Empty, response.GetHeader("Expires"));
+            AssertX.IsNullOrEmpty(response.GetContentHeader("Expires"));
         }
 
         [TestMethod]
@@ -69,7 +69,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ClientCaching
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual(string.Empty, response.GetHeader("Expires"));
+            AssertX.IsNullOrEmpty(response.GetContentHeader("Expires"));
         }
 
         [TestMethod]

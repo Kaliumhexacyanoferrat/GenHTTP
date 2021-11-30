@@ -1,5 +1,7 @@
 ﻿using System.Net;
 using System.IO;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -10,7 +12,7 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
-using System.Net.Http;
+using System.Collections.Generic;
 using System.Net.Http.Headers;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Controllers
@@ -85,7 +87,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             using var response = await runner.GetResponse("/t/");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("Hello World!", response.GetContent());
+            Assert.AreEqual("Hello World!", await response.GetContent());
         }
 
         [TestMethod]
@@ -96,7 +98,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             using var response = await runner.GetResponse("/t/action/");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("Action", response.GetContent());
+            Assert.AreEqual("Action", await response.GetContent());
         }
 
         [TestMethod]
@@ -107,7 +109,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             using var response = await runner.GetResponse("/t/action/?query=0815");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("815", response.GetContent());
+            Assert.AreEqual("815", await response.GetContent());
         }
 
         [TestMethod]
@@ -115,43 +117,35 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
         {
             using var runner = GetRunner();
 
-            using var content = new MemoryStream();
-
-            using (var input = new StreamWriter(content))
+            var dict = new Dictionary<string, string>()
             {
-                input.Write("value2=test");
-            }
+                { "value2", "test" }
+            };
 
-            var request = runner.GetRequest();
+            var request = runner.GetRequest("/t/action/");
+
             request.Method = HttpMethod.Put;
+            request.Content = new FormUrlEncodedContent(dict);
 
-            request.Content = new StreamContent(content);
-            request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/x-www-form-urlencoded");
-
-            using var response = await runner.GetResponse("/t/action/");
+            using var response = await runner.GetResponse(request);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.AreEqual("Action test", await response.GetContent());
         }
 
         [TestMethod]
-        public async void TestActionWithBody()
+        public async Task TestActionWithBody()
         {
             using var runner = GetRunner();
 
-            using var content = new MemoryStream();
-
-            using (var input = new StreamWriter(content))
-            {
-                input.Write("{ \"field\": \"FieldData\" }");
-            }
-
-            var request = runner.GetRequest();
+            var request = runner.GetRequest("/t/action/");
 
             request.Method = HttpMethod.Post;
-            request.Content= new StreamContent(content);    
 
-            using var response = await runner.GetResponse("/t/action/");
+            request.Content = new StringContent("{ \"field\": \"FieldData\" }", null, "application/json");
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+            using var response = await runner.GetResponse(request);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.AreEqual("FieldData", await response.GetContent());
@@ -165,7 +159,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             using var response = await runner.GetResponse("/t/simple-action/4711/");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("4711", response.GetContent());
+            Assert.AreEqual("4711", await response.GetContent());
         }
 
         [TestMethod]
@@ -186,7 +180,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             using var response = await runner.GetResponse("/t/complex-action/1/2/?three=3");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("6", response.GetContent());
+            Assert.AreEqual("6", await response.GetContent());
         }
 
         [TestMethod]
@@ -217,7 +211,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             using var response = await runner.GetResponse("/t/hypen-casing-99/");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("OK", response.GetContent());
+            Assert.AreEqual("OK", await response.GetContent());
         }
 
         [TestMethod]
@@ -228,7 +222,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             using var response = await runner.GetResponse("/simple-action/4711/");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("4711", response.GetContent());
+            Assert.AreEqual("4711", await response.GetContent());
         }
 
         #endregion

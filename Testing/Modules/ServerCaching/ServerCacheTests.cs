@@ -106,7 +106,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
                 using var gzipResponse = await runner.GetResponse(gzipRequest);
 
                 Assert.AreEqual(HttpStatusCode.OK, gzipResponse.StatusCode);
-                Assert.AreEqual("gzip", gzipResponse.GetHeader("Content-Encoding"));
+                Assert.AreEqual("gzip", gzipResponse.GetContentHeader("Content-Encoding"));
 
                 var brRequest = runner.GetRequest();
 
@@ -115,12 +115,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
                 using var brResponse = await runner.GetResponse(brRequest);
 
                 Assert.AreEqual(HttpStatusCode.OK, brResponse.StatusCode);
-                Assert.AreEqual("br", brResponse.GetHeader("Content-Encoding"));
+                Assert.AreEqual("br", brResponse.GetContentHeader("Content-Encoding"));
 
                 using var uncompressedResponse = await runner.GetResponse();
 
                 Assert.AreEqual(HttpStatusCode.OK, uncompressedResponse.StatusCode);
-                AssertX.IsNullOrEmpty(uncompressedResponse.GetHeader("Content-Encoding"));
+                AssertX.IsNullOrEmpty(uncompressedResponse.GetContentHeader("Content-Encoding"));
                 Assert.AreEqual("This is some content!", await uncompressedResponse.GetContent());
             }
             finally
@@ -154,16 +154,16 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
             using var cached = await runner.GetResponse();
 
-            Assert.AreEqual("audio/wav", cached.GetHeader("Content-Type"));
+            Assert.AreEqual("audio/wav", cached.GetContentHeader("Content-Type"));
 
             Assert.AreEqual("HValue", cached.GetHeader("HKey"));
-            Assert.AreEqual("10", cached.GetHeader("Content-Length"));
-            Assert.AreEqual("some-encoding", cached.GetHeader("Content-Encoding"));
+            Assert.AreEqual("10", cached.GetContentHeader("Content-Length"));
+            Assert.AreEqual("some-encoding", cached.GetContentHeader("Content-Encoding"));
 
-            Assert.AreEqual(now.ToString(), cached.Content.Headers.LastModified.ToString());
-            Assert.IsTrue(cached.GetHeader("Expires") != null);
+            Assert.AreEqual(now.ToString(), cached.Content.Headers.LastModified.GetValueOrDefault().UtcDateTime.ToString());
+            Assert.IsTrue(cached.GetContentHeader("Expires") != null);
 
-            Assert.AreEqual("0123456789", cached.GetContent());
+            Assert.AreEqual("0123456789", await cached.GetContent());
         }
 
         [TestMethod]

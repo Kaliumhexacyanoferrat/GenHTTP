@@ -31,7 +31,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             using var response = await runner.GetResponse(request);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("br", response.GetHeader("Content-Encoding"));
+            Assert.AreEqual("br", response.GetContentHeader("Content-Encoding"));
         }
 
     }

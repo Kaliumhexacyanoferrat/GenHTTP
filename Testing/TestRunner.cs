@@ -1,14 +1,15 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Infrastructure;
-using GenHTTP.Modules.Layouting;
-using GenHTTP.Modules.Practices;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Net;
 using System.Net.Cache;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
+
+using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Practices;
 
 namespace GenHTTP.Testing.Acceptance
 {
@@ -101,7 +102,7 @@ namespace GenHTTP.Testing.Acceptance
             return await actualClient.SendAsync(message);
         }
 
-        public static HttpClient GetClient(bool ignoreSecurityErrors = false, bool followRedirects = true,
+        public static HttpClient GetClient(bool ignoreSecurityErrors = false, bool followRedirects = false,
             Version? version = null, NetworkCredential? creds = null, CookieContainer? cookies = null)
         {
             var handler = new HttpClientHandler
@@ -123,8 +124,10 @@ namespace GenHTTP.Testing.Acceptance
 
             var client = new HttpClient(handler)
             {
-                DefaultRequestVersion = version ?? HttpVersion.Version11,
+                DefaultRequestVersion = version ?? HttpVersion.Version11
             };
+
+            client.DefaultRequestHeaders.ConnectionClose = false;
 
             return client;
         }

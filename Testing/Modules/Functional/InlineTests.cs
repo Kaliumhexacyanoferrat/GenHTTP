@@ -30,7 +30,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponse();
 
-            Assert.AreEqual("42", response.GetContent());
+            Assert.AreEqual("42", await response.GetContent());
         }
 
         [TestMethod]
@@ -40,7 +40,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponse("/blubb");
 
-            Assert.AreEqual("42", response.GetContent());
+            Assert.AreEqual("42", await response.GetContent());
         }
 
         [TestMethod]
@@ -50,7 +50,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponse("/?param=41");
 
-            Assert.AreEqual("42", response.GetContent());
+            Assert.AreEqual("42", await response.GetContent());
         }
 
         [TestMethod]
@@ -60,7 +60,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponse("/41");
             
-            Assert.AreEqual("42", response.GetContent());
+            Assert.AreEqual("42", await response.GetContent());
         }
 
         [TestMethod]
@@ -85,7 +85,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponse();
 
-            Assert.AreEqual("42", response.GetContent());
+            Assert.AreEqual("42", await response.GetContent());
         }
 
         [TestMethod]
@@ -95,7 +95,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponse();
 
-            Assert.AreEqual("42", response.GetContent());
+            Assert.AreEqual("42", await response.GetContent());
         }
 
         [TestMethod]
@@ -105,7 +105,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponse();
 
-            Assert.AreEqual("{\"string\":\"42\",\"int\":42,\"double\":42}", response.GetContent());
+            Assert.AreEqual("{\"string\":\"42\",\"int\":42,\"double\":42}", await response.GetContent());
         }
 
         [TestMethod]
@@ -124,7 +124,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponse();
 
-            Assert.AreEqual("42", response.GetContent());
+            Assert.AreEqual("42", await response.GetContent());
         }
 
     }

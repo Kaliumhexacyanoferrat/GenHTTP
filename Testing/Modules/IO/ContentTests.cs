@@ -20,7 +20,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             using var response = await runner.GetResponse();
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("Hello World!", response.GetContent());
+            Assert.AreEqual("Hello World!", await response.GetContent());
         }
 
         [TestMethod]

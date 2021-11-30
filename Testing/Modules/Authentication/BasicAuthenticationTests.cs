@@ -40,7 +40,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = await GetResponse(runner, "user", "password");
 
-            Assert.AreEqual("user", response.GetContent());
+            Assert.AreEqual("user", await response.GetContent());
         }
 
         [TestMethod]
@@ -77,7 +77,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = await GetResponse(runner, "_", "_");
 
-            Assert.AreEqual("my", response.GetContent());
+            Assert.AreEqual("my", await response.GetContent());
         }
 
         [TestMethod]

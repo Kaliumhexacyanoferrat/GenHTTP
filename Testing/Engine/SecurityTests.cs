@@ -50,7 +50,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
             {
                 using var client = TestRunner.GetClient(followRedirects: false);
 
-                using var response = await client.GetAsync($"https://localhost:{insec}");
+                using var response = await client.GetAsync($"http://localhost:{insec}");
 
                 Assert.AreEqual(HttpStatusCode.MovedPermanently, response.StatusCode);
                 Assert.AreEqual($"https://localhost:{sec}/", response.Headers.GetValues("Location").First());
@@ -68,7 +68,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
             {
                 using var client = TestRunner.GetClient(followRedirects: false);
 
-                using var response = await client.GetAsync($"https://localhost:{insec}");
+                using var response = await client.GetAsync($"http://localhost:{insec}");
 
                 Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             }, mode: SecureUpgrade.Allow);
@@ -85,7 +85,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
             {
                 using var client = TestRunner.GetClient(followRedirects: false);
 
-                var request = new HttpRequestMessage(HttpMethod.Get, $"https://localhost:{insec}");
+                var request = new HttpRequestMessage(HttpMethod.Get, $"http://localhost:{insec}");
                 request.Headers.Add("Upgrade-Insecure-Requests", "1");
 
                 using var response = await client.SendAsync(request);
@@ -107,7 +107,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
             {
                 using var client = TestRunner.GetClient(ignoreSecurityErrors: true);
 
-                using var insecureResponse = await client.GetAsync($"https://localhost:{insec}");
+                using var insecureResponse = await client.GetAsync($"http://localhost:{insec}");
 
                 Assert.AreEqual(HttpStatusCode.OK, insecureResponse.StatusCode);
                 Assert.IsFalse(insecureResponse.Headers.Contains("Strict-Transport-Security"));
@@ -129,7 +129,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
         {
             return RunSecure(async (insec, sec) =>
             {
-                Assert.ThrowsException<WebException>(async () =>
+                await Assert.ThrowsExceptionAsync<HttpRequestException>(async () =>
                 {
                     using var client = TestRunner.GetClient();
 
@@ -150,9 +150,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
         [TestMethod]
         public Task TestNoCertificate()
         {
-            return RunSecure((insec, sec) =>
+            return RunSecure(async (insec, sec) =>
             {
-                Assert.ThrowsException<WebException>(async () =>
+                await Assert.ThrowsExceptionAsync<HttpRequestException>(async () =>
                 {
                     using var client = TestRunner.GetClient(ignoreSecurityErrors: false);
 
@@ -161,7 +161,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
             }, host: "myserver");
         }
 
-        private static async Task RunSecure(Action<ushort, ushort> logic, SecureUpgrade? mode = null, string host = "localhost")
+        private static async Task RunSecure(Func<ushort, ushort, Task> logic, SecureUpgrade? mode = null, string host = "localhost")
         {
             var content = Layout.Create().Index(Content.From(Resource.FromString("Hello Alice!")));
 
@@ -183,7 +183,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             runner.Start();
 
-            logic((ushort)runner.Port, (ushort)port);
+            await logic((ushort)runner.Port, (ushort)port);
         }
 
         private static async ValueTask<X509Certificate2> GetCertificate()

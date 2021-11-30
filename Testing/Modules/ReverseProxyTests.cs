@@ -224,7 +224,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var cookieRequest = runner.GetRequest();
 
-            using var cookied = await runner.GetResponse(cookieRequest);
+            using var cookied = await client.SendAsync(cookieRequest);
 
             Assert.AreEqual(HttpStatusCode.OK, cookied.StatusCode);
 
@@ -259,8 +259,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             Assert.AreEqual("Custom Value", response.GetHeader("X-Custom-Header"));
 
-            Assert.AreEqual(now.ToString("r"), response.GetHeader("Expires"));
-            Assert.AreEqual(now.ToString("r"), response.GetHeader("Last-Modified"));
+            Assert.AreEqual(now.ToString("r"), response.GetContentHeader("Expires"));
+            Assert.AreEqual(now.ToString("r"), response.GetContentHeader("Last-Modified"));
         }
 
         [TestMethod]
@@ -282,7 +282,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var response = await runner.GetResponse(request);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("Input", response.GetContent());
+            Assert.AreEqual("Input", await response.GetContent());
         }
 
         [TestMethod]
@@ -338,7 +338,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var runner = setup.Runner;
 
             using var r = await runner.GetResponse("/?key=%20%3C+");
-            Assert.AreEqual("key= <+", r.GetContent());
+            Assert.AreEqual("key= <+", await r.GetContent());
         }
 
         [TestMethod]
@@ -352,7 +352,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var runner = setup.Runner;
 
             using var r = await runner.GetResponse("/%3F%23%26%2F %20");
-            Assert.AreEqual("/%3F%23%26%2F%20%20", r.GetContent());
+            Assert.AreEqual("/%3F%23%26%2F%20%20", await r.GetContent());
         }
 
         [TestMethod]
@@ -366,7 +366,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var runner = setup.Runner;
 
             using var r = await runner.GetResponse("/$@:");
-            Assert.AreEqual("/$@:", r.GetContent());
+            Assert.AreEqual("/$@:", await r.GetContent());
         }
 
         [TestMethod]
@@ -383,7 +383,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var response = await setup.Runner.GetResponse();
 
             Assert.AreEqual(11, response.Content.Headers.ContentLength);
-            Assert.AreEqual(string.Empty, response.GetHeader("Transfer-Encoding"));
+            AssertX.IsNullOrEmpty(response.GetHeader("Transfer-Encoding"));
         }
 
         [TestMethod]

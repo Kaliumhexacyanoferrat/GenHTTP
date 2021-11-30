@@ -65,7 +65,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.AreNotEqual("Hello World!", content);
             AssertX.Contains("Hello World!", content);
 
-            Assert.AreEqual("text/html", response.GetHeader("Content-Type"));
+            Assert.AreEqual("text/html", response.GetContentHeader("Content-Type"));
         }
 
         [TestMethod]

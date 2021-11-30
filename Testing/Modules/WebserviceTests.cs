@@ -103,13 +103,13 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         [TestMethod]
         public async Task TestEmpty()
         {
-            await WithResponse("", r => Assert.AreEqual(HttpStatusCode.NoContent, r.StatusCode));
+            await WithResponse("", r => { Assert.AreEqual(HttpStatusCode.NoContent, r.StatusCode); return Task.CompletedTask; });
         }
 
         [TestMethod]
         public async Task TestVoidReturn()
         {
-            await WithResponse("nothing", r => Assert.AreEqual(HttpStatusCode.NoContent, r.StatusCode));
+            await WithResponse("nothing", r => { Assert.AreEqual(HttpStatusCode.NoContent, r.StatusCode); return Task.CompletedTask; });
         }
 
         [TestMethod]
@@ -133,7 +133,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         [TestMethod]
         public async Task TestNullableNotSet()
         {
-            await WithResponse("nullable", r => Assert.AreEqual(HttpStatusCode.NoContent, r.StatusCode));
+            await WithResponse("nullable", r => { Assert.AreEqual(HttpStatusCode.NoContent, r.StatusCode); return Task.CompletedTask; });
         }
 
         [TestMethod]
@@ -153,7 +153,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         [TestMethod]
         public async Task TestConversionFailure()
         {
-            await WithResponse("param/abc", r => Assert.AreEqual(HttpStatusCode.BadRequest, r.StatusCode));
+            await WithResponse("param/abc", r => { Assert.AreEqual(HttpStatusCode.BadRequest, r.StatusCode); return Task.CompletedTask; });
         }
 
         [TestMethod]
@@ -179,7 +179,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         [TestMethod]
         public async Task TestNotSupportedUpload()
         {
-            await WithResponse("entity", HttpMethod.Post, "123", "bla/blubb", null, r => Assert.AreEqual(HttpStatusCode.UnsupportedMediaType, r.StatusCode));
+            await WithResponse("entity", HttpMethod.Post, "123", "bla/blubb", null, r => { Assert.AreEqual(HttpStatusCode.UnsupportedMediaType, r.StatusCode); return Task.CompletedTask; });
         }
 
         [TestMethod]
@@ -192,13 +192,13 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         [TestMethod]
         public async Task TestWrongMethod()
         {
-            await WithResponse("entity", HttpMethod.Put, "123", null, null, r => Assert.AreEqual(HttpStatusCode.MethodNotAllowed, r.StatusCode));
+            await WithResponse("entity", HttpMethod.Put, "123", null, null, r => { Assert.AreEqual(HttpStatusCode.MethodNotAllowed, r.StatusCode); return Task.CompletedTask; });
         }
 
         [TestMethod]
         public async Task TestNoMethod()
         {
-            await WithResponse("idonotexist", r => Assert.AreEqual(HttpStatusCode.NotFound, r.StatusCode));
+            await WithResponse("idonotexist", r => { Assert.AreEqual(HttpStatusCode.NotFound, r.StatusCode); return Task.CompletedTask; });
         }
 
         [TestMethod]
@@ -224,9 +224,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         {
             var entity = "<TestEntity><ID>1</ID><Nullable>1234.56</Nullable></TestEntity>";
 
-            await WithResponse("entity", HttpMethod.Post, entity, "text/xml", "text/xml", r =>
+            await WithResponse("entity", HttpMethod.Post, entity, "text/xml", "text/xml", async r =>
             {
-                var result = new XmlSerializer(typeof(TestEntity)).Deserialize(r.Content.ReadAsStream()) as TestEntity;
+                var result = new XmlSerializer(typeof(TestEntity)).Deserialize(await r.Content.ReadAsStreamAsync()) as TestEntity;
 
                 Assert.IsNotNull(result);
 
@@ -238,13 +238,13 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         [TestMethod]
         public async Task TestException()
         {
-            await WithResponse("exception", r => Assert.AreEqual(HttpStatusCode.AlreadyReported, r.StatusCode));
+            await WithResponse("exception", r => { Assert.AreEqual(HttpStatusCode.AlreadyReported, r.StatusCode); return Task.CompletedTask; });
         }
 
         [TestMethod]
         public async Task TestDuplicate()
         {
-            await WithResponse("duplicate", r => Assert.AreEqual(HttpStatusCode.BadRequest, r.StatusCode));
+            await WithResponse("duplicate", r => { Assert.AreEqual(HttpStatusCode.BadRequest, r.StatusCode); return Task.CompletedTask; });
         }
 
         [TestMethod]
@@ -263,9 +263,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
 
         #region Helpers
 
-        private Task WithResponse(string uri, Action<HttpResponseMessage> logic) => WithResponse(uri, HttpMethod.Get, null, null, null, logic);
+        private Task WithResponse(string uri, Func<HttpResponseMessage, Task> logic) => WithResponse(uri, HttpMethod.Get, null, null, null, logic);
 
-        private async Task WithResponse(string uri, HttpMethod method, string? body, string? contentType, string? accept, Action<HttpResponseMessage> logic)
+        private async Task WithResponse(string uri, HttpMethod method, string? body, string? contentType, string? accept, Func<HttpResponseMessage, Task> logic)
         {
             using var service = GetService();
 
@@ -282,15 +282,19 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
             {
                 if (contentType is not null)
                 {
-                    request.Headers.Add("Content-Type", contentType);
+                    request.Content = new StringContent(body, null, contentType);
+                    request.Content.Headers.ContentType = new(contentType);
                 }
-
-                request.Content = new StringContent(body);
+                else
+                {
+                    request.Content = new StringContent(body);
+                    request.Content.Headers.ContentType = null;
+                }
             }
 
             using var response = await service.GetResponse(request);
 
-            logic(response);
+            await logic(response);
         }
 
         private TestRunner GetService()

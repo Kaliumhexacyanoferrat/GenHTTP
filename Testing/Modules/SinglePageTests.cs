@@ -30,9 +30,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var index = await runner.GetResponse("/");
 
             Assert.AreEqual(HttpStatusCode.OK, index.StatusCode);
-            Assert.AreEqual("text/html", index.GetHeader("Content-Type"));
+            Assert.AreEqual("text/html", index.GetContentHeader("Content-Type"));
 
-            var content = index.GetContent();
+            var content = await index.GetContent();
 
             Assert.AreEqual("This is the index!", content);
         }
@@ -59,7 +59,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var index = await runner.GetResponse("/some.txt");
 
             Assert.AreEqual(HttpStatusCode.OK, index.StatusCode);
-            Assert.AreEqual("text/plain", index.GetHeader("Content-Type"));
+            Assert.AreEqual("text/plain", index.GetContentHeader("Content-Type"));
 
             var content = await index.GetContent();
 

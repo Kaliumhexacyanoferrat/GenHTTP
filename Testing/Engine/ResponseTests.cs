@@ -75,11 +75,11 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
-            Assert.AreEqual("Hello World", response.GetContent());
-            Assert.AreEqual("text/x-custom", response.GetHeader("Content-Type"));
+            Assert.AreEqual("Hello World", await response.GetContent());
+            Assert.AreEqual("text/x-custom", response.GetContentHeader("Content-Type"));
 
             Assert.AreEqual(provider.Modified.WithoutMS(), response.Content.Headers.LastModified);
-            Assert.IsNotNull(response.GetHeader("Expires"));
+            Assert.IsNotNull(response.GetContentHeader("Expires"));
 
             Assert.AreEqual("Test Runner", response.GetHeader("X-Powered-By"));
         }
@@ -101,11 +101,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = await runner.GetResponse(request);
 
-            AssertX.IsNullOrEmpty(response.GetHeader("Content-Type"));
+            AssertX.IsNullOrEmpty(response.GetContentHeader("Content-Type"));
 
-            Assert.AreEqual("0", response.GetHeader("Content-Length"));
-
-            Assert.AreEqual("Keep-Alive", response.GetHeader("Connection"));
+            Assert.AreEqual("0", response.GetContentHeader("Content-Length"));
         }
 
     }

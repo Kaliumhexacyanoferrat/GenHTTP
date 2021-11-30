@@ -64,7 +64,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
             using var response = await runner.GetResponse("/t/generic-task");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("Task result", response.GetContent());
+            Assert.AreEqual("Task result", await response.GetContent());
         }
 
         [TestMethod]

@@ -65,7 +65,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var file = await runner.GetResponse("/blubb");
 
             Assert.AreEqual(HttpStatusCode.NotFound, file.StatusCode);
-            Assert.AreEqual("text/html", file.GetHeader("Content-Type"));
+            Assert.AreEqual("text/html", file.GetContentHeader("Content-Type"));
 
             var content = await file.GetContent();
 
@@ -172,7 +172,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var file = await runner.GetResponse("/favicon.ico");
             Assert.AreEqual(HttpStatusCode.OK, file.StatusCode);
-            Assert.AreEqual("image/x-icon", file.GetHeader("Content-Type"));
+            Assert.AreEqual("image/x-icon", file.GetContentHeader("Content-Type"));
         }
 
         [TestMethod]
@@ -183,7 +183,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var file = await runner.GetResponse("/" + Sitemap.FILE_NAME);
 
             Assert.AreEqual(HttpStatusCode.OK, file.StatusCode);
-            Assert.AreEqual("text/xml", file.GetHeader("Content-Type"));
+            Assert.AreEqual("text/xml", file.GetContentHeader("Content-Type"));
         }
 
         [TestMethod]
@@ -194,7 +194,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var file = await runner.GetResponse("/" + BotInstructions.FILE_NAME);
 
             Assert.AreEqual(HttpStatusCode.OK, file.StatusCode);
-            Assert.AreEqual("text/plain", file.GetHeader("Content-Type"));
+            Assert.AreEqual("text/plain", file.GetContentHeader("Content-Type"));
         }
 
         [TestMethod]

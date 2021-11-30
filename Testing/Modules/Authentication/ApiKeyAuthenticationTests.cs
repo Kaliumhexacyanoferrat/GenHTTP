@@ -56,19 +56,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
         }
 
         [TestMethod]
-        public async Task TestValidKeyWithWhitespace()
-        {
-            using var runner = GetRunnerWithKeys("123");
-
-            var request = runner.GetRequest();
-            request.Headers.Add("X-API-Key", " 123 ");
-
-            using var response = await runner.GetResponse(request);
-
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-        }
-
-        [TestMethod]
         public async Task TestValidKeyFromQuery()
         {
             var auth = ApiKeyAuthentication.Create()
@@ -92,7 +79,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             using var runner = GetRunnerWithAuth(auth);
 
             var request = runner.GetRequest();
-            request.Headers.Add("KEY", " 123 ");
+            request.Headers.Add("key", "123");
 
             using var response = await runner.GetResponse(request);
 

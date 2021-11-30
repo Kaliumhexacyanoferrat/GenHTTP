@@ -56,7 +56,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
             Assert.AreEqual(256, (int)response.StatusCode);
             Assert.AreEqual("Custom Status", response.ReasonPhrase);
 
-            Assert.AreEqual("application/x-custom", response.GetHeader("Content-Type"));
+            Assert.AreEqual("application/x-custom", response.GetContentHeader("Content-Type"));
         }
 
     }

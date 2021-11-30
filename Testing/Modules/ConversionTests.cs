@@ -122,22 +122,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.Conversion
             var request = runner.GetRequest();
 
             request.Method = HttpMethod.Post;
-
-            using var content = new MemoryStream();
-
-            using (var writer = new StreamWriter(content))
-            {
-                writer.Write(serialized);
-            }
-
-            content.Seek(0, SeekOrigin.Begin);
-
-            request.Content = new StreamContent(content);
+            request.Content = new StringContent(serialized);
 
             using var response = await runner.GetResponse(request);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual(serialized, response.GetContent());
+            Assert.AreEqual(serialized, await response.GetContent());
         }
 
         #endregion
