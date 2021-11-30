@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Threading.Tasks;
 
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Robots;
@@ -15,7 +16,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.StaticWebsites
     {
 
         [TestMethod]
-        public void TestWithIndex()
+        public async Task TestWithIndex()
         {
             var tree = VirtualTree.Create()
                                   .Add("index.html", Resource.FromString("Index 1"))
@@ -23,30 +24,30 @@ namespace GenHTTP.Testing.Acceptance.Modules.StaticWebsites
 
             using var runner = TestRunner.Run(StaticWebsite.From(tree));
 
-            using var indexResponse = runner.GetResponse();
-            Assert.AreEqual("Index 1", indexResponse.GetContent());
+            using var indexResponse = await runner.GetResponse();
+            Assert.AreEqual("Index 1", await indexResponse.GetContent());
 
-            using var subIndexResponse = runner.GetResponse("/sub/");
-            Assert.AreEqual("Index 2", subIndexResponse.GetContent());
+            using var subIndexResponse = await runner.GetResponse("/sub/");
+            Assert.AreEqual("Index 2", await subIndexResponse.GetContent());
         }
 
         [TestMethod]
-        public void TestNoIndex()
+        public async Task TestNoIndex()
         {
             var tree = VirtualTree.Create()
                                   .Add("sub", VirtualTree.Create());
 
             using var runner = TestRunner.Run(StaticWebsite.From(tree));
 
-            using var indexResponse = runner.GetResponse();
+            using var indexResponse = await runner.GetResponse();
             Assert.AreEqual(HttpStatusCode.NotFound, indexResponse.StatusCode);
 
-            using var subIndexResponse = runner.GetResponse("/sub/");
+            using var subIndexResponse = await runner.GetResponse("/sub/");
             Assert.AreEqual(HttpStatusCode.NotFound, subIndexResponse.StatusCode);
         }
 
         [TestMethod]
-        public void TestSitemap()
+        public async Task TestSitemap()
         {
             var tree = VirtualTree.Create()
                                   .Add("index.html", Resource.FromString("Index 1"))
@@ -55,72 +56,72 @@ namespace GenHTTP.Testing.Acceptance.Modules.StaticWebsites
 
             using var runner = TestRunner.Run(StaticWebsite.From(tree));
 
-            using var response = runner.GetResponse("/" + Sitemap.FILE_NAME);
+            using var response = await runner.GetResponse("/" + Sitemap.FILE_NAME);
 
-            var sitemap = response.GetSitemap();
+            var sitemap = await response.GetSitemap();
 
             Assert.AreEqual(2, sitemap.Count);
         }
 
         [TestMethod]
-        public void TestNoSitemap()
+        public async Task TestNoSitemap()
         {
             using var runner = TestRunner.Run(StaticWebsite.From(VirtualTree.Create()).Sitemap(null));
 
-            using var response = runner.GetResponse("/" + Sitemap.FILE_NAME);
+            using var response = await runner.GetResponse("/" + Sitemap.FILE_NAME);
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestSitemapOverride()
+        public async Task TestSitemapOverride()
         {
             var tree = VirtualTree.Create()
                                   .Add(Sitemap.FILE_NAME, Resource.FromString("Custom Sitemap")); 
 
             using var runner = TestRunner.Run(StaticWebsite.From(tree));
 
-            using var response = runner.GetResponse("/" + Sitemap.FILE_NAME);
-            Assert.AreEqual("Custom Sitemap", response.GetContent());
+            using var response = await runner.GetResponse("/" + Sitemap.FILE_NAME);
+            Assert.AreEqual("Custom Sitemap", await response.GetContent());
         }
 
         [TestMethod]
-        public void TestRobots()
+        public async Task TestRobots()
         {
             using var runner = TestRunner.Run(StaticWebsite.From(VirtualTree.Create()));
 
-            using var response = runner.GetResponse("/" + BotInstructions.FILE_NAME);
+            using var response = await runner.GetResponse("/" + BotInstructions.FILE_NAME);
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestNoRobots()
+        public async Task TestNoRobots()
         {
             using var runner = TestRunner.Run(StaticWebsite.From(VirtualTree.Create()).Robots(null));
 
-            using var response = runner.GetResponse("/" + BotInstructions.FILE_NAME);
+            using var response = await runner.GetResponse("/" + BotInstructions.FILE_NAME);
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestRobotsOverride()
+        public async Task TestRobotsOverride()
         {
             var tree = VirtualTree.Create()
                                   .Add(BotInstructions.FILE_NAME, Resource.FromString("Custom Robots"));
 
             using var runner = TestRunner.Run(StaticWebsite.From(tree));
 
-            using var response = runner.GetResponse("/" + BotInstructions.FILE_NAME);
-            Assert.AreEqual("Custom Robots", response.GetContent());
+            using var response = await runner.GetResponse("/" + BotInstructions.FILE_NAME);
+            Assert.AreEqual("Custom Robots", await response.GetContent());
         }
 
         [TestMethod]
-        public void TestNoRobotsInSubdirectory()
+        public async Task TestNoRobotsInSubdirectory()
         {
             using var runner = TestRunner.Run(StaticWebsite.From(VirtualTree.Create()));
 
-            using var response = runner.GetResponse("/sub/" + BotInstructions.FILE_NAME);
+            using var response = await runner.GetResponse("/sub/" + BotInstructions.FILE_NAME);
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }

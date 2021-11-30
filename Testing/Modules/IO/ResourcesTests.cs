@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -14,80 +15,80 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
     {
 
         [TestMethod]
-        public void TestFileDownload()
+        public async Task TestFileDownload()
         {
             using var runner = TestRunner.Run(Resources.From(ResourceTree.FromAssembly()));
 
-            using var response = runner.GetResponse("/Resources/File.txt");
+            using var response = await runner.GetResponse("/Resources/File.txt");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("This is text!", response.GetContent());
+            Assert.AreEqual("This is text!", await response.GetContent());
         }
 
         [TestMethod]
-        public void TestSubdirectoryFileDownload()
+        public async Task TestSubdirectoryFileDownload()
         {
             using var runner = TestRunner.Run(Resources.From(ResourceTree.FromAssembly()));
 
-            using var response = runner.GetResponse("/Resources/Subdirectory/AnotherFile.txt");
+            using var response = await runner.GetResponse("/Resources/Subdirectory/AnotherFile.txt");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("This is another text!", response.GetContent());
+            Assert.AreEqual("This is another text!", await response.GetContent());
         }
 
         [TestMethod]
-        public void TestNoFileDownload()
+        public async Task TestNoFileDownload()
         {
             using var runner = TestRunner.Run(Resources.From(ResourceTree.FromAssembly()));
 
-            using var response = runner.GetResponse("/Resources/nah.txt");
+            using var response = await runner.GetResponse("/Resources/nah.txt");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestNoSubdirectoryFileDownload()
+        public async Task TestNoSubdirectoryFileDownload()
         {
             using var runner = TestRunner.Run(Resources.From(ResourceTree.FromAssembly()));
 
-            using var response = runner.GetResponse("/Resources/nah/File.txt");
+            using var response = await runner.GetResponse("/Resources/nah/File.txt");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestRootDownload()
+        public async Task TestRootDownload()
         {
             using var runner = TestRunner.Run(Resources.From(ResourceTree.FromAssembly("Resources")));
 
-            using var response = runner.GetResponse("/File.txt");
+            using var response = await runner.GetResponse("/File.txt");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("This is text!", response.GetContent());
+            Assert.AreEqual("This is text!", await response.GetContent());
         }
 
         [TestMethod]
-        public void TestDirectory()
+        public async Task TestDirectory()
         {
             using var runner = TestRunner.Run(Resources.From(ResourceTree.FromAssembly()));
 
-            using var response = runner.GetResponse("/Resources/nah/");
+            using var response = await runner.GetResponse("/Resources/nah/");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestNonExistingDirectory()
+        public async Task TestNonExistingDirectory()
         {
             using var runner = TestRunner.Run(Resources.From(ResourceTree.FromAssembly()));
 
-            using var response = runner.GetResponse("/Resources/nah/");
+            using var response = await runner.GetResponse("/Resources/nah/");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestContent()
+        public async Task TestContent()
         {
             var layout = Layout.Create()
                                .Add("sitemap", Sitemap.Create())
@@ -95,9 +96,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var runner = TestRunner.Run(layout);
 
-            using var response = runner.GetResponse("/sitemap");
+            using var response = await runner.GetResponse("/sitemap");
 
-            var sitemap = response.GetSitemap();
+            var sitemap = await response.GetSitemap();
 
             AssertX.Contains("/resources/Error.html", sitemap);
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -34,20 +35,20 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// As a developer, I want to configure the server to easily log to the console.
         /// </summary>
         [TestMethod]
-        public void TestConsole()
+        public async Task TestConsole()
         {
             using var runner = new TestRunner();
 
             runner.Host.Console().Start();
 
-            using var __ = runner.GetResponse();
+            using var __ = await runner.GetResponse();
         }
 
         /// <summary>
         /// As a developer, I want to add custom companions to get notified by server actions.
         /// </summary>
         [TestMethod]
-        public void TestCustom()
+        public async Task TestCustom()
         {
             using var runner = new TestRunner();
 
@@ -55,7 +56,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             runner.Host.Companion(companion).Start();
 
-            using var __ = runner.GetResponse();
+            using var __ = await runner.GetResponse();
 
             // the companion is called _after_ the response has been sent
             // bad hack, reconsider

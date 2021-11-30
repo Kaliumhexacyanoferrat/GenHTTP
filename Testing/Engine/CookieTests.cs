@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Basics;
+using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
-using System.Threading.Tasks;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {
@@ -50,20 +49,20 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// As a developer, I want to be able to set cookies to be accepted by the browser.
         /// </summary>
         [TestMethod]
-        public void TestCookiesCanBeReturned()
+        public async Task TestCookiesCanBeReturned()
         {
             using var runner = TestRunner.Run(new TestProvider());
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            Assert.AreEqual("TestCookie=TestValue; Path=/", response.Headers["Set-Cookie"]);
+            Assert.AreEqual("TestCookie=TestValue; Path=/", response.GetHeader("Set-Cookie"));
         }
 
         /// <summary>
         /// As a developer, I want to be able to read cookies from the client.
         /// </summary>
         [TestMethod]
-        public void TestCookiesCanBeRead()
+        public async Task TestCookiesCanBeRead()
         {
             var provider = new TestProvider();
 
@@ -71,10 +70,10 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var runner = TestRunner.Run(layout);
 
-            var request = runner.GetRequest("/test");
+            var request = runner.GetRequest();
             request.Headers.Add("Cookie", "1=2; 3=4");
 
-            using var _ = request.GetSafeResponse();
+            using var _ = await runner.GetResponse(request);
 
             Assert.AreEqual("4", provider.Cookies?["3"].Value);
         }

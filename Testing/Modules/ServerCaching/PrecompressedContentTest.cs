@@ -1,5 +1,6 @@
 ﻿using System.IO.Compression;
 using System.Net;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -15,7 +16,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
     {
 
         [TestMethod]
-        public void TestContentCanBePreCompressed()
+        public async Task TestContentCanBePreCompressed()
         {
             var content = Resources.From(ResourceTree.FromAssembly("Resources"))
                                    .Add(CompressedContent.Default().Level(CompressionLevel.Optimal))
@@ -27,10 +28,10 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
             request.Headers.Add("Accept-Encoding", "br");
 
-            using var response = runner.GetResponse(request);
+            using var response = await runner.GetResponse(request);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("br", response.GetResponseHeader("Content-Encoding"));
+            Assert.AreEqual("br", response.GetHeader("Content-Encoding"));
         }
 
     }

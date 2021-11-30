@@ -16,6 +16,7 @@ using GenHTTP.Modules.ReverseProxy;
 using GenHTTP.Modules.Layouting;
 
 using Cookie = GenHTTP.Api.Protocol.Cookie;
+using System.Net.Http;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
@@ -154,7 +155,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         #endregion
 
         [TestMethod]
-        public void TestBasics()
+        public async Task TestBasics()
         {
             using var setup = TestSetup.Create((r) =>
             {
@@ -163,12 +164,12 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var runner = setup.Runner;
 
-            using var response = runner.GetResponse();
-            Assert.AreEqual("Hello World!", response.GetContent());
+            using var response = await runner.GetResponse();
+            Assert.AreEqual("Hello World!", await response.GetContent());
         }
 
         [TestMethod]
-        public void TestRedirection()
+        public async Task TestRedirection()
         {
             using var setup = TestSetup.Create((r) =>
             {
@@ -177,13 +178,13 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var runner = setup.Runner;
 
-            using var redirected = runner.GetResponse("/");
+            using var redirected = await runner.GetResponse("/");
 
-            Assert.AreEqual($"http://localhost:{runner.Port}/target", redirected.Headers["Location"]);
+            Assert.AreEqual($"http://localhost:{runner.Port}/target", redirected.GetHeader("Location"));
         }
 
         [TestMethod]
-        public void TestHead()
+        public async Task TestHead()
         {
             using var setup = TestSetup.Create((r) =>
             {
@@ -193,15 +194,15 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var runner = setup.Runner;
 
             var headRequest = runner.GetRequest();
-            headRequest.Method = "HEAD";
+            headRequest.Method = HttpMethod.Head;
 
-            using var headed = headRequest.GetSafeResponse();
+            using var headed = await runner.GetResponse(headRequest);
 
             Assert.AreEqual(HttpStatusCode.OK, headed.StatusCode);
         }
 
         [TestMethod]
-        public void TestCookies()
+        public async Task TestCookies()
         {
             using var setup = TestSetup.Create((r) =>
             {
@@ -216,20 +217,25 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var runner = setup.Runner;
 
-            var cookieRequest = runner.GetRequest();
-            cookieRequest.CookieContainer = new CookieContainer();
-            cookieRequest.CookieContainer.Add(new System.Net.Cookie("Hello", "World", "/", "localhost"));
+            var cookies = new CookieContainer();
+            cookies.Add(new System.Net.Cookie("Hello", "World", "/", "localhost"));
 
-            using var cookied = cookieRequest.GetSafeResponse();
+            using var client = TestRunner.GetClient(cookies: cookies);
+
+            var cookieRequest = runner.GetRequest();
+
+            using var cookied = await runner.GetResponse(cookieRequest);
 
             Assert.AreEqual(HttpStatusCode.OK, cookied.StatusCode);
 
-            Assert.AreEqual("1", cookied.Cookies["One"]!.Value);
-            Assert.AreEqual("2", cookied.Cookies["Two"]!.Value);
+            var returned = cookies.GetCookies(new Uri(runner.GetUrl()));
+
+            Assert.AreEqual("1", returned["One"]!.Value);
+            Assert.AreEqual("2", returned["Two"]!.Value);
         }
 
         [TestMethod]
-        public void TestHeaders()
+        public async Task TestHeaders()
         {
             var now = DateTime.UtcNow;
 
@@ -249,16 +255,16 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             request.Headers.Add("X-Custom-Header", "Custom Value");
 
-            using var response = request.GetResponse();
+            using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual("Custom Value", response.Headers.Get("X-Custom-Header"));
+            Assert.AreEqual("Custom Value", response.GetHeader("X-Custom-Header"));
 
-            Assert.AreEqual(now.ToString("r"), response.Headers.Get("Expires"));
-            Assert.AreEqual(now.ToString("r"), response.Headers.Get("Last-Modified"));
+            Assert.AreEqual(now.ToString("r"), response.GetHeader("Expires"));
+            Assert.AreEqual(now.ToString("r"), response.GetHeader("Last-Modified"));
         }
 
         [TestMethod]
-        public void TestPost()
+        public async Task TestPost()
         {
             using var setup = TestSetup.Create((r) =>
             {
@@ -270,23 +276,17 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var request = runner.GetRequest();
 
-            request.Method = "POST";
-            request.ContentType = "text/plain";
+            request.Method = HttpMethod.Post;
+            request.Content = new StringContent("Input");
 
-            using (var stream = request.GetRequestStream())
-            {
-                var input = Encoding.UTF8.GetBytes("Input");
-                stream.Write(input, 0, input.Length);
-            }
-
-            using var response = request.GetSafeResponse();
+            using var response = await runner.GetResponse(request);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.AreEqual("Input", response.GetContent());
         }
 
         [TestMethod]
-        public void TestPathing()
+        public async Task TestPathing()
         {
             using var setup = TestSetup.Create((r) =>
             {
@@ -295,18 +295,18 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var runner = setup.Runner;
 
-            using var r1 = runner.GetResponse("/");
-            Assert.AreEqual("/", r1.GetContent());
+            using var r1 = await runner.GetResponse("/");
+            Assert.AreEqual("/", await r1.GetContent());
 
-            using var r2 = runner.GetResponse("/login/");
-            Assert.AreEqual("/login/", r2.GetContent());
+            using var r2 = await runner.GetResponse("/login/");
+            Assert.AreEqual("/login/", await r2.GetContent());
 
-            using var r3 = runner.GetResponse("/login");
-            Assert.AreEqual("/login", r3.GetContent());
+            using var r3 = await runner.GetResponse("/login");
+            Assert.AreEqual("/login", await r3.GetContent());
         }
 
         [TestMethod]
-        public void TestQuery()
+        public async Task TestQuery()
         {
             using var setup = TestSetup.Create((r) =>
             {
@@ -316,18 +316,18 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var runner = setup.Runner;
 
-            using var r2 = runner.GetResponse("/?one=two");
-            Assert.AreEqual("one=two", r2.GetContent());
+            using var r2 = await runner.GetResponse("/?one=two");
+            Assert.AreEqual("one=two", await r2.GetContent());
 
-            using var r3 = runner.GetResponse("/?one=two&three=four");
-            Assert.AreEqual("one=two|three=four", r3.GetContent());
+            using var r3 = await runner.GetResponse("/?one=two&three=four");
+            Assert.AreEqual("one=two|three=four", await r3.GetContent());
 
-            using var r1 = runner.GetResponse("/");
-            Assert.AreEqual("", r1.GetContent());
+            using var r1 = await runner.GetResponse("/");
+            Assert.AreEqual("", await r1.GetContent());
         }
 
         [TestMethod]
-        public void TestQuerySpecialChars()
+        public async Task TestQuerySpecialChars()
         {
             using var setup = TestSetup.Create((r) =>
             {
@@ -337,12 +337,12 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var runner = setup.Runner;
 
-            using var r = runner.GetResponse("/?key=%20%3C+");
+            using var r = await runner.GetResponse("/?key=%20%3C+");
             Assert.AreEqual("key= <+", r.GetContent());
         }
 
         [TestMethod]
-        public void TestPathSpecialChars()
+        public async Task TestPathSpecialChars()
         {
             using var setup = TestSetup.Create((r) =>
             {
@@ -351,12 +351,12 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var runner = setup.Runner;
 
-            using var r = runner.GetResponse("/%3F%23%26%2F %20");
+            using var r = await runner.GetResponse("/%3F%23%26%2F %20");
             Assert.AreEqual("/%3F%23%26%2F%20%20", r.GetContent());
         }
 
         [TestMethod]
-        public void TestPathPreservesSpecialChars()
+        public async Task TestPathPreservesSpecialChars()
         {
             using var setup = TestSetup.Create((r) =>
             {
@@ -365,12 +365,12 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var runner = setup.Runner;
 
-            using var r = runner.GetResponse("/$@:");
+            using var r = await runner.GetResponse("/$@:");
             Assert.AreEqual("/$@:", r.GetContent());
         }
 
         [TestMethod]
-        public void TestContentLengthPreserved()
+        public async Task TestContentLengthPreserved()
         {
             using var setup = TestSetup.Create((r) =>
             {
@@ -380,14 +380,14 @@ namespace GenHTTP.Testing.Acceptance.Providers
                         .Build();
             });
 
-            using var response = setup.Runner.GetResponse();
+            using var response = await setup.Runner.GetResponse();
 
-            Assert.AreEqual(11, response.ContentLength);
-            Assert.AreEqual(string.Empty, response.GetResponseHeader("Transfer-Encoding"));
+            Assert.AreEqual(11, response.Content.Headers.ContentLength);
+            Assert.AreEqual(string.Empty, response.GetHeader("Transfer-Encoding"));
         }
 
         [TestMethod]
-        public void TestBadGateway()
+        public async Task TestBadGateway()
         {
             var proxy = Proxy.Create()
                              .Upstream("http://127.0.0.2");
@@ -396,7 +396,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var runner = TestRunner.Run(layout);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
             Assert.AreEqual(HttpStatusCode.BadGateway, response.StatusCode);
         }

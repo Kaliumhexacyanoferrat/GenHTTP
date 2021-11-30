@@ -49,44 +49,44 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
         #region Tests
 
         [TestMethod]
-        public void ControllerMayReturnHandlerBuilder()
+        public async Task ControllerMayReturnHandlerBuilder()
         {
             using var runner = GetRunner();
 
-            using var response = runner.GetResponse("/t/handler-builder/");
+            using var response = await runner.GetResponse("/t/handler-builder/");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.AreEqual("HandlerBuilder", response.GetContent());
         }
 
         [TestMethod]
-        public void ControllerMayReturnHandler()
+        public async Task ControllerMayReturnHandler()
         {
             using var runner = GetRunner();
 
-            using var response = runner.GetResponse("/t/handler/");
+            using var response = await runner.GetResponse("/t/handler/");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.AreEqual("Handler", response.GetContent());
         }
 
         [TestMethod]
-        public void ControllerMayReturnResponseBuilder()
+        public async Task ControllerMayReturnResponseBuilder()
         {
             using var runner = GetRunner();
 
-            using var response = runner.GetResponse("/t/response-builder/");
+            using var response = await runner.GetResponse("/t/response-builder/");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.AreEqual("ResponseBuilder", response.GetContent());
         }
 
         [TestMethod]
-        public void ControllerMayReturnResponse()
+        public async Task ControllerMayReturnResponse()
         {
             using var runner = GetRunner();
 
-            using var response = runner.GetResponse("/t/response/");
+            using var response = await runner.GetResponse("/t/response/");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.AreEqual("Response", response.GetContent());

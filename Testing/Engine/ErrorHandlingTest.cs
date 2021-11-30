@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -13,7 +14,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
     {
 
         [TestMethod]
-        public void TestGenericError()
+        public async Task TestGenericError()
         {
             var handler = new FunctionalHandler(responseProvider: (r) =>
             {
@@ -22,9 +23,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var runner = TestRunner.Run(handler);
 
-            var request = runner.GetRequest();
-
-            using var response = request.GetSafeResponse();
+            using var response = await runner.GetResponse();
 
             Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
         }

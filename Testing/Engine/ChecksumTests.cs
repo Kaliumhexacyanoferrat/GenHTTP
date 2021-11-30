@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Modules.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading.Tasks;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {
@@ -9,12 +10,12 @@ namespace GenHTTP.Testing.Acceptance.Engine
     {
 
         [TestMethod]
-        public void TestSameErrorSameChecksum()
+        public async Task TestSameErrorSameChecksum()
         {
             using var runner = TestRunner.Run();
 
-            using var resp1 = runner.GetResponse();
-            using var resp2 = runner.GetResponse();
+            using var resp1 = await runner.GetResponse();
+            using var resp2 = await runner.GetResponse();
 
             Assert.IsNotNull(resp1.GetETag());
 
@@ -22,12 +23,12 @@ namespace GenHTTP.Testing.Acceptance.Engine
         }
 
         [TestMethod]
-        public void TestSameContentSameChecksum()
+        public async Task TestSameContentSameChecksum()
         {
             using var runner = TestRunner.Run(Content.From(Resource.FromString("Hello World!")));
 
-            using var resp1 = runner.GetResponse();
-            using var resp2 = runner.GetResponse();
+            using var resp1 = await runner.GetResponse();
+            using var resp2 = await runner.GetResponse();
 
             Assert.IsNotNull(resp1.GetETag());
 

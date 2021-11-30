@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
@@ -63,73 +64,73 @@ namespace GenHTTP.Testing.Acceptance.Engine
         #endregion
 
         [TestMethod]
-        public void TestEndodedUri()
+        public async Task TestEndodedUri()
         {
             using var runner = TestRunner.Run(new PathReturner().Wrap());
 
-            using var respose = runner.GetResponse("/söme/ürl/with specialities/");
+            using var respose = await runner.GetResponse("/söme/ürl/with specialities/");
 
-            Assert.AreEqual("/söme/ürl/with specialities/", respose.GetContent());
+            Assert.AreEqual("/söme/ürl/with specialities/", await respose.GetContent());
         }
 
         [TestMethod]
-        public void TestEncodedQuery()
+        public async Task TestEncodedQuery()
         {
             using var runner = TestRunner.Run(new QueryReturner().Wrap());
 
-            using var respose = runner.GetResponse("/?söme key=💕");
+            using var respose = await runner.GetResponse("/?söme key=💕");
 
-            Assert.AreEqual("söme key=💕", respose.GetContent());
+            Assert.AreEqual("söme key=💕", await respose.GetContent());
         }
 
         [TestMethod]
-        public void TestMultipleSlashes()
+        public async Task TestMultipleSlashes()
         {
             using var runner = TestRunner.Run(new PathReturner().Wrap());
 
-            using var respose = runner.GetResponse("//one//two//three//");
+            using var respose = await runner.GetResponse("//one//two//three//");
 
-            Assert.AreEqual("//one//two//three//", respose.GetContent());
+            Assert.AreEqual("//one//two//three//", await respose.GetContent());
         }
 
         [TestMethod]
-        public void TestEmptyQuery()
+        public async Task TestEmptyQuery()
         {
             using var runner = TestRunner.Run(new QueryReturner().Wrap());
 
-            using var respose = runner.GetResponse("/?");
+            using var respose = await runner.GetResponse("/?");
 
-            Assert.AreEqual(string.Empty, respose.GetContent());
+            Assert.AreEqual(string.Empty, await respose.GetContent());
         }
 
         [TestMethod]
-        public void TestUnkeyedQuery()
+        public async Task TestUnkeyedQuery()
         {
             using var runner = TestRunner.Run(new QueryReturner().Wrap());
 
-            using var respose = runner.GetResponse("/?query");
+            using var respose = await runner.GetResponse("/?query");
 
-            Assert.AreEqual("query=", respose.GetContent());
+            Assert.AreEqual("query=", await respose.GetContent());
         }
 
         [TestMethod]
-        public void TestQueryWithSlashes()
+        public async Task TestQueryWithSlashes()
         {
             using var runner = TestRunner.Run(new QueryReturner().Wrap());
 
-            using var respose = runner.GetResponse("/?key=/one/two");
+            using var respose = await runner.GetResponse("/?key=/one/two");
 
-            Assert.AreEqual("key=/one/two", respose.GetContent());
+            Assert.AreEqual("key=/one/two", await respose.GetContent());
         }
 
         [TestMethod]
-        public void TestQueryWithSpaces()
+        public async Task TestQueryWithSpaces()
         {
             using var runner = TestRunner.Run(new QueryReturner().Wrap());
 
-            using var respose = runner.GetResponse("/?path=/Some+Folder/With%20Subfolders/");
+            using var respose = await runner.GetResponse("/?path=/Some+Folder/With%20Subfolders/");
 
-            Assert.AreEqual("path=/Some+Folder/With Subfolders/", respose.GetContent());
+            Assert.AreEqual("path=/Some+Folder/With Subfolders/", await respose.GetContent());
         }
 
     }

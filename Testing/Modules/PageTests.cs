@@ -6,6 +6,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
+
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Markdown;
@@ -49,7 +50,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
     {
         
         [TestMethod]
-        public void TestStringPage()
+        public async Task TestStringPage()
         {
             var layout = Page.From("Hello World!")
                              .Title("My Page")
@@ -57,18 +58,18 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var runner = TestRunner.Run(layout);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            var content = response.GetContent();
+            var content = await response.GetContent();
 
             Assert.AreNotEqual("Hello World!", content);
             AssertX.Contains("Hello World!", content);
 
-            Assert.AreEqual("text/html", response.GetResponseHeader("Content-Type"));
+            Assert.AreEqual("text/html", response.GetHeader("Content-Type"));
         }
 
         [TestMethod]
-        public void TestMarkdownPage()
+        public async Task TestMarkdownPage()
         {
             var md = @"# Hello World!
 ```csharp
@@ -81,9 +82,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var runner = TestRunner.Run(page);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            var content = response.GetContent();
+            var content = await response.GetContent();
 
             AssertX.Contains("<h1 id=\"hello-world\">Hello World!</h1>", content);
 
@@ -91,7 +92,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         }
 
         [TestMethod]
-        public void TestRendering()
+        public async Task TestRendering()
         {
             static ValueTask<CustomModel> modelProvider(IRequest r, IHandler h) => new ValueTask<CustomModel>(new CustomModel(r, h));
 
@@ -108,9 +109,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
                 using var runner = TestRunner.Run(layout);
 
-                using var response = runner.GetResponse("/page");
+                using var response = await runner.GetResponse("/page");
 
-                var content = response.GetContent();
+                var content = await response.GetContent();
 
                 Assert.AreNotEqual("Hello World!", content);
                 AssertX.Contains("Hello World!", content);
@@ -118,7 +119,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         }
 
         [TestMethod]
-        public void TestContentInfo()
+        public async Task TestContentInfo()
         {
             var page = Page.From("Hello world!")
                            .Title("My Title")
@@ -126,9 +127,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var runner = TestRunner.Run(page);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            var content = response.GetContent();
+            var content = await response.GetContent();
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
@@ -137,15 +138,15 @@ namespace GenHTTP.Testing.Acceptance.Providers
         }
 
         [TestMethod]
-        public void TestNoContentInfo()
+        public async Task TestNoContentInfo()
         {
             var page = Page.From("Hello world!");
 
             using var runner = TestRunner.Run(page);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            var content = response.GetContent();
+            var content = await response.GetContent();
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
@@ -154,7 +155,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         }
 
         [TestMethod]
-        public void TestRouting()
+        public async Task TestRouting()
         {
             var providers = new List<IHandlerBuilder>()
             {
@@ -177,16 +178,16 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
                 using var runner = TestRunner.Run(layout);
 
-                using var response = runner.GetResponse("/outer/inner/page");
+                using var response = await runner.GetResponse("/outer/inner/page");
 
-                var content = response.GetContent();
+                var content = await response.GetContent();
 
                 AssertX.Contains("https://google.de|../res/123|../../other/456/|./relative", content);
             }
         }
 
         [TestMethod]
-        public void TestRoutingToPath()
+        public async Task TestRoutingToPath()
         {
             var providers = new List<IHandlerBuilder>()
             {
@@ -202,9 +203,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
                 
                 using var runner = TestRunner.Run(layout);
 
-                using var response = runner.GetResponse("/page");
+                using var response = await runner.GetResponse("/page");
 
-                var content = response.GetContent();
+                var content = await response.GetContent();
 
                 Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
                 AssertX.Contains("/test/1", content);

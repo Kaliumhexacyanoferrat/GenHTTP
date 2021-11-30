@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Linq;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Net.Security;
 using System.Threading.Tasks;
-using System.Security.Cryptography.X509Certificates;
+using System.Net.Http;
+using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
@@ -50,19 +47,15 @@ namespace GenHTTP.Testing.Acceptance
 
         #endregion
 
-        public static string GetContent(this HttpWebResponse response)
+        public static async ValueTask<string> GetContent(this HttpResponseMessage response) => await response.Content.ReadAsStringAsync();
+
+        public static string? GetETag(this HttpResponseMessage response) => response.GetHeader("ETag");
+
+        public static string? GetHeader(this HttpResponseMessage response, string key) => response.Headers.GetValues(key).FirstOrDefault();
+
+        public static async Task<HashSet<string>> GetSitemap(this HttpResponseMessage response)
         {
-            using var stream = response.GetResponseStream();
-            using var reader = new StreamReader(stream);
-
-            return reader.ReadToEnd();
-        }
-
-        public static string GetETag(this HttpWebResponse response) => response.GetResponseHeader("ETag");
-
-        public static HashSet<string> GetSitemap(this HttpWebResponse response)
-        {
-            var content = response.GetContent();
+            var content = await response.GetContent();
 
             var sitemap = XDocument.Parse(content);
 
@@ -75,59 +68,9 @@ namespace GenHTTP.Testing.Acceptance
                                 .ToHashSet() ?? new HashSet<string>();
         }
 
-        public static HttpWebResponse GetSafeResponse(this WebRequest request)
-        {
-            try
-            {
-                return (HttpWebResponse)request.GetResponse();
-            }
-            catch (WebException e)
-            {
-                var response = e.Response as HttpWebResponse;
-
-                if (response is not null)
-                {
-                    return response;
-                }
-                else
-                {
-                    throw;
-                }
-            }
-        }
-
-        public static async Task<HttpWebResponse> GetSafeResponseAsync(this WebRequest request)
-        {
-            try
-            {
-                return (HttpWebResponse)await request.GetResponseAsync();
-            }
-            catch (WebException e)
-            {
-                var response = e.Response as HttpWebResponse;
-
-                if (response is not null)
-                {
-                    return response;
-                }
-                else
-                {
-                    throw;
-                }
-            }
-        }
-
         public static DateTime WithoutMS(this DateTime date)
         {
             return new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Kind);
-        }
-
-        public static void IgnoreSecurityErrors(this HttpWebRequest request)
-        {
-            request.ServerCertificateValidationCallback = (object sender, X509Certificate? certificate, X509Chain? chain, SslPolicyErrors sslPolicyErrors) =>
-            {
-                return true;
-            };
         }
 
         public static IHandlerBuilder<HandlerBuilder> Wrap(this IHandler handler) => new HandlerBuilder(handler);

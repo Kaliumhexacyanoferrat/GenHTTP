@@ -58,16 +58,16 @@ namespace GenHTTP.Testing.Acceptance.Providers
         #endregion
 
         [TestMethod]
-        public void TestErrorHandler()
+        public async Task TestErrorHandler()
         {
             using var runner = TestRunner.Run(GetWebsite());
 
-            using var file = runner.GetResponse("/blubb");
+            using var file = await runner.GetResponse("/blubb");
 
             Assert.AreEqual(HttpStatusCode.NotFound, file.StatusCode);
-            Assert.AreEqual("text/html", file.ContentType);
+            Assert.AreEqual("text/html", file.GetHeader("Content-Type"));
 
-            var content = file.GetContent();
+            var content = await file.GetContent();
 
             AssertX.Contains("This is an error!", content);
 
@@ -75,7 +75,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         }
 
         [TestMethod]
-        public void TestDevelopmentResourcesWithoutBundle()
+        public async Task TestDevelopmentResourcesWithoutBundle()
         {
             using var runner = new TestRunner();
 
@@ -83,48 +83,48 @@ namespace GenHTTP.Testing.Acceptance.Providers
                        .Development(true)
                        .Start();
 
-            using var style = runner.GetResponse("/styles/custom.css");
+            using var style = await runner.GetResponse("/styles/custom.css");
             Assert.AreEqual(HttpStatusCode.OK, style.StatusCode);
 
-            using var script = runner.GetResponse("/scripts/custom.js");
+            using var script = await runner.GetResponse("/scripts/custom.js");
             Assert.AreEqual(HttpStatusCode.OK, script.StatusCode);
 
-            using var noStyle = runner.GetResponse("/styles/no.css");
+            using var noStyle = await runner.GetResponse("/styles/no.css");
             Assert.AreEqual(HttpStatusCode.NotFound, noStyle.StatusCode);
 
-            using var noScript = runner.GetResponse("/scripts/no.js");
+            using var noScript = await runner.GetResponse("/scripts/no.js");
             Assert.AreEqual(HttpStatusCode.NotFound, noScript.StatusCode);
         }
 
         [TestMethod]
-        public void TestBundleNotServed()
+        public async Task TestBundleNotServed()
         {
             using var runner = TestRunner.Run(GetWebsite());
 
-            using var noStyle = runner.GetResponse("/styles/custom.css");
+            using var noStyle = await runner.GetResponse("/styles/custom.css");
             Assert.AreEqual(HttpStatusCode.NotFound, noStyle.StatusCode);
 
-            using var noScript = runner.GetResponse("/scripts/custom.js");
+            using var noScript = await runner.GetResponse("/scripts/custom.js");
             Assert.AreEqual(HttpStatusCode.NotFound, noScript.StatusCode);
         }
 
         [TestMethod]
-        public void TestCustomContent()
+        public async Task TestCustomContent()
         {
             var website = GetWebsite().AddScript("my.js", Resource.FromString("my"))
                                       .AddStyle("my.css", Resource.FromString("my"));
 
             using var runner = TestRunner.Run(website);
 
-            using var style = runner.GetResponse("/styles/bundle.css");
-            AssertX.Contains("my", style.GetContent());
+            using var style = await runner.GetResponse("/styles/bundle.css");
+            AssertX.Contains("my", await style.GetContent());
 
-            using var script = runner.GetResponse("/scripts/bundle.js");
-            AssertX.Contains("my", script.GetContent());
+            using var script = await runner.GetResponse("/scripts/bundle.js");
+            AssertX.Contains("my", await script.GetContent());
         }
 
         [TestMethod]
-        public void TestStaticMenu()
+        public async Task TestStaticMenu()
         {
             var menu = Menu.Empty()
                            .Add("one", "One")
@@ -134,13 +134,13 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var runner = TestRunner.Run(website);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestDynamicMenu()
+        public async Task TestDynamicMenu()
         {
             var menu = Menu.From("{website}");
 
@@ -148,72 +148,72 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var runner = TestRunner.Run(website);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestResources()
+        public async Task TestResources()
         {
             using var runner = TestRunner.Run(GetWebsite());
 
-            using var file = runner.GetResponse("/resources/some.txt");
+            using var file = await runner.GetResponse("/resources/some.txt");
             Assert.AreEqual(HttpStatusCode.OK, file.StatusCode);
 
-            using var noFile = runner.GetResponse("/resources/other.txt");
+            using var noFile = await runner.GetResponse("/resources/other.txt");
             Assert.AreEqual(HttpStatusCode.NotFound, noFile.StatusCode);
         }
 
         [TestMethod]
-        public void TestFavicon()
+        public async Task TestFavicon()
         {
             using var runner = TestRunner.Run(GetWebsite());
 
-            using var file = runner.GetResponse("/favicon.ico");
+            using var file = await runner.GetResponse("/favicon.ico");
             Assert.AreEqual(HttpStatusCode.OK, file.StatusCode);
-            Assert.AreEqual("image/x-icon", file.ContentType);
+            Assert.AreEqual("image/x-icon", file.GetHeader("Content-Type"));
         }
 
         [TestMethod]
-        public void TestSitemap()
+        public async Task TestSitemap()
         {
             using var runner = TestRunner.Run(GetWebsite());
 
-            using var file = runner.GetResponse("/" + Sitemap.FILE_NAME);
+            using var file = await runner.GetResponse("/" + Sitemap.FILE_NAME);
 
             Assert.AreEqual(HttpStatusCode.OK, file.StatusCode);
-            Assert.AreEqual("text/xml", file.ContentType);
+            Assert.AreEqual("text/xml", file.GetHeader("Content-Type"));
         }
 
         [TestMethod]
-        public void TestRobots()
+        public async Task TestRobots()
         {
             using var runner = TestRunner.Run(GetWebsite());
 
-            using var file = runner.GetResponse("/" + BotInstructions.FILE_NAME);
+            using var file = await runner.GetResponse("/" + BotInstructions.FILE_NAME);
 
             Assert.AreEqual(HttpStatusCode.OK, file.StatusCode);
-            Assert.AreEqual("text/plain", file.ContentType);
+            Assert.AreEqual("text/plain", file.GetHeader("Content-Type"));
         }
 
         [TestMethod]
-        public void TestCoreWebsiteWithoutResources()
+        public async Task TestCoreWebsiteWithoutResources()
         {
             using var runner = TestRunner.Run();
 
-            using var robots = runner.GetResponse("/" + BotInstructions.FILE_NAME);
+            using var robots = await runner.GetResponse("/" + BotInstructions.FILE_NAME);
             Assert.AreEqual(HttpStatusCode.NotFound, robots.StatusCode);
 
-            using var favicon = runner.GetResponse("/favicon.ico");
+            using var favicon = await runner.GetResponse("/favicon.ico");
             Assert.AreEqual(HttpStatusCode.NotFound, favicon.StatusCode);
 
-            using var sitemap = runner.GetResponse("/sitemaps/" + Sitemap.FILE_NAME);
+            using var sitemap = await runner.GetResponse("/sitemaps/" + Sitemap.FILE_NAME);
             Assert.AreEqual(HttpStatusCode.NotFound, sitemap.StatusCode);
         }
 
         [TestMethod]
-        public void TestWebsiteRouting()
+        public async Task TestWebsiteRouting()
         {
             var template = @"script = {{ route 'scripts/s.js' }}
                              style = {{ route 'styles/s.css' }}
@@ -233,9 +233,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var runner = TestRunner.Run(GetWebsite(content));
 
-            using var response = runner.GetResponse("/sub/");
+            using var response = await runner.GetResponse("/sub/");
 
-            var result = response.GetContent();
+            var result = await response.GetContent();
 
             AssertX.Contains("script = ../scripts/s.js", result);
             AssertX.Contains("style = ../styles/s.css", result);
@@ -250,15 +250,15 @@ namespace GenHTTP.Testing.Acceptance.Providers
         }
 
         [TestMethod]
-        public void TestSamePageSameChecksum()
+        public async Task TestSamePageSameChecksum()
         {
             var content = Layout.Create()
                                 .Index(ModScriban.Page(Resource.FromString("Hello World!")));
 
             using var runner = TestRunner.Run(GetWebsite(content));
 
-            using var resp1 = runner.GetResponse();
-            using var resp2 = runner.GetResponse();
+            using var resp1 = await runner.GetResponse();
+            using var resp2 = await runner.GetResponse();
 
             Assert.IsNotNull(resp1.GetETag());
 
@@ -266,7 +266,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         }
 
         [TestMethod]
-        public void TestAutoReload()
+        public async Task TestAutoReload()
         {
             var website = GetWebsite().AutoReload();
 
@@ -276,11 +276,11 @@ namespace GenHTTP.Testing.Acceptance.Providers
                        .Development(true)
                        .Start();
 
-            using var script = runner.GetResponse("/scripts/genhttp-modules-autoreload.js");
+            using var script = await runner.GetResponse("/scripts/genhttp-modules-autoreload.js");
 
             Assert.AreEqual(HttpStatusCode.OK, script.StatusCode);
 
-            AssertX.Contains("checkForModifications", script.GetContent());
+            AssertX.Contains("checkForModifications", await script.GetContent());
         }
 
         public static WebsiteBuilder GetWebsite(LayoutBuilder? content = null)

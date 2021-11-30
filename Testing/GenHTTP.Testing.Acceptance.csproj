@@ -6,7 +6,7 @@
 
     <LangVersion>10.0</LangVersion>
     <Nullable>enable</Nullable>
-	  <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+	<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     
     <IsPackable>false</IsPackable>
     

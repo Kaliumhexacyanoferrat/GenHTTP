@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.IO;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -9,6 +10,8 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 {
@@ -75,147 +78,154 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
         #region Tests
 
         [TestMethod]
-        public void TestIndex()
+        public async Task TestIndex()
         {
             using var runner = GetRunner();
 
-            using var response = runner.GetResponse("/t/");
+            using var response = await runner.GetResponse("/t/");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.AreEqual("Hello World!", response.GetContent());
         }
 
         [TestMethod]
-        public void TestAction()
+        public async Task TestAction()
         {
             using var runner = GetRunner();
 
-            using var response = runner.GetResponse("/t/action/");
+            using var response = await runner.GetResponse("/t/action/");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.AreEqual("Action", response.GetContent());
         }
 
         [TestMethod]
-        public void TestActionWithQuery()
+        public async Task TestActionWithQuery()
         {
             using var runner = GetRunner();
 
-            using var response = runner.GetResponse("/t/action/?query=0815");
+            using var response = await runner.GetResponse("/t/action/?query=0815");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.AreEqual("815", response.GetContent());
         }
 
         [TestMethod]
-        public void TestActionWithQueryFromBody()
+        public async Task TestActionWithQueryFromBody()
         {
             using var runner = GetRunner();
 
-            var request = runner.GetRequest("/t/action/");
+            using var content = new MemoryStream();
 
-            request.Method = "PUT";
-            request.ContentType = "application/x-www-form-urlencoded";
-
-            using (var input = new StreamWriter(request.GetRequestStream()))
+            using (var input = new StreamWriter(content))
             {
                 input.Write("value2=test");
             }
 
-            using var response = runner.GetResponse(request);
+            var request = runner.GetRequest();
+            request.Method = HttpMethod.Put;
+
+            request.Content = new StreamContent(content);
+            request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/x-www-form-urlencoded");
+
+            using var response = await runner.GetResponse("/t/action/");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("Action test", response.GetContent());
+            Assert.AreEqual("Action test", await response.GetContent());
         }
 
         [TestMethod]
-        public void TestActionWithBody()
+        public async void TestActionWithBody()
         {
             using var runner = GetRunner();
 
-            var request = runner.GetRequest("/t/action/");
-            request.Method = "POST";
+            using var content = new MemoryStream();
 
-            using (var input = new StreamWriter(request.GetRequestStream()))
+            using (var input = new StreamWriter(content))
             {
                 input.Write("{ \"field\": \"FieldData\" }");
             }
 
-            using var response = runner.GetResponse(request);
+            var request = runner.GetRequest();
+
+            request.Method = HttpMethod.Post;
+            request.Content= new StreamContent(content);    
+
+            using var response = await runner.GetResponse("/t/action/");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("FieldData", response.GetContent());
+            Assert.AreEqual("FieldData", await response.GetContent());
         }
 
         [TestMethod]
-        public void TestActionWithParameter()
+        public async Task TestActionWithParameter()
         {
             using var runner = GetRunner();
 
-            using var response = runner.GetResponse("/t/simple-action/4711/");
+            using var response = await runner.GetResponse("/t/simple-action/4711/");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.AreEqual("4711", response.GetContent());
         }
 
         [TestMethod]
-        public void TestActionWithBadParameter()
+        public async Task TestActionWithBadParameter()
         {
             using var runner = GetRunner();
 
-            using var response = runner.GetResponse("/t/simple-action/string/");
+            using var response = await runner.GetResponse("/t/simple-action/string/");
 
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestActionWithMixedParameters()
+        public async Task TestActionWithMixedParameters()
         {
             using var runner = GetRunner();
 
-            using var response = runner.GetResponse("/t/complex-action/1/2/?three=3");
+            using var response = await runner.GetResponse("/t/complex-action/1/2/?three=3");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.AreEqual("6", response.GetContent());
         }
 
         [TestMethod]
-        public void TestActionWithNoResult()
+        public async Task TestActionWithNoResult()
         {
             using var runner = GetRunner();
 
-            using var response = runner.GetResponse("/t/void/");
+            using var response = await runner.GetResponse("/t/void/");
 
             Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestNonExistingAction()
+        public async Task TestNonExistingAction()
         {
             using var runner = GetRunner();
 
-            using var response = runner.GetResponse("/t/nope/");
+            using var response = await runner.GetResponse("/t/nope/");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestHypenCasing()
+        public async Task TestHypenCasing()
         {
             using var runner = GetRunner();
 
-            using var response = runner.GetResponse("/t/hypen-casing-99/");
+            using var response = await runner.GetResponse("/t/hypen-casing-99/");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.AreEqual("OK", response.GetContent());
         }
 
         [TestMethod]
-        public void TestIndexController()
+        public async Task TestIndexController()
         {
             using var runner = TestRunner.Run(Layout.Create().IndexController<TestController>());
 
-            using var response = runner.GetResponse("/simple-action/4711/");
+            using var response = await runner.GetResponse("/simple-action/4711/");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.AreEqual("4711", response.GetContent());

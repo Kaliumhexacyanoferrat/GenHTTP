@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -10,25 +11,25 @@ namespace GenHTTP.Testing.Acceptance.Engine
     {
 
         [TestMethod]
-        public void TestStart()
+        public async Task TestStart()
         {
             using var runner = new TestRunner();
 
             runner.Host.Start();
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestRestart()
+        public async Task TestRestart()
         {
             using var runner = new TestRunner();
 
             runner.Host.Restart();
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }

@@ -1,5 +1,7 @@
 ﻿using System.Net;
+using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -14,33 +16,33 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
     {
 
         [TestMethod]
-        public void TestDownload()
+        public async Task TestDownload()
         {
             using var runner = TestRunner.Run(Download.From(Resource.FromAssembly("File.txt")));
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
             Assert.AreEqual("This is text!", response.GetContent());
-            Assert.AreEqual("text/plain", response.GetResponseHeader("Content-Type"));
+            Assert.AreEqual("text/plain", response.GetHeader("Content-Type"));
         }
 
         [TestMethod]
-        public void TestDownloadDoesNotAcceptRouting()
+        public async Task TestDownloadDoesNotAcceptRouting()
         {
             var layout = Layout.Create()
                                .Add("file.txt", Download.From(Resource.FromAssembly("File.txt")));
 
             using var runner = TestRunner.Run(layout);
 
-            using var response = runner.GetResponse("/file.txt/blubb");
+            using var response = await runner.GetResponse("/file.txt/blubb");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
-        public void DownloadsCannotBeModified()
+        public async Task DownloadsCannotBeModified()
         {
             var download = Download.From(Resource.FromAssembly("File.txt"));
 
@@ -48,54 +50,49 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             var request = runner.GetRequest();
 
-            request.Method = "PUT";
-            request.ContentType = "text/plain";
+            request.Method = HttpMethod.Put;
+            request.Content = new StringContent("Hello World!", Encoding.UTF8, "text/plain");
 
-            using (var input = request.GetRequestStream())
-            {
-                input.Write(Encoding.UTF8.GetBytes("Hello World!"));
-            }
-
-            using var response = runner.GetResponse(request);
+            using var response = await runner.GetResponse(request);
 
             Assert.AreEqual(HttpStatusCode.MethodNotAllowed, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestFileName()
+        public async Task TestFileName()
         {
             var download = Download.From(Resource.FromAssembly("File.txt"))
                                    .FileName("myfile.txt");
 
             using var runner = TestRunner.Run(download);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            Assert.AreEqual("attachment; filename=\"myfile.txt\"", response.GetResponseHeader("Content-Disposition"));
+            Assert.AreEqual("attachment; filename=\"myfile.txt\"", response.GetHeader("Content-Disposition"));
         }
 
         [TestMethod]
-        public void TestNoFileName()
+        public async Task TestNoFileName()
         {
             var download = Download.From(Resource.FromAssembly("File.txt"));
 
             using var runner = TestRunner.Run(download);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            Assert.AreEqual("attachment", response.GetResponseHeader("Content-Disposition"));
+            Assert.AreEqual("attachment", response.GetHeader("Content-Disposition"));
         }
         
         [TestMethod]
-        public void TestFileNameFromResource()
+        public async Task TestFileNameFromResource()
         {
             var download = Download.From(Resource.FromAssembly("File.txt").Name("myfile.txt"));
 
             using var runner = TestRunner.Run(download);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            Assert.AreEqual("attachment; filename=\"myfile.txt\"", response.GetResponseHeader("Content-Disposition"));
+            Assert.AreEqual("attachment; filename=\"myfile.txt\"", response.GetHeader("Content-Disposition"));
         }
 
     }

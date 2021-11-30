@@ -69,46 +69,46 @@ namespace GenHTTP.Testing.Acceptance.Engine
         #endregion
 
         [TestMethod]
-        public void TestResources()
+        public async Task TestResources()
         {
             using var runner = TestRunner.Run(Resources.From(ResourceTree.FromAssembly("Resources"))
                                          .Add(new ContentPrinterBuilder()));
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            Assert.IsTrue(response.GetContent().Contains("Error.html"));
+            Assert.IsTrue((await response.GetContent()).Contains("Error.html"));
         }
 
         [TestMethod]
-        public void TestDirectoryListing()
+        public async Task TestDirectoryListing()
         {
             using var runner = TestRunner.Run(Listing.From(ResourceTree.FromAssembly("Resources"))
                                          .Add(new ContentPrinterBuilder()));
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            Assert.IsTrue(response.GetContent().Contains("Error.html"));
+            Assert.IsTrue((await response.GetContent()).Contains("Error.html"));
         }
 
         [TestMethod]
-        public void TestSinglePageApplication()
+        public async Task TestSinglePageApplication()
         {
             using var runner = TestRunner.Run(SinglePageApplication.From(ResourceTree.FromAssembly("Resources"))
                                          .Add(new ContentPrinterBuilder()));
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            Assert.IsTrue(response.GetContent().Contains("Error.html"));
+            Assert.IsTrue((await response.GetContent()).Contains("Error.html"));
         }
 
         [TestMethod]
-        public void TestWebsite()
+        public async Task TestWebsite()
         {
             using var runner = TestRunner.Run(WebsiteTests.GetWebsite().Add(new ContentPrinterBuilder()));
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            var content = response.GetContent();
+            var content = await response.GetContent();
 
             AssertX.Contains("custom.js", content);
             AssertX.Contains("custom.css", content);

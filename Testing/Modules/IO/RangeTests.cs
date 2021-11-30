@@ -1,5 +1,7 @@
-﻿using System.Net;
-
+﻿using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using GenHTTP.Modules.IO;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -13,205 +15,201 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         private const string CONTENT = "0123456789";
 
         [TestMethod]
-        public void TestRangesAreOptional()
+        public async Task TestRangesAreOptional()
         {
-            using var response = GetResponse(null);
+            using var response = await GetResponse(null);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.AreEqual(CONTENT, response.GetContent());
         }
 
         [TestMethod]
-        public void TestFullRangeIsSatisfied()
+        public async Task TestFullRangeIsSatisfied()
         {
-            using var response = GetResponse("bytes=1-8");
+            using var response = await GetResponse("bytes=1-8");
 
             Assert.AreEqual(HttpStatusCode.PartialContent, response.StatusCode);
             Assert.AreEqual("12345678", response.GetContent());
-            Assert.AreEqual("bytes 1-8/10", response.GetResponseHeader("Content-Range"));
+            Assert.AreEqual("bytes 1-8/10", response.GetHeader("Content-Range"));
         }
 
         [TestMethod]
-        public void TestRangeFromStartIsSatisfied()
+        public async Task TestRangeFromStartIsSatisfied()
         {
-            using var response = GetResponse("bytes=4-");
+            using var response = await GetResponse("bytes=4-");
 
             Assert.AreEqual(HttpStatusCode.PartialContent, response.StatusCode);
             Assert.AreEqual("456789", response.GetContent());
-            Assert.AreEqual("bytes 4-9/10", response.GetResponseHeader("Content-Range"));
+            Assert.AreEqual("bytes 4-9/10", response.GetHeader("Content-Range"));
         }
 
         [TestMethod]
-        public void TestRangeFromEndIsSatisfied()
+        public async Task TestRangeFromEndIsSatisfied()
         {
-            using var response = GetResponse("bytes=-4");
+            using var response = await GetResponse("bytes=-4");
 
             Assert.AreEqual(HttpStatusCode.PartialContent, response.StatusCode);
             Assert.AreEqual("6789", response.GetContent());
-            Assert.AreEqual("bytes 6-9/10", response.GetResponseHeader("Content-Range"));
+            Assert.AreEqual("bytes 6-9/10", response.GetHeader("Content-Range"));
         }
 
         [TestMethod]
-        public void TestSingleRangeIsSatisfied()
+        public async Task TestSingleRangeIsSatisfied()
         {
-            using var response = GetResponse("bytes=1-1");
+            using var response = await GetResponse("bytes=1-1");
 
             Assert.AreEqual(HttpStatusCode.PartialContent, response.StatusCode);
             Assert.AreEqual("1", response.GetContent());
-            Assert.AreEqual("bytes 1-1/10", response.GetResponseHeader("Content-Range"));
+            Assert.AreEqual("bytes 1-1/10", response.GetHeader("Content-Range"));
         }
 
         [TestMethod]
-        public void TestFullRangeNotSatisfied()
+        public async Task TestFullRangeNotSatisfied()
         {
-            using var response = GetResponse("bytes=9-13");
+            using var response = await GetResponse("bytes=9-13");
 
             Assert.AreEqual(HttpStatusCode.RequestedRangeNotSatisfiable, response.StatusCode);
-            Assert.AreEqual("bytes */10", response.GetResponseHeader("Content-Range"));
+            Assert.AreEqual("bytes */10", response.GetHeader("Content-Range"));
         }
 
         [TestMethod]
-        public void TestRangeFromStartNotSatisfied()
+        public async Task TestRangeFromStartNotSatisfied()
         {
-            using var response = GetResponse("bytes=12-");
+            using var response = await GetResponse("bytes=12-");
 
             Assert.AreEqual(HttpStatusCode.RequestedRangeNotSatisfiable, response.StatusCode);
-            Assert.AreEqual("bytes */10", response.GetResponseHeader("Content-Range"));
+            Assert.AreEqual("bytes */10", response.GetHeader("Content-Range"));
         }
 
         [TestMethod]
-        public void TestRangeFromEndNotSatisfied()
+        public async Task TestRangeFromEndNotSatisfied()
         {
-            using var response = GetResponse("bytes=-12");
+            using var response = await GetResponse("bytes=-12");
 
             Assert.AreEqual(HttpStatusCode.RequestedRangeNotSatisfiable, response.StatusCode);
-            Assert.AreEqual("bytes */10", response.GetResponseHeader("Content-Range"));
+            Assert.AreEqual("bytes */10", response.GetHeader("Content-Range"));
         }
 
         [TestMethod]
-        public void TestMultipleRangesNotSatisfied()
+        public async Task TestMultipleRangesNotSatisfied()
         {
-            using var response = GetResponse("bytes=1-2,3-4");
+            using var response = await GetResponse("bytes=1-2,3-4");
 
             Assert.AreEqual(HttpStatusCode.RequestedRangeNotSatisfiable, response.StatusCode);
-            Assert.AreEqual("bytes */10", response.GetResponseHeader("Content-Range"));
+            Assert.AreEqual("bytes */10", response.GetHeader("Content-Range"));
         }
 
         [TestMethod]
-        public void TestRangeTypeNotSatisfied()
+        public async Task TestRangeTypeNotSatisfied()
         {
-            using var response = GetResponse("age=99");
+            using var response = await GetResponse("age=99");
 
             Assert.AreEqual(HttpStatusCode.RequestedRangeNotSatisfiable, response.StatusCode);
-            Assert.AreEqual("bytes */10", response.GetResponseHeader("Content-Range"));
+            Assert.AreEqual("bytes */10", response.GetHeader("Content-Range"));
         }
 
         [TestMethod]
-        public void TestInvalidRangeNotSatisfied()
+        public async Task TestInvalidRangeNotSatisfied()
         {
-            using var response = GetResponse("lorem ipsum");
+            using var response = await GetResponse("lorem ipsum");
 
             Assert.AreEqual(HttpStatusCode.RequestedRangeNotSatisfiable, response.StatusCode);
-            Assert.AreEqual("bytes */10", response.GetResponseHeader("Content-Range"));
+            Assert.AreEqual("bytes */10", response.GetHeader("Content-Range"));
         }
 
         [TestMethod]
-        public void TestReverseRangeNotSatisfied()
+        public async Task TestReverseRangeNotSatisfied()
         {
-            using var response = GetResponse("bytes=8-1");
+            using var response = await GetResponse("bytes=8-1");
 
             Assert.AreEqual(HttpStatusCode.RequestedRangeNotSatisfiable, response.StatusCode);
-            Assert.AreEqual("bytes */10", response.GetResponseHeader("Content-Range"));
+            Assert.AreEqual("bytes */10", response.GetHeader("Content-Range"));
         }
 
         [TestMethod]
-        public void TestOneBasedIndexDoesNotWork()
+        public async Task TestOneBasedIndexDoesNotWork()
         {
-            using var response = GetResponse("bytes=1-10");
+            using var response = await GetResponse("bytes=1-10");
 
             Assert.AreEqual(HttpStatusCode.RequestedRangeNotSatisfiable, response.StatusCode);
-            Assert.AreEqual("bytes */10", response.GetResponseHeader("Content-Range"));
+            Assert.AreEqual("bytes */10", response.GetHeader("Content-Range"));
         }
 
         [TestMethod]
-        public void TestHeadRequest()
+        public async Task TestHeadRequest()
         {
-            using var response = GetResponse("bytes=1-8", "HEAD");
+            using var response = await GetResponse("bytes=1-8", HttpMethod.Head);
 
             Assert.AreEqual(HttpStatusCode.PartialContent, response.StatusCode);
 
-            Assert.AreEqual("bytes 1-8/10", response.GetResponseHeader("Content-Range"));
-            Assert.AreEqual("8", response.GetResponseHeader("Content-Length"));
+            Assert.AreEqual("bytes 1-8/10", response.GetHeader("Content-Range"));
+            Assert.AreEqual("8", response.GetHeader("Content-Length"));
 
-            Assert.AreEqual("bytes", response.GetResponseHeader("Accept-Ranges"));
+            Assert.AreEqual("bytes", response.GetHeader("Accept-Ranges"));
         }
 
         [TestMethod]
-        public void TestRangesIgnoredOnPostRequests()
+        public async Task TestRangesIgnoredOnPostRequests()
         {
-            using var response = GetResponse("bytes=1-8", "POST");
+            using var response = await GetResponse("bytes=1-8", HttpMethod.Post);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.AreEqual(CONTENT, response.GetContent());
         }
 
         [TestMethod]
-        public void TestRangesAreTaggedDifferently()
+        public async Task TestRangesAreTaggedDifferently()
         {
-            using var withRange = GetResponse("bytes=1-8");
-            using var withoutRange = GetResponse(null);
+            using var withRange = await GetResponse("bytes=1-8");
+            using var withoutRange = await GetResponse(null);
 
-            Assert.AreNotEqual(withRange.GetResponseHeader("ETag"), withoutRange.GetResponseHeader("ETag"));
+            Assert.AreNotEqual(withRange.GetHeader("ETag"), withoutRange.GetHeader("ETag"));
         }
 
         [TestMethod]
-        public void TestAddSupportForSingleFile()
+        public async Task TestAddSupportForSingleFile()
         {
             var download = Download.From(Resource.FromString("Hello World!"))
                                    .AddRangeSupport();
 
             using var runner = TestRunner.Run(download);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            Assert.AreEqual("bytes", response.GetResponseHeader("Accept-Ranges"));
+            Assert.AreEqual("bytes", response.GetHeader("Accept-Ranges"));
         }
 
         [TestMethod]
-        public void TestUnknownLengthCannotBeRanged()
+        public async Task TestUnknownLengthCannotBeRanged()
         {
             var download = Download.From(Resource.FromAssembly("File.txt"))
                                    .AddRangeSupport();
 
             using var runner = TestRunner.Run(download);
 
-
             var request = runner.GetRequest();
-
             request.Headers.Add("Range", "bytes=1-2");
 
-            using var response = runner.GetResponse(request);
+            using var response = await runner.GetResponse(request);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
-            Assert.AreEqual(string.Empty, response.GetResponseHeader("Accept-Ranges"));
-            Assert.AreEqual(string.Empty, response.GetResponseHeader("Content-Length"));
+            Assert.AreEqual(string.Empty, response.GetHeader("Accept-Ranges"));
+            Assert.AreEqual(string.Empty, response.GetHeader("Content-Length"));
         }
 
-        private static HttpWebResponse GetResponse(string? requestedRange, string method = "GET")
+        private static async Task<HttpResponseMessage> GetResponse(string? requestedRange, HttpMethod? method = null)
         {
             using var runner = GetRunner();
 
-            var request = runner.GetRequest();
-
-            request.Method = method;
+            var request = runner.GetRequest(method: method ?? HttpMethod.Get);
 
             if (requestedRange != null)
             {
                 request.Headers.Add("Range", requestedRange);
             }
 
-            return runner.GetResponse(request);
+            return await runner.GetResponse(request);
         }
 
         private static TestRunner GetRunner()

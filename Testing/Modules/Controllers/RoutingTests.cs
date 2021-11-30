@@ -110,21 +110,21 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
         #region Tests
 
         [TestMethod]
-        public void TestAppenders()
+        public async Task TestAppenders()
         {
             using var runner = Setup();
 
-            using var response = runner.GetResponse("/r/appenders/1/test/");
+            using var response = await runner.GetResponse("/r/appenders/1/test/");
 
             Assert.AreEqual("/r/appenders/1/test/", response.GetContent());
         }
 
         [TestMethod]
-        public void TestNested()
+        public async Task TestNested()
         {
             using var runner = Setup();
 
-            using var response = runner.GetResponse("/r/nested/1/test/inner");
+            using var response = await runner.GetResponse("/r/nested/1/test/inner");
 
             Assert.AreEqual("/r/nested/1/test/inner", response.GetContent());
         }
@@ -134,53 +134,53 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
         /// routing still works as expected.
         /// </summary>
         [TestMethod]
-        public void TestInner()
+        public async Task TestInner()
         {
             using var runner = Setup();
 
-            using var response = runner.GetResponse("/r/inner-controller/1/2/inner-controller/3/4/appenders/5/6/");
+            using var response = await runner.GetResponse("/r/inner-controller/1/2/inner-controller/3/4/appenders/5/6/");
 
             Assert.AreEqual("/r/inner-controller/1/2/inner-controller/3/4/appenders/5/6/", response.GetContent());
         }
 
         [TestMethod]
-        public void TestRoutingToController()
+        public async Task TestRoutingToController()
         {
             using var runner = Setup();
 
-            using var response = runner.GetResponse("/r/do-something-with-controller/");
+            using var response = await runner.GetResponse("/r/do-something-with-controller/");
 
-            Assert.AreEqual("/r/", new Uri(response.Headers["Location"]!).AbsolutePath);
+            Assert.AreEqual("/r/", new Uri(response.GetHeader("Location")!).AbsolutePath);
         }
 
         [TestMethod]
-        public void TestRoutingToIndex()
+        public async Task TestRoutingToIndex()
         {
             using var runner = Setup();
 
-            using var response = runner.GetResponse("/r/do-something-with-index/");
+            using var response = await runner.GetResponse("/r/do-something-with-index/");
 
-            Assert.AreEqual("/r/", new Uri(response.Headers["Location"]!).AbsolutePath);
+            Assert.AreEqual("/r/", new Uri(response.GetHeader("Location")!).AbsolutePath);
         }
 
         [TestMethod]
-        public void TestRoutingToParent()
+        public async Task TestRoutingToParent()
         {
             using var runner = Setup();
 
-            using var response = runner.GetResponse("/r/do-something-with-parent/");
+            using var response = await runner.GetResponse("/r/do-something-with-parent/");
 
-            Assert.AreEqual("/test", new Uri(response.Headers["Location"]!).AbsolutePath);
+            Assert.AreEqual("/test", new Uri(response.GetHeader("Location")!).AbsolutePath);
         }
 
         [TestMethod]
-        public void TestRoutingToAppender()
+        public async Task TestRoutingToAppender()
         {
             using var runner = Setup();
 
-            using var response = runner.GetResponse("/r/do-something-with-appenders/");
+            using var response = await runner.GetResponse("/r/do-something-with-appenders/");
 
-            Assert.AreEqual("/r/appenders/1/2/", new Uri(response.Headers["Location"]!).AbsolutePath);
+            Assert.AreEqual("/r/appenders/1/2/", new Uri(response.GetHeader("Location")!).AbsolutePath);
         }
 
         #endregion

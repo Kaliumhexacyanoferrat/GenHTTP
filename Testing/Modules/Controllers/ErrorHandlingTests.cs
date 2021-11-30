@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -43,9 +45,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
         #region Tests
 
         [TestMethod]
-        public void TestMustNotReturnSimpleType()
+        public async Task TestMustNotReturnSimpleType()
         {
-            using var response = Run("/c/simple-type/");
+            using var response = await Run("/c/simple-type/");
 
             Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
         }
@@ -74,14 +76,14 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
         #region Helpers
 
-        private HttpWebResponse Run(string uri)
+        private async Task<HttpResponseMessage> Run(string uri)
         {
             var layout = Layout.Create()
                                .AddController<TestController>("c");
 
             using var runner = TestRunner.Run(layout);
 
-            return runner.GetResponse(uri);
+            return await runner.GetResponse(uri);
         }
 
         #endregion

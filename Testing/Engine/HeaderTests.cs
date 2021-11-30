@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Threading.Tasks;
 
 using GenHTTP.Testing.Acceptance.Utilities;
 
@@ -12,7 +13,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
     {
 
         [TestMethod]
-        public void TestServerHeaderCanBeSet()
+        public async Task TestServerHeaderCanBeSet()
         {
             var handler = new FunctionalHandler(responseProvider: (r) =>
             {
@@ -23,13 +24,13 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var runner = TestRunner.Run(handler);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            Assert.AreEqual("TFB", response.Server);
+            Assert.AreEqual("TFB", response.GetHeader("Server"));
         }
 
         [TestMethod]
-        public void TestReservedHeaderCannotBeSet()
+        public async Task TestReservedHeaderCannotBeSet()
         {
             var handler = new FunctionalHandler(responseProvider: (r) =>
             {
@@ -40,7 +41,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var runner = TestRunner.Run(handler);
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
             Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
         }

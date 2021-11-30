@@ -1,4 +1,6 @@
 ﻿using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 using GenHTTP.Modules.IO;
 using GenHTTP.Testing.Acceptance.Utilities;
@@ -13,13 +15,13 @@ namespace GenHTTP.Testing.Acceptance.Modules
     {
 
         [TestMethod]
-        public void TestETagIsGenerated()
+        public async Task TestETagIsGenerated()
         {
             using var runner = TestRunner.Run(Content.From(Resource.FromString("Hello World!")));
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            var eTag = response.GetResponseHeader("ETag");
+            var eTag = response.GetHeader("ETag");
 
             Assert.IsNotNull(eTag);
 
@@ -28,27 +30,27 @@ namespace GenHTTP.Testing.Acceptance.Modules
         }
 
         [TestMethod]
-        public void TestServerReturnsUnmodified()
+        public async Task TestServerReturnsUnmodified()
         {
             using var runner = TestRunner.Run(Content.From(Resource.FromString("Hello World!")));
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            var eTag = response.GetResponseHeader("ETag");
+            var eTag = response.GetHeader("ETag");
 
             var request = runner.GetRequest();
 
             request.Headers.Add("If-None-Match", eTag);
 
-            using var cached = runner.GetResponse(request);
+            using var cached = await runner.GetResponse(request);
 
             Assert.AreEqual(HttpStatusCode.NotModified, cached.StatusCode);
 
-            Assert.AreEqual("0", cached.GetResponseHeader("Content-Length"));
+            Assert.AreEqual("0", cached.GetHeader("Content-Length"));
         }
 
         [TestMethod]
-        public void TestServerReturnsModified()
+        public async Task TestServerReturnsModified()
         {
             using var runner = TestRunner.Run(Content.From(Resource.FromString("Hello World!")));
 
@@ -56,13 +58,13 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             request.Headers.Add("If-None-Match", "\"123\"");
 
-            using var reloaded = runner.GetResponse(request);
+            using var reloaded = await runner.GetResponse(request);
 
             Assert.AreEqual(HttpStatusCode.OK, reloaded.StatusCode);
         }
 
         [TestMethod]
-        public void TestNoContentNoEtag()
+        public async Task TestNoContentNoEtag()
         {
             var noContent = new FunctionalHandler(responseProvider: (r) =>
             {
@@ -71,23 +73,23 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             using var runner = TestRunner.Run(noContent.Wrap());
 
-            using var response = runner.GetResponse();
+            using var response = await runner.GetResponse();
 
-            AssertX.DoesNotContain("ETag", response.Headers.AllKeys);
+            Assert.IsFalse(response.Headers.Contains("ETag"));
         }
 
         [TestMethod]
-        public void TestOtherMethodNoETag()
+        public async Task TestOtherMethodNoETag()
         {
             using var runner = TestRunner.Run(Content.From(Resource.FromString("Hello World!")));
 
             var request = runner.GetRequest();
 
-            request.Method = "DELETE";
+            request.Method = HttpMethod.Delete;
 
-            using var response = runner.GetResponse(request);
+            using var response = await runner.GetResponse(request);
 
-            AssertX.DoesNotContain("ETag", response.Headers.AllKeys);
+            Assert.IsFalse(response.Headers.Contains("ETag"));
         }
 
     }

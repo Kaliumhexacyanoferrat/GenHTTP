@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 using GenHTTP.Api.Content;
@@ -39,11 +40,11 @@ namespace GenHTTP.Testing.Acceptance.Providers
         #endregion
 
         [TestMethod]
-        public void TestKnownSitemap()
+        public async Task TestKnownSitemap()
         {
             using var runner = TestRunner.Run(GetContent());
 
-            var sitemap = GetSitemap(runner);
+            var sitemap = await GetSitemap(runner);
 
             AssertX.Contains("http://localhost/", sitemap);
             AssertX.Contains("http://localhost/other", sitemap);
@@ -54,13 +55,13 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.AreEqual(4, sitemap.Count);
         }
 
-        private static HashSet<string> GetSitemap(TestRunner runner)
+        private static async Task<HashSet<string>> GetSitemap(TestRunner runner)
         {
             var serializer = new XmlSerializer(typeof(UrlSet));
 
-            using var response = runner.GetResponse("/" + Sitemap.FILE_NAME);
+            using var response = await runner.GetResponse("/" + Sitemap.FILE_NAME);
 
-            var sitemap = serializer.Deserialize(response.GetResponseStream()) as UrlSet;
+            var sitemap = serializer.Deserialize(await response.Content.ReadAsStreamAsync()) as UrlSet;
 
             return sitemap?.Entries?.Select(u => u.Loc!.Replace(":" + runner.Port, string.Empty)).ToHashSet() ?? new HashSet<string>();
         }

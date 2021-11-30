@@ -82,7 +82,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         }
 
         [TestMethod]
-        public void TestAssemblyResourceRouting()
+        public async Task TestAssemblyResourceRouting()
         {
             var layout = Layout.Create()
                                .Add("1", Content.From(Resource.FromAssembly("File.txt")))
@@ -90,11 +90,11 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var runner = TestRunner.Run(layout);
 
-            using var f1 = runner.GetResponse("/1");
-            Assert.AreEqual("This is text!", f1.GetContent());
+            using var f1 = await runner.GetResponse("/1");
+            Assert.AreEqual("This is text!", await f1.GetContent());
 
-            using var f2 = runner.GetResponse("/2");
-            Assert.AreEqual("This is other text!", f2.GetContent());
+            using var f2 = await runner.GetResponse("/2");
+            Assert.AreEqual("This is other text!", await f2.GetContent());
         }
 
         [TestMethod]

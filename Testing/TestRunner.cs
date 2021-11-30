@@ -1,14 +1,14 @@
-﻿using System;
-using System.Net;
-using System.Net.Cache;
-using System.Threading;
-using System.Threading.Tasks;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
-
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Practices;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Cache;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GenHTTP.Testing.Acceptance
 {
@@ -16,6 +16,8 @@ namespace GenHTTP.Testing.Acceptance
     public class TestRunner : IDisposable
     {
         private static volatile int _NextPort = 20000;
+
+        private static HttpClient _DefaultClient = GetClient();
 
         #region Get-/Setters
 
@@ -77,32 +79,54 @@ namespace GenHTTP.Testing.Acceptance
             Host.Start();
         }
 
-        public HttpWebRequest GetRequest(string? uri = null)
+
+        public string GetUrl(string? path = null) => $"http://localhost:{Port}{path ?? ""}";
+
+        public HttpRequestMessage GetRequest(string? path = null, HttpMethod? method = null)
         {
-            var request = WebRequest.CreateHttp($"http://localhost:{Port}{uri ?? ""}");
-
-#if !DEBUG
-            request.Timeout = 5000;
-#endif
-
-            request.AllowAutoRedirect = false;
-
-            return request;
+            return new HttpRequestMessage(method ?? HttpMethod.Get, GetUrl(path));
         }
 
-        public HttpWebResponse GetResponse(string? uri = null)
+        public async Task<HttpResponseMessage> GetResponse(string? path = null, HttpClient? client = null)
         {
-            return GetRequest(uri).GetSafeResponse();
+            var actualClient = client ?? _DefaultClient;
+
+            return await actualClient.GetAsync(GetUrl(path));
         }
 
-        public async Task<HttpWebResponse> GetResponseAsync(string? uri = null)
+        public async Task<HttpResponseMessage> GetResponse(HttpRequestMessage message, HttpClient? client = null)
         {
-            return await GetRequest(uri).GetSafeResponseAsync();
+            var actualClient = client ?? _DefaultClient;
+
+            return await actualClient.SendAsync(message);
         }
 
-        public HttpWebResponse GetResponse(HttpWebRequest request)
+        public static HttpClient GetClient(bool ignoreSecurityErrors = false, bool followRedirects = true,
+            Version? version = null, NetworkCredential? creds = null, CookieContainer? cookies = null)
         {
-            return request.GetSafeResponse();
+            var handler = new HttpClientHandler
+            {
+                AllowAutoRedirect = followRedirects,
+                Credentials = creds
+            };
+
+            if (cookies != null)
+            {
+                handler.CookieContainer = cookies;
+            }
+
+            if (ignoreSecurityErrors)
+            {
+                handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+                handler.ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) => true;
+            }
+
+            var client = new HttpClient(handler)
+            {
+                DefaultRequestVersion = version ?? HttpVersion.Version11,
+            };
+
+            return client;
         }
 
         #endregion

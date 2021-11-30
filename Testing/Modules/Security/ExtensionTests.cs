@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Security;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Security
