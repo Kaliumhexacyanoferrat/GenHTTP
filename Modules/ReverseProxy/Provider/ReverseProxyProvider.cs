@@ -3,36 +3,40 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.IO;
-using GenHTTP.Modules.IO.Streaming;
 using GenHTTP.Modules.Pages;
-
-using PooledAwait;
 
 namespace GenHTTP.Modules.ReverseProxy.Provider
 {
 
     public sealed class ReverseProxyProvider : IHandler
     {
-        private static readonly uint BUFFER_SIZE = 8192;
-
         private static readonly HashSet<string> RESERVED_RESPONSE_HEADERS = new()
         {
-            "Server", "Date", "Content-Encoding", "Transfer-Encoding", "Content-Type",
-            "Connection", "Content-Length", "Keep-Alive"
+            "Server",
+            "Date",
+            "Content-Encoding",
+            "Transfer-Encoding",
+            "Content-Type",
+            "Connection",
+            "Content-Length",
+            "Keep-Alive"
         };
 
         private static readonly HashSet<string> RESERVED_REQUEST_HEADERS = new()
         {
-            "Host", "Connection", "Forwarded", "Upgrade-Insecure-Requests"
+            "Host",
+            "Connection",
+            "Forwarded",
+            "Upgrade-Insecure-Requests"
         };
 
         #region Get-/Setters
@@ -41,9 +45,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
         public string Upstream { get; }
 
-        public TimeSpan ConnectTimeout { get; }
-
-        public TimeSpan ReadTimeout { get; }
+        private HttpClient Client { get; }
 
         #endregion
 
@@ -54,8 +56,16 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             Parent = parent;
             Upstream = upstream;
 
-            ConnectTimeout = connectTimeout;
-            ReadTimeout = readTimeout;
+            var handler = new SocketsHttpHandler
+            {
+                AllowAutoRedirect = false,
+                AutomaticDecompression = DecompressionMethods.None
+            };
+
+            Client = new HttpClient(handler)
+            {
+                Timeout = readTimeout
+            };
         }
 
         #endregion
@@ -68,15 +78,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             {
                 var req = ConfigureRequest(request);
 
-                if (request.Content is not null && CanSendBody(request))
-                {
-                    using (var inputStream = await req.GetRequestStreamAsync().ConfigureAwait(false))
-                    {
-                        await request.Content.CopyPooledAsync(inputStream, BUFFER_SIZE).ConfigureAwait(false);
-                    }
-                }
-
-                var resp = await GetSafeResponse(req).ConfigureAwait(false);
+                var resp = await Client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
 
                 return GetResponse(resp, request).Build();
             }
@@ -88,7 +90,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
                 return this.GetError(new ErrorModel(request, this, ResponseStatus.GatewayTimeout, "The gateway did not respond in time.", e), info).Build();
             }
-            catch (WebException e)
+            catch (HttpRequestException e)
             {
                 var info = ContentInfo.Create()
                                       .Title("Bad Gateway")
@@ -98,27 +100,27 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             }
         }
 
-        private HttpWebRequest ConfigureRequest(IRequest request)
+        private HttpRequestMessage ConfigureRequest(IRequest request)
         {
-            var req = WebRequest.CreateHttp(GetRequestUri(request));
+            var req = new HttpRequestMessage(new(request.Method.RawMethod), GetRequestUri(request));
 
-            req.AllowAutoRedirect = false;
-
-            req.Timeout = (int)ConnectTimeout.TotalMilliseconds;
-            req.ReadWriteTimeout = (int)ReadTimeout.TotalMilliseconds;
-
-            req.AutomaticDecompression = DecompressionMethods.None;
-
-            req.KeepAlive = true;
-            req.Pipelined = true;
-
-            req.Method = request.Method.RawMethod;
+            if (request.Content is not null && CanSendBody(request))
+            {
+                req.Content = new StreamContent(request.Content);
+            }
 
             foreach (var header in request.Headers)
             {
                 if (!RESERVED_REQUEST_HEADERS.Contains(header.Key))
                 {
-                    req.Headers.Add(header.Key, header.Value);
+                    if (header.Key.StartsWith("Content-"))
+                    {
+                        req.Content?.Headers.Add(header.Key, header.Value);
+                    }
+                    else
+                    {
+                        req.Headers.Add(header.Key, header.Value);
+                    }
                 }
             }
 
@@ -158,17 +160,52 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             return string.Empty;
         }
 
-        private IResponseBuilder GetResponse(HttpWebResponse response, IRequest request)
+        private IResponseBuilder GetResponse(HttpResponseMessage response, IRequest request)
         {
             var builder = request.Respond();
 
-            builder.Status((int)response.StatusCode, response.StatusDescription);
+            builder.Status((int)response.StatusCode, response.ReasonPhrase ?? "No Reason");
 
-            foreach (var key in response.Headers.AllKeys)
+            SetHeaders(builder, request, response.Headers);
+
+            var contentHeaders = (response.Content.Headers);
+
+            SetHeaders(builder, request, contentHeaders);
+
+            if (contentHeaders.ContentEncoding.Any())
             {
+                builder.Encoding(contentHeaders.ContentEncoding.First());
+            }
+
+            ulong? knownLength = (contentHeaders.ContentLength > 0) ? (ulong)contentHeaders.ContentLength : null;
+
+            if (HasBody(request, response))
+            {
+                builder.Content(new ClientResponseContent(response))
+                       .Type(contentHeaders.ContentType?.ToString() ?? "application/octet-stream");
+            }
+            else
+            {
+                if (knownLength != null)
+                {
+                    builder.Length(knownLength.Value);
+                }
+
+                response.Dispose();
+            }
+
+            return builder;
+        }
+
+        private void SetHeaders(IResponseBuilder builder, IRequest request, HttpHeaders headers)
+        {
+            foreach (var kv in headers)
+            {
+                var key = kv.Key;
+
                 if (!RESERVED_RESPONSE_HEADERS.Contains(key))
                 {
-                    var value = response.Headers[key];
+                    var value = kv.Value.First();
 
                     if (value is not null)
                     {
@@ -192,7 +229,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
                         }
                         else if (key == "Set-Cookie")
                         {
-                            foreach (var cookie in BrokenCookieHeaderParser.GetCookies(value))
+                            foreach (var cookie in kv.Value)
                             {
                                 builder.Header(key, cookie);
                             }
@@ -204,25 +241,6 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
                     }
                 }
             }
-
-            if (!string.IsNullOrEmpty(response.ContentEncoding))
-            {
-                builder.Encoding(response.ContentEncoding);
-            }
-
-            ulong? knownLength = (response.ContentLength > 0) ? (ulong)response.ContentLength : null;
-
-            if (HasBody(request, response))
-            {
-                builder.Content(response.GetResponseStream(), knownLength, () => new ValueTask<ulong?>())
-                       .Type(response.ContentType);
-            }
-            else if (knownLength != null)
-            {
-                builder.Length(knownLength.Value);
-            }
-
-            return builder;
         }
 
         private static bool CanSendBody(IRequest request)
@@ -230,9 +248,9 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             return !request.HasType(RequestMethod.GET, RequestMethod.HEAD, RequestMethod.OPTIONS);
         }
 
-        private static bool HasBody(IRequest request, HttpWebResponse response)
+        private static bool HasBody(IRequest request, HttpResponseMessage response)
         {
-            return !request.HasType(RequestMethod.HEAD) && response.ContentType is not null;
+            return !request.HasType(RequestMethod.HEAD) && response.Content.Headers.ContentType is not null;
         }
 
         private string RewriteLocation(string location, IRequest request)
@@ -259,27 +277,6 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             }
 
             return location;
-        }
-
-        private static async PooledValueTask<HttpWebResponse> GetSafeResponse(WebRequest request)
-        {
-            try
-            {
-                return (HttpWebResponse)await request.GetResponseAsync().ConfigureAwait(false);
-            }
-            catch (WebException e)
-            {
-                var response = e.Response as HttpWebResponse;
-
-                if (response is not null)
-                {
-                    return response;
-                }
-                else
-                {
-                    throw;
-                }
-            }
         }
 
         private static string GetForwardings(IRequest request)

@@ -32,7 +32,7 @@ namespace GenHTTP.Modules.IO.Streaming
 
                     if (read > 0)
                     {
-                        await target.WriteAsync(memory.Slice(0, read));
+                        await target.WriteAsync(memory[..read]);
                     }
                 }
                 while (read > 0);

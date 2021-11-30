@@ -51,6 +51,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
             using var response = await runner.GetResponse(request);
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.IsTrue(response.Headers.Connection.Contains("Close"));
         }
 
         [TestMethod]
@@ -61,6 +62,17 @@ namespace GenHTTP.Testing.Acceptance.Engine
             using var response = await runner.GetResponse("/?");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+
+        [TestMethod]
+        public async Task TestKeepalive()
+        {
+            using var runner = TestRunner.Run();
+
+            using var response = await runner.GetResponse();
+
+            Assert.IsTrue(response.Headers.Connection.Contains("Keep-Alive"));
         }
 
     }

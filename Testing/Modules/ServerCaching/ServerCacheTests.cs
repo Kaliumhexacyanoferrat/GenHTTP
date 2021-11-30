@@ -137,10 +137,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             var handler = new FunctionalHandler(responseProvider: (r) =>
             {
                 return r.Respond()
-                        .Type(new FlexibleContentType(ContentType.AudioWav))
                         .Cookie(new Cookie("CKey", "CValue"))
                         .Header("HKey", "HValue")
-                        .Content(Resource.FromString("0123456789").Build())
+                        .Content(Resource.FromString("0123456789").Type(new(ContentType.AudioWav)).Build())
                         .Length(10)
                         .Encoding("some-encoding")
                         .Expires(now)
