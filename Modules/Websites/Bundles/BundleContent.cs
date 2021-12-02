@@ -16,7 +16,32 @@ namespace GenHTTP.Modules.Websites.Bundles
 
         #region Get-/Setters
 
-        public ulong? Length => null;
+        public ulong? Length
+        {
+            get
+            {
+                if (Items.Count > 0)
+                {
+                    ulong length = 0;
+
+                    foreach (var item in Items)
+                    {
+                        var itemLength = item.Length;
+
+                        if (itemLength is null)
+                        {
+                            return null;
+                        }
+
+                        length += itemLength.Value;
+                    }
+
+                    return length + (ulong)(Items.Count - 1);
+                }
+
+                return 0;
+            }
+        }
 
         private List<IResource> Items { get; }
 

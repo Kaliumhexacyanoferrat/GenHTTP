@@ -52,10 +52,10 @@ namespace GenHTTP.Modules.IO.Streaming
         {
             var content = await renderer.RenderAsync(model);
 
-            await WriteAsync(content, target);
+            await content.WriteAsync(target);
         }
 
-        public static async PooledValueTask WriteAsync(string content, Stream target)
+        public static async PooledValueTask WriteAsync(this string content, Stream target)
         {
             var encoder = UTF8.GetEncoder();
 
@@ -67,7 +67,7 @@ namespace GenHTTP.Modules.IO.Streaming
             {
                 encoder.GetBytes(content.AsSpan(), buffer.AsSpan(), true);
 
-                await target.WriteAsync(buffer.AsMemory());
+                await target.WriteAsync(buffer.AsMemory(0, bytes));
             }
             finally
             {
