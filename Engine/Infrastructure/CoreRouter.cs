@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
@@ -54,7 +56,7 @@ namespace GenHTTP.Engine.Infrastructure
 
         public async ValueTask PrepareAsync()
         {
-            await Content.PrepareAsync();
+            await Content.PrepareAsync().ConfigureAwait(false);
 
             await Template.PrepareAsync();
 
@@ -74,10 +76,20 @@ namespace GenHTTP.Engine.Infrastructure
         {
             return await ErrorRenderer.RenderAsync(model).ConfigureAwait(false);
         }
+        
+        public async ValueTask RenderAsync(ErrorModel model, Stream target)
+        {
+            await ErrorRenderer.RenderAsync(model, target).ConfigureAwait(false);
+        }
 
         public async ValueTask<string> RenderAsync(TemplateModel model)
         {
-            return await Template.RenderAsync(model);
+            return await Template.RenderAsync(model).ConfigureAwait(false);
+        }
+
+        public async ValueTask RenderAsync(TemplateModel model, Stream target)
+        {
+            await Template.RenderAsync(model, target).ConfigureAwait(false);
         }
 
         #endregion

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
@@ -33,6 +34,8 @@ namespace GenHTTP.Modules.Pages.Combined
             public ValueTask PrepareAsync() => _Renderer.PrepareAsync();
 
             public ValueTask<string> RenderAsync(IModel model) => _Renderer.RenderAsync((T)model);
+
+            public ValueTask RenderAsync(IModel model, Stream target) => _Renderer.RenderAsync((T)model, target);
 
         }
 

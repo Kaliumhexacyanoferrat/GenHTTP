@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
@@ -87,7 +88,7 @@ namespace GenHTTP.Modules.Websites.Sites
 
         public async ValueTask PrepareAsync()
         {
-            await Handler.PrepareAsync();
+            await Handler.PrepareAsync().ConfigureAwait(false);
 
             await Renderer.PrepareAsync();
 
@@ -110,9 +111,18 @@ namespace GenHTTP.Modules.Websites.Sites
             return await Theme.ErrorHandler.RenderAsync(model).ConfigureAwait(false);
         }
 
+        public async ValueTask RenderAsync(ErrorModel model, Stream target)
+        {
+            await Theme.ErrorHandler.RenderAsync(model, target).ConfigureAwait(false);
+        }
         public async ValueTask<string> RenderAsync(TemplateModel model)
         {
             return await Renderer.RenderAsync(model).ConfigureAwait(false);
+        }
+
+        public async ValueTask RenderAsync(TemplateModel model, Stream target)
+        {
+            await Renderer.RenderAsync(model, target).ConfigureAwait(false);
         }
 
         public IHandler? Find(string segment)
@@ -124,6 +134,7 @@ namespace GenHTTP.Modules.Websites.Sites
 
             return null;
         }
+
 
         #endregion
 

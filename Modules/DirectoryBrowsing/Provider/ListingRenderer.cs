@@ -1,10 +1,13 @@
 ﻿using System;
+using System.IO;
 using System.Web;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content.Templating;
+
+using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 {
@@ -53,6 +56,8 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
             return new ValueTask<string>(content.ToString());
         }
 
+        public ValueTask RenderAsync(ListingModel model, Stream target) => this.RenderToStream(model, target);
+
         private static void Append(StringBuilder builder, string path, string name, ulong? size, DateTime? modified)
         {
             builder.AppendLine("<tr>");
@@ -74,6 +79,5 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
     }
-
 
 }

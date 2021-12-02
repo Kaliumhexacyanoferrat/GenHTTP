@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Buffers;
 using System.IO;
+using System.Text;
+
+using GenHTTP.Api.Content.Templating;
 
 using PooledAwait;
 
@@ -10,6 +13,8 @@ namespace GenHTTP.Modules.IO.Streaming
     public static class StreamExtensions
     {
         private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
+
+        private static readonly Encoding UTF8 = Encoding.UTF8;
 
         public static async PooledValueTask CopyPooledAsync(this Stream source, Stream target, uint bufferSize)
         {
@@ -36,6 +41,33 @@ namespace GenHTTP.Modules.IO.Streaming
                     }
                 }
                 while (read > 0);
+            }
+            finally
+            {
+                POOL.Return(buffer);
+            }
+        }
+
+        public static async PooledValueTask RenderToStream<T>(this IRenderer<T> renderer, T model, Stream target) where T : class, IModel
+        {
+            var content = await renderer.RenderAsync(model);
+
+            await WriteAsync(content, target);
+        }
+
+        public static async PooledValueTask WriteAsync(string content, Stream target)
+        {
+            var encoder = UTF8.GetEncoder();
+
+            var bytes = encoder.GetByteCount(content, false);
+
+            var buffer = POOL.Rent(bytes);
+
+            try
+            {
+                encoder.GetBytes(content.AsSpan(), buffer.AsSpan(), true);
+
+                await target.WriteAsync(buffer.AsMemory());
             }
             finally
             {

@@ -86,6 +86,19 @@ namespace GenHTTP.Engine.Protocol
             }
         }
 
+        public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            if (!buffer.IsEmpty)
+            {
+                await WriteAsync(buffer.Length.ToString("X")).ConfigureAwait(false);
+                await WriteAsync(NL);
+
+                await Target.WriteAsync(buffer, cancellationToken);
+
+                await WriteAsync(NL);
+            }
+        }
+
         public async PooledValueTask FinishAsync()
         {
             await WriteAsync("0").ConfigureAwait(false);

@@ -1,10 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System.IO;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO.Tracking;
+using GenHTTP.Modules.IO.Streaming;
 
 using PooledAwait;
 
@@ -48,6 +50,8 @@ namespace GenHTTP.Modules.Scriban.Providers
 
             return await template.RenderAsync(obj);
         }
+
+        public ValueTask RenderAsync(T model, Stream target) => this.RenderToStream(model, target);
 
         public async ValueTask PrepareAsync()
         {

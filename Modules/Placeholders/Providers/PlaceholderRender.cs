@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -9,6 +10,7 @@ using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO.Tracking;
+using GenHTTP.Modules.IO.Streaming;
 
 using PooledAwait;
 
@@ -52,6 +54,8 @@ namespace GenHTTP.Modules.Placeholders.Providers
                 return GetValue(fullPath, path, model) ?? string.Empty;
             });
         }
+
+        public ValueTask RenderAsync(T model, Stream target) => this.RenderToStream(model, target);
 
         public async ValueTask PrepareAsync()
         {
