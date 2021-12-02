@@ -39,10 +39,10 @@ namespace GenHTTP.Api.Content
         #region Initialization
 
         public ContentElement(WebPath path, ContentInfo details, ContentType contentType,IEnumerable<ContentElement>? children = null)
-            : this(path.ToString(), details, new FlexibleContentType(contentType), children) { }
+            : this(path.ToString(), details, FlexibleContentType.Get(contentType), children) { }
 
         public ContentElement(string path, ContentInfo details, ContentType contentType, IEnumerable<ContentElement>? children = null)
-            : this(path, details, new FlexibleContentType(contentType), children) { }
+            : this(path, details, FlexibleContentType.Get(contentType), children) { }
 
         public ContentElement(WebPath path, ContentInfo details, FlexibleContentType contentType, IEnumerable<ContentElement>? children = null)
              : this(path.ToString(), details, contentType, children) { }

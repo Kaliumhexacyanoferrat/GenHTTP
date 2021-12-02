@@ -90,7 +90,7 @@ namespace GenHTTP.Engine.Protocol
 
         public RequestBuilder Type(string type)
         {
-            _RequestMethod = new(type);
+            _RequestMethod = FlexibleRequestMethod.Get(type);
             return this;
         }
 
@@ -175,7 +175,7 @@ namespace GenHTTP.Engine.Protocol
 
                 var client = DetermineClient() ?? localClient;
 
-                return new Request(_Server, _EndPoint, client, localClient, (HttpProtocol)_Protocol, _RequestMethod.Value, 
+                return new Request(_Server, _EndPoint, client, localClient, (HttpProtocol)_Protocol, _RequestMethod, 
                                    _Target, Headers, _Cookies, _Forwardings, _Query, _Content);
             }
             catch (Exception)

@@ -39,7 +39,7 @@ namespace GenHTTP.Modules.IO.Providers
         {
             Parent = parent;
             Resource = resourceProvider;
-            ContentType = Resource.ContentType ?? new FlexibleContentType(Resource.Name?.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload);
+            ContentType = Resource.ContentType ?? FlexibleContentType.Get(Resource.Name?.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload);
         }
 
         #endregion

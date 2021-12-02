@@ -132,7 +132,7 @@ namespace GenHTTP.Engine.Protocol
 
             if (!(response.ContentType is null))
             {
-                await WriteHeaderLine("Content-Type", response.ContentType.Value.RawType).ConfigureAwait(false);
+                await WriteHeaderLine("Content-Type", response.ContentType.RawType).ConfigureAwait(false);
             }
 
             if (response.ContentEncoding is not null)

@@ -11,7 +11,7 @@ namespace GenHTTP.Modules.Websites.Bundles
     {
         private readonly List<IResource> _Items = new();
 
-        private FlexibleContentType _ContentType = new(Api.Protocol.ContentType.ApplicationForceDownload);
+        private FlexibleContentType _ContentType = FlexibleContentType.Get(Api.Protocol.ContentType.ApplicationForceDownload);
 
         private readonly List<IConcernBuilder> _Concerns = new();
 
@@ -29,7 +29,7 @@ namespace GenHTTP.Modules.Websites.Bundles
             return this;
         }
 
-        public BundleBuilder ContentType(ContentType type) => ContentType(new FlexibleContentType(type));
+        public BundleBuilder ContentType(ContentType type) => ContentType(FlexibleContentType.Get(type));
 
         public BundleBuilder ContentType(FlexibleContentType type)
         {

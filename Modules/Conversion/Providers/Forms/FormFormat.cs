@@ -79,7 +79,7 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
         {
             if ((request.Content is not null) && (request.ContentType is not null))
             {
-                if (request.ContentType.Value == ContentType.ApplicationWwwFormUrlEncoded)
+                if (request.ContentType == ContentType.ApplicationWwwFormUrlEncoded)
                 {
                     var content = GetRequestContent(request);
 

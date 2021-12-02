@@ -41,7 +41,7 @@ namespace GenHTTP.Api.Content.IO
         /// Sets the content type of the resource.
         /// </summary>
         /// <param name="contentType">The content type of the resource</param>
-        public static T Type<T>(this IResourceBuilder<T> builder, ContentType contentType) where T : IResourceBuilder<T> => builder.Type(new FlexibleContentType(contentType));
+        public static T Type<T>(this IResourceBuilder<T> builder, ContentType contentType) where T : IResourceBuilder<T> => builder.Type(FlexibleContentType.Get(contentType));
 
     }
 

@@ -7,6 +7,8 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
 
+using GenHTTP.Modules.IO.Streaming;
+
 namespace GenHTTP.Modules.IO.FileSystem
 {
 
@@ -54,7 +56,7 @@ namespace GenHTTP.Modules.IO.FileSystem
 
             Name = name ?? file.Name;
 
-            ContentType = contentType ?? new FlexibleContentType(Name.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload);
+            ContentType = contentType ?? FlexibleContentType.Get(Name.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload);
         }
 
         #endregion
@@ -79,6 +81,13 @@ namespace GenHTTP.Modules.IO.FileSystem
 
                 return new ValueTask<ulong>(hash);
             }
+        }
+
+        public async ValueTask WriteAsync(Stream target, uint bufferSize)
+        {
+            using var content = File.OpenRead();
+
+            await content.CopyPooledAsync(target, bufferSize).ConfigureAwait(false);
         }
 
         #endregion

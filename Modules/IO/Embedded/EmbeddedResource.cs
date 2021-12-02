@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
+using GenHTTP.Modules.IO.Streaming;
+
 namespace GenHTTP.Modules.IO.Embedded
 {
 
@@ -71,6 +73,13 @@ namespace GenHTTP.Modules.IO.Embedded
             }
 
             return _Checksum.Value;
+        }
+
+        public async ValueTask WriteAsync(Stream target, uint bufferSize)
+        {
+            using var content = await GetContentAsync().ConfigureAwait(false);
+
+            await content.CopyPooledAsync(target, bufferSize);
         }
 
         #endregion

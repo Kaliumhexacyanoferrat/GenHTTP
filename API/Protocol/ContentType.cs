@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
+using System;
 
 namespace GenHTTP.Api.Protocol
 {
@@ -209,8 +210,11 @@ namespace GenHTTP.Api.Protocol
     /// <summary>
     /// The type of content which is sent to or received from a client.
     /// </summary>
-    public struct FlexibleContentType
+    public class FlexibleContentType
     {
+        private static readonly Dictionary<string, FlexibleContentType> _RawCache = new(StringComparer.InvariantCultureIgnoreCase);
+
+        private static readonly Dictionary<ContentType, FlexibleContentType> _KnownCache = new();
 
         #region Get-/Setters
 
@@ -302,6 +306,48 @@ namespace GenHTTP.Api.Protocol
         {
             KnownType = type;
             RawType = MAPPING[type];
+        }
+
+        #endregion
+
+        #region Functionality
+
+        /// <summary>
+        /// Fetches a cached instance for the given content type.
+        /// </summary>
+        /// <param name="rawType">The raw string to be resolved</param>
+        /// <returns>The content type instance to be used</returns>
+        public static FlexibleContentType Get(string rawType)
+        {
+            if (_RawCache.TryGetValue(rawType, out var found))
+            {
+                return found;
+            }
+
+            var type = new FlexibleContentType(rawType);
+
+            _RawCache[rawType] = type;
+
+            return type;
+        }
+
+        /// <summary>
+        /// Fetches a cached instance for the given content type.
+        /// </summary>
+        /// <param name="knownType">The known type to be resolved</param>
+        /// <returns>The content type instance to be used</returns>
+        public static FlexibleContentType Get(ContentType knownType)
+        {
+            if (_KnownCache.TryGetValue(knownType, out var found))
+            {
+                return found;
+            }
+
+            var type = new FlexibleContentType(knownType);
+
+            _KnownCache[knownType] = type;
+
+            return type;
         }
 
         #endregion

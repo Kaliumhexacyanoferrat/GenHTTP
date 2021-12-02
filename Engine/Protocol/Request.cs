@@ -156,6 +156,8 @@ namespace GenHTTP.Engine
 
                 _Cookies?.Dispose();
 
+                _Properties?.Dispose();
+
                 Content?.Dispose();
 
                 disposed = true;

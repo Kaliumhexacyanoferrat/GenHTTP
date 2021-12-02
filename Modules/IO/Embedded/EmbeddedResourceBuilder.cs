@@ -63,7 +63,7 @@ namespace GenHTTP.Modules.IO.Embedded
 
             var modified = _Modified ?? ((sourceFile.Exists) ? sourceFile.LastWriteTimeUtc : DateTime.UtcNow);
 
-            var type = _Type ?? new FlexibleContentType(path.GuessContentType() ?? ContentType.ApplicationForceDownload);
+            var type = _Type ?? FlexibleContentType.Get(path.GuessContentType() ?? ContentType.ApplicationForceDownload);
 
             return new EmbeddedResource(assembly, path, _Name, type, modified);
         }

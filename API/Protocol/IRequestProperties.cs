@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace GenHTTP.Api.Protocol
 {
@@ -7,7 +8,7 @@ namespace GenHTTP.Api.Protocol
     /// Property bag to store additional data within the
     /// currently running request context.
     /// </summary>
-    public interface IRequestProperties
+    public interface IRequestProperties : IDisposable
     {
 
         /// <summary>

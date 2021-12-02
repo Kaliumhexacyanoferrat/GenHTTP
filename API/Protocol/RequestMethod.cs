@@ -25,8 +25,11 @@ namespace GenHTTP.Api.Protocol
     /// <summary>
     /// The kind of request sent by the client.
     /// </summary>
-    public struct FlexibleRequestMethod
+    public class FlexibleRequestMethod
     {
+        private static readonly Dictionary<string, FlexibleRequestMethod> _RawCache = new(StringComparer.InvariantCultureIgnoreCase);
+
+        private static readonly Dictionary<RequestMethod, FlexibleRequestMethod> _KnownCache = new();
 
         #region Get-/Setters
 
@@ -92,6 +95,48 @@ namespace GenHTTP.Api.Protocol
             {
                 KnownMethod = null;
             }
+        }
+
+        #endregion
+
+        #region Functionality
+
+        /// <summary>
+        /// Fetches a cached instance for the given content type.
+        /// </summary>
+        /// <param name="rawMethod">The raw string to be resolved</param>
+        /// <returns>The content type instance to be used</returns>
+        public static FlexibleRequestMethod Get(string rawMethod)
+        {
+            if (_RawCache.TryGetValue(rawMethod, out var found))
+            {
+                return found;
+            }
+
+            var method = new FlexibleRequestMethod(rawMethod);
+
+            _RawCache[rawMethod] = method;
+
+            return method;
+        }
+
+        /// <summary>
+        /// Fetches a cached instance for the given content type.
+        /// </summary>
+        /// <param name="knownMethod">The known value to be resolved</param>
+        /// <returns>The content type instance to be used</returns>
+        public static FlexibleRequestMethod Get(RequestMethod knownMethod)
+        {
+            if (_KnownCache.TryGetValue(knownMethod, out var found))
+            {
+                return found;
+            }
+
+            var method = new FlexibleRequestMethod(knownMethod);
+
+            _KnownCache[knownMethod] = method;
+
+            return method;
         }
 
         #endregion
