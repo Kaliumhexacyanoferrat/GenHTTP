@@ -37,7 +37,7 @@ namespace GenHTTP.Modules.IO.Strings
             Checksum = (ulong)content.GetHashCode();
 
             Name = name;
-            ContentType = contentType ?? new FlexibleContentType(Api.Protocol.ContentType.TextPlain);
+            ContentType = contentType ?? FlexibleContentType.Get(Api.Protocol.ContentType.TextPlain);
             Modified = modified;
         }
 
@@ -45,12 +45,14 @@ namespace GenHTTP.Modules.IO.Strings
 
         #region Functionality
 
-        public ValueTask<Stream> GetContentAsync() => new(new MemoryStream(Content));
+        public ValueTask<Stream> GetContentAsync() => new(new MemoryStream(Content, false));
 
         public ValueTask<ulong> CalculateChecksumAsync()
         {
             return new ValueTask<ulong>(Checksum);
         }
+
+        public ValueTask WriteAsync(Stream target, uint bufferSize) => target.WriteAsync(Content.AsMemory());
 
         #endregion
 

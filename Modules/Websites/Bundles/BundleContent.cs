@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.IO.Streaming;
-
 namespace GenHTTP.Modules.Websites.Bundles
 {
 
@@ -18,7 +16,32 @@ namespace GenHTTP.Modules.Websites.Bundles
 
         #region Get-/Setters
 
-        public ulong? Length => null;
+        public ulong? Length
+        {
+            get
+            {
+                if (Items.Count > 0)
+                {
+                    ulong length = 0;
+
+                    foreach (var item in Items)
+                    {
+                        var itemLength = item.Length;
+
+                        if (itemLength is null)
+                        {
+                            return null;
+                        }
+
+                        length += itemLength.Value;
+                    }
+
+                    return length + (ulong)(Items.Count - 1);
+                }
+
+                return 0;
+            }
+        }
 
         private List<IResource> Items { get; }
 
@@ -39,9 +62,7 @@ namespace GenHTTP.Modules.Websites.Bundles
         {
             foreach (var item in Items)
             {
-                using var source = await item.GetContentAsync();
-
-                await source.CopyPooledAsync(target, bufferSize);
+                await item.WriteAsync(target, bufferSize);
 
                 await target.WriteAsync(_NewLine.AsMemory());
             }

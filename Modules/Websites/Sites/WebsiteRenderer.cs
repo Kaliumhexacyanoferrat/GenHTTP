@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.IO;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Content.Websites;
@@ -46,18 +47,26 @@ namespace GenHTTP.Modules.Websites.Sites
 
         public async ValueTask<string> RenderAsync(TemplateModel model)
         {
-            var menu = Menu.GetMenu(model.Request, model.Handler);
+            return await Theme.Renderer.RenderAsync(await GetWebsiteModel(model).ConfigureAwait(false));
+        }
 
-            var themeModel = await Theme.GetModelAsync(model.Request, model.Handler);
-
-            var bundle = !model.Request.Server.Development;
-
-            var websiteModel = new WebsiteModel(model.Request, model.Handler, model, Theme, themeModel, menu, Scripts.GetReferences(bundle), Styles.GetReferences(bundle));
-
-            return await Theme.Renderer.RenderAsync(websiteModel);
+        public async ValueTask RenderAsync(TemplateModel model, Stream target)
+        {
+            await Theme.Renderer.RenderAsync(await GetWebsiteModel(model).ConfigureAwait(false), target);
         }
 
         public ValueTask PrepareAsync() => Theme.Renderer.PrepareAsync();
+
+        private async ValueTask<WebsiteModel> GetWebsiteModel(TemplateModel model)
+        {
+            var menu = Menu.GetMenu(model.Request, model.Handler);
+
+            var themeModel = await Theme.GetModelAsync(model.Request, model.Handler).ConfigureAwait(false);
+
+            var bundle = !model.Request.Server.Development;
+
+            return new WebsiteModel(model.Request, model.Handler, model, Theme, themeModel, menu, Scripts.GetReferences(bundle), Styles.GetReferences(bundle));
+        }
 
         #endregion
 

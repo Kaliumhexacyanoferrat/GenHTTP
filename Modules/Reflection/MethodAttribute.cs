@@ -48,8 +48,8 @@ namespace GenHTTP.Modules.Reflection
         public MethodAttribute()
         {
             SupportedMethods = new(2) {
-                new FlexibleRequestMethod(RequestMethod.GET),
-                new FlexibleRequestMethod(RequestMethod.HEAD)
+                FlexibleRequestMethod.Get(RequestMethod.GET),
+                FlexibleRequestMethod.Get(RequestMethod.HEAD)
             };
         }
 
@@ -59,7 +59,7 @@ namespace GenHTTP.Modules.Reflection
         /// <param name="methods">The HTTP verbs supported by this method</param>
         public MethodAttribute(params RequestMethod[] methods)
         {
-            SupportedMethods = new(methods.Select(m => new FlexibleRequestMethod(m)));
+            SupportedMethods = new(methods.Select(m => FlexibleRequestMethod.Get(m)));
         }
 
         /// <summary>

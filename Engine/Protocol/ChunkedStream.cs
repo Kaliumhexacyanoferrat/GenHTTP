@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using GenHTTP.Modules.IO.Streaming;
+
 using PooledAwait;
 
 namespace GenHTTP.Engine.Protocol
@@ -64,7 +66,7 @@ namespace GenHTTP.Engine.Protocol
         {
             if (count > 0)
             {
-                Write(count.ToString("X"));
+                Write(count);
                 Write(NL);
 
                 Target.Write(buffer, offset, count);
@@ -77,10 +79,23 @@ namespace GenHTTP.Engine.Protocol
         {
             if (count > 0)
             {
-                await WriteAsync(count.ToString("X")).ConfigureAwait(false);
+                await WriteAsync(count).ConfigureAwait(false);
                 await WriteAsync(NL);
 
                 await Target.WriteAsync(buffer.AsMemory(offset, count), cancellationToken);
+
+                await WriteAsync(NL);
+            }
+        }
+
+        public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            if (!buffer.IsEmpty)
+            {
+                await WriteAsync(buffer.Length).ConfigureAwait(false);
+                await WriteAsync(NL);
+
+                await Target.WriteAsync(buffer, cancellationToken);
 
                 await WriteAsync(NL);
             }
@@ -119,23 +134,11 @@ namespace GenHTTP.Engine.Protocol
             }
         }
 
-        private async PooledValueTask WriteAsync(string text)
-        {
-            var length = text.Length;
+        private void Write(int value) => Write($"{value:X}");
 
-            var buffer = POOL.Rent(length);
+        private PooledValueTask WriteAsync(string text) => text.WriteAsync(Target);
 
-            try
-            {
-                ENCODING.GetBytes(text, 0, length, buffer, 0);
-
-                await Target.WriteAsync(buffer.AsMemory(0, length));
-            }
-            finally
-            {
-                POOL.Return(buffer);
-            }
-        }
+        private PooledValueTask WriteAsync(int value) => WriteAsync($"{value:X}");
 
         #endregion
 

@@ -1,16 +1,23 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
+using Microsoft.IO;
+
 namespace GenHTTP.Modules.Pages.Rendering
 {
 
-    public sealed class RenderedContent<T> : IResponseContent where T : class, IModel
+    public sealed class RenderedContent<T> : IResponseContent, IDisposable where T : class, IModel
     {
-        private MemoryStream? _Buffer = null;
+        private static readonly RecyclableMemoryStreamManager STREAM_MANAGER = new RecyclableMemoryStreamManager();
+
+        private RecyclableMemoryStream? _Buffer = null;
+
+        private bool _Disposed;
 
         #region Get-/Setters
 
@@ -27,7 +34,7 @@ namespace GenHTTP.Modules.Pages.Rendering
         #region Initialization
 
         public RenderedContent(IRenderer<T> renderer, T model, ContentInfo pageInfo)
-        { 
+        {
             Renderer = renderer;
             Model = model;
 
@@ -68,7 +75,13 @@ namespace GenHTTP.Modules.Pages.Rendering
         /// </remarks>
         public async ValueTask FillBufferAsync()
         {
-            var buffer = new MemoryStream();
+            if (_Buffer != null)
+            {
+                _Buffer.Dispose();
+                _Buffer = null;
+            }
+
+            var buffer = new RecyclableMemoryStream(STREAM_MANAGER);
 
             await WriteContent(buffer);
 
@@ -82,10 +95,6 @@ namespace GenHTTP.Modules.Pages.Rendering
             if (_Buffer != null)
             {
                 await _Buffer.CopyToAsync(target, (int)bufferSize);
-
-                await _Buffer.DisposeAsync();
-
-                _Buffer = null;
             }
             else
             {
@@ -102,6 +111,30 @@ namespace GenHTTP.Modules.Pages.Rendering
             var pageContent = await Renderer.RenderAsync(Model).ConfigureAwait(false);
 
             await handler.WritePageAsync(request, PageInfo, pageContent, target);
+        }
+
+        #endregion
+
+        #region Disposal
+
+        private void Dispose(bool disposing)
+        {
+            if (!_Disposed)
+            {
+                if (disposing)
+                {
+                    _Buffer?.Dispose();
+                }
+
+                _Buffer = null;
+                _Disposed = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion

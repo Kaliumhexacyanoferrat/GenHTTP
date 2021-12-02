@@ -4,8 +4,6 @@ using System.Threading.Tasks;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
-using PooledAwait;
-
 namespace GenHTTP.Modules.IO.Streaming
 {
 
@@ -31,19 +29,9 @@ namespace GenHTTP.Modules.IO.Streaming
 
         #region Functionality
 
-        public async ValueTask<ulong?> CalculateChecksumAsync() => await Resource.CalculateChecksumAsync();
+        public async ValueTask<ulong?> CalculateChecksumAsync() => await Resource.CalculateChecksumAsync().ConfigureAwait(false);
 
-        public ValueTask WriteAsync(Stream target, uint bufferSize)
-        {
-            return DoWrite(this, target, bufferSize);
-
-            static async PooledValueTask DoWrite(ResourceContent self, Stream target, uint bufferSize)
-            {
-                using var source = await self.Resource.GetContentAsync();
-
-                await source.CopyPooledAsync(target, bufferSize);
-            }
-        }
+        public ValueTask WriteAsync(Stream target, uint bufferSize) => Resource.WriteAsync(target, bufferSize);
 
         #endregion
 

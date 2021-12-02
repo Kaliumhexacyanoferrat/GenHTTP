@@ -223,7 +223,7 @@ namespace GenHTTP.Modules.Reflection
         {
             if (!Configuration.IgnoreContent)
             {
-                if (Configuration.SupportedMethods.Contains(new FlexibleRequestMethod(RequestMethod.GET)))
+                if (Configuration.SupportedMethods.Contains(FlexibleRequestMethod.Get(RequestMethod.GET)))
                 {
                     foreach (var hint in GetHints(request))
                     {

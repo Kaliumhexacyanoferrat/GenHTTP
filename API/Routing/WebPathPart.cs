@@ -8,6 +8,7 @@ namespace GenHTTP.Api.Routing
     /// </summary>
     public class WebPathPart
     {
+        private string? _Value = null;
 
         #region Get-/Setters
 
@@ -19,7 +20,18 @@ namespace GenHTTP.Api.Routing
         /// <summary>
         /// The decoded representation of the path (e.g. "some path").
         /// </summary>
-        public string Value { get; }
+        public string Value
+        {
+            get
+            {
+                if (_Value is null)
+                {
+                    _Value = Original.Contains('%') ? Uri.UnescapeDataString(Original) : Original;
+                }
+
+                return _Value;
+            }
+        }
 
         #endregion
 
@@ -32,7 +44,6 @@ namespace GenHTTP.Api.Routing
         public WebPathPart(string original)
         {
             Original = original;
-            Value = (original.Contains('%')) ? Uri.UnescapeDataString(original) : original;
         }
 
         #endregion

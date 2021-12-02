@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
@@ -41,6 +42,13 @@ namespace GenHTTP.Modules.IO.Tracking
             _LastChecksum = await CalculateChecksumAsync();
 
             return await Source.GetContentAsync();
+        }
+
+        public async ValueTask WriteAsync(Stream target, uint bufferSize)
+        {
+            _LastChecksum = await CalculateChecksumAsync();
+
+            await Source.WriteAsync(target, bufferSize);
         }
 
         public ValueTask<ulong> CalculateChecksumAsync()

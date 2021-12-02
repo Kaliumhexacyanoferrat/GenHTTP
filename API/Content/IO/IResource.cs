@@ -58,6 +58,13 @@ namespace GenHTTP.Api.Content.IO
         /// <returns>The resource to be accessed</returns>
         ValueTask<Stream> GetContentAsync();
 
+        /// <summary>
+        /// Writes the content of the resource to the given stream.
+        /// </summary>
+        /// <param name="target">The stream to write to</param>
+        /// <param name="bufferSize">The buffer size to be used for the operation</param>
+        ValueTask WriteAsync(Stream target, uint bufferSize);
+
     }
 
 }

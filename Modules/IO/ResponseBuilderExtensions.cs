@@ -29,7 +29,7 @@ namespace GenHTTP.Modules.IO
         /// This method will set the content, but not the content
         /// type of the response.
         /// </remarks>
-        public static IResponseBuilder Content(this IResponseBuilder builder, IResource resource) => builder.Content(new ResourceContent(resource)).Type(resource.ContentType ?? new(ContentType.ApplicationOctetStream));
+        public static IResponseBuilder Content(this IResponseBuilder builder, IResource resource) => builder.Content(new ResourceContent(resource)).Type(resource.ContentType ?? FlexibleContentType.Get(ContentType.ApplicationOctetStream));
 
         /// <summary>
         /// Sends the given stream to the client.

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
@@ -63,11 +62,7 @@ namespace GenHTTP.Modules.Pages
 
             var templateRenderer = handler.GetPageRenderer(request);
 
-            var rendered = await templateRenderer.RenderAsync(templateModel);
-
-            var buffer = Encoding.UTF8.GetBytes(rendered);
-
-            await target.WriteAsync(buffer.AsMemory(0, buffer.Length));
+            await templateRenderer.RenderAsync(templateModel, target);
         }
 
     }

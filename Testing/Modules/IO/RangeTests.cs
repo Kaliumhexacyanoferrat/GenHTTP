@@ -152,25 +152,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             Assert.AreEqual("bytes", response.GetHeader("Accept-Ranges"));
         }
 
-        [TestMethod]
-        public async Task TestUnknownLengthCannotBeRanged()
-        {
-            var download = Download.From(Resource.FromAssembly("File.txt"))
-                                   .AddRangeSupport();
-
-            using var runner = TestRunner.Run(download);
-
-            var request = runner.GetRequest();
-            request.Headers.Add("Range", "bytes=1-2");
-
-            using var response = await runner.GetResponse(request);
-
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-
-            AssertX.IsNullOrEmpty(response.GetHeader("Accept-Ranges"));
-            AssertX.IsNullOrEmpty(response.GetContentHeader("Content-Length"));
-        }
-
         private static async Task<HttpResponseMessage> GetResponse(string? requestedRange, HttpMethod? method = null)
         {
             using var runner = GetRunner();

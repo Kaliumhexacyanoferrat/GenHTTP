@@ -132,7 +132,7 @@ namespace GenHTTP.Engine.Protocol
 
             if (!(response.ContentType is null))
             {
-                await WriteHeaderLine("Content-Type", response.ContentType.Value.RawType).ConfigureAwait(false);
+                await WriteHeaderLine("Content-Type", response.ContentType.RawType).ConfigureAwait(false);
             }
 
             if (response.ContentEncoding is not null)
@@ -265,14 +265,7 @@ namespace GenHTTP.Engine.Protocol
                 return NumberStringCache.Convert((int)number);
             }
 
-            Span<char> status = stackalloc char[20];
-
-            if (number.TryFormat(status, out int length))
-            {
-                return new string(status.Slice(0, length));
-            }
-
-            return number.ToString();
+            return $"{number}";
         }
 
         #endregion

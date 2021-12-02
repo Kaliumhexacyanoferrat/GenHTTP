@@ -1,10 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System.IO;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO.Tracking;
+using GenHTTP.Modules.IO.Streaming;
 
 using Markdig;
 
@@ -39,6 +41,8 @@ namespace GenHTTP.Modules.Markdown
         public ValueTask<ulong> CalculateChecksumAsync() => File.CalculateChecksumAsync();
 
         public async ValueTask<string> RenderAsync(T? model) => Markdig.Markdown.ToHtml(await GetContent(), PIPELINE);
+
+        public ValueTask RenderAsync(T model, Stream target) => this.RenderToStream(model, target);
 
         public async ValueTask PrepareAsync()
         {

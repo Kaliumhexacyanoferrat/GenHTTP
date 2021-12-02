@@ -8,7 +8,6 @@ namespace GenHTTP.Engine
 
     internal sealed class Response : IResponse
     {
-
         private static readonly FlexibleResponseStatus STATUS_OK = new(ResponseStatus.OK);
 
         private CookieCollection? _Cookies;

@@ -47,7 +47,7 @@ namespace GenHTTP.Modules.IO.Providers
 
             FileName = fileName ?? Resource.Name;
 
-            ContentType = contentType ?? Resource.ContentType ?? new FlexibleContentType(FileName?.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload);
+            ContentType = contentType ?? Resource.ContentType ?? FlexibleContentType.Get(FileName?.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload);
         }
 
         #endregion

@@ -14,7 +14,7 @@ namespace GenHTTP.Modules.Conversion.Providers
 
         #region Functionality
 
-        public SerializationBuilder Default(ContentType contentType) => Default(new FlexibleContentType(contentType));
+        public SerializationBuilder Default(ContentType contentType) => Default(FlexibleContentType.Get(contentType));
 
         public SerializationBuilder Default(FlexibleContentType contentType)
         {
@@ -22,7 +22,7 @@ namespace GenHTTP.Modules.Conversion.Providers
             return this;
         }
 
-        public SerializationBuilder Add(ContentType contentType, ISerializationFormat format) => Add(new FlexibleContentType(contentType), format);
+        public SerializationBuilder Add(ContentType contentType, ISerializationFormat format) => Add(FlexibleContentType.Get(contentType), format);
 
         public SerializationBuilder Add(FlexibleContentType contentType, ISerializationFormat format)
         {

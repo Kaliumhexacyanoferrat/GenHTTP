@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Engine.Utilities;
 
 namespace GenHTTP.Engine.Protocol
@@ -10,6 +11,8 @@ namespace GenHTTP.Engine.Protocol
     public sealed class RequestProperties : IRequestProperties
     {
         private PooledDictionary<string, object>? _Data;
+
+        private bool _Disposed;
 
         #region Get-/Setters
 
@@ -44,6 +47,30 @@ namespace GenHTTP.Engine.Protocol
 
             entry = default;
             return false;
+        }
+
+        #endregion
+
+        #region Disposal
+
+        private void Dispose(bool disposing)
+        {
+            if (!_Disposed)
+            {
+                if (disposing)
+                {
+                    _Data?.Dispose();
+                }
+
+                _Data = null;
+                _Disposed = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            System.GC.SuppressFinalize(this);
         }
 
         #endregion

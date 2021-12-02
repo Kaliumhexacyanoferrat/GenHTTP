@@ -99,7 +99,7 @@ namespace GenHTTP.Modules.IO
                                            .Append(name)
                                            .Build();
 
-                    var contentType = resource.ContentType ?? new FlexibleContentType(name.GuessContentType() ?? ContentType.ApplicationForceDownload);
+                    var contentType = resource.ContentType ?? FlexibleContentType.Get(name.GuessContentType() ?? ContentType.ApplicationForceDownload);
 
                     yield return new ContentElement(resourcePath, ContentInfo.Empty, contentType);
                 }

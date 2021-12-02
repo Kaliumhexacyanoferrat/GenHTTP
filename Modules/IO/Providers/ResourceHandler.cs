@@ -46,7 +46,7 @@ namespace GenHTTP.Modules.IO.Providers
 
             if (resource is not null)
             {
-                var type = resource.ContentType ?? new FlexibleContentType(resource.Name?.GuessContentType() ?? ContentType.ApplicationForceDownload);
+                var type = resource.ContentType ?? FlexibleContentType.Get(resource.Name?.GuessContentType() ?? ContentType.ApplicationForceDownload);
 
                 return request.Respond()
                               .Content(resource)

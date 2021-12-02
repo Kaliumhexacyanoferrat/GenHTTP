@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -6,6 +7,7 @@ using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
+using GenHTTP.Modules.IO.Streaming;
 using GenHTTP.Modules.IO.Tracking;
 
 using PooledAwait;
@@ -56,6 +58,8 @@ namespace GenHTTP.Modules.Razor.Providers
                 instance.Model = model;
             });
         }
+
+        public ValueTask RenderAsync(T model, Stream target) => this.RenderToStream(model, target);
 
         public async ValueTask PrepareAsync()
         {
