@@ -54,6 +54,7 @@ The web server was originally developed in 2008 to run on a netbook with an Inte
   - [Website](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Website)
 - Reference projects
   - [GenHTTP Gateway](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Gateway)
+  - [MockH](https://github.com/Kaliumhexacyanoferrat/MockH)
 - Similar projects
   - [EmbedIO](https://github.com/unosquare/embedio)
   - [NetCoreServer](https://github.com/chronoxor/NetCoreServer)
