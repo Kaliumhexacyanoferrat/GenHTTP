@@ -22,14 +22,14 @@
     
       <group>
       
-        <dependency id="GenHTTP.Api" version="6.1.0" />
+        <dependency id="GenHTTP.Api" version="6.2.0" />
         
-        <dependency id="GenHTTP.Engine" version="6.1.0" />
+        <dependency id="GenHTTP.Engine" version="6.2.0" />
         
-        <dependency id="GenHTTP.Modules.Practices" version="6.1.0" />
+        <dependency id="GenHTTP.Modules.Practices" version="6.2.0" />
         
-        <dependency id="GenHTTP.Modules.Basics" version="6.1.0" />
-        <dependency id="GenHTTP.Modules.Layouting" version="6.1.0" />
+        <dependency id="GenHTTP.Modules.Basics" version="6.2.0" />
+        <dependency id="GenHTTP.Modules.Layouting" version="6.2.0" />
         
       </group>
       
