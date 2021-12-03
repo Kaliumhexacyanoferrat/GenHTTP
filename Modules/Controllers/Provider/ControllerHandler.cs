@@ -26,6 +26,8 @@ namespace GenHTTP.Modules.Controllers.Provider
 
         private MethodCollection Provider { get; }
 
+        private ResponseProvider ResponseProvider { get; }
+
         #endregion
 
         #region Initialization
@@ -33,6 +35,8 @@ namespace GenHTTP.Modules.Controllers.Provider
         public ControllerHandler(IHandler parent, SerializationRegistry formats)
         {
             Parent = parent;
+
+            ResponseProvider = new(null);
 
             Provider = new(this, AnalyzeMethods(typeof(T), formats));
         }
@@ -47,7 +51,7 @@ namespace GenHTTP.Modules.Controllers.Provider
 
                 var path = DeterminePath(method, arguments);
 
-                yield return (parent) => new MethodHandler(parent, method, path, () => new T(), annotation, GetResponse, formats);
+                yield return (parent) => new MethodHandler(parent, method, path, () => new T(), annotation, ResponseProvider.GetResponse, formats);
             }
         }
 
@@ -116,41 +120,6 @@ namespace GenHTTP.Modules.Controllers.Provider
         public IEnumerable<ContentElement> GetContent(IRequest request) => Provider.GetContent(request);
 
         public ValueTask<IResponse?> HandleAsync(IRequest request) => Provider.HandleAsync(request);
-
-        private async ValueTask<IResponse?> GetResponse(IRequest request, IHandler methodProvider, object? result)
-        {
-            if (result is null)
-            {
-                return request.Respond()
-                              .Status(ResponseStatus.NoContent)
-                              .Build();
-            }
-
-            if (result is IHandlerBuilder handlerBuilder)
-            {
-                return await handlerBuilder.Build(methodProvider)
-                                           .HandleAsync(request)
-                                           .ConfigureAwait(false);
-            }
-
-            if (result is IHandler handler)
-            {
-                return await handler.HandleAsync(request)
-                                    .ConfigureAwait(false);
-            }
-
-            if (result is IResponseBuilder responseBuilder)
-            {
-                return responseBuilder.Build();
-            }
-
-            if (result is IResponse response)
-            {
-                return response;
-            }
-
-            throw new ProviderException(ResponseStatus.InternalServerError, "Result type of controller methods must be one of: IHandlerBuilder, IHandler, IResponseBuilder, IResponse");
-        }
 
         public IHandler? Find(string segment)
         {
