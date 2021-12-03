@@ -8,9 +8,9 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
-    <AssemblyVersion>6.2.0.0</AssemblyVersion>
-    <FileVersion>6.2.0.0</FileVersion>
-    <Version>6.2.0</Version>
+    <AssemblyVersion>6.3.0.0</AssemblyVersion>
+    <FileVersion>6.3.0.0</FileVersion>
+    <Version>6.3.0</Version>
 
     <Authors>Vitaly Derbin, Andreas Nägeli</Authors>
     <Company />
