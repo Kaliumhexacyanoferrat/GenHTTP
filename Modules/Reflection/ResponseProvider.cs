@@ -4,9 +4,10 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Conversion.Providers;
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.Reflection
 {
@@ -20,13 +21,13 @@ namespace GenHTTP.Modules.Reflection
 
         #region Get-/Setters
 
-        private SerializationRegistry Serialization { get; }
+        private SerializationRegistry? Serialization { get; }
 
         #endregion
 
         #region Initialization
 
-        public ResponseProvider(SerializationRegistry serialization)
+        public ResponseProvider(SerializationRegistry? serialization)
         {
             Serialization = serialization;
         }
@@ -35,7 +36,7 @@ namespace GenHTTP.Modules.Reflection
 
         #region Functionality
 
-        public async ValueTask<IResponse?> GetResponse(IRequest request, IHandler _, object? result)
+        public async ValueTask<IResponse?> GetResponse(IRequest request, IHandler handler, object? result)
         {
             // no result = 204
             if (result is null)
@@ -58,6 +59,20 @@ namespace GenHTTP.Modules.Reflection
                 return response;
             }
 
+            // handler returned by the method
+            if (result is IHandlerBuilder handlerBuilder)
+            {
+                return await handlerBuilder.Build(handler)
+                                           .HandleAsync(request)
+                                           .ConfigureAwait(false);
+            }
+
+            if (result is IHandler resultHandler)
+            {
+                return await resultHandler.HandleAsync(request)
+                                          .ConfigureAwait(false);
+            }
+
             // stream returned as a download
             if (result is Stream download)
             {
@@ -69,26 +84,31 @@ namespace GenHTTP.Modules.Reflection
                 return downloadResponse;
             }
 
-            // basic types should produce a string value
-            if (type.IsPrimitive || type == typeof(string) || type.IsEnum || type == typeof(Guid))
+            if (Serialization is not null)
             {
-                return request.Respond()
-                              .Content(result.ToString() ?? string.Empty)
-                              .Type(ContentType.TextPlain)
-                              .Build();
+                // basic types should produce a string value
+                if (type.IsPrimitive || type == typeof(string) || type.IsEnum || type == typeof(Guid))
+                {
+                    return request.Respond()
+                                  .Content(result.ToString() ?? string.Empty)
+                                  .Type(ContentType.TextPlain)
+                                  .Build();
+                }
+
+                // serialize the result
+                var serializer = Serialization.GetSerialization(request);
+
+                if (serializer is null)
+                {
+                    throw new ProviderException(ResponseStatus.UnsupportedMediaType, "Requested format is not supported");
+                }
+
+                var serializedResult = await serializer.SerializeAsync(request, result).ConfigureAwait(false);
+
+                return serializedResult.Build();
             }
 
-            // serialize the result
-            var serializer = Serialization.GetSerialization(request);
-
-            if (serializer is null)
-            {
-                throw new ProviderException(ResponseStatus.UnsupportedMediaType, "Requested format is not supported");
-            }
-
-            var serializedResult = await serializer.SerializeAsync(request, result);
-
-            return serializedResult.Build();
+            throw new ProviderException(ResponseStatus.InternalServerError, "Result type must be one of: IHandlerBuilder, IHandler, IResponseBuilder, IResponse");
         }
 
         #endregion

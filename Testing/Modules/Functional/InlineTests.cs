@@ -3,8 +3,10 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
+using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
 
@@ -59,7 +61,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
             using var host = TestRunner.Run(Inline.Create().Get(":param", (int param) => param + 1));
 
             using var response = await host.GetResponse("/41");
-            
+
             Assert.AreEqual("42", await response.GetContent());
         }
 
@@ -125,6 +127,30 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
             using var response = await host.GetResponse();
 
             Assert.AreEqual("42", await response.GetContent());
+        }
+
+        [TestMethod]
+        public async Task TestHandlerBuilder()
+        {
+            var target = "https://www.google.de/";
+
+            using var host = TestRunner.Run(Inline.Create().Get(() => Redirect.To(target)));
+
+            using var response = await host.GetResponse();
+
+            Assert.AreEqual(target, response.GetHeader("Location"));
+        }
+
+        [TestMethod]
+        public async Task TestHandler()
+        {
+            var target = "https://www.google.de/";
+
+            using var host = TestRunner.Run(Inline.Create().Get((IHandler parent) => Redirect.To(target).Build(parent)));
+
+            using var response = await host.GetResponse();
+
+            Assert.AreEqual(target, response.GetHeader("Location"));
         }
 
     }
