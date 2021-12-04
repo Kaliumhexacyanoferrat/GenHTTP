@@ -13,6 +13,7 @@ As an example, the website of this project is hosted on a Raspberry Pi: [genhttp
 - Small memory and storage [footprint](https://genhttp.org/features#footprint)
 - Several [themes](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes) available to be chosen from 
 - Grade A+ security level according to SSL Labs
+- Can be used to mock HTTP responses in component testing (see [MockH](https://github.com/Kaliumhexacyanoferrat/MockH))
 
 ## Getting Started
 
