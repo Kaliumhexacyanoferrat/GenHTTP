@@ -35,7 +35,7 @@ namespace GenHTTP.Modules.Websites.Resources
 
             Scripts = scripts.ToDictionary(s => s.Name);
 
-            var bundle = Websites.Bundle.Create().ContentType(ContentType.ApplicationJavaScript);
+            var bundle = Websites.Bundle.Create().ContentType(ContentType.ApplicationJavaScript, "UTF-8");
 
             foreach (var script in Scripts.Values)
             {

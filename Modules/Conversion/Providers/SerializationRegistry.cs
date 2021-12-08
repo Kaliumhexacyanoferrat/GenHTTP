@@ -38,7 +38,7 @@ namespace GenHTTP.Modules.Conversion.Providers
         {
             if (request.Headers.TryGetValue("Content-Type", out string? requested))
             {
-                return GetFormat(FlexibleContentType.Get(requested));
+                return GetFormat(FlexibleContentType.Parse(requested));
             }
 
             return GetFormat(Default);
@@ -48,7 +48,7 @@ namespace GenHTTP.Modules.Conversion.Providers
         {
             if (request.Headers.TryGetValue("Accept", out string? accepted))
             {
-                return GetFormat(FlexibleContentType.Get(accepted)) ?? GetFormat(Default);
+                return GetFormat(FlexibleContentType.Parse(accepted)) ?? GetFormat(Default);
             }
 
             return GetFormat(Default);

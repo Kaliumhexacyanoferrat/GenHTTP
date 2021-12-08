@@ -29,7 +29,7 @@ namespace GenHTTP.Modules.Websites.Bundles
             return this;
         }
 
-        public BundleBuilder ContentType(ContentType type) => ContentType(FlexibleContentType.Get(type));
+        public BundleBuilder ContentType(ContentType type, string? charset = null) => ContentType(FlexibleContentType.Get(type, charset));
 
         public BundleBuilder ContentType(FlexibleContentType type)
         {

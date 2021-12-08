@@ -27,9 +27,25 @@ namespace GenHTTP.Api.Protocol
     /// </summary>
     public class FlexibleRequestMethod
     {
-        private static readonly Dictionary<string, FlexibleRequestMethod> _RawCache = new(StringComparer.InvariantCultureIgnoreCase);
+        private static readonly Dictionary<string, FlexibleRequestMethod> _RawCache = new(StringComparer.InvariantCultureIgnoreCase)
+        {
+            { "HEAD", new(RequestMethod.HEAD) },
+            { "GET", new(RequestMethod.GET) },
+            { "POST", new(RequestMethod.POST) },
+            { "PUT", new(RequestMethod.PUT) },
+            { "DELETE", new(RequestMethod.DELETE) },
+            { "OPTIONS", new(RequestMethod.OPTIONS) }
+        };
 
-        private static readonly Dictionary<RequestMethod, FlexibleRequestMethod> _KnownCache = new();
+        private static readonly Dictionary<RequestMethod, FlexibleRequestMethod> _KnownCache = new()
+        {
+            { RequestMethod.HEAD, new(RequestMethod.HEAD) },
+            { RequestMethod.GET, new(RequestMethod.GET) },
+            { RequestMethod.POST, new(RequestMethod.POST) },
+            { RequestMethod.PUT, new(RequestMethod.PUT) },
+            { RequestMethod.DELETE, new(RequestMethod.DELETE) },
+            { RequestMethod.OPTIONS, new(RequestMethod.OPTIONS) }
+        };
 
         #region Get-/Setters
 

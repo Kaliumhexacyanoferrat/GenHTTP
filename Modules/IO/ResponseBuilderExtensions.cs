@@ -15,11 +15,13 @@ namespace GenHTTP.Modules.IO
     {
         private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
 
+        private static readonly FlexibleContentType _TextPlainType = new(ContentType.TextPlain, "UTF-8");
+
         /// <summary>
         /// Sends the given string to the client.
         /// </summary>
         /// <param name="text">The string to be sent</param>
-        public static IResponseBuilder Content(this IResponseBuilder builder, string text) => builder.Content(Resource.FromString(text).Type(ContentType.TextPlain).Build());
+        public static IResponseBuilder Content(this IResponseBuilder builder, string text) => builder.Content(Resource.FromString(text).Type(_TextPlainType).Build());
 
         /// <summary>
         /// Sends the given resource to the client.

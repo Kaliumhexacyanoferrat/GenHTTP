@@ -228,6 +228,11 @@ namespace GenHTTP.Api.Protocol
         /// </summary>
         public string RawType { get; }
 
+        /// <summary>
+        /// The charset of the content, if any.
+        /// </summary>
+        public string? Charset { get; }
+
         #endregion
 
         #region Mapping
@@ -284,9 +289,11 @@ namespace GenHTTP.Api.Protocol
         /// Create a new content type from the given string.
         /// </summary>
         /// <param name="rawType">The string representation of the content type</param>
-        public FlexibleContentType(string rawType)
+        /// <param name="charset">The charset of the content, if known</param>
+        public FlexibleContentType(string rawType, string? charset = null)
         {
             RawType = rawType;
+            Charset = charset;
 
             if (MAPPING_REVERSE.TryGetValue(rawType, out var knownType))
             {
@@ -302,10 +309,13 @@ namespace GenHTTP.Api.Protocol
         /// Create a new content type from the given known type.
         /// </summary>
         /// <param name="type">The known type</param>
-        public FlexibleContentType(ContentType type)
+        /// <param name="charset">The charset of the content, if known</param>
+        public FlexibleContentType(ContentType type, string? charset = null)
         {
             KnownType = type;
             RawType = MAPPING[type];
+
+            Charset = charset;
         }
 
         #endregion
@@ -317,8 +327,13 @@ namespace GenHTTP.Api.Protocol
         /// </summary>
         /// <param name="rawType">The raw string to be resolved</param>
         /// <returns>The content type instance to be used</returns>
-        public static FlexibleContentType Get(string rawType)
+        public static FlexibleContentType Get(string rawType, string? charset = null)
         {
+            if (charset is not null)
+            {
+                return new(rawType, charset);
+            }
+
             if (_RawCache.TryGetValue(rawType, out var found))
             {
                 return found;
@@ -336,8 +351,13 @@ namespace GenHTTP.Api.Protocol
         /// </summary>
         /// <param name="knownType">The known type to be resolved</param>
         /// <returns>The content type instance to be used</returns>
-        public static FlexibleContentType Get(ContentType knownType)
+        public static FlexibleContentType Get(ContentType knownType, string? charset = null)
         {
+            if (charset is not null)
+            {
+                return new(knownType, charset);
+            }
+
             if (_KnownCache.TryGetValue(knownType, out var found))
             {
                 return found;
@@ -348,6 +368,38 @@ namespace GenHTTP.Api.Protocol
             _KnownCache[knownType] = type;
 
             return type;
+        }
+
+        /// <summary>
+        /// Parses the given header value into a content type structure.
+        /// </summary>
+        /// <param name="header">The header to be parsed</param>
+        /// <returns>The parsed content type</returns>
+        public static FlexibleContentType Parse(string header)
+        {
+            var span = header.AsSpan();
+
+            var index = span.IndexOf(';');
+
+            if (index > 0)
+            {
+                var contentType = span[..index].Trim().ToString();
+
+                var charsetIndex = span.IndexOf('=');
+
+                if (charsetIndex > 0)
+                {
+                    return Get(contentType, span[charsetIndex..].Trim().ToString());
+                }
+                else
+                {
+                    return Get(contentType);
+                }
+            }
+            else
+            {
+                return Get(header);
+            }
         }
 
         #endregion
