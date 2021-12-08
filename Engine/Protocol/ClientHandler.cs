@@ -67,7 +67,7 @@ namespace GenHTTP.Engine
             {
                 try
                 {
-                    await Stream.DisposeAsync().ConfigureAwait(false);
+                    await Stream.DisposeAsync();
                 }
                 catch (Exception e)
                 {
@@ -104,7 +104,7 @@ namespace GenHTTP.Engine
 
                 while ((request = await parser.TryParseAsync(buffer).ConfigureAwait(false)) is not null)
                 {
-                    if (!await HandleRequest(request).ConfigureAwait(false))
+                    if (!await HandleRequest(request))
                     {
                         break;
                     }
@@ -112,7 +112,7 @@ namespace GenHTTP.Engine
             }
             finally
             {
-                await reader.CompleteAsync().ConfigureAwait(false);
+                await reader.CompleteAsync();
             }
         }
 
@@ -133,7 +133,7 @@ namespace GenHTTP.Engine
 
             using var response = await Server.Handler.HandleAsync(request).ConfigureAwait(false) ?? throw new InvalidOperationException("The root request handler did not return a response");
             
-            var success = await responseHandler.Handle(request, response, keepAlive).ConfigureAwait(false);
+            var success = await responseHandler.Handle(request, response, keepAlive);
 
             if (!success || !keepAlive)
             {

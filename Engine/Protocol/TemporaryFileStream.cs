@@ -22,8 +22,7 @@ namespace GenHTTP.Engine.Protocol
 
         internal static Stream Create()
         {
-            var fileName = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".genhttp.tmp");
-            return new TemporaryFileStream(fileName);
+            return new TemporaryFileStream(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".genhttp.tmp"));
         }
 
         #endregion

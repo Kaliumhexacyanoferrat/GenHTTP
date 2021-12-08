@@ -104,7 +104,7 @@ namespace GenHTTP.Engine.Protocol
 
             await Write(" ");
 
-            await Write(ConvertToString(response.Status.RawStatus));
+            await Write(NumberStringCache.Convert(response.Status.RawStatus));
 
             await Write(" ");
 
@@ -153,7 +153,7 @@ namespace GenHTTP.Engine.Protocol
 
             if (response.ContentLength is not null)
             {
-                await WriteHeaderLine("Content-Length", ConvertToString((ulong)response.ContentLength));
+                await WriteHeaderLine("Content-Length", NumberStringCache.Convert((ulong)response.ContentLength));
             }
             else
             {
@@ -241,7 +241,7 @@ namespace GenHTTP.Engine.Protocol
             if (cookie.MaxAge is not null)
             {
                 await Write("; Max-Age=");
-                await Write(ConvertToString(cookie.MaxAge.Value));
+                await Write(NumberStringCache.Convert(cookie.MaxAge.Value));
             }
 
             await Write("; Path=/");
@@ -265,18 +265,6 @@ namespace GenHTTP.Engine.Protocol
             {
                 POOL.Return(buffer);
             }
-        }
-
-        private static string ConvertToString(int number) => NumberStringCache.Convert(number);
-
-        private static string ConvertToString(ulong number)
-        {
-            if (number < 1024)
-            {
-                return NumberStringCache.Convert((int)number);
-            }
-
-            return $"{number}";
         }
 
         #endregion
