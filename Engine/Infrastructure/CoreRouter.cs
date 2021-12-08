@@ -49,10 +49,7 @@ namespace GenHTTP.Engine.Infrastructure
 
         #region Functionality
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
-            return await Content.HandleAsync(request).ConfigureAwait(false);
-        }
+        public ValueTask<IResponse?> HandleAsync(IRequest request) => Content.HandleAsync(request);
 
         public async ValueTask PrepareAsync()
         {
@@ -67,30 +64,15 @@ namespace GenHTTP.Engine.Infrastructure
 
         ValueTask<ulong> IRenderer<TemplateModel>.CalculateChecksumAsync() => Template.CalculateChecksumAsync();
 
-        public IEnumerable<ContentElement> GetContent(IRequest request)
-        {
-            return Content.GetContent(request);
-        }
+        public IEnumerable<ContentElement> GetContent(IRequest request) => Content.GetContent(request);
 
-        public async ValueTask<string> RenderAsync(ErrorModel model)
-        {
-            return await ErrorRenderer.RenderAsync(model).ConfigureAwait(false);
-        }
+        public ValueTask<string> RenderAsync(ErrorModel model) => ErrorRenderer.RenderAsync(model);
         
-        public async ValueTask RenderAsync(ErrorModel model, Stream target)
-        {
-            await ErrorRenderer.RenderAsync(model, target).ConfigureAwait(false);
-        }
+        public ValueTask RenderAsync(ErrorModel model, Stream target) => ErrorRenderer.RenderAsync(model, target);
 
-        public async ValueTask<string> RenderAsync(TemplateModel model)
-        {
-            return await Template.RenderAsync(model).ConfigureAwait(false);
-        }
+        public ValueTask<string> RenderAsync(TemplateModel model) => Template.RenderAsync(model);
 
-        public async ValueTask RenderAsync(TemplateModel model, Stream target)
-        {
-            await Template.RenderAsync(model, target).ConfigureAwait(false);
-        }
+        public ValueTask RenderAsync(TemplateModel model, Stream target) => Template.RenderAsync(model, target);
 
         #endregion
 

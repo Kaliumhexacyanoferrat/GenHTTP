@@ -14,6 +14,7 @@ namespace GenHTTP.Modules.Pages
 
     public static class Extensions
     {
+        private static readonly FlexibleContentType _HtmlType = new(ContentType.TextHtml, "UTF-8");
 
         public static IResponseBuilder GetMethodNotAllowed(this IHandler handler, IRequest request, string? title = null, string? message = null)
         {
@@ -48,7 +49,7 @@ namespace GenHTTP.Modules.Pages
             return model.Request
                         .Respond()
                         .Content(content)
-                        .Type(ContentType.TextHtml)
+                        .Type(_HtmlType)
                         .Status(model.Status);
         }
         public static IPageRenderer GetPageRenderer(this IHandler handler, IRequest request)

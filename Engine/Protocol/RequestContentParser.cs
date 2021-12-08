@@ -53,7 +53,7 @@ namespace GenHTTP.Engine.Protocol
 
                 while (data.TryGet(ref position, out var memory))
                 {
-                    await body.WriteAsync(memory).ConfigureAwait(false);
+                    await body.WriteAsync(memory);
                 }
 
                 buffer.Advance(toRead);

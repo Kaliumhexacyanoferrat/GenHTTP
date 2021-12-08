@@ -35,7 +35,7 @@ namespace GenHTTP.Modules.Websites.Resources
 
             Styles = styles.ToDictionary(s => s.Name);
 
-            var bundle = Websites.Bundle.Create().ContentType(ContentType.TextCss);
+            var bundle = Websites.Bundle.Create().ContentType(ContentType.TextCss, "UTF-8");
 
             foreach (var style in Styles.Values)
             {

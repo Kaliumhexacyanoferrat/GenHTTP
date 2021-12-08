@@ -16,6 +16,7 @@ namespace GenHTTP.Modules.Pages.Rendering
     /// </summary>
     public abstract class PageProvider<T> : IHandler where T : class, IModel
     {
+        private static readonly FlexibleContentType _TextHtmlType = new(ContentType.TextHtml, "UTF-8");
 
         #region Get-/Setters
 
@@ -58,7 +59,7 @@ namespace GenHTTP.Modules.Pages.Rendering
 
             return request.Respond()
                           .Content(content)
-                          .Type(ContentType.TextHtml)
+                          .Type(_TextHtmlType)
                           .Build();
         }
 

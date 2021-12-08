@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO;
-using GenHTTP.Modules.Layouting;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -36,7 +36,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 Cookies = request.Cookies;
 
                 return request.Respond()
-                              .Cookie(new Cookie("TestCookie", "TestValue"))
+                              .Cookie(new Cookie("TestCookie", "TestValue", 86400))
                               .Content("I ❤ Cookies!")
                               .Type(ContentType.TextHtml)
                               .BuildTask();
@@ -55,7 +55,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual("TestCookie=TestValue; Path=/", response.GetHeader("Set-Cookie"));
+            Assert.AreEqual("TestCookie=TestValue; Max-Age=86400; Path=/", response.GetHeader("Set-Cookie"));
         }
 
         /// <summary>

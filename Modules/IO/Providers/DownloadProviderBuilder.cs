@@ -26,7 +26,7 @@ namespace GenHTTP.Modules.IO.Providers
             return this;
         }
 
-        public DownloadProviderBuilder Type(ContentType contentType) => Type(FlexibleContentType.Get(contentType));
+        public DownloadProviderBuilder Type(ContentType contentType, string? charset = null) => Type(FlexibleContentType.Get(contentType, charset));
 
         public DownloadProviderBuilder Type(FlexibleContentType contentType)
         {

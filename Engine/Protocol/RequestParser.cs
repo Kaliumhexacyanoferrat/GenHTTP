@@ -59,7 +59,7 @@ namespace GenHTTP.Engine.Protocol
                 return null;
             }
 
-            if ((path = await TryReadPath(buffer).ConfigureAwait(false)) is not null)
+            if ((path = await TryReadPath(buffer)) is not null)
             {
                 Request.Path(path);
             }
@@ -68,12 +68,12 @@ namespace GenHTTP.Engine.Protocol
                 return null;
             }
 
-            if ((query = await TryReadQuery(buffer).ConfigureAwait(false)) is not null)
+            if ((query = await TryReadQuery(buffer)) is not null)
             {
                 Request.Query(query);
             }
 
-            if ((protocol = await ReadToken(buffer, '\r', 1, 5).ConfigureAwait(false)) is not null)
+            if ((protocol = await ReadToken(buffer, '\r', 1, 5)) is not null)
             {
                 Request.Protocol(protocol);
             }
@@ -82,9 +82,9 @@ namespace GenHTTP.Engine.Protocol
                 return null;
             }
 
-            while (await TryReadHeader(buffer, Request).ConfigureAwait(false)) { /* nop */ }
+            while (await TryReadHeader(buffer, Request)) { /* nop */ }
 
-            if ((await ReadToken(buffer, '\r', 1).ConfigureAwait(false)) is null)
+            if ((await ReadToken(buffer, '\r', 1)) is null)
             {
                 return null;
             }
@@ -97,7 +97,7 @@ namespace GenHTTP.Engine.Protocol
                     {
                         var parser = new RequestContentParser(length, Configuration);
 
-                        Request.Content(await parser.GetBody(buffer).ConfigureAwait(false));
+                        Request.Content(await parser.GetBody(buffer));
                     }
                 }
                 else
@@ -173,7 +173,7 @@ namespace GenHTTP.Engine.Protocol
 
             if ((key = await ReadToken(buffer, ':', 1).ConfigureAwait(false)) is not null)
             {
-                if ((value = await ReadToken(buffer, '\r', 1).ConfigureAwait(false)) is not null)
+                if ((value = await ReadToken(buffer, '\r', 1)) is not null)
                 {
                     request.Header(key, value);
                     return true;

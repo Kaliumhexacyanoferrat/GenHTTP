@@ -1,5 +1,7 @@
 ﻿using System.IO;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -106,6 +108,22 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
             using var host = TestRunner.Run(Inline.Create().Get(() => new MyClass("42", 42, 42.0)));
 
             using var response = await host.GetResponse();
+
+            Assert.AreEqual("{\"string\":\"42\",\"int\":42,\"double\":42}", await response.GetContent());
+        }
+
+        [TestMethod]
+        public async Task TestPostJson()
+        {
+            using var host = TestRunner.Run(Inline.Create().Post((MyClass input) => input));
+
+            var request = host.GetRequest();
+
+            request.Method = HttpMethod.Post;
+
+            request.Content = new StringContent("{\"string\":\"42\",\"int\":42,\"double\":42}", Encoding.UTF8, "application/json");
+
+            using var response = await host.GetResponse(request);
 
             Assert.AreEqual("{\"string\":\"42\",\"int\":42,\"double\":42}", await response.GetContent());
         }
