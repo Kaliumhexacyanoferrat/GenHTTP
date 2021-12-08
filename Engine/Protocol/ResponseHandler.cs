@@ -95,22 +95,11 @@ namespace GenHTTP.Engine.Protocol
                    );
         }
 
-        private async ValueTask WriteStatus(IRequest request, IResponse response)
+        private ValueTask WriteStatus(IRequest request, IResponse response)
         {
             var version = (request.ProtocolType == HttpProtocol.Http_1_0) ? "1.0" : "1.1";
 
-            await Write("HTTP/").ConfigureAwait(false);
-            await Write(version);
-
-            await Write(" ");
-
-            await Write(NumberStringCache.Convert(response.Status.RawStatus));
-
-            await Write(" ");
-
-            await Write(response.Status.Phrase);
-
-            await Write(NL);
+            return Write("HTTP/", version, " ", NumberStringCache.Convert(response.Status.RawStatus), " ", response.Status.Phrase, NL);
         }
 
         private async PooledValueTask WriteHeader(IResponse response, bool keepAlive)
@@ -121,9 +110,7 @@ namespace GenHTTP.Engine.Protocol
             }
             else
             {
-                await Write("Server: GenHTTP/").ConfigureAwait(false);
-                await Write(Server.Version);
-                await Write(NL);
+                await Write("Server: GenHTTP/", Server.Version, NL).ConfigureAwait(false);
             }
 
             await WriteHeaderLine("Date", DateHeader.GetValue());
@@ -134,11 +121,7 @@ namespace GenHTTP.Engine.Protocol
             {
                 if (response.ContentType.Charset is not null)
                 {
-                    await Write("Content-Type: ");
-                    await Write(response.ContentType.RawType);
-                    await Write("; charset=");
-                    await Write(response.ContentType.Charset);
-                    await Write(NL);
+                    await Write("Content-Type: ", response.ContentType.RawType, "; charset=", response.ContentType.Charset, NL);
                 }
                 else
                 {
@@ -153,7 +136,7 @@ namespace GenHTTP.Engine.Protocol
 
             if (response.ContentLength is not null)
             {
-                await WriteHeaderLine("Content-Length", NumberStringCache.Convert((ulong)response.ContentLength));
+                await WriteHeaderLine("Content-Length", NumberStringCache.Convert(response.ContentLength.Value));
             }
             else
             {
@@ -217,47 +200,71 @@ namespace GenHTTP.Engine.Protocol
 
         #region Helpers
 
-        private async ValueTask WriteHeaderLine(string key, string value)
-        {
-            await Write(key).ConfigureAwait(false);
-            await Write(": ");
-            await Write(value);
-            await Write(NL);
-        }
+        private ValueTask WriteHeaderLine(string key, string value) => Write(key, ": ", value, NL);
 
-        private ValueTask WriteHeaderLine(string key, DateTime value)
-        {
-            return WriteHeaderLine(key, value.ToUniversalTime().ToString("r"));
-        }
+        private ValueTask WriteHeaderLine(string key, DateTime value) => WriteHeaderLine(key, value.ToUniversalTime().ToString("r"));
 
         private async ValueTask WriteCookie(Cookie cookie)
         {
-            await Write("Set-Cookie: ").ConfigureAwait(false);
-
-            await Write(cookie.Name);
-            await Write("=");
-            await Write(cookie.Value);
+            await Write("Set-Cookie: ", cookie.Name, "=", cookie.Value).ConfigureAwait(false);
 
             if (cookie.MaxAge is not null)
             {
-                await Write("; Max-Age=");
-                await Write(NumberStringCache.Convert(cookie.MaxAge.Value));
+                await Write("; Max-Age=", NumberStringCache.Convert(cookie.MaxAge.Value));
             }
 
-            await Write("; Path=/");
-
-            await Write(NL);
+            await Write("; Path=/", NL);
         }
 
-        private async PooledValueTask Write(string text)
+        /// <summary>
+        /// Writes the given parts to the output stream. 
+        /// </summary>
+        /// <remarks>
+        /// Reduces the number of writes to the output stream by collecting
+        /// data to be written. Cannot use params keyword because it allocates
+        /// an array.
+        /// </remarks>
+        private async PooledValueTask Write(string part1, string? part2 = null, string? part3 = null, 
+            string? part4 = null, string? part5 = null, string? part6 = null, string? part7 = null)
         {
-            var length = text.Length;
+            var length = part1.Length + (part2?.Length ?? 0) + (part3?.Length ?? 0) + (part4?.Length ?? 0)
+                + (part5?.Length ?? 0) + (part6?.Length ?? 0) + (part7?.Length ?? 0);
 
             var buffer = POOL.Rent(length);
 
             try
             {
-                ASCII.GetBytes(text, 0, length, buffer, 0);
+                var index = ASCII.GetBytes(part1, 0, part1.Length, buffer, 0);
+
+                if (part2 is not null)
+                {
+                    index += ASCII.GetBytes(part2, 0, part2.Length, buffer, index);
+                }
+
+                if (part3 is not null)
+                {
+                    index += ASCII.GetBytes(part3, 0, part3.Length, buffer, index);
+                }
+
+                if (part4 is not null)
+                {
+                    index += ASCII.GetBytes(part4, 0, part4.Length, buffer, index);
+                }
+
+                if (part5 is not null)
+                {
+                    index += ASCII.GetBytes(part5, 0, part5.Length, buffer, index);
+                }
+
+                if (part6 is not null)
+                {
+                    index += ASCII.GetBytes(part6, 0, part6.Length, buffer, index);
+                }
+
+                if (part7 is not null)
+                {
+                    ASCII.GetBytes(part7, 0, part7.Length, buffer, index);
+                }
 
                 await OutputStream.WriteAsync(buffer.AsMemory(0, length)).ConfigureAwait(false);
             }
