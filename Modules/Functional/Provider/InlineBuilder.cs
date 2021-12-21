@@ -37,7 +37,7 @@ namespace GenHTTP.Modules.Functional.Provider
 
         /// <summary>
         /// Adds a route for a request of any type to the root of the handler.
-        /// </summary
+        /// </summary>
         /// <param name="function">The logic to be executed</param>
         /// <param name="ignoreContent">True to exclude the content from sitemaps etc.</param>
         /// <param name="contentHints">A type implementing IContentHints to allow content discovery</param>

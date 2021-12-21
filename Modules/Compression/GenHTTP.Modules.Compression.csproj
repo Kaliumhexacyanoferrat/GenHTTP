@@ -25,7 +25,10 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
-    <PackageIcon>icon.png</PackageIcon>
+	<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	<NoWarn>CS1591,CS1587,CS1572,CS1573</NoWarn>
+
+	<PackageIcon>icon.png</PackageIcon>
     
   </PropertyGroup>
 
