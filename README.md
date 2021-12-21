@@ -1,6 +1,6 @@
 # GenHTTP Webserver
 
-GenHTTP is a lightweight web server written in pure C# with few dependencies to 3rd-party libraries. The main purpose of this project is to serve small web applications and web services written in .NET, allowing developers to concentrate on the functionality rather than on handling the infrastructure.
+GenHTTP is a lightweight web server written in pure C# with only a few dependencies to 3rd-party libraries. The main purpose of this project is to quickly create feature rich web applications and web services written in .NET, allowing developers to concentrate on the functionality rather than on messing around with configuration files, CSS or bundling JS files. Projects are mainly written in .NET, which allows C# developers to use their familiar toolset in web application development as well.
 
 As an example, the website of this project is hosted on a Raspberry Pi: [genhttp.org](https://genhttp.org/)
 
@@ -9,25 +9,34 @@ As an example, the website of this project is hosted on a Raspberry Pi: [genhttp
 ## Features
 
 - Setup new webservices or websites in a couple of minutes using [project templates](https://genhttp.org/documentation/content/templates)
+- Embed web services and applications into your existing console, service, WPF or WinForms application
+- Projects are fully described in code - no configuration files needed
 - [Optimized](https://genhttp.org/features) out of the box (e.g. by bundling resources or compressing results)
 - Small memory and storage [footprint](https://genhttp.org/features#footprint)
-- Several [themes](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes) available to be chosen from 
+- Several [themes](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes) available to be chosen from
 - Grade A+ security level according to SSL Labs
 - Can be used to mock HTTP responses in component testing (see [MockH](https://github.com/Kaliumhexacyanoferrat/MockH))
 
 ## Getting Started
 
-After you added a reference to the `GenHTTP.Core` nuget package, you can spawn a new server instance with just a few lines of code:
+Project templates can be used to create apps for typical use cases with little effort. After installing the templates via `dotnet new -i GenHTTP.Templates` in the terminal, the templates are available via the console or directly in Visual Studio:
+
+<img src="https://user-images.githubusercontent.com/4992119/146939721-2970d28c-61bc-4a9a-b924-d483f97c8d8e.png" style="width: 30em;" />
+
+If you would like to extend an existing .NET application, just add a nuget reference to the `GenHTTP.Core` nuget package. You can then spawn a new server instance with just a few lines of code:
 
 ```csharp
 var content = Content.From(Resource.FromString("Hello World!"));
 
-Host.Create()
-    .Handler(content)
-    .Run();
+using var server = Host.Create()
+                       .Handler(content)
+                       .Defaults()
+                       .Start(); // or .Run() to block until the application is shut down
 ```
 
-When you run this sample it can be accessed in the browser via http://localhost:8080. The [documentation](https://genhttp.org/documentation/) provides a step-by-step starting guide as well as additional information on how to implement [webservices](https://genhttp.org/documentation/content/webservices), [websites](https://genhttp.org/documentation/content/websites), [MVC style projects](https://genhttp.org/documentation/content/controllers), or [single page applications](https://genhttp.org/documentation/content/single-page-applications) and how to [host your application](https://genhttp.org/documentation/hosting/) via Docker.
+When you run this sample it can be accessed in the browser via http://localhost:8080. 
+
+The [documentation](https://genhttp.org/documentation/) provides a step-by-step starting guide as well as additional information on how to implement [webservices](https://genhttp.org/documentation/content/webservices), [websites](https://genhttp.org/documentation/content/websites), [MVC style projects](https://genhttp.org/documentation/content/controllers), or [single page applications](https://genhttp.org/documentation/content/single-page-applications) and how to [host your application](https://genhttp.org/documentation/hosting/) via Docker.
 
 ## Building the Server
 
@@ -41,7 +50,7 @@ dotnet run
 
 This will build the playground project launcher with all the server dependencies and launch the server process on port 8080. You can access the playground in the browser via http://localhost:8080.
 
-If you would like to contribute, see the [contribution guidelines](https://github.com/Kaliumhexacyanoferrat/GenHTTP/blob/master/CONTRIBUTING.md).
+All contributions are welcome - If you would like to contribute, have a look at the [contribution guidelines](https://github.com/Kaliumhexacyanoferrat/GenHTTP/blob/master/CONTRIBUTING.md).
 
 ## History
 
@@ -49,17 +58,9 @@ The web server was originally developed in 2008 to run on a netbook with an Inte
 
 ## Links
 
-- Related to GenHTTP
-  - [Templates](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Templates)
-  - [Themes](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes)
-  - [Website](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Website)
-- Reference projects
-  - [GenHTTP Gateway](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Gateway)
-  - [MockH](https://github.com/Kaliumhexacyanoferrat/MockH)
-- Similar projects
-  - [EmbedIO](https://github.com/unosquare/embedio)
-  - [NetCoreServer](https://github.com/chronoxor/NetCoreServer)
-  - [Watson Webserver](https://github.com/jchristn/WatsonWebserver)
+- Related to GenHTTP: [Templates](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Templates) | [Themes](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes) | [Website](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Website)
+- Reference projects: [GenHTTP Gateway](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Gateway) | [MockH](https://github.com/Kaliumhexacyanoferrat/MockH)
+- Similar projects: [EmbedIO](https://github.com/unosquare/embedio) | [NetCoreServer](https://github.com/chronoxor/NetCoreServer) | [Watson Webserver](https://github.com/jchristn/WatsonWebserver)
 
 ## Thanks
 
