@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Reflection;
 
 using GenHTTP.Api.Infrastructure;
@@ -59,9 +58,7 @@ namespace GenHTTP.Modules.IO.Embedded
 
             var assembly = _Assembly ?? System.Reflection.Assembly.GetCallingAssembly();
 
-            var sourceFile = new FileInfo(assembly.Location);
-
-            var modified = _Modified ?? ((sourceFile.Exists) ? sourceFile.LastWriteTimeUtc : DateTime.UtcNow);
+            var modified = _Modified ?? assembly.GetModificationDate();
 
             var type = _Type ?? FlexibleContentType.Get(path.GuessContentType() ?? ContentType.ApplicationForceDownload);
 

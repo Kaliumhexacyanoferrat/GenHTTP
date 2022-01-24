@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Reflection;
 
 using GenHTTP.Api.Content.IO;
@@ -25,9 +24,7 @@ namespace GenHTTP.Modules.IO.Embedded
 
         protected EmbeddedResourceContainer(Assembly source, string prefix)
         {
-            var sourceFile = new FileInfo(source.Location);
-
-            Modified = ((sourceFile.Exists) ? sourceFile.LastWriteTimeUtc : DateTime.UtcNow);
+            Modified = source.GetModificationDate();
 
             foreach (var resource in source.GetManifestResourceNames())
             {
