@@ -1,19 +1,17 @@
 ﻿using System.IO.Compression;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Content.IO;
-
+using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Compression;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
-using GenHTTP.Modules.Basics;
-
 using GenHTTP.Testing.Acceptance.Utilities;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {
@@ -101,7 +99,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
             using var runner = new TestRunner();
 
             runner.Host.Compression(CompressedContent.Default().Add(new CustomAlgorithm()).Level(CompressionLevel.Optimal)).Start();
-            
+
             var request = runner.GetRequest();
             request.Headers.Add("Accept-Encoding", "custom");
 
@@ -144,10 +142,10 @@ namespace GenHTTP.Testing.Acceptance.Engine
             var handler = new FunctionalHandler(responseProvider: (r) =>
             {
                 return r.Respond()
-                .Header("Vary", "Host")
-                .Content(Resource.FromString("Hello World").Build())
-                .Type(ContentType.TextHtml)
-                .Build();
+                        .Header("Vary", "Host")
+                        .Content(Resource.FromString("Hello World").Build())
+                        .Type(ContentType.TextHtml)
+                        .Build();
             });
 
             using var runner = TestRunner.Run(handler.Wrap());
@@ -159,6 +157,27 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             Assert.IsTrue(response.Headers.Vary.Contains("Host"));
             Assert.IsTrue(response.Headers.Vary.Contains("Accept-Encoding"));
+        }
+
+        [TestMethod]
+        public async Task TestContentType()
+        {
+            var handler = new FunctionalHandler(responseProvider: (r) =>
+            {
+                return r.Respond()
+                        .Content(Resource.FromString("Hello World").Build())
+                        .Type("application/json; charset=utf-8")
+                        .Build();
+            });
+
+            using var runner = TestRunner.Run();
+
+            var request = runner.GetRequest();
+            request.Headers.Add("Accept-Encoding", "gzip, deflate, br");
+
+            using var response = await runner.GetResponse(request);
+
+            Assert.AreEqual("br", response.Content.Headers.ContentEncoding.First());
         }
 
     }
