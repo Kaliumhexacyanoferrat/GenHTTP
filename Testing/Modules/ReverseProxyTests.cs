@@ -2,6 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Linq;
 
@@ -11,11 +12,11 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Practices;
 using GenHTTP.Modules.ReverseProxy;
 using GenHTTP.Modules.Layouting;
 
 using Cookie = GenHTTP.Api.Protocol.Cookie;
-using System.Net.Http;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
@@ -57,6 +58,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
                 runner.Host.Handler(proxy)
                            .Development()
+                           .Defaults()
                            .Start();
 
                 return new TestSetup(runner, testServer);
@@ -398,6 +400,26 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var response = await runner.GetResponse();
 
             Assert.AreEqual(HttpStatusCode.BadGateway, response.StatusCode);
+        }
+
+
+        [TestMethod]
+        public async Task TestCompression()
+        {
+            using var setup = TestSetup.Create((r) =>
+            {
+                return r.Respond().Content("Hello World!").Build();
+            });
+
+            var runner = setup.Runner;
+
+            var request = runner.GetRequest();
+
+            request.Headers.Add("Accept-Encoding", "br, gzip, deflate");
+
+            using var response = await runner.GetResponse(request);
+
+            Assert.AreEqual("br", response.GetContentHeader("Content-Encoding"));
         }
 
     }

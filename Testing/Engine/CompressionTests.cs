@@ -170,7 +170,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
                         .Build();
             });
 
-            using var runner = TestRunner.Run();
+            using var runner = TestRunner.Run(handler.Wrap());
 
             var request = runner.GetRequest();
             request.Headers.Add("Accept-Encoding", "gzip, deflate, br");
