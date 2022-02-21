@@ -389,7 +389,7 @@ namespace GenHTTP.Api.Protocol
 
                 if (charsetIndex > 0)
                 {
-                    return Get(contentType, span[charsetIndex..].Trim().ToString());
+                    return Get(contentType, span[(charsetIndex + 1)..].Trim().ToString());
                 }
                 else
                 {

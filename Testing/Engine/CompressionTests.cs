@@ -161,6 +161,27 @@ namespace GenHTTP.Testing.Acceptance.Engine
             Assert.IsTrue(response.Headers.Vary.Contains("Accept-Encoding"));
         }
 
+        [TestMethod]
+        public async Task TestContentType()
+        {
+            var handler = new FunctionalHandler(responseProvider: (r) =>
+            {
+                return r.Respond()
+                        .Content(Resource.FromString("Hello World").Build())
+                        .Type("application/json; charset=utf-8")
+                        .Build();
+            });
+
+            using var runner = TestRunner.Run(handler.Wrap());
+
+            var request = runner.GetRequest();
+            request.Headers.Add("Accept-Encoding", "gzip, deflate, br");
+
+            using var response = await runner.GetResponse(request);
+
+            Assert.AreEqual("br", response.Content.Headers.ContentEncoding.First());
+        }
+
     }
 
 }
