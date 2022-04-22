@@ -35,10 +35,7 @@ namespace GenHTTP.Engine.Protocol
 
             if (disposing)
             {
-                if (File.Exists(TemporaryFile))
-                {
-                    File.Delete(TemporaryFile);
-                }
+                File.Delete(TemporaryFile);
             }
         }
 

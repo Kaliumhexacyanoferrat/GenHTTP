@@ -36,11 +36,13 @@ namespace GenHTTP.Engine.Protocol
 
             var toFetch = Length;
 
+            var bufferSize = Math.Min(Configuration.TransferBufferSize, toFetch);
+
             while (toFetch > 0)
             {
                 await buffer.Read().ConfigureAwait(false);
 
-                var toRead = Math.Min(buffer.Data.Length, Math.Min(Configuration.TransferBufferSize, toFetch));
+                var toRead = Math.Min(buffer.Data.Length, bufferSize);
 
                 if (toRead == 0)
                 {
