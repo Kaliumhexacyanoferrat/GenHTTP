@@ -8,9 +8,9 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
-    <AssemblyVersion>6.3.3.0</AssemblyVersion>
-    <FileVersion>6.3.3.0</FileVersion>
-    <Version>6.3.3</Version>
+    <AssemblyVersion>6.3.4.0</AssemblyVersion>
+    <FileVersion>6.3.4.0</FileVersion>
+    <Version>6.3.4</Version>
 
     <Authors>Andreas Nägeli</Authors>
     <Company />
@@ -43,7 +43,7 @@
     
     <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />    
 
-    <PackageReference Include="System.Text.Json" Version="6.0.0" />
+    <PackageReference Include="System.Text.Json" Version="6.0.3" />
 
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     

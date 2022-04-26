@@ -8,9 +8,9 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
-    <AssemblyVersion>6.3.3.0</AssemblyVersion>
-    <FileVersion>6.3.3.0</FileVersion>
-    <Version>6.3.3</Version>
+    <AssemblyVersion>6.3.4.0</AssemblyVersion>
+    <FileVersion>6.3.4.0</FileVersion>
+    <Version>6.3.4</Version>
 
     <Authors>Andreas Nägeli</Authors>
     <Company />
@@ -40,7 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="RazorEngineCore" Version="2021.7.1" />
+    <PackageReference Include="RazorEngineCore" Version="2022.1.2" />
   </ItemGroup>
 
   <ItemGroup>

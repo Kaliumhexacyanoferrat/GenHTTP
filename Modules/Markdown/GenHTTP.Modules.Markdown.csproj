@@ -8,9 +8,9 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
-    <AssemblyVersion>6.3.3.0</AssemblyVersion>
-    <FileVersion>6.3.3.0</FileVersion>
-    <Version>6.3.3</Version>
+    <AssemblyVersion>6.3.4.0</AssemblyVersion>
+    <FileVersion>6.3.4.0</FileVersion>
+    <Version>6.3.4</Version>
 
     <Authors>Vitaly Derbin, Andreas Nägeli</Authors>
     <Company />
@@ -50,7 +50,7 @@
     <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
     <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
     
-    <PackageReference Include="Markdig" Version="0.26.0" />
+    <PackageReference Include="Markdig" Version="0.30.2" />
 
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     
