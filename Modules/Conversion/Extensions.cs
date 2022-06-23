@@ -24,6 +24,10 @@ namespace GenHTTP.Modules.Conversion
                 {
                     return null;
                 }
+                else if (type == typeof(string))
+                {
+                    return value;
+                }
                 else
                 {
                     return Activator.CreateInstance(type);
