@@ -42,7 +42,7 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
                 {
                     var value = query[key];
 
-                    if (!string.IsNullOrWhiteSpace(value))
+                    if (value is not null)
                     {
                         var property = type.GetProperty(key, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 
