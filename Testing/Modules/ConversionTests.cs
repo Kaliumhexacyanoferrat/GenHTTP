@@ -109,6 +109,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Conversion
         [TestMethod]
         public async Task TestFormTypeSerialization() => await RunTest<FormFormat, TypedData>("Boolean=1&Double=0.2&String=Test&Enum=One");
 
+        [TestMethod]
+        public async Task TestFormDefaultValueSerialization() => await RunTest<FormFormat, TypedData>("Boolean=0&Double=0&String=&Enum=One");
+
         #endregion
 
         #region Helpers
