@@ -25,6 +25,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
         public record MyClass(string String, int Int, double Double);
 
+        private enum EnumData { One, Two }
+
         #endregion
 
         [TestMethod]
@@ -55,6 +57,46 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
             using var response = await host.GetResponse("/?param=41");
 
             Assert.AreEqual("42", await response.GetContent());
+        }
+
+        [TestMethod]
+        public async Task TestGetEmptyBooleanQueryParam()
+        {
+            using var host = TestRunner.Run(Inline.Create().Get((bool param) => param));
+
+            using var response = await host.GetResponse("/?param=");
+
+            Assert.AreEqual("False", await response.GetContent());
+        }
+
+        [TestMethod]
+        public async Task TestGetEmptyDoubleQueryParam()
+        {
+            using var host = TestRunner.Run(Inline.Create().Get((double param) => param));
+
+            using var response = await host.GetResponse("/?param=");
+
+            Assert.AreEqual("0", await response.GetContent());
+        }
+
+        [TestMethod]
+        public async Task TestGetEmptyStringQueryParam()
+        {
+            using var host = TestRunner.Run(Inline.Create().Get((string param) => param));
+
+            using var response = await host.GetResponse("/?param=");
+
+            Assert.AreEqual("", await response.GetContent());
+        }
+
+        [TestMethod]
+        public async Task TestGetEmptyEnumQueryParam()
+        {
+            using var host = TestRunner.Run(Inline.Create().Get((EnumData param) => param));
+
+            using var response = await host.GetResponse("/?param=");
+
+            Assert.AreEqual("One", await response.GetContent());
         }
 
         [TestMethod]
