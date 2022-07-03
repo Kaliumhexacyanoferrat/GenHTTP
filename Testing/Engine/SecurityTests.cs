@@ -160,8 +160,44 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 });
             }, host: "myserver");
         }
+        
+        /// <summary>
+        /// As the hoster of a web application, I want my application to set the content type options to nosniff,
+        /// so that browser will not try to analyze my content.
+        /// </summary>
+        [TestMethod]
+        public Task TestOptionsNosniffExplicit()
+        {
+            return RunSecure(async (insec, sec) =>
+            {
+                using var client = TestRunner.GetClient(ignoreSecurityErrors: true);
 
-        private static async Task RunSecure(Func<ushort, ushort, Task> logic, SecureUpgrade? mode = null, string host = "localhost")
+                using var response = await client.GetAsync($"https://localhost:{sec}");
+
+                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+                Assert.AreEqual("nosniff", response.Headers.GetValues("X-Content-Type-Options").First());
+            }, options: XContentTypeOptions.NoSniff);
+        }
+
+        /// <summary>
+        /// As the hoster of a web application, I want my application to set the content type options to nosniff,
+        /// so that browser will not try to analyze my content. Add the extension to the default practices.
+        /// </summary>
+        [TestMethod]
+        public Task TestOptionsNosniffDefaults()
+        {
+            return RunSecure(async (insec, sec) =>
+            {
+                using var client = TestRunner.GetClient(ignoreSecurityErrors: true);
+
+                using var response = await client.GetAsync($"https://localhost:{sec}");
+
+                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+                Assert.AreEqual("nosniff", response.Headers.GetValues("X-Content-Type-Options").First());
+            });
+        }
+
+        private static async Task RunSecure(Func<ushort, ushort, Task> logic, SecureUpgrade? mode = null, string host = "localhost", XContentTypeOptions? options = null)
         {
             var content = Layout.Create().Index(Content.From(Resource.FromString("Hello Alice!")));
 
@@ -179,6 +215,11 @@ namespace GenHTTP.Testing.Acceptance.Engine
             {
                 runner.Host.SecureUpgrade(mode.Value);
                 runner.Host.StrictTransport(new StrictTransportPolicy(TimeSpan.FromDays(365), true, true));
+            }
+
+            if (options is not null)
+            {
+                runner.Host.Security(options);
             }
 
             runner.Start();

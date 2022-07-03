@@ -23,12 +23,14 @@ namespace GenHTTP.Modules.Practices
         /// <param name="strictTransport">Whether the server should send a strict transport policy</param>
         /// <param name="clientCaching">Validates the cached entries of the client by sending an ETag header and evaluating it when a request is processed (returning HTTP 304 if the content did not change)</param>
         /// <param name="rangeSupport">Enables partial responses if requested by the client</param>
+        /// <param name="security">Whether the server should send a nosniff header</param>
         public static IServerHost Defaults(this IServerHost host,
                                            bool compression = true,
                                            bool secureUpgrade = true,
                                            bool strictTransport = true,
                                            bool clientCaching = true,
-                                           bool rangeSupport = false)
+                                           bool rangeSupport = false,
+                                           bool security = true)
         {
             if (strictTransport)
             {
@@ -53,6 +55,11 @@ namespace GenHTTP.Modules.Practices
             if (secureUpgrade)
             {
                 host.SecureUpgrade(SecureUpgrade.Force);
+            }
+
+            if (security)
+            {
+                host.Security(XContentTypeOptions.NoSniff);
             }
 
             return host;

@@ -43,7 +43,17 @@ namespace GenHTTP.Modules.Security
             host.Add(new StrictTransportConcernBuilder().Policy(policy));
             return host;
         }
+        
+        
+        public static IServerHost Security(this IServerHost host, XContentTypeOptions? options)
+        {
+            if (options != XContentTypeOptions.None)
+            {
+                host.Add(new SecurityConcernBuilder().Options(options));
+            }
+
+            return host;
+        }
 
     }
-
 }
