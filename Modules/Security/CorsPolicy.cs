@@ -10,7 +10,15 @@ namespace GenHTTP.Modules.Security
         /// Creates a policy that does not restrict browsers from interacting
         /// with the requested resources.
         /// </summary>
-        public static CorsPolicyBuilder Permissive() => new CorsPolicyBuilder().Default(new OriginPolicy(null, null, null, true, 86400));
+        /// <param name="defaultAuthorizationHeader">Indicate if the header Authorization should be in 'Access-Control-Allow-Headers'. Default value=false</param>
+        public static CorsPolicyBuilder Permissive(bool defaultAuthorizationHeader = true) 
+            => new CorsPolicyBuilder().Default(
+                new OriginPolicy(
+                    null, 
+                    defaultAuthorizationHeader ? new() { "Authorization" } : null,
+                    null,
+                    true,
+                    86400));
 
         /// <summary>
         /// Creates a policy that denies access to resources by browsers.
