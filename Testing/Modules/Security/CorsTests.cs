@@ -43,7 +43,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Security
             Assert.AreEqual("*", response.GetHeader("Access-Control-Allow-Origin"));
 
             Assert.AreEqual("*", response.GetHeader("Access-Control-Allow-Methods"));
-            Assert.AreEqual("Authorization", response.GetHeader("Access-Control-Allow-Headers"));
+            Assert.AreEqual("*, Authorization", response.GetHeader("Access-Control-Allow-Headers"));
             Assert.AreEqual("*", response.GetHeader("Access-Control-Expose-Headers"));
 
             Assert.AreEqual("true", response.GetHeader("Access-Control-Allow-Credentials"));
