@@ -43,6 +43,28 @@ namespace GenHTTP.Testing.Acceptance.Modules.Security
             Assert.AreEqual("*", response.GetHeader("Access-Control-Allow-Origin"));
 
             Assert.AreEqual("*", response.GetHeader("Access-Control-Allow-Methods"));
+            Assert.AreEqual("*, Authorization", response.GetHeader("Access-Control-Allow-Headers"));
+            Assert.AreEqual("*", response.GetHeader("Access-Control-Expose-Headers"));
+
+            Assert.AreEqual("true", response.GetHeader("Access-Control-Allow-Credentials"));
+
+            Assert.AreEqual("86400", response.GetHeader("Access-Control-Max-Age"));
+
+            Assert.AreEqual("Hello World", await response.GetContent());
+        }
+
+        [TestMethod]
+        public async Task TestPermissiveWithoutDefaultAuthorizationHeader()
+        {
+            using var runner = GetRunner(CorsPolicy.Permissive(false));
+
+            using var response = await runner.GetResponse("/t");
+
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+
+            Assert.AreEqual("*", response.GetHeader("Access-Control-Allow-Origin"));
+
+            Assert.AreEqual("*", response.GetHeader("Access-Control-Allow-Methods"));
             Assert.AreEqual("*", response.GetHeader("Access-Control-Allow-Headers"));
             Assert.AreEqual("*", response.GetHeader("Access-Control-Expose-Headers"));
 
