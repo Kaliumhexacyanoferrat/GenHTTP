@@ -392,10 +392,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             var proxy = Proxy.Create()
                              .Upstream("http://127.0.0.2");
-
-            var layout = Layout.Create().Fallback(proxy);
-
-            using var runner = TestRunner.Run(layout);
+            
+            using var runner = TestRunner.Run(proxy);
 
             using var response = await runner.GetResponse();
 

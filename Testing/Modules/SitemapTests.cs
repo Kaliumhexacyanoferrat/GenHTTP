@@ -84,7 +84,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             root.Add(Sitemap.FILE_NAME, Sitemap.Create());
 
-            root.Fallback(content);
+            root.Add(content);
 
             return root;
         }
