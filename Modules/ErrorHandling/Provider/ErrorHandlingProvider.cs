@@ -11,7 +11,7 @@ using GenHTTP.Modules.Pages;
 namespace GenHTTP.Modules.ErrorHandling.Provider
 {
 
-    public sealed class ErrorHandlingProvider : IConcern
+    public sealed class ErrorHandlingProvider<T> : IConcern where T : Exception
     {
 
         #region Get-/Setters
@@ -20,14 +20,18 @@ namespace GenHTTP.Modules.ErrorHandling.Provider
 
         public IHandler Parent { get; }
 
+        private IErrorHandler<T> ErrorHandler { get; }
+
         #endregion
 
         #region Initialization
 
-        public ErrorHandlingProvider(IHandler parent, Func<IHandler, IHandler> contentFactory)
+        public ErrorHandlingProvider(IHandler parent, Func<IHandler, IHandler> contentFactory, IErrorHandler<T> errorHandler)
         {
             Parent = parent;
             Content = contentFactory(this);
+
+            ErrorHandler = errorHandler;
         }
 
         #endregion

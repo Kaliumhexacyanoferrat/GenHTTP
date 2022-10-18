@@ -1,14 +1,17 @@
-﻿using GenHTTP.Api.Content.Templating;
+﻿using System;
+using System.Threading.Tasks;
+
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Content
 {
 
-    /// <summary>
-    /// Handlers implementing this interface will be queried to render
-    /// errors that occur when handling requests.
-    /// </summary>
-    public interface IErrorHandler : IRenderer<ErrorModel>
+    public interface IErrorHandler<in T> where T : Exception
     {
+
+        ValueTask<IResponse?> Map(IRequest request, IHandler handler, T error);
+
+        IResponse? GetNotFound(IRequest request, IHandler handler);
 
     }
 

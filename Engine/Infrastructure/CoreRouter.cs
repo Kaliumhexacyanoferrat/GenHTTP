@@ -18,7 +18,7 @@ namespace GenHTTP.Engine.Infrastructure
     /// requests will start processing from here on. Provides core functionality
     /// such as rendering exceptions when they bubble up uncatched. 
     /// </summary>
-    internal sealed class CoreRouter : IHandler, IErrorHandler, IPageRenderer
+    internal sealed class CoreRouter : IHandler, IErrorRenderer, IPageRenderer
     {
 
         #region Get-/Setters
