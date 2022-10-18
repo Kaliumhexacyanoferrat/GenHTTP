@@ -7,6 +7,10 @@ using GenHTTP.Engine.Infrastructure.Configuration;
 namespace GenHTTP.Engine.Protocol
 {
 
+    /// <summary>
+    /// Efficiently reads the body from the HTTP request, storing it
+    /// in a temporary file if it exceeds the buffering limits.
+    /// </summary>
     internal sealed class RequestContentParser
     {
 
