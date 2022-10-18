@@ -13,7 +13,7 @@ namespace GenHTTP.Api.Content.Websites
     /// making it therefore easier to switch between them. Currently there
     /// are no common, shared features.
     /// </remarks>
-    public interface IThemeBuilder<T> : IBuilder<T> where T : ITheme
+    public interface IThemeBuilder<out T> : IBuilder<T> where T : ITheme
     {
         
 
