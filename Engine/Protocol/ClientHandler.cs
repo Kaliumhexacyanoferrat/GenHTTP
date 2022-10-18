@@ -16,6 +16,14 @@ using PooledAwait;
 namespace GenHTTP.Engine
 {
 
+    /// <summary>
+    /// Maintains a single connection to a client, continuously reading
+    /// requests and generating responses.
+    /// </summary>
+    /// <remarks>
+    /// Implements keep alive and maintains the connection state (e.g. by
+    /// closing it after the last request has been handled).
+    /// </remarks>
     internal sealed class ClientHandler
     {
         private static readonly StreamPipeReaderOptions READER_OPTIONS = new(pool: MemoryPool<byte>.Shared, leaveOpen: true, bufferSize: 65536);

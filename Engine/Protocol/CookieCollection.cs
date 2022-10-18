@@ -40,7 +40,7 @@ namespace GenHTTP.Engine.Protocol
 
                 if (index > -1)
                 {
-                    result.Add(new(kv.Substring(0, index), kv[(index + 1)..]));
+                    result.Add(new(kv[..index], kv[(index + 1)..]));
                 }
             }
 

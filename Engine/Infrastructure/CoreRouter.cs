@@ -13,6 +13,11 @@ using GenHTTP.Modules.Placeholders;
 namespace GenHTTP.Engine.Infrastructure
 {
 
+    /// <summary>
+    /// Request handler which is installed by the engine as the root handler - all
+    /// requests will start processing from here on. Provides core functionality
+    /// such as rendering exceptions when they bubble up uncatched. 
+    /// </summary>
     internal sealed class CoreRouter : IHandler, IErrorHandler, IPageRenderer
     {
 
@@ -26,8 +31,15 @@ namespace GenHTTP.Engine.Infrastructure
 
         public IHandler Content { get; }
 
+        /// <summary>
+        /// The basic HTML template all content will be rendered into if
+        /// no specific template has been specified (e.g. by using a website handler).
+        /// </summary>
         private IRenderer<TemplateModel> Template { get; }
 
+        /// <summary>
+        /// The default renderer to render exceptions into HTML.
+        /// </summary>
         private IRenderer<ErrorModel> ErrorRenderer { get; }
 
         #endregion

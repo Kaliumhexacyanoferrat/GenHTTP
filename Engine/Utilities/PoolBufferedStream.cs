@@ -9,6 +9,20 @@ using PooledAwait;
 namespace GenHTTP.Engine.Utilities
 {
 
+    /// <summary>
+    /// An output stream using a pooled array to buffer small writes.
+    /// </summary>
+    /// <remarks>
+    /// Reduces write calls on underlying streams by collecting small writes
+    /// and flushing them only on request or if the internal buffer overflows. 
+    /// Using a rented buffer from the array pool keeps allocations low.
+    /// 
+    /// Decreases the overhead of response content that issues a lot of small
+    /// writes (such as serializers or template renderers). As the content
+    /// length for such responses is typically not known beforehand, this
+    /// would cause all of those small writes to be converted into chunks, adding 
+    /// a lot of communication overhead to the client connection.
+    /// </remarks>
     public sealed class PoolBufferedStream : Stream
     {
         private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;

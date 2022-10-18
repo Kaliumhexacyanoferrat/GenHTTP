@@ -7,6 +7,10 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Engine.Protocol
 {
 
+    /// <summary>
+    /// Parses and stores forwarding information passed by proxy
+    /// servers along with the request.
+    /// </summary>
     internal sealed class ForwardingCollection : List<Forwarding>, IForwardingCollection
     {
         private const int DEFAULT_SIZE = 1;
