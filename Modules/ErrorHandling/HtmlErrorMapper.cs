@@ -11,11 +11,11 @@ namespace GenHTTP.Modules.ErrorHandling
 {
 
     /// <summary>
-    /// An error handler that renders exceptions into the currently
-    /// installed template, using the next IErrorHandler found
+    /// An error mapper that renders exceptions into the currently
+    /// installed template, using the next IErrorRenderer found
     /// in the routing chain.
     /// </summary>
-    public class HtmlErrorHandler : IErrorHandler<Exception>
+    public class HtmlErrorMapper : IErrorMapper<Exception>
     {
 
         public ValueTask<IResponse?> Map(IRequest request, IHandler handler, Exception error)

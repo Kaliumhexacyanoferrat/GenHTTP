@@ -18,24 +18,24 @@ namespace GenHTTP.Modules.ErrorHandling
         /// By default, server errors will be rendered to HTML.
         /// </remarks>
         /// <returns>The default error handler</returns>
-        public static ErrorHandlingProviderBuilder<Exception> Default() => Html();
+        public static ErrorSentryBuilder<Exception> Default() => Html();
 
         /// <summary>
         /// An error handler which will render exceptions into
         /// HTML using the current template and IErrorRenderer.
         /// </summary>
         /// <returns>An HTML error handler</returns>
-        public static ErrorHandlingProviderBuilder<Exception> Html() => new(new HtmlErrorHandler());
+        public static ErrorSentryBuilder<Exception> Html() => From(new HtmlErrorMapper());
 
         /// <summary>
         /// Creates an error handling concern which will use
-        /// the specified error handler to map exceptions
-        /// into a HTTP response.
+        /// the specified error mapper to convert exceptions
+        /// to HTTP responses.
         /// </summary>
         /// <typeparam name="T">The type of exceptions to be catched</typeparam>
-        /// <param name="handler">The handler to use for exception mapping</param>
+        /// <param name="mapper">The mapper to use for exception mapping</param>
         /// <returns>The newly generated concern</returns>
-        public static ErrorHandlingProviderBuilder<T> With<T>(IErrorHandler<T> handler) where T : Exception => new(handler);
+        public static ErrorSentryBuilder<T> From<T>(IErrorMapper<T> mapper) where T : Exception => new(mapper);
 
     }
 

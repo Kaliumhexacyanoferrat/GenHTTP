@@ -11,7 +11,7 @@ namespace GenHTTP.Api.Content
     /// responses for exceptions thrown during request handling.
     /// </summary>
     /// <typeparam name="T">The type of exception to be mapped (others will not be handled)</typeparam>
-    public interface IErrorHandler<in T> where T : Exception
+    public interface IErrorMapper<in T> where T : Exception
     {
 
         /// <summary>

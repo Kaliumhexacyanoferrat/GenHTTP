@@ -5,18 +5,18 @@ using GenHTTP.Api.Content;
 namespace GenHTTP.Modules.ErrorHandling.Provider
 {
 
-    public sealed class ErrorHandlingProviderBuilder<T> : IConcernBuilder where T : Exception
+    public sealed class ErrorSentryBuilder<T> : IConcernBuilder where T : Exception
     {
 
         #region Get-/Setters
 
-        private IErrorHandler<T> Handler { get; }
+        private IErrorMapper<T> Handler { get; }
 
         #endregion
 
         #region Initialization
 
-        public ErrorHandlingProviderBuilder(IErrorHandler<T> handler)
+        public ErrorSentryBuilder(IErrorMapper<T> handler)
         {
             Handler = handler;
         }
@@ -27,7 +27,7 @@ namespace GenHTTP.Modules.ErrorHandling.Provider
 
         public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
         {
-            return new ErrorHandlingProvider<T>(parent, contentFactory, Handler);
+            return new ErrorSentry<T>(parent, contentFactory, Handler);
         }
 
         #endregion
