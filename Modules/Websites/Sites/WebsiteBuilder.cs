@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Websites;
+
 using GenHTTP.Api.Infrastructure;
 
-using GenHTTP.Modules.ErrorHandling;
-using GenHTTP.Modules.ErrorHandling.Provider;
 using GenHTTP.Modules.Websites.Resources;
 
 namespace GenHTTP.Modules.Websites.Sites
@@ -28,8 +26,6 @@ namespace GenHTTP.Modules.Websites.Sites
         private readonly ScriptRouterBuilder _Scripts = new();
 
         private readonly List<IConcernBuilder> _Concerns = new();
-
-        private ErrorHandlingProviderBuilder? _ErrorHandling;
 
         #region Functionality
 
@@ -79,14 +75,7 @@ namespace GenHTTP.Modules.Websites.Sites
 
         public WebsiteBuilder Add(IConcernBuilder concern)
         {
-            if (concern is ErrorHandlingProviderBuilder errorConcern)
-            {
-                _ErrorHandling = errorConcern;
-            }
-            else
-            {
-                _Concerns.Add(concern);
-            }
+            _Concerns.Add(concern);
 
             return this;
         }
@@ -100,9 +89,7 @@ namespace GenHTTP.Modules.Websites.Sites
             _Styles.Theme(theme);
             _Scripts.Theme(theme);
 
-            var concerns = _Concerns.Concat(new IConcernBuilder[] { _ErrorHandling ?? ErrorHandler.Default() });
-
-            return new WebsiteRouter(parent, content, concerns, _Scripts, _Styles, _Favicon, _Menu?.Build(), theme);
+            return new WebsiteRouter(parent, content, _Concerns, _Scripts, _Styles, _Favicon, _Menu?.Build(), theme);
         }
 
         #endregion

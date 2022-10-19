@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.Pages;
 
 namespace GenHTTP.Modules.ErrorHandling.Provider
 {
@@ -51,28 +48,14 @@ namespace GenHTTP.Modules.ErrorHandling.Provider
 
                 if (response is null)
                 {
-                    return Content.GetNotFound(request).Build();
+                    return await ErrorHandler.GetNotFound(request, Content);
                 }
 
                 return response;
             }
-            catch (ProviderException e)
+            catch (T e)
             {
-                var model = new ErrorModel(request, Content, e.Status, e.Message, e);
-
-                var details = ContentInfo.Create()
-                                         .Title(e.Status.ToString());
-
-                return this.GetError(model, details.Build()).Build();
-            }
-            catch (Exception e)
-            {
-                var model = new ErrorModel(request, Content, ResponseStatus.InternalServerError, "The server failed to handle this request.", e);
-
-                var details = ContentInfo.Create()
-                                         .Title("Internal Server Error");
-
-                return this.GetError(model, details.Build()).Build();
+                return await ErrorHandler.Map(request, Content, e);
             }
         }
 

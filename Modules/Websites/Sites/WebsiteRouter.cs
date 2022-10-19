@@ -9,6 +9,7 @@ using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
+using GenHTTP.Modules.ErrorHandling;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Robots;
@@ -59,6 +60,11 @@ namespace GenHTTP.Modules.Websites.Sites
             {
                 layout.Add(concern);
             }
+
+            // install a HTML error handler that will catch all exceptions
+            // and render them using the IErrorRenderer implemented by this
+            // handler
+            layout.Add(ErrorHandler.Html());
 
             if (favicon is not null)
             {
@@ -115,6 +121,7 @@ namespace GenHTTP.Modules.Websites.Sites
         {
             await Theme.ErrorHandler.RenderAsync(model, target).ConfigureAwait(false);
         }
+
         public async ValueTask<string> RenderAsync(TemplateModel model)
         {
             return await Renderer.RenderAsync(model).ConfigureAwait(false);
