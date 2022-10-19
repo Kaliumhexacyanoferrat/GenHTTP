@@ -53,7 +53,7 @@ namespace GenHTTP.Modules.Websites.Sites
                                .Add("styles", styles)
                                .Add(BotInstructions.FILE_NAME, BotInstructions.Default().Sitemap())
                                .Add(Sitemap.FILE_NAME, Sitemap.Create())
-                               .Fallback(content);
+                               .Add(content);
 
             foreach (var concern in concerns)
             {

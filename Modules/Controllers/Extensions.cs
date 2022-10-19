@@ -25,15 +25,11 @@ namespace GenHTTP.Modules.Controllers
         /// Causes the specified controller class to be used to handle the index of 
         /// this layout.
         /// </summary>
-        /// <remarks>
-        /// Using this method will occupy the fallback slot of the layout to handle
-        /// incoming requests, as the index is just meant to handle "/".
-        /// </remarks>
         /// <typeparam name="T">The type of the controller used to handle requests</typeparam>
         /// <param name="builder">The layout the controller should be added to</param>
         public static LayoutBuilder IndexController<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(this LayoutBuilder builder) where T : new()
         {
-            builder.Fallback(Controller.From<T>());
+            builder.Add(Controller.From<T>());
             return builder;
         }
 

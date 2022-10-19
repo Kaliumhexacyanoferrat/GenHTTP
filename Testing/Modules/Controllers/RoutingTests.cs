@@ -56,7 +56,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
             public IHandlerBuilder DoSomethingWithParent()
             {
-                return Redirect.To("{fallback}/test", true);
+                return Redirect.To("{layout}/test", true);
             }
 
             public IHandlerBuilder DoSomethingWithAppenders()
@@ -191,7 +191,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
         {
             var layout = Layout.Create()
                                .AddController<RouteController>("r")
-                               .Fallback(Content.From(Resource.FromString("Blubb")));
+                               .Add(Content.From(Resource.FromString("Blubb")));
 
             return TestRunner.Run(layout);
         }

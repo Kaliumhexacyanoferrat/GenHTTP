@@ -136,7 +136,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             return TestRunner.Run(content);
         }
 
-        private static LayoutBuilder GetContent() => Layout.Create().Fallback(Content.From(Resource.FromString("Hello World!")));
+        private static LayoutBuilder GetContent() => Layout.Create().Add(Content.From(Resource.FromString("Hello World!")));
 
     }
 

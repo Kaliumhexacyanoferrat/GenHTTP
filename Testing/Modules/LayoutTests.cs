@@ -40,13 +40,13 @@ namespace GenHTTP.Testing.Acceptance.Modules
         [TestMethod]
         public async Task TestDefaultContent()
         {
-            var layout = Layout.Create().Fallback(Content.From(Resource.FromString("Hello World!")));
+            var layout = Layout.Create().Add(Content.From(Resource.FromString("Hello World!")));
 
             using var runner = TestRunner.Run(layout);
 
             foreach (var path in new string[] { "/something", "/" })
             {
-                using var response = await runner.GetResponse("/somethingelse");
+                using var response = await runner.GetResponse(path);
 
                 Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
                 Assert.AreEqual("Hello World!", await response.GetContent());
