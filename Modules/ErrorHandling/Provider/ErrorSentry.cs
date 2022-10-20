@@ -3,15 +3,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.Pages;
 
 namespace GenHTTP.Modules.ErrorHandling.Provider
 {
 
-    public sealed class ErrorHandlingProvider : IConcern
+    public sealed class ErrorSentry<T> : IConcern where T : Exception
     {
 
         #region Get-/Setters
@@ -20,14 +17,18 @@ namespace GenHTTP.Modules.ErrorHandling.Provider
 
         public IHandler Parent { get; }
 
+        private IErrorMapper<T> ErrorHandler { get; }
+
         #endregion
 
         #region Initialization
 
-        public ErrorHandlingProvider(IHandler parent, Func<IHandler, IHandler> contentFactory)
+        public ErrorSentry(IHandler parent, Func<IHandler, IHandler> contentFactory, IErrorMapper<T> errorHandler)
         {
             Parent = parent;
             Content = contentFactory(this);
+
+            ErrorHandler = errorHandler;
         }
 
         #endregion
@@ -47,28 +48,14 @@ namespace GenHTTP.Modules.ErrorHandling.Provider
 
                 if (response is null)
                 {
-                    return Content.GetNotFound(request).Build();
+                    return await ErrorHandler.GetNotFound(request, Content);
                 }
 
                 return response;
             }
-            catch (ProviderException e)
+            catch (T e)
             {
-                var model = new ErrorModel(request, Content, e.Status, e.Message, e);
-
-                var details = ContentInfo.Create()
-                                         .Title(e.Status.ToString());
-
-                return this.GetError(model, details.Build()).Build();
-            }
-            catch (Exception e)
-            {
-                var model = new ErrorModel(request, Content, ResponseStatus.InternalServerError, "The server failed to handle this request.", e);
-
-                var details = ContentInfo.Create()
-                                         .Title("Internal Server Error");
-
-                return this.GetError(model, details.Build()).Build();
+                return await ErrorHandler.Map(request, Content, e);
             }
         }
 

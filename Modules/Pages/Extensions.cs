@@ -42,7 +42,7 @@ namespace GenHTTP.Modules.Pages
 
         public static IResponseBuilder GetError(this IHandler handler, ErrorModel model, ContentInfo details)
         {
-            var renderer = handler.FindParent<IErrorHandler>(model.Request.Server.Handler) ?? throw new InvalidOperationException("There is no error handler available in the routing tree");
+            var renderer = handler.FindParent<IErrorRenderer>(model.Request.Server.Handler) ?? throw new InvalidOperationException("There is no error handler available in the routing tree");
 
             var content = new RenderedContent<ErrorModel>(renderer, model, details);
 

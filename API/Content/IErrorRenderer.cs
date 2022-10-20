@@ -4,10 +4,10 @@ namespace GenHTTP.Api.Content
 {
 
     /// <summary>
-    /// Handlers implementing this interface will be queried to render
+    /// Classes implementing this interface will be queried to render
     /// errors that occur when handling requests.
     /// </summary>
-    public interface IErrorHandler : IRenderer<ErrorModel>
+    public interface IErrorRenderer : IRenderer<ErrorModel>
     {
 
     }
