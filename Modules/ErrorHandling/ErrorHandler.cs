@@ -15,7 +15,8 @@ namespace GenHTTP.Modules.ErrorHandling
         /// render error pages.
         /// </summary>
         /// <remarks>
-        /// By default, server errors will be rendered to HTML.
+        /// By default, server errors will be rendered into
+        /// a HTML template.
         /// </remarks>
         /// <returns>The default error handler</returns>
         public static ErrorSentryBuilder<Exception> Default() => Html();
