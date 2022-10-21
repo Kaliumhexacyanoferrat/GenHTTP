@@ -38,3 +38,5 @@ jobs:
     - name: End scan
       if: env.SONAR_TOKEN != null && env.SONAR_TOKEN != ''
       run: dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
+    - name: SonarQube Quality Gate Check
+      uses: SonarSource/sonarqube-quality-gate-action@v1.0.0
