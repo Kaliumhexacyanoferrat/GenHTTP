@@ -11,6 +11,7 @@ using System.Web;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Pages;
 
@@ -19,7 +20,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
     public sealed class ReverseProxyProvider : IHandler
     {
-        private static readonly HashSet<string> RESERVED_RESPONSE_HEADERS = new()
+        private static readonly HashSet<string> RESERVED_RESPONSE_HEADERS = new(StringComparer.OrdinalIgnoreCase)
         {
             "Server",
             "Date",
@@ -31,7 +32,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             "Keep-Alive"
         };
 
-        private static readonly HashSet<string> RESERVED_REQUEST_HEADERS = new()
+        private static readonly HashSet<string> RESERVED_REQUEST_HEADERS = new(StringComparer.OrdinalIgnoreCase)
         {
             "Host",
             "Connection",
@@ -59,7 +60,8 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             var handler = new SocketsHttpHandler
             {
                 AllowAutoRedirect = false,
-                AutomaticDecompression = DecompressionMethods.None
+                AutomaticDecompression = DecompressionMethods.None,
+                ConnectTimeout = connectTimeout
             };
 
             Client = new HttpClient(handler)
