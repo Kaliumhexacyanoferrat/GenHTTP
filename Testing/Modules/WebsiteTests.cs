@@ -65,7 +65,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var file = await runner.GetResponse("/blubb");
 
             Assert.AreEqual(HttpStatusCode.NotFound, file.StatusCode);
-            Assert.AreEqual("text/html; charset=utf-8", file.GetContentHeader("Content-Type"));
+            Assert.AreEqual("text/html; charset=UTF-8", file.GetContentHeader("Content-Type"));
 
             var content = await file.GetContent();
 
