@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
 
     <LangVersion>10.0</LangVersion>
     <Nullable>enable</Nullable>
