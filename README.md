@@ -1,6 +1,6 @@
 # GenHTTP Webserver
 
-GenHTTP is a lightweight web server written in pure C# with only a few dependencies to 3rd-party libraries. The main purpose of this project is to quickly create feature rich web applications and web services written in .NET 6, allowing developers to concentrate on the functionality rather than on messing around with configuration files, CSS or bundling JS files. Projects are mainly written in .NET, which allows C# developers to use their familiar toolset in web application development as well.
+GenHTTP is a lightweight web server written in pure C# with only a few dependencies to 3rd-party libraries. The main purpose of this project is to quickly create feature rich web applications and web services written in .NET 6/7, allowing developers to concentrate on the functionality rather than on messing around with configuration files, CSS or bundling JS files. Projects are mainly written in .NET, which allows C# developers to use their familiar toolset in web application development as well.
 
 As an example, the website of this project is hosted on a Raspberry Pi: [genhttp.org](https://genhttp.org/)
 
@@ -40,7 +40,7 @@ The [documentation](https://genhttp.org/documentation/) provides a step-by-step 
 
 ## Building the Server
 
-To build the server from source, clone this repository and run the playground project launcher for .NET 6:
+To build the server from source, clone this repository and run the playground project launcher for .NET 7:
 
 ```sh
 git clone https://github.com/Kaliumhexacyanoferrat/GenHTTP.git
@@ -66,4 +66,4 @@ The web server was originally developed in 2008 to run on a netbook with an Inte
 
 ## Thanks
 
-- [.NET 6](https://github.com/dotnet/core) for a nice platform
+- [.NET 7](https://github.com/dotnet/core) for a nice platform
