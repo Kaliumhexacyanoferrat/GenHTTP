@@ -13,7 +13,8 @@ namespace GenHTTP.Modules.Security
 
         public static IServerHost Harden(this IServerHost host,
                                          bool secureUpgrade = true,
-                                         bool strictTransport = true)
+                                         bool strictTransport = true,
+                                         bool preventSniffing = true)
         {
             if (secureUpgrade)
             {
@@ -23,6 +24,11 @@ namespace GenHTTP.Modules.Security
             if (strictTransport)
             {
                 host.StrictTransport(new StrictTransportPolicy(TimeSpan.FromDays(365), true, true));
+            }
+
+            if (preventSniffing)
+            {
+                host.PreventSniffing();
             }
 
             return host;
@@ -41,6 +47,12 @@ namespace GenHTTP.Modules.Security
         public static IServerHost StrictTransport(this IServerHost host, StrictTransportPolicy policy)
         {
             host.Add(new StrictTransportConcernBuilder().Policy(policy));
+            return host;
+        }
+
+        public static IServerHost PreventSniffing(this IServerHost host)
+        {
+            host.Add(new SnifferPreventionConcernBuilder());
             return host;
         }
 
