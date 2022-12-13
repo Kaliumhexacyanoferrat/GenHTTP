@@ -6,6 +6,8 @@ using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Providers;
+using GenHTTP.Modules.Reflection;
+using GenHTTP.Modules.Reflection.Injectors;
 
 namespace GenHTTP.Modules.Controllers.Provider
 {
@@ -14,6 +16,8 @@ namespace GenHTTP.Modules.Controllers.Provider
     {
         private IBuilder<SerializationRegistry>? _Formats;
 
+        private IBuilder<InjectionRegistry>? _Injection;
+
         private readonly List<IConcernBuilder> _Concerns = new();
 
         #region Functionality
@@ -21,6 +25,12 @@ namespace GenHTTP.Modules.Controllers.Provider
         public ControllerBuilder<T> Formats(IBuilder<SerializationRegistry> registry)
         {
             _Formats = registry;
+            return this;
+        }
+
+        public ControllerBuilder<T> Injectors(IBuilder<InjectionRegistry>? registry)
+        {
+            _Injection = registry;
             return this;
         }
 
@@ -34,7 +44,9 @@ namespace GenHTTP.Modules.Controllers.Provider
         {
             var formats = (_Formats ?? Serialization.Default()).Build();
 
-            return Concerns.Chain(parent, _Concerns, (p) => new ControllerHandler<T>(p, formats));
+            var injectors = (_Injection ?? Injection.Default()).Build();
+
+            return Concerns.Chain(parent, _Concerns, (p) => new ControllerHandler<T>(p, formats, injectors));
         }
 
         #endregion

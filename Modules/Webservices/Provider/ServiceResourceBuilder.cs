@@ -3,8 +3,11 @@ using System.Diagnostics.CodeAnalysis;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Providers;
+using GenHTTP.Modules.Reflection;
+using GenHTTP.Modules.Reflection.Injectors;
 
 namespace GenHTTP.Modules.Webservices.Provider
 {
@@ -14,6 +17,8 @@ namespace GenHTTP.Modules.Webservices.Provider
         private object? _Instance;
 
         private IBuilder<SerializationRegistry>? _Formats;
+
+        private IBuilder<InjectionRegistry>? _Injectors;
 
         private readonly List<IConcernBuilder> _Concerns = new();
 
@@ -33,6 +38,12 @@ namespace GenHTTP.Modules.Webservices.Provider
             return this;
         }
 
+        public ServiceResourceBuilder Injectors(IBuilder<InjectionRegistry> registry)
+        {
+            _Injectors = registry;
+            return this;
+        }
+
         public ServiceResourceBuilder Add(IConcernBuilder concern)
         {
             _Concerns.Add(concern);
@@ -43,9 +54,11 @@ namespace GenHTTP.Modules.Webservices.Provider
         {
             var formats = (_Formats ?? Serialization.Default()).Build();
 
+            var injectors = (_Injectors ?? Injection.Default()).Build();
+
             var instance = _Instance ?? throw new BuilderMissingPropertyException("instance");
 
-            return Concerns.Chain(parent, _Concerns, (p) => new ServiceResourceRouter(p, instance, formats));
+            return Concerns.Chain(parent, _Concerns, (p) => new ServiceResourceRouter(p, instance, formats, injectors));
         }
 
         #endregion

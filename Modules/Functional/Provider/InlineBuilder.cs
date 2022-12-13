@@ -8,6 +8,8 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Providers;
+using GenHTTP.Modules.Reflection.Injectors;
+using GenHTTP.Modules.Reflection;
 
 namespace GenHTTP.Modules.Functional.Provider
 {
@@ -22,6 +24,8 @@ namespace GenHTTP.Modules.Functional.Provider
 
         private IBuilder<SerializationRegistry>? _Formats;
 
+        private IBuilder<InjectionRegistry>? _Injectors;
+
         #region Functionality
 
         /// <summary>
@@ -32,6 +36,16 @@ namespace GenHTTP.Modules.Functional.Provider
         public InlineBuilder Formats(IBuilder<SerializationRegistry> registry)
         {
             _Formats = registry;
+            return this;
+        }
+
+        /// <summary>
+        /// Configures the injectors to be used to extract complex parameter values.
+        /// </summary>
+        /// <param name="registry">The registry to be used by the handler</param>
+        public InlineBuilder Injectors(IBuilder<InjectionRegistry> registry)
+        {
+            _Injectors = registry;
             return this;
         }
 
@@ -168,7 +182,9 @@ namespace GenHTTP.Modules.Functional.Provider
         {
             var formats = (_Formats ?? Serialization.Default()).Build();
 
-            return Concerns.Chain(parent, _Concerns, (p) => new InlineHandler(p, _Functions, formats));
+            var injectors = (_Injectors ?? Injection.Default()).Build();
+
+            return Concerns.Chain(parent, _Concerns, (p) => new InlineHandler(p, _Functions, formats, injectors));
         }
 
         #endregion
