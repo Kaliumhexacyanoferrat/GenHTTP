@@ -15,6 +15,7 @@ using GenHTTP.Api.Routing;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Providers;
 using GenHTTP.Modules.Conversion.Providers.Forms;
+using GenHTTP.Modules.Reflection.Injectors;
 
 using PooledAwait;
 
@@ -55,12 +56,14 @@ namespace GenHTTP.Modules.Reflection
 
         private SerializationRegistry Serialization { get; }
 
+        private InjectionRegistry Injection { get; }
+
         #endregion
 
         #region Initialization
 
         public MethodHandler(IHandler parent, MethodInfo method, MethodRouting routing, Func<object> instanceProvider, IMethodConfiguration metaData,
-            Func<IRequest, IHandler, object?, ValueTask<IResponse?>> responseProvider, SerializationRegistry serialization)
+            Func<IRequest, IHandler, object?, ValueTask<IResponse?>> responseProvider, SerializationRegistry serialization, InjectionRegistry injection)
         {
             Parent = parent;
 
@@ -68,6 +71,7 @@ namespace GenHTTP.Modules.Reflection
             Configuration = metaData;
             InstanceProvider = instanceProvider;
             Serialization = serialization;
+            Injection = injection;
 
             ResponseProvider = responseProvider;
 
@@ -121,32 +125,22 @@ namespace GenHTTP.Modules.Reflection
                 {
                     var par = targetParameters[i];
 
-                    // request
-                    if (par.ParameterType == typeof(IRequest))
-                    {
-                        targetArguments[i] = request;
-                        continue;
-                    }
+                    // try to provide via injector
+                    var injected = false;
 
-                    // handler
-                    if (par.ParameterType == typeof(IHandler))
+                    foreach (var injector in Injection)
                     {
-                        targetArguments[i] = this;
-                        continue;
-                    }
-
-                    // input stream
-                    if (par.ParameterType == typeof(Stream))
-                    {
-                        if (request.Content is null)
+                        if (injector.Supports(par.ParameterType))
                         {
-                            throw new ProviderException(ResponseStatus.BadRequest, "Request body expected");
+                            targetArguments[i] = injector.GetValue(this, request, par.ParameterType);
+                            
+                            injected = true;
+                            break;
                         }
-
-                        targetArguments[i] = request.Content;
-                        continue;
                     }
 
+                    if (injected) continue;
+                        
                     if ((par.Name is not null) && par.CheckSimple())
                     {
                         // is there a named parameter?
@@ -325,19 +319,21 @@ namespace GenHTTP.Modules.Reflection
             {
                 var par = targetParameters[i];
 
-                // request
-                if (par.ParameterType == typeof(IRequest))
+                // try injectors to provide value
+                var injected = false;
+
+                foreach (var injector in Injection)
                 {
-                    targetArguments[i] = request;
-                    continue;
+                    if (injector.Supports(par.ParameterType))
+                    {
+                        targetArguments[i] = injector.GetValue(this, request, par.ParameterType);
+
+                        injected = true;
+                        break;
+                    }
                 }
 
-                // handler
-                if (par.ParameterType == typeof(IHandler))
-                {
-                    targetArguments[i] = this;
-                    continue;
-                }
+                if (injected) continue;
 
                 // set from the given input set
                 if ((par.Name is not null) && input.TryGetValue(par.Name, out var value))

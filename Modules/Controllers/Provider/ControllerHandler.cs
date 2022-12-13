@@ -12,6 +12,7 @@ using GenHTTP.Api.Routing;
 
 using GenHTTP.Modules.Conversion.Providers;
 using GenHTTP.Modules.Reflection;
+using GenHTTP.Modules.Reflection.Injectors;
 
 namespace GenHTTP.Modules.Controllers.Provider
 {
@@ -32,16 +33,16 @@ namespace GenHTTP.Modules.Controllers.Provider
 
         #region Initialization
 
-        public ControllerHandler(IHandler parent, SerializationRegistry formats)
+        public ControllerHandler(IHandler parent, SerializationRegistry formats, InjectionRegistry injection)
         {
             Parent = parent;
 
             ResponseProvider = new(null);
 
-            Provider = new(this, AnalyzeMethods(typeof(T), formats));
+            Provider = new(this, AnalyzeMethods(typeof(T), formats, injection));
         }
 
-        private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, SerializationRegistry formats)
+        private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, SerializationRegistry formats, InjectionRegistry injection)
         {
             foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
             {
@@ -51,7 +52,7 @@ namespace GenHTTP.Modules.Controllers.Provider
 
                 var path = DeterminePath(method, arguments);
 
-                yield return (parent) => new MethodHandler(parent, method, path, () => new T(), annotation, ResponseProvider.GetResponse, formats);
+                yield return (parent) => new MethodHandler(parent, method, path, () => new T(), annotation, ResponseProvider.GetResponse, formats, injection);
             }
         }
 

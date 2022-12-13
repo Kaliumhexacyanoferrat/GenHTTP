@@ -8,6 +8,7 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Conversion.Providers;
 using GenHTTP.Modules.Reflection;
+using GenHTTP.Modules.Reflection.Injectors;
 
 namespace GenHTTP.Modules.Webservices.Provider
 {
@@ -21,8 +22,6 @@ namespace GenHTTP.Modules.Webservices.Provider
 
         public IHandler Parent { get; }
 
-        public SerializationRegistry Serialization { get; }
-
         public ResponseProvider ResponseProvider { get; }
 
         public object Instance { get; }
@@ -31,19 +30,18 @@ namespace GenHTTP.Modules.Webservices.Provider
 
         #region Initialization
 
-        public ServiceResourceRouter(IHandler parent, object instance, SerializationRegistry formats)
+        public ServiceResourceRouter(IHandler parent, object instance, SerializationRegistry serialization, InjectionRegistry injection)
         {
             Parent = parent;
 
             Instance = instance;
-            Serialization = formats;
 
-            ResponseProvider = new(formats);
+            ResponseProvider = new(serialization);
 
-            Methods = new(this, AnalyzeMethods(instance.GetType()));
+            Methods = new(this, AnalyzeMethods(instance.GetType(), serialization, injection));
         }
 
-        private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type)
+        private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, SerializationRegistry serialization, InjectionRegistry injection)
         {
             foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
             {
@@ -53,7 +51,7 @@ namespace GenHTTP.Modules.Webservices.Provider
                 {
                     var path = PathArguments.Route(attribute.Path);
 
-                    yield return (parent) => new MethodHandler(parent, method, path, () => Instance, attribute, ResponseProvider.GetResponse, Serialization);
+                    yield return (parent) => new MethodHandler(parent, method, path, () => Instance, attribute, ResponseProvider.GetResponse, serialization, injection);
                 }
             }
         }

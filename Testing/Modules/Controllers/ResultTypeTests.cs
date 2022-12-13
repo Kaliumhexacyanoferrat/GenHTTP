@@ -9,6 +9,8 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Conversion;
+using GenHTTP.Modules.Reflection;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 {
@@ -96,9 +98,13 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
         #region Helpers
 
-        private TestRunner GetRunner()
+        private static TestRunner GetRunner()
         {
-            return TestRunner.Run(Layout.Create().AddController<TestController>("t"));
+            var controller = Controller.From<TestController>()
+                                       .Formats(Serialization.Default())
+                                       .Injectors(Injection.Default());
+
+            return TestRunner.Run(Layout.Create().Add("t", controller));
         }
 
         #endregion

@@ -7,6 +7,7 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Conversion.Providers;
 using GenHTTP.Modules.Reflection;
+using GenHTTP.Modules.Reflection.Injectors;
 
 namespace GenHTTP.Modules.Functional.Provider
 {
@@ -26,16 +27,16 @@ namespace GenHTTP.Modules.Functional.Provider
 
         #region Initialization
 
-        public InlineHandler(IHandler parent, List<InlineFunction> functions, SerializationRegistry formats)
+        public InlineHandler(IHandler parent, List<InlineFunction> functions, SerializationRegistry formats, InjectionRegistry injection)
         {
             Parent = parent;
 
             ResponseProvider = new(formats);
 
-            Methods = new(this, AnalyzeMethods(functions, formats));
+            Methods = new(this, AnalyzeMethods(functions, formats, injection));
         }
 
-        private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(List<InlineFunction> functions, SerializationRegistry formats)
+        private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(List<InlineFunction> functions, SerializationRegistry formats, InjectionRegistry injection)
         {
             foreach (var function in functions)
             {
@@ -43,7 +44,7 @@ namespace GenHTTP.Modules.Functional.Provider
 
                 var target = function.Delegate.Target ?? throw new InvalidOperationException("Delegate target must not be null");
 
-                yield return (parent) => new MethodHandler(parent, function.Delegate.Method, path, () => target, function.Configuration, ResponseProvider.GetResponse, formats);
+                yield return (parent) => new MethodHandler(parent, function.Delegate.Method, path, () => target, function.Configuration, ResponseProvider.GetResponse, formats, injection);
             }
         }
 
