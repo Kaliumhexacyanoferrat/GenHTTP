@@ -15,6 +15,8 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Webservices;
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Conversion;
+using GenHTTP.Modules.Reflection;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Webservices
 {
@@ -297,9 +299,13 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
             await logic(response);
         }
 
-        private TestRunner GetService()
+        private static TestRunner GetService()
         {
-            return TestRunner.Run(Layout.Create().AddService<TestResource>("t"));
+            var service = ServiceResource.From<TestResource>()
+                                         .Formats(Serialization.Default())
+                                         .Injectors(Injection.Default());
+
+            return TestRunner.Run(Layout.Create().Add("t", service));
         }
 
         #endregion
