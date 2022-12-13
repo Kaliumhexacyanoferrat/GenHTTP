@@ -12,13 +12,13 @@ namespace GenHTTP.Testing.Acceptance
     public static class AssertX
     {
 
-        public static void Contains(string searchFor, string content) => Assert.IsTrue(content.Contains(searchFor));
+        public static void Contains(string searchFor, string? content) => Assert.IsTrue(content?.Contains(searchFor) ?? false);
 
-        public static void DoesNotContain(string searchFor, string content) => Assert.IsFalse(content.Contains(searchFor));
+        public static void DoesNotContain(string searchFor, string? content) => Assert.IsFalse(content?.Contains(searchFor) ?? false);
 
-        public static void StartsWith(string searchFor, string content) => Assert.IsTrue(content.StartsWith(searchFor));
+        public static void StartsWith(string searchFor, string? content) => Assert.IsTrue(content?.StartsWith(searchFor) ?? false);
 
-        public static void EndsWith(string searchFor, string content) => Assert.IsTrue(content.EndsWith(searchFor));
+        public static void EndsWith(string searchFor, string? content) => Assert.IsTrue(content?.EndsWith(searchFor) ?? false);
 
         public static void Single<T>(IEnumerable<T> collection) => Assert.IsTrue(collection.Count() == 1);
 
