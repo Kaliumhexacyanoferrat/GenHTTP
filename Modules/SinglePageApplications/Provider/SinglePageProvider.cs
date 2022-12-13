@@ -28,15 +28,18 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
 
         private IHandler Resources { get; }
 
+        private bool ServerSideRouting { get; }
+
         #endregion
 
         #region Initialization
 
-        public SinglePageProvider(IHandler parent, IResourceTree tree)
+        public SinglePageProvider(IHandler parent, IResourceTree tree, bool serverSideRouting)
         {
             Parent = parent;
 
             Tree = tree;
+            ServerSideRouting = serverSideRouting;
 
             Resources = IO.Resources.From(tree)
                                     .Build(this);
@@ -57,16 +60,28 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
 
         #region Functionality
 
-        public ValueTask<IResponse?> HandleAsync(IRequest request)
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             if (request.Target.Ended)
             {
-                return Index?.HandleAsync(request) ?? new ValueTask<IResponse?>();
+                if (Index != null)
+                {
+                    return await Index.HandleAsync(request);
+                }
             }
             else
             {
-                return Resources.HandleAsync(request);
+                var result = await Resources.HandleAsync(request);
+
+                if ((result == null) && (Index != null) && ServerSideRouting)
+                {
+                    return await Index.HandleAsync(request);
+                }
+
+                return result;
             }
+
+            return null;
         }
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
