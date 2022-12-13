@@ -38,6 +38,24 @@ namespace GenHTTP.Testing.Acceptance.Providers
         }
 
         [TestMethod]
+        public async Task TestIndexServedWithRouting()
+        {
+            var root = CreateRoot();
+
+            FileUtil.WriteText(Path.Combine(root, "index.html"), "This is the index!");
+
+            var spa = SinglePageApplication.From(ResourceTree.FromDirectory(root))
+                                           .ServerSideRouting();
+
+            using var runner = TestRunner.Run(spa);
+
+            using var index = await runner.GetResponse("/some-route/");
+
+            Assert.AreEqual(HttpStatusCode.OK, index.StatusCode);
+            Assert.AreEqual("text/html", index.GetContentHeader("Content-Type"));
+        }
+
+        [TestMethod]
         public async Task TestNoIndex()
         {
             using var runner = TestRunner.Run(SinglePageApplication.From(ResourceTree.FromDirectory(CreateRoot())));
