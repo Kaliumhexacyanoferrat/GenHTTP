@@ -125,9 +125,9 @@ namespace GenHTTP.Modules.Basics
             {
                 extension = extension[1..].ToLower();
 
-                if (CONTENT_TYPES.ContainsKey(extension))
+                if (CONTENT_TYPES.TryGetValue(extension, out var value))
                 {
-                    return CONTENT_TYPES[extension];
+                    return value;
                 }
             }
 
