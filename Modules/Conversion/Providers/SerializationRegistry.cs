@@ -56,7 +56,12 @@ namespace GenHTTP.Modules.Conversion.Providers
 
         private ISerializationFormat? GetFormat(FlexibleContentType contentType)
         {
-            return Formats.ContainsKey(contentType) ? Formats[contentType] : null;
+            if (Formats.TryGetValue(contentType, out var format))
+            {
+                return format;
+            }
+
+            return null;
         }
 
         #endregion

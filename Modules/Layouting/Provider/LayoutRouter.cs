@@ -52,11 +52,11 @@ namespace GenHTTP.Modules.Layouting.Provider
 
             if (current is not null)
             {
-                if (RoutedHandlers.ContainsKey(current.Value))
+                if (RoutedHandlers.TryGetValue(current.Value, out var handler))
                 {
                     request.Target.Advance();
 
-                    return await RoutedHandlers[current.Value].HandleAsync(request);
+                    return await handler.HandleAsync(request).ConfigureAwait(false);
                 }
             }
             else
@@ -152,9 +152,9 @@ namespace GenHTTP.Modules.Layouting.Provider
 
         public IHandler? Find(string segment)
         {
-            if (RoutedHandlers.ContainsKey(segment))
+            if (RoutedHandlers.TryGetValue(segment, out var handler))
             {
-                return RoutedHandlers[segment];
+                return handler;
             }
 
             if (Index is not null && segment == "{index}")

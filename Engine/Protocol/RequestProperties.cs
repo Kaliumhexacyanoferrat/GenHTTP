@@ -20,7 +20,14 @@ namespace GenHTTP.Engine.Protocol
         {
             get
             {
-                return (Data.ContainsKey(key)) ? Data[key] : throw new KeyNotFoundException($"Key '{key}' does not exist in request properties");
+                if (Data.TryGetValue(key, out var value))
+                {
+                    return value;
+                }
+                else
+                {
+                    throw new KeyNotFoundException($"Key '{key}' does not exist in request properties");
+                }
             }
             set 
             {
