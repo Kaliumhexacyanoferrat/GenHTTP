@@ -213,7 +213,7 @@ namespace GenHTTP.Modules.Reflection
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public IEnumerable<ContentElement> GetContent(IRequest request)
+        public async IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
         {
             if (!Configuration.IgnoreContent)
             {
@@ -223,7 +223,7 @@ namespace GenHTTP.Modules.Reflection
                     {
                         if (TryGetHandler(request, hint, out var handler))
                         {
-                            foreach (var content in handler.GetContent(request))
+                            await foreach (var content in handler.GetContentAsync(request))
                             {
                                 yield return content;
                             }

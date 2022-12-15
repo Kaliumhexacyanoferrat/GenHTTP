@@ -57,9 +57,9 @@ namespace GenHTTP.Modules.VirtualHosting.Provider
             return GetRouter(request)?.HandleAsync(request) ?? new ValueTask<IResponse?>();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request)
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
         {
-            return GetRouter(request)?.GetContent(request) ?? new List<ContentElement>();
+            return GetRouter(request)?.GetContentAsync(request) ?? AsyncEnumerable.Empty<ContentElement>();
         }
 
         private IHandler? GetRouter(IRequest request)

@@ -65,7 +65,7 @@ namespace GenHTTP.Modules.Pages.Rendering
 
         public ValueTask PrepareAsync() => Renderer.PrepareAsync();
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, PageInfo, ContentType.TextHtml);
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => this.GetContent(request, PageInfo, ContentType.TextHtml);
 
         #endregion
 

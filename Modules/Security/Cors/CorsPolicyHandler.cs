@@ -45,7 +45,7 @@ namespace GenHTTP.Modules.Security.Cors
 
         public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => Content.GetContent(request);
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Content.GetContentAsync(request);
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {

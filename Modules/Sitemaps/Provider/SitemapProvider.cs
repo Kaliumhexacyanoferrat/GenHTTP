@@ -36,23 +36,25 @@ namespace GenHTTP.Modules.Sitemaps.Provider
             Parent = parent;
         }
 
-        public ValueTask<IResponse?> HandleAsync(IRequest request)
+        #endregion
+
+        #region Functionality
+
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var baseUri = $"{request.Client.Protocol?.ToString().ToLower() ?? "http"}://{request.Host}";
 
             var elements = new List<ContentElement>();
 
-            foreach (var element in Parent.GetContent(request))
+            await foreach (var element in Parent.GetContentAsync(request))
             {
                 Flatten(element, elements);
             }
 
-            var response = request.Respond()
-                                  .Content(new SitemapContent(baseUri, elements))
-                                  .Type(ContentType.TextXml)
-                                  .Build();
-
-            return new ValueTask<IResponse?>(response);
+            return request.Respond()
+                          .Content(new SitemapContent(baseUri, elements))
+                          .Type(ContentType.TextXml)
+                          .Build();
         }
 
         private void Flatten(ContentElement item, List<ContentElement> into)
@@ -73,7 +75,7 @@ namespace GenHTTP.Modules.Sitemaps.Provider
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Info, ContentType.TextXml);
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => this.GetContent(request, Info, ContentType.TextXml);
 
         #endregion
 

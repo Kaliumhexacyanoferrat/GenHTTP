@@ -10,7 +10,7 @@ namespace GenHTTP.Testing.Acceptance.Utilities
 
     public sealed class FunctionalHandler : IHandler
     {
-        private readonly Func<IRequest, IEnumerable<ContentElement>>? _ContentProvider;
+        private readonly Func<IRequest, IAsyncEnumerable<ContentElement>>? _ContentProvider;
 
         private readonly Func<IRequest, IResponse?>? _ResponseProvider;
 
@@ -28,7 +28,7 @@ namespace GenHTTP.Testing.Acceptance.Utilities
 
         #region Initialization
 
-        public FunctionalHandler(Func<IRequest, IEnumerable<ContentElement>>? contentProvider = null, Func<IRequest, IResponse?>? responseProvider = null)
+        public FunctionalHandler(Func<IRequest, IAsyncEnumerable<ContentElement>>? contentProvider = null, Func<IRequest, IResponse?>? responseProvider = null)
         {
             _ContentProvider = contentProvider;
             _ResponseProvider = responseProvider;
@@ -40,7 +40,7 @@ namespace GenHTTP.Testing.Acceptance.Utilities
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => (_ContentProvider is not null) ? _ContentProvider(request) : Enumerable.Empty<ContentElement>();
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => (_ContentProvider is not null) ? _ContentProvider(request) : AsyncEnumerable.Empty<ContentElement>();
 
         public ValueTask<IResponse?> HandleAsync(IRequest request) => new((_ResponseProvider is not null) ? _ResponseProvider(request) : null);
 

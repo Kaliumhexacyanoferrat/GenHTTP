@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content.IO;
 
@@ -30,7 +31,9 @@ namespace GenHTTP.Modules.IO.FileSystem
 
         #region Functionality
 
-        public IEnumerable<IResourceNode> GetNodes()
+        public IAsyncEnumerable<IResourceNode> GetNodes() => GetNodesInternal().ToAsyncEnumerable();
+
+        private IEnumerable<IResourceNode> GetNodesInternal()
         {
             foreach (var directory in Directory.EnumerateDirectories())
             {
@@ -38,16 +41,17 @@ namespace GenHTTP.Modules.IO.FileSystem
             }
         }
 
-        public IEnumerable<IResource> GetResources()
+        public IAsyncEnumerable<IResource> GetResources() => GetResourcesInternal().ToAsyncEnumerable();
+
+        public IEnumerable<IResource> GetResourcesInternal()
         {
             foreach (var file in Directory.EnumerateFiles())
             {
-                yield return Resource.FromFile(file)
-                                     .Build();
+                yield return Resource.FromFile(file).Build();
             }
         }
 
-        public bool TryGetNode(string name, [MaybeNullWhen(returnValue: false)] out IResourceNode node)
+        public ValueTask<IResourceNode?> TryGetNodeAsync(string name)
         {
             var path = Path.Combine(Directory.FullName, name);
 
@@ -55,15 +59,13 @@ namespace GenHTTP.Modules.IO.FileSystem
 
             if (directory.Exists)
             {
-                node = new DirectoryNode(directory, this);
-                return true;
+                return new(new DirectoryNode(directory, this));
             }
 
-            node = default;
-            return false;
+            return new();
         }
 
-        public bool TryGetResource(string name, [MaybeNullWhen(returnValue: false)] out IResource resource)
+        public ValueTask<IResource?> TryGetResourceAsync(string name)
         {
             var path = Path.Combine(Directory.FullName, name);
 
@@ -71,14 +73,10 @@ namespace GenHTTP.Modules.IO.FileSystem
 
             if (file.Exists)
             {
-                resource = Resource.FromFile(file)
-                               .Build();
-
-                return true;
+                return new(Resource.FromFile(file).Build());
             }
 
-            resource = default;
-            return false;
+            return new();
         }
 
         #endregion

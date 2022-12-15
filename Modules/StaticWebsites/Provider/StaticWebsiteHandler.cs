@@ -58,49 +58,51 @@ namespace GenHTTP.Modules.StaticWebsites.Provider
 
         #region Functionality
 
-        public ValueTask<IResponse?> HandleAsync(IRequest request)
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             if (request.Target.Path.TrailingSlash)
             {
-                var (node, _) = Tree.Find(request.Target);
+                var (node, _) = await Tree.Find(request.Target).ConfigureAwait(false);
 
                 if (node != null)
                 {
                     foreach (var indexFile in INDEX_FILES)
                     {
-                        if (node.TryGetResource(indexFile, out var file))
+                        IResource? file;
+
+                        if ((file = await node.TryGetResourceAsync(indexFile)) != null)
                         {
-                            return Content.From(file)
-                                          .Build(this)
-                                          .HandleAsync(request);
+                            return await Content.From(file)
+                                                .Build(this)
+                                                .HandleAsync(request);
                         }
                     }
                 }
 
-                return new ValueTask<IResponse?>();
+                return null;
             }
             else
             {
-                if ((Sitemap != null) && ServeInternal(request.Target, Sitemaps.Sitemap.FILE_NAME))
+                if ((Sitemap != null) && await ServeInternal(request.Target, Sitemaps.Sitemap.FILE_NAME))
                 {
-                    return Sitemap.HandleAsync(request);
+                    return await Sitemap.HandleAsync(request);
                 }
 
-                if ((Robots != null) && ServeInternal(request.Target, BotInstructions.FILE_NAME))
+                if ((Robots != null) && await ServeInternal(request.Target, BotInstructions.FILE_NAME))
                 {
-                    return Robots.HandleAsync(request);
+                    return await Robots.HandleAsync(request);
                 }
 
-                return Resources.HandleAsync(request);
+                return await Resources.HandleAsync(request);
             }
         }
 
-        private bool ServeInternal(RoutingTarget target, string fileName)
+        private async ValueTask<bool> ServeInternal(RoutingTarget target, string fileName)
         {
             if (target.Last && target.Current?.Value == fileName)
             {
                 // do not serve the file if it explicitly exists in the tree
-                var (_, file) = Tree.Find(target);
+                var (_, file) = await Tree.Find(target);
 
                 return (file == null);
             }
@@ -108,16 +110,19 @@ namespace GenHTTP.Modules.StaticWebsites.Provider
             return false;
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request)
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
         {
-            return Tree.GetContent(request, this, (node, path, children) =>
+            return Tree.GetContent(request, this, async (node, path, children) =>
             {
-                if (INDEX_FILES.Any(file => node.TryGetResource(file, out var _)))
+                foreach (var indexFile in INDEX_FILES)
                 {
-                    return new ContentElement(path, new ContentInfo($"Index of {path}", null), ContentType.TextHtml, children);
+                    if (await node.TryGetResourceAsync(indexFile) != null)
+                    {
+                        return new ContentElement(path, new ContentInfo($"Index of {path}", null), ContentType.TextHtml, children.ToEnumerable());
+                    }
                 }
 
-                return new ContentElement(path, ContentInfo.Empty, ContentType.ApplicationForceDownload, children);
+                return new ContentElement(path, ContentInfo.Empty, ContentType.ApplicationForceDownload, children.ToEnumerable());
             });
         }
 

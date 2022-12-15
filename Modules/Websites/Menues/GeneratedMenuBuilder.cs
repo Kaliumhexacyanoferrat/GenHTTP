@@ -11,11 +11,11 @@ namespace GenHTTP.Modules.Websites.Menues
 
     public sealed class GeneratedMenuBuilder : IBuilder<IMenuProvider>
     {
-        private Func<IRequest, IHandler, IEnumerable<ContentElement>>? _Provider;
+        private Func<IRequest, IHandler, IAsyncEnumerable<ContentElement>>? _Provider;
 
         #region Functionality
 
-        public GeneratedMenuBuilder Provider(Func<IRequest, IHandler, IEnumerable<ContentElement>> provider)
+        public GeneratedMenuBuilder Provider(Func<IRequest, IHandler, IAsyncEnumerable<ContentElement>> provider)
         {
             _Provider = provider;
             return this;

@@ -22,7 +22,6 @@ namespace GenHTTP.Modules.Pages.Combined
 
         #endregion
 
-
         #region Initialization
 
         public CombinedPageProvider(IHandler parent, ContentInfo contentInfo, List<PageFragment> fragments)
@@ -45,7 +44,7 @@ namespace GenHTTP.Modules.Pages.Combined
             }
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, ContentInfo, ContentType.TextHtml);
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => this.GetContent(request, ContentInfo, ContentType.TextHtml);
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {

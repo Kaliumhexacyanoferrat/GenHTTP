@@ -39,13 +39,13 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
                 hash = hash * 23 + (uint)(HasParent ? 1 : 0);
 
-                foreach (var node in Container.GetNodes())
+                await foreach (var node in Container.GetNodes())
                 {
                     hash = hash * 23 + (uint)node.Name.GetHashCode();
                     hash = hash * 23 + (uint)(node.Modified?.GetHashCode() ?? 0);
                 }
 
-                foreach (var resource in Container.GetResources())
+                await foreach (var resource in Container.GetResources())
                 {
                     hash = hash * 23 + await resource.CalculateChecksumAsync();
                 }

@@ -1,4 +1,6 @@
-﻿using GenHTTP.Api.Content.IO;
+﻿using System.Threading.Tasks;
+
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Routing;
 
 using GenHTTP.Modules.IO;
@@ -13,7 +15,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
     {
 
         [TestMethod]
-        public void TestNestedTree()
+        public async Task TestNestedTree()
         {
             var tree = ResourceTree.FromAssembly("Resources");
 
@@ -21,7 +23,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
                                   .Add("r", tree)
                                   .Build();
 
-            var (node, file) = virt.Find(GetTarget("/r/File.txt"));
+            var (node, file) = await virt.Find(GetTarget("/r/File.txt"));
 
             Assert.IsNotNull(node);
             Assert.IsNotNull(file);
@@ -32,13 +34,13 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         }
 
         [TestMethod]
-        public void TestResource()
+        public async Task TestResource()
         {
             var virt = VirtualTree.Create()
                                   .Add("res.txt", Resource.FromString("Blubb"))
                                   .Build();
 
-            var (node, file) = virt.Find(GetTarget("/res.txt"));
+            var (node, file) = await virt.Find(GetTarget("/res.txt"));
 
             Assert.IsNotNull(node);
             Assert.IsNotNull(file);

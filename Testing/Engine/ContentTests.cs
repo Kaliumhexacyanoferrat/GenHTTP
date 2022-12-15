@@ -42,12 +42,12 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-            public IEnumerable<ContentElement> GetContent(IRequest request) => Content.GetContent(request);
+            public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Content.GetContentAsync(request);
 
             public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 var response = request.Respond()
-                              .Content(new JsonContent(Content.GetContent(request), new JsonSerializerOptions()))
+                              .Content(new JsonContent(Content.GetContentAsync(request), new JsonSerializerOptions()))
                               .Type(ContentType.ApplicationJson)
                               .Build();
 

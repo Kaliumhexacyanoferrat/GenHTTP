@@ -37,7 +37,7 @@ namespace GenHTTP.Api.Content
         /// </summary>
         /// <param name="request">The request to be respected when describing the content</param>
         /// <returns>The content provided by this handler</returns>
-        IEnumerable<ContentElement> GetContent(IRequest request);
+        IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request);
 
         /// <summary>
         /// Handles the given request and returns a response, if applicable.

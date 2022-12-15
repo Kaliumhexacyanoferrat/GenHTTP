@@ -86,7 +86,7 @@ namespace GenHTTP.Modules.Websites.Resources
             return new ValueTask<IResponse?>();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request)
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
         {
             var path = this.GetRoot(request, false);
 
@@ -101,7 +101,7 @@ namespace GenHTTP.Modules.Websites.Resources
                                       .Build();
 
                 return new ContentElement(childPath, info, ContentType.TextCss, null);
-            });
+            }).ToAsyncEnumerable();
         }
 
         public ValueTask PrepareAsync() => Bundle.PrepareAsync();

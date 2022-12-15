@@ -60,7 +60,7 @@ namespace GenHTTP.Modules.IO.Providers
                           .BuildTask();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => this.GetContent(request, Info, ContentType);
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => this.GetContent(request, Info, ContentType);
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 

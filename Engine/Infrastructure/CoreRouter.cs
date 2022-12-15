@@ -76,7 +76,7 @@ namespace GenHTTP.Engine.Infrastructure
 
         ValueTask<ulong> IRenderer<TemplateModel>.CalculateChecksumAsync() => Template.CalculateChecksumAsync();
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => Content.GetContent(request);
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Content.GetContentAsync(request);
 
         public ValueTask<string> RenderAsync(ErrorModel model) => ErrorRenderer.RenderAsync(model);
         

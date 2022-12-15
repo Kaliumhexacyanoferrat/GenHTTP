@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Websites;
@@ -27,7 +28,7 @@ namespace GenHTTP.Modules.Websites.Menues
 
         #region Functionality
 
-        public List<ContentElement> GetMenu(IRequest request, IHandler handler) => Menu;
+        public ValueTask<List<ContentElement>> GetMenuAsync(IRequest request, IHandler handler) => new(Menu);
 
         #endregion
 

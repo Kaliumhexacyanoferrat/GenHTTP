@@ -66,7 +66,7 @@ namespace GenHTTP.Modules.Authentication.ApiKey
                           .Build();
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => Content.GetContent(request);
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Content.GetContentAsync(request);
 
         public ValueTask PrepareAsync() => Content.PrepareAsync();
 
