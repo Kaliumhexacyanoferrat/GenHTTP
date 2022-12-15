@@ -35,7 +35,7 @@ namespace GenHTTP.Modules.IO.Ranges
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => Content.GetContent(request);
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Content.GetContentAsync(request);
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {

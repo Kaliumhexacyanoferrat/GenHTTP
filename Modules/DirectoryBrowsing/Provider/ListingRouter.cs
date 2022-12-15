@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
@@ -35,31 +36,29 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var (node, resource) = Tree.Find(request.Target);
+            var (node, resource) = await Tree.Find(request.Target).ConfigureAwait(false);
 
             if (resource is not null)
             {
                 return await Content.From(resource)
                                     .Build(this)
-                                    .HandleAsync(request)
-                                    .ConfigureAwait(false);
+                                    .HandleAsync(request);
             }
             else if (node is not null)
             {
-                return await new ListingProvider(this, node).HandleAsync(request)
-                                                            .ConfigureAwait(false);
+                return await new ListingProvider(this, node).HandleAsync(request);
             }
 
             return null;
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request)
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
         {
             return Tree.GetContent(request, this, (_, path, children) =>
             {
                 var info = new ContentInfo($"Index of {path}", null);
 
-                return new ContentElement(path, info, ContentType.TextHtml, children);
+                return new(new ContentElement(path, info, ContentType.TextHtml, children.ToEnumerable()));
             });
         }
         

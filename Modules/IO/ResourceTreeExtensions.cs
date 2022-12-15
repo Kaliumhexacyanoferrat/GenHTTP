@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
@@ -21,19 +22,23 @@ namespace GenHTTP.Modules.IO
         /// <param name="node">The node used to resolve the target</param>
         /// <param name="target">The target to be resolved</param>
         /// <returns>A tuple of the node and resource resolved from the container (or both null, if they could not be resolved)</returns>
-        public static (IResourceContainer? node, IResource? resource) Find(this IResourceContainer node, RoutingTarget target)
+        public async static ValueTask<(IResourceContainer? node, IResource? resource)> Find(this IResourceContainer node, RoutingTarget target)
         {
             var current = target.Current;
 
             if (current is not null)
             {
+                IResourceNode? childNode;
+
                 if (target.Last)
                 {
-                    if (node.TryGetResource(current.Value, out var resource))
+                    IResource? resource;
+
+                    if ((resource = await node.TryGetResourceAsync(current.Value)) != null)
                     {
                         return (node, resource);
                     }
-                    else if (node.TryGetNode(current.Value, out var childNode))
+                    else if ((childNode = await node.TryGetNodeAsync(current.Value)) != null)
                     {
                         return (childNode, null);
                     }
@@ -42,15 +47,15 @@ namespace GenHTTP.Modules.IO
                 }
                 else
                 {
-                    if (node.TryGetNode(current.Value, out var childNode))
+                    if ((childNode = await node.TryGetNodeAsync(current.Value)) != null)
                     {
                         target.Advance();
-                        return childNode.Find(target);
+                        return await childNode.Find(target);
                     }
                 }
             }
 
-            return (node, null);
+            return new(node, null);
         }
 
         /// <summary>
@@ -60,11 +65,11 @@ namespace GenHTTP.Modules.IO
         /// <param name="request">The currently executed request</param>
         /// <param name="handler">The handler which provides the content</param>
         /// <returns>The content discovered from the given node</returns>
-        public static IEnumerable<ContentElement> GetContent(this IResourceContainer node, IRequest request, IHandler handler)
+        public static IAsyncEnumerable<ContentElement> GetContent(this IResourceContainer node, IRequest request, IHandler handler)
         {
-            return node.GetContent(request, handler, (_, path, children) =>
+            return node.GetContent(request, handler, async (_, path, children) =>
             {
-                return new ContentElement(path, ContentInfo.Empty, ContentType.ApplicationForceDownload, children);
+                return new ContentElement(path, ContentInfo.Empty, ContentType.ApplicationForceDownload, await children.ToEnumerableAsync());
             });
         }
 
@@ -76,20 +81,20 @@ namespace GenHTTP.Modules.IO
         /// <param name="handler">The handler which provides the content</param>
         /// <param name="indexProvider">A function to provide additional information about the content provided when nodes are requested</param>
         /// <returns>The content discovered from the given node</returns>
-        public static IEnumerable<ContentElement> GetContent(this IResourceContainer node, IRequest request, IHandler handler, Func<IResourceContainer, WebPath, IEnumerable<ContentElement>, ContentElement> indexProvider)
+        public static async IAsyncEnumerable<ContentElement> GetContent(this IResourceContainer node, IRequest request, IHandler handler, Func<IResourceContainer, WebPath, IAsyncEnumerable<ContentElement>, ValueTask<ContentElement>> indexProvider)
         {
             var path = node.GetPath(request, handler);
 
-            foreach (var childNode in node.GetNodes())
+            await foreach (var childNode in node.GetNodes())
             {
                 var nodePath = path.Edit(false)
                                    .Append(childNode.Name)
                                    .Build();
 
-                yield return indexProvider(node, nodePath, childNode.GetContent(request, handler, indexProvider));
+                yield return await indexProvider(node, nodePath, childNode.GetContent(request, handler, indexProvider));
             }
 
-            foreach (var resource in node.GetResources())
+            await foreach (var resource in node.GetResources())
             {
                 var name = resource.Name;
 
@@ -137,6 +142,18 @@ namespace GenHTTP.Modules.IO
             }
 
             return path.Build();
+        }
+
+        private static async ValueTask<IEnumerable<T>> ToEnumerableAsync<T>(this IAsyncEnumerable<T> enumeration)
+        {
+            var result = new List<T>();
+
+            await foreach (var element in enumeration)
+            {
+                result.Add(element);
+            }
+
+            return result;
         }
 
     }

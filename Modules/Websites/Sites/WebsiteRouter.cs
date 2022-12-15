@@ -80,7 +80,7 @@ namespace GenHTTP.Modules.Websites.Sites
 
             Theme = theme;
 
-            Menu = menu ?? Websites.Menu.Create((r, _) => GetContent(r)).Build();
+            Menu = menu ?? Websites.Menu.Create((r, _) => GetContentAsync(r)).Build();
 
             var scriptRouter = (ScriptRouter)scripts.Build(this);
             var styleRouter = (StyleRouter)styles.Build(this);
@@ -110,7 +110,7 @@ namespace GenHTTP.Modules.Websites.Sites
 
         public ValueTask<IResponse?> HandleAsync(IRequest request) => Handler.HandleAsync(request);
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => Handler.GetContent(request);
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Handler.GetContentAsync(request);
 
         public async ValueTask<string> RenderAsync(ErrorModel model)
         {

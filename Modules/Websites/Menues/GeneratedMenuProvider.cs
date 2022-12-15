@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Websites;
@@ -14,13 +14,13 @@ namespace GenHTTP.Modules.Websites.Menues
 
         #region Get-/Setters
 
-        private Func<IRequest, IHandler, IEnumerable<ContentElement>> Provider { get; }
+        private Func<IRequest, IHandler, IAsyncEnumerable<ContentElement>> Provider { get; }
 
         #endregion
 
         #region Initialization 
 
-        public GeneratedMenuProvider(Func<IRequest, IHandler, IEnumerable<ContentElement>> provider)
+        public GeneratedMenuProvider(Func<IRequest, IHandler, IAsyncEnumerable<ContentElement>> provider)
         {
             Provider = provider;
         }
@@ -29,9 +29,19 @@ namespace GenHTTP.Modules.Websites.Menues
 
         #region Functionality
 
-        public List<ContentElement> GetMenu(IRequest request, IHandler handler)
+        public async ValueTask<List<ContentElement>> GetMenuAsync(IRequest request, IHandler handler)
         {
-            return new List<ContentElement>(Provider(request, handler).Where(c => c.ContentType == ContentType.TextHtml));
+            var result = new List<ContentElement>();
+
+            await foreach (var content in Provider(request, handler))
+            {
+                if (content.ContentType == ContentType.TextHtml)
+                {
+                    result.Add(content);
+                }
+            }
+
+            return result;
         }
 
         #endregion

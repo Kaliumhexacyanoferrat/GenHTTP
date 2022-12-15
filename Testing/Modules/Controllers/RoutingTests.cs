@@ -85,7 +85,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
                 Parent = parent;
             }
 
-            public IEnumerable<ContentElement> GetContent(IRequest request)
+            public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
             {
                 var root = this.GetRoot(request, false);
 
@@ -93,14 +93,17 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
                                       .Title("My File")
                                       .Build();
 
-                yield return new ContentElement(root, info, ContentType.ApplicationForceDownload);
+                return new List<ContentElement>() 
+                {
+                    new ContentElement(root, info, ContentType.ApplicationForceDownload)
+                }.ToAsyncEnumerable();
             }
 
-            public ValueTask<IResponse?> HandleAsync(IRequest request)
+            public async ValueTask<IResponse?> HandleAsync(IRequest request)
             {
-                return Content.From(Resource.FromString(GetContent(request).Select(c => c.Path).First()))
-                              .Build(this)
-                              .HandleAsync(request);
+                return await Content.From( Resource.FromString(await (GetContentAsync(request).Select(c => c.Path).FirstAsync())))
+                                    .Build(this)
+                                    .HandleAsync(request);
             }
 
         }

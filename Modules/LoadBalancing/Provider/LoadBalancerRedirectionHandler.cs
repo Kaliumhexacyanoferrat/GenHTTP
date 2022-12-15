@@ -41,7 +41,7 @@ namespace GenHTTP.Modules.LoadBalancing.Provider
                            .HandleAsync(request);
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => AsyncEnumerable.Empty<ContentElement>();
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 

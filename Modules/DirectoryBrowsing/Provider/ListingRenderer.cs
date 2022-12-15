@@ -22,7 +22,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
             return new ValueTask<ulong>(19);
         }
 
-        public ValueTask<string> RenderAsync(ListingModel model)
+        public async ValueTask<string> RenderAsync(ListingModel model)
         {
             var content = new StringBuilder();
 
@@ -41,19 +41,19 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
                 Append(content, "../", "..", null, null);
             }
 
-            foreach (var dir in model.Container.GetNodes().OrderBy(d => d.Name))
+            await foreach (var dir in model.Container.GetNodes().OrderBy(d => d.Name))
             {
                 Append(content, $"./{HttpUtility.UrlPathEncode(dir.Name)}/", dir.Name, null, dir.Modified);
             }
 
-            foreach (var file in model.Container.GetResources().Where(f => f.Name is not null).OrderBy(f => f.Name))
+            await foreach (var file in model.Container.GetResources().Where(f => f.Name is not null).OrderBy(f => f.Name))
             {
                 Append(content, $"./{HttpUtility.UrlPathEncode(file.Name)}", file.Name!, file.Length, file.Modified);
             }
 
             content.AppendLine("</table>");
 
-            return new ValueTask<string>(content.ToString());
+            return content.ToString();
         }
 
         public ValueTask RenderAsync(ListingModel model, Stream target) => this.RenderToStream(model, target);

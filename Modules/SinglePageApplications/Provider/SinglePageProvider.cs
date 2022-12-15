@@ -18,13 +18,13 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
             "index.html", "index.htm"
         };
 
+        private IHandler? _Index;
+
         #region Get-/Setters
 
         public IHandler Parent { get; }
 
         private IResourceTree Tree { get; }
-
-        private IHandler? Index { get; }
 
         private IHandler Resources { get; }
 
@@ -43,17 +43,6 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
 
             Resources = IO.Resources.From(tree)
                                     .Build(this);
-
-            foreach (var index in INDEX_FILES)
-            {
-                if (tree.TryGetResource(index, out var indexFile))
-                {
-                    Index = Content.From(indexFile)
-                                   .Build(this);
-
-                    break;
-                }
-            }
         }
 
         #endregion
@@ -64,18 +53,25 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
         {
             if (request.Target.Ended)
             {
-                if (Index != null)
+                var index = await GetIndex().ConfigureAwait(false);
+
+                if (index != null)
                 {
-                    return await Index.HandleAsync(request);
+                    return await index.HandleAsync(request);
                 }
             }
             else
             {
-                var result = await Resources.HandleAsync(request);
+                var result = await Resources.HandleAsync(request).ConfigureAwait(false);
 
-                if ((result == null) && (Index != null) && ServerSideRouting)
+                if (result == null)
                 {
-                    return await Index.HandleAsync(request);
+                    var index = await GetIndex();
+
+                    if ((index != null) && ServerSideRouting)
+                    {
+                        return await index.HandleAsync(request);
+                    }
                 }
 
                 return result;
@@ -84,9 +80,30 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
             return null;
         }
 
+        private async ValueTask<IHandler?> GetIndex()
+        {
+            if (_Index == null)
+            {
+                foreach (var index in INDEX_FILES)
+                {
+                    IResource? indexFile;
+
+                    if ((indexFile = await Tree.TryGetResourceAsync(index)) != null)
+                    {
+                        _Index = Content.From(indexFile)
+                                        .Build(this);
+
+                        break;
+                    }
+                }
+            }
+
+            return _Index;
+        }
+
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => Tree.GetContent(request, this);
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Tree.GetContent(request, this);
 
         #endregion
 

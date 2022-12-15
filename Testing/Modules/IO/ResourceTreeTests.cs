@@ -1,6 +1,9 @@
-﻿using GenHTTP.Modules.IO;
-using System.Linq;
+﻿using System.Linq;
+using System.Threading.Tasks;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Modules.IO
 {
@@ -10,17 +13,17 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
     {
 
         [TestMethod]
-        public void TestAssembly()
+        public async Task TestAssembly()
         {
             var tree = ResourceTree.FromAssembly("Resources").Build();
 
-            Assert.IsTrue(tree.TryGetNode("Subdirectory", out var _));
+            Assert.IsNotNull(await tree.TryGetNodeAsync("Subdirectory"));
             
-            Assert.IsTrue(tree.TryGetResource("File.txt", out var _));
+            Assert.IsNotNull(await tree.TryGetResourceAsync("File.txt"));
 
-            AssertX.Single(tree.GetNodes());
+            Assert.AreEqual(1, await tree.GetNodes().CountAsync());
 
-            Assert.AreEqual(5, tree.GetResources().Count());
+            Assert.AreEqual(5, await tree.GetResources().CountAsync());
         }
 
     }

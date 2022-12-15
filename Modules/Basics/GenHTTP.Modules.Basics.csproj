@@ -41,7 +41,9 @@
 
   <ItemGroup>
     
-    <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />    
+    <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
+    
+    <PackageReference Include="System.Linq.Async" Version="6.0.1" />    
 
     <PackageReference Include="System.Text.Json" Version="7.0.0" />
 

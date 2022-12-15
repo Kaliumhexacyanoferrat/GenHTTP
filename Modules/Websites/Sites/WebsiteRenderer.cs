@@ -59,9 +59,9 @@ namespace GenHTTP.Modules.Websites.Sites
 
         private async ValueTask<WebsiteModel> GetWebsiteModel(TemplateModel model)
         {
-            var menu = Menu.GetMenu(model.Request, model.Handler);
+            var menu = await Menu.GetMenuAsync(model.Request, model.Handler).ConfigureAwait(false);
 
-            var themeModel = await Theme.GetModelAsync(model.Request, model.Handler).ConfigureAwait(false);
+            var themeModel = await Theme.GetModelAsync(model.Request, model.Handler);
 
             var bundle = !model.Request.Server.Development;
 

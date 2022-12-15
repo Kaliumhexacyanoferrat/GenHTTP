@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content.IO;
 
@@ -66,13 +67,13 @@ namespace GenHTTP.Modules.IO.Embedded
 
         #region Functionality
 
-        public IEnumerable<IResourceNode> GetNodes() => _Nodes.Values;
+        public IAsyncEnumerable<IResourceNode> GetNodes() => _Nodes.Values.ToAsyncEnumerable();
 
-        public IEnumerable<IResource> GetResources() => _Resources.Values;
+        public IAsyncEnumerable<IResource> GetResources() => _Resources.Values.ToAsyncEnumerable();
 
-        public bool TryGetNode(string name, [MaybeNullWhen(false)] out IResourceNode node) => _Nodes.TryGetValue(name, out node);
+        public ValueTask<IResourceNode?> TryGetNodeAsync(string name) => new(_Nodes.GetValueOrDefault(name));
 
-        public bool TryGetResource(string name, [MaybeNullWhen(false)] out IResource resource) => _Resources.TryGetValue(name, out resource);
+        public ValueTask<IResource?> TryGetResourceAsync(string name) => new(_Resources.GetValueOrDefault(name));
 
         #endregion
 

@@ -48,7 +48,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => Enumerable.Empty<ContentElement>();
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => AsyncEnumerable.Empty<ContentElement>();
 
         private static ContentInfo GetPageInfo(IRequest request)
         {

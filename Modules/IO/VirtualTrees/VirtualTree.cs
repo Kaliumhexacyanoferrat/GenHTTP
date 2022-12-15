@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content.IO;
 
@@ -54,13 +54,13 @@ namespace GenHTTP.Modules.IO.VirtualTrees
 
         #region Functionality
 
-        public IEnumerable<IResourceNode> GetNodes() => Nodes.Values;
+        public IAsyncEnumerable<IResourceNode> GetNodes() => Nodes.Values.ToAsyncEnumerable();
 
-        public IEnumerable<IResource> GetResources() => Resources.Values;
+        public IAsyncEnumerable<IResource> GetResources() => Resources.Values.ToAsyncEnumerable();
 
-        public bool TryGetNode(string name, [MaybeNullWhen(false)] out IResourceNode node) => Nodes.TryGetValue(name, out node);
+        public ValueTask<IResourceNode?> TryGetNodeAsync(string name) => new(Nodes.GetValueOrDefault(name));
 
-        public bool TryGetResource(string name, [MaybeNullWhen(false)] out IResource resource) => Resources.TryGetValue(name, out resource);
+        public ValueTask<IResource?> TryGetResourceAsync(string name) => new(Resources.GetValueOrDefault(name));
 
         #endregion
 

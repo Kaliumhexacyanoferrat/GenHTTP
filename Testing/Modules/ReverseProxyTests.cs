@@ -104,10 +104,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             public IHandler Parent => throw new NotImplementedException();
 
-            public IEnumerable<ContentElement> GetContent(IRequest request)
-            {
-                return new List<ContentElement>();
-            }
+            public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => AsyncEnumerable.Empty<ContentElement>();
 
             public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
@@ -129,7 +126,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             
             public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-            public IEnumerable<ContentElement> GetContent(IRequest request)
+            public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
             {
                 throw new NotImplementedException();
             }

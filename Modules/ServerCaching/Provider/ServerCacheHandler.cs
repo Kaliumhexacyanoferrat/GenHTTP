@@ -106,7 +106,7 @@ namespace GenHTTP.Modules.ServerCaching.Provider
             return await Content.HandleAsync(request);
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => Content.GetContent(request);
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Content.GetContentAsync(request);
 
         public ValueTask PrepareAsync() => Content.PrepareAsync();
 

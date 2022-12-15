@@ -35,14 +35,14 @@ namespace GenHTTP.Modules.IO.Providers
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public IEnumerable<ContentElement> GetContent(IRequest request)
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
         {
             return Tree.GetContent(request, this);
         }
 
-        public ValueTask<IResponse?> HandleAsync(IRequest request)
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var (_, resource) = Tree.Find(request.Target);
+            var (_, resource) = await Tree.Find(request.Target);
 
             if (resource is not null)
             {
@@ -51,10 +51,10 @@ namespace GenHTTP.Modules.IO.Providers
                 return request.Respond()
                               .Content(resource)
                               .Type(type)
-                              .BuildTask();
+                              .Build();
             }
 
-            return new ValueTask<IResponse?>();
+            return null;
         }
 
         #endregion

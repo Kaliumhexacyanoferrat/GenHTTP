@@ -54,7 +54,7 @@ namespace GenHTTP.Modules.Functional.Provider
 
         public ValueTask PrepareAsync() => Methods.PrepareAsync();
 
-        public IEnumerable<ContentElement> GetContent(IRequest request) => Methods.GetContent(request);
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Methods.GetContentAsync(request);
 
         public ValueTask<IResponse?> HandleAsync(IRequest request) => Methods.HandleAsync(request);
 

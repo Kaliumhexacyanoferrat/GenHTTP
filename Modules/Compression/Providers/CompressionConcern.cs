@@ -136,10 +136,7 @@ namespace GenHTTP.Modules.Compression.Providers
 
         public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-        public IEnumerable<ContentElement> GetContent(IRequest request)
-        {
-            return Content.GetContent(request);
-        }
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Content.GetContentAsync(request);
 
         #endregion
 

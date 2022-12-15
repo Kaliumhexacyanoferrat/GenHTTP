@@ -106,26 +106,26 @@ namespace GenHTTP.Modules.Layouting.Provider
             }
         }
 
-        public IEnumerable<ContentElement> GetContent(IRequest request)
+        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
         {
             var result = new List<ContentElement>();
 
             if (Index is not null)
             {
-                result.AddRange(Index.GetContent(request));
+                result.AddRange(Index.GetContentAsync(request).ToEnumerable());
             }
 
             foreach (var handler in RoutedHandlers.Values)
             {
-                result.AddRange(handler.GetContent(request));
+                result.AddRange(handler.GetContentAsync(request).ToEnumerable());
             }
 
             foreach (var handler in RootHandlers)
             {
-                result.AddRange(handler.GetContent(request));
+                result.AddRange(handler.GetContentAsync(request).ToEnumerable());
             }
 
-            return result;
+            return result.ToAsyncEnumerable();
         }
 
         public void Append(PathBuilder path, IRequest request, IHandler? child = null)

@@ -69,20 +69,14 @@ namespace GenHTTP.Modules.Basics
             }
         }
 
-        public static IEnumerable<ContentElement> GetContent(this IHandler handler, IRequest request, ContentInfo details, ContentType contentType)
+        public static IAsyncEnumerable<ContentElement> GetContent(this IHandler handler, IRequest request, ContentInfo details, ContentType contentType)
         {
-            return new List<ContentElement>()
-            {
-                new ContentElement(handler.GetRoot(request, false), details, contentType, null)
-            };
+            return new List<ContentElement>() { new ContentElement(handler.GetRoot(request, false), details, contentType, null) }.ToAsyncEnumerable();
         }
 
-        public static IEnumerable<ContentElement> GetContent(this IHandler handler, IRequest request, ContentInfo details, FlexibleContentType contentType)
+        public static IAsyncEnumerable<ContentElement> GetContent(this IHandler handler, IRequest request, ContentInfo details, FlexibleContentType contentType)
         {
-            return new List<ContentElement>()
-            {
-                new ContentElement(handler.GetRoot(request, false), details, contentType, null)
-            };
+            return new List<ContentElement>() { new ContentElement(handler.GetRoot(request, false), details, contentType, null) }.ToAsyncEnumerable();
         }
 
         public static string? Route(this IHandler handler, IRequest request, string? route, bool relative = true)

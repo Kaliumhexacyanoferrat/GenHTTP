@@ -26,7 +26,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             public IHandler Parent => throw new NotImplementedException();
 
-            public IEnumerable<ContentElement> GetContent(IRequest request)
+            public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
             {
                 throw new NotImplementedException();
             }
@@ -47,7 +47,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             public IHandler Parent => throw new NotImplementedException();
 
-            public IEnumerable<ContentElement> GetContent(IRequest request)
+            public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
             {
                 throw new NotImplementedException();
             }
