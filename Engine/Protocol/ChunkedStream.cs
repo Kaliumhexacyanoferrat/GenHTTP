@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 
 using GenHTTP.Modules.IO.Streaming;
 
-using PooledAwait;
-
 namespace GenHTTP.Engine.Protocol
 {
 
@@ -110,7 +108,7 @@ namespace GenHTTP.Engine.Protocol
             }
         }
 
-        public async PooledValueTask FinishAsync()
+        public async ValueTask FinishAsync()
         {
             await WriteAsync("0").ConfigureAwait(false);
             await WriteAsync(NL);
@@ -145,9 +143,9 @@ namespace GenHTTP.Engine.Protocol
 
         private void Write(int value) => Write($"{value:X}");
 
-        private PooledValueTask WriteAsync(string text) => text.WriteAsync(Target);
+        private ValueTask WriteAsync(string text) => text.WriteAsync(Target);
 
-        private PooledValueTask WriteAsync(int value) => WriteAsync($"{value:X}");
+        private ValueTask WriteAsync(int value) => WriteAsync($"{value:X}");
 
         #endregion
 

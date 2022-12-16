@@ -2,10 +2,9 @@
 using System.Buffers;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content.Templating;
-
-using PooledAwait;
 
 namespace GenHTTP.Modules.IO.Streaming
 {
@@ -16,7 +15,7 @@ namespace GenHTTP.Modules.IO.Streaming
 
         private static readonly Encoding UTF8 = Encoding.UTF8;
 
-        public static async PooledValueTask CopyPooledAsync(this Stream source, Stream target, uint bufferSize)
+        public static async ValueTask CopyPooledAsync(this Stream source, Stream target, uint bufferSize)
         {
             if (source.CanSeek && source.Position != 0)
             {
@@ -48,14 +47,14 @@ namespace GenHTTP.Modules.IO.Streaming
             }
         }
 
-        public static async PooledValueTask RenderToStream<T>(this IRenderer<T> renderer, T model, Stream target) where T : class, IModel
+        public static async ValueTask RenderToStream<T>(this IRenderer<T> renderer, T model, Stream target) where T : class, IModel
         {
             var content = await renderer.RenderAsync(model);
 
             await content.WriteAsync(target);
         }
 
-        public static async PooledValueTask WriteAsync(this string content, Stream target)
+        public static async ValueTask WriteAsync(this string content, Stream target)
         {
             var encoder = UTF8.GetEncoder();
 

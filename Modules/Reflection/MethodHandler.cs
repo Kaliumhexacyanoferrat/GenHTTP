@@ -16,8 +16,6 @@ using GenHTTP.Modules.Conversion.Providers;
 using GenHTTP.Modules.Conversion.Providers.Forms;
 using GenHTTP.Modules.Reflection.Injectors;
 
-using PooledAwait;
-
 namespace GenHTTP.Modules.Reflection
 {
 
@@ -93,7 +91,7 @@ namespace GenHTTP.Modules.Reflection
             return await ResponseProvider(request, this, await UnwrapAsync(result));
         }
 
-        private async PooledValueTask<object?[]> GetArguments(IRequest request)
+        private async ValueTask<object?[]> GetArguments(IRequest request)
         {
             var targetParameters = Method.GetParameters();
 

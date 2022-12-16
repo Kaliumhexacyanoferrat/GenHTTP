@@ -10,8 +10,6 @@ using GenHTTP.Api.Routing;
 
 using GenHTTP.Engine.Infrastructure.Configuration;
 
-using PooledAwait;
-
 namespace GenHTTP.Engine.Protocol
 {
 
@@ -53,7 +51,7 @@ namespace GenHTTP.Engine.Protocol
 
         #region Functionality
 
-        internal async PooledValueTask<RequestBuilder?> TryParseAsync(RequestBuffer buffer)
+        internal async ValueTask<RequestBuilder?> TryParseAsync(RequestBuffer buffer)
         {
             WebPath? path;
             RequestQuery? query;
@@ -122,7 +120,7 @@ namespace GenHTTP.Engine.Protocol
             return result;
         }
 
-        private static async PooledValueTask<WebPath?> TryReadPath(RequestBuffer buffer)
+        private static async ValueTask<WebPath?> TryReadPath(RequestBuffer buffer)
         {
             // ignore the slash at the beginning
             buffer.Advance(1);
@@ -153,7 +151,7 @@ namespace GenHTTP.Engine.Protocol
             return null;
         }
 
-        private static async PooledValueTask<RequestQuery?> TryReadQuery(RequestBuffer buffer)
+        private static async ValueTask<RequestQuery?> TryReadQuery(RequestBuffer buffer)
         {
             var queryString = await ReadToken(buffer, ' ');
 
@@ -177,7 +175,7 @@ namespace GenHTTP.Engine.Protocol
             return null;
         }
 
-        private static async PooledValueTask<bool> TryReadHeader(RequestBuffer buffer, RequestBuilder request)
+        private static async ValueTask<bool> TryReadHeader(RequestBuffer buffer, RequestBuilder request)
         {
             string? key, value;
 
@@ -193,7 +191,7 @@ namespace GenHTTP.Engine.Protocol
             return false;
         }
 
-        private static async PooledValueTask<SequencePosition?> FindPosition(RequestBuffer buffer, char delimiter)
+        private static async ValueTask<SequencePosition?> FindPosition(RequestBuffer buffer, char delimiter)
         {
             if (buffer.ReadRequired)
             {
@@ -218,12 +216,12 @@ namespace GenHTTP.Engine.Protocol
             return position;
         }
 
-        private static PooledValueTask<string?> ReadToken(RequestBuffer buffer, char delimiter, ushort skipNext = 0, ushort skipFirst = 0, bool skipDelimiter = true)
+        private static ValueTask<string?> ReadToken(RequestBuffer buffer, char delimiter, ushort skipNext = 0, ushort skipFirst = 0, bool skipDelimiter = true)
         {
             return ReadToken(buffer, delimiter, LINE_ENDING, skipNext, skipFirst, skipDelimiter);
         }
 
-        private static async PooledValueTask<string?> ReadToken(RequestBuffer buffer, char delimiter, char[] boundaries, ushort skipNext = 0, ushort skipFirst = 0, bool skipDelimiter = true)
+        private static async ValueTask<string?> ReadToken(RequestBuffer buffer, char delimiter, char[] boundaries, ushort skipNext = 0, ushort skipFirst = 0, bool skipDelimiter = true)
         {
             var position = await FindPosition(buffer, delimiter).ConfigureAwait(false);
 

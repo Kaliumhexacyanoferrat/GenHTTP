@@ -8,8 +8,6 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Engine.Infrastructure.Configuration;
 using GenHTTP.Engine.Infrastructure.Endpoints;
 
-using PooledAwait;
-
 namespace GenHTTP.Engine.Infrastructure
 {
 
@@ -49,7 +47,7 @@ namespace GenHTTP.Engine.Infrastructure
             _EndPoints = new(this, configuration.EndPoints, configuration.Network);
         }
 
-        private static async PooledValueTask PrepareHandlerAsync(IHandler handler, IServerCompanion? companion)
+        private static async ValueTask PrepareHandlerAsync(IHandler handler, IServerCompanion? companion)
         {
             try
             {

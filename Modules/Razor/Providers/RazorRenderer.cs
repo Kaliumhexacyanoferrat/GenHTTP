@@ -10,8 +10,6 @@ using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO.Streaming;
 using GenHTTP.Modules.IO.Tracking;
 
-using PooledAwait;
-
 using RazorEngineCore;
 
 namespace GenHTTP.Modules.Razor.Providers
@@ -69,7 +67,7 @@ namespace GenHTTP.Modules.Razor.Providers
             }
         }
 
-        private async PooledValueTask<IRazorEngineCompiledTemplate<RazorEngineTemplateBase<T>>> GetTemplate()
+        private async ValueTask<IRazorEngineCompiledTemplate<RazorEngineTemplateBase<T>>> GetTemplate()
         {
             if (_Template is null || await TemplateProvider.HasChanged())
             {
@@ -79,7 +77,7 @@ namespace GenHTTP.Modules.Razor.Providers
             return _Template!;
         }
 
-        private async PooledValueTask<IRazorEngineCompiledTemplate<RazorEngineTemplateBase<T>>> LoadTemplate()
+        private async ValueTask<IRazorEngineCompiledTemplate<RazorEngineTemplateBase<T>>> LoadTemplate()
         {
             return await _Engine.CompileAsync<RazorEngineTemplateBase<T>>(await TemplateProvider.GetResourceAsStringAsync(), (builder) =>
             {

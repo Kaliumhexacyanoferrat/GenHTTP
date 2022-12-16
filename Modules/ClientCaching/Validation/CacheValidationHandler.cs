@@ -7,8 +7,6 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
 
-using PooledAwait;
-
 namespace GenHTTP.Modules.ClientCaching.Validation
 {
 
@@ -73,7 +71,7 @@ namespace GenHTTP.Modules.ClientCaching.Validation
 
         public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-        private static async PooledValueTask<string?> CalculateETag(IResponse response)
+        private static async ValueTask<string?> CalculateETag(IResponse response)
         {
             if (response.Headers.TryGetValue(ETAG_HEADER, out var eTag))
             {

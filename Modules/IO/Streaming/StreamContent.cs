@@ -4,8 +4,6 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
 
-using PooledAwait;
-
 namespace GenHTTP.Modules.IO.Streaming
 {
 
@@ -57,12 +55,7 @@ namespace GenHTTP.Modules.IO.Streaming
 
         public ValueTask WriteAsync(Stream target, uint bufferSize)
         {
-            return DoWrite(this, target, bufferSize);
-
-            static PooledValueTask DoWrite(StreamContent self, Stream target, uint bufferSize)
-            {
-                return self.Content.CopyPooledAsync(target, bufferSize);
-            }
+            return Content.CopyPooledAsync(target, bufferSize);
         }
 
         #endregion
