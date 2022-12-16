@@ -12,8 +12,6 @@ using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO.Tracking;
 using GenHTTP.Modules.IO.Streaming;
 
-using PooledAwait;
-
 namespace GenHTTP.Modules.Placeholders.Providers
 {
 
@@ -65,7 +63,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
             }
         }
 
-        private async PooledValueTask<string> GetTemplate()
+        private async ValueTask<string> GetTemplate()
         {
             if (await TemplateProvider.HasChanged())
             {
@@ -75,7 +73,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
             return _Template!;
         }
 
-        private async PooledValueTask LoadTemplate()
+        private async ValueTask LoadTemplate()
         {
             _Template = await TemplateProvider.GetResourceAsStringAsync();
         }

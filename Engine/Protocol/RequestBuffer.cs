@@ -2,10 +2,9 @@
 using System.Buffers;
 using System.IO.Pipelines;
 using System.Threading;
+using System.Threading.Tasks;
 
 using GenHTTP.Engine.Infrastructure.Configuration;
-
-using PooledAwait;
 
 namespace GenHTTP.Engine.Protocol
 {
@@ -54,7 +53,7 @@ namespace GenHTTP.Engine.Protocol
 
         #region Functionality
 
-        internal async PooledValueTask<long?> Read(bool force = false)
+        internal async ValueTask<long?> Read(bool force = false)
         {
             if ((Data.Length == 0) || force)
             {

@@ -4,13 +4,12 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Infrastructure.Configuration;
 using GenHTTP.Engine.Utilities;
-
-using PooledAwait;
 
 namespace GenHTTP.Engine.Infrastructure.Endpoints
 {
@@ -51,7 +50,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
 
         #region Functionality
 
-        protected override async PooledValueTask Accept(Socket client)
+        protected override async ValueTask Accept(Socket client)
         {
             var stream = await TryAuthenticate(client).ConfigureAwait(false);
 
@@ -73,7 +72,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
             }
         }
 
-        private async PooledValueTask<SslStream?> TryAuthenticate(Socket client)
+        private async ValueTask<SslStream?> TryAuthenticate(Socket client)
         {
             try
             {

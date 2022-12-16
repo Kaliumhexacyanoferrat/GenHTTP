@@ -10,8 +10,6 @@ using GenHTTP.Modules.IO.Streaming;
 
 using Markdig;
 
-using PooledAwait;
-
 namespace GenHTTP.Modules.Markdown
 {
 
@@ -52,7 +50,7 @@ namespace GenHTTP.Modules.Markdown
             }
         }
 
-        private async PooledValueTask<string> GetContent()
+        private async ValueTask<string> GetContent()
         {
             if (await File.HasChanged())
             {
@@ -62,7 +60,7 @@ namespace GenHTTP.Modules.Markdown
             return _Markdown!;
         }
 
-        private async PooledValueTask LoadFile()
+        private async ValueTask LoadFile()
         {
             _Markdown = await File.GetResourceAsStringAsync();
         }

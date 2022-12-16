@@ -8,8 +8,6 @@ using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO.Tracking;
 using GenHTTP.Modules.IO.Streaming;
 
-using PooledAwait;
-
 using Scriban;
 using Scriban.Runtime;
 
@@ -61,7 +59,7 @@ namespace GenHTTP.Modules.Scriban.Providers
             }
         }
 
-        private async PooledValueTask<Template> GetTemplateAsync()
+        private async ValueTask<Template> GetTemplateAsync()
         {
             if (_Template is null || await TemplateProvider.HasChanged())
             {
@@ -71,7 +69,7 @@ namespace GenHTTP.Modules.Scriban.Providers
             return _Template!;
         }
 
-        private async PooledValueTask<Template> LoadTemplate()
+        private async ValueTask<Template> LoadTemplate()
         {
             return Template.Parse(await TemplateProvider.GetResourceAsStringAsync());
         }

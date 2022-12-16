@@ -11,8 +11,6 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Infrastructure.Configuration;
 using GenHTTP.Engine.Utilities;
 
-using PooledAwait;
-
 namespace GenHTTP.Engine.Protocol
 {
 
@@ -102,7 +100,7 @@ namespace GenHTTP.Engine.Protocol
             return Write("HTTP/", version, " ", NumberStringCache.Convert(response.Status.RawStatus), " ", response.Status.Phrase, NL);
         }
 
-        private async PooledValueTask WriteHeader(IResponse response, bool keepAlive)
+        private async ValueTask WriteHeader(IResponse response, bool keepAlive)
         {
             if (response.Headers.TryGetValue(SERVER_HEADER, out var server))
             {
@@ -177,7 +175,7 @@ namespace GenHTTP.Engine.Protocol
             }
         }
 
-        private async PooledValueTask WriteBody(IResponse response)
+        private async ValueTask WriteBody(IResponse response)
         {
             if (response.Content is not null)
             {
@@ -224,7 +222,7 @@ namespace GenHTTP.Engine.Protocol
         /// data to be written. Cannot use params keyword because it allocates
         /// an array.
         /// </remarks>
-        private async PooledValueTask Write(string part1, string? part2 = null, string? part3 = null, 
+        private async ValueTask Write(string part1, string? part2 = null, string? part3 = null, 
             string? part4 = null, string? part5 = null, string? part6 = null, string? part7 = null)
         {
             var length = part1.Length + (part2?.Length ?? 0) + (part3?.Length ?? 0) + (part4?.Length ?? 0)

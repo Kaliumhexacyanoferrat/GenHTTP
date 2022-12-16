@@ -11,8 +11,6 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Engine.Infrastructure.Configuration;
 using GenHTTP.Engine.Protocol;
 
-using PooledAwait;
-
 namespace GenHTTP.Engine
 {
 
@@ -61,7 +59,7 @@ namespace GenHTTP.Engine
 
         #region Functionality
 
-        internal async PooledValueTask Run()
+        internal async ValueTask Run()
         {
             try
             {
@@ -100,7 +98,7 @@ namespace GenHTTP.Engine
             }
         }
 
-        private async PooledValueTask HandlePipe(PipeReader reader)
+        private async ValueTask HandlePipe(PipeReader reader)
         {
             try
             {
