@@ -52,7 +52,17 @@ This will build the playground project launcher with all the server dependencies
 
 ## Contributing
 
-All contributions are welcome - If you would like to contribute, have a look at the [contribution guidelines](https://github.com/Kaliumhexacyanoferrat/GenHTTP/blob/master/CONTRIBUTING.md) and the [good first issues](https://github.com/Kaliumhexacyanoferrat/GenHTTP/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
+Writing a general purpose web application server is a tremendous task, so any contribution is very welcome. Besides extending the server core, you might want to
+
+- Extend the content capabilities of the server (e.g. by adding a new serialization format or rendering engine)
+- Add a new [theme](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes)
+- Refine our [project templates](https://genhttp.org/documentation/content/templates)
+- Perform code reviews
+- Analyze the performance or security of the server
+- Clarfify and extend our tests
+- Improve the documentation on the [website](https://genhttp.org/) or in code
+
+If you would like to contribute, please also have a look at the [contribution guidelines](https://github.com/Kaliumhexacyanoferrat/GenHTTP/blob/master/CONTRIBUTING.md) and the [good first issues](https://github.com/Kaliumhexacyanoferrat/GenHTTP/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
 
 ## History
 
