@@ -1,6 +1,7 @@
 ﻿using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Conversion.Providers;
+using ProtoBuf;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -12,7 +13,8 @@ namespace GenHTTP.Modules.Protobuf.Providers
     {
         public ValueTask<object?> DeserializeAsync(Stream stream, [DynamicallyAccessedMembers((DynamicallyAccessedMemberTypes)(-1))] Type type)
         {
-            throw new NotImplementedException();
+            object deserializedObject = Serializer.Deserialize(type, stream);
+            return new ValueTask<object?>(deserializedObject);
         }
 
         public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)

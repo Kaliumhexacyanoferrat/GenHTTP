@@ -1,4 +1,5 @@
-﻿using GenHTTP.Modules.Conversion;
+﻿using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Protobuf;
 using GenHTTP.Modules.Reflection;
@@ -7,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -47,8 +49,14 @@ namespace GenHTTP.Testing.Acceptance.Modules
                 };
 
                 return entity;
-
             }
+
+            [ResourceMethod(RequestMethod.POST)]
+            public TestEntity PostEntity(TestEntity entity)
+            {
+                 return entity;
+            }
+
         }
 
 
@@ -70,6 +78,38 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             Assert.AreEqual(1, result!.ID);
             Assert.AreEqual("test1", result!.Name);
+        }
+
+        [TestMethod]
+        public async Task TestPostEntityAsProtobuf()
+
+        {
+            TestEntity entity = new TestEntity()
+            {
+                ID = 2,
+                Name = "test2",
+                Nullable = null
+            };
+
+            byte[] encodedEntity;
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                Serializer.Serialize(memoryStream, entity);
+                encodedEntity = memoryStream.ToArray();
+            }
+
+            TestEntity? result = null;
+            await WithResponse(string.Empty, HttpMethod.Post, encodedEntity, "application/protobuf", "application/protobuf", async r =>
+            {
+                result = Serializer.Deserialize<TestEntity>(await r.Content.ReadAsStreamAsync());
+
+            });
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(entity.ID, result!.ID);
+            Assert.AreEqual(entity.Name, result!.Name);
+            Assert.IsNull(result!.Nullable);
+
         }
 
         #endregion
