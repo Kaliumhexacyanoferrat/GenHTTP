@@ -201,8 +201,12 @@ namespace GenHTTP.Api.Protocol
         /// <summary>
         /// Url encoded form data.
         /// </summary>
-        ApplicationWwwFormUrlEncoded
+        ApplicationWwwFormUrlEncoded,
 
+        /// <summary>
+        /// A Protobuf message.
+        /// </summary>
+        ApplicationProtobuf
     }
 
     #endregion
@@ -276,7 +280,8 @@ namespace GenHTTP.Api.Protocol
             { ContentType.ImageScalableVectorGraphicsXml, "image/svg+xml" },
             { ContentType.ImageScalableVectorGraphicsCompressed, "image/svgz" },
             { ContentType.ApplicationJson, "application/json" },
-            { ContentType.ApplicationWwwFormUrlEncoded, "application/x-www-form-urlencoded" }
+            { ContentType.ApplicationWwwFormUrlEncoded, "application/x-www-form-urlencoded" },
+            { ContentType.ApplicationProtobuf, "application/protobuf" }
         };
 
         private static readonly Dictionary<string, ContentType> MAPPING_REVERSE = MAPPING.ToDictionary(x => x.Value, x => x.Key);
