@@ -12,7 +12,7 @@
     <FileVersion>7.0.0.0</FileVersion>
     <Version>7.0.0</Version>
 
-    <Authors>Andreas Nägeli</Authors>
+    <Authors>Andreas Nägeli, Iulian Caluian</Authors>
     <Company />
 
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
