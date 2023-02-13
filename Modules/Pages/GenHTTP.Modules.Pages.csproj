@@ -45,7 +45,7 @@
 
     <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
 
-    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.2.1" />
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.3.1" />
     
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     
