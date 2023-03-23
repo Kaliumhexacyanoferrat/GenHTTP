@@ -12,22 +12,25 @@ namespace GenHTTP.Modules.AutoLayout.Scanning
     public static class TreeScanner
     {
 
-        public static ValueTask<LayoutBuilder> ScanAsync(IResourceTree tree, params string[] indexNames) => ScanContainerAsync(tree, indexNames);
+        public static ValueTask<LayoutBuilder> ScanAsync(IResourceTree tree, HandlerRegistry registry, params string[] indexNames)
+        {
+            return ScanContainerAsync(tree, registry, indexNames);
+        }
 
-        private static async ValueTask<LayoutBuilder> ScanContainerAsync(IResourceContainer container, params string[] indexNames)
+        private static async ValueTask<LayoutBuilder> ScanContainerAsync(IResourceContainer container, HandlerRegistry registry, params string[] indexNames)
         {
             var layout = Layout.Create();
 
             await foreach (var node in container.GetNodes())
             {
-                layout.Add(node.Name, await ScanContainerAsync(node));
+                layout.Add(node.Name, await ScanContainerAsync(node, registry));
             }
 
             await foreach (var resource in container.GetResources())
             {
                 if (resource.Name is not null)
                 {
-                    var handler = HandlerResolver.Resolve(resource);
+                    var handler = await registry.ResolveAsync(resource);
 
                     var fileName = Path.GetFileNameWithoutExtension(resource.Name).ToLowerInvariant();
 

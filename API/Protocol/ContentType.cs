@@ -24,6 +24,16 @@ namespace GenHTTP.Api.Protocol
         TextCss,
 
         /// <summary>
+        /// A markdown file.
+        /// </summary>
+        TextMarkdown,
+
+        /// <summary>
+        /// A scriban file.
+        /// </summary>
+        TextScriban,
+
+        /// <summary>
         /// A JavaScript source file.
         /// </summary>
         ApplicationJavaScript,
@@ -245,6 +255,7 @@ namespace GenHTTP.Api.Protocol
         {
             { ContentType.TextHtml, "text/html" },
             { ContentType.TextCss, "text/css" },
+            { ContentType.TextMarkdown, "text/markdown" },
             { ContentType.ApplicationJavaScript, "application/javascript" },
             { ContentType.ImageIcon, "image/x-icon" },
             { ContentType.ImageGif, "image/gif" },
