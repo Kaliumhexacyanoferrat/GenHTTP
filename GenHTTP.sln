@@ -100,7 +100,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Pages", "Mo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Functional", "Modules\Functional\GenHTTP.Modules.Functional.csproj", "{2A2BCF94-BBDF-49A7-8B87-931E665507F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Modules.Protobuf", "Modules\Protobuf\GenHTTP.Modules.Protobuf.csproj", "{0D9957DE-8FE2-44A1-B9D7-EADD1DBDBD6E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Protobuf", "Modules\Protobuf\GenHTTP.Modules.Protobuf.csproj", "{0D9957DE-8FE2-44A1-B9D7-EADD1DBDBD6E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -297,7 +297,7 @@ Global
 		{0D9957DE-8FE2-44A1-B9D7-EADD1DBDBD6E} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
 		LessCompiler = 2603124e-1287-4d61-9540-6ac3efad4eb9
+		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
 	EndGlobalSection
 EndGlobal
