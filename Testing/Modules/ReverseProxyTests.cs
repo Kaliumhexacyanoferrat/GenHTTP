@@ -388,7 +388,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         public async Task TestBadGateway()
         {
             var proxy = Proxy.Create()
-                             .Upstream("http://127.0.0.2");
+                             .Upstream("http://127.1.0.2");
             
             using var runner = TestRunner.Run(proxy);
 
