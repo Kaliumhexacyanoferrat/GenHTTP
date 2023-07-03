@@ -52,13 +52,13 @@ namespace GenHTTP.Modules.Layouting.Provider
         /// </summary>
         /// <param name="name">The name of the path segment to be handled</param>
         /// <param name="handler">The handler which will handle the segment</param>
-        /// <remarks>
-        /// Can be used to provide one or multiple fallback handlers for the layout.
-        /// Fallback handlers will be executed in the order they have been added
-        /// to the layout.
-        /// </remarks>
         public LayoutBuilder Add(string name, IHandlerBuilder handler)
         {
+            if (name.Contains('/'))
+            {
+                throw new ArgumentException("Path seperators are not allowed in the name of the segment.", nameof(name));
+            }
+
             RoutedHandlers.Add(name, handler);
             return this;
         }
@@ -68,6 +68,11 @@ namespace GenHTTP.Modules.Layouting.Provider
         /// path segment has been detected nor the index has been invoked.
         /// </summary>
         /// <param name="handler">The root level handler to be added</param>
+        /// <remarks>
+        /// Can be used to provide one or multiple fallback handlers for the layout.
+        /// Fallback handlers will be executed in the order they have been added
+        /// to the layout.
+        /// </remarks>
         public LayoutBuilder Add(IHandlerBuilder handler)
         {
             RootHandlers.Add(handler);
