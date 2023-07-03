@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+using System;
 
 namespace GenHTTP.Testing.Acceptance.Modules
 {
@@ -74,6 +75,13 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             Assert.AreEqual(HttpStatusCode.MovedPermanently, redirected.StatusCode);
             AssertX.EndsWith("/section/", redirected.GetHeader("Location")!);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TestIllegalPathCharacters()
+        {
+            Layout.Create().Add("some/path", Content.From(Resource.FromString("Hello World")));
         }
 
     }
