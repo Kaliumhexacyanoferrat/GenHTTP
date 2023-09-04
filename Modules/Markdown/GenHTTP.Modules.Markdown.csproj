@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     
@@ -50,7 +50,7 @@
     <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
     <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
     
-    <PackageReference Include="Markdig" Version="0.32.0" />
+    <PackageReference Include="Markdig" Version="0.33.0" />
 
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     
