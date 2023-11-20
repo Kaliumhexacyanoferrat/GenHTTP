@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     
@@ -49,7 +49,7 @@
     <ProjectReference Include="..\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj" />
     <ProjectReference Include="..\Layouting\GenHTTP.Modules.Layouting.csproj" />
 
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     
   </ItemGroup>
 
