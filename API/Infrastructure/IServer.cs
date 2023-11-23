@@ -21,6 +21,12 @@ namespace GenHTTP.Api.Infrastructure
         string Version { get; }
 
         /// <summary>
+        /// Specifies, whether the server still serves requests or
+        /// whether it is currently shut down.
+        /// </summary>
+        bool Running { get; }
+
+        /// <summary>
         /// If enabled, components may provide additional information
         /// allowing developers to further debug web applications.
         /// </summary>

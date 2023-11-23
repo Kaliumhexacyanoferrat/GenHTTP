@@ -108,7 +108,7 @@ namespace GenHTTP.Engine
 
                 RequestBuilder? request;
 
-                while ((request = await parser.TryParseAsync(buffer).ConfigureAwait(false)) is not null)
+                while (Server.Running && (request = await parser.TryParseAsync(buffer).ConfigureAwait(false)) is not null)
                 {
                     if (!await HandleRequest(request))
                     {
