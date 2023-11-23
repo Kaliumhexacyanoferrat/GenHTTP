@@ -18,7 +18,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
         {
             using var runner = TestRunner.Run(Content.From(Resource.FromString("Hello World!")));
 
-            using var client = new TcpClient("128.0.0.1", runner.Port)
+            using var client = new TcpClient("127.0.0.1", runner.Port)
             {
                 ReceiveTimeout = 1000
             };
