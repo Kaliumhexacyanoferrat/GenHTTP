@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 namespace GenHTTP.Api.Infrastructure
 {
@@ -12,11 +11,6 @@ namespace GenHTTP.Api.Infrastructure
     {
 
         public NetworkException(string reason, Exception? inner = null) : base(reason, inner)
-        {
-
-        }
-
-        protected NetworkException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
 
         }

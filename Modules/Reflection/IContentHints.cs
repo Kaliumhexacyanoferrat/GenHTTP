@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 
 using GenHTTP.Api.Protocol;
 
@@ -16,8 +15,6 @@ namespace GenHTTP.Modules.Reflection
     {
 
         public ContentHint() : base() { }
-
-        protected ContentHint(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
     }
 

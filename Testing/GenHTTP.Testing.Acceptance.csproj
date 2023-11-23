@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
 
     <LangVersion>10.0</LangVersion>
     <Nullable>enable</Nullable>
-	<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+	  <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     
     <IsPackable>false</IsPackable>
     

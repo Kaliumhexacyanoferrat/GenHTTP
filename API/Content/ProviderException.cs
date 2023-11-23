@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 using GenHTTP.Api.Protocol;
 
@@ -34,17 +33,6 @@ namespace GenHTTP.Api.Content
         public ProviderException(ResponseStatus status, string message, Exception inner) : base(message, inner)
         {
             Status = status;
-        }
-
-        protected ProviderException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-            Status = (ResponseStatus)info.GetInt32("Status");
-        }
-        
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue("Status", (int)Status);
         }
 
         #endregion
