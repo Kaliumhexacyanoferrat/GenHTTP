@@ -1,25 +1,25 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using System;
+using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
+
+using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Protobuf;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Webservices;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using ProtoBuf;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GenHTTP.Testing.Acceptance.Modules
 {
     [TestClass]
     public sealed class ProtobufTests
     {
+
         #region Supporting structures
 
         [ProtoContract]
@@ -59,15 +59,12 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
         }
 
-
         #endregion
 
-
         #region Tests
+
         [TestMethod]
-
         public async Task TestGetEntityAsProtobuf()
-
         {
             TestEntity? result = null;
             await WithResponse(string.Empty, HttpMethod.Get, null, "application/protobuf", "application/protobuf", async r =>
@@ -82,7 +79,6 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
         [TestMethod]
         public async Task TestPostEntityAsProtobuf()
-
         {
             TestEntity entity = new TestEntity()
             {
@@ -160,4 +156,5 @@ namespace GenHTTP.Testing.Acceptance.Modules
         #endregion
 
     }
+
 }

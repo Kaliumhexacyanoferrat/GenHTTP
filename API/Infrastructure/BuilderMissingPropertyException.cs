@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 namespace GenHTTP.Api.Infrastructure
 {
@@ -26,17 +25,6 @@ namespace GenHTTP.Api.Infrastructure
         public BuilderMissingPropertyException(string property) : base($"Missing required property '{property}'")
         {
             Property = property;
-        }
-
-        protected BuilderMissingPropertyException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-            Property = info.GetString("Property") ?? string.Empty;
-        }
-
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue("Property", Property);
         }
 
         #endregion
