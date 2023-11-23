@@ -44,7 +44,7 @@
     <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
     <ProjectReference Include="..\ReverseProxy\GenHTTP.Modules.ReverseProxy.csproj" />
 
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     
   </ItemGroup>
 

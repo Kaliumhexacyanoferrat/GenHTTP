@@ -40,7 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="RazorEngineCore" Version="2022.8.1" />
+    <PackageReference Include="RazorEngineCore" Version="2023.11.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,7 +50,7 @@
     <ProjectReference Include="..\Pages\GenHTTP.Modules.Pages.csproj" />
     <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
 
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     
   </ItemGroup>
 
