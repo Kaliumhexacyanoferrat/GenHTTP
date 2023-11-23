@@ -25,6 +25,7 @@ jobs:
     - name: Setup Java JDK
       uses: actions/setup-java@v3
       with:
+        distribution: temurin
         java-version: 25
     - name: Restore tools
       run: dotnet tool restore
