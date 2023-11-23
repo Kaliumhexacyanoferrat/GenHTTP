@@ -31,11 +31,11 @@ jobs:
       run: dotnet tool restore
     - name: Begin scan
       if: env.SONAR_TOKEN != null && env.SONAR_TOKEN != ''
-      run: dotnet sonarscanner begin /k:"GenHTTP" /d:sonar.login="$SONAR_TOKEN" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/bin/**/*,**/obj/**/*,**/Playground/**/*,**/*.css,**/*.js,**/*.html" /o:"kaliumhexacyanoferrat" /k:"GenHTTP" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.branch.name="${GITHUB_REF##*/}" /d:sonar.dotnet.excludeTestProjects=true
+      run: dotnet sonarscanner begin /k:"GenHTTP" /d:sonar.token="$SONAR_TOKEN" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/bin/**/*,**/obj/**/*,**/Playground/**/*,**/*.css,**/*.js,**/*.html" /o:"kaliumhexacyanoferrat" /k:"GenHTTP" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.branch.name="${GITHUB_REF##*/}" /d:sonar.dotnet.excludeTestProjects=true
     - name: Build project
       run: dotnet build GenHTTP.sln -c Release
     - name: Test project
       run: dotnet test -c Release --no-build GenHTTP.sln --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
     - name: End scan
       if: env.SONAR_TOKEN != null && env.SONAR_TOKEN != ''
-      run: dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
+      run: dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
