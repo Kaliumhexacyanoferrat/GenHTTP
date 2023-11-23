@@ -19,6 +19,8 @@ namespace GenHTTP.Engine.Infrastructure
 
         public string Version { get; }
 
+        public bool Running => !disposed;
+
         public bool Development => Configuration.DevelopmentMode;
 
         public IHandler Handler { get; private set; }
