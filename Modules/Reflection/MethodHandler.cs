@@ -187,7 +187,15 @@ namespace GenHTTP.Modules.Reflection
                             throw new ProviderException(ResponseStatus.BadRequest, "Request body expected");
                         }
 
-                        targetArguments[i] = await deserializer.DeserializeAsync(request.Content, par.ParameterType);
+                        try
+                        {
+                            targetArguments[i] = await deserializer.DeserializeAsync(request.Content, par.ParameterType);
+                        }
+                        catch (Exception e) 
+                        {
+                            throw new ProviderException(ResponseStatus.BadRequest, "Failed to deserialize request body", e);
+                        }
+
                         continue;
                     }
                 }
