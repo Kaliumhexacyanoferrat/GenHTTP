@@ -4,7 +4,7 @@ GenHTTP is a lightweight web server written in pure C# with only a few dependenc
 
 As an example, the website of this project is hosted on a Raspberry Pi: [genhttp.org](https://genhttp.org/)
 
-[![CI](https://github.com/Kaliumhexacyanoferrat/GenHTTP/actions/workflows/ci.yml/badge.svg)](https://github.com/Kaliumhexacyanoferrat/GenHTTP/actions/workflows/ci.yml) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GenHTTP&metric=coverage)](https://sonarcloud.io/dashboard?id=GenHTTP) [![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Core.svg)](https://www.nuget.org/packages/GenHTTP.Core/)
+[![CI](https://github.com/Kaliumhexacyanoferrat/GenHTTP/actions/workflows/ci.yml/badge.svg)](https://github.com/Kaliumhexacyanoferrat/GenHTTP/actions/workflows/ci.yml) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GenHTTP&metric=coverage)](https://sonarcloud.io/dashboard?id=GenHTTP) [![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Core.svg)](https://www.nuget.org/packages/GenHTTP.Core/) [](https://discord.gg/cW6tPJS7nt) [![Discord](https://discordapp.com/api/guilds/1177529388229734410/widget.png?style=shield)](https://discord.gg/GwtDyUpkpV)
 
 ## Features
 
@@ -19,9 +19,27 @@ As an example, the website of this project is hosted on a Raspberry Pi: [genhttp
 
 ## Getting Started
 
+This section shows how to create a new project from scratch using project templates and how to extend your existing application by embedding the GenHTTP engine.
+
+### New Project
+
 Project templates can be used to create apps for typical use cases with little effort. After installing the templates via `dotnet new -i GenHTTP.Templates` in the terminal, the templates are available via the console or directly in Visual Studio:
 
 <img src="https://user-images.githubusercontent.com/4992119/146939721-2970d28c-61bc-4a9a-b924-d483f97c8d8e.png" style="width: 30em;" />
+
+To create a project by using the terminal, create a new folder for your app and use one of the following commands:
+
+| Template | Command |
+|---|---|
+| REST Webservice | `dotnet new genhttp-webservice` |
+| Website | `dotnet new genhttp-website` |
+| Website (Static HTML) | `dotnet new genhttp-website-static`  |
+| Website (MVC + Razor) | `dotnet new genhttp-website-mvc-razor`  |
+| Website (MVC + Scriban)  | `dotnet new genhttp-website-mvc-scriban`  |
+
+After the project has been created, you can run it via `dotnet run` and access the server via http://localhost:8080.
+
+### Extending Existing Apps
 
 If you would like to extend an existing .NET application, just add a nuget reference to the `GenHTTP.Core` nuget package. You can then spawn a new server instance with just a few lines of code:
 
@@ -35,6 +53,8 @@ using var server = Host.Create()
 ```
 
 When you run this sample it can be accessed in the browser via http://localhost:8080. 
+
+### Next Steps
 
 The [documentation](https://genhttp.org/documentation/) provides a step-by-step starting guide as well as additional information on how to implement [webservices](https://genhttp.org/documentation/content/webservices), [websites](https://genhttp.org/documentation/content/websites), [MVC style projects](https://genhttp.org/documentation/content/controllers), or [single page applications](https://genhttp.org/documentation/content/single-page-applications) and how to [host your application](https://genhttp.org/documentation/hosting/) via Docker.
 
