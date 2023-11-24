@@ -58,6 +58,8 @@ When you run this sample it can be accessed in the browser via http://localhost:
 
 The [documentation](https://genhttp.org/documentation/) provides a step-by-step starting guide as well as additional information on how to implement [webservices](https://genhttp.org/documentation/content/webservices), [websites](https://genhttp.org/documentation/content/websites), [MVC style projects](https://genhttp.org/documentation/content/controllers), or [single page applications](https://genhttp.org/documentation/content/single-page-applications) and how to [host your application](https://genhttp.org/documentation/hosting/) via Docker.
 
+If you encounter issues implementing your application, feel free to [join our Discord community](https://discord.gg/GwtDyUpkpV) to get help.
+
 ## Building the Server
 
 To build the server from source, clone this repository and run the playground project launcher for .NET 8:
