@@ -32,6 +32,7 @@ To create a project by using the terminal, create a new folder for your app and 
 | Template | Command |
 |---|---|
 | REST Webservice | `dotnet new genhttp-webservice` |
+| REST Webservice (single file) | `dotnet new genhttp-webservice-minimal` |
 | Website | `dotnet new genhttp-website` |
 | Website (Static HTML) | `dotnet new genhttp-website-static`  |
 | Website (MVC + Razor) | `dotnet new genhttp-website-mvc-razor`  |
@@ -56,7 +57,7 @@ When you run this sample it can be accessed in the browser via http://localhost:
 
 ### Next Steps
 
-The [documentation](https://genhttp.org/documentation/) provides a step-by-step starting guide as well as additional information on how to implement [webservices](https://genhttp.org/documentation/content/webservices), [websites](https://genhttp.org/documentation/content/websites), [MVC style projects](https://genhttp.org/documentation/content/controllers), or [single page applications](https://genhttp.org/documentation/content/single-page-applications) and how to [host your application](https://genhttp.org/documentation/hosting/) via Docker.
+The [documentation](https://genhttp.org/documentation/) provides a step-by-step starting guide as well as additional information on how to implement [webservices](https://genhttp.org/documentation/content/webservices), [minimal webservices](https://genhttp.org/documentation/content/functional), [websites](https://genhttp.org/documentation/content/websites), [MVC style projects](https://genhttp.org/documentation/content/controllers), or [single page applications](https://genhttp.org/documentation/content/single-page-applications) and how to [host your application](https://genhttp.org/documentation/hosting/) via Docker.
 
 If you encounter issues implementing your application, feel free to [join our Discord community](https://discord.gg/GwtDyUpkpV) to get help.
 
