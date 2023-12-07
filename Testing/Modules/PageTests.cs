@@ -131,7 +131,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var content = await response.GetContent();
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
 
             AssertX.Contains("<title>My Title</title>", content);
             AssertX.Contains("<meta name=\"description\" content=\"My Description\"/>", content);
@@ -148,7 +148,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var content = await response.GetContent();
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
 
             AssertX.Contains("<title>Untitled Page</title>", content);
             AssertX.Contains("<meta name=\"description\" content=\"\"/>", content);
@@ -207,7 +207,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
                 var content = await response.GetContent();
 
-                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+                await response.AssertStatusAsync(HttpStatusCode.OK);
                 AssertX.Contains("/test/1", content);
             }
         }

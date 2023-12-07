@@ -75,7 +75,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponse("/idonotexist/");
 
-            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
         [TestMethod]

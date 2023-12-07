@@ -29,7 +29,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var index = await runner.GetResponse("/");
 
-            Assert.AreEqual(HttpStatusCode.OK, index.StatusCode);
+            await index.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("text/html", index.GetContentHeader("Content-Type"));
 
             var content = await index.GetContent();
@@ -51,7 +51,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var index = await runner.GetResponse("/some-route/");
 
-            Assert.AreEqual(HttpStatusCode.OK, index.StatusCode);
+            await index.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("text/html", index.GetContentHeader("Content-Type"));
         }
 
@@ -62,7 +62,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var index = await runner.GetResponse("/");
 
-            Assert.AreEqual(HttpStatusCode.NotFound, index.StatusCode);
+            await index.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
         [TestMethod]
@@ -76,7 +76,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var index = await runner.GetResponse("/some.txt");
 
-            Assert.AreEqual(HttpStatusCode.OK, index.StatusCode);
+            await index.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("text/plain", index.GetContentHeader("Content-Type"));
 
             var content = await index.GetContent();
@@ -91,7 +91,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var index = await runner.GetResponse("/nope.txt");
 
-            Assert.AreEqual(HttpStatusCode.NotFound, index.StatusCode);
+            await index.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
         [TestMethod]

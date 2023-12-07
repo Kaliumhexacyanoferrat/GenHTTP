@@ -196,7 +196,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var headed = await runner.GetResponse(headRequest);
 
-            Assert.AreEqual(HttpStatusCode.OK, headed.StatusCode);
+            await headed.AssertStatusAsync(HttpStatusCode.OK);
         }
 
         [TestMethod]
@@ -224,7 +224,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var cookied = await client.SendAsync(cookieRequest);
 
-            Assert.AreEqual(HttpStatusCode.OK, cookied.StatusCode);
+            await cookied.AssertStatusAsync(HttpStatusCode.OK);
 
             var returned = cookies.GetCookies(new Uri(runner.GetUrl()));
 
@@ -279,7 +279,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("Input", await response.GetContent());
         }
 
@@ -394,7 +394,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual(HttpStatusCode.BadGateway, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.BadGateway);
         }
 
 

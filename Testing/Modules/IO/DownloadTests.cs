@@ -22,7 +22,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
 
             Assert.AreEqual("This is text!", await response.GetContent());
             Assert.AreEqual("text/plain", response.GetContentHeader("Content-Type"));
@@ -38,7 +38,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var response = await runner.GetResponse("/file.txt/blubb");
 
-            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
         [TestMethod]
@@ -55,7 +55,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual(HttpStatusCode.MethodNotAllowed, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.MethodNotAllowed);
         }
 
         [TestMethod]

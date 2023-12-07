@@ -19,7 +19,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("Hello World!", await response.GetContent());
         }
 
@@ -30,7 +30,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var response = await runner.GetResponse("/some/path");
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
         }
 
     }

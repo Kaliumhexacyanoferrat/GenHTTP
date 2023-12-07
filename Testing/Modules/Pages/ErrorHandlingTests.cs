@@ -22,7 +22,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Pages
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.InternalServerError);
         }
 
     }

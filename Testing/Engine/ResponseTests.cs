@@ -73,7 +73,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
 
             Assert.AreEqual("Hello World", await response.GetContent());
             Assert.AreEqual("text/x-custom", response.GetContentHeader("Content-Type"));

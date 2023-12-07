@@ -45,7 +45,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
         private static async Task TestHost(TestRunner runner, string host, string? expected = null)

@@ -116,7 +116,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponse("/nope");
 
-            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
         [TestMethod]

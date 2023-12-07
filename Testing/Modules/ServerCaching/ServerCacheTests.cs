@@ -40,14 +40,14 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
                 using var first = await runner.GetResponse();
 
-                Assert.AreEqual(HttpStatusCode.OK, first.StatusCode);
+                await first.AssertStatusAsync(HttpStatusCode.OK);
                 Assert.AreEqual("1", await first.GetContent());
 
                 FileUtil.WriteText(file, "12");
 
                 using var second = await runner.GetResponse();
 
-                Assert.AreEqual(HttpStatusCode.OK, second.StatusCode);
+                await second.AssertStatusAsync(HttpStatusCode.OK);
                 Assert.AreEqual("12", await second.GetContent());
             }
             finally
@@ -70,14 +70,14 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
                 using var first = await runner.GetResponse();
 
-                Assert.AreEqual(HttpStatusCode.OK, first.StatusCode);
+                await first.AssertStatusAsync(HttpStatusCode.OK);
                 Assert.AreEqual("1", await first.GetContent());
 
                 FileUtil.WriteText(file, "12");
 
                 using var second = await runner.GetResponse();
 
-                Assert.AreEqual(HttpStatusCode.OK, second.StatusCode);
+                await second.AssertStatusAsync(HttpStatusCode.OK);
                 Assert.AreEqual("1", await second.GetContent());
             }
             finally
@@ -105,7 +105,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
                 using var gzipResponse = await runner.GetResponse(gzipRequest);
 
-                Assert.AreEqual(HttpStatusCode.OK, gzipResponse.StatusCode);
+                await gzipResponse.AssertStatusAsync(HttpStatusCode.OK);
                 Assert.AreEqual("gzip", gzipResponse.GetContentHeader("Content-Encoding"));
 
                 var brRequest = runner.GetRequest();
@@ -114,12 +114,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
                 using var brResponse = await runner.GetResponse(brRequest);
 
-                Assert.AreEqual(HttpStatusCode.OK, brResponse.StatusCode);
+                await brResponse.AssertStatusAsync(HttpStatusCode.OK);
                 Assert.AreEqual("br", brResponse.GetContentHeader("Content-Encoding"));
 
                 using var uncompressedResponse = await runner.GetResponse();
 
-                Assert.AreEqual(HttpStatusCode.OK, uncompressedResponse.StatusCode);
+                await uncompressedResponse.AssertStatusAsync(HttpStatusCode.OK);
                 AssertX.IsNullOrEmpty(uncompressedResponse.GetContentHeader("Content-Encoding"));
                 Assert.AreEqual("This is some content!", await uncompressedResponse.GetContent());
             }

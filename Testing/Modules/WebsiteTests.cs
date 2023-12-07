@@ -65,7 +65,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var file = await runner.GetResponse("/blubb");
 
-            Assert.AreEqual(HttpStatusCode.NotFound, file.StatusCode);
+            await file.AssertStatusAsync(HttpStatusCode.NotFound);
             Assert.AreEqual("text/html; charset=UTF-8", file.GetContentHeader("Content-Type"), StringComparer.InvariantCultureIgnoreCase);
 
             var content = await file.GetContent();
@@ -85,16 +85,16 @@ namespace GenHTTP.Testing.Acceptance.Providers
                        .Start();
 
             using var style = await runner.GetResponse("/styles/custom.css");
-            Assert.AreEqual(HttpStatusCode.OK, style.StatusCode);
+            await style.AssertStatusAsync(HttpStatusCode.OK);
 
             using var script = await runner.GetResponse("/scripts/custom.js");
-            Assert.AreEqual(HttpStatusCode.OK, script.StatusCode);
+            await script.AssertStatusAsync(HttpStatusCode.OK);
 
             using var noStyle = await runner.GetResponse("/styles/no.css");
-            Assert.AreEqual(HttpStatusCode.NotFound, noStyle.StatusCode);
+            await noStyle.AssertStatusAsync(HttpStatusCode.NotFound);
 
             using var noScript = await runner.GetResponse("/scripts/no.js");
-            Assert.AreEqual(HttpStatusCode.NotFound, noScript.StatusCode);
+            await noScript.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
         [TestMethod]
@@ -103,10 +103,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var runner = TestRunner.Run(GetWebsite());
 
             using var noStyle = await runner.GetResponse("/styles/custom.css");
-            Assert.AreEqual(HttpStatusCode.NotFound, noStyle.StatusCode);
+            await noStyle.AssertStatusAsync(HttpStatusCode.NotFound);
 
             using var noScript = await runner.GetResponse("/scripts/custom.js");
-            Assert.AreEqual(HttpStatusCode.NotFound, noScript.StatusCode);
+            await noScript.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
         [TestMethod]
@@ -137,7 +137,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
         [TestMethod]
@@ -151,7 +151,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
         [TestMethod]
@@ -160,10 +160,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var runner = TestRunner.Run(GetWebsite());
 
             using var file = await runner.GetResponse("/resources/some.txt");
-            Assert.AreEqual(HttpStatusCode.OK, file.StatusCode);
+            await file.AssertStatusAsync(HttpStatusCode.OK);
 
             using var noFile = await runner.GetResponse("/resources/other.txt");
-            Assert.AreEqual(HttpStatusCode.NotFound, noFile.StatusCode);
+            await noFile.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
         [TestMethod]
@@ -172,7 +172,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var runner = TestRunner.Run(GetWebsite());
 
             using var file = await runner.GetResponse("/favicon.ico");
-            Assert.AreEqual(HttpStatusCode.OK, file.StatusCode);
+            await file.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("image/x-icon", file.GetContentHeader("Content-Type"));
         }
 
@@ -183,7 +183,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var file = await runner.GetResponse("/" + Sitemap.FILE_NAME);
 
-            Assert.AreEqual(HttpStatusCode.OK, file.StatusCode);
+            await file.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("text/xml", file.GetContentHeader("Content-Type"));
         }
 
@@ -194,7 +194,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var file = await runner.GetResponse("/" + BotInstructions.FILE_NAME);
 
-            Assert.AreEqual(HttpStatusCode.OK, file.StatusCode);
+            await file.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("text/plain", file.GetContentHeader("Content-Type"));
         }
 
@@ -204,13 +204,13 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var runner = TestRunner.Run();
 
             using var robots = await runner.GetResponse("/" + BotInstructions.FILE_NAME);
-            Assert.AreEqual(HttpStatusCode.NotFound, robots.StatusCode);
+            await robots.AssertStatusAsync(HttpStatusCode.NotFound);
 
             using var favicon = await runner.GetResponse("/favicon.ico");
-            Assert.AreEqual(HttpStatusCode.NotFound, favicon.StatusCode);
+            await favicon.AssertStatusAsync(HttpStatusCode.NotFound);
 
             using var sitemap = await runner.GetResponse("/sitemaps/" + Sitemap.FILE_NAME);
-            Assert.AreEqual(HttpStatusCode.NotFound, sitemap.StatusCode);
+            await sitemap.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
         [TestMethod]
@@ -279,7 +279,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var script = await runner.GetResponse("/scripts/genhttp-modules-autoreload.js");
 
-            Assert.AreEqual(HttpStatusCode.OK, script.StatusCode);
+            await script.AssertStatusAsync(HttpStatusCode.OK);
 
             AssertX.Contains("checkForModifications", await script.GetContent());
         }

@@ -27,7 +27,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("Proxy!", await response.GetContent());                
         }
 
@@ -41,7 +41,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponse("/page");
 
-            Assert.AreEqual(HttpStatusCode.TemporaryRedirect, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.TemporaryRedirect);
             Assert.AreEqual("http://node/page", response.GetHeader("Location"));
         }
 
@@ -55,7 +55,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("My Content!", await response.GetContent());
         }
 
@@ -95,7 +95,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
     }

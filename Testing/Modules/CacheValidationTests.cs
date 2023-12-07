@@ -44,7 +44,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             using var cached = await runner.GetResponse(request);
 
-            Assert.AreEqual(HttpStatusCode.NotModified, cached.StatusCode);
+            await cached.AssertStatusAsync(HttpStatusCode.NotModified);
 
             Assert.AreEqual("0", cached.GetContentHeader("Content-Length"));
         }
@@ -60,7 +60,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             using var reloaded = await runner.GetResponse(request);
 
-            Assert.AreEqual(HttpStatusCode.OK, reloaded.StatusCode);
+            await reloaded.AssertStatusAsync(HttpStatusCode.OK);
         }
 
         [TestMethod]

@@ -27,7 +27,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.Unauthorized);
         }
 
         [TestMethod]
@@ -65,7 +65,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = await GetResponse(runner, "u", "password");
 
-            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.Unauthorized);
         }
 
         [TestMethod]
@@ -89,7 +89,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = await GetResponse(runner, "_", "_");
 
-            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.Unauthorized);
         }
 
         [TestMethod]
@@ -104,7 +104,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.Unauthorized);
         }
         
         [TestMethod]
@@ -119,7 +119,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.Unauthorized);
         }
 
         private static async Task<HttpResponseMessage> GetResponse(TestRunner runner, string user, string password)

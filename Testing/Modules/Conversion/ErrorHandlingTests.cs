@@ -38,7 +38,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Conversion
 
             using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.BadRequest);
         }
 
         #endregion

@@ -21,7 +21,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var response = await runner.GetResponse("/Resources/File.txt");
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("This is text!", await response.GetContent());
         }
 
@@ -32,7 +32,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var response = await runner.GetResponse("/Resources/Subdirectory/AnotherFile.txt");
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("This is another text!", await response.GetContent());
         }
 
@@ -43,7 +43,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var response = await runner.GetResponse("/Resources/nah.txt");
 
-            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
         [TestMethod]
@@ -53,7 +53,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var response = await runner.GetResponse("/Resources/nah/File.txt");
 
-            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
         [TestMethod]
@@ -63,7 +63,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var response = await runner.GetResponse("/File.txt");
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("This is text!", await response.GetContent());
         }
 
@@ -74,7 +74,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var response = await runner.GetResponse("/Resources/nah/");
 
-            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
         [TestMethod]
@@ -84,7 +84,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             using var response = await runner.GetResponse("/Resources/nah/");
 
-            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
         [TestMethod]

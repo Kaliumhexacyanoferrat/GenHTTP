@@ -105,13 +105,13 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         [TestMethod]
         public async Task TestEmpty()
         {
-            await WithResponse("", r => { Assert.AreEqual(HttpStatusCode.NoContent, r.StatusCode); return Task.CompletedTask; });
+            await WithResponse("", async r => { await r.AssertStatusAsync(HttpStatusCode.NoContent); });
         }
 
         [TestMethod]
         public async Task TestVoidReturn()
         {
-            await WithResponse("nothing", r => { Assert.AreEqual(HttpStatusCode.NoContent, r.StatusCode); return Task.CompletedTask; });
+            await WithResponse("nothing", async r => { await r.AssertStatusAsync(HttpStatusCode.NoContent); });
         }
 
         [TestMethod]
@@ -135,7 +135,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         [TestMethod]
         public async Task TestNullableNotSet()
         {
-            await WithResponse("nullable", r => { Assert.AreEqual(HttpStatusCode.NoContent, r.StatusCode); return Task.CompletedTask; });
+            await WithResponse("nullable", async r => { await r.AssertStatusAsync(HttpStatusCode.NoContent); });
         }
 
         [TestMethod]
@@ -155,7 +155,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         [TestMethod]
         public async Task TestConversionFailure()
         {
-            await WithResponse("param/abc", r => { Assert.AreEqual(HttpStatusCode.BadRequest, r.StatusCode); return Task.CompletedTask; });
+            await WithResponse("param/abc", async r => { await r.AssertStatusAsync(HttpStatusCode.BadRequest); });
         }
 
         [TestMethod]
@@ -181,7 +181,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         [TestMethod]
         public async Task TestNotSupportedUpload()
         {
-            await WithResponse("entity", HttpMethod.Post, "123", "bla/blubb", null, r => { Assert.AreEqual(HttpStatusCode.UnsupportedMediaType, r.StatusCode); return Task.CompletedTask; });
+            await WithResponse("entity", HttpMethod.Post, "123", "bla/blubb", null, async r => { await r.AssertStatusAsync(HttpStatusCode.UnsupportedMediaType); });
         }
 
         [TestMethod]
@@ -194,13 +194,13 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         [TestMethod]
         public async Task TestWrongMethod()
         {
-            await WithResponse("entity", HttpMethod.Put, "123", null, null, r => { Assert.AreEqual(HttpStatusCode.MethodNotAllowed, r.StatusCode); return Task.CompletedTask; });
+            await WithResponse("entity", HttpMethod.Put, "123", null, null, async r => { await r.AssertStatusAsync(HttpStatusCode.MethodNotAllowed); });
         }
 
         [TestMethod]
         public async Task TestNoMethod()
         {
-            await WithResponse("idonotexist", r => { Assert.AreEqual(HttpStatusCode.NotFound, r.StatusCode); return Task.CompletedTask; });
+            await WithResponse("idonotexist", async r => { await r.AssertStatusAsync(HttpStatusCode.NotFound); });
         }
 
         [TestMethod]
@@ -240,13 +240,13 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         [TestMethod]
         public async Task TestException()
         {
-            await WithResponse("exception", r => { Assert.AreEqual(HttpStatusCode.AlreadyReported, r.StatusCode); return Task.CompletedTask; });
+            await WithResponse("exception", async r => { await r.AssertStatusAsync(HttpStatusCode.AlreadyReported); });
         }
 
         [TestMethod]
         public async Task TestDuplicate()
         {
-            await WithResponse("duplicate", r => { Assert.AreEqual(HttpStatusCode.BadRequest, r.StatusCode); return Task.CompletedTask; });
+            await WithResponse("duplicate", async r => { await r.AssertStatusAsync(HttpStatusCode.BadRequest); });
         }
 
         [TestMethod]
@@ -258,7 +258,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
 
             using var response = await runner.GetResponse("/t");
 
-            Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.NoContent);
         }
 
         #endregion

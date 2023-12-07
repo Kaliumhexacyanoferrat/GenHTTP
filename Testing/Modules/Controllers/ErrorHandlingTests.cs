@@ -49,7 +49,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
         {
             using var response = await Run("/c/simple-type/");
 
-            Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.InternalServerError);
         }
 
         [TestMethod]

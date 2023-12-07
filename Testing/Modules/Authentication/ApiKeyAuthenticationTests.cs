@@ -26,7 +26,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.Unauthorized);
         }
 
         [TestMethod]
@@ -52,7 +52,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
         }
 
         [TestMethod]
@@ -83,7 +83,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
         }
 
         [TestMethod]
@@ -100,7 +100,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
         }
 
         [TestMethod]
@@ -118,7 +118,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
         }
 
         private static TestRunner GetRunnerWithKeys(params string[] keys)
