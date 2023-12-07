@@ -25,7 +25,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.InternalServerError);
         }
 
     }

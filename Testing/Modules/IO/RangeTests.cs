@@ -19,7 +19,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         {
             using var response = await GetResponse(null);
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual(CONTENT, await response.GetContent());
         }
 
@@ -28,7 +28,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         {
             using var response = await GetResponse("bytes=1-8");
 
-            Assert.AreEqual(HttpStatusCode.PartialContent, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.PartialContent);
             Assert.AreEqual("12345678", await response.GetContent());
             Assert.AreEqual("bytes 1-8/10", response.GetContentHeader("Content-Range"));
         }
@@ -38,7 +38,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         {
             using var response = await GetResponse("bytes=4-");
 
-            Assert.AreEqual(HttpStatusCode.PartialContent, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.PartialContent);
             Assert.AreEqual("456789", await response.GetContent());
             Assert.AreEqual("bytes 4-9/10", response.GetContentHeader("Content-Range"));
         }
@@ -48,7 +48,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         {
             using var response = await GetResponse("bytes=-4");
 
-            Assert.AreEqual(HttpStatusCode.PartialContent, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.PartialContent);
             Assert.AreEqual("6789", await response.GetContent());
             Assert.AreEqual("bytes 6-9/10", response.GetContentHeader("Content-Range"));
         }
@@ -58,7 +58,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         {
             using var response = await GetResponse("bytes=1-1");
 
-            Assert.AreEqual(HttpStatusCode.PartialContent, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.PartialContent);
             Assert.AreEqual("1", await response.GetContent());
             Assert.AreEqual("bytes 1-1/10", response.GetContentHeader("Content-Range"));
         }
@@ -68,7 +68,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         {
             using var response = await GetResponse("bytes=9-13");
 
-            Assert.AreEqual(HttpStatusCode.RequestedRangeNotSatisfiable, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.RequestedRangeNotSatisfiable);
             Assert.AreEqual("bytes */10", response.GetContentHeader("Content-Range"));
         }
 
@@ -77,7 +77,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         {
             using var response = await GetResponse("bytes=12-");
 
-            Assert.AreEqual(HttpStatusCode.RequestedRangeNotSatisfiable, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.RequestedRangeNotSatisfiable);
             Assert.AreEqual("bytes */10", response.GetContentHeader("Content-Range"));
         }
 
@@ -86,7 +86,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         {
             using var response = await GetResponse("bytes=-12");
 
-            Assert.AreEqual(HttpStatusCode.RequestedRangeNotSatisfiable, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.RequestedRangeNotSatisfiable);
             Assert.AreEqual("bytes */10", response.GetContentHeader("Content-Range"));
         }
 
@@ -95,7 +95,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         {
             using var response = await GetResponse("bytes=1-2,3-4");
 
-            Assert.AreEqual(HttpStatusCode.RequestedRangeNotSatisfiable, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.RequestedRangeNotSatisfiable);
             Assert.AreEqual("bytes */10", response.GetContentHeader("Content-Range"));
         }
 
@@ -104,7 +104,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         {
             using var response = await GetResponse("bytes=1-10");
 
-            Assert.AreEqual(HttpStatusCode.RequestedRangeNotSatisfiable, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.RequestedRangeNotSatisfiable);
             Assert.AreEqual("bytes */10", response.GetContentHeader("Content-Range"));
         }
 
@@ -113,7 +113,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         {
             using var response = await GetResponse("bytes=1-8", HttpMethod.Head);
 
-            Assert.AreEqual(HttpStatusCode.PartialContent, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.PartialContent);
 
             Assert.AreEqual("bytes 1-8/10", response.GetContentHeader("Content-Range"));
             Assert.AreEqual("8", response.GetContentHeader("Content-Length"));
@@ -126,7 +126,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
         {
             using var response = await GetResponse("bytes=1-8", HttpMethod.Post);
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual(CONTENT, await response.GetContent());
         }
 

@@ -27,12 +27,12 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("Hello World!", await response.GetContent());
 
             using var notFound = await runner.GetResponse("/notfound");
 
-            Assert.AreEqual(HttpStatusCode.NotFound, notFound.StatusCode);
+            await notFound.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
             {
                 using var response = await runner.GetResponse(path);
 
-                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+                await response.AssertStatusAsync(HttpStatusCode.OK);
                 Assert.AreEqual("Hello World!", await response.GetContent());
             }
         }
@@ -68,12 +68,12 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             using var response = await runner.GetResponse("/section/");
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("Hello World!", await response.GetContent());
 
             using var redirected = await runner.GetResponse("/section");
 
-            Assert.AreEqual(HttpStatusCode.MovedPermanently, redirected.StatusCode);
+            await redirected.AssertStatusAsync(HttpStatusCode.MovedPermanently);
             AssertX.EndsWith("/section/", redirected.GetHeader("Location")!);
         }
 

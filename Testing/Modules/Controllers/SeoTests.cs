@@ -50,7 +50,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
             using var response = await runner.GetResponse("/t/Action/");
 
-            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
         #endregion

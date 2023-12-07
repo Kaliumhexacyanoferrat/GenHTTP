@@ -19,7 +19,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
             using var runner = TestRunner.Run();
 
             using var response = await runner.GetResponse();
-            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
     }

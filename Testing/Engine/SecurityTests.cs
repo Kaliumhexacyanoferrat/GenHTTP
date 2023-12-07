@@ -34,7 +34,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
                 using var response = await client.GetAsync($"https://localhost:{sec}");
 
-                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+                await response.AssertStatusAsync(HttpStatusCode.OK);
                 Assert.AreEqual("Hello Alice!", await response.Content.ReadAsStringAsync());
             });
         }
@@ -52,7 +52,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
                 using var response = await client.GetAsync($"http://localhost:{insec}");
 
-                Assert.AreEqual(HttpStatusCode.MovedPermanently, response.StatusCode);
+                await response.AssertStatusAsync(HttpStatusCode.MovedPermanently);  
                 Assert.AreEqual($"https://localhost:{sec}/", response.Headers.GetValues("Location").First());
             });
         }
@@ -70,7 +70,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
                 using var response = await client.GetAsync($"http://localhost:{insec}");
 
-                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+                await response.AssertStatusAsync(HttpStatusCode.OK);
             }, mode: SecureUpgrade.Allow);
         }
 
@@ -90,7 +90,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
                 using var response = await client.SendAsync(request);
 
-                Assert.AreEqual(HttpStatusCode.TemporaryRedirect, response.StatusCode);
+                await response.AssertStatusAsync(HttpStatusCode.TemporaryRedirect);
+
                 Assert.AreEqual($"https://localhost:{sec}/", response.Headers.GetValues("Location").First());
                 Assert.AreEqual($"Upgrade-Insecure-Requests", response.Headers.GetValues("Vary").First());
             }, mode: SecureUpgrade.Allow);
@@ -109,12 +110,12 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
                 using var insecureResponse = await client.GetAsync($"http://localhost:{insec}");
 
-                Assert.AreEqual(HttpStatusCode.OK, insecureResponse.StatusCode);
+                await insecureResponse.AssertStatusAsync(HttpStatusCode.OK);
                 Assert.IsFalse(insecureResponse.Headers.Contains("Strict-Transport-Security"));
 
                 using var secureResponse = await client.GetAsync($"https://localhost:{sec}");
 
-                Assert.AreEqual(HttpStatusCode.OK, secureResponse.StatusCode);
+                await secureResponse.AssertStatusAsync(HttpStatusCode.OK);
                 Assert.AreEqual("max-age=31536000; includeSubDomains; preload", secureResponse.Headers.GetValues("Strict-Transport-Security").First());
 
             }, mode: SecureUpgrade.None);
@@ -139,7 +140,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 using var client = TestRunner.GetClient(ignoreSecurityErrors: true);
                 using var response = await client.GetAsync($"https://localhost:{sec}");
 
-                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+                await response.AssertStatusAsync(HttpStatusCode.OK);
             });
         }
 

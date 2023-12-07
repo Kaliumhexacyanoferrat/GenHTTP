@@ -40,10 +40,10 @@ namespace GenHTTP.Testing.Acceptance.Modules.StaticWebsites
             using var runner = TestRunner.Run(StaticWebsite.From(tree));
 
             using var indexResponse = await runner.GetResponse();
-            Assert.AreEqual(HttpStatusCode.NotFound, indexResponse.StatusCode);
+            await indexResponse.AssertStatusAsync(HttpStatusCode.NotFound);
 
-            using var subIndexResponse = await runner.GetResponse("/sub/");
-            Assert.AreEqual(HttpStatusCode.NotFound, subIndexResponse.StatusCode);
+            using var subIndexResponse = await runner.GetResponse("/sub/"); 
+            await subIndexResponse.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
         [TestMethod]
@@ -70,7 +70,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.StaticWebsites
 
             using var response = await runner.GetResponse("/" + Sitemap.FILE_NAME);
 
-            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
         [TestMethod]
@@ -91,7 +91,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.StaticWebsites
             using var runner = TestRunner.Run(StaticWebsite.From(VirtualTree.Create()));
 
             using var response = await runner.GetResponse("/" + BotInstructions.FILE_NAME);
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
         }
 
         [TestMethod]
@@ -101,7 +101,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.StaticWebsites
 
             using var response = await runner.GetResponse("/" + BotInstructions.FILE_NAME);
 
-            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
         [TestMethod]
@@ -123,7 +123,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.StaticWebsites
 
             using var response = await runner.GetResponse("/sub/" + BotInstructions.FILE_NAME);
 
-            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
     }

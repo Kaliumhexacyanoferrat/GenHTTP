@@ -28,7 +28,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Security
 
             using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.NoContent);
         }
 
         [TestMethod]
@@ -38,7 +38,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Security
 
             using var response = await runner.GetResponse("/t");
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
 
             Assert.AreEqual("*", response.GetHeader("Access-Control-Allow-Origin"));
 
@@ -60,7 +60,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Security
 
             using var response = await runner.GetResponse("/t");
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
 
             Assert.AreEqual("*", response.GetHeader("Access-Control-Allow-Origin"));
 
@@ -82,7 +82,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Security
 
             using var response = await runner.GetResponse("/t");
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
 
             Assert.IsFalse(response.Headers.Contains("Access-Control-Allow-Origin"));
 
@@ -108,7 +108,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Security
 
             using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
 
             Assert.AreEqual("http://google.de", response.GetHeader("Access-Control-Allow-Origin"));
 

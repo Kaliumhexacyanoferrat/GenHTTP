@@ -27,7 +27,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = await runner.GetResponse(client: client);
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("abc", await response.GetContent());
         }
 
@@ -38,7 +38,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.Unauthorized);
         }
 
         #endregion

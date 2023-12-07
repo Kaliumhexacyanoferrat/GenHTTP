@@ -43,7 +43,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
 
             using var response = await runner.GetResponse("/t/task");
 
-            Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.NoContent);
         }
 
         [TestMethod]
@@ -53,7 +53,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
 
             using var response = await runner.GetResponse("/t/value-task");
 
-            Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.NoContent);
         }
 
         [TestMethod]
@@ -63,7 +63,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
 
             using var response = await runner.GetResponse("/t/generic-task");
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("Task result", await response.GetContent());
         }
 
@@ -74,7 +74,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
 
             using var response = await runner.GetResponse("/t/generic-value-task");
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("ValueTask result", await response.GetContent());
         }
 

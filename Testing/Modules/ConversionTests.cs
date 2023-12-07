@@ -129,7 +129,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Conversion
 
             using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual(serialized, await response.GetContent());
         }
 

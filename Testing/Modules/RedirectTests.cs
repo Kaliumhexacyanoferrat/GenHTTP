@@ -25,7 +25,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual(HttpStatusCode.TemporaryRedirect, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.TemporaryRedirect);
             Assert.AreEqual("https://google.de/", response.GetHeader("Location"));
         }
 
@@ -41,7 +41,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual(HttpStatusCode.SeeOther, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.SeeOther);
             Assert.AreEqual("https://google.de/", response.GetHeader("Location"));
         }
 
@@ -54,7 +54,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponse();
 
-            Assert.AreEqual(HttpStatusCode.MovedPermanently, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.MovedPermanently);
             Assert.AreEqual("https://google.de/", response.GetHeader("Location"));
         }
 
@@ -70,7 +70,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponse(request);
 
-            Assert.AreEqual(HttpStatusCode.PermanentRedirect, response.StatusCode);
+            await response.AssertStatusAsync(HttpStatusCode.PermanentRedirect);
             Assert.AreEqual("https://google.de/", response.GetHeader("Location"));
         }
 
