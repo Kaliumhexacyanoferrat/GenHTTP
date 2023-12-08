@@ -180,6 +180,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
                 using var response = await runner.GetResponseAsync("/outer/inner/page");
 
+                await response.AssertStatusAsync(HttpStatusCode.OK);
+
                 var content = await response.GetContent();
 
                 AssertX.Contains("https://google.de|../res/123|../../other/456/|./relative", content);
