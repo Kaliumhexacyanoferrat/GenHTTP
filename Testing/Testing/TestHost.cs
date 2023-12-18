@@ -134,6 +134,12 @@ namespace GenHTTP.Testing
             return new HttpRequestMessage(method ?? HttpMethod.Get, GetUrl(path));
         }
 
+        /// <summary>
+        /// Runs a GET request against the given path.
+        /// </summary>
+        /// <param name="path">The path to be fetched</param>
+        /// <param name="client">The configured HTTP client to be used or null, if the default client should be used</param>
+        /// <returns>The response returned by the server</returns>
         public async Task<HttpResponseMessage> GetResponseAsync(string? path = null, HttpClient? client = null)
         {
             var actualClient = client ?? _DefaultClient;
@@ -141,6 +147,12 @@ namespace GenHTTP.Testing
             return await actualClient.GetAsync(GetUrl(path));
         }
 
+        /// <summary>
+        /// Executes the given request against the test server.
+        /// </summary>
+        /// <param name="message">The request to be executed</param>
+        /// <param name="client">The configured HTTP client to be used or null, if the default client should be used</param>
+        /// <returns>The response returned by the server</returns>
         public async Task<HttpResponseMessage> GetResponseAsync(HttpRequestMessage message, HttpClient? client = null)
         {
             var actualClient = client ?? _DefaultClient;
@@ -197,6 +209,9 @@ namespace GenHTTP.Testing
             }
         }
 
+        /// <summary>
+        /// Stops the test host and releases all resources.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);

@@ -8,6 +8,11 @@ namespace GenHTTP.Testing
     public static class TestExtensions
     {
 
+        /// <summary>
+        /// Reads the response body as a string.
+        /// </summary>
+        /// <param name="response">The response to read</param>
+        /// <returns>The content of the HTTP response</returns>
         public static async ValueTask<string> GetContent(this HttpResponseMessage response) => await response.Content.ReadAsStringAsync();
 
         public static string? GetHeader(this HttpResponseMessage response, string key)
