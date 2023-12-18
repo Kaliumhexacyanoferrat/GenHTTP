@@ -96,7 +96,7 @@ namespace GenHTTP.Modules.Basics
             { "png", ContentType.ImagePng },
             { "bmp", ContentType.ImageBmp },
             { "tiff", ContentType.ImageTiff },
-            { "svg", ContentType.ImageScalableVectorGraphics },
+            { "svg", ContentType.ImageScalableVectorGraphicsXml },
             { "svgz", ContentType.ImageScalableVectorGraphicsCompressed },
             // Audio
             { "ogg", ContentType.AudioOgg },

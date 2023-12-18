@@ -46,6 +46,7 @@
     <ProjectReference Include="..\Modules\ServerCaching\GenHTTP.Modules.ServerCaching.csproj" />
     <ProjectReference Include="..\Modules\AutoReload\GenHTTP.Modules.AutoReload.csproj" />
     <ProjectReference Include="..\Modules\Functional\GenHTTP.Modules.Functional.csproj" />
+    <ProjectReference Include="..\Modules\StaticWebsites\GenHTTP.Modules.StaticWebsites.csproj" />
     
   </ItemGroup>
   
