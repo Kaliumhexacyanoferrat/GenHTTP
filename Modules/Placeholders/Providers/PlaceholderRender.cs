@@ -65,7 +65,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         private async ValueTask<string> GetTemplate()
         {
-            if (await TemplateProvider.HasChanged())
+            if (_Template is null || await TemplateProvider.HasChanged())
             {
                 await LoadTemplate();
             }
