@@ -1,0 +1,57 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    
+    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+
+    <LangVersion>10.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <AssemblyVersion>8.1.0.0</AssemblyVersion>
+    <FileVersion>8.1.0.0</FileVersion>
+    <Version>8.1.0</Version>
+
+    <Authors>Andreas Nägeli</Authors>
+    <Company />
+
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
+
+    <Description>Provides testing support for GenHTTP projects</Description>
+    <PackageTags>HTTP Webserver C# Test Testing</PackageTags>
+
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>CS1591,CS1587,CS1572,CS1573</NoWarn>
+
+    <PackageIcon>icon.png</PackageIcon>
+    
+  </PropertyGroup>
+
+  <ItemGroup>
+
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
+    <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\" />
+
+  </ItemGroup>
+
+  <ItemGroup>
+
+    <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
+
+    <ProjectReference Include="..\..\Engine\GenHTTP.Engine.csproj" />
+    
+    <ProjectReference Include="..\..\Modules\Basics\GenHTTP.Modules.Basics.csproj" />
+    <ProjectReference Include="..\..\Modules\Layouting\GenHTTP.Modules.Layouting.csproj" />
+    <ProjectReference Include="..\..\Modules\Practices\GenHTTP.Modules.Practices.csproj" />
+    
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    
+  </ItemGroup>
+
+</Project>
+ 
