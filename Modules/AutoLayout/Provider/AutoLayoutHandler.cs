@@ -24,16 +24,20 @@ namespace GenHTTP.Modules.AutoLayout.Provider
 
         private IHandler Content { get; set; }
 
+        private HandlerRegistry HandlerRegistry { get; }
+
         #endregion
 
         #region Initialization
 
-        public AutoLayoutHandler(IHandler parent, IResourceTree tree, string[] indexNames)
+        public AutoLayoutHandler(IHandler parent, IResourceTree tree, HandlerRegistry registry, string[] indexNames)
         {
             Parent = parent;
 
             Tree = tree;
             IndexNames = indexNames;
+
+            HandlerRegistry = registry;
 
             Content = Layout.Create()
                             .Build(this);
@@ -41,7 +45,7 @@ namespace GenHTTP.Modules.AutoLayout.Provider
 
         public async ValueTask ReloadAsync()
         {
-            Content = (await TreeScanner.ScanAsync(Tree, IndexNames)).Build(this);
+            Content = (await TreeScanner.ScanAsync(Tree, HandlerRegistry, IndexNames)).Build(this);
         }
 
         #endregion

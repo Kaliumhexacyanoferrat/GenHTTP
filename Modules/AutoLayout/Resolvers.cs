@@ -10,6 +10,7 @@ namespace GenHTTP.Modules.AutoLayout
         public static HandlerRegistryBuilder Default()
         {
             return new HandlerRegistryBuilder().Fallback(new DownloadProvider())
+                                               .Add(new PlainProvider())
                                                .Add(new MarkdownProvider())
                                                .Add(new ScribanProvider());
         }

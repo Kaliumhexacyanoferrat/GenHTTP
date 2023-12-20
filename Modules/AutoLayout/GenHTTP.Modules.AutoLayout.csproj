@@ -46,10 +46,11 @@
     <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
     <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
 	  
-	<ProjectReference Include="..\Layouting\GenHTTP.Modules.Layouting.csproj" />
+	  <ProjectReference Include="..\Layouting\GenHTTP.Modules.Layouting.csproj" />
 
+    <ProjectReference Include="..\Placeholders\GenHTTP.Modules.Placeholders.csproj" />
     <ProjectReference Include="..\Markdown\GenHTTP.Modules.Markdown.csproj" />
-	<ProjectReference Include="..\Scriban\GenHTTP.Modules.Scriban.csproj" />
+    <ProjectReference Include="..\Scriban\GenHTTP.Modules.Scriban.csproj" />
     
   </ItemGroup>
 

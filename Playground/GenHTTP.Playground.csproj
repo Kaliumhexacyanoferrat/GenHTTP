@@ -12,6 +12,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Header.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Header.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GenHTTP.Themes.Lorahost" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
 
     <ProjectReference Include="..\API\GenHTTP.Api.csproj" />
 
@@ -47,6 +59,7 @@
     <ProjectReference Include="..\Modules\AutoReload\GenHTTP.Modules.AutoReload.csproj" />
     <ProjectReference Include="..\Modules\Functional\GenHTTP.Modules.Functional.csproj" />
     <ProjectReference Include="..\Modules\StaticWebsites\GenHTTP.Modules.StaticWebsites.csproj" />
+    <ProjectReference Include="..\Modules\AutoLayout\GenHTTP.Modules.AutoLayout.csproj" />
     
   </ItemGroup>
   

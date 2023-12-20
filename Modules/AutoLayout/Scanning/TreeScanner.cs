@@ -12,18 +12,18 @@ namespace GenHTTP.Modules.AutoLayout.Scanning
     public static class TreeScanner
     {
 
-        public static ValueTask<LayoutBuilder> ScanAsync(IResourceTree tree, HandlerRegistry registry, params string[] indexNames)
+        public static ValueTask<LayoutBuilder> ScanAsync(IResourceTree tree, HandlerRegistry registry, string[] indexNames)
         {
             return ScanContainerAsync(tree, registry, indexNames);
         }
 
-        private static async ValueTask<LayoutBuilder> ScanContainerAsync(IResourceContainer container, HandlerRegistry registry, params string[] indexNames)
+        private static async ValueTask<LayoutBuilder> ScanContainerAsync(IResourceContainer container, HandlerRegistry registry, string[] indexNames)
         {
             var layout = Layout.Create();
 
             await foreach (var node in container.GetNodes())
             {
-                layout.Add(node.Name, await ScanContainerAsync(node, registry));
+                layout.Add(node.Name.ToLowerInvariant(), await ScanContainerAsync(node, registry, indexNames));
             }
 
             await foreach (var resource in container.GetResources())
@@ -34,7 +34,7 @@ namespace GenHTTP.Modules.AutoLayout.Scanning
 
                     var fileName = Path.GetFileNameWithoutExtension(resource.Name).ToLowerInvariant();
 
-                    var isIndex = indexNames.Any(n => n == fileName);
+                    var isIndex = indexNames.Any(n => n.ToLowerInvariant() == fileName);
 
                     if (isIndex)
                     {
@@ -42,7 +42,7 @@ namespace GenHTTP.Modules.AutoLayout.Scanning
                     }
                     else
                     {
-                        layout.Add(resource.Name, handler);
+                        layout.Add(fileName, handler);
                     }
                 }
             }
