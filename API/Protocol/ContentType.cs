@@ -29,11 +29,6 @@ namespace GenHTTP.Api.Protocol
         TextMarkdown,
 
         /// <summary>
-        /// A scriban file.
-        /// </summary>
-        TextScriban,
-
-        /// <summary>
         /// A JavaScript source file.
         /// </summary>
         ApplicationJavaScript,

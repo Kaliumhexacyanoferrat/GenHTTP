@@ -87,6 +87,7 @@
     <ProjectReference Include="..\..\Modules\AutoReload\GenHTTP.Modules.AutoReload.csproj" />
 	  <ProjectReference Include="..\..\Modules\Functional\GenHTTP.Modules.Functional.csproj" />
     <ProjectReference Include="..\..\Modules\Protobuf\GenHTTP.Modules.Protobuf.csproj" />
+    <ProjectReference Include="..\..\Modules\TreeViewer\GenHTTP.Modules.TreeViewer.csproj" />
     
   </ItemGroup>
 

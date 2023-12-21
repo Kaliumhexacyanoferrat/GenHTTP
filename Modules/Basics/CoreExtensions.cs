@@ -83,13 +83,6 @@ namespace GenHTTP.Modules.Basics
             { "config", ContentType.TextPlain },
             // Markdown
             { "md", ContentType.TextMarkdown },
-            // Scriban
-            { "scriban-html", ContentType.TextScriban },
-            { "criban-htm", ContentType.TextScriban },
-            { "sbn-html", ContentType.TextScriban },
-            { "sbn-htm", ContentType.TextScriban },
-            { "sbnhtml", ContentType.TextScriban },
-            { "sbnhtm", ContentType.TextScriban },
             // Fonts 
             { "eot", ContentType.FontEmbeddedOpenTypeFont },
             { "ttf", ContentType.FontTrueTypeFont },

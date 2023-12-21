@@ -2,15 +2,15 @@
 
   <PropertyGroup>
     
-    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
 
     <LangVersion>10.0</LangVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
-    <AssemblyVersion>7.0.0.0</AssemblyVersion>
-    <FileVersion>7.0.0.0</FileVersion>
-    <Version>7.0.0</Version>
+    <AssemblyVersion>8.1.0.0</AssemblyVersion>
+    <FileVersion>8.1.0.0</FileVersion>
+    <Version>8.1.0</Version>
 
     <Authors>Andreas Nägeli</Authors>
     <Company />
@@ -25,8 +25,8 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
-	<GenerateDocumentationFile>true</GenerateDocumentationFile>
-	<NoWarn>CS1591,CS1587,CS1572,CS1573</NoWarn>
+	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	  <NoWarn>CS1591,CS1587,CS1572,CS1573</NoWarn>
 	  
     <PackageIcon>icon.png</PackageIcon>
     
@@ -45,12 +45,12 @@
 
     <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
     <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
+    <ProjectReference Include="..\Conversion\GenHTTP.Modules.Conversion.csproj" />
 	  
 	  <ProjectReference Include="..\Layouting\GenHTTP.Modules.Layouting.csproj" />
 
     <ProjectReference Include="..\Placeholders\GenHTTP.Modules.Placeholders.csproj" />
     <ProjectReference Include="..\Markdown\GenHTTP.Modules.Markdown.csproj" />
-    <ProjectReference Include="..\Scriban\GenHTTP.Modules.Scriban.csproj" />
     
   </ItemGroup>
 

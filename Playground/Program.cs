@@ -6,8 +6,7 @@ using GenHTTP.Modules.Websites;
 using GenHTTP.Themes.Lorahost;
 using System.Collections.Generic;
 
-var layout = TreeLayout.From(ResourceTree.FromDirectory(@"C:\Work\GenHTTP\GenHTTP.Website\Project\Pages"))
-                       .Index("Home", "Index", "Intro");
+var layout = TreeLayout.From(ResourceTree.FromDirectory(@"C:\Work\GenHTTP\GenHTTP.Website\Project\Pages"));
 
 var theme = Theme.Create()
                              .Header(Resource.FromAssembly("Header.jpg"))
