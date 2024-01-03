@@ -44,7 +44,7 @@ namespace GenHTTP.Modules.Functional.Provider
 
                 var target = function.Delegate.Target ?? throw new InvalidOperationException("Delegate target must not be null");
 
-                yield return (parent) => new MethodHandler(parent, function.Delegate.Method, path, () => target, function.Configuration, ResponseProvider.GetResponse, formats, injection);
+                yield return (parent) => new MethodHandler(parent, function.Delegate.Method, path, () => target, function.Configuration, ResponseProvider.GetResponseAsync, formats, injection);
             }
         }
 
