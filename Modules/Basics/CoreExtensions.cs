@@ -88,6 +88,7 @@ namespace GenHTTP.Modules.Basics
             { "woff2", ContentType.FontWoff2 },
             // Scripts
             { "js", ContentType.ApplicationJavaScript },
+            { "mjs", ContentType.ApplicationJavaScript },
             // Images
             { "ico", ContentType.ImageIcon },
             { "gif", ContentType.ImageGif },
