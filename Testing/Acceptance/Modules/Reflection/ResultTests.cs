@@ -12,6 +12,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Reflection
 {
+
     [TestClass]
     public sealed class ResultTests
     {
@@ -29,12 +30,13 @@ namespace GenHTTP.Testing.Acceptance.Modules.Reflection
         {
             var result = new Result<MyPayload>(new("Hello World!"))
                 .Status(ResponseStatus.Accepted)
+                .Status(202, "Accepted Custom")
+                .Type(new(ContentType.TextRichText))
                 .Modified(DateTime.UtcNow)
                 .Expires(DateTime.UtcNow)
                 .Header("X-Custom", "Value")
                 .Cookie(new("Cookie", "Value"))
                 .Encoding("my-encoding");
-
 
             var inline = Inline.Create()
                                .Get(() => result);
