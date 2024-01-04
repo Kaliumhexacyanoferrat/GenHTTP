@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Services;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
@@ -51,7 +50,7 @@ namespace GenHTTP.Modules.Reflection
             var type = result.GetType();
 
             // unwrap the result if applicable
-            if (type is IResult wrapped)
+            if (type is IResultWrapper wrapped)
             {
                 return await GetResponseAsync(request, handler, wrapped.Payload, (b) => wrapped.Apply(b)).ConfigureAwait(false);
             }

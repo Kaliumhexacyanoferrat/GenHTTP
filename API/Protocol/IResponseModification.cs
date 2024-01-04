@@ -3,7 +3,12 @@
 namespace GenHTTP.Api.Protocol
 {
     
-    public interface IResponseModification<T>
+    /// <summary>
+    /// The protocol allowing to manipulate the response sent by
+    /// the server.
+    /// </summary>
+    /// <typeparam name="T">The type of builder used as a return value</typeparam>
+    public interface IResponseModification<out T>
     {
 
         /// <summary>
