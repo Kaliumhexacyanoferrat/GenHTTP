@@ -36,22 +36,31 @@ namespace GenHTTP.Modules.Reflection
 
         #region Functionality
 
-        public async ValueTask<IResponse?> GetResponse(IRequest request, IHandler handler, object? result)
+        public async ValueTask<IResponse?> GetResponseAsync(IRequest request, IHandler handler, object? result, Action<IResponseBuilder>? adjustments = null)
         {
             // no result = 204
             if (result is null)
             {
                 return request.Respond()
                               .Status(ResponseStatus.NoContent)
+                              .Adjust(adjustments)
                               .Build();
             }
 
             var type = result.GetType();
 
+            // unwrap the result if applicable
+            if (typeof(IResultWrapper).IsAssignableFrom(type))
+            {
+                var wrapped = (IResultWrapper)result;
+
+                return await GetResponseAsync(request, handler, wrapped.Payload, (b) => wrapped.Apply(b)).ConfigureAwait(false);
+            }
+
             // response returned by the method
             if (result is IResponseBuilder responseBuilder)
             {
-                return responseBuilder.Build();
+                return responseBuilder.Adjust(adjustments).Build();
             }
 
             if (result is IResponse response)
@@ -79,6 +88,7 @@ namespace GenHTTP.Modules.Reflection
                 var downloadResponse = request.Respond()
                                               .Content(download, () => download.CalculateChecksumAsync())
                                               .Type(ContentType.ApplicationForceDownload)
+                                              .Adjust(adjustments)
                                               .Build();
 
                 return downloadResponse;
@@ -92,6 +102,7 @@ namespace GenHTTP.Modules.Reflection
                     return request.Respond()
                                   .Content(result.ToString() ?? string.Empty)
                                   .Type(ContentType.TextPlain)
+                                  .Adjust(adjustments)
                                   .Build();
                 }
 
@@ -103,12 +114,14 @@ namespace GenHTTP.Modules.Reflection
                     throw new ProviderException(ResponseStatus.UnsupportedMediaType, "Requested format is not supported");
                 }
 
-                var serializedResult = await serializer.SerializeAsync(request, result).ConfigureAwait(false);
+                var serializedResult = await serializer.SerializeAsync(request, result)
+                                                       .ConfigureAwait(false);
 
-                return serializedResult.Build();
+                return serializedResult.Adjust(adjustments)
+                                       .Build();
             }
 
-            throw new ProviderException(ResponseStatus.InternalServerError, "Result type must be one of: IHandlerBuilder, IHandler, IResponseBuilder, IResponse");
+            throw new ProviderException(ResponseStatus.InternalServerError, "Result type must be one of: IHandlerBuilder, IHandler, IResponseBuilder, IResponse, Stream");
         }
 
         #endregion

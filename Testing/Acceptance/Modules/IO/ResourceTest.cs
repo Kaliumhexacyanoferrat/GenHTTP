@@ -91,10 +91,10 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             using var runner = TestHost.Run(layout);
 
             using var f1 = await runner.GetResponseAsync("/1");
-            Assert.AreEqual("This is text!", await f1.GetContent());
+            Assert.AreEqual("This is text!", await f1.GetContentAsync());
 
             using var f2 = await runner.GetResponseAsync("/2");
-            Assert.AreEqual("This is other text!", await f2.GetContent());
+            Assert.AreEqual("This is other text!", await f2.GetContentAsync());
         }
 
         [TestMethod]

@@ -58,7 +58,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ErrorHandling
             using var runner = TestHost.Run(test);
 
             using var response = await runner.GetResponseAsync("/");
-            Assert.AreEqual("404", await response.GetContent());
+            Assert.AreEqual("404", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -73,7 +73,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ErrorHandling
             using var runner = TestHost.Run(test);
 
             using var response = await runner.GetResponseAsync("/");
-            Assert.AreEqual("5", await response.GetContent());
+            Assert.AreEqual("5", await response.GetContentAsync());
         }
 
         #endregion

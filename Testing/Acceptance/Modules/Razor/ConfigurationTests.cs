@@ -25,7 +25,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Razor
 
             using var response = await runner.GetResponseAsync();
 
-            AssertX.Contains("100 = 100", await response.GetContent());
+            AssertX.Contains("100 = 100", await response.GetContentAsync());
         }
 
     }

@@ -70,7 +70,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var respose = await runner.GetResponseAsync("/söme/ürl/with specialities/");
 
-            Assert.AreEqual("/söme/ürl/with specialities/", await respose.GetContent());
+            Assert.AreEqual("/söme/ürl/with specialities/", await respose.GetContentAsync());
         }
 
         [TestMethod]
@@ -80,7 +80,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var respose = await runner.GetResponseAsync("/?söme key=💕");
 
-            Assert.AreEqual("söme key=💕", await respose.GetContent());
+            Assert.AreEqual("söme key=💕", await respose.GetContentAsync());
         }
 
         [TestMethod]
@@ -90,7 +90,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var respose = await runner.GetResponseAsync("//one//two//three//");
 
-            Assert.AreEqual("//one//two//three//", await respose.GetContent());
+            Assert.AreEqual("//one//two//three//", await respose.GetContentAsync());
         }
 
         [TestMethod]
@@ -100,7 +100,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var respose = await runner.GetResponseAsync("/?");
 
-            Assert.AreEqual(string.Empty, await respose.GetContent());
+            Assert.AreEqual(string.Empty, await respose.GetContentAsync());
         }
 
         [TestMethod]
@@ -110,7 +110,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var respose = await runner.GetResponseAsync("/?query");
 
-            Assert.AreEqual("query=", await respose.GetContent());
+            Assert.AreEqual("query=", await respose.GetContentAsync());
         }
 
         [TestMethod]
@@ -120,7 +120,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var respose = await runner.GetResponseAsync("/?key=/one/two");
 
-            Assert.AreEqual("key=/one/two", await respose.GetContent());
+            Assert.AreEqual("key=/one/two", await respose.GetContentAsync());
         }
 
         [TestMethod]
@@ -130,7 +130,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var respose = await runner.GetResponseAsync("/?path=/Some+Folder/With%20Subfolders/");
 
-            Assert.AreEqual("path=/Some+Folder/With Subfolders/", await respose.GetContent());
+            Assert.AreEqual("path=/Some+Folder/With Subfolders/", await respose.GetContentAsync());
         }
 
     }

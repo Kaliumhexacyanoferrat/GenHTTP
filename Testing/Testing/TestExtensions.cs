@@ -13,7 +13,7 @@ namespace GenHTTP.Testing
         /// </summary>
         /// <param name="response">The response to read</param>
         /// <returns>The content of the HTTP response</returns>
-        public static async ValueTask<string> GetContent(this HttpResponseMessage response) => await response.Content.ReadAsStringAsync();
+        public static async ValueTask<string> GetContentAsync(this HttpResponseMessage response) => await response.Content.ReadAsStringAsync();
 
         public static string? GetHeader(this HttpResponseMessage response, string key)
         {

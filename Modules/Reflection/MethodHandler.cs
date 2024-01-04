@@ -49,7 +49,7 @@ namespace GenHTTP.Modules.Reflection
 
         private Func<object> InstanceProvider { get; }
 
-        private Func<IRequest, IHandler, object?, ValueTask<IResponse?>> ResponseProvider { get; }
+        private Func<IRequest, IHandler, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> ResponseProvider { get; }
 
         private SerializationRegistry Serialization { get; }
 
@@ -60,7 +60,7 @@ namespace GenHTTP.Modules.Reflection
         #region Initialization
 
         public MethodHandler(IHandler parent, MethodInfo method, MethodRouting routing, Func<object> instanceProvider, IMethodConfiguration metaData,
-            Func<IRequest, IHandler, object?, ValueTask<IResponse?>> responseProvider, SerializationRegistry serialization, InjectionRegistry injection)
+            Func<IRequest, IHandler, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> responseProvider, SerializationRegistry serialization, InjectionRegistry injection)
         {
             Parent = parent;
 
@@ -88,7 +88,7 @@ namespace GenHTTP.Modules.Reflection
 
             var result = Invoke(arguments);
 
-            return await ResponseProvider(request, this, await UnwrapAsync(result));
+            return await ResponseProvider(request, this, await UnwrapAsync(result), null);
         }
 
         private async ValueTask<object?[]> GetArguments(IRequest request)

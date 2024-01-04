@@ -28,7 +28,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
             using var response = await runner.GetResponseAsync();
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
-            Assert.AreEqual("Hello World!", await response.GetContent());
+            Assert.AreEqual("Hello World!", await response.GetContentAsync());
 
             using var notFound = await runner.GetResponseAsync("/notfound");
 
@@ -50,7 +50,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
                 using var response = await runner.GetResponseAsync(path);
 
                 await response.AssertStatusAsync(HttpStatusCode.OK);
-                Assert.AreEqual("Hello World!", await response.GetContent());
+                Assert.AreEqual("Hello World!", await response.GetContentAsync());
             }
         }
 
@@ -69,7 +69,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
             using var response = await runner.GetResponseAsync("/section/");
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
-            Assert.AreEqual("Hello World!", await response.GetContent());
+            Assert.AreEqual("Hello World!", await response.GetContentAsync());
 
             using var redirected = await runner.GetResponseAsync("/section");
 

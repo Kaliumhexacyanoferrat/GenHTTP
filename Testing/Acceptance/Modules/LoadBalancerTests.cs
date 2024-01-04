@@ -28,7 +28,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var response = await runner.GetResponseAsync();
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
-            Assert.AreEqual("Proxy!", await response.GetContent());                
+            Assert.AreEqual("Proxy!", await response.GetContentAsync());                
         }
 
         [TestMethod]
@@ -56,7 +56,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var response = await runner.GetResponseAsync();
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
-            Assert.AreEqual("My Content!", await response.GetContent());
+            Assert.AreEqual("My Content!", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -70,7 +70,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponseAsync();
 
-            Assert.AreEqual("Prio A", await response.GetContent());
+            Assert.AreEqual("Prio A", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -85,7 +85,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponseAsync();
 
-            AssertX.StartsWith("Prio A", await response.GetContent());
+            AssertX.StartsWith("Prio A", await response.GetContentAsync());
         }
         
         [TestMethod]

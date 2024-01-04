@@ -41,14 +41,14 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
                 using var first = await runner.GetResponseAsync();
 
                 await first.AssertStatusAsync(HttpStatusCode.OK);
-                Assert.AreEqual("1", await first.GetContent());
+                Assert.AreEqual("1", await first.GetContentAsync());
 
                 FileUtil.WriteText(file, "12");
 
                 using var second = await runner.GetResponseAsync();
 
                 await second.AssertStatusAsync(HttpStatusCode.OK);
-                Assert.AreEqual("12", await second.GetContent());
+                Assert.AreEqual("12", await second.GetContentAsync());
             }
             finally
             {
@@ -71,14 +71,14 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
                 using var first = await runner.GetResponseAsync();
 
                 await first.AssertStatusAsync(HttpStatusCode.OK);
-                Assert.AreEqual("1", await first.GetContent());
+                Assert.AreEqual("1", await first.GetContentAsync());
 
                 FileUtil.WriteText(file, "12");
 
                 using var second = await runner.GetResponseAsync();
 
                 await second.AssertStatusAsync(HttpStatusCode.OK);
-                Assert.AreEqual("1", await second.GetContent());
+                Assert.AreEqual("1", await second.GetContentAsync());
             }
             finally
             {
@@ -121,7 +121,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
 
                 await uncompressedResponse.AssertStatusAsync(HttpStatusCode.OK);
                 AssertX.IsNullOrEmpty(uncompressedResponse.GetContentHeader("Content-Encoding"));
-                Assert.AreEqual("This is some content!", await uncompressedResponse.GetContent());
+                Assert.AreEqual("This is some content!", await uncompressedResponse.GetContentAsync());
             }
             finally
             {
@@ -162,7 +162,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             Assert.AreEqual(now.ToString(), cached.Content.Headers.LastModified.GetValueOrDefault().UtcDateTime.ToString());
             Assert.IsTrue(cached.GetContentHeader("Expires") != null);
 
-            Assert.AreEqual("0123456789", await cached.GetContent());
+            Assert.AreEqual("0123456789", await cached.GetContentAsync());
         }
 
         [TestMethod]

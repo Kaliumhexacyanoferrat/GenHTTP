@@ -51,7 +51,7 @@ namespace GenHTTP.Modules.Webservices.Provider
                 {
                     var path = PathArguments.Route(attribute.Path);
 
-                    yield return (parent) => new MethodHandler(parent, method, path, () => Instance, attribute, ResponseProvider.GetResponse, serialization, injection);
+                    yield return (parent) => new MethodHandler(parent, method, path, () => Instance, attribute, ResponseProvider.GetResponseAsync, serialization, injection);
                 }
             }
         }

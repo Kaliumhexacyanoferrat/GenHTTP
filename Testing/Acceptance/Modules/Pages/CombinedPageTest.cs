@@ -27,7 +27,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Pages
 
             using var response = await runner.GetResponseAsync();
 
-            var content = await response.GetContent();
+            var content = await response.GetContentAsync();
 
             AssertX.Contains("My Page", content);
             AssertX.Contains("My Description", content);
@@ -45,7 +45,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Pages
 
             using var response = await runner.GetResponseAsync();
 
-            var content = await response.GetContent();
+            var content = await response.GetContentAsync();
 
             AssertX.Contains("Static Content", content);
         }
@@ -64,7 +64,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Pages
 
             using var response = await runner.GetResponseAsync("/page");
 
-            var content = await response.GetContent();
+            var content = await response.GetContentAsync();
 
             AssertX.Contains("Scriban at /page", content);
             AssertX.Contains("Razor at /page", content);

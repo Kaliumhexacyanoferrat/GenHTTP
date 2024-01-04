@@ -60,7 +60,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponseAsync();
 
-            var content = await response.GetContent();
+            var content = await response.GetContentAsync();
 
             Assert.AreNotEqual("Hello World!", content);
             AssertX.Contains("Hello World!", content);
@@ -84,7 +84,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponseAsync();
 
-            var content = await response.GetContent();
+            var content = await response.GetContentAsync();
 
             AssertX.Contains("<h1 id=\"hello-world\">Hello World!</h1>", content);
 
@@ -111,7 +111,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
                 using var response = await runner.GetResponseAsync("/page");
 
-                var content = await response.GetContent();
+                var content = await response.GetContentAsync();
 
                 Assert.AreNotEqual("Hello World!", content);
                 AssertX.Contains("Hello World!", content);
@@ -129,7 +129,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponseAsync();
 
-            var content = await response.GetContent();
+            var content = await response.GetContentAsync();
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
 
@@ -146,7 +146,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponseAsync();
 
-            var content = await response.GetContent();
+            var content = await response.GetContentAsync();
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
 
@@ -182,7 +182,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
                 await response.AssertStatusAsync(HttpStatusCode.OK);
 
-                var content = await response.GetContent();
+                var content = await response.GetContentAsync();
 
                 AssertX.Contains("https://google.de|../res/123|../../other/456/|./relative", content);
             }
@@ -207,7 +207,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
                 using var response = await runner.GetResponseAsync("/page");
 
-                var content = await response.GetContent();
+                var content = await response.GetContentAsync();
 
                 await response.AssertStatusAsync(HttpStatusCode.OK);
                 AssertX.Contains("/test/1", content);

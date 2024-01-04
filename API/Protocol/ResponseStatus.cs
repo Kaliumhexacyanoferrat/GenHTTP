@@ -194,7 +194,8 @@ namespace GenHTTP.Api.Protocol
             { ResponseStatus.InsufficientStorage, "Insufficient Storage" },
             { ResponseStatus.LoopDetected, "Loop Detected" },
             { ResponseStatus.NotExtended, "Not Extended" },
-            { ResponseStatus.NetworkAuthenticationRequired, "Network Authentication Required" }
+            { ResponseStatus.NetworkAuthenticationRequired, "Network Authentication Required" },
+            { ResponseStatus.Processing, "Processing" }
         };
 
         private static readonly Dictionary<int, ResponseStatus> CODE_MAPPING = MAPPING.Keys.ToDictionary((k) => (int)k, (k) => k);
