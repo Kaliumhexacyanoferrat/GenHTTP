@@ -24,7 +24,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
 
-            Assert.AreEqual("This is text!", await response.GetContent());
+            Assert.AreEqual("This is text!", await response.GetContentAsync());
             Assert.AreEqual("text/plain", response.GetContentHeader("Content-Type"));
         }
 

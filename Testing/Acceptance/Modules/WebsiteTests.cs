@@ -68,7 +68,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             await file.AssertStatusAsync(HttpStatusCode.NotFound);
             Assert.AreEqual("text/html; charset=UTF-8", file.GetContentHeader("Content-Type"), StringComparer.InvariantCultureIgnoreCase);
 
-            var content = await file.GetContent();
+            var content = await file.GetContentAsync();
 
             AssertX.Contains("This is an error!", content);
 
@@ -118,10 +118,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var runner = TestHost.Run(website, development: false);
 
             using var style = await runner.GetResponseAsync("/styles/bundle.css");
-            AssertX.Contains("my", await style.GetContent());
+            AssertX.Contains("my", await style.GetContentAsync());
 
             using var script = await runner.GetResponseAsync("/scripts/bundle.js");
-            AssertX.Contains("my", await script.GetContent());
+            AssertX.Contains("my", await script.GetContentAsync());
         }
 
         [TestMethod]
@@ -236,7 +236,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponseAsync("/sub/");
 
-            var result = await response.GetContent();
+            var result = await response.GetContentAsync();
 
             AssertX.Contains("script = ../scripts/s.js", result);
             AssertX.Contains("style = ../styles/s.css", result);
@@ -281,7 +281,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             await script.AssertStatusAsync(HttpStatusCode.OK);
 
-            AssertX.Contains("checkForModifications", await script.GetContent());
+            AssertX.Contains("checkForModifications", await script.GetContentAsync());
         }
 
         public static WebsiteBuilder GetWebsite(LayoutBuilder? content = null)

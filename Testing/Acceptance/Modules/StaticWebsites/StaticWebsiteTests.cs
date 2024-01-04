@@ -25,10 +25,10 @@ namespace GenHTTP.Testing.Acceptance.Modules.StaticWebsites
             using var runner = TestHost.Run(StaticWebsite.From(tree));
 
             using var indexResponse = await runner.GetResponseAsync();
-            Assert.AreEqual("Index 1", await indexResponse.GetContent());
+            Assert.AreEqual("Index 1", await indexResponse.GetContentAsync());
 
             using var subIndexResponse = await runner.GetResponseAsync("/sub/");
-            Assert.AreEqual("Index 2", await subIndexResponse.GetContent());
+            Assert.AreEqual("Index 2", await subIndexResponse.GetContentAsync());
         }
 
         [TestMethod]
@@ -82,7 +82,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.StaticWebsites
             using var runner = TestHost.Run(StaticWebsite.From(tree));
 
             using var response = await runner.GetResponseAsync("/" + Sitemap.FILE_NAME);
-            Assert.AreEqual("Custom Sitemap", await response.GetContent());
+            Assert.AreEqual("Custom Sitemap", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -113,7 +113,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.StaticWebsites
             using var runner = TestHost.Run(StaticWebsite.From(tree));
 
             using var response = await runner.GetResponseAsync("/" + BotInstructions.FILE_NAME);
-            Assert.AreEqual("Custom Robots", await response.GetContent());
+            Assert.AreEqual("Custom Robots", await response.GetContentAsync());
         }
 
         [TestMethod]

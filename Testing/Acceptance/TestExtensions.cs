@@ -21,7 +21,7 @@ namespace GenHTTP.Testing.Acceptance
 
         public static async Task<HashSet<string>> GetSitemap(this HttpResponseMessage response)
         {
-            var content = await response.GetContent();
+            var content = await response.GetContentAsync();
 
             var sitemap = XDocument.Parse(content);
 

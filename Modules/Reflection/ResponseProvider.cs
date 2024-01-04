@@ -50,8 +50,10 @@ namespace GenHTTP.Modules.Reflection
             var type = result.GetType();
 
             // unwrap the result if applicable
-            if (type is IResultWrapper wrapped)
+            if (typeof(IResultWrapper).IsAssignableFrom(type))
             {
+                var wrapped = (IResultWrapper)result;
+
                 return await GetResponseAsync(request, handler, wrapped.Payload, (b) => wrapped.Apply(b)).ConfigureAwait(false);
             }
 

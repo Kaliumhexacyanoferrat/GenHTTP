@@ -119,7 +119,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
             using var response = await runner.GetResponseAsync("/r/appenders/1/test/");
 
-            Assert.AreEqual("/r/appenders/1/test/", await response.GetContent());
+            Assert.AreEqual("/r/appenders/1/test/", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -129,7 +129,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
             using var response = await runner.GetResponseAsync("/r/nested/1/test/inner");
 
-            Assert.AreEqual("/r/nested/1/test/inner", await response.GetContent());
+            Assert.AreEqual("/r/nested/1/test/inner", await response.GetContentAsync());
         }
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
             using var response = await runner.GetResponseAsync("/r/inner-controller/1/2/inner-controller/3/4/appenders/5/6/");
 
-            Assert.AreEqual("/r/inner-controller/1/2/inner-controller/3/4/appenders/5/6/", await response.GetContent());
+            Assert.AreEqual("/r/inner-controller/1/2/inner-controller/3/4/appenders/5/6/", await response.GetContentAsync());
         }
 
         [TestMethod]

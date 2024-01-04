@@ -55,7 +55,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             using var response = await runner.GetResponseAsync(request);
 
-            Assert.AreEqual(expected ?? host, await response.GetContent());
+            Assert.AreEqual(expected ?? host, await response.GetContentAsync());
         }
 
     }

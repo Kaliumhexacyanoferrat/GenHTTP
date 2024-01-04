@@ -36,7 +36,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponseAsync();
 
-            Assert.AreEqual("42", await response.GetContent());
+            Assert.AreEqual("42", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -46,7 +46,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponseAsync("/blubb");
 
-            Assert.AreEqual("42", await response.GetContent());
+            Assert.AreEqual("42", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -56,7 +56,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponseAsync("/?param=41");
 
-            Assert.AreEqual("42", await response.GetContent());
+            Assert.AreEqual("42", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -66,7 +66,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponseAsync("/?param=");
 
-            Assert.AreEqual("False", await response.GetContent());
+            Assert.AreEqual("False", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -76,7 +76,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponseAsync("/?param=");
 
-            Assert.AreEqual("0", await response.GetContent());
+            Assert.AreEqual("0", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -86,7 +86,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponseAsync("/?param=");
 
-            Assert.AreEqual("", await response.GetContent());
+            Assert.AreEqual("", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -96,7 +96,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponseAsync("/?param=");
 
-            Assert.AreEqual("One", await response.GetContent());
+            Assert.AreEqual("One", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -106,7 +106,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponseAsync("/41");
 
-            Assert.AreEqual("42", await response.GetContent());
+            Assert.AreEqual("42", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -131,7 +131,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponseAsync();
 
-            Assert.AreEqual("42", await response.GetContent());
+            Assert.AreEqual("42", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -141,7 +141,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponseAsync();
 
-            Assert.AreEqual("42", await response.GetContent());
+            Assert.AreEqual("42", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -151,7 +151,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponseAsync();
 
-            Assert.AreEqual("{\"string\":\"42\",\"int\":42,\"double\":42}", await response.GetContent());
+            Assert.AreEqual("{\"string\":\"42\",\"int\":42,\"double\":42}", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -167,7 +167,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponseAsync(request);
 
-            Assert.AreEqual("{\"string\":\"42\",\"int\":42,\"double\":42}", await response.GetContent());
+            Assert.AreEqual("{\"string\":\"42\",\"int\":42,\"double\":42}", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -186,7 +186,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponseAsync();
 
-            Assert.AreEqual("42", await response.GetContent());
+            Assert.AreEqual("42", await response.GetContentAsync());
         }
 
         [TestMethod]

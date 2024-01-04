@@ -163,7 +163,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var runner = setup.Runner;
 
             using var response = await runner.GetResponseAsync();
-            Assert.AreEqual("Hello World!", await response.GetContent());
+            Assert.AreEqual("Hello World!", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -280,7 +280,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var response = await runner.GetResponseAsync(request);
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
-            Assert.AreEqual("Input", await response.GetContent());
+            Assert.AreEqual("Input", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -294,13 +294,13 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var runner = setup.Runner;
 
             using var r1 = await runner.GetResponseAsync("/");
-            Assert.AreEqual("/", await r1.GetContent());
+            Assert.AreEqual("/", await r1.GetContentAsync());
 
             using var r2 = await runner.GetResponseAsync("/login/");
-            Assert.AreEqual("/login/", await r2.GetContent());
+            Assert.AreEqual("/login/", await r2.GetContentAsync());
 
             using var r3 = await runner.GetResponseAsync("/login");
-            Assert.AreEqual("/login", await r3.GetContent());
+            Assert.AreEqual("/login", await r3.GetContentAsync());
         }
 
         [TestMethod]
@@ -315,13 +315,13 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var runner = setup.Runner;
 
             using var r2 = await runner.GetResponseAsync("/?one=two");
-            Assert.AreEqual("one=two", await r2.GetContent());
+            Assert.AreEqual("one=two", await r2.GetContentAsync());
 
             using var r3 = await runner.GetResponseAsync("/?one=two&three=four");
-            Assert.AreEqual("one=two|three=four", await r3.GetContent());
+            Assert.AreEqual("one=two|three=four", await r3.GetContentAsync());
 
             using var r1 = await runner.GetResponseAsync("/");
-            Assert.AreEqual("", await r1.GetContent());
+            Assert.AreEqual("", await r1.GetContentAsync());
         }
 
         [TestMethod]
@@ -336,7 +336,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var runner = setup.Runner;
 
             using var r = await runner.GetResponseAsync("/?key=%20%3C+");
-            Assert.AreEqual("key= <+", await r.GetContent());
+            Assert.AreEqual("key= <+", await r.GetContentAsync());
         }
 
         [TestMethod]
@@ -350,7 +350,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var runner = setup.Runner;
 
             using var r = await runner.GetResponseAsync("/%3F%23%26%2F %20");
-            Assert.AreEqual("/%3F%23%26%2F%20%20", await r.GetContent());
+            Assert.AreEqual("/%3F%23%26%2F%20%20", await r.GetContentAsync());
         }
 
         [TestMethod]
@@ -364,7 +364,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var runner = setup.Runner;
 
             using var r = await runner.GetResponseAsync("/$@:");
-            Assert.AreEqual("/$@:", await r.GetContent());
+            Assert.AreEqual("/$@:", await r.GetContentAsync());
         }
 
         [TestMethod]

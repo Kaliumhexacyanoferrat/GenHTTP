@@ -120,7 +120,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = await runner.GetResponseAsync(request);
 
-            Assert.AreEqual("1310720", await response.GetContent());
+            Assert.AreEqual("1310720", await response.GetContentAsync());
         }
 
     }

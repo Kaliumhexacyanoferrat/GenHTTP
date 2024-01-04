@@ -85,7 +85,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
         {
             using var response = await runner.GetResponseAsync("/" + BotInstructions.FILE_NAME);
 
-            return (await response.GetContent()).Replace($":{runner.Port}", string.Empty);
+            return (await response.GetContentAsync()).Replace($":{runner.Port}", string.Empty);
         }
 
         private static IHandlerBuilder GetTest(RobotsProviderBuilder robots)

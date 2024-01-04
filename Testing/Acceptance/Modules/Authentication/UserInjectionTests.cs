@@ -28,7 +28,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             using var response = await runner.GetResponseAsync(client: client);
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
-            Assert.AreEqual("abc", await response.GetContent());
+            Assert.AreEqual("abc", await response.GetContentAsync());
         }
 
         [TestMethod]

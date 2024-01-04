@@ -76,7 +76,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = await runner.GetResponseAsync();
 
-            Assert.IsTrue((await response.GetContent()).Contains("Error.html"));
+            Assert.IsTrue((await response.GetContentAsync()).Contains("Error.html"));
         }
 
         [TestMethod]
@@ -87,7 +87,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = await runner.GetResponseAsync();
 
-            Assert.IsTrue((await response.GetContent()).Contains("Error.html"));
+            Assert.IsTrue((await response.GetContentAsync()).Contains("Error.html"));
         }
 
         [TestMethod]
@@ -98,7 +98,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = await runner.GetResponseAsync();
 
-            Assert.IsTrue((await response.GetContent()).Contains("Error.html"));
+            Assert.IsTrue((await response.GetContentAsync()).Contains("Error.html"));
         }
 
         [TestMethod]
@@ -108,7 +108,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = await runner.GetResponseAsync();
 
-            var content = await response.GetContent();
+            var content = await response.GetContentAsync();
 
             AssertX.Contains("custom.js", content);
             AssertX.Contains("custom.css", content);

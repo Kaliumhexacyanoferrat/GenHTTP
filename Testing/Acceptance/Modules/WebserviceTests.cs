@@ -117,19 +117,19 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         [TestMethod]
         public async Task TestPrimitives()
         {
-            await WithResponse("primitive?input=42", async r => Assert.AreEqual("42", await r.GetContent()));
+            await WithResponse("primitive?input=42", async r => Assert.AreEqual("42", await r.GetContentAsync()));
         }
 
         [TestMethod]
         public async Task TestEnums()
         {
-            await WithResponse("enum?input=One", async r => Assert.AreEqual("One", await r.GetContent()));
+            await WithResponse("enum?input=One", async r => Assert.AreEqual("One", await r.GetContentAsync()));
         }
 
         [TestMethod]
         public async Task TestNullableSet()
         {
-            await WithResponse("nullable?input=1", async r => Assert.AreEqual("1", await r.GetContent()));
+            await WithResponse("nullable?input=1", async r => Assert.AreEqual("1", await r.GetContentAsync()));
         }
 
         [TestMethod]
@@ -143,13 +143,13 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         {
             var id = Guid.NewGuid().ToString();
 
-            await WithResponse($"guid?id={id}", async r => Assert.AreEqual(id, await r.GetContent()));
+            await WithResponse($"guid?id={id}", async r => Assert.AreEqual(id, await r.GetContentAsync()));
         }
 
         [TestMethod]
         public async Task TestParam()
         {
-            await WithResponse("param/42", async r => Assert.AreEqual("42", await r.GetContent()));
+            await WithResponse("param/42", async r => Assert.AreEqual("42", await r.GetContentAsync()));
         }
 
         [TestMethod]
@@ -161,21 +161,21 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         [TestMethod]
         public async Task TestRegex()
         {
-            await WithResponse("regex/42", async r => Assert.AreEqual("42", await r.GetContent()));
+            await WithResponse("regex/42", async r => Assert.AreEqual("42", await r.GetContentAsync()));
         }
 
         [TestMethod]
         public async Task TestEntityWithNulls()
         {
             var entity = "{\"id\":42}";
-            await WithResponse("entity", HttpMethod.Post, entity, null, null, async r => Assert.AreEqual(entity, await r.GetContent()));
+            await WithResponse("entity", HttpMethod.Post, entity, null, null, async r => Assert.AreEqual(entity, await r.GetContentAsync()));
         }
 
         [TestMethod]
         public async Task TestEntityWithNoNulls()
         {
             var entity = "{\"id\":42,\"nullable\":123.456}";
-            await WithResponse("entity", HttpMethod.Post, entity, null, null, async r => Assert.AreEqual(entity, await r.GetContent()));
+            await WithResponse("entity", HttpMethod.Post, entity, null, null, async r => Assert.AreEqual(entity, await r.GetContentAsync()));
         }
 
         [TestMethod]
@@ -188,7 +188,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         public async Task TestUnsupportedDownloadEnforcesDefault()
         {
             var entity = "{\"id\":42,\"nullable\":123.456}";
-            await WithResponse("entity", HttpMethod.Post, entity, null, "bla/blubb", async r => Assert.AreEqual(entity, await r.GetContent()));
+            await WithResponse("entity", HttpMethod.Post, entity, null, "bla/blubb", async r => Assert.AreEqual(entity, await r.GetContentAsync()));
         }
 
         [TestMethod]
@@ -206,19 +206,19 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         [TestMethod]
         public async Task TestStream()
         {
-            await WithResponse("stream", HttpMethod.Put, "123456", null, null, async r => Assert.AreEqual("6", await r.GetContent()));
+            await WithResponse("stream", HttpMethod.Put, "123456", null, null, async r => Assert.AreEqual("6", await r.GetContentAsync()));
         }
 
         [TestMethod]
         public async Task TestRequestResponse()
         {
-            await WithResponse("requestResponse", async r => Assert.AreEqual("Hello World", await r.GetContent()));
+            await WithResponse("requestResponse", async r => Assert.AreEqual("Hello World", await r.GetContentAsync()));
         }
 
         [TestMethod]
         public async Task TestRouting()
         {
-            await WithResponse("request", async r => Assert.AreEqual("yes", await r.GetContent()));
+            await WithResponse("request", async r => Assert.AreEqual("yes", await r.GetContentAsync()));
         }
 
         [TestMethod]

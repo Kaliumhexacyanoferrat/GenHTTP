@@ -24,7 +24,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
             
             using var response = await runner.GetResponseAsync("/utf8");
             
-            Assert.AreEqual("From GenHTTP with ❤", await response.GetContent());
+            Assert.AreEqual("From GenHTTP with ❤", await response.GetContentAsync());
         }
 
     }

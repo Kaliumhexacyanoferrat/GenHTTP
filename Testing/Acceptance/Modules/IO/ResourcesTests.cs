@@ -22,7 +22,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             using var response = await runner.GetResponseAsync("/Resources/File.txt");
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
-            Assert.AreEqual("This is text!", await response.GetContent());
+            Assert.AreEqual("This is text!", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -33,7 +33,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             using var response = await runner.GetResponseAsync("/Resources/Subdirectory/AnotherFile.txt");
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
-            Assert.AreEqual("This is another text!", await response.GetContent());
+            Assert.AreEqual("This is another text!", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -64,7 +64,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             using var response = await runner.GetResponseAsync("/File.txt");
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
-            Assert.AreEqual("This is text!", await response.GetContent());
+            Assert.AreEqual("This is text!", await response.GetContentAsync());
         }
 
         [TestMethod]

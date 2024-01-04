@@ -130,7 +130,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Conversion
             using var response = await runner.GetResponseAsync(request);
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
-            Assert.AreEqual(serialized, await response.GetContent());
+            Assert.AreEqual(serialized, await response.GetContentAsync());
         }
 
         #endregion

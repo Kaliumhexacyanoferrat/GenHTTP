@@ -50,7 +50,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Security
 
             Assert.AreEqual("86400", response.GetHeader("Access-Control-Max-Age"));
 
-            Assert.AreEqual("Hello World", await response.GetContent());
+            Assert.AreEqual("Hello World", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -72,7 +72,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Security
 
             Assert.AreEqual("86400", response.GetHeader("Access-Control-Max-Age"));
 
-            Assert.AreEqual("Hello World", await response.GetContent());
+            Assert.AreEqual("Hello World", await response.GetContentAsync());
         }
 
         [TestMethod]

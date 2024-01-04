@@ -75,7 +75,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
 
-            Assert.AreEqual("Hello World", await response.GetContent());
+            Assert.AreEqual("Hello World", await response.GetContentAsync());
             Assert.AreEqual("text/x-custom", response.GetContentHeader("Content-Type"));
 
             Assert.AreEqual(provider.Modified.WithoutMS(), response.Content.Headers.LastModified);

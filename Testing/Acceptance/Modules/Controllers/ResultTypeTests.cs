@@ -58,7 +58,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             using var response = await runner.GetResponseAsync("/t/handler-builder/");
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
-            Assert.AreEqual("HandlerBuilder", await response.GetContent());
+            Assert.AreEqual("HandlerBuilder", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -69,7 +69,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             using var response = await runner.GetResponseAsync("/t/handler/");
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
-            Assert.AreEqual("Handler", await response.GetContent());
+            Assert.AreEqual("Handler", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -80,7 +80,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             using var response = await runner.GetResponseAsync("/t/response-builder/");
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
-            Assert.AreEqual("ResponseBuilder", await response.GetContent());
+            Assert.AreEqual("ResponseBuilder", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -91,7 +91,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             using var response = await runner.GetResponseAsync("/t/response/");
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
-            Assert.AreEqual("Response", await response.GetContent());
+            Assert.AreEqual("Response", await response.GetContentAsync());
         }
 
         #endregion

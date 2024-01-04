@@ -27,7 +27,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponseAsync("/");
 
-            var content = await response.GetContent();
+            var content = await response.GetContentAsync();
 
             AssertX.Contains("Subdirectory", content);
             AssertX.Contains("With%20Spaces", content);
@@ -48,7 +48,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponseAsync("/Subdirectory/");
 
-            var content = await response.GetContent();
+            var content = await response.GetContentAsync();
 
             AssertX.Contains("..", content);
         }
@@ -65,7 +65,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             using var response = await runner.GetResponseAsync("/my.txt");
 
-            Assert.AreEqual("Hello World!", await response.GetContent());
+            Assert.AreEqual("Hello World!", await response.GetContentAsync());
         }
 
         [TestMethod]
