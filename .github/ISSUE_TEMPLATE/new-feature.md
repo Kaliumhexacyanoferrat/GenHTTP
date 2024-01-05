@@ -20,3 +20,5 @@ var project = Layout.Create().Add(SomeCoolFeature.Create().DoSomething());
 
 - [This needs to be fullfilled to make <role> happy]
 - [This as well]
+- The feature is documented on the GenHTTP website
+- The feature is covered by acceptance tests
