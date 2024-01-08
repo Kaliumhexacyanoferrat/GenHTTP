@@ -1,8 +1,8 @@
 ﻿using System.Net;
-using System.IO;
+using System.Net.Http.Headers;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -12,8 +12,6 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
-using System.Collections.Generic;
-using System.Net.Http.Headers;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 {
