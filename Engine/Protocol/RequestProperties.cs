@@ -43,9 +43,9 @@ namespace GenHTTP.Engine.Protocol
 
         public bool TryGet<T>(string key, [MaybeNullWhen(returnValue: false)] out T entry)
         {
-            if (Data.ContainsKey(key))
+            if (Data.TryGetValue(key, out var value))
             {
-                if (Data[key] is T result) 
+                if (value is T result) 
                 {
                     entry = result;
                     return true;

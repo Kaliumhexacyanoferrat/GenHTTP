@@ -10,7 +10,7 @@ namespace GenHTTP.Modules.Caching.Memory
 
     public sealed class StreamMemoryCache : ICache<Stream>
     {
-        private readonly ICache<byte[]> _Cache = new MemoryCache<byte[]>();
+        private readonly MemoryCache<byte[]> _Cache = new();
 
         #region Functionality
 

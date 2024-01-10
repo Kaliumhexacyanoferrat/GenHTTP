@@ -160,7 +160,7 @@ namespace GenHTTP.Modules.Functional.Provider
                 requestMethods.Add(FlexibleRequestMethod.Get(RequestMethod.HEAD));
             }
 
-            if (path?.StartsWith("/") == true)
+            if (path?.StartsWith('/') == true)
             {
                 path = path[1..];
             }

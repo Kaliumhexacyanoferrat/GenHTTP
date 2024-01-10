@@ -166,12 +166,12 @@ namespace GenHTTP.Engine.Protocol
 
                 var protocol = (_EndPoint.Secure) ? ClientProtocol.HTTPS : ClientProtocol.HTTP;
 
-                if (!Headers.ContainsKey("Host"))
+                if (!Headers.TryGetValue("Host", out var host))
                 {
                     throw new ProtocolException("Mandatory 'Host' header is missing from the request");
                 }
 
-                var localClient = new ClientConnection(_Address, protocol, Headers["Host"]);
+                var localClient = new ClientConnection(_Address, protocol, host);
 
                 var client = DetermineClient() ?? localClient;
 
@@ -189,7 +189,7 @@ namespace GenHTTP.Engine.Protocol
             }
         }
 
-        private IClientConnection? DetermineClient()
+        private ClientConnection? DetermineClient()
         {
             if (_Forwardings is not null)
             {

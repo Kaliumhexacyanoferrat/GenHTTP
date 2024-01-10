@@ -161,7 +161,7 @@ namespace GenHTTP.Engine.Infrastructure
 
             var endpoints = new List<EndPointConfiguration>(_EndPoints);
 
-            if (!endpoints.Any())
+            if (endpoints.Count == 0)
             {
                 endpoints.Add(new(IPAddress.Any, _Port, null));
                 endpoints.Add(new(IPAddress.IPv6Any, _Port, null));

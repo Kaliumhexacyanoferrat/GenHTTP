@@ -36,7 +36,7 @@ namespace GenHTTP.Engine.Protocol
 
             foreach (var kv in cookies)
             {
-                var index = kv.IndexOf("=");
+                var index = kv.IndexOf('=');
 
                 if (index > -1)
                 {

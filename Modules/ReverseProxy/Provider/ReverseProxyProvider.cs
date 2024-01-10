@@ -174,7 +174,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
             SetHeaders(builder, request, contentHeaders);
 
-            if (contentHeaders.ContentEncoding.Any())
+            if (contentHeaders.ContentEncoding.Count > 0)
             {
                 builder.Encoding(contentHeaders.ContentEncoding.First());
             }

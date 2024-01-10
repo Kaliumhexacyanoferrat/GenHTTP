@@ -57,7 +57,7 @@ namespace GenHTTP.Modules.Sitemaps.Provider
                           .Build();
         }
 
-        private void Flatten(ContentElement item, List<ContentElement> into)
+        private static void Flatten(ContentElement item, List<ContentElement> into)
         {
             if (item.ContentType.KnownType == ContentType.TextHtml)
             {
