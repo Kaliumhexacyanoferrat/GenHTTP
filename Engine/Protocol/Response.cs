@@ -40,7 +40,12 @@ namespace GenHTTP.Engine
         {
             get
             {
-                return (_Headers.ContainsKey(field)) ? _Headers[field] : null;
+                if (_Headers.TryGetValue(field, out var value))
+                {
+                    return value;
+                }
+
+                return null;
             }
             set
             {

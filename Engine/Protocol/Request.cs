@@ -21,7 +21,7 @@ namespace GenHTTP.Engine
 
         private IRequestQuery? _Query;
 
-        private IRequestProperties? _Properties;
+        private RequestProperties? _Properties;
 
         private FlexibleContentType? _ContentType;
 

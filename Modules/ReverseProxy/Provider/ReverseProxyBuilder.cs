@@ -22,7 +22,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
         {
             _Upstream = upstream;
 
-            if (_Upstream.EndsWith("/"))
+            if (_Upstream.EndsWith('/'))
             {
                 _Upstream = _Upstream[0..^1];
             }

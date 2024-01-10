@@ -88,7 +88,7 @@ namespace GenHTTP.Modules.Basics
                     return route;
                 }
 
-                if (route.StartsWith("."))
+                if (route.StartsWith('.'))
                 {
                     if (!relative)
                     {

@@ -57,7 +57,7 @@ namespace GenHTTP.Engine.Protocol
                         }
                         else if (key == "proto")
                         {
-                            protocol = (val.ToLower() == "https") ? ClientProtocol.HTTPS : ClientProtocol.HTTP;
+                            protocol = string.Equals(val, "https", StringComparison.OrdinalIgnoreCase) ? ClientProtocol.HTTPS : ClientProtocol.HTTP;
                         }
                     }
                 }
