@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.IO;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text.RegularExpressions;
@@ -130,42 +131,64 @@ namespace GenHTTP.Modules.Reflection
                         if (injector.Supports(par.ParameterType))
                         {
                             targetArguments[i] = injector.GetValue(this, request, par.ParameterType);
-                            
+
                             injected = true;
                             break;
                         }
                     }
 
                     if (injected) continue;
-                        
+
                     if ((par.Name is not null) && par.CheckSimple())
                     {
-                        // is there a named parameter?
-                        if (sourceParameters is not null)
-                        {
-                            var sourceArgument = sourceParameters.Groups[par.Name];
+                        // should the value be read from the body?
+                        var fromBody = par.GetCustomAttribute<FromBodyAttribute>();
 
-                            if (sourceArgument.Success)
+                        if (fromBody != null)
+                        {
+                            if (request.Content != null)
                             {
-                                targetArguments[i] = sourceArgument.Value.ConvertTo(par.ParameterType);
-                                continue;
+                                using var reader = new StreamReader(request.Content, leaveOpen: true);
+                                
+                                var body = await reader.ReadToEndAsync();
+
+                                if (!string.IsNullOrWhiteSpace(body))
+                                {
+                                    targetArguments[i] = body.ConvertTo(par.ParameterType);
+                                }
+
+                                request.Content.Seek(0, SeekOrigin.Begin);
                             }
                         }
-
-                        // is there a query parameter?
-                        if (request.Query.TryGetValue(par.Name, out var queryValue))
+                        else
                         {
-                            targetArguments[i] = queryValue.ConvertTo(par.ParameterType);
-                            continue;
-                        }
-
-                        // is there a parameter from the body?
-                        if (bodyArguments is not null)
-                        {
-                            if (bodyArguments.TryGetValue(par.Name, out var bodyValue))
+                            // is there a named parameter?
+                            if (sourceParameters is not null)
                             {
-                                targetArguments[i] = bodyValue.ConvertTo(par.ParameterType);
+                                var sourceArgument = sourceParameters.Groups[par.Name];
+
+                                if (sourceArgument.Success)
+                                {
+                                    targetArguments[i] = sourceArgument.Value.ConvertTo(par.ParameterType);
+                                    continue;
+                                }
+                            }
+
+                            // is there a query parameter?
+                            if (request.Query.TryGetValue(par.Name, out var queryValue))
+                            {
+                                targetArguments[i] = queryValue.ConvertTo(par.ParameterType);
                                 continue;
+                            }
+
+                            // is there a parameter from the body?
+                            if (bodyArguments is not null)
+                            {
+                                if (bodyArguments.TryGetValue(par.Name, out var bodyValue))
+                                {
+                                    targetArguments[i] = bodyValue.ConvertTo(par.ParameterType);
+                                    continue;
+                                }
                             }
                         }
 
@@ -191,7 +214,7 @@ namespace GenHTTP.Modules.Reflection
                         {
                             targetArguments[i] = await deserializer.DeserializeAsync(request.Content, par.ParameterType);
                         }
-                        catch (Exception e) 
+                        catch (Exception e)
                         {
                             throw new ProviderException(ResponseStatus.BadRequest, "Failed to deserialize request body", e);
                         }
@@ -411,17 +434,17 @@ namespace GenHTTP.Modules.Reflection
 
                 return task.Result;
             }
-            else if (type == typeof(ValueTask) || type == typeof(Task) )
+            else if (type == typeof(ValueTask) || type == typeof(Task))
             {
                 dynamic task = result;
-                
+
                 await task;
 
                 return null;
             }
- 
+
             return result;
-        }  
+        }
 
         #endregion
 
