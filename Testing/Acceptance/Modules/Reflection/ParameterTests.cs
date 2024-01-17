@@ -1,9 +1,11 @@
-﻿using GenHTTP.Modules.Functional;
-using GenHTTP.Modules.Reflection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+
+using GenHTTP.Modules.Functional;
+using GenHTTP.Modules.Reflection;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Reflection
 {
@@ -13,6 +15,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Reflection
     {
 
         #region Tests
+
         [TestMethod]
         public async Task TestCanReadSimpleTypesFromBody()
         {
