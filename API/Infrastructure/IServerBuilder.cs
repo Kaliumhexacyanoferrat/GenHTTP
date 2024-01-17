@@ -25,6 +25,10 @@ namespace GenHTTP.Api.Infrastructure
         /// a client request needs to be handled.
         /// </summary>
         /// <param name="handler">The handler to be invoked to handle requests</param>
+        /// <remarks>
+        /// Note that only a single handler is supported. To build are more
+        /// complex application, consider passing a Layout instead.
+        /// </remarks>
         T Handler(IHandlerBuilder handler);
 
         #endregion
