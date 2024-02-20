@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 {
@@ -22,19 +23,19 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
                 if (bytes > TERABYTES)
                 {
-                    return Math.Round(b / TERABYTES, 2) + " TB";
+                    return Math.Round(b / TERABYTES, 2).ToString(CultureInfo.InvariantCulture) + " TB";
                 }
                 if (bytes > GIGABYTES)
                 {
-                    return Math.Round(b / GIGABYTES, 2) + " GB";
+                    return Math.Round(b / GIGABYTES, 2).ToString(CultureInfo.InvariantCulture) + " GB";
                 }
                 else if (bytes > MEGABYTES)
                 {
-                    return Math.Round(b / MEGABYTES, 2) + " MB";
+                    return Math.Round(b / MEGABYTES, 2).ToString(CultureInfo.InvariantCulture) + " MB";
                 }
                 else if (bytes > KILOBYTES)
                 {
-                    return Math.Round(b / KILOBYTES, 2) + " KB";
+                    return Math.Round(b / KILOBYTES, 2).ToString(CultureInfo.InvariantCulture) + " KB";
                 }
 
                 return $"{bytes} Bytes";
