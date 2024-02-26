@@ -419,9 +419,8 @@ namespace GenHTTP.Modules.Reflection
             }
 
             var type = result.GetType();
-            var genericType = (type.IsGenericType) ? type.GetGenericTypeDefinition() : null;
 
-            if (genericType == typeof(ValueTask<>) || genericType == typeof(Task<>))
+            if (IsAssignableToGenericType(type, typeof(ValueTask<>)) || IsAssignableToGenericType(type, typeof(Task<>)))
             {
                 dynamic task = result;
 
@@ -444,6 +443,33 @@ namespace GenHTTP.Modules.Reflection
             }
 
             return result;
+        }
+
+        private static bool IsAssignableToGenericType(Type givenType, Type genericType)
+        {
+            var interfaceTypes = givenType.GetInterfaces();
+
+            foreach (var it in interfaceTypes)
+            {
+                if (it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
+                {
+                    return true;
+                }
+            }
+
+            if (givenType.IsGenericType && givenType.GetGenericTypeDefinition() == genericType)
+            {
+                return true;
+            }
+
+            var baseType = givenType.BaseType;
+
+            if (baseType == null)
+            {
+                return false;
+            }
+
+            return IsAssignableToGenericType(baseType, genericType);
         }
 
         #endregion
