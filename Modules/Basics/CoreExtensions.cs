@@ -78,8 +78,11 @@ namespace GenHTTP.Modules.Basics
             { "htm", ContentType.TextHtml },
             // Text files            
             { "txt", ContentType.TextPlain },
+            { "cfg", ContentType.TextPlain },
             { "conf", ContentType.TextPlain },
             { "config", ContentType.TextPlain },
+            // Markdown
+            { "md", ContentType.TextMarkdown },
             // Fonts 
             { "eot", ContentType.FontEmbeddedOpenTypeFont },
             { "ttf", ContentType.FontTrueTypeFont },
