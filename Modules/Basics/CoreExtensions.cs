@@ -114,7 +114,7 @@ namespace GenHTTP.Modules.Basics
             { "mk3d", ContentType.VideoMatroska3D },
             { "mj2", ContentType.VideoMJ2 },
             { "mpg", ContentType.VideoMpeg },
-            { "mp4", ContentType.AudioMp4 },
+            { "mp4", ContentType.VideoMP4 },
             { "mpeg", ContentType.VideoMpeg },
             { "mpv", ContentType.VideoMpv },
             { "mov", ContentType.VideoQuicktime },
