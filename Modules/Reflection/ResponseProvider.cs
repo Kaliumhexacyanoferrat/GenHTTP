@@ -94,30 +94,30 @@ namespace GenHTTP.Modules.Reflection
                 return downloadResponse;
             }
 
+            // basic types should produce a string value
+            if (type == typeof(DateOnly))
+            {
+                var date = (DateOnly)result;
+
+                return request.Respond()
+                              .Content(date.ToString("yyyy-MM-dd"))
+                              .Type(ContentType.TextPlain)
+                              .Adjust(adjustments)
+                              .Build();
+            }
+
+            if (type.IsPrimitive || type == typeof(string) || type.IsEnum || type == typeof(Guid))
+            {
+                return request.Respond()
+                              .Content(result.ToString() ?? string.Empty)
+                              .Type(ContentType.TextPlain)
+                              .Adjust(adjustments)
+                              .Build();
+            }
+
+            // serialize the result
             if (Serialization is not null)
             {
-                // basic types should produce a string value
-                if (type == typeof(DateOnly))
-                {
-                    var date = (DateOnly)result;
-
-                    return request.Respond()
-                                  .Content(date.ToString("yyyy-MM-dd"))
-                                  .Type(ContentType.TextPlain)
-                                  .Adjust(adjustments)
-                                  .Build();
-                }
-
-                if (type.IsPrimitive || type == typeof(string) || type.IsEnum || type == typeof(Guid))
-                {
-                    return request.Respond()
-                                  .Content(result.ToString() ?? string.Empty)
-                                  .Type(ContentType.TextPlain)
-                                  .Adjust(adjustments)
-                                  .Build();
-                }
-
-                // serialize the result
                 var serializer = Serialization.GetSerialization(request);
 
                 if (serializer is null)

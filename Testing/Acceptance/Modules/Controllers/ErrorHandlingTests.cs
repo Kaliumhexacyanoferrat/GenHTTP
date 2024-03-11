@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Modules.Controllers;
-using GenHTTP.Modules.Layouting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 {
@@ -16,13 +12,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
     {
 
         #region Supporting data structures
-
-        public sealed class TestController
-        {
-
-            public int SimpleType() => 42;
-
-        }
 
         public sealed class ControllerWithNullablePath
         {
@@ -45,14 +34,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
         #region Tests
 
         [TestMethod]
-        public async Task TestMustNotReturnSimpleType()
-        {
-            using var response = await Run("/c/simple-type/");
-
-            await response.AssertStatusAsync(HttpStatusCode.InternalServerError);
-        }
-
-        [TestMethod]
         public void TestNoNullablePathArguments()
         {
             Assert.ThrowsException<InvalidOperationException>(() =>
@@ -70,20 +51,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
                 var controller = Controller.From<ControllerWithComplexPath>();
                 using var _ = TestHost.Run(controller);
             });
-        }
-
-        #endregion
-
-        #region Helpers
-
-        private async Task<HttpResponseMessage> Run(string uri)
-        {
-            var layout = Layout.Create()
-                               .AddController<TestController>("c");
-
-            using var runner = TestHost.Run(layout);
-
-            return await runner.GetResponseAsync(uri);
         }
 
         #endregion
