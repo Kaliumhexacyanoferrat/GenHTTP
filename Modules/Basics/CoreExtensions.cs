@@ -104,9 +104,24 @@ namespace GenHTTP.Modules.Basics
             { "mp3", ContentType.AudioMpeg },
             { "wav", ContentType.AudioWav },
             // Video
-            { "mpg", ContentType.VideoMpeg },
-            { "mpeg", ContentType.VideoMpeg },
             { "avi", ContentType.VideoMpeg },
+            { "3gp", ContentType.Video3Gpp },
+            { "3g2", ContentType.Video3Gpp2 },
+            { "av1", ContentType.VideoAV1 },
+            { "avc", ContentType.VideoAvc },
+            { "dv", ContentType.VideoDV },
+            { "mkv", ContentType.VideoMatroska },
+            { "mk3d", ContentType.VideoMatroska3D },
+            { "mj2", ContentType.VideoMJ2 },
+            { "mpg", ContentType.VideoMpeg },
+            { "mp4", ContentType.VideoMP4 },
+            { "mpeg", ContentType.VideoMpeg },
+            { "mpv", ContentType.VideoMpv },
+            { "mov", ContentType.VideoQuicktime },
+            { "hdmov", ContentType.VideoQuicktime },
+            { "vc1", ContentType.VideoVC1 },
+            { "vc2", ContentType.VideoVC2 },
+            { "webm", ContentType.VideoWebM },
             // Documents
             { "csv", ContentType.TextCsv },
             { "rtf", ContentType.TextRichText },
@@ -115,6 +130,7 @@ namespace GenHTTP.Modules.Basics
             { "ppsx", ContentType.ApplicationOfficeDocumentSlideshow },
             { "xslx", ContentType.ApplicationOfficeDocumentSheet },
             // Object models
+            { "json", ContentType.ApplicationJson },
             { "xml", ContentType.TextXml }
         };
 
