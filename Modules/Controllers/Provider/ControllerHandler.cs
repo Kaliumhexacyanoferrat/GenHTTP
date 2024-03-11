@@ -37,7 +37,7 @@ namespace GenHTTP.Modules.Controllers.Provider
         {
             Parent = parent;
 
-            ResponseProvider = new(null);
+            ResponseProvider = new(formats);
 
             Provider = new(this, AnalyzeMethods(typeof(T), formats, injection));
         }

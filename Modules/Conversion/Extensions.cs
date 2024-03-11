@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -9,6 +10,8 @@ namespace GenHTTP.Modules.Conversion
 
     public static class Extensions
     {
+
+        private static readonly Regex DATE_ONLY_PATTERN = new Regex(@"^([0-9]{4})\-([0-9]{2})\-([0-9]{2})$");
 
         /// <summary>
         /// Attempts to convert the given string value to the specified type.
@@ -54,12 +57,33 @@ namespace GenHTTP.Modules.Conversion
                     return Guid.Parse(value);
                 }
 
+                if (actualType == typeof(DateOnly))
+                {
+                    return ParseDateOnly(value);
+                }
+
                 return Convert.ChangeType(value, actualType, CultureInfo.InvariantCulture);
             }
             catch (Exception e)
             {
                 throw new ProviderException(ResponseStatus.BadRequest, $"Unable to convert value '{value}' to type '{type}'", e);
             }
+        }
+
+        private static DateOnly ParseDateOnly(string input)
+        {
+            var match = DATE_ONLY_PATTERN.Match(input);
+
+            if (match.Success)
+            {
+                var year = int.Parse(match.Groups[1].Value);
+                var month = int.Parse(match.Groups[2].Value);
+                var day = int.Parse(match.Groups[3].Value);
+
+                return new DateOnly(year, month, day);
+            }
+
+            throw new ArgumentException($"Input does not match the requested format (yyyy-mm-dd): {input}");
         }
 
     }

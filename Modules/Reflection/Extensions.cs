@@ -14,7 +14,8 @@ namespace GenHTTP.Modules.Reflection
         /// <returns><c>true</c>, if the given parameter can be passed via the URL</returns>
         public static bool CheckSimple(this ParameterInfo info)
         {
-            return info.CheckNullable() || info.ParameterType.IsPrimitive || info.ParameterType == typeof(string) || info.ParameterType.IsEnum || info.ParameterType == typeof(Guid);
+            return info.CheckNullable() || info.ParameterType.IsPrimitive || info.ParameterType == typeof(string) || info.ParameterType.IsEnum 
+                || info.ParameterType == typeof(Guid) || info.ParameterType == typeof(DateOnly);
         }
 
         /// <summary>

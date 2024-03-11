@@ -97,6 +97,17 @@ namespace GenHTTP.Modules.Reflection
             if (Serialization is not null)
             {
                 // basic types should produce a string value
+                if (type == typeof(DateOnly))
+                {
+                    var date = (DateOnly)result;
+
+                    return request.Respond()
+                                  .Content(date.ToString("yyyy-MM-dd"))
+                                  .Type(ContentType.TextPlain)
+                                  .Adjust(adjustments)
+                                  .Build();
+                }
+
                 if (type.IsPrimitive || type == typeof(string) || type.IsEnum || type == typeof(Guid))
                 {
                     return request.Respond()
