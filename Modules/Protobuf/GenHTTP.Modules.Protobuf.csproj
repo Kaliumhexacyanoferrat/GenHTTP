@@ -8,9 +8,9 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
-    <AssemblyVersion>8.2.0.0</AssemblyVersion>
-    <FileVersion>8.2.0.0</FileVersion>
-    <Version>8.2.0</Version>
+    <AssemblyVersion>8.3.0.0</AssemblyVersion>
+    <FileVersion>8.3.0.0</FileVersion>
+    <Version>8.3.0</Version>
 
     <Authors>Andreas Nägeli, Iulian Caluian</Authors>
     <Company />
