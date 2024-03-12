@@ -51,7 +51,7 @@ namespace GenHTTP.Modules.Controllers
 
             if (formats != null)
             {
-                builder.Formats(formats);
+                builder.Serializers(formats);
             }
 
             return builder;

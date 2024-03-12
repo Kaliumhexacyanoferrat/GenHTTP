@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Globalization;
-using System.Text.RegularExpressions;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.Conversion.Formatters;
 
 namespace GenHTTP.Modules.Conversion
 {
@@ -11,15 +11,13 @@ namespace GenHTTP.Modules.Conversion
     public static class Extensions
     {
 
-        private static readonly Regex DATE_ONLY_PATTERN = new Regex(@"^([0-9]{4})\-([0-9]{2})\-([0-9]{2})$");
-
         /// <summary>
         /// Attempts to convert the given string value to the specified type.
         /// </summary>
         /// <param name="value">The value to be converted</param>
         /// <param name="type">The target type to convert the value to</param>
         /// <returns>The converted value</returns>
-        public static object? ConvertTo(this string? value, Type type)
+        public static object? ConvertTo(this string? value, Type type, FormatterRegistry formatters)
         {
             if (string.IsNullOrEmpty(value))
             {
@@ -41,49 +39,12 @@ namespace GenHTTP.Modules.Conversion
             {
                 var actualType = Nullable.GetUnderlyingType(type) ?? type;
 
-                if (actualType.IsEnum)
-                {
-                    return Enum.Parse(actualType, value);
-                }
-
-                if (actualType == typeof(bool))
-                {
-                    if (value == "1" || value == "on") return true;
-                    else if (value == "0" || value == "off") return false;
-                }
-
-                if (actualType == typeof(Guid))
-                {
-                    return Guid.Parse(value);
-                }
-
-                if (actualType == typeof(DateOnly))
-                {
-                    return ParseDateOnly(value);
-                }
-
-                return Convert.ChangeType(value, actualType, CultureInfo.InvariantCulture);
+                return formatters.Read(value, actualType);
             }
             catch (Exception e)
             {
                 throw new ProviderException(ResponseStatus.BadRequest, $"Unable to convert value '{value}' to type '{type}'", e);
             }
-        }
-
-        private static DateOnly ParseDateOnly(string input)
-        {
-            var match = DATE_ONLY_PATTERN.Match(input);
-
-            if (match.Success)
-            {
-                var year = int.Parse(match.Groups[1].Value);
-                var month = int.Parse(match.Groups[2].Value);
-                var day = int.Parse(match.Groups[3].Value);
-
-                return new DateOnly(year, month, day);
-            }
-
-            throw new ArgumentException($"Input does not match the requested format (yyyy-mm-dd): {input}");
         }
 
     }

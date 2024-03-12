@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Reflection;
 
+using GenHTTP.Modules.Conversion.Formatters;
+
 namespace GenHTTP.Modules.Reflection
 {
 
@@ -12,10 +14,9 @@ namespace GenHTTP.Modules.Reflection
         /// </summary>
         /// <param name="info">The parameter to be analyzes</param>
         /// <returns><c>true</c>, if the given parameter can be passed via the URL</returns>
-        public static bool CheckSimple(this ParameterInfo info)
+        public static bool CanFormat(this ParameterInfo info, FormatterRegistry formatters)
         {
-            return info.CheckNullable() || info.ParameterType.IsPrimitive || info.ParameterType == typeof(string) || info.ParameterType.IsEnum 
-                || info.ParameterType == typeof(Guid) || info.ParameterType == typeof(DateOnly);
+            return info.CheckNullable() || formatters.CanHandle(info.ParameterType);
         }
 
         /// <summary>

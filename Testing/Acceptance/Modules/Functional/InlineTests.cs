@@ -66,7 +66,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             using var response = await host.GetResponseAsync("/?param=");
 
-            Assert.AreEqual("False", await response.GetContentAsync());
+            Assert.AreEqual("0", await response.GetContentAsync());
         }
 
         [TestMethod]

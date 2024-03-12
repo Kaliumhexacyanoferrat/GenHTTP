@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
+using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Providers;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Injectors;
@@ -30,18 +30,18 @@ namespace GenHTTP.Modules.Webservices.Provider
 
         #region Initialization
 
-        public ServiceResourceRouter(IHandler parent, object instance, SerializationRegistry serialization, InjectionRegistry injection)
+        public ServiceResourceRouter(IHandler parent, object instance, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
         {
             Parent = parent;
 
             Instance = instance;
 
-            ResponseProvider = new(serialization);
+            ResponseProvider = new(serialization, formatting);
 
-            Methods = new(this, AnalyzeMethods(instance.GetType(), serialization, injection));
+            Methods = new(this, AnalyzeMethods(instance.GetType(), serialization, injection, formatting));
         }
 
-        private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, SerializationRegistry serialization, InjectionRegistry injection)
+        private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
         {
             foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
             {
@@ -51,7 +51,7 @@ namespace GenHTTP.Modules.Webservices.Provider
                 {
                     var path = PathArguments.Route(attribute.Path);
 
-                    yield return (parent) => new MethodHandler(parent, method, path, () => Instance, attribute, ResponseProvider.GetResponseAsync, serialization, injection);
+                    yield return (parent) => new MethodHandler(parent, method, path, () => Instance, attribute, ResponseProvider.GetResponseAsync, serialization, injection, formatting);
                 }
             }
         }

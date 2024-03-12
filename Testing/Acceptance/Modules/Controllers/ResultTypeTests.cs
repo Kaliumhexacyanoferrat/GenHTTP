@@ -101,7 +101,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
         private static TestHost GetRunner()
         {
             var controller = Controller.From<TestController>()
-                                       .Formats(Serialization.Default())
+                                       .Serializers(Serialization.Default())
                                        .Injectors(Injection.Default());
 
             return TestHost.Run(Layout.Create().Add("t", controller));

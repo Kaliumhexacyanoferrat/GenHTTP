@@ -51,7 +51,7 @@ namespace GenHTTP.Modules.Webservices
 
             if (formats != null)
             {
-                builder.Formats(formats);
+                builder.Serializers(formats);
             }
 
             return builder;

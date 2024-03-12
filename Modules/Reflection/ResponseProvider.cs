@@ -6,6 +6,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
+using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Providers;
 using GenHTTP.Modules.IO;
 
@@ -21,15 +22,18 @@ namespace GenHTTP.Modules.Reflection
 
         #region Get-/Setters
 
-        private SerializationRegistry? Serialization { get; }
+        private SerializationRegistry Serialization { get; }
+
+        private FormatterRegistry Formatting { get; }
 
         #endregion
 
         #region Initialization
 
-        public ResponseProvider(SerializationRegistry? serialization)
+        public ResponseProvider(SerializationRegistry serialization, FormatterRegistry formatting)
         {
             Serialization = serialization;
+            Formatting = formatting;
         }
 
         #endregion
@@ -94,22 +98,11 @@ namespace GenHTTP.Modules.Reflection
                 return downloadResponse;
             }
 
-            // basic types should produce a string value
-            if (type == typeof(DateOnly))
-            {
-                var date = (DateOnly)result;
-
-                return request.Respond()
-                              .Content(date.ToString("yyyy-MM-dd"))
-                              .Type(ContentType.TextPlain)
-                              .Adjust(adjustments)
-                              .Build();
-            }
-
-            if (type.IsPrimitive || type == typeof(string) || type.IsEnum || type == typeof(Guid))
+            // format the value if possible
+            if (Formatting.CanHandle(type))
             {
                 return request.Respond()
-                              .Content(result.ToString() ?? string.Empty)
+                              .Content(Formatting.Write(result, type) ?? string.Empty)
                               .Type(ContentType.TextPlain)
                               .Adjust(adjustments)
                               .Build();

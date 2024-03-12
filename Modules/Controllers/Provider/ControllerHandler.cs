@@ -10,6 +10,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
+using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Providers;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Injectors;
@@ -29,20 +30,23 @@ namespace GenHTTP.Modules.Controllers.Provider
 
         private ResponseProvider ResponseProvider { get; }
 
+        private FormatterRegistry Formatting { get; }
+
         #endregion
 
         #region Initialization
 
-        public ControllerHandler(IHandler parent, SerializationRegistry formats, InjectionRegistry injection)
+        public ControllerHandler(IHandler parent, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
         {
             Parent = parent;
+            Formatting = formatting;
 
-            ResponseProvider = new(formats);
+            ResponseProvider = new(serialization, formatting);
 
-            Provider = new(this, AnalyzeMethods(typeof(T), formats, injection));
+            Provider = new(this, AnalyzeMethods(typeof(T), serialization, injection, formatting));
         }
 
-        private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, SerializationRegistry formats, InjectionRegistry injection)
+        private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
         {
             foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
             {
@@ -52,7 +56,7 @@ namespace GenHTTP.Modules.Controllers.Provider
 
                 var path = DeterminePath(method, arguments);
 
-                yield return (parent) => new MethodHandler(parent, method, path, () => new T(), annotation, ResponseProvider.GetResponseAsync, formats, injection);
+                yield return (parent) => new MethodHandler(parent, method, path, () => new T(), annotation, ResponseProvider.GetResponseAsync, serialization, injection, formatting);
             }
         }
 
@@ -75,7 +79,7 @@ namespace GenHTTP.Modules.Controllers.Provider
             }
         }
 
-        private static List<string> FindPathArguments(MethodInfo method)
+        private List<string> FindPathArguments(MethodInfo method)
         {
             var found = new List<string>();
 
@@ -85,9 +89,9 @@ namespace GenHTTP.Modules.Controllers.Provider
             {
                 if (parameter.GetCustomAttribute(typeof(FromPathAttribute), true) is not null)
                 {
-                    if (!parameter.CheckSimple())
+                    if (!parameter.CanFormat(Formatting))
                     {
-                        throw new InvalidOperationException("Parameters marked as 'FromPath' must be of a simple type (e.g. string or int)");
+                        throw new InvalidOperationException("Parameters marked as 'FromPath' must be formattable (e.g. string or int)");
                     }
 
                     if (parameter.CheckNullable())
