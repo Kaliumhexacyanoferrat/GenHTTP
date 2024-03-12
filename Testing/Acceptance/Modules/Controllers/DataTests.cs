@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Layouting;
@@ -80,7 +81,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
         private static TestHost GetHost()
         {
             var app = Layout.Create()
-                            .AddController<TestController>("t", formats: Serialization.Default(), injectors: Injection.Default());
+                            .AddController<TestController>("t", serializers: Serialization.Default(),
+                                                                injectors: Injection.Default(), 
+                                                                formatters: Formatting.Default());
 
             return TestHost.Run(app);
         }

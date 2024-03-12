@@ -1,7 +1,9 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
 
+using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Webservices;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -84,7 +86,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
 
         private TestHost GetRunner()
         {
-            return TestHost.Run(Layout.Create().AddService<TestResource>("t"));
+            return TestHost.Run(Layout.Create().AddService<TestResource>("t", serializers: Serialization.Default(),
+                                                                              injectors: Injection.Default(),
+                                                                              formatters: Formatting.Default()));
         }
 
         #endregion

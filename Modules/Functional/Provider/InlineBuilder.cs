@@ -8,9 +8,9 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Providers;
+using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Reflection.Injectors;
 using GenHTTP.Modules.Reflection;
-using GenHTTP.Modules.Conversion.Formatters;
 
 namespace GenHTTP.Modules.Functional.Provider
 {
