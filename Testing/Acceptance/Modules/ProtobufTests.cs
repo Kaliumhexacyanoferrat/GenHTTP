@@ -147,7 +147,7 @@ namespace GenHTTP.Testing.Acceptance.Modules
         private static TestHost GetService()
         {
             var service = ServiceResource.From<TestResource>()
-                                         .Formats(Serialization.Default().AddProtobuf())
+                                         .Serializers(Serialization.Default().AddProtobuf())
                                          .Injectors(Injection.Default());
 
             return TestHost.Run(Layout.Create().Add("t", service));

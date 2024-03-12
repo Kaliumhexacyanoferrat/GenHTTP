@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
+using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Providers;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Injectors;
@@ -27,16 +27,16 @@ namespace GenHTTP.Modules.Functional.Provider
 
         #region Initialization
 
-        public InlineHandler(IHandler parent, List<InlineFunction> functions, SerializationRegistry formats, InjectionRegistry injection)
+        public InlineHandler(IHandler parent, List<InlineFunction> functions, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
         {
             Parent = parent;
 
-            ResponseProvider = new(formats);
+            ResponseProvider = new(serialization, formatting);
 
-            Methods = new(this, AnalyzeMethods(functions, formats, injection));
+            Methods = new(this, AnalyzeMethods(functions, serialization, injection, formatting));
         }
 
-        private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(List<InlineFunction> functions, SerializationRegistry formats, InjectionRegistry injection)
+        private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(List<InlineFunction> functions, SerializationRegistry formats, InjectionRegistry injection, FormatterRegistry formatting)
         {
             foreach (var function in functions)
             {
@@ -44,7 +44,7 @@ namespace GenHTTP.Modules.Functional.Provider
 
                 var target = function.Delegate.Target ?? throw new InvalidOperationException("Delegate target must not be null");
 
-                yield return (parent) => new MethodHandler(parent, function.Delegate.Method, path, () => target, function.Configuration, ResponseProvider.GetResponseAsync, formats, injection);
+                yield return (parent) => new MethodHandler(parent, function.Delegate.Method, path, () => target, function.Configuration, ResponseProvider.GetResponseAsync, formats, injection, formatting);
             }
         }
 

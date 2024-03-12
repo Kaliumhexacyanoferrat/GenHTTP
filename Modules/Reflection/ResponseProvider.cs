@@ -6,6 +6,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
+using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Providers;
 using GenHTTP.Modules.IO;
 
@@ -21,15 +22,18 @@ namespace GenHTTP.Modules.Reflection
 
         #region Get-/Setters
 
-        private SerializationRegistry? Serialization { get; }
+        private SerializationRegistry Serialization { get; }
+
+        private FormatterRegistry Formatting { get; }
 
         #endregion
 
         #region Initialization
 
-        public ResponseProvider(SerializationRegistry? serialization)
+        public ResponseProvider(SerializationRegistry serialization, FormatterRegistry formatting)
         {
             Serialization = serialization;
+            Formatting = formatting;
         }
 
         #endregion
@@ -94,19 +98,19 @@ namespace GenHTTP.Modules.Reflection
                 return downloadResponse;
             }
 
+            // format the value if possible
+            if (Formatting.CanHandle(type))
+            {
+                return request.Respond()
+                              .Content(Formatting.Write(result, type) ?? string.Empty)
+                              .Type(ContentType.TextPlain)
+                              .Adjust(adjustments)
+                              .Build();
+            }
+
+            // serialize the result
             if (Serialization is not null)
             {
-                // basic types should produce a string value
-                if (type.IsPrimitive || type == typeof(string) || type.IsEnum || type == typeof(Guid))
-                {
-                    return request.Respond()
-                                  .Content(result.ToString() ?? string.Empty)
-                                  .Type(ContentType.TextPlain)
-                                  .Adjust(adjustments)
-                                  .Build();
-                }
-
-                // serialize the result
                 var serializer = Serialization.GetSerialization(request);
 
                 if (serializer is null)

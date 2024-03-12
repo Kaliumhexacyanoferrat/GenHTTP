@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Globalization;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.Conversion.Formatters;
 
 namespace GenHTTP.Modules.Conversion
 {
@@ -16,7 +17,7 @@ namespace GenHTTP.Modules.Conversion
         /// <param name="value">The value to be converted</param>
         /// <param name="type">The target type to convert the value to</param>
         /// <returns>The converted value</returns>
-        public static object? ConvertTo(this string? value, Type type)
+        public static object? ConvertTo(this string? value, Type type, FormatterRegistry formatters)
         {
             if (string.IsNullOrEmpty(value))
             {
@@ -38,23 +39,7 @@ namespace GenHTTP.Modules.Conversion
             {
                 var actualType = Nullable.GetUnderlyingType(type) ?? type;
 
-                if (actualType.IsEnum)
-                {
-                    return Enum.Parse(actualType, value);
-                }
-
-                if (actualType == typeof(bool))
-                {
-                    if (value == "1" || value == "on") return true;
-                    else if (value == "0" || value == "off") return false;
-                }
-
-                if (actualType == typeof(Guid))
-                {
-                    return Guid.Parse(value);
-                }
-
-                return Convert.ChangeType(value, actualType, CultureInfo.InvariantCulture);
+                return formatters.Read(value, actualType);
             }
             catch (Exception e)
             {

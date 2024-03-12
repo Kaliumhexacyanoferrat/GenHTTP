@@ -8,6 +8,7 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Providers;
+using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Reflection.Injectors;
 using GenHTTP.Modules.Reflection;
 
@@ -22,9 +23,11 @@ namespace GenHTTP.Modules.Functional.Provider
 
         private readonly List<InlineFunction> _Functions = new();
 
-        private IBuilder<SerializationRegistry>? _Formats;
+        private IBuilder<SerializationRegistry>? _Serializers;
 
         private IBuilder<InjectionRegistry>? _Injectors;
+
+        private IBuilder<FormatterRegistry>? _Formatters;
 
         #region Functionality
 
@@ -33,9 +36,9 @@ namespace GenHTTP.Modules.Functional.Provider
         /// to add support for additional formats such as protobuf.
         /// </summary>
         /// <param name="registry">The registry to be used by the handler</param>
-        public InlineBuilder Formats(IBuilder<SerializationRegistry> registry)
+        public InlineBuilder Serializers(IBuilder<SerializationRegistry> registry)
         {
-            _Formats = registry;
+            _Serializers = registry;
             return this;
         }
 
@@ -46,6 +49,12 @@ namespace GenHTTP.Modules.Functional.Provider
         public InlineBuilder Injectors(IBuilder<InjectionRegistry> registry)
         {
             _Injectors = registry;
+            return this;
+        }
+
+        public InlineBuilder Formatters(IBuilder<FormatterRegistry>? registry)
+        {
+            _Formatters = registry;
             return this;
         }
 
@@ -180,11 +189,13 @@ namespace GenHTTP.Modules.Functional.Provider
 
         public IHandler Build(IHandler parent)
         {
-            var formats = (_Formats ?? Serialization.Default()).Build();
+            var serializers = (_Serializers ?? Serialization.Default()).Build();
 
             var injectors = (_Injectors ?? Injection.Default()).Build();
 
-            return Concerns.Chain(parent, _Concerns, (p) => new InlineHandler(p, _Functions, formats, injectors));
+            var formatters = (_Formatters ?? Formatting.Default()).Build();
+
+            return Concerns.Chain(parent, _Concerns, (p) => new InlineHandler(p, _Functions, serializers, injectors, formatters));
         }
 
         #endregion

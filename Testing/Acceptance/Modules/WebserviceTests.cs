@@ -302,7 +302,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         private static TestHost GetService()
         {
             var service = ServiceResource.From<TestResource>()
-                                         .Formats(Serialization.Default())
+                                         .Serializers(Serialization.Default())
                                          .Injectors(Injection.Default());
 
             return TestHost.Run(Layout.Create().Add("t", service));

@@ -5,6 +5,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Modules.Conversion;
+using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Providers;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Injectors;
@@ -16,9 +17,11 @@ namespace GenHTTP.Modules.Webservices.Provider
     {
         private object? _Instance;
 
-        private IBuilder<SerializationRegistry>? _Formats;
+        private IBuilder<SerializationRegistry>? _Serializers;
 
         private IBuilder<InjectionRegistry>? _Injectors;
+
+        private IBuilder<FormatterRegistry>? _Formatters;
 
         private readonly List<IConcernBuilder> _Concerns = new();
 
@@ -32,15 +35,21 @@ namespace GenHTTP.Modules.Webservices.Provider
             return this;
         }
 
-        public ServiceResourceBuilder Formats(IBuilder<SerializationRegistry> registry)
+        public ServiceResourceBuilder Serializers(IBuilder<SerializationRegistry> registry)
         {
-            _Formats = registry;
+            _Serializers = registry;
             return this;
         }
 
         public ServiceResourceBuilder Injectors(IBuilder<InjectionRegistry> registry)
         {
             _Injectors = registry;
+            return this;
+        }
+
+        public ServiceResourceBuilder Formatters(IBuilder<FormatterRegistry>? registry)
+        {
+            _Formatters = registry;
             return this;
         }
 
@@ -52,13 +61,15 @@ namespace GenHTTP.Modules.Webservices.Provider
 
         public IHandler Build(IHandler parent)
         {
-            var formats = (_Formats ?? Serialization.Default()).Build();
+            var serializers = (_Serializers ?? Serialization.Default()).Build();
 
             var injectors = (_Injectors ?? Injection.Default()).Build();
 
+            var formatters = (_Formatters ?? Formatting.Default()).Build();
+
             var instance = _Instance ?? throw new BuilderMissingPropertyException("instance");
 
-            return Concerns.Chain(parent, _Concerns, (p) => new ServiceResourceRouter(p, instance, formats, injectors));
+            return Concerns.Chain(parent, _Concerns, (p) => new ServiceResourceRouter(p, instance, serializers, injectors, formatters));
         }
 
         #endregion

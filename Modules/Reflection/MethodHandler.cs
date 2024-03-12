@@ -13,6 +13,7 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
 using GenHTTP.Modules.Conversion;
+using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Providers;
 using GenHTTP.Modules.Conversion.Providers.Forms;
 using GenHTTP.Modules.Reflection.Injectors;
@@ -56,20 +57,25 @@ namespace GenHTTP.Modules.Reflection
 
         private InjectionRegistry Injection { get; }
 
+        private FormatterRegistry Formatting { get; }
+
         #endregion
 
         #region Initialization
 
         public MethodHandler(IHandler parent, MethodInfo method, MethodRouting routing, Func<object> instanceProvider, IMethodConfiguration metaData,
-            Func<IRequest, IHandler, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> responseProvider, SerializationRegistry serialization, InjectionRegistry injection)
+            Func<IRequest, IHandler, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> responseProvider, SerializationRegistry serialization,
+            InjectionRegistry injection, FormatterRegistry formatting)
         {
             Parent = parent;
 
             Method = method;
             Configuration = metaData;
             InstanceProvider = instanceProvider;
+
             Serialization = serialization;
             Injection = injection;
+            Formatting = formatting;
 
             ResponseProvider = responseProvider;
 
@@ -139,7 +145,7 @@ namespace GenHTTP.Modules.Reflection
 
                     if (injected) continue;
 
-                    if ((par.Name is not null) && par.CheckSimple())
+                    if ((par.Name is not null) && par.CanFormat(Formatting))
                     {
                         // should the value be read from the body?
                         var fromBody = par.GetCustomAttribute<FromBodyAttribute>();
@@ -154,7 +160,7 @@ namespace GenHTTP.Modules.Reflection
 
                                 if (!string.IsNullOrWhiteSpace(body))
                                 {
-                                    targetArguments[i] = body.ConvertTo(par.ParameterType);
+                                    targetArguments[i] = body.ConvertTo(par.ParameterType, Formatting);
                                 }
 
                                 request.Content.Seek(0, SeekOrigin.Begin);
@@ -169,7 +175,7 @@ namespace GenHTTP.Modules.Reflection
 
                                 if (sourceArgument.Success)
                                 {
-                                    targetArguments[i] = sourceArgument.Value.ConvertTo(par.ParameterType);
+                                    targetArguments[i] = sourceArgument.Value.ConvertTo(par.ParameterType, Formatting);
                                     continue;
                                 }
                             }
@@ -177,7 +183,7 @@ namespace GenHTTP.Modules.Reflection
                             // is there a query parameter?
                             if (request.Query.TryGetValue(par.Name, out var queryValue))
                             {
-                                targetArguments[i] = queryValue.ConvertTo(par.ParameterType);
+                                targetArguments[i] = queryValue.ConvertTo(par.ParameterType, Formatting);
                                 continue;
                             }
 
@@ -186,7 +192,7 @@ namespace GenHTTP.Modules.Reflection
                             {
                                 if (bodyArguments.TryGetValue(par.Name, out var bodyValue))
                                 {
-                                    targetArguments[i] = bodyValue.ConvertTo(par.ParameterType);
+                                    targetArguments[i] = bodyValue.ConvertTo(par.ParameterType, Formatting);
                                     continue;
                                 }
                             }
