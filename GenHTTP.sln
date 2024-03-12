@@ -104,6 +104,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Testing.Acceptance"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Testing", "Testing\Testing\GenHTTP.Testing.csproj", "{FC7F7D69-5ED0-4D3B-B201-EDBCEC71B8DB}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Authentication.Web", "Modules\Authentication.Web\GenHTTP.Modules.Authentication.Web.csproj", "{DE883AB8-8A0C-4CB1-B1D2-2CB0906FED03}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -258,6 +260,10 @@ Global
 		{FC7F7D69-5ED0-4D3B-B201-EDBCEC71B8DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FC7F7D69-5ED0-4D3B-B201-EDBCEC71B8DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FC7F7D69-5ED0-4D3B-B201-EDBCEC71B8DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE883AB8-8A0C-4CB1-B1D2-2CB0906FED03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE883AB8-8A0C-4CB1-B1D2-2CB0906FED03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE883AB8-8A0C-4CB1-B1D2-2CB0906FED03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE883AB8-8A0C-4CB1-B1D2-2CB0906FED03}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -302,9 +308,10 @@ Global
 		{0D9957DE-8FE2-44A1-B9D7-EADD1DBDBD6E} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 		{C5067243-AFBA-4A17-BD61-DDB503367EA3} = {A7930BE4-0549-4197-B139-B1A73E74B464}
 		{FC7F7D69-5ED0-4D3B-B201-EDBCEC71B8DB} = {A7930BE4-0549-4197-B139-B1A73E74B464}
+		{DE883AB8-8A0C-4CB1-B1D2-2CB0906FED03} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
 		LessCompiler = 2603124e-1287-4d61-9540-6ac3efad4eb9
+		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
 	EndGlobalSection
 EndGlobal
