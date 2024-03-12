@@ -75,7 +75,7 @@ namespace GenHTTP.Modules.Conversion.Providers.Forms
             {
                 var formatted = Formatters.Write(value, type);
 
-                if (value is not null)
+                if (formatted is not null)
                 {
                     query[field] = formatted;
                 }
