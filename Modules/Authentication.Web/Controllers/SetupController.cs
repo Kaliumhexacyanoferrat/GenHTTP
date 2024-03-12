@@ -1,8 +1,11 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
-
+using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Basics;
+using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Razor;
+using System.Threading.Tasks;
 
 namespace GenHTTP.Modules.Authentication.Web.Controllers
 {
@@ -14,6 +17,16 @@ namespace GenHTTP.Modules.Authentication.Web.Controllers
         {
             return ModRazor.Page(Resource.FromAssembly("EnterAccount.cshtml"), (r, h) => new BasicModel(r, h))
                            .Title("Setup");
+        }
+
+        [ControllerAction(RequestMethod.POST)]
+        public async Task<IHandlerBuilder> Index(string username, string password, IRequest request)
+        {
+            var setupConfig = Setup.GetConfig(request);
+
+            var result = await setupConfig.PerformSetup!(request, username, password);
+
+            return Redirect.To("{web-auth}/", true);
         }
 
     }

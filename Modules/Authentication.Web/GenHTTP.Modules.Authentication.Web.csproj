@@ -33,11 +33,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Views\Setup\CreateAccount.cshtml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Views\Setup\CreateAccount.cshtml" />
+    <EmbeddedResource Include="Views\EnterAccount.cshtml" />
   </ItemGroup>
 
   <ItemGroup>

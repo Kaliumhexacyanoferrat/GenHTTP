@@ -1,13 +1,18 @@
-﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Engine;
+﻿using GenHTTP.Engine;
 using GenHTTP.Modules.Authentication.Web;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Practices;
-using System.Threading.Tasks;
+
+var setupDone = false;
+
+var setup = Setup.BuiltIn
+(
+    setupRequired: (req) => new(!setupDone),
+    performSetup: (req, u, p) => { setupDone = true; return new(SetupResult.Success); }
+);
 
 var auth = WebAuthentication.Create()
-                            .Backend<MyBackend>()
-                            .EnableSetup();
+                            .EnableSetup(setup);
 
 Host.Create()
     .Handler(Content.From(Resource.FromString("Hello World")).Add(auth))
@@ -15,13 +20,3 @@ Host.Create()
     .Development()
     .Console()
     .Run();
-
-public class MyBackend : IWebAuthenticationBackend
-{
-    
-    public ValueTask<bool> CheckSetupRequired(IRequest request)
-    {
-        return new(true);
-    }
-
-}
