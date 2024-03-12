@@ -2,7 +2,6 @@
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.Layouting;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -19,52 +18,22 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
 
         public IHandler Parent { get; }
 
-        public IWebAuthenticationBackend Backend { get; }
+        private SetupConfig? SetupConfig { get; }
 
-        //public ISessionNegotiation SessionNegotiation { get; }
-
-        //public string LoginRoute { get; }
-
-        //public bool AllowAnonymous { get; }
-
-        //public string LogoutRoute { get; }
-
-        //public string? RegistrationRoute { get; }
-
-        public IHandler? SetupHandler { get; }
-
-        public string? SetupRoute { get; }
+        private IHandler? SetupHandler { get; }
 
         #endregion
 
         #region Initialization
 
         public WebAuthenticationConcern(IHandler parent, Func<IHandler, IHandler> contentFactory,
-                                        IWebAuthenticationBackend backend, //ISessionNegotiation sessionNegotiation,
-                                        //IHandlerBuilder loginHandler, string loginRoute, bool allowAnonymous,
-                                        //IHandlerBuilder logoutHandler, string logoutRoute,
-                                        //IHandlerBuilder? registrationHandler, string? registrationRoute,
-                                        IHandlerBuilder? setupHandler, string? setupRoute)
+                                        SetupConfig? setupConfig)
         {
             Parent = parent;
             Content = contentFactory(this);
 
-            Backend = backend;
-            //SessionNegotiation = sessionNegotiation;
-
-            //LoginRoute = loginRoute;
-            //AllowAnonymous = allowAnonymous;
-
-            //LogoutRoute = logoutRoute;
-
-            SetupRoute = setupRoute;
-            SetupHandler = setupHandler?.Build(this);
-
-            /*if ((registrationRoute != null) && (registrationHandler != null))
-            {
-                RegistrationRoute = registrationRoute;
-                overlay.Add(registrationRoute, registrationHandler);
-            }*/
+            SetupConfig = setupConfig;
+            SetupHandler = setupConfig?.Handler.Build(this);
         }
 
         #endregion
@@ -79,11 +48,11 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
         {
             var segment = request.Target.Current;
 
-            if ((SetupRoute != null) && (SetupHandler != null))
+            if ((SetupConfig != null) && (SetupHandler != null))
             {
-                if (await Backend.CheckSetupRequired(request))
+                if (await SetupConfig.SetupRequired(request))
                 {
-                    if (segment?.Value != SetupRoute)
+                    if (segment?.Value != SetupConfig.Route)
                     {
                         return await Redirect.To("{setup}/", true)
                                              .Build(this)
@@ -92,6 +61,8 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
                     else
                     {
                         request.Target.Advance();
+
+                        Setup.SetConfig(request, SetupConfig);
 
                         return await SetupHandler.HandleAsync(request);
                     }
@@ -103,14 +74,22 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
 
         public void Append(PathBuilder path, IRequest request, IHandler? child = null)
         {
-            if ((child == SetupHandler) && (SetupRoute != null))
+            if (SetupConfig != null)
             {
-                path.Preprend(SetupRoute);
+                if (child == SetupHandler)
+                {
+                    path.Preprend(SetupConfig.Route);
+                }
             }
         }
 
         public IHandler? Find(string segment)
         {
+            if (segment == "{web-auth}")
+            {
+                return this;
+            }
+
             if (segment == "{setup}")
             {
                 return SetupHandler;
