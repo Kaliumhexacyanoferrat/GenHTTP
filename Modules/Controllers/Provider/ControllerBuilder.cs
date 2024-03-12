@@ -31,13 +31,13 @@ namespace GenHTTP.Modules.Controllers.Provider
             return this;
         }
 
-        public ControllerBuilder<T> Injectors(IBuilder<InjectionRegistry>? registry)
+        public ControllerBuilder<T> Injectors(IBuilder<InjectionRegistry> registry)
         {
             _Injection = registry;
             return this;
         }
 
-        public ControllerBuilder<T> Formatters(IBuilder<FormatterRegistry>? registry)
+        public ControllerBuilder<T> Formatters(IBuilder<FormatterRegistry> registry)
         {
             _Formatters = registry;
             return this;

@@ -52,7 +52,11 @@ namespace GenHTTP.Modules.Functional.Provider
             return this;
         }
 
-        public InlineBuilder Formatters(IBuilder<FormatterRegistry>? registry)
+        /// <summary>
+        /// Configures the formatters to be used to extract path values.
+        /// </summary>
+        /// <param name="registry">The registry to be used by the handler</param>
+        public InlineBuilder Formatters(IBuilder<FormatterRegistry> registry)
         {
             _Formatters = registry;
             return this;

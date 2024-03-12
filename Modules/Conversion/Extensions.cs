@@ -16,6 +16,7 @@ namespace GenHTTP.Modules.Conversion
         /// </summary>
         /// <param name="value">The value to be converted</param>
         /// <param name="type">The target type to convert the value to</param>
+        /// <param name="formatters">The formatting to be used to actually perform the conversion</param>
         /// <returns>The converted value</returns>
         public static object? ConvertTo(this string? value, Type type, FormatterRegistry formatters)
         {

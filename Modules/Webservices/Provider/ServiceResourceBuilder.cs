@@ -47,7 +47,7 @@ namespace GenHTTP.Modules.Webservices.Provider
             return this;
         }
 
-        public ServiceResourceBuilder Formatters(IBuilder<FormatterRegistry>? registry)
+        public ServiceResourceBuilder Formatters(IBuilder<FormatterRegistry> registry)
         {
             _Formatters = registry;
             return this;

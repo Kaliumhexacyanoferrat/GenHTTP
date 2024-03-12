@@ -11,6 +11,10 @@ namespace GenHTTP.Modules.Conversion.Formatters
 
         #region Functionality
 
+        /// <summary>
+        /// Adds the given formatter to the registry.
+        /// </summary>
+        /// <param name="formatter">The formatter to be added</param>
         public FormatterBuilder Add(IFormatter formatter)
         {
             _Registry.Add(formatter);
@@ -19,6 +23,10 @@ namespace GenHTTP.Modules.Conversion.Formatters
 
         public FormatterBuilder Add<T>() where T : IFormatter, new() => Add(new T());
 
+        /// <summary>
+        /// Builds the formatter registry based on the configuration.
+        /// </summary>
+        /// <returns>The newly created formatter registry</returns>
         public FormatterRegistry Build()
         {
             return new FormatterRegistry(_Registry);
