@@ -1,0 +1,65 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    
+    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+
+    <LangVersion>10.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <AssemblyVersion>8.3.0.0</AssemblyVersion>
+    <FileVersion>8.3.0.0</FileVersion>
+    <Version>8.3.0</Version>
+
+    <Authors>Andreas Nägeli</Authors>
+    <Company />
+
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
+
+    <Description>Adds web based login capabilities to the GenHTTP webserver.</Description>
+    <PackageTags>HTTP Webserver C# Module Authentication Authorization Security Web Registration Login</PackageTags>
+
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>CS1591,CS1587,CS1572,CS1573</NoWarn>
+
+    <PackageIcon>icon.png</PackageIcon>
+    
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Views\Setup\CreateAccount.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Views\Setup\CreateAccount.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
+    <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\" />
+
+  </ItemGroup>
+
+  <ItemGroup>
+    
+    <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
+
+    <ProjectReference Include="..\Controllers\GenHTTP.Modules.Controllers.csproj" />
+    <ProjectReference Include="..\Razor\GenHTTP.Modules.Razor.csproj" />
+    
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Sessions\" />
+  </ItemGroup>
+
+</Project>
