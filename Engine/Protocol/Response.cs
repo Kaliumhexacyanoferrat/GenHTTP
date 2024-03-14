@@ -76,6 +76,15 @@ namespace GenHTTP.Engine
 
         #endregion
 
+        #region Functionality
+
+        public void SetCookie(Cookie cookie)
+        {
+            WriteableCookies[cookie.Name] = cookie;
+        }
+
+        #endregion
+
         #region IDisposable Support
 
         private bool disposed = false;
