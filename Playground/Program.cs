@@ -11,7 +11,13 @@ var setup = Setup.BuiltIn
     performSetup: (req, u, p) => { setupDone = true; return new(SetupResult.Success); }
 );
 
+var sessionHandling = SessionHandling.BuiltIn
+(
+    verifyToken: (token) => new()
+);
+
 var auth = WebAuthentication.Create()
+                            .SessionHandling(sessionHandling)
                             .EnableSetup(setup);
 
 Host.Create()

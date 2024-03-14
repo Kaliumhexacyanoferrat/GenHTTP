@@ -1,7 +1,9 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Authentication;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 using GenHTTP.Modules.Basics;
+using Microsoft.AspNetCore.Razor.Language.Intermediate;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -18,6 +20,10 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
 
         public IHandler Parent { get; }
 
+        private bool AllowAnonymous { get; }
+
+        private SessionConfig SessionConfig { get; }
+
         private SetupConfig? SetupConfig { get; }
 
         private IHandler? SetupHandler { get; }
@@ -26,11 +32,14 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
 
         #region Initialization
 
-        public WebAuthenticationConcern(IHandler parent, Func<IHandler, IHandler> contentFactory,
-                                        SetupConfig? setupConfig)
+        public WebAuthenticationConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, bool allowAnonymous,
+                                        SessionConfig sessionConfig, SetupConfig? setupConfig)
         {
             Parent = parent;
             Content = contentFactory(this);
+
+            AllowAnonymous = allowAnonymous;
+            SessionConfig = sessionConfig;
 
             SetupConfig = setupConfig;
             SetupHandler = setupConfig?.Handler.Build(this);
@@ -54,6 +63,7 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
                 {
                     if (segment?.Value != SetupConfig.Route)
                     {
+                        // enforce setup wizard
                         return await Redirect.To("{setup}/", true)
                                              .Build(this)
                                              .HandleAsync(request);
@@ -67,9 +77,44 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
                         return await SetupHandler.HandleAsync(request);
                     }
                 }
+                else if (segment?.Value == SetupConfig.Route) 
+                {
+                    // do not allow setup to be called again
+                    return await Redirect.To("{web-auth}", true)
+                                         .Build(this)
+                                         .HandleAsync(request);
+                }
             }
 
-            return await Content.HandleAsync(request);
+            var token = await SessionConfig.ReadToken(request);
+
+            if (token != null)
+            {
+                var authenticatedUser = await SessionConfig.VerifyToken(token);
+
+                if (authenticatedUser != null)
+                {
+                    // we're logged in
+                    return await Content.HandleAsync(request);
+                }
+            }
+
+            if (AllowAnonymous)
+            {
+                var response = await Content.HandleAsync(request);
+
+                if ((response != null) && (token != null))
+                {
+                    // clear the invalid cookie
+                    SessionConfig.ClearToken(response);
+                }
+
+                return null;
+            }
+
+            // enforce login (todo)
+
+            return null;
         }
 
         public void Append(PathBuilder path, IRequest request, IHandler? child = null)
