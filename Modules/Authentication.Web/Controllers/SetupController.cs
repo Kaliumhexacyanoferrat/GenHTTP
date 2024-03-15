@@ -1,11 +1,13 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Threading.Tasks;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Razor;
-using System.Threading.Tasks;
 
 namespace GenHTTP.Modules.Authentication.Web.Controllers
 {
@@ -20,11 +22,11 @@ namespace GenHTTP.Modules.Authentication.Web.Controllers
         }
 
         [ControllerAction(RequestMethod.POST)]
-        public async Task<IHandlerBuilder> Index(string username, string password, IRequest request)
+        public async Task<IHandlerBuilder> Index(string user, string password, IRequest request)
         {
             var setupConfig = Setup.GetConfig(request);
 
-            var result = await setupConfig.PerformSetup!(request, username, password);
+            var result = await setupConfig.PerformSetup!(request, user, password);
 
             return Redirect.To("{web-auth}/", true);
         }

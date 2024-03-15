@@ -11,6 +11,8 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
 
         private SessionConfig? _SessionConfig;
 
+        private LoginConfig? _LoginConfig;
+
         private SetupConfig? _SetupConfig;
 
         #region Functionality
@@ -33,11 +35,19 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
             return this;
         }
 
+        public WebAuthenticationBuilder Login(LoginConfig loginConfig)
+        {
+            _LoginConfig = loginConfig;
+            return this;
+        }
+
         public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
         {
             var sessionConfig = _SessionConfig ?? throw new BuilderMissingPropertyException("Sessions");
 
-            return new WebAuthenticationConcern(parent, contentFactory, _AllowAnonymous, sessionConfig, _SetupConfig);
+            var loginConfig = _LoginConfig ?? throw new BuilderMissingPropertyException("Login");
+
+            return new WebAuthenticationConcern(parent, contentFactory, _AllowAnonymous, sessionConfig, loginConfig, _SetupConfig);
         }
 
         #endregion

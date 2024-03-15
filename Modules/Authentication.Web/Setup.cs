@@ -1,10 +1,11 @@
-﻿using GenHTTP.Api.Content;
+﻿using System;
+using System.Threading.Tasks;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Authentication.Web.Concern;
+
 using GenHTTP.Modules.Authentication.Web.Controllers;
 using GenHTTP.Modules.Controllers;
-using System;
-using System.Threading.Tasks;
 
 namespace GenHTTP.Modules.Authentication.Web
 {
@@ -29,8 +30,7 @@ namespace GenHTTP.Modules.Authentication.Web
 
     public static class Setup
     {
-
-        private const string SETUP_CONFIG = "webAuth_setupConfig";
+        private const string CONFIG_KEY = "__AUTH_WEB_SETUPCONFIG";
 
         public static SetupConfig BuiltIn(Func<IRequest, ValueTask<bool>> setupRequired, Func<IRequest, string, string, ValueTask<SetupResult>> performSetup, string route = "setup")
         {
@@ -42,9 +42,9 @@ namespace GenHTTP.Modules.Authentication.Web
             return new SetupConfig(handler, route, setupRequired, null);
         }
 
-        public static SetupConfig GetConfig(IRequest request) => (SetupConfig)request.Properties[SETUP_CONFIG];
+        public static SetupConfig GetConfig(IRequest request) => (SetupConfig)request.Properties[CONFIG_KEY];
 
-        public static void SetConfig(IRequest request,  SetupConfig config) => request.Properties[SETUP_CONFIG] = config;
+        public static void SetConfig(IRequest request,  SetupConfig config) => request.Properties[CONFIG_KEY] = config;
 
     }
 
