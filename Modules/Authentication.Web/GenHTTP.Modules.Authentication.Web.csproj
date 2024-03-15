@@ -47,6 +47,7 @@
     
     <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
 
+    <ProjectReference Include="..\Authentication\GenHTTP.Modules.Authentication.csproj" />
     <ProjectReference Include="..\Controllers\GenHTTP.Modules.Controllers.csproj" />
     <ProjectReference Include="..\Razor\GenHTTP.Modules.Razor.csproj" />
     

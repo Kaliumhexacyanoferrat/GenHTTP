@@ -1,12 +1,13 @@
-﻿using GenHTTP.Api.Content;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
+
 using GenHTTP.Modules.Basics;
-using Microsoft.AspNetCore.Razor.Language.Intermediate;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace GenHTTP.Modules.Authentication.Web.Concern
 {
@@ -24,6 +25,10 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
 
         private SessionConfig SessionConfig { get; }
 
+        private LoginConfig LoginConfig { get; }
+
+        private IHandler LoginHandler { get; }
+
         private SetupConfig? SetupConfig { get; }
 
         private IHandler? SetupHandler { get; }
@@ -33,13 +38,16 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
         #region Initialization
 
         public WebAuthenticationConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, bool allowAnonymous,
-                                        SessionConfig sessionConfig, SetupConfig? setupConfig)
+                                        SessionConfig sessionConfig, LoginConfig loginConfig, SetupConfig? setupConfig)
         {
             Parent = parent;
             Content = contentFactory(this);
 
             AllowAnonymous = allowAnonymous;
             SessionConfig = sessionConfig;
+
+            LoginConfig = loginConfig;
+            LoginHandler = loginConfig.Handler.Build(this);
 
             SetupConfig = setupConfig;
             SetupHandler = setupConfig?.Handler.Build(this);
@@ -55,6 +63,9 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
+            Login.SetConfig(request, LoginConfig);
+            SessionHandling.SetConfig(request, SessionConfig);
+
             var segment = request.Target.Current;
 
             if ((SetupConfig != null) && (SetupHandler != null))
@@ -77,7 +88,7 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
                         return await SetupHandler.HandleAsync(request);
                     }
                 }
-                else if (segment?.Value == SetupConfig.Route) 
+                else if (segment?.Value == SetupConfig.Route)
                 {
                     // do not allow setup to be called again
                     return await Redirect.To("{web-auth}", true)
@@ -95,8 +106,44 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
                 if (authenticatedUser != null)
                 {
                     // we're logged in
-                    return await Content.HandleAsync(request);
+                    request.SetUser(authenticatedUser);
+
+                    // deny login and registration (todo)
+
+                    var response = await Content.HandleAsync(request);
+
+                    if (response != null)
+                    {
+                        // refresh the token, so the user will not be logged out eventually
+                        SessionConfig.WriteToken(response, token);
+                    }
+
+                    return response;
                 }
+            }
+
+            // handle login and registration (todo)
+            if (segment?.Value == LoginConfig.Route)
+            {
+                request.Target.Advance();
+
+                var loginResponse = await LoginHandler.HandleAsync(request);
+
+                if (loginResponse != null)
+                {
+                    // establish the session if the user was authenticated
+                    var authenticatedUser = request.GetUser<IUser>();
+
+                    if (authenticatedUser != null)
+                    {
+                        var generatedToken = await SessionConfig.StartSession(request, authenticatedUser);
+
+                        // actually tell the client about the token
+                        SessionConfig.WriteToken(loginResponse, generatedToken);
+                    }
+                }
+
+                return loginResponse;
             }
 
             if (AllowAnonymous)
@@ -111,14 +158,22 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
 
                 return null;
             }
-
-            // enforce login (todo)
-
-            return null;
+            else
+            {
+                // enforce login
+                return await Redirect.To("{login}/", true)
+                                     .Build(this)
+                                     .HandleAsync(request);
+            }
         }
 
         public void Append(PathBuilder path, IRequest request, IHandler? child = null)
         {
+            if (child == LoginHandler)
+            {
+                path.Preprend(LoginConfig.Route);
+            }
+
             if (SetupConfig != null)
             {
                 if (child == SetupHandler)
@@ -133,6 +188,11 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
             if (segment == "{web-auth}")
             {
                 return this;
+            }
+
+            if (segment == "{login}")
+            {
+                return LoginHandler;
             }
 
             if (segment == "{setup}")
