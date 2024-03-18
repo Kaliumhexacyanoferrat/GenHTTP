@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
@@ -15,6 +16,13 @@ namespace GenHTTP.Modules.Authentication.Web.Controllers
     public sealed class SetupController
     {
 
+        private Func<IRequest, string, string, ValueTask> PerformSetup { get; }
+
+        public SetupController(Func<IRequest, string, string, ValueTask> performSetup)
+        {
+            PerformSetup = performSetup;
+        }
+
         public IHandlerBuilder Index()
         {
             return ModRazor.Page(Resource.FromAssembly("EnterAccount.cshtml"), (r, h) => new BasicModel(r, h))
@@ -24,9 +32,7 @@ namespace GenHTTP.Modules.Authentication.Web.Controllers
         [ControllerAction(RequestMethod.POST)]
         public async Task<IHandlerBuilder> Index(string user, string password, IRequest request)
         {
-            var setupConfig = Setup.GetConfig(request);
-
-            var result = await setupConfig.PerformSetup!(request, user, password);
+            await PerformSetup(request, user, password);
 
             return Redirect.To("{web-auth}/", true);
         }

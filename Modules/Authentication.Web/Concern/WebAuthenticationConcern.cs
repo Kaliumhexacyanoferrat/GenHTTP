@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
-
 using GenHTTP.Modules.Basics;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace GenHTTP.Modules.Authentication.Web.Concern
 {
@@ -21,36 +19,29 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
 
         public IHandler Parent { get; }
 
-        private bool AllowAnonymous { get; }
+        private IWebAuthIntegration Integration { get; }
 
-        private SessionConfig SessionConfig { get; }
-
-        private LoginConfig LoginConfig { get; }
+        private ISessionHandling SessionHandling { get; }
 
         private IHandler LoginHandler { get; }
 
-        private SetupConfig? SetupConfig { get; }
-
-        private IHandler? SetupHandler { get; }
+        private IHandler SetupHandler { get; }
 
         #endregion
 
         #region Initialization
 
-        public WebAuthenticationConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, bool allowAnonymous,
-                                        SessionConfig sessionConfig, LoginConfig loginConfig, SetupConfig? setupConfig)
+        public WebAuthenticationConcern(IHandler parent, Func<IHandler, IHandler> contentFactory,
+                                        IWebAuthIntegration integration, ISessionHandling sessionHandling)
         {
             Parent = parent;
             Content = contentFactory(this);
 
-            AllowAnonymous = allowAnonymous;
-            SessionConfig = sessionConfig;
+            Integration = integration;
+            SessionHandling = sessionHandling;
 
-            LoginConfig = loginConfig;
-            LoginHandler = loginConfig.Handler.Build(this);
-
-            SetupConfig = setupConfig;
-            SetupHandler = setupConfig?.Handler.Build(this);
+            LoginHandler = integration.LoginHandler.Build(this);
+            SetupHandler = integration.SetupHandler.Build(this);
         }
 
         #endregion
@@ -63,45 +54,37 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            Login.SetConfig(request, LoginConfig);
-            SessionHandling.SetConfig(request, SessionConfig);
-
             var segment = request.Target.Current;
 
-            if ((SetupConfig != null) && (SetupHandler != null))
+            if (await Integration.CheckSetupRequired(request).ConfigureAwait(false))
             {
-                if (await SetupConfig.SetupRequired(request))
+                if (segment?.Value != Integration.SetupRoute)
                 {
-                    if (segment?.Value != SetupConfig.Route)
-                    {
-                        // enforce setup wizard
-                        return await Redirect.To("{setup}/", true)
-                                             .Build(this)
-                                             .HandleAsync(request);
-                    }
-                    else
-                    {
-                        request.Target.Advance();
-
-                        Setup.SetConfig(request, SetupConfig);
-
-                        return await SetupHandler.HandleAsync(request);
-                    }
-                }
-                else if (segment?.Value == SetupConfig.Route)
-                {
-                    // do not allow setup to be called again
-                    return await Redirect.To("{web-auth}", true)
+                    // enforce setup wizard
+                    return await Redirect.To("{setup}/", true)
                                          .Build(this)
                                          .HandleAsync(request);
                 }
+                else
+                {
+                    request.Target.Advance();
+
+                    return await SetupHandler.HandleAsync(request);
+                }
+            }
+            else if (segment?.Value == Integration.SetupRoute)
+            {
+                // do not allow setup to be called again
+                return await Redirect.To("{web-auth}", true)
+                                     .Build(this)
+                                     .HandleAsync(request);
             }
 
-            var token = await SessionConfig.ReadToken(request);
+            var token = SessionHandling.ReadToken(request);
 
             if (token != null)
             {
-                var authenticatedUser = await SessionConfig.VerifyToken(token);
+                var authenticatedUser = await Integration.VerifyTokenAsync(token);
 
                 if (authenticatedUser != null)
                 {
@@ -115,7 +98,7 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
                     if (response != null)
                     {
                         // refresh the token, so the user will not be logged out eventually
-                        SessionConfig.WriteToken(response, token);
+                        SessionHandling.WriteToken(response, token);
                     }
 
                     return response;
@@ -123,7 +106,7 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
             }
 
             // handle login and registration (todo)
-            if (segment?.Value == LoginConfig.Route)
+            if (segment?.Value == Integration.LoginRoute)
             {
                 request.Target.Advance();
 
@@ -136,27 +119,27 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
 
                     if (authenticatedUser != null)
                     {
-                        var generatedToken = await SessionConfig.StartSession(request, authenticatedUser);
+                        var generatedToken = await Integration.StartSessionAsync(request, authenticatedUser);
 
                         // actually tell the client about the token
-                        SessionConfig.WriteToken(loginResponse, generatedToken);
+                        SessionHandling.WriteToken(loginResponse, generatedToken);
                     }
                 }
 
                 return loginResponse;
             }
 
-            if (AllowAnonymous)
+            if (Integration.AllowAnonymous)
             {
                 var response = await Content.HandleAsync(request);
 
                 if ((response != null) && (token != null))
                 {
                     // clear the invalid cookie
-                    SessionConfig.ClearToken(response);
+                    SessionHandling.ClearToken(response);
                 }
 
-                return null;
+                return response;
             }
             else
             {
@@ -171,15 +154,12 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
         {
             if (child == LoginHandler)
             {
-                path.Preprend(LoginConfig.Route);
+                path.Preprend(Integration.LoginRoute);
             }
 
-            if (SetupConfig != null)
+            if (child == SetupHandler)
             {
-                if (child == SetupHandler)
-                {
-                    path.Preprend(SetupConfig.Route);
-                }
+                path.Preprend(Integration.SetupRoute);
             }
         }
 

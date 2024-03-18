@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
+using GenHTTP.Modules.Authentication.Web.Integration;
 using System;
 
 namespace GenHTTP.Modules.Authentication.Web.Concern
@@ -7,47 +8,31 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
 
     public sealed class WebAuthenticationBuilder : IConcernBuilder
     {
-        private bool _AllowAnonymous;
+        private IWebAuthIntegration? _Integration;
 
-        private SessionConfig? _SessionConfig;
-
-        private LoginConfig? _LoginConfig;
-
-        private SetupConfig? _SetupConfig;
+        private ISessionHandling? _SessionHandling;
 
         #region Functionality
 
-        public WebAuthenticationBuilder AllowAnonymous()
+        public WebAuthenticationBuilder Integration(IWebAuthIntegration integration)
         {
-            _AllowAnonymous = true;
+            _Integration = integration;
             return this;
         }
 
-        public WebAuthenticationBuilder SessionHandling(SessionConfig sessionConfig)
+        public WebAuthenticationBuilder SessionHandling(ISessionHandling sessionHandling)
         {
-            _SessionConfig = sessionConfig;
-            return this;
-        }
-
-        public WebAuthenticationBuilder EnableSetup(SetupConfig setupConfig)
-        {
-            _SetupConfig = setupConfig;
-            return this;
-        }
-
-        public WebAuthenticationBuilder Login(LoginConfig loginConfig)
-        {
-            _LoginConfig = loginConfig;
+            _SessionHandling = sessionHandling;
             return this;
         }
 
         public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
         {
-            var sessionConfig = _SessionConfig ?? throw new BuilderMissingPropertyException("Sessions");
+            var integration = _Integration ?? throw new BuilderMissingPropertyException("Integration");
 
-            var loginConfig = _LoginConfig ?? throw new BuilderMissingPropertyException("Login");
+            var sessionHandling = _SessionHandling ?? new DefaultSessionHandling();
 
-            return new WebAuthenticationConcern(parent, contentFactory, _AllowAnonymous, sessionConfig, loginConfig, _SetupConfig);
+            return new WebAuthenticationConcern(parent, contentFactory, integration, sessionHandling);
         }
 
         #endregion
