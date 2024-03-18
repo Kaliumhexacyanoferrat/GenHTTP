@@ -13,7 +13,7 @@ using GenHTTP.Modules.Reflection.Injectors;
 namespace GenHTTP.Modules.Controllers.Provider
 {
 
-    public sealed class ControllerBuilder<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T> : IHandlerBuilder<ControllerBuilder<T>> where T : new()
+    public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>
     {
         private IBuilder<SerializationRegistry>? _Serializers;
 
@@ -23,27 +23,41 @@ namespace GenHTTP.Modules.Controllers.Provider
 
         private readonly List<IConcernBuilder> _Concerns = new();
 
+        private object? _Instance;
+
         #region Functionality
 
-        public ControllerBuilder<T> Serializers(IBuilder<SerializationRegistry> registry)
+        public ControllerBuilder Serializers(IBuilder<SerializationRegistry> registry)
         {
             _Serializers = registry;
             return this;
         }
 
-        public ControllerBuilder<T> Injectors(IBuilder<InjectionRegistry> registry)
+        public ControllerBuilder Injectors(IBuilder<InjectionRegistry> registry)
         {
             _Injection = registry;
             return this;
         }
 
-        public ControllerBuilder<T> Formatters(IBuilder<FormatterRegistry> registry)
+        public ControllerBuilder Formatters(IBuilder<FormatterRegistry> registry)
         {
             _Formatters = registry;
             return this;
         }
 
-        public ControllerBuilder<T> Add(IConcernBuilder concern)
+        public ControllerBuilder Type<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>() where T : new()
+        {
+            _Instance = new T();
+            return this;
+        }
+
+        public ControllerBuilder Instance(object instance)
+        {
+            _Instance = instance;
+            return this;
+        }
+
+        public ControllerBuilder Add(IConcernBuilder concern)
         {
             _Concerns.Add(concern);
             return this;
@@ -57,7 +71,9 @@ namespace GenHTTP.Modules.Controllers.Provider
 
             var formatters = (_Formatters ?? Formatting.Default()).Build();
 
-            return Concerns.Chain(parent, _Concerns, (p) => new ControllerHandler<T>(p, serializers, injectors, formatters));
+            var instance = _Instance ?? throw new BuilderMissingPropertyException("Instance or Type");
+
+            return Concerns.Chain(parent, _Concerns, (p) => new ControllerHandler(p, instance, serializers, injectors, formatters));
         }
 
         #endregion
