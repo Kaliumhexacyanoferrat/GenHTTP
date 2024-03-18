@@ -20,6 +20,8 @@ namespace GenHTTP.Modules.Pages.Combined
 
         private ContentInfo PageInfo { get; }
 
+        private PageAdditions? Additions { get; }
+
         private IHandler Handler { get; }
 
         private IRequest Request { get; }
@@ -28,10 +30,12 @@ namespace GenHTTP.Modules.Pages.Combined
 
         #region Initialization
 
-        public CombinedPageContent(List<ContentFragment> fragments, ContentInfo pageInfo, IHandler handler, IRequest request)
+        public CombinedPageContent(List<ContentFragment> fragments, ContentInfo pageInfo, PageAdditions? additions, IHandler handler, IRequest request)
         {
             Fragments = fragments;
+
             PageInfo = pageInfo;
+            Additions = additions;
 
             Handler = handler;
             Request = request;
@@ -73,7 +77,7 @@ namespace GenHTTP.Modules.Pages.Combined
                 builder.AppendLine(await fragment.Renderer.RenderAsync(fragment.Model));
             }
 
-            await Handler.WritePageAsync(Request, PageInfo, builder.ToString(), target);
+            await Handler.WritePageAsync(Request, PageInfo, Additions, builder.ToString(), target);
         }
 
         #endregion

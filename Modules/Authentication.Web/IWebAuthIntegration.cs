@@ -1,11 +1,8 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Threading.Tasks;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
 using GenHTTP.Api.Protocol;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GenHTTP.Modules.Authentication.Web
 {
@@ -22,6 +19,10 @@ namespace GenHTTP.Modules.Authentication.Web
         IHandlerBuilder LoginHandler { get; }
 
         string LoginRoute { get => "login"; }
+
+        IHandlerBuilder ResourceHandler { get; }
+
+        string ResourceRoute { get => "auth-resources"; }
 
         ValueTask<bool> CheckSetupRequired(IRequest request);
 

@@ -41,7 +41,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
             var renderer = new ListingRenderer();
 
-            var templateModel = new TemplateModel(request, this, GetPageInfo(request), await renderer.RenderAsync(model).ConfigureAwait(false));
+            var templateModel = new TemplateModel(request, this, GetPageInfo(request), null, await renderer.RenderAsync(model).ConfigureAwait(false));
 
             return (await this.GetPageAsync(request, templateModel).ConfigureAwait(false)).Build();
         }

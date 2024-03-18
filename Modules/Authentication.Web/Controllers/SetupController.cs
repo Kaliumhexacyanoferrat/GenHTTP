@@ -13,7 +13,7 @@ using GenHTTP.Modules.Razor;
 namespace GenHTTP.Modules.Authentication.Web.Controllers
 {
 
-    public sealed class SetupController
+    public sealed class SetupController : BaseController
     {
 
         private Func<IRequest, string, string, ValueTask> PerformSetup { get; }
@@ -25,8 +25,7 @@ namespace GenHTTP.Modules.Authentication.Web.Controllers
 
         public IHandlerBuilder Index()
         {
-            return ModRazor.Page(Resource.FromAssembly("EnterAccount.cshtml"), (r, h) => new BasicModel(r, h))
-                           .Title("Setup");
+            return RenderAccountEntry("Setup");
         }
 
         [ControllerAction(RequestMethod.POST)]

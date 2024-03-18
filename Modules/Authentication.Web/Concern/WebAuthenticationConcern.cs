@@ -27,6 +27,8 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
 
         private IHandler SetupHandler { get; }
 
+        private IHandler ResourceHandler { get; }
+
         #endregion
 
         #region Initialization
@@ -42,6 +44,8 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
 
             LoginHandler = integration.LoginHandler.Build(this);
             SetupHandler = integration.SetupHandler.Build(this);
+
+            ResourceHandler = integration.ResourceHandler.Build(this);
         }
 
         #endregion
@@ -55,6 +59,13 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var segment = request.Target.Current;
+
+            if (segment?.Value == Integration.ResourceRoute)
+            {
+                request.Target.Advance();
+
+                return await ResourceHandler.HandleAsync(request).ConfigureAwait(false);
+            }
 
             if (await Integration.CheckSetupRequired(request).ConfigureAwait(false))
             {
@@ -161,6 +172,11 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
             {
                 path.Preprend(Integration.SetupRoute);
             }
+
+            if (child == ResourceHandler)
+            {
+                path.Preprend(Integration.ResourceRoute);
+            }
         }
 
         public IHandler? Find(string segment)
@@ -178,6 +194,11 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
             if (segment == "{setup}")
             {
                 return SetupHandler;
+            }
+
+            if (segment == "{web-auth-resources}")
+            {
+                return ResourceHandler;
             }
 
             return null;

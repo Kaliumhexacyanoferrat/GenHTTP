@@ -29,16 +29,19 @@ namespace GenHTTP.Modules.Pages.Rendering
 
         private ContentInfo PageInfo { get; }
 
+        private PageAdditions? Additions { get; }
+
         #endregion
 
         #region Initialization
 
-        public RenderedContent(IRenderer<T> renderer, T model, ContentInfo pageInfo)
+        public RenderedContent(IRenderer<T> renderer, T model, ContentInfo pageInfo, PageAdditions? additions)
         {
             Renderer = renderer;
             Model = model;
 
             PageInfo = pageInfo;
+            Additions = additions;
         }
 
         #endregion
@@ -110,7 +113,7 @@ namespace GenHTTP.Modules.Pages.Rendering
 
             var pageContent = await Renderer.RenderAsync(Model).ConfigureAwait(false);
 
-            await handler.WritePageAsync(request, PageInfo, pageContent, target);
+            await handler.WritePageAsync(request, PageInfo, Additions, pageContent, target);
         }
 
         #endregion

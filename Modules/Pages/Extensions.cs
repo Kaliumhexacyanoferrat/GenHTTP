@@ -25,7 +25,7 @@ namespace GenHTTP.Modules.Pages
             var info = ContentInfo.Create()
                                   .Title(title ?? "Method Not Allowed");
 
-            return handler.GetError(model, info.Build());
+            return handler.GetError(model, info.Build(), null);
         }
 
         public static IResponseBuilder GetNotFound(this IHandler handler, IRequest request, string? title = null, string? message = null)
@@ -37,14 +37,14 @@ namespace GenHTTP.Modules.Pages
             var info = ContentInfo.Create()
                                   .Title(title ?? "Not Found");
 
-            return handler.GetError(model, info.Build());
+            return handler.GetError(model, info.Build(), null);
         }
 
-        public static IResponseBuilder GetError(this IHandler handler, ErrorModel model, ContentInfo details)
+        public static IResponseBuilder GetError(this IHandler handler, ErrorModel model, ContentInfo details, PageAdditions? additions)
         {
             var renderer = handler.FindParent<IErrorRenderer>(model.Request.Server.Handler) ?? throw new InvalidOperationException("There is no error handler available in the routing tree");
 
-            var content = new RenderedContent<ErrorModel>(renderer, model, details);
+            var content = new RenderedContent<ErrorModel>(renderer, model, details, additions);
 
             return model.Request
                         .Respond()
@@ -57,9 +57,9 @@ namespace GenHTTP.Modules.Pages
             return handler.FindParent<IPageRenderer>(request.Server.Handler) ?? throw new InvalidOperationException("There is no page renderer available in the routing tree");
         }
 
-        public static async ValueTask WritePageAsync(this IHandler handler, IRequest request, ContentInfo pageInfo, string content, Stream target)
+        public static async ValueTask WritePageAsync(this IHandler handler, IRequest request, ContentInfo pageInfo, PageAdditions? additions, string content, Stream target)
         {
-            var templateModel = new TemplateModel(request, handler, pageInfo, content);
+            var templateModel = new TemplateModel(request, handler, pageInfo, additions, content);
 
             var templateRenderer = handler.GetPageRenderer(request);
 

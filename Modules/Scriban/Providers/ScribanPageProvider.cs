@@ -13,7 +13,7 @@ namespace GenHTTP.Modules.Scriban.Providers
 
         public override IRenderer<T> Renderer => _Renderer;
 
-        public ScribanPageProvider(IHandler parent, IResource templateProvider, ModelProvider<T> modelProvider, ContentInfo pageInfo) : base(parent, modelProvider, pageInfo)
+        public ScribanPageProvider(IHandler parent, IResource templateProvider, ModelProvider<T> modelProvider, ContentInfo pageInfo, PageAdditions? additions) : base(parent, modelProvider, pageInfo, additions)
         {
             _Renderer = ModScriban.Template<T>(templateProvider)
                                   .Build();

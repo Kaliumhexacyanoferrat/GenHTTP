@@ -16,8 +16,9 @@ namespace GenHTTP.Modules.Razor.Providers
 
         public override IRenderer<T> Renderer => _Renderer;
 
-        public RazorPageProvider(IHandler parent, IResource templateProvider, ModelProvider<T> modelProvider, ContentInfo pageInfo,
-                                 List<Assembly> additionalReferences, List<string> additionalUsings) : base(parent, modelProvider, pageInfo)
+        public RazorPageProvider(IHandler parent, IResource templateProvider, ModelProvider<T> modelProvider, 
+                                 ContentInfo pageInfo, PageAdditions? additions,
+                                 List<Assembly> additionalReferences, List<string> additionalUsings) : base(parent, modelProvider, pageInfo, additions)
         {
             _Renderer = ModRazor.Template<T>(templateProvider)
                                 .AddAssemblyReferences(additionalReferences)

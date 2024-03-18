@@ -1,6 +1,10 @@
-﻿using GenHTTP.Api.Infrastructure;
+﻿using System.Collections.Generic;
+using System;
+
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Placeholders.Providers
 {
@@ -9,11 +13,19 @@ namespace GenHTTP.Modules.Placeholders.Providers
     {
         private IResource? _TemplateProvider;
 
+        private Dictionary<string, Func<IModel, object?, object?>> _CustomRenderers = new();
+
         #region Functionality
 
         public PlaceholderRendererBuilder<T> TemplateProvider(IResource templateProvider)
         {
             _TemplateProvider = templateProvider;
+            return this;
+        }
+
+        public PlaceholderRendererBuilder<T> AddRenderer(string name, Func<IModel, object?, object> renderer)
+        {
+            _CustomRenderers.Add(name, renderer);
             return this;
         }
 
@@ -24,7 +36,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
                 throw new BuilderMissingPropertyException("Template Provider");
             }
 
-            return new PlaceholderRender<T>(_TemplateProvider);
+            return new PlaceholderRender<T>(_TemplateProvider, _CustomRenderers);
         }
 
         #endregion
