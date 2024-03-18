@@ -33,6 +33,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\style.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\style.css" />
     <EmbeddedResource Include="Views\EnterAccount.cshtml" />
   </ItemGroup>
 

@@ -23,15 +23,19 @@ namespace GenHTTP.Modules.Markdown
 
         public ContentInfo PageInfo { get; }
 
+        public PageAdditions? Additions { get; }
+
         #endregion
 
         #region Initialization
 
-        public MarkdownPageProvider(IHandler parent, IResource fileProvider, ContentInfo pageInfo)
+        public MarkdownPageProvider(IHandler parent, IResource fileProvider, ContentInfo pageInfo, PageAdditions? additions)
         {
             Parent = parent;
 
             PageInfo = pageInfo;
+            Additions = additions;
+
             Renderer = new(fileProvider);
         }
 
@@ -48,7 +52,7 @@ namespace GenHTTP.Modules.Markdown
             var content = await Renderer.RenderAsync(null)
                                         .ConfigureAwait(false);
 
-            var templateModel = new TemplateModel(request, this, PageInfo, content);
+            var templateModel = new TemplateModel(request, this, PageInfo, Additions, content);
 
             return (await this.GetPageAsync(request, templateModel).ConfigureAwait(false)).Build();
         }

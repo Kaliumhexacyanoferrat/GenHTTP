@@ -37,12 +37,12 @@ namespace GenHTTP.Modules.Razor
 
         public static RazorPageProviderBuilder<T> Page<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(IBuilder<IResource> templateProvider, ModelProvider<T> modelProvider) where T : class, IModel
         {
-            return Page<T>(templateProvider.Build(), modelProvider);
+            return Page(templateProvider.Build(), modelProvider);
         }
 
         public static RazorPageProviderBuilder<T> Page<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(IBuilder<IResource> templateProvider, Func<IRequest, IHandler, T> modelProvider) where T : class, IModel
         {
-            return Page<T>(templateProvider.Build(), modelProvider);
+            return Page(templateProvider.Build(), modelProvider);
         }
 
         public static RazorPageProviderBuilder<T> Page<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(IResource templateProvider, ModelProvider<T> modelProvider) where T : class, IModel

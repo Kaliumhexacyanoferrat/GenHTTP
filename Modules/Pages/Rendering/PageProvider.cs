@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
-
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Basics;
 
 namespace GenHTTP.Modules.Pages.Rendering
@@ -33,16 +33,20 @@ namespace GenHTTP.Modules.Pages.Rendering
 
         public ContentInfo PageInfo { get; }
 
+        public PageAdditions? Additions { get; }
+
         #endregion
 
         #region Initialization
 
-        protected PageProvider(IHandler parent, ModelProvider<T> modelProvider, ContentInfo pageInfo)
+        protected PageProvider(IHandler parent, ModelProvider<T> modelProvider, ContentInfo pageInfo, PageAdditions? additions)
         {
             Parent = parent;
 
             ModelProvider = modelProvider;
+
             PageInfo = pageInfo;
+            Additions = additions;  
         }
 
         #endregion
@@ -53,7 +57,7 @@ namespace GenHTTP.Modules.Pages.Rendering
         {
             var model = await ModelProvider(request, this).ConfigureAwait(false);
 
-            var content = new RenderedContent<T>(Renderer, model, PageInfo);
+            var content = new RenderedContent<T>(Renderer, model, PageInfo, Additions);
 
             await content.FillBufferAsync();
 

@@ -1,29 +1,35 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Threading.Tasks;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Authentication.Web.Controllers;
 using GenHTTP.Modules.Controllers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.Authentication.Web.Integration
 {
 
     public class SimpleIntegrationAdapter : IWebAuthIntegration
     {
+        private bool _AllowAnonymous;
 
-        bool AllowAnonymous { get; }
+        private string _SetupRoute, _LoginRoute, _ResourceRoute;
 
-        string SetupRoute { get;}
+        bool IWebAuthIntegration.AllowAnonymous { get => _AllowAnonymous; }
 
-        string LoginRoute { get; }
+        string IWebAuthIntegration.SetupRoute { get => _SetupRoute; }
+
+        string IWebAuthIntegration.LoginRoute { get => _LoginRoute; }
+
+        string IWebAuthIntegration.ResourceRoute { get => _ResourceRoute; }
 
         public IHandlerBuilder SetupHandler { get; private set; }
 
         public IHandlerBuilder LoginHandler { get; private set; }
+
+        public IHandlerBuilder ResourceHandler { get; private set; }
 
         private ISimpleWebAuthIntegration SimpleIntegration { get; }
 
@@ -31,13 +37,16 @@ namespace GenHTTP.Modules.Authentication.Web.Integration
         {
             SimpleIntegration = simpleIntegration;
 
-            AllowAnonymous = simpleIntegration.AllowAnonymous;
+            _AllowAnonymous = simpleIntegration.AllowAnonymous;
 
-            SetupRoute = simpleIntegration.SetupRoute;
-            LoginRoute = simpleIntegration.LoginRoute;
+            _SetupRoute = simpleIntegration.SetupRoute;
+            _LoginRoute = simpleIntegration.LoginRoute;
+            _ResourceRoute = simpleIntegration.ResourceRoute;
 
             SetupHandler = Controller.From(new SetupController((r, u, p) => simpleIntegration.PerformSetup(r, u, p)));
             LoginHandler = Controller.From(new LoginController((r, u, p) => simpleIntegration.PerformLogin(r, u, p)));
+
+            ResourceHandler = Resources.From(ResourceTree.FromAssembly("Resources"));
         }
 
         public ValueTask<bool> CheckSetupRequired(IRequest request) => SimpleIntegration.CheckSetupRequired(request);

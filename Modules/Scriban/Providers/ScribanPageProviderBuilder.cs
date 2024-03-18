@@ -8,7 +8,7 @@ using GenHTTP.Api.Infrastructure;
 namespace GenHTTP.Modules.Scriban.Providers
 {
 
-    public sealed class ScribanPageProviderBuilder<T> : IHandlerBuilder<ScribanPageProviderBuilder<T>>, IContentInfoBuilder<ScribanPageProviderBuilder<T>> where T : class, IModel
+    public sealed class ScribanPageProviderBuilder<T> : IHandlerBuilder<ScribanPageProviderBuilder<T>>, IContentInfoBuilder<ScribanPageProviderBuilder<T>>, IPageAdditionBuilder<ScribanPageProviderBuilder<T>> where T : class, IModel
     {
         private IResource? _TemplateProvider;
 
@@ -17,6 +17,8 @@ namespace GenHTTP.Modules.Scriban.Providers
         private readonly List<IConcernBuilder> _Concerns = new();
 
         private readonly ContentInfoBuilder _Info = new();
+
+        private readonly PageAdditionBuilder _Additions = new();
 
         #region Functionality
 
@@ -44,6 +46,18 @@ namespace GenHTTP.Modules.Scriban.Providers
             return this;
         }
 
+        public ScribanPageProviderBuilder<T> AddScript(string path, bool asynchronous = false)
+        {
+            _Additions.AddScript(path, asynchronous);
+            return this;
+        }
+
+        public ScribanPageProviderBuilder<T> AddStyle(string path)
+        {
+            _Additions.AddStyle(path);
+            return this;
+        }
+
         public ScribanPageProviderBuilder<T> Add(IConcernBuilder concern)
         {
             _Concerns.Add(concern);
@@ -62,7 +76,7 @@ namespace GenHTTP.Modules.Scriban.Providers
                 throw new BuilderMissingPropertyException("Model Provider");
             }
 
-            return Concerns.Chain(parent, _Concerns, (p) => new ScribanPageProvider<T>(p, _TemplateProvider, _ModelProvider, _Info.Build()));
+            return Concerns.Chain(parent, _Concerns, (p) => new ScribanPageProvider<T>(p, _TemplateProvider, _ModelProvider, _Info.Build(), _Additions.Build()));
         }
 
         #endregion
