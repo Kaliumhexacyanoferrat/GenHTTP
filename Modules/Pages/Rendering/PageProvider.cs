@@ -35,11 +35,13 @@ namespace GenHTTP.Modules.Pages.Rendering
 
         public PageAdditions? Additions { get; }
 
+        public ResponseModifications? Modifications { get; }
+
         #endregion
 
         #region Initialization
 
-        protected PageProvider(IHandler parent, ModelProvider<T> modelProvider, ContentInfo pageInfo, PageAdditions? additions)
+        protected PageProvider(IHandler parent, ModelProvider<T> modelProvider, ContentInfo pageInfo, PageAdditions? additions, ResponseModifications? modifications)
         {
             Parent = parent;
 
@@ -47,6 +49,7 @@ namespace GenHTTP.Modules.Pages.Rendering
 
             PageInfo = pageInfo;
             Additions = additions;  
+            Modifications = modifications;
         }
 
         #endregion
@@ -64,6 +67,7 @@ namespace GenHTTP.Modules.Pages.Rendering
             return request.Respond()
                           .Content(content)
                           .Type(_TextHtmlType)
+                          .Modify(Modifications)
                           .Build();
         }
 

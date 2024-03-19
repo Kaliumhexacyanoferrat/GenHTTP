@@ -66,6 +66,12 @@ namespace GenHTTP.Modules.Pages
             await templateRenderer.RenderAsync(templateModel, target);
         }
 
+        public static IResponseBuilder Modify(this IResponseBuilder builder, ResponseModifications? modifications)
+        {
+            modifications?.Apply(builder);
+            return builder;
+        }
+
     }
 
 }

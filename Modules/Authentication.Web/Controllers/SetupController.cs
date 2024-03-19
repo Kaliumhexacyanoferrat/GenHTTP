@@ -30,7 +30,7 @@ namespace GenHTTP.Modules.Authentication.Web.Controllers
         {
             if (string.IsNullOrWhiteSpace(user) || string.IsNullOrWhiteSpace(password))
             {
-                return RenderSetup(user, "Please enter username and password.");
+                return RenderSetup(user, "Please enter username and password.", ResponseStatus.BadRequest);
             }
 
             await PerformSetup(request, user, password);
@@ -38,7 +38,8 @@ namespace GenHTTP.Modules.Authentication.Web.Controllers
             return Redirect.To("{web-auth}/", true);
         }
 
-        private IHandlerBuilder RenderSetup(string? username = null, string? errorMessage = null) => RenderAccountEntry("Setup", "Create Account", username, errorMessage);
+        private IHandlerBuilder RenderSetup(string? username = null, string? errorMessage = null, ResponseStatus? status = null) 
+            => RenderAccountEntry("Setup", "Create Account", username, errorMessage, status);
 
     }
 
