@@ -24,7 +24,7 @@ namespace GenHTTP.Modules.Authentication.Web.Controllers
         public IHandlerBuilder Index()
         {
             // ToDo: already logged in
-            return RenderAccountEntry("Login");
+            return RenderAccountEntry("Login", "Login");
         }
 
         [ControllerAction(RequestMethod.POST)]
@@ -40,7 +40,7 @@ namespace GenHTTP.Modules.Authentication.Web.Controllers
             }
             else
             {
-                return RenderAccountEntry("Login");
+                return RenderAccountEntry("Login", "Login");
             }
         }
 
