@@ -10,7 +10,7 @@ As an example, the website of this project is hosted on a Raspberry Pi: [genhttp
 
 - Setup new webservices or websites in a couple of minutes using [project templates](https://genhttp.org/documentation/content/templates)
 - Embed web services and applications into your existing console, service, WPF or WinForms application
-- Projects are fully described in code - no configuration files needed
+- Projects are fully described in code - no configuration files needed, no magic behavior you need to learn
 - [Optimized](https://genhttp.org/features) out of the box (e.g. by bundling resources or compressing results)
 - Small memory and storage [footprint](https://genhttp.org/features#footprint)
 - Several [themes](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes) available to be chosen from
