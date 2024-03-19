@@ -12,7 +12,11 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Razor.Providers
 {
 
-    public sealed class RazorPageProviderBuilder<T> : IHandlerBuilder<RazorPageProviderBuilder<T>>, IContentInfoBuilder<RazorPageProviderBuilder<T>>, IPageAdditionBuilder<RazorPageProviderBuilder<T>>, IRazorConfigurationBuilder<RazorPageProviderBuilder<T>> where T : class, IModel
+    public sealed class RazorPageProviderBuilder<T> : IHandlerBuilder<RazorPageProviderBuilder<T>>, 
+        IContentInfoBuilder<RazorPageProviderBuilder<T>>, 
+        IPageAdditionBuilder<RazorPageProviderBuilder<T>>, 
+        IResponseModification<RazorPageProviderBuilder<T>>,
+        IRazorConfigurationBuilder<RazorPageProviderBuilder<T>> where T : class, IModel
     {
         private IResource? _TemplateProvider;
 
@@ -23,6 +27,8 @@ namespace GenHTTP.Modules.Razor.Providers
         private readonly ContentInfoBuilder _Info = new();
 
         private readonly PageAdditionBuilder _Additions = new();
+
+        private readonly ResponseModificationBuilder _Modifications = new();
 
         private readonly List<Assembly> _AdditionalAssemblies = new();
 
@@ -108,6 +114,54 @@ namespace GenHTTP.Modules.Razor.Providers
             return this;
         }
 
+        public RazorPageProviderBuilder<T> Status(ResponseStatus status)
+        {
+            _Modifications.Status(status);
+            return this;
+        }
+
+        public RazorPageProviderBuilder<T> Status(int status, string reason)
+        {
+            _Modifications.Status(status, reason);
+            return this;
+        }
+
+        public RazorPageProviderBuilder<T> Header(string key, string value)
+        {
+            _Modifications.Header(key, value);
+            return this;
+        }
+
+        public RazorPageProviderBuilder<T> Expires(DateTime expiryDate)
+        {
+            _Modifications.Expires(expiryDate);
+            return this;
+        }
+
+        public RazorPageProviderBuilder<T> Modified(DateTime modificationDate)
+        {
+            _Modifications.Modified(modificationDate);
+            return this;
+        }
+
+        public RazorPageProviderBuilder<T> Cookie(Cookie cookie)
+        {
+            _Modifications.Cookie(cookie);
+            return this;
+        }
+
+        public RazorPageProviderBuilder<T> Type(FlexibleContentType contentType)
+        {
+            _Modifications.Type(contentType);
+            return this;
+        }
+
+        public RazorPageProviderBuilder<T> Encoding(string encoding)
+        {
+            _Modifications.Encoding(encoding);
+            return this;
+        }
+
         public IHandler Build(IHandler parent)
         {
             if (_TemplateProvider is null)
@@ -120,7 +174,7 @@ namespace GenHTTP.Modules.Razor.Providers
                 throw new BuilderMissingPropertyException("Model Provider");
             }
 
-            return Concerns.Chain(parent, _Concerns, (p) => new RazorPageProvider<T>(p, _TemplateProvider, _ModelProvider, _Info.Build(), _Additions.Build(), _AdditionalAssemblies, _AditionalUsings));
+            return Concerns.Chain(parent, _Concerns, (p) => new RazorPageProvider<T>(p, _TemplateProvider, _ModelProvider, _Info.Build(), _Additions.Build(), _Modifications.Build(), _AdditionalAssemblies, _AditionalUsings));
         }
 
         #endregion

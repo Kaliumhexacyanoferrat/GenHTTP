@@ -24,7 +24,7 @@ namespace GenHTTP.Modules.Authentication.Web.Controllers
         public IHandlerBuilder Index()
         {
             // ToDo: already logged in
-            return RenderLogin();
+            return RenderLogin(status: ResponseStatus.Unauthorized);
         }
 
         [ControllerAction(RequestMethod.POST)]
@@ -32,7 +32,7 @@ namespace GenHTTP.Modules.Authentication.Web.Controllers
         {
             if (string.IsNullOrWhiteSpace(user) || string.IsNullOrWhiteSpace(password))
             {
-                return RenderLogin(user, "Please enter username and password.");
+                return RenderLogin(user, "Please enter username and password.", status: ResponseStatus.BadRequest);
             }
 
             var authenticatedUser = await PerformLogin(request, user, password);
@@ -45,11 +45,12 @@ namespace GenHTTP.Modules.Authentication.Web.Controllers
             }
             else
             {
-                return RenderLogin(user, "Invalid username or password.");
+                return RenderLogin(user, "Invalid username or password.", status: ResponseStatus.Forbidden);
             }
         }
 
-        private IHandlerBuilder RenderLogin(string? username = null, string? errorMessage = null) => RenderAccountEntry("Login", "Login", username, errorMessage);
+        private IHandlerBuilder RenderLogin(string? username = null, string? errorMessage = null, ResponseStatus? status = null)
+            => RenderAccountEntry("Login", "Login", username, errorMessage, status);
 
     }
 
