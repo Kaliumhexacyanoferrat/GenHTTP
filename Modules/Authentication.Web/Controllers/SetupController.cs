@@ -2,13 +2,10 @@
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Controllers;
-using GenHTTP.Modules.IO;
-using GenHTTP.Modules.Razor;
 
 namespace GenHTTP.Modules.Authentication.Web.Controllers
 {
@@ -25,16 +22,23 @@ namespace GenHTTP.Modules.Authentication.Web.Controllers
 
         public IHandlerBuilder Index()
         {
-            return RenderAccountEntry("Setup", "Create Account");
+            return RenderSetup();
         }
 
         [ControllerAction(RequestMethod.POST)]
         public async Task<IHandlerBuilder> Index(string user, string password, IRequest request)
         {
+            if (string.IsNullOrWhiteSpace(user) || string.IsNullOrWhiteSpace(password))
+            {
+                return RenderSetup(user, "Please enter username and password.");
+            }
+
             await PerformSetup(request, user, password);
 
             return Redirect.To("{web-auth}/", true);
         }
+
+        private IHandlerBuilder RenderSetup(string? username = null, string? errorMessage = null) => RenderAccountEntry("Setup", "Create Account", username, errorMessage);
 
     }
 

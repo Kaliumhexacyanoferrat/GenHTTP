@@ -4,7 +4,11 @@
     public record EnterAccountModel
     (
 
-        string ButtonCaption
+        string ButtonCaption,
+
+        string? Username = null,
+
+        string? ErrorMessage = null
 
     );
     
