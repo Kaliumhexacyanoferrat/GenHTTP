@@ -24,12 +24,17 @@ namespace GenHTTP.Modules.Authentication.Web.Controllers
         public IHandlerBuilder Index()
         {
             // ToDo: already logged in
-            return RenderAccountEntry("Login", "Login");
+            return RenderLogin();
         }
 
         [ControllerAction(RequestMethod.POST)]
         public async Task<IHandlerBuilder> Index(string user, string password, IRequest request)
         {
+            if (string.IsNullOrWhiteSpace(user) || string.IsNullOrWhiteSpace(password))
+            {
+                return RenderLogin(user, "Please enter username and password.");
+            }
+
             var authenticatedUser = await PerformLogin(request, user, password);
 
             if (authenticatedUser != null)
@@ -40,9 +45,11 @@ namespace GenHTTP.Modules.Authentication.Web.Controllers
             }
             else
             {
-                return RenderAccountEntry("Login", "Login");
+                return RenderLogin(user, "Invalid username or password.");
             }
         }
+
+        private IHandlerBuilder RenderLogin(string? username = null, string? errorMessage = null) => RenderAccountEntry("Login", "Login", username, errorMessage);
 
     }
 

@@ -21,6 +21,7 @@
     flex-flow: column wrap;
     gap: 20px;
     margin-left: 10px;
+    margin-right: 15px;
 }
 
 .user_cont, .pass_cont {
@@ -37,13 +38,20 @@
 }
 
 button {
-    width: 100%;
     border: none;
     outline: none;
     padding: 5px 8px;
     border-radius: 10px;
     transition: all 0.1s ease;
     background-color: #DEDEDE;
+}
+
+.error_message {
+    background-color: #C5532F;
+    padding: 8px;
+    border-radius: 10px;
+    font-style: italic;
+    font-size: 10pt;
 }
 
 button:hover {
