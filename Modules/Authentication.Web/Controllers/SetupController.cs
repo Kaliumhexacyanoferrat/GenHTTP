@@ -25,7 +25,7 @@ namespace GenHTTP.Modules.Authentication.Web.Controllers
 
         public IHandlerBuilder Index()
         {
-            return RenderAccountEntry("Setup");
+            return RenderAccountEntry("Setup", "Create Account");
         }
 
         [ControllerAction(RequestMethod.POST)]

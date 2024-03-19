@@ -1,6 +1,52 @@
-﻿.center {
-    margin: auto;
-    width: 50%;
-    border: 3px solid green;
-    padding: 10px;
+﻿.container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon {
+    width: 15px;
+    height: 100%;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    z-index: 99;
+}
+
+.inputs {
+    position: relative;
+    display: flex;
+    flex-flow: column wrap;
+    gap: 20px;
+    margin-left: 10px;
+}
+
+.user_cont, .pass_cont {
+    position: relative;
+}
+
+.inputs input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background-color: #DEDEDE;
+    padding: 7px 6px;
+    border-radius: 10px;
+}
+
+button {
+    width: 100%;
+    border: none;
+    outline: none;
+    padding: 5px 8px;
+    border-radius: 10px;
+    transition: all 0.1s ease;
+    background-color: #DEDEDE;
+}
+
+button:hover {
+    transform: translateY(-1px);
+    cursor: pointer;
 }
