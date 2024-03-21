@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
+using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Pages.Combined
@@ -16,6 +17,8 @@ namespace GenHTTP.Modules.Pages.Combined
         private readonly ContentInfoBuilder _Info = new();
 
         private readonly List<PageFragment> _Fragments = new();
+
+        private readonly PageAdditions _Additions = PageAdditions.Create();
 
         #region Supporting data structures
 
@@ -103,6 +106,18 @@ namespace GenHTTP.Modules.Pages.Combined
             return this;
         }
 
+        public CombinedPageBuilder AddScript(ScriptReference reference)
+        {
+            _Additions.Scripts.Add(reference);
+            return this;
+        }
+
+        public CombinedPageBuilder AddStyle(StyleReference reference)
+        {
+            _Additions.Styles.Add(reference);
+            return this;
+        }
+
         public CombinedPageBuilder Add(IConcernBuilder concern)
         {
             _Concerns.Add(concern);
@@ -111,7 +126,7 @@ namespace GenHTTP.Modules.Pages.Combined
 
         public IHandler Build(IHandler parent)
         {
-            return Concerns.Chain(parent, _Concerns, (p) => new CombinedPageProvider(p, _Info.Build(), _Fragments));
+            return Concerns.Chain(parent, _Concerns, (p) => new CombinedPageProvider(p, _Info.Build(), _Additions, _Fragments));
         }
 
         #endregion

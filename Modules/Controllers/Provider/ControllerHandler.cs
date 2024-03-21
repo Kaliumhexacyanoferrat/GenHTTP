@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -18,7 +17,7 @@ using GenHTTP.Modules.Reflection.Injectors;
 namespace GenHTTP.Modules.Controllers.Provider
 {
 
-    public sealed class ControllerHandler<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T> : IHandler, IHandlerResolver where T : new()
+    public sealed class ControllerHandler : IHandler, IHandlerResolver
     {
         private static readonly MethodRouting EMPTY = new("/", "^(/|)$", null, true);
 
@@ -32,18 +31,22 @@ namespace GenHTTP.Modules.Controllers.Provider
 
         private FormatterRegistry Formatting { get; }
 
+        private object Instance { get; }
+
         #endregion
 
         #region Initialization
 
-        public ControllerHandler(IHandler parent, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
+        public ControllerHandler(IHandler parent, object instance, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
         {
             Parent = parent;
             Formatting = formatting;
 
+            Instance = instance;
+
             ResponseProvider = new(serialization, formatting);
 
-            Provider = new(this, AnalyzeMethods(typeof(T), serialization, injection, formatting));
+            Provider = new(this, AnalyzeMethods(instance.GetType(), serialization, injection, formatting));
         }
 
         private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
@@ -56,7 +59,7 @@ namespace GenHTTP.Modules.Controllers.Provider
 
                 var path = DeterminePath(method, arguments);
 
-                yield return (parent) => new MethodHandler(parent, method, path, () => new T(), annotation, ResponseProvider.GetResponseAsync, serialization, injection, formatting);
+                yield return (parent) => new MethodHandler(parent, method, path, () => Instance, annotation, ResponseProvider.GetResponseAsync, serialization, injection, formatting);
             }
         }
 

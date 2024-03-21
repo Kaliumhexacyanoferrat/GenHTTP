@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
@@ -9,6 +10,7 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Placeholders;
+using GenHTTP.Modules.Basics;
 
 namespace GenHTTP.Engine.Infrastructure
 {
@@ -51,6 +53,7 @@ namespace GenHTTP.Engine.Infrastructure
             Content = Concerns.Chain(this, concerns, (p) => content.Build(p));
 
             Template = Placeholders.Template<TemplateModel>(Resource.FromAssembly("Template.html"))
+                                   .AddRenderer("additions", (model, a) => RenderAdditions(model, (PageAdditions?)a))
                                    .Build();
 
             ErrorRenderer = Placeholders.Template<ErrorModel>(Resource.FromAssembly(development ? "ErrorStacked.html" : "Error.html"))
@@ -85,6 +88,26 @@ namespace GenHTTP.Engine.Infrastructure
         public ValueTask<string> RenderAsync(TemplateModel model) => Template.RenderAsync(model);
 
         public ValueTask RenderAsync(TemplateModel model, Stream target) => Template.RenderAsync(model, target);
+
+        private string RenderAdditions(IModel model, PageAdditions? additions)
+        {
+            var builder = new StringBuilder();
+
+            if (additions != null)
+            {
+                foreach (var style in additions.Styles)
+                {
+                    builder.AppendLine($"<link rel=\"stylesheet\" href=\"{model.Handler.Route(model.Request, style.Path)}\" />");
+                }
+
+                foreach (var script in additions.Scripts)
+                {
+                    builder.AppendLine($"<script src=\"{model.Handler.Route(model.Request, script.Path)}\"></script>");
+                }
+            }
+
+            return builder.ToString();
+        }
 
         #endregion
 

@@ -52,6 +52,12 @@ namespace GenHTTP.Api.Protocol
         /// </summary>
         bool HasCookies { get; }
 
+        /// <summary>
+        /// Adds the given cookie to the cookie collection of this response.
+        /// </summary>
+        /// <param name="cookie">The cookie to be added</param>
+        void SetCookie(Cookie cookie);
+
         #endregion
 
         #region Content

@@ -27,7 +27,7 @@ namespace GenHTTP.Modules.ErrorHandling
                 var details = ContentInfo.Create()
                                          .Title(e.Status.ToString());
 
-                return new(handler.GetError(model, details.Build()).Build());
+                return new(handler.GetError(model, details.Build(), null).Build());
             }
             else
             {
@@ -36,7 +36,7 @@ namespace GenHTTP.Modules.ErrorHandling
                 var details = ContentInfo.Create()
                                          .Title("Internal Server Error");
 
-                return new(handler.GetError(model, details.Build()).Build());
+                return new(handler.GetError(model, details.Build(), null).Build());
             }
         }
 

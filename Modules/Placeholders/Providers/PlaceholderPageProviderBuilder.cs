@@ -11,7 +11,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Placeholders.Providers
 {
 
-    public sealed class PlaceholderPageProviderBuilder<T> : IHandlerBuilder<PlaceholderPageProviderBuilder<T>>, IContentInfoBuilder<PlaceholderPageProviderBuilder<T>> where T : class, IModel
+    public sealed class PlaceholderPageProviderBuilder<T> : IHandlerBuilder<PlaceholderPageProviderBuilder<T>>, IContentInfoBuilder<PlaceholderPageProviderBuilder<T>>, IPageAdditionBuilder<PlaceholderPageProviderBuilder<T>> where T : class, IModel
     {
         private IResource? _TemplateProvider;
 
@@ -20,6 +20,8 @@ namespace GenHTTP.Modules.Placeholders.Providers
         private readonly List<IConcernBuilder> _Concerns = new();
 
         private readonly ContentInfoBuilder _Info = new();
+
+        private readonly PageAdditionBuilder _Additions = new();
 
         #region Functionality
 
@@ -53,6 +55,18 @@ namespace GenHTTP.Modules.Placeholders.Providers
             return this;
         }
 
+        public PlaceholderPageProviderBuilder<T> AddScript(string path, bool asynchronous = false)
+        {
+            _Additions.AddScript(path, asynchronous);
+            return this;
+        }
+
+        public PlaceholderPageProviderBuilder<T> AddStyle(string path)
+        {
+            _Additions.AddStyle(path);
+            return this;
+        }
+
         public PlaceholderPageProviderBuilder<T> Add(IConcernBuilder concern)
         {
             _Concerns.Add(concern);
@@ -71,7 +85,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
                 throw new BuilderMissingPropertyException("Model Provider");
             }
 
-            return Concerns.Chain(parent, _Concerns, (p) => new PlaceholderPageProvider<T>(p, _TemplateProvider, _ModelProvider, _Info.Build()));
+            return Concerns.Chain(parent, _Concerns, (p) => new PlaceholderPageProvider<T>(p, _TemplateProvider, _ModelProvider, _Info.Build(), _Additions.Build()));
         }
 
         #endregion

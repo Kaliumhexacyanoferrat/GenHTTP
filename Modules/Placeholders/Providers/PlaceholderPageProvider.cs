@@ -6,8 +6,8 @@ using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Basics;
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.Placeholders.Providers
 {
@@ -25,11 +25,13 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         public ContentInfo PageInfo { get; }
 
+        public PageAdditions? Additions { get; }
+
         #endregion
 
         #region Initialization
 
-        public PlaceholderPageProvider(IHandler parent, IResource templateProvider, ModelProvider<T> modelProvider, ContentInfo pageInfo)
+        public PlaceholderPageProvider(IHandler parent, IResource templateProvider, ModelProvider<T> modelProvider, ContentInfo pageInfo, PageAdditions? additions)
         {
             Parent = parent;
 
@@ -37,6 +39,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
             ModelProvider = modelProvider;
 
             PageInfo = pageInfo;
+            Additions = additions;
         }
 
         #endregion
@@ -45,16 +48,16 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var renderer = new PlaceholderRender<T>(TemplateProvider);
+            var renderer = new PlaceholderRender<T>(TemplateProvider, null);
 
             var model = await ModelProvider(request, this);
 
             var content = await renderer.RenderAsync(model).ConfigureAwait(false);
 
-            var templateModel = new TemplateModel(request, this, PageInfo, content);
+            var templateModel = new TemplateModel(request, this, PageInfo, Additions, content);
 
             var page = await this.GetPageAsync(request, templateModel).ConfigureAwait(false);
-                       
+
             return page.Build();
         }
 
