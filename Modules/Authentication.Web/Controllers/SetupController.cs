@@ -35,7 +35,7 @@ namespace GenHTTP.Modules.Authentication.Web.Controllers
 
             await PerformSetup(request, user, password);
 
-            return Redirect.To("{web-auth}/", true);
+            return Redirect.To("{login}/", true);
         }
 
         private IHandlerBuilder RenderSetup(string? username = null, string? errorMessage = null, ResponseStatus? status = null) 
