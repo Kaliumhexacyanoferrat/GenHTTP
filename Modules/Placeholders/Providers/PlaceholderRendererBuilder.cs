@@ -4,7 +4,6 @@ using System;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Content.IO;
-using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Placeholders.Providers
 {
@@ -13,7 +12,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
     {
         private IResource? _TemplateProvider;
 
-        private Dictionary<string, Func<IModel, object?, object?>> _CustomRenderers = new();
+        private readonly Dictionary<string, Func<IModel, object?, object?>> _CustomRenderers = new();
 
         #region Functionality
 

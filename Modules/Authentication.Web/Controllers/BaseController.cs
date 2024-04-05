@@ -12,7 +12,7 @@ namespace GenHTTP.Modules.Authentication.Web.Controllers
     public class BaseController
     {
 
-        protected IHandlerBuilder RenderAccountEntry(string title, string buttonCaption, string? username = null, string? errorMessage = null, ResponseStatus? status = null)
+        protected static IHandlerBuilder RenderAccountEntry(string title, string buttonCaption, string? username = null, string? errorMessage = null, ResponseStatus? status = null)
         {
             var response = ModRazor.Page(Resource.FromAssembly("EnterAccount.cshtml"), (r, h) => new ViewModel<EnterAccountModel>(r, h, new(buttonCaption, username, errorMessage)))
                                    .AddStyle("{web-auth-resources}/style.css")

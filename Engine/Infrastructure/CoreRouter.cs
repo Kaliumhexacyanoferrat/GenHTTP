@@ -89,7 +89,7 @@ namespace GenHTTP.Engine.Infrastructure
 
         public ValueTask RenderAsync(TemplateModel model, Stream target) => Template.RenderAsync(model, target);
 
-        private string RenderAdditions(IModel model, PageAdditions? additions)
+        private static string RenderAdditions(IModel model, PageAdditions? additions)
         {
             var builder = new StringBuilder();
 

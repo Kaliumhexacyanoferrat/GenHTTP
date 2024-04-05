@@ -13,9 +13,9 @@ namespace GenHTTP.Modules.Authentication.Web.Integration
 
     public class SimpleIntegrationAdapter : IWebAuthIntegration
     {
-        private bool _AllowAnonymous;
+        private readonly bool _AllowAnonymous;
 
-        private string _SetupRoute, _LoginRoute, _ResourceRoute;
+        private readonly string _SetupRoute, _LoginRoute, _ResourceRoute;
 
         bool IWebAuthIntegration.AllowAnonymous { get => _AllowAnonymous; }
 

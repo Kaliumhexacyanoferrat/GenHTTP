@@ -66,6 +66,18 @@ namespace GenHTTP.Modules.Pages.Combined
             return this;
         }
 
+        public CombinedPageBuilder AddScript(ScriptReference reference)
+        {
+            _Additions.Scripts.Add(reference);
+            return this;
+        }
+
+        public CombinedPageBuilder AddStyle(StyleReference reference)
+        {
+            _Additions.Styles.Add(reference);
+            return this;
+        }
+
         /// <summary>
         /// Adds a dynamically rendered part to the page.
         /// </summary>
@@ -103,18 +115,6 @@ namespace GenHTTP.Modules.Pages.Combined
         public CombinedPageBuilder Add(PageFragment fragment)
         {
             _Fragments.Add(fragment);
-            return this;
-        }
-
-        public CombinedPageBuilder AddScript(ScriptReference reference)
-        {
-            _Additions.Scripts.Add(reference);
-            return this;
-        }
-
-        public CombinedPageBuilder AddStyle(StyleReference reference)
-        {
-            _Additions.Styles.Add(reference);
             return this;
         }
 

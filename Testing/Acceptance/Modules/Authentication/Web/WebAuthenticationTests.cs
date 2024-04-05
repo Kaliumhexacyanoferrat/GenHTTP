@@ -13,6 +13,7 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NSubstitute.Extensions;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Authentication.Web
 {
@@ -26,13 +27,19 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication.Web
         [TestMethod]
         public async Task TestHappyPath()
         {
+            var cookies = new CookieContainer();
+
+            var client = TestHost.GetClient(cookies: cookies);
+
             using var host = GetHost();
 
-            await Post(host, "/setup/", "u", "p");
+            await Post(host, "/setup/", "u", "p", client);
 
-            await Post(host, "/login/", "u", "p");
+            await Post(host, "/login/", "u", "p", client);
 
-            var content = await host.GetResponseAsync("/content/");
+            Assert.AreEqual(1, cookies.Count);
+
+            var content = await host.GetResponseAsync("/content/", client);
 
             await content.AssertStatusAsync(HttpStatusCode.OK);
 
@@ -147,7 +154,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication.Web
 
         #region Test setup
 
-        private async Task<HttpResponseMessage> Post(TestHost host, string route, string username, string password)
+        private async Task<HttpResponseMessage> Post(TestHost host, string route, string username, string password, HttpClient? client = null)
         {
             var request = host.GetRequest(route, HttpMethod.Post);
 
@@ -158,7 +165,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication.Web
 
             request.Content = new FormUrlEncodedContent(args);
 
-            return await host.GetResponseAsync(request);
+            return await host.GetResponseAsync(request, client);
         }
 
         private TestHost GetHost(TestIntegration? integration = null)
