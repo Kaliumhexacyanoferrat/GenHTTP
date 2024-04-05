@@ -10,8 +10,6 @@ namespace GenHTTP.Modules.Authentication.Web
 
         void WriteToken(IResponse response, string sessionToken);
 
-        void ClearToken(IResponse response);
-
     }
 
 }
