@@ -10,7 +10,7 @@ using GenHTTP.Modules.Controllers;
 namespace GenHTTP.Modules.Authentication.Web.Controllers
 {
 
-    public sealed class SetupController : BaseController
+    public sealed class SetupController 
     {
 
         private Func<IRequest, string, string, ValueTask> PerformSetup { get; }
@@ -38,8 +38,8 @@ namespace GenHTTP.Modules.Authentication.Web.Controllers
             return Redirect.To("{login}/", true);
         }
 
-        private IHandlerBuilder RenderSetup(string? username = null, string? errorMessage = null, ResponseStatus? status = null) 
-            => RenderAccountEntry("Setup", "Create Account", username, errorMessage, status);
+        private static IHandlerBuilder RenderSetup(string? username = null, string? errorMessage = null, ResponseStatus? status = null) 
+            => View.RenderAccountEntry("Setup", "Create Account", username, errorMessage, status);
 
     }
 

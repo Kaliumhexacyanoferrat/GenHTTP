@@ -11,7 +11,7 @@ using GenHTTP.Modules.Controllers;
 namespace GenHTTP.Modules.Authentication.Web.Controllers
 {
 
-    public class LoginController : BaseController
+    public class LoginController 
     {
 
         private Func<IRequest, string, string, ValueTask<IUser?>> PerformLogin { get; }
@@ -49,8 +49,8 @@ namespace GenHTTP.Modules.Authentication.Web.Controllers
             }
         }
 
-        private IHandlerBuilder RenderLogin(string? username = null, string? errorMessage = null, ResponseStatus? status = null)
-            => RenderAccountEntry("Login", "Login", username, errorMessage, status);
+        private static IHandlerBuilder RenderLogin(string? username = null, string? errorMessage = null, ResponseStatus? status = null)
+            => View.RenderAccountEntry("Login", "Login", username, errorMessage, status);
 
     }
 
