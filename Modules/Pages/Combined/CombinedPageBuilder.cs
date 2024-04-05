@@ -1,16 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Templating;
-using GenHTTP.Api.Content.Websites;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Pages.Combined
 {
 
-    public class CombinedPageBuilder : IHandlerBuilder<CombinedPageBuilder>, IContentInfoBuilder<CombinedPageBuilder>
+    public class CombinedPageBuilder :
+        IHandlerBuilder<CombinedPageBuilder>, 
+        IContentInfoBuilder<CombinedPageBuilder>,
+        IPageAdditionBuilder<CombinedPageBuilder>,
+        IResponseModification<CombinedPageBuilder>
     {
         private readonly List<IConcernBuilder> _Concerns = new();
 
@@ -18,7 +22,9 @@ namespace GenHTTP.Modules.Pages.Combined
 
         private readonly List<PageFragment> _Fragments = new();
 
-        private readonly PageAdditions _Additions = PageAdditions.Create();
+        private readonly PageAdditionBuilder _Additions = new PageAdditionBuilder();
+
+        private readonly ResponseModificationBuilder _Modifications = new ResponseModificationBuilder();
 
         #region Supporting data structures
 
@@ -63,18 +69,6 @@ namespace GenHTTP.Modules.Pages.Combined
         public CombinedPageBuilder Title(string title)
         {
             _Info.Title(title);
-            return this;
-        }
-
-        public CombinedPageBuilder AddScript(ScriptReference reference)
-        {
-            _Additions.Scripts.Add(reference);
-            return this;
-        }
-
-        public CombinedPageBuilder AddStyle(StyleReference reference)
-        {
-            _Additions.Styles.Add(reference);
             return this;
         }
 
@@ -124,9 +118,69 @@ namespace GenHTTP.Modules.Pages.Combined
             return this;
         }
 
+        public CombinedPageBuilder AddScript(string path, bool asynchronous = false)
+        {
+            _Additions.AddScript(path, asynchronous);
+            return this;
+        }
+
+        public CombinedPageBuilder AddStyle(string path)
+        {
+            _Additions.AddStyle(path);
+            return this;
+        }
+
+        public CombinedPageBuilder Status(ResponseStatus status)
+        {
+            _Modifications.Status(status);
+            return this;
+        }
+
+        public CombinedPageBuilder Status(int status, string reason)
+        {
+            _Modifications.Status(status, reason);
+            return this;
+        }
+
+        public CombinedPageBuilder Header(string key, string value)
+        {
+            _Modifications.Header(key, value);
+            return this;
+        }
+
+        public CombinedPageBuilder Expires(DateTime expiryDate)
+        {
+            _Modifications.Expires(expiryDate);
+            return this;
+        }
+
+        public CombinedPageBuilder Modified(DateTime modificationDate)
+        {
+            _Modifications.Modified(modificationDate);
+            return this;
+        }
+
+        public CombinedPageBuilder Cookie(Cookie cookie)
+        {
+            _Modifications.Cookie(cookie);
+            return this;
+        }
+
+        public CombinedPageBuilder Type(FlexibleContentType contentType)
+        {
+            _Modifications.Type(contentType);
+            return this;
+        }
+
+        public CombinedPageBuilder Encoding(string encoding)
+        {
+            _Modifications.Encoding(encoding);
+            return this;
+        }
+
         public IHandler Build(IHandler parent)
         {
-            return Concerns.Chain(parent, _Concerns, (p) => new CombinedPageProvider(p, _Info.Build(), _Additions, _Fragments));
+            return Concerns.Chain(parent, _Concerns, (p) => new CombinedPageProvider(p, _Info.Build(), _Additions.Build(), _Modifications.Build(), _Fragments));
         }
 
         #endregion

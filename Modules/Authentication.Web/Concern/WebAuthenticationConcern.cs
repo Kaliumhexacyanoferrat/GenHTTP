@@ -137,10 +137,10 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
             {
                 var response = await Content.HandleAsync(request);
 
-                if ((response != null) && (token != null))
+                if (response != null)
                 {
                     // refresh the token, so the user will not be logged out eventually
-                    SessionHandling.WriteToken(response, token);
+                    SessionHandling.WriteToken(response, token!);
                 }
 
                 return response;

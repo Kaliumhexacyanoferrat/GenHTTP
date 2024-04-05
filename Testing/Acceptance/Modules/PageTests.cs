@@ -11,6 +11,7 @@ using GenHTTP.Api.Routing;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Markdown;
+using GenHTTP.Modules.Pages;
 using GenHTTP.Modules.Placeholders;
 using GenHTTP.Modules.Razor;
 using GenHTTP.Modules.Scriban;
@@ -222,7 +223,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
             {
                 ModScriban.Page(Resource.FromString("Scriban")).AddScript("myscript.js").AddStyle("mystyle.css"),
                 ModRazor.Page(Resource.FromString("Razor")).AddScript("./myscript.js").AddStyle("./mystyle.css"),
-                Placeholders.Page(Resource.FromString("Markdown")).AddScript("http://myserver/myscript.js").AddStyle("http://myserver/mystyle.css")
+                Placeholders.Page(Resource.FromString("Placeholders")).AddScript("http://myserver/myscript.js").AddStyle("http://myserver/mystyle.css"),
+                CombinedPage.Create().AddMarkdown(Resource.FromString("Scriban")).AddScript("myscript.js").AddStyle("mystyle.css"),
+                ModMarkdown.Page(Resource.FromString("Markdown")).AddScript("myscript.js").AddStyle("mystyle.css")
             };
 
             foreach (var provider in providers)
@@ -247,7 +250,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
             {
                 ModScriban.Page(Resource.FromString("Scriban")).Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie),
                 ModRazor.Page(Resource.FromString("Razor")).Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie),
-                Placeholders.Page(Resource.FromString("Markdown")).Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie)
+                Placeholders.Page(Resource.FromString("Placeholders")).Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie),
+                ModMarkdown.Page(Resource.FromString("Markdown")).Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie),
+                CombinedPage.Create().Add("Combined").Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie)
             };
 
             foreach (var provider in providers)

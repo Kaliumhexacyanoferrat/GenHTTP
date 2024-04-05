@@ -20,18 +20,21 @@ namespace GenHTTP.Modules.Pages.Combined
 
         private PageAdditions? Additions { get; }
 
+        private ResponseModifications? Modifications { get; }
+
         private List<PageFragment> Fragments { get; }
 
         #endregion
 
         #region Initialization
 
-        public CombinedPageProvider(IHandler parent, ContentInfo contentInfo, PageAdditions? additions, List<PageFragment> fragments)
+        public CombinedPageProvider(IHandler parent, ContentInfo contentInfo, PageAdditions? additions, ResponseModifications? modifications, List<PageFragment> fragments)
         {
             Parent = parent;
 
             ContentInfo = contentInfo;
             Additions = additions;
+            Modifications = modifications;
 
             Fragments = fragments;
         }
@@ -61,10 +64,16 @@ namespace GenHTTP.Modules.Pages.Combined
 
             var content = new CombinedPageContent(contentFragments, ContentInfo, Additions, this, request);
 
-            return request.Respond()
-                          .Content(content)
-                          .Type(ContentType.TextHtml)
-                          .Build();
+            var response = request.Respond()
+                                  .Content(content)
+                                  .Type(ContentType.TextHtml);
+
+            if (Modifications != null)
+            {
+                Modifications.Apply(response);
+            }
+
+            return response.Build();
         }
 
         #endregion
