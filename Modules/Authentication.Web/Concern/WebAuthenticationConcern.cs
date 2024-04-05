@@ -147,15 +147,7 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
             }
             if (Integration.AllowAnonymous)
             {
-                var response = await Content.HandleAsync(request);
-
-                if ((response != null) && (token != null))
-                {
-                    // clear the invalid cookie
-                    SessionHandling.ClearToken(response);
-                }
-
-                return response;
+                return await Content.HandleAsync(request);
             }
             else
             {

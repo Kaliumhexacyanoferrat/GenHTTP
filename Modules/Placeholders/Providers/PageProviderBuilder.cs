@@ -118,7 +118,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
                 throw new BuilderMissingPropertyException("Content");
             }
 
-            return Concerns.Chain(parent, _Concerns, (p) => new PageProvider(p, _Info.Build(), _Additions.Build(), _Modifications.Build(), _Content)); ;
+            return Concerns.Chain(parent, _Concerns, (p) => new PageProvider(p, _Info.Build(), _Additions.Build(), _Modifications.Build(), _Content));
         }
 
         #endregion
