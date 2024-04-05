@@ -101,9 +101,7 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
                 {
                     // we're logged in
                     request.SetUser(authenticatedUser);
-
-                    // deny login and registration (todo)
-
+                    
                     var response = await Content.HandleAsync(request);
 
                     if (response != null)
@@ -116,7 +114,7 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
                 }
             }
 
-            // handle login and registration (todo)
+            // handle login
             if (segment?.Value == Integration.LoginRoute)
             {
                 request.Target.Advance();

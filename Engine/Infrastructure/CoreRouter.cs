@@ -97,12 +97,12 @@ namespace GenHTTP.Engine.Infrastructure
             {
                 foreach (var style in additions.Styles)
                 {
-                    builder.AppendLine($"<link rel=\"stylesheet\" href=\"{model.Handler.Route(model.Request, style.Path)}\" />");
+                    builder.AppendLine($"<link rel=\"stylesheet\" href=\"{model.Handler.Route(model.Request, style.Path) ?? style.Path}\" />");
                 }
 
                 foreach (var script in additions.Scripts)
                 {
-                    builder.AppendLine($"<script src=\"{model.Handler.Route(model.Request, script.Path)}\"></script>");
+                    builder.AppendLine($"<script src=\"{model.Handler.Route(model.Request, script.Path) ?? script.Path}\"></script>");
                 }
             }
 

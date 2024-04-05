@@ -27,11 +27,13 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         public PageAdditions? Additions { get; }
 
+        public ResponseModifications? Modifications { get; }
+
         #endregion
 
         #region Initialization
 
-        public PlaceholderPageProvider(IHandler parent, IResource templateProvider, ModelProvider<T> modelProvider, ContentInfo pageInfo, PageAdditions? additions)
+        public PlaceholderPageProvider(IHandler parent, IResource templateProvider, ModelProvider<T> modelProvider, ContentInfo pageInfo, PageAdditions? additions, ResponseModifications? modifications)
         {
             Parent = parent;
 
@@ -40,6 +42,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
             PageInfo = pageInfo;
             Additions = additions;
+            Modifications = modifications;
         }
 
         #endregion
@@ -57,6 +60,11 @@ namespace GenHTTP.Modules.Placeholders.Providers
             var templateModel = new TemplateModel(request, this, PageInfo, Additions, content);
 
             var page = await this.GetPageAsync(request, templateModel).ConfigureAwait(false);
+
+            if (Modifications != null)
+            {
+                Modifications.Apply(page);
+            }
 
             return page.Build();
         }

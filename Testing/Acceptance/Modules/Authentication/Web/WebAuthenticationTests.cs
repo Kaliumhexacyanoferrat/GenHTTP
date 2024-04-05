@@ -13,7 +13,6 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NSubstitute.Extensions;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Authentication.Web
 {
@@ -150,6 +149,42 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication.Web
             await response.AssertStatusAsync(HttpStatusCode.Forbidden);
         }
 
+        [TestMethod]
+        public async Task TestAnonymousAccess()
+        {
+            var integration = new TestIntegration().AddUser("a", "b").EnableAnonymous();
+
+            using var host = GetHost(integration);
+
+            using var response = await host.GetResponseAsync("/content");
+
+            await response.AssertStatusAsync(HttpStatusCode.OK);
+        }
+
+        [TestMethod]
+        public async Task TestSetupCannotBeExecutedTwice()
+        {
+            var integration = new TestIntegration().AddUser("a", "b");
+
+            using var host = GetHost(integration);
+
+            using var response = await host.GetResponseAsync("/setup/");
+
+            await response.AssertStatusAsync(HttpStatusCode.TemporaryRedirect);
+        }
+
+        [TestMethod]
+        public async Task TestResourcesCanBeFetched()
+        {
+            var integration = new TestIntegration();
+
+            using var host = GetHost(integration);
+
+            using var response = await host.GetResponseAsync("/auth-resources/style.css");
+
+            await response.AssertStatusAsync(HttpStatusCode.OK);
+        }
+
         #endregion
 
         #region Test setup
@@ -158,7 +193,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication.Web
         {
             var request = host.GetRequest(route, HttpMethod.Post);
 
-            var args = new List<KeyValuePair<string, string>>() 
+            var args = new List<KeyValuePair<string, string>>()
             {
                 new("user", username), new("password", password)
             };
@@ -181,9 +216,19 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication.Web
 
         private class TestIntegration : ISimpleWebAuthIntegration
         {
+            private bool _AllowAnonymous = false;
+
             private readonly List<MyUser> _Users = new();
 
             private readonly Dictionary<string, MyUser> _Sessions = new();
+
+            bool ISimpleWebAuthIntegration.AllowAnonymous { get => _AllowAnonymous; }
+
+            public TestIntegration EnableAnonymous()
+            {
+                _AllowAnonymous = true;
+                return this;
+            }
 
             public TestIntegration AddUser(string username, string password) 
             { 
