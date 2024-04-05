@@ -55,6 +55,7 @@
     <ProjectReference Include="..\Authentication\GenHTTP.Modules.Authentication.csproj" />
     <ProjectReference Include="..\Controllers\GenHTTP.Modules.Controllers.csproj" />
     <ProjectReference Include="..\Razor\GenHTTP.Modules.Razor.csproj" />
+    <ProjectReference Include="..\Placeholders\GenHTTP.Modules.Placeholders.csproj" />
     
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     

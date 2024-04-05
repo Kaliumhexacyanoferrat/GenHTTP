@@ -7,6 +7,7 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Controllers;
+using GenHTTP.Modules.Placeholders;
 
 namespace GenHTTP.Modules.Authentication.Web.Controllers
 {
@@ -21,9 +22,15 @@ namespace GenHTTP.Modules.Authentication.Web.Controllers
             PerformLogin = performLogin;
         }
 
-        public IHandlerBuilder Index()
+        public IHandlerBuilder Index(IRequest request)
         {
-            // ToDo: already logged in
+            var user = request.GetUser<IUser>();
+
+            if (user != null)
+            {
+                return Page.From("Login", "You are already logged in.");
+            }
+
             return RenderLogin(status: ResponseStatus.Unauthorized);
         }
 

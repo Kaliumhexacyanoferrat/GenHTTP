@@ -91,6 +91,9 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
                                      .HandleAsync(request);
             }
 
+            // try to fetch and validate the token
+            var authenticated = false;
+
             var token = SessionHandling.ReadToken(request);
 
             if (token != null)
@@ -101,16 +104,8 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
                 {
                     // we're logged in
                     request.SetUser(authenticatedUser);
-                    
-                    var response = await Content.HandleAsync(request);
 
-                    if (response != null)
-                    {
-                        // refresh the token, so the user will not be logged out eventually
-                        SessionHandling.WriteToken(response, token);
-                    }
-
-                    return response;
+                    authenticated = true;
                 }
             }
 
@@ -138,6 +133,18 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
                 return loginResponse;
             }
 
+            if (authenticated)
+            {
+                var response = await Content.HandleAsync(request);
+
+                if ((response != null) && (token != null))
+                {
+                    // refresh the token, so the user will not be logged out eventually
+                    SessionHandling.WriteToken(response, token);
+                }
+
+                return response;
+            }
             if (Integration.AllowAnonymous)
             {
                 var response = await Content.HandleAsync(request);

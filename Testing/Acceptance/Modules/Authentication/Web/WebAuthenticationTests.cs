@@ -185,6 +185,22 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication.Web
             await response.AssertStatusAsync(HttpStatusCode.OK);
         }
 
+        [TestMethod]
+        public async Task TestCannotLoginIfAlreadyDone()
+        {
+            var integration = new TestIntegration().AddUser("a", "b");
+
+            using var host = GetHost(integration);
+
+            await Post(host, "/login/", "a", "b");
+
+            var response = await host.GetResponseAsync("/login/");
+
+            await response.AssertStatusAsync(HttpStatusCode.OK);
+
+            AssertX.Contains("You are already logged in.", await response.GetContentAsync());
+        }
+
         #endregion
 
         #region Test setup
