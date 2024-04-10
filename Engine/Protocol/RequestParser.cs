@@ -9,6 +9,7 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
 using GenHTTP.Engine.Infrastructure.Configuration;
+using PooledAwait;
 
 namespace GenHTTP.Engine.Protocol
 {
@@ -191,7 +192,7 @@ namespace GenHTTP.Engine.Protocol
             return false;
         }
 
-        private static async ValueTask<SequencePosition?> FindPosition(RequestBuffer buffer, char delimiter)
+        private static async PooledValueTask<SequencePosition?> FindPosition(RequestBuffer buffer, char delimiter)
         {
             if (buffer.ReadRequired)
             {
@@ -221,7 +222,7 @@ namespace GenHTTP.Engine.Protocol
             return ReadToken(buffer, delimiter, LINE_ENDING, skipNext, skipFirst, skipDelimiter);
         }
 
-        private static async ValueTask<string?> ReadToken(RequestBuffer buffer, char delimiter, char[] boundaries, ushort skipNext = 0, ushort skipFirst = 0, bool skipDelimiter = true)
+        private static async PooledValueTask<string?> ReadToken(RequestBuffer buffer, char delimiter, char[] boundaries, ushort skipNext = 0, ushort skipFirst = 0, bool skipDelimiter = true)
         {
             var position = await FindPosition(buffer, delimiter).ConfigureAwait(false);
 
