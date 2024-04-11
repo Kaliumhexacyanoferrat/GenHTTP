@@ -25,6 +25,8 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
 
         private IHandler LoginHandler { get; }
 
+        private IHandler LogoutHandler { get; }
+
         private IHandler SetupHandler { get; }
 
         private IHandler ResourceHandler { get; }
@@ -43,6 +45,7 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
             SessionHandling = sessionHandling;
 
             LoginHandler = integration.LoginHandler.Build(this);
+            LogoutHandler = integration.LogoutHandler.Build(this);
             SetupHandler = integration.SetupHandler.Build(this);
 
             ResourceHandler = integration.ResourceHandler.Build(this);
@@ -133,6 +136,24 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
                 return loginResponse;
             }
 
+            // handle logout
+            if (segment?.Value == Integration.LogoutRoute)
+            {
+                request.Target.Advance();
+
+                var response = await LogoutHandler.HandleAsync(request);
+
+                if (response != null)
+                {
+                    if (request.GetUser<IUser>() == null)
+                    {
+                        SessionHandling.ClearToken(response);
+                    }
+                }
+
+                return response;
+            }
+
             if (authenticated)
             {
                 var response = await Content.HandleAsync(request);
@@ -186,6 +207,11 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
             if (segment == "{login}")
             {
                 return LoginHandler;
+            }
+
+            if (segment == "{logout}")
+            {
+                return LogoutHandler;
             }
 
             if (segment == "{setup}")

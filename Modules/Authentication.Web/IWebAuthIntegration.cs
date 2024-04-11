@@ -20,6 +20,10 @@ namespace GenHTTP.Modules.Authentication.Web
 
         string LoginRoute { get => "login"; }
 
+        IHandlerBuilder LogoutHandler { get; }
+
+        string LogoutRoute { get => "logout"; }
+
         IHandlerBuilder ResourceHandler { get; }
 
         string ResourceRoute { get => "auth-resources"; }

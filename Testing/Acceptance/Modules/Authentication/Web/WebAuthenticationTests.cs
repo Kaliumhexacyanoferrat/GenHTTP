@@ -201,6 +201,32 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication.Web
             AssertX.Contains("You are already logged in.", await response.GetContentAsync());
         }
 
+        [TestMethod]
+        public async Task TestCannotLogoutIfNotLoggedIn()
+        {
+            var integration = new TestIntegration().AddUser("a", "b");
+
+            using var host = GetHost(integration);
+
+            var response = await host.GetResponseAsync("/logout/");
+
+            AssertX.Contains("You are already logged out.", await response.GetContentAsync());
+        }
+
+        [TestMethod]
+        public async Task TestLogout()
+        {
+            var integration = new TestIntegration().AddUser("a", "b");
+
+            using var host = GetHost(integration);
+
+            await Post(host, "/login/", "a", "b");
+
+            var response = await host.GetResponseAsync("/logout/");
+
+            AssertX.Contains("You have been successfully logged out.", await response.GetContentAsync());
+        }
+
         #endregion
 
         #region Test setup

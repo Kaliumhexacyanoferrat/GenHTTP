@@ -4,6 +4,9 @@ using GenHTTP.Modules.Authentication.Web.Integration;
 namespace GenHTTP.Modules.Authentication.Web
 {
 
+    /// <summary>
+    /// Allows 
+    /// </summary>
     public static class WebAuthentication
     {
 

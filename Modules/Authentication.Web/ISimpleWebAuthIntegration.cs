@@ -15,6 +15,8 @@ namespace GenHTTP.Modules.Authentication.Web
 
         string LoginRoute { get => "login"; }
 
+        string LogoutRoute { get => "logout"; }
+
         string ResourceRoute { get => "auth-resources"; }
 
         ValueTask<bool> CheckSetupRequired(IRequest request);

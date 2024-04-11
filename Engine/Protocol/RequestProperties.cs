@@ -10,7 +10,7 @@ namespace GenHTTP.Engine.Protocol
 
     public sealed class RequestProperties : IRequestProperties
     {
-        private PooledDictionary<string, object>? _Data;
+        private PooledDictionary<string, object?>? _Data;
 
         private bool _Disposed;
 
@@ -20,14 +20,19 @@ namespace GenHTTP.Engine.Protocol
         {
             get
             {
+                object? result = null;
+
                 if (Data.TryGetValue(key, out var value))
                 {
-                    return value;
+                    result = value;
                 }
-                else
+                
+                if (result == null) 
                 {
                     throw new KeyNotFoundException($"Key '{key}' does not exist in request properties");
                 }
+
+                return result;
             }
             set 
             {
@@ -35,7 +40,7 @@ namespace GenHTTP.Engine.Protocol
             }
         }
 
-        private PooledDictionary<string, object> Data =>  _Data ??= new();
+        private PooledDictionary<string, object?> Data =>  _Data ??= new();
 
         #endregion
 
@@ -54,6 +59,11 @@ namespace GenHTTP.Engine.Protocol
 
             entry = default;
             return false;
+        }
+
+        public void Clear(string key)
+        {
+            Data[key] = null;
         }
 
         #endregion

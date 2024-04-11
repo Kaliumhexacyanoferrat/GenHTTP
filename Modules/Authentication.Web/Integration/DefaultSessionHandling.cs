@@ -24,6 +24,11 @@ namespace GenHTTP.Modules.Authentication.Web.Integration
             response.SetCookie(new(COOKIE_NAME, sessionToken, COOKIE_TIMEOUT));
         }
 
+        public void ClearToken(IResponse response)
+        {
+            response.SetCookie(new(COOKIE_NAME, "", 0));
+        }
+
     }
 
 }

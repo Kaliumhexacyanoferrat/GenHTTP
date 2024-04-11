@@ -28,6 +28,12 @@ namespace GenHTTP.Api.Protocol
         /// <returns>True if the value could be read, false otherwise</returns>
         bool TryGet<T>(string key, [MaybeNullWhen(returnValue: false)] out T entry);
 
+        /// <summary>
+        /// Removes the entry with the given name.
+        /// </summary>
+        /// <param name="key">The entry to be removed</param>
+        void Clear(string key);
+
     }
 
 }

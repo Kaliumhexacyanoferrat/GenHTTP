@@ -7,6 +7,7 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Authentication.Web.Controllers;
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Reflection;
 
 namespace GenHTTP.Modules.Authentication.Web.Integration
 {
@@ -15,7 +16,7 @@ namespace GenHTTP.Modules.Authentication.Web.Integration
     {
         private readonly bool _AllowAnonymous;
 
-        private readonly string _SetupRoute, _LoginRoute, _ResourceRoute;
+        private readonly string _SetupRoute, _LoginRoute, _ResourceRoute, _LogoutRoute;
 
         bool IWebAuthIntegration.AllowAnonymous { get => _AllowAnonymous; }
 
@@ -23,11 +24,15 @@ namespace GenHTTP.Modules.Authentication.Web.Integration
 
         string IWebAuthIntegration.LoginRoute { get => _LoginRoute; }
 
+        string IWebAuthIntegration.LogoutRoute { get => _LogoutRoute; }
+
         string IWebAuthIntegration.ResourceRoute { get => _ResourceRoute; }
 
         public IHandlerBuilder SetupHandler { get; private set; }
 
         public IHandlerBuilder LoginHandler { get; private set; }
+
+        public IHandlerBuilder LogoutHandler { get; private set; }
 
         public IHandlerBuilder ResourceHandler { get; private set; }
 
@@ -41,10 +46,13 @@ namespace GenHTTP.Modules.Authentication.Web.Integration
 
             _SetupRoute = simpleIntegration.SetupRoute;
             _LoginRoute = simpleIntegration.LoginRoute;
+            _LogoutRoute = simpleIntegration.LogoutRoute;
+
             _ResourceRoute = simpleIntegration.ResourceRoute;
 
             SetupHandler = Controller.From(new SetupController((r, u, p) => simpleIntegration.PerformSetup(r, u, p)));
             LoginHandler = Controller.From(new LoginController((r, u, p) => simpleIntegration.PerformLogin(r, u, p)));
+            LogoutHandler = Controller.From(new LogoutController());
 
             ResourceHandler = Resources.From(ResourceTree.FromAssembly("Resources"));
         }
