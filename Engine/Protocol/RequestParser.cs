@@ -1,15 +1,13 @@
-﻿using System;
+﻿using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Routing;
+using GenHTTP.Engine.Infrastructure.Configuration;
+using PooledAwait;
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
-using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
-
-using GenHTTP.Engine.Infrastructure.Configuration;
-using PooledAwait;
 
 namespace GenHTTP.Engine.Protocol
 {
@@ -28,6 +26,8 @@ namespace GenHTTP.Engine.Protocol
     {
         private static readonly char[] LINE_ENDING = new char[] { '\r' };
         private static readonly char[] PATH_ENDING = new char[] { '\r', '\n', '?', ' ' };
+
+        private static readonly string[] KNOWN_HEADERS = new[] { "Host", "User-Agent", "Accept" };
 
         private static readonly Encoding ASCII = Encoding.ASCII;
 
@@ -52,14 +52,16 @@ namespace GenHTTP.Engine.Protocol
 
         #region Functionality
 
-        internal async ValueTask<RequestBuilder?> TryParseAsync(RequestBuffer buffer)
+        internal async PooledValueTask<RequestBuilder?> TryParseAsync(RequestBuffer buffer)
         {
             WebPath? path;
             RequestQuery? query;
 
-            string? method, protocol;
+            FlexibleRequestMethod? method;
 
-            if ((method = await ReadToken(buffer, ' ').ConfigureAwait(false)) is not null)
+            string? protocol;
+
+            if ((method = await TryReadMethod(buffer)) is not null)
             {
                 Request.Type(method);
             }
@@ -82,7 +84,7 @@ namespace GenHTTP.Engine.Protocol
                 Request.Query(query);
             }
 
-            if ((protocol = await ReadToken(buffer, '\r', 1, 5)) is not null)
+            if ((protocol = await TryReadProtocolVersion(buffer)) is not null)
             {
                 Request.Protocol(protocol);
             }
@@ -119,6 +121,49 @@ namespace GenHTTP.Engine.Protocol
             _Builder = null;
 
             return result;
+        }
+
+        private static async PooledValueTask<FlexibleRequestMethod?> TryReadMethod(RequestBuffer buffer)
+        {
+            if (await FindPosition(buffer, ' ').ConfigureAwait(false) is null)
+            {
+                return null;
+            }
+
+            if (CompareTo(buffer, "GET", 1)) return FlexibleRequestMethod.Get(RequestMethod.GET);
+
+            var token = await ReadToken(buffer, ' ');
+
+            if (token is not null)
+            {
+                return FlexibleRequestMethod.Get(token);
+            }
+
+            return null;
+        }
+
+        private static async PooledValueTask<string?> TryReadProtocolVersion(RequestBuffer buffer)
+        {
+            // skip the "HTTP/" part
+            buffer.Advance(5);
+
+            if (await FindPosition(buffer, '\r').ConfigureAwait(false) is null)
+            {
+                return null;
+            }
+
+            if (CompareTo(buffer, "1.1", 2))
+            {
+                return "1.1";
+            }
+            else if (CompareTo(buffer, "1.0", 2))
+            {
+                return "1.0";
+            }
+            else
+            {
+                return null;
+            }
         }
 
         private static async ValueTask<WebPath?> TryReadPath(RequestBuffer buffer)
@@ -180,41 +225,31 @@ namespace GenHTTP.Engine.Protocol
         {
             string? key, value;
 
-            if ((key = await ReadToken(buffer, ':', 1).ConfigureAwait(false)) is not null)
+            if (await FindPosition(buffer, ':').ConfigureAwait(false) is not null) 
             {
-                if ((value = await ReadToken(buffer, '\r', 1)) is not null)
+                foreach (var knownHeader in KNOWN_HEADERS)
                 {
-                    request.Header(key, value);
-                    return true;
+                    if (CompareTo(buffer, knownHeader, 2))
+                    {
+                        if ((value = await ReadToken(buffer, '\r', 1)) is not null)
+                        {
+                            request.Header(knownHeader, value);
+                            return true;
+                        }
+                    }
+                }
+
+                if ((key = await ReadToken(buffer, ':', 1)) is not null)
+                {
+                    if ((value = await ReadToken(buffer, '\r', 1)) is not null)
+                    {
+                        request.Header(key, value);
+                        return true;
+                    }
                 }
             }
 
             return false;
-        }
-
-        private static async PooledValueTask<SequencePosition?> FindPosition(RequestBuffer buffer, char delimiter)
-        {
-            if (buffer.ReadRequired)
-            {
-                if ((await buffer.Read().ConfigureAwait(false)) is null)
-                {
-                    return null;
-                }
-            }
-
-            var position = buffer.Data.PositionOf((byte)delimiter);
-
-            if (position is null)
-            {
-                if ((await buffer.Read(true).ConfigureAwait(false)) is null)
-                {
-                    return null;
-                }
-
-                position = buffer.Data.PositionOf((byte)delimiter);
-            }
-
-            return position;
         }
 
         private static ValueTask<string?> ReadToken(RequestBuffer buffer, char delimiter, ushort skipNext = 0, ushort skipFirst = 0, bool skipDelimiter = true)
@@ -266,6 +301,57 @@ namespace GenHTTP.Engine.Protocol
             }
 
             return null;
+        }
+
+        private static bool CompareTo(RequestBuffer buffer, string expected, ushort skipNext = 0)
+        {
+            var i = 0;
+
+            var slice = buffer.Data.Slice(0, expected.Length);
+
+            if (slice.Length != expected.Length)
+            {
+                return false;
+            }
+
+            foreach (var segment in slice)
+            {
+                for (int j = 0; j < segment.Length; j++)
+                {
+                    if (segment.Span[j] != expected[i++])
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            buffer.Advance(expected.Length + skipNext);
+            return true;
+        }
+
+        private static async PooledValueTask<SequencePosition?> FindPosition(RequestBuffer buffer, char delimiter)
+        {
+            if (buffer.ReadRequired)
+            {
+                if ((await buffer.Read().ConfigureAwait(false)) is null)
+                {
+                    return null;
+                }
+            }
+
+            var position = buffer.Data.PositionOf((byte)delimiter);
+
+            if (position is null)
+            {
+                if ((await buffer.Read(true).ConfigureAwait(false)) is null)
+                {
+                    return null;
+                }
+
+                position = buffer.Data.PositionOf((byte)delimiter);
+            }
+
+            return position;
         }
 
         private static string GetString(ReadOnlySequence<byte> buffer)

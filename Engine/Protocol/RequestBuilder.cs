@@ -88,9 +88,9 @@ namespace GenHTTP.Engine.Protocol
             return this;
         }
 
-        public RequestBuilder Type(string type)
+        public RequestBuilder Type(FlexibleRequestMethod type)
         {
-            _RequestMethod = FlexibleRequestMethod.Get(type);
+            _RequestMethod = type;
             return this;
         }
 
