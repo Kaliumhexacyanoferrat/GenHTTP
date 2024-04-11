@@ -3,6 +3,11 @@
 namespace GenHTTP.Api.Content
 {
 
+    /// <summary>
+    /// Can be used by handler builders to create a page addition object
+    /// so that they can easily offer the page addition feature
+    /// without the need of implementing everything on their own.
+    /// </summary>
     public class PageAdditionBuilder : IBuilder<PageAdditions?>, IPageAdditionBuilder<PageAdditionBuilder>
     {
         private PageAdditions? _Additions;
@@ -19,7 +24,7 @@ namespace GenHTTP.Api.Content
             return this;
         }
 
-        private PageAdditions EnsureAdditions() => _Additions ?? (_Additions = PageAdditions.Create());
+        private PageAdditions EnsureAdditions() => _Additions ??= PageAdditions.Create();
 
         public PageAdditions? Build() => _Additions;
 

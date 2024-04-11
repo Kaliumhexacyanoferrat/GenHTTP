@@ -6,6 +6,11 @@ using GenHTTP.Api.Infrastructure;
 namespace GenHTTP.Api.Protocol
 {
 
+    /// <summary>
+    /// Allows to build a response modification object so that
+    /// individual handlers do not need to implement the logic
+    /// theirselves.
+    /// </summary>
     public class ResponseModificationBuilder : IResponseModification<ResponseModificationBuilder>, IBuilder<ResponseModifications?>
     {
         private FlexibleResponseStatus? _Status;

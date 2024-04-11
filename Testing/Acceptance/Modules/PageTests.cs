@@ -249,12 +249,12 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             var providers = new List<IHandlerBuilder>()
             {
-                ModScriban.Page(Resource.FromString("Scriban")).Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie),
-                ModRazor.Page(Resource.FromString("Razor")).Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie),
-                Placeholders.Page(Resource.FromString("Placeholders")).Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie),
-                ModMarkdown.Page(Resource.FromString("Markdown")).Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie),
-                CombinedPage.Create().Add("Combined").Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie),
-                Page.From(Resource.FromString("Page")).Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie)
+                ModScriban.Page(Resource.FromString("Scriban")).Status(423, "LOCKED").Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie),
+                ModRazor.Page(Resource.FromString("Razor")).Status(423, "LOCKED").Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie),
+                Placeholders.Page(Resource.FromString("Placeholders")).Status(423, "LOCKED").Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie),
+                ModMarkdown.Page(Resource.FromString("Markdown")).Status(423, "LOCKED").Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie),
+                CombinedPage.Create().Add("Combined").Status(423, "LOCKED").Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie),
+                Page.From(Resource.FromString("Page")).Status(423, "LOCKED").Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie)
             };
 
             foreach (var provider in providers)

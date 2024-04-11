@@ -52,20 +52,12 @@ namespace GenHTTP.Modules.Pages.Combined
 
         #region Functionality
 
-        /// <summary>
-        /// Sets the description of the page.
-        /// </summary>
-        /// <param name="description">The description of the page</param>
         public CombinedPageBuilder Description(string description)
         {
             _Info.Description(description);
             return this;
         }
 
-        /// <summary>
-        /// Sets the title of the page.
-        /// </summary>
-        /// <param name="description">The title of the page</param>
         public CombinedPageBuilder Title(string title)
         {
             _Info.Title(title);
