@@ -12,12 +12,12 @@ using GenHTTP.Modules.Placeholders;
 namespace GenHTTP.Modules.Authentication.Web.Controllers
 {
 
-    public class LoginController 
+    public class LoginController<TUser> where TUser : IUser
     {
 
-        private Func<IRequest, string, string, ValueTask<IUser?>> PerformLogin { get; }
+        private Func<IRequest, string, string, ValueTask<TUser?>> PerformLogin { get; }
 
-        public LoginController(Func<IRequest, string, string, ValueTask<IUser?>> performLogin)
+        public LoginController(Func<IRequest, string, string, ValueTask<TUser?>> performLogin)
         {
             PerformLogin = performLogin;
         }

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace GenHTTP.Modules.Authentication.Web.Concern
 {
 
-    public sealed class WebAuthenticationConcern : IConcern, IRootPathAppender, IHandlerResolver
+    public sealed class WebAuthenticationConcern<TUser> : IConcern, IRootPathAppender, IHandlerResolver where TUser : class, IUser
     {
 
         #region Get-/Setters
@@ -19,7 +19,7 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
 
         public IHandler Parent { get; }
 
-        private IWebAuthIntegration Integration { get; }
+        private IWebAuthIntegration<TUser> Integration { get; }
 
         private ISessionHandling SessionHandling { get; }
 
@@ -36,7 +36,7 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
         #region Initialization
 
         public WebAuthenticationConcern(IHandler parent, Func<IHandler, IHandler> contentFactory,
-                                        IWebAuthIntegration integration, ISessionHandling sessionHandling)
+                                        IWebAuthIntegration<TUser> integration, ISessionHandling sessionHandling)
         {
             Parent = parent;
             Content = contentFactory(this);
@@ -101,7 +101,7 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
 
             if (token != null)
             {
-                var authenticatedUser = await Integration.VerifyTokenAsync(token);
+                var authenticatedUser = await Integration.VerifyTokenAsync(request, token);
 
                 if (authenticatedUser != null)
                 {
@@ -122,7 +122,7 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
                 if (loginResponse != null)
                 {
                     // establish the session if the user was authenticated
-                    var authenticatedUser = request.GetUser<IUser>();
+                    var authenticatedUser = request.GetUser<TUser>();
 
                     if (authenticatedUser != null)
                     {
@@ -145,7 +145,7 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
 
                 if (response != null)
                 {
-                    if (request.GetUser<IUser>() == null)
+                    if (request.GetUser<TUser>() == null)
                     {
                         SessionHandling.ClearToken(response);
                     }

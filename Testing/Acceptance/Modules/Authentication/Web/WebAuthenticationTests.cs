@@ -256,7 +256,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication.Web
             return TestHost.Run(content);
         }
 
-        private class TestIntegration : ISimpleWebAuthIntegration
+        private class TestIntegration : ISimpleWebAuthIntegration<IUser>
         {
             private bool _AllowAnonymous = false;
 
@@ -264,7 +264,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication.Web
 
             private readonly Dictionary<string, MyUser> _Sessions = new();
 
-            bool ISimpleWebAuthIntegration.AllowAnonymous { get => _AllowAnonymous; }
+            bool ISimpleWebAuthIntegration<IUser>.AllowAnonymous { get => _AllowAnonymous; }
 
             public TestIntegration EnableAnonymous()
             {
@@ -286,7 +286,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication.Web
                 return new();
             }
 
-            public ValueTask<IUser?> PerformLogin(IRequest request, string username, string password)
+            public ValueTask<IUser?> PerformLoginAsync(IRequest request, string username, string password)
             {
                 return new(_Users.FirstOrDefault(e => e.Name == username && e.Password == password));
             }
@@ -298,7 +298,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication.Web
                 return new(token);
             }
 
-            public ValueTask<IUser?> VerifyTokenAsync(string sessionToken)
+            public ValueTask<IUser?> VerifyTokenAsync(IRequest request, string sessionToken)
             {
                 if (_Sessions.TryGetValue(sessionToken, out var user))
                 {

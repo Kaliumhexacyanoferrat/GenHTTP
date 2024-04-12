@@ -3,7 +3,11 @@
 namespace GenHTTP.Modules.Authentication.Web.Integration
 {
     
-    public class DefaultSessionHandling : ISessionHandling
+    /// <summary>
+    /// A session handling implementation that will use cookies to 
+    /// store and fetch the session tokens.
+    /// </summary>
+    public class CookieSessionHandling : ISessionHandling
     {
         private const string COOKIE_NAME = "wa_session";
 

@@ -1,26 +1,36 @@
-﻿using GenHTTP.Api.Content;
+﻿using System;
+
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Authentication;
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Modules.Authentication.Web.Integration;
-using System;
 
 namespace GenHTTP.Modules.Authentication.Web.Concern
 {
 
-    public sealed class WebAuthenticationBuilder : IConcernBuilder
+    public sealed class WebAuthenticationBuilder<TUser> : IConcernBuilder where TUser : class, IUser
     {
-        private IWebAuthIntegration? _Integration;
+        private readonly IWebAuthIntegration<TUser> _Integration;
 
         private ISessionHandling? _SessionHandling;
 
         #region Functionality
 
-        public WebAuthenticationBuilder Integration(IWebAuthIntegration integration)
+        public WebAuthenticationBuilder(IWebAuthIntegration<TUser> integration)
         {
             _Integration = integration;
-            return this;
         }
 
-        public WebAuthenticationBuilder SessionHandling(ISessionHandling sessionHandling)
+        /// <summary>
+        /// Configures the session handline to be used by this concern.
+        /// </summary>
+        /// <typeparam name="T">The class used to implement session handling</typeparam>
+        public WebAuthenticationBuilder<TUser> SessionHandling<T>() where T : ISessionHandling, new() => SessionHandling(new T());
+
+        /// <summary>
+        /// Configures the session handline instance to be used by this concern.
+        /// </summary>
+        /// <param name="sessionHandling">The session handling instance to be used</param>
+        public WebAuthenticationBuilder<TUser> SessionHandling(ISessionHandling sessionHandling)
         {
             _SessionHandling = sessionHandling;
             return this;
@@ -28,11 +38,9 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
 
         public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
         {
-            var integration = _Integration ?? throw new BuilderMissingPropertyException("Integration");
+            var sessionHandling = _SessionHandling ?? throw new BuilderMissingPropertyException("Session Handling");
 
-            var sessionHandling = _SessionHandling ?? new DefaultSessionHandling();
-
-            return new WebAuthenticationConcern(parent, contentFactory, integration, sessionHandling);
+            return new WebAuthenticationConcern<TUser>(parent, contentFactory, _Integration, sessionHandling);
         }
 
         #endregion

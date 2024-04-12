@@ -7,26 +7,25 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Authentication.Web.Controllers;
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.IO;
-using GenHTTP.Modules.Reflection;
 
 namespace GenHTTP.Modules.Authentication.Web.Integration
 {
 
-    public class SimpleIntegrationAdapter : IWebAuthIntegration
+    public class SimpleIntegrationAdapter<TUser> : IWebAuthIntegration<TUser> where TUser : IUser
     {
         private readonly bool _AllowAnonymous;
 
         private readonly string _SetupRoute, _LoginRoute, _ResourceRoute, _LogoutRoute;
 
-        bool IWebAuthIntegration.AllowAnonymous { get => _AllowAnonymous; }
+        bool IWebAuthIntegration<TUser>.AllowAnonymous { get => _AllowAnonymous; }
 
-        string IWebAuthIntegration.SetupRoute { get => _SetupRoute; }
+        string IWebAuthIntegration<TUser>.SetupRoute { get => _SetupRoute; }
 
-        string IWebAuthIntegration.LoginRoute { get => _LoginRoute; }
+        string IWebAuthIntegration<TUser>.LoginRoute { get => _LoginRoute; }
 
-        string IWebAuthIntegration.LogoutRoute { get => _LogoutRoute; }
+        string IWebAuthIntegration<TUser>.LogoutRoute { get => _LogoutRoute; }
 
-        string IWebAuthIntegration.ResourceRoute { get => _ResourceRoute; }
+        string IWebAuthIntegration<TUser>.ResourceRoute { get => _ResourceRoute; }
 
         public IHandlerBuilder SetupHandler { get; private set; }
 
@@ -36,9 +35,9 @@ namespace GenHTTP.Modules.Authentication.Web.Integration
 
         public IHandlerBuilder ResourceHandler { get; private set; }
 
-        private ISimpleWebAuthIntegration SimpleIntegration { get; }
+        private ISimpleWebAuthIntegration<TUser> SimpleIntegration { get; }
 
-        public SimpleIntegrationAdapter(ISimpleWebAuthIntegration simpleIntegration)
+        public SimpleIntegrationAdapter(ISimpleWebAuthIntegration<TUser> simpleIntegration)
         {
             SimpleIntegration = simpleIntegration;
 
@@ -51,7 +50,7 @@ namespace GenHTTP.Modules.Authentication.Web.Integration
             _ResourceRoute = simpleIntegration.ResourceRoute;
 
             SetupHandler = Controller.From(new SetupController((r, u, p) => simpleIntegration.PerformSetup(r, u, p)));
-            LoginHandler = Controller.From(new LoginController((r, u, p) => simpleIntegration.PerformLogin(r, u, p)));
+            LoginHandler = Controller.From(new LoginController<TUser>((r, u, p) => simpleIntegration.PerformLoginAsync(r, u, p)));
             LogoutHandler = Controller.From(new LogoutController());
 
             ResourceHandler = Resources.From(ResourceTree.FromAssembly("Resources"));
@@ -59,9 +58,9 @@ namespace GenHTTP.Modules.Authentication.Web.Integration
 
         public ValueTask<bool> CheckSetupRequired(IRequest request) => SimpleIntegration.CheckSetupRequired(request);
 
-        public ValueTask<string> StartSessionAsync(IRequest request, IUser user) => SimpleIntegration.StartSessionAsync(request, user);
+        public ValueTask<string> StartSessionAsync(IRequest request, TUser user) => SimpleIntegration.StartSessionAsync(request, user);
 
-        public ValueTask<IUser?> VerifyTokenAsync(string sessionToken) => SimpleIntegration.VerifyTokenAsync(sessionToken);
+        public ValueTask<TUser?> VerifyTokenAsync(IRequest request, string sessionToken) => SimpleIntegration.VerifyTokenAsync(request, sessionToken);
 
     }
 
