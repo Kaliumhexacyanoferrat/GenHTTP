@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
-
 using GenHTTP.Api.Protocol;
+using static System.Net.WebRequestMethods;
 
 namespace GenHTTP.Api.Content.Templating
 {
@@ -20,6 +20,12 @@ namespace GenHTTP.Api.Content.Templating
         public ContentInfo Meta { get; }
 
         /// <summary>
+        /// Additional references to styles or scripts to be included
+        /// when rendering the template.
+        /// </summary>
+        public PageAdditions? Additions { get; }
+
+        /// <summary>
         /// The HTML content to be rendered within the template.
         /// </summary>
         public string Content { get; }
@@ -34,10 +40,13 @@ namespace GenHTTP.Api.Content.Templating
         /// <param name="request">The request which caused this call</param>
         /// <param name="handler">The handler responsible to render the response</param>
         /// <param name="pageInfo">Information about the page to be rendered</param>
+        /// <param name="additions">Additional references to required scripts or styles</param>
         /// <param name="content">The content to be rendered within the template</param>
-        public TemplateModel(IRequest request, IHandler handler, ContentInfo pageInfo, string content) : base(request, handler)
+        public TemplateModel(IRequest request, IHandler handler, ContentInfo pageInfo, PageAdditions? additions, string content) : base(request, handler)
         {
             Content = content;
+
+            Additions = additions;
 
             Meta = pageInfo;
 

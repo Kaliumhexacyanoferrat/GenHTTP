@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -9,8 +10,8 @@ using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Content.Templating;
 
 using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.IO.Tracking;
 using GenHTTP.Modules.IO.Streaming;
+using GenHTTP.Modules.IO.Tracking;
 
 namespace GenHTTP.Modules.Placeholders.Providers
 {
@@ -25,13 +26,17 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         public ChangeTrackingResource TemplateProvider { get; }
 
+        Dictionary<string, Func<IModel, object?, object?>>? CustomRenderers { get; }
+
         #endregion
 
         #region Initialization
 
-        public PlaceholderRender(IResource templateProvider)
+        public PlaceholderRender(IResource templateProvider, Dictionary<string, Func<IModel, object?, object?>>? customRenderers)
         {
             TemplateProvider = new(templateProvider);
+
+            CustomRenderers = customRenderers;
         }
 
         #endregion
@@ -49,7 +54,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
                 var fullPath = match.Groups[1].Value;
                 var path = fullPath.Split('.');
 
-                return GetValue(fullPath, path, model) ?? string.Empty;
+                return GetValue(fullPath, path, model, model) ?? string.Empty;
             });
         }
 
@@ -78,7 +83,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
             _Template = await TemplateProvider.GetResourceAsStringAsync();
         }
 
-        private static string? GetValue(string fullPath, IEnumerable<string> path, object model)
+        private string? GetValue(string fullPath, IEnumerable<string> path, object model, IModel rootModel)
         {
             if (!path.Any())
             {
@@ -88,7 +93,7 @@ namespace GenHTTP.Modules.Placeholders.Providers
             {
                 var name = path.First();
 
-                var data = GetValue(name, model);
+                var data = GetValue(name, model, rootModel);
 
                 if (path.Count() == 1)
                 {
@@ -101,12 +106,12 @@ namespace GenHTTP.Modules.Placeholders.Providers
                         return null;
                     }
 
-                    return GetValue(fullPath, path.Skip(1), data);
+                    return GetValue(fullPath, path.Skip(1), data, rootModel);
                 }
             }
         }
 
-        private static object? GetValue(string name, object model)
+        private object? GetValue(string name, object model, IModel rootModel)
         {
             var flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase;
 
@@ -114,7 +119,17 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
             if (property is not null)
             {
-                return property.GetValue(model);
+                var value = property.GetValue(model);
+
+                if (CustomRenderers != null)
+                {
+                    if (CustomRenderers.TryGetValue(name, out var converter))
+                    {
+                        return converter(rootModel, value);
+                    }
+                }
+
+                return value;
             }
 
             return null;

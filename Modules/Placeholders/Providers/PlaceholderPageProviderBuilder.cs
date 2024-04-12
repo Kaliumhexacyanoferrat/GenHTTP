@@ -11,7 +11,11 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Placeholders.Providers
 {
 
-    public sealed class PlaceholderPageProviderBuilder<T> : IHandlerBuilder<PlaceholderPageProviderBuilder<T>>, IContentInfoBuilder<PlaceholderPageProviderBuilder<T>> where T : class, IModel
+    public sealed class PlaceholderPageProviderBuilder<T> :
+        IHandlerBuilder<PlaceholderPageProviderBuilder<T>>,
+        IContentInfoBuilder<PlaceholderPageProviderBuilder<T>>, 
+        IPageAdditionBuilder<PlaceholderPageProviderBuilder<T>>,
+        IResponseModification<PlaceholderPageProviderBuilder<T>> where T : class, IModel
     {
         private IResource? _TemplateProvider;
 
@@ -20,6 +24,10 @@ namespace GenHTTP.Modules.Placeholders.Providers
         private readonly List<IConcernBuilder> _Concerns = new();
 
         private readonly ContentInfoBuilder _Info = new();
+
+        private readonly PageAdditionBuilder _Additions = new();
+
+        private readonly ResponseModificationBuilder _Modifications = new();
 
         #region Functionality
 
@@ -53,6 +61,66 @@ namespace GenHTTP.Modules.Placeholders.Providers
             return this;
         }
 
+        public PlaceholderPageProviderBuilder<T> AddScript(string path, bool asynchronous = false)
+        {
+            _Additions.AddScript(path, asynchronous);
+            return this;
+        }
+
+        public PlaceholderPageProviderBuilder<T> AddStyle(string path)
+        {
+            _Additions.AddStyle(path);
+            return this;
+        }
+
+        public PlaceholderPageProviderBuilder<T> Status(ResponseStatus status)
+        {
+            _Modifications.Status(status);
+            return this;
+        }
+
+        public PlaceholderPageProviderBuilder<T> Status(int status, string reason)
+        {
+            _Modifications.Status(status, reason);
+            return this;
+        }
+
+        public PlaceholderPageProviderBuilder<T> Header(string key, string value)
+        {
+            _Modifications.Header(key, value);
+            return this;
+        }
+
+        public PlaceholderPageProviderBuilder<T> Expires(DateTime expiryDate)
+        {
+            _Modifications.Expires(expiryDate);
+            return this;
+        }
+
+        public PlaceholderPageProviderBuilder<T> Modified(DateTime modificationDate)
+        {
+            _Modifications.Modified(modificationDate);
+            return this;
+        }
+
+        public PlaceholderPageProviderBuilder<T> Cookie(Cookie cookie)
+        {
+            _Modifications.Cookie(cookie);
+            return this;
+        }
+
+        public PlaceholderPageProviderBuilder<T> Type(FlexibleContentType contentType)
+        {
+            _Modifications.Type(contentType);
+            return this;
+        }
+
+        public PlaceholderPageProviderBuilder<T> Encoding(string encoding)
+        {
+            _Modifications.Encoding(encoding);
+            return this;
+        }
+
         public PlaceholderPageProviderBuilder<T> Add(IConcernBuilder concern)
         {
             _Concerns.Add(concern);
@@ -71,8 +139,9 @@ namespace GenHTTP.Modules.Placeholders.Providers
                 throw new BuilderMissingPropertyException("Model Provider");
             }
 
-            return Concerns.Chain(parent, _Concerns, (p) => new PlaceholderPageProvider<T>(p, _TemplateProvider, _ModelProvider, _Info.Build()));
+            return Concerns.Chain(parent, _Concerns, (p) => new PlaceholderPageProvider<T>(p, _TemplateProvider, _ModelProvider, _Info.Build(), _Additions.Build(), _Modifications.Build()));
         }
+
 
         #endregion
 

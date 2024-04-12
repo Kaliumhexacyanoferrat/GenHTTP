@@ -45,7 +45,7 @@ namespace GenHTTP.Modules.Controllers
             return builder;
         }
 
-        private static ControllerBuilder<T> Configured<T>(this ControllerBuilder<T> builder, IBuilder<InjectionRegistry>? injectors = null, IBuilder<SerializationRegistry>? serializers = null, IBuilder<FormatterRegistry>? formatters = null) where T : new()
+        private static ControllerBuilder Configured(this ControllerBuilder builder, IBuilder<InjectionRegistry>? injectors = null, IBuilder<SerializationRegistry>? serializers = null, IBuilder<FormatterRegistry>? formatters = null)
         {
             if (injectors != null)
             {

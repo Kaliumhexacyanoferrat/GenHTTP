@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -10,6 +11,7 @@ using GenHTTP.Api.Routing;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Markdown;
+using GenHTTP.Modules.Pages;
 using GenHTTP.Modules.Placeholders;
 using GenHTTP.Modules.Razor;
 using GenHTTP.Modules.Scriban;
@@ -211,6 +213,71 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
                 await response.AssertStatusAsync(HttpStatusCode.OK);
                 AssertX.Contains("/test/1", content);
+            }
+        }
+
+        [TestMethod]
+        public async Task TestAdditions()
+        {
+            var providers = new List<IHandlerBuilder>()
+            {
+                ModScriban.Page(Resource.FromString("Scriban")).AddScript("myscript.js").AddStyle("mystyle.css"),
+                ModRazor.Page(Resource.FromString("Razor")).AddScript("./myscript.js").AddStyle("./mystyle.css"),
+                Placeholders.Page(Resource.FromString("Placeholders")).AddScript("http://myserver/myscript.js").AddStyle("http://myserver/mystyle.css"),
+                CombinedPage.Create().AddMarkdown(Resource.FromString("Scriban")).AddScript("myscript.js").AddStyle("mystyle.css"),
+                ModMarkdown.Page(Resource.FromString("Markdown")).AddScript("myscript.js").AddStyle("mystyle.css"),
+                Page.From(Resource.FromString("Page")).AddScript("myscript.js").AddStyle("mystyle.css")
+            };
+
+            foreach (var provider in providers)
+            {
+                using var runner = TestHost.Run(provider);
+
+                using var response = await runner.GetResponseAsync();
+
+                var content = await response.GetContentAsync();
+
+                AssertX.Contains("myscript.js", content);
+                AssertX.Contains("mystyle.css", content);
+            }
+        }
+
+        [TestMethod]
+        public async Task TestModifications()
+        {
+            var cookie = new Api.Protocol.Cookie("k", "v");
+
+            var providers = new List<IHandlerBuilder>()
+            {
+                ModScriban.Page(Resource.FromString("Scriban")).Status(423, "LOCKED").Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie),
+                ModRazor.Page(Resource.FromString("Razor")).Status(423, "LOCKED").Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie),
+                Placeholders.Page(Resource.FromString("Placeholders")).Status(423, "LOCKED").Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie),
+                ModMarkdown.Page(Resource.FromString("Markdown")).Status(423, "LOCKED").Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie),
+                CombinedPage.Create().Add("Combined").Status(423, "LOCKED").Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie),
+                Page.From(Resource.FromString("Page")).Status(423, "LOCKED").Status(ResponseStatus.Locked).Header("H", "V").Expires(DateTime.Now).Modified(DateTime.Now).Type(new(ContentType.FontOpenTypeFont)).Encoding("my-encoding").Cookie(cookie)
+            };
+
+            foreach (var provider in providers)
+            {
+                var cookies = new CookieContainer();
+
+                using var runner = TestHost.Run(provider);
+
+                using var response = await runner.GetResponseAsync(client: TestHost.GetClient(cookies: cookies));
+
+                var content = await response.GetContentAsync();
+
+                await response.AssertStatusAsync(HttpStatusCode.Locked);
+
+                Assert.AreEqual("V", response.GetHeader("H"));
+
+                Assert.IsNotNull(response.Content.Headers.Expires);
+                Assert.IsNotNull(response.Content.Headers.LastModified);
+
+                Assert.AreEqual("font/otf", response.GetContentHeader("Content-Type"));
+                Assert.AreEqual("my-encoding", response.GetContentHeader("Content-Encoding"));
+
+                Assert.AreEqual(1, cookies.Count);
             }
         }
 

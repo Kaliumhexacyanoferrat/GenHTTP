@@ -22,17 +22,24 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         public ContentInfo PageInfo { get; }
 
+        public PageAdditions? Additions { get; }
+
+        public ResponseModifications? Modifications { get; }
+
         public IResource Content { get; }
 
         #endregion
 
         #region Initialization
 
-        public PageProvider(IHandler parent, ContentInfo pageInfo, IResource content)
+        public PageProvider(IHandler parent, ContentInfo pageInfo, PageAdditions? additions, ResponseModifications? modifications, IResource content)
         {
             Parent = parent;
 
             PageInfo = pageInfo;
+            Additions = additions;
+            Modifications = modifications;
+
             Content = content;
         }
 
@@ -42,9 +49,11 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var templateModel = new TemplateModel(request, this, PageInfo, await Content.GetResourceAsStringAsync().ConfigureAwait(false));
+            var templateModel = new TemplateModel(request, this, PageInfo, Additions, await Content.GetResourceAsStringAsync().ConfigureAwait(false));
 
             var page = await this.GetPageAsync(request, templateModel).ConfigureAwait(false);
+
+            Modifications?.Apply(page);
              
             return page.Build();
         }

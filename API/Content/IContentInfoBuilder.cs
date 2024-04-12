@@ -6,8 +6,8 @@
     /// customize the meta data of a content element 
     /// such as a web page.
     /// </summary>
-    /// <typeparam name="T">The type of the builder implementing this interface</typeparam>
-    public interface IContentInfoBuilder<out T>
+    /// <typeparam name="TBuilder">The type of the builder implementing this interface</typeparam>
+    public interface IContentInfoBuilder<out TBuilder>
     {
 
         /// <summary>
@@ -16,13 +16,13 @@
         /// of a web page.
         /// </summary>
         /// <param name="title">The title to be set</param>
-        T Title(string title);
+        TBuilder Title(string title);
 
         /// <summary>
         /// Sets the description of the content element.
         /// </summary>
         /// <param name="description">The description to be set</param>
-        T Description(string description);
+        TBuilder Description(string description);
 
     }
 

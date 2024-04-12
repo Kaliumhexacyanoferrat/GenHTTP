@@ -23,6 +23,11 @@ namespace GenHTTP.Modules.Authentication
             return null;
         }
 
+        public static void ClearUser(this IRequest request)
+        {
+            request.Properties.Clear(USER_PROPERTY);
+        }
+
     }
 
 }
