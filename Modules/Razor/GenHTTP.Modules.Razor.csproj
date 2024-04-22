@@ -40,7 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="RazorEngineCore" Version="2023.11.2" />
+    <PackageReference Include="RazorEngineCore" Version="2024.4.1" />
   </ItemGroup>
 
   <ItemGroup>
