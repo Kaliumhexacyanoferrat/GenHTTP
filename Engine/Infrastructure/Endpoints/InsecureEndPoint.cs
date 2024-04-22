@@ -1,11 +1,12 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Infrastructure.Configuration;
 using GenHTTP.Engine.Utilities;
+
+using PooledAwait;
 
 namespace GenHTTP.Engine.Infrastructure.Endpoints
 {
@@ -31,7 +32,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
 
         #region Functionality
 
-        protected override ValueTask Accept(Socket client) => Handle(client, new PoolBufferedStream(new NetworkStream(client)));
+        protected override PooledValueTask Accept(Socket client) => Handle(client, new PoolBufferedStream(new NetworkStream(client)));
         
         #endregion
 
