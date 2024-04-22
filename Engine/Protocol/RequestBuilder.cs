@@ -65,32 +65,15 @@ namespace GenHTTP.Engine.Protocol
             return this;
         }
 
-        public RequestBuilder Protocol(string version)
+        public RequestBuilder Protocol(HttpProtocol version)
         {
-            switch (version)
-            {
-                case "1.0":
-                    {
-                        _Protocol = HttpProtocol.Http_1_0;
-                        break;
-                    }
-                case "1.1":
-                    {
-                        _Protocol = HttpProtocol.Http_1_1;
-                        break;
-                    }
-                default:
-                    {
-                        throw new ProtocolException($"HTTP version '{version}' is not supported");
-                    }
-            }
-
+            _Protocol = version;
             return this;
         }
 
-        public RequestBuilder Type(string type)
+        public RequestBuilder Type(FlexibleRequestMethod type)
         {
-            _RequestMethod = FlexibleRequestMethod.Get(type);
+            _RequestMethod = type;
             return this;
         }
 

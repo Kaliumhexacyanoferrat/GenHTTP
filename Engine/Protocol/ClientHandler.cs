@@ -10,6 +10,9 @@ using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Infrastructure.Configuration;
 using GenHTTP.Engine.Protocol;
+using GenHTTP.Engine.Protocol.Parser;
+
+using PooledAwait;
 
 namespace GenHTTP.Engine
 {
@@ -40,6 +43,8 @@ namespace GenHTTP.Engine
 
         private bool? KeepAlive { get; set; }
 
+        private ResponseHandler ResponseHandler { get; set; }
+
         #endregion
 
         #region Initialization
@@ -53,13 +58,15 @@ namespace GenHTTP.Engine
             Connection = socket;
 
             Stream = stream;
+
+            ResponseHandler = new ResponseHandler(Server, Stream, Connection, Configuration); 
         }
 
         #endregion
 
         #region Functionality
 
-        internal async ValueTask Run()
+        internal async PooledValueTask Run()
         {
             try
             {
@@ -98,7 +105,7 @@ namespace GenHTTP.Engine
             }
         }
 
-        private async ValueTask HandlePipe(PipeReader reader)
+        private async PooledValueTask HandlePipe(PipeReader reader)
         {
             try
             {
@@ -122,24 +129,19 @@ namespace GenHTTP.Engine
             }
         }
 
-        private async ValueTask<bool> HandleRequest(RequestBuilder builder)
+        private async PooledValueTask<bool> HandleRequest(RequestBuilder builder)
         {
             var address = (Connection.RemoteEndPoint as IPEndPoint)?.Address;
 
             using var request = builder.Connection(Server, EndPoint, address).Build();
             
-            if (KeepAlive is null)
-            {
-                KeepAlive = request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? true;
-            }
+            KeepAlive ??= request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? true;
 
             bool keepAlive = (bool)KeepAlive;
 
-            var responseHandler = new ResponseHandler(Server, Stream, Connection, Configuration);
-
             using var response = await Server.Handler.HandleAsync(request).ConfigureAwait(false) ?? throw new InvalidOperationException("The root request handler did not return a response");
             
-            var success = await responseHandler.Handle(request, response, keepAlive);
+            var success = await ResponseHandler.Handle(request, response, keepAlive);
 
             if (!success || !keepAlive)
             {

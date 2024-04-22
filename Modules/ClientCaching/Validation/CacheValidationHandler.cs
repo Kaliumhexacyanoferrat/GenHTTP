@@ -14,6 +14,8 @@ namespace GenHTTP.Modules.ClientCaching.Validation
     {
         private const string ETAG_HEADER = "ETag";
 
+        private static readonly RequestMethod[] _SupportedMethods = new[] { RequestMethod.GET, RequestMethod.HEAD };
+
         #region Get-/Setters
 
         public IHandler Parent { get; }
@@ -38,7 +40,7 @@ namespace GenHTTP.Modules.ClientCaching.Validation
         {
             var response = await Content.HandleAsync(request).ConfigureAwait(false);
 
-            if (request.HasType(RequestMethod.GET, RequestMethod.HEAD))
+            if (request.HasType(_SupportedMethods))
             {
                 if ((response is not null) && (response.Content is not null))
                 {
