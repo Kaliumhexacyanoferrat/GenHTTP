@@ -5,7 +5,7 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Engine.Protocol.Parser.Conversion
 {
 
-    internal class MethodConverter
+    internal static class MethodConverter
     {
 
         internal static FlexibleRequestMethod ToRequestMethod(ReadOnlySequence<byte> value)

@@ -48,7 +48,7 @@ namespace GenHTTP.Engine.Protocol.Parser
             }
 
             // did not recognize any tokens, probably due to missing input data
-            if (forceRead == false)
+            if (!forceRead)
             {
                 return await Next(buffer, forceRead: true);
             }
