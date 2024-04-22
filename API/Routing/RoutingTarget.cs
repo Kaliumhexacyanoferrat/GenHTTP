@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace GenHTTP.Api.Routing
@@ -13,6 +14,8 @@ namespace GenHTTP.Api.Routing
     /// </remarks>
     public sealed class RoutingTarget
     {
+        private static readonly List<WebPathPart> EMPTY_LIST = new();
+
         private int _Index = 0;
 
         #region Get-/Setters
@@ -72,7 +75,19 @@ namespace GenHTTP.Api.Routing
         /// Retrieves the part of the path that still needs to be routed.
         /// </summary>
         /// <returns>The remaining part of the path</returns>
-        public WebPath GetRemaining() => new(Path.Parts.Skip(_Index).ToList(), Path.TrailingSlash);
+        public WebPath GetRemaining()
+        {
+            var remaining = Path.Parts.Count - _Index;
+
+            var resultList = (remaining > 0) ? new List<WebPathPart>(remaining) : EMPTY_LIST;
+
+            for (int i = _Index; i < Path.Parts.Count; i++)
+            {
+                resultList.Add(Path.Parts[i]);
+            }
+
+            return new(resultList, Path.TrailingSlash);
+        }
 
         #endregion
 

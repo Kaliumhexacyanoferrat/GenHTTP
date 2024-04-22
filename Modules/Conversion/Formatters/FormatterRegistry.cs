@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace GenHTTP.Modules.Conversion.Formatters
 {
@@ -25,11 +24,45 @@ namespace GenHTTP.Modules.Conversion.Formatters
 
         #region Functionality
 
-        public bool CanHandle(Type type) => Formatters.Any(f => f.CanHandle(type));
+        public bool CanHandle(Type type)
+        {
+            for (int i = 0; i < Formatters.Count; i++)
+            {
+                if (Formatters[i].CanHandle(type))
+                {
+                    return true;
+                }
+            }
 
-        public object? Read(string value, Type type) => Formatters.First(f => f.CanHandle(type)).Read(value, type); 
-        
-        public string? Write(object value, Type type) => Formatters.First(f => f.CanHandle(type)).Write(value, type);
+            return false;
+        }
+
+        public object? Read(string value, Type type)
+        {
+            for (int i = 0; i < Formatters.Count; i++)
+            {
+                if (Formatters[i].CanHandle(type))
+                {
+                    return Formatters[i].Read(value, type);
+                }
+            }
+
+            return null;
+        }
+
+
+        public string? Write(object value, Type type)
+        {
+            for (int i = 0; i < Formatters.Count; i++)
+            {
+                if (Formatters[i].CanHandle(type))
+                {
+                    return Formatters[i].Write(value, type);
+                }
+            }
+
+            return null;
+        }
 
         #endregion
 

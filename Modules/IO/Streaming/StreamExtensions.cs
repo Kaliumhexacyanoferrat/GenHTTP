@@ -15,6 +15,8 @@ namespace GenHTTP.Modules.IO.Streaming
 
         private static readonly Encoding UTF8 = Encoding.UTF8;
 
+        private static readonly Encoder ENCODER = UTF8.GetEncoder();
+
         public static async ValueTask CopyPooledAsync(this Stream source, Stream target, uint bufferSize)
         {
             if (source.CanSeek && source.Position != 0)
@@ -56,15 +58,13 @@ namespace GenHTTP.Modules.IO.Streaming
 
         public static async ValueTask WriteAsync(this string content, Stream target)
         {
-            var encoder = UTF8.GetEncoder();
-
-            var bytes = encoder.GetByteCount(content, false);
+            var bytes = ENCODER.GetByteCount(content, false);
 
             var buffer = POOL.Rent(bytes);
 
             try
             {
-                encoder.GetBytes(content.AsSpan(), buffer.AsSpan(), true);
+                ENCODER.GetBytes(content.AsSpan(), buffer.AsSpan(), true);
 
                 await target.WriteAsync(buffer.AsMemory(0, bytes));
             }
