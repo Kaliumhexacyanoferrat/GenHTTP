@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.IO.Pipelines;
+using System.Net.Http.Headers;
 using System.Threading;
 
 using GenHTTP.Engine.Infrastructure.Configuration;
@@ -87,12 +88,12 @@ namespace GenHTTP.Engine.Protocol
             return Data.Length;
         }
 
-        internal void Advance(SequencePosition position)
+        internal void Commit(SequencePosition position)
         {
             _Data = Data.Slice(position);
         }
 
-        internal void Advance(long bytes)
+        internal void Commit(long bytes)
         {
             _Data = Data.Slice(bytes);
         }

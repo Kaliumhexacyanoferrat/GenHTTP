@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Buffers;
 using System.IO;
 using System.IO.Pipelines;
 using System.Net;
-using System.Net.Sockets;
-using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Infrastructure.Configuration;
+using GenHTTP.Engine.Infrastructure.Transport;
 using GenHTTP.Engine.Protocol;
 using GenHTTP.Engine.Protocol.Parser;
 
@@ -27,7 +25,6 @@ namespace GenHTTP.Engine
     /// </remarks>
     internal sealed class ClientHandler
     {
-        private static readonly StreamPipeReaderOptions READER_OPTIONS = new(pool: MemoryPool<byte>.Shared, leaveOpen: true, bufferSize: 65536);
 
         #region Get-/Setter
 
@@ -37,7 +34,7 @@ namespace GenHTTP.Engine
 
         internal NetworkConfiguration Configuration { get; }
 
-        internal Socket Connection { get; }
+        internal SocketConnection Connection { get; }
 
         internal Stream Stream { get; }
 
@@ -49,7 +46,7 @@ namespace GenHTTP.Engine
 
         #region Initialization
 
-        internal ClientHandler(Socket socket, Stream stream, IServer server, IEndPoint endPoint, NetworkConfiguration config)
+        internal ClientHandler(SocketConnection socket, IServer server, IEndPoint endPoint, NetworkConfiguration config)
         {
             Server = server;
             EndPoint = endPoint;
@@ -57,7 +54,7 @@ namespace GenHTTP.Engine
             Configuration = config;
             Connection = socket;
 
-            Stream = stream;
+            Stream = socket.Pipe.Transport.Output.AsStream();
 
             ResponseHandler = new ResponseHandler(Server, Stream, Configuration); 
         }
@@ -70,7 +67,7 @@ namespace GenHTTP.Engine
         {
             try
             {
-                await HandlePipe(PipeReader.Create(Stream, READER_OPTIONS));
+                await HandlePipe(Connection.Pipe.Transport.Input).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -81,22 +78,6 @@ namespace GenHTTP.Engine
                 try
                 {
                     await Stream.DisposeAsync();
-                }
-                catch (Exception e)
-                {
-                    Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, e);
-                }
-
-                try
-                {
-                    if (Connection.Connected)
-                    {
-                        Connection.Shutdown(SocketShutdown.Both);
-                        Connection.Disconnect(false);
-                        Connection.Close();
-                    }
-
-                    Connection.Dispose();
                 }
                 catch (Exception e)
                 {
@@ -123,6 +104,11 @@ namespace GenHTTP.Engine
                     }
                 }
             }
+            catch (Exception e)
+            {
+                // todo
+                var m = e.Message;
+            }
             finally
             {
                 await reader.CompleteAsync();
@@ -131,7 +117,7 @@ namespace GenHTTP.Engine
 
         private async PooledValueTask<bool> HandleRequest(RequestBuilder builder, bool dataRemaining)
         {
-            var address = (Connection.RemoteEndPoint as IPEndPoint)?.Address;
+            var address = (Connection.Socket.RemoteEndPoint as IPEndPoint)?.Address;
 
             using var request = builder.Connection(Server, EndPoint, address).Build();
             
@@ -145,10 +131,6 @@ namespace GenHTTP.Engine
 
             if (!success || !keepAlive)
             {
-                Connection.Shutdown(SocketShutdown.Both);
-                Connection.Disconnect(false);
-                Connection.Close();
-
                 return false;
             }
 

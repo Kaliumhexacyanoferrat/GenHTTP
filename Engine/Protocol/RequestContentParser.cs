@@ -60,7 +60,7 @@ namespace GenHTTP.Engine.Protocol
                     await body.WriteAsync(memory);
                 }
 
-                buffer.Advance(toRead);
+                buffer.Commit(toRead);
 
                 toFetch -= toRead;
             }

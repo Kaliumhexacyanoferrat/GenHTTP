@@ -108,7 +108,7 @@ namespace GenHTTP.Engine.Protocol.Parser
         {
             if (buffer.Data.First.Span[0] == (byte)'\r')
             {
-                buffer.Advance(2);
+                buffer.Commit(2);
                 return true;
             }
 
@@ -135,7 +135,7 @@ namespace GenHTTP.Engine.Protocol.Parser
                 }
 
                 Value = value;
-                buffer.Advance(value.Length + 1 + skipAdditionally);
+                buffer.Commit(value.Length + 1 + skipAdditionally);
 
                 return true;
             }

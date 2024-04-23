@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Infrastructure.Configuration;
+using GenHTTP.Engine.Infrastructure.Transport;
 using GenHTTP.Engine.Utilities;
 
 using PooledAwait;
@@ -52,9 +53,11 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
 
         #region Functionality
 
-        protected override async PooledValueTask Accept(Socket client)
+        protected override PooledValueTask Accept(SocketConnection connection)
         {
-            var stream = await TryAuthenticate(client);
+            return Handle(connection);
+
+            /*var stream = await TryAuthenticate(client).ConfigureAwait(false);
 
             if (stream is not null)
             {
@@ -71,7 +74,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
                 {
                     Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, e);
                 }
-            }
+            }*/
         }
 
         private async ValueTask<SslStream?> TryAuthenticate(Socket client)
