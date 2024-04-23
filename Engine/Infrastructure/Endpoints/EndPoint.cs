@@ -65,7 +65,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
                 throw new BindingException($"Failed to bind to {endPoint}.", e);
             }
 
-            Task = Task.Run(() => Listen().ConfigureAwait(false));
+            Task = Task.Run(() => Listen());
         }
 
         #endregion
@@ -78,7 +78,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
             {
                 do
                 {
-                    Handle(await Socket.AcceptAsync().ConfigureAwait(false));
+                    Handle(await Socket.AcceptAsync());
                 }
                 while (!shuttingDown);
             }
@@ -95,14 +95,15 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
         {
             using var _ = ExecutionContext.SuppressFlow();
 
-            Task.Run(() => Accept(client).ConfigureAwait(false))
-                .ConfigureAwait(false);
+            Task.Run(() => Accept(client));
         }
 
         protected abstract PooledValueTask Accept(Socket client);
 
         protected PooledValueTask Handle(Socket client, Stream inputStream)
         {
+            client.NoDelay = true;
+
             return new ClientHandler(client, inputStream, Server, this, Configuration).Run();
         }
 

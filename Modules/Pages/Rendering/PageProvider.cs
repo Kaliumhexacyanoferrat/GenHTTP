@@ -58,7 +58,7 @@ namespace GenHTTP.Modules.Pages.Rendering
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var model = await ModelProvider(request, this).ConfigureAwait(false);
+            var model = await ModelProvider(request, this);
 
             var content = new RenderedContent<T>(Renderer, model, PageInfo, Additions);
 

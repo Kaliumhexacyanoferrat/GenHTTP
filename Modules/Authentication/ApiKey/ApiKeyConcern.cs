@@ -45,7 +45,7 @@ namespace GenHTTP.Modules.Authentication.ApiKey
 
             if (key != null)
             {
-                var user = await Authenticator(request, key).ConfigureAwait(false);
+                var user = await Authenticator(request, key);
 
                 if (user != null)
                 {

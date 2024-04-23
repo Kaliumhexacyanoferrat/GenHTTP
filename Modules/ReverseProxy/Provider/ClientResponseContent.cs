@@ -50,7 +50,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
         public async ValueTask WriteAsync(Stream target, uint bufferSize)
         {
-            using var source = await Message.Content.ReadAsStreamAsync().ConfigureAwait(false);
+            using var source = await Message.Content.ReadAsStreamAsync();
 
             await source.CopyPooledAsync(target, bufferSize);
         }

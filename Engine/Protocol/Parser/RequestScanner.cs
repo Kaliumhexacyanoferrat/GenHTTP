@@ -147,7 +147,7 @@ namespace GenHTTP.Engine.Protocol.Parser
         {
             if (buffer.ReadRequired || force)
             {
-                await buffer.Read(force).ConfigureAwait(false);
+                await buffer.Read(force);
             }
 
             return !buffer.Data.IsEmpty;

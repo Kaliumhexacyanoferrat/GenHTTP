@@ -59,7 +59,7 @@ namespace GenHTTP.Engine
 
             Stream = stream;
 
-            ResponseHandler = new ResponseHandler(Server, Stream, Connection, Configuration); 
+            ResponseHandler = new ResponseHandler(Server, Stream, Configuration); 
         }
 
         #endregion
@@ -70,7 +70,7 @@ namespace GenHTTP.Engine
         {
             try
             {
-                await HandlePipe(PipeReader.Create(Stream, READER_OPTIONS)).ConfigureAwait(false);
+                await HandlePipe(PipeReader.Create(Stream, READER_OPTIONS));
             }
             catch (Exception e)
             {
@@ -115,9 +115,9 @@ namespace GenHTTP.Engine
 
                 RequestBuilder? request;
 
-                while (Server.Running && (request = await parser.TryParseAsync(buffer).ConfigureAwait(false)) is not null)
+                while (Server.Running && (request = await parser.TryParseAsync(buffer)) is not null)
                 {
-                    if (!await HandleRequest(request))
+                    if (!await HandleRequest(request, !buffer.ReadRequired))
                     {
                         break;
                     }
@@ -129,7 +129,7 @@ namespace GenHTTP.Engine
             }
         }
 
-        private async PooledValueTask<bool> HandleRequest(RequestBuilder builder)
+        private async PooledValueTask<bool> HandleRequest(RequestBuilder builder, bool dataRemaining)
         {
             var address = (Connection.RemoteEndPoint as IPEndPoint)?.Address;
 
@@ -139,9 +139,9 @@ namespace GenHTTP.Engine
 
             bool keepAlive = (bool)KeepAlive;
 
-            using var response = await Server.Handler.HandleAsync(request).ConfigureAwait(false) ?? throw new InvalidOperationException("The root request handler did not return a response");
+            using var response = await Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
             
-            var success = await ResponseHandler.Handle(request, response, keepAlive);
+            var success = await ResponseHandler.Handle(request, response, keepAlive, dataRemaining);
 
             if (!success || !keepAlive)
             {

@@ -38,7 +38,7 @@ namespace GenHTTP.Modules.ClientCaching.Validation
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var response = await Content.HandleAsync(request).ConfigureAwait(false);
+            var response = await Content.HandleAsync(request);
 
             if (request.HasType(_SupportedMethods))
             {
@@ -82,7 +82,7 @@ namespace GenHTTP.Modules.ClientCaching.Validation
 
             if (response.Content is not null)
             {
-                var checksum = await response.Content.CalculateChecksumAsync().ConfigureAwait(false);
+                var checksum = await response.Content.CalculateChecksumAsync();
 
                 if (checksum is not null)
                 {

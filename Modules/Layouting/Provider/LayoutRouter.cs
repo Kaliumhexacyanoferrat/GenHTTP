@@ -56,7 +56,7 @@ namespace GenHTTP.Modules.Layouting.Provider
                 {
                     request.Target.Advance();
 
-                    return await handler.HandleAsync(request).ConfigureAwait(false);
+                    return await handler.HandleAsync(request);
                 }
             }
             else

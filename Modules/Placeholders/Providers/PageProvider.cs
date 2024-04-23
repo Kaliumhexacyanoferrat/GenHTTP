@@ -49,9 +49,9 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var templateModel = new TemplateModel(request, this, PageInfo, Additions, await Content.GetResourceAsStringAsync().ConfigureAwait(false));
+            var templateModel = new TemplateModel(request, this, PageInfo, Additions, await Content.GetResourceAsStringAsync());
 
-            var page = await this.GetPageAsync(request, templateModel).ConfigureAwait(false);
+            var page = await this.GetPageAsync(request, templateModel);
 
             Modifications?.Apply(page);
              

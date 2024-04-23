@@ -68,7 +68,7 @@ namespace GenHTTP.Engine.Infrastructure
 
         public async ValueTask PrepareAsync()
         {
-            await Content.PrepareAsync().ConfigureAwait(false);
+            await Content.PrepareAsync();
 
             await Template.PrepareAsync();
 

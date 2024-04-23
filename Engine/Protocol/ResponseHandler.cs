@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Buffers;
 using System.IO;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,20 +29,17 @@ namespace GenHTTP.Engine.Protocol
 
         private Stream OutputStream { get; }
 
-        private Socket Socket { get; }
-
         internal NetworkConfiguration Configuration { get; }
 
         #endregion
 
         #region Initialization
 
-        internal ResponseHandler(IServer server, Stream outputstream, Socket socket, NetworkConfiguration configuration)
+        internal ResponseHandler(IServer server, Stream outputstream, NetworkConfiguration configuration)
         {
             Server = server;
 
             OutputStream = outputstream;
-            Socket = socket;
 
             Configuration = configuration;
         }
@@ -52,11 +48,11 @@ namespace GenHTTP.Engine.Protocol
 
         #region Functionality
 
-        internal async ValueTask<bool> Handle(IRequest request, IResponse response, bool keepAlive)
+        internal async ValueTask<bool> Handle(IRequest request, IResponse response, bool keepAlive, bool dataRemaining)
         {
             try
             {
-                await WriteStatus(request, response).ConfigureAwait(false);
+                await WriteStatus(request, response);
 
                 await WriteHeader(response, keepAlive);
 
@@ -67,11 +63,12 @@ namespace GenHTTP.Engine.Protocol
                     await WriteBody(response);
                 }
 
-                Socket.NoDelay = true;
-
-                await OutputStream.FlushAsync();
-
-                Socket.NoDelay = false;
+                // flush if the client waits for this response
+                // otherwise save flushes for improved performance when pipelining
+                if (!dataRemaining)
+                {
+                    await OutputStream.FlushAsync();
+                }
 
                 Server.Companion?.OnRequestHandled(request, response);
 
@@ -104,11 +101,11 @@ namespace GenHTTP.Engine.Protocol
         {
             if (response.Headers.TryGetValue(SERVER_HEADER, out var server))
             {
-                await WriteHeaderLine(SERVER_HEADER, server).ConfigureAwait(false);
+                await WriteHeaderLine(SERVER_HEADER, server);
             }
             else
             {
-                await Write("Server: GenHTTP/", Server.Version, NL).ConfigureAwait(false);
+                await Write("Server: GenHTTP/", Server.Version, NL);
             }
 
             await WriteHeaderLine("Date", DateHeader.GetValue());
@@ -183,13 +180,13 @@ namespace GenHTTP.Engine.Protocol
                 {
                     using var chunked = new ChunkedStream(OutputStream);
 
-                    await response.Content.WriteAsync(chunked, Configuration.TransferBufferSize).ConfigureAwait(false);
+                    await response.Content.WriteAsync(chunked, Configuration.TransferBufferSize);
 
                     await chunked.FinishAsync();
                 }
                 else
                 {
-                    await response.Content.WriteAsync(OutputStream, Configuration.TransferBufferSize).ConfigureAwait(false);
+                    await response.Content.WriteAsync(OutputStream, Configuration.TransferBufferSize);
                 }
             }
         }
@@ -204,7 +201,7 @@ namespace GenHTTP.Engine.Protocol
 
         private async ValueTask WriteCookie(Cookie cookie)
         {
-            await Write("Set-Cookie: ", cookie.Name, "=", cookie.Value).ConfigureAwait(false);
+            await Write("Set-Cookie: ", cookie.Name, "=", cookie.Value);
 
             if (cookie.MaxAge is not null)
             {
@@ -264,7 +261,7 @@ namespace GenHTTP.Engine.Protocol
                     ASCII.GetBytes(part7, 0, part7.Length, buffer, index);
                 }
 
-                await OutputStream.WriteAsync(buffer.AsMemory(0, length)).ConfigureAwait(false);
+                await OutputStream.WriteAsync(buffer.AsMemory(0, length));
             }
             finally
             {

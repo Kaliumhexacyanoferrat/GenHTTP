@@ -42,7 +42,7 @@ namespace GenHTTP.Engine.Protocol
 
             while (toFetch > 0)
             {
-                await buffer.Read().ConfigureAwait(false);
+                await buffer.Read();
 
                 var toRead = Math.Min(buffer.Data.Length, Math.Min(Configuration.TransferBufferSize, toFetch));
 

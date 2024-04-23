@@ -29,7 +29,7 @@ namespace GenHTTP.Modules.IO.Streaming
 
         #region Functionality
 
-        public async ValueTask<ulong?> CalculateChecksumAsync() => await Resource.CalculateChecksumAsync().ConfigureAwait(false);
+        public async ValueTask<ulong?> CalculateChecksumAsync() => await Resource.CalculateChecksumAsync();
 
         public ValueTask WriteAsync(Stream target, uint bufferSize) => Resource.WriteAsync(target, bufferSize);
 

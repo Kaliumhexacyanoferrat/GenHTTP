@@ -47,7 +47,7 @@ namespace GenHTTP.Modules.Pages.Combined
         {
             foreach (var fragment in Fragments)
             {
-                await fragment.Renderer.PrepareAsync().ConfigureAwait(false);
+                await fragment.Renderer.PrepareAsync();
             }
         }
 
@@ -59,7 +59,7 @@ namespace GenHTTP.Modules.Pages.Combined
 
             foreach (var fragment in Fragments)
             {
-                contentFragments.Add(new ContentFragment(fragment.Renderer, await fragment.Model(request, this).ConfigureAwait(false)));
+                contentFragments.Add(new ContentFragment(fragment.Renderer, await fragment.Model(request, this)));
             }
 
             var content = new CombinedPageContent(contentFragments, ContentInfo, Additions, this, request);

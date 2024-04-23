@@ -55,7 +55,7 @@ namespace GenHTTP.Engine.Utilities
         {
             Stream = stream;
 
-            Buffer = POOL.Rent(8192);
+            Buffer = POOL.Rent(4096);
             Current = 0;
         }
 
@@ -115,12 +115,12 @@ namespace GenHTTP.Engine.Utilities
 
                 if (Current == Buffer.Length)
                 {
-                    await WriteBufferAsync(cancellationToken).ConfigureAwait(false);
+                    await WriteBufferAsync(cancellationToken);
                 }
             }
             else
             {
-                await WriteBufferAsync(cancellationToken).ConfigureAwait(false);
+                await WriteBufferAsync(cancellationToken);
 
                 await Stream.WriteAsync(buffer, cancellationToken);
             }
@@ -135,7 +135,7 @@ namespace GenHTTP.Engine.Utilities
 
         public override async Task FlushAsync(CancellationToken cancellationToken)
         {
-            await WriteBufferAsync(cancellationToken).ConfigureAwait(false);
+            await WriteBufferAsync(cancellationToken);
 
             await Stream.FlushAsync(cancellationToken);
         }
@@ -154,7 +154,7 @@ namespace GenHTTP.Engine.Utilities
         {
             if (Current > 0)
             {
-                await Stream.WriteAsync(Buffer.AsMemory(0, Current), cancellationToken).ConfigureAwait(false);
+                await Stream.WriteAsync(Buffer.AsMemory(0, Current), cancellationToken);
 
                 Current = 0;
             }

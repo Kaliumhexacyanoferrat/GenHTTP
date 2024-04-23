@@ -53,7 +53,7 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
         {
             if (request.Target.Ended)
             {
-                var index = await GetIndex().ConfigureAwait(false);
+                var index = await GetIndex();
 
                 if (index != null)
                 {
@@ -62,7 +62,7 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
             }
             else
             {
-                var result = await Resources.HandleAsync(request).ConfigureAwait(false);
+                var result = await Resources.HandleAsync(request);
 
                 if (result == null)
                 {

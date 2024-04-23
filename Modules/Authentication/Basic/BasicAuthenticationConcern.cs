@@ -61,7 +61,7 @@ namespace GenHTTP.Modules.Authentication.Basic
                 return GetChallenge(request);
             }
 
-            var user = await Authenticator(credentials.username, credentials.password).ConfigureAwait(false);
+            var user = await Authenticator(credentials.username, credentials.password);
 
             if (user is null)
             {
@@ -70,7 +70,7 @@ namespace GenHTTP.Modules.Authentication.Basic
 
             request.SetUser(user);
 
-            return await Content.HandleAsync(request).ConfigureAwait(false);
+            return await Content.HandleAsync(request);
         }
 
         private IResponse GetChallenge(IRequest request)
