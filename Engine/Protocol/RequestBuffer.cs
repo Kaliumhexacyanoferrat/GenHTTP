@@ -25,6 +25,7 @@ namespace GenHTTP.Engine.Protocol
     /// </remarks>
     internal sealed class RequestBuffer : IDisposable
     {
+        private ReadOnlySequence<byte>? _Data;
 
         #region Get-/Setters
 
@@ -34,9 +35,9 @@ namespace GenHTTP.Engine.Protocol
 
         private CancellationTokenSource? Cancellation { get; set; }
 
-        internal ReadOnlySequence<byte> Data { get; private set; }
+        internal ReadOnlySequence<byte> Data => _Data ?? new();
 
-        internal bool ReadRequired => Data.IsEmpty;
+        internal bool ReadRequired => (_Data == null) || _Data.Value.IsEmpty;
 
         #endregion
 
@@ -46,8 +47,6 @@ namespace GenHTTP.Engine.Protocol
         {
             Reader = reader;
             Configuration = configuration;
-
-            Data = new();
         }
 
         #endregion
@@ -56,8 +55,13 @@ namespace GenHTTP.Engine.Protocol
 
         internal async PooledValueTask<long?> Read(bool force = false)
         {
-            if ((Data.Length == 0) || force)
+            if (ReadRequired || force)
             {
+                if (_Data != null)
+                {
+                    Reader.AdvanceTo(_Data.Value.Start);
+                }
+
                 if (Cancellation is null)
                 {
                     Cancellation = new();
@@ -67,7 +71,7 @@ namespace GenHTTP.Engine.Protocol
                 {
                     Cancellation.CancelAfter(Configuration.RequestReadTimeout);
 
-                    Data = (await Reader.ReadAsync(Cancellation.Token).ConfigureAwait(false)).Buffer;
+                    _Data = (await Reader.ReadAsync(Cancellation.Token)).Buffer;
 
                     Cancellation.CancelAfter(int.MaxValue);
                 }
@@ -85,14 +89,12 @@ namespace GenHTTP.Engine.Protocol
 
         internal void Advance(SequencePosition position)
         {
-            Data = Data.Slice(position);
-            Reader.AdvanceTo(Data.Start);
+            _Data = Data.Slice(position);
         }
 
         internal void Advance(long bytes)
         {
-            Data = Data.Slice(bytes);
-            Reader.AdvanceTo(Data.Start);
+            _Data = Data.Slice(bytes);
         }
 
         #endregion

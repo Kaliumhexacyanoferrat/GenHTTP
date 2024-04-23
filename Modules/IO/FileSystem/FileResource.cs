@@ -87,7 +87,7 @@ namespace GenHTTP.Modules.IO.FileSystem
         {
             using var content = File.OpenRead();
 
-            await content.CopyPooledAsync(target, bufferSize).ConfigureAwait(false);
+            await content.CopyPooledAsync(target, bufferSize);
         }
 
         #endregion

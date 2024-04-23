@@ -54,7 +54,7 @@ namespace GenHTTP.Modules.Pages.Rendering
             {
                 ulong hash = 17;
 
-                hash = hash * 23 + await Model.CalculateChecksumAsync().ConfigureAwait(false);
+                hash = hash * 23 + await Model.CalculateChecksumAsync();
 
                 hash = hash * 23 + (uint)(PageInfo.Description?.GetHashCode() ?? 0);
                 hash = hash * 23 + (uint)(PageInfo.Title?.GetHashCode() ?? 0);
@@ -111,7 +111,7 @@ namespace GenHTTP.Modules.Pages.Rendering
 
             var handler = Model.Handler;
 
-            var pageContent = await Renderer.RenderAsync(Model).ConfigureAwait(false);
+            var pageContent = await Renderer.RenderAsync(Model);
 
             await handler.WritePageAsync(request, PageInfo, Additions, pageContent, target);
         }

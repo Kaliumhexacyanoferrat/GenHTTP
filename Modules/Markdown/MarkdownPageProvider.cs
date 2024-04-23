@@ -53,7 +53,7 @@ namespace GenHTTP.Modules.Markdown
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var content = await Renderer.RenderAsync(null)
-                                        .ConfigureAwait(false);
+                                        ;
 
             var templateModel = new TemplateModel(request, this, PageInfo, Additions, content);
 

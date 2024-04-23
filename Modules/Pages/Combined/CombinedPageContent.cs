@@ -53,7 +53,7 @@ namespace GenHTTP.Modules.Pages.Combined
 
                 foreach (var fragment in Fragments)
                 {
-                    hash = hash * 23 + await fragment.Renderer.CalculateChecksumAsync().ConfigureAwait(false);
+                    hash = hash * 23 + await fragment.Renderer.CalculateChecksumAsync();
                     hash = hash * 23 + await fragment.Model.CalculateChecksumAsync();
                 }
 

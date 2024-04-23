@@ -80,7 +80,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             {
                 var req = ConfigureRequest(request);
 
-                var resp = await Client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+                var resp = await Client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
 
                 return GetResponse(resp, request).Build();
             }

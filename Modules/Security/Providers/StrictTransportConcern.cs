@@ -41,7 +41,7 @@ namespace GenHTTP.Modules.Security.Providers
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var response = await Content.HandleAsync(request).ConfigureAwait(false);
+            var response = await Content.HandleAsync(request);
 
             if (response is not null)
             {

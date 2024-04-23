@@ -44,7 +44,7 @@ namespace GenHTTP.Modules.ErrorHandling.Provider
             try
             {
                 var response = await Content.HandleAsync(request)
-                                            .ConfigureAwait(false);
+                                            ;
 
                 if (response is null)
                 {

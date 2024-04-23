@@ -74,7 +74,7 @@ namespace GenHTTP.Modules.IO
 
                             do
                             {
-                                read = await stream.ReadAsync(buffer).ConfigureAwait(false);
+                                read = await stream.ReadAsync(buffer);
 
                                 for (int i = 0; i < read; i++)
                                 {

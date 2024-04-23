@@ -55,11 +55,11 @@ namespace GenHTTP.Modules.Placeholders.Providers
 
             var model = await ModelProvider(request, this);
 
-            var content = await renderer.RenderAsync(model).ConfigureAwait(false);
+            var content = await renderer.RenderAsync(model);
 
             var templateModel = new TemplateModel(request, this, PageInfo, Additions, content);
 
-            var page = await this.GetPageAsync(request, templateModel).ConfigureAwait(false);
+            var page = await this.GetPageAsync(request, templateModel);
 
             if (Modifications != null)
             {

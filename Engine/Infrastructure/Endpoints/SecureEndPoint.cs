@@ -54,11 +54,11 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
 
         protected override async PooledValueTask Accept(Socket client)
         {
-            var stream = await TryAuthenticate(client).ConfigureAwait(false);
+            var stream = await TryAuthenticate(client);
 
             if (stream is not null)
             {
-                await Handle(client, new PoolBufferedStream(stream)).ConfigureAwait(false);
+                await Handle(client, new PoolBufferedStream(stream));
             }
             else
             {
@@ -80,7 +80,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
             {
                 var stream = new SslStream(new NetworkStream(client), false);
 
-                await stream.AuthenticateAsServerAsync(AuthenticationOptions, CancellationToken.None).ConfigureAwait(false);
+                await stream.AuthenticateAsServerAsync(AuthenticationOptions, CancellationToken.None);
 
                 return stream;
             }

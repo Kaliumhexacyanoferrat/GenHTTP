@@ -36,7 +36,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var (node, resource) = await Tree.Find(request.Target).ConfigureAwait(false);
+            var (node, resource) = await Tree.Find(request.Target);
 
             if (resource is not null)
             {

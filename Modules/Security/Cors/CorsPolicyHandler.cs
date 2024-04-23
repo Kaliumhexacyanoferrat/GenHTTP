@@ -61,7 +61,7 @@ namespace GenHTTP.Modules.Security.Cors
             }
             else
             {
-                response = await Content.HandleAsync(request).ConfigureAwait(false);
+                response = await Content.HandleAsync(request);
             }
 
             if ((response is not null) && (policy is not null))

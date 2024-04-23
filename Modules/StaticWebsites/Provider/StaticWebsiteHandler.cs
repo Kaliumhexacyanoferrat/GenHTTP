@@ -62,7 +62,7 @@ namespace GenHTTP.Modules.StaticWebsites.Provider
         {
             if (request.Target.Path.TrailingSlash)
             {
-                var (node, _) = await Tree.Find(request.Target).ConfigureAwait(false);
+                var (node, _) = await Tree.Find(request.Target);
 
                 if (node != null)
                 {

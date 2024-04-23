@@ -58,7 +58,7 @@ namespace GenHTTP.Modules.Reflection
             {
                 var wrapped = (IResultWrapper)result;
 
-                return await GetResponseAsync(request, handler, wrapped.Payload, (b) => wrapped.Apply(b)).ConfigureAwait(false);
+                return await GetResponseAsync(request, handler, wrapped.Payload, (b) => wrapped.Apply(b));
             }
 
             // response returned by the method
@@ -77,13 +77,13 @@ namespace GenHTTP.Modules.Reflection
             {
                 return await handlerBuilder.Build(handler)
                                            .HandleAsync(request)
-                                           .ConfigureAwait(false);
+                                           ;
             }
 
             if (result is IHandler resultHandler)
             {
                 return await resultHandler.HandleAsync(request)
-                                          .ConfigureAwait(false);
+                                          ;
             }
 
             // stream returned as a download
@@ -119,7 +119,7 @@ namespace GenHTTP.Modules.Reflection
                 }
 
                 var serializedResult = await serializer.SerializeAsync(request, result)
-                                                       .ConfigureAwait(false);
+                                                       ;
 
                 return serializedResult.Adjust(adjustments)
                                        .Build();

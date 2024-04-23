@@ -94,7 +94,7 @@ namespace GenHTTP.Modules.Websites.Sites
 
         public async ValueTask PrepareAsync()
         {
-            await Handler.PrepareAsync().ConfigureAwait(false);
+            await Handler.PrepareAsync();
 
             await Renderer.PrepareAsync();
 
@@ -114,22 +114,22 @@ namespace GenHTTP.Modules.Websites.Sites
 
         public async ValueTask<string> RenderAsync(ErrorModel model)
         {
-            return await Theme.ErrorHandler.RenderAsync(model).ConfigureAwait(false);
+            return await Theme.ErrorHandler.RenderAsync(model);
         }
 
         public async ValueTask RenderAsync(ErrorModel model, Stream target)
         {
-            await Theme.ErrorHandler.RenderAsync(model, target).ConfigureAwait(false);
+            await Theme.ErrorHandler.RenderAsync(model, target);
         }
 
         public async ValueTask<string> RenderAsync(TemplateModel model)
         {
-            return await Renderer.RenderAsync(model).ConfigureAwait(false);
+            return await Renderer.RenderAsync(model);
         }
 
         public async ValueTask RenderAsync(TemplateModel model, Stream target)
         {
-            await Renderer.RenderAsync(model, target).ConfigureAwait(false);
+            await Renderer.RenderAsync(model, target);
         }
 
         public IHandler? Find(string segment)

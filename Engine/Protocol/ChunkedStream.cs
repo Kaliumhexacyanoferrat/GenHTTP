@@ -86,7 +86,7 @@ namespace GenHTTP.Engine.Protocol
         {
             if (count > 0)
             {
-                await WriteAsync(count).ConfigureAwait(false);
+                await WriteAsync(count);
                 await WriteAsync(NL);
 
                 await Target.WriteAsync(buffer.AsMemory(offset, count), cancellationToken);
@@ -99,7 +99,7 @@ namespace GenHTTP.Engine.Protocol
         {
             if (!buffer.IsEmpty)
             {
-                await WriteAsync(buffer.Length).ConfigureAwait(false);
+                await WriteAsync(buffer.Length);
                 await WriteAsync(NL);
 
                 await Target.WriteAsync(buffer, cancellationToken);
@@ -110,7 +110,7 @@ namespace GenHTTP.Engine.Protocol
 
         public async ValueTask FinishAsync()
         {
-            await WriteAsync("0").ConfigureAwait(false);
+            await WriteAsync("0");
             await WriteAsync(NL);
 
             await WriteAsync(NL);

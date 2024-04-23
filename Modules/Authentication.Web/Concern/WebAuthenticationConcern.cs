@@ -67,10 +67,10 @@ namespace GenHTTP.Modules.Authentication.Web.Concern
             {
                 request.Target.Advance();
 
-                return await ResourceHandler.HandleAsync(request).ConfigureAwait(false);
+                return await ResourceHandler.HandleAsync(request);
             }
 
-            if (await Integration.CheckSetupRequired(request).ConfigureAwait(false))
+            if (await Integration.CheckSetupRequired(request))
             {
                 if (segment?.Value != Integration.SetupRoute)
                 {
