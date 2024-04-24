@@ -2,12 +2,12 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Infrastructure.Configuration;
+using GenHTTP.Engine.Infrastructure.Transport;
 
 using PooledAwait;
 
@@ -93,18 +93,21 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
 
         private void Handle(Socket client)
         {
-            using var _ = ExecutionContext.SuppressFlow();
-
-            Task.Run(() => Accept(client));
-        }
-
-        protected abstract PooledValueTask Accept(Socket client);
-
-        protected PooledValueTask Handle(Socket client, Stream inputStream)
-        {
             client.NoDelay = true;
 
-            return new ClientHandler(client, inputStream, Server, this, Configuration).Run();
+            var connection = new SocketConnection(client);
+
+            connection.Run();
+
+            Accept(connection);
+
+        }
+
+        protected abstract PooledValueTask Accept(SocketConnection connection);
+
+        protected PooledValueTask Handle(SocketConnection connection)
+        {
+            return new ClientHandler(connection, Server, this, Configuration).Run();
         }
 
         #endregion
