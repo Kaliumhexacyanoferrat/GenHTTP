@@ -22,9 +22,14 @@ namespace GenHTTP.Engine.Protocol.Parser
             Mode = ScannerMode.Words;
         }
 
-        internal async PooledValueTask<bool> Next(RequestBuffer buffer, RequestToken expectedToken)
+        internal async PooledValueTask<bool> Next(RequestBuffer buffer, RequestToken expectedToken, bool allowNone = false)
         {
             var read = await Next(buffer, forceRead: false);
+
+            if (allowNone && (read == RequestToken.None))
+            {
+                return false;
+            }
 
             if (read != expectedToken)
             {
@@ -54,7 +59,7 @@ namespace GenHTTP.Engine.Protocol.Parser
             }
             else
             {
-                throw new ProtocolException("No more data to be available to be parsed");
+                return Current = RequestToken.None;
             }
         }
 

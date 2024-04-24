@@ -137,22 +137,13 @@ namespace GenHTTP.Engine
             
             KeepAlive ??= request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? true;
 
-            bool keepAlive = (bool)KeepAlive;
+            bool keepAlive = KeepAlive.Value;
 
             using var response = await Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
             
             var success = await ResponseHandler.Handle(request, response, keepAlive, dataRemaining);
 
-            if (!success || !keepAlive)
-            {
-                Connection.Shutdown(SocketShutdown.Both);
-                Connection.Disconnect(false);
-                Connection.Close();
-
-                return false;
-            }
-
-            return true;
+            return (success && keepAlive);
         }
 
         #endregion

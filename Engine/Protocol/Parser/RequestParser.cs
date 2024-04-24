@@ -45,7 +45,10 @@ namespace GenHTTP.Engine.Protocol.Parser
 
         internal async PooledValueTask<RequestBuilder?> TryParseAsync(RequestBuffer buffer)
         {
-            await Type(buffer);
+            if (!await Type(buffer))
+            {
+                return null;
+            }
 
             await Path(buffer);
 
@@ -61,13 +64,18 @@ namespace GenHTTP.Engine.Protocol.Parser
             return result;
         }
 
-        private async PooledValueTask Type(RequestBuffer buffer)
+        private async PooledValueTask<bool> Type(RequestBuffer buffer)
         {
             Scanner.Mode = ScannerMode.Words;
 
-            if (await Scanner.Next(buffer, RequestToken.Word))
+            if (await Scanner.Next(buffer, RequestToken.Word, allowNone: true))
             {
                 Request.Type(MethodConverter.ToRequestMethod(Scanner.Value));
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
