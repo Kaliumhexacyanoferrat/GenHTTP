@@ -29,14 +29,15 @@ Project templates can be used to create apps for typical use cases with little e
 
 To create a project by using the terminal, create a new folder for your app and use one of the following commands:
 
-| Template | Command |
-|---|---|
-| REST Webservice | `dotnet new genhttp-webservice` |
-| REST Webservice (single file) | `dotnet new genhttp-webservice-minimal` |
-| Website | `dotnet new genhttp-website` |
-| Website (Static HTML) | `dotnet new genhttp-website-static`  |
-| Website (MVC + Razor) | `dotnet new genhttp-website-mvc-razor`  |
-| Website (MVC + Scriban)  | `dotnet new genhttp-website-mvc-scriban`  |
+| Template | Command | Documentation |
+|---|---|---|
+| REST Webservice | `dotnet new genhttp-webservice` | [Webservices](https://genhttp.org/documentation/content/webservices) |
+| REST Webservice (single file) | `dotnet new genhttp-webservice-minimal` | [Functional Handlers](https://genhttp.org/documentation/content/functional) |
+| Website | `dotnet new genhttp-website` | [Websites](https://genhttp.org/documentation/content/websites) |
+| Website (Static HTML) | `dotnet new genhttp-website-static`  | [Statics Websites](https://genhttp.org/documentation/content/static-websites) |
+| Website (MVC + Razor) | `dotnet new genhttp-website-mvc-razor`  | [Controllers (MVC)](https://genhttp.org/documentation/content/controllers) |
+| Website (MVC + Scriban)  | `dotnet new genhttp-website-mvc-scriban`  | [Controllers (MVC)](https://genhttp.org/documentation/content/controllers) |
+| Single Page Application (SPA) | `dotnet new genhttp-spa` | [Single Page Applications (SPA)](https://genhttp.org/documentation/content/single-page-applications) |
 
 After the project has been created, you can run it via `dotnet run` and access the server via http://localhost:8080.
 
