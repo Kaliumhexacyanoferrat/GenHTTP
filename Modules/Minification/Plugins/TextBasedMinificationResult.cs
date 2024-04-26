@@ -21,7 +21,7 @@ namespace GenHTTP.Modules.Minification.Plugins
 
         #region Initialization
 
-        public TextBasedMinificationResult(IResponseContent original, MinificationErrors errorHandling)
+        protected TextBasedMinificationResult(IResponseContent original, MinificationErrors errorHandling)
         {
             Original = original;
             ErrorHandling = errorHandling;
