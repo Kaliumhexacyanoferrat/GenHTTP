@@ -15,9 +15,9 @@ namespace GenHTTP.Modules.Minification.Plugins.JS
             return (contentType == ContentType.ApplicationJavaScript) || (contentType == ContentType.TextJavaScript);
         }
 
-        public void Process(IResponse response)
+        public void Process(IResponse response, MinificationErrors errorHandling)
         {
-            response.Content = new MinifiedJS(response.Content ?? throw new InvalidOperationException("Response has not content to be minified"));
+            response.Content = new MinifiedJS(response.Content ?? throw new InvalidOperationException("Response has not content to be minified"), errorHandling);
             response.ContentLength = null;
         }
 

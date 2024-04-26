@@ -15,13 +15,16 @@ namespace GenHTTP.Modules.Minification.Plugins
 
         protected IResponseContent Original { get; }
 
+        protected MinificationErrors ErrorHandling { get; }
+
         #endregion
 
         #region Initialization
 
-        public TextBasedMinificationResult(IResponseContent original)
+        public TextBasedMinificationResult(IResponseContent original, MinificationErrors errorHandling)
         {
             Original = original;
+            ErrorHandling = errorHandling;
         }
 
         #endregion
@@ -42,14 +45,30 @@ namespace GenHTTP.Modules.Minification.Plugins
 
             var content = await reader.ReadToEndAsync();
 
-            var transformed = Transform(content);
+            string transformed;
+
+            try
+            {
+                transformed = Transform(content, ErrorHandling == MinificationErrors.Ignore);
+            }
+            catch
+            {
+                if (ErrorHandling == MinificationErrors.ServeOriginal)
+                {
+                    transformed = content;
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
             using var writer = new StreamWriter(target, bufferSize: (int)bufferSize, leaveOpen: true);
 
             await writer.WriteAsync(transformed);
         }
 
-        protected abstract string Transform(string input);
+        protected abstract string Transform(string input, bool ignoreErrors);
 
         #endregion
 

@@ -19,16 +19,19 @@ namespace GenHTTP.Modules.Minification.Concern
 
         public IReadOnlyList<IMinificationPlugin> Plugins { get; }
 
+        public MinificationErrors ErrorHandling { get; }
+
         #endregion
 
         #region Initialization
 
-        public MinifyConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, IReadOnlyList<IMinificationPlugin> plugins)
+        public MinifyConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, IReadOnlyList<IMinificationPlugin> plugins, MinificationErrors errorHandling)
         {
             Parent = parent;
             Content = contentFactory(this);
 
             Plugins = plugins;
+            ErrorHandling = errorHandling;
         }
 
         #endregion
@@ -41,21 +44,28 @@ namespace GenHTTP.Modules.Minification.Concern
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var response = await Content.HandleAsync(request);
-
-            if (response != null)
+            if (!request.Server.Development)
             {
-                foreach (var plugin in Plugins)
-                { 
-                    if (plugin.Supports(response))
+                var response = await Content.HandleAsync(request);
+
+                if (response != null)
+                {
+                    foreach (var plugin in Plugins)
                     {
-                        plugin.Process(response);
-                        break;
+                        if (plugin.Supports(response))
+                        {
+                            plugin.Process(response, ErrorHandling);
+                            break;
+                        }
                     }
                 }
-            }
 
-            return response;
+                return response;
+            }
+            else
+            {
+                return await Content.HandleAsync(request);
+            }
         }
 
         #endregion

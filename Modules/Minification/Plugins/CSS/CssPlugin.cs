@@ -15,9 +15,9 @@ namespace GenHTTP.Modules.Minification.Plugins.CSS
             return (contentType == ContentType.TextCss);
         }
 
-        public void Process(IResponse response)
+        public void Process(IResponse response, MinificationErrors errorHandling)
         {
-            response.Content = new MinifiedCss(response.Content ?? throw new InvalidOperationException("Response has not content to be minified"));
+            response.Content = new MinifiedCss(response.Content ?? throw new InvalidOperationException("Response has not content to be minified"), errorHandling);
             response.ContentLength = null;
         }
 

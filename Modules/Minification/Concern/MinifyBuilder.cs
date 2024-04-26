@@ -14,7 +14,15 @@ namespace GenHTTP.Modules.Minification.Concern
     {
         private readonly List<IMinificationPlugin> _Plugins = new();
 
+        private MinificationErrors _ErrorHandling = MinificationErrors.Ignore;
+
         #region Functionality
+
+        public MinifyBuilder ErrorHandling(MinificationErrors strategy)
+        {
+            _ErrorHandling = strategy;
+            return this;
+        }
 
         public MinifyBuilder AddJS() => Add(new JSPlugin());
 
@@ -30,7 +38,7 @@ namespace GenHTTP.Modules.Minification.Concern
 
         public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
         {
-            throw new NotImplementedException();
+            return new MinifyConcern(parent, contentFactory, _Plugins, _ErrorHandling);
         }
 
         #endregion

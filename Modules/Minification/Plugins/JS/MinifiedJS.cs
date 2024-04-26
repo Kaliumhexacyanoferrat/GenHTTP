@@ -8,13 +8,13 @@ namespace GenHTTP.Modules.Minification.Plugins.JS
     public sealed class MinifiedJS : TextBasedMinificationResult
     {
 
-        public MinifiedJS(IResponseContent original) : base(original) { }
+        public MinifiedJS(IResponseContent original, MinificationErrors errorHandling) : base(original, errorHandling) { }
 
-        protected override string Transform(string input)
+        protected override string Transform(string input, bool ignoreErrors)
         {
             var minified = Uglify.Js(input);
 
-            if (minified.HasErrors)
+            if (minified.HasErrors && !ignoreErrors)
             {
                 throw new UglifyException("Failed to minify JS", minified.Errors);
             }

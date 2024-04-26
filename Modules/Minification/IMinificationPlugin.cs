@@ -23,11 +23,12 @@ namespace GenHTTP.Modules.Minification
         /// Process the given response by replacing it's content with a minified version.
         /// </summary>
         /// <param name="response">The response to be minified</param>
+        /// <param name="errorHandling">The error handling strategy to be applied by this plugin</param>
         /// <remarks>
         /// Please ensure that your plugin properly sets the content length on the response
         /// (e.g. by setting it to null).
         /// </remarks>
-        void Process(IResponse response);
+        void Process(IResponse response, MinificationErrors errorHandling);
 
     }
 
