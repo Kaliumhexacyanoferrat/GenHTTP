@@ -160,6 +160,15 @@ namespace GenHTTP.Engine.Protocol.Parser
                     throw new ProtocolException("Content-Length header is expected to be a numeric value");
                 }
             }
+            else if (Request.Headers.TryGetValue("Transfer-Encoding", out var mode))
+            {
+                if (mode == "chunked")
+                {
+                    var parser = new ChunkedContentParser(Configuration);
+
+                    Request.Content(await parser.GetBody(buffer));
+                }
+            }
         }
 
         #endregion

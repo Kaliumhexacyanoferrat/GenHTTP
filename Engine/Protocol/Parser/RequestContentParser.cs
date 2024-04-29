@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-
 using GenHTTP.Engine.Infrastructure.Configuration;
 
-namespace GenHTTP.Engine.Protocol
+namespace GenHTTP.Engine.Protocol.Parser
 {
 
     /// <summary>
@@ -36,38 +35,43 @@ namespace GenHTTP.Engine.Protocol
 
         internal async Task<Stream> GetBody(RequestBuffer buffer)
         {
-            var body = (Length > Configuration.RequestMemoryLimit) ? TemporaryFileStream.Create() : new MemoryStream((int)Length);
+            var body = Length > Configuration.RequestMemoryLimit ? TemporaryFileStream.Create() : new MemoryStream((int)Length);
 
-            var toFetch = Length;
+            await CopyAsync(buffer, body, Length, Configuration.TransferBufferSize);
+
+            body.Seek(0, SeekOrigin.Begin);
+
+            return body;
+        }
+
+        internal static async ValueTask CopyAsync(RequestBuffer source, Stream target, long length, uint bufferSize)
+        {
+            var toFetch = length;
 
             while (toFetch > 0)
             {
-                await buffer.Read();
+                await source.ReadAsync();
 
-                var toRead = Math.Min(buffer.Data.Length, Math.Min(Configuration.TransferBufferSize, toFetch));
+                var toRead = Math.Min(source.Data.Length, Math.Min(bufferSize, toFetch));
 
                 if (toRead == 0)
                 {
                     throw new InvalidOperationException($"No data read from the transport but {toFetch} bytes are remaining");
                 }
 
-                var data = buffer.Data.Slice(0, toRead);
+                var data = source.Data.Slice(0, toRead);
 
                 var position = data.GetPosition(0);
 
                 while (data.TryGet(ref position, out var memory))
                 {
-                    await body.WriteAsync(memory);
+                    await target.WriteAsync(memory);
                 }
 
-                buffer.Advance(toRead);
+                source.Advance(toRead);
 
                 toFetch -= toRead;
             }
-
-            body.Seek(0, SeekOrigin.Begin);
-
-            return body;
         }
 
         #endregion
