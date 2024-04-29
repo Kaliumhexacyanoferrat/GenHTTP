@@ -53,7 +53,7 @@ namespace GenHTTP.Engine.Protocol
 
         #region Functionality
 
-        internal async PooledValueTask<long?> Read(bool force = false)
+        internal async PooledValueTask<long?> ReadAsync(bool force = false)
         {
             if (ReadRequired || force)
             {
