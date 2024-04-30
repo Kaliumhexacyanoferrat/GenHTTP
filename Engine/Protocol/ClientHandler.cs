@@ -4,13 +4,16 @@ using System.IO;
 using System.IO.Pipelines;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol;
 
 using GenHTTP.Engine.Infrastructure.Configuration;
 using GenHTTP.Engine.Protocol;
 using GenHTTP.Engine.Protocol.Parser;
+
+using GenHTTP.Modules.IO;
+using GenHTTP.Modules.IO.Streaming;
 
 using PooledAwait;
 
@@ -59,7 +62,7 @@ namespace GenHTTP.Engine
 
             Stream = stream;
 
-            ResponseHandler = new ResponseHandler(Server, Stream, Configuration); 
+            ResponseHandler = new ResponseHandler(Server, Stream, Configuration);
         }
 
         #endregion
@@ -115,12 +118,27 @@ namespace GenHTTP.Engine
 
                 RequestBuilder? request;
 
-                while (Server.Running && (request = await parser.TryParseAsync(buffer)) is not null)
+                try
                 {
-                    if (!await HandleRequest(request, !buffer.ReadRequired))
+                    while (Server.Running && (request = await parser.TryParseAsync(buffer)) is not null)
                     {
-                        break;
+                        if (!await HandleRequest(request, !buffer.ReadRequired))
+                        {
+                            break;
+                        }
                     }
+                }
+                catch (ProtocolException pe) 
+                {
+                    // client did something wrong
+                    await SendError(pe, ResponseStatus.BadRequest);
+                    throw;
+                }
+                catch (Exception e) 
+                {
+                    // we did something wrong
+                    await SendError(e, ResponseStatus.InternalServerError);
+                    throw;
                 }
             }
             finally
@@ -134,16 +152,34 @@ namespace GenHTTP.Engine
             var address = (Connection.RemoteEndPoint as IPEndPoint)?.Address;
 
             using var request = builder.Connection(Server, EndPoint, address).Build();
-            
-            KeepAlive ??= request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? true;
+
+            KeepAlive ??= request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? (request.ProtocolType == HttpProtocol.Http_1_1);
 
             bool keepAlive = KeepAlive.Value;
 
             using var response = await Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
-            
+
             var success = await ResponseHandler.Handle(request, response, keepAlive, dataRemaining);
 
             return (success && keepAlive);
+        }
+
+        private async PooledValueTask SendError(Exception e, ResponseStatus status)
+        {
+            try
+            {
+                var message = Server.Development ? e.ToString() : e.Message;
+
+                var content = Resource.FromString(message)
+                                      .Build();
+
+                var response = new ResponseBuilder().Status(status)
+                                                    .Content(new ResourceContent(content))
+                                                    .Build();
+
+                await ResponseHandler.Handle(null, response, false, false);
+            }
+            catch { /* no recovery here */ }
         }
 
         #endregion

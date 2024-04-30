@@ -14,7 +14,7 @@ namespace GenHTTP.Engine.Protocol.Parser.Conversion
 
             if (value.Length != 8)
             {
-                throw new ProtocolException("HTTP protocol version expected");
+                throw new ProtocolException($"HTTP protocol version expected (got: '{ValueConverter.GetString(value)}')");
             }
 
             reader.Advance(5);

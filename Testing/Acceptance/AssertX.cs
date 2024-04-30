@@ -5,7 +5,6 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance
@@ -17,9 +16,21 @@ namespace GenHTTP.Testing.Acceptance
     public static class AssertX
     {
 
-        public static void Contains(string searchFor, string? content) => Assert.IsTrue(content?.Contains(searchFor) ?? false);
+        public static void Contains(string searchFor, string? content)
+        {
+            if ((content == null) || !content.Contains(searchFor))
+            {
+                throw new AssertFailedException($"String '{searchFor}' is not found in result:\r\n\r\n{content}");
+            }
+        }
 
-        public static void DoesNotContain(string searchFor, string? content) => Assert.IsFalse(content?.Contains(searchFor) ?? false);
+        public static void DoesNotContain(string searchFor, string? content)
+        {
+            if ((content != null) && content.Contains(searchFor))
+            {
+                throw new AssertFailedException($"String '{searchFor}' is found in result:\r\n\r\n{content}");
+            }
+        }
 
         public static void StartsWith(string searchFor, string? content) => Assert.IsTrue(content?.StartsWith(searchFor) ?? false);
 

@@ -137,7 +137,7 @@ namespace GenHTTP.Engine
 
         public IResponseBuilder Respond()
         {
-            return new ResponseBuilder(this).Status(ResponseStatus.OK);
+            return new ResponseBuilder().Status(ResponseStatus.OK);
         }
 
         #endregion

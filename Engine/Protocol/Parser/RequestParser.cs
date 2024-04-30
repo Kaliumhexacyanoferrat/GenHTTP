@@ -97,7 +97,7 @@ namespace GenHTTP.Engine.Protocol.Parser
                 // query
                 Scanner.Mode = ScannerMode.Words;
 
-                if (await Scanner.Next(buffer, RequestToken.Word))
+                if (await Scanner.Next(buffer, RequestToken.Word, includeWhitespace: true))
                 {
                     var query = QueryConverter.ToQuery(Scanner.Value);
 

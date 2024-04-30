@@ -48,7 +48,7 @@ namespace GenHTTP.Engine.Protocol
 
         #region Functionality
 
-        internal async ValueTask<bool> Handle(IRequest request, IResponse response, bool keepAlive, bool dataRemaining)
+        internal async ValueTask<bool> Handle(IRequest? request, IResponse response, bool keepAlive, bool dataRemaining)
         {
             try
             {
@@ -70,7 +70,10 @@ namespace GenHTTP.Engine.Protocol
                     await OutputStream.FlushAsync();
                 }
 
-                Server.Companion?.OnRequestHandled(request, response);
+                if (request != null) 
+                {
+                    Server.Companion?.OnRequestHandled(request, response);
+                }
 
                 return true;
             }
@@ -81,18 +84,18 @@ namespace GenHTTP.Engine.Protocol
             }
         }
 
-        private static bool ShouldSendBody(IRequest request, IResponse response)
+        private static bool ShouldSendBody(IRequest? request, IResponse response)
         {
-            return (request.Method.KnownMethod != RequestMethod.HEAD) &&
+            return ((request == null) || (request.Method.KnownMethod != RequestMethod.HEAD)) &&
                    (
                      (response.ContentLength > 0) || (response.Content?.Length > 0) ||
                      (response.ContentType is not null) || (response.ContentEncoding is not null)
                    );
         }
 
-        private ValueTask WriteStatus(IRequest request, IResponse response)
+        private ValueTask WriteStatus(IRequest? request, IResponse response)
         {
-            var version = (request.ProtocolType == HttpProtocol.Http_1_0) ? "1.0" : "1.1";
+            var version = (request?.ProtocolType == HttpProtocol.Http_1_1) ? "1.1" : "1.0";
 
             return Write("HTTP/", version, " ", NumberStringCache.Convert(response.Status.RawStatus), " ", response.Status.Phrase, NL);
         }

@@ -34,14 +34,21 @@ namespace GenHTTP.Engine.Protocol.Parser.Conversion
 
         internal static string GetString(ReadOnlySequence<byte> buffer)
         {
-            return string.Create((int)buffer.Length, buffer, (span, sequence) =>
+            if (buffer.Length > 0)
             {
-                foreach (var segment in sequence)
+                var result = string.Create((int)buffer.Length, buffer, (span, sequence) =>
                 {
-                    ASCII.GetChars(segment.Span, span);
-                    span = span[segment.Length..];
-                }
-            });
+                    foreach (var segment in sequence)
+                    {
+                        ASCII.GetChars(segment.Span, span);
+                        span = span[segment.Length..];
+                    }
+                });
+
+                return result.Trim();
+            }
+
+            return string.Empty;
         }
 
     }
