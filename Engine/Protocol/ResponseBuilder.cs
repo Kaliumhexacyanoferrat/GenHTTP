@@ -9,21 +9,6 @@ namespace GenHTTP.Engine.Protocol
     {
         private readonly Response _Response = new();
 
-        #region Get-/Setters
-
-        public IRequest Request { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public ResponseBuilder(IRequest request)
-        {
-            Request = request;
-        }
-
-        #endregion
-
         #region Functionality
 
         public IResponseBuilder Length(ulong length)

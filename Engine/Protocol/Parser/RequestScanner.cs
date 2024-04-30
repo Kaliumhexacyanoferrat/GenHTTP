@@ -1,4 +1,5 @@
-﻿using System.Buffers;
+﻿using System;
+using System.Buffers;
 
 using GenHTTP.Api.Protocol;
 
@@ -22,9 +23,9 @@ namespace GenHTTP.Engine.Protocol.Parser
             Mode = ScannerMode.Words;
         }
 
-        internal async PooledValueTask<bool> Next(RequestBuffer buffer, RequestToken expectedToken, bool allowNone = false)
+        internal async PooledValueTask<bool> Next(RequestBuffer buffer, RequestToken expectedToken, bool allowNone = false, bool includeWhitespace = false)
         {
-            var read = await Next(buffer, forceRead: false);
+            var read = await Next(buffer, forceRead: false, includeWhitespace: includeWhitespace);
 
             if (allowNone && (read == RequestToken.None))
             {
@@ -39,12 +40,12 @@ namespace GenHTTP.Engine.Protocol.Parser
             return true;
         }
 
-        internal async PooledValueTask<RequestToken> Next(RequestBuffer buffer, bool forceRead = false)
+        internal async PooledValueTask<RequestToken> Next(RequestBuffer buffer, bool forceRead = false, bool includeWhitespace = false)
         {
             // ensure we have data to be scanned
             if (await Fill(buffer, forceRead))
             {
-                var found = ScanData(buffer);
+                var found = ScanData(buffer, includeWhitespace);
 
                 if (found != null)
                 {
@@ -55,7 +56,7 @@ namespace GenHTTP.Engine.Protocol.Parser
             // did not recognize any tokens, probably due to missing input data
             if (!forceRead)
             {
-                return await Next(buffer, forceRead: true);
+                return await Next(buffer, forceRead: true, includeWhitespace: includeWhitespace);
             }
             else
             {
@@ -63,8 +64,14 @@ namespace GenHTTP.Engine.Protocol.Parser
             }
         }
 
-        private RequestToken? ScanData(RequestBuffer buffer)
+        private RequestToken? ScanData(RequestBuffer buffer, bool includeWhitespace = false)
         {
+            if (SkipWhitespace(buffer) && includeWhitespace)
+            {
+                Value = new();
+                return RequestToken.Word;
+            }
+
             if (Mode == ScannerMode.Words)
             {
                 if (ReadTo(buffer, ' ', boundary: '\r'))
@@ -109,9 +116,43 @@ namespace GenHTTP.Engine.Protocol.Parser
             return null;
         }
 
+        private static bool SkipWhitespace(RequestBuffer buffer)
+        {
+            var count = 0;
+            var done = false;
+
+            foreach (var memory in buffer.Data)
+            {
+                for (int i = 0; i < memory.Length; i++)
+                {
+                    if (memory.Span[i] == (byte)' ')
+                    {
+                        count++;
+                    }
+                    else
+                    {
+                        done = true;
+                        break;
+                    }
+                }
+
+                if (done)
+                {
+                    break;
+                }
+            }
+
+            if (count > 0)
+            {
+                buffer.Advance(count);
+            }
+
+            return (count > 0);
+        }
+
         private static bool IsNewLine(RequestBuffer buffer)
         {
-            if (buffer.Data.First.Span[0] == (byte)'\r')
+            if (buffer.Data.FirstSpan[0] == (byte)'\r')
             {
                 buffer.Advance(2);
                 return true;

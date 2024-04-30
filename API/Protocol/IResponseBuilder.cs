@@ -10,11 +10,6 @@ namespace GenHTTP.Api.Protocol
     {
 
         /// <summary>
-        /// The request the response belongs to.
-        /// </summary>
-        IRequest Request { get; }
-
-        /// <summary>
         /// Specifies the content to be sent to the client.
         /// </summary>
         /// <param name="content">The content to be send to the client</param>

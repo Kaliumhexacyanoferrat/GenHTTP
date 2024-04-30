@@ -66,7 +66,6 @@ namespace GenHTTP.Testing.Acceptance.Engine
             await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
-
         [TestMethod]
         public async Task TestKeepalive()
         {
