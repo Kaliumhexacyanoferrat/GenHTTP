@@ -8,7 +8,7 @@ As an example, the website of this project is hosted on a Raspberry Pi: [genhttp
 
 [![CI](https://github.com/Kaliumhexacyanoferrat/GenHTTP/actions/workflows/ci.yml/badge.svg)](https://github.com/Kaliumhexacyanoferrat/GenHTTP/actions/workflows/ci.yml) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GenHTTP&metric=coverage)](https://sonarcloud.io/dashboard?id=GenHTTP) [![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Core.svg)](https://www.nuget.org/packages/GenHTTP.Core/) [](https://discord.gg/cW6tPJS7nt) [![Discord](https://discordapp.com/api/guilds/1177529388229734410/widget.png?style=shield)](https://discord.gg/GwtDyUpkpV)
 
-## Features
+## 🚀 Features
 
 - Setup new webservices or websites in a couple of minutes using [project templates](https://genhttp.org/documentation/content/templates)
 - Embed web services and applications into your existing console, service, WPF, WinForms, WinUI, MAUI or Uno application
@@ -18,7 +18,7 @@ As an example, the website of this project is hosted on a Raspberry Pi: [genhttp
 - Several [themes](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes) available to be chosen from
 - Grade A+ security level according to SSL Labs
 
-## Getting Started
+## 📖 Getting Started
 
 This section shows how to create a new project from scratch using project templates and how to extend your existing application by embedding the GenHTTP engine.
 
@@ -63,7 +63,7 @@ The [documentation](https://genhttp.org/documentation/) provides a step-by-step 
 
 If you encounter issues implementing your application, feel free to [join our Discord community](https://discord.gg/GwtDyUpkpV) to get help.
 
-## Building the Server
+## ⚙️ Building the Server
 
 To build the server from source, clone this repository and run the playground project launcher for .NET 8:
 
@@ -75,7 +75,7 @@ dotnet run
 
 This will build the playground project launcher with all the server dependencies and launch the server process on port 8080. You can access the playground in the browser via http://localhost:8080.
 
-## Contributing
+## 🙌 Contributing
 
 Writing a general purpose web application server is a tremendous task, so any contribution is very welcome. Besides extending the server core, you might want to
 
@@ -89,16 +89,16 @@ Writing a general purpose web application server is a tremendous task, so any co
 
 If you would like to contribute, please also have a look at the [contribution guidelines](https://github.com/Kaliumhexacyanoferrat/GenHTTP/blob/master/CONTRIBUTING.md) and the [good first issues](https://github.com/Kaliumhexacyanoferrat/GenHTTP/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
 
-## History
+## 🏺 History
 
 The web server was originally developed in 2008 to run on a netbook with an Intel Atom processor. Both IIS and Apache failed to render dynamic pages on such a slow CPU back then. The original project description can still be found on [archive.org](https://web.archive.org/web/20100706192130/http://gene.homeip.net/GenHTTPWebsite/). In 2019, the source code has been moved to GitHub with the goal to rework the project to be able to run dockerized web applications written in C#.
 
-## Links
+## 📌 Links
 
 - Related to GenHTTP: [Templates](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Templates) | [Themes](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes) | [Website](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Website)
 - Reference projects: [GenHTTP Gateway](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Gateway) | [MockH](https://github.com/Kaliumhexacyanoferrat/MockH)
 - Similar projects: [EmbedIO](https://github.com/unosquare/embedio) | [NetCoreServer](https://github.com/chronoxor/NetCoreServer) | [Watson Webserver](https://github.com/jchristn/WatsonWebserver)
 
-## Thanks
+## 🙏 Thanks
 
 - [.NET](https://github.com/dotnet/core) for a nice platform
