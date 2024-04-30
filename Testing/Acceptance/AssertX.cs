@@ -24,7 +24,13 @@ namespace GenHTTP.Testing.Acceptance
             }
         }
 
-        public static void DoesNotContain(string searchFor, string? content) => Assert.IsFalse(content?.Contains(searchFor) ?? false);
+        public static void DoesNotContain(string searchFor, string? content)
+        {
+            if ((content != null) && content.Contains(searchFor))
+            {
+                throw new AssertFailedException($"String '{searchFor}' is found in result:\r\n\r\n{content}");
+            }
+        }
 
         public static void StartsWith(string searchFor, string? content) => Assert.IsTrue(content?.StartsWith(searchFor) ?? false);
 

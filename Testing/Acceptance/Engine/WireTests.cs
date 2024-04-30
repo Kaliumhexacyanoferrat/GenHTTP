@@ -15,6 +15,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
     [TestClass]
     public sealed class WireTests
     {
+        private const string NL = "\r\n";
 
         #region Tests
 
@@ -27,10 +28,10 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             var result = await SendAsync(host, (w) =>
             {
-                w.WriteLine("get / http/1.0");
-                w.WriteLine("host: 127.0.0.1");
-                w.WriteLine("x-my-header: abc");
-                w.WriteLine();
+                w.Write($"get / http/1.0{NL}");
+                w.Write($"host: 127.0.0.1{NL}");
+                w.Write($"x-my-header: abc{NL}");
+                w.Write($"{NL}");
             });
 
             AssertX.Contains("abc", result);
@@ -45,10 +46,10 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             var result = await SendAsync(host, (w) =>
             {
-                w.WriteLine(" GET  /some-path/  HTTP/1.0");
-                w.WriteLine(" Host : 127.0.0.1 ");
-                w.WriteLine("    X-My-Header: abc     ");
-                w.WriteLine();
+                w.Write($" GET  /some-path/  HTTP/1.0{NL}");
+                w.Write($" Host : 127.0.0.1 {NL}");
+                w.Write($"    X-My-Header: abc     {NL}");
+                w.Write($"{NL}");
             });
 
             AssertX.Contains("abc", result);
@@ -78,6 +79,37 @@ namespace GenHTTP.Testing.Acceptance.Engine
             await TestAsync("GET / HTTP/1.0\r\nContent-Length: ABC\r\n", "Content-Length header is expected to be a numeric value");
         }
 
+        [TestMethod]
+        public async Task TestNoKeepAliveForHttp10()
+        {
+            using var host = TestHost.Run(Layout.Create());
+
+            var result = await SendAsync(host, (w) =>
+            {
+                w.Write($"GET / HTTP/1.0{NL}");
+                w.Write($"Host: 127.0.0.1{NL}");
+                w.Write($"{NL}");
+            });
+
+            AssertX.DoesNotContain("Keep-Alive", result);
+        }
+
+        [TestMethod]
+        public async Task TestNoKeepAliveForConnectionClose()
+        {
+            using var host = TestHost.Run(Layout.Create());
+
+            var result = await SendAsync(host, (w) =>
+            {
+                w.Write($"GET / HTTP/1.1{NL}");
+                w.Write($"Host: 127.0.0.1{NL}");
+                w.Write($"Connection: close{NL}");
+                w.Write($"{NL}");
+            });
+
+            AssertX.DoesNotContain("Keep-Alive", result);
+        }
+
         #endregion
 
         #region Helpers
@@ -89,7 +121,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
             var result = await SendAsync(host, (w) =>
             {
                 w.Write(request);
-                w.WriteLine();
+                w.Write(NL);
             });
 
             AssertX.Contains(assertion, result);
