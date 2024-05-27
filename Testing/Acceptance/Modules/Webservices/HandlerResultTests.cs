@@ -47,6 +47,22 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
 
         }
 
+        public sealed class PathAsyncService
+        {
+            private static readonly IBuilder<IResourceTree> _Tree = CreateTree();
+
+            [ResourceMethod(path: "/mypath/:pathParam/")]
+            public Task<IHandlerBuilder> Pathed(string pathParam)
+            {
+                Assert.AreEqual("param", pathParam);
+
+                IHandlerBuilder handlerBuilder = StaticWebsite.From(_Tree);
+
+                return Task.FromResult(handlerBuilder);
+            }
+
+        }
+
         #endregion
 
         #region Tests
@@ -71,6 +87,21 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
         {
             var app = Layout.Create()
                             .AddService<PathService>("c");
+
+            using var host = TestHost.Run(app);
+
+            using var response = await host.GetResponseAsync("/c/mypath/param/sub/my.txt");
+
+            await response.AssertStatusAsync(HttpStatusCode.OK);
+
+            Assert.AreEqual("My Textfile", await response.GetContentAsync());
+        }
+
+        [TestMethod]
+        public async Task TestPathedAsync()
+        {
+            var app = Layout.Create()
+                            .AddService<PathAsyncService>("c");
 
             using var host = TestHost.Run(app);
 

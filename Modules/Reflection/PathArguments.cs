@@ -2,6 +2,8 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
+using GenHTTP.Api.Content;
+
 namespace GenHTTP.Modules.Reflection
 {
 
@@ -51,6 +53,36 @@ namespace GenHTTP.Modules.Reflection
             }
 
             return (wildcard) ? EMPTY_WILDCARD : EMPTY;
+        }
+
+        /// <summary>
+        /// Checks, whether the given type ultimately returns a handler or handler builder,
+        /// so requests should passed to this handler which means that we allow any sub
+        /// routes here.
+        /// </summary>
+        /// <param name="returnType">The return type to be checked</param>
+        /// <returns>true, if the given type will ultimately create an IHandler instance that should handle the request</returns>
+        public static bool CheckWildcardRoute(Type returnType)
+        {
+            if (IsHandlerType(returnType))
+            {
+                return true;
+            }
+
+            if (returnType.IsAsyncGeneric())
+            {
+                if (returnType.GenericTypeArguments.Length == 1)
+                {
+                    return IsHandlerType(returnType.GenericTypeArguments[0]);
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsHandlerType(Type returnType)
+        {
+            return typeof(IHandlerBuilder).IsAssignableFrom(returnType) || typeof(IHandler).IsAssignableFrom(returnType);
         }
 
     }

@@ -40,11 +40,15 @@ namespace GenHTTP.Modules.Functional.Provider
         {
             foreach (var function in functions)
             {
-                var path = PathArguments.Route(function.Path);
+                var method = function.Delegate.Method;
+
+                var wildcardRoute = PathArguments.CheckWildcardRoute(method.ReturnType);
+
+                var path = PathArguments.Route(function.Path, wildcardRoute);
 
                 var target = function.Delegate.Target ?? throw new InvalidOperationException("Delegate target must not be null");
 
-                yield return (parent) => new MethodHandler(parent, function.Delegate.Method, path, () => target, function.Configuration, ResponseProvider.GetResponseAsync, formats, injection, formatting);
+                yield return (parent) => new MethodHandler(parent, method, path, () => target, function.Configuration, ResponseProvider.GetResponseAsync, formats, injection, formatting);
             }
         }
 
