@@ -9,9 +9,9 @@ namespace GenHTTP.Modules.Reflection
 
     public static class PathArguments
     {
-        private static readonly MethodRouting EMPTY = new("/", "^(/|)$", null, true);
+        private static readonly MethodRouting EMPTY = new("/", "^(/|)$", null, true, false);
 
-        private static readonly MethodRouting EMPTY_WILDCARD = new("/", "^.*", null, true);
+        private static readonly MethodRouting EMPTY_WILDCARD = new("/", "^.*", null, true, true);
 
         private static readonly Regex VAR_PATTERN = new(@"\:([a-z]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
@@ -47,9 +47,9 @@ namespace GenHTTP.Modules.Reflection
 
                 var splitted = path.Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-                var end = (wildcard) ? "/" : "(/|)$";
+                var end = (wildcard) ? "(/|)" : "(/|)$";
 
-                return new MethodRouting(path, $"^/{builder}{end}", (splitted.Length > 0) ? splitted[0] : null, false);
+                return new MethodRouting(path, $"^/{builder}{end}", (splitted.Length > 0) ? splitted[0] : null, false, wildcard);
             }
 
             return (wildcard) ? EMPTY_WILDCARD : EMPTY;

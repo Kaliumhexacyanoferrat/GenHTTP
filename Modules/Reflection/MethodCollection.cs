@@ -45,6 +45,14 @@ namespace GenHTTP.Modules.Reflection
             }
             else if (methods.Count > 1)
             {
+                // if there is only one non-wildcard, use this one
+                var nonWildcards = methods.Where(m => m.Routing.IsWildcard == false).ToList();
+
+                if (nonWildcards.Count == 1)
+                {
+                    return nonWildcards[0].HandleAsync(request);
+                }
+
                 throw new ProviderException(ResponseStatus.BadRequest, $"There are multiple methods matching '{request.Target.Path}'");
             }
             else
