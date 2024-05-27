@@ -36,18 +36,32 @@ namespace GenHTTP.Modules.Reflection
         /// </summary>
         public bool IsIndex { get; }
 
+        /// <summary>
+        /// True, if this is a wildcard route that is created
+        /// when returning a handler or handler builder from
+        /// a method.
+        /// </summary>
+        /// <remarks>
+        /// Wildcard routes have a lower priority compared to
+        /// non-wildcard routes and will not be considered
+        /// ambiguous.
+        /// </remarks>
+        public bool IsWildcard { get; }
+
         #endregion
 
         #region Initialization
 
-        public MethodRouting(string path, string pathExpression, string? segment, bool isIndex)
+        public MethodRouting(string path, string pathExpression, string? segment, bool isIndex, bool isWildcard)
         {
             Path = new PathBuilder(path).Build();
 
             _PathExpression = pathExpression;
             
             Segment = segment;
+
             IsIndex = isIndex;
+            IsWildcard = isWildcard;
         }
 
         #endregion

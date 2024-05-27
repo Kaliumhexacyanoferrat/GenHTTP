@@ -19,7 +19,7 @@ namespace GenHTTP.Modules.Controllers.Provider
 
     public sealed class ControllerHandler : IHandler, IHandlerResolver
     {
-        private static readonly MethodRouting EMPTY = new("/", "^(/|)$", null, true);
+        private static readonly MethodRouting EMPTY = new("/", "^(/|)$", null, true, false);
 
         #region Get-/Setters
 
@@ -68,9 +68,11 @@ namespace GenHTTP.Modules.Controllers.Provider
             var pathArgs = string.Join('/', arguments.Select(a => a.ToParameter()));
             var rawArgs = string.Join('/', arguments.Select(a => $":{a}"));
 
+            var isWildcard = PathArguments.CheckWildcardRoute(method.ReturnType);
+
             if (method.Name == "Index")
             {
-                return pathArgs.Length > 0 ? new MethodRouting($"/{rawArgs}/", $"^/{pathArgs}/", null, false) : EMPTY;
+                return pathArgs.Length > 0 ? new MethodRouting($"/{rawArgs}/", $"^/{pathArgs}/", null, false, isWildcard) : EMPTY;
             }
             else
             {
@@ -78,7 +80,7 @@ namespace GenHTTP.Modules.Controllers.Provider
 
                 var path = $"^/{name}";
 
-                return pathArgs.Length > 0 ? new MethodRouting($"/{name}/{rawArgs}/", $"{path}/{pathArgs}/", name, false) : new MethodRouting($"/{name}", $"{path}/", name, false);
+                return pathArgs.Length > 0 ? new MethodRouting($"/{name}/{rawArgs}/", $"{path}/{pathArgs}/", name, false, isWildcard) : new MethodRouting($"/{name}", $"{path}/", name, false, isWildcard);
             }
         }
 
