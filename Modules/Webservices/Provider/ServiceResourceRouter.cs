@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Providers;
 using GenHTTP.Modules.Reflection;
@@ -49,7 +50,9 @@ namespace GenHTTP.Modules.Webservices.Provider
 
                 if (attribute is not null)
                 {
-                    var path = PathArguments.Route(attribute.Path);
+                    var wildcardRoute = PathArguments.CheckWildcardRoute(method.ReturnType);
+
+                    var path = PathArguments.Route(attribute.Path, wildcardRoute);
 
                     yield return (parent) => new MethodHandler(parent, method, path, () => Instance, attribute, ResponseProvider.GetResponseAsync, serialization, injection, formatting);
                 }
