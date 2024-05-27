@@ -49,11 +49,18 @@ namespace GenHTTP.Modules.Webservices.Provider
 
                 if (attribute is not null)
                 {
-                    var path = PathArguments.Route(attribute.Path);
+                    var wildcardRoute = CheckWildcardRoute(method.ReturnType);
+
+                    var path = PathArguments.Route(attribute.Path, wildcardRoute);
 
                     yield return (parent) => new MethodHandler(parent, method, path, () => Instance, attribute, ResponseProvider.GetResponseAsync, serialization, injection, formatting);
                 }
             }
+        }
+
+        private static bool CheckWildcardRoute(Type returnType)
+        {
+            return typeof(IHandlerBuilder).IsAssignableFrom(returnType) || typeof(IHandler).IsAssignableFrom(returnType);
         }
 
         #endregion
