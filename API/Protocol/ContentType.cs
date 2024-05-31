@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -317,7 +318,7 @@ namespace GenHTTP.Api.Protocol
     /// </summary>
     public class FlexibleContentType
     {
-        private static readonly Dictionary<string, FlexibleContentType> _RawCache = new(StringComparer.InvariantCultureIgnoreCase);
+        private static readonly ConcurrentDictionary<string, FlexibleContentType> _RawCache = new(StringComparer.InvariantCultureIgnoreCase);
 
         private static readonly Dictionary<ContentType, FlexibleContentType> _KnownCache = new();
 
