@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Threading.Tasks;
 using GenHTTP.Api.Protocol;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -20,6 +20,15 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
                 Assert.AreEqual(mapped.KnownType, contentType);
             }
+        }
+
+        [TestMethod]
+        public void ConcurrentContentTypeAccessTest()
+        {
+            Parallel.For(0, 10, (_) =>
+            {
+                FlexibleContentType.Parse("application/json");
+            });
         }
 
     }
