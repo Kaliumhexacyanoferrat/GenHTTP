@@ -58,7 +58,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
 
             if (stream is not null)
             {
-                await Handle(client, new PoolBufferedStream(stream));
+                await Handle(client, new PoolBufferedStream(stream, Configuration.TransferBufferSize));
             }
             else
             {

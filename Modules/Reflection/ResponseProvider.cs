@@ -9,6 +9,7 @@ using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Providers;
 using GenHTTP.Modules.IO;
+using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.Reflection
 {

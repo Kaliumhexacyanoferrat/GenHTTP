@@ -32,7 +32,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
 
         #region Functionality
 
-        protected override PooledValueTask Accept(Socket client) => Handle(client, new PoolBufferedStream(new NetworkStream(client)));
+        protected override PooledValueTask Accept(Socket client) => Handle(client, new PoolBufferedStream(new NetworkStream(client), Configuration.TransferBufferSize));
         
         #endregion
 

@@ -23,10 +23,6 @@ namespace GenHTTP.Engine.Protocol
     {
         private static readonly string NL = "\r\n";
 
-        private static readonly Encoding ENCODING = Encoding.ASCII;
-
-        private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
-
         #region Get-/Setters
 
         public override bool CanRead => false;
@@ -74,11 +70,10 @@ namespace GenHTTP.Engine.Protocol
             if (count > 0)
             {
                 Write(count);
-                Write(NL);
 
                 Target.Write(buffer, offset, count);
                 
-                Write(NL);
+                NL.Write(Target);
             }
         }
 
@@ -87,7 +82,6 @@ namespace GenHTTP.Engine.Protocol
             if (count > 0)
             {
                 await WriteAsync(count);
-                await WriteAsync(NL);
 
                 await Target.WriteAsync(buffer.AsMemory(offset, count), cancellationToken);
 
@@ -100,7 +94,6 @@ namespace GenHTTP.Engine.Protocol
             if (!buffer.IsEmpty)
             {
                 await WriteAsync(buffer.Length);
-                await WriteAsync(NL);
 
                 await Target.WriteAsync(buffer, cancellationToken);
 
@@ -110,10 +103,7 @@ namespace GenHTTP.Engine.Protocol
 
         public async ValueTask FinishAsync()
         {
-            await WriteAsync("0");
-            await WriteAsync(NL);
-
-            await WriteAsync(NL);
+            await WriteAsync("0\r\n\r\n");
         }
 
         public override void Flush()
@@ -123,29 +113,11 @@ namespace GenHTTP.Engine.Protocol
 
         public override Task FlushAsync(CancellationToken cancellationToken) => Target.FlushAsync(cancellationToken);
 
-        private void Write(string text)
-        {
-            var length = text.Length;
-
-            var buffer = POOL.Rent(length);
-
-            try
-            {
-                ENCODING.GetBytes(text, 0, length, buffer, 0);
-
-                Target.Write(buffer, 0, length);
-            }
-            finally
-            {
-                POOL.Return(buffer);
-            }
-        }
-
-        private void Write(int value) => Write($"{value:X}");
+        private void Write(int value) => $"{value:X}\r\n".Write(Target);
 
         private ValueTask WriteAsync(string text) => text.WriteAsync(Target);
 
-        private ValueTask WriteAsync(int value) => WriteAsync($"{value:X}");
+        private ValueTask WriteAsync(int value) => $"{value:X}\r\n".WriteAsync(Target);
 
         #endregion
 
