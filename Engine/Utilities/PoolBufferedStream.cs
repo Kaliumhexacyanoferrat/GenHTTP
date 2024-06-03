@@ -23,7 +23,7 @@ namespace GenHTTP.Engine.Utilities
     /// </remarks>
     public sealed class PoolBufferedStream : Stream
     {
-        private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
+        private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Create(128 * 1024, 8192); // 1 GB 
 
         #region Get-/Setters
 
@@ -51,11 +51,11 @@ namespace GenHTTP.Engine.Utilities
 
         #region Initialization
 
-        public PoolBufferedStream(Stream stream)
+        public PoolBufferedStream(Stream stream, uint bufferSize)
         {
             Stream = stream;
 
-            Buffer = POOL.Rent(4096);
+            Buffer = POOL.Rent((int)bufferSize);
             Current = 0;
         }
 

@@ -74,6 +74,76 @@ namespace GenHTTP.Modules.IO.Streaming
             }
         }
 
+        public static void Write(this string content, Stream target)
+        {
+            var length = ENCODER.GetByteCount(content, false);
+
+            var buffer = POOL.Rent(length);
+
+            try
+            {
+                ENCODER.GetBytes(content.AsSpan(), buffer.AsSpan(), true);
+
+                target.Write(buffer, 0, length);
+            }
+            finally
+            {
+                POOL.Return(buffer);
+            }
+        }
+
+        /// <summary>
+        /// Efficiently calculates the checksum of the stream, beginning
+        /// from the current position. Resets the position to the previous
+        /// one.
+        /// </summary>
+        /// <returns>The checksum of the stream</returns>
+        public static async ValueTask<ulong?> CalculateChecksumAsync(this Stream stream)
+        {
+            if (stream.CanSeek)
+            {
+                var position = stream.Position;
+
+                try
+                {
+                    unchecked
+                    {
+                        ulong hash = 17;
+
+                        var buffer = POOL.Rent(4096);
+
+                        try
+                        {
+                            var read = 0;
+
+                            do
+                            {
+                                read = await stream.ReadAsync(buffer);
+
+                                for (int i = 0; i < read; i++)
+                                {
+                                    hash = hash * 23 + buffer[i];
+                                }
+                            }
+                            while (read > 0);
+                        }
+                        finally
+                        {
+                            POOL.Return(buffer);
+                        }
+
+                        return hash;
+                    }
+                }
+                finally
+                {
+                    stream.Seek(position, SeekOrigin.Begin);
+                }
+            }
+
+            return null;
+        }
+
     }
 
 }
