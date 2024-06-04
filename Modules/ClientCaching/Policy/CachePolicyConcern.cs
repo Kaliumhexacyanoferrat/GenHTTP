@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
@@ -58,8 +57,6 @@ namespace GenHTTP.Modules.ClientCaching.Policy
 
             return response;
         }
-
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Content.GetContentAsync(request);
 
         public ValueTask PrepareAsync() => Content.PrepareAsync();
 

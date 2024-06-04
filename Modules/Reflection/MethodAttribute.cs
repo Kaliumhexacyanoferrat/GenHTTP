@@ -29,15 +29,6 @@ namespace GenHTTP.Modules.Reflection
         /// </summary>
         public bool IgnoreContent { get; set; }
 
-        /// <summary>
-        /// If set, the given type will be instantiated when content
-        /// is requested to discover the content which is available.
-        /// </summary>
-        /// <remarks>
-        /// The specified type must implement interface <see cref="IContentHints"/>.
-        /// </remarks>
-        public Type? ContentHints { get; set; }
-
         #endregion
 
         #region Initialization

@@ -74,17 +74,6 @@ namespace GenHTTP.Modules.Reflection
             }
         }
 
-        public async IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
-        {
-            foreach (var method in Methods)
-            {
-                await foreach (var content in method.GetContentAsync(request))
-                {
-                    yield return content;
-                }
-            }
-        }
-
         private List<MethodHandler> FindProviders(string path, FlexibleRequestMethod requestedMethod, out bool foundOthers)
         {
             foundOthers = false;

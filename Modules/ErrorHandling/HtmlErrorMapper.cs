@@ -2,10 +2,7 @@
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.Pages;
 
 namespace GenHTTP.Modules.ErrorHandling
 {
@@ -20,6 +17,10 @@ namespace GenHTTP.Modules.ErrorHandling
 
         public ValueTask<IResponse?> Map(IRequest request, IHandler handler, Exception error)
         {
+            // todo
+            return new();
+
+            /*
             if (error is ProviderException e)
             {
                 var model = new ErrorModel(request, handler, e.Status, e.Message, e);
@@ -37,12 +38,15 @@ namespace GenHTTP.Modules.ErrorHandling
                                          .Title("Internal Server Error");
 
                 return new(handler.GetError(model, details.Build(), null).Build());
-            }
+            }*/
         }
 
         public ValueTask<IResponse?> GetNotFound(IRequest request, IHandler handler)
         {
-            return new(handler.GetNotFound(request).Build());
+            // todo
+            return new();
+
+            // return new(handler.GetNotFound(request).Build());
         }
 
     }

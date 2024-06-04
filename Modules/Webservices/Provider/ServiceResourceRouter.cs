@@ -65,8 +65,6 @@ namespace GenHTTP.Modules.Webservices.Provider
 
         public ValueTask PrepareAsync() => Methods.PrepareAsync();
 
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Methods.GetContentAsync(request);
-
         public ValueTask<IResponse?> HandleAsync(IRequest request) => Methods.HandleAsync(request);
 
         #endregion

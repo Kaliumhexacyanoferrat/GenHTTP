@@ -85,8 +85,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.Conversion
                 Format = format;
             }
 
-            public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => AsyncEnumerable.Empty<ContentElement>();
-
             public async ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 var obj = await Format.DeserializeAsync(request.Content!, typeof(T));

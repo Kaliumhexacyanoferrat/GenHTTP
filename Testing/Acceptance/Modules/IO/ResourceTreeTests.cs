@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -21,9 +20,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             
             Assert.IsNotNull(await tree.TryGetResourceAsync("File.txt"));
 
-            Assert.AreEqual(1, await tree.GetNodes().CountAsync());
+            Assert.AreEqual(1, (await tree.GetNodes()).Count);
 
-            Assert.AreEqual(5, await tree.GetResources().CountAsync());
+            Assert.AreEqual(5, (await tree.GetResources()).Count);
         }
 
     }

@@ -5,14 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using GenHTTP.Api.Content.Templating;
-
 using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 {
 
-    public sealed class ListingRenderer : IRenderer<ListingModel>
+    /* public sealed class ListingRenderer : IRenderer<ListingModel>
     {
 
         public ValueTask<ulong> CalculateChecksumAsync()
@@ -78,6 +76,6 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-    }
+    }*/
 
 }

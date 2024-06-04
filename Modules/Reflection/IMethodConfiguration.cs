@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using GenHTTP.Api.Protocol;
 
@@ -24,15 +23,6 @@ namespace GenHTTP.Modules.Reflection
         /// in sitemaps or other content dependent functionality.
         /// </summary>
         public bool IgnoreContent { get; }
-
-        /// <summary>
-        /// If set, the given type will be instantiated when content
-        /// is requested to discover the content which is available.
-        /// </summary>
-        /// <remarks>
-        /// The specified type must implement interface <see cref="IContentHints"/>.
-        /// </remarks>
-        public Type? ContentHints { get; }
 
     }
 

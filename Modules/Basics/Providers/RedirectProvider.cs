@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -39,8 +37,6 @@ namespace GenHTTP.Modules.Basics.Providers
         #region Functionality
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
-
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => AsyncEnumerable.Empty<ContentElement>();
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {

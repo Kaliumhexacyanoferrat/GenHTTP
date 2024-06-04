@@ -28,7 +28,7 @@ namespace GenHTTP.Api.Content.IO
         /// Returns the child nodes provided by this container.
         /// </summary>
         /// <returns>The child nodes provided by this container</returns>
-        IAsyncEnumerable<IResourceNode> GetNodes();
+        ValueTask<IReadOnlyCollection<IResourceNode>> GetNodes();
 
         /// <summary>
         /// Tries to fetch the resource with the given name.
@@ -42,7 +42,7 @@ namespace GenHTTP.Api.Content.IO
         /// Returns the resources provided by this container.
         /// </summary>
         /// <returns>The resources provided by this container</returns>
-        IAsyncEnumerable<IResource> GetResources();
+        ValueTask<IReadOnlyCollection<IResource>> GetResources();
 
     }
 

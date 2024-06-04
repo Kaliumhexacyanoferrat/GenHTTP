@@ -127,8 +127,6 @@ namespace GenHTTP.Modules.Controllers.Provider
         
         public ValueTask PrepareAsync() => Provider.PrepareAsync();
 
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Provider.GetContentAsync(request);
-
         public ValueTask<IResponse?> HandleAsync(IRequest request) => Provider.HandleAsync(request);
 
         public IHandler? Find(string segment)
