@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Modules.SinglePageApplications;
-using GenHTTP.Modules.Layouting;
-using GenHTTP.Modules.Sitemaps;
 using GenHTTP.Modules.IO;
 
 using GenHTTP.Testing.Acceptance.Utilities;
@@ -92,28 +90,6 @@ namespace GenHTTP.Testing.Acceptance.Providers
             using var index = await runner.GetResponseAsync("/nope.txt");
 
             await index.AssertStatusAsync(HttpStatusCode.NotFound);
-        }
-
-        [TestMethod]
-        public async Task TestContent()
-        {
-            var root = CreateRoot();
-
-            FileUtil.WriteText(Path.Combine(root, "index.html"), "Index");
-            FileUtil.WriteText(Path.Combine(root, "file.html"), "File");
-
-            var layout = Layout.Create()
-                               .Add("spa", SinglePageApplication.From(ResourceTree.FromDirectory(root)))
-                               .Add("sitemap", Sitemap.Create());
-
-            using var runner = TestHost.Run(layout);
-
-            using var response = await runner.GetResponseAsync("/sitemap");
-
-            var sitemap = await response.GetSitemap();
-
-            AssertX.Contains("/spa/index.html", sitemap);
-            AssertX.Contains("/spa/file.html", sitemap);
         }
 
         private static string CreateRoot()

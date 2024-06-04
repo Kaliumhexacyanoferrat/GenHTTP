@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Controllers;
@@ -24,17 +21,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
 
         public sealed class RouteController
         {
-
-            public IHandlerBuilder Appenders([FromPath] int one, [FromPath] string two)
-            {
-                return new AppenderDependentHandlerBuilder();
-            }
-
-            public IHandlerBuilder Nested([FromPath] int one, [FromPath] string two)
-            {
-                return Layout.Create()
-                             .Add("inner", new AppenderDependentHandlerBuilder());
-            }
 
             public IHandlerBuilder InnerController([FromPath] int i)
             {
@@ -62,48 +48,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             public IHandlerBuilder DoSomethingWithAppenders()
             {
                 return Redirect.To("appenders/1/2/", true);
-            }
-
-        }
-
-        public sealed class AppenderDependentHandlerBuilder : IHandlerBuilder
-        {
-
-            public IHandler Build(IHandler parent) => new AppenderDependentHandler(parent);
-
-        }
-
-        public sealed class AppenderDependentHandler : IHandler
-        {
-
-            public IHandler Parent { get; }
-
-            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
-            
-            public AppenderDependentHandler(IHandler parent)
-            {
-                Parent = parent;
-            }
-
-            public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
-            {
-                var root = this.GetRoot(request, false);
-
-                var info = ContentInfo.Create()
-                                      .Title("My File")
-                                      .Build();
-
-                return new List<ContentElement>() 
-                {
-                    new ContentElement(root, info, ContentType.ApplicationForceDownload)
-                }.ToAsyncEnumerable();
-            }
-
-            public async ValueTask<IResponse?> HandleAsync(IRequest request)
-            {
-                return await Content.From( Resource.FromString(await (GetContentAsync(request).Select(c => c.Path).FirstAsync())))
-                                    .Build(this)
-                                    .HandleAsync(request);
             }
 
         }

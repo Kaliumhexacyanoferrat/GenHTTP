@@ -121,8 +121,6 @@ namespace GenHTTP.Modules.Security.Providers
 
         public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Content.GetContentAsync(request);
-
         #endregion
 
     }

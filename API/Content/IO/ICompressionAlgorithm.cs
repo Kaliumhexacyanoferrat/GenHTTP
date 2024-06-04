@@ -1,8 +1,9 @@
 ﻿using System.IO.Compression;
 
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Api.Infrastructure
+namespace GenHTTP.Api.Content.IO
 {
 
     /// <summary>

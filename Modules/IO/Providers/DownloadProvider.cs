@@ -6,14 +6,12 @@ using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.Pages;
 
 namespace GenHTTP.Modules.IO.Providers
 {
     
     public sealed class DownloadProvider : IHandler
     {
-        private ContentInfo? _Info;
 
         #region Get-/Setters
 
@@ -24,16 +22,6 @@ namespace GenHTTP.Modules.IO.Providers
         public string? FileName { get; }
 
         private FlexibleContentType ContentType { get; }
-
-        private ContentInfo Info
-        {
-            get
-            {
-                return _Info ??= ContentInfo.Create()
-                                            .Title(FileName ?? "Download")
-                                            .Build();
-            }
-        }
 
         #endregion
 
@@ -63,7 +51,8 @@ namespace GenHTTP.Modules.IO.Providers
 
             if (!request.HasType(RequestMethod.GET, RequestMethod.HEAD))
             {
-                return new ValueTask<IResponse?>(this.GetMethodNotAllowed(request).Build());
+                // todo
+                // return new ValueTask<IResponse?>(this.GetMethodNotAllowed(request).Build());
             }
 
             var response = request.Respond()
@@ -83,8 +72,6 @@ namespace GenHTTP.Modules.IO.Providers
 
             return new ValueTask<IResponse?>(response.Build());
         }
-
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => this.GetContent(request, Info, ContentType);
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 

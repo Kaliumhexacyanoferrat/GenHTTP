@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -67,9 +66,9 @@ namespace GenHTTP.Modules.IO.Embedded
 
         #region Functionality
 
-        public IAsyncEnumerable<IResourceNode> GetNodes() => _Nodes.Values.ToAsyncEnumerable();
+        public ValueTask<IReadOnlyCollection<IResourceNode>> GetNodes() => new(_Nodes.Values);
 
-        public IAsyncEnumerable<IResource> GetResources() => _Resources.Values.ToAsyncEnumerable();
+        public ValueTask<IReadOnlyCollection<IResource>> GetResources() => new(_Resources.Values);
 
         public ValueTask<IResourceNode?> TryGetNodeAsync(string name) => new(_Nodes.GetValueOrDefault(name));
 

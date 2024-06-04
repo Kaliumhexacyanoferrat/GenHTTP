@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
@@ -247,26 +244,6 @@ namespace GenHTTP.Modules.Reflection
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public async IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
-        {
-            if (!Configuration.IgnoreContent)
-            {
-                if (Configuration.SupportedMethods.Contains(FlexibleRequestMethod.Get(RequestMethod.GET)))
-                {
-                    foreach (var hint in GetHints(request))
-                    {
-                        if (TryGetHandler(request, hint, out var handler))
-                        {
-                            await foreach (var content in handler.GetContentAsync(request))
-                            {
-                                yield return content;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         private object? Invoke(object?[] arguments)
         {
             try
@@ -283,138 +260,6 @@ namespace GenHTTP.Modules.Reflection
 
                 throw;
             }
-        }
-
-        private List<ContentHint> GetHints(IRequest request)
-        {
-            if (Configuration.ContentHints is not null)
-            {
-                if (typeof(IContentHints).IsAssignableFrom(Configuration.ContentHints))
-                {
-                    var constructor = Configuration.ContentHints.GetConstructor(Array.Empty<Type>());
-
-                    if (constructor is not null)
-                    {
-                        var obj = constructor.Invoke(Array.Empty<object>());
-
-                        if (obj is IContentHints hints)
-                        {
-                            return hints.GetHints(request);
-                        }
-                    }
-                }
-            }
-
-            return new List<ContentHint>() { new ContentHint() };
-        }
-
-        private bool TryGetHandler(IRequest request, ContentHint input, [MaybeNullWhen(returnValue: false)] out IHandler handler)
-        {
-            if (Method.ReturnType == typeof(IHandlerBuilder) || Method.ReturnType == typeof(IHandler))
-            {
-                if (TrySimulateArguments(request, input, out var arguments))
-                {
-                    var result = Invoke(arguments);
-
-                    if (result is IHandlerBuilder builder)
-                    {
-                        handler = builder.Build(this);
-                        return true;
-                    }
-                    else if (result is IHandler resultHandler)
-                    {
-                        handler = resultHandler;
-                        return true;
-                    }
-                }
-            }
-
-            handler = default;
-            return false;
-        }
-
-        private bool TrySimulateArguments(IRequest request, ContentHint input, [MaybeNullWhen(returnValue: false)] out object?[] arguments)
-        {
-            var targetParameters = Method.GetParameters();
-
-            var targetArguments = new object?[targetParameters.Length];
-
-            if (TryResolvePath(input, out var path))
-            {
-                request.Properties[MatchedPathKey] = path;
-            }
-            else
-            {
-                arguments = default;
-                return false;
-            }
-
-            for (int i = 0; i < targetParameters.Length; i++)
-            {
-                var par = targetParameters[i];
-
-                // try injectors to provide value
-                var injected = false;
-
-                foreach (var injector in Injection)
-                {
-                    if (injector.Supports(par.ParameterType))
-                    {
-                        targetArguments[i] = injector.GetValue(this, request, par.ParameterType);
-
-                        injected = true;
-                        break;
-                    }
-                }
-
-                if (injected) continue;
-
-                // set from the given input set
-                if ((par.Name is not null) && input.TryGetValue(par.Name, out var value))
-                {
-                    targetArguments[i] = value;
-                    continue;
-                }
-            }
-
-            arguments = targetArguments;
-            return true;
-        }
-
-        private bool TryResolvePath(ContentHint input, [MaybeNullWhen(returnValue: false)] out WebPath path)
-        {
-            var resolved = new PathBuilder(Routing.Path.TrailingSlash);
-
-            foreach (var segment in Routing.Path.Parts)
-            {
-                if (segment.Value.StartsWith(':'))
-                {
-                    if (input.TryGetValue(segment.Value[1..], out var value))
-                    {
-                        if (value is not null)
-                        {
-                            resolved.Append(Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty);
-                        }
-                        else
-                        {
-                            path = default;
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        path = default;
-                        return false;
-                    }
-                }
-                else
-                {
-                    resolved.Append(segment);
-                }
-            }
-
-            path = resolved.Build();
-            return true;
         }
 
         private static async ValueTask<object?> UnwrapAsync(object? result)

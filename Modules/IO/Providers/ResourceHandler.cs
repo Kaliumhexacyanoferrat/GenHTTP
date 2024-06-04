@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
@@ -34,11 +33,6 @@ namespace GenHTTP.Modules.IO.Providers
         #region Functionality
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
-
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
-        {
-            return Tree.GetContent(request, this);
-        }
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {

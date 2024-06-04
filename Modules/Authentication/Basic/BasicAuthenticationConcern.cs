@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -41,8 +40,6 @@ namespace GenHTTP.Modules.Authentication.Basic
         #region Functionality
         
         public ValueTask PrepareAsync() => Content.PrepareAsync();
-
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Content.GetContentAsync(request);
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {

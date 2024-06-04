@@ -72,8 +72,6 @@ namespace GenHTTP.Modules.LoadBalancing.Provider
             return new ValueTask<IResponse?>();
         }
 
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => AsyncEnumerable.Empty<ContentElement>();
-
         #endregion
 
     }

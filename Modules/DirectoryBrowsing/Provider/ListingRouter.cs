@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
@@ -51,17 +49,7 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
             return null;
         }
-
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
-        {
-            return Tree.GetContent(request, this, (_, path, children) =>
-            {
-                var info = new ContentInfo($"Index of {path}", null);
-
-                return new(new ContentElement(path, info, ContentType.TextHtml, children.ToEnumerable()));
-            });
-        }
-        
+                
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
         #endregion
