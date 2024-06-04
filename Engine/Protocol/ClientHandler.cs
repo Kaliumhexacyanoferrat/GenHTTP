@@ -1,17 +1,21 @@
-﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Protocol;
-using GenHTTP.Engine.Infrastructure.Configuration;
-using GenHTTP.Engine.Protocol;
-using GenHTTP.Engine.Protocol.Parser;
-using GenHTTP.Modules.IO;
-using GenHTTP.Modules.IO.Streaming;
-using PooledAwait;
-using System;
+﻿using System;
 using System.Buffers;
 using System.IO;
 using System.IO.Pipelines;
 using System.Net;
 using System.Net.Sockets;
+
+using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol;
+
+using GenHTTP.Engine.Infrastructure.Configuration;
+using GenHTTP.Engine.Protocol;
+using GenHTTP.Engine.Protocol.Parser;
+
+using GenHTTP.Modules.IO;
+using GenHTTP.Modules.IO.Streaming;
+
+using PooledAwait;
 
 namespace GenHTTP.Engine
 {
