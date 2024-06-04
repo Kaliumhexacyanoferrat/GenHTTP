@@ -1,21 +1,17 @@
-﻿using System;
+﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol;
+using GenHTTP.Engine.Infrastructure.Configuration;
+using GenHTTP.Engine.Protocol;
+using GenHTTP.Engine.Protocol.Parser;
+using GenHTTP.Modules.IO;
+using GenHTTP.Modules.IO.Streaming;
+using PooledAwait;
+using System;
 using System.Buffers;
 using System.IO;
 using System.IO.Pipelines;
 using System.Net;
 using System.Net.Sockets;
-
-using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Protocol;
-
-using GenHTTP.Engine.Infrastructure.Configuration;
-using GenHTTP.Engine.Protocol;
-using GenHTTP.Engine.Protocol.Parser;
-
-using GenHTTP.Modules.IO;
-using GenHTTP.Modules.IO.Streaming;
-
-using PooledAwait;
 
 namespace GenHTTP.Engine
 {
@@ -92,12 +88,9 @@ namespace GenHTTP.Engine
 
                 try
                 {
-                    if (Connection.Connected)
-                    {
-                        Connection.Shutdown(SocketShutdown.Both);
-                        Connection.Disconnect(false);
-                        Connection.Close();
-                    }
+                    Connection.Shutdown(SocketShutdown.Both);
+                    Connection.Disconnect(false);
+                    Connection.Close();
 
                     Connection.Dispose();
                 }
@@ -128,13 +121,13 @@ namespace GenHTTP.Engine
                         }
                     }
                 }
-                catch (ProtocolException pe) 
+                catch (ProtocolException pe)
                 {
                     // client did something wrong
                     await SendError(pe, ResponseStatus.BadRequest);
                     throw;
                 }
-                catch (Exception e) 
+                catch (Exception e)
                 {
                     // we did something wrong
                     await SendError(e, ResponseStatus.InternalServerError);
