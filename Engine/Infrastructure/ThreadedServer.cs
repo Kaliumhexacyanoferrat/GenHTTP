@@ -57,7 +57,7 @@ namespace GenHTTP.Engine.Infrastructure
             }
             catch (Exception e)
             {
-                companion?.OnServerError(ServerErrorScope.General, e);
+                companion?.OnServerError(ServerErrorScope.General, null, e);
             }
         }
 

@@ -79,7 +79,7 @@ namespace GenHTTP.Engine.Protocol
             }
             catch (Exception e)
             {
-                Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, e);
+                Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, request?.Client.IPAddress, e);
                 return false;
             }
         }

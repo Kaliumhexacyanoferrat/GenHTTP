@@ -77,7 +77,7 @@ namespace GenHTTP.Engine
             }
             catch (Exception e)
             {
-                Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, e);
+                Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, Connection.GetAddress(), e);
             }
             finally
             {
@@ -87,7 +87,7 @@ namespace GenHTTP.Engine
                 }
                 catch (Exception e)
                 {
-                    Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, e);
+                    Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, Connection.GetAddress(), e);
                 }
 
                 try
@@ -100,7 +100,7 @@ namespace GenHTTP.Engine
                 }
                 catch (Exception e)
                 {
-                    Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, e);
+                    Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, Connection.GetAddress(), e);
                 }
             }
         }
@@ -146,9 +146,7 @@ namespace GenHTTP.Engine
 
         private async PooledValueTask<bool> HandleRequest(RequestBuilder builder, bool dataRemaining)
         {
-            var address = (Connection.RemoteEndPoint as IPEndPoint)?.Address;
-
-            using var request = builder.Connection(Server, EndPoint, address).Build();
+            using var request = builder.Connection(Server, EndPoint, Connection.GetAddress()).Build();
 
             KeepAlive ??= request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? (request.ProtocolType == HttpProtocol.Http_1_1);
 

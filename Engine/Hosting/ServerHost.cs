@@ -94,7 +94,7 @@ namespace GenHTTP.Engine.Hosting
 
                 if (companion is not null)
                 {
-                    companion.OnServerError(ServerErrorScope.General, e);
+                    companion.OnServerError(ServerErrorScope.General, null, e);
                 }
                 else
                 {

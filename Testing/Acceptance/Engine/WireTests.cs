@@ -110,6 +110,34 @@ namespace GenHTTP.Testing.Acceptance.Engine
             AssertX.DoesNotContain("Keep-Alive", result);
         }
 
+        [TestMethod]
+        public async Task TestNonHttp()
+        {
+            using var host = TestHost.Run(Layout.Create());
+
+            var result = await SendAsync(host, (w) =>
+            {
+                w.Write($"{{abc}}");
+            });
+
+            AssertX.Contains("400 Bad Request", result);
+            AssertX.Contains("Unable to read HTTP verb from request line", result);
+        }
+
+        [TestMethod]
+        public async Task TestNonHttpButText()
+        {
+            using var host = TestHost.Run(Layout.Create());
+
+            var result = await SendAsync(host, (w) =>
+            {
+                w.Write($"This is no HTTP request but text");
+            });
+
+            AssertX.Contains("400 Bad Request", result);
+            AssertX.Contains("HTTP protocol version expected", result);
+        }
+
         #endregion
 
         #region Helpers

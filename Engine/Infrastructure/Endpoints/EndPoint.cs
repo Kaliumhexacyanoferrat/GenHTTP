@@ -86,7 +86,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
             {
                 if (!shuttingDown)
                 {
-                    Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, e);
+                    Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, null, e);
                 }
             }
         }
@@ -130,7 +130,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
                     }
                     catch (Exception e)
                     {
-                        Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, e);
+                        Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, null, e);
                     }
                 }
 

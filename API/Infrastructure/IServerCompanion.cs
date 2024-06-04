@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Net;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Infrastructure
@@ -77,8 +77,9 @@ namespace GenHTTP.Api.Infrastructure
         /// Will be invoked if an error occurred within the server engine.
         /// </summary>
         /// <param name="scope">The scope of the error</param>
+        /// <param name="client">The endpoint of the client which caused this error (if any)</param>
         /// <param name="error">The actual exception which occurred</param>
-        void OnServerError(ServerErrorScope scope, Exception error);
+        void OnServerError(ServerErrorScope scope, IPAddress? client, Exception error);
 
     }
 

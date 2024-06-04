@@ -47,6 +47,11 @@ namespace GenHTTP.Engine.Protocol.Parser
         {
             if (!await Type(buffer))
             {
+                if (!buffer.Data.IsEmpty)
+                {
+                    throw new ProtocolException("Unable to read HTTP verb from request line.");
+                }
+
                 return null;
             }
 
