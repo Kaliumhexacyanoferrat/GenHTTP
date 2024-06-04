@@ -92,12 +92,9 @@ namespace GenHTTP.Engine
 
                 try
                 {
-                    if (Connection.Connected)
-                    {
-                        Connection.Shutdown(SocketShutdown.Both);
-                        Connection.Disconnect(false);
-                        Connection.Close();
-                    }
+                    Connection.Shutdown(SocketShutdown.Both);
+                    Connection.Disconnect(false);
+                    Connection.Close();
 
                     Connection.Dispose();
                 }
@@ -128,13 +125,13 @@ namespace GenHTTP.Engine
                         }
                     }
                 }
-                catch (ProtocolException pe) 
+                catch (ProtocolException pe)
                 {
                     // client did something wrong
                     await SendError(pe, ResponseStatus.BadRequest);
                     throw;
                 }
-                catch (Exception e) 
+                catch (Exception e)
                 {
                     // we did something wrong
                     await SendError(e, ResponseStatus.InternalServerError);
