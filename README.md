@@ -1,21 +1,16 @@
 # GenHTTP Webserver
 
-GenHTTP is a lightweight web server written in pure C# with only a few dependencies to 3rd-party libraries. The main purpose of this project is to quickly create feature rich web applications and REST web services written in .NET 6/7/8, allowing developers to concentrate on the functionality rather than on messing around with configuration files, CSS or bundling and minifying JS files. Projects are mainly written in .NET, which allows C# developers to use their familiar toolset in web application development as well.
-
-![Creating a web application with GenHTTP](https://github.com/Kaliumhexacyanoferrat/GenHTTP/assets/4992119/ca811aac-d598-4a49-80bc-11797ad75ecb)
-
-As an example, the website of this project is hosted on a Raspberry Pi: [genhttp.org](https://genhttp.org/)
+GenHTTP is a lightweight web server written in pure C# with only a few dependencies to 3rd-party libraries. The main purpose of this project is to quickly create web services written in .NET 6/7/8, allowing developers to concentrate on the functionality rather than on messing around with configuration files.
 
 [![CI](https://github.com/Kaliumhexacyanoferrat/GenHTTP/actions/workflows/ci.yml/badge.svg)](https://github.com/Kaliumhexacyanoferrat/GenHTTP/actions/workflows/ci.yml) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GenHTTP&metric=coverage)](https://sonarcloud.io/dashboard?id=GenHTTP) [![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Core.svg)](https://www.nuget.org/packages/GenHTTP.Core/) [](https://discord.gg/cW6tPJS7nt) [![Discord](https://discordapp.com/api/guilds/1177529388229734410/widget.png?style=shield)](https://discord.gg/GwtDyUpkpV)
 
 ## 🚀 Features
 
-- Setup new webservices or websites in a couple of minutes using [project templates](https://genhttp.org/documentation/content/templates)
-- Embed web services and applications into your existing console, service, WPF, WinForms, WinUI, MAUI or Uno application
+- Setup new webservices in a couple of minutes using [project templates](https://genhttp.org/documentation/content/templates)
+- Embed web services into your existing console, service, WPF, WinForms, WinUI, MAUI or Uno application
 - Projects are fully described in code - no configuration files needed, no magical behavior you need to learn
-- [Optimized](https://genhttp.org/features) out of the box (e.g. by bundling resources or compressing results)
+- [Optimized](https://genhttp.org/features) out of the box
 - Small memory and storage [footprint](https://genhttp.org/features#footprint)
-- Several [themes](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes) available to be chosen from
 - Grade A+ security level according to SSL Labs
 
 ## 📖 Getting Started
@@ -34,10 +29,10 @@ To create a project by using the terminal, create a new folder for your app and 
 |---|---|---|
 | REST Webservice | `dotnet new genhttp-webservice` | [Webservices](https://genhttp.org/documentation/content/webservices) |
 | REST Webservice (single file) | `dotnet new genhttp-webservice-minimal` | [Functional Handlers](https://genhttp.org/documentation/content/functional) |
-| Website | `dotnet new genhttp-website` | [Websites](https://genhttp.org/documentation/content/websites) |
+| Website \[[deprecated](https://github.com/Kaliumhexacyanoferrat/GenHTTP/issues/496)\] | `dotnet new genhttp-website` | [Websites](https://genhttp.org/documentation/content/websites) |
 | Website (Static HTML) | `dotnet new genhttp-website-static`  | [Statics Websites](https://genhttp.org/documentation/content/static-websites) |
-| Website (MVC + Razor) | `dotnet new genhttp-website-mvc-razor`  | [Controllers (MVC)](https://genhttp.org/documentation/content/controllers) |
-| Website (MVC + Scriban)  | `dotnet new genhttp-website-mvc-scriban`  | [Controllers (MVC)](https://genhttp.org/documentation/content/controllers) |
+| Website (MVC + Razor) \[[deprecated](https://github.com/Kaliumhexacyanoferrat/GenHTTP/issues/496)\] | `dotnet new genhttp-website-mvc-razor`  | [Controllers (MVC)](https://genhttp.org/documentation/content/controllers) |
+| Website (MVC + Scriban) \[[deprecated](https://github.com/Kaliumhexacyanoferrat/GenHTTP/issues/496)\]  | `dotnet new genhttp-website-mvc-scriban`  | [Controllers (MVC)](https://genhttp.org/documentation/content/controllers) |
 | Single Page Application (SPA) | `dotnet new genhttp-spa` | [Single Page Applications (SPA)](https://genhttp.org/documentation/content/single-page-applications) |
 
 After the project has been created, you can run it via `dotnet run` and access the server via http://localhost:8080.
@@ -59,7 +54,7 @@ When you run this sample it can be accessed in the browser via http://localhost:
 
 ### Next Steps
 
-The [documentation](https://genhttp.org/documentation/) provides a step-by-step starting guide as well as additional information on how to implement [webservices](https://genhttp.org/documentation/content/webservices), [minimal webservices](https://genhttp.org/documentation/content/functional), [websites](https://genhttp.org/documentation/content/websites), [MVC style projects](https://genhttp.org/documentation/content/controllers), or [single page applications](https://genhttp.org/documentation/content/single-page-applications) and how to [host your application](https://genhttp.org/documentation/hosting/) via Docker.
+The [documentation](https://genhttp.org/documentation/) provides a step-by-step starting guide as well as additional information on how to implement [webservices](https://genhttp.org/documentation/content/webservices), [minimal webservices](https://genhttp.org/documentation/content/functional), [static websites](https://genhttp.org/documentation/content/static-websites), or [single page applications](https://genhttp.org/documentation/content/single-page-applications) and how to [host your application](https://genhttp.org/documentation/hosting/) via Docker.
 
 If you encounter issues implementing your application, feel free to [join our Discord community](https://discord.gg/GwtDyUpkpV) to get help.
 
@@ -80,7 +75,6 @@ This will build the playground project launcher with all the server dependencies
 Writing a general purpose web application server is a tremendous task, so any contribution is very welcome. Besides extending the server core, you might want to
 
 - Extend the content capabilities of the server (e.g. by adding a new serialization format or rendering engine)
-- Add a new [theme](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes)
 - Refine our [project templates](https://genhttp.org/documentation/content/templates)
 - Perform code reviews
 - Analyze the performance or security of the server
