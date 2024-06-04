@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Infrastructure.Configuration;
+using GenHTTP.Engine.Protocol;
 using GenHTTP.Engine.Utilities;
 
 using PooledAwait;
@@ -69,7 +70,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
                 }
                 catch (Exception e)
                 {
-                    Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, e);
+                    Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, client.GetAddress(), e);
                 }
             }
         }
@@ -86,7 +87,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
             }
             catch (Exception e)
             {
-                Server.Companion?.OnServerError(ServerErrorScope.Security, e);
+                Server.Companion?.OnServerError(ServerErrorScope.Security, client.GetAddress(), e);
 
                 return null;
             }

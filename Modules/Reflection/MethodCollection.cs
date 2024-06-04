@@ -46,7 +46,7 @@ namespace GenHTTP.Modules.Reflection
             else if (methods.Count > 1)
             {
                 // if there is only one non-wildcard, use this one
-                var nonWildcards = methods.Where(m => m.Routing.IsWildcard == false).ToList();
+                var nonWildcards = methods.Where(m => !m.Routing.IsWildcard).ToList();
 
                 if (nonWildcards.Count == 1)
                 {

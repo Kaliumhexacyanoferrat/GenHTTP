@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,7 +26,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 Called = true;
             }
 
-            public void OnServerError(ServerErrorScope scope, Exception error)
+            public void OnServerError(ServerErrorScope scope, IPAddress? client, Exception error)
             {
                 Called = true;
             }

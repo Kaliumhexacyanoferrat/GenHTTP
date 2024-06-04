@@ -68,7 +68,7 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
                     }
                     catch (Exception e)
                     {
-                        Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, e);
+                        Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, null, e);
                     }
                 }
 
