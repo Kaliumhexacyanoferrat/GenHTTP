@@ -3,7 +3,7 @@
   <metadata>
   
     <id>GenHTTP.Core</id>
-    <version>8.5.0</version>
+    <version>8.6.0</version>
   
     <description>Basic dependencies for projects using the GenHTTP framework, including the engine itself</description>
     <copyright></copyright>
