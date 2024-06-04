@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
 
 using GenHTTP.Modules.IO;
 
@@ -67,19 +65,6 @@ namespace GenHTTP.Modules.StaticWebsites.Provider
             {
                 return await Resources.HandleAsync(request);
             }
-        }
-
-        private async ValueTask<bool> ServeInternal(RoutingTarget target, string fileName)
-        {
-            if (target.Last && target.Current?.Value == fileName)
-            {
-                // do not serve the file if it explicitly exists in the tree
-                var (_, file) = await Tree.Find(target);
-
-                return (file == null);
-            }
-
-            return false;
         }
 
         public async ValueTask PrepareAsync()
