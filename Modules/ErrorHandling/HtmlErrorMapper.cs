@@ -11,7 +11,6 @@ namespace GenHTTP.Modules.ErrorHandling
 
     public class HtmlErrorMapper : IErrorMapper<Exception>
     {
-        private static string? _NotFound = null;
 
         public async ValueTask<IResponse?> Map(IRequest request, IHandler handler, Exception error)
         {
@@ -39,9 +38,9 @@ namespace GenHTTP.Modules.ErrorHandling
 
         public async ValueTask<IResponse?> GetNotFound(IRequest request, IHandler handler)
         {
-            _NotFound ??= await Renderer.Server.RenderAsync("Not Found", "The specified content was not found on this server.");
+            var content = await Renderer.Server.RenderAsync("Not Found", "The specified content was not found on this server.");
 
-            return request.GetPage(_NotFound)
+            return request.GetPage(content)
                           .Status(ResponseStatus.NotFound)
                           .Build();
         }

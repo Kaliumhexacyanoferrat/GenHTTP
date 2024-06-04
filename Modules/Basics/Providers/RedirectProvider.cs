@@ -49,7 +49,7 @@ namespace GenHTTP.Modules.Basics.Providers
             return new ValueTask<IResponse?>(response.Status(status).Build());
         }
 
-        private string ResolveRoute(IRequest request, string route)
+        private static string ResolveRoute(IRequest request, string route)
         {
             if (PROTOCOL_MATCHER.IsMatch(route))
             {
