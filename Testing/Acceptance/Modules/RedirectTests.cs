@@ -7,7 +7,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Layouting;
-using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Providers
 {
@@ -72,46 +71,6 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             await response.AssertStatusAsync(HttpStatusCode.PermanentRedirect);
             Assert.AreEqual("https://google.de/", response.GetHeader("Location"));
-        }
-
-        [TestMethod]
-        public async Task TestSimpleRoute()
-        {
-            var layout = Layout.Create()
-                               .Add("redirect", Redirect.To("{index}"))
-                               .Index(Content.From(Resource.FromString("Hello World")));
-
-            using var runner = TestHost.Run(layout);
-
-            using var response = await runner.GetResponseAsync("/redirect");
-
-            Assert.AreEqual("/", new Uri(response.GetHeader("Location")!).AbsolutePath);
-        }
-
-        [TestMethod]
-        public async Task TestSimpleRelativeRoute()
-        {
-            var layout = Layout.Create()
-                               .Add("redirect", Redirect.To("./me/to"));
-
-            using var runner = TestHost.Run(layout);
-
-            using var response = await runner.GetResponseAsync("/redirect/");
-
-            Assert.AreEqual("/redirect/me/to", new Uri(response.GetHeader("Location")!).AbsolutePath);
-        }
-
-        [TestMethod]
-        public async Task TestNavigatedRelativeRoute()
-        {
-            var layout = Layout.Create()
-                               .Add("redirect", Redirect.To("../me/to"));
-
-            using var runner = TestHost.Run(layout);
-
-            using var response = await runner.GetResponseAsync("/redirect/");
-
-            Assert.AreEqual("/me/to", new Uri(response.GetHeader("Location")!).AbsolutePath);
         }
 
         [TestMethod]

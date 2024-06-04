@@ -71,6 +71,7 @@
     <ProjectReference Include="..\..\Modules\IO\GenHTTP.Modules.IO.csproj" />
     <ProjectReference Include="..\..\Modules\Layouting\GenHTTP.Modules.Layouting.csproj" />
     <ProjectReference Include="..\..\Modules\LoadBalancing\GenHTTP.Modules.LoadBalancing.csproj" />
+    <ProjectReference Include="..\..\Modules\Pages\GenHTTP.Modules.Pages.csproj" />
     <ProjectReference Include="..\..\Modules\Practices\GenHTTP.Modules.Practices.csproj" />
     <ProjectReference Include="..\..\Modules\Protobuf\GenHTTP.Modules.Protobuf.csproj" />
     <ProjectReference Include="..\..\Modules\Reflection\GenHTTP.Modules.Reflection.csproj" />

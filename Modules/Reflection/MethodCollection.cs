@@ -5,12 +5,11 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Reflection
 {
 
-    public sealed class MethodCollection : IHandler, IHandlerResolver, IRootPathAppender
+    public sealed class MethodCollection : IHandler
     {
 
         #region Get-/Setters
@@ -110,38 +109,6 @@ namespace GenHTTP.Modules.Reflection
             }
 
             return result;
-        }
-
-        public IHandler? Find(string segment)
-        {
-            return Methods.FirstOrDefault(m => m.Routing.Segment == segment);
-        }
-
-        public void Append(PathBuilder path, IRequest request, IHandler? child = null)
-        {
-            var handler = Methods.FirstOrDefault(m => m == child);
-
-            if (handler is not null)
-            {
-                var match = handler.GetMatchedPath(request);
-
-                if (path.IsEmpty)
-                {
-                    path.TrailingSlash(true);
-                }
-
-                if (match is not null)
-                {
-                    path.Preprend(match);
-                }
-                else
-                {
-                    if (handler.Routing.Segment is not null)
-                    {
-                        path.Preprend(handler.Routing.Segment);
-                    }
-                }
-            }
         }
 
         #endregion

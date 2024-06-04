@@ -1,10 +1,12 @@
 ﻿using GenHTTP.Engine;
 
-using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Practices;
 
+// Content.From(Resource.FromString("Hello World"))
+
 Host.Create()
-    .Handler(Content.From(Resource.FromString("Hello World")))
+    .Handler(Layout.Create())
     .Defaults()
     .Development()
     .Console()

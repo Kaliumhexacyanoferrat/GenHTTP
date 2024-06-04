@@ -82,23 +82,13 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
                 return GetResponse(resp, request).Build();
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException e)
             {
-                throw; // todo
-                /*var info = ContentInfo.Create()
-                                      .Title("Gateway Timeout")
-                                      .Build();
-
-                return this.GetError(new ErrorModel(request, this, ResponseStatus.GatewayTimeout, "The gateway did not respond in time.", e), info, null).Build();*/
+                throw new ProviderException(ResponseStatus.GatewayTimeout, "The gateway did not respond in time.", e);
             }
-            catch (HttpRequestException)
+            catch (HttpRequestException e)
             {
-                throw; // todo
-                /*var info = ContentInfo.Create()
-                                      .Title("Bad Gateway")
-                                      .Build();
-
-                return this.GetError(new ErrorModel(request, this, ResponseStatus.BadGateway, "Unable to retrieve a response from the gateway.", e), info, null).Build();*/
+                throw new ProviderException(ResponseStatus.BadGateway, "Unable to retrieve a response from the gateway.", e);
             }
         }
 

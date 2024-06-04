@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
 
 using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Providers;
@@ -17,7 +16,7 @@ using GenHTTP.Modules.Reflection.Injectors;
 namespace GenHTTP.Modules.Controllers.Provider
 {
 
-    public sealed class ControllerHandler : IHandler, IHandlerResolver
+    public sealed class ControllerHandler : IHandler
     {
         private static readonly MethodRouting EMPTY = new("/", "^(/|)$", null, true, false);
 
@@ -128,22 +127,6 @@ namespace GenHTTP.Modules.Controllers.Provider
         public ValueTask PrepareAsync() => Provider.PrepareAsync();
 
         public ValueTask<IResponse?> HandleAsync(IRequest request) => Provider.HandleAsync(request);
-
-        public IHandler? Find(string segment)
-        {
-            if (segment == "{controller}")
-            {
-                return this;
-            }
-
-            if (segment == "{index}")
-            {
-                return Provider.Methods.FirstOrDefault(m => m.Method.Name == "Index" && m.Configuration.SupportedMethods.Contains(FlexibleRequestMethod.Get(RequestMethod.GET)));
-            }
-
-            return null;
-        }
-
 
         #endregion
 
