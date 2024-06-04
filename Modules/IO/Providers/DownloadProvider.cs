@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
@@ -51,8 +50,7 @@ namespace GenHTTP.Modules.IO.Providers
 
             if (!request.HasType(RequestMethod.GET, RequestMethod.HEAD))
             {
-                // todo
-                // return new ValueTask<IResponse?>(this.GetMethodNotAllowed(request).Build());
+                throw new ProviderException(ResponseStatus.MethodNotAllowed, "Only GET requests are allowed by this handler");
             }
 
             var response = request.Respond()

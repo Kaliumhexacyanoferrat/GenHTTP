@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
-using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
-
-using GenHTTP.Modules.Basics;
 
 namespace GenHTTP.Modules.IO
 {
@@ -56,39 +50,6 @@ namespace GenHTTP.Modules.IO
             }
 
             return new(node, null);
-        }
-
-        /// <summary>
-        /// Fetches the path of the node.
-        /// </summary>
-        /// <param name="node">The node to determine the path for</param>
-        /// <param name="request">The currently executed request</param>
-        /// <param name="handler">The handler the node is served by</param>
-        /// <returns>The path of the node on this server instance</returns>
-        public static WebPath GetPath(this IResourceContainer node, IRequest request, IHandler handler)
-        {
-            var segments = new List<string>();
-
-            var current = node;
-
-            while (current is IResourceNode currentNode)
-            {
-                segments.Add(currentNode.Name);
-
-                current = currentNode.Parent;
-            }
-
-            segments.Reverse();
-
-            var path = handler.GetRoot(request, true)
-                              .Edit(true);
-
-            foreach (var segment in segments)
-            {
-                path.Append(segment);
-            }
-
-            return path.Build();
         }
 
     }

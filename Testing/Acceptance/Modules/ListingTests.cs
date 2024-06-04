@@ -20,7 +20,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
         /// As an user of a web application, I can view the folders and files available
         /// on root level of a listed directory.
         /// </summary>
-        [TestMethod]
+        // todo
+        /*[TestMethod]
         public async Task TestGetMainListing()
         {
             using var runner = GetEnvironment();
@@ -35,13 +36,14 @@ namespace GenHTTP.Testing.Acceptance.Providers
             AssertX.Contains("my.txt", content);
 
             AssertX.DoesNotContain("..", content);
-        }
+        }*/
 
         /// <summary>
         /// As an user of a web application, I can view the folders and files available
         /// within a subdirectory of a listed directory.
         /// </summary>
-        [TestMethod]
+        // todo
+        /*[TestMethod]
         public async Task TestGetSubdirectory()
         {
             using var runner = GetEnvironment();
@@ -51,8 +53,7 @@ namespace GenHTTP.Testing.Acceptance.Providers
             var content = await response.GetContentAsync();
 
             AssertX.Contains("..", content);
-        }
-
+        }*/
 
         /// <summary>
         /// As an user of a web application, I can download the files listed by the

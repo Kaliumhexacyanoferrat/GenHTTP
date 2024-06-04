@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
@@ -57,16 +56,9 @@ namespace GenHTTP.Modules.Basics.Providers
                 return route;
             }
 
-            var resolved = this.Route(request, route, false);
-
-            if (resolved is null)
-            {
-                throw new InvalidOperationException($"Unable to determine route to '{route}'");
-            }
-
             var protocol = request.EndPoint.Secure ? "https://" : "http://";
 
-            return $"{protocol}{request.Host}{resolved}";
+            return $"{protocol}{request.Host}{route}";
         }
 
         private static ResponseStatus MapStatus(IRequest request, bool temporary)
