@@ -22,13 +22,13 @@
     
       <group>
       
-        <dependency id="GenHTTP.Api" version="8.4.0" />
+        <dependency id="GenHTTP.Api" version="8.5.0" />
         
-        <dependency id="GenHTTP.Engine" version="8.4.0" />
+        <dependency id="GenHTTP.Engine" version="8.5.0" />
         
-        <dependency id="GenHTTP.Modules.Practices" version="8.4.0" />        
-        <dependency id="GenHTTP.Modules.Basics" version="8.4.0" />
-        <dependency id="GenHTTP.Modules.Layouting" version="8.4.0" />
+        <dependency id="GenHTTP.Modules.Practices" version="8.5.0" />        
+        <dependency id="GenHTTP.Modules.Basics" version="8.5.0" />
+        <dependency id="GenHTTP.Modules.Layouting" version="8.5.0" />
         
       </group>
       
