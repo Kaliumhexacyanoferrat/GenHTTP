@@ -57,11 +57,6 @@ namespace GenHTTP.Engine.Protocol
         {
             if (ReadRequired || force)
             {
-                if (_Data != null)
-                {
-                    Reader.AdvanceTo(_Data.Value.Start);
-                }
-
                 if (Cancellation is null)
                 {
                     Cancellation = new();
@@ -87,14 +82,10 @@ namespace GenHTTP.Engine.Protocol
             return Data.Length;
         }
 
-        internal void Advance(SequencePosition position)
-        {
-            _Data = Data.Slice(position);
-        }
-
         internal void Advance(long bytes)
         {
             _Data = Data.Slice(bytes);
+            Reader.AdvanceTo(_Data.Value.Start);
         }
 
         #endregion
