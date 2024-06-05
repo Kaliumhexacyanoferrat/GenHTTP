@@ -41,11 +41,10 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             public static TestSetup Create(Func<IRequest, IResponse?> response)
             {
-                // server hosting the actuall web app
-                var testServer = new TestHost(Layout.Create());
+                // server hosting the actual web app
+                var testServer = new TestHost(Layout.Create(), defaults: false);
 
                 testServer.Host.Handler(new ProxiedRouter(response).Wrap())
-                               .Development()
                                .Start();
 
                 // proxying server
@@ -57,8 +56,6 @@ namespace GenHTTP.Testing.Acceptance.Providers
                 var runner = new TestHost(Layout.Create());
 
                 runner.Host.Handler(proxy)
-                           .Development()
-                           .Defaults()
                            .Start();
 
                 return new TestSetup(runner, testServer);
