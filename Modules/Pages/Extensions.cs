@@ -1,7 +1,6 @@
 ﻿using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.IO;
-using GenHTTP.Modules.IO.Streaming;
+using GenHTTP.Modules.IO.Strings;
 
 namespace GenHTTP.Modules.Pages
 {
@@ -12,11 +11,8 @@ namespace GenHTTP.Modules.Pages
 
         public static IResponseBuilder GetPage(this IRequest request, string content)
         {
-            var resource = Resource.FromString(content)
-                                   .Build();
-
             return request.Respond()
-                          .Content(new ResourceContent(resource))
+                          .Content(new StringContent(content))
                           .Type(_ContentType);
         }
 
