@@ -96,6 +96,10 @@ namespace GenHTTP.Api.Protocol
         /// If the request has been forwarded by one or more proxies, this collection may contain
         /// additional information about the initial request by the originating client. 
         /// </summary>
+        /// <remarks>
+        /// Use <see cref="Client" /> to quickly access the requesting client without the need
+        /// of scrolling through the forwardings.
+        /// </remarks>
         IForwardingCollection Forwardings { get; }
 
         /// <summary>
