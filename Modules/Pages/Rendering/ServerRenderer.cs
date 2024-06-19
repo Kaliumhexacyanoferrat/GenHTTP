@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using GenHTTP.Api.Content.IO;
+
 using GenHTTP.Modules.IO;
-using GenHTTP.Modules.IO.Tracking;
 
 using Cottle;
 
@@ -12,13 +13,13 @@ namespace GenHTTP.Modules.Pages.Rendering
 
     public sealed class ServerRenderer
     {
-        private static readonly ChangeTrackingResource _ServerTemplate = Resource.FromAssembly("ServerPage.html").BuildWithTracking();
+        private static readonly IResource _ServerTemplate = Resource.FromAssembly("ServerPage.html").Build();
 
         private readonly TemplateRenderer _TemplateRender;
 
         public ServerRenderer()
         {
-            _TemplateRender = new TemplateRenderer(_ServerTemplate);
+            _TemplateRender = Renderer.From(_ServerTemplate);
         }
 
         public async ValueTask<string> RenderAsync(string title, string content)
