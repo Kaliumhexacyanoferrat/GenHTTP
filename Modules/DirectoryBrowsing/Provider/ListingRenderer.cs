@@ -1,26 +1,16 @@
 ﻿using System;
-using System.IO;
 using System.Web;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using GenHTTP.Modules.IO.Streaming;
-
 namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 {
 
-    /* public sealed class ListingRenderer : IRenderer<ListingModel>
+    public static class ListingRenderer
     {
 
-        public ValueTask<ulong> CalculateChecksumAsync()
-        {
-            // the template used by this renderer is baked into
-            // the code so it cannot change
-            return new ValueTask<ulong>(19);
-        }
-
-        public async ValueTask<string> RenderAsync(ListingModel model)
+        public static async ValueTask<string> RenderAsync(ListingModel model)
         {
             var content = new StringBuilder();
 
@@ -39,12 +29,12 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
                 Append(content, "../", "..", null, null);
             }
 
-            await foreach (var dir in model.Container.GetNodes().OrderBy(d => d.Name))
+            foreach (var dir in (await model.Container.GetNodes()).OrderBy(d => d.Name))
             {
                 Append(content, $"./{HttpUtility.UrlPathEncode(dir.Name)}/", dir.Name, null, dir.Modified);
             }
 
-            await foreach (var file in model.Container.GetResources().Where(f => f.Name is not null).OrderBy(f => f.Name))
+            foreach (var file in (await model.Container.GetResources()).Where(f => f.Name is not null).OrderBy(f => f.Name))
             {
                 Append(content, $"./{HttpUtility.UrlPathEncode(file.Name)}", file.Name!, file.Length, file.Modified);
             }
@@ -53,8 +43,6 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
             return content.ToString();
         }
-
-        public ValueTask RenderAsync(ListingModel model, Stream target) => this.RenderToStream(model, target);
 
         private static void Append(StringBuilder builder, string path, string name, ulong? size, DateTime? modified)
         {
@@ -74,8 +62,6 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
             builder.AppendLine("</tr>");
         }
 
-        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
-
-    }*/
+    }
 
 }
