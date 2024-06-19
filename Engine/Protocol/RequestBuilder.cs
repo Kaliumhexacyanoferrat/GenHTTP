@@ -154,6 +154,11 @@ namespace GenHTTP.Engine.Protocol
                     throw new ProtocolException("Mandatory 'Host' header is missing from the request");
                 }
 
+                if (_Forwardings is null)
+                {
+                    Forwardings.TryAddLegacy(Headers);
+                }
+
                 var localClient = new ClientConnection(_Address, protocol, host);
 
                 var client = DetermineClient() ?? localClient;
