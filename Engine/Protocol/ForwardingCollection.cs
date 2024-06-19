@@ -97,7 +97,14 @@ namespace GenHTTP.Engine.Protocol
         {
             if (protocol != null)
             {
-                return string.Equals(protocol, "https", StringComparison.OrdinalIgnoreCase) ? ClientProtocol.HTTPS : ClientProtocol.HTTP;
+                if (string.Equals(protocol, "https", StringComparison.OrdinalIgnoreCase))
+                {
+                    return ClientProtocol.HTTPS;
+                }
+                else if (string.Equals(protocol, "http", StringComparison.OrdinalIgnoreCase))
+                {
+                    return ClientProtocol.HTTP;
+                }
             }
 
             return null;

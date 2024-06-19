@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Functional;
@@ -39,11 +40,11 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             request.Headers.Add("X-Forwarded-For", "85.192.1.5");
             request.Headers.Add("X-Forwarded-Host", "google.com");
-            request.Headers.Add("X-Forwarded-Proto", "https");
+            request.Headers.Add("X-Forwarded-Proto", "http");
 
             using var response = await host.GetResponseAsync(request);
 
-            Assert.AreEqual("ClientConnection { IPAddress = 85.192.1.5, Protocol = HTTPS, Host = google.com }", await response.GetContentAsync());
+            Assert.AreEqual("ClientConnection { IPAddress = 85.192.1.5, Protocol = HTTP, Host = google.com }", await response.GetContentAsync());
         }
 
         [TestMethod]
@@ -64,6 +65,22 @@ namespace GenHTTP.Testing.Acceptance.Engine
             using var response = await host.GetResponseAsync(request);
 
             Assert.AreEqual("ClientConnection { IPAddress = 85.192.1.1, Protocol = HTTPS, Host = google.com }", await response.GetContentAsync());
+        }
+
+        [TestMethod]
+        public async Task TestInvalid()
+        {
+            var responder = Inline.Create().Get((IRequest request) => $"{request.Forwardings.First().ToString()}");
+
+            using var host = TestHost.Run(responder);
+
+            var request = host.GetRequest();
+
+            request.Headers.Add("Forwarded", "for=google.com; host=google.com; proto=google.com");
+
+            using var response = await host.GetResponseAsync(request);
+
+            Assert.AreEqual("Forwarding { For = , Host = google.com, Protocol =  }", await response.GetContentAsync());
         }
 
     }
