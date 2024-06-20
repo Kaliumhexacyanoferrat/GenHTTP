@@ -44,8 +44,6 @@ namespace GenHTTP.Modules.Reflection
 
         private Guid ID { get; }
 
-        private string MatchedPathKey { get; }
-
         private Func<object> InstanceProvider { get; }
 
         private Func<IRequest, IHandler, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> ResponseProvider { get; }
@@ -79,7 +77,6 @@ namespace GenHTTP.Modules.Reflection
             Routing = routing;
 
             ID = Guid.NewGuid();
-            MatchedPathKey = $"_{ID}_matchedPath";
         }
 
         #endregion
@@ -101,19 +98,13 @@ namespace GenHTTP.Modules.Reflection
 
             Match? sourceParameters = null;
 
-            if (Routing.IsIndex)
-            {
-                request.Properties[MatchedPathKey] = "/";
-            }
-            else
+            if (!Routing.IsIndex)
             {
                 sourceParameters = Routing.ParsedPath.Match(request.Target.GetRemaining().ToString());
 
                 var matchedPath = new PathBuilder(sourceParameters.Value).Build();
 
                 foreach (var _ in matchedPath.Parts) request.Target.Advance();
-
-                request.Properties[MatchedPathKey] = matchedPath;
             }
 
             if (targetParameters.Length > 0)
@@ -230,16 +221,6 @@ namespace GenHTTP.Modules.Reflection
             }
 
             return NO_ARGUMENTS;
-        }
-
-        public WebPath? GetMatchedPath(IRequest request)
-        {
-            if (request.Properties.TryGet(MatchedPathKey, out WebPath? result))
-            {
-                return result;
-            }
-
-            return null;
         }
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
