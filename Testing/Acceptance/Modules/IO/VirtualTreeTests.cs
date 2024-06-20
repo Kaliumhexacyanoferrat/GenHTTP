@@ -1,8 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net;
+using System.Threading.Tasks;
 
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Routing;
 
+using GenHTTP.Modules.DirectoryBrowsing;
 using GenHTTP.Modules.IO;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -44,6 +46,24 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             Assert.IsNotNull(node);
             Assert.IsNotNull(file);
+        }
+
+        [TestMethod]
+        public async Task TestUsage()
+        {
+            var tree = ResourceTree.FromAssembly("Resources");
+
+            var virt = VirtualTree.Create()
+                                  .Add("r", tree)
+                                  .Add("res.txt", Resource.FromString("Blubb"));
+
+            var handler = Listing.From(virt);
+
+            using var host = TestHost.Run(handler);
+
+            using var response = await host.GetResponseAsync();
+
+            await response.AssertStatusAsync(HttpStatusCode.OK);
         }
 
         private static RoutingTarget GetTarget(string path) => new(new PathBuilder(path).Build());
