@@ -20,6 +20,11 @@ namespace GenHTTP.Modules.Pages.Rendering
             Template = template;
         }
 
+        /// <summary>
+        /// Renders the template with the given model.
+        /// </summary>
+        /// <param name="model">The model to be used for rendering</param>
+        /// <returns>The generated response</returns>
         public async ValueTask<string> RenderAsync(IReadOnlyDictionary<Value, Value> model)
         {
             if ((_Document == null) || await Template.HasChanged())
