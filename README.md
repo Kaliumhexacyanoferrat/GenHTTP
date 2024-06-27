@@ -27,13 +27,10 @@ To create a project by using the terminal, create a new folder for your app and 
 
 | Template | Command | Documentation |
 |---|---|---|
-| REST Webservice | `dotnet new genhttp-webservice` | [Webservices](https://genhttp.org/documentation/content/webservices) |
-| REST Webservice (single file) | `dotnet new genhttp-webservice-minimal` | [Functional Handlers](https://genhttp.org/documentation/content/functional) |
-| Website \[[deprecated](https://github.com/Kaliumhexacyanoferrat/GenHTTP/issues/496)\] | `dotnet new genhttp-website` | [Websites](https://genhttp.org/documentation/content/websites) |
-| Website (Static HTML) | `dotnet new genhttp-website-static`  | [Statics Websites](https://genhttp.org/documentation/content/static-websites) |
-| Website (MVC + Razor) \[[deprecated](https://github.com/Kaliumhexacyanoferrat/GenHTTP/issues/496)\] | `dotnet new genhttp-website-mvc-razor`  | [Controllers (MVC)](https://genhttp.org/documentation/content/controllers) |
-| Website (MVC + Scriban) \[[deprecated](https://github.com/Kaliumhexacyanoferrat/GenHTTP/issues/496)\]  | `dotnet new genhttp-website-mvc-scriban`  | [Controllers (MVC)](https://genhttp.org/documentation/content/controllers) |
-| Single Page Application (SPA) | `dotnet new genhttp-spa` | [Single Page Applications (SPA)](https://genhttp.org/documentation/content/single-page-applications) |
+| REST Webservice | `dotnet new genhttp-webservice` | [Webservices](https://genhttp.org/documentation/content/frameworks/webservices/) |
+| REST Webservice (single file) | `dotnet new genhttp-webservice-minimal` | [Functional Handlers](https://genhttp.org/documentation/content/frameworks/functional/) |
+| Website (Static HTML) | `dotnet new genhttp-website-static`  | [Statics Websites](https://genhttp.org/documentation/content/frameworks/static-websites/) |
+| Single Page Application (SPA) | `dotnet new genhttp-spa` | [Single Page Applications (SPA)](https://genhttp.org/documentation/content/frameworks/single-page-applications/) |
 
 After the project has been created, you can run it via `dotnet run` and access the server via http://localhost:8080.
 
