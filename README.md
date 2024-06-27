@@ -17,6 +17,9 @@ GenHTTP is a lightweight web server written in pure C# with only a few dependenc
 
 This section shows how to create a new project from scratch using project templates and how to extend your existing application by embedding the GenHTTP engine.
 
+> [!NOTE]  
+> This is a brief overview to get you running. You might want to have a look at the [tutorials](https://genhttp.org/documentation/tutorials/) for detailed step-by-step guides.
+
 ### New Project
 
 Project templates can be used to create apps for typical use cases with little effort. After installing the [.NET SDK](https://dotnet.microsoft.com/en-us/download) and the templates via `dotnet new -i GenHTTP.Templates` in the terminal, the templates are available via the console or directly in Visual Studio:
