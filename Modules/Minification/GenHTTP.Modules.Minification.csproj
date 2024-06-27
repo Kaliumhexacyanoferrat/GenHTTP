@@ -45,7 +45,7 @@
 
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 
-    <PackageReference Include="NUglify" Version="1.21.7" />
+    <PackageReference Include="NUglify" Version="1.21.9" />
     
   </ItemGroup>
 
