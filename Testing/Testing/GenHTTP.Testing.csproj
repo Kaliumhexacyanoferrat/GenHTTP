@@ -48,6 +48,8 @@
     <ProjectReference Include="..\..\Modules\Basics\GenHTTP.Modules.Basics.csproj" />
     <ProjectReference Include="..\..\Modules\Layouting\GenHTTP.Modules.Layouting.csproj" />
     <ProjectReference Include="..\..\Modules\Practices\GenHTTP.Modules.Practices.csproj" />
+	<ProjectReference Include="..\..\Modules\Conversion\GenHTTP.Modules.Conversion.csproj" />
+	<ProjectReference Include="..\..\Modules\Protobuf\GenHTTP.Modules.Protobuf.csproj" />
     
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     
