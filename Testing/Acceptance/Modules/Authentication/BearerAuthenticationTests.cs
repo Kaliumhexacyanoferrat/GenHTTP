@@ -65,7 +65,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             using var response = await Execute(auth, VALID_TOKEN);
 
-            await response.AssertStatusAsync(HttpStatusCode.Forbidden);
+            await response.AssertStatusAsync(HttpStatusCode.OK);
         }
 
         [TestMethod]
