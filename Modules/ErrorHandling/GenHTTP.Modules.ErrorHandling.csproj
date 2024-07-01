@@ -44,6 +44,7 @@
     <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
 
     <ProjectReference Include="..\Pages\GenHTTP.Modules.Pages.csproj" />
+	<ProjectReference Include="..\Conversion\GenHTTP.Modules.Conversion.csproj" />
 
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     
