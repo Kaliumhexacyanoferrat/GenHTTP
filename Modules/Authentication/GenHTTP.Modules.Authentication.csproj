@@ -42,8 +42,12 @@
   <ItemGroup>
     
     <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
+    
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="7.6.2" />
 
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.6.2" />
     
   </ItemGroup>
 
