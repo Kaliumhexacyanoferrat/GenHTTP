@@ -54,6 +54,16 @@ namespace GenHTTP.Modules.Conversion.Providers
             return GetFormat(Default);
         }
 
+        public ISerializationFormat? GetFormat(string? contentType)
+        {
+            if (contentType != null)
+            {
+                return GetFormat(FlexibleContentType.Parse(contentType));
+            }
+            
+            return GetFormat(Default);
+        }
+
         private ISerializationFormat? GetFormat(FlexibleContentType contentType)
         {
             if (Formats.TryGetValue(contentType, out var format))
