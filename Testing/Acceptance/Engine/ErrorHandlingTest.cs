@@ -28,6 +28,22 @@ namespace GenHTTP.Testing.Acceptance.Engine
             await response.AssertStatusAsync(HttpStatusCode.InternalServerError);
         }
 
+        [TestMethod]
+        public async Task TestEscaping()
+        {
+            var handler = new FunctionalHandler(responseProvider: (r) =>
+            {
+                throw new Exception("Nah <>");
+            });
+
+
+            using var runner = TestHost.Run(handler.Wrap());
+
+            using var response = await runner.GetResponseAsync();
+
+            AssertX.Contains("Nah &lt;&gt;", await response.GetContentAsync());
+        }
+
     }
 
 }

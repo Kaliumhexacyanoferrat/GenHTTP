@@ -5,7 +5,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
-using GenHTTP.Modules.Sitemaps;
 
 namespace GenHTTP.Testing.Acceptance.Modules.IO
 {
@@ -85,22 +84,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             using var response = await runner.GetResponseAsync("/Resources/nah/");
 
             await response.AssertStatusAsync(HttpStatusCode.NotFound);
-        }
-
-        [TestMethod]
-        public async Task TestContent()
-        {
-            var layout = Layout.Create()
-                               .Add("sitemap", Sitemap.Create())
-                               .Add("resources", Resources.From(ResourceTree.FromAssembly("Resources")));
-
-            using var runner = TestHost.Run(layout);
-
-            using var response = await runner.GetResponseAsync("/sitemap");
-
-            var sitemap = await response.GetSitemap();
-
-            AssertX.Contains("/resources/Error.html", sitemap);
         }
 
     }

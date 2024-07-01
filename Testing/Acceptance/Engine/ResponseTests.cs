@@ -52,11 +52,6 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 };
             }
 
-            public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
-            {
-                throw new NotImplementedException();
-            }
-
         }
 
         /// <summary>

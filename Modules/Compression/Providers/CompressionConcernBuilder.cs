@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Linq;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Modules.Compression.Providers

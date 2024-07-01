@@ -1,76 +1,36 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
+﻿using System.Web;
 
-using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.Pages.Rendering;
+using GenHTTP.Modules.IO.Strings;
 
 namespace GenHTTP.Modules.Pages
 {
 
     public static class Extensions
     {
-        private static readonly FlexibleContentType _HtmlType = new(ContentType.TextHtml, "UTF-8");
+        private static readonly FlexibleContentType _ContentType = new(ContentType.TextHtml, "utf-8");
 
-        public static IResponseBuilder GetMethodNotAllowed(this IHandler handler, IRequest request, string? title = null, string? message = null)
+        /// <summary>
+        /// Creates a response that can be returned by a handler to serve
+        /// a HTML page.
+        /// </summary>
+        /// <param name="request">The request to be responded to</param>
+        /// <param name="content">The HTML page to be served</param>
+        /// <returns>The HTML page response</returns>
+        public static IResponseBuilder GetPage(this IRequest request, string content)
         {
-            var actualMessage = message ?? "The specified resource cannot be accessed with the given HTTP verb.";
-
-            var model = new ErrorModel(request, handler, ResponseStatus.MethodNotAllowed, actualMessage, null);
-
-            var info = ContentInfo.Create()
-                                  .Title(title ?? "Method Not Allowed");
-
-            return handler.GetError(model, info.Build(), null);
+            return request.Respond()
+                          .Content(new StringContent(content))
+                          .Type(_ContentType);
         }
 
-        public static IResponseBuilder GetNotFound(this IHandler handler, IRequest request, string? title = null, string? message = null)
-        {
-            var actualMessage = message ?? "The specified resource could not be found on this server.";
-
-            var model = new ErrorModel(request, handler, ResponseStatus.NotFound, actualMessage, null);
-
-            var info = ContentInfo.Create()
-                                  .Title(title ?? "Not Found");
-
-            return handler.GetError(model, info.Build(), null);
-        }
-
-        public static IResponseBuilder GetError(this IHandler handler, ErrorModel model, ContentInfo details, PageAdditions? additions)
-        {
-            var renderer = handler.FindParent<IErrorRenderer>(model.Request.Server.Handler) ?? throw new InvalidOperationException("There is no error handler available in the routing tree");
-
-            var content = new RenderedContent<ErrorModel>(renderer, model, details, additions);
-
-            return model.Request
-                        .Respond()
-                        .Content(content)
-                        .Type(_HtmlType)
-                        .Status(model.Status);
-        }
-        public static IPageRenderer GetPageRenderer(this IHandler handler, IRequest request)
-        {
-            return handler.FindParent<IPageRenderer>(request.Server.Handler) ?? throw new InvalidOperationException("There is no page renderer available in the routing tree");
-        }
-
-        public static async ValueTask WritePageAsync(this IHandler handler, IRequest request, ContentInfo pageInfo, PageAdditions? additions, string content, Stream target)
-        {
-            var templateModel = new TemplateModel(request, handler, pageInfo, additions, content);
-
-            var templateRenderer = handler.GetPageRenderer(request);
-
-            await templateRenderer.RenderAsync(templateModel, target);
-        }
-
-        public static IResponseBuilder Modify(this IResponseBuilder builder, ResponseModifications? modifications)
-        {
-            modifications?.Apply(builder);
-            return builder;
-        }
+        /// <summary>
+        /// Escapes the given string so it can safely be used in HTML.
+        /// </summary>
+        /// <param name="content">The content to be escaped</param>
+        /// <returns>The escaped version of the string</returns>
+        public static string Escaped(this string content) => HttpUtility.HtmlEncode(content);
 
     }
 

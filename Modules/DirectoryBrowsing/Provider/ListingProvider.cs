@@ -1,13 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
-using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Pages;
 
 namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 {
@@ -37,25 +34,16 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var model = new ListingModel(request, this, Container, !request.Target.Ended);
+            var model = new ListingModel(Container, !request.Target.Ended);
 
-            var renderer = new ListingRenderer();
+            var content = await ListingRenderer.RenderAsync(model);
 
-            var templateModel = new TemplateModel(request, this, GetPageInfo(request), null, await renderer.RenderAsync(model));
+            var page = await Renderer.Server.RenderAsync($"Index of {request.Target.Path}", content);
 
-            return (await this.GetPageAsync(request, templateModel)).Build();
+            return request.GetPage(page).Build();
         }
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
-
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => AsyncEnumerable.Empty<ContentElement>();
-
-        private static ContentInfo GetPageInfo(IRequest request)
-        {
-            return ContentInfo.Create()
-                              .Title($"Index of {request.Target.Path}")
-                              .Build();
-        }
 
         #endregion
 

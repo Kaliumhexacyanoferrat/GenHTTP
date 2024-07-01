@@ -23,11 +23,6 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             public IHandler Parent => throw new NotImplementedException();
 
-            public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
-            {
-                throw new NotImplementedException();
-            }
-
             public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 throw new InvalidOperationException("Nope!");

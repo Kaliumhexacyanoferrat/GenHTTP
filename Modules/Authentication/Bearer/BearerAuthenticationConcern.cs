@@ -57,8 +57,6 @@ namespace GenHTTP.Modules.Authentication.Bearer
 
         public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Content.GetContentAsync(request);
-
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             IdentityModelEventSource.LogCompleteSecurityArtifact = true;

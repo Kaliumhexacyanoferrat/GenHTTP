@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
@@ -77,8 +76,6 @@ namespace GenHTTP.Modules.Security.Providers
         }
 
         public ValueTask PrepareAsync() => Content.PrepareAsync();
-
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Content.GetContentAsync(request);
 
         #endregion
 

@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Pages;
@@ -10,39 +9,40 @@ using GenHTTP.Modules.Pages;
 namespace GenHTTP.Modules.ErrorHandling
 {
 
-    /// <summary>
-    /// An error mapper that renders exceptions into the currently
-    /// installed template, using the next IErrorRenderer found
-    /// in the routing chain.
-    /// </summary>
     public class HtmlErrorMapper : IErrorMapper<Exception>
     {
 
-        public ValueTask<IResponse?> Map(IRequest request, IHandler handler, Exception error)
+        public async ValueTask<IResponse?> Map(IRequest request, IHandler handler, Exception error)
         {
+            var developmentMode = request.Server.Development;
+
             if (error is ProviderException e)
             {
-                var model = new ErrorModel(request, handler, e.Status, e.Message, e);
+                var title = e.Status.ToString();
 
-                var details = ContentInfo.Create()
-                                         .Title(e.Status.ToString());
+                var page = await Renderer.Server.RenderAsync(title, e, developmentMode);
 
-                return new(handler.GetError(model, details.Build(), null).Build());
+                return request.GetPage(page)
+                              .Status(e.Status)
+                              .Build();
             }
             else
             {
-                var model = new ErrorModel(request, handler, ResponseStatus.InternalServerError, "The server failed to handle this request.", error);
+                var page = await Renderer.Server.RenderAsync("Internal Server Error", error, developmentMode);
 
-                var details = ContentInfo.Create()
-                                         .Title("Internal Server Error");
-
-                return new(handler.GetError(model, details.Build(), null).Build());
+                return request.GetPage(page)
+                              .Status(ResponseStatus.InternalServerError)
+                              .Build();
             }
         }
 
-        public ValueTask<IResponse?> GetNotFound(IRequest request, IHandler handler)
+        public async ValueTask<IResponse?> GetNotFound(IRequest request, IHandler handler)
         {
-            return new(handler.GetNotFound(request).Build());
+            var content = await Renderer.Server.RenderAsync("Not Found", "The specified content was not found on this server.");
+
+            return request.GetPage(content)
+                          .Status(ResponseStatus.NotFound)
+                          .Build();
         }
 
     }

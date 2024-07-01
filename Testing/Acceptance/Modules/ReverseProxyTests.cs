@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -12,7 +11,6 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO;
-using GenHTTP.Modules.Practices;
 using GenHTTP.Modules.ReverseProxy;
 using GenHTTP.Modules.Layouting;
 
@@ -101,8 +99,6 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             public IHandler Parent => throw new NotImplementedException();
 
-            public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => AsyncEnumerable.Empty<ContentElement>();
-
             public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 return new ProxiedProvider(_Response).HandleAsync(request);
@@ -122,11 +118,6 @@ namespace GenHTTP.Testing.Acceptance.Providers
             public IHandler Parent => throw new NotImplementedException();
             
             public ValueTask PrepareAsync() => ValueTask.CompletedTask;
-
-            public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
-            {
-                throw new NotImplementedException();
-            }
 
             public ValueTask<IResponse?> HandleAsync(IRequest request)
             {

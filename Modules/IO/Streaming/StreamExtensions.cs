@@ -4,8 +4,6 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-using GenHTTP.Api.Content.Templating;
-
 namespace GenHTTP.Modules.IO.Streaming
 {
 
@@ -47,13 +45,6 @@ namespace GenHTTP.Modules.IO.Streaming
             {
                 POOL.Return(buffer);
             }
-        }
-
-        public static async ValueTask RenderToStream<T>(this IRenderer<T> renderer, T model, Stream target) where T : class, IModel
-        {
-            var content = await renderer.RenderAsync(model);
-
-            await content.WriteAsync(target);
         }
 
         public static async ValueTask WriteAsync(this string content, Stream target)

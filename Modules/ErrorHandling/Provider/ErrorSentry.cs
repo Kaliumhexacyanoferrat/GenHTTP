@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
@@ -37,14 +36,11 @@ namespace GenHTTP.Modules.ErrorHandling.Provider
 
         public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Content.GetContentAsync(request);
-
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             try
             {
-                var response = await Content.HandleAsync(request)
-                                            ;
+                var response = await Content.HandleAsync(request);
 
                 if (response is null)
                 {

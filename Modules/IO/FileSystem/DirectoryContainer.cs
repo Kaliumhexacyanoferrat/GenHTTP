@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content.IO;
@@ -31,24 +30,28 @@ namespace GenHTTP.Modules.IO.FileSystem
 
         #region Functionality
 
-        public IAsyncEnumerable<IResourceNode> GetNodes() => GetNodesInternal().ToAsyncEnumerable();
-
-        private IEnumerable<IResourceNode> GetNodesInternal()
+        public ValueTask<IReadOnlyCollection<IResourceNode>> GetNodes()
         {
+            var result = new List<IResourceNode>();
+
             foreach (var directory in Directory.EnumerateDirectories())
             {
-                yield return new DirectoryNode(directory, this);
+                result.Add(new DirectoryNode(directory, this));
             }
+
+            return new(result);
         }
 
-        public IAsyncEnumerable<IResource> GetResources() => GetResourcesInternal().ToAsyncEnumerable();
-
-        public IEnumerable<IResource> GetResourcesInternal()
+        public ValueTask<IReadOnlyCollection<IResource>> GetResources()
         {
+            var result = new List<IResource>();
+
             foreach (var file in Directory.EnumerateFiles())
             {
-                yield return Resource.FromFile(file).Build();
+                result.Add(Resource.FromFile(file).Build());
             }
+
+            return new(result);
         }
 
         public ValueTask<IResourceNode?> TryGetNodeAsync(string name)

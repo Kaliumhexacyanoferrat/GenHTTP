@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
@@ -40,8 +37,6 @@ namespace GenHTTP.Modules.Basics.Providers
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => AsyncEnumerable.Empty<ContentElement>();
-
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var resolved = ResolveRoute(request, Target);
@@ -54,23 +49,16 @@ namespace GenHTTP.Modules.Basics.Providers
             return new ValueTask<IResponse?>(response.Status(status).Build());
         }
 
-        private string ResolveRoute(IRequest request, string route)
+        private static string ResolveRoute(IRequest request, string route)
         {
             if (PROTOCOL_MATCHER.IsMatch(route))
             {
                 return route;
             }
 
-            var resolved = this.Route(request, route, false);
-
-            if (resolved is null)
-            {
-                throw new InvalidOperationException($"Unable to determine route to '{route}'");
-            }
-
             var protocol = request.EndPoint.Secure ? "https://" : "http://";
 
-            return $"{protocol}{request.Host}{resolved}";
+            return $"{protocol}{request.Host}{route}";
         }
 
         private static ResponseStatus MapStatus(IRequest request, bool temporary)

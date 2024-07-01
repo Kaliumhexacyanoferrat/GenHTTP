@@ -24,11 +24,6 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             public IHandler Parent => throw new System.NotImplementedException();
 
-            public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
-            {
-                throw new System.NotImplementedException();
-            }
-
             public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 return request.Respond()

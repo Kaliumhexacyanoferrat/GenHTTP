@@ -103,8 +103,6 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Tree.GetContent(request, this);
-
         #endregion
 
     }
