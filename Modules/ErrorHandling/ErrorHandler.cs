@@ -2,6 +2,7 @@
 
 using GenHTTP.Api.Content;
 
+using GenHTTP.Modules.Conversion.Providers;
 using GenHTTP.Modules.ErrorHandling.Provider;
 
 namespace GenHTTP.Modules.ErrorHandling
@@ -16,10 +17,19 @@ namespace GenHTTP.Modules.ErrorHandling
         /// </summary>
         /// <remarks>
         /// By default, server errors will be rendered into
-        /// a HTML template.
+        /// structured responses.
         /// </remarks>
         /// <returns>The default error handler</returns>
-        public static ErrorSentryBuilder<Exception> Default() => Html();
+        public static ErrorSentryBuilder<Exception> Default() => Structured();
+
+        /// <summary>
+        /// Ans error handler which will render exceptions into
+        /// structured error objects serialized to the format
+        /// requested by the client (e.g. JSON or XML).
+        /// </summary>
+        /// <param name="serialization">The serialization configuration to be used</param>
+        /// <returns>A structured error handler</returns>
+        public static ErrorSentryBuilder<Exception> Structured(SerializationBuilder? serialization = null) => From(new StructuredErrorMapper(serialization?.Build()));
 
         /// <summary>
         /// An error handler which will render exceptions into

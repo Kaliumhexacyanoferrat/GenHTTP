@@ -43,9 +43,8 @@ namespace GenHTTP.Modules.ErrorHandling.Provider
         {
             try
             {
-                var response = await Content.HandleAsync(request)
-                                            ;
-
+                var response = await Content.HandleAsync(request);
+                        
                 if (response is null)
                 {
                     return await ErrorHandler.GetNotFound(request, Content);

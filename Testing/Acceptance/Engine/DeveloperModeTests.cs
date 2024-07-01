@@ -50,7 +50,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = await runner.GetResponseAsync();
 
-            Assert.IsTrue((await response.GetContentAsync()).Contains("Exception"));
+            var content = await response.GetContentAsync();
+
+            Assert.IsTrue(content.Contains("HandleAsync"));
         }
 
         /// <summary>
