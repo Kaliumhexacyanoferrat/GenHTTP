@@ -1,9 +1,11 @@
 ﻿using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Authentication;
 using GenHTTP.Modules.Authentication.Bearer;
 using GenHTTP.Modules.Functional;
@@ -78,7 +80,29 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             await response.AssertStatusAsync(HttpStatusCode.OK);
         }
 
-        private static async Task<HttpResponseMessage> Execute(BearerAuthenticationConcernBuilder builder, string? token)
+        [TestMethod]
+        public async Task TestNoToken()
+        {
+            var auth = BearerAuthentication.Create()
+                                           .AllowExpired();
+
+            using var response = await Execute(auth);
+
+            await response.AssertStatusAsync(HttpStatusCode.Unauthorized);
+        }
+
+        [TestMethod]
+        public async Task TestMalformedToken()
+        {
+            var auth = BearerAuthentication.Create()
+                                           .AllowExpired();
+
+            using var response = await Execute(auth, "Lorem Ipsum");
+
+            await response.AssertStatusAsync(HttpStatusCode.BadRequest);
+        }
+
+        private static async Task<HttpResponseMessage> Execute(BearerAuthenticationConcernBuilder builder, string? token = null)
         {
             var handler = Inline.Create()
                                 .Get(() => "Secured")

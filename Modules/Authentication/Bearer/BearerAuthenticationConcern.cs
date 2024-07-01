@@ -121,12 +121,10 @@ namespace GenHTTP.Modules.Authentication.Bearer
                 {
                     var user = await ValidationOptions.UserMapping.Invoke(request, jwt);
 
-                    if (user == null)
+                    if (user != null)
                     {
-                        throw new ProviderException(ResponseStatus.Forbidden, "Access denied for requested resource");
+                        request.SetUser(user);
                     }
-
-                    request.SetUser(user);
                 }
 
                 return await Content.HandleAsync(request);
