@@ -75,6 +75,7 @@ This will build the playground project launcher with all the server dependencies
 
 Writing a general purpose web application server is a tremendous task, so any contribution is very welcome. Besides extending the server core, you might want to
 
+- Leave a star on GitHub
 - Extend the content capabilities of the server (e.g. by adding a new serialization format or rendering engine)
 - Refine our [project templates](https://genhttp.org/documentation/content/templates)
 - Perform code reviews
