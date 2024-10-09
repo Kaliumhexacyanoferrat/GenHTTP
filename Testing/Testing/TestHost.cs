@@ -19,7 +19,11 @@ namespace GenHTTP.Testing
     /// </summary>
     public class TestHost : IDisposable
     {
+#if NET8_0
         private static volatile int _NextPort = 20000;
+#else
+        private static volatile int _NextPort = 30000;
+#endif
 
         private static readonly HttpClient _DefaultClient = GetClient();
 
