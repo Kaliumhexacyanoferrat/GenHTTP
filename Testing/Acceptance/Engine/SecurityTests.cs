@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
@@ -13,7 +14,6 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Security;
 using GenHTTP.Modules.Security.Providers;
-using System.Net.Http;
 
 namespace GenHTTP.Testing.Acceptance.Engine
 {
@@ -194,8 +194,11 @@ namespace GenHTTP.Testing.Acceptance.Engine
             using var mem = new MemoryStream();
 
             await stream.CopyToAsync(mem);
-
+#if NET8_0
             return new X509Certificate2(mem.ToArray());
+#else
+            return X509CertificateLoader.LoadPkcs12(mem.ToArray(), null);
+#endif
         }
 
         private class PickyCertificateProvider : ICertificateProvider

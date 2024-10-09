@@ -8,9 +8,9 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.IO.Ranges
 {
 
-    public class RangeSupportConcern : IConcern
+    public partial class RangeSupportConcern : IConcern
     {
-        private static readonly Regex _PATTERN = new(@"^\s*bytes\s*=\s*([0-9]*)-([0-9]*)\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex _PATTERN = CreatePattern();
 
         #region Get-/Setters
 
@@ -27,6 +27,9 @@ namespace GenHTTP.Modules.IO.Ranges
             Parent = parent;
             Content = contentFactory(this);
         }
+
+        [GeneratedRegex(@"^\s*bytes\s*=\s*([0-9]*)-([0-9]*)\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+        private static partial Regex CreatePattern();
 
         #endregion
 
