@@ -25,6 +25,7 @@ jobs:
     - name: Download .NET SDK
       run: |
         wget https://download.visualstudio.microsoft.com/download/pr/202e929a-e985-4eab-a78a-d7159fc204e4/0c85219d441cd3bbffd4fb65b7e36fe5/dotnet-sdk-9.0.100-rc.2.24474.11-linux-x64.tar.gz
+        mkdir -p $HOME/dotnet
         tar -zxf dotnet-sdk-9.0.100-rc.2.24474.11-linux-x64.tar.gz -C $HOME/dotnet
 
     # Add .NET to the PATH
