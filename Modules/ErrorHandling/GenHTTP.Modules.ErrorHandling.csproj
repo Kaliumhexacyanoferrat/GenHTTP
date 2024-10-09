@@ -42,6 +42,8 @@
   <ItemGroup>
     
     <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
+    
+    <ProjectReference Include="..\Conversion\GenHTTP.Modules.Conversion.csproj" />
 
 	<ProjectReference Include="..\Pages\GenHTTP.Modules.Pages.csproj" />
 
