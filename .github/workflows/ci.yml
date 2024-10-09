@@ -24,21 +24,15 @@ jobs:
     # Manually install .NET SDK
     - name: Download .NET SDK
       run: |
-        DOTNET_VERSION=7.0.100
         wget https://download.visualstudio.microsoft.com/download/pr/69beb740-ba0e-4a0b-a82a-737c61cb75cb/eff5e94b382efcdcd2a80278e04edb92/dotnet-runtime-9.0.0-rc.2.24473.5-linux-x64.tar.gz
         mkdir -p $HOME/dotnet
-        tar -zxf dotnet-sdk-$DOTNET_VERSION-linux-x64.tar.gz -C $HOME/dotnet
+        tar -zxf dotnet-runtime-9.0.0-rc.2.24473.5-linux-x64.tar.gz -C $HOME/dotnet
 
     # Add .NET to the PATH
     - name: Setup .NET PATH
       run: |
         echo "$HOME/dotnet" >> $GITHUB_PATH
         
-    # - name: Setup .NET
-    #  uses: actions/setup-dotnet@v1.5.0
-    #  with:
-    #    dotnet-version: '9.0.x'
-    #    dotnet-quality: 'preview'
     - name: Setup Java JDK
       uses: actions/setup-java@v3
       with:
