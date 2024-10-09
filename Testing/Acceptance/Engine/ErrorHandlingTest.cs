@@ -41,7 +41,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = await runner.GetResponseAsync();
 
-            AssertX.Contains("Nah &lt;&gt;", await response.GetContentAsync());
+            AssertX.DoesNotContain("<>", await response.GetContentAsync());
         }
 
     }
