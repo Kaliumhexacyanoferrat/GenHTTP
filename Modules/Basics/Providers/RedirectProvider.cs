@@ -7,9 +7,9 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.Basics.Providers
 {
 
-    public sealed class RedirectProvider : IHandler
+    public sealed partial class RedirectProvider : IHandler
     {
-        private static readonly Regex PROTOCOL_MATCHER = new("^[a-zA-Z_-]+://", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex PROTOCOL_MATCHER = CreateProtocolMatcher();
 
         #region Get-/Setters
 
@@ -30,6 +30,10 @@ namespace GenHTTP.Modules.Basics.Providers
             Target = location;
             Temporary = temporary;
         }
+
+        [GeneratedRegex("^[a-z_-]+://", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+        private static partial Regex CreateProtocolMatcher();
+
 
         #endregion
 

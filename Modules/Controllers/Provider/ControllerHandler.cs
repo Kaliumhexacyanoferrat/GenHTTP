@@ -16,9 +16,11 @@ using GenHTTP.Modules.Reflection.Injectors;
 namespace GenHTTP.Modules.Controllers.Provider
 {
 
-    public sealed class ControllerHandler : IHandler
+    public sealed partial class ControllerHandler : IHandler
     {
         private static readonly MethodRouting EMPTY = new("/", "^(/|)$", null, true, false);
+
+        private static readonly Regex HYPEN_MATCHER = CreateHypenMatcher();
 
         #region Get-/Setters
 
@@ -91,7 +93,7 @@ namespace GenHTTP.Modules.Controllers.Provider
 
             foreach (var parameter in parameters)
             {
-                if (parameter.GetCustomAttribute(typeof(FromPathAttribute), true) is not null)
+                if (parameter.GetCustomAttribute<FromPathAttribute>(true) is not null)
                 {
                     if (!parameter.CanFormat(Formatting))
                     {
@@ -117,15 +119,18 @@ namespace GenHTTP.Modules.Controllers.Provider
 
         private static string HypenCase(string input)
         {
-            return Regex.Replace(input, @"([a-z])([A-Z0-9]+)", "$1-$2").ToLowerInvariant();
+            return HYPEN_MATCHER.Replace(input, "$1-$2").ToLowerInvariant();
         }
+        
+        [GeneratedRegex(@"([a-z])([A-Z0-9]+)")]
+        private static partial Regex CreateHypenMatcher();
 
         #endregion
 
         #region Functionality
-        
-        public ValueTask PrepareAsync() => Provider.PrepareAsync();
 
+        public ValueTask PrepareAsync() => Provider.PrepareAsync();
+        
         public ValueTask<IResponse?> HandleAsync(IRequest request) => Provider.HandleAsync(request);
 
         #endregion
