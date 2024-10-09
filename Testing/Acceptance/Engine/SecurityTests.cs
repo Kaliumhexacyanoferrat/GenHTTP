@@ -195,7 +195,11 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             await stream.CopyToAsync(mem);
 
+#if NET8_0
             return new X509Certificate2(mem.ToArray());
+#else
+            return X509CertificateLoader.LoadCertificate(mem.ToArray());
+#endif
         }
 
         private class PickyCertificateProvider : ICertificateProvider
