@@ -45,7 +45,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = await runner.GetResponseAsync();
 
-            Assert.IsTrue((await response.GetContentAsync()).Contains("Exception"));
+            Assert.IsTrue((await response.GetContentAsync()).Contains("at GenHTTP"));
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = await runner.GetResponseAsync();
 
-            Assert.IsFalse((await response.GetContentAsync()).Contains("Exception"));
+            Assert.IsFalse((await response.GetContentAsync()).Contains("at GenHTTP"));
         }
 
     }
