@@ -54,9 +54,9 @@ namespace GenHTTP.Modules.IO.VirtualTrees
 
         #region Functionality
 
-        public IAsyncEnumerable<IResourceNode> GetNodes() => Nodes.Values.ToAsyncEnumerable();
+        public ValueTask<IReadOnlyCollection<IResourceNode>> GetNodes() => new(Nodes.Values);
 
-        public IAsyncEnumerable<IResource> GetResources() => Resources.Values.ToAsyncEnumerable();
+        public ValueTask<IReadOnlyCollection<IResource>> GetResources() => new(Resources.Values);
 
         public ValueTask<IResourceNode?> TryGetNodeAsync(string name) => new(Nodes.GetValueOrDefault(name));
 

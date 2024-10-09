@@ -45,8 +45,6 @@ namespace GenHTTP.Modules.Security.Cors
 
         public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Content.GetContentAsync(request);
-
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var (origin, policy) = GetPolicy(request);

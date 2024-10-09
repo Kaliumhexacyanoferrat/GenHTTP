@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Providers;
 using GenHTTP.Modules.Reflection;
@@ -57,8 +58,6 @@ namespace GenHTTP.Modules.Functional.Provider
         #region Functionality
 
         public ValueTask PrepareAsync() => Methods.PrepareAsync();
-
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Methods.GetContentAsync(request);
 
         public ValueTask<IResponse?> HandleAsync(IRequest request) => Methods.HandleAsync(request);
 

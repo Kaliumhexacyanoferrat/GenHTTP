@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
@@ -13,7 +12,6 @@ namespace GenHTTP.Modules.IO.Providers
 
     public sealed class ContentProvider : IHandler
     {
-        private ContentInfo? _Info;
 
         #region Get-/Setters
 
@@ -24,16 +22,6 @@ namespace GenHTTP.Modules.IO.Providers
         private IResponseContent Content { get; }
 
         private FlexibleContentType ContentType { get; }
-
-        private ContentInfo Info
-        {
-            get
-            {
-                return _Info ??= ContentInfo.Create()
-                                            .Title(Resource.Name ?? "Download")
-                                            .Build();
-            }
-        }
 
         #endregion
 
@@ -59,8 +47,6 @@ namespace GenHTTP.Modules.IO.Providers
                           .Type(ContentType)
                           .BuildTask();
         }
-
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => this.GetContent(request, Info, ContentType);
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 

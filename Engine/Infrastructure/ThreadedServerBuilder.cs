@@ -171,7 +171,7 @@ namespace GenHTTP.Engine.Infrastructure
 
             var concerns = new[] { ErrorHandler.Default() }.Concat(_Concerns);
 
-            var handler = new CoreRouter(_Handler, concerns, _Development);
+            var handler = new CoreRouter(_Handler, concerns);
 
             return new ThreadedServer(_Companion, config, handler);
         }

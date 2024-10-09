@@ -11,8 +11,7 @@ using GenHTTP.Engine.Infrastructure.Configuration;
 using GenHTTP.Engine.Protocol;
 using GenHTTP.Engine.Protocol.Parser;
 
-using GenHTTP.Modules.IO;
-using GenHTTP.Modules.IO.Streaming;
+using GenHTTP.Modules.IO.Strings;
 
 using PooledAwait;
 
@@ -164,11 +163,8 @@ namespace GenHTTP.Engine
             {
                 var message = Server.Development ? e.ToString() : e.Message;
 
-                var content = Resource.FromString(message)
-                                      .Build();
-
                 var response = new ResponseBuilder().Status(status)
-                                                    .Content(new ResourceContent(content))
+                                                    .Content(new StringContent(message))
                                                     .Build();
 
                 await ResponseHandler.Handle(null, response, false, false);

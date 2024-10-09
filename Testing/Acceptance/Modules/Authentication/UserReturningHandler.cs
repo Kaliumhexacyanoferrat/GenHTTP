@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
@@ -30,8 +28,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
         {
             Parent = parent;
         }
-
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => AsyncEnumerable.Empty<ContentElement>();
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {

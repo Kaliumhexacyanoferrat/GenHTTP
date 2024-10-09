@@ -44,8 +44,6 @@
     <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
     
     <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
-    <ProjectReference Include="..\Sitemaps\GenHTTP.Modules.Sitemaps.csproj" />
-    <ProjectReference Include="..\Robots\GenHTTP.Modules.Robots.csproj" />
     <ProjectReference Include="..\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj" />
     <ProjectReference Include="..\Layouting\GenHTTP.Modules.Layouting.csproj" />
 

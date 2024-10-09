@@ -11,7 +11,6 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.ServerCaching;
 using GenHTTP.Modules.ServerCaching.Provider;
-using GenHTTP.Modules.Sitemaps;
 
 using GenHTTP.Testing.Acceptance.Utilities;
 
@@ -361,27 +360,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             request.Headers.Add("Key", "Value");
 
             return request;
-        }
-
-        [TestMethod]
-        public async Task TestContent()
-        {
-            var cache = ServerCache.Memory();
-
-            var content = Resources.From(ResourceTree.FromAssembly("Resources"))
-                                   .Add(cache);
-
-            var app = Layout.Create()
-                            .Add(Sitemap.FILE_NAME, Sitemap.Create())
-                            .Add("app", content);
-
-            using var runner = TestHost.Run(app, false);
-
-            using var response = await runner.GetResponseAsync("/sitemap.xml");
-
-            var sitemap = await response.GetSitemap();
-
-            AssertX.Contains("/app/Template.html", sitemap);
         }
 
         [TestMethod]

@@ -53,7 +53,6 @@ namespace GenHTTP.Testing.Acceptance.Providers
             AssertX.Contains("..", content);
         }
 
-
         /// <summary>
         /// As an user of a web application, I can download the files listed by the
         /// directory listing feature.

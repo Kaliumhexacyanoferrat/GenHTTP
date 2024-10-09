@@ -57,11 +57,6 @@ namespace GenHTTP.Modules.VirtualHosting.Provider
             return GetHandler(request)?.HandleAsync(request) ?? new ValueTask<IResponse?>();
         }
 
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
-        {
-            return GetHandler(request)?.GetContentAsync(request) ?? AsyncEnumerable.Empty<ContentElement>();
-        }
-
         private IHandler? GetHandler(IRequest request)
         {
             var host = request.HostWithoutPort();

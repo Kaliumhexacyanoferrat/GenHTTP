@@ -106,8 +106,6 @@ namespace GenHTTP.Modules.ServerCaching.Provider
             return await Content.HandleAsync(request);
         }
 
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Content.GetContentAsync(request);
-
         public ValueTask PrepareAsync() => Content.PrepareAsync();
 
         private static bool TryFindMatching(CachedResponse[] list, IRequest request, out CachedResponse? response)

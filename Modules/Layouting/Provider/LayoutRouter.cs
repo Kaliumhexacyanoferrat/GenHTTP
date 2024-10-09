@@ -11,7 +11,7 @@ using GenHTTP.Modules.Basics;
 namespace GenHTTP.Modules.Layouting.Provider
 {
 
-    public sealed class LayoutRouter : IHandler, IRootPathAppender, IHandlerResolver
+    public sealed class LayoutRouter : IHandler
     {
 
         #region Get-/Setters
@@ -104,71 +104,6 @@ namespace GenHTTP.Modules.Layouting.Provider
             {
                 await handler.PrepareAsync();
             }
-        }
-
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
-        {
-            var result = new List<ContentElement>();
-
-            if (Index is not null)
-            {
-                result.AddRange(Index.GetContentAsync(request).ToEnumerable());
-            }
-
-            foreach (var handler in RoutedHandlers.Values)
-            {
-                result.AddRange(handler.GetContentAsync(request).ToEnumerable());
-            }
-
-            foreach (var handler in RootHandlers)
-            {
-                result.AddRange(handler.GetContentAsync(request).ToEnumerable());
-            }
-
-            return result.ToAsyncEnumerable();
-        }
-
-        public void Append(PathBuilder path, IRequest request, IHandler? child = null)
-        {
-            if (child is not null)
-            {
-                if (child == Index)
-                {
-                    path.TrailingSlash(true);
-                }
-                else
-                {
-                    foreach (var entry in RoutedHandlers)
-                    {
-                        if (entry.Value == child)
-                        {
-                            path.Preprend(entry.Key);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        public IHandler? Find(string segment)
-        {
-            if (RoutedHandlers.TryGetValue(segment, out var handler))
-            {
-                return handler;
-            }
-
-            if (Index is not null && segment == "{index}")
-            {
-                return Index;
-            }
-
-            // remove as soon as LayoutBuilder.Fallback is removed
-            if (segment == "{layout}" || segment == "{fallback}") 
-            {
-                return this;
-            }
-
-            return null;
         }
 
         #endregion

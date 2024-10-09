@@ -26,11 +26,6 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             public IHandler Parent => throw new NotImplementedException();
 
-            public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
-            {
-                throw new NotImplementedException();
-            }
-
             public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 return request.Respond()
@@ -46,12 +41,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
             public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
             public IHandler Parent => throw new NotImplementedException();
-
-            public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
-            {
-                throw new NotImplementedException();
-            }
-
+            
             public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 return request.Respond()

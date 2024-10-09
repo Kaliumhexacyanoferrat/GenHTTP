@@ -26,11 +26,6 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             public IHandler Parent => throw new NotSupportedException();
 
-            public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
-            {
-                throw new NotImplementedException();
-            }
-
             public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 Cookies = request.Cookies;

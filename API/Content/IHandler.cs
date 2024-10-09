@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
 
@@ -31,13 +30,6 @@ namespace GenHTTP.Api.Content
         /// the handler is used in.
         /// </remarks>
         ValueTask PrepareAsync();
-
-        /// <summary>
-        /// Describes the content that is provided by this handler.
-        /// </summary>
-        /// <param name="request">The request to be respected when describing the content</param>
-        /// <returns>The content provided by this handler</returns>
-        IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request);
 
         /// <summary>
         /// Handles the given request and returns a response, if applicable.

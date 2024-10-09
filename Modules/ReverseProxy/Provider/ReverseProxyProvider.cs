@@ -9,11 +9,9 @@ using System.Threading.Tasks;
 using System.Web;
 
 using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Templating;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.Pages;
 
 namespace GenHTTP.Modules.ReverseProxy.Provider
 {
@@ -86,19 +84,11 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             }
             catch (OperationCanceledException e)
             {
-                var info = ContentInfo.Create()
-                                      .Title("Gateway Timeout")
-                                      .Build();
-
-                return this.GetError(new ErrorModel(request, this, ResponseStatus.GatewayTimeout, "The gateway did not respond in time.", e), info, null).Build();
+                throw new ProviderException(ResponseStatus.GatewayTimeout, "The gateway did not respond in time.", e);
             }
             catch (HttpRequestException e)
             {
-                var info = ContentInfo.Create()
-                                      .Title("Bad Gateway")
-                                      .Build();
-
-                return this.GetError(new ErrorModel(request, this, ResponseStatus.BadGateway, "Unable to retrieve a response from the gateway.", e), info, null).Build();
+                throw new ProviderException(ResponseStatus.BadGateway, "Unable to retrieve a response from the gateway.", e);
             }
         }
 
@@ -316,8 +306,6 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
         }
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
-
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => AsyncEnumerable.Empty<ContentElement>();
 
         #endregion
 

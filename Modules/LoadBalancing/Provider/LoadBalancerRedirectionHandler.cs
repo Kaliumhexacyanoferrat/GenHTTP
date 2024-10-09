@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -40,8 +38,6 @@ namespace GenHTTP.Modules.LoadBalancing.Provider
                            .Build(this)
                            .HandleAsync(request);
         }
-
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => AsyncEnumerable.Empty<ContentElement>();
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 

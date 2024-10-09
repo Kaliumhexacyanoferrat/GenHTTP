@@ -23,11 +23,6 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             public IHandler Parent => throw new NotImplementedException();
 
-            public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request)
-            {
-                throw new NotImplementedException();
-            }
-
             public ValueTask<IResponse?> HandleAsync(IRequest request)
             {
                 throw new InvalidOperationException("Nope!");
@@ -50,9 +45,7 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = await runner.GetResponseAsync();
 
-            var content = await response.GetContentAsync();
-
-            Assert.IsTrue(content.Contains("HandleAsync"));
+            Assert.IsTrue((await response.GetContentAsync()).Contains("at GenHTTP"));
         }
 
         /// <summary>
@@ -68,9 +61,10 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             using var response = await runner.GetResponseAsync();
 
-            Assert.IsFalse((await response.GetContentAsync()).Contains("Exception"));
+            Assert.IsFalse((await response.GetContentAsync()).Contains("at GenHTTP"));
         }
 
     }
 
 }
+

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
-using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
@@ -135,8 +135,6 @@ namespace GenHTTP.Modules.Compression.Providers
         }
 
         public ValueTask PrepareAsync() => Content.PrepareAsync();
-
-        public IAsyncEnumerable<ContentElement> GetContentAsync(IRequest request) => Content.GetContentAsync(request);
 
         #endregion
 
