@@ -10,7 +10,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider;
 
 public sealed class ReverseProxyProvider : IHandler
 {
-    private static readonly HashSet<string> RESERVED_RESPONSE_HEADERS = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly HashSet<string> ReservedResponseHeaders = new(StringComparer.OrdinalIgnoreCase)
     {
         "Server",
         "Date",
@@ -22,7 +22,7 @@ public sealed class ReverseProxyProvider : IHandler
         "Keep-Alive"
     };
 
-    private static readonly HashSet<string> RESERVED_REQUEST_HEADERS = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly HashSet<string> ReservedRequestHeaders = new(StringComparer.OrdinalIgnoreCase)
     {
         "Host",
         "Connection",
@@ -95,7 +95,7 @@ public sealed class ReverseProxyProvider : IHandler
 
         foreach (var header in request.Headers)
         {
-            if (!RESERVED_REQUEST_HEADERS.Contains(header.Key))
+            if (!ReservedRequestHeaders.Contains(header.Key))
             {
                 if (header.Key.StartsWith("Content-"))
                 {
@@ -133,7 +133,7 @@ public sealed class ReverseProxyProvider : IHandler
                 query[kv.Key] = kv.Value;
             }
 
-            return "?" + query?.ToString()?
+            return "?" + query.ToString()?
                               .Replace("+", "%20")
                               .Replace("%2b", "+");
         }
@@ -180,13 +180,11 @@ public sealed class ReverseProxyProvider : IHandler
 
     private void SetHeaders(IResponseBuilder builder, IRequest request, HttpHeaders headers)
     {
-        foreach (var kv in headers)
+        foreach (var (key, values) in headers)
         {
-            var key = kv.Key;
-
-            if (!RESERVED_RESPONSE_HEADERS.Contains(key))
+            if (!ReservedResponseHeaders.Contains(key))
             {
-                var value = kv.Value.First();
+                var value = values.FirstOrDefault();
 
                 if (value is not null)
                 {
@@ -210,7 +208,7 @@ public sealed class ReverseProxyProvider : IHandler
                     }
                     else if (key == "Set-Cookie")
                     {
-                        foreach (var cookie in kv.Value)
+                        foreach (var cookie in values)
                         {
                             builder.Header(key, cookie);
                         }
@@ -239,7 +237,7 @@ public sealed class ReverseProxyProvider : IHandler
 
             if (scoped != "/")
             {
-                relativePath = path.Substring(0, path.Length - scoped.Length);
+                relativePath = path[..^scoped.Length];
             }
             else
             {
@@ -258,7 +256,7 @@ public sealed class ReverseProxyProvider : IHandler
     {
         return string.Join(", ", request.Forwardings
                                         .Union(new[] { new Forwarding(request.LocalClient.IPAddress, request.LocalClient.Host, request.LocalClient.Protocol) })
-                                        .Select(f => GetForwarding(f)));
+                                        .Select(GetForwarding));
     }
 
     private static string GetForwarding(Forwarding forwarding)

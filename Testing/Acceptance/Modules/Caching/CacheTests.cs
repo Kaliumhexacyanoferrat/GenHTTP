@@ -71,13 +71,13 @@ public class CacheTests
     {
         foreach (var cache in GetCaches<Stream>())
         {
-            using var stream = new MemoryStream(new byte[] { 1 });
+            using var stream = new MemoryStream([1]);
 
             await cache.StoreAsync("k", "v", stream);
 
             Assert.AreEqual(1, (await cache.GetEntriesAsync("k")).Length);
 
-            using var resultStream = (await cache.GetEntryAsync("k", "v"))!;
+            await using var resultStream = (await cache.GetEntryAsync("k", "v"))!;
 
             Assert.AreNotEqual(stream, resultStream);
             Assert.AreEqual(1, resultStream.Length);
@@ -89,7 +89,7 @@ public class CacheTests
     {
         foreach (var cache in GetCaches<Stream>())
         {
-            using var stream = new MemoryStream(new byte[] { 1 });
+            using var stream = new MemoryStream([1]);
 
             await cache.StoreAsync("k", "v", stream);
 
@@ -108,7 +108,7 @@ public class CacheTests
 
             Assert.AreEqual(1, (await cache.GetEntriesAsync("k")).Length);
 
-            using var resultStream = (await cache.GetEntryAsync("k", "v"))!;
+            await using var resultStream = (await cache.GetEntryAsync("k", "v"))!;
 
             Assert.AreEqual(1, resultStream.Length);
         }
@@ -140,10 +140,10 @@ public class CacheTests
 
     private static ICache<T>[] GetCaches<T>()
     {
-        return new[]
-        {
+        return
+        [
             Cache.Memory<T>().Build(),
             Cache.TemporaryFiles<T>().Build()
-        };
+        ];
     }
 }

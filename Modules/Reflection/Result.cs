@@ -72,10 +72,7 @@ public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
     /// <inheritdoc />
     public Result<T> Header(string key, string value)
     {
-        if (_Headers == null)
-        {
-            _Headers = new Dictionary<string, string>();
-        }
+        _Headers ??= new Dictionary<string, string>();
 
         _Headers[key] = value;
 
@@ -99,12 +96,7 @@ public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
     /// <inheritdoc />
     public Result<T> Cookie(Cookie cookie)
     {
-        if (_Cookies == null)
-        {
-            _Cookies = new List<Cookie>();
-        }
-
-        _Cookies.Add(cookie);
+        (_Cookies ??= []).Add(cookie);
 
         return this;
     }

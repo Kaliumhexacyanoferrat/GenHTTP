@@ -96,23 +96,17 @@ public class ResponseProvider
         }
 
         // serialize the result
-        if (Serialization is not null)
+        var serializer = Serialization.GetSerialization(request);
+
+        if (serializer is null)
         {
-            var serializer = Serialization.GetSerialization(request);
-
-            if (serializer is null)
-            {
-                throw new ProviderException(ResponseStatus.UnsupportedMediaType, "Requested format is not supported");
-            }
-
-            var serializedResult = await serializer.SerializeAsync(request, result)
-                ;
-
-            return serializedResult.Adjust(adjustments)
-                                   .Build();
+            throw new ProviderException(ResponseStatus.UnsupportedMediaType, "Requested format is not supported");
         }
 
-        throw new ProviderException(ResponseStatus.InternalServerError, "Result type must be one of: IHandlerBuilder, IHandler, IResponseBuilder, IResponse, Stream");
+        var serializedResult = await serializer.SerializeAsync(request, result);
+
+        return serializedResult.Adjust(adjustments)
+                               .Build();
     }
 
     #endregion

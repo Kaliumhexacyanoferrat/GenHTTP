@@ -11,12 +11,12 @@ namespace GenHTTP.Modules.Webservices.Provider;
 
 public sealed class ServiceResourceBuilder : IHandlerBuilder<ServiceResourceBuilder>
 {
-
-    private readonly List<IConcernBuilder> _Concerns = new();
+    private readonly List<IConcernBuilder> _Concerns = [];
 
     private IBuilder<FormatterRegistry>? _Formatters;
 
     private IBuilder<InjectionRegistry>? _Injectors;
+
     private object? _Instance;
 
     private IBuilder<SerializationRegistry>? _Serializers;

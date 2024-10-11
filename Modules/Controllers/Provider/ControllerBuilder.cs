@@ -11,15 +11,15 @@ namespace GenHTTP.Modules.Controllers.Provider;
 
 public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>
 {
-
-    private readonly List<IConcernBuilder> _Concerns = new();
+    private readonly List<IConcernBuilder> _Concerns = [];
 
     private IBuilder<FormatterRegistry>? _Formatters;
 
     private IBuilder<InjectionRegistry>? _Injection;
 
-    private object? _Instance;
     private IBuilder<SerializationRegistry>? _Serializers;
+
+    private object? _Instance;
 
     #region Functionality
 

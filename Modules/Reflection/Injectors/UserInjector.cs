@@ -15,7 +15,7 @@ public class UserInjector<T> : IParameterInjector where T : IUser
 
     #region Functionality
 
-    public object? GetValue(IHandler handler, IRequest request, Type targetType)
+    public object GetValue(IHandler handler, IRequest request, Type targetType)
     {
         if (request.Properties.TryGet<T>("__AUTH_USER", out var user))
         {

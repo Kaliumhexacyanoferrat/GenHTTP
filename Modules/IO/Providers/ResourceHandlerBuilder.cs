@@ -6,7 +6,7 @@ namespace GenHTTP.Modules.IO.Providers;
 
 public sealed class ResourceHandlerBuilder : IHandlerBuilder<ResourceHandlerBuilder>
 {
-    private readonly List<IConcernBuilder> _Concerns = new();
+    private readonly List<IConcernBuilder> _Concerns = [];
 
     private IResourceTree? _Tree;
 

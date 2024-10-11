@@ -11,11 +11,11 @@ namespace GenHTTP.Modules.Functional.Provider;
 
 public class InlineBuilder : IHandlerBuilder<InlineBuilder>
 {
-    private static readonly HashSet<FlexibleRequestMethod> ALL_METHODS = new(Enum.GetValues<RequestMethod>().Select(m => FlexibleRequestMethod.Get(m)));
+    private static readonly HashSet<FlexibleRequestMethod> AllMethods = [..Enum.GetValues<RequestMethod>().Select(m => FlexibleRequestMethod.Get(m))];
 
-    private readonly List<IConcernBuilder> _Concerns = new();
+    private readonly List<IConcernBuilder> _Concerns = [];
 
-    private readonly List<InlineFunction> _Functions = new();
+    private readonly List<InlineFunction> _Functions = [];
 
     private IBuilder<FormatterRegistry>? _Formatters;
 
@@ -60,37 +60,29 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>
     /// Adds a route for a request of any type to the root of the handler.
     /// </summary>
     /// <param name="function">The logic to be executed</param>
-    /// <param name="ignoreContent">True to exclude the content from sitemaps etc.</param>
-    /// <param name="contentHints">A type implementing IContentHints to allow content discovery</param>
-    public InlineBuilder Any(Delegate function, bool ignoreContent = false, Type? contentHints = null) => On(function, ALL_METHODS, null, ignoreContent, contentHints);
+    public InlineBuilder Any(Delegate function) => On(function, AllMethods, null);
 
     /// <summary>
     /// Adds a route for a request of any type to the specified path.
     /// </summary>
     /// <param name="path">The path of the request to handle (e.g. "/my-method")</param>
     /// <param name="function">The logic to be executed</param>
-    /// <param name="ignoreContent">True to exclude the content from sitemaps etc.</param>
-    /// <param name="contentHints">A type implementing IContentHints to allow content discovery</param>
-    public InlineBuilder Any(string path, Delegate function, bool ignoreContent = false, Type? contentHints = null) => On(function, ALL_METHODS, path, ignoreContent, contentHints);
+    public InlineBuilder Any(string path, Delegate function) => On(function, AllMethods, path);
 
     /// <summary>
     /// Adds a route for a GET request to the root of the handler.
     /// </summary>
     /// <param name="function">The logic to be executed</param>
-    /// <param name="ignoreContent">True to exclude the content from sitemaps etc.</param>
-    /// <param name="contentHints">A type implementing IContentHints to allow content discovery</param>
-    public InlineBuilder Get(Delegate function, bool ignoreContent = false, Type? contentHints = null) => On(function, new HashSet<FlexibleRequestMethod>
-                                                                                                                 { FlexibleRequestMethod.Get(RequestMethod.Get) }, null, ignoreContent, contentHints);
+    public InlineBuilder Get(Delegate function) => On(function, new HashSet<FlexibleRequestMethod>
+                                                          { FlexibleRequestMethod.Get(RequestMethod.Get) }, null);
 
     /// <summary>
     /// Adds a route for a GET request to the specified path.
     /// </summary>
     /// <param name="path">The path of the request to handle (e.g. "/my-method")</param>
     /// <param name="function">The logic to be executed</param>
-    /// <param name="ignoreContent">True to exclude the content from sitemaps etc.</param>
-    /// <param name="contentHints">A type implementing IContentHints to allow content discovery</param>
-    public InlineBuilder Get(string path, Delegate function, bool ignoreContent = false, Type? contentHints = null) => On(function, new HashSet<FlexibleRequestMethod>
-                                                                                                                              { FlexibleRequestMethod.Get(RequestMethod.Get) }, path, ignoreContent, contentHints);
+    public InlineBuilder Get(string path, Delegate function) => On(function, new HashSet<FlexibleRequestMethod>
+                                                                       { FlexibleRequestMethod.Get(RequestMethod.Get) }, path);
 
     /// <summary>
     /// Adds a route for a HEAD request to the root of the handler.
@@ -154,11 +146,9 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>
     /// <param name="function">The logic to be executed</param>
     /// <param name="methods">The HTTP verbs to respond to</param>
     /// <param name="path">The path which needs to be specified by the client to call this logic</param>
-    /// <param name="ignoreContent">True to exclude the content from sitemaps etc.</param>
-    /// <param name="contentHints">A type implementing IContentHints to allow content discovery</param>
-    public InlineBuilder On(Delegate function, HashSet<FlexibleRequestMethod>? methods = null, string? path = null, bool ignoreContent = false, Type? contentHints = null)
+    public InlineBuilder On(Delegate function, HashSet<FlexibleRequestMethod>? methods = null, string? path = null)
     {
-        var requestMethods = methods ?? new HashSet<FlexibleRequestMethod>();
+        var requestMethods = methods ?? [];
 
         if (requestMethods.Count == 1 && requestMethods.Contains(FlexibleRequestMethod.Get(RequestMethod.Get)))
         {
@@ -170,7 +160,7 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>
             path = path[1..];
         }
 
-        var config = new MethodConfiguration(requestMethods, ignoreContent, contentHints);
+        var config = new MethodConfiguration(requestMethods);
 
         _Functions.Add(new InlineFunction(path, config, function));
 

@@ -21,7 +21,7 @@ public sealed class MemoryCache<T> : ICache<T>
                 return new ValueTask<T[]>(entries.Values.ToArray());
             }
 
-            return new ValueTask<T[]>(Array.Empty<T>());
+            return new ValueTask<T[]>([]);
         }
         finally
         {
@@ -57,18 +57,19 @@ public sealed class MemoryCache<T> : ICache<T>
 
         try
         {
-            if (!_Cache.ContainsKey(key))
+            if (!_Cache.TryGetValue(key, out var value))
             {
-                _Cache[key] = new Dictionary<string, T>();
+                value = new Dictionary<string, T>();
+                _Cache[key] = value;
             }
 
             if (entry != null)
             {
-                _Cache[key][variation] = entry;
+                value[variation] = entry;
             }
             else
             {
-                _Cache[key].Remove(variation);
+                value.Remove(variation);
             }
 
             return new ValueTask();

@@ -26,7 +26,7 @@ public static class Extensions
     /// </summary>
     /// <param name="name">The name to generate the expression from</param>
     /// <returns>The newly created expression</returns>
-    public static string ToParameter(this string name) => @$"(?<{name}>[^/]+)";
+    public static string ToParameter(this string name) => $"(?<{name}>[^/]+)";
 
     public static bool IsAsyncGeneric(this Type resultType) => resultType.IsAssignableToGenericType(typeof(ValueTask<>)) || resultType.IsAssignableToGenericType(typeof(Task<>));
 
@@ -56,4 +56,5 @@ public static class Extensions
 
         return IsAssignableToGenericType(baseType, genericType);
     }
+
 }

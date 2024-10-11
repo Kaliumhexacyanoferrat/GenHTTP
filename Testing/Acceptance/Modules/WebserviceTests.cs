@@ -220,8 +220,8 @@ public sealed class WebserviceTests
 
             Assert.IsNotNull(result);
 
-            Assert.AreEqual(1, result!.ID);
-            Assert.AreEqual(1234.56, result!.Nullable);
+            Assert.AreEqual(1, result.ID);
+            Assert.AreEqual(1234.56, result.Nullable);
         });
     }
 

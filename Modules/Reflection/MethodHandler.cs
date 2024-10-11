@@ -22,9 +22,9 @@ namespace GenHTTP.Modules.Reflection;
 /// </remarks>
 public sealed class MethodHandler : IHandler
 {
-    private static readonly object?[] NO_ARGUMENTS = Array.Empty<object?>();
+    private static readonly object?[] NoArguments = [];
 
-    private static readonly Type? VOID_TASK_RESULT = Type.GetType("System.Threading.Tasks.VoidTaskResult");
+    private static readonly Type? VoidTaskResult = Type.GetType("System.Threading.Tasks.VoidTaskResult");
 
     #region Initialization
 
@@ -45,8 +45,6 @@ public sealed class MethodHandler : IHandler
         ResponseProvider = responseProvider;
 
         Routing = routing;
-
-        ID = Guid.NewGuid();
     }
 
     #endregion
@@ -60,8 +58,6 @@ public sealed class MethodHandler : IHandler
     public IMethodConfiguration Configuration { get; }
 
     public MethodInfo Method { get; }
-
-    private Guid ID { get; }
 
     private Func<object> InstanceProvider { get; }
 
@@ -212,7 +208,7 @@ public sealed class MethodHandler : IHandler
             return targetArguments;
         }
 
-        return NO_ARGUMENTS;
+        return NoArguments;
     }
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
@@ -250,7 +246,7 @@ public sealed class MethodHandler : IHandler
 
             await task;
 
-            if (type.GenericTypeArguments.Length == 1 && type.GenericTypeArguments[0] == VOID_TASK_RESULT)
+            if (type.GenericTypeArguments.Length == 1 && type.GenericTypeArguments[0] == VoidTaskResult)
             {
                 return null;
             }

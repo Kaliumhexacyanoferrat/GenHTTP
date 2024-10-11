@@ -8,9 +8,9 @@ namespace GenHTTP.Modules.Compression.Providers;
 
 public sealed class CompressionConcern : IConcern
 {
-    private const string ACCEPT_ENCODING = "Accept-Encoding";
+    private const string AcceptEncoding = "Accept-Encoding";
 
-    private const string VARY = "Vary";
+    private const string Vary = "Vary";
 
     #region Initialization
 
@@ -51,7 +51,7 @@ public sealed class CompressionConcern : IConcern
             {
                 if (response.Content is not null && ShouldCompress(request.Target.Path, response.ContentType?.KnownType))
                 {
-                    if (request.Headers.TryGetValue(ACCEPT_ENCODING, out var header))
+                    if (request.Headers.TryGetValue(AcceptEncoding, out var header))
                     {
                         if (!string.IsNullOrEmpty(header))
                         {
@@ -65,13 +65,13 @@ public sealed class CompressionConcern : IConcern
                                     response.ContentEncoding = algorithm.Name;
                                     response.ContentLength = null;
 
-                                    if (response.Headers.TryGetValue(VARY, out var existing))
+                                    if (response.Headers.TryGetValue(Vary, out var existing))
                                     {
-                                        response.Headers[VARY] = $"{existing}, {ACCEPT_ENCODING}";
+                                        response.Headers[Vary] = $"{existing}, {AcceptEncoding}";
                                     }
                                     else
                                     {
-                                        response.Headers[VARY] = ACCEPT_ENCODING;
+                                        response.Headers[Vary] = AcceptEncoding;
                                     }
 
                                     break;
@@ -110,6 +110,7 @@ public sealed class CompressionConcern : IConcern
                 case ContentType.ImageBmp:
                 case ContentType.TextXml:
                 case ContentType.TextJavaScript:
+
                     {
                         return true;
                     }

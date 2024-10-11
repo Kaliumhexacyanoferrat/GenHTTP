@@ -10,9 +10,9 @@ namespace GenHTTP.Modules.Conversion.Serializers.Forms;
 
 public sealed class FormFormat : ISerializationFormat
 {
-    private static readonly Type[] EMPTY_CONSTRUCTOR = Array.Empty<Type>();
+    private static readonly Type[] EmptyConstructor = [];
 
-    private static readonly object[] EMPTY_ARGS = Array.Empty<object>();
+    private static readonly object[] EmptyArgs = [];
 
     #region Get-/Setters
 
@@ -41,14 +41,14 @@ public sealed class FormFormat : ISerializationFormat
 
         var query = HttpUtility.ParseQueryString(content);
 
-        var constructor = type.GetConstructor(EMPTY_CONSTRUCTOR);
+        var constructor = type.GetConstructor(EmptyConstructor);
 
         if (constructor is null)
         {
             throw new ProviderException(ResponseStatus.InternalServerError, $"Instance of type '{type}' cannot be constructed as there is no parameterless constructor");
         }
 
-        var result = constructor.Invoke(EMPTY_ARGS);
+        var result = constructor.Invoke(EmptyArgs);
 
         foreach (var key in query.AllKeys)
         {
@@ -68,10 +68,7 @@ public sealed class FormFormat : ISerializationFormat
                     {
                         var field = type.GetField(key, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 
-                        if (field is not null)
-                        {
-                            field.SetValue(result, value.ConvertTo(field.FieldType, Formatters));
-                        }
+                        field?.SetValue(result, value.ConvertTo(field.FieldType, Formatters));
                     }
                 }
             }

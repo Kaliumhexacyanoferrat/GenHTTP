@@ -6,13 +6,13 @@ namespace GenHTTP.Modules.IO.Strings;
 
 public sealed class StringResource : IResource
 {
-    private static readonly Encoding UTF8 = Encoding.UTF8;
+    private static readonly Encoding Utf8 = Encoding.UTF8;
 
     #region Initialization
 
     public StringResource(string content, string? name, FlexibleContentType? contentType, DateTime? modified)
     {
-        Content = UTF8.GetBytes(content);
+        Content = Utf8.GetBytes(content);
         Checksum = (ulong)content.GetHashCode();
 
         Name = name;

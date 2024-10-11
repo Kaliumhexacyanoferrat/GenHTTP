@@ -61,15 +61,7 @@ public sealed class SerializationRegistry
         return GetFormat(Default);
     }
 
-    private ISerializationFormat? GetFormat(FlexibleContentType contentType)
-    {
-        if (Formats.TryGetValue(contentType, out var format))
-        {
-            return format;
-        }
-
-        return null;
-    }
+    private ISerializationFormat? GetFormat(FlexibleContentType contentType) => Formats.GetValueOrDefault(contentType);
 
     #endregion
 

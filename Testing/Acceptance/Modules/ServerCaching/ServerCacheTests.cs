@@ -419,11 +419,11 @@ public class ServerCacheTests
     {
         var tempDir = new DirectoryInfo(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()));
 
-        return new[]
-        {
+        return
+        [
             ServerCache.Memory(),
             ServerCache.TemporaryFiles(),
             ServerCache.Persistent(tempDir)
-        };
+        ];
     }
 }

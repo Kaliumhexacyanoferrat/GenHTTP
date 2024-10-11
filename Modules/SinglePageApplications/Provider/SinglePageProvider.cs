@@ -7,7 +7,7 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider;
 
 public sealed class SinglePageProvider : IHandler
 {
-    private static readonly HashSet<string> INDEX_FILES = new(StringComparer.InvariantCultureIgnoreCase)
+    private static readonly HashSet<string> IndexFiles = new(StringComparer.InvariantCultureIgnoreCase)
     {
         "index.html", "index.htm"
     };
@@ -78,7 +78,7 @@ public sealed class SinglePageProvider : IHandler
     {
         if (_Index == null)
         {
-            foreach (var index in INDEX_FILES)
+            foreach (var index in IndexFiles)
             {
                 IResource? indexFile;
 

@@ -111,24 +111,10 @@ public sealed class CorsPolicyHandler : IConcern
     }
 
     private static string GetListOrWildcard(List<string>? values)
-    {
-        if (values is not null)
-        {
-            return string.Join(", ", values);
-        }
-
-        return ALLOW_ANY;
-    }
+        => values is not null ? string.Join(", ", values) : ALLOW_ANY;
 
     private static string GetListOrWildcard(List<FlexibleRequestMethod>? values)
-    {
-        if (values is not null)
-        {
-            return string.Join(", ", values.Select(v => v.RawMethod.ToUpper()));
-        }
-
-        return ALLOW_ANY;
-    }
+        => values is not null ? string.Join(", ", values.Select(v => v.RawMethod.ToUpper())) : ALLOW_ANY;
 
     private static bool HasValue<T>(List<T>? list) => list is null || list.Count > 0;
 

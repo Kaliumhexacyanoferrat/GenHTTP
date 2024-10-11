@@ -43,7 +43,7 @@ internal sealed class ClientResponseContent : IResponseContent, IDisposable
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
-        using var source = await Message.Content.ReadAsStreamAsync();
+        await using var source = await Message.Content.ReadAsStreamAsync();
 
         await source.CopyPooledAsync(target, bufferSize);
     }
@@ -68,7 +68,6 @@ internal sealed class ClientResponseContent : IResponseContent, IDisposable
     public void Dispose()
     {
         Dispose(disposing: true);
-        GC.SuppressFinalize(this);
     }
 
     #endregion

@@ -10,7 +10,7 @@ namespace GenHTTP.Modules.Authentication;
 /// </summary>
 public static class BasicAuthentication
 {
-    private const string DEFAULT_REALM = "Restricted Area";
+    private const string DefaultRealm = "Restricted Area";
 
     #region Builder
 
@@ -22,7 +22,7 @@ public static class BasicAuthentication
     /// <param name="authenticator">The lambda to be evaluated</param>
     /// <param name="realm">The name of the realm returned to the client</param>
     /// <returns>The newly created basic authentication concern</returns>
-    public static BasicAuthenticationConcernBuilder Create(Func<string, string, ValueTask<IUser?>> authenticator, string realm = DEFAULT_REALM) => new BasicAuthenticationConcernBuilder().Handler(authenticator)
+    public static BasicAuthenticationConcernBuilder Create(Func<string, string, ValueTask<IUser?>> authenticator, string realm = DefaultRealm) => new BasicAuthenticationConcernBuilder().Handler(authenticator)
                                                                                                                                                                                           .Realm(realm);
 
     /// <summary>
@@ -31,7 +31,7 @@ public static class BasicAuthentication
     /// </summary>
     /// <param name="realm">The name of the realm returned to the client</param>
     /// <returns>The newly created basic authentication concern</returns>
-    public static BasicAuthenticationKnownUsersBuilder Create(string realm = DEFAULT_REALM) => new BasicAuthenticationKnownUsersBuilder().Realm(realm);
+    public static BasicAuthenticationKnownUsersBuilder Create(string realm = DefaultRealm) => new BasicAuthenticationKnownUsersBuilder().Realm(realm);
 
     #endregion
 
@@ -43,7 +43,7 @@ public static class BasicAuthentication
     /// </summary>
     /// <param name="authenticator">The lambda to be evaluated on request</param>
     /// <param name="realm">The name of the realm to be returned to the client</param>
-    public static T Authentication<T>(this T builder, Func<string, string, ValueTask<IUser?>> authenticator, string realm = DEFAULT_REALM) where T : IHandlerBuilder<T>
+    public static T Authentication<T>(this T builder, Func<string, string, ValueTask<IUser?>> authenticator, string realm = DefaultRealm) where T : IHandlerBuilder<T>
     {
         builder.Add(Create(authenticator, realm));
         return builder;

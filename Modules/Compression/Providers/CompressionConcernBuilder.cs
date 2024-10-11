@@ -7,7 +7,7 @@ namespace GenHTTP.Modules.Compression.Providers;
 
 public sealed class CompressionConcernBuilder : IConcernBuilder
 {
-    private readonly List<ICompressionAlgorithm> _Algorithms = new();
+    private readonly List<ICompressionAlgorithm> _Algorithms = [];
 
     private CompressionLevel _Level = CompressionLevel.Fastest;
 

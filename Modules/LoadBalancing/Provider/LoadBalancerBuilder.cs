@@ -5,11 +5,11 @@ namespace GenHTTP.Modules.LoadBalancing.Provider;
 
 public sealed class LoadBalancerBuilder : IHandlerBuilder<LoadBalancerBuilder>
 {
+    private static readonly PriorityEvaluation DefaultPriority = _ => Priority.Medium;
 
-    private static readonly PriorityEvaluation DEFAULT_PRIORITY = _ => Priority.Medium;
-    private readonly List<IConcernBuilder> _Concerns = new();
+    private readonly List<IConcernBuilder> _Concerns = [];
 
-    private readonly List<(IHandlerBuilder, PriorityEvaluation)> _Nodes = new();
+    private readonly List<(IHandlerBuilder, PriorityEvaluation)> _Nodes = [];
 
     #region Functionality
 
@@ -21,7 +21,7 @@ public sealed class LoadBalancerBuilder : IHandlerBuilder<LoadBalancerBuilder>
 
     public LoadBalancerBuilder Add(IHandlerBuilder handler, PriorityEvaluation? priority = null)
     {
-        _Nodes.Add((handler, priority ?? DEFAULT_PRIORITY));
+        _Nodes.Add((handler, priority ?? DefaultPriority));
         return this;
     }
 

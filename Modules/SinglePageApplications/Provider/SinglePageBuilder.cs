@@ -6,10 +6,10 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider;
 
 public sealed class SinglePageBuilder : IHandlerBuilder<SinglePageBuilder>
 {
-
-    private readonly List<IConcernBuilder> _Concerns = new();
+    private readonly List<IConcernBuilder> _Concerns = [];
 
     private bool _ServerSideRouting;
+
     private IResourceTree? _Tree;
 
     #region Functionality

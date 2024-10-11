@@ -83,7 +83,7 @@ public sealed class BasicAuthenticationConcern : IConcern
 
             if (colon > -1 && str.Length > colon)
             {
-                credentials = (str.Substring(0, colon), str[(colon + 1)..]);
+                credentials = (str[..colon], str[(colon + 1)..]);
                 return true;
             }
 

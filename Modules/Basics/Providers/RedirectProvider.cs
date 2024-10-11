@@ -6,7 +6,7 @@ namespace GenHTTP.Modules.Basics.Providers;
 
 public sealed partial class RedirectProvider : IHandler
 {
-    private static readonly Regex PROTOCOL_MATCHER = CreateProtocolMatcher();
+    private static readonly Regex ProtocolMatcher = CreateProtocolMatcher();
 
     #region Get-/Setters
 
@@ -51,7 +51,7 @@ public sealed partial class RedirectProvider : IHandler
 
     private static string ResolveRoute(IRequest request, string route)
     {
-        if (PROTOCOL_MATCHER.IsMatch(route))
+        if (ProtocolMatcher.IsMatch(route))
         {
             return route;
         }

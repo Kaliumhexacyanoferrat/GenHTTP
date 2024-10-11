@@ -24,7 +24,7 @@ public sealed class LoadBalancerHandler : IHandler
 
     private readonly List<(IHandler, PriorityEvaluation)> _Nodes;
 
-    private static readonly Random _Random = new();
+    private static readonly Random Random = new();
 
     #endregion
 
@@ -42,8 +42,7 @@ public sealed class LoadBalancerHandler : IHandler
     {
         // get the handlers that share the highest priority
         var priorityGroup = _Nodes.GroupBy(n => n.Item2(request))
-                                  .OrderByDescending(n => n.Key)
-                                  .FirstOrDefault()?
+                                  .MaxBy(n => n.Key)?
                                   .Select(n => n.Item1)
                                   .ToList();
 
@@ -52,12 +51,12 @@ public sealed class LoadBalancerHandler : IHandler
             // let a random one handle the request
             if (priorityGroup.Count > 1)
             {
-                var index = _Random.Next(0, priorityGroup.Count);
+                var index = Random.Next(0, priorityGroup.Count);
 
                 return priorityGroup[index].HandleAsync(request);
             }
-            return priorityGroup.First()
-                                .HandleAsync(request);
+
+            return priorityGroup[0].HandleAsync(request);
         }
 
         return new ValueTask<IResponse?>();

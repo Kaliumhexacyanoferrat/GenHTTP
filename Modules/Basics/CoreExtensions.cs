@@ -1,6 +1,5 @@
 ﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Basics;
 
@@ -11,7 +10,7 @@ public static class CoreExtensions
 
     public static async ValueTask<string> GetResourceAsStringAsync(this IResource resourceProvider)
     {
-        using var stream = await resourceProvider.GetContentAsync();
+        await using var stream = await resourceProvider.GetContentAsync();
 
         return await new StreamReader(stream).ReadToEndAsync();
     }
@@ -41,11 +40,7 @@ public static class CoreExtensions
         {
             var pos = host.IndexOf(':');
 
-            if (pos > 0)
-            {
-                return host.Substring(0, pos);
-            }
-            return host;
+            return pos > 0 ? host[..pos] : host;
         }
 
         return null;
@@ -71,7 +66,7 @@ public static class CoreExtensions
 
     #region Content types
 
-    private static readonly Dictionary<string, ContentType> CONTENT_TYPES = new()
+    private static readonly Dictionary<string, ContentType> ContentTypes = new()
     {
         // CSS
         { "css", ContentType.TextCss },
@@ -140,113 +135,17 @@ public static class CoreExtensions
     {
         var extension = Path.GetExtension(fileName);
 
-        if (extension is not null && extension.Length > 1)
+        if (extension.Length > 1)
         {
             extension = extension[1..].ToLower();
 
-            if (CONTENT_TYPES.TryGetValue(extension, out var value))
+            if (ContentTypes.TryGetValue(extension, out var value))
             {
                 return value;
             }
         }
 
         return null;
-    }
-
-    #endregion
-
-    #region Routing
-
-    public static string RelativeTo(this WebPath path, WebPath target)
-    {
-        var common = CommonParts(path, target);
-
-        var hops = path.Parts.Count - common + (path.TrailingSlash ? 1 : 0) - 1;
-
-        var relativeParts = new List<WebPathPart>();
-
-        if (hops > 0)
-        {
-            for (var i = 0; i < hops; i++)
-            {
-                relativeParts.Add(new WebPathPart(".."));
-            }
-        }
-        else
-        {
-            relativeParts.Add(new WebPathPart("."));
-        }
-
-        var added = false;
-
-        for (var i = common; i < target.Parts.Count; i++)
-        {
-            relativeParts.Add(target.Parts[i]);
-            added = true;
-        }
-
-        var trailing = target.TrailingSlash || !added;
-
-        return new WebPath(relativeParts, trailing).ToString()[1..];
-    }
-
-    public static WebPath Combine(this WebPath path, WebPath target)
-    {
-        var parts = new List<WebPathPart>(path.Parts);
-
-        if (target.Parts.Count > 0)
-        {
-            var index = 0;
-
-            while (target.Parts.Count > index)
-            {
-                if (target.Parts[index] == ".")
-                {
-                    index++;
-                }
-                else if (target.Parts[index] == "..")
-                {
-                    if (parts.Count > 0)
-                    {
-                        parts.RemoveAt(parts.Count - 1);
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException($"Target path '{target}' does exceed the hierarchy levels of path '{path}' and cannot be combined");
-                    }
-
-                    index++;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            parts.AddRange(target.Parts.Skip(index));
-        }
-
-        return new WebPath(parts, target.TrailingSlash);
-    }
-
-    private static int CommonParts(WebPath one, WebPath two)
-    {
-        int common;
-
-        for (common = 0; common < one.Parts.Count; common++)
-        {
-            if (common >= two.Parts.Count)
-            {
-                return common;
-            }
-
-            if (!two.Parts[common].Equals(one.Parts[common]))
-            {
-                return common;
-            }
-        }
-
-        return common;
     }
 
     #endregion

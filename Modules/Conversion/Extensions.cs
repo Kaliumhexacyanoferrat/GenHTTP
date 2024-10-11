@@ -22,11 +22,8 @@ public static class Extensions
             {
                 return null;
             }
-            if (type == typeof(string))
-            {
-                return value;
-            }
-            return Activator.CreateInstance(type);
+
+            return type == typeof(string) ? value : Activator.CreateInstance(type);
         }
 
         try

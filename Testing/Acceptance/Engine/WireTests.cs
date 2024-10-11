@@ -158,7 +158,7 @@ public sealed class WireTests
 
         var stream = client.GetStream();
 
-        using var writer = new StreamWriter(stream, leaveOpen: true);
+        await using var writer = new StreamWriter(stream, leaveOpen: true);
 
         sender(writer);
 

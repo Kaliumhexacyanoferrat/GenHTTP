@@ -54,7 +54,7 @@ public sealed class EmbeddedResource : IResource
     {
         if (_Checksum is null)
         {
-            using var stream = TryGetStream();
+            await using var stream = TryGetStream();
 
             _Checksum = await stream.CalculateChecksumAsync() ?? throw new InvalidOperationException("Unable to calculate checksum of assembly resource");
         }
@@ -64,7 +64,7 @@ public sealed class EmbeddedResource : IResource
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
-        using var content = TryGetStream();
+        await using var content = TryGetStream();
 
         await content.CopyPooledAsync(target, bufferSize);
     }

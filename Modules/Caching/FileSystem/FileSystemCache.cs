@@ -6,7 +6,7 @@ namespace GenHTTP.Modules.Caching.FileSystem;
 
 public sealed class FileSystemCache<T> : ICache<T>
 {
-    private static readonly JsonSerializerOptions _Options = new()
+    private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNameCaseInsensitive = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -157,7 +157,7 @@ public sealed class FileSystemCache<T> : ICache<T>
 
                 var file = new FileInfo(Path.Combine(Directory.FullName, key, fileName));
 
-                using (var streamWriter = new StreamWriter(file.FullName, false))
+                await using (var streamWriter = new StreamWriter(file.FullName, false))
                 {
                     await asyncWriter(streamWriter.BaseStream);
                 }
@@ -172,7 +172,7 @@ public sealed class FileSystemCache<T> : ICache<T>
 
                 var file = new FileInfo(Path.Combine(Directory.FullName, key, newFile));
 
-                using (var stream = file.OpenWrite())
+                await using (var stream = file.OpenWrite())
                 {
                     await asyncWriter(stream);
                 }
@@ -196,9 +196,9 @@ public sealed class FileSystemCache<T> : ICache<T>
             {
                 return (T)(object)file.OpenRead();
             }
-            using var stream = file.OpenRead();
+            await using var stream = file.OpenRead();
 
-            return await JsonSerializer.DeserializeAsync<T>(stream, _Options);
+            return await JsonSerializer.DeserializeAsync<T>(stream, Options);
         }
 
         return default;
@@ -208,7 +208,7 @@ public sealed class FileSystemCache<T> : ICache<T>
     {
         var file = new FileInfo(Path.Combine(Directory.FullName, key, fileName));
 
-        using var writer = new StreamWriter(file.FullName, false);
+        await using var writer = new StreamWriter(file.FullName, false);
 
         if (typeof(Stream).IsAssignableFrom(typeof(T)))
         {
@@ -219,7 +219,7 @@ public sealed class FileSystemCache<T> : ICache<T>
         }
         else
         {
-            await JsonSerializer.SerializeAsync(writer.BaseStream, value, _Options);
+            await JsonSerializer.SerializeAsync(writer.BaseStream, value, Options);
         }
     }
 
@@ -229,9 +229,9 @@ public sealed class FileSystemCache<T> : ICache<T>
 
         if (indexFile.Exists)
         {
-            using var stream = indexFile.OpenRead();
+            await using var stream = indexFile.OpenRead();
 
-            return await JsonSerializer.DeserializeAsync<Index>(stream, _Options) ?? new Index(new Dictionary<string, string>(), new Dictionary<string, DateTime>());
+            return await JsonSerializer.DeserializeAsync<Index>(stream, Options) ?? new Index(new Dictionary<string, string>(), new Dictionary<string, DateTime>());
         }
 
         return new Index(new Dictionary<string, string>(), new Dictionary<string, DateTime>());
@@ -243,9 +243,9 @@ public sealed class FileSystemCache<T> : ICache<T>
 
         var indexFile = new FileInfo(Path.Combine(Directory.FullName, key, "index.json"));
 
-        using (var writer = new StreamWriter(indexFile.FullName, false))
+        await using (var writer = new StreamWriter(indexFile.FullName, false))
         {
-            await JsonSerializer.SerializeAsync(writer.BaseStream, index, _Options);
+            await JsonSerializer.SerializeAsync(writer.BaseStream, index, Options);
         }
 
         indexFile.Refresh();

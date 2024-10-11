@@ -5,7 +5,7 @@ namespace GenHTTP.Modules.LoadBalancing.Provider;
 
 public sealed class LoadBalancerRedirectionBuilder : IHandlerBuilder<LoadBalancerRedirectionBuilder>
 {
-    private readonly List<IConcernBuilder> _Concerns = new();
+    private readonly List<IConcernBuilder> _Concerns = [];
 
     private string? _Root;
 

@@ -63,7 +63,7 @@ public class RangedStreamTests
         Assert.IsFalse(stream.CanRead);
         Assert.IsFalse(stream.CanSeek);
 
-        Assert.ThrowsException<NotSupportedException>(() => stream.Read(Array.Empty<byte>(), 0, 1));
+        Assert.ThrowsException<NotSupportedException>(() => stream.Read([], 0, 1));
 
         Assert.ThrowsException<NotSupportedException>(() => stream.Seek(0, SeekOrigin.Begin));
 

@@ -19,7 +19,7 @@ public sealed class ResourceTest
 
         Assert.AreEqual(ContentType.TextPlain, resource.ContentType?.KnownType);
 
-        using var content = await resource.GetContentAsync();
+        await using var content = await resource.GetContentAsync();
 
         Assert.AreEqual(11, content.Length);
 
@@ -41,7 +41,7 @@ public sealed class ResourceTest
             var resource = Resource.FromFile(file)
                                    .Build();
 
-            using var content = await resource.GetContentAsync();
+            await using var content = await resource.GetContentAsync();
 
             Assert.AreEqual(11, content.Length);
 
@@ -67,7 +67,7 @@ public sealed class ResourceTest
 
         Assert.AreEqual(ContentType.TextPlain, resource.ContentType?.KnownType);
 
-        using var content = await resource.GetContentAsync();
+        await using var content = await resource.GetContentAsync();
 
         Assert.AreEqual(16, content.Length);
 

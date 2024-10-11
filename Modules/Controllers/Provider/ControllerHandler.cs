@@ -11,9 +11,9 @@ namespace GenHTTP.Modules.Controllers.Provider;
 
 public sealed partial class ControllerHandler : IHandler
 {
-    private static readonly MethodRouting EMPTY = new("/", "^(/|)$", null, true, false);
+    private static readonly MethodRouting Empty = new("^(/|)$", true, false);
 
-    private static readonly Regex HYPEN_MATCHER = CreateHypenMatcher();
+    private static readonly Regex HyphenMatcher = CreateHyphenMatcher();
 
     #region Get-/Setters
 
@@ -60,19 +60,19 @@ public sealed partial class ControllerHandler : IHandler
     private static MethodRouting DeterminePath(MethodInfo method, List<string> arguments)
     {
         var pathArgs = string.Join('/', arguments.Select(a => a.ToParameter()));
-        var rawArgs = string.Join('/', arguments.Select(a => $":{a}"));
 
         var isWildcard = PathArguments.CheckWildcardRoute(method.ReturnType);
 
         if (method.Name == "Index")
         {
-            return pathArgs.Length > 0 ? new MethodRouting($"/{rawArgs}/", $"^/{pathArgs}/", null, false, isWildcard) : EMPTY;
+            return pathArgs.Length > 0 ? new MethodRouting($"^/{pathArgs}/", false, isWildcard) : Empty;
         }
+
         var name = HypenCase(method.Name);
 
         var path = $"^/{name}";
 
-        return pathArgs.Length > 0 ? new MethodRouting($"/{name}/{rawArgs}/", $"{path}/{pathArgs}/", name, false, isWildcard) : new MethodRouting($"/{name}", $"{path}/", name, false, isWildcard);
+        return pathArgs.Length > 0 ? new MethodRouting( $"{path}/{pathArgs}/", false, isWildcard) : new MethodRouting($"{path}/", false, isWildcard);
     }
 
     private List<string> FindPathArguments(MethodInfo method)
@@ -107,10 +107,10 @@ public sealed partial class ControllerHandler : IHandler
         return found;
     }
 
-    private static string HypenCase(string input) => HYPEN_MATCHER.Replace(input, "$1-$2").ToLowerInvariant();
+    private static string HypenCase(string input) => HyphenMatcher.Replace(input, "$1-$2").ToLowerInvariant();
 
-    [GeneratedRegex(@"([a-z])([A-Z0-9]+)")]
-    private static partial Regex CreateHypenMatcher();
+    [GeneratedRegex("([a-z])([A-Z0-9]+)")]
+    private static partial Regex CreateHyphenMatcher();
 
     #endregion
 

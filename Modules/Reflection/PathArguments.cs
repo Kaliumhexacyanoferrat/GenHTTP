@@ -4,13 +4,16 @@ using GenHTTP.Api.Content;
 
 namespace GenHTTP.Modules.Reflection;
 
-public static class PathArguments
+public static partial class PathArguments
 {
-    private static readonly MethodRouting EMPTY = new("/", "^(/|)$", null, true, false);
+    private static readonly MethodRouting Empty = new("^(/|)$", true, false);
 
-    private static readonly MethodRouting EMPTY_WILDCARD = new("/", "^.*", null, true, true);
+    private static readonly MethodRouting EmptyWildcard = new("^.*", true, true);
 
-    private static readonly Regex VAR_PATTERN = new(@"\:([a-z]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    private static readonly Regex VarPattern = CreateVarPattern();
+
+    [GeneratedRegex(@"\:([a-z]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex CreateVarPattern();
 
     /// <summary>
     /// Parses the given path and returns a routing structure
@@ -37,19 +40,17 @@ public static class PathArguments
             }
 
             // convert parameters of the format ":var" into appropriate groups
-            foreach (Match match in VAR_PATTERN.Matches(path))
+            foreach (Match match in VarPattern.Matches(path))
             {
                 builder.Replace(match.Value, match.Groups[1].Value.ToParameter());
             }
 
-            var splitted = path.Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-
             var end = wildcard ? "(/|)" : "(/|)$";
 
-            return new MethodRouting(path, $"^/{builder}{end}", splitted.Length > 0 ? splitted[0] : null, false, wildcard);
+            return new MethodRouting($"^/{builder}{end}", false, wildcard);
         }
 
-        return wildcard ? EMPTY_WILDCARD : EMPTY;
+        return wildcard ? EmptyWildcard : Empty;
     }
 
     /// <summary>
@@ -78,4 +79,5 @@ public static class PathArguments
     }
 
     private static bool IsHandlerType(Type returnType) => typeof(IHandlerBuilder).IsAssignableFrom(returnType) || typeof(IHandler).IsAssignableFrom(returnType);
+
 }

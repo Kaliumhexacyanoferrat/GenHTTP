@@ -5,11 +5,11 @@ namespace GenHTTP.Modules.ReverseProxy.Provider;
 
 public sealed class ReverseProxyBuilder : IHandlerBuilder<ReverseProxyBuilder>
 {
-
-    private readonly List<IConcernBuilder> _Concerns = new();
+    private readonly List<IConcernBuilder> _Concerns = [];
 
     private TimeSpan _ConnectTimeout = TimeSpan.FromSeconds(10);
     private TimeSpan _ReadTimeout = TimeSpan.FromSeconds(60);
+
     private string? _Upstream;
 
     #region Functionality

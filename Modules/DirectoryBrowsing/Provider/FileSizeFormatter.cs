@@ -4,14 +4,13 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider;
 
 public static class FileSizeFormatter
 {
+    private const double Kilobytes = 1024.0;
 
-    private const double KILOBYTES = 1024.0;
+    private const double Megabytes = Kilobytes * 1024;
 
-    private const double MEGABYTES = KILOBYTES * 1024;
+    private const double Gigabytes = Megabytes * 1024;
 
-    private const double GIGABYTES = MEGABYTES * 1024;
-
-    private const double TERABYTES = GIGABYTES * 1024;
+    private const double Terabytes = Gigabytes * 1024;
 
     public static string Format(ulong? bytes)
     {
@@ -19,21 +18,21 @@ public static class FileSizeFormatter
         {
             var b = (long)bytes;
 
-            if (bytes > TERABYTES)
+            if (bytes > Terabytes)
             {
-                return Math.Round(b / TERABYTES, 2).ToString(CultureInfo.InvariantCulture) + " TB";
+                return Math.Round(b / Terabytes, 2).ToString(CultureInfo.InvariantCulture) + " TB";
             }
-            if (bytes > GIGABYTES)
+            if (bytes > Gigabytes)
             {
-                return Math.Round(b / GIGABYTES, 2).ToString(CultureInfo.InvariantCulture) + " GB";
+                return Math.Round(b / Gigabytes, 2).ToString(CultureInfo.InvariantCulture) + " GB";
             }
-            if (bytes > MEGABYTES)
+            if (bytes > Megabytes)
             {
-                return Math.Round(b / MEGABYTES, 2).ToString(CultureInfo.InvariantCulture) + " MB";
+                return Math.Round(b / Megabytes, 2).ToString(CultureInfo.InvariantCulture) + " MB";
             }
-            if (bytes > KILOBYTES)
+            if (bytes > Kilobytes)
             {
-                return Math.Round(b / KILOBYTES, 2).ToString(CultureInfo.InvariantCulture) + " KB";
+                return Math.Round(b / Kilobytes, 2).ToString(CultureInfo.InvariantCulture) + " KB";
             }
 
             return $"{bytes} Bytes";

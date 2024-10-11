@@ -40,7 +40,7 @@ public sealed class FormContent : IResponseContent
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
-        using var writer = new StreamWriter(target, Encoding.UTF8, (int)bufferSize, true);
+        await using var writer = new StreamWriter(target, Encoding.UTF8, (int)bufferSize, true);
 
         var query = HttpUtility.ParseQueryString(string.Empty);
 
@@ -54,9 +54,9 @@ public sealed class FormContent : IResponseContent
             SetValue(query, field.Name, field.GetValue(Data), field.FieldType);
         }
 
-        var replaced = query?.ToString()?
-                            .Replace("+", "%20")
-                            .Replace("%2b", "+");
+        var replaced = query.ToString()?
+                                  .Replace("+", "%20")
+                                  .Replace("%2b", "+");
 
         await writer.WriteAsync(replaced);
     }

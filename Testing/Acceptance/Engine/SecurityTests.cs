@@ -181,7 +181,7 @@ public sealed class SecurityTests
 
     private static async ValueTask<X509Certificate2> GetCertificate()
     {
-        using var stream = await Resource.FromAssembly("Certificate.pfx").Build().GetContentAsync();
+        await using var stream = await Resource.FromAssembly("Certificate.pfx").Build().GetContentAsync();
 
         using var mem = new MemoryStream();
 

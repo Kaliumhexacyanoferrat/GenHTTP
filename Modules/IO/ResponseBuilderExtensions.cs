@@ -7,13 +7,13 @@ namespace GenHTTP.Modules.IO;
 
 public static class ResponseBuilderExtensions
 {
-    private static readonly FlexibleContentType _TextPlainType = new(ContentType.TextPlain, "UTF-8");
+    private static readonly FlexibleContentType TextPlainType = new(ContentType.TextPlain, "UTF-8");
 
     /// <summary>
     /// Sends the given string to the client.
     /// </summary>
     /// <param name="text">The string to be sent</param>
-    public static IResponseBuilder Content(this IResponseBuilder builder, string text) => builder.Content(Resource.FromString(text).Type(_TextPlainType).Build());
+    public static IResponseBuilder Content(this IResponseBuilder builder, string text) => builder.Content(Resource.FromString(text).Type(TextPlainType).Build());
 
     /// <summary>
     /// Sends the given resource to the client.

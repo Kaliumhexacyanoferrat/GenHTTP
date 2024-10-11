@@ -6,8 +6,8 @@ namespace GenHTTP.Modules.IO.Providers;
 
 public sealed class ContentProviderBuilder : IHandlerBuilder<ContentProviderBuilder>
 {
+    private readonly List<IConcernBuilder> _Concerns = [];
 
-    private readonly List<IConcernBuilder> _Concerns = new();
     private IResource? _ResourceProvider;
 
     #region Functionality

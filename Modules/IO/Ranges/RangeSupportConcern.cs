@@ -6,7 +6,7 @@ namespace GenHTTP.Modules.IO.Ranges;
 
 public partial class RangeSupportConcern : IConcern
 {
-    private static readonly Regex _PATTERN = CreatePattern();
+    private static readonly Regex Pattern = CreatePattern();
 
     #region Get-/Setters
 
@@ -51,7 +51,7 @@ public partial class RangeSupportConcern : IConcern
 
                         if (request.Headers.TryGetValue("Range", out var requested))
                         {
-                            var match = _PATTERN.Match(requested);
+                            var match = Pattern.Match(requested);
 
                             if (match.Success)
                             {
@@ -65,18 +65,18 @@ public partial class RangeSupportConcern : IConcern
                                 {
                                     if (end == null)
                                     {
-                                        return GetRangeFromStart(request, response, length!.Value, start!.Value);
+                                        return GetRangeFromStart(request, response, length.Value, start!.Value);
                                     }
                                     if (start == null)
                                     {
-                                        return GetRangeFromEnd(request, response, length!.Value, end!.Value);
+                                        return GetRangeFromEnd(request, response, length.Value, end.Value);
                                     }
-                                    return GetFullRange(request, response, length!.Value, start!.Value, end!.Value);
+                                    return GetFullRange(request, response, length.Value, start.Value, end.Value);
                                 }
                             }
                             else
                             {
-                                return NotSatisfiable(request, length!.Value);
+                                return NotSatisfiable(request, length.Value);
                             }
                         }
                     }

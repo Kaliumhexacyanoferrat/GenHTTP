@@ -67,7 +67,7 @@ public sealed class FileResource : IResource
             var length = Length;
 
             hash = hash * 23 + (ulong)Modified.GetHashCode();
-            hash = hash * 23 + (length != null ? length.Value : 0);
+            hash = hash * 23 + (length ?? 0);
 
             return new ValueTask<ulong>(hash);
         }
@@ -75,7 +75,7 @@ public sealed class FileResource : IResource
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
-        using var content = File.OpenRead();
+        await using var content = File.OpenRead();
 
         await content.CopyPooledAsync(target, bufferSize);
     }

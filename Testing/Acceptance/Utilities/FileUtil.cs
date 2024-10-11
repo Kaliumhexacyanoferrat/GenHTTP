@@ -15,7 +15,7 @@ public static class FileUtil
 
     public static async ValueTask WriteTextAsync(string path, string content)
     {
-        using var file = File.Create(path, 4096, FileOptions.WriteThrough);
+        await using var file = File.Create(path, 4096, FileOptions.WriteThrough);
 
         await file.WriteAsync(Encoding.UTF8.GetBytes(content));
         await file.FlushAsync();

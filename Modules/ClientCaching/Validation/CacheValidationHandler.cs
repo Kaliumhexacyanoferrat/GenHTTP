@@ -6,9 +6,9 @@ namespace GenHTTP.Modules.ClientCaching.Validation;
 
 public sealed class CacheValidationHandler : IConcern
 {
-    private const string ETAG_HEADER = "ETag";
+    private const string EtagHeader = "ETag";
 
-    private static readonly RequestMethod[] _SupportedMethods = { RequestMethod.Get, RequestMethod.Head };
+    private static readonly RequestMethod[] SupportedMethods = [RequestMethod.Get, RequestMethod.Head];
 
     #region Initialization
 
@@ -34,7 +34,7 @@ public sealed class CacheValidationHandler : IConcern
     {
         var response = await Content.HandleAsync(request);
 
-        if (request.HasType(_SupportedMethods))
+        if (request.HasType(SupportedMethods))
         {
             if (response is not null && response.Content is not null)
             {
@@ -55,7 +55,7 @@ public sealed class CacheValidationHandler : IConcern
 
                 if (eTag is not null)
                 {
-                    response.Headers[ETAG_HEADER] = eTag;
+                    response.Headers[EtagHeader] = eTag;
                 }
             }
         }
@@ -67,7 +67,7 @@ public sealed class CacheValidationHandler : IConcern
 
     private static async ValueTask<string?> CalculateETag(IResponse response)
     {
-        if (response.Headers.TryGetValue(ETAG_HEADER, out var eTag))
+        if (response.Headers.TryGetValue(EtagHeader, out var eTag))
         {
             return eTag;
         }

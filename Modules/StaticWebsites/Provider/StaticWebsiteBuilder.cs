@@ -6,8 +6,8 @@ namespace GenHTTP.Modules.StaticWebsites.Provider;
 
 public class StaticWebsiteBuilder : IHandlerBuilder<StaticWebsiteBuilder>
 {
+    private readonly List<IConcernBuilder> _Concerns = [];
 
-    private readonly List<IConcernBuilder> _Concerns = new();
     private IResourceTree? _Tree;
 
     #region Functionality

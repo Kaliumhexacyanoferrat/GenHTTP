@@ -19,4 +19,5 @@ public static class Controller
     /// <param name="instance">The instance to be used</param>
     /// <returns>The newly created request handler</returns>
     public static ControllerBuilder From(object instance) => new ControllerBuilder().Instance(instance);
+
 }

@@ -11,13 +11,9 @@ public sealed class MethodRouting
 
     #region Initialization
 
-    public MethodRouting(string path, string pathExpression, string? segment, bool isIndex, bool isWildcard)
+    public MethodRouting(string pathExpression, bool isIndex, bool isWildcard)
     {
-        Path = WebPath.FromString(path);
-
         _PathExpression = pathExpression;
-
-        Segment = segment;
 
         IsIndex = isIndex;
         IsWildcard = isWildcard;
@@ -28,21 +24,10 @@ public sealed class MethodRouting
     #region Get-/Setters
 
     /// <summary>
-    /// The path of the method, with placeholders for
-    /// path variables (":var").
-    /// </summary>
-    public WebPath Path { get; }
-
-    /// <summary>
     /// The path of the method, converted into a regular
     /// expression to be evaluated at runtime.
     /// </summary>
     public Regex ParsedPath => _ParsedPath ??= new Regex(_PathExpression, RegexOptions.Compiled);
-
-    /// <summary>
-    /// The first segment of the raw path, if any.
-    /// </summary>
-    public string? Segment { get; }
 
     /// <summary>
     /// True, if this route matches the index of the

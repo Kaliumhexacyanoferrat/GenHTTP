@@ -6,14 +6,9 @@ namespace GenHTTP.Modules.Pages.Rendering;
 
 public sealed class ServerRenderer
 {
-    private static readonly IResource _ServerTemplate = Resource.FromAssembly("ServerPage.html").Build();
+    private static readonly IResource ServerTemplate = Resource.FromAssembly("ServerPage.html").Build();
 
-    private readonly TemplateRenderer _TemplateRender;
-
-    public ServerRenderer()
-    {
-        _TemplateRender = Renderer.From(_ServerTemplate);
-    }
+    private readonly TemplateRenderer _TemplateRender = Renderer.From(ServerTemplate);
 
     /// <summary>
     /// Renders a server-styled HTML page for the given title and content.

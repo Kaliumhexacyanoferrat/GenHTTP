@@ -5,7 +5,7 @@ namespace GenHTTP.Modules.IO.Strings;
 
 public sealed class StringContent : IResponseContent
 {
-    private static readonly Encoding UTF8 = Encoding.UTF8;
+    private static readonly Encoding Utf8 = Encoding.UTF8;
 
     private readonly ulong _Checksum;
 
@@ -15,7 +15,7 @@ public sealed class StringContent : IResponseContent
 
     public StringContent(string content)
     {
-        _Content = UTF8.GetBytes(content);
+        _Content = Utf8.GetBytes(content);
 
         Length = (ulong)_Content.Length;
 

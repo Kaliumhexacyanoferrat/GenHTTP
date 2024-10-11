@@ -21,7 +21,7 @@ public sealed class ChangeTrackingTests
                                    .Build()
                                    .Track();
 
-            using (var _ = await resource.GetContentAsync()) { }
+            await using (var _ = await resource.GetContentAsync()) { }
 
             Assert.IsFalse(await resource.HasChanged());
 

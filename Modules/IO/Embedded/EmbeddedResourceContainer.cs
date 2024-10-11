@@ -17,7 +17,7 @@ internal class EmbeddedResourceContainer : IResourceContainer
 
         foreach (var resource in source.GetManifestResourceNames())
         {
-            var index = resource.IndexOf(prefix);
+            var index = resource.IndexOf(prefix, StringComparison.Ordinal);
 
             if (index > -1)
             {

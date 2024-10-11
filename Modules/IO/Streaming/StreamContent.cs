@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Modules.IO.Streaming;
 
-public class StreamContent : IResponseContent, IDisposable
+public sealed class StreamContent : IResponseContent, IDisposable
 {
     private readonly Func<ValueTask<ulong?>> _ChecksumProvider;
 
@@ -54,30 +54,24 @@ public class StreamContent : IResponseContent, IDisposable
 
     #region IDisposable Support
 
-    private bool disposedValue;
+    private bool _Disposed;
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
-        if (!disposedValue)
+        if (!_Disposed)
         {
             if (disposing)
             {
                 Content.Dispose();
             }
 
-            disposedValue = true;
+            _Disposed = true;
         }
-    }
-
-    ~StreamContent()
-    {
-        Dispose(false);
     }
 
     public void Dispose()
     {
         Dispose(true);
-        GC.SuppressFinalize(this);
     }
 
     #endregion

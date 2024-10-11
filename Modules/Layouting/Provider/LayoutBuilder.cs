@@ -4,8 +4,8 @@ namespace GenHTTP.Modules.Layouting.Provider;
 
 public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
 {
+    private readonly List<IConcernBuilder> _Concerns = [];
 
-    private readonly List<IConcernBuilder> _Concerns = new();
     private IHandlerBuilder? _Index;
 
     #region Initialization
@@ -38,9 +38,6 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
         _Index = handler;
         return this;
     }
-
-    [Obsolete("Deprecated, use Add() instead")]
-    public LayoutBuilder Fallback(IHandlerBuilder handler) => Add(handler);
 
     /// <summary>
     /// Adds a handler that will be invoked for all URLs below

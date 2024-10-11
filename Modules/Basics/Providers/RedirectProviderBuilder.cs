@@ -5,8 +5,7 @@ namespace GenHTTP.Modules.Basics.Providers;
 
 public sealed class RedirectProviderBuilder : IHandlerBuilder<RedirectProviderBuilder>
 {
-
-    private readonly List<IConcernBuilder> _Concerns = new();
+    private readonly List<IConcernBuilder> _Concerns = [];
 
     private string? _Location;
     private bool _Temporary;

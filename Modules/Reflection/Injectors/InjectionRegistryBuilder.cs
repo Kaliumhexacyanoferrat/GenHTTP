@@ -4,7 +4,7 @@ namespace GenHTTP.Modules.Reflection.Injectors;
 
 public class InjectionRegistryBuilder : IBuilder<InjectionRegistry>
 {
-    private readonly List<IParameterInjector> _Injectors = new();
+    private readonly List<IParameterInjector> _Injectors = [];
 
     #region Functionality
 

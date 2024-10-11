@@ -19,7 +19,8 @@ public sealed class BoolFormatter : IFormatter
         return null;
     }
 
-    public string? Write(object value, Type type) => (bool)value ? "1" : "0";
+    public string Write(object value, Type type) => (bool)value ? "1" : "0";
 
     private static bool Compare(string value, string expected) => string.Equals(value, expected, StringComparison.InvariantCultureIgnoreCase);
+
 }

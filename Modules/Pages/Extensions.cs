@@ -6,7 +6,7 @@ namespace GenHTTP.Modules.Pages;
 
 public static class Extensions
 {
-    private static readonly FlexibleContentType _ContentType = new(ContentType.TextHtml, "utf-8");
+    private static readonly FlexibleContentType ContentType = new(Api.Protocol.ContentType.TextHtml, "utf-8");
 
     /// <summary>
     /// Creates a response that can be returned by a handler to serve
@@ -17,7 +17,7 @@ public static class Extensions
     /// <returns>The HTML page response</returns>
     public static IResponseBuilder GetPage(this IRequest request, string content) => request.Respond()
                                                                                             .Content(new StringContent(content))
-                                                                                            .Type(_ContentType);
+                                                                                            .Type(ContentType);
 
     /// <summary>
     /// Escapes the given string so it can safely be used in HTML.

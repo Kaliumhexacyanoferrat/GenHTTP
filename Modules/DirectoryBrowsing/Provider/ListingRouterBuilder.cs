@@ -6,8 +6,8 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider;
 
 public sealed class ListingRouterBuilder : IHandlerBuilder<ListingRouterBuilder>
 {
+    private readonly List<IConcernBuilder> _Concerns = [];
 
-    private readonly List<IConcernBuilder> _Concerns = new();
     private IResourceTree? _Tree;
 
     #region Functionality

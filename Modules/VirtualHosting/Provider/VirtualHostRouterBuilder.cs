@@ -4,9 +4,9 @@ namespace GenHTTP.Modules.VirtualHosting.Provider;
 
 public sealed class VirtualHostRouterBuilder : IHandlerBuilder<VirtualHostRouterBuilder>
 {
+    private readonly Dictionary<string, IHandlerBuilder> _Hosts = [];
 
-    private readonly List<IConcernBuilder> _Concerns = new();
-    private readonly Dictionary<string, IHandlerBuilder> _Hosts = new();
+    private readonly List<IConcernBuilder> _Concerns = [];
 
     private IHandlerBuilder? _DefaultRoute;
 
@@ -14,12 +14,11 @@ public sealed class VirtualHostRouterBuilder : IHandlerBuilder<VirtualHostRouter
 
     public VirtualHostRouterBuilder Add(string host, IHandlerBuilder handler)
     {
-        if (_Hosts.ContainsKey(host))
+        if (!_Hosts.TryAdd(host, handler))
         {
             throw new InvalidOperationException("A host with this name has already been added");
         }
 
-        _Hosts.Add(host, handler);
         return this;
     }
 

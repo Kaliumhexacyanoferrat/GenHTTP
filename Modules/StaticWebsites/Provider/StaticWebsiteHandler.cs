@@ -7,7 +7,7 @@ namespace GenHTTP.Modules.StaticWebsites.Provider;
 
 public sealed class StaticWebsiteHandler : IHandler
 {
-    private static readonly string[] INDEX_FILES = { "index.html", "index.htm" };
+    private static readonly string[] IndexFiles = ["index.html", "index.htm"];
 
     #region Initialization
 
@@ -42,7 +42,7 @@ public sealed class StaticWebsiteHandler : IHandler
 
             if (node != null)
             {
-                foreach (var indexFile in INDEX_FILES)
+                foreach (var indexFile in IndexFiles)
                 {
                     IResource? file;
 

@@ -5,7 +5,7 @@ namespace GenHTTP.Modules.Security.Providers;
 
 public sealed class StrictTransportConcern : IConcern
 {
-    private const string HEADER = "Strict-Transport-Security";
+    private const string Header = "Strict-Transport-Security";
 
     #region Initialization
 
@@ -42,9 +42,9 @@ public sealed class StrictTransportConcern : IConcern
         {
             if (request.EndPoint.Secure)
             {
-                if (!response.Headers.ContainsKey(HEADER))
+                if (!response.Headers.ContainsKey(Header))
                 {
-                    response[HEADER] = HeaderValue;
+                    response[Header] = HeaderValue;
                 }
             }
         }

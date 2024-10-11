@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Modules.Compression.Providers;
 
-public class CompressedResponseContent : IResponseContent, IDisposable
+public sealed class CompressedResponseContent : IResponseContent, IDisposable
 {
 
     #region Initialization
@@ -29,7 +29,7 @@ public class CompressedResponseContent : IResponseContent, IDisposable
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
-        using var compressed = Generator(target);
+        await using var compressed = Generator(target);
 
         await OriginalContent.WriteAsync(compressed, bufferSize);
     }
@@ -40,11 +40,11 @@ public class CompressedResponseContent : IResponseContent, IDisposable
 
     #region IDisposable Support
 
-    private bool disposedValue;
+    private bool _Disposed;
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
-        if (!disposedValue)
+        if (!_Disposed)
         {
             if (disposing)
             {
@@ -54,19 +54,13 @@ public class CompressedResponseContent : IResponseContent, IDisposable
                 }
             }
 
-            disposedValue = true;
+            _Disposed = true;
         }
-    }
-
-    ~CompressedResponseContent()
-    {
-        Dispose(false);
     }
 
     public void Dispose()
     {
         Dispose(true);
-        GC.SuppressFinalize(this);
     }
 
     #endregion

@@ -8,7 +8,7 @@ namespace GenHTTP.Modules.IO.Providers;
 public sealed class DownloadProviderBuilder : IHandlerBuilder<DownloadProviderBuilder>
 {
 
-    private readonly List<IConcernBuilder> _Concerns = new();
+    private readonly List<IConcernBuilder> _Concerns = [];
 
     private FlexibleContentType? _ContentType;
 

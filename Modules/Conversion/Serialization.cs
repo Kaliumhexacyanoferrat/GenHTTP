@@ -26,4 +26,5 @@ public static class Serialization
     /// Returns an empty registry to be customized.
     /// </summary>
     public static SerializationBuilder Empty() => new();
+
 }

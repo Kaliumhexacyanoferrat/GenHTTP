@@ -53,7 +53,7 @@ public static class ContentExtensions
 
         var format = registry.GetFormat(type) ?? throw new InvalidOperationException($"Unable to find deserializer for content type '{type}'");
 
-        using var body = await response.Content.ReadAsStreamAsync();
+        await using var body = await response.Content.ReadAsStreamAsync();
 
         return (T?)await format.DeserializeAsync(body, typeof(T));
     }

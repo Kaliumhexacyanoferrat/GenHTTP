@@ -5,11 +5,11 @@ namespace GenHTTP.Modules.IO.Streaming;
 
 public static class StreamExtensions
 {
-    private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
+    private static readonly ArrayPool<byte> Pool = ArrayPool<byte>.Shared;
 
-    private static readonly Encoding UTF8 = Encoding.UTF8;
+    private static readonly Encoding Utf8 = Encoding.UTF8;
 
-    private static readonly Encoder ENCODER = UTF8.GetEncoder();
+    private static readonly Encoder Encoder = Utf8.GetEncoder();
 
     public static async ValueTask CopyPooledAsync(this Stream source, Stream target, uint bufferSize)
     {
@@ -18,7 +18,7 @@ public static class StreamExtensions
             source.Seek(0, SeekOrigin.Begin);
         }
 
-        var buffer = POOL.Rent((int)bufferSize);
+        var buffer = Pool.Rent((int)bufferSize);
 
         var memory = buffer.AsMemory();
 
@@ -39,43 +39,43 @@ public static class StreamExtensions
         }
         finally
         {
-            POOL.Return(buffer);
+            Pool.Return(buffer);
         }
     }
 
     public static async ValueTask WriteAsync(this string content, Stream target)
     {
-        var bytes = ENCODER.GetByteCount(content, false);
+        var bytes = Encoder.GetByteCount(content, false);
 
-        var buffer = POOL.Rent(bytes);
+        var buffer = Pool.Rent(bytes);
 
         try
         {
-            ENCODER.GetBytes(content.AsSpan(), buffer.AsSpan(), true);
+            Encoder.GetBytes(content.AsSpan(), buffer.AsSpan(), true);
 
             await target.WriteAsync(buffer.AsMemory(0, bytes));
         }
         finally
         {
-            POOL.Return(buffer);
+            Pool.Return(buffer);
         }
     }
 
     public static void Write(this string content, Stream target)
     {
-        var length = ENCODER.GetByteCount(content, false);
+        var length = Encoder.GetByteCount(content, false);
 
-        var buffer = POOL.Rent(length);
+        var buffer = Pool.Rent(length);
 
         try
         {
-            ENCODER.GetBytes(content.AsSpan(), buffer.AsSpan(), true);
+            Encoder.GetBytes(content.AsSpan(), buffer.AsSpan(), true);
 
             target.Write(buffer, 0, length);
         }
         finally
         {
-            POOL.Return(buffer);
+            Pool.Return(buffer);
         }
     }
 
@@ -97,7 +97,7 @@ public static class StreamExtensions
                 {
                     ulong hash = 17;
 
-                    var buffer = POOL.Rent(4096);
+                    var buffer = Pool.Rent(4096);
 
                     try
                     {
@@ -116,7 +116,7 @@ public static class StreamExtensions
                     }
                     finally
                     {
-                        POOL.Return(buffer);
+                        Pool.Return(buffer);
                     }
 
                     return hash;

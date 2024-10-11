@@ -4,7 +4,7 @@ namespace GenHTTP.Modules.Conversion.Formatters;
 
 public sealed class FormatterBuilder : IBuilder<FormatterRegistry>
 {
-    private readonly List<IFormatter> _Registry = new();
+    private readonly List<IFormatter> _Registry = [];
 
     #region Functionality
 
