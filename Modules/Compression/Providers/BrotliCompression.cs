@@ -11,7 +11,7 @@ namespace GenHTTP.Modules.Compression.Providers
 
         public string Name => "br";
 
-        public Priority Priority => Priority.High;
+        public Priority Priority => Priority.Medium;
 
         public IResponseContent Compress(IResponseContent content, CompressionLevel level)
         {

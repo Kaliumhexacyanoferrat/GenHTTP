@@ -170,7 +170,8 @@ namespace GenHTTP.Testing
             var handler = new HttpClientHandler
             {
                 AllowAutoRedirect = followRedirects,
-                Credentials = creds
+                Credentials = creds,
+                UseProxy = false
             };
 
             if (cookies != null)

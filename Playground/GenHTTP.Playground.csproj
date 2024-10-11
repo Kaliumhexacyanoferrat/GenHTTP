@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    
+
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    
+    <TargetFramework>net9.0</TargetFramework>
+
     <LangVersion>13.0</LangVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  
+
   </PropertyGroup>
 
   <ItemGroup>
@@ -39,7 +39,7 @@
     <ProjectReference Include="..\Modules\StaticWebsites\GenHTTP.Modules.StaticWebsites.csproj" />
     <ProjectReference Include="..\Modules\VirtualHosting\GenHTTP.Modules.VirtualHosting.csproj" />
     <ProjectReference Include="..\Modules\Webservices\GenHTTP.Modules.Webservices.csproj" />
-    
+
   </ItemGroup>
-  
+
 </Project>
