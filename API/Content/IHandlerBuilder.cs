@@ -3,7 +3,7 @@
 /// <summary>
 /// Allows to create a handler instance.
 /// </summary>
-public interface IHandlerBuilder 
+public interface IHandlerBuilder
 {
 
     /// <summary>
@@ -12,10 +12,9 @@ public interface IHandlerBuilder
     /// <param name="parent">The parent of the handler to be created</param>
     /// <returns>The newly created handler instance</returns>
     IHandler Build(IHandler parent);
-    
 }
 
-public interface IHandlerBuilder<TBuilder> : IHandlerBuilder where TBuilder : IHandlerBuilder<TBuilder>
+public interface IHandlerBuilder<out TBuilder> : IHandlerBuilder where TBuilder : IHandlerBuilder<TBuilder>
 {
 
     /// <summary>
@@ -27,5 +26,4 @@ public interface IHandlerBuilder<TBuilder> : IHandlerBuilder where TBuilder : IH
     /// </remarks>
     /// <param name="concern">The concern to be added to the resulting handler</param>
     TBuilder Add(IConcernBuilder concern);
-
 }

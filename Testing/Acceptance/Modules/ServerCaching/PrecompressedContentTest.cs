@@ -1,12 +1,9 @@
 ﻿using System.IO.Compression;
 using System.Net;
-using System.Threading.Tasks;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using GenHTTP.Modules.Compression;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.ServerCaching;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching;
 
@@ -17,20 +14,19 @@ public class PrecompressedContentTest
     [TestMethod]
     public async Task TestContentCanBePreCompressed()
     {
-            var content = Resources.From(ResourceTree.FromAssembly("Resources"))
-                                   .Add(CompressedContent.Default().Level(CompressionLevel.Optimal))
-                                   .Add(ServerCache.Memory());
+        var content = Resources.From(ResourceTree.FromAssembly("Resources"))
+                               .Add(CompressedContent.Default().Level(CompressionLevel.Optimal))
+                               .Add(ServerCache.Memory());
 
-            using var runner = TestHost.Run(content, false);
+        using var runner = TestHost.Run(content, false);
 
-            var request = runner.GetRequest("/Template.html");
+        var request = runner.GetRequest("/Template.html");
 
-            request.Headers.Add("Accept-Encoding", "br");
+        request.Headers.Add("Accept-Encoding", "br");
 
-            using var response = await runner.GetResponseAsync(request);
+        using var response = await runner.GetResponseAsync(request);
 
-            await response.AssertStatusAsync(HttpStatusCode.OK);
-            Assert.AreEqual("br", response.GetContentHeader("Content-Encoding"));
-        }
-
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+        Assert.AreEqual("br", response.GetContentHeader("Content-Encoding"));
+    }
 }

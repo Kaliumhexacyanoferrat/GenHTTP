@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Content;
 
@@ -40,5 +38,4 @@ public interface IHandler
     /// <param name="request">The request to be handled</param>
     /// <returns>The response to be sent to the requesting client</returns>
     ValueTask<IResponse?> HandleAsync(IRequest request);
-
 }

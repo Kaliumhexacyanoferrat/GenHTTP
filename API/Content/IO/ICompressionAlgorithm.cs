@@ -1,5 +1,4 @@
 ﻿using System.IO.Compression;
-
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
@@ -32,5 +31,4 @@ public interface ICompressionAlgorithm
     /// <param name="level">The compression level to be applied</param>
     /// <returns>A result representing the compressed content</returns>
     IResponseContent Compress(IResponseContent content, CompressionLevel level);
-
 }

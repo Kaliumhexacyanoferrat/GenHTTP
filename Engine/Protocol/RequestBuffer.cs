@@ -1,7 +1,5 @@
-﻿using System;
-using System.Buffers;
+﻿using System.Buffers;
 using System.IO.Pipelines;
-using System.Threading;
 using GenHTTP.Engine.Infrastructure;
 using PooledAwait;
 
@@ -24,6 +22,16 @@ internal sealed class RequestBuffer : IDisposable
 {
     private ReadOnlySequence<byte>? _Data;
 
+    #region Initialization
+
+    internal RequestBuffer(PipeReader reader, NetworkConfiguration configuration)
+    {
+        Reader = reader;
+        Configuration = configuration;
+    }
+
+    #endregion
+
     #region Get-/Setters
 
     private PipeReader Reader { get; }
@@ -32,19 +40,9 @@ internal sealed class RequestBuffer : IDisposable
 
     private CancellationTokenSource? Cancellation { get; set; }
 
-    internal ReadOnlySequence<byte> Data => _Data ?? new();
+    internal ReadOnlySequence<byte> Data => _Data ?? new ReadOnlySequence<byte>();
 
-    internal bool ReadRequired => (_Data == null) || _Data.Value.IsEmpty;
-
-    #endregion
-
-    #region Initialization
-
-    internal RequestBuffer(PipeReader reader, NetworkConfiguration configuration)
-    {
-            Reader = reader;
-            Configuration = configuration;
-        }
+    internal bool ReadRequired => _Data == null || _Data.Value.IsEmpty;
 
     #endregion
 
@@ -52,60 +50,55 @@ internal sealed class RequestBuffer : IDisposable
 
     internal async PooledValueTask<long?> ReadAsync(bool force = false)
     {
-            if (ReadRequired || force)
+        if (ReadRequired || force)
+        {
+            Cancellation ??= new CancellationTokenSource();
+
+            try
             {
-                if (Cancellation is null)
-                {
-                    Cancellation = new();
-                }
+                Cancellation.CancelAfter(Configuration.RequestReadTimeout);
 
-                try
-                {
-                    Cancellation.CancelAfter(Configuration.RequestReadTimeout);
+                _Data = (await Reader.ReadAsync(Cancellation.Token)).Buffer;
 
-                    _Data = (await Reader.ReadAsync(Cancellation.Token)).Buffer;
-
-                    Cancellation.CancelAfter(int.MaxValue);
-                }
-                catch (OperationCanceledException)
-                {
-                    Cancellation.Dispose();
-                    Cancellation = null;
-
-                    return null;
-                }
+                Cancellation.CancelAfter(int.MaxValue);
             }
+            catch (OperationCanceledException)
+            {
+                Cancellation.Dispose();
+                Cancellation = null;
 
-            return Data.Length;
+                return null;
+            }
         }
+
+        return Data.Length;
+    }
 
     internal void Advance(long bytes)
     {
-            _Data = Data.Slice(bytes);
-            Reader.AdvanceTo(_Data.Value.Start);
-        }
+        _Data = Data.Slice(bytes);
+        Reader.AdvanceTo(_Data.Value.Start);
+    }
 
     #endregion
 
     #region Disposing
 
-    private bool disposedValue;
+    private bool _DisposedValue;
 
     public void Dispose()
     {
-            if (!disposedValue)
+        if (!_DisposedValue)
+        {
+            if (Cancellation is not null)
             {
-                if (Cancellation is not null)
-                {
-                    Cancellation.Dispose();
-                    Cancellation = null;
-                }
-
-                disposedValue = true;
+                Cancellation.Dispose();
+                Cancellation = null;
             }
 
-            GC.SuppressFinalize(this);
+            _DisposedValue = true;
         }
+    }
 
     #endregion
 

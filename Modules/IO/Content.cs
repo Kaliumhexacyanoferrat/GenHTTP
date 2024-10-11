@@ -1,6 +1,5 @@
 ﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
-
 using GenHTTP.Modules.IO.Providers;
 
 namespace GenHTTP.Modules.IO;
@@ -25,5 +24,4 @@ public static class Content
     /// </summary>
     /// <param name="resource">The resource to be served</param>
     public static ContentProviderBuilder From(IResource resource) => new ContentProviderBuilder().Resource(resource);
-
 }

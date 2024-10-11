@@ -10,5 +10,4 @@ public static class Inline
     /// which are executed to respond to incoming requests.
     /// </summary>
     public static InlineBuilder Create() => new();
-
 }

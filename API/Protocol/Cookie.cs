@@ -16,12 +16,12 @@ public struct Cookie
     /// <summary>
     /// The value of the cookie.
     /// </summary>
-    public string Value { get; set; }
+    public string Value { get; }
 
     /// <summary>
     /// The number of seconds after the cookie will be discarded by the client.
     /// </summary>
-    public ulong? MaxAge { get; set; }
+    public ulong? MaxAge { get; }
 
     #endregion
 
@@ -34,11 +34,11 @@ public struct Cookie
     /// <param name="value">The value of the cookie</param>
     public Cookie(string name, string value)
     {
-            Name = name;
-            Value = value;
+        Name = name;
+        Value = value;
 
-            MaxAge = null;
-        }
+        MaxAge = null;
+    }
 
     /// <summary>
     /// Creates a new cookie with the given name and value.
@@ -48,8 +48,8 @@ public struct Cookie
     /// <param name="maxAge">The number of seconds until the cookie will be discarded</param>
     public Cookie(string name, string value, ulong maxAge) : this(name, value)
     {
-            MaxAge = maxAge;
-        }
+        MaxAge = maxAge;
+    }
 
     #endregion
 

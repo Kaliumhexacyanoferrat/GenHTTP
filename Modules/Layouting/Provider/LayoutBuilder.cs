@@ -1,31 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 
 namespace GenHTTP.Modules.Layouting.Provider;
 
 public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
 {
+    private readonly List<IConcernBuilder> _Concerns = [];
+
     private IHandlerBuilder? _Index;
 
-    private readonly List<IConcernBuilder> _Concerns = new();
+    #region Initialization
+
+    public LayoutBuilder()
+    {
+        RoutedHandlers = new Dictionary<string, IHandlerBuilder>();
+        RootHandlers = new List<IHandlerBuilder>();
+    }
+
+    #endregion
 
     #region Get-/Setters
 
     private Dictionary<string, IHandlerBuilder> RoutedHandlers { get; }
 
     private List<IHandlerBuilder> RootHandlers { get; }
-
-    #endregion
-
-    #region Initialization
-
-    public LayoutBuilder()
-    {
-            RoutedHandlers = new();
-            RootHandlers = new();
-        }
 
     #endregion
 
@@ -38,12 +35,9 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
     /// <param name="handler">The handler used for the index of the layout</param>
     public LayoutBuilder Index(IHandlerBuilder handler)
     {
-            _Index = handler;
-            return this;
-        }
-
-    [Obsolete("Deprecated, use Add() instead")]
-    public LayoutBuilder Fallback(IHandlerBuilder handler) => Add(handler);
+        _Index = handler;
+        return this;
+    }
 
     /// <summary>
     /// Adds a handler that will be invoked for all URLs below
@@ -53,14 +47,14 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
     /// <param name="handler">The handler which will handle the segment</param>
     public LayoutBuilder Add(string name, IHandlerBuilder handler)
     {
-            if (name.Contains('/'))
-            {
-                throw new ArgumentException("Path seperators are not allowed in the name of the segment.", nameof(name));
-            }
-
-            RoutedHandlers.Add(name, handler);
-            return this;
+        if (name.Contains('/'))
+        {
+            throw new ArgumentException("Path seperators are not allowed in the name of the segment.", nameof(name));
         }
+
+        RoutedHandlers.Add(name, handler);
+        return this;
+    }
 
     /// <summary>
     /// Adds a handler on root level that will be invoked if neither a
@@ -74,20 +68,20 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
     /// </remarks>
     public LayoutBuilder Add(IHandlerBuilder handler)
     {
-            RootHandlers.Add(handler);
-            return this;
-        }
+        RootHandlers.Add(handler);
+        return this;
+    }
 
     public LayoutBuilder Add(IConcernBuilder concern)
     {
-            _Concerns.Add(concern);
-            return this;
-        }
+        _Concerns.Add(concern);
+        return this;
+    }
 
     public IHandler Build(IHandler parent)
     {
-            return Concerns.Chain(parent, _Concerns, (p) => new LayoutRouter(p, RoutedHandlers, RootHandlers, _Index));
-        }
+        return Concerns.Chain(parent, _Concerns, p => new LayoutRouter(p, RoutedHandlers, RootHandlers, _Index));
+    }
 
     #endregion
 

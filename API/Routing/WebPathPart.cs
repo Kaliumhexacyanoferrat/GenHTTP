@@ -1,13 +1,24 @@
-﻿using System;
-
-namespace GenHTTP.Api.Routing;
+﻿namespace GenHTTP.Api.Routing;
 
 /// <summary>
 /// Represents a part of an URL (between two slashes).
 /// </summary>
 public class WebPathPart
 {
-    private string? _Value = null;
+    private string? _Value;
+
+    #region Initialization
+
+    /// <summary>
+    /// Creates a new part from the original string.
+    /// </summary>
+    /// <param name="original">The original string</param>
+    public WebPathPart(string original)
+    {
+        Original = original;
+    }
+
+    #endregion
 
     #region Get-/Setters
 
@@ -19,31 +30,7 @@ public class WebPathPart
     /// <summary>
     /// The decoded representation of the path (e.g. "some path").
     /// </summary>
-    public string Value
-    {
-        get
-        {
-                if (_Value is null)
-                {
-                    _Value = Original.Contains('%') ? Uri.UnescapeDataString(Original) : Original;
-                }
-
-                return _Value;
-            }
-    }
-
-    #endregion
-
-    #region Initialization
-
-    /// <summary>
-    /// Creates a new part from the original string.
-    /// </summary>
-    /// <param name="original">The original string</param>
-    public WebPathPart(string original)
-    {
-            Original = original;
-        }
+    public string Value => _Value ??= Original.Contains('%') ? Uri.UnescapeDataString(Original) : Original;
 
     #endregion
 
@@ -59,18 +46,18 @@ public class WebPathPart
 
     public override bool Equals(object? obj)
     {
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            if (obj is null)
-            {
-                return false;
-            }
-
-            return (obj as WebPathPart)?.GetHashCode() == GetHashCode();
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
         }
+
+        if (obj is null)
+        {
+            return false;
+        }
+
+        return (obj as WebPathPart)?.GetHashCode() == GetHashCode();
+    }
 
     #endregion
 

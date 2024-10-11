@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
 
@@ -8,25 +6,25 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider;
 
 public sealed class SinglePageBuilder : IHandlerBuilder<SinglePageBuilder>
 {
+    private readonly List<IConcernBuilder> _Concerns = [];
+
+    private bool _ServerSideRouting;
+
     private IResourceTree? _Tree;
-
-    private readonly List<IConcernBuilder> _Concerns = new();
-
-    private bool _ServerSideRouting = false;
 
     #region Functionality
 
     public SinglePageBuilder Add(IConcernBuilder concern)
     {
-            _Concerns.Add(concern);
-            return this;
-        }
+        _Concerns.Add(concern);
+        return this;
+    }
 
     public SinglePageBuilder Tree(IResourceTree tree)
     {
-            _Tree = tree;
-            return this;
-        }
+        _Tree = tree;
+        return this;
+    }
 
     public SinglePageBuilder Tree(IBuilder<IResourceTree> tree) => Tree(tree.Build());
 
@@ -36,16 +34,16 @@ public sealed class SinglePageBuilder : IHandlerBuilder<SinglePageBuilder>
     /// </summary>
     public SinglePageBuilder ServerSideRouting()
     {
-            _ServerSideRouting = true;
-            return this;
-        }
+        _ServerSideRouting = true;
+        return this;
+    }
 
     public IHandler Build(IHandler parent)
     {
-            var tree = _Tree ?? throw new BuilderMissingPropertyException("tree");
+        var tree = _Tree ?? throw new BuilderMissingPropertyException("tree");
 
-            return Concerns.Chain(parent, _Concerns, (p) => new SinglePageProvider(p, tree, _ServerSideRouting));
-        }
+        return Concerns.Chain(parent, _Concerns, p => new SinglePageProvider(p, tree, _ServerSideRouting));
+    }
 
     #endregion
 

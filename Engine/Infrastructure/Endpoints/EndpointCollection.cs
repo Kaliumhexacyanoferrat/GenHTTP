@@ -1,13 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-
+﻿using System.Net;
 using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Engine.Infrastructure.Endpoints;
 
 internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPointCollection
 {
+
+    #region Initialization
+
+    public EndPointCollection(IServer server, IEnumerable<EndPointConfiguration> configuration, NetworkConfiguration networkConfiguration)
+    {
+        Server = server;
+        NetworkConfiguration = networkConfiguration;
+
+        foreach (var config in configuration)
+        {
+            Add(Start(config));
+        }
+    }
+
+    #endregion
+
+    #region Functionality
+
+    private EndPoint Start(EndPointConfiguration configuration)
+    {
+        var endpoint = new IPEndPoint(configuration.Address, configuration.Port);
+
+        if (configuration.Security is null)
+        {
+            return new InsecureEndPoint(Server, endpoint, NetworkConfiguration);
+        }
+        return new SecureEndPoint(Server, endpoint, configuration.Security, NetworkConfiguration);
+    }
+
+    #endregion
 
     #region Get-/Setters
 
@@ -17,66 +44,31 @@ internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPoi
 
     #endregion
 
-    #region Initialization
-
-    public EndPointCollection(IServer server, IEnumerable<EndPointConfiguration> configuration, NetworkConfiguration networkConfiguration)
-    {
-            Server = server;
-            NetworkConfiguration = networkConfiguration;
-
-            foreach (var config in configuration)
-            {
-                Add(Start(config));
-            }
-        }
-
-    #endregion
-
-    #region Functionality
-
-    private EndPoint Start(EndPointConfiguration configuration)
-    {
-            var endpoint = new IPEndPoint(configuration.Address, configuration.Port);
-
-            if (configuration.Security is null)
-            {
-                return new InsecureEndPoint(Server, endpoint, NetworkConfiguration);
-            }
-            else
-            {
-                return new SecureEndPoint(Server, endpoint, configuration.Security, NetworkConfiguration);
-            }
-        }
-
-    #endregion
-
     #region IDisposable Support
 
-    private bool disposed = false;
+    private bool _Disposed;
 
     public void Dispose()
     {
-            if (!disposed)
+        if (!_Disposed)
+        {
+            foreach (var endpoint in this)
             {
-                foreach (IEndPoint endpoint in this)
+                try
                 {
-                    try
-                    {
-                        endpoint.Dispose();
-                    }
-                    catch (Exception e)
-                    {
-                        Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, null, e);
-                    }
+                    endpoint.Dispose();
                 }
-
-                Clear();
-
-                disposed = true;
+                catch (Exception e)
+                {
+                    Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, null, e);
+                }
             }
 
-            GC.SuppressFinalize(this);
+            Clear();
+
+            _Disposed = true;
         }
+    }
 
     #endregion
 

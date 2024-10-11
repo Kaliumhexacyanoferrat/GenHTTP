@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Threading.Tasks;
+﻿using System.Diagnostics.CodeAnalysis;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Conversion.Serializers;
@@ -34,5 +31,4 @@ public interface ISerializationFormat
     /// <param name="response">The object to be serialized</param>
     /// <returns>The response representing the serialized object</returns>
     ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response);
-
 }

@@ -1,47 +1,44 @@
-﻿using System.Collections.Generic;
-
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Content;
 
 namespace GenHTTP.Modules.Basics.Providers;
 
 public sealed class RedirectProviderBuilder : IHandlerBuilder<RedirectProviderBuilder>
 {
-    private bool _Temporary = false;
+    private readonly List<IConcernBuilder> _Concerns = [];
 
     private string? _Location;
-
-    private readonly List<IConcernBuilder> _Concerns = new();
+    private bool _Temporary;
 
     #region Functionality
 
     public RedirectProviderBuilder Location(string location)
     {
-            _Location = location;
-            return this;
-        }
+        _Location = location;
+        return this;
+    }
 
     public RedirectProviderBuilder Mode(bool temporary)
     {
-            _Temporary = temporary;
-            return this;
-        }
+        _Temporary = temporary;
+        return this;
+    }
 
     public RedirectProviderBuilder Add(IConcernBuilder concern)
     {
-            _Concerns.Add(concern);
-            return this;
-        }
+        _Concerns.Add(concern);
+        return this;
+    }
 
     public IHandler Build(IHandler parent)
     {
-            if (_Location is null)
-            {
-                throw new BuilderMissingPropertyException("Location");
-            }
-
-            return Concerns.Chain(parent, _Concerns, (p) => new RedirectProvider(p, _Location, _Temporary));
+        if (_Location is null)
+        {
+            throw new BuilderMissingPropertyException("Location");
         }
+
+        return Concerns.Chain(parent, _Concerns, p => new RedirectProvider(p, _Location, _Temporary));
+    }
 
     #endregion
 

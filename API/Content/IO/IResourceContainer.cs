@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace GenHTTP.Api.Content.IO;
+﻿namespace GenHTTP.Api.Content.IO;
 
 /// <summary>
 /// Provides a single hierarchy level in a structure
@@ -42,5 +38,4 @@ public interface IResourceContainer
     /// </summary>
     /// <returns>The resources provided by this container</returns>
     ValueTask<IReadOnlyCollection<IResource>> GetResources();
-
 }

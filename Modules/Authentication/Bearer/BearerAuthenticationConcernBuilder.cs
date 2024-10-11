@@ -1,7 +1,4 @@
-﻿using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Threading.Tasks;
-
+﻿using System.IdentityModel.Tokens.Jwt;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
 using GenHTTP.Api.Protocol;
@@ -26,9 +23,9 @@ public sealed class BearerAuthenticationConcernBuilder : IConcernBuilder
     /// </remarks>
     public BearerAuthenticationConcernBuilder Issuer(string issuer)
     {
-            _Options.Issuer = issuer;
-            return this;
-        }
+        _Options.Issuer = issuer;
+        return this;
+    }
 
     /// <summary>
     /// Sets the expected audience that should be accepted.
@@ -36,9 +33,9 @@ public sealed class BearerAuthenticationConcernBuilder : IConcernBuilder
     /// <param name="audience">The audience to check for</param>
     public BearerAuthenticationConcernBuilder Audience(string audience)
     {
-            _Options.Audience = audience;
-            return this;
-        }
+        _Options.Audience = audience;
+        return this;
+    }
 
     /// <summary>
     /// Adds a custom validator that can analyze the token read from the
@@ -48,15 +45,14 @@ public sealed class BearerAuthenticationConcernBuilder : IConcernBuilder
     /// <remarks>
     /// This validator will be invoked after the regular checks (such as the
     /// issuer) have been performed.
-    ///
     /// If you would like to deny user access within a custom validator,
     /// you can throw a <see cref="ProviderException" />.
     /// </remarks>
     public BearerAuthenticationConcernBuilder Validation(Func<JwtSecurityToken, Task> validator)
     {
-            _Options.CustomValidator = validator;
-            return this;
-        }
+        _Options.CustomValidator = validator;
+        return this;
+    }
 
     /// <summary>
     /// Optionally register a function that will compute the user that
@@ -71,9 +67,9 @@ public sealed class BearerAuthenticationConcernBuilder : IConcernBuilder
     /// </remarks>
     public BearerAuthenticationConcernBuilder UserMapping(Func<IRequest, JwtSecurityToken, ValueTask<IUser?>> userMapping)
     {
-            _Options.UserMapping = userMapping;
-            return this;
-        }
+        _Options.UserMapping = userMapping;
+        return this;
+    }
 
     /// <summary>
     /// If enabled, tokens that have expired or are not valid yet are
@@ -81,14 +77,11 @@ public sealed class BearerAuthenticationConcernBuilder : IConcernBuilder
     /// </summary>
     public BearerAuthenticationConcernBuilder AllowExpired()
     {
-            _Options.Lifetime = false;
-            return this;
-        }
+        _Options.Lifetime = false;
+        return this;
+    }
 
-    public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
-    {
-            return new BearerAuthenticationConcern(parent, contentFactory, _Options);
-        }
+    public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory) => new BearerAuthenticationConcern(parent, contentFactory, _Options);
 
     #endregion
 

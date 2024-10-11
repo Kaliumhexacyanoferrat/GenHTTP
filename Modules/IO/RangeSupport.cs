@@ -1,5 +1,4 @@
 ﻿using GenHTTP.Api.Content;
-
 using GenHTTP.Modules.IO.Ranges;
 
 namespace GenHTTP.Modules.IO;
@@ -16,9 +15,9 @@ public static class RangeSupport
     /// </summary>
     public static T AddRangeSupport<T>(this T builder) where T : IHandlerBuilder<T>
     {
-            builder.Add(Create());
-            return builder;
-        }
+        builder.Add(Create());
+        return builder;
+    }
 
     #endregion
 

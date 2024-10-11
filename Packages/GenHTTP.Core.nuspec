@@ -1,44 +1,45 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
 
-  <metadata>
+    <metadata>
 
-    <id>GenHTTP.Core</id>
-    <version>9.0.0</version>
+        <id>GenHTTP.Core</id>
+        <version>9.0.0</version>
 
-    <description>Basic dependencies for projects using the GenHTTP framework, including the engine itself</description>
-    <copyright></copyright>
+        <description>Basic dependencies for projects using the GenHTTP framework, including the engine itself
+        </description>
+        <copyright></copyright>
 
-    <projectUrl>https://genhttp.org/</projectUrl>
+        <projectUrl>https://genhttp.org/</projectUrl>
 
-    <authors>Andreas Nägeli</authors>
-    <tags>HTTP Webserver Library C# Server REST API Embeddable Embedded Host</tags>
+        <authors>Andreas Nägeli</authors>
+        <tags>HTTP Webserver Library C# Server REST API Embeddable Embedded Host</tags>
 
-    <icon>images\icon.png</icon>
+        <icon>images\icon.png</icon>
 
-    <license type="file">LICENSE</license>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <license type="file">LICENSE</license>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
 
-    <dependencies>
+        <dependencies>
 
-      <group>
+            <group>
 
-        <dependency id="GenHTTP.Api" version="9.0.0" />
+                <dependency id="GenHTTP.Api" version="9.0.0"/>
 
-        <dependency id="GenHTTP.Engine" version="9.0.0" />
+                <dependency id="GenHTTP.Engine" version="9.0.0"/>
 
-        <dependency id="GenHTTP.Modules.Practices" version="9.0.0" />
-        <dependency id="GenHTTP.Modules.Basics" version="9.0.0" />
-        <dependency id="GenHTTP.Modules.Layouting" version="9.0.0" />
+                <dependency id="GenHTTP.Modules.Practices" version="9.0.0"/>
+                <dependency id="GenHTTP.Modules.Basics" version="9.0.0"/>
+                <dependency id="GenHTTP.Modules.Layouting" version="9.0.0"/>
 
-      </group>
+            </group>
 
-    </dependencies>
+        </dependencies>
 
-  </metadata>
+    </metadata>
 
-  <files>
-    <file src="..\Resources\icon.png" target="images\" />
-    <file src="..\LICENSE" target="LICENSE" />
-  </files>
+    <files>
+        <file src="..\Resources\icon.png" target="images\"/>
+        <file src="..\LICENSE" target="LICENSE"/>
+    </files>
 
 </package>

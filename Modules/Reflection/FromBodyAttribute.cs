@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GenHTTP.Modules.Reflection;
+﻿namespace GenHTTP.Modules.Reflection;
 
 /// <summary>
 /// Marking an argument of a service method with this attribute will
@@ -12,7 +10,4 @@ namespace GenHTTP.Modules.Reflection;
 /// from the body without the need of marking it explicitly.
 /// </remarks>
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class FromBodyAttribute : Attribute
-{
-
-}
+public sealed class FromBodyAttribute : Attribute;

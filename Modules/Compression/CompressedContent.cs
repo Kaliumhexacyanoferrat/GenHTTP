@@ -1,5 +1,4 @@
 ﻿using GenHTTP.Api.Infrastructure;
-
 using GenHTTP.Modules.Compression.Providers;
 
 namespace GenHTTP.Modules.Compression;
@@ -21,12 +20,9 @@ public static class CompressedContent
     /// Zstandard, Brotli and Gzip compression.
     /// </summary>
     /// <returns>The newly created builder</returns>
-    public static CompressionConcernBuilder Default()
-    {
-            return new CompressionConcernBuilder().Add(new ZstdCompression())
-                                                  .Add(new BrotliCompression())
-                                                  .Add(new GzipAlgorithm());
-        }
+    public static CompressionConcernBuilder Default() => new CompressionConcernBuilder().Add(new ZstdCompression())
+                                                                                        .Add(new BrotliCompression())
+                                                                                        .Add(new GzipAlgorithm());
 
     #endregion
 
@@ -41,9 +37,9 @@ public static class CompressedContent
     /// <returns>The configured server host for chaining</returns>
     public static IServerHost Compression(this IServerHost host, CompressionConcernBuilder compression)
     {
-            host.Add(compression);
-            return host;
-        }
+        host.Add(compression);
+        return host;
+    }
 
     /// <summary>
     /// Configures the host to compress responses if the client supports

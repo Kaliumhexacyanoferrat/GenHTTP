@@ -1,10 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Net.Http;
-using System.Threading.Tasks;
-
-using GenHTTP.Api.Protocol;
-
+﻿using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.ReverseProxy.Provider;
@@ -12,6 +6,15 @@ namespace GenHTTP.Modules.ReverseProxy.Provider;
 internal sealed class ClientResponseContent : IResponseContent, IDisposable
 {
     private bool _Disposed;
+
+    #region Initialization
+
+    public ClientResponseContent(HttpResponseMessage message)
+    {
+        Message = message;
+    }
+
+    #endregion
 
     #region Get/Setters
 
@@ -21,25 +24,16 @@ internal sealed class ClientResponseContent : IResponseContent, IDisposable
     {
         get
         {
-                var length = Message.Content.Headers.ContentLength;
+            var length = Message.Content.Headers.ContentLength;
 
-                if (length != null)
-                {
-                    return (ulong)length;
-                }
-
-                return null;
+            if (length != null)
+            {
+                return (ulong)length;
             }
-    }
 
-    #endregion
-
-    #region Initialization
-
-    public ClientResponseContent(HttpResponseMessage message)
-    {
-            Message = message;
+            return null;
         }
+    }
 
     #endregion
 
@@ -49,10 +43,10 @@ internal sealed class ClientResponseContent : IResponseContent, IDisposable
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
-            using var source = await Message.Content.ReadAsStreamAsync();
+        await using var source = await Message.Content.ReadAsStreamAsync();
 
-            await source.CopyPooledAsync(target, bufferSize);
-        }
+        await source.CopyPooledAsync(target, bufferSize);
+    }
 
     #endregion
 
@@ -60,22 +54,21 @@ internal sealed class ClientResponseContent : IResponseContent, IDisposable
 
     private void Dispose(bool disposing)
     {
-            if (!_Disposed)
+        if (!_Disposed)
+        {
+            if (disposing)
             {
-                if (disposing)
-                {
-                    Message.Dispose();
-                }
-
-                _Disposed = true;
+                Message.Dispose();
             }
+
+            _Disposed = true;
         }
+    }
 
     public void Dispose()
     {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
+        Dispose(disposing: true);
+    }
 
     #endregion
 

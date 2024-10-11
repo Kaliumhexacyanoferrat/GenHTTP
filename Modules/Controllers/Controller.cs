@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-
 using GenHTTP.Modules.Controllers.Provider;
 
 namespace GenHTTP.Modules.Controllers;

@@ -18,5 +18,4 @@ public interface IBuilder<out T>
     /// </summary>
     /// <returns>The newly created instance</returns>
     T Build();
-
 }

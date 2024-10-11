@@ -1,12 +1,20 @@
-﻿using System.IO;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Conversion.Serializers.Json;
 
 public sealed class JsonContent : IResponseContent
 {
+
+    #region Initialization
+
+    public JsonContent(object data, JsonSerializerOptions options)
+    {
+        Data = data;
+        Options = options;
+    }
+
+    #endregion
 
     #region Get-/Setters
 
@@ -18,27 +26,14 @@ public sealed class JsonContent : IResponseContent
 
     #endregion
 
-    #region Initialization
-
-    public JsonContent(object data, JsonSerializerOptions options)
-    {
-            Data = data;
-            Options = options;
-        }
-
-    #endregion
-
     #region Functionality
 
-    public ValueTask<ulong?> CalculateChecksumAsync()
-    {
-            return new ValueTask<ulong?>((ulong)Data.GetHashCode());
-        }
+    public ValueTask<ulong?> CalculateChecksumAsync() => new((ulong)Data.GetHashCode());
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
-            await JsonSerializer.SerializeAsync(target, Data, Data.GetType(), Options);
-        }
+        await JsonSerializer.SerializeAsync(target, Data, Data.GetType(), Options);
+    }
 
     #endregion
 

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GenHTTP.Modules.Conversion.Formatters;
+﻿namespace GenHTTP.Modules.Conversion.Formatters;
 
 /// <summary>
 /// Allows to add support for a specific type to be used as a parameter
@@ -34,7 +32,7 @@ public interface IFormatter
     /// <param name="type">The declared type of the value</param>
     /// <returns>The string representation of the given value</returns>
     /// <remarks>
-    /// Used by the framework to serialize a single value into the response's body 
+    /// Used by the framework to serialize a single value into the response's body
     /// or to generate form encoded data.
     /// </remarks>
     string? Write(object value, Type type);

@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Reflection;
-
+﻿using System.Reflection;
 using GenHTTP.Modules.IO.Embedded;
 using GenHTTP.Modules.IO.FileSystem;
 using GenHTTP.Modules.IO.Strings;
@@ -46,5 +44,4 @@ public static class Resource
     /// </summary>
     /// <param name="file">The file to be provided</param>
     public static FileResourceBuilder FromFile(FileInfo file) => new FileResourceBuilder().File(file);
-
 }

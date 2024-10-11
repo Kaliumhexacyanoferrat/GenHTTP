@@ -1,40 +1,16 @@
 ﻿using System.Net;
-using System.Threading.Tasks;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Controllers;
 
 [TestClass]
 public sealed class SeoTests
 {
-
-    #region Supporting data structures
-
-    public sealed class TestController
-    {
-
-        public IHandlerBuilder Action()
-        {
-                return Content.From(Resource.FromString("Action"));
-            }
-
-        [ControllerAction(RequestMethod.DELETE)]
-        public IHandlerBuilder Action([FromPath] int id)
-        {
-                return Content.From(Resource.FromString(id.ToString()));
-            }
-
-    }
-
-    #endregion
 
     #region Tests
 
@@ -45,21 +21,31 @@ public sealed class SeoTests
     [TestMethod]
     public async Task TestActionCasingMatters()
     {
-            using var runner = GetRunner();
+        using var runner = GetRunner();
 
-            using var response = await runner.GetResponseAsync("/t/Action/");
+        using var response = await runner.GetResponseAsync("/t/Action/");
 
-            await response.AssertStatusAsync(HttpStatusCode.NotFound);
-        }
+        await response.AssertStatusAsync(HttpStatusCode.NotFound);
+    }
 
     #endregion
 
     #region Helpers
 
-    private TestHost GetRunner()
+    private TestHost GetRunner() => TestHost.Run(Layout.Create().AddController<TestController>("t"));
+
+    #endregion
+
+    #region Supporting data structures
+
+    public sealed class TestController
     {
-            return TestHost.Run(Layout.Create().AddController<TestController>("t"));
-        }
+
+        public IHandlerBuilder Action() => Content.From(Resource.FromString("Action"));
+
+        [ControllerAction(RequestMethod.Delete)]
+        public IHandlerBuilder Action([FromPath] int id) => Content.From(Resource.FromString(id.ToString()));
+    }
 
     #endregion
 

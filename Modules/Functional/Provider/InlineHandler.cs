@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Reflection;
@@ -31,9 +26,9 @@ public class InlineHandler : IHandler
     {
         Parent = parent;
 
-        ResponseProvider = new(serialization, formatting);
+        ResponseProvider = new ResponseProvider(serialization, formatting);
 
-        Methods = new(this, AnalyzeMethods(functions, serialization, injection, formatting));
+        Methods = new MethodCollection(this, AnalyzeMethods(functions, serialization, injection, formatting));
     }
 
     private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(List<InlineFunction> functions, SerializationRegistry formats, InjectionRegistry injection, FormatterRegistry formatting)
@@ -48,7 +43,7 @@ public class InlineHandler : IHandler
 
             var target = function.Delegate.Target ?? throw new InvalidOperationException("Delegate target must not be null");
 
-            yield return (parent) => new MethodHandler(parent, method, path, () => target, function.Configuration, ResponseProvider.GetResponseAsync, formats, injection, formatting);
+            yield return parent => new MethodHandler(parent, method, path, () => target, function.Configuration, ResponseProvider.GetResponseAsync, formats, injection, formatting);
         }
     }
 

@@ -9,12 +9,18 @@ public static class CorsPolicy
     /// Creates a policy that does not restrict browsers from interacting
     /// with the requested resources.
     /// </summary>
-    /// <param name="allowAuthorization ">Indicate if the header Authorization should be in 'Access-Control-Allow-Headers'. Default value=true</param>
+    /// <param name="allowAuthorization ">
+    /// Indicate if the header Authorization should be in 'Access-Control-Allow-Headers'.
+    /// Default value=true
+    /// </param>
     public static CorsPolicyBuilder Permissive(bool allowAuthorization = true)
         => new CorsPolicyBuilder().Default(
             new OriginPolicy(
                 null,
-                allowAuthorization ? new() { "*", "Authorization" } : null,
+                allowAuthorization
+                    ? new List<string>
+                        { "*", "Authorization" }
+                    : null,
                 null,
                 true,
                 86400));
@@ -25,9 +31,5 @@ public static class CorsPolicy
     /// <remarks>
     /// You may add more permissive policies for specific origins.
     /// </remarks>
-    public static CorsPolicyBuilder Restrictive()
-    {
-            return new CorsPolicyBuilder();
-        }
-
+    public static CorsPolicyBuilder Restrictive() => new();
 }

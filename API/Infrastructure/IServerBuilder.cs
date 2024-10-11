@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Api.Content;
@@ -7,14 +6,14 @@ using GenHTTP.Api.Content;
 namespace GenHTTP.Api.Infrastructure;
 
 /// <summary>
-/// Allows to configure and create a new <see cref="IServer"/> instance.
+/// Allows to configure and create a new <see cref="IServer" /> instance.
 /// </summary>
-public interface IServerBuilder : IServerBuilder<IServerBuilder> { }
+public interface IServerBuilder : IServerBuilder<IServerBuilder>;
 
 /// <summary>
-/// Allows to configure and create a new <see cref="IServer"/> instance.
+/// Allows to configure and create a new <see cref="IServer" /> instance.
 /// </summary>
-public interface IServerBuilder<T> : IBuilder<IServer>
+public interface IServerBuilder<out T> : IBuilder<IServer>
 {
 
     #region Content
@@ -29,6 +28,17 @@ public interface IServerBuilder<T> : IBuilder<IServer>
     /// complex application, consider passing a Layout instead.
     /// </remarks>
     T Handler(IHandlerBuilder handler);
+
+    #endregion
+
+    #region Extensibility
+
+    /// <summary>
+    /// Adds a concern to the server instance which will be executed before
+    /// and after the root handler is invoked.
+    /// </summary>
+    /// <param name="concern">The concern to be added to the instance</param>
+    T Add(IConcernBuilder concern);
 
     #endregion
 
@@ -123,17 +133,6 @@ public interface IServerBuilder<T> : IBuilder<IServer>
     /// <param name="certificateProvider">The provider to select the certificate used to negoiate a connection with</param>
     /// <param name="protocols">The SSL/TLS protocl versions which should be supported by the endpoint</param>
     T Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols);
-
-    #endregion
-
-    #region Extensibility
-
-    /// <summary>
-    /// Adds a concern to the server instance which will be executed before
-    /// and after the root handler is invoked.
-    /// </summary>
-    /// <param name="concern">The concern to be added to the instance</param>
-    T Add(IConcernBuilder concern);
 
     #endregion
 

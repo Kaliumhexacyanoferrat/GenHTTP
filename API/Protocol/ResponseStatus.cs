@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-
-namespace GenHTTP.Api.Protocol;
+﻿namespace GenHTTP.Api.Protocol;
 
 #region Known Types
 
@@ -15,7 +11,7 @@ public enum ResponseStatus
 
     Processing = 102,
 
-    OK = 200,
+    Ok = 200,
 
     Created = 201,
 
@@ -79,7 +75,7 @@ public enum ResponseStatus
 
     FailedDependency = 424,
 
-    ReservedForWebDAV = 425,
+    ReservedForWebDav = 425,
 
     UpgradeRequired = 426,
 
@@ -118,7 +114,7 @@ public enum ResponseStatus
 /// <summary>
 /// The status of the response send to the client.
 /// </summary>
-public struct FlexibleResponseStatus
+public readonly struct FlexibleResponseStatus
 {
 
     #region Get-/Setters
@@ -157,15 +153,15 @@ public struct FlexibleResponseStatus
         { ResponseStatus.NotFound, "Not Found" },
         { ResponseStatus.NotImplemented, "Not Implemented" },
         { ResponseStatus.NotModified, "Not Modified" },
-        { ResponseStatus.OK, "OK" },
-        { ResponseStatus.ServiceUnavailable, "Service Unavailable"},
-        { ResponseStatus.Unauthorized, "Unauthorized"},
-        { ResponseStatus.PartialContent, "Partial Content"},
-        { ResponseStatus.MultiStatus, "Multi-Status"},
-        { ResponseStatus.AlreadyReported, "Already Reported"},
+        { ResponseStatus.Ok, "OK" },
+        { ResponseStatus.ServiceUnavailable, "Service Unavailable" },
+        { ResponseStatus.Unauthorized, "Unauthorized" },
+        { ResponseStatus.PartialContent, "Partial Content" },
+        { ResponseStatus.MultiStatus, "Multi-Status" },
+        { ResponseStatus.AlreadyReported, "Already Reported" },
         { ResponseStatus.SeeOther, "See Other" },
-        { ResponseStatus.TemporaryRedirect, "Temporary Redirect"},
-        { ResponseStatus.PermanentRedirect, "Permanent Redirect"},
+        { ResponseStatus.TemporaryRedirect, "Temporary Redirect" },
+        { ResponseStatus.PermanentRedirect, "Permanent Redirect" },
         { ResponseStatus.Continue, "Continue" },
         { ResponseStatus.SwitchingProtocols, "Switching Protocols" },
         { ResponseStatus.NotAcceptable, "Not Acceptable" },
@@ -182,7 +178,7 @@ public struct FlexibleResponseStatus
         { ResponseStatus.UnprocessableEntity, "Unprocessable Entity" },
         { ResponseStatus.Locked, "Locked" },
         { ResponseStatus.FailedDependency, "Failed Dependency" },
-        { ResponseStatus.ReservedForWebDAV, "Reserved For WebDAV" },
+        { ResponseStatus.ReservedForWebDav, "Reserved For WebDAV" },
         { ResponseStatus.UpgradeRequired, "Upgrade Required" },
         { ResponseStatus.PreconditionRequired, "Precondition Required" },
         { ResponseStatus.TooManyRequests, "Too Many Requests" },
@@ -197,7 +193,7 @@ public struct FlexibleResponseStatus
         { ResponseStatus.Processing, "Processing" }
     };
 
-    private static readonly Dictionary<int, ResponseStatus> CODE_MAPPING = MAPPING.Keys.ToDictionary((k) => (int)k, (k) => k);
+    private static readonly Dictionary<int, ResponseStatus> CODE_MAPPING = MAPPING.Keys.ToDictionary(k => (int)k, k => k);
 
     #endregion
 
@@ -205,26 +201,26 @@ public struct FlexibleResponseStatus
 
     public FlexibleResponseStatus(int status, string phrase)
     {
-            RawStatus = status;
-            Phrase = phrase;
+        RawStatus = status;
+        Phrase = phrase;
 
-            if (CODE_MAPPING.TryGetValue(status, out var known))
-            {
-                KnownStatus = known;
-            }
-            else
-            {
-                KnownStatus = null;
-            }
+        if (CODE_MAPPING.TryGetValue(status, out var known))
+        {
+            KnownStatus = known;
         }
+        else
+        {
+            KnownStatus = null;
+        }
+    }
 
     public FlexibleResponseStatus(ResponseStatus status)
     {
-            KnownStatus = status;
+        KnownStatus = status;
 
-            RawStatus = (int)status;
-            Phrase = MAPPING[status];
-        }
+        RawStatus = (int)status;
+        Phrase = MAPPING[status];
+    }
 
     #endregion
 

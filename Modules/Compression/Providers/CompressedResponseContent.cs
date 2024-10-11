@@ -1,13 +1,19 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Compression.Providers;
 
-public class CompressedResponseContent : IResponseContent, IDisposable
+public sealed class CompressedResponseContent : IResponseContent, IDisposable
 {
+
+    #region Initialization
+
+    public CompressedResponseContent(IResponseContent originalContent, Func<Stream, Stream> generator)
+    {
+        OriginalContent = originalContent;
+        Generator = generator;
+    }
+
+    #endregion
 
     #region Get-/Setters
 
@@ -19,62 +25,43 @@ public class CompressedResponseContent : IResponseContent, IDisposable
 
     #endregion
 
-    #region Initialization
-
-    public CompressedResponseContent(IResponseContent originalContent, Func<Stream, Stream> generator)
-    {
-            OriginalContent = originalContent;
-            Generator = generator;
-        }
-
-    #endregion
-
     #region Functionality
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
-            using var compressed = Generator(target);
+        await using var compressed = Generator(target);
 
-            await OriginalContent.WriteAsync(compressed, bufferSize);
-        }
+        await OriginalContent.WriteAsync(compressed, bufferSize);
+    }
 
-    public ValueTask<ulong?> CalculateChecksumAsync()
-    {
-            return OriginalContent.CalculateChecksumAsync();
-        }
+    public ValueTask<ulong?> CalculateChecksumAsync() => OriginalContent.CalculateChecksumAsync();
 
     #endregion
 
     #region IDisposable Support
 
-    private bool disposedValue = false;
+    private bool _Disposed;
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
-            if (!disposedValue)
+        if (!_Disposed)
+        {
+            if (disposing)
             {
-                if (disposing)
+                if (OriginalContent is IDisposable disposableContent)
                 {
-                    if (OriginalContent is IDisposable disposableContent)
-                    {
-                        disposableContent.Dispose();
-                    }
+                    disposableContent.Dispose();
                 }
-
-                disposedValue = true;
             }
-        }
 
-    ~CompressedResponseContent()
-    {
-            Dispose(false);
+            _Disposed = true;
         }
+    }
 
     public void Dispose()
     {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        Dispose(true);
+    }
 
     #endregion
 

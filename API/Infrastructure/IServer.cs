@@ -1,5 +1,4 @@
-﻿using System;
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 
 namespace GenHTTP.Api.Infrastructure;
 
@@ -47,5 +46,4 @@ public interface IServer : IDisposable
     /// incoming HTTP requests.
     /// </summary>
     IHandler Handler { get; }
-
 }

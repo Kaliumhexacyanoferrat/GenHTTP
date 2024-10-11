@@ -1,53 +1,53 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <PropertyGroup>
 
-    <LangVersion>13.0</LangVersion>
-    <Nullable>enable</Nullable>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
 
-    <AssemblyVersion>9.0.0.0</AssemblyVersion>
-    <FileVersion>9.0.0.0</FileVersion>
-    <Version>9.0.0</Version>
+        <LangVersion>13.0</LangVersion>
+        <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <ImplicitUsings>enable</ImplicitUsings>
 
-    <Authors>Andreas Nägeli</Authors>
-    <Company />
+        <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <FileVersion>9.0.0.0</FileVersion>
+        <Version>9.0.0</Version>
 
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
+        <Authors>Andreas Nägeli</Authors>
+        <Company/>
 
-    <Description>Allows to read and write responses in additional data formats such as JSON or XML</Description>
-    <PackageTags>HTTP Webserver C# Module Serialization Conversion XML JSON</PackageTags>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <Description>Allows to read and write responses in additional data formats such as JSON or XML</Description>
+        <PackageTags>HTTP Webserver C# Module Serialization Conversion XML JSON</PackageTags>
 
-	<GenerateDocumentationFile>true</GenerateDocumentationFile>
-	<NoWarn>CS1591,CS1587,CS1572,CS1573</NoWarn>
-	  
-    <PackageIcon>icon.png</PackageIcon>
-    
-  </PropertyGroup>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
-  <ItemGroup>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>CS1591,CS1587,CS1572,CS1573</NoWarn>
 
-    <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
-    <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\" />
+        <PackageIcon>icon.png</PackageIcon>
 
-  </ItemGroup>
+    </PropertyGroup>
 
-  <ItemGroup>
-    
-    <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
+    <ItemGroup>
 
-    <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
+        <None Include="..\..\LICENSE" Pack="true" PackagePath="\"/>
+        <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\"/>
 
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    
-  </ItemGroup>
+    </ItemGroup>
+
+    <ItemGroup>
+
+        <ProjectReference Include="..\..\API\GenHTTP.Api.csproj"/>
+
+        <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj"/>
+
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+
+    </ItemGroup>
 
 </Project>
- 

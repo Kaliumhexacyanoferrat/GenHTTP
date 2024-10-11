@@ -1,6 +1,4 @@
-﻿using System;
-
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Content;
 
@@ -26,13 +24,13 @@ public class ProviderException : Exception
 
     public ProviderException(ResponseStatus status, string message) : base(message)
     {
-            Status = status;
-        }
+        Status = status;
+    }
 
     public ProviderException(ResponseStatus status, string message, Exception inner) : base(message, inner)
     {
-            Status = status;
-        }
+        Status = status;
+    }
 
     #endregion
 

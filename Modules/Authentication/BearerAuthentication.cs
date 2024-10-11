@@ -12,5 +12,4 @@ public static class BearerAuthentication
     /// </summary>
     /// <returns>The newly created concern</returns>
     public static BearerAuthenticationConcernBuilder Create() => new();
-
 }

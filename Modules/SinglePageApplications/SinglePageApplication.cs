@@ -1,6 +1,5 @@
 ﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
-
 using GenHTTP.Modules.SinglePageApplications.Provider;
 
 namespace GenHTTP.Modules.SinglePageApplications;

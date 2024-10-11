@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Infrastructure;
@@ -14,7 +13,7 @@ public enum ServerErrorScope
 {
 
     /// <summary>
-    /// Errors which occur within the regular lifecycle, 
+    /// Errors which occur within the regular lifecycle,
     /// such as startup errors.
     /// </summary>
     General,
@@ -35,18 +34,7 @@ public enum ServerErrorScope
     /// Errors which occur when trying to establish a secure
     /// connection with the client.
     /// </summary>
-    Security,
-
-    /// <summary>
-    /// Errors which occur when the server tries to generate a default
-    /// error page, e.g. because the template somehow fails to render.
-    /// </summary>
-    PageGeneration,
-
-    /// <summary>
-    /// An error which occurred within an extension.
-    /// </summary>
-    Extension,
+    Security
 
 }
 
@@ -79,5 +67,4 @@ public interface IServerCompanion
     /// <param name="client">The endpoint of the client which caused this error (if any)</param>
     /// <param name="error">The actual exception which occurred</param>
     void OnServerError(ServerErrorScope scope, IPAddress? client, Exception error);
-
 }

@@ -20,5 +20,4 @@ internal interface IResultWrapper
     /// </summary>
     /// <param name="builder">The response builder to manipulate</param>
     void Apply(IResponseBuilder builder);
-
 }

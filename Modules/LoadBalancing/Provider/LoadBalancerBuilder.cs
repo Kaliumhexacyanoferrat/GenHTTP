@@ -1,31 +1,29 @@
-﻿using System.Collections.Generic;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Modules.LoadBalancing.Provider;
 
 public sealed class LoadBalancerBuilder : IHandlerBuilder<LoadBalancerBuilder>
 {
-    private readonly List<IConcernBuilder> _Concerns = new();
+    private static readonly PriorityEvaluation DefaultPriority = _ => Priority.Medium;
 
-    private readonly List<(IHandlerBuilder, PriorityEvaluation)> _Nodes = new();
+    private readonly List<IConcernBuilder> _Concerns = [];
 
-    private static readonly PriorityEvaluation DEFAULT_PRIORITY = (_) => Priority.Medium;
+    private readonly List<(IHandlerBuilder, PriorityEvaluation)> _Nodes = [];
 
     #region Functionality
 
     public LoadBalancerBuilder Add(IConcernBuilder concern)
     {
-            _Concerns.Add(concern);
-            return this;
-        }
+        _Concerns.Add(concern);
+        return this;
+    }
 
     public LoadBalancerBuilder Add(IHandlerBuilder handler, PriorityEvaluation? priority = null)
     {
-            _Nodes.Add((handler, priority ?? DEFAULT_PRIORITY));
-            return this;
-        }
+        _Nodes.Add((handler, priority ?? DefaultPriority));
+        return this;
+    }
 
     public LoadBalancerBuilder Redirect(string node, PriorityEvaluation? priority = null) => Add(new LoadBalancerRedirectionBuilder().Root(node), priority);
 
@@ -33,8 +31,8 @@ public sealed class LoadBalancerBuilder : IHandlerBuilder<LoadBalancerBuilder>
 
     public IHandler Build(IHandler parent)
     {
-            return Concerns.Chain(parent, _Concerns, (p) => new LoadBalancerHandler(p, _Nodes));
-        }
+        return Concerns.Chain(parent, _Concerns, p => new LoadBalancerHandler(p, _Nodes));
+    }
 
     #endregion
 

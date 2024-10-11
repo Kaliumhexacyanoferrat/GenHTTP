@@ -5,26 +5,21 @@ namespace GenHTTP.Modules.Authentication;
 
 public static class Extensions
 {
-    private const string USER_PROPERTY = "__AUTH_USER";
+    private const string UserProperty = "__AUTH_USER";
 
     public static void SetUser(this IRequest request, IUser user)
     {
-            request.Properties[USER_PROPERTY] = user;
-        }
+        request.Properties[UserProperty] = user;
+    }
 
     public static T? GetUser<T>(this IRequest request) where T : class, IUser
     {
-            if (request.Properties.TryGet<T>(USER_PROPERTY, out var user))
-            {
-                return user;
-            }
-
-            return null;
-        }
+        return request.Properties.TryGet<T>(UserProperty, out var user) ? user : null;
+    }
 
     public static void ClearUser(this IRequest request)
     {
-            request.Properties.Clear(USER_PROPERTY);
-        }
+        request.Properties.Clear(UserProperty);
+    }
 
 }

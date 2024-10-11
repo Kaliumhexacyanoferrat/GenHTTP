@@ -1,25 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
+﻿using Cottle;
 using GenHTTP.Api.Content.IO;
-
 using GenHTTP.Modules.IO;
-
-using Cottle;
 
 namespace GenHTTP.Modules.Pages.Rendering;
 
 public sealed class ServerRenderer
 {
-    private static readonly IResource _ServerTemplate = Resource.FromAssembly("ServerPage.html").Build();
+    private static readonly IResource ServerTemplate = Resource.FromAssembly("ServerPage.html").Build();
 
-    private readonly TemplateRenderer _TemplateRender;
-
-    public ServerRenderer()
-    {
-            _TemplateRender = Renderer.From(_ServerTemplate);
-        }
+    private readonly TemplateRenderer _TemplateRender = Renderer.From(ServerTemplate);
 
     /// <summary>
     /// Renders a server-styled HTML page for the given title and content.
@@ -30,14 +19,11 @@ public sealed class ServerRenderer
     /// <remarks>
     /// This method will not escape the given title or content.
     /// </remarks>
-    public async ValueTask<string> RenderAsync(string title, string content)
+    public async ValueTask<string> RenderAsync(string title, string content) => await _TemplateRender.RenderAsync(new Dictionary<Value, Value>
     {
-            return await _TemplateRender.RenderAsync(new Dictionary<Value, Value>()
-            {
-                ["title"] = title,
-                ["content"] = content
-            });
-        }
+        ["title"] = title,
+        ["content"] = content
+    });
 
     /// <summary>
     /// Renders a server-styled HTML error page for the given exception.
@@ -48,5 +34,4 @@ public sealed class ServerRenderer
     /// <returns>The generated HTML error page</returns>
     public ValueTask<string> RenderAsync(string title, Exception error, bool developmentMode)
         => RenderAsync(title, developmentMode ? error.ToString().Escaped() : error.Message.Escaped());
-
 }

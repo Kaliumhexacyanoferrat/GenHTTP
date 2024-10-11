@@ -1,23 +1,18 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-
+﻿using Cottle;
 using GenHTTP.Modules.IO.Tracking;
-
-using Cottle;
 
 namespace GenHTTP.Modules.Pages.Rendering;
 
 public class TemplateRenderer
 {
-    private IDocument? _Document = null;
-
-    public ChangeTrackingResource Template { get; }
+    private IDocument? _Document;
 
     public TemplateRenderer(ChangeTrackingResource template)
     {
-            Template = template;
-        }
+        Template = template;
+    }
+
+    public ChangeTrackingResource Template { get; }
 
     /// <summary>
     /// Renders the template with the given model.
@@ -26,14 +21,13 @@ public class TemplateRenderer
     /// <returns>The generated response</returns>
     public async ValueTask<string> RenderAsync(IReadOnlyDictionary<Value, Value> model)
     {
-            if ((_Document == null) || await Template.HasChanged())
-            {
-                using var reader = new StreamReader(await Template.GetContentAsync());
+        if (_Document == null || await Template.HasChanged())
+        {
+            using var reader = new StreamReader(await Template.GetContentAsync());
 
-                _Document = Document.CreateDefault(reader).DocumentOrThrow;
-            }
-
-            return _Document.Render(Context.CreateBuiltin(model));
+            _Document = Document.CreateDefault(reader).DocumentOrThrow;
         }
 
+        return _Document.Render(Context.CreateBuiltin(model));
+    }
 }

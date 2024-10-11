@@ -1,6 +1,4 @@
-﻿using System;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Modules.Security.Providers;
@@ -13,16 +11,16 @@ public sealed class StrictTransportConcernBuilder : IConcernBuilder
 
     public StrictTransportConcernBuilder Policy(StrictTransportPolicy policy)
     {
-            _Policy = policy;
-            return this;
-        }
+        _Policy = policy;
+        return this;
+    }
 
     public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
     {
-            var policy = _Policy ?? throw new BuilderMissingPropertyException("policy");
+        var policy = _Policy ?? throw new BuilderMissingPropertyException("policy");
 
-            return new StrictTransportConcern(parent, contentFactory, policy);
-        }
+        return new StrictTransportConcern(parent, contentFactory, policy);
+    }
 
     #endregion
 

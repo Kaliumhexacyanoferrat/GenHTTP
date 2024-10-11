@@ -34,5 +34,4 @@ public static class ChangeTracking
     /// or interpreting the content of the resource.
     /// </remarks>
     public static ChangeTrackingResource BuildWithTracking(this IBuilder<IResource> resourceBuilder) => new(resourceBuilder.Build());
-
 }

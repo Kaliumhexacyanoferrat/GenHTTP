@@ -17,13 +17,10 @@ public static class Serialization
     /// Returns a registry that will support JSON and XML serialization
     /// and will use JSON as a default format.
     /// </summary>
-    public static SerializationBuilder Default()
-    {
-            return new SerializationBuilder().Default(ContentType.ApplicationJson)
-                                             .Add(ContentType.ApplicationJson, new JsonFormat())
-                                             .Add(ContentType.ApplicationWwwFormUrlEncoded, new FormFormat())
-                                             .Add(ContentType.TextXml, new XmlFormat());
-        }
+    public static SerializationBuilder Default() => new SerializationBuilder().Default(ContentType.ApplicationJson)
+                                                                              .Add(ContentType.ApplicationJson, new JsonFormat())
+                                                                              .Add(ContentType.ApplicationWwwFormUrlEncoded, new FormFormat())
+                                                                              .Add(ContentType.TextXml, new XmlFormat());
 
     /// <summary>
     /// Returns an empty registry to be customized.

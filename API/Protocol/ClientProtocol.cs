@@ -2,6 +2,6 @@
 
 public enum ClientProtocol
 {
-    HTTP,
-    HTTPS
+    Http,
+    Https
 }

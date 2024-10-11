@@ -1,14 +1,26 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-using GenHTTP.Api.Content.IO;
+﻿using GenHTTP.Api.Content.IO;
 
 namespace GenHTTP.Modules.IO.VirtualTrees;
 
 public sealed class VirtualTree : IResourceTree
 {
+
+    #region Initialization
+
+    public VirtualTree(Dictionary<string, Func<IResourceContainer, IResourceNode>> nodes, Dictionary<string, IResource> resources)
+    {
+        var built = new Dictionary<string, IResourceNode>(nodes.Count);
+
+        foreach (var node in nodes)
+        {
+            built.Add(node.Key, node.Value(this));
+        }
+
+        Nodes = built;
+        Resources = resources;
+    }
+
+    #endregion
 
     #region Get-/Setters
 
@@ -20,34 +32,17 @@ public sealed class VirtualTree : IResourceTree
     {
         get
         {
-                return Nodes.Select(n => n.Value.Modified)
-                            .Where(n => n != null)
-                            .Union
-                            (
-                                Resources.Select(r => r.Value.Modified)
-                                         .Where(r => r != null)
-                            )
-                            .DefaultIfEmpty(null)
-                            .Max();
-            }
-    }
-
-    #endregion
-
-    #region Initialization
-
-    public VirtualTree(Dictionary<string, Func<IResourceContainer, IResourceNode>> nodes, Dictionary<string, IResource> resources)
-    {
-            var built = new Dictionary<string, IResourceNode>(nodes.Count);
-
-            foreach (var node in nodes)
-            {
-                built.Add(node.Key, node.Value(this));
-            }
-
-            Nodes = built;
-            Resources = resources;
+            return Nodes.Select(n => n.Value.Modified)
+                        .Where(n => n != null)
+                        .Union
+                        (
+                            Resources.Select(r => r.Value.Modified)
+                                     .Where(r => r != null)
+                        )
+                        .DefaultIfEmpty(null)
+                        .Max();
         }
+    }
 
     #endregion
 

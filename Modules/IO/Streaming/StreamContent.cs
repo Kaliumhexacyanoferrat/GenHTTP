@@ -1,16 +1,24 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.IO.Streaming;
 
-public class StreamContent : IResponseContent, IDisposable
+public sealed class StreamContent : IResponseContent, IDisposable
 {
     private readonly Func<ValueTask<ulong?>> _ChecksumProvider;
 
     private readonly ulong? _KnownLengh;
+
+    #region Initialization
+
+    public StreamContent(Stream content, ulong? knownLength, Func<ValueTask<ulong?>> checksumProvider)
+    {
+        Content = content;
+
+        _KnownLengh = knownLength;
+        _ChecksumProvider = checksumProvider;
+    }
+
+    #endregion
 
     #region Get-/Setters
 
@@ -20,31 +28,19 @@ public class StreamContent : IResponseContent, IDisposable
     {
         get
         {
-                if (_KnownLengh != null)
-                {
-                    return _KnownLengh;
-                }
-
-                if (Content.CanSeek)
-                {
-                    return (ulong)Content.Length;
-                }
-
-                return null;
+            if (_KnownLengh != null)
+            {
+                return _KnownLengh;
             }
-    }
 
-    #endregion
+            if (Content.CanSeek)
+            {
+                return (ulong)Content.Length;
+            }
 
-    #region Initialization
-
-    public StreamContent(Stream content, ulong? knownLength, Func<ValueTask<ulong?>> checksumProvider)
-    {
-            Content = content;
-
-            _KnownLengh = knownLength;
-            _ChecksumProvider = checksumProvider;
+            return null;
         }
+    }
 
     #endregion
 
@@ -52,40 +48,31 @@ public class StreamContent : IResponseContent, IDisposable
 
     public ValueTask<ulong?> CalculateChecksumAsync() => _ChecksumProvider();
 
-    public ValueTask WriteAsync(Stream target, uint bufferSize)
-    {
-            return Content.CopyPooledAsync(target, bufferSize);
-        }
+    public ValueTask WriteAsync(Stream target, uint bufferSize) => Content.CopyPooledAsync(target, bufferSize);
 
     #endregion
 
     #region IDisposable Support
 
-    private bool disposedValue = false;
+    private bool _Disposed;
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
-            if (!disposedValue)
+        if (!_Disposed)
+        {
+            if (disposing)
             {
-                if (disposing)
-                {
-                    Content.Dispose();
-                }
-
-                disposedValue = true;
+                Content.Dispose();
             }
-        }
 
-    ~StreamContent()
-    {
-            Dispose(false);
+            _Disposed = true;
         }
+    }
 
     public void Dispose()
     {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        Dispose(true);
+    }
 
     #endregion
 

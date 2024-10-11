@@ -1,23 +1,19 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-
-using GenHTTP.Api.Content.IO;
+﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.IO.Streaming;
+using StreamContent = GenHTTP.Modules.IO.Streaming.StreamContent;
 
 namespace GenHTTP.Modules.IO;
 
 public static class ResponseBuilderExtensions
 {
-    private static readonly FlexibleContentType _TextPlainType = new(ContentType.TextPlain, "UTF-8");
+    private static readonly FlexibleContentType TextPlainType = new(ContentType.TextPlain, "UTF-8");
 
     /// <summary>
     /// Sends the given string to the client.
     /// </summary>
     /// <param name="text">The string to be sent</param>
-    public static IResponseBuilder Content(this IResponseBuilder builder, string text) => builder.Content(Resource.FromString(text).Type(_TextPlainType).Build());
+    public static IResponseBuilder Content(this IResponseBuilder builder, string text) => builder.Content(Resource.FromString(text).Type(TextPlainType).Build());
 
     /// <summary>
     /// Sends the given resource to the client.
@@ -45,5 +41,4 @@ public static class ResponseBuilderExtensions
     public static IResponseBuilder Content(this IResponseBuilder builder, Stream stream, Func<ValueTask<ulong?>> checksumProvider) => builder.Content(stream, null, checksumProvider);
 
     public static ValueTask<IResponse?> BuildTask(this IResponseBuilder builder) => new(builder.Build());
-
 }

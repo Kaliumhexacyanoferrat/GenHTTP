@@ -5,13 +5,9 @@ namespace GenHTTP.Modules.Reflection;
 public static class Injection
 {
 
-    public static InjectionRegistryBuilder Empty() => new InjectionRegistryBuilder();
+    public static InjectionRegistryBuilder Empty() => new();
 
-    public static InjectionRegistryBuilder Default()
-    {
-            return new InjectionRegistryBuilder().Add(new RequestInjector())
-                                                 .Add(new RequestBodyInjector())
-                                                 .Add(new HandlerInjector());
-        }
-
+    public static InjectionRegistryBuilder Default() => new InjectionRegistryBuilder().Add(new RequestInjector())
+                                                                                      .Add(new RequestBodyInjector())
+                                                                                      .Add(new HandlerInjector());
 }

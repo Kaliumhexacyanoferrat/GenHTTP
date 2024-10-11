@@ -1,45 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-
-using GenHTTP.Api.Protocol;
-
+﻿using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Utilities;
 
 namespace GenHTTP.Engine.Protocol;
 
 internal sealed class ResponseHeaderCollection : PooledDictionary<string, string>, IHeaderCollection, IEditableHeaderCollection
 {
-    private const int DEFAULT_SIZE = 18;
+    private const int DefaultSize = 18;
 
-    private static readonly HashSet<string> RESERVED_HEADERS = new(StringComparer.InvariantCultureIgnoreCase)
+    private static readonly HashSet<string> ReservedHeaders = new(StringComparer.InvariantCultureIgnoreCase)
     {
         "Date", "Connection", "Content-Type", "Content-Encoding", "Content-Length",
         "Transfer-Encoding", "Last-Modified", "Expires"
     };
 
-    #region Get-/Setters
+    #region Initialization
 
-    public override string this[string key]
+    internal ResponseHeaderCollection() : base(DefaultSize, StringComparer.InvariantCultureIgnoreCase)
     {
-        get
-        {
-                return base[key];
-            }
-        set
-        {
-                CheckKey(key);
-                base[key] = value;
-            }
+
     }
 
     #endregion
 
-    #region Initialization
+    #region Get-/Setters
 
-    internal ResponseHeaderCollection() : base(DEFAULT_SIZE, StringComparer.InvariantCultureIgnoreCase)
+    public override string this[string key]
     {
-
+        get => base[key];
+        set
+        {
+            CheckKey(key);
+            base[key] = value;
         }
+    }
 
     #endregion
 
@@ -47,23 +40,23 @@ internal sealed class ResponseHeaderCollection : PooledDictionary<string, string
 
     public override void Add(string key, string value)
     {
-            CheckKey(key);
-            base.Add(key, value);
-        }
+        CheckKey(key);
+        base.Add(key, value);
+    }
 
     public override void Add(KeyValuePair<string, string> item)
     {
-            CheckKey(item.Key);
-            base.Add(item);
-        }
+        CheckKey(item.Key);
+        base.Add(item);
+    }
 
     private static void CheckKey(string key)
     {
-            if (RESERVED_HEADERS.Contains(key))
-            {
-                throw new ArgumentException($"Header '{key}' cannot be set via header. Please use the designated property instead.");
-            }
+        if (ReservedHeaders.Contains(key))
+        {
+            throw new ArgumentException($"Header '{key}' cannot be set via header. Please use the designated property instead.");
         }
+    }
 
     #endregion
 

@@ -1,34 +1,31 @@
 ﻿using System.Buffers;
-using System.Collections.Generic;
-
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Protocol.Parser.Conversion;
 
 internal static class MethodConverter
 {
-    private static readonly Dictionary<string, RequestMethod> KNOWN_METHODS = new(7)
+    private static readonly Dictionary<string, RequestMethod> KnownMethods = new(7)
     {
-        { "GET",     RequestMethod.GET },
-        { "HEAD",    RequestMethod.HEAD },
-        { "POST",    RequestMethod.POST },
-        { "PUT",     RequestMethod.PUT },
-        { "PATCH",   RequestMethod.PATCH },
-        { "DELETE",  RequestMethod.DELETE },
-        { "OPTIONS", RequestMethod.OPTIONS }
+        { "GET", RequestMethod.Get },
+        { "HEAD", RequestMethod.Head },
+        { "POST", RequestMethod.Post },
+        { "PUT", RequestMethod.Put },
+        { "PATCH", RequestMethod.Patch },
+        { "DELETE", RequestMethod.Delete },
+        { "OPTIONS", RequestMethod.Options }
     };
 
     internal static FlexibleRequestMethod ToRequestMethod(ReadOnlySequence<byte> value)
     {
-            foreach (var kv in KNOWN_METHODS)
+        foreach (var kv in KnownMethods)
+        {
+            if (ValueConverter.CompareTo(value, kv.Key))
             {
-                if (ValueConverter.CompareTo(value, kv.Key))
-                {
-                    return FlexibleRequestMethod.Get(kv.Value);
-                }
+                return FlexibleRequestMethod.Get(kv.Value);
             }
-
-            return FlexibleRequestMethod.Get(ValueConverter.GetString(value));
         }
 
+        return FlexibleRequestMethod.Get(ValueConverter.GetString(value));
+    }
 }

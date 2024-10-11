@@ -1,11 +1,8 @@
 ﻿using System.Net;
-using System.Threading.Tasks;
-
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Webservices;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Webservices;
@@ -26,7 +23,6 @@ public class TestResource
 
     [ResourceMethod("generic-value-task")]
     public ValueTask<string> AsyncGenericValueTask() => ValueTask.FromResult("ValueTask result");
-
 }
 
 #endregion
@@ -35,60 +31,57 @@ public class TestResource
 public class ResultTypeTests
 {
 
+    #region Helpers
+
+    private TestHost GetRunner() => TestHost.Run(Layout.Create().AddService<TestResource>("t", serializers: Serialization.Default(),
+                                                                                          injectors: Injection.Default(),
+                                                                                          formatters: Formatting.Default()));
+
+    #endregion
+
     #region Tests
 
     [TestMethod]
     public async Task ControllerMayReturnTask()
     {
-            using var runner = GetRunner();
+        using var runner = GetRunner();
 
-            using var response = await runner.GetResponseAsync("/t/task");
+        using var response = await runner.GetResponseAsync("/t/task");
 
-            await response.AssertStatusAsync(HttpStatusCode.NoContent);
-        }
+        await response.AssertStatusAsync(HttpStatusCode.NoContent);
+    }
 
     [TestMethod]
     public async Task ControllerMayReturnValueTask()
     {
-            using var runner = GetRunner();
+        using var runner = GetRunner();
 
-            using var response = await runner.GetResponseAsync("/t/value-task");
+        using var response = await runner.GetResponseAsync("/t/value-task");
 
-            await response.AssertStatusAsync(HttpStatusCode.NoContent);
-        }
+        await response.AssertStatusAsync(HttpStatusCode.NoContent);
+    }
 
     [TestMethod]
     public async Task ControllerMayReturnGenericTask()
     {
-            using var runner = GetRunner();
+        using var runner = GetRunner();
 
-            using var response = await runner.GetResponseAsync("/t/generic-task");
+        using var response = await runner.GetResponseAsync("/t/generic-task");
 
-            await response.AssertStatusAsync(HttpStatusCode.OK);
-            Assert.AreEqual("Task result", await response.GetContentAsync());
-        }
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+        Assert.AreEqual("Task result", await response.GetContentAsync());
+    }
 
     [TestMethod]
     public async Task ControllerMayReturnGenericValueTask()
     {
-            using var runner = GetRunner();
+        using var runner = GetRunner();
 
-            using var response = await runner.GetResponseAsync("/t/generic-value-task");
+        using var response = await runner.GetResponseAsync("/t/generic-value-task");
 
-            await response.AssertStatusAsync(HttpStatusCode.OK);
-            Assert.AreEqual("ValueTask result", await response.GetContentAsync());
-        }
-
-    #endregion
-
-    #region Helpers
-
-    private TestHost GetRunner()
-    {
-            return TestHost.Run(Layout.Create().AddService<TestResource>("t", serializers: Serialization.Default(),
-                                                                              injectors: Injection.Default(),
-                                                                              formatters: Formatting.Default()));
-        }
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+        Assert.AreEqual("ValueTask result", await response.GetContentAsync());
+    }
 
     #endregion
 

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Reflection;
 
@@ -18,19 +15,32 @@ namespace GenHTTP.Modules.Reflection;
 /// </remarks>
 public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
 {
-    private FlexibleResponseStatus? _Status;
-
-    private Dictionary<string, string>? _Headers;
-
-    private DateTime? _Expires;
-
-    private DateTime? _Modified;
-
-    private List<Cookie>? _Cookies;
 
     private FlexibleContentType? _ContentType;
 
+    private List<Cookie>? _Cookies;
+
     private string? _Encoding;
+
+    private DateTime? _Expires;
+
+    private Dictionary<string, string>? _Headers;
+
+    private DateTime? _Modified;
+    private FlexibleResponseStatus? _Status;
+
+    #region Initialization
+
+    /// <summary>
+    /// Creates a new result with the given payload.
+    /// </summary>
+    /// <param name="payload">The payload to be returned to the client</param>
+    public Result(T? payload)
+    {
+        Payload = payload;
+    }
+
+    #endregion
 
     #region Get-/Setters
 
@@ -43,134 +53,113 @@ public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
 
     #endregion
 
-    #region Initialization
-
-    /// <summary>
-    /// Creates a new result with the given payload.
-    /// </summary>
-    /// <param name="payload">The payload to be returned to the client</param>
-    public Result(T? payload)
-    {
-            Payload = payload;
-        }
-
-    #endregion
-
     #region Functionality
 
     /// <inheritdoc />
     public Result<T> Status(ResponseStatus status)
     {
-            _Status = new(status);
-            return this;
-        }
+        _Status = new FlexibleResponseStatus(status);
+        return this;
+    }
 
     /// <inheritdoc />
     public Result<T> Status(int status, string reason)
     {
-            _Status = new FlexibleResponseStatus(status, reason);
-            return this;
-        }
+        _Status = new FlexibleResponseStatus(status, reason);
+        return this;
+    }
 
     /// <inheritdoc />
     public Result<T> Header(string key, string value)
     {
-            if (_Headers == null)
-            {
-                _Headers = new();
-            }
+        _Headers ??= new Dictionary<string, string>();
 
-            _Headers[key] = value;
+        _Headers[key] = value;
 
-            return this;
-        }
+        return this;
+    }
 
     /// <inheritdoc />
     public Result<T> Expires(DateTime expiryDate)
     {
-            _Expires = expiryDate;
-            return this;
-        }
+        _Expires = expiryDate;
+        return this;
+    }
 
     /// <inheritdoc />
     public Result<T> Modified(DateTime modificationDate)
     {
-            _Modified = modificationDate;
-            return this;
-        }
+        _Modified = modificationDate;
+        return this;
+    }
 
     /// <inheritdoc />
     public Result<T> Cookie(Cookie cookie)
     {
-            if (_Cookies == null)
-            {
-                _Cookies = new();
-            }
+        (_Cookies ??= []).Add(cookie);
 
-            _Cookies.Add(cookie);
-
-            return this;
-        }
+        return this;
+    }
 
     /// <inheritdoc />
     public Result<T> Type(FlexibleContentType contentType)
     {
-            _ContentType = contentType;
-            return this;
-        }
+        _ContentType = contentType;
+        return this;
+    }
 
     /// <inheritdoc />
     public Result<T> Encoding(string encoding)
     {
-            _Encoding = encoding;
-            return this;
-        }
+        _Encoding = encoding;
+        return this;
+    }
 
     void IResultWrapper.Apply(IResponseBuilder builder)
     {
-            if (_Status != null)
-            {
-                var value = _Status.Value;
+        if (_Status != null)
+        {
+            var value = _Status.Value;
 
-                builder.Status(value.RawStatus, value.Phrase);
-            }
+            builder.Status(value.RawStatus, value.Phrase);
+        }
 
-            if (_Headers != null)
+        if (_Headers != null)
+        {
+            foreach (var kv in _Headers)
             {
-                foreach (var kv in _Headers)
-                {
-                    builder.Header(kv.Key, kv.Value);
-                }
-            }
-
-            if (_Expires != null)
-            {
-                builder.Expires(_Expires.Value);
-            }
-
-            if (_Modified != null)
-            {
-                builder.Modified(_Modified.Value);
-            }
-
-            if (_Cookies != null)
-            {
-                foreach (var cookie in _Cookies)
-                {
-                    builder.Cookie(cookie);
-                }
-            }
-
-            if (_ContentType is not null)
-            {
-                builder.Type(_ContentType);
-            }
-
-            if (_Encoding != null)
-            {
-                builder.Encoding(_Encoding);
+                builder.Header(kv.Key, kv.Value);
             }
         }
+
+        if (_Expires != null)
+        {
+            builder.Expires(_Expires.Value);
+        }
+
+        if (_Modified != null)
+        {
+            builder.Modified(_Modified.Value);
+        }
+
+        if (_Cookies != null)
+        {
+            foreach (var cookie in _Cookies)
+            {
+                builder.Cookie(cookie);
+            }
+        }
+
+        if (_ContentType is not null)
+        {
+            builder.Type(_ContentType);
+        }
+
+        if (_Encoding != null)
+        {
+            builder.Encoding(_Encoding);
+        }
+    }
 
     #endregion
 

@@ -1,12 +1,23 @@
-﻿using System.IO;
-using System.Threading.Tasks;
-
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.IO.Ranges;
 
 public class RangedContent : IResponseContent
 {
+
+    #region Initialization
+
+    public RangedContent(IResponseContent source, ulong start, ulong end)
+    {
+        Source = source;
+
+        Start = start;
+        End = end;
+
+        Length = End - Start;
+    }
+
+    #endregion
 
     #region Get-/Setters
 
@@ -20,37 +31,23 @@ public class RangedContent : IResponseContent
 
     #endregion
 
-    #region Initialization
-
-    public RangedContent(IResponseContent source, ulong start, ulong end)
-    {
-            Source = source;
-
-            Start = start;
-            End = end;
-
-            Length = (End - Start);
-        }
-
-    #endregion
-
     #region Functionality
 
     public async ValueTask<ulong?> CalculateChecksumAsync()
     {
-            var checksum = await Source.CalculateChecksumAsync();
+        var checksum = await Source.CalculateChecksumAsync();
 
-            if (checksum != null)
+        if (checksum != null)
+        {
+            unchecked
             {
-                unchecked
-                {
-                    checksum = checksum * 17 + Start;
-                    checksum = checksum * 17 + End;
-                }
+                checksum = checksum * 17 + Start;
+                checksum = checksum * 17 + End;
             }
-
-            return checksum;
         }
+
+        return checksum;
+    }
 
     public ValueTask WriteAsync(Stream target, uint bufferSize) => Source.WriteAsync(new RangedStream(target, Start, End), bufferSize);
 

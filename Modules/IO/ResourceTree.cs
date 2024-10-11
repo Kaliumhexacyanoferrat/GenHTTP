@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Reflection;
-
+﻿using System.Reflection;
 using GenHTTP.Modules.IO.Embedded;
 using GenHTTP.Modules.IO.FileSystem;
 
@@ -19,12 +16,12 @@ public static class ResourceTree
     /// </summary>
     public static EmbeddedResourceTreeBuilder FromAssembly()
     {
-            var assembly = Assembly.GetCallingAssembly();
+        var assembly = Assembly.GetCallingAssembly();
 
-            var name = assembly.GetName().Name ?? throw new InvalidOperationException($"Unable to determine root namespace for assembly '{assembly}'");
+        var name = assembly.GetName().Name ?? throw new InvalidOperationException($"Unable to determine root namespace for assembly '{assembly}'");
 
-            return FromAssembly(assembly, name);
-        }
+        return FromAssembly(assembly, name);
+    }
 
     /// <summary>
     /// Creates a resource tree that will provide all embedded
@@ -32,11 +29,11 @@ public static class ResourceTree
     /// </summary>
     public static EmbeddedResourceTreeBuilder FromAssembly(Assembly source)
     {
-            var name = source.GetName().Name ?? throw new InvalidOperationException($"Unable to determine root namespace for assembly '{source}'");
+        var name = source.GetName().Name ?? throw new InvalidOperationException($"Unable to determine root namespace for assembly '{source}'");
 
-            return new EmbeddedResourceTreeBuilder().Source(source)
-                                                    .Root(name);
-        }
+        return new EmbeddedResourceTreeBuilder().Source(source)
+                                                .Root(name);
+    }
 
     /// <summary>
     /// Creates a resource tree that will provide all embedded
@@ -63,5 +60,4 @@ public static class ResourceTree
     /// </summary>
     /// <param name="directory">The directory to be provided</param>
     public static DirectoryTreeBuilder FromDirectory(DirectoryInfo directory) => new DirectoryTreeBuilder().Directory(directory);
-
 }

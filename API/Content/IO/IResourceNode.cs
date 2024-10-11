@@ -16,5 +16,4 @@ public interface IResourceNode : IResourceContainer
     /// The parent of this node.
     /// </summary>
     IResourceContainer Parent { get; }
-
 }

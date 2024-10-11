@@ -1,8 +1,5 @@
-﻿using System;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Conversion.Formatters;
 
 namespace GenHTTP.Modules.Conversion;
@@ -19,32 +16,25 @@ public static class Extensions
     /// <returns>The converted value</returns>
     public static object? ConvertTo(this string? value, Type type, FormatterRegistry formatters)
     {
-            if (string.IsNullOrEmpty(value))
+        if (string.IsNullOrEmpty(value))
+        {
+            if (Nullable.GetUnderlyingType(type) is not null)
             {
-                if (Nullable.GetUnderlyingType(type) is not null)
-                {
-                    return null;
-                }
-                else if (type == typeof(string))
-                {
-                    return value;
-                }
-                else
-                {
-                    return Activator.CreateInstance(type);
-                }
+                return null;
             }
 
-            try
-            {
-                var actualType = Nullable.GetUnderlyingType(type) ?? type;
-
-                return formatters.Read(value, actualType);
-            }
-            catch (Exception e)
-            {
-                throw new ProviderException(ResponseStatus.BadRequest, $"Unable to convert value '{value}' to type '{type}'", e);
-            }
+            return type == typeof(string) ? value : Activator.CreateInstance(type);
         }
 
+        try
+        {
+            var actualType = Nullable.GetUnderlyingType(type) ?? type;
+
+            return formatters.Read(value, actualType);
+        }
+        catch (Exception e)
+        {
+            throw new ProviderException(ResponseStatus.BadRequest, $"Unable to convert value '{value}' to type '{type}'", e);
+        }
+    }
 }

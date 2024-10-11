@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Content;
 
@@ -19,7 +16,10 @@ public interface IErrorMapper<in T> where T : Exception
     /// <param name="request">The request which caused the error</param>
     /// <param name="handler">The handler which catched the exception</param>
     /// <param name="error">The actual exception to be mapped</param>
-    /// <returns>A HTTP response to be sent or null, if the error should be handled as not found by the next error handler in the chain</returns>
+    /// <returns>
+    /// A HTTP response to be sent or null, if the error should be handled as not found by the next error handler in
+    /// the chain
+    /// </returns>
     ValueTask<IResponse?> Map(IRequest request, IHandler handler, T error);
 
     /// <summary>
@@ -27,7 +27,9 @@ public interface IErrorMapper<in T> where T : Exception
     /// </summary>
     /// <param name="request">The currently handled request</param>
     /// <param name="handler">The inner  handler of the error handling concern</param>
-    /// <returns>A HTTP response to be sent or null, if the error should be handled as not found by the next error handler in the chain</returns>
+    /// <returns>
+    /// A HTTP response to be sent or null, if the error should be handled as not found by the next error handler in
+    /// the chain
+    /// </returns>
     ValueTask<IResponse?> GetNotFound(IRequest request, IHandler handler);
-
 }

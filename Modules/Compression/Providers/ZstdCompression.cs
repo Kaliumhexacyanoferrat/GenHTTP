@@ -1,10 +1,7 @@
-﻿using System;
-using System.IO.Compression;
-
+﻿using System.IO.Compression;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-
 using ZstdSharp;
 
 namespace GenHTTP.Modules.Compression.Providers;
@@ -18,7 +15,7 @@ public sealed class ZstdCompression : ICompressionAlgorithm
 
     public IResponseContent Compress(IResponseContent content, CompressionLevel level)
     {
-        return new CompressedResponseContent(content, (target) => new CompressionStream(target, level: MapLevel(level), leaveOpen: false));
+        return new CompressedResponseContent(content, target => new CompressionStream(target, MapLevel(level), leaveOpen: false));
     }
 
     private static int MapLevel(CompressionLevel level)
@@ -31,5 +28,4 @@ public sealed class ZstdCompression : ICompressionAlgorithm
             _ => throw new InvalidOperationException($"Unable to map compression level {level}")
         };
     }
-
 }

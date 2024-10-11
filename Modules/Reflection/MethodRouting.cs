@@ -1,5 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-
 using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Reflection;
@@ -10,24 +9,25 @@ public sealed class MethodRouting
 
     private Regex? _ParsedPath;
 
-    #region Get-/Setters
+    #region Initialization
 
-    /// <summary>
-    /// The path of the method, with placeholders for
-    /// path variables (":var").
-    /// </summary>
-    public WebPath Path { get; }
+    public MethodRouting(string pathExpression, bool isIndex, bool isWildcard)
+    {
+        _PathExpression = pathExpression;
+
+        IsIndex = isIndex;
+        IsWildcard = isWildcard;
+    }
+
+    #endregion
+
+    #region Get-/Setters
 
     /// <summary>
     /// The path of the method, converted into a regular
     /// expression to be evaluated at runtime.
     /// </summary>
-    public Regex ParsedPath => _ParsedPath ??= new(_PathExpression, RegexOptions.Compiled);
-
-    /// <summary>
-    /// The first segment of the raw path, if any.
-    /// </summary>
-    public string? Segment { get; }
+    public Regex ParsedPath => _ParsedPath ??= new Regex(_PathExpression, RegexOptions.Compiled);
 
     /// <summary>
     /// True, if this route matches the index of the
@@ -46,22 +46,6 @@ public sealed class MethodRouting
     /// ambiguous.
     /// </remarks>
     public bool IsWildcard { get; }
-
-    #endregion
-
-    #region Initialization
-
-    public MethodRouting(string path, string pathExpression, string? segment, bool isIndex, bool isWildcard)
-    {
-            Path = new PathBuilder(path).Build();
-
-            _PathExpression = pathExpression;
-
-            Segment = segment;
-
-            IsIndex = isIndex;
-            IsWildcard = isWildcard;
-        }
 
     #endregion
 

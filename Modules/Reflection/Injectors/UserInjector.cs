@@ -1,6 +1,4 @@
-﻿using System;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
 using GenHTTP.Api.Protocol;
 
@@ -17,15 +15,15 @@ public class UserInjector<T> : IParameterInjector where T : IUser
 
     #region Functionality
 
-    public object? GetValue(IHandler handler, IRequest request, Type targetType)
+    public object GetValue(IHandler handler, IRequest request, Type targetType)
     {
-            if (request.Properties.TryGet<T>("__AUTH_USER", out var user))
-            {
-                return user;
-            }
-
-            throw new ProviderException(ResponseStatus.Unauthorized, "Authentication required to invoke this endpoint");
+        if (request.Properties.TryGet<T>("__AUTH_USER", out var user))
+        {
+            return user;
         }
+
+        throw new ProviderException(ResponseStatus.Unauthorized, "Authentication required to invoke this endpoint");
+    }
 
     #endregion
 

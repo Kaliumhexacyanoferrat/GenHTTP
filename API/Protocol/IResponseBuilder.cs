@@ -19,5 +19,4 @@ public interface IResponseBuilder : IBuilder<IResponse>, IResponseModification<I
     /// </summary>
     /// <param name="length">The length of the content stream</param>
     IResponseBuilder Length(ulong length);
-
 }

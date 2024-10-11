@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Net;
-using System.Threading.Tasks;
+﻿using System.Net;
 using GenHTTP.Modules.DirectoryBrowsing;
 using GenHTTP.Modules.IO;
 using GenHTTP.Testing.Acceptance.Utilities;
@@ -19,19 +17,19 @@ public sealed class ListingTests
     [TestMethod]
     public async Task TestGetMainListing()
     {
-            using var runner = GetEnvironment();
+        using var runner = GetEnvironment();
 
-            using var response = await runner.GetResponseAsync("/");
+        using var response = await runner.GetResponseAsync("/");
 
-            var content = await response.GetContentAsync();
+        var content = await response.GetContentAsync();
 
-            AssertX.Contains("Subdirectory", content);
-            AssertX.Contains("With%20Spaces", content);
+        AssertX.Contains("Subdirectory", content);
+        AssertX.Contains("With%20Spaces", content);
 
-            AssertX.Contains("my.txt", content);
+        AssertX.Contains("my.txt", content);
 
-            AssertX.DoesNotContain("..", content);
-        }
+        AssertX.DoesNotContain("..", content);
+    }
 
     /// <summary>
     /// As an user of a web application, I can view the folders and files available
@@ -40,14 +38,14 @@ public sealed class ListingTests
     [TestMethod]
     public async Task TestGetSubdirectory()
     {
-            using var runner = GetEnvironment();
+        using var runner = GetEnvironment();
 
-            using var response = await runner.GetResponseAsync("/Subdirectory/");
+        using var response = await runner.GetResponseAsync("/Subdirectory/");
 
-            var content = await response.GetContentAsync();
+        var content = await response.GetContentAsync();
 
-            AssertX.Contains("..", content);
-        }
+        AssertX.Contains("..", content);
+    }
 
     /// <summary>
     /// As an user of a web application, I can download the files listed by the
@@ -56,51 +54,50 @@ public sealed class ListingTests
     [TestMethod]
     public async Task TestDownload()
     {
-            using var runner = GetEnvironment();
+        using var runner = GetEnvironment();
 
-            using var response = await runner.GetResponseAsync("/my.txt");
+        using var response = await runner.GetResponseAsync("/my.txt");
 
-            Assert.AreEqual("Hello World!", await response.GetContentAsync());
-        }
+        Assert.AreEqual("Hello World!", await response.GetContentAsync());
+    }
 
     [TestMethod]
     public async Task TestNonExistingFolder()
     {
-            using var runner = GetEnvironment();
+        using var runner = GetEnvironment();
 
-            using var response = await runner.GetResponseAsync("/idonotexist/");
+        using var response = await runner.GetResponseAsync("/idonotexist/");
 
-            await response.AssertStatusAsync(HttpStatusCode.NotFound);
-        }
+        await response.AssertStatusAsync(HttpStatusCode.NotFound);
+    }
 
     [TestMethod]
     public async Task TestSameListingSameChecksum()
     {
-            using var runner = GetEnvironment();
+        using var runner = GetEnvironment();
 
-            using var resp1 = await runner.GetResponseAsync();
-            using var resp2 = await runner.GetResponseAsync();
+        using var resp1 = await runner.GetResponseAsync();
+        using var resp2 = await runner.GetResponseAsync();
 
-            Assert.IsNotNull(resp1.GetETag());
+        Assert.IsNotNull(resp1.GetETag());
 
-            Assert.AreEqual(resp1.GetETag(), resp2.GetETag());
-        }
+        Assert.AreEqual(resp1.GetETag(), resp2.GetETag());
+    }
 
     private static TestHost GetEnvironment()
     {
-            var tempFolder = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+        var tempFolder = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
-            Directory.CreateDirectory(tempFolder);
+        Directory.CreateDirectory(tempFolder);
 
-            Directory.CreateDirectory(Path.Combine(tempFolder, "Subdirectory"));
+        Directory.CreateDirectory(Path.Combine(tempFolder, "Subdirectory"));
 
-            Directory.CreateDirectory(Path.Combine(tempFolder, "With Spaces"));
+        Directory.CreateDirectory(Path.Combine(tempFolder, "With Spaces"));
 
-            FileUtil.WriteText(Path.Combine(tempFolder, "my.txt"), "Hello World!");
+        FileUtil.WriteText(Path.Combine(tempFolder, "my.txt"), "Hello World!");
 
-            var listing = Listing.From(ResourceTree.FromDirectory(tempFolder));
+        var listing = Listing.From(ResourceTree.FromDirectory(tempFolder));
 
-            return TestHost.Run(listing);
-        }
-
+        return TestHost.Run(listing);
+    }
 }

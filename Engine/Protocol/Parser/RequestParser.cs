@@ -1,7 +1,6 @@
 ﻿using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Infrastructure;
 using GenHTTP.Engine.Protocol.Parser.Conversion;
-
 using PooledAwait;
 
 namespace GenHTTP.Engine.Protocol.Parser;
@@ -20,23 +19,23 @@ internal sealed class RequestParser
 {
     private RequestBuilder? _Builder;
 
-    #region Get-/Setters
-
-    private NetworkConfiguration Configuration { get; }
-
-    private RequestBuilder Request => _Builder ??= new();
-
-    private RequestScanner Scanner { get; }
-
-    #endregion
-
     #region Initialization
 
     internal RequestParser(NetworkConfiguration configuration)
     {
-            Configuration = configuration;
-            Scanner = new();
-        }
+        Configuration = configuration;
+        Scanner = new RequestScanner();
+    }
+
+    #endregion
+
+    #region Get-/Setters
+
+    private NetworkConfiguration Configuration { get; }
+
+    private RequestBuilder Request => _Builder ??= new RequestBuilder();
+
+    private RequestScanner Scanner { get; }
 
     #endregion
 
@@ -44,136 +43,133 @@ internal sealed class RequestParser
 
     internal async PooledValueTask<RequestBuilder?> TryParseAsync(RequestBuffer buffer)
     {
-            if (!await Type(buffer))
+        if (!await Type(buffer))
+        {
+            if (!buffer.Data.IsEmpty)
             {
-                if (!buffer.Data.IsEmpty)
-                {
-                    throw new ProtocolException("Unable to read HTTP verb from request line.");
-                }
-
-                return null;
+                throw new ProtocolException("Unable to read HTTP verb from request line.");
             }
 
-            await Path(buffer);
-
-            await Protocol(buffer);
-
-            await Headers(buffer);
-
-            await Body(buffer);
-
-            var result = Request;
-            _Builder = null;
-
-            return result;
+            return null;
         }
+
+        await Path(buffer);
+
+        await Protocol(buffer);
+
+        await Headers(buffer);
+
+        await Body(buffer);
+
+        var result = Request;
+        _Builder = null;
+
+        return result;
+    }
 
     private async PooledValueTask<bool> Type(RequestBuffer buffer)
     {
-            Scanner.Mode = ScannerMode.Words;
+        Scanner.Mode = ScannerMode.Words;
 
-            if (await Scanner.Next(buffer, RequestToken.Word, allowNone: true))
-            {
-                Request.Type(MethodConverter.ToRequestMethod(Scanner.Value));
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+        if (await Scanner.Next(buffer, RequestToken.Word, true))
+        {
+            Request.Type(MethodConverter.ToRequestMethod(Scanner.Value));
+            return true;
         }
+        return false;
+    }
 
     private async PooledValueTask Path(RequestBuffer buffer)
     {
-            Scanner.Mode = ScannerMode.Path;
+        Scanner.Mode = ScannerMode.Path;
 
-            var token = await Scanner.Next(buffer);
+        var token = await Scanner.Next(buffer);
 
-            // path
-            if (token == RequestToken.Path)
+        // path
+        if (token == RequestToken.Path)
+        {
+            Request.Path(PathConverter.ToPath(Scanner.Value));
+        }
+        else if (token == RequestToken.PathWithQuery)
+        {
+            Request.Path(PathConverter.ToPath(Scanner.Value));
+
+            // query
+            Scanner.Mode = ScannerMode.Words;
+
+            if (await Scanner.Next(buffer, RequestToken.Word, includeWhitespace: true))
             {
-                Request.Path(PathConverter.ToPath(Scanner.Value));
-            }
-            else if (token == RequestToken.PathWithQuery)
-            {
-                Request.Path(PathConverter.ToPath(Scanner.Value));
+                var query = QueryConverter.ToQuery(Scanner.Value);
 
-                // query
-                Scanner.Mode = ScannerMode.Words;
-
-                if (await Scanner.Next(buffer, RequestToken.Word, includeWhitespace: true))
+                if (query != null)
                 {
-                    var query = QueryConverter.ToQuery(Scanner.Value);
-
-                    if (query != null)
-                    {
-                        Request.Query(query);
-                    }
+                    Request.Query(query);
                 }
             }
-            else
-            {
-                throw new ProtocolException($"Unexpected token while parsing path: {token}");
-            }
         }
+        else
+        {
+            throw new ProtocolException($"Unexpected token while parsing path: {token}");
+        }
+    }
 
     private async PooledValueTask Protocol(RequestBuffer buffer)
     {
-            Scanner.Mode = ScannerMode.Words;
+        Scanner.Mode = ScannerMode.Words;
 
-            if (await Scanner.Next(buffer, RequestToken.Word))
-            {
-                Request.Protocol(ProtocolConverter.ToProtocol(Scanner.Value));
-            }
+        if (await Scanner.Next(buffer, RequestToken.Word))
+        {
+            Request.Protocol(ProtocolConverter.ToProtocol(Scanner.Value));
         }
+    }
 
     private async PooledValueTask Headers(RequestBuffer buffer)
     {
-            Scanner.Mode = ScannerMode.HeaderKey;
+        Scanner.Mode = ScannerMode.HeaderKey;
 
-            while (await Scanner.Next(buffer) == RequestToken.Word)
+        while (await Scanner.Next(buffer) == RequestToken.Word)
+        {
+            var key = HeaderConverter.ToKey(Scanner.Value);
+
+            Scanner.Mode = ScannerMode.HeaderValue;
+
+            if (await Scanner.Next(buffer, RequestToken.Word))
             {
-                var key = HeaderConverter.ToKey(Scanner.Value);
-
-                Scanner.Mode = ScannerMode.HeaderValue;
-
-                if (await Scanner.Next(buffer, RequestToken.Word))
-                {
-                    Request.Header(key, HeaderConverter.ToValue(Scanner.Value));
-                }
-
-                Scanner.Mode = ScannerMode.HeaderKey;
+                Request.Header(key, HeaderConverter.ToValue(Scanner.Value));
             }
+
+            Scanner.Mode = ScannerMode.HeaderKey;
         }
+    }
 
     private async PooledValueTask Body(RequestBuffer buffer)
     {
-            if (Request.Headers.TryGetValue("Content-Length", out var bodyLength))
+        if (Request.Headers.TryGetValue("Content-Length", out var bodyLength))
+        {
+            if (long.TryParse(bodyLength, out var length))
             {
-                if (long.TryParse(bodyLength, out var length))
+                if (length > 0)
                 {
-                    if (length > 0)
-                    {
-                        var parser = new RequestContentParser(length, Configuration);
-
-                        Request.Content(await parser.GetBody(buffer));
-                    }
-                }
-                else
-                {
-                    throw new ProtocolException("Content-Length header is expected to be a numeric value");
-                }
-            }
-            else if (Request.Headers.TryGetValue("Transfer-Encoding", out var mode))
-            {
-                if (mode == "chunked")
-                {
-                    var parser = new ChunkedContentParser(Configuration);
+                    var parser = new RequestContentParser(length, Configuration);
 
                     Request.Content(await parser.GetBody(buffer));
                 }
             }
+            else
+            {
+                throw new ProtocolException("Content-Length header is expected to be a numeric value");
+            }
         }
+        else if (Request.Headers.TryGetValue("Transfer-Encoding", out var mode))
+        {
+            if (mode == "chunked")
+            {
+                var parser = new ChunkedContentParser(Configuration);
+
+                Request.Content(await parser.GetBody(buffer));
+            }
+        }
+    }
 
     #endregion
 

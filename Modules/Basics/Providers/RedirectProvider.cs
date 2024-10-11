@@ -1,6 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
@@ -8,7 +6,7 @@ namespace GenHTTP.Modules.Basics.Providers;
 
 public sealed partial class RedirectProvider : IHandler
 {
-    private static readonly Regex PROTOCOL_MATCHER = CreateProtocolMatcher();
+    private static readonly Regex ProtocolMatcher = CreateProtocolMatcher();
 
     #region Get-/Setters
 
@@ -24,15 +22,14 @@ public sealed partial class RedirectProvider : IHandler
 
     public RedirectProvider(IHandler parent, string location, bool temporary)
     {
-            Parent = parent;
+        Parent = parent;
 
-            Target = location;
-            Temporary = temporary;
-        }
+        Target = location;
+        Temporary = temporary;
+    }
 
     [GeneratedRegex("^[a-z_-]+://", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
     private static partial Regex CreateProtocolMatcher();
-
 
     #endregion
 
@@ -42,39 +39,36 @@ public sealed partial class RedirectProvider : IHandler
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-            var resolved = ResolveRoute(request, Target);
+        var resolved = ResolveRoute(request, Target);
 
-            var response = request.Respond()
-                                  .Header("Location", resolved);
+        var response = request.Respond()
+                              .Header("Location", resolved);
 
-            var status = MapStatus(request, Temporary);
+        var status = MapStatus(request, Temporary);
 
-            return new ValueTask<IResponse?>(response.Status(status).Build());
-        }
+        return new ValueTask<IResponse?>(response.Status(status).Build());
+    }
 
     private static string ResolveRoute(IRequest request, string route)
     {
-            if (PROTOCOL_MATCHER.IsMatch(route))
-            {
-                return route;
-            }
-
-            var protocol = request.EndPoint.Secure ? "https://" : "http://";
-
-            return $"{protocol}{request.Host}{route}";
+        if (ProtocolMatcher.IsMatch(route))
+        {
+            return route;
         }
+
+        var protocol = request.EndPoint.Secure ? "https://" : "http://";
+
+        return $"{protocol}{request.Host}{route}";
+    }
 
     private static ResponseStatus MapStatus(IRequest request, bool temporary)
     {
-            if (request.HasType(RequestMethod.GET, RequestMethod.HEAD))
-            {
-                return (temporary) ? ResponseStatus.TemporaryRedirect : ResponseStatus.MovedPermanently;
-            }
-            else
-            {
-                return (temporary) ? ResponseStatus.SeeOther : ResponseStatus.PermanentRedirect;
-            }
+        if (request.HasType(RequestMethod.Get, RequestMethod.Head))
+        {
+            return temporary ? ResponseStatus.TemporaryRedirect : ResponseStatus.MovedPermanently;
         }
+        return temporary ? ResponseStatus.SeeOther : ResponseStatus.PermanentRedirect;
+    }
 
     #endregion
 

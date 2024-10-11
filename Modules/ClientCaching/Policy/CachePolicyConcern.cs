@@ -1,15 +1,25 @@
-﻿using System;
-using System.Threading.Tasks;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Basics;
 
 namespace GenHTTP.Modules.ClientCaching.Policy;
 
 public sealed class CachePolicyConcern : IConcern
 {
+
+    #region Initialization
+
+    public CachePolicyConcern(IHandler parent, Func<IHandler, IHandler> contentFactory,
+        TimeSpan duration, Func<IRequest, IResponse, bool>? predicate)
+    {
+        Parent = parent;
+        Content = contentFactory(this);
+
+        Duration = duration;
+        Predicate = predicate;
+    }
+
+    #endregion
 
     #region Get-/Setters
 
@@ -23,39 +33,25 @@ public sealed class CachePolicyConcern : IConcern
 
     #endregion
 
-    #region Initialization
-
-    public CachePolicyConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, 
-        TimeSpan duration, Func<IRequest, IResponse, bool>? predicate)
-    {
-            Parent = parent;
-            Content = contentFactory(this);
-
-            Duration = duration;
-            Predicate = predicate;
-        }
-
-    #endregion
-
     #region Functionality
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-            var response = await Content.HandleAsync(request);
+        var response = await Content.HandleAsync(request);
 
-            if (response != null)
+        if (response != null)
+        {
+            if (request.HasType(RequestMethod.Get) && response.Status.KnownStatus == ResponseStatus.Ok)
             {
-                if (request.HasType(RequestMethod.GET) && (response.Status.KnownStatus == ResponseStatus.OK))
+                if (Predicate == null || Predicate(request, response))
                 {
-                    if ((Predicate == null) || Predicate(request, response))
-                    {
-                        response.Expires = DateTime.UtcNow.Add(Duration);
-                    }
+                    response.Expires = DateTime.UtcNow.Add(Duration);
                 }
             }
-
-            return response;
         }
+
+        return response;
+    }
 
     public ValueTask PrepareAsync() => Content.PrepareAsync();
 

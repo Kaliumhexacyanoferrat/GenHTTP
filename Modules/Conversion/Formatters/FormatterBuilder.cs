@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
-
-using GenHTTP.Api.Infrastructure;
+﻿using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Modules.Conversion.Formatters;
 
 public sealed class FormatterBuilder : IBuilder<FormatterRegistry>
 {
-    private readonly List<IFormatter> _Registry = new();
+    private readonly List<IFormatter> _Registry = [];
 
     #region Functionality
 
@@ -16,9 +14,9 @@ public sealed class FormatterBuilder : IBuilder<FormatterRegistry>
     /// <param name="formatter">The formatter to be added</param>
     public FormatterBuilder Add(IFormatter formatter)
     {
-            _Registry.Add(formatter);
-            return this;
-        }
+        _Registry.Add(formatter);
+        return this;
+    }
 
     public FormatterBuilder Add<T>() where T : IFormatter, new() => Add(new T());
 
@@ -26,10 +24,7 @@ public sealed class FormatterBuilder : IBuilder<FormatterRegistry>
     /// Builds the formatter registry based on the configuration.
     /// </summary>
     /// <returns>The newly created formatter registry</returns>
-    public FormatterRegistry Build()
-    {
-            return new FormatterRegistry(_Registry);
-        }
+    public FormatterRegistry Build() => new(_Registry);
 
     #endregion
 

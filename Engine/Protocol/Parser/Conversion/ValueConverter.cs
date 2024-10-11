@@ -5,49 +5,47 @@ namespace GenHTTP.Engine.Protocol.Parser.Conversion;
 
 internal static class ValueConverter
 {
-
-    private static readonly Encoding ASCII = Encoding.ASCII;
+    private static readonly Encoding Ascii = Encoding.ASCII;
 
     internal static bool CompareTo(ReadOnlySequence<byte> buffer, string expected)
     {
-            var i = 0;
+        var i = 0;
 
-            if (buffer.Length != expected.Length)
-            {
-                return false;
-            }
+        if (buffer.Length != expected.Length)
+        {
+            return false;
+        }
 
-            foreach (var segment in buffer)
+        foreach (var segment in buffer)
+        {
+            for (var j = 0; j < segment.Length; j++)
             {
-                for (int j = 0; j < segment.Length; j++)
+                if (segment.Span[j] != expected[i++])
                 {
-                    if (segment.Span[j] != expected[i++])
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
-
-            return true;
         }
+
+        return true;
+    }
 
     internal static string GetString(ReadOnlySequence<byte> buffer)
     {
-            if (buffer.Length > 0)
+        if (buffer.Length > 0)
+        {
+            var result = string.Create((int)buffer.Length, buffer, (span, sequence) =>
             {
-                var result = string.Create((int)buffer.Length, buffer, (span, sequence) =>
+                foreach (var segment in sequence)
                 {
-                    foreach (var segment in sequence)
-                    {
-                        ASCII.GetChars(segment.Span, span);
-                        span = span[segment.Length..];
-                    }
-                });
+                    Ascii.GetChars(segment.Span, span);
+                    span = span[segment.Length..];
+                }
+            });
 
-                return result.Trim();
-            }
-
-            return string.Empty;
+            return result.Trim();
         }
 
+        return string.Empty;
+    }
 }

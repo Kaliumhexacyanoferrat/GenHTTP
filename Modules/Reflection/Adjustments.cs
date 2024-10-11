@@ -1,6 +1,4 @@
-﻿using System;
-
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Reflection;
 
@@ -16,9 +14,8 @@ internal static class Adjustments
     /// <returns>The response builder to be chained</returns>
     internal static IResponseBuilder Adjust(this IResponseBuilder builder, Action<IResponseBuilder>? adjustments)
     {
-            adjustments?.Invoke(builder);
+        adjustments?.Invoke(builder);
 
-            return builder;
-        }
-
+        return builder;
+    }
 }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-using GenHTTP.Modules.Caching.FileSystem;
+﻿using GenHTTP.Modules.Caching.FileSystem;
 using GenHTTP.Modules.Caching.Memory;
 
 namespace GenHTTP.Modules.Caching;
@@ -18,15 +15,12 @@ public static class Cache
     /// <typeparam name="T">The type of the entries to be stored</typeparam>
     public static IMemoryCacheBuilder<T> Memory<T>()
     {
-            if (typeof(Stream).IsAssignableFrom(typeof(T)))
-            {
-                return new StreamMemoryCacheBuilder<T>();
-            }
-            else
-            {
-                return new MemoryCacheBuilder<T>();
-            }
+        if (typeof(Stream).IsAssignableFrom(typeof(T)))
+        {
+            return new StreamMemoryCacheBuilder<T>();
         }
+        return new MemoryCacheBuilder<T>();
+    }
 
     /// <summary>
     /// A cache that will store all data in the specified directory.
@@ -51,5 +45,4 @@ public static class Cache
     /// <typeparam name="T">The type of the entries to be stored</typeparam>
     public static FileSystemCacheBuilder<T> TemporaryFiles<T>()
         => FileSystem<T>(new DirectoryInfo(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString())));
-
 }

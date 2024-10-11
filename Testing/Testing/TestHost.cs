@@ -1,13 +1,7 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Cache;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
-
 using GenHTTP.Modules.Practices;
 
 namespace GenHTTP.Testing;
@@ -19,24 +13,24 @@ namespace GenHTTP.Testing;
 public class TestHost : IDisposable
 {
 #if NET8_0
-        private static volatile int _NextPort = 20000;
+    private static volatile int _nextPort = 20000;
 #else
-    private static volatile int _NextPort = 30000;
+    private static volatile int _nextPort = 30000;
 #endif
 
-    private static readonly HttpClient _DefaultClient = GetClient();
+    private static readonly HttpClient DefaultClient = GetClient();
 
     #region Get-/Setters
 
     /// <summary>
     /// The port this host listens to.
     /// </summary>
-    public int Port { get; private set; }
+    public int Port { get; }
 
     /// <summary>
     /// The host managed by this testing host.
     /// </summary>
-    public IServerHost Host { get; private set; }
+    public IServerHost Host { get; }
 
     #endregion
 
@@ -44,11 +38,11 @@ public class TestHost : IDisposable
 
     static TestHost()
     {
-            HttpWebRequest.DefaultCachePolicy = new HttpRequestCachePolicy(HttpRequestCacheLevel.NoCacheNoStore);
-        }
+        HttpWebRequest.DefaultCachePolicy = new HttpRequestCachePolicy(HttpRequestCacheLevel.NoCacheNoStore);
+    }
 
     /// <summary>
-    /// Creates a test host that will use the given handler to provide content, 
+    /// Creates a test host that will use the given handler to provide content,
     /// but has yet to be started.
     /// </summary>
     /// <param name="handlerBuilder">The handler to be tested</param>
@@ -56,22 +50,22 @@ public class TestHost : IDisposable
     /// <param name="development">true, if the server should be started in development mode</param>
     public TestHost(IHandlerBuilder handlerBuilder, bool defaults = true, bool development = true)
     {
-            Port = NextPort();
+        Port = NextPort();
 
-            Host = Engine.Host.Create()
-                              .Handler(handlerBuilder)
-                              .Port((ushort)Port);
+        Host = Engine.Host.Create()
+                     .Handler(handlerBuilder)
+                     .Port((ushort)Port);
 
-            if (defaults)
-            {
-                Host.Defaults();
-            }
-
-            if (development)
-            {
-                Host.Development();
-            }
+        if (defaults)
+        {
+            Host.Defaults();
         }
+
+        if (development)
+        {
+            Host.Development();
+        }
+    }
 
     /// <summary>
     /// Creates a test host that will use the given handler to provide content
@@ -82,12 +76,12 @@ public class TestHost : IDisposable
     /// <param name="development">true, if the server should be started in development mode</param>
     public static TestHost Run(IHandlerBuilder handlerBuilder, bool defaults = true, bool development = true)
     {
-            var runner = new TestHost(handlerBuilder, defaults, development);
+        var runner = new TestHost(handlerBuilder, defaults, development);
 
-            runner.Start();
+        runner.Start();
 
-            return runner;
-        }
+        return runner;
+    }
 
     /// <summary>
     /// Starts the server managed by this testing host.
@@ -98,8 +92,8 @@ public class TestHost : IDisposable
     /// </remarks>
     public void Start()
     {
-            Host.Start();
-        }
+        Host.Start();
+    }
 
     #endregion
 
@@ -114,7 +108,7 @@ public class TestHost : IDisposable
     /// test host runner methods will automatically claim the next free port.
     /// </remarks>
     /// <returns>The next free port to be used</returns>
-    public static int NextPort() => Interlocked.Increment(ref _NextPort);
+    public static int NextPort() => Interlocked.Increment(ref _nextPort);
 
     /// <summary>
     /// Computes the URL which can be used to fetch the given path
@@ -132,10 +126,7 @@ public class TestHost : IDisposable
     /// <param name="path">The path the request should fetch</param>
     /// <param name="method">The method to be used for the request, if not GET</param>
     /// <returns>The newly created request message</returns>
-    public HttpRequestMessage GetRequest(string? path = null, HttpMethod? method = null)
-    {
-            return new HttpRequestMessage(method ?? HttpMethod.Get, GetUrl(path));
-        }
+    public HttpRequestMessage GetRequest(string? path = null, HttpMethod? method = null) => new(method ?? HttpMethod.Get, GetUrl(path));
 
     /// <summary>
     /// Runs a GET request against the given path.
@@ -145,10 +136,10 @@ public class TestHost : IDisposable
     /// <returns>The response returned by the server</returns>
     public async Task<HttpResponseMessage> GetResponseAsync(string? path = null, HttpClient? client = null)
     {
-            var actualClient = client ?? _DefaultClient;
+        var actualClient = client ?? DefaultClient;
 
-            return await actualClient.GetAsync(GetUrl(path));
-        }
+        return await actualClient.GetAsync(GetUrl(path));
+    }
 
     /// <summary>
     /// Executes the given request against the test server.
@@ -158,69 +149,69 @@ public class TestHost : IDisposable
     /// <returns>The response returned by the server</returns>
     public async Task<HttpResponseMessage> GetResponseAsync(HttpRequestMessage message, HttpClient? client = null)
     {
-            var actualClient = client ?? _DefaultClient;
+        var actualClient = client ?? DefaultClient;
 
-            return await actualClient.SendAsync(message);
-        }
+        return await actualClient.SendAsync(message);
+    }
 
     public static HttpClient GetClient(bool ignoreSecurityErrors = false, bool followRedirects = false,
         Version? protocolVersion = null, NetworkCredential? creds = null, CookieContainer? cookies = null)
     {
-            var handler = new HttpClientHandler
-            {
-                AllowAutoRedirect = followRedirects,
-                Credentials = creds,
-                UseProxy = false
-            };
+        var handler = new HttpClientHandler
+        {
+            AllowAutoRedirect = followRedirects,
+            Credentials = creds,
+            UseProxy = false
+        };
 
-            if (cookies != null)
-            {
-                handler.CookieContainer = cookies;
-            }
-
-            if (ignoreSecurityErrors)
-            {
-                handler.ClientCertificateOptions = ClientCertificateOption.Manual;
-                handler.ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, certChain, policyErrors) => true;
-            }
-
-            var client = new HttpClient(handler)
-            {
-                DefaultRequestVersion = protocolVersion ?? HttpVersion.Version11
-            };
-
-            client.DefaultRequestHeaders.ConnectionClose = false;
-
-            return client;
+        if (cookies != null)
+        {
+            handler.CookieContainer = cookies;
         }
+
+        if (ignoreSecurityErrors)
+        {
+            handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+            handler.ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, certChain, policyErrors) => true;
+        }
+
+        var client = new HttpClient(handler)
+        {
+            DefaultRequestVersion = protocolVersion ?? HttpVersion.Version11
+        };
+
+        client.DefaultRequestHeaders.ConnectionClose = false;
+
+        return client;
+    }
 
     #endregion
 
     #region IDisposable Support
 
-    private bool disposed = false;
+    private bool _Disposed;
 
     protected virtual void Dispose(bool disposing)
     {
-            if (!disposed)
+        if (!_Disposed)
+        {
+            if (disposing)
             {
-                if (disposing)
-                {
-                    Host.Stop();
-                }
-
-                disposed = true;
+                Host.Stop();
             }
+
+            _Disposed = true;
         }
+    }
 
     /// <summary>
     /// Stops the test host and releases all resources.
     /// </summary>
     public void Dispose()
     {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
     #endregion
 

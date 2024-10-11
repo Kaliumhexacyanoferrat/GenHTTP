@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-
+﻿using System.Diagnostics.CodeAnalysis;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
-
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Serializers;
@@ -14,15 +11,15 @@ namespace GenHTTP.Modules.Webservices.Provider;
 
 public sealed class ServiceResourceBuilder : IHandlerBuilder<ServiceResourceBuilder>
 {
-    private object? _Instance;
-
-    private IBuilder<SerializationRegistry>? _Serializers;
-
-    private IBuilder<InjectionRegistry>? _Injectors;
+    private readonly List<IConcernBuilder> _Concerns = [];
 
     private IBuilder<FormatterRegistry>? _Formatters;
 
-    private readonly List<IConcernBuilder> _Concerns = new();
+    private IBuilder<InjectionRegistry>? _Injectors;
+
+    private object? _Instance;
+
+    private IBuilder<SerializationRegistry>? _Serializers;
 
     #region Functionality
 
@@ -68,7 +65,7 @@ public sealed class ServiceResourceBuilder : IHandlerBuilder<ServiceResourceBuil
 
         var instance = _Instance ?? throw new BuilderMissingPropertyException("instance");
 
-        return Concerns.Chain(parent, _Concerns, (p) => new ServiceResourceRouter(p, instance, serializers, injectors, formatters));
+        return Concerns.Chain(parent, _Concerns, p => new ServiceResourceRouter(p, instance, serializers, injectors, formatters));
     }
 
     #endregion

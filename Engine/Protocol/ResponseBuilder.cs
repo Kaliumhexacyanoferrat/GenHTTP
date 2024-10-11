@@ -1,6 +1,4 @@
-﻿using System;
-
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Protocol;
 
@@ -12,65 +10,65 @@ internal sealed class ResponseBuilder : IResponseBuilder
 
     public IResponseBuilder Length(ulong length)
     {
-            _Response.ContentLength = length;
-            return this;
-        }
+        _Response.ContentLength = length;
+        return this;
+    }
 
     public IResponseBuilder Content(IResponseContent content)
     {
-            _Response.Content = content;
-            _Response.ContentLength = content.Length;
+        _Response.Content = content;
+        _Response.ContentLength = content.Length;
 
-            return this;
-        }
+        return this;
+    }
 
     public IResponseBuilder Type(FlexibleContentType contentType)
     {
-            _Response.ContentType = contentType;
-            return this;
-        }
+        _Response.ContentType = contentType;
+        return this;
+    }
 
     public IResponseBuilder Cookie(Cookie cookie)
     {
-            _Response.WriteableCookies[cookie.Name] = cookie;
-            return this;
-        }
+        _Response.WriteableCookies[cookie.Name] = cookie;
+        return this;
+    }
 
     public IResponseBuilder Header(string key, string value)
     {
-            _Response.Headers.Add(key, value);
-            return this;
-        }
+        _Response.Headers.Add(key, value);
+        return this;
+    }
 
     public IResponseBuilder Encoding(string encoding)
     {
-            _Response.ContentEncoding = encoding;
-            return this;
-        }
+        _Response.ContentEncoding = encoding;
+        return this;
+    }
 
     public IResponseBuilder Expires(DateTime expiryDate)
     {
-            _Response.Expires = expiryDate;
-            return this;
-        }
+        _Response.Expires = expiryDate;
+        return this;
+    }
 
     public IResponseBuilder Modified(DateTime modificationDate)
     {
-            _Response.Modified = modificationDate;
-            return this;
-        }
+        _Response.Modified = modificationDate;
+        return this;
+    }
 
     public IResponseBuilder Status(ResponseStatus status)
     {
-            _Response.Status = new(status);
-            return this;
-        }
+        _Response.Status = new FlexibleResponseStatus(status);
+        return this;
+    }
 
     public IResponseBuilder Status(int status, string reason)
     {
-            _Response.Status = new(status, reason);
-            return this;
-        }
+        _Response.Status = new FlexibleResponseStatus(status, reason);
+        return this;
+    }
 
     public IResponse Build() => _Response;
 

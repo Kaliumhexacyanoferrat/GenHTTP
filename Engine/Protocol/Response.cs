@@ -1,15 +1,32 @@
-﻿using System;
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Protocol;
 
 internal sealed class Response : IResponse
 {
-    private static readonly FlexibleResponseStatus STATUS_OK = new(ResponseStatus.OK);
+    private static readonly FlexibleResponseStatus StatusOk = new(ResponseStatus.Ok);
+
+    private readonly ResponseHeaderCollection _Headers = new();
 
     private CookieCollection? _Cookies;
 
-    private readonly ResponseHeaderCollection _Headers = new();
+    #region Initialization
+
+    internal Response()
+    {
+        Status = StatusOk;
+    }
+
+    #endregion
+
+    #region Functionality
+
+    public void SetCookie(Cookie cookie)
+    {
+        WriteableCookies[cookie.Name] = cookie;
+    }
+
+    #endregion
 
     #region Get-/Setters
 
@@ -29,81 +46,50 @@ internal sealed class Response : IResponse
 
     public ICookieCollection Cookies => WriteableCookies;
 
-    public bool HasCookies => (_Cookies is not null) && (_Cookies.Count > 0);
+    public bool HasCookies => _Cookies is not null && _Cookies.Count > 0;
 
     public IEditableHeaderCollection Headers => _Headers;
 
     public string? this[string field]
     {
-        get
-        {
-                if (_Headers.TryGetValue(field, out var value))
-                {
-                    return value;
-                }
-
-                return null;
-            }
+        get => _Headers.GetValueOrDefault(field);
         set
         {
-                if (value is not null)
-                {
-                    _Headers[field] = value;
-                }
-                else if (_Headers.ContainsKey(field))
-                {
-                    _Headers.Remove(field);
-                }
+            if (value is not null)
+            {
+                _Headers[field] = value;
             }
+            else _Headers.Remove(field);
+        }
     }
 
     internal CookieCollection WriteableCookies
     {
-        get { return _Cookies ??= new(); }
+        get { return _Cookies ??= new CookieCollection(); }
     }
-
-    #endregion
-
-    #region Initialization
-
-    internal Response()
-    {
-            Status = STATUS_OK;
-        }
-
-    #endregion
-
-    #region Functionality
-
-    public void SetCookie(Cookie cookie)
-    {
-            WriteableCookies[cookie.Name] = cookie;
-        }
 
     #endregion
 
     #region IDisposable Support
 
-    private bool disposed = false;
+    private bool _Disposed;
 
     public void Dispose()
     {
-            if (!disposed)
+        if (!_Disposed)
+        {
+            Headers.Dispose();
+
+            _Cookies?.Dispose();
+
+            if (Content is IDisposable disposableContent)
             {
-                Headers.Dispose();
-
-                _Cookies?.Dispose();
-
-                if (Content is IDisposable disposableContent)
-                {
-                    disposableContent.Dispose();
-                }
-
-                disposed = true;
+                disposableContent.Dispose();
             }
 
-            GC.SuppressFinalize(this);
+            _Disposed = true;
         }
+    }
 
     #endregion
 

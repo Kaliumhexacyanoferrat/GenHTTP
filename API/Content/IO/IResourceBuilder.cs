@@ -1,6 +1,4 @@
-﻿using System;
-
-using GenHTTP.Api.Infrastructure;
+﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Content.IO;
@@ -30,7 +28,6 @@ public interface IResourceBuilder<out T> : IBuilder<IResource> where T : IResour
     /// </summary>
     /// <param name="modified">The modification date and time of the resource</param>
     T Modified(DateTime modified);
-
 }
 
 public static class IResourceMetaDataBuilderExtensions
@@ -41,5 +38,4 @@ public static class IResourceMetaDataBuilderExtensions
     /// </summary>
     /// <param name="contentType">The content type of the resource</param>
     public static T Type<T>(this IResourceBuilder<T> builder, ContentType contentType) where T : IResourceBuilder<T> => builder.Type(FlexibleContentType.Get(contentType));
-
 }

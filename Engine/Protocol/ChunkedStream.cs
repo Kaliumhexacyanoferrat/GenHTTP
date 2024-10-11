@@ -1,15 +1,10 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
-using GenHTTP.Modules.IO.Streaming;
+﻿using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Engine.Protocol;
 
 /// <summary>
 /// Implements chunked transfer encoding by letting the client
-/// know how many bytes have been written to the response stream. 
+/// know how many bytes have been written to the response stream.
 /// </summary>
 /// <remarks>
 /// Response streams are always wrapped into a chunked stream as
@@ -19,6 +14,15 @@ namespace GenHTTP.Engine.Protocol;
 public sealed class ChunkedStream : Stream
 {
     private static readonly string NL = "\r\n";
+
+    #region Initialization
+
+    public ChunkedStream(Stream target)
+    {
+        Target = target;
+    }
+
+    #endregion
 
     #region Get-/Setters
 
@@ -36,77 +40,62 @@ public sealed class ChunkedStream : Stream
 
     #endregion
 
-    #region Initialization
-
-    public ChunkedStream(Stream target)
-    {
-            Target = target;
-        }
-
-    #endregion
-
     #region Functionality
 
-    public override int Read(byte[] buffer, int offset, int count)
-    {
-            throw new NotSupportedException();
-        }
+    public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
 
-    public override long Seek(long offset, SeekOrigin origin)
-    {
-            throw new NotSupportedException();
-        }
+    public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
 
     public override void SetLength(long value)
     {
-            throw new NotSupportedException();
-        }
+        throw new NotSupportedException();
+    }
 
     public override void Write(byte[] buffer, int offset, int count)
     {
-            if (count > 0)
-            {
-                Write(count);
+        if (count > 0)
+        {
+            Write(count);
 
-                Target.Write(buffer, offset, count);
-                
-                NL.Write(Target);
-            }
+            Target.Write(buffer, offset, count);
+
+            NL.Write(Target);
         }
+    }
 
     public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
-            if (count > 0)
-            {
-                await WriteAsync(count);
+        if (count > 0)
+        {
+            await WriteAsync(count);
 
-                await Target.WriteAsync(buffer.AsMemory(offset, count), cancellationToken);
+            await Target.WriteAsync(buffer.AsMemory(offset, count), cancellationToken);
 
-                await WriteAsync(NL);
-            }
+            await WriteAsync(NL);
         }
+    }
 
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
-            if (!buffer.IsEmpty)
-            {
-                await WriteAsync(buffer.Length);
+        if (!buffer.IsEmpty)
+        {
+            await WriteAsync(buffer.Length);
 
-                await Target.WriteAsync(buffer, cancellationToken);
+            await Target.WriteAsync(buffer, cancellationToken);
 
-                await WriteAsync(NL);
-            }
+            await WriteAsync(NL);
         }
+    }
 
     public async ValueTask FinishAsync()
     {
-            await WriteAsync("0\r\n\r\n");
-        }
+        await WriteAsync("0\r\n\r\n");
+    }
 
     public override void Flush()
     {
-            Target.Flush();
-        }
+        Target.Flush();
+    }
 
     public override Task FlushAsync(CancellationToken cancellationToken) => Target.FlushAsync(cancellationToken);
 

@@ -1,10 +1,5 @@
-﻿using System;
-using System.IO;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
-
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Engine.Protocol;
 using PooledAwait;
@@ -14,13 +9,42 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints;
 internal abstract class EndPoint : IEndPoint
 {
 
+    #region Initialization
+
+    protected EndPoint(IServer server, IPEndPoint endPoint, NetworkConfiguration configuration)
+    {
+        Server = server;
+
+        Endpoint = endPoint;
+        Configuration = configuration;
+
+        IPAddress = endPoint.Address;
+        Port = (ushort)endPoint.Port;
+
+        try
+        {
+            Socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+            Socket.Bind(Endpoint);
+            Socket.Listen(Configuration.Backlog);
+        }
+        catch (Exception e)
+        {
+            throw new BindingException($"Failed to bind to {endPoint}.", e);
+        }
+
+        Task = Task.Run(Listen);
+    }
+
+    #endregion
+
     #region Get-/Setters
 
     protected IServer Server { get; }
 
     protected NetworkConfiguration Configuration { get; }
 
-    private Task Task { get; set; }
+    private Task Task { get; }
 
     private IPEndPoint Endpoint { get; }
 
@@ -38,108 +62,79 @@ internal abstract class EndPoint : IEndPoint
 
     #endregion
 
-    #region Initialization
-
-    protected EndPoint(IServer server, IPEndPoint endPoint, NetworkConfiguration configuration)
-    {
-            Server = server;
-
-            Endpoint = endPoint;
-            Configuration = configuration;
-
-            IPAddress = endPoint.Address;
-            Port = (ushort)endPoint.Port;
-
-            try
-            {
-                Socket = new(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-                Socket.Bind(Endpoint);
-                Socket.Listen(Configuration.Backlog);
-            }
-            catch (Exception e)
-            {
-                throw new BindingException($"Failed to bind to {endPoint}.", e);
-            }
-
-            Task = Task.Run(() => Listen());
-        }
-
-    #endregion
-
     #region Functionality
 
     private async Task Listen()
     {
-            try
+        try
+        {
+            do
             {
-                do
-                {
-                    Handle(await Socket.AcceptAsync());
-                }
-                while (!shuttingDown);
+                Handle(await Socket.AcceptAsync());
             }
-            catch (Exception e)
+            while (!_ShuttingDown);
+        }
+        catch (Exception e)
+        {
+            if (!_ShuttingDown)
             {
-                if (!shuttingDown)
-                {
-                    Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, null, e);
-                }
+                Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, null, e);
             }
         }
+    }
 
     private void Handle(Socket client)
     {
-            using var _ = ExecutionContext.SuppressFlow();
+        using var _ = ExecutionContext.SuppressFlow();
 
-            Task.Run(() => Accept(client));
-        }
+        Task.Run(() => Accept(client));
+    }
 
     protected abstract PooledValueTask Accept(Socket client);
 
     protected PooledValueTask Handle(Socket client, Stream inputStream)
     {
-            client.NoDelay = true;
+        client.NoDelay = true;
 
-            return new ClientHandler(client, inputStream, Server, this, Configuration).Run();
-        }
+        return new ClientHandler(client, inputStream, Server, this, Configuration).Run();
+    }
 
     #endregion
 
     #region IDisposable Support
 
-    private bool disposed = false, shuttingDown = false;
+    private bool _Disposed, _ShuttingDown;
 
     protected virtual void Dispose(bool disposing)
     {
-            shuttingDown = true;
+        _ShuttingDown = true;
 
-            if (!disposed)
+        if (!_Disposed)
+        {
+            if (disposing)
             {
-                if (disposing)
+                try
                 {
-                    try
-                    {
-                        Socket.Close();
-                        Socket.Dispose();
+                    Socket.Close();
+                    Socket.Dispose();
 
-                        Task.Wait();
-                    }
-                    catch (Exception e)
-                    {
-                        Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, null, e);
-                    }
+                    Task.Wait();
                 }
-
-                disposed = true;
+                catch (Exception e)
+                {
+                    Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, null, e);
+                }
             }
+
+            _Disposed = true;
         }
+    }
 
     public void Dispose()
     {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
     #endregion
 

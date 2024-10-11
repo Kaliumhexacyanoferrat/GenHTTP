@@ -1,8 +1,5 @@
-﻿using System.IO;
-
-using GenHTTP.Api.Content.Caching;
+﻿using GenHTTP.Api.Content.Caching;
 using GenHTTP.Api.Infrastructure;
-
 using GenHTTP.Modules.Caching;
 using GenHTTP.Modules.ServerCaching.Provider;
 
@@ -62,5 +59,4 @@ public static class ServerCache
     /// <param name="directory">The directory to store the cached responses in</param>
     public static ServerCacheHandlerBuilder Persistent(DirectoryInfo directory)
         => Persistent(directory.FullName);
-
 }

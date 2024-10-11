@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GenHTTP.Api.Protocol;
+﻿namespace GenHTTP.Api.Protocol;
 
 /// <summary>
 /// The response to be send to the connected client for a given request.

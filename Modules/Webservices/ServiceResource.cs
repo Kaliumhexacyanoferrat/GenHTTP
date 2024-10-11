@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-
 using GenHTTP.Modules.Webservices.Provider;
 
 namespace GenHTTP.Modules.Webservices;
@@ -23,5 +22,4 @@ public static class ServiceResource
     /// </summary>
     /// <param name="instance">The instance to be provided</param>
     public static ServiceResourceBuilder From(object instance) => new ServiceResourceBuilder().Instance(instance);
-
 }

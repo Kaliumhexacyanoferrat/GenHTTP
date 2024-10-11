@@ -12,5 +12,4 @@ public static class Host
     /// </summary>
     /// <returns>The host which can be used to run a server instance</returns>
     public static IServerHost Create() => new ServerHost();
-
 }

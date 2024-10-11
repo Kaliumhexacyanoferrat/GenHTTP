@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using GenHTTP.Api.Infrastructure;
+﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
@@ -11,15 +9,48 @@ namespace GenHTTP.Engine.Protocol;
 /// </summary>
 internal sealed class Request : IRequest
 {
+
+    private FlexibleContentType? _ContentType;
     private ICookieCollection? _Cookies;
 
     private IForwardingCollection? _Forwardings;
 
-    private IRequestQuery? _Query;
-
     private RequestProperties? _Properties;
 
-    private FlexibleContentType? _ContentType;
+    private IRequestQuery? _Query;
+
+    #region Initialization
+
+    internal Request(IServer server, IEndPoint endPoint, IClientConnection client, IClientConnection localClient, HttpProtocol protocol, FlexibleRequestMethod method,
+        RoutingTarget target, IHeaderCollection headers, ICookieCollection? cookies, IForwardingCollection? forwardings,
+        IRequestQuery? query, Stream? content)
+    {
+        Client = client;
+        LocalClient = localClient;
+
+        Server = server;
+        EndPoint = endPoint;
+
+        ProtocolType = protocol;
+        Method = method;
+        Target = target;
+
+        _Cookies = cookies;
+        _Forwardings = forwardings;
+        _Query = query;
+
+        Headers = headers;
+
+        Content = content;
+    }
+
+    #endregion
+
+    #region Functionality
+
+    public IResponseBuilder Respond() => new ResponseBuilder().Status(ResponseStatus.Ok);
+
+    #endregion
 
     #region Get-/Setters
 
@@ -45,20 +76,20 @@ internal sealed class Request : IRequest
     {
         get
         {
-                if (_ContentType is not null)
-                {
-                    return _ContentType;
-                }
-
-                var type = this["Content-Type"];
-
-                if (type is not null)
-                {
-                    return _ContentType = new(type);
-                }
-
-                return null;
+            if (_ContentType is not null)
+            {
+                return _ContentType;
             }
+
+            var type = this["Content-Type"];
+
+            if (type is not null)
+            {
+                return _ContentType = new FlexibleContentType(type);
+            }
+
+            return null;
+        }
     }
 
     public string? Host => Client.Host;
@@ -67,18 +98,7 @@ internal sealed class Request : IRequest
 
     public string? UserAgent => this["User-Agent"];
 
-    public string? this[string additionalHeader]
-    {
-        get
-        {
-                if (Headers.ContainsKey(additionalHeader))
-                {
-                    return Headers[additionalHeader];
-                }
-
-                return null;
-            }
-    }
+    public string? this[string additionalHeader] => Headers.GetValueOrDefault(additionalHeader);
 
     public ICookieCollection Cookies
     {
@@ -102,65 +122,27 @@ internal sealed class Request : IRequest
 
     #endregion
 
-    #region Initialization
-
-    internal Request(IServer server, IEndPoint endPoint, IClientConnection client, IClientConnection localClient, HttpProtocol protocol, FlexibleRequestMethod method,
-        RoutingTarget target, IHeaderCollection headers, ICookieCollection? cookies, IForwardingCollection? forwardings,
-        IRequestQuery? query, Stream? content)
-    {
-            Client = client;
-            LocalClient = localClient;
-
-            Server = server;
-            EndPoint = endPoint;
-
-            ProtocolType = protocol;
-            Method = method;
-            Target = target;
-
-            _Cookies = cookies;
-            _Forwardings = forwardings;
-            _Query = query;
-
-            Headers = headers;
-
-            Content = content;
-        }
-
-    #endregion
-
-    #region Functionality
-
-    public IResponseBuilder Respond()
-    {
-            return new ResponseBuilder().Status(ResponseStatus.OK);
-        }
-
-    #endregion
-
     #region IDisposable Support
 
-    private bool disposed = false;
+    private bool _Disposed;
 
     public void Dispose()
     {
-            if (!disposed)
-            {
-                Headers.Dispose();
+        if (!_Disposed)
+        {
+            Headers.Dispose();
 
-                _Query?.Dispose();
+            _Query?.Dispose();
 
-                _Cookies?.Dispose();
+            _Cookies?.Dispose();
 
-                _Properties?.Dispose();
+            _Properties?.Dispose();
 
-                Content?.Dispose();
+            Content?.Dispose();
 
-                disposed = true;
-            }
-
-            GC.SuppressFinalize(this);
+            _Disposed = true;
         }
+    }
 
     #endregion
 

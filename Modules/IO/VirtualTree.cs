@@ -10,5 +10,4 @@ public static class VirtualTree
     /// of tree or resource and allows to combine them.
     /// </summary>
     public static VirtualTreeBuilder Create() => new();
-
 }

@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace GenHTTP.Api.Protocol;
+﻿namespace GenHTTP.Api.Protocol;
 
 /// <summary>
-/// A collection representing the cookies of an <see cref="IRequest"/>
-/// or <see cref="IResponse"/>.
+/// A collection representing the cookies of an <see cref="IRequest" />
+/// or <see cref="IResponse" />.
 /// </summary>
-public interface ICookieCollection : IReadOnlyDictionary<string, Cookie>, IDisposable
-{
-
-}
+public interface ICookieCollection : IReadOnlyDictionary<string, Cookie>, IDisposable;

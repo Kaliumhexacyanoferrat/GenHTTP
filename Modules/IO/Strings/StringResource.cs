@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using System.Text;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
@@ -10,7 +6,21 @@ namespace GenHTTP.Modules.IO.Strings;
 
 public sealed class StringResource : IResource
 {
-    private static readonly Encoding UTF8 = Encoding.UTF8;
+    private static readonly Encoding Utf8 = Encoding.UTF8;
+
+    #region Initialization
+
+    public StringResource(string content, string? name, FlexibleContentType? contentType, DateTime? modified)
+    {
+        Content = Utf8.GetBytes(content);
+        Checksum = (ulong)content.GetHashCode();
+
+        Name = name;
+        ContentType = contentType ?? FlexibleContentType.Get(Api.Protocol.ContentType.TextPlain);
+        Modified = modified;
+    }
+
+    #endregion
 
     #region Get-/Setters
 
@@ -28,28 +38,11 @@ public sealed class StringResource : IResource
 
     #endregion
 
-    #region Initialization
-
-    public StringResource(string content, string? name, FlexibleContentType? contentType, DateTime? modified)
-    {
-            Content = UTF8.GetBytes(content);
-            Checksum = (ulong)content.GetHashCode();
-
-            Name = name;
-            ContentType = contentType ?? FlexibleContentType.Get(Api.Protocol.ContentType.TextPlain);
-            Modified = modified;
-        }
-
-    #endregion
-
     #region Functionality
 
     public ValueTask<Stream> GetContentAsync() => new(new MemoryStream(Content, false));
 
-    public ValueTask<ulong> CalculateChecksumAsync()
-    {
-            return new ValueTask<ulong>(Checksum);
-        }
+    public ValueTask<ulong> CalculateChecksumAsync() => new(Checksum);
 
     public ValueTask WriteAsync(Stream target, uint bufferSize) => target.WriteAsync(Content.AsMemory());
 

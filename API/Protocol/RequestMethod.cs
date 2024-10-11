@@ -1,24 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace GenHTTP.Api.Protocol;
+﻿namespace GenHTTP.Api.Protocol;
 
 public enum RequestMethod
 {
-    GET,
-    HEAD,
-    POST,
-    PUT,
-    PATCH,
-    DELETE,
-    OPTIONS,
-    PROPFIND,
-    PROPPATCH,
-    MKCOL,
-    COPY,
-    MOVE,
-    LOCK,
-    UNLOCK
+    Get,
+    Head,
+    Post,
+    Put,
+    Patch,
+    Delete,
+    Options,
+    PropFind,
+    PropPatch,
+    MkCol,
+    Copy,
+    Move,
+    Lock,
+    Unlock
 }
 
 /// <summary>
@@ -28,23 +25,45 @@ public class FlexibleRequestMethod
 {
     private static readonly Dictionary<string, FlexibleRequestMethod> _RawCache = new(StringComparer.InvariantCultureIgnoreCase)
     {
-        { "HEAD", new(RequestMethod.HEAD) },
-        { "GET", new(RequestMethod.GET) },
-        { "POST", new(RequestMethod.POST) },
-        { "PUT", new(RequestMethod.PUT) },
-        { "DELETE", new(RequestMethod.DELETE) },
-        { "OPTIONS", new(RequestMethod.OPTIONS) }
+        { "HEAD", new FlexibleRequestMethod(RequestMethod.Head) },
+        { "GET", new FlexibleRequestMethod(RequestMethod.Get) },
+        { "POST", new FlexibleRequestMethod(RequestMethod.Post) },
+        { "PUT", new FlexibleRequestMethod(RequestMethod.Put) },
+        { "DELETE", new FlexibleRequestMethod(RequestMethod.Delete) },
+        { "OPTIONS", new FlexibleRequestMethod(RequestMethod.Options) }
     };
 
     private static readonly Dictionary<RequestMethod, FlexibleRequestMethod> _KnownCache = new()
     {
-        { RequestMethod.HEAD, new(RequestMethod.HEAD) },
-        { RequestMethod.GET, new(RequestMethod.GET) },
-        { RequestMethod.POST, new(RequestMethod.POST) },
-        { RequestMethod.PUT, new(RequestMethod.PUT) },
-        { RequestMethod.DELETE, new(RequestMethod.DELETE) },
-        { RequestMethod.OPTIONS, new(RequestMethod.OPTIONS) }
+        { RequestMethod.Head, new FlexibleRequestMethod(RequestMethod.Head) },
+        { RequestMethod.Get, new FlexibleRequestMethod(RequestMethod.Get) },
+        { RequestMethod.Post, new FlexibleRequestMethod(RequestMethod.Post) },
+        { RequestMethod.Put, new FlexibleRequestMethod(RequestMethod.Put) },
+        { RequestMethod.Delete, new FlexibleRequestMethod(RequestMethod.Delete) },
+        { RequestMethod.Options, new FlexibleRequestMethod(RequestMethod.Options) }
     };
+
+    #region Mapping
+
+    private static readonly Dictionary<string, RequestMethod> MAPPING = new(StringComparer.OrdinalIgnoreCase)
+    {
+        { "GET", RequestMethod.Get },
+        { "HEAD", RequestMethod.Head },
+        { "POST", RequestMethod.Post },
+        { "PUT", RequestMethod.Put },
+        { "PATCH", RequestMethod.Patch },
+        { "DELETE", RequestMethod.Delete },
+        { "OPTIONS", RequestMethod.Options },
+        { "PROPFIND", RequestMethod.PropFind },
+        { "PROPPATCH", RequestMethod.PropPatch },
+        { "MKCOL", RequestMethod.MkCol },
+        { "COPY", RequestMethod.Copy },
+        { "MOVE", RequestMethod.Move },
+        { "LOCK", RequestMethod.Lock },
+        { "UNLOCK", RequestMethod.Unlock }
+    };
+
+    #endregion
 
     #region Get-/Setters
 
@@ -60,28 +79,6 @@ public class FlexibleRequestMethod
 
     #endregion
 
-    #region Mapping
-
-    private static readonly Dictionary<string, RequestMethod> MAPPING = new(StringComparer.OrdinalIgnoreCase)
-    {
-        { "GET", RequestMethod.GET },
-        { "HEAD", RequestMethod.HEAD },
-        { "POST", RequestMethod.POST },
-        { "PUT", RequestMethod.PUT },
-        { "PATCH", RequestMethod.PATCH },
-        { "DELETE", RequestMethod.DELETE },
-        { "OPTIONS", RequestMethod.OPTIONS },
-        { "PROPFIND", RequestMethod.PROPFIND },
-        { "PROPPATCH", RequestMethod.PROPPATCH },
-        { "MKCOL", RequestMethod.MKCOL },
-        { "COPY", RequestMethod.COPY },
-        { "MOVE", RequestMethod.MOVE },
-        { "LOCK", RequestMethod.LOCK },
-        { "UNLOCK", RequestMethod.UNLOCK }
-    };
-
-    #endregion
-
     #region Initialization
 
     /// <summary>
@@ -90,9 +87,9 @@ public class FlexibleRequestMethod
     /// <param name="method">The known type to be used</param>
     public FlexibleRequestMethod(RequestMethod method)
     {
-            KnownMethod = method;
-            RawMethod = Enum.GetName(method) ?? throw new ArgumentException("The given method cannot be mapped", nameof(method));
-        }
+        KnownMethod = method;
+        RawMethod = Enum.GetName(method) ?? throw new ArgumentException("The given method cannot be mapped", nameof(method));
+    }
 
     /// <summary>
     /// Create a new request method instance.
@@ -100,17 +97,17 @@ public class FlexibleRequestMethod
     /// <param name="rawType">The raw type transmitted by the client</param>
     public FlexibleRequestMethod(string rawType)
     {
-            RawMethod = rawType;
+        RawMethod = rawType;
 
-            if (MAPPING.TryGetValue(rawType, out var type))
-            {
-                KnownMethod = type;
-            }
-            else
-            {
-                KnownMethod = null;
-            }
+        if (MAPPING.TryGetValue(rawType, out var type))
+        {
+            KnownMethod = type;
         }
+        else
+        {
+            KnownMethod = null;
+        }
+    }
 
     #endregion
 
@@ -123,17 +120,17 @@ public class FlexibleRequestMethod
     /// <returns>The content type instance to be used</returns>
     public static FlexibleRequestMethod Get(string rawMethod)
     {
-            if (_RawCache.TryGetValue(rawMethod, out var found))
-            {
-                return found;
-            }
-
-            var method = new FlexibleRequestMethod(rawMethod);
-
-            _RawCache[rawMethod] = method;
-
-            return method;
+        if (_RawCache.TryGetValue(rawMethod, out var found))
+        {
+            return found;
         }
+
+        var method = new FlexibleRequestMethod(rawMethod);
+
+        _RawCache[rawMethod] = method;
+
+        return method;
+    }
 
     /// <summary>
     /// Fetches a cached instance for the given content type.
@@ -142,17 +139,17 @@ public class FlexibleRequestMethod
     /// <returns>The content type instance to be used</returns>
     public static FlexibleRequestMethod Get(RequestMethod knownMethod)
     {
-            if (_KnownCache.TryGetValue(knownMethod, out var found))
-            {
-                return found;
-            }
-
-            var method = new FlexibleRequestMethod(knownMethod);
-
-            _KnownCache[knownMethod] = method;
-
-            return method;
+        if (_KnownCache.TryGetValue(knownMethod, out var found))
+        {
+            return found;
         }
+
+        var method = new FlexibleRequestMethod(knownMethod);
+
+        _KnownCache[knownMethod] = method;
+
+        return method;
+    }
 
     #endregion
 

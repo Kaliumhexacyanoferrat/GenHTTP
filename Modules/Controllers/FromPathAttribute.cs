@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GenHTTP.Modules.Controllers;
+﻿namespace GenHTTP.Modules.Controllers;
 
 /// <summary>
 /// Marking an argument of a controller method with this attribute causes
@@ -12,7 +10,4 @@ namespace GenHTTP.Modules.Controllers;
 /// path arguments as you like, but they must not be optional.
 /// </remarks>
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class FromPathAttribute : Attribute
-{
-
-}
+public sealed class FromPathAttribute : Attribute;

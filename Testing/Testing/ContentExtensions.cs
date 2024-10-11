@@ -1,8 +1,4 @@
-﻿using System;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-
+﻿using System.Net;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Protobuf;
 
@@ -29,10 +25,7 @@ public static class ContentExtensions
     /// This method supports all formats that ship with the GenHTTP framework (JSON, XML, form encoded, Protobuf)
     /// and falls back to JSON if the server does not indicate a content type.
     /// </remarks>
-    public static async ValueTask<T> GetContentAsync<T>(this HttpResponseMessage response)
-    {
-            return await response.GetOptionalContentAsync<T>() ?? throw new InvalidOperationException("Server did not return a result");
-        }
+    public static async ValueTask<T> GetContentAsync<T>(this HttpResponseMessage response) => await response.GetOptionalContentAsync<T>() ?? throw new InvalidOperationException("Server did not return a result");
 
     /// <summary>
     /// Attempts to deserialize the payload of the HTTP response into the given type.
@@ -47,22 +40,21 @@ public static class ContentExtensions
     /// </remarks>
     public static async ValueTask<T?> GetOptionalContentAsync<T>(this HttpResponseMessage response)
     {
-            if (response.StatusCode == HttpStatusCode.NoContent)
-            {
-                return default;
-            }
-
-            var type = response.GetContentHeader("Content-Type");
-
-            var registry = Serialization.Default()
-                                        .AddProtobuf()
-                                        .Build();
-
-            var format = registry.GetFormat(type) ?? throw new InvalidOperationException($"Unable to find deserializer for content type '{type}'");
-
-            using var body = await response.Content.ReadAsStreamAsync();
-
-            return (T?)await format.DeserializeAsync(body, typeof(T));
+        if (response.StatusCode == HttpStatusCode.NoContent)
+        {
+            return default;
         }
 
+        var type = response.GetContentHeader("Content-Type");
+
+        var registry = Serialization.Default()
+                                    .AddProtobuf()
+                                    .Build();
+
+        var format = registry.GetFormat(type) ?? throw new InvalidOperationException($"Unable to find deserializer for content type '{type}'");
+
+        await using var body = await response.Content.ReadAsStreamAsync();
+
+        return (T?)await format.DeserializeAsync(body, typeof(T));
+    }
 }

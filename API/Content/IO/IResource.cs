@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Content.IO;
 
@@ -19,7 +16,7 @@ public interface IResource
 {
 
     /// <summary>
-    /// The name of this resource, if known. 
+    /// The name of this resource, if known.
     /// </summary>
     string? Name { get; }
 
@@ -63,5 +60,4 @@ public interface IResource
     /// <param name="target">The stream to write to</param>
     /// <param name="bufferSize">The buffer size to be used for the operation</param>
     ValueTask WriteAsync(Stream target, uint bufferSize);
-
 }

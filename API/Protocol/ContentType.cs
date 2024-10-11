@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Concurrent;
 
 namespace GenHTTP.Api.Protocol;
 
@@ -418,18 +415,18 @@ public class FlexibleContentType
     /// <param name="charset">The charset of the content, if known</param>
     public FlexibleContentType(string rawType, string? charset = null)
     {
-            RawType = rawType;
-            Charset = charset;
+        RawType = rawType;
+        Charset = charset;
 
-            if (MAPPING_REVERSE.TryGetValue(rawType, out var knownType))
-            {
-                KnownType = knownType;
-            }
-            else
-            {
-                KnownType = null;
-            }
+        if (MAPPING_REVERSE.TryGetValue(rawType, out var knownType))
+        {
+            KnownType = knownType;
         }
+        else
+        {
+            KnownType = null;
+        }
+    }
 
     /// <summary>
     /// Create a new content type from the given known type.
@@ -438,11 +435,11 @@ public class FlexibleContentType
     /// <param name="charset">The charset of the content, if known</param>
     public FlexibleContentType(ContentType type, string? charset = null)
     {
-            KnownType = type;
-            RawType = MAPPING[type];
+        KnownType = type;
+        RawType = MAPPING[type];
 
-            Charset = charset;
-        }
+        Charset = charset;
+    }
 
     #endregion
 
@@ -455,22 +452,22 @@ public class FlexibleContentType
     /// <returns>The content type instance to be used</returns>
     public static FlexibleContentType Get(string rawType, string? charset = null)
     {
-            if (charset is not null)
-            {
-                return new(rawType, charset);
-            }
-
-            if (_RawCache.TryGetValue(rawType, out var found))
-            {
-                return found;
-            }
-
-            var type = new FlexibleContentType(rawType);
-
-            _RawCache[rawType] = type;
-
-            return type;
+        if (charset is not null)
+        {
+            return new FlexibleContentType(rawType, charset);
         }
+
+        if (_RawCache.TryGetValue(rawType, out var found))
+        {
+            return found;
+        }
+
+        var type = new FlexibleContentType(rawType);
+
+        _RawCache[rawType] = type;
+
+        return type;
+    }
 
     /// <summary>
     /// Fetches a cached instance for the given content type.
@@ -479,22 +476,22 @@ public class FlexibleContentType
     /// <returns>The content type instance to be used</returns>
     public static FlexibleContentType Get(ContentType knownType, string? charset = null)
     {
-            if (charset is not null)
-            {
-                return new(knownType, charset);
-            }
-
-            if (_KnownCache.TryGetValue(knownType, out var found))
-            {
-                return found;
-            }
-
-            var type = new FlexibleContentType(knownType);
-
-            _KnownCache[knownType] = type;
-
-            return type;
+        if (charset is not null)
+        {
+            return new FlexibleContentType(knownType, charset);
         }
+
+        if (_KnownCache.TryGetValue(knownType, out var found))
+        {
+            return found;
+        }
+
+        var type = new FlexibleContentType(knownType);
+
+        _KnownCache[knownType] = type;
+
+        return type;
+    }
 
     /// <summary>
     /// Parses the given header value into a content type structure.
@@ -503,30 +500,24 @@ public class FlexibleContentType
     /// <returns>The parsed content type</returns>
     public static FlexibleContentType Parse(string header)
     {
-            var span = header.AsSpan();
+        var span = header.AsSpan();
 
-            var index = span.IndexOf(';');
+        var index = span.IndexOf(';');
 
-            if (index > 0)
+        if (index > 0)
+        {
+            var contentType = span[..index].Trim().ToString();
+
+            var charsetIndex = span.IndexOf('=');
+
+            if (charsetIndex > 0)
             {
-                var contentType = span[..index].Trim().ToString();
-
-                var charsetIndex = span.IndexOf('=');
-
-                if (charsetIndex > 0)
-                {
-                    return Get(contentType, span[(charsetIndex + 1)..].Trim().ToString());
-                }
-                else
-                {
-                    return Get(contentType);
-                }
+                return Get(contentType, span[(charsetIndex + 1)..].Trim().ToString());
             }
-            else
-            {
-                return Get(header);
-            }
+            return Get(contentType);
         }
+        return Get(header);
+    }
 
     #endregion
 

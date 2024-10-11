@@ -1,9 +1,6 @@
-﻿using System.Threading.Tasks;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using GenHTTP.Modules.IO;
+﻿using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
 
@@ -17,13 +14,12 @@ public sealed class EncodingTests
     [TestMethod]
     public async Task TestUtf8DefaultEncoding()
     {
-            var layout = Layout.Create().Add("utf8", Content.From(Resource.FromString("From GenHTTP with ❤")));
+        var layout = Layout.Create().Add("utf8", Content.From(Resource.FromString("From GenHTTP with ❤")));
 
-            using var runner = TestHost.Run(layout);
+        using var runner = TestHost.Run(layout);
 
-            using var response = await runner.GetResponseAsync("/utf8");
+        using var response = await runner.GetResponseAsync("/utf8");
 
-            Assert.AreEqual("From GenHTTP with ❤", await response.GetContentAsync());
-        }
-
+        Assert.AreEqual("From GenHTTP with ❤", await response.GetContentAsync());
+    }
 }

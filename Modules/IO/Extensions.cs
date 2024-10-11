@@ -12,8 +12,7 @@ public static class Extensions
     /// <param name="host">The host to add the feature to</param>
     public static IServerHost RangeSupport(this IServerHost host)
     {
-            host.Add(IO.RangeSupport.Create());
-            return host;
-        }
-
+        host.Add(IO.RangeSupport.Create());
+        return host;
+    }
 }

@@ -38,5 +38,4 @@ public interface IServerHost : IServerBuilder<IServerHost>
     /// </remarks>
     /// <returns>The return code to be passed to the operating system</returns>
     int Run();
-
 }

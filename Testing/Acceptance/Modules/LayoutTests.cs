@@ -1,9 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Net;
-using System.Threading.Tasks;
+﻿using System.Net;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
-using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules;
 
@@ -18,7 +16,7 @@ public sealed class LayoutTests
     public async Task TestGetIndex()
     {
         var layout = Layout.Create()
-            .Index(Content.From(Resource.FromString("Hello World!")));
+                           .Index(Content.From(Resource.FromString("Hello World!")));
 
         using var runner = TestHost.Run(layout);
 
@@ -42,7 +40,7 @@ public sealed class LayoutTests
 
         using var runner = TestHost.Run(layout);
 
-        foreach (var path in new string[] { "/something", "/" })
+        foreach (var path in new[] { "/something", "/" })
         {
             using var response = await runner.GetResponseAsync(path);
 
@@ -59,7 +57,7 @@ public sealed class LayoutTests
     public async Task TestRedirect()
     {
         var layout = Layout.Create()
-            .Add("section", Layout.Create().Index(Content.From(Resource.FromString("Hello World!"))));
+                           .Add("section", Layout.Create().Index(Content.From(Resource.FromString("Hello World!"))));
 
         using var runner = TestHost.Run(layout);
 
@@ -80,5 +78,4 @@ public sealed class LayoutTests
     {
         Layout.Create().Add("some/path", Content.From(Resource.FromString("Hello World")));
     }
-
 }

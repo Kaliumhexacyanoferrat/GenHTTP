@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GenHTTP.Api.Content;
+﻿namespace GenHTTP.Api.Content;
 
 /// <summary>
 /// Interface which needs to be implementd by factories providing concern instances.
@@ -15,5 +13,4 @@ public interface IConcernBuilder
     /// <param name="contentFactory">A method providing the content of the concern</param>
     /// <returns>The newly created concern instance</returns>
     IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory);
-
 }

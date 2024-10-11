@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace GenHTTP.Modules.Reflection.Injectors;
+﻿namespace GenHTTP.Modules.Reflection.Injectors;
 
 public class InjectionRegistry : List<IParameterInjector>
 {
@@ -10,7 +8,7 @@ public class InjectionRegistry : List<IParameterInjector>
     public InjectionRegistry(IEnumerable<IParameterInjector> injectors) : base(injectors)
     {
 
-        }
+    }
 
     #endregion
 

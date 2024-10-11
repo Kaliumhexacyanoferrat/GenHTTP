@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace GenHTTP.Engine.Protocol;
+﻿namespace GenHTTP.Engine.Protocol;
 
 /// <summary>
 /// Provides and maintains a temporary file used by the server engine
@@ -16,35 +13,32 @@ internal sealed class TemporaryFileStream : FileStream
 
     #endregion
 
+    #region Lifecycle
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+
+        if (disposing)
+        {
+            File.Delete(TemporaryFile);
+        }
+    }
+
+    #endregion
+
     #region Initialization
 
     private TemporaryFileStream(string file) : base(file, FileMode.CreateNew, FileAccess.ReadWrite)
     {
-            TemporaryFile = file;
-        }
+        TemporaryFile = file;
+    }
 
     /// <summary>
     /// Creates a new temporary file which can be used for data storage.
     /// </summary>
     /// <returns>The newly created file stream</returns>
-    internal static Stream Create()
-    {
-            return new TemporaryFileStream(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".genhttp.tmp"));
-        }
-
-    #endregion
-
-    #region Lifecycle
-
-    protected override void Dispose(bool disposing)
-    {
-            base.Dispose(disposing);
-
-            if (disposing)
-            {
-                File.Delete(TemporaryFile);
-            }
-        }
+    internal static Stream Create() => new TemporaryFileStream(Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".genhttp.tmp"));
 
     #endregion
 

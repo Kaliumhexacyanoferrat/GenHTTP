@@ -1,64 +1,64 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <PropertyGroup>
 
-    <LangVersion>13.0</LangVersion>
-    <Nullable>enable</Nullable>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
 
-    <AssemblyVersion>8.6.0.0</AssemblyVersion>
-    <FileVersion>8.6.0.0</FileVersion>
-    <Version>8.6.0</Version>
+        <LangVersion>13.0</LangVersion>
+        <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <ImplicitUsings>enable</ImplicitUsings>
 
-    <Authors>Andreas Nägeli</Authors>
-    <Company />
+        <AssemblyVersion>8.6.0.0</AssemblyVersion>
+        <FileVersion>8.6.0.0</FileVersion>
+        <Version>8.6.0</Version>
 
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
+        <Authors>Andreas Nägeli</Authors>
+        <Company/>
 
-    <Description>Allows to generate and serve HTML pages</Description>
-    <PackageTags>HTTP Webserver C# Module Page HTML Model Rendering</PackageTags>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <Description>Allows to generate and serve HTML pages</Description>
+        <PackageTags>HTTP Webserver C# Module Page HTML Model Rendering</PackageTags>
 
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>CS1591,CS1587,CS1572,CS1573</NoWarn>
-	  
-    <PackageIcon>icon.png</PackageIcon>
-    
-  </PropertyGroup>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
-  <ItemGroup>
-    <None Remove="Templates\ServerPage.html" />
-  </ItemGroup>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>CS1591,CS1587,CS1572,CS1573</NoWarn>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Templates\ServerPage.html" />
-  </ItemGroup>
+        <PackageIcon>icon.png</PackageIcon>
 
-  <ItemGroup>
+    </PropertyGroup>
 
-    <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
-    <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\" />
+    <ItemGroup>
+        <None Remove="Templates\ServerPage.html"/>
+    </ItemGroup>
 
-  </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="Templates\ServerPage.html"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    
-    <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
+    <ItemGroup>
 
-    <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
-	<ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
+        <None Include="..\..\LICENSE" Pack="true" PackagePath="\"/>
+        <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\"/>
 
-    <PackageReference Include="Cottle" Version="2.0.12" />
+    </ItemGroup>
 
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    
-  </ItemGroup>
+    <ItemGroup>
+
+        <ProjectReference Include="..\..\API\GenHTTP.Api.csproj"/>
+
+        <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj"/>
+        <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj"/>
+
+        <PackageReference Include="Cottle" Version="2.0.12"/>
+
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+
+    </ItemGroup>
 
 </Project>
- 

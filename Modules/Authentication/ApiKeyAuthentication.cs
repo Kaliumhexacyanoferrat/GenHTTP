@@ -1,10 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Authentication.ApiKey;
 
 namespace GenHTTP.Modules.Authentication;
@@ -34,9 +30,9 @@ public static class ApiKeyAuthentication
     /// <param name="apiKeyAuth">The authentication concern to be added</param>
     public static T Authentication<T>(this T builder, ApiKeyConcernBuilder apiKeyAuth) where T : IHandlerBuilder<T>
     {
-            builder.Add(apiKeyAuth);
-            return builder;
-        }
+        builder.Add(apiKeyAuth);
+        return builder;
+    }
 
     /// <summary>
     /// Adds API key authentication to the handler, using the
@@ -46,9 +42,9 @@ public static class ApiKeyAuthentication
     /// <param name="authenticator">The function to be invoked to determine, whether the given string key is valid</param>
     public static T Authentication<T>(this T builder, Func<IRequest, string, ValueTask<IUser?>> authenticator) where T : IHandlerBuilder<T>
     {
-            builder.Add(Create().Authenticator(authenticator));
-            return builder;
-        }
+        builder.Add(Create().Authenticator(authenticator));
+        return builder;
+    }
 
     #endregion
 

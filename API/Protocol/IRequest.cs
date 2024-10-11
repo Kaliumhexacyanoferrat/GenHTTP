@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-using GenHTTP.Api.Infrastructure;
+﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Api.Protocol;
@@ -11,6 +8,29 @@ namespace GenHTTP.Api.Protocol;
 /// </summary>
 public interface IRequest : IDisposable
 {
+
+    #region Extensibility
+
+    /// <summary>
+    /// Additional properties that have been attached to the request.
+    /// </summary>
+    /// <remarks>
+    /// Can be used to store additional state on request level if needed.
+    /// Should be avoided in favor of more strict coupling.
+    /// </remarks>
+    IRequestProperties Properties { get; }
+
+    #endregion
+
+    #region Functionality
+
+    /// <summary>
+    /// Generates a new response for this request to be send to the client.
+    /// </summary>
+    /// <returns>The newly created response</returns>
+    IResponseBuilder Respond();
+
+    #endregion
 
     #region General Infrastructure
 
@@ -119,29 +139,6 @@ public interface IRequest : IDisposable
     /// The type of content transmitted by the client, if any.
     /// </summary>
     FlexibleContentType? ContentType { get; }
-
-    #endregion
-
-    #region Functionality
-
-    /// <summary>
-    /// Generates a new response for this request to be send to the client.
-    /// </summary>
-    /// <returns>The newly created response</returns>
-    IResponseBuilder Respond();
-
-    #endregion
-
-    #region Extensibility
-
-    /// <summary>
-    /// Additional properties that have been attached to the request.
-    /// </summary>
-    /// <remarks>
-    /// Can be used to store additional state on request level if needed.
-    /// Should be avoided in favor of more strict coupling.
-    /// </remarks>
-    IRequestProperties Properties { get; }
 
     #endregion
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-
-namespace GenHTTP.Api.Content.Caching;
+﻿namespace GenHTTP.Api.Content.Caching;
 
 /// <summary>
 /// Saves intermediate results for fast access.
@@ -44,5 +40,4 @@ public interface ICache<T>
     /// <param name="variation">The variation specification of the entry</param>
     /// <param name="asyncWriter">A callback that allows to write the entry to the target stream</param>
     ValueTask StoreDirectAsync(string key, string variation, Func<Stream, ValueTask> asyncWriter);
-
 }

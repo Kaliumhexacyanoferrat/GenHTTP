@@ -1,5 +1,4 @@
 ﻿using System.Net;
-
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Infrastructure;
@@ -14,7 +13,7 @@ public interface IClientConnection
     /// The IP address of the remotely connected client.
     /// </summary>
     IPAddress IPAddress { get; }
-        
+
     /// <summary>
     /// The protocol used by the client to connect
     /// to the server.
@@ -26,5 +25,4 @@ public interface IClientConnection
     /// to the server.
     /// </summary>
     string? Host { get; }
-
 }

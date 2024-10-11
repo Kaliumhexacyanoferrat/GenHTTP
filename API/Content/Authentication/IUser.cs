@@ -12,5 +12,4 @@ public interface IUser
     /// the UI (e.g. a rendered, themed page).
     /// </summary>
     string DisplayName { get; }
-
 }

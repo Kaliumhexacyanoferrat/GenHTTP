@@ -14,7 +14,6 @@ public sealed class GzipAlgorithm : ICompressionAlgorithm
 
     public IResponseContent Compress(IResponseContent content, CompressionLevel level)
     {
-            return new CompressedResponseContent(content, (target) => new GZipStream(target, level, false));
-        }
-
+        return new CompressedResponseContent(content, target => new GZipStream(target, level, false));
+    }
 }

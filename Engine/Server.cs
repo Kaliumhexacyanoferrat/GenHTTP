@@ -14,9 +14,5 @@ public static class Server
     /// default values.
     /// </summary>
     /// <returns>The builder to create the instance</returns>
-    public static IServerBuilder Create()
-    {
-            return new ThreadedServerBuilder();
-        }
-
+    public static IServerBuilder Create() => new ThreadedServerBuilder();
 }

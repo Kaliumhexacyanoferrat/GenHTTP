@@ -1,44 +1,45 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
+    <PropertyGroup>
 
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
-    
-    <LangVersion>13.0</LangVersion>
-    <Nullable>enable</Nullable>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    
-    <AssemblyVersion>9.0.0.0</AssemblyVersion>    
-    <FileVersion>9.0.0.0</FileVersion>    
-    <Version>9.0.0</Version>
-    
-    <Authors>Andreas Nägeli</Authors>    
-    <Company />
-    
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
-    
-    <Description>Public API of the GenHTTP webserver. This package is at least required to build a project that can be executed with the GenHTTP webserver.</Description>
-    <PackageTags>HTTP Embedded Webserver Website Server Library C# Standard API</PackageTags>
+        <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
 
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <LangVersion>13.0</LangVersion>
+        <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <ImplicitUsings>enable</ImplicitUsings>
 
-	<GenerateDocumentationFile>true</GenerateDocumentationFile>
-	<NoWarn>CS1591,CS1587,CS1572,CS1573</NoWarn>
-	  
-    <PackageIcon>icon.png</PackageIcon>
+        <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <FileVersion>9.0.0.0</FileVersion>
+        <Version>9.0.0</Version>
 
-  </PropertyGroup>
+        <Authors>Andreas Nägeli</Authors>
+        <Company/>
 
-  <ItemGroup>
-    
-    <None Include="..\LICENSE" Pack="true" PackagePath="\" />
-    <None Include="..\Resources\icon.png" Pack="true" PackagePath="\" />
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    
-  </ItemGroup>
+        <Description>Public API of the GenHTTP webserver. This package is at least required to build a project that can be executed with the GenHTTP webserver.</Description>
+        <PackageTags>HTTP Embedded Webserver Website Server Library C# Standard API</PackageTags>
+
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>CS1591,CS1587,CS1572,CS1573</NoWarn>
+
+        <PackageIcon>icon.png</PackageIcon>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+
+        <None Include="..\LICENSE" Pack="true" PackagePath="\"/>
+        <None Include="..\Resources\icon.png" Pack="true" PackagePath="\"/>
+
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+
+    </ItemGroup>
 
 </Project>
