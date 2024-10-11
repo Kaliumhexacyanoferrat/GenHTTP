@@ -11,7 +11,7 @@ public class ErrorHandlingTests
 
     #region Supporting data structures
 
-    record class MyEntity(string Data);
+    record MyEntity(string Data);
 
     #endregion
 

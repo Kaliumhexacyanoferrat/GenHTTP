@@ -14,7 +14,7 @@ public sealed class ResultTests
 
     #region Supporting data structures
 
-    public record class MyPayload(string Message);
+    public record MyPayload(string Message);
 
     #endregion
 

@@ -9,7 +9,7 @@ namespace GenHTTP.Testing.Acceptance.Testing;
 public sealed class ContentTests
 {
 
-    public record class MyType(int ID);
+    public record MyType(int ID);
 
     [TestMethod]
     public async Task TestDeserialization()
