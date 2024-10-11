@@ -1,16 +1,15 @@
 ﻿using System.Buffers;
 using System.Text;
 
-namespace GenHTTP.Engine.Protocol.Parser.Conversion
+namespace GenHTTP.Engine.Protocol.Parser.Conversion;
+
+internal static class ValueConverter
 {
 
-    internal static class ValueConverter
+    private static readonly Encoding ASCII = Encoding.ASCII;
+
+    internal static bool CompareTo(ReadOnlySequence<byte> buffer, string expected)
     {
-
-        private static readonly Encoding ASCII = Encoding.ASCII;
-
-        internal static bool CompareTo(ReadOnlySequence<byte> buffer, string expected)
-        {
             var i = 0;
 
             if (buffer.Length != expected.Length)
@@ -32,8 +31,8 @@ namespace GenHTTP.Engine.Protocol.Parser.Conversion
             return true;
         }
 
-        internal static string GetString(ReadOnlySequence<byte> buffer)
-        {
+    internal static string GetString(ReadOnlySequence<byte> buffer)
+    {
             if (buffer.Length > 0)
             {
                 var result = string.Create((int)buffer.Length, buffer, (span, sequence) =>
@@ -50,7 +49,5 @@ namespace GenHTTP.Engine.Protocol.Parser.Conversion
 
             return string.Empty;
         }
-
-    }
 
 }

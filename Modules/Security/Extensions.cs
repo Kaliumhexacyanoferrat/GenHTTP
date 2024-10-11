@@ -4,18 +4,17 @@ using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Modules.Security.Providers;
 
-namespace GenHTTP.Modules.Security
+namespace GenHTTP.Modules.Security;
+
+public static class Extensions
 {
 
-    public static class Extensions
+
+    public static IServerHost Harden(this IServerHost host,
+        bool secureUpgrade = true,
+        bool strictTransport = true,
+        bool preventSniffing = true)
     {
-
-
-        public static IServerHost Harden(this IServerHost host,
-                                         bool secureUpgrade = true,
-                                         bool strictTransport = true,
-                                         bool preventSniffing = true)
-        {
             if (secureUpgrade)
             {
                 host.SecureUpgrade(Api.Infrastructure.SecureUpgrade.Force);
@@ -34,8 +33,8 @@ namespace GenHTTP.Modules.Security
             return host;
         }
 
-        public static IServerHost SecureUpgrade(this IServerHost host, SecureUpgrade mode)
-        {
+    public static IServerHost SecureUpgrade(this IServerHost host, SecureUpgrade mode)
+    {
             if (mode != Api.Infrastructure.SecureUpgrade.None)
             {
                 host.Add(new SecureUpgradeConcernBuilder().Mode(mode));
@@ -44,18 +43,16 @@ namespace GenHTTP.Modules.Security
             return host;
         }
 
-        public static IServerHost StrictTransport(this IServerHost host, StrictTransportPolicy policy)
-        {
+    public static IServerHost StrictTransport(this IServerHost host, StrictTransportPolicy policy)
+    {
             host.Add(new StrictTransportConcernBuilder().Policy(policy));
             return host;
         }
 
-        public static IServerHost PreventSniffing(this IServerHost host)
-        {
+    public static IServerHost PreventSniffing(this IServerHost host)
+    {
             host.Add(new SnifferPreventionConcernBuilder());
             return host;
         }
-
-    }
 
 }

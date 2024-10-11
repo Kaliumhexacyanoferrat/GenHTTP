@@ -14,24 +14,23 @@ using GenHTTP.Modules.IO;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Functional
+namespace GenHTTP.Testing.Acceptance.Modules.Functional;
+
+[TestClass]
+public sealed class InlineTests
 {
 
-    [TestClass]
-    public sealed class InlineTests
+    #region Supporting data structures
+
+    public record MyClass(string String, int Int, double Double);
+
+    private enum EnumData { One, Two }
+
+    #endregion
+
+    [TestMethod]
+    public async Task TestGetRoot()
     {
-
-        #region Supporting data structures
-
-        public record MyClass(string String, int Int, double Double);
-
-        private enum EnumData { One, Two }
-
-        #endregion
-
-        [TestMethod]
-        public async Task TestGetRoot()
-        {
             using var host = TestHost.Run(Inline.Create().Get(() => 42));
 
             using var response = await host.GetResponseAsync();
@@ -39,9 +38,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
             Assert.AreEqual("42", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestGetPath()
-        {
+    [TestMethod]
+    public async Task TestGetPath()
+    {
             using var host = TestHost.Run(Inline.Create().Get("/blubb", () => 42));
 
             using var response = await host.GetResponseAsync("/blubb");
@@ -49,9 +48,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
             Assert.AreEqual("42", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestGetQueryParam()
-        {
+    [TestMethod]
+    public async Task TestGetQueryParam()
+    {
             using var host = TestHost.Run(Inline.Create().Get((int param) => param + 1));
 
             using var response = await host.GetResponseAsync("/?param=41");
@@ -59,9 +58,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
             Assert.AreEqual("42", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestGetEmptyBooleanQueryParam()
-        {
+    [TestMethod]
+    public async Task TestGetEmptyBooleanQueryParam()
+    {
             using var host = TestHost.Run(Inline.Create().Get((bool param) => param));
 
             using var response = await host.GetResponseAsync("/?param=");
@@ -69,9 +68,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
             Assert.AreEqual("0", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestGetEmptyDoubleQueryParam()
-        {
+    [TestMethod]
+    public async Task TestGetEmptyDoubleQueryParam()
+    {
             using var host = TestHost.Run(Inline.Create().Get((double param) => param));
 
             using var response = await host.GetResponseAsync("/?param=");
@@ -79,9 +78,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
             Assert.AreEqual("0", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestGetEmptyStringQueryParam()
-        {
+    [TestMethod]
+    public async Task TestGetEmptyStringQueryParam()
+    {
             using var host = TestHost.Run(Inline.Create().Get((string param) => param));
 
             using var response = await host.GetResponseAsync("/?param=");
@@ -89,9 +88,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
             Assert.AreEqual("", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestGetEmptyEnumQueryParam()
-        {
+    [TestMethod]
+    public async Task TestGetEmptyEnumQueryParam()
+    {
             using var host = TestHost.Run(Inline.Create().Get((EnumData param) => param));
 
             using var response = await host.GetResponseAsync("/?param=");
@@ -99,9 +98,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
             Assert.AreEqual("One", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestGetPathParam()
-        {
+    [TestMethod]
+    public async Task TestGetPathParam()
+    {
             using var host = TestHost.Run(Inline.Create().Get(":param", (int param) => param + 1));
 
             using var response = await host.GetResponseAsync("/41");
@@ -109,9 +108,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
             Assert.AreEqual("42", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestNotFound()
-        {
+    [TestMethod]
+    public async Task TestNotFound()
+    {
             using var host = TestHost.Run(Inline.Create().Get(() => 42));
 
             using var response = await host.GetResponseAsync("/nope");
@@ -119,9 +118,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
             await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
-        [TestMethod]
-        public async Task TestRaw()
-        {
+    [TestMethod]
+    public async Task TestRaw()
+    {
             using var host = TestHost.Run(Inline.Create().Get((IRequest request) =>
             {
                 return request.Respond()
@@ -134,9 +133,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
             Assert.AreEqual("42", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestStream()
-        {
+    [TestMethod]
+    public async Task TestStream()
+    {
             using var host = TestHost.Run(Inline.Create().Get(() => new MemoryStream(Encoding.UTF8.GetBytes("42"))));
 
             using var response = await host.GetResponseAsync();
@@ -144,9 +143,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
             Assert.AreEqual("42", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestJson()
-        {
+    [TestMethod]
+    public async Task TestJson()
+    {
             using var host = TestHost.Run(Inline.Create().Get(() => new MyClass("42", 42, 42.0)));
 
             using var response = await host.GetResponseAsync();
@@ -154,9 +153,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
             Assert.AreEqual("{\"string\":\"42\",\"int\":42,\"double\":42}", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestPostJson()
-        {
+    [TestMethod]
+    public async Task TestPostJson()
+    {
             using var host = TestHost.Run(Inline.Create().Post((MyClass input) => input));
 
             var request = host.GetRequest();
@@ -170,9 +169,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
             Assert.AreEqual("{\"string\":\"42\",\"int\":42,\"double\":42}", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestAsync()
-        {
+    [TestMethod]
+    public async Task TestAsync()
+    {
             using var host = TestHost.Run(Inline.Create().Get(async () =>
             {
                 var stream = new MemoryStream();
@@ -189,9 +188,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
             Assert.AreEqual("42", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestHandlerBuilder()
-        {
+    [TestMethod]
+    public async Task TestHandlerBuilder()
+    {
             var target = "https://www.google.de/";
 
             using var host = TestHost.Run(Inline.Create().Get(() => Redirect.To(target)));
@@ -201,9 +200,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
             Assert.AreEqual(target, response.GetHeader("Location"));
         }
 
-        [TestMethod]
-        public async Task TestHandler()
-        {
+    [TestMethod]
+    public async Task TestHandler()
+    {
             var target = "https://www.google.de/";
 
             using var host = TestHost.Run(Inline.Create().Get((IHandler parent) => Redirect.To(target).Build(parent)));
@@ -212,7 +211,5 @@ namespace GenHTTP.Testing.Acceptance.Modules.Functional
 
             Assert.AreEqual(target, response.GetHeader("Location"));
         }
-
-    }
 
 }

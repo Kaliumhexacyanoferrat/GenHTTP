@@ -8,16 +8,15 @@ using GenHTTP.Modules.Compression;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.ServerCaching;
 
-namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
+namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching;
+
+[TestClass]
+public class PrecompressedContentTest
 {
 
-    [TestClass]
-    public class PrecompressedContentTest
+    [TestMethod]
+    public async Task TestContentCanBePreCompressed()
     {
-
-        [TestMethod]
-        public async Task TestContentCanBePreCompressed()
-        {
             var content = Resources.From(ResourceTree.FromAssembly("Resources"))
                                    .Add(CompressedContent.Default().Level(CompressionLevel.Optimal))
                                    .Add(ServerCache.Memory());
@@ -33,7 +32,5 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             await response.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("br", response.GetContentHeader("Content-Encoding"));
         }
-
-    }
 
 }

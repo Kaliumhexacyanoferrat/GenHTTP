@@ -9,19 +9,18 @@ using GenHTTP.Modules.Layouting;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Engine
+namespace GenHTTP.Testing.Acceptance.Engine;
+
+[TestClass]
+public sealed class WireTests
 {
+    private const string NL = "\r\n";
 
-    [TestClass]
-    public sealed class WireTests
+    #region Tests
+
+    [TestMethod]
+    public async Task TestLowerCaseRequests()
     {
-        private const string NL = "\r\n";
-
-        #region Tests
-
-        [TestMethod]
-        public async Task TestLowerCaseRequests()
-        {
             var app = Inline.Create().Get((IRequest r) => r.Headers["x-my-header"]);
 
             using var host = TestHost.Run(app);
@@ -37,9 +36,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
             AssertX.Contains("abc", result);
         }
 
-        [TestMethod]
-        public async Task TestWhitespaceRequest()
-        {
+    [TestMethod]
+    public async Task TestWhitespaceRequest()
+    {
             var app = Inline.Create().Get("/some-path/", (IRequest r) => r.Headers["X-My-Header"]);
 
             using var host = TestHost.Run(app);
@@ -55,33 +54,33 @@ namespace GenHTTP.Testing.Acceptance.Engine
             AssertX.Contains("abc", result);
         }
 
-        [TestMethod]
-        public async Task TestNoHost()
-        {
+    [TestMethod]
+    public async Task TestNoHost()
+    {
             await TestAsync("GET / HTTP/1.0\r\n", "Host");
         }
 
-        [TestMethod]
-        public async Task TestUnsupportedProtocolVersion()
-        {
+    [TestMethod]
+    public async Task TestUnsupportedProtocolVersion()
+    {
             await TestAsync("GET / HTTP/2.0\r\n", "Unexpected protocol version");
         }
 
-        [TestMethod]
-        public async Task TestUnexpectedProtocol()
-        {
+    [TestMethod]
+    public async Task TestUnexpectedProtocol()
+    {
             await TestAsync("GET / GENHTTP/1.0\r\n", "HTTP protocol version expected");
         }
 
-        [TestMethod]
-        public async Task TestContentLengthNotNumeric()
-        {
+    [TestMethod]
+    public async Task TestContentLengthNotNumeric()
+    {
             await TestAsync("GET / HTTP/1.0\r\nContent-Length: ABC\r\n", "Content-Length header is expected to be a numeric value");
         }
 
-        [TestMethod]
-        public async Task TestNoKeepAliveForHttp10()
-        {
+    [TestMethod]
+    public async Task TestNoKeepAliveForHttp10()
+    {
             using var host = TestHost.Run(Layout.Create());
 
             var result = await SendAsync(host, (w) =>
@@ -94,9 +93,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
             AssertX.DoesNotContain("Keep-Alive", result);
         }
 
-        [TestMethod]
-        public async Task TestNoKeepAliveForConnectionClose()
-        {
+    [TestMethod]
+    public async Task TestNoKeepAliveForConnectionClose()
+    {
             using var host = TestHost.Run(Layout.Create());
 
             var result = await SendAsync(host, (w) =>
@@ -110,9 +109,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
             AssertX.DoesNotContain("Keep-Alive", result);
         }
 
-        [TestMethod]
-        public async Task TestNonHttp()
-        {
+    [TestMethod]
+    public async Task TestNonHttp()
+    {
             using var host = TestHost.Run(Layout.Create());
 
             var result = await SendAsync(host, (w) =>
@@ -124,9 +123,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
             AssertX.Contains("Unable to read HTTP verb from request line", result);
         }
 
-        [TestMethod]
-        public async Task TestNonHttpButText()
-        {
+    [TestMethod]
+    public async Task TestNonHttpButText()
+    {
             using var host = TestHost.Run(Layout.Create());
 
             var result = await SendAsync(host, (w) =>
@@ -138,12 +137,12 @@ namespace GenHTTP.Testing.Acceptance.Engine
             AssertX.Contains("HTTP protocol version expected", result);
         }
 
-        #endregion
+    #endregion
 
-        #region Helpers
+    #region Helpers
 
-        private static async ValueTask TestAsync(string request, string assertion)
-        {
+    private static async ValueTask TestAsync(string request, string assertion)
+    {
             using var host = TestHost.Run(Layout.Create());
 
             var result = await SendAsync(host, (w) =>
@@ -155,8 +154,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
             AssertX.Contains(assertion, result);
         }
 
-        private static async ValueTask<string> SendAsync(TestHost host, Action<StreamWriter> sender)
-        {
+    private static async ValueTask<string> SendAsync(TestHost host, Action<StreamWriter> sender)
+    {
             using var client = new TcpClient("127.0.0.1", host.Port)
             {
                 ReceiveTimeout = 1000
@@ -175,8 +174,6 @@ namespace GenHTTP.Testing.Acceptance.Engine
             return await reader.ReadToEndAsync();
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

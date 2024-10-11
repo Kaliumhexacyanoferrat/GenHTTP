@@ -8,45 +8,44 @@ using System.Web;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion.Formatters;
 
-namespace GenHTTP.Modules.Conversion.Serializers.Forms
+namespace GenHTTP.Modules.Conversion.Serializers.Forms;
+
+public sealed class FormContent : IResponseContent
 {
 
-    public sealed class FormContent : IResponseContent
+    #region Get-/Setters
+
+    public ulong? Length => null;
+
+    private Type Type { get; }
+
+    private object Data { get; }
+
+    private FormatterRegistry Formatters { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public FormContent(Type type, object data, FormatterRegistry formatters)
     {
-
-        #region Get-/Setters
-
-        public ulong? Length => null;
-
-        private Type Type { get; }
-
-        private object Data { get; }
-
-        private FormatterRegistry Formatters { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public FormContent(Type type, object data, FormatterRegistry formatters)
-        {
             Type = type;
             Data = data;
 
             Formatters = formatters;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public ValueTask<ulong?> CalculateChecksumAsync()
-        {
+    public ValueTask<ulong?> CalculateChecksumAsync()
+    {
             return new ValueTask<ulong?>((ulong)Data.GetHashCode());
         }
 
-        public async ValueTask WriteAsync(Stream target, uint bufferSize)
-        {
+    public async ValueTask WriteAsync(Stream target, uint bufferSize)
+    {
             using var writer = new StreamWriter(target, Encoding.UTF8, (int)bufferSize, true);
 
             var query = HttpUtility.ParseQueryString(string.Empty);
@@ -68,8 +67,8 @@ namespace GenHTTP.Modules.Conversion.Serializers.Forms
             await writer.WriteAsync(replaced);
         }
 
-        private void SetValue(NameValueCollection query, string field, object? value, Type type)
-        {
+    private void SetValue(NameValueCollection query, string field, object? value, Type type)
+    {
             if (value != null)
             {
                 var formatted = Formatters.Write(value, type);
@@ -81,8 +80,6 @@ namespace GenHTTP.Modules.Conversion.Serializers.Forms
             }
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

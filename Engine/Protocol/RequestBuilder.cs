@@ -6,58 +6,57 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
-namespace GenHTTP.Engine.Protocol
+namespace GenHTTP.Engine.Protocol;
+
+internal sealed class RequestBuilder : IBuilder<IRequest>
 {
+    private IServer? _Server;
+    private IEndPoint? _EndPoint;
 
-    internal sealed class RequestBuilder : IBuilder<IRequest>
+    private IPAddress? _Address;
+
+    private FlexibleRequestMethod? _RequestMethod;
+    private HttpProtocol? _Protocol;
+
+    private RoutingTarget? _Target;
+
+    private Stream? _Content;
+
+    private RequestQuery? _Query;
+
+    private CookieCollection? _Cookies;
+
+    private ForwardingCollection? _Forwardings;
+
+    #region Get-/Setters
+
+    private CookieCollection Cookies
     {
-        private IServer? _Server;
-        private IEndPoint? _EndPoint;
+        get { return _Cookies ??= new(); }
+    }
 
-        private IPAddress? _Address;
+    private ForwardingCollection Forwardings
+    {
+        get { return _Forwardings ??= new(); }
+    }
 
-        private FlexibleRequestMethod? _RequestMethod;
-        private HttpProtocol? _Protocol;
+    internal RequestHeaderCollection Headers { get; }
 
-        private RoutingTarget? _Target;
+    #endregion
 
-        private Stream? _Content;
+    #region Initialization
 
-        private RequestQuery? _Query;
-
-        private CookieCollection? _Cookies;
-
-        private ForwardingCollection? _Forwardings;
-
-        #region Get-/Setters
-
-        private CookieCollection Cookies
-        {
-            get { return _Cookies ??= new(); }
-        }
-
-        private ForwardingCollection Forwardings
-        {
-            get { return _Forwardings ??= new(); }
-        }
-
-        internal RequestHeaderCollection Headers { get; }
-
-        #endregion
-
-        #region Initialization
-
-        internal RequestBuilder()
-        {
+    internal RequestBuilder()
+    {
             Headers = new();
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public RequestBuilder Connection(IServer server, IEndPoint endPoint, IPAddress? address)
-        {
+    public RequestBuilder Connection(IServer server, IEndPoint endPoint, IPAddress? address)
+    {
             _Server = server;
             _Address = address;
             _EndPoint = endPoint;
@@ -65,32 +64,32 @@ namespace GenHTTP.Engine.Protocol
             return this;
         }
 
-        public RequestBuilder Protocol(HttpProtocol version)
-        {
+    public RequestBuilder Protocol(HttpProtocol version)
+    {
             _Protocol = version;
             return this;
         }
 
-        public RequestBuilder Type(FlexibleRequestMethod type)
-        {
+    public RequestBuilder Type(FlexibleRequestMethod type)
+    {
             _RequestMethod = type;
             return this;
         }
 
-        public RequestBuilder Path(WebPath path)
-        {
+    public RequestBuilder Path(WebPath path)
+    {
             _Target = new(path);
             return this;
         }
 
-        public RequestBuilder Query(RequestQuery query)
-        {
+    public RequestBuilder Query(RequestQuery query)
+    {
             _Query = query;
             return this;
         }
 
-        public RequestBuilder Header(string key, string value)
-        {
+    public RequestBuilder Header(string key, string value)
+    {
             if (string.Equals(key, "cookie", StringComparison.OrdinalIgnoreCase))
             {
                 Cookies.Add(value);
@@ -107,14 +106,14 @@ namespace GenHTTP.Engine.Protocol
             return this;
         }
 
-        public RequestBuilder Content(Stream content)
-        {
+    public RequestBuilder Content(Stream content)
+    {
             _Content = content;
             return this;
         }
 
-        public IRequest Build()
-        {
+    public IRequest Build()
+    {
             try
             {
                 if (_Server is null)
@@ -177,8 +176,8 @@ namespace GenHTTP.Engine.Protocol
             }
         }
 
-        private ClientConnection? DetermineClient()
-        {
+    private ClientConnection? DetermineClient()
+    {
             if (_Forwardings is not null)
             {
                 foreach (var forwarding in Forwardings)
@@ -193,8 +192,6 @@ namespace GenHTTP.Engine.Protocol
             return null;
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

@@ -5,18 +5,17 @@ using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Testing
+namespace GenHTTP.Testing.Acceptance.Testing;
+
+[TestClass]
+public sealed class ContentTests
 {
 
-    [TestClass]
-    public sealed class ContentTests
+    public record class MyType(int ID);
+
+    [TestMethod]
+    public async Task TestDeserialization()
     {
-
-        public record class MyType(int ID);
-
-        [TestMethod]
-        public async Task TestDeserialization()
-        {
             var expectation = new MyType(42);
 
             var handler = Inline.Create()
@@ -29,9 +28,9 @@ namespace GenHTTP.Testing.Acceptance.Testing
             Assert.AreEqual(expectation, await response.GetContentAsync<MyType>());
         }
 
-        [TestMethod]
-        public async Task TestNull()
-        {
+    [TestMethod]
+    public async Task TestNull()
+    {
             var handler = Inline.Create()
                                 .Get(() => (MyType?)null);
 
@@ -42,9 +41,9 @@ namespace GenHTTP.Testing.Acceptance.Testing
             Assert.IsNull(await response.GetOptionalContentAsync<MyType>());
         }
 
-        [TestMethod]
-        public async Task TestUnsupported()
-        {
+    [TestMethod]
+    public async Task TestUnsupported()
+    {
             var handler = Inline.Create()
                                 .Get(() => new Result<string>("Nah").Type(FlexibleContentType.Get("text/html")));
 
@@ -57,7 +56,5 @@ namespace GenHTTP.Testing.Acceptance.Testing
                 await response.GetOptionalContentAsync<MyType>();
             });
         }
-
-    }
 
 }

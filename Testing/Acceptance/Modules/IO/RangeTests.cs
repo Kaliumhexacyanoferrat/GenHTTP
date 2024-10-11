@@ -6,26 +6,25 @@ using GenHTTP.Modules.IO;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.IO
+namespace GenHTTP.Testing.Acceptance.Modules.IO;
+
+[TestClass]
+public class RangeTests
 {
+    private const string CONTENT = "0123456789";
 
-    [TestClass]
-    public class RangeTests
+    [TestMethod]
+    public async Task TestRangesAreOptional()
     {
-        private const string CONTENT = "0123456789";
-
-        [TestMethod]
-        public async Task TestRangesAreOptional()
-        {
             using var response = await GetResponse(null);
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual(CONTENT, await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestFullRangeIsSatisfied()
-        {
+    [TestMethod]
+    public async Task TestFullRangeIsSatisfied()
+    {
             using var response = await GetResponse("bytes=1-8");
 
             await response.AssertStatusAsync(HttpStatusCode.PartialContent);
@@ -33,9 +32,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             Assert.AreEqual("bytes 1-8/10", response.GetContentHeader("Content-Range"));
         }
 
-        [TestMethod]
-        public async Task TestRangeFromStartIsSatisfied()
-        {
+    [TestMethod]
+    public async Task TestRangeFromStartIsSatisfied()
+    {
             using var response = await GetResponse("bytes=4-");
 
             await response.AssertStatusAsync(HttpStatusCode.PartialContent);
@@ -43,9 +42,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             Assert.AreEqual("bytes 4-9/10", response.GetContentHeader("Content-Range"));
         }
 
-        [TestMethod]
-        public async Task TestRangeFromEndIsSatisfied()
-        {
+    [TestMethod]
+    public async Task TestRangeFromEndIsSatisfied()
+    {
             using var response = await GetResponse("bytes=-4");
 
             await response.AssertStatusAsync(HttpStatusCode.PartialContent);
@@ -53,9 +52,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             Assert.AreEqual("bytes 6-9/10", response.GetContentHeader("Content-Range"));
         }
 
-        [TestMethod]
-        public async Task TestSingleRangeIsSatisfied()
-        {
+    [TestMethod]
+    public async Task TestSingleRangeIsSatisfied()
+    {
             using var response = await GetResponse("bytes=1-1");
 
             await response.AssertStatusAsync(HttpStatusCode.PartialContent);
@@ -63,54 +62,54 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             Assert.AreEqual("bytes 1-1/10", response.GetContentHeader("Content-Range"));
         }
 
-        [TestMethod]
-        public async Task TestFullRangeNotSatisfied()
-        {
+    [TestMethod]
+    public async Task TestFullRangeNotSatisfied()
+    {
             using var response = await GetResponse("bytes=9-13");
 
             await response.AssertStatusAsync(HttpStatusCode.RequestedRangeNotSatisfiable);
             Assert.AreEqual("bytes */10", response.GetContentHeader("Content-Range"));
         }
 
-        [TestMethod]
-        public async Task TestRangeFromStartNotSatisfied()
-        {
+    [TestMethod]
+    public async Task TestRangeFromStartNotSatisfied()
+    {
             using var response = await GetResponse("bytes=12-");
 
             await response.AssertStatusAsync(HttpStatusCode.RequestedRangeNotSatisfiable);
             Assert.AreEqual("bytes */10", response.GetContentHeader("Content-Range"));
         }
 
-        [TestMethod]
-        public async Task TestRangeFromEndNotSatisfied()
-        {
+    [TestMethod]
+    public async Task TestRangeFromEndNotSatisfied()
+    {
             using var response = await GetResponse("bytes=-12");
 
             await response.AssertStatusAsync(HttpStatusCode.RequestedRangeNotSatisfiable);
             Assert.AreEqual("bytes */10", response.GetContentHeader("Content-Range"));
         }
 
-        [TestMethod]
-        public async Task TestMultipleRangesNotSatisfied()
-        {
+    [TestMethod]
+    public async Task TestMultipleRangesNotSatisfied()
+    {
             using var response = await GetResponse("bytes=1-2,3-4");
 
             await response.AssertStatusAsync(HttpStatusCode.RequestedRangeNotSatisfiable);
             Assert.AreEqual("bytes */10", response.GetContentHeader("Content-Range"));
         }
 
-        [TestMethod]
-        public async Task TestOneBasedIndexDoesNotWork()
-        {
+    [TestMethod]
+    public async Task TestOneBasedIndexDoesNotWork()
+    {
             using var response = await GetResponse("bytes=1-10");
 
             await response.AssertStatusAsync(HttpStatusCode.RequestedRangeNotSatisfiable);
             Assert.AreEqual("bytes */10", response.GetContentHeader("Content-Range"));
         }
 
-        [TestMethod]
-        public async Task TestHeadRequest()
-        {
+    [TestMethod]
+    public async Task TestHeadRequest()
+    {
             using var response = await GetResponse("bytes=1-8", HttpMethod.Head);
 
             await response.AssertStatusAsync(HttpStatusCode.PartialContent);
@@ -121,27 +120,27 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             Assert.AreEqual("bytes", response.GetHeader("Accept-Ranges"));
         }
 
-        [TestMethod]
-        public async Task TestRangesIgnoredOnPostRequests()
-        {
+    [TestMethod]
+    public async Task TestRangesIgnoredOnPostRequests()
+    {
             using var response = await GetResponse("bytes=1-8", HttpMethod.Post);
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual(CONTENT, await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestRangesAreTaggedDifferently()
-        {
+    [TestMethod]
+    public async Task TestRangesAreTaggedDifferently()
+    {
             using var withRange = await GetResponse("bytes=1-8");
             using var withoutRange = await GetResponse(null);
 
             Assert.AreNotEqual(withRange.GetHeader("ETag"), withoutRange.GetHeader("ETag"));
         }
 
-        [TestMethod]
-        public async Task TestAddSupportForSingleFile()
-        {
+    [TestMethod]
+    public async Task TestAddSupportForSingleFile()
+    {
             var download = Download.From(Resource.FromString("Hello World!"))
                                    .AddRangeSupport();
 
@@ -152,8 +151,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             Assert.AreEqual("bytes", response.GetHeader("Accept-Ranges"));
         }
 
-        private static async Task<HttpResponseMessage> GetResponse(string? requestedRange, HttpMethod? method = null)
-        {
+    private static async Task<HttpResponseMessage> GetResponse(string? requestedRange, HttpMethod? method = null)
+    {
             using var runner = GetRunner();
 
             var request = runner.GetRequest(method: method ?? HttpMethod.Get);
@@ -166,15 +165,13 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             return await runner.GetResponseAsync(request);
         }
 
-        private static TestHost GetRunner()
-        {
+    private static TestHost GetRunner()
+    {
             var content = Content.From(Resource.FromString(CONTENT));
 
             content.AddRangeSupport();
 
             return TestHost.Run(content);
         }
-
-    }
 
 }

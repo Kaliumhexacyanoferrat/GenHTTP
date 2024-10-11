@@ -10,36 +10,35 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Conversion.Formatters;
 
-namespace GenHTTP.Modules.Conversion.Serializers.Forms
+namespace GenHTTP.Modules.Conversion.Serializers.Forms;
+
+public sealed class FormFormat : ISerializationFormat
 {
+    private static readonly Type[] EMPTY_CONSTRUCTOR = Array.Empty<Type>();
 
-    public sealed class FormFormat : ISerializationFormat
+    private static readonly object[] EMPTY_ARGS = Array.Empty<object>();
+
+    #region Get-/Setters
+
+    private FormatterRegistry Formatters { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public FormFormat(FormatterRegistry formatters)
     {
-        private static readonly Type[] EMPTY_CONSTRUCTOR = Array.Empty<Type>();
-
-        private static readonly object[] EMPTY_ARGS = Array.Empty<object>();
-
-        #region Get-/Setters
-
-        private FormatterRegistry Formatters { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public FormFormat(FormatterRegistry formatters)
-        {
             Formatters = formatters;
         }
 
-        public FormFormat() : this(Formatting.Default().Build()) { }
+    public FormFormat() : this(Formatting.Default().Build()) { }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public async ValueTask<object?> DeserializeAsync(Stream stream, Type type)
-        {
+    public async ValueTask<object?> DeserializeAsync(Stream stream, Type type)
+    {
             using var reader = new StreamReader(stream);
 
             var content = await reader.ReadToEndAsync();
@@ -85,8 +84,8 @@ namespace GenHTTP.Modules.Conversion.Serializers.Forms
             return result;
         }
 
-        public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)
-        {
+    public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)
+    {
             var result = request.Respond()
                                 .Content(new FormContent(response.GetType(), response, Formatters))
                                 .Type(ContentType.ApplicationWwwFormUrlEncoded);
@@ -94,8 +93,8 @@ namespace GenHTTP.Modules.Conversion.Serializers.Forms
             return new ValueTask<IResponseBuilder>(result);
         }
 
-        public static Dictionary<string, string>? GetContent(IRequest request)
-        {
+    public static Dictionary<string, string>? GetContent(IRequest request)
+    {
             if ((request.Content is not null) && (request.ContentType is not null))
             {
                 if (request.ContentType == ContentType.ApplicationWwwFormUrlEncoded)
@@ -123,8 +122,8 @@ namespace GenHTTP.Modules.Conversion.Serializers.Forms
             return null;
         }
 
-        private static string GetRequestContent(IRequest request)
-        {
+    private static string GetRequestContent(IRequest request)
+    {
             var requestContent = request.Content;
 
             if (requestContent is null)
@@ -141,8 +140,6 @@ namespace GenHTTP.Modules.Conversion.Serializers.Forms
             return content;
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

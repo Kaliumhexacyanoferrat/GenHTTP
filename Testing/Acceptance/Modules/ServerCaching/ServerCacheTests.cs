@@ -18,16 +18,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Cookie = GenHTTP.Api.Protocol.Cookie;
 
-namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
+namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching;
+
+[TestClass]
+public class ServerCacheTests
 {
 
-    [TestClass]
-    public class ServerCacheTests
+    [TestMethod]
+    public async Task TestContentIsInvalidated()
     {
-
-        [TestMethod]
-        public async Task TestContentIsInvalidated()
-        {
             var file = Path.GetTempFileName();
 
             try
@@ -55,9 +54,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             }
         }
 
-        [TestMethod]
-        public async Task TestContentNotInvalidated()
-        {
+    [TestMethod]
+    public async Task TestContentNotInvalidated()
+    {
             var file = Path.GetTempFileName();
 
             try
@@ -85,9 +84,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             }
         }
 
-        [TestMethod]
-        public async Task TestVariationRespected()
-        {
+    [TestMethod]
+    public async Task TestVariationRespected()
+    {
             var file = Path.GetTempFileName();
 
             FileUtil.WriteText(file, "This is some content!");
@@ -128,9 +127,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             }
         }
 
-        [TestMethod]
-        public async Task TestHeadersPreserved()
-        {
+    [TestMethod]
+    public async Task TestHeadersPreserved()
+    {
             var now = DateTime.UtcNow;
 
             var handler = new FunctionalHandler(responseProvider: (r) =>
@@ -164,9 +163,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             Assert.AreEqual("0123456789", await cached.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestNoContentCached()
-        {
+    [TestMethod]
+    public async Task TestNoContentCached()
+    {
             var i = 0;
 
             var handler = new FunctionalHandler(responseProvider: (r) =>
@@ -187,9 +186,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             Assert.AreEqual(1, i);
         }
 
-        [TestMethod]
-        public async Task TestNotOkNotCached()
-        {
+    [TestMethod]
+    public async Task TestNotOkNotCached()
+    {
             var i = 0;
 
             var handler = new FunctionalHandler(responseProvider: (r) =>
@@ -210,9 +209,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             Assert.AreEqual(2, i);
         }
 
-        [TestMethod]
-        public async Task TestPredicateNoMatchNoCache()
-        {
+    [TestMethod]
+    public async Task TestPredicateNoMatchNoCache()
+    {
             var i = 0;
 
             var handler = new FunctionalHandler(responseProvider: (r) =>
@@ -238,9 +237,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             Assert.AreEqual(2, i);
         }
 
-        [TestMethod]
-        public async Task TestPredicateMatchCached()
-        {
+    [TestMethod]
+    public async Task TestPredicateMatchCached()
+    {
             var i = 0;
 
             var handler = new FunctionalHandler(responseProvider: (r) =>
@@ -266,9 +265,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             Assert.AreEqual(1, i);
         }
 
-        [TestMethod]
-        public async Task TestQueryDifferenceNotCached()
-        {
+    [TestMethod]
+    public async Task TestQueryDifferenceNotCached()
+    {
             var i = 0;
 
             var handler = new FunctionalHandler(responseProvider: (r) =>
@@ -292,9 +291,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             Assert.AreEqual(2, i);
         }
 
-        [TestMethod]
-        public async Task TestPostNotCached()
-        {
+    [TestMethod]
+    public async Task TestPostNotCached()
+    {
             var i = 0;
 
             var handler = new FunctionalHandler(responseProvider: (r) =>
@@ -317,8 +316,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             Assert.AreEqual(2, i);
         }
 
-        private static HttpRequestMessage GetPostRequest(TestHost runner)
-        {
+    private static HttpRequestMessage GetPostRequest(TestHost runner)
+    {
             var request = runner.GetRequest();
 
             request.Method = HttpMethod.Post;
@@ -327,9 +326,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             return request;
         }
 
-        [TestMethod]
-        public async Task TestVariationCached()
-        {
+    [TestMethod]
+    public async Task TestVariationCached()
+    {
             var i = 0;
 
             var handler = new FunctionalHandler(responseProvider: (r) =>
@@ -353,8 +352,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             Assert.AreEqual(1, i);
         }
 
-        private static HttpRequestMessage GetVaryRequest(TestHost runner)
-        {
+    private static HttpRequestMessage GetVaryRequest(TestHost runner)
+    {
             var request = runner.GetRequest();
 
             request.Headers.Add("Key", "Value");
@@ -362,9 +361,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             return request;
         }
 
-        [TestMethod]
-        public async Task TestDifferentStorageBackends()
-        {
+    [TestMethod]
+    public async Task TestDifferentStorageBackends()
+    {
             foreach (var serverCache in GetBackends())
             {
                 var i = 0;
@@ -388,9 +387,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             }
         }
 
-        [TestMethod]
-        public async Task TestAccessExpiration()
-        {
+    [TestMethod]
+    public async Task TestAccessExpiration()
+    {
             var i = 0;
 
             var handler = new FunctionalHandler(responseProvider: (r) =>
@@ -416,18 +415,16 @@ namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching
             Assert.AreEqual(2, i);
         }
 
-        private static ServerCacheHandlerBuilder[] GetBackends()
-        {
+    private static ServerCacheHandlerBuilder[] GetBackends()
+    {
             var tempDir = new DirectoryInfo(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()));
 
             return new ServerCacheHandlerBuilder[]
             {
-                ServerCache.Memory(), 
-                ServerCache.TemporaryFiles(), 
+                ServerCache.Memory(),
+                ServerCache.TemporaryFiles(),
                 ServerCache.Persistent(tempDir)
             };
         }
-
-    }
 
 }

@@ -11,64 +11,61 @@ using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Injectors;
 
-namespace GenHTTP.Modules.Webservices.Provider
+namespace GenHTTP.Modules.Webservices.Provider;
+
+public sealed class ServiceResourceRouter : IHandler
 {
 
-    public sealed class ServiceResourceRouter : IHandler
+    #region Get-/Setters
+
+    private MethodCollection Methods { get; }
+
+    public IHandler Parent { get; }
+
+    public ResponseProvider ResponseProvider { get; }
+
+    public object Instance { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public ServiceResourceRouter(IHandler parent, object instance, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
     {
+        Parent = parent;
 
-        #region Get-/Setters
+        Instance = instance;
 
-        private MethodCollection Methods { get; }
+        ResponseProvider = new(serialization, formatting);
 
-        public IHandler Parent { get; }
+        Methods = new(this, AnalyzeMethods(instance.GetType(), serialization, injection, formatting));
+    }
 
-        public ResponseProvider ResponseProvider { get; }
-
-        public object Instance { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public ServiceResourceRouter(IHandler parent, object instance, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
+    private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
+    {
+        foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
         {
-            Parent = parent;
+            var attribute = method.GetCustomAttribute<ResourceMethodAttribute>(true);
 
-            Instance = instance;
-
-            ResponseProvider = new(serialization, formatting);
-
-            Methods = new(this, AnalyzeMethods(instance.GetType(), serialization, injection, formatting));
-        }
-
-        private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
-        {
-            foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
+            if (attribute is not null)
             {
-                var attribute = method.GetCustomAttribute<ResourceMethodAttribute>(true);
+                var wildcardRoute = PathArguments.CheckWildcardRoute(method.ReturnType);
 
-                if (attribute is not null)
-                {
-                    var wildcardRoute = PathArguments.CheckWildcardRoute(method.ReturnType);
+                var path = PathArguments.Route(attribute.Path, wildcardRoute);
 
-                    var path = PathArguments.Route(attribute.Path, wildcardRoute);
-
-                    yield return (parent) => new MethodHandler(parent, method, path, () => Instance, attribute, ResponseProvider.GetResponseAsync, serialization, injection, formatting);
-                }
+                yield return (parent) => new MethodHandler(parent, method, path, () => Instance, attribute, ResponseProvider.GetResponseAsync, serialization, injection, formatting);
             }
         }
-
-        #endregion
-
-        #region Functionality
-
-        public ValueTask PrepareAsync() => Methods.PrepareAsync();
-
-        public ValueTask<IResponse?> HandleAsync(IRequest request) => Methods.HandleAsync(request);
-
-        #endregion
-
     }
+
+    #endregion
+
+    #region Functionality
+
+    public ValueTask PrepareAsync() => Methods.PrepareAsync();
+
+    public ValueTask<IResponse?> HandleAsync(IRequest request) => Methods.HandleAsync(request);
+
+    #endregion
 
 }

@@ -13,33 +13,32 @@ using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Injectors;
 
-namespace GenHTTP.Modules.Controllers.Provider
+namespace GenHTTP.Modules.Controllers.Provider;
+
+public sealed partial class ControllerHandler : IHandler
 {
+    private static readonly MethodRouting EMPTY = new("/", "^(/|)$", null, true, false);
 
-    public sealed partial class ControllerHandler : IHandler
+    private static readonly Regex HYPEN_MATCHER = CreateHypenMatcher();
+
+    #region Get-/Setters
+
+    public IHandler Parent { get; }
+
+    private MethodCollection Provider { get; }
+
+    private ResponseProvider ResponseProvider { get; }
+
+    private FormatterRegistry Formatting { get; }
+
+    private object Instance { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public ControllerHandler(IHandler parent, object instance, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
     {
-        private static readonly MethodRouting EMPTY = new("/", "^(/|)$", null, true, false);
-
-        private static readonly Regex HYPEN_MATCHER = CreateHypenMatcher();
-
-        #region Get-/Setters
-
-        public IHandler Parent { get; }
-
-        private MethodCollection Provider { get; }
-
-        private ResponseProvider ResponseProvider { get; }
-
-        private FormatterRegistry Formatting { get; }
-
-        private object Instance { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public ControllerHandler(IHandler parent, object instance, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
-        {
             Parent = parent;
             Formatting = formatting;
 
@@ -50,8 +49,8 @@ namespace GenHTTP.Modules.Controllers.Provider
             Provider = new(this, AnalyzeMethods(instance.GetType(), serialization, injection, formatting));
         }
 
-        private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
-        {
+    private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
+    {
             foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
             {
                 var annotation = method.GetCustomAttribute<ControllerActionAttribute>(true) ?? new MethodAttribute();
@@ -64,8 +63,8 @@ namespace GenHTTP.Modules.Controllers.Provider
             }
         }
 
-        private static MethodRouting DeterminePath(MethodInfo method, List<string> arguments)
-        {
+    private static MethodRouting DeterminePath(MethodInfo method, List<string> arguments)
+    {
             var pathArgs = string.Join('/', arguments.Select(a => a.ToParameter()));
             var rawArgs = string.Join('/', arguments.Select(a => $":{a}"));
 
@@ -85,8 +84,8 @@ namespace GenHTTP.Modules.Controllers.Provider
             }
         }
 
-        private List<string> FindPathArguments(MethodInfo method)
-        {
+    private List<string> FindPathArguments(MethodInfo method)
+    {
             var found = new List<string>();
 
             var parameters = method.GetParameters();
@@ -117,24 +116,22 @@ namespace GenHTTP.Modules.Controllers.Provider
             return found;
         }
 
-        private static string HypenCase(string input)
-        {
+    private static string HypenCase(string input)
+    {
             return HYPEN_MATCHER.Replace(input, "$1-$2").ToLowerInvariant();
         }
         
-        [GeneratedRegex(@"([a-z])([A-Z0-9]+)")]
-        private static partial Regex CreateHypenMatcher();
+    [GeneratedRegex(@"([a-z])([A-Z0-9]+)")]
+    private static partial Regex CreateHypenMatcher();
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public ValueTask PrepareAsync() => Provider.PrepareAsync();
+    public ValueTask PrepareAsync() => Provider.PrepareAsync();
         
-        public ValueTask<IResponse?> HandleAsync(IRequest request) => Provider.HandleAsync(request);
+    public ValueTask<IResponse?> HandleAsync(IRequest request) => Provider.HandleAsync(request);
 
-        #endregion
-
-    }
+    #endregion
 
 }

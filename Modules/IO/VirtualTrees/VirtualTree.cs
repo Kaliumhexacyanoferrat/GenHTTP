@@ -5,22 +5,21 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Content.IO;
 
-namespace GenHTTP.Modules.IO.VirtualTrees
+namespace GenHTTP.Modules.IO.VirtualTrees;
+
+public sealed class VirtualTree : IResourceTree
 {
 
-    public sealed class VirtualTree : IResourceTree
+    #region Get-/Setters
+
+    private Dictionary<string, IResourceNode> Nodes { get; }
+
+    private Dictionary<string, IResource> Resources { get; }
+
+    public DateTime? Modified
     {
-
-        #region Get-/Setters
-
-        private Dictionary<string, IResourceNode> Nodes { get; }
-
-        private Dictionary<string, IResource> Resources { get; }
-
-        public DateTime? Modified
+        get
         {
-            get
-            {
                 return Nodes.Select(n => n.Value.Modified)
                             .Where(n => n != null)
                             .Union
@@ -31,14 +30,14 @@ namespace GenHTTP.Modules.IO.VirtualTrees
                             .DefaultIfEmpty(null)
                             .Max();
             }
-        }
+    }
 
-        #endregion
+    #endregion
 
-        #region Initialization
+    #region Initialization
 
-        public VirtualTree(Dictionary<string, Func<IResourceContainer, IResourceNode>> nodes, Dictionary<string, IResource> resources)
-        {
+    public VirtualTree(Dictionary<string, Func<IResourceContainer, IResourceNode>> nodes, Dictionary<string, IResource> resources)
+    {
             var built = new Dictionary<string, IResourceNode>(nodes.Count);
 
             foreach (var node in nodes)
@@ -50,20 +49,18 @@ namespace GenHTTP.Modules.IO.VirtualTrees
             Resources = resources;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public ValueTask<IReadOnlyCollection<IResourceNode>> GetNodes() => new(Nodes.Values);
+    public ValueTask<IReadOnlyCollection<IResourceNode>> GetNodes() => new(Nodes.Values);
 
-        public ValueTask<IReadOnlyCollection<IResource>> GetResources() => new(Resources.Values);
+    public ValueTask<IReadOnlyCollection<IResource>> GetResources() => new(Resources.Values);
 
-        public ValueTask<IResourceNode?> TryGetNodeAsync(string name) => new(Nodes.GetValueOrDefault(name));
+    public ValueTask<IResourceNode?> TryGetNodeAsync(string name) => new(Nodes.GetValueOrDefault(name));
 
-        public ValueTask<IResource?> TryGetResourceAsync(string name) => new(Resources.GetValueOrDefault(name));
+    public ValueTask<IResource?> TryGetResourceAsync(string name) => new(Resources.GetValueOrDefault(name));
 
-        #endregion
-
-    }
+    #endregion
 
 }

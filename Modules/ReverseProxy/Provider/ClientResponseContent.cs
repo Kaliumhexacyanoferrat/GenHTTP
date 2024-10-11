@@ -7,21 +7,20 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO.Streaming;
 
-namespace GenHTTP.Modules.ReverseProxy.Provider
+namespace GenHTTP.Modules.ReverseProxy.Provider;
+
+internal sealed class ClientResponseContent : IResponseContent, IDisposable
 {
+    private bool _Disposed;
 
-    internal sealed class ClientResponseContent : IResponseContent, IDisposable
+    #region Get/Setters
+
+    private HttpResponseMessage Message { get; }
+
+    public ulong? Length
     {
-        private bool _Disposed;
-
-        #region Get/Setters
-
-        private HttpResponseMessage Message { get; }
-
-        public ulong? Length
+        get
         {
-            get
-            {
                 var length = Message.Content.Headers.ContentLength;
 
                 if (length != null)
@@ -31,36 +30,36 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
 
                 return null;
             }
-        }
+    }
 
-        #endregion
+    #endregion
 
-        #region Initialization
+    #region Initialization
 
-        public ClientResponseContent(HttpResponseMessage message)
-        {
+    public ClientResponseContent(HttpResponseMessage message)
+    {
             Message = message;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public ValueTask<ulong?> CalculateChecksumAsync() => new();
+    public ValueTask<ulong?> CalculateChecksumAsync() => new();
 
-        public async ValueTask WriteAsync(Stream target, uint bufferSize)
-        {
+    public async ValueTask WriteAsync(Stream target, uint bufferSize)
+    {
             using var source = await Message.Content.ReadAsStreamAsync();
 
             await source.CopyPooledAsync(target, bufferSize);
         }
 
-        #endregion
+    #endregion
 
-        #region Disposal
+    #region Disposal
 
-        private void Dispose(bool disposing)
-        {
+    private void Dispose(bool disposing)
+    {
             if (!_Disposed)
             {
                 if (disposing)
@@ -72,14 +71,12 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             }
         }
 
-        public void Dispose()
-        {
+    public void Dispose()
+    {
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

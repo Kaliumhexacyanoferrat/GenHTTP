@@ -5,21 +5,20 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Engine.Utilities;
 
-namespace GenHTTP.Engine.Protocol
+namespace GenHTTP.Engine.Protocol;
+
+public sealed class RequestProperties : IRequestProperties
 {
+    private PooledDictionary<string, object?>? _Data;
 
-    public sealed class RequestProperties : IRequestProperties
+    private bool _Disposed;
+
+    #region Get-/Setters
+
+    public object this[string key] 
     {
-        private PooledDictionary<string, object?>? _Data;
-
-        private bool _Disposed;
-
-        #region Get-/Setters
-
-        public object this[string key] 
+        get
         {
-            get
-            {
                 object? result = null;
 
                 if (Data.TryGetValue(key, out var value))
@@ -34,20 +33,20 @@ namespace GenHTTP.Engine.Protocol
 
                 return result;
             }
-            set 
-            {
+        set 
+        {
                 Data[key] = value; 
             }
-        }
+    }
 
-        private PooledDictionary<string, object?> Data =>  _Data ??= new();
+    private PooledDictionary<string, object?> Data =>  _Data ??= new();
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public bool TryGet<T>(string key, [MaybeNullWhen(returnValue: false)] out T entry)
-        {
+    public bool TryGet<T>(string key, [MaybeNullWhen(returnValue: false)] out T entry)
+    {
             if (Data.TryGetValue(key, out var value))
             {
                 if (value is T result) 
@@ -61,17 +60,17 @@ namespace GenHTTP.Engine.Protocol
             return false;
         }
 
-        public void Clear(string key)
-        {
+    public void Clear(string key)
+    {
             Data[key] = null;
         }
 
-        #endregion
+    #endregion
 
-        #region Disposal
+    #region Disposal
 
-        private void Dispose(bool disposing)
-        {
+    private void Dispose(bool disposing)
+    {
             if (!_Disposed)
             {
                 if (disposing)
@@ -84,14 +83,12 @@ namespace GenHTTP.Engine.Protocol
             }
         }
 
-        public void Dispose()
-        {
+    public void Dispose()
+    {
             Dispose(disposing: true);
             System.GC.SuppressFinalize(this);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

@@ -4,23 +4,22 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.IO.Streaming
+namespace GenHTTP.Modules.IO.Streaming;
+
+public class StreamContent : IResponseContent, IDisposable
 {
+    private readonly Func<ValueTask<ulong?>> _ChecksumProvider;
 
-    public class StreamContent : IResponseContent, IDisposable
+    private readonly ulong? _KnownLengh;
+
+    #region Get-/Setters
+
+    private Stream Content { get; }
+
+    public ulong? Length
     {
-        private readonly Func<ValueTask<ulong?>> _ChecksumProvider;
-
-        private readonly ulong? _KnownLengh;
-
-        #region Get-/Setters
-
-        private Stream Content { get; }
-
-        public ulong? Length
+        get
         {
-            get
-            {
                 if (_KnownLengh != null)
                 {
                     return _KnownLengh;
@@ -33,39 +32,39 @@ namespace GenHTTP.Modules.IO.Streaming
 
                 return null;
             }
-        }
+    }
 
-        #endregion
+    #endregion
 
-        #region Initialization
+    #region Initialization
 
-        public StreamContent(Stream content, ulong? knownLength, Func<ValueTask<ulong?>> checksumProvider)
-        {
+    public StreamContent(Stream content, ulong? knownLength, Func<ValueTask<ulong?>> checksumProvider)
+    {
             Content = content;
 
             _KnownLengh = knownLength;
             _ChecksumProvider = checksumProvider;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public ValueTask<ulong?> CalculateChecksumAsync() => _ChecksumProvider();
+    public ValueTask<ulong?> CalculateChecksumAsync() => _ChecksumProvider();
 
-        public ValueTask WriteAsync(Stream target, uint bufferSize)
-        {
+    public ValueTask WriteAsync(Stream target, uint bufferSize)
+    {
             return Content.CopyPooledAsync(target, bufferSize);
         }
 
-        #endregion
+    #endregion
 
-        #region IDisposable Support
+    #region IDisposable Support
 
-        private bool disposedValue = false;
+    private bool disposedValue = false;
 
-        protected virtual void Dispose(bool disposing)
-        {
+    protected virtual void Dispose(bool disposing)
+    {
             if (!disposedValue)
             {
                 if (disposing)
@@ -77,19 +76,17 @@ namespace GenHTTP.Modules.IO.Streaming
             }
         }
 
-        ~StreamContent()
-        {
+    ~StreamContent()
+    {
             Dispose(false);
         }
 
-        public void Dispose()
-        {
+    public void Dispose()
+    {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

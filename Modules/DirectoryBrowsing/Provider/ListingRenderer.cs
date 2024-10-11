@@ -4,14 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GenHTTP.Modules.DirectoryBrowsing.Provider
+namespace GenHTTP.Modules.DirectoryBrowsing.Provider;
+
+public static class ListingRenderer
 {
 
-    public static class ListingRenderer
+    public static async ValueTask<string> RenderAsync(ListingModel model)
     {
-
-        public static async ValueTask<string> RenderAsync(ListingModel model)
-        {
             var content = new StringBuilder();
 
             content.AppendLine("<table>");
@@ -44,8 +43,8 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
             return content.ToString();
         }
 
-        private static void Append(StringBuilder builder, string path, string name, ulong? size, DateTime? modified)
-        {
+    private static void Append(StringBuilder builder, string path, string name, ulong? size, DateTime? modified)
+    {
             builder.AppendLine("<tr>");
             builder.AppendLine($"  <td><a href=\"{path}\">{name}</a></td>");
             builder.AppendLine($"  <td>{FileSizeFormatter.Format(size)}</td>");
@@ -61,7 +60,5 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
             builder.AppendLine("</tr>");
         }
-
-    }
 
 }

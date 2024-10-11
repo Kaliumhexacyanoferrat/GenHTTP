@@ -6,27 +6,26 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO;
 
-namespace GenHTTP.Modules.StaticWebsites.Provider
+namespace GenHTTP.Modules.StaticWebsites.Provider;
+
+public sealed class StaticWebsiteHandler : IHandler
 {
+    private static readonly string[] INDEX_FILES = new[] { "index.html", "index.htm" };
 
-    public sealed class StaticWebsiteHandler : IHandler
+    #region Get-/Setters
+
+    public IHandler Parent { get; }
+
+    private IResourceTree Tree { get; }
+
+    private IHandler Resources { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public StaticWebsiteHandler(IHandler parent, IResourceTree tree)
     {
-        private static readonly string[] INDEX_FILES = new[] { "index.html", "index.htm" };
-
-        #region Get-/Setters
-
-        public IHandler Parent { get; }
-
-        private IResourceTree Tree { get; }
-
-        private IHandler Resources { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public StaticWebsiteHandler(IHandler parent, IResourceTree tree)
-        {
             Parent = parent;
             Tree = tree;
 
@@ -34,12 +33,12 @@ namespace GenHTTP.Modules.StaticWebsites.Provider
                                     .Build(this);
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             if (request.Target.Path.TrailingSlash)
             {
                 var (node, _) = await Tree.Find(request.Target);
@@ -67,13 +66,11 @@ namespace GenHTTP.Modules.StaticWebsites.Provider
             }
         }
 
-        public async ValueTask PrepareAsync()
-        {
+    public async ValueTask PrepareAsync()
+    {
             await Resources.PrepareAsync();
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

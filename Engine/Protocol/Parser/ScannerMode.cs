@@ -1,12 +1,9 @@
-﻿namespace GenHTTP.Engine.Protocol.Parser
+﻿namespace GenHTTP.Engine.Protocol.Parser;
+
+internal enum ScannerMode
 {
-
-    internal enum ScannerMode
-    {
-        Words,
-        Path,
-        HeaderKey,
-        HeaderValue
-    }
-
+    Words,
+    Path,
+    HeaderKey,
+    HeaderValue
 }

@@ -3,39 +3,38 @@
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content;
 
-namespace GenHTTP.Modules.Basics.Providers
+namespace GenHTTP.Modules.Basics.Providers;
+
+public sealed class RedirectProviderBuilder : IHandlerBuilder<RedirectProviderBuilder>
 {
+    private bool _Temporary = false;
 
-    public sealed class RedirectProviderBuilder : IHandlerBuilder<RedirectProviderBuilder>
+    private string? _Location;
+
+    private readonly List<IConcernBuilder> _Concerns = new();
+
+    #region Functionality
+
+    public RedirectProviderBuilder Location(string location)
     {
-        private bool _Temporary = false;
-
-        private string? _Location;
-
-        private readonly List<IConcernBuilder> _Concerns = new();
-
-        #region Functionality
-
-        public RedirectProviderBuilder Location(string location)
-        {
             _Location = location;
             return this;
         }
 
-        public RedirectProviderBuilder Mode(bool temporary)
-        {
+    public RedirectProviderBuilder Mode(bool temporary)
+    {
             _Temporary = temporary;
             return this;
         }
 
-        public RedirectProviderBuilder Add(IConcernBuilder concern)
-        {
+    public RedirectProviderBuilder Add(IConcernBuilder concern)
+    {
             _Concerns.Add(concern);
             return this;
         }
 
-        public IHandler Build(IHandler parent)
-        {
+    public IHandler Build(IHandler parent)
+    {
             if (_Location is null)
             {
                 throw new BuilderMissingPropertyException("Location");
@@ -44,8 +43,6 @@ namespace GenHTTP.Modules.Basics.Providers
             return Concerns.Chain(parent, _Concerns, (p) => new RedirectProvider(p, _Location, _Temporary));
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

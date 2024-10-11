@@ -3,38 +3,37 @@ using System.IO;
 using System.Threading.Tasks;
 using GenHTTP.Engine.Infrastructure;
 
-namespace GenHTTP.Engine.Protocol.Parser
+namespace GenHTTP.Engine.Protocol.Parser;
+
+/// <summary>
+/// Efficiently reads the body from the HTTP request, storing it
+/// in a temporary file if it exceeds the buffering limits.
+/// </summary>
+internal sealed class RequestContentParser
 {
 
-    /// <summary>
-    /// Efficiently reads the body from the HTTP request, storing it
-    /// in a temporary file if it exceeds the buffering limits.
-    /// </summary>
-    internal sealed class RequestContentParser
+    #region Get-/Setters
+
+    internal long Length { get; }
+
+    internal NetworkConfiguration Configuration { get; }
+
+    #endregion
+
+    #region Initialization
+
+    internal RequestContentParser(long length, NetworkConfiguration configuration)
     {
-
-        #region Get-/Setters
-
-        internal long Length { get; }
-
-        internal NetworkConfiguration Configuration { get; }
-
-        #endregion
-
-        #region Initialization
-
-        internal RequestContentParser(long length, NetworkConfiguration configuration)
-        {
             Length = length;
             Configuration = configuration;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        internal async Task<Stream> GetBody(RequestBuffer buffer)
-        {
+    internal async Task<Stream> GetBody(RequestBuffer buffer)
+    {
             var body = Length > Configuration.RequestMemoryLimit ? TemporaryFileStream.Create() : new MemoryStream((int)Length);
 
             await CopyAsync(buffer, body, Length, Configuration.TransferBufferSize);
@@ -44,8 +43,8 @@ namespace GenHTTP.Engine.Protocol.Parser
             return body;
         }
 
-        internal static async ValueTask CopyAsync(RequestBuffer source, Stream target, long length, uint bufferSize)
-        {
+    internal static async ValueTask CopyAsync(RequestBuffer source, Stream target, long length, uint bufferSize)
+    {
             var toFetch = length;
 
             while (toFetch > 0)
@@ -74,8 +73,6 @@ namespace GenHTTP.Engine.Protocol.Parser
             }
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

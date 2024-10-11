@@ -8,30 +8,29 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
 
-namespace GenHTTP.Modules.Security.Cors
+namespace GenHTTP.Modules.Security.Cors;
+
+public sealed class CorsPolicyHandler : IConcern
 {
+    public const string ALLOW_ANY = "*";
 
-    public sealed class CorsPolicyHandler : IConcern
+    #region Get-/Setters
+
+    public IHandler Content { get; }
+
+    public IHandler Parent { get; }
+
+    public OriginPolicy? DefaultPolicy { get; }
+
+    public IDictionary<string, OriginPolicy?> AdditionalPolicies { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public CorsPolicyHandler(IHandler parent, Func<IHandler, IHandler> contentFactory,
+        OriginPolicy? defaultPolicy, IDictionary<string, OriginPolicy?> additionalPolicies)
     {
-        public const string ALLOW_ANY = "*";
-
-        #region Get-/Setters
-
-        public IHandler Content { get; }
-
-        public IHandler Parent { get; }
-
-        public OriginPolicy? DefaultPolicy { get; }
-
-        public IDictionary<string, OriginPolicy?> AdditionalPolicies { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public CorsPolicyHandler(IHandler parent, Func<IHandler, IHandler> contentFactory,
-                                 OriginPolicy? defaultPolicy, IDictionary<string, OriginPolicy?> additionalPolicies)
-        {
             Parent = parent;
             Content = contentFactory(this);
 
@@ -39,14 +38,14 @@ namespace GenHTTP.Modules.Security.Cors
             AdditionalPolicies = additionalPolicies;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             var (origin, policy) = GetPolicy(request);
 
             IResponse? response;
@@ -70,8 +69,8 @@ namespace GenHTTP.Modules.Security.Cors
             return response;
         }
 
-        private static void ConfigureResponse(IResponse response, string origin, OriginPolicy policy)
-        {
+    private static void ConfigureResponse(IResponse response, string origin, OriginPolicy policy)
+    {
             response.Headers["Access-Control-Allow-Origin"] = origin;
 
             if (HasValue(policy.AllowedMethods))
@@ -102,8 +101,8 @@ namespace GenHTTP.Modules.Security.Cors
             }
         }
 
-        private (string origin, OriginPolicy? policy) GetPolicy(IRequest request)
-        {
+    private (string origin, OriginPolicy? policy) GetPolicy(IRequest request)
+    {
             var origin = request["Origin"];
 
             if (origin is not null)
@@ -117,8 +116,8 @@ namespace GenHTTP.Modules.Security.Cors
             return (origin ?? ALLOW_ANY, DefaultPolicy);
         }
 
-        private static string GetListOrWildcard(List<string>? values)
-        {
+    private static string GetListOrWildcard(List<string>? values)
+    {
             if (values is not null)
             {
                 return string.Join(", ", values);
@@ -127,8 +126,8 @@ namespace GenHTTP.Modules.Security.Cors
             return ALLOW_ANY;
         }
 
-        private static string GetListOrWildcard(List<FlexibleRequestMethod>? values)
-        {
+    private static string GetListOrWildcard(List<FlexibleRequestMethod>? values)
+    {
             if (values is not null)
             {
                 return string.Join(", ", values.Select(v => v.RawMethod));
@@ -137,10 +136,8 @@ namespace GenHTTP.Modules.Security.Cors
             return ALLOW_ANY;
         }
 
-        private static bool HasValue<T>(List<T>? list) => (list is null) || (list.Count > 0);
+    private static bool HasValue<T>(List<T>? list) => (list is null) || (list.Count > 0);
 
-        #endregion
-
-    }
+    #endregion
 
 }

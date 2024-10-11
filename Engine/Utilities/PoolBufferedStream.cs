@@ -4,81 +4,80 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GenHTTP.Engine.Utilities
+namespace GenHTTP.Engine.Utilities;
+
+/// <summary>
+/// An output stream using a pooled array to buffer small writes.
+/// </summary>
+/// <remarks>
+/// Reduces write calls on underlying streams by collecting small writes
+/// and flushing them only on request or if the internal buffer overflows. 
+/// Using a rented buffer from the array pool keeps allocations low.
+/// 
+/// Decreases the overhead of response content that issues a lot of small
+/// writes (such as serializers or template renderers). As the content
+/// length for such responses is typically not known beforehand, this
+/// would cause all of those small writes to be converted into chunks, adding 
+/// a lot of communication overhead to the client connection.
+/// </remarks>
+public sealed class PoolBufferedStream : Stream
 {
+    private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Create(128 * 1024, 8192); // 1 GB 
 
-    /// <summary>
-    /// An output stream using a pooled array to buffer small writes.
-    /// </summary>
-    /// <remarks>
-    /// Reduces write calls on underlying streams by collecting small writes
-    /// and flushing them only on request or if the internal buffer overflows. 
-    /// Using a rented buffer from the array pool keeps allocations low.
-    /// 
-    /// Decreases the overhead of response content that issues a lot of small
-    /// writes (such as serializers or template renderers). As the content
-    /// length for such responses is typically not known beforehand, this
-    /// would cause all of those small writes to be converted into chunks, adding 
-    /// a lot of communication overhead to the client connection.
-    /// </remarks>
-    public sealed class PoolBufferedStream : Stream
+    #region Get-/Setters
+
+    public override bool CanRead => Stream.CanRead;
+
+    public override bool CanSeek => Stream.CanSeek;
+
+    public override bool CanWrite => Stream.CanWrite;
+
+    public override long Length => Stream.Length;
+
+    public override long Position
     {
-        private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Create(128 * 1024, 8192); // 1 GB 
+        get => Stream.Position;
+        set => Stream.Position = value;
+    }
 
-        #region Get-/Setters
+    private Stream Stream { get; }
 
-        public override bool CanRead => Stream.CanRead;
+    private byte[] Buffer { get; }
 
-        public override bool CanSeek => Stream.CanSeek;
+    private int Current { get; set; }
 
-        public override bool CanWrite => Stream.CanWrite;
+    #endregion
 
-        public override long Length => Stream.Length;
+    #region Initialization
 
-        public override long Position
-        {
-            get => Stream.Position;
-            set => Stream.Position = value;
-        }
-
-        private Stream Stream { get; }
-
-        private byte[] Buffer { get; }
-
-        private int Current { get; set; }
-
-        #endregion
-
-        #region Initialization
-
-        public PoolBufferedStream(Stream stream, uint bufferSize)
-        {
+    public PoolBufferedStream(Stream stream, uint bufferSize)
+    {
             Stream = stream;
 
             Buffer = POOL.Rent((int)bufferSize);
             Current = 0;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) => Stream.ReadAsync(buffer, offset, count, cancellationToken);
+    public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) => Stream.ReadAsync(buffer, offset, count, cancellationToken);
 
-        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default) => Stream.ReadAsync(buffer, cancellationToken);
+    public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default) => Stream.ReadAsync(buffer, cancellationToken);
 
-        public override int Read(byte[] buffer, int offset, int count) => Stream.Read(buffer, offset, count);
+    public override int Read(byte[] buffer, int offset, int count) => Stream.Read(buffer, offset, count);
 
-        public override int Read(Span<byte> buffer) => Stream.Read(buffer);
+    public override int Read(Span<byte> buffer) => Stream.Read(buffer);
 
-        public override int ReadByte() => Stream.ReadByte();
+    public override int ReadByte() => Stream.ReadByte();
 
-        public override long Seek(long offset, SeekOrigin origin) => Stream.Seek(offset, origin);
+    public override long Seek(long offset, SeekOrigin origin) => Stream.Seek(offset, origin);
 
-        public override void SetLength(long value) => Stream.SetLength(value);
+    public override void SetLength(long value) => Stream.SetLength(value);
 
-        public override void Write(byte[] buffer, int offset, int count)
-        {
+    public override void Write(byte[] buffer, int offset, int count)
+    {
             if (count < (Buffer.Length - Current))
             {
                 System.Buffer.BlockCopy(buffer, offset, Buffer, Current, count);
@@ -98,13 +97,13 @@ namespace GenHTTP.Engine.Utilities
             }
         }
 
-        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-        {
+    public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+    {
             await WriteAsync(buffer.AsMemory(offset, count - offset), cancellationToken);
         }
 
-        public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
-        {
+    public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+    {
             var count = buffer.Length;
 
             if (count < (Buffer.Length - Current))
@@ -126,22 +125,22 @@ namespace GenHTTP.Engine.Utilities
             }
         }
 
-        public override void Flush()
-        {
+    public override void Flush()
+    {
             WriteBuffer();
 
             Stream.Flush();
         }
 
-        public override async Task FlushAsync(CancellationToken cancellationToken)
-        {
+    public override async Task FlushAsync(CancellationToken cancellationToken)
+    {
             await WriteBufferAsync(cancellationToken);
 
             await Stream.FlushAsync(cancellationToken);
         }
 
-        private void WriteBuffer()
-        {
+    private void WriteBuffer()
+    {
             if (Current > 0)
             {
                 Stream.Write(Buffer, 0, Current);
@@ -150,8 +149,8 @@ namespace GenHTTP.Engine.Utilities
             }
         }
 
-        private async ValueTask WriteBufferAsync(CancellationToken cancellationToken)
-        {
+    private async ValueTask WriteBufferAsync(CancellationToken cancellationToken)
+    {
             if (Current > 0)
             {
                 await Stream.WriteAsync(Buffer.AsMemory(0, Current), cancellationToken);
@@ -160,12 +159,12 @@ namespace GenHTTP.Engine.Utilities
             }
         }
 
-        #endregion
+    #endregion
 
-        #region Disposing
+    #region Disposing
 
-        protected override void Dispose(bool disposing)
-        {
+    protected override void Dispose(bool disposing)
+    {
             if (disposing)
             {
                 try
@@ -181,8 +180,6 @@ namespace GenHTTP.Engine.Utilities
             base.Dispose(disposing);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

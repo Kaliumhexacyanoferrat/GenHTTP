@@ -11,64 +11,63 @@ using GenHTTP.Engine.Infrastructure.Endpoints;
 
 using GenHTTP.Modules.ErrorHandling;
 
-namespace GenHTTP.Engine.Infrastructure
+namespace GenHTTP.Engine.Infrastructure;
+
+internal sealed class ThreadedServerBuilder : IServerBuilder
 {
+    private ushort _Backlog = 1024;
+    private ushort _Port = 8080;
 
-    internal sealed class ThreadedServerBuilder : IServerBuilder
+    private uint _RequestMemoryLimit = 1 * 1024 * 1024; // 1 MB
+    private uint _TransferBufferSize = 65 * 1024; // 65 KB
+
+    private bool _Development = false;
+
+    private TimeSpan _RequestReadTimeout = TimeSpan.FromSeconds(10);
+
+    private IHandlerBuilder? _Handler;
+    private IServerCompanion? _Companion;
+
+    private readonly List<EndPointConfiguration> _EndPoints = new();
+
+    private readonly List<IConcernBuilder> _Concerns = new();
+
+    #region Content
+
+    public IServerBuilder Handler(IHandlerBuilder handler)
     {
-        private ushort _Backlog = 1024;
-        private ushort _Port = 8080;
-
-        private uint _RequestMemoryLimit = 1 * 1024 * 1024; // 1 MB
-        private uint _TransferBufferSize = 65 * 1024; // 65 KB
-
-        private bool _Development = false;
-
-        private TimeSpan _RequestReadTimeout = TimeSpan.FromSeconds(10);
-
-        private IHandlerBuilder? _Handler;
-        private IServerCompanion? _Companion;
-
-        private readonly List<EndPointConfiguration> _EndPoints = new();
-
-        private readonly List<IConcernBuilder> _Concerns = new();
-
-        #region Content
-
-        public IServerBuilder Handler(IHandlerBuilder handler)
-        {
             _Handler = handler;
             return this;
         }
 
-        #endregion
+    #endregion
 
-        #region Infrastructure
+    #region Infrastructure
 
-        public IServerBuilder Console()
-        {
+    public IServerBuilder Console()
+    {
             _Companion = new ConsoleCompanion();
             return this;
         }
 
-        public IServerBuilder Companion(IServerCompanion companion)
-        {
+    public IServerBuilder Companion(IServerCompanion companion)
+    {
             _Companion = companion;
             return this;
         }
 
-        public IServerBuilder Development(bool developmentMode = true)
-        {
+    public IServerBuilder Development(bool developmentMode = true)
+    {
             _Development = developmentMode;
             return this;
         }
 
-        #endregion
+    #endregion
 
-        #region Binding
+    #region Binding
 
-        public IServerBuilder Port(ushort port)
-        {
+    public IServerBuilder Port(ushort port)
+    {
             if (port == 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(port));
@@ -78,78 +77,78 @@ namespace GenHTTP.Engine.Infrastructure
             return this;
         }
 
-        public IServerBuilder Bind(IPAddress address, ushort port)
-        {
+    public IServerBuilder Bind(IPAddress address, ushort port)
+    {
             _EndPoints.Add(new EndPointConfiguration(address, port, null));
             return this;
         }
 
-        public IServerBuilder Bind(IPAddress address, ushort port, X509Certificate2 certificate)
-        {
+    public IServerBuilder Bind(IPAddress address, ushort port, X509Certificate2 certificate)
+    {
             return Bind(address, port, new SimpleCertificateProvider(certificate));
         }
 
-        public IServerBuilder Bind(IPAddress address, ushort port, X509Certificate2 certificate, SslProtocols protocols)
-        {
+    public IServerBuilder Bind(IPAddress address, ushort port, X509Certificate2 certificate, SslProtocols protocols)
+    {
             return Bind(address, port, new SimpleCertificateProvider(certificate), protocols);
         }
 
-        public IServerBuilder Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider)
-        {
+    public IServerBuilder Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider)
+    {
             _EndPoints.Add(new EndPointConfiguration(address, port, new SecurityConfiguration(certificateProvider, SslProtocols.Tls12 | SslProtocols.Tls13)));
             return this;
         }
 
-        public IServerBuilder Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols)
-        {
+    public IServerBuilder Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols)
+    {
             _EndPoints.Add(new EndPointConfiguration(address, port, new SecurityConfiguration(certificateProvider, protocols)));
             return this;
         }
 
-        #endregion
+    #endregion
 
-        #region Network settings
+    #region Network settings
 
-        public IServerBuilder Backlog(ushort backlog)
-        {
+    public IServerBuilder Backlog(ushort backlog)
+    {
             _Backlog = backlog;
             return this;
         }
 
-        public IServerBuilder RequestReadTimeout(TimeSpan timeout)
-        {
+    public IServerBuilder RequestReadTimeout(TimeSpan timeout)
+    {
             _RequestReadTimeout = timeout;
             return this;
         }
 
-        public IServerBuilder RequestMemoryLimit(uint limit)
-        {
+    public IServerBuilder RequestMemoryLimit(uint limit)
+    {
             _RequestMemoryLimit = limit;
             return this;
         }
 
-        public IServerBuilder TransferBufferSize(uint bufferSize)
-        {
+    public IServerBuilder TransferBufferSize(uint bufferSize)
+    {
             _TransferBufferSize = bufferSize;
             return this;
         }
 
-        #endregion
+    #endregion
 
-        #region Extensibility
+    #region Extensibility
 
-        public IServerBuilder Add(IConcernBuilder concern)
-        {
+    public IServerBuilder Add(IConcernBuilder concern)
+    {
             _Concerns.Add(concern);
             return this;
         }
 
-        #endregion
+    #endregion
 
-        #region Builder
+    #region Builder
 
-        public IServer Build()
-        {
+    public IServer Build()
+    {
             if (_Handler is null)
             {
                 throw new BuilderMissingPropertyException("Handler");
@@ -174,8 +173,6 @@ namespace GenHTTP.Engine.Infrastructure
             return new ThreadedServer(_Companion, config, handler);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

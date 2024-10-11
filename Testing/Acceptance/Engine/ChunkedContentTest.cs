@@ -6,24 +6,23 @@ using GenHTTP.Modules.Functional;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Engine
+namespace GenHTTP.Testing.Acceptance.Engine;
+
+[TestClass]
+public sealed class ChunkedContentTest
 {
 
-    [TestClass]
-    public sealed class ChunkedContentTest
+    #region Supporting data structures
+
+    private record Model(string Value);
+
+    #endregion
+
+    #region Tests
+
+    [TestMethod]
+    public async Task TestChunkedUpload()
     {
-
-        #region Supporting data structures
-
-        private record Model(string Value);
-
-        #endregion
-
-        #region Tests
-
-        [TestMethod]
-        public async Task TestChunkedUpload()
-        {
             var inline = Inline.Create()
                                .Put((Model model) => model);
 
@@ -40,8 +39,6 @@ namespace GenHTTP.Testing.Acceptance.Engine
             AssertX.Contains("Hello World", result);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

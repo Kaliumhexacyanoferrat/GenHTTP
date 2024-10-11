@@ -3,32 +3,31 @@ using System.Collections.Generic;
 
 using GenHTTP.Api.Infrastructure;
 
-namespace GenHTTP.Api.Protocol
+namespace GenHTTP.Api.Protocol;
+
+/// <summary>
+/// Allows to build a response modification object so that
+/// individual handlers do not need to implement the logic
+/// theirselves.
+/// </summary>
+public class ResponseModificationBuilder : IResponseModification<ResponseModificationBuilder>, IBuilder<ResponseModifications?>
 {
+    private FlexibleResponseStatus? _Status;
 
-    /// <summary>
-    /// Allows to build a response modification object so that
-    /// individual handlers do not need to implement the logic
-    /// theirselves.
-    /// </summary>
-    public class ResponseModificationBuilder : IResponseModification<ResponseModificationBuilder>, IBuilder<ResponseModifications?>
+    private FlexibleContentType? _ContentType;
+
+    private List<Cookie>? _Cookies;
+
+    private string? _Encoding;
+
+    private DateTime? _ExpiryDate, _ModificationDate;
+
+    private Dictionary<string, string>? _Headers;
+
+    #region Functionality
+
+    public ResponseModificationBuilder Cookie(Cookie cookie)
     {
-        private FlexibleResponseStatus? _Status;
-
-        private FlexibleContentType? _ContentType;
-
-        private List<Cookie>? _Cookies;
-
-        private string? _Encoding;
-
-        private DateTime? _ExpiryDate, _ModificationDate;
-
-        private Dictionary<string, string>? _Headers;
-
-        #region Functionality
-
-        public ResponseModificationBuilder Cookie(Cookie cookie)
-        {
             if (_Cookies == null)
             {
                 _Cookies = new();
@@ -39,20 +38,20 @@ namespace GenHTTP.Api.Protocol
             return this;
         }
 
-        public ResponseModificationBuilder Encoding(string encoding)
-        {
+    public ResponseModificationBuilder Encoding(string encoding)
+    {
             _Encoding = encoding;
             return this;
         }
 
-        public ResponseModificationBuilder Expires(DateTime expiryDate)
-        {
+    public ResponseModificationBuilder Expires(DateTime expiryDate)
+    {
             _ExpiryDate = expiryDate;
             return this;
         }
 
-        public ResponseModificationBuilder Header(string key, string value)
-        {
+    public ResponseModificationBuilder Header(string key, string value)
+    {
             if (_Headers == null)
             {
                 _Headers = new();
@@ -63,32 +62,32 @@ namespace GenHTTP.Api.Protocol
             return this;
         }
 
-        public ResponseModificationBuilder Modified(DateTime modificationDate)
-        {
+    public ResponseModificationBuilder Modified(DateTime modificationDate)
+    {
             _ModificationDate = modificationDate;
             return this;
         }
 
-        public ResponseModificationBuilder Status(ResponseStatus status)
-        {
+    public ResponseModificationBuilder Status(ResponseStatus status)
+    {
             _Status = new(status);
             return this;
         }
 
-        public ResponseModificationBuilder Status(int status, string reason)
-        {
+    public ResponseModificationBuilder Status(int status, string reason)
+    {
             _Status = new(status, reason);
             return this;
         }
 
-        public ResponseModificationBuilder Type(FlexibleContentType contentType)
-        {
+    public ResponseModificationBuilder Type(FlexibleContentType contentType)
+    {
             _ContentType = contentType;
             return this;
         }
 
-        public ResponseModifications? Build()
-        {
+    public ResponseModifications? Build()
+    {
             if ((_Status != null) || (_Encoding != null) || (null != _ContentType)
              || (_ExpiryDate != null) || (_ModificationDate != null) 
              || (_Cookies?.Count > 0) || (_Headers?.Count > 0))
@@ -99,8 +98,6 @@ namespace GenHTTP.Api.Protocol
             return null;
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

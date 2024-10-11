@@ -7,19 +7,18 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Content.Caching;
 
-namespace GenHTTP.Modules.Caching.Memory
+namespace GenHTTP.Modules.Caching.Memory;
+
+public sealed class MemoryCache<T> : ICache<T>
 {
+    private readonly Dictionary<string, Dictionary<string, T>> _Cache = new();
 
-    public sealed class MemoryCache<T> : ICache<T>
+    private readonly SemaphoreSlim _Sync = new(1);
+
+    #region Functionality
+
+    public ValueTask<T[]> GetEntriesAsync(string key)
     {
-        private readonly Dictionary<string, Dictionary<string, T>> _Cache = new();
-
-        private readonly SemaphoreSlim _Sync = new(1);
-
-        #region Functionality
-
-        public ValueTask<T[]> GetEntriesAsync(string key)
-        {
             _Sync.Wait();
 
             try
@@ -37,8 +36,8 @@ namespace GenHTTP.Modules.Caching.Memory
             }
         }
 
-        public ValueTask<T?> GetEntryAsync(string key, string variation)
-        {
+    public ValueTask<T?> GetEntryAsync(string key, string variation)
+    {
             _Sync.Wait();
 
             try
@@ -59,8 +58,8 @@ namespace GenHTTP.Modules.Caching.Memory
             }
         }
 
-        public ValueTask StoreAsync(string key, string variation, T? entry)
-        {
+    public ValueTask StoreAsync(string key, string variation, T? entry)
+    {
             _Sync.Wait();
 
             try
@@ -87,13 +86,11 @@ namespace GenHTTP.Modules.Caching.Memory
             }
         }
 
-        public ValueTask StoreDirectAsync(string key, string variation, Func<Stream, ValueTask> asyncWriter)
-        {
+    public ValueTask StoreDirectAsync(string key, string variation, Func<Stream, ValueTask> asyncWriter)
+    {
             throw new NotSupportedException("Direct storage is not supported by the memory cache");
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

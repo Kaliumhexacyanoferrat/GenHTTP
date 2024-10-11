@@ -11,34 +11,33 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO.Streaming;
 
-namespace GenHTTP.Modules.ServerCaching.Provider
+namespace GenHTTP.Modules.ServerCaching.Provider;
+
+public sealed class ServerCacheHandler : IConcern
 {
 
-    public sealed class ServerCacheHandler : IConcern
+    #region Get-/Setters
+
+    public IHandler Content { get; }
+
+    public IHandler Parent { get; }
+
+    private ICache<CachedResponse> Meta { get; }
+
+    private ICache<Stream> Data { get; }
+
+    private bool Invalidate { get; }
+
+    private Func<IRequest, IResponse, bool>? Predicate { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public ServerCacheHandler(IHandler parent, Func<IHandler, IHandler> contentFactory,
+        ICache<CachedResponse> meta, ICache<Stream> data,
+        Func<IRequest, IResponse, bool>? predicate, bool invalidate)
     {
-
-        #region Get-/Setters
-
-        public IHandler Content { get; }
-
-        public IHandler Parent { get; }
-
-        private ICache<CachedResponse> Meta { get; }
-
-        private ICache<Stream> Data { get; }
-
-        private bool Invalidate { get; }
-
-        private Func<IRequest, IResponse, bool>? Predicate { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public ServerCacheHandler(IHandler parent, Func<IHandler, IHandler> contentFactory,
-                                  ICache<CachedResponse> meta, ICache<Stream> data,
-                                  Func<IRequest, IResponse, bool>? predicate, bool invalidate)
-        {
             Parent = parent;
             Content = contentFactory(this);
 
@@ -49,12 +48,12 @@ namespace GenHTTP.Modules.ServerCaching.Provider
             Invalidate = invalidate;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             if (request.HasType(RequestMethod.GET, RequestMethod.HEAD))
             {
                 var response = (Invalidate) ? await Content.HandleAsync(request) : null;
@@ -106,10 +105,10 @@ namespace GenHTTP.Modules.ServerCaching.Provider
             return await Content.HandleAsync(request);
         }
 
-        public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-        private static bool TryFindMatching(CachedResponse[] list, IRequest request, out CachedResponse? response)
-        {
+    private static bool TryFindMatching(CachedResponse[] list, IRequest request, out CachedResponse? response)
+    {
             response = null;
 
             foreach (var variant in list)
@@ -137,8 +136,8 @@ namespace GenHTTP.Modules.ServerCaching.Provider
             return (response != null);
         }
 
-        private static IResponse GetResponse(IRequest request, CachedResponse cached, Stream? content)
-        {
+    private static IResponse GetResponse(IRequest request, CachedResponse cached, Stream? content)
+    {
             var response = request.Respond()
                                   .Status(cached.StatusCode, cached.StatusPhrase);
 
@@ -188,8 +187,8 @@ namespace GenHTTP.Modules.ServerCaching.Provider
             return response.Build();
         }
 
-        private async static ValueTask<CachedResponse> GetResponse(IResponse response, IRequest request)
-        {
+    private async static ValueTask<CachedResponse> GetResponse(IResponse response, IRequest request)
+    {
             var headers = new Dictionary<string, string>(response.Headers);
 
             var cookies = new Dictionary<string, Cookie>(response.Cookies);
@@ -222,8 +221,8 @@ namespace GenHTTP.Modules.ServerCaching.Provider
                                       checksum);
         }
 
-        private async static ValueTask<bool> HasChanged(IResponse current, CachedResponse cached)
-        {
+    private async static ValueTask<bool> HasChanged(IResponse current, CachedResponse cached)
+    {
             var checksum = (current.Content != null) ? await current.Content.CalculateChecksumAsync() : null;
 
             return (cached.ContentChecksum != checksum)
@@ -236,8 +235,6 @@ namespace GenHTTP.Modules.ServerCaching.Provider
                 || (current.Cookies.Count != cached.Cookies?.Count || current.Cookies.Except(cached.Cookies).Any());
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

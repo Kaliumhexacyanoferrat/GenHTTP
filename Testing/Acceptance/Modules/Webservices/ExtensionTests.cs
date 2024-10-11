@@ -8,30 +8,29 @@ using GenHTTP.Modules.Webservices;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Webservices
+namespace GenHTTP.Testing.Acceptance.Modules.Webservices;
+
+[TestClass]
+public sealed class ExtensionTests
 {
 
-    [TestClass]
-    public sealed class ExtensionTests
+    #region Supporting data structures
+
+    public class TestService
     {
 
-        #region Supporting data structures
+        [ResourceMethod]
+        public int DoWork() => 42;
 
-        public class TestService
-        {
+    }
 
-            [ResourceMethod]
-            public int DoWork() => 42;
+    #endregion
 
-        }
+    #region Tests
 
-        #endregion
-
-        #region Tests
-
-        [TestMethod]
-        public async Task TestConfiguration()
-        {
+    [TestMethod]
+    public async Task TestConfiguration()
+    {
             var injectors = Injection.Default();
 
             var formats = Serialization.Default();
@@ -51,8 +50,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
             await r2.AssertStatusAsync(HttpStatusCode.OK);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

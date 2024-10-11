@@ -8,48 +8,47 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Content.Caching;
 
-namespace GenHTTP.Modules.Caching.FileSystem
+namespace GenHTTP.Modules.Caching.FileSystem;
+
+public sealed class FileSystemCache<T> : ICache<T>
 {
-
-    public sealed class FileSystemCache<T> : ICache<T>
+    private static readonly JsonSerializerOptions _Options = new()
     {
-        private static readonly JsonSerializerOptions _Options = new()
-        {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-        };
+        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
 
-        private readonly SemaphoreSlim _Sync = new(1);
+    private readonly SemaphoreSlim _Sync = new(1);
 
-        #region Supporting data structures
+    #region Supporting data structures
 
-        internal record Index(Dictionary<string, string> Entries, Dictionary<string, DateTime> Expiration);
+    internal record Index(Dictionary<string, string> Entries, Dictionary<string, DateTime> Expiration);
 
-        #endregion
+    #endregion
 
-        #region Get-/Setters
+    #region Get-/Setters
 
-        public DirectoryInfo Directory { get; }
+    public DirectoryInfo Directory { get; }
 
-        public TimeSpan AccessExpiration { get; }
+    public TimeSpan AccessExpiration { get; }
 
-        #endregion
+    #endregion
 
-        #region Initialization
+    #region Initialization
 
-        public FileSystemCache(DirectoryInfo directory, TimeSpan accessExpiration)
-        {
+    public FileSystemCache(DirectoryInfo directory, TimeSpan accessExpiration)
+    {
             Directory = directory;
             AccessExpiration = accessExpiration;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public async ValueTask<T[]> GetEntriesAsync(string key)
-        {
+    public async ValueTask<T[]> GetEntriesAsync(string key)
+    {
             await _Sync.WaitAsync();
 
             try
@@ -76,8 +75,8 @@ namespace GenHTTP.Modules.Caching.FileSystem
             }
         }
 
-        public async ValueTask<T?> GetEntryAsync(string key, string variation)
-        {
+    public async ValueTask<T?> GetEntryAsync(string key, string variation)
+    {
             await _Sync.WaitAsync();
 
             try
@@ -97,8 +96,8 @@ namespace GenHTTP.Modules.Caching.FileSystem
             }
         }
 
-        public async ValueTask StoreAsync(string key, string variation, T? entry)
-        {
+    public async ValueTask StoreAsync(string key, string variation, T? entry)
+    {
             await _Sync.WaitAsync();
 
             try
@@ -144,8 +143,8 @@ namespace GenHTTP.Modules.Caching.FileSystem
             }
         }
 
-        public async ValueTask StoreDirectAsync(string key, string variation, Func<Stream, ValueTask> asyncWriter)
-        {
+    public async ValueTask StoreDirectAsync(string key, string variation, Func<Stream, ValueTask> asyncWriter)
+    {
             await _Sync.WaitAsync();
 
             try
@@ -193,8 +192,8 @@ namespace GenHTTP.Modules.Caching.FileSystem
             }
         }
 
-        private async ValueTask<T?> GetValue(string key, string fileName)
-        {
+    private async ValueTask<T?> GetValue(string key, string fileName)
+    {
             var file = new FileInfo(Path.Combine(Directory.FullName, key, fileName));
 
             if (file.Exists)
@@ -214,12 +213,12 @@ namespace GenHTTP.Modules.Caching.FileSystem
             return default;
         }
 
-        private async ValueTask StoreValue(string key, string fileName, T value)
-        {
+    private async ValueTask StoreValue(string key, string fileName, T value)
+    {
             var file = new FileInfo(Path.Combine(Directory.FullName, key, fileName));
 
             using var writer = new StreamWriter(file.FullName, false);
-            
+
             if (typeof(Stream).IsAssignableFrom(typeof(T)))
             {
                 if (value is Stream source)
@@ -233,8 +232,8 @@ namespace GenHTTP.Modules.Caching.FileSystem
             }
         }
 
-        private async ValueTask<Index> GetIndex(string key)
-        {
+    private async ValueTask<Index> GetIndex(string key)
+    {
             var indexFile = new FileInfo(Path.Combine(Directory.FullName, key, "index.json"));
 
             if (indexFile.Exists)
@@ -247,8 +246,8 @@ namespace GenHTTP.Modules.Caching.FileSystem
             return new Index(new(), new());
         }
 
-        private async ValueTask StoreIndex(string key, Index index)
-        {
+    private async ValueTask StoreIndex(string key, Index index)
+    {
             RunHouseKeeping(key, index);
 
             var indexFile = new FileInfo(Path.Combine(Directory.FullName, key, "index.json"));
@@ -261,8 +260,8 @@ namespace GenHTTP.Modules.Caching.FileSystem
             indexFile.Refresh();
         }
 
-        private void RunHouseKeeping(string key, Index index)
-        {
+    private void RunHouseKeeping(string key, Index index)
+    {
             var toDelete = new List<string>();
 
             foreach (var entry in index.Expiration)
@@ -288,8 +287,8 @@ namespace GenHTTP.Modules.Caching.FileSystem
             }
         }
 
-        private void Remove(string key, string fileName)
-        {
+    private void Remove(string key, string fileName)
+    {
             var file = new FileInfo(Path.Combine(Directory.FullName, key, fileName));
 
             if (file.Exists)
@@ -298,8 +297,8 @@ namespace GenHTTP.Modules.Caching.FileSystem
             }
         }
 
-        private void EnsureDirectory(string key)
-        {
+    private void EnsureDirectory(string key)
+    {
             var subPath = new DirectoryInfo(Path.Combine(Directory.FullName, key));
 
             if (!subPath.Exists)
@@ -308,8 +307,6 @@ namespace GenHTTP.Modules.Caching.FileSystem
             }
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

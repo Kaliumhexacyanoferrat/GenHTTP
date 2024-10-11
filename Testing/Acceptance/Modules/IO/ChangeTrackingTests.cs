@@ -7,16 +7,15 @@ using GenHTTP.Modules.IO;
 
 using GenHTTP.Testing.Acceptance.Utilities;
 
-namespace GenHTTP.Testing.Acceptance.Modules.IO
+namespace GenHTTP.Testing.Acceptance.Modules.IO;
+
+[TestClass]
+public sealed class ChangeTrackingTests
 {
 
-    [TestClass]
-    public sealed class ChangeTrackingTests
+    [TestMethod]
+    public async Task TestChanges()
     {
-
-        [TestMethod]
-        public async Task TestChanges()
-        {
             var file = Path.GetTempFileName();
 
             try
@@ -42,15 +41,15 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             }
         }
 
-        [TestMethod]
-        public async Task TestBuildWithTracking()
-        {
+    [TestMethod]
+    public async Task TestBuildWithTracking()
+    {
             Assert.IsTrue(await Resource.FromAssembly("File.txt").BuildWithTracking().HasChanged());
         }
 
-        [TestMethod]
-        public void TestMetaInformation()
-        {
+    [TestMethod]
+    public void TestMetaInformation()
+    {
             var resource = Resource.FromAssembly("File.txt").Build();
 
             var tracked = resource.Track();
@@ -60,7 +59,5 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             Assert.AreEqual(resource.Modified, tracked.Modified);
             Assert.AreEqual(resource.ContentType, tracked.ContentType);
         }
-
-    }
 
 }

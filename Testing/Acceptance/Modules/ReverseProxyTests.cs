@@ -12,29 +12,28 @@ using GenHTTP.Modules.ReverseProxy;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Cookie = GenHTTP.Api.Protocol.Cookie;
 
-namespace GenHTTP.Testing.Acceptance.Modules
+namespace GenHTTP.Testing.Acceptance.Modules;
+
+[TestClass]
+public sealed class ReverseProxyTests
 {
 
-    [TestClass]
-    public sealed class ReverseProxyTests
+    #region Supporting data structures
+
+    private class TestSetup : IDisposable
     {
+        private readonly TestHost _Target;
 
-        #region Supporting data structures
+        public TestHost Runner { get; }
 
-        private class TestSetup : IDisposable
+        private TestSetup(TestHost source, TestHost target)
         {
-            private readonly TestHost _Target;
-
-            public TestHost Runner { get; }
-
-            private TestSetup(TestHost source, TestHost target)
-            {
                 Runner = source;
                 _Target = target;
             }
 
-            public static TestSetup Create(Func<IRequest, IResponse?> response)
-            {
+        public static TestSetup Create(Func<IRequest, IResponse?> response)
+        {
                 // server hosting the actual web app
                 var testServer = new TestHost(Layout.Create(), defaults: false);
 
@@ -55,12 +54,12 @@ namespace GenHTTP.Testing.Acceptance.Modules
                 return new TestSetup(runner, testServer);
             }
 
-            #region IDisposable Support
+        #region IDisposable Support
 
-            private bool disposedValue = false;
+        private bool disposedValue = false;
 
-            protected virtual void Dispose(bool disposing)
-            {
+        protected virtual void Dispose(bool disposing)
+        {
                 if (!disposedValue)
                 {
                     if (disposing)
@@ -73,50 +72,50 @@ namespace GenHTTP.Testing.Acceptance.Modules
                 }
             }
 
-            public void Dispose()
-            {
+        public void Dispose()
+        {
                 Dispose(true);
             }
 
-            #endregion
+        #endregion
 
-        }
+    }
 
-        private class ProxiedRouter : IHandler
+    private class ProxiedRouter : IHandler
+    {
+        private readonly Func<IRequest, IResponse?> _Response;
+
+        public ProxiedRouter(Func<IRequest, IResponse?> response)
         {
-            private readonly Func<IRequest, IResponse?> _Response;
-
-            public ProxiedRouter(Func<IRequest, IResponse?> response)
-            {
                 _Response = response;
             }
 
-            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-            public IHandler Parent => throw new NotImplementedException();
+        public IHandler Parent => throw new NotImplementedException();
 
-            public ValueTask<IResponse?> HandleAsync(IRequest request)
-            {
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
+        {
                 return new ProxiedProvider(_Response).HandleAsync(request);
             }
 
-        }
+    }
 
-        private class ProxiedProvider : IHandler
+    private class ProxiedProvider : IHandler
+    {
+        private readonly Func<IRequest, IResponse?> _Response;
+
+        public ProxiedProvider(Func<IRequest, IResponse?> response)
         {
-            private readonly Func<IRequest, IResponse?> _Response;
-
-            public ProxiedProvider(Func<IRequest, IResponse?> response)
-            {
                 _Response = response;
             }
 
-            public IHandler Parent => throw new NotImplementedException();
-            
-            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+        public IHandler Parent => throw new NotImplementedException();
 
-            public ValueTask<IResponse?> HandleAsync(IRequest request)
-            {
+        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
+        {
                 Assert.AreNotEqual(request.Client, request.LocalClient);
                 Assert.IsTrue(request.Forwardings.Count > 0);
 
@@ -132,13 +131,13 @@ namespace GenHTTP.Testing.Acceptance.Modules
                               .BuildTask();
             }
 
-        }
+    }
 
-        #endregion
+    #endregion
 
-        [TestMethod]
-        public async Task TestBasics()
-        {
+    [TestMethod]
+    public async Task TestBasics()
+    {
             using var setup = TestSetup.Create((r) =>
             {
                 return r.Respond().Content("Hello World!").Build();
@@ -150,9 +149,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
             Assert.AreEqual("Hello World!", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestRedirection()
-        {
+    [TestMethod]
+    public async Task TestRedirection()
+    {
             using var setup = TestSetup.Create((r) =>
             {
                 return r.Respond().Header("Location", $"http://localhost:{r.EndPoint.Port}/target").Status(ResponseStatus.TemporaryRedirect).Build();
@@ -165,9 +164,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
             Assert.AreEqual($"http://localhost:{runner.Port}/target", redirected.GetHeader("Location"));
         }
 
-        [TestMethod]
-        public async Task TestHead()
-        {
+    [TestMethod]
+    public async Task TestHead()
+    {
             using var setup = TestSetup.Create((r) =>
             {
                 return r.Respond().Content("Hello World!").Build();
@@ -183,9 +182,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
             await headed.AssertStatusAsync(HttpStatusCode.OK);
         }
 
-        [TestMethod]
-        public async Task TestCookies()
-        {
+    [TestMethod]
+    public async Task TestCookies()
+    {
             using var setup = TestSetup.Create((r) =>
             {
                 Assert.AreEqual("World", r.Cookies["Hello"].Value);
@@ -216,9 +215,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
             Assert.AreEqual("2", returned["Two"]!.Value);
         }
 
-        [TestMethod]
-        public async Task TestHeaders()
-        {
+    [TestMethod]
+    public async Task TestHeaders()
+    {
             var now = DateTime.UtcNow;
 
             using var setup = TestSetup.Create((r) =>
@@ -245,9 +244,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
             Assert.AreEqual(now.ToString("r"), response.GetContentHeader("Last-Modified"));
         }
 
-        [TestMethod]
-        public async Task TestPost()
-        {
+    [TestMethod]
+    public async Task TestPost()
+    {
             using var setup = TestSetup.Create((r) =>
             {
                 using var reader = new StreamReader(r.Content!);
@@ -267,9 +266,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
             Assert.AreEqual("Input", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestPathing()
-        {
+    [TestMethod]
+    public async Task TestPathing()
+    {
             using var setup = TestSetup.Create((r) =>
             {
                 return r.Respond().Content(r.Target.Path.ToString()).Build();
@@ -287,9 +286,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
             Assert.AreEqual("/login", await r3.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestQuery()
-        {
+    [TestMethod]
+    public async Task TestQuery()
+    {
             using var setup = TestSetup.Create((r) =>
             {
                 var result = string.Join('|', r.Query.Select(kv => $"{kv.Key}={kv.Value}"));
@@ -308,9 +307,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
             Assert.AreEqual("", await r1.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestQuerySpecialChars()
-        {
+    [TestMethod]
+    public async Task TestQuerySpecialChars()
+    {
             using var setup = TestSetup.Create((r) =>
             {
                 var result = string.Join('|', r.Query.Select(kv => $"{kv.Key}={kv.Value}"));
@@ -323,9 +322,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
             Assert.AreEqual("key= <+", await r.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestPathSpecialChars()
-        {
+    [TestMethod]
+    public async Task TestPathSpecialChars()
+    {
             using var setup = TestSetup.Create((r) =>
             {
                 return r.Respond().Content(r.Target.Path.ToString(true)).Build();
@@ -337,9 +336,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
             Assert.AreEqual("/%3F%23%26%2F%20%20", await r.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestPathPreservesSpecialChars()
-        {
+    [TestMethod]
+    public async Task TestPathPreservesSpecialChars()
+    {
             using var setup = TestSetup.Create((r) =>
             {
                 return r.Respond().Content(r.Target.Path.ToString(true)).Build();
@@ -351,9 +350,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
             Assert.AreEqual("/$@:", await r.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestContentLengthPreserved()
-        {
+    [TestMethod]
+    public async Task TestContentLengthPreserved()
+    {
             using var setup = TestSetup.Create((r) =>
             {
                 return r.Respond()
@@ -368,12 +367,12 @@ namespace GenHTTP.Testing.Acceptance.Modules
             AssertX.IsNullOrEmpty(response.GetHeader("Transfer-Encoding"));
         }
 
-        [TestMethod]
-        public async Task TestBadGateway()
-        {
+    [TestMethod]
+    public async Task TestBadGateway()
+    {
             var proxy = Proxy.Create()
                              .Upstream("http://icertainlydonotexistasadomain");
-            
+
             using var runner = TestHost.Run(proxy);
 
             using var response = await runner.GetResponseAsync();
@@ -382,9 +381,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
         }
 
 
-        [TestMethod]
-        public async Task TestCompression()
-        {
+    [TestMethod]
+    public async Task TestCompression()
+    {
             using var setup = TestSetup.Create((r) =>
             {
                 return r.Respond().Content("Hello World!").Build();
@@ -400,7 +399,5 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             Assert.AreEqual("br", response.GetContentHeader("Content-Encoding"));
         }
-
-    }
 
 }

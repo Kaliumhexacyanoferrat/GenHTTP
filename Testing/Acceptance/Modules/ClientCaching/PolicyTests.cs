@@ -9,16 +9,15 @@ using GenHTTP.Modules.Layouting;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.ClientCaching
+namespace GenHTTP.Testing.Acceptance.Modules.ClientCaching;
+
+[TestClass]
+public sealed class PolicyTests
 {
 
-    [TestClass]
-    public sealed class PolicyTests
+    [TestMethod]
+    public async Task TestExpireHeaderSet()
     {
-
-        [TestMethod]
-        public async Task TestExpireHeaderSet()
-        {
             var content = Content.From(Resource.FromString("Content"))
                                  .Add(ClientCache.Policy().Duration(1));
 
@@ -29,9 +28,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ClientCaching
             Assert.IsNotNull(response.GetContentHeader("Expires"));
         }
 
-        [TestMethod]
-        public async Task TestExpireHeaderNotSetForOtherMethods()
-        {
+    [TestMethod]
+    public async Task TestExpireHeaderNotSetForOtherMethods()
+    {
             var content = Content.From(Resource.FromString("Content"))
                                  .Add(ClientCache.Policy().Duration(1));
 
@@ -45,9 +44,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ClientCaching
             AssertX.IsNullOrEmpty(response.GetContentHeader("Expires"));
         }
 
-        [TestMethod]
-        public async Task TestExpireHeaderNotSetForOtherStatus()
-        {
+    [TestMethod]
+    public async Task TestExpireHeaderNotSetForOtherStatus()
+    {
             var content = Layout.Create()
                                 .Add(ClientCache.Policy().Duration(1));
 
@@ -58,9 +57,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ClientCaching
             AssertX.IsNullOrEmpty(response.GetContentHeader("Expires"));
         }
 
-        [TestMethod]
-        public async Task TestPredicate()
-        {
+    [TestMethod]
+    public async Task TestPredicate()
+    {
             var content = Content.From(Resource.FromString("Content"))
                                  .Add(ClientCache.Policy().Duration(1).Predicate((_, r) => r.ContentType?.RawType != "text/plain"));
 
@@ -70,7 +69,5 @@ namespace GenHTTP.Testing.Acceptance.Modules.ClientCaching
 
             AssertX.IsNullOrEmpty(response.GetContentHeader("Expires"));
         }
-
-    }
 
 }

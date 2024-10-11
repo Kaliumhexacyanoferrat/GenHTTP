@@ -4,16 +4,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Modules.IO;
 
-namespace GenHTTP.Testing.Acceptance.Modules.IO
+namespace GenHTTP.Testing.Acceptance.Modules.IO;
+
+[TestClass]
+public sealed class ResourceTreeTests
 {
 
-    [TestClass]
-    public sealed class ResourceTreeTests
+    [TestMethod]
+    public async Task TestAssembly()
     {
-
-        [TestMethod]
-        public async Task TestAssembly()
-        {
             var tree = ResourceTree.FromAssembly("Resources").Build();
 
             Assert.IsNotNull(await tree.TryGetNodeAsync("Subdirectory"));
@@ -24,7 +23,5 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             Assert.AreEqual(5, (await tree.GetResources()).Count);
         }
-
-    }
 
 }

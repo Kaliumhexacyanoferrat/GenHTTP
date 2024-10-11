@@ -15,19 +15,18 @@ using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Security;
 using GenHTTP.Modules.Security.Providers;
 
-namespace GenHTTP.Testing.Acceptance.Engine
+namespace GenHTTP.Testing.Acceptance.Engine;
+
+[TestClass]
+public sealed class SecurityTests
 {
 
-    [TestClass]
-    public sealed class SecurityTests
+    /// <summary>
+    /// As a developer I would like to serve my application in a secure manner.
+    /// </summary>
+    [TestMethod]
+    public Task TestSecure()
     {
-
-        /// <summary>
-        /// As a developer I would like to serve my application in a secure manner.
-        /// </summary>
-        [TestMethod]
-        public Task TestSecure()
-        {
             return RunSecure(async (insec, sec) =>
             {
                 using var client = TestHost.GetClient(ignoreSecurityErrors: true);
@@ -39,13 +38,13 @@ namespace GenHTTP.Testing.Acceptance.Engine
             });
         }
 
-        /// <summary>
-        /// As a developer, I expect the server to redirect to a secure endpoint
-        /// by default.
-        /// </summary>
-        [TestMethod]
-        public Task TestDefaultRedirection()
-        {
+    /// <summary>
+    /// As a developer, I expect the server to redirect to a secure endpoint
+    /// by default.
+    /// </summary>
+    [TestMethod]
+    public Task TestDefaultRedirection()
+    {
             return RunSecure(async (insec, sec) =>
             {
                 using var client = TestHost.GetClient(followRedirects: false);
@@ -57,13 +56,13 @@ namespace GenHTTP.Testing.Acceptance.Engine
             });
         }
 
-        /// <summary>
-        /// As a developer, I expect HTTP requests not to be redirected if
-        /// upgrades are allowed but not requested by the client.
-        /// </summary>
-        [TestMethod]
-        public Task TestNoRedirectionWithAllowed()
-        {
+    /// <summary>
+    /// As a developer, I expect HTTP requests not to be redirected if
+    /// upgrades are allowed but not requested by the client.
+    /// </summary>
+    [TestMethod]
+    public Task TestNoRedirectionWithAllowed()
+    {
             return RunSecure(async (insec, sec) =>
             {
                 using var client = TestHost.GetClient(followRedirects: false);
@@ -74,13 +73,13 @@ namespace GenHTTP.Testing.Acceptance.Engine
             }, mode: SecureUpgrade.Allow);
         }
 
-        /// <summary>
-        /// As I developer, I expect requests to be upgraded if requested
-        /// by the client.
-        /// </summary>
-        [TestMethod]
-        public Task TestRedirectionWhenRequested()
-        {
+    /// <summary>
+    /// As I developer, I expect requests to be upgraded if requested
+    /// by the client.
+    /// </summary>
+    [TestMethod]
+    public Task TestRedirectionWhenRequested()
+    {
             return RunSecure(async (insec, sec) =>
             {
                 using var client = TestHost.GetClient(followRedirects: false);
@@ -97,13 +96,13 @@ namespace GenHTTP.Testing.Acceptance.Engine
             }, mode: SecureUpgrade.Allow);
         }
 
-        /// <summary>
-        /// As the hoster of a web application, I want my application to enforce strict
-        /// transport security, so that man-in-the-middle attacks can be avoided to some extend.
-        /// </summary>
-        [TestMethod]
-        public Task TestTransportPolicy()
-        {
+    /// <summary>
+    /// As the hoster of a web application, I want my application to enforce strict
+    /// transport security, so that man-in-the-middle attacks can be avoided to some extend.
+    /// </summary>
+    [TestMethod]
+    public Task TestTransportPolicy()
+    {
             return RunSecure(async (insec, sec) =>
             {
                 using var client = TestHost.GetClient(ignoreSecurityErrors: true);
@@ -121,13 +120,13 @@ namespace GenHTTP.Testing.Acceptance.Engine
             }, mode: SecureUpgrade.None);
         }
 
-        /// <summary>
-        /// As the operator of the server, I expect the server to resume
-        /// normal operation after a security error has happened.
-        /// </summary>
-        [TestMethod]
-        public Task TestSecurityError()
-        {
+    /// <summary>
+    /// As the operator of the server, I expect the server to resume
+    /// normal operation after a security error has happened.
+    /// </summary>
+    [TestMethod]
+    public Task TestSecurityError()
+    {
             return RunSecure(async (insec, sec) =>
             {
                 await Assert.ThrowsExceptionAsync<HttpRequestException>(async () =>
@@ -144,13 +143,13 @@ namespace GenHTTP.Testing.Acceptance.Engine
             });
         }
 
-        /// <summary>
-        /// As a web developer, I can decide not to return a certificate which will
-        /// abort the server SSL handshake.
-        /// </summary>
-        [TestMethod]
-        public Task TestNoCertificate()
-        {
+    /// <summary>
+    /// As a web developer, I can decide not to return a certificate which will
+    /// abort the server SSL handshake.
+    /// </summary>
+    [TestMethod]
+    public Task TestNoCertificate()
+    {
             return RunSecure(async (insec, sec) =>
             {
                 await Assert.ThrowsExceptionAsync<HttpRequestException>(async () =>
@@ -162,8 +161,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
             }, host: "myserver");
         }
 
-        private static async Task RunSecure(Func<ushort, ushort, Task> logic, SecureUpgrade? mode = null, string host = "localhost")
-        {
+    private static async Task RunSecure(Func<ushort, ushort, Task> logic, SecureUpgrade? mode = null, string host = "localhost")
+    {
             var content = Layout.Create().Index(Content.From(Resource.FromString("Hello Alice!")));
 
             using var runner = new TestHost(Layout.Create(), mode is null);
@@ -187,41 +186,38 @@ namespace GenHTTP.Testing.Acceptance.Engine
             await logic((ushort)runner.Port, (ushort)port);
         }
 
-        private static async ValueTask<X509Certificate2> GetCertificate()
-        {
-            using var stream = await Resource.FromAssembly("Certificate.pfx").Build().GetContentAsync();
+    private static async ValueTask<X509Certificate2> GetCertificate()
+    {
+        using var stream = await Resource.FromAssembly("Certificate.pfx").Build().GetContentAsync();
 
-            using var mem = new MemoryStream();
+        using var mem = new MemoryStream();
 
-            await stream.CopyToAsync(mem);
+        await stream.CopyToAsync(mem);
 #if NET8_0
             return new X509Certificate2(mem.ToArray());
 #else
-            return X509CertificateLoader.LoadPkcs12(mem.ToArray(), null);
+        return X509CertificateLoader.LoadPkcs12(mem.ToArray(), null);
 #endif
-        }
+    }
 
-        private class PickyCertificateProvider : ICertificateProvider
+    private class PickyCertificateProvider : ICertificateProvider
+    {
+
+        private string Host { get; }
+
+        private X509Certificate2 Certificate { get; }
+
+        public PickyCertificateProvider(string host, X509Certificate2 certificate)
         {
-
-            private string Host { get; }
-
-            private X509Certificate2 Certificate { get; }
-
-            public PickyCertificateProvider(string host, X509Certificate2 certificate)
-            {
                 Host = host;
                 Certificate = certificate;
             }
 
-            public X509Certificate2? Provide(string? host)
-            {
+        public X509Certificate2? Provide(string? host)
+        {
                 return host == Host ? Certificate : null;
             }
-
-        }
 
     }
 
 }
-

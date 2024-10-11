@@ -9,36 +9,35 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Layouting;
 
-namespace GenHTTP.Testing.Acceptance.Engine
+namespace GenHTTP.Testing.Acceptance.Engine;
+
+[TestClass]
+public sealed class CompanionTests
 {
 
-    [TestClass]
-    public sealed class CompanionTests
+    private class CustomCompanion : IServerCompanion
     {
 
-        private class CustomCompanion : IServerCompanion
+        public bool Called { get; private set; }
+
+        public void OnRequestHandled(IRequest request, IResponse response)
         {
-
-            public bool Called { get; private set; }
-
-            public void OnRequestHandled(IRequest request, IResponse response)
-            {
                 Called = true;
             }
 
-            public void OnServerError(ServerErrorScope scope, IPAddress? client, Exception error)
-            {
+        public void OnServerError(ServerErrorScope scope, IPAddress? client, Exception error)
+        {
                 Called = true;
             }
 
-        }
+    }
 
-        /// <summary>
-        /// As a developer, I want to configure the server to easily log to the console.
-        /// </summary>
-        [TestMethod]
-        public async Task TestConsole()
-        {
+    /// <summary>
+    /// As a developer, I want to configure the server to easily log to the console.
+    /// </summary>
+    [TestMethod]
+    public async Task TestConsole()
+    {
             using var runner = new TestHost(Layout.Create());
 
             runner.Host.Console().Start();
@@ -46,12 +45,12 @@ namespace GenHTTP.Testing.Acceptance.Engine
             using var __ = await runner.GetResponseAsync();
         }
 
-        /// <summary>
-        /// As a developer, I want to add custom companions to get notified by server actions.
-        /// </summary>
-        [TestMethod]
-        public async Task TestCustom()
-        {
+    /// <summary>
+    /// As a developer, I want to add custom companions to get notified by server actions.
+    /// </summary>
+    [TestMethod]
+    public async Task TestCustom()
+    {
             using var runner = new TestHost(Layout.Create());
 
             var companion = new CustomCompanion();
@@ -66,7 +65,5 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             Assert.IsTrue(companion.Called);
         }
-
-    }
 
 }

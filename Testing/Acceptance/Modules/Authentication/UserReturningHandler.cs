@@ -7,37 +7,34 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Authentication;
 using GenHTTP.Modules.IO;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Authentication
+namespace GenHTTP.Testing.Acceptance.Modules.Authentication;
+
+public class UserReturningHandlerBuilder : IHandlerBuilder
 {
 
-    public class UserReturningHandlerBuilder : IHandlerBuilder
+    public IHandler Build(IHandler parent) => new UserReturningHandler(parent);
+
+}
+
+public class UserReturningHandler : IHandler
+{
+
+    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
+    public IHandler Parent { get; }
+
+    public UserReturningHandler(IHandler parent)
     {
-
-        public IHandler Build(IHandler parent) => new UserReturningHandler(parent);
-
-    }
-
-    public class UserReturningHandler : IHandler
-    {
-
-        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
-
-        public IHandler Parent { get; }
-
-        public UserReturningHandler(IHandler parent)
-        {
             Parent = parent;
         }
 
-        public ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             var content = request.GetUser<IUser>()?.DisplayName ?? throw new ProviderException(ResponseStatus.BadRequest, "No user!");
 
             return request.Respond()
                           .Content(content)
                           .BuildTask();
         }
-
-    }
 
 }

@@ -12,16 +12,15 @@ using GenHTTP.Modules.Layouting;
 
 using GenHTTP.Testing.Acceptance.Utilities;
 
-namespace GenHTTP.Testing.Acceptance.Modules.IO
+namespace GenHTTP.Testing.Acceptance.Modules.IO;
+
+[TestClass]
+public sealed class ResourceTest
 {
 
-    [TestClass]
-    public sealed class ResourceTest
+    [TestMethod]
+    public async Task TestStringResource()
     {
-
-        [TestMethod]
-        public async Task TestStringResource()
-        {
             var resource = Resource.FromString("Hello World")
                                    .Build();
 
@@ -37,9 +36,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             Assert.IsNull(resource.Name);
         }
 
-        [TestMethod]
-        public async Task TestFileResource()
-        {
+    [TestMethod]
+    public async Task TestFileResource()
+    {
             var file = Path.GetTempFileName();
 
             try
@@ -64,9 +63,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             }
         }
 
-        [TestMethod]
-        public async Task TestAssemblyResource()
-        {
+    [TestMethod]
+    public async Task TestAssemblyResource()
+    {
             var resource = Resource.FromAssembly("File.txt")
                                    .Build();
 
@@ -81,9 +80,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             Assert.IsNotNull(resource.Modified);
         }
 
-        [TestMethod]
-        public async Task TestAssemblyResourceRouting()
-        {
+    [TestMethod]
+    public async Task TestAssemblyResourceRouting()
+    {
             var layout = Layout.Create()
                                .Add("1", Content.From(Resource.FromAssembly("File.txt")))
                                .Add("2", Content.From(Resource.FromAssembly("OtherFile.txt")));
@@ -97,21 +96,21 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             Assert.AreEqual("This is other text!", await f2.GetContentAsync());
         }
 
-        [TestMethod]
-        public void TestStringMetaData()
-        {
+    [TestMethod]
+    public void TestStringMetaData()
+    {
             TestMetaData(Resource.FromString("Hello World"));
         }
 
-        [TestMethod]
-        public void TestEmbeddedMetaData()
-        {
+    [TestMethod]
+    public void TestEmbeddedMetaData()
+    {
             TestMetaData(Resource.FromAssembly("File.txt"));
         }
 
-        [TestMethod]
-        public void TestFileMetaData()
-        {
+    [TestMethod]
+    public void TestFileMetaData()
+    {
             var file = Path.GetTempFileName();
 
             FileUtil.WriteText(file, "blubb");
@@ -126,8 +125,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             }
         }
 
-        private static void TestMetaData<T>(IResourceBuilder<T> builder, bool modified = true) where T : IResourceBuilder<T>
-        {
+    private static void TestMetaData<T>(IResourceBuilder<T> builder, bool modified = true) where T : IResourceBuilder<T>
+    {
             var now = DateTime.UtcNow;
 
             builder.Name("MyFile.txt")
@@ -150,12 +149,10 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             }
         }
 
-        [TestMethod]
-        public void TestNonExistentFile()
-        {
+    [TestMethod]
+    public void TestNonExistentFile()
+    {
             Assert.ThrowsException<FileNotFoundException>(() => Resource.FromFile("blubb.txt").Build());
         }
-
-    }
 
 }

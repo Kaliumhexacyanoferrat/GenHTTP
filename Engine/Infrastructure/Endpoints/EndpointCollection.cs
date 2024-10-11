@@ -4,24 +4,23 @@ using System.Net;
 
 using GenHTTP.Api.Infrastructure;
 
-namespace GenHTTP.Engine.Infrastructure.Endpoints
+namespace GenHTTP.Engine.Infrastructure.Endpoints;
+
+internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPointCollection
 {
 
-    internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPointCollection
+    #region Get-/Setters
+
+    private IServer Server { get; }
+
+    private NetworkConfiguration NetworkConfiguration { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public EndPointCollection(IServer server, IEnumerable<EndPointConfiguration> configuration, NetworkConfiguration networkConfiguration)
     {
-
-        #region Get-/Setters
-
-        private IServer Server { get; }
-
-        private NetworkConfiguration NetworkConfiguration { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public EndPointCollection(IServer server, IEnumerable<EndPointConfiguration> configuration, NetworkConfiguration networkConfiguration)
-        {
             Server = server;
             NetworkConfiguration = networkConfiguration;
 
@@ -31,12 +30,12 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
             }
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        private EndPoint Start(EndPointConfiguration configuration)
-        {
+    private EndPoint Start(EndPointConfiguration configuration)
+    {
             var endpoint = new IPEndPoint(configuration.Address, configuration.Port);
 
             if (configuration.Security is null)
@@ -49,14 +48,14 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
             }
         }
 
-        #endregion
+    #endregion
 
-        #region IDisposable Support
+    #region IDisposable Support
 
-        private bool disposed = false;
+    private bool disposed = false;
 
-        public void Dispose()
-        {
+    public void Dispose()
+    {
             if (!disposed)
             {
                 foreach (IEndPoint endpoint in this)
@@ -79,8 +78,6 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
             GC.SuppressFinalize(this);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

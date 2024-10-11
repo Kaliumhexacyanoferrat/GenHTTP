@@ -9,33 +9,32 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Infrastructure;
 using GenHTTP.Engine.Utilities;
 
-namespace GenHTTP.Engine.Protocol
+namespace GenHTTP.Engine.Protocol;
+
+internal sealed class ResponseHandler
 {
+    private const string SERVER_HEADER = "Server";
 
-    internal sealed class ResponseHandler
+    private static readonly string NL = "\r\n";
+
+    private static readonly Encoding ASCII = Encoding.ASCII;
+
+    private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
+
+    #region Get-/Setters
+
+    private IServer Server { get; }
+
+    private Stream OutputStream { get; }
+
+    internal NetworkConfiguration Configuration { get; }
+
+    #endregion
+
+    #region Initialization
+
+    internal ResponseHandler(IServer server, Stream outputstream, NetworkConfiguration configuration)
     {
-        private const string SERVER_HEADER = "Server";
-
-        private static readonly string NL = "\r\n";
-
-        private static readonly Encoding ASCII = Encoding.ASCII;
-
-        private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
-
-        #region Get-/Setters
-
-        private IServer Server { get; }
-
-        private Stream OutputStream { get; }
-
-        internal NetworkConfiguration Configuration { get; }
-
-        #endregion
-
-        #region Initialization
-
-        internal ResponseHandler(IServer server, Stream outputstream, NetworkConfiguration configuration)
-        {
             Server = server;
 
             OutputStream = outputstream;
@@ -43,12 +42,12 @@ namespace GenHTTP.Engine.Protocol
             Configuration = configuration;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        internal async ValueTask<bool> Handle(IRequest? request, IResponse response, bool keepAlive, bool dataRemaining)
-        {
+    internal async ValueTask<bool> Handle(IRequest? request, IResponse response, bool keepAlive, bool dataRemaining)
+    {
             try
             {
                 await WriteStatus(request, response);
@@ -83,8 +82,8 @@ namespace GenHTTP.Engine.Protocol
             }
         }
 
-        private static bool ShouldSendBody(IRequest? request, IResponse response)
-        {
+    private static bool ShouldSendBody(IRequest? request, IResponse response)
+    {
             return ((request == null) || (request.Method.KnownMethod != RequestMethod.HEAD)) &&
                    (
                      (response.ContentLength > 0) || (response.Content?.Length > 0) ||
@@ -92,15 +91,15 @@ namespace GenHTTP.Engine.Protocol
                    );
         }
 
-        private ValueTask WriteStatus(IRequest? request, IResponse response)
-        {
+    private ValueTask WriteStatus(IRequest? request, IResponse response)
+    {
             var version = (request?.ProtocolType == HttpProtocol.Http_1_1) ? "1.1" : "1.0";
 
             return Write("HTTP/", version, " ", NumberStringCache.Convert(response.Status.RawStatus), " ", response.Status.Phrase, NL);
         }
 
-        private async ValueTask WriteHeader(IResponse response, bool keepAlive)
-        {
+    private async ValueTask WriteHeader(IResponse response, bool keepAlive)
+    {
             if (response.Headers.TryGetValue(SERVER_HEADER, out var server))
             {
                 await WriteHeaderLine(SERVER_HEADER, server);
@@ -174,8 +173,8 @@ namespace GenHTTP.Engine.Protocol
             }
         }
 
-        private async ValueTask WriteBody(IResponse response)
-        {
+    private async ValueTask WriteBody(IResponse response)
+    {
             if (response.Content is not null)
             {
                 if (response.ContentLength is null)
@@ -193,16 +192,16 @@ namespace GenHTTP.Engine.Protocol
             }
         }
 
-        #endregion
+    #endregion
 
-        #region Helpers
+    #region Helpers
 
-        private ValueTask WriteHeaderLine(string key, string value) => Write(key, ": ", value, NL);
+    private ValueTask WriteHeaderLine(string key, string value) => Write(key, ": ", value, NL);
 
-        private ValueTask WriteHeaderLine(string key, DateTime value) => WriteHeaderLine(key, value.ToUniversalTime().ToString("r"));
+    private ValueTask WriteHeaderLine(string key, DateTime value) => WriteHeaderLine(key, value.ToUniversalTime().ToString("r"));
 
-        private async ValueTask WriteCookie(Cookie cookie)
-        {
+    private async ValueTask WriteCookie(Cookie cookie)
+    {
             await Write("Set-Cookie: ", cookie.Name, "=", cookie.Value);
 
             if (cookie.MaxAge is not null)
@@ -213,17 +212,17 @@ namespace GenHTTP.Engine.Protocol
             await Write("; Path=/", NL);
         }
 
-        /// <summary>
-        /// Writes the given parts to the output stream. 
-        /// </summary>
-        /// <remarks>
-        /// Reduces the number of writes to the output stream by collecting
-        /// data to be written. Cannot use params keyword because it allocates
-        /// an array.
-        /// </remarks>
-        private async ValueTask Write(string part1, string? part2 = null, string? part3 = null, 
-            string? part4 = null, string? part5 = null, string? part6 = null, string? part7 = null)
-        {
+    /// <summary>
+    /// Writes the given parts to the output stream. 
+    /// </summary>
+    /// <remarks>
+    /// Reduces the number of writes to the output stream by collecting
+    /// data to be written. Cannot use params keyword because it allocates
+    /// an array.
+    /// </remarks>
+    private async ValueTask Write(string part1, string? part2 = null, string? part3 = null, 
+        string? part4 = null, string? part5 = null, string? part6 = null, string? part7 = null)
+    {
             var length = part1.Length + (part2?.Length ?? 0) + (part3?.Length ?? 0) + (part4?.Length ?? 0)
                 + (part5?.Length ?? 0) + (part6?.Length ?? 0) + (part7?.Length ?? 0);
 
@@ -271,8 +270,6 @@ namespace GenHTTP.Engine.Protocol
             }
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

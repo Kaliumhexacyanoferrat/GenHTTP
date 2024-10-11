@@ -2,14 +2,13 @@
 using System.IO;
 using System.Reflection;
 
-namespace GenHTTP.Modules.IO.Embedded
+namespace GenHTTP.Modules.IO.Embedded;
+
+internal static class Extensions
 {
 
-    internal static class Extensions
+    internal static DateTime GetModificationDate(this Assembly assembly)
     {
-
-        internal static DateTime GetModificationDate(this Assembly assembly)
-        {
 #pragma warning disable IL3000
             var location = assembly.Location;
 
@@ -23,7 +22,5 @@ namespace GenHTTP.Modules.IO.Embedded
             return DateTime.UtcNow;
 #pragma warning restore IL3000
         }
-
-    }
 
 }

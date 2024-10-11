@@ -1,26 +1,23 @@
 ﻿using GenHTTP.Api.Infrastructure;
 
-namespace GenHTTP.Api.Protocol
+namespace GenHTTP.Api.Protocol;
+
+/// <summary>
+/// Allows to configure a HTTP response to be send.
+/// </summary>
+public interface IResponseBuilder : IBuilder<IResponse>, IResponseModification<IResponseBuilder>
 {
 
     /// <summary>
-    /// Allows to configure a HTTP response to be send.
+    /// Specifies the content to be sent to the client.
     /// </summary>
-    public interface IResponseBuilder : IBuilder<IResponse>, IResponseModification<IResponseBuilder>
-    {
+    /// <param name="content">The content to be send to the client</param>
+    IResponseBuilder Content(IResponseContent content);
 
-        /// <summary>
-        /// Specifies the content to be sent to the client.
-        /// </summary>
-        /// <param name="content">The content to be send to the client</param>
-        IResponseBuilder Content(IResponseContent content);
-
-        /// <summary>
-        /// Specifies the length of the content stream, if known.
-        /// </summary>
-        /// <param name="length">The length of the content stream</param>
-        IResponseBuilder Length(ulong length);
-
-    }
+    /// <summary>
+    /// Specifies the length of the content stream, if known.
+    /// </summary>
+    /// <param name="length">The length of the content stream</param>
+    IResponseBuilder Length(ulong length);
 
 }

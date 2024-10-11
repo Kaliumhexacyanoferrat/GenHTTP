@@ -4,26 +4,25 @@ using GenHTTP.Api.Protocol;
 
 using PooledAwait;
 
-namespace GenHTTP.Engine.Protocol.Parser
+namespace GenHTTP.Engine.Protocol.Parser;
+
+internal sealed class RequestScanner
 {
 
-    internal sealed class RequestScanner
+    internal RequestToken Current { get; private set; }
+
+    internal ReadOnlySequence<byte> Value { get; private set; }
+
+    internal ScannerMode Mode { get; set; }
+
+    internal RequestScanner()
     {
-
-        internal RequestToken Current { get; private set; }
-
-        internal ReadOnlySequence<byte> Value { get; private set; }
-
-        internal ScannerMode Mode { get; set; }
-
-        internal RequestScanner()
-        {
             Current = RequestToken.None;
             Mode = ScannerMode.Words;
         }
 
-        internal async PooledValueTask<bool> Next(RequestBuffer buffer, RequestToken expectedToken, bool allowNone = false, bool includeWhitespace = false)
-        {
+    internal async PooledValueTask<bool> Next(RequestBuffer buffer, RequestToken expectedToken, bool allowNone = false, bool includeWhitespace = false)
+    {
             var read = await Next(buffer, forceRead: false, includeWhitespace: includeWhitespace);
 
             if (allowNone && (read == RequestToken.None))
@@ -39,8 +38,8 @@ namespace GenHTTP.Engine.Protocol.Parser
             return true;
         }
 
-        internal async PooledValueTask<RequestToken> Next(RequestBuffer buffer, bool forceRead = false, bool includeWhitespace = false)
-        {
+    internal async PooledValueTask<RequestToken> Next(RequestBuffer buffer, bool forceRead = false, bool includeWhitespace = false)
+    {
             // ensure we have data to be scanned
             if (await Fill(buffer, forceRead))
             {
@@ -63,8 +62,8 @@ namespace GenHTTP.Engine.Protocol.Parser
             }
         }
 
-        private RequestToken? ScanData(RequestBuffer buffer, bool includeWhitespace = false)
-        {
+    private RequestToken? ScanData(RequestBuffer buffer, bool includeWhitespace = false)
+    {
             if (SkipWhitespace(buffer) && includeWhitespace)
             {
                 Value = new();
@@ -115,8 +114,8 @@ namespace GenHTTP.Engine.Protocol.Parser
             return null;
         }
 
-        private static bool SkipWhitespace(RequestBuffer buffer)
-        {
+    private static bool SkipWhitespace(RequestBuffer buffer)
+    {
             var count = 0;
             var done = false;
 
@@ -149,8 +148,8 @@ namespace GenHTTP.Engine.Protocol.Parser
             return (count > 0);
         }
 
-        private static bool IsNewLine(RequestBuffer buffer)
-        {
+    private static bool IsNewLine(RequestBuffer buffer)
+    {
             if (buffer.Data.FirstSpan[0] == (byte)'\r')
             {
                 buffer.Advance(2);
@@ -160,8 +159,8 @@ namespace GenHTTP.Engine.Protocol.Parser
             return false;
         }
 
-        private bool ReadTo(RequestBuffer buffer, char delimiter, char? boundary = null, byte skipAdditionally = 0)
-        {
+    private bool ReadTo(RequestBuffer buffer, char delimiter, char? boundary = null, byte skipAdditionally = 0)
+    {
             var reader = new SequenceReader<byte>(buffer.Data);
 
             if (reader.TryReadTo(out ReadOnlySequence<byte> value, (byte)delimiter, true))
@@ -188,8 +187,8 @@ namespace GenHTTP.Engine.Protocol.Parser
             return false;
         }
 
-        private static async PooledValueTask<bool> Fill(RequestBuffer buffer, bool force = false)
-        {
+    private static async PooledValueTask<bool> Fill(RequestBuffer buffer, bool force = false)
+    {
             if (buffer.ReadRequired || force)
             {
                 await buffer.ReadAsync(force);
@@ -197,7 +196,5 @@ namespace GenHTTP.Engine.Protocol.Parser
 
             return !buffer.Data.IsEmpty;
         }
-
-    }
 
 }

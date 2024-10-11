@@ -2,14 +2,11 @@
 
 using GenHTTP.Api.Content.IO;
 
-namespace GenHTTP.Modules.IO.Embedded
+namespace GenHTTP.Modules.IO.Embedded;
+
+internal class EmbeddedResourceTree : EmbeddedResourceContainer, IResourceTree
 {
 
-    internal class EmbeddedResourceTree : EmbeddedResourceContainer, IResourceTree
-    {
-
-        internal EmbeddedResourceTree(Assembly source, string root) : base(source, root) { }
-
-    }
+    internal EmbeddedResourceTree(Assembly source, string root) : base(source, root) { }
 
 }

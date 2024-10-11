@@ -5,33 +5,32 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Content.IO;
 
-namespace GenHTTP.Modules.IO.FileSystem
+namespace GenHTTP.Modules.IO.FileSystem;
+
+internal class DirectoryContainer : IResourceContainer
 {
 
-    internal class DirectoryContainer : IResourceContainer
+    #region Get-/Setters
+
+    protected DirectoryInfo Directory { get; }
+
+    public DateTime? Modified => Directory.LastWriteTimeUtc;
+
+    #endregion
+
+    #region Initialization
+
+    protected DirectoryContainer(DirectoryInfo directory)
     {
-
-        #region Get-/Setters
-
-        protected DirectoryInfo Directory { get; }
-
-        public DateTime? Modified => Directory.LastWriteTimeUtc;
-
-        #endregion
-
-        #region Initialization
-
-        protected DirectoryContainer(DirectoryInfo directory)
-        {
             Directory = directory;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public ValueTask<IReadOnlyCollection<IResourceNode>> GetNodes()
-        {
+    public ValueTask<IReadOnlyCollection<IResourceNode>> GetNodes()
+    {
             var result = new List<IResourceNode>();
 
             foreach (var directory in Directory.EnumerateDirectories())
@@ -42,8 +41,8 @@ namespace GenHTTP.Modules.IO.FileSystem
             return new(result);
         }
 
-        public ValueTask<IReadOnlyCollection<IResource>> GetResources()
-        {
+    public ValueTask<IReadOnlyCollection<IResource>> GetResources()
+    {
             var result = new List<IResource>();
 
             foreach (var file in Directory.EnumerateFiles())
@@ -54,8 +53,8 @@ namespace GenHTTP.Modules.IO.FileSystem
             return new(result);
         }
 
-        public ValueTask<IResourceNode?> TryGetNodeAsync(string name)
-        {
+    public ValueTask<IResourceNode?> TryGetNodeAsync(string name)
+    {
             var path = Path.Combine(Directory.FullName, name);
 
             var directory = new DirectoryInfo(path);
@@ -68,8 +67,8 @@ namespace GenHTTP.Modules.IO.FileSystem
             return new();
         }
 
-        public ValueTask<IResource?> TryGetResourceAsync(string name)
-        {
+    public ValueTask<IResource?> TryGetResourceAsync(string name)
+    {
             var path = Path.Combine(Directory.FullName, name);
 
             var file = new FileInfo(path);
@@ -82,8 +81,6 @@ namespace GenHTTP.Modules.IO.FileSystem
             return new();
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

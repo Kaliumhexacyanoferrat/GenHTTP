@@ -5,44 +5,43 @@ using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.IO.FileSystem
+namespace GenHTTP.Modules.IO.FileSystem;
+
+public sealed class FileResourceBuilder : IResourceBuilder<FileResourceBuilder>
 {
+    private FileInfo? _File;
 
-    public sealed class FileResourceBuilder : IResourceBuilder<FileResourceBuilder>
+    private string? _Name;
+
+    private FlexibleContentType? _Type;
+
+    #region Functionality
+
+    public FileResourceBuilder File(FileInfo file)
     {
-        private FileInfo? _File;
-
-        private string? _Name;
-
-        private FlexibleContentType? _Type;
-
-        #region Functionality
-
-        public FileResourceBuilder File(FileInfo file)
-        {
             _File = file;
             return this;
         }
 
-        public FileResourceBuilder Name(string name)
-        {
+    public FileResourceBuilder Name(string name)
+    {
             _Name = name;
             return this;
         }
 
-        public FileResourceBuilder Type(FlexibleContentType contentType)
-        {
+    public FileResourceBuilder Type(FlexibleContentType contentType)
+    {
             _Type = contentType;
             return this;
         }
 
-        public FileResourceBuilder Modified(DateTime modified)
-        {
+    public FileResourceBuilder Modified(DateTime modified)
+    {
             throw new NotSupportedException("Modification date of file resources cannot be changed");
         }
 
-        public IResource Build()
-        {
+    public IResource Build()
+    {
             var file = _File ?? throw new BuilderMissingPropertyException("file");
 
             if (!file.Exists)
@@ -53,8 +52,6 @@ namespace GenHTTP.Modules.IO.FileSystem
             return new FileResource(file, _Name, _Type);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

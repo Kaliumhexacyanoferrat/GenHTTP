@@ -6,16 +6,15 @@ using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Layouting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules
+namespace GenHTTP.Testing.Acceptance.Modules;
+
+[TestClass]
+public sealed class RedirectTests
 {
 
-    [TestClass]
-    public sealed class RedirectTests
+    [TestMethod]
+    public async Task TestTemporary()
     {
-
-        [TestMethod]
-        public async Task TestTemporary()
-        {
             var redirect = Redirect.To("https://google.de/", true);
 
             using var runner = TestHost.Run(redirect);
@@ -26,9 +25,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
             Assert.AreEqual("https://google.de/", response.GetHeader("Location"));
         }
 
-        [TestMethod]
-        public async Task TestTemporaryPost()
-        {
+    [TestMethod]
+    public async Task TestTemporaryPost()
+    {
             var redirect = Redirect.To("https://google.de/", true);
 
             using var runner = TestHost.Run(redirect);
@@ -42,9 +41,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
             Assert.AreEqual("https://google.de/", response.GetHeader("Location"));
         }
 
-        [TestMethod]
-        public async Task TestPermanent()
-        {
+    [TestMethod]
+    public async Task TestPermanent()
+    {
             var redirect = Redirect.To("https://google.de/");
 
             using var runner = TestHost.Run(redirect);
@@ -55,9 +54,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
             Assert.AreEqual("https://google.de/", response.GetHeader("Location"));
         }
 
-        [TestMethod]
-        public async Task TestPermanentPost()
-        {
+    [TestMethod]
+    public async Task TestPermanentPost()
+    {
             var redirect = Redirect.To("https://google.de/", false);
 
             using var runner = TestHost.Run(redirect);
@@ -71,9 +70,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
             Assert.AreEqual("https://google.de/", response.GetHeader("Location"));
         }
 
-        [TestMethod]
-        public async Task TestAbsoluteRoute()
-        {
+    [TestMethod]
+    public async Task TestAbsoluteRoute()
+    {
             var layout = Layout.Create()
                                .Add("redirect", Redirect.To("/me/to/"));
 
@@ -83,7 +82,5 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             Assert.AreEqual("/me/to/", new Uri(response.GetHeader("Location")!).AbsolutePath);
         }
-
-    }
 
 }

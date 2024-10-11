@@ -6,34 +6,33 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Pages;
 
-namespace GenHTTP.Modules.DirectoryBrowsing.Provider
+namespace GenHTTP.Modules.DirectoryBrowsing.Provider;
+
+public sealed class ListingProvider : IHandler
 {
 
-    public sealed class ListingProvider : IHandler
+    #region Get-/Setters
+
+    public IHandler Parent { get; }
+
+    public IResourceContainer Container { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public ListingProvider(IHandler parent, IResourceContainer container)
     {
-
-        #region Get-/Setters
-
-        public IHandler Parent { get; }
-
-        public IResourceContainer Container { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public ListingProvider(IHandler parent, IResourceContainer container)
-        {
             Parent = parent;
             Container = container;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             var model = new ListingModel(Container, !request.Target.Ended);
 
             var content = await ListingRenderer.RenderAsync(model);
@@ -43,10 +42,8 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
             return request.GetPage(page).Build();
         }
 
-        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        #endregion
-
-    }
+    #endregion
 
 }

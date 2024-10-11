@@ -1,27 +1,24 @@
 ﻿using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Reflection
+namespace GenHTTP.Modules.Reflection;
+
+/// <summary>
+/// Allows the framework to unwrap <see cref="Result{T}" />
+/// instances.
+/// </summary>
+internal interface IResultWrapper
 {
 
     /// <summary>
-    /// Allows the framework to unwrap <see cref="Result{T}" />
-    /// instances.
+    /// The actual result to be returned.
     /// </summary>
-    internal interface IResultWrapper
-    {
+    object? Payload { get; }
 
-        /// <summary>
-        /// The actual result to be returned.
-        /// </summary>
-        object? Payload { get; }
-
-        /// <summary>
-        /// Performs the configured modifications to the response
-        /// on the given builder.
-        /// </summary>
-        /// <param name="builder">The response builder to manipulate</param>
-        void Apply(IResponseBuilder builder);
-
-    }
+    /// <summary>
+    /// Performs the configured modifications to the response
+    /// on the given builder.
+    /// </summary>
+    /// <param name="builder">The response builder to manipulate</param>
+    void Apply(IResponseBuilder builder);
 
 }

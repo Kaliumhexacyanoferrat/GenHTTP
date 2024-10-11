@@ -8,18 +8,17 @@ using GenHTTP.Modules.Reflection;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Reflection
+namespace GenHTTP.Testing.Acceptance.Modules.Reflection;
+
+[TestClass]
+public sealed class ParameterTests
 {
 
-    [TestClass]
-    public sealed class ParameterTests
+    #region Tests
+
+    [TestMethod]
+    public async Task TestCanReadSimpleTypesFromBody()
     {
-
-        #region Tests
-
-        [TestMethod]
-        public async Task TestCanReadSimpleTypesFromBody()
-        {
             var inline = Inline.Create()
                                .Post(([FromBody] string body1, [FromBody] string body2) => $"{body1}-{body2}");
 
@@ -32,9 +31,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Reflection
             Assert.AreEqual("1-1", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestCanPassEmptyString()
-        {
+    [TestMethod]
+    public async Task TestCanPassEmptyString()
+    {
             var inline = Inline.Create()
                                .Post(([FromBody] int number) => number);
 
@@ -47,9 +46,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Reflection
             Assert.AreEqual("0", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestCanAccessBothBodyAndStream()
-        {
+    [TestMethod]
+    public async Task TestCanAccessBothBodyAndStream()
+    {
             var inline = Inline.Create()
                                .Post(([FromBody] int number, Stream body) =>
                                {
@@ -66,9 +65,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Reflection
             Assert.AreEqual("1 - 1", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestConversionError()
-        {
+    [TestMethod]
+    public async Task TestConversionError()
+    {
             var inline = Inline.Create()
                                .Post(([FromBody] int number) => number);
 
@@ -79,8 +78,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.Reflection
             await response.AssertStatusAsync(HttpStatusCode.BadRequest);
         }
 
-        private static Task<HttpResponseMessage> PostAsync(TestHost host, string body)
-        {
+    private static Task<HttpResponseMessage> PostAsync(TestHost host, string body)
+    {
             var request = host.GetRequest();
 
             request.Method = HttpMethod.Post;
@@ -89,8 +88,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.Reflection
             return host.GetResponseAsync(request);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

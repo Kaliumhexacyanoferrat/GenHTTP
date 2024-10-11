@@ -5,16 +5,15 @@ using GenHTTP.Modules.Security;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Security
+namespace GenHTTP.Testing.Acceptance.Modules.Security;
+
+[TestClass]
+public sealed class ExtensionTests
 {
 
-    [TestClass]
-    public sealed class ExtensionTests
+    [TestMethod]
+    public async Task ServerCanBeHardened()
     {
-
-        [TestMethod]
-        public async Task ServerCanBeHardened()
-        {
             using var runner = new TestHost(Layout.Create());
 
             runner.Host.Handler(Content.From(Resource.FromString("Hello Eve!")))
@@ -25,7 +24,5 @@ namespace GenHTTP.Testing.Acceptance.Modules.Security
 
             Assert.AreEqual("nosniff", response.GetHeader("X-Content-Type-Options"));
         }
-
-    }
 
 }

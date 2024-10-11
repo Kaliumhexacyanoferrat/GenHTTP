@@ -9,18 +9,17 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
-namespace GenHTTP.Testing.Acceptance
+namespace GenHTTP.Testing.Acceptance;
+
+public static class TestExtensions
 {
 
-    public static class TestExtensions
+    public static IHandlerBuilder<HandlerBuilder> Wrap(this IHandler handler) => new HandlerBuilder(handler);
+
+    public static string? GetETag(this HttpResponseMessage response) => response.GetHeader("ETag");
+
+    public static async Task<HashSet<string>> GetSitemap(this HttpResponseMessage response)
     {
-
-        public static IHandlerBuilder<HandlerBuilder> Wrap(this IHandler handler) => new HandlerBuilder(handler);
-
-        public static string? GetETag(this HttpResponseMessage response) => response.GetHeader("ETag");
-
-        public static async Task<HashSet<string>> GetSitemap(this HttpResponseMessage response)
-        {
             var content = await response.GetContentAsync();
 
             var sitemap = XDocument.Parse(content);
@@ -34,11 +33,9 @@ namespace GenHTTP.Testing.Acceptance
                                 .ToHashSet() ?? new HashSet<string>();
         }
 
-        public static DateTime WithoutMS(this DateTime date)
-        {
+    public static DateTime WithoutMS(this DateTime date)
+    {
             return new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Kind);
-        }        
-
-    }
+        }
 
 }

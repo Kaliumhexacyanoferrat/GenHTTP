@@ -7,18 +7,17 @@ using GenHTTP.Modules.Caching;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Caching
+namespace GenHTTP.Testing.Acceptance.Modules.Caching;
+
+public record CachedEntry(string Data, DateTime? Date = null, int? Int = null);
+
+[TestClass]
+public class CacheTests
 {
 
-    public record CachedEntry(string Data, DateTime? Date = null, int? Int = null);
-
-    [TestClass]
-    public class CacheTests
+    [TestMethod]
+    public async Task TestHit()
     {
-
-        [TestMethod]
-        public async Task TestHit()
-        {
             foreach (var cache in GetCaches<CachedEntry>())
             {
                 var now = DateTime.Now;
@@ -28,16 +27,16 @@ namespace GenHTTP.Testing.Acceptance.Modules.Caching
                 Assert.AreEqual(1, (await cache.GetEntriesAsync("k")).Length);
 
                 var hit = (await cache.GetEntryAsync("k", "v"))!;
-               
+
                 Assert.AreEqual("1", hit.Data);
                 Assert.AreEqual(now, hit.Date);
                 Assert.AreEqual(42, hit.Int);
             }
         }
 
-        [TestMethod]
-        public async Task TestMiss()
-        {
+    [TestMethod]
+    public async Task TestMiss()
+    {
             foreach (var cache in GetCaches<CachedEntry>())
             {
                 Assert.AreEqual(0, (await cache.GetEntriesAsync("k")).Length);
@@ -46,9 +45,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Caching
             }
         }
 
-        [TestMethod]
-        public async Task TestVariantMiss()
-        {
+    [TestMethod]
+    public async Task TestVariantMiss()
+    {
             foreach (var cache in GetCaches<CachedEntry>())
             {
                 await cache.StoreAsync("k", "v1", new CachedEntry("1"));
@@ -57,9 +56,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Caching
             }
         }
 
-        [TestMethod]
-        public async Task TestRemoval()
-        {
+    [TestMethod]
+    public async Task TestRemoval()
+    {
             foreach (var cache in GetCaches<CachedEntry>())
             {
                 await cache.StoreAsync("k", "v", new CachedEntry("1"));
@@ -72,9 +71,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Caching
             }
         }
 
-        [TestMethod]
-        public async Task TestStreaming()
-        {
+    [TestMethod]
+    public async Task TestStreaming()
+    {
             foreach (var cache in GetCaches<Stream>())
             {
                 using var stream = new MemoryStream(new byte[] { 1 });
@@ -90,9 +89,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Caching
             }
         }
 
-        [TestMethod]
-        public async Task TestStreamingOverwrite()
-        {
+    [TestMethod]
+    public async Task TestStreamingOverwrite()
+    {
             foreach (var cache in GetCaches<Stream>())
             {
                 using var stream = new MemoryStream(new byte[] { 1 });
@@ -105,9 +104,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Caching
             }
         }
 
-        [TestMethod]
-        public async Task TestDirectStreaming()
-        {
+    [TestMethod]
+    public async Task TestDirectStreaming()
+    {
             foreach (var cache in GetCaches<Stream>())
             {
                 await cache.StoreDirectAsync("k", "v", (s) => s.WriteAsync(new byte[] { 1 }));
@@ -120,9 +119,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Caching
             }
         }
 
-        [TestMethod]
-        public async Task TestDirectStreamingOverwrite()
-        {
+    [TestMethod]
+    public async Task TestDirectStreamingOverwrite()
+    {
             foreach (var cache in GetCaches<Stream>())
             {
                 await cache.StoreDirectAsync("k", "v", (s) => s.WriteAsync(new byte[] { 1 }));
@@ -133,9 +132,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Caching
             }
         }
 
-        [TestMethod]
-        public async Task TestStreamingMiss()
-        {
+    [TestMethod]
+    public async Task TestStreamingMiss()
+    {
             foreach (var cache in GetCaches<Stream>())
             {
                 Assert.AreEqual(0, (await cache.GetEntriesAsync("k")).Length);
@@ -144,15 +143,13 @@ namespace GenHTTP.Testing.Acceptance.Modules.Caching
             }
         }
 
-        private static ICache<T>[] GetCaches<T>()
-        {
+    private static ICache<T>[] GetCaches<T>()
+    {
             return new ICache<T>[]
             {
                 Cache.Memory<T>().Build(),
                 Cache.TemporaryFiles<T>().Build()
             };
         }
-
-    }
 
 }

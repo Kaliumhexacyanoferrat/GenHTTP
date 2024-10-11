@@ -5,44 +5,41 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
 
-namespace GenHTTP.Modules.LoadBalancing.Provider
+namespace GenHTTP.Modules.LoadBalancing.Provider;
+
+public sealed class LoadBalancerRedirectionHandler : IHandler
 {
 
-    public sealed class LoadBalancerRedirectionHandler : IHandler
+    #region Get-/Setters
+
+    public IHandler Parent { get; }
+
+    private string Root { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public LoadBalancerRedirectionHandler(IHandler parent, string root)
     {
-
-        #region Get-/Setters
-
-        public IHandler Parent { get; }
-
-        private string Root { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public LoadBalancerRedirectionHandler(IHandler parent, string root)
-        {
             Parent = parent;
 
             Root = root.EndsWith('/') ? root : $"{root}/";
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
         
-        public ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             return Redirect.To(Root + request.Target.Current, true)
                            .Build(this)
                            .HandleAsync(request);
         }
 
-        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        #endregion
-
-    }
+    #endregion
 
 }

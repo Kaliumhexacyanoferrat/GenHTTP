@@ -2,9 +2,6 @@
 
 using GenHTTP.Modules.Reflection;
 
-namespace GenHTTP.Modules.Functional.Provider
-{
+namespace GenHTTP.Modules.Functional.Provider;
 
-    public record InlineFunction(string? Path, IMethodConfiguration Configuration, Delegate Delegate);
-
-}
+public record InlineFunction(string? Path, IMethodConfiguration Configuration, Delegate Delegate);

@@ -11,24 +11,23 @@ using GenHTTP.Modules.IO;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Engine
+namespace GenHTTP.Testing.Acceptance.Engine;
+
+[TestClass]
+public sealed class ProtocolTests
 {
 
-    [TestClass]
-    public sealed class ProtocolTests
+    private class ValueRecorder : IHandler
     {
 
-        private class ValueRecorder : IHandler
+        public string? Value { get; private set; }
+
+        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
+        public IHandler Parent => throw new NotImplementedException();
+
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-
-            public string? Value { get; private set; }
-
-            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
-
-            public IHandler Parent => throw new NotImplementedException();
-
-            public ValueTask<IResponse?> HandleAsync(IRequest request)
-            {
                 if (request.Content is not null)
                 {
                     using var reader = new StreamReader(request.Content);
@@ -38,17 +37,17 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 return new ValueTask<IResponse?>(request.Respond().Build());
             }
 
-        }
+    }
 
-        private class ContentLengthResponder : IHandler
+    private class ContentLengthResponder : IHandler
+    {
+
+        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
+        public IHandler Parent => throw new NotImplementedException();
+
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-
-            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
-
-            public IHandler Parent => throw new NotImplementedException();
-
-            public ValueTask<IResponse?> HandleAsync(IRequest request)
-            {
                 var content = request.Content?.Length.ToString() ?? "No Content";
 
                 return request.Respond()
@@ -57,14 +56,14 @@ namespace GenHTTP.Testing.Acceptance.Engine
                               .BuildTask();
             }
 
-        }
+    }
 
-        /// <summary>
-        /// As a client I can stream data to the server.
-        /// </summary>
-        [TestMethod]
-        public async Task TestPost()
-        {
+    /// <summary>
+    /// As a client I can stream data to the server.
+    /// </summary>
+    [TestMethod]
+    public async Task TestPost()
+    {
             var recorder = new ValueRecorder();
 
             var str = "From client with ❤";
@@ -81,12 +80,12 @@ namespace GenHTTP.Testing.Acceptance.Engine
             Assert.AreEqual(str, recorder.Value);
         }
 
-        /// <summary>
-        /// As a client I can submit large data.
-        /// </summary>
-        [TestMethod]
-        public async Task TestPutLarge()
-        {
+    /// <summary>
+    /// As a client I can submit large data.
+    /// </summary>
+    [TestMethod]
+    public async Task TestPutLarge()
+    {
             using var runner = TestHost.Run(new ContentLengthResponder().Wrap());
 
             using var content = new MemoryStream();
@@ -112,7 +111,5 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             Assert.AreEqual("1310720", await response.GetContentAsync());
         }
-
-    }
 
 }

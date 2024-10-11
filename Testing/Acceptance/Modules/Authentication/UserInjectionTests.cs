@@ -9,18 +9,17 @@ using GenHTTP.Modules.Reflection.Injectors;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Authentication
+namespace GenHTTP.Testing.Acceptance.Modules.Authentication;
+
+[TestClass]
+public class UserInjectionTests
 {
 
-    [TestClass]
-    public class UserInjectionTests
+    #region Tests
+
+    [TestMethod]
+    public async Task TestUserInjected()
     {
-
-        #region Tests
-
-        [TestMethod]
-        public async Task TestUserInjected()
-        {
             using var runner = GetRunner();
 
             using var client = TestHost.GetClient(creds: new NetworkCredential("abc", "def"));
@@ -31,9 +30,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             Assert.AreEqual("abc", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestNoUser()
-        {
+    [TestMethod]
+    public async Task TestNoUser()
+    {
             using var runner = GetRunner();
 
             using var response = await runner.GetResponseAsync();
@@ -41,12 +40,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             await response.AssertStatusAsync(HttpStatusCode.Unauthorized);
         }
 
-        #endregion
+    #endregion
 
-        #region Helpers
+    #region Helpers
 
-        private static TestHost GetRunner()
-        {
+    private static TestHost GetRunner()
+    {
             var auth = BasicAuthentication.Create()
                                           .Add("abc", "def");
 
@@ -61,8 +60,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             return TestHost.Run(content);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

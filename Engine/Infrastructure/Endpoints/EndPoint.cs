@@ -9,40 +9,39 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Engine.Protocol;
 using PooledAwait;
 
-namespace GenHTTP.Engine.Infrastructure.Endpoints
+namespace GenHTTP.Engine.Infrastructure.Endpoints;
+
+internal abstract class EndPoint : IEndPoint
 {
 
-    internal abstract class EndPoint : IEndPoint
+    #region Get-/Setters
+
+    protected IServer Server { get; }
+
+    protected NetworkConfiguration Configuration { get; }
+
+    private Task Task { get; set; }
+
+    private IPEndPoint Endpoint { get; }
+
+    private Socket Socket { get; }
+
+    #endregion
+
+    #region Basic Information
+
+    public IPAddress IPAddress { get; }
+
+    public ushort Port { get; }
+
+    public abstract bool Secure { get; }
+
+    #endregion
+
+    #region Initialization
+
+    protected EndPoint(IServer server, IPEndPoint endPoint, NetworkConfiguration configuration)
     {
-
-        #region Get-/Setters
-
-        protected IServer Server { get; }
-
-        protected NetworkConfiguration Configuration { get; }
-
-        private Task Task { get; set; }
-
-        private IPEndPoint Endpoint { get; }
-
-        private Socket Socket { get; }
-
-        #endregion
-
-        #region Basic Information
-
-        public IPAddress IPAddress { get; }
-
-        public ushort Port { get; }
-
-        public abstract bool Secure { get; }
-
-        #endregion
-
-        #region Initialization
-
-        protected EndPoint(IServer server, IPEndPoint endPoint, NetworkConfiguration configuration)
-        {
             Server = server;
 
             Endpoint = endPoint;
@@ -66,12 +65,12 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
             Task = Task.Run(() => Listen());
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        private async Task Listen()
-        {
+    private async Task Listen()
+    {
             try
             {
                 do
@@ -89,30 +88,30 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
             }
         }
 
-        private void Handle(Socket client)
-        {
+    private void Handle(Socket client)
+    {
             using var _ = ExecutionContext.SuppressFlow();
 
             Task.Run(() => Accept(client));
         }
 
-        protected abstract PooledValueTask Accept(Socket client);
+    protected abstract PooledValueTask Accept(Socket client);
 
-        protected PooledValueTask Handle(Socket client, Stream inputStream)
-        {
+    protected PooledValueTask Handle(Socket client, Stream inputStream)
+    {
             client.NoDelay = true;
 
             return new ClientHandler(client, inputStream, Server, this, Configuration).Run();
         }
 
-        #endregion
+    #endregion
 
-        #region IDisposable Support
+    #region IDisposable Support
 
-        private bool disposed = false, shuttingDown = false;
+    private bool disposed = false, shuttingDown = false;
 
-        protected virtual void Dispose(bool disposing)
-        {
+    protected virtual void Dispose(bool disposing)
+    {
             shuttingDown = true;
 
             if (!disposed)
@@ -136,14 +135,12 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
             }
         }
 
-        public void Dispose()
-        {
+    public void Dispose()
+    {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

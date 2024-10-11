@@ -1,34 +1,31 @@
 ﻿using System;
 
-namespace GenHTTP.Api.Infrastructure
+namespace GenHTTP.Api.Infrastructure;
+
+/// <summary>
+/// Will be thrown, if a builder is missing a required property
+/// that is needed to create the target instance.
+/// </summary>
+[Serializable]
+public class BuilderMissingPropertyException : Exception
 {
 
+    #region Get-/Setters
+
     /// <summary>
-    /// Will be thrown, if a builder is missing a required property
-    /// that is needed to create the target instance.
+    /// The name of the property which has not been set.
     /// </summary>
-    [Serializable]
-    public class BuilderMissingPropertyException : Exception
+    public string Property { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public BuilderMissingPropertyException(string property) : base($"Missing required property '{property}'")
     {
-
-        #region Get-/Setters
-
-        /// <summary>
-        /// The name of the property which has not been set.
-        /// </summary>
-        public string Property { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public BuilderMissingPropertyException(string property) : base($"Missing required property '{property}'")
-        {
             Property = property;
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

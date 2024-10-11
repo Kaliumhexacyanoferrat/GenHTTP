@@ -1,40 +1,39 @@
 ﻿using System.Collections.Generic;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Conversion.Serializers
+namespace GenHTTP.Modules.Conversion.Serializers;
+
+/// <summary>
+/// Registers formats that can be used to serialize and
+/// deserialize objects sent to or received from a
+/// service oriented handler.
+/// </summary>
+public sealed class SerializationRegistry
 {
 
-    /// <summary>
-    /// Registers formats that can be used to serialize and
-    /// deserialize objects sent to or received from a 
-    /// service oriented handler.
-    /// </summary>
-    public sealed class SerializationRegistry
+    #region Get-/Setters
+
+    private FlexibleContentType Default { get; }
+
+    private Dictionary<FlexibleContentType, ISerializationFormat> Formats { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public SerializationRegistry(FlexibleContentType defaultType,
+        Dictionary<FlexibleContentType, ISerializationFormat> formats)
     {
-
-        #region Get-/Setters
-
-        private FlexibleContentType Default { get; }
-
-        private Dictionary<FlexibleContentType, ISerializationFormat> Formats { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public SerializationRegistry(FlexibleContentType defaultType,
-                                     Dictionary<FlexibleContentType, ISerializationFormat> formats)
-        {
             Default = defaultType;
             Formats = formats;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public ISerializationFormat? GetDeserialization(IRequest request)
-        {
+    public ISerializationFormat? GetDeserialization(IRequest request)
+    {
             if (request.Headers.TryGetValue("Content-Type", out string? requested))
             {
                 return GetFormat(FlexibleContentType.Parse(requested));
@@ -43,8 +42,8 @@ namespace GenHTTP.Modules.Conversion.Serializers
             return GetFormat(Default);
         }
 
-        public ISerializationFormat? GetSerialization(IRequest request)
-        {
+    public ISerializationFormat? GetSerialization(IRequest request)
+    {
             if (request.Headers.TryGetValue("Accept", out string? accepted))
             {
                 return GetFormat(FlexibleContentType.Parse(accepted)) ?? GetFormat(Default);
@@ -53,18 +52,18 @@ namespace GenHTTP.Modules.Conversion.Serializers
             return GetFormat(Default);
         }
 
-        public ISerializationFormat? GetFormat(string? contentType)
-        {
+    public ISerializationFormat? GetFormat(string? contentType)
+    {
             if (contentType != null)
             {
                 return GetFormat(FlexibleContentType.Parse(contentType));
             }
-            
+
             return GetFormat(Default);
         }
 
-        private ISerializationFormat? GetFormat(FlexibleContentType contentType)
-        {
+    private ISerializationFormat? GetFormat(FlexibleContentType contentType)
+    {
             if (Formats.TryGetValue(contentType, out var format))
             {
                 return format;
@@ -73,8 +72,6 @@ namespace GenHTTP.Modules.Conversion.Serializers
             return null;
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

@@ -2,18 +2,15 @@
 
 using GenHTTP.Api.Content.IO;
 
-namespace GenHTTP.Modules.IO.FileSystem
+namespace GenHTTP.Modules.IO.FileSystem;
+
+internal class DirectoryTree : DirectoryContainer, IResourceTree
 {
 
-    internal class DirectoryTree : DirectoryContainer, IResourceTree
-    {
+    #region Initialization
 
-        #region Initialization
+    internal DirectoryTree(DirectoryInfo directory) : base(directory) { }
 
-        internal DirectoryTree(DirectoryInfo directory) : base(directory) { }
-
-        #endregion
-
-    }
+    #endregion
 
 }

@@ -1,29 +1,28 @@
 ﻿using System;
 
-namespace GenHTTP.Api.Routing
+namespace GenHTTP.Api.Routing;
+
+/// <summary>
+/// Represents a part of an URL (between two slashes).
+/// </summary>
+public class WebPathPart
 {
+    private string? _Value = null;
+
+    #region Get-/Setters
 
     /// <summary>
-    /// Represents a part of an URL (between two slashes).
+    /// The string as received by the server (e.g. "some%20path").
     /// </summary>
-    public class WebPathPart
+    public string Original { get; }
+
+    /// <summary>
+    /// The decoded representation of the path (e.g. "some path").
+    /// </summary>
+    public string Value
     {
-        private string? _Value = null;
-
-        #region Get-/Setters
-
-        /// <summary>
-        /// The string as received by the server (e.g. "some%20path").
-        /// </summary>
-        public string Original { get; }
-
-        /// <summary>
-        /// The decoded representation of the path (e.g. "some path").
-        /// </summary>
-        public string Value
+        get
         {
-            get
-            {
                 if (_Value is null)
                 {
                     _Value = Original.Contains('%') ? Uri.UnescapeDataString(Original) : Original;
@@ -31,35 +30,35 @@ namespace GenHTTP.Api.Routing
 
                 return _Value;
             }
-        }
+    }
 
-        #endregion
+    #endregion
 
-        #region Initialization
+    #region Initialization
 
-        /// <summary>
-        /// Creates a new part from the original string.
-        /// </summary>
-        /// <param name="original">The original string</param>
-        public WebPathPart(string original)
-        {
+    /// <summary>
+    /// Creates a new part from the original string.
+    /// </summary>
+    /// <param name="original">The original string</param>
+    public WebPathPart(string original)
+    {
             Original = original;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public override string ToString() => Value;
+    public override string ToString() => Value;
 
-        public override int GetHashCode() => HashCode.Combine(Original, Value);
+    public override int GetHashCode() => HashCode.Combine(Original, Value);
 
-        public static bool operator ==(WebPathPart part, string value) => part.Original == value || part.Value == value;
+    public static bool operator ==(WebPathPart part, string value) => part.Original == value || part.Value == value;
 
-        public static bool operator !=(WebPathPart part, string value) => part.Original != value && part.Value != value;
+    public static bool operator !=(WebPathPart part, string value) => part.Original != value && part.Value != value;
 
-        public override bool Equals(object? obj)
-        {
+    public override bool Equals(object? obj)
+    {
             if (ReferenceEquals(this, obj))
             {
                 return true;
@@ -73,8 +72,6 @@ namespace GenHTTP.Api.Routing
             return (obj as WebPathPart)?.GetHashCode() == GetHashCode();
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

@@ -6,24 +6,23 @@ using GenHTTP.Modules.Functional;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Conversion
+namespace GenHTTP.Testing.Acceptance.Modules.Conversion;
+
+[TestClass]
+public class ErrorHandlingTests
 {
 
-    [TestClass]
-    public class ErrorHandlingTests
+    #region Supporting data structures
+
+    record class MyEntity(string Data);
+
+    #endregion
+
+    #region Tests
+
+    [TestMethod]
+    public async Task UndeserializableBodyReturnsWithBadRequest()
     {
-
-        #region Supporting data structures
-
-        record class MyEntity(string Data);
-
-        #endregion
-
-        #region Tests
-
-        [TestMethod]
-        public async Task UndeserializableBodyReturnsWithBadRequest()
-        {
             var inline = Inline.Create()
                                .Post("/t", (MyEntity entity) => entity.Data);
 
@@ -41,8 +40,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.Conversion
             await response.AssertStatusAsync(HttpStatusCode.BadRequest);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

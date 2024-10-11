@@ -3,23 +3,22 @@
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
 
-namespace GenHTTP.Modules.IO.FileSystem
+namespace GenHTTP.Modules.IO.FileSystem;
+
+public sealed class DirectoryTreeBuilder : IBuilder<IResourceTree>
 {
+    private DirectoryInfo? _Directory;
 
-    public sealed class DirectoryTreeBuilder : IBuilder<IResourceTree>
+    #region Functionality
+
+    public DirectoryTreeBuilder Directory(DirectoryInfo directory)
     {
-        private DirectoryInfo? _Directory;
-
-        #region Functionality
-
-        public DirectoryTreeBuilder Directory(DirectoryInfo directory)
-        {
             _Directory = directory;
             return this;
         }
 
-        public IResourceTree Build()
-        {
+    public IResourceTree Build()
+    {
             var directory = _Directory ?? throw new BuilderMissingPropertyException("directory");
 
             if (!directory.Exists)
@@ -30,8 +29,6 @@ namespace GenHTTP.Modules.IO.FileSystem
             return new DirectoryTree(directory);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

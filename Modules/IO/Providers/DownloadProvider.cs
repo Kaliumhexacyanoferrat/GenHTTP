@@ -6,28 +6,27 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
 
-namespace GenHTTP.Modules.IO.Providers
+namespace GenHTTP.Modules.IO.Providers;
+
+public sealed class DownloadProvider : IHandler
 {
-    
-    public sealed class DownloadProvider : IHandler
+
+    #region Get-/Setters
+
+    public IHandler Parent { get; }
+
+    public IResource Resource { get; }
+
+    public string? FileName { get; }
+
+    private FlexibleContentType ContentType { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public DownloadProvider(IHandler parent, IResource resourceProvider, string? fileName, FlexibleContentType? contentType)
     {
-
-        #region Get-/Setters
-
-        public IHandler Parent { get; }
-
-        public IResource Resource { get; }
-
-        public string? FileName { get; }
-
-        private FlexibleContentType ContentType { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public DownloadProvider(IHandler parent, IResource resourceProvider, string? fileName, FlexibleContentType? contentType)
-        {
             Parent = parent;
 
             Resource = resourceProvider;
@@ -37,12 +36,12 @@ namespace GenHTTP.Modules.IO.Providers
             ContentType = contentType ?? Resource.ContentType ?? FlexibleContentType.Get(FileName?.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload);
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             if (!request.Target.Ended)
             {
                 return new ValueTask<IResponse?>();
@@ -71,10 +70,8 @@ namespace GenHTTP.Modules.IO.Providers
             return new ValueTask<IResponse?>(response.Build());
         }
 
-        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        #endregion
-
-    }
+    #endregion
 
 }

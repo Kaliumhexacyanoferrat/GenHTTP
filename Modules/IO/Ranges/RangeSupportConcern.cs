@@ -5,40 +5,39 @@ using System.Threading.Tasks;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.IO.Ranges
+namespace GenHTTP.Modules.IO.Ranges;
+
+public partial class RangeSupportConcern : IConcern
 {
+    private static readonly Regex _PATTERN = CreatePattern();
 
-    public partial class RangeSupportConcern : IConcern
+    #region Get-/Setters
+
+    public IHandler Content { get; }
+
+    public IHandler Parent { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public RangeSupportConcern(IHandler parent, Func<IHandler, IHandler> contentFactory)
     {
-        private static readonly Regex _PATTERN = CreatePattern();
-
-        #region Get-/Setters
-
-        public IHandler Content { get; }
-
-        public IHandler Parent { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public RangeSupportConcern(IHandler parent, Func<IHandler, IHandler> contentFactory)
-        {
             Parent = parent;
             Content = contentFactory(this);
         }
 
-        [GeneratedRegex(@"^\s*bytes\s*=\s*([0-9]*)-([0-9]*)\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
-        private static partial Regex CreatePattern();
+    [GeneratedRegex(@"^\s*bytes\s*=\s*([0-9]*)-([0-9]*)\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex CreatePattern();
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             if (request.Method == RequestMethod.GET || request.Method == RequestMethod.HEAD)
             {
                 var response = await Content.HandleAsync(request);
@@ -98,29 +97,29 @@ namespace GenHTTP.Modules.IO.Ranges
             }
         }
 
-        private static IResponse GetRangeFromStart(IRequest request, IResponse response, ulong length, ulong start)
-        {
+    private static IResponse GetRangeFromStart(IRequest request, IResponse response, ulong length, ulong start)
+    {
             if (start > length) return NotSatisfiable(request, length);
 
             return GetRange(response, start, length - 1, length);
         }
 
-        private static IResponse GetRangeFromEnd(IRequest request, IResponse response, ulong length, ulong end)
-        {
+    private static IResponse GetRangeFromEnd(IRequest request, IResponse response, ulong length, ulong end)
+    {
             if (end > length) return NotSatisfiable(request, length);
 
             return GetRange(response, length - end, length - 1, length);
         }
 
-        private static IResponse GetFullRange(IRequest request, IResponse response, ulong length, ulong start, ulong end)
-        {
+    private static IResponse GetFullRange(IRequest request, IResponse response, ulong length, ulong start, ulong end)
+    {
             if (start > end || end >= length) return NotSatisfiable(request, length);
 
             return GetRange(response, start, end, length);
         }
 
-        private static IResponse GetRange(IResponse response, ulong actualStart, ulong actualEnd, ulong totalLength)
-        {
+    private static IResponse GetRange(IResponse response, ulong actualStart, ulong actualEnd, ulong totalLength)
+    {
             response.Status = new(ResponseStatus.PartialContent);
 
             response["Content-Range"] = $"bytes {actualStart}-{actualEnd}/{totalLength}";
@@ -131,8 +130,8 @@ namespace GenHTTP.Modules.IO.Ranges
             return response;
         }
 
-        private static IResponse NotSatisfiable(IRequest request, ulong totalLength)
-        {
+    private static IResponse NotSatisfiable(IRequest request, ulong totalLength)
+    {
             var content = Resource.FromString($"Requested length cannot be satisfied (available = {totalLength} bytes)")
                                   .Build();
 
@@ -143,8 +142,6 @@ namespace GenHTTP.Modules.IO.Ranges
                           .Build();
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

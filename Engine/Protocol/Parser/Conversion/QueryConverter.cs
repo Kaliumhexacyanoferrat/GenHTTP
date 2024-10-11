@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Buffers;
 
-namespace GenHTTP.Engine.Protocol.Parser.Conversion
+namespace GenHTTP.Engine.Protocol.Parser.Conversion;
+
+internal static class QueryConverter
 {
 
-    internal static class QueryConverter
+    internal static RequestQuery? ToQuery(ReadOnlySequence<byte> value)
     {
-
-        internal static RequestQuery? ToQuery(ReadOnlySequence<byte> value)
-        {
             if (!value.IsEmpty)
             {
                 var query = new RequestQuery();
@@ -32,8 +31,8 @@ namespace GenHTTP.Engine.Protocol.Parser.Conversion
             return null;
         }
 
-        private static void AppendSegment(RequestQuery query, ReadOnlySequence<byte> segment)
-        {
+    private static void AppendSegment(RequestQuery query, ReadOnlySequence<byte> segment)
+    {
             if (!segment.IsEmpty)
             {
                 var reader = new SequenceReader<byte>(segment);
@@ -59,7 +58,5 @@ namespace GenHTTP.Engine.Protocol.Parser.Conversion
                 query[Uri.UnescapeDataString(name)] = (value != null) ? Uri.UnescapeDataString(value) : string.Empty;
             }
         }
-
-    }
 
 }

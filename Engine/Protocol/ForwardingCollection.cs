@@ -4,30 +4,29 @@ using System.Net;
 
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Engine.Protocol
+namespace GenHTTP.Engine.Protocol;
+
+/// <summary>
+/// Parses and stores forwarding information passed by proxy
+/// servers along with the request.
+/// </summary>
+internal sealed class ForwardingCollection : List<Forwarding>, IForwardingCollection
 {
+    private const int DEFAULT_SIZE = 1;
 
-    /// <summary>
-    /// Parses and stores forwarding information passed by proxy
-    /// servers along with the request.
-    /// </summary>
-    internal sealed class ForwardingCollection : List<Forwarding>, IForwardingCollection
+    private const string HEADER_FOR = "X-Forwarded-For";
+    private const string HEADER_HOST = "X-Forwarded-Host";
+    private const string HEADER_PROTO = "X-Forwarded-Proto";
+
+    internal ForwardingCollection() : base(DEFAULT_SIZE)
     {
-        private const int DEFAULT_SIZE = 1;
-
-        private const string HEADER_FOR = "X-Forwarded-For";
-        private const string HEADER_HOST = "X-Forwarded-Host";
-        private const string HEADER_PROTO = "X-Forwarded-Proto";
-
-        internal ForwardingCollection() : base(DEFAULT_SIZE)
-        {
 
         }
 
-        internal void Add(string header) => AddRange(Parse(header));
+    internal void Add(string header) => AddRange(Parse(header));
 
-        internal void TryAddLegacy(RequestHeaderCollection headers)
-        {
+    internal void TryAddLegacy(RequestHeaderCollection headers)
+    {
             IPAddress? address = null;
             ClientProtocol? protocol = null;
 
@@ -49,8 +48,8 @@ namespace GenHTTP.Engine.Protocol
             }
         }
 
-        private static IEnumerable<Forwarding> Parse(string value)
-        {
+    private static IEnumerable<Forwarding> Parse(string value)
+    {
             var forwardings = value.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
             foreach (var forwarding in forwardings)
@@ -93,8 +92,8 @@ namespace GenHTTP.Engine.Protocol
             }
         }
 
-        private static ClientProtocol? ParseProtocol(string? protocol)
-        {
+    private static ClientProtocol? ParseProtocol(string? protocol)
+    {
             if (protocol != null)
             {
                 if (string.Equals(protocol, "https", StringComparison.OrdinalIgnoreCase))
@@ -110,8 +109,8 @@ namespace GenHTTP.Engine.Protocol
             return null;
         }
 
-        private static IPAddress? ParseAddress(string? address)
-        {
+    private static IPAddress? ParseAddress(string? address)
+    {
             if (address != null)
             {
                 if (IPAddress.TryParse(address, out var ip))
@@ -122,7 +121,5 @@ namespace GenHTTP.Engine.Protocol
 
             return null;
         }
-
-    }
 
 }

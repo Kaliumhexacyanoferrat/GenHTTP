@@ -8,34 +8,33 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO;
 
-namespace GenHTTP.Modules.SinglePageApplications.Provider
+namespace GenHTTP.Modules.SinglePageApplications.Provider;
+
+public sealed class SinglePageProvider : IHandler
 {
-
-    public sealed class SinglePageProvider : IHandler
+    private static readonly HashSet<string> INDEX_FILES = new(StringComparer.InvariantCultureIgnoreCase)
     {
-        private static readonly HashSet<string> INDEX_FILES = new(StringComparer.InvariantCultureIgnoreCase)
-        {
-            "index.html", "index.htm"
-        };
+        "index.html", "index.htm"
+    };
 
-        private IHandler? _Index;
+    private IHandler? _Index;
 
-        #region Get-/Setters
+    #region Get-/Setters
 
-        public IHandler Parent { get; }
+    public IHandler Parent { get; }
 
-        private IResourceTree Tree { get; }
+    private IResourceTree Tree { get; }
 
-        private IHandler Resources { get; }
+    private IHandler Resources { get; }
 
-        private bool ServerSideRouting { get; }
+    private bool ServerSideRouting { get; }
 
-        #endregion
+    #endregion
 
-        #region Initialization
+    #region Initialization
 
-        public SinglePageProvider(IHandler parent, IResourceTree tree, bool serverSideRouting)
-        {
+    public SinglePageProvider(IHandler parent, IResourceTree tree, bool serverSideRouting)
+    {
             Parent = parent;
 
             Tree = tree;
@@ -45,12 +44,12 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
                                     .Build(this);
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             if (request.Target.Ended)
             {
                 var index = await GetIndex();
@@ -80,8 +79,8 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
             return null;
         }
 
-        private async ValueTask<IHandler?> GetIndex()
-        {
+    private async ValueTask<IHandler?> GetIndex()
+    {
             if (_Index == null)
             {
                 foreach (var index in INDEX_FILES)
@@ -101,10 +100,8 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider
             return _Index;
         }
 
-        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        #endregion
-
-    }
+    #endregion
 
 }
