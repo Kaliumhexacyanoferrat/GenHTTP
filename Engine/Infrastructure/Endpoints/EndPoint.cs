@@ -6,9 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
-
-using GenHTTP.Engine.Infrastructure.Configuration;
-
+using GenHTTP.Engine.Protocol;
 using PooledAwait;
 
 namespace GenHTTP.Engine.Infrastructure.Endpoints

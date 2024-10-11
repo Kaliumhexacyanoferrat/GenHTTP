@@ -1,5 +1,5 @@
 ﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Engine.Infrastructure.Configuration;
+using GenHTTP.Engine.Infrastructure;
 using GenHTTP.Engine.Protocol.Parser.Conversion;
 
 using PooledAwait;

@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Engine.Infrastructure.Configuration;
+using GenHTTP.Engine.Infrastructure;
 using GenHTTP.Engine.Utilities;
 
 namespace GenHTTP.Engine.Protocol

@@ -1,24 +1,21 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using System.Net.Http;
 using System.Xml.Serialization;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.IO;
-using GenHTTP.Modules.Webservices;
 using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Conversion;
+using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Reflection;
+using GenHTTP.Modules.Webservices;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Webservices
+namespace GenHTTP.Testing.Acceptance.Modules
 {
 
     [TestClass]

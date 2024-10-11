@@ -7,7 +7,7 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Conversion.Formatters;
-using GenHTTP.Modules.Conversion.Providers;
+using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.IO.Streaming;
 

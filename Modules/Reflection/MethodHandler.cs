@@ -11,8 +11,8 @@ using GenHTTP.Api.Routing;
 
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Formatters;
-using GenHTTP.Modules.Conversion.Providers;
-using GenHTTP.Modules.Conversion.Providers.Forms;
+using GenHTTP.Modules.Conversion.Serializers;
+using GenHTTP.Modules.Conversion.Serializers.Forms;
 using GenHTTP.Modules.Reflection.Injectors;
 
 namespace GenHTTP.Modules.Reflection

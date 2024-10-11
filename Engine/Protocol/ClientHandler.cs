@@ -3,19 +3,14 @@ using System.Buffers;
 using System.IO;
 using System.IO.Pipelines;
 using System.Net.Sockets;
-
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Engine.Infrastructure.Configuration;
-using GenHTTP.Engine.Protocol;
+using GenHTTP.Engine.Infrastructure;
 using GenHTTP.Engine.Protocol.Parser;
-
 using GenHTTP.Modules.IO.Strings;
-
 using PooledAwait;
 
-namespace GenHTTP.Engine
+namespace GenHTTP.Engine.Protocol
 {
 
     /// <summary>

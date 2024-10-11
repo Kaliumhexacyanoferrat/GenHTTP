@@ -1,15 +1,12 @@
 ﻿using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-
+using GenHTTP.Modules.IO;
+using GenHTTP.Modules.SinglePageApplications;
+using GenHTTP.Testing.Acceptance.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using GenHTTP.Modules.SinglePageApplications;
-using GenHTTP.Modules.IO;
-
-using GenHTTP.Testing.Acceptance.Utilities;
-
-namespace GenHTTP.Testing.Acceptance.Providers
+namespace GenHTTP.Testing.Acceptance.Modules
 {
 
     [TestClass]

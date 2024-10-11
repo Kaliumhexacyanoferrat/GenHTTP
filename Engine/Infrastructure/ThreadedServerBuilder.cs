@@ -7,8 +7,6 @@ using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
-
-using GenHTTP.Engine.Infrastructure.Configuration;
 using GenHTTP.Engine.Infrastructure.Endpoints;
 
 using GenHTTP.Modules.ErrorHandling;

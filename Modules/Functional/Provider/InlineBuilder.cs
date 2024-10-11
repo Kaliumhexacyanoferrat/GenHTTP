@@ -7,8 +7,8 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Conversion;
-using GenHTTP.Modules.Conversion.Providers;
 using GenHTTP.Modules.Conversion.Formatters;
+using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Reflection.Injectors;
 using GenHTTP.Modules.Reflection;
 
@@ -119,7 +119,7 @@ namespace GenHTTP.Modules.Functional.Provider
         /// </summary>
         /// <param name="path">The path of the request to handle (e.g. "/my-method")</param>
         public InlineBuilder Head(string path, Delegate function) => On(function, new() { FlexibleRequestMethod.Get(RequestMethod.HEAD) }, path);
-        
+
         /// <summary>
         /// Adds a route for a POST request to the root of the handler.
         /// </summary>
@@ -131,7 +131,7 @@ namespace GenHTTP.Modules.Functional.Provider
         /// </summary>
         /// <param name="path">The path of the request to handle (e.g. "/my-method")</param>
         public InlineBuilder Post(string path, Delegate function) => On(function, new() { FlexibleRequestMethod.Get(RequestMethod.POST) }, path);
-        
+
         /// <summary>
         /// Adds a route for a PUT request to the root of the handler.
         /// </summary>
@@ -143,7 +143,7 @@ namespace GenHTTP.Modules.Functional.Provider
         /// </summary>
         /// <param name="path">The path of the request to handle (e.g. "/my-method")</param>
         public InlineBuilder Put(string path, Delegate function) => On(function, new() { FlexibleRequestMethod.Get(RequestMethod.PUT) }, path);
-        
+
         /// <summary>
         /// Adds a route for a DELETE request to the root of the handler.
         /// </summary>

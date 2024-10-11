@@ -1,13 +1,10 @@
 ﻿using System;
 using System.IO;
-
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
-using GenHTTP.Engine.Protocol;
-
-namespace GenHTTP.Engine
+namespace GenHTTP.Engine.Protocol
 {
 
     /// <summary>

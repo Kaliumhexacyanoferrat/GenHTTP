@@ -1,15 +1,12 @@
 ﻿using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using GenHTTP.Modules.DirectoryBrowsing;
 using GenHTTP.Modules.IO;
-
 using GenHTTP.Testing.Acceptance.Utilities;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Providers
+namespace GenHTTP.Testing.Acceptance.Modules
 {
 
     [TestClass]

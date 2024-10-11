@@ -1,14 +1,11 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
-
 using GenHTTP.Api.Infrastructure;
-
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.LoadBalancing;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Providers
+namespace GenHTTP.Testing.Acceptance.Modules
 {
 
     [TestClass]

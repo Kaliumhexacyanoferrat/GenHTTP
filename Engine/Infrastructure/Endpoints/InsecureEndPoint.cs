@@ -2,8 +2,6 @@
 using System.Net.Sockets;
 
 using GenHTTP.Api.Infrastructure;
-
-using GenHTTP.Engine.Infrastructure.Configuration;
 using GenHTTP.Engine.Utilities;
 
 using PooledAwait;

@@ -4,7 +4,7 @@ using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Modules.Controllers.Provider;
 using GenHTTP.Modules.Conversion.Formatters;
-using GenHTTP.Modules.Conversion.Providers;
+using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Layouting.Provider;
 using GenHTTP.Modules.Reflection.Injectors;
 

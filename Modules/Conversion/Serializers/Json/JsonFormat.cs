@@ -3,12 +3,10 @@ using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Basics;
 
-namespace GenHTTP.Modules.Conversion.Providers.Json
+namespace GenHTTP.Modules.Conversion.Serializers.Json
 {
 
     public sealed class JsonFormat : ISerializationFormat

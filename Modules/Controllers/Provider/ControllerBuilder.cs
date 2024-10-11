@@ -6,7 +6,7 @@ using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Formatters;
-using GenHTTP.Modules.Conversion.Providers;
+using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Injectors;
 

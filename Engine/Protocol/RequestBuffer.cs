@@ -2,9 +2,7 @@
 using System.Buffers;
 using System.IO.Pipelines;
 using System.Threading;
-
-using GenHTTP.Engine.Infrastructure.Configuration;
-
+using GenHTTP.Engine.Infrastructure;
 using PooledAwait;
 
 namespace GenHTTP.Engine.Protocol

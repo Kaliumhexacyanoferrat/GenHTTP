@@ -5,8 +5,8 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Conversion;
-using GenHTTP.Modules.Conversion.Providers;
-using GenHTTP.Modules.Conversion.Providers.Json;
+using GenHTTP.Modules.Conversion.Serializers;
+using GenHTTP.Modules.Conversion.Serializers.Json;
 
 namespace GenHTTP.Modules.ErrorHandling
 {

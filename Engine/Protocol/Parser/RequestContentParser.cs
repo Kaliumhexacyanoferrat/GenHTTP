@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using GenHTTP.Engine.Infrastructure.Configuration;
+using GenHTTP.Engine.Infrastructure;
 
 namespace GenHTTP.Engine.Protocol.Parser
 {

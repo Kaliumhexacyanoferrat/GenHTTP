@@ -1,8 +1,8 @@
 ﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Conversion.Providers;
-using GenHTTP.Modules.Conversion.Providers.Forms;
-using GenHTTP.Modules.Conversion.Providers.Json;
-using GenHTTP.Modules.Conversion.Providers.Xml;
+using GenHTTP.Modules.Conversion.Serializers;
+using GenHTTP.Modules.Conversion.Serializers.Forms;
+using GenHTTP.Modules.Conversion.Serializers.Json;
+using GenHTTP.Modules.Conversion.Serializers.Xml;
 
 namespace GenHTTP.Modules.Conversion
 {

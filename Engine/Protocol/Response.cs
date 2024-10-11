@@ -1,9 +1,7 @@
 ﻿using System;
-
 using GenHTTP.Api.Protocol;
-using GenHTTP.Engine.Protocol;
 
-namespace GenHTTP.Engine
+namespace GenHTTP.Engine.Protocol
 {
 
     internal sealed class Response : IResponse

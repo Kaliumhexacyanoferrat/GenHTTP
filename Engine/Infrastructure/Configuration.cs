@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Security.Authentication;
-
 using GenHTTP.Api.Infrastructure;
 
-namespace GenHTTP.Engine.Infrastructure.Configuration
+namespace GenHTTP.Engine.Infrastructure
 {
 
     internal record ServerConfiguration(bool DevelopmentMode, IEnumerable<EndPointConfiguration> EndPoints,

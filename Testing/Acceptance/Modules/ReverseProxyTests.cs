@@ -1,22 +1,18 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Linq;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.IO;
-using GenHTTP.Modules.ReverseProxy;
 using GenHTTP.Modules.Layouting;
-
+using GenHTTP.Modules.ReverseProxy;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Cookie = GenHTTP.Api.Protocol.Cookie;
 
-namespace GenHTTP.Testing.Acceptance.Providers
+namespace GenHTTP.Testing.Acceptance.Modules
 {
 
     [TestClass]

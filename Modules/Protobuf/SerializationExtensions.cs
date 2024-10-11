@@ -1,5 +1,5 @@
 ﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Conversion.Providers;
+using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Protobuf.Providers;
 
 namespace GenHTTP.Modules.Protobuf

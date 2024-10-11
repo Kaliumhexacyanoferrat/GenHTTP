@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Conversion.Providers
+namespace GenHTTP.Modules.Conversion.Serializers
 {
 
     public sealed class SerializationBuilder : IBuilder<SerializationRegistry>

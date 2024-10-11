@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net;
 
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Engine.Infrastructure.Configuration;
 
 namespace GenHTTP.Engine.Infrastructure.Endpoints
 {

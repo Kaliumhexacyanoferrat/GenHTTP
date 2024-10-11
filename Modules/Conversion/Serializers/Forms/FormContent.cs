@@ -5,11 +5,10 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion.Formatters;
 
-namespace GenHTTP.Modules.Conversion.Providers.Forms
+namespace GenHTTP.Modules.Conversion.Serializers.Forms
 {
 
     public sealed class FormContent : IResponseContent

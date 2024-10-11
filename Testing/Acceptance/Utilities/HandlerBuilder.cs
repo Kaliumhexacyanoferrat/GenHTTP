@@ -29,7 +29,7 @@ namespace GenHTTP.Testing.Acceptance.Utilities
                 }
 
                 return _Handler;
-            }); ;
+            });
         }
 
     }

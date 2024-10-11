@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Conversion.Providers
+namespace GenHTTP.Modules.Conversion.Serializers
 {
 
     /// <summary>
