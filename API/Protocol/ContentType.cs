@@ -5,303 +5,303 @@ namespace GenHTTP.Api.Protocol;
 #region Known Types
 
 /// <summary>
-///     The content type of the response.
+/// The content type of the response.
 /// </summary>
 public enum ContentType
 {
 
     /// <summary>
-    ///     A html page.
+    /// A html page.
     /// </summary>
     TextHtml,
 
     /// <summary>
-    ///     A stylesheet.
+    /// A stylesheet.
     /// </summary>
     TextCss,
 
     /// <summary>
-    ///     A JavaScript source file.
+    /// A JavaScript source file.
     /// </summary>
     ApplicationJavaScript,
 
     /// <summary>
-    ///     A JSON file.
+    /// A JSON file.
     /// </summary>
     ApplicationJson,
 
     /// <summary>
-    ///     A PNG image.
+    /// A PNG image.
     /// </summary>
     ImagePng,
 
     /// <summary>
-    ///     A BMP image.
+    /// A BMP image.
     /// </summary>
     ImageBmp,
 
     /// <summary>
-    ///     A JPG image.
+    /// A JPG image.
     /// </summary>
     ImageJpg,
 
     /// <summary>
-    ///     A GIF image.
+    /// A GIF image.
     /// </summary>
     ImageGif,
 
     /// <summary>
-    ///     A download.
+    /// A download.
     /// </summary>
     ApplicationForceDownload,
 
     /// <summary>
-    ///     Anything else - data.
+    /// Anything else - data.
     /// </summary>
     ApplicationOctetStream,
 
     /// <summary>
-    ///     A MP4 audio file.
+    /// A MP4 audio file.
     /// </summary>
     AudioMp4,
 
     /// <summary>
-    ///     A OGG audio file.
+    /// A OGG audio file.
     /// </summary>
     AudioOgg,
 
     /// <summary>
-    ///     A MPEG audio file.
+    /// A MPEG audio file.
     /// </summary>
     AudioMpeg,
 
     /// <summary>
-    ///     A TIFF image.
+    /// A TIFF image.
     /// </summary>
     ImageTiff,
 
     /// <summary>
-    ///     A CSV file.
+    /// A CSV file.
     /// </summary>
     TextCsv,
 
     /// <summary>
-    ///     A RTF file.
+    /// A RTF file.
     /// </summary>
     TextRichText,
 
     /// <summary>
-    ///     Plain text.
+    /// Plain text.
     /// </summary>
     TextPlain,
 
     /// <summary>
-    ///     A XML file.
+    /// A XML file.
     /// </summary>
     TextXml,
 
     /// <summary>
-    ///     A JavaScript file.
+    /// A JavaScript file.
     /// </summary>
     TextJavaScript,
 
     /// <summary>
-    ///     A uncompressed audio file.
+    /// A uncompressed audio file.
     /// </summary>
     AudioWav,
 
     /// <summary>
-    ///     Word processing document (e.g. docx).
+    /// Word processing document (e.g. docx).
     /// </summary>
     ApplicationOfficeDocumentWordProcessing,
 
     /// <summary>
-    ///     A presentation (e.g. pptx).
+    /// A presentation (e.g. pptx).
     /// </summary>
     ApplicationOfficeDocumentPresentation,
 
     /// <summary>
-    ///     A slideshow (e.g. .ppsx).
+    /// A slideshow (e.g. .ppsx).
     /// </summary>
     ApplicationOfficeDocumentSlideshow,
 
     /// <summary>
-    ///     A sheet (e.g. .xlsx).
+    /// A sheet (e.g. .xlsx).
     /// </summary>
     ApplicationOfficeDocumentSheet,
 
     /// <summary>
-    ///     An icon.
+    /// An icon.
     /// </summary>
     ImageIcon,
 
     /// <summary>
-    ///     Microsoft, embedded otf.
+    /// Microsoft, embedded otf.
     /// </summary>
     FontEmbeddedOpenTypeFont,
 
     /// <summary>
-    ///     True type font (.ttf)
+    /// True type font (.ttf)
     /// </summary>
     FontTrueTypeFont,
 
     /// <summary>
-    ///     Woff font (.woff)
+    /// Woff font (.woff)
     /// </summary>
     FontWoff,
 
     /// <summary>
-    ///     Woff 2 font (.woff2)
+    /// Woff 2 font (.woff2)
     /// </summary>
     FontWoff2,
 
     /// <summary>
-    ///     Open type fonf (.otf)
+    /// Open type fonf (.otf)
     /// </summary>
     FontOpenTypeFont,
 
     /// <summary>
-    ///     Scalable Vector Graphics (.svg)
+    /// Scalable Vector Graphics (.svg)
     /// </summary>
     ImageScalableVectorGraphics,
 
     /// <summary>
-    ///     Scalable Vector Graphics (.svg)
+    /// Scalable Vector Graphics (.svg)
     /// </summary>
     ImageScalableVectorGraphicsXml,
 
     /// <summary>
-    ///     Scalable Vector Graphics (compressed, .svgz)
+    /// Scalable Vector Graphics (compressed, .svgz)
     /// </summary>
     ImageScalableVectorGraphicsCompressed,
 
     /// <summary>
-    ///     Url encoded form data.
+    /// Url encoded form data.
     /// </summary>
     ApplicationWwwFormUrlEncoded,
 
     /// <summary>
-    ///     A Protobuf message.
+    /// A Protobuf message.
     /// </summary>
     ApplicationProtobuf,
 
     /// <summary>
-    ///     3GPP video file container (.3gp).
+    /// 3GPP video file container (.3gp).
     /// </summary>
     Video3Gpp,
 
     /// <summary>
-    ///     3GPP2 video files (.3g2).
+    /// 3GPP2 video files (.3g2).
     /// </summary>
     Video3Gpp2,
 
     /// <summary>
-    ///     AV1 video file (.av1).
+    /// AV1 video file (.av1).
     /// </summary>
     VideoAV1,
 
     /// <summary>
-    ///     A MPEG4 Part 10 (H.264) video file (.avc).
+    /// A MPEG4 Part 10 (H.264) video file (.avc).
     /// </summary>
     VideoAvc,
 
     /// <summary>
-    ///     Digital video file (.dv).
+    /// Digital video file (.dv).
     /// </summary>
     VideoDV,
 
     /// <summary>
-    ///     A H.261 video file.
+    /// A H.261 video file.
     /// </summary>
     VideoH261,
 
     /// <summary>
-    ///     A H.263 video file.
+    /// A H.263 video file.
     /// </summary>
     VideoH263,
 
     /// <summary>
-    ///     A H.264 encoded video file.
+    /// A H.264 encoded video file.
     /// </summary>
     VideoH264,
 
     /// <summary>
-    ///     A H.265 video file.
+    /// A H.265 video file.
     /// </summary>
     VideoH265,
 
     /// <summary>
-    ///     A H.266 video file.
+    /// A H.266 video file.
     /// </summary>
     VideoH266,
 
     /// <summary>
-    ///     A Matroska video file (.mkv).
+    /// A Matroska video file (.mkv).
     /// </summary>
     VideoMatroska,
 
     /// <summary>
-    ///     A 3D Matroska video file (.mk3d).
+    /// A 3D Matroska video file (.mk3d).
     /// </summary>
     VideoMatroska3D,
 
     /// <summary>
-    ///     A Motion JPEG 2000 video file (.mj2).
+    /// A Motion JPEG 2000 video file (.mj2).
     /// </summary>
     VideoMJ2,
 
     /// <summary>
-    ///     A MP4 video file (.mp4).
+    /// A MP4 video file (.mp4).
     /// </summary>
     VideoMP4,
 
     /// <summary>
-    ///     A MPEG video file.
+    /// A MPEG video file.
     /// </summary>
     VideoMpeg,
 
     /// <summary>
-    ///     A MPEG-4 video file.
+    /// A MPEG-4 video file.
     /// </summary>
     VideoMpeg4Generic,
 
     /// <summary>
-    ///     A MPEG-2 elementary stream video (.mpv).
+    /// A MPEG-2 elementary stream video (.mpv).
     /// </summary>
     VideoMpv,
 
     /// <summary>
-    ///     An Apple quick time video file (.mov or .hdmov).
+    /// An Apple quick time video file (.mov or .hdmov).
     /// </summary>
     VideoQuicktime,
 
     /// <summary>
-    ///     A raw video file.
+    /// A raw video file.
     /// </summary>
     VideoRaw,
 
     /// <summary>
-    ///     A SMPTE 421M video file (.vc1).
+    /// A SMPTE 421M video file (.vc1).
     /// </summary>
     VideoVC1,
 
     /// <summary>
-    ///     A SMPTE VC-2 video file.
+    /// A SMPTE VC-2 video file.
     /// </summary>
     VideoVC2,
 
     /// <summary>
-    ///     A VP8 encoded video file (.webm).
+    /// A VP8 encoded video file (.webm).
     /// </summary>
     VideoVP8,
 
     /// <summary>
-    ///     A VP9 encoded video file (.webm).
+    /// A VP9 encoded video file (.webm).
     /// </summary>
     VideoVP9,
 
     /// <summary>
-    ///     A WebM video file (.webm).
+    /// A WebM video file (.webm).
     /// </summary>
     VideoWebM
 
@@ -310,7 +310,7 @@ public enum ContentType
 #endregion
 
 /// <summary>
-///     The type of content which is sent to or received from a client.
+/// The type of content which is sent to or received from a client.
 /// </summary>
 public class FlexibleContentType
 {
@@ -321,17 +321,17 @@ public class FlexibleContentType
     #region Get-/Setters
 
     /// <summary>
-    ///     The known, enumerated type, if any.
+    /// The known, enumerated type, if any.
     /// </summary>
     public ContentType? KnownType { get; }
 
     /// <summary>
-    ///     The raw type.
+    /// The raw type.
     /// </summary>
     public string RawType { get; }
 
     /// <summary>
-    ///     The charset of the content, if any.
+    /// The charset of the content, if any.
     /// </summary>
     public string? Charset { get; }
 
@@ -409,7 +409,7 @@ public class FlexibleContentType
     #region Initialization
 
     /// <summary>
-    ///     Create a new content type from the given string.
+    /// Create a new content type from the given string.
     /// </summary>
     /// <param name="rawType">The string representation of the content type</param>
     /// <param name="charset">The charset of the content, if known</param>
@@ -429,7 +429,7 @@ public class FlexibleContentType
     }
 
     /// <summary>
-    ///     Create a new content type from the given known type.
+    /// Create a new content type from the given known type.
     /// </summary>
     /// <param name="type">The known type</param>
     /// <param name="charset">The charset of the content, if known</param>
@@ -446,7 +446,7 @@ public class FlexibleContentType
     #region Functionality
 
     /// <summary>
-    ///     Fetches a cached instance for the given content type.
+    /// Fetches a cached instance for the given content type.
     /// </summary>
     /// <param name="rawType">The raw string to be resolved</param>
     /// <returns>The content type instance to be used</returns>
@@ -470,7 +470,7 @@ public class FlexibleContentType
     }
 
     /// <summary>
-    ///     Fetches a cached instance for the given content type.
+    /// Fetches a cached instance for the given content type.
     /// </summary>
     /// <param name="knownType">The known type to be resolved</param>
     /// <returns>The content type instance to be used</returns>
@@ -494,7 +494,7 @@ public class FlexibleContentType
     }
 
     /// <summary>
-    ///     Parses the given header value into a content type structure.
+    /// Parses the given header value into a content type structure.
     /// </summary>
     /// <param name="header">The header to be parsed</param>
     /// <returns>The parsed content type</returns>

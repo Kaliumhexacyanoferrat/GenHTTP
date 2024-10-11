@@ -1,20 +1,20 @@
 ﻿namespace GenHTTP.Api.Content;
 
 /// <summary>
-///     Utility class to work with concerns.
+/// Utility class to work with concerns.
 /// </summary>
 public static class Concerns
 {
 
     /// <summary>
-    ///     Creates a handler chain to wrap the specified handler into the
-    ///     specified concerns.
+    /// Creates a handler chain to wrap the specified handler into the
+    /// specified concerns.
     /// </summary>
     /// <remarks>
-    ///     Use this utility within the handler builders to add concerns
-    ///     to the resulting handler instance. The last concern added
-    ///     to the list of concerns will be the root handler returned by
-    ///     this method.
+    /// Use this utility within the handler builders to add concerns
+    /// to the resulting handler instance. The last concern added
+    /// to the list of concerns will be the root handler returned by
+    /// this method.
     /// </remarks>
     /// <param name="parent">The parent handler of the chain</param>
     /// <param name="concerns">The concerns that should be wrapped around the inner handler</param>
@@ -33,7 +33,7 @@ public static class Concerns
         {
             var concern = remainders.Pop();
 
-            return concern.Build(parent, parent => Chain(parent, remainders, factory));
+            return concern.Build(parent, p => Chain(p, remainders, factory));
         }
 
         return factory(parent);

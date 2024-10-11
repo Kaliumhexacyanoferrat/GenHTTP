@@ -11,16 +11,16 @@ using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 namespace GenHTTP.Engine.Protocol;
 
 /// <summary>
-///     Maintains a single connection to a client, continuously reading
-///     requests and generating responses.
+/// Maintains a single connection to a client, continuously reading
+/// requests and generating responses.
 /// </summary>
 /// <remarks>
-///     Implements keep alive and maintains the connection state (e.g. by
-///     closing it after the last request has been handled).
+/// Implements keep alive and maintains the connection state (e.g. by
+/// closing it after the last request has been handled).
 /// </remarks>
 internal sealed class ClientHandler
 {
-    private static readonly StreamPipeReaderOptions READER_OPTIONS = new(MemoryPool<byte>.Shared, leaveOpen: true, bufferSize: 65536);
+    private static readonly StreamPipeReaderOptions ReaderOptions = new(MemoryPool<byte>.Shared, leaveOpen: true, bufferSize: 65536);
 
     #region Initialization
 
@@ -41,9 +41,9 @@ internal sealed class ClientHandler
 
     #region Get-/Setter
 
-    public IServer Server { get; }
+    internal IServer Server { get; }
 
-    public IEndPoint EndPoint { get; }
+    internal IEndPoint EndPoint { get; }
 
     internal NetworkConfiguration Configuration { get; }
 
@@ -63,7 +63,7 @@ internal sealed class ClientHandler
     {
         try
         {
-            await HandlePipe(PipeReader.Create(Stream, READER_OPTIONS));
+            await HandlePipe(PipeReader.Create(Stream, ReaderOptions)).ConfigureAwait(false);
         }
         catch (Exception e)
         {
@@ -83,7 +83,7 @@ internal sealed class ClientHandler
             try
             {
                 Connection.Shutdown(SocketShutdown.Both);
-                Connection.Disconnect(false);
+                await Connection.DisconnectAsync(false);
                 Connection.Close();
 
                 Connection.Dispose();
@@ -138,7 +138,7 @@ internal sealed class ClientHandler
     {
         using var request = builder.Connection(Server, EndPoint, Connection.GetAddress()).Build();
 
-        KeepAlive ??= request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? request.ProtocolType == HttpProtocol.Http_1_1;
+        KeepAlive ??= request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? request.ProtocolType == HttpProtocol.Http11;
 
         var keepAlive = KeepAlive.Value;
 

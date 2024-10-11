@@ -15,8 +15,8 @@ public sealed class SeoTests
     #region Tests
 
     /// <summary>
-    ///     As the developer of a web application, I don't want the MCV framework to generate duplicate content
-    ///     by accepting upper case letters in action names.
+    /// As the developer of a web application, I don't want the MCV framework to generate duplicate content
+    /// by accepting upper case letters in action names.
     /// </summary>
     [TestMethod]
     public async Task TestActionCasingMatters()
@@ -43,7 +43,7 @@ public sealed class SeoTests
 
         public IHandlerBuilder Action() => Content.From(Resource.FromString("Action"));
 
-        [ControllerAction(RequestMethod.DELETE)]
+        [ControllerAction(RequestMethod.Delete)]
         public IHandlerBuilder Action([FromPath] int id) => Content.From(Resource.FromString(id.ToString()));
     }
 

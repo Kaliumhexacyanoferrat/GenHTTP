@@ -17,14 +17,14 @@ public class FileSystemCacheBuilder<T> : IBuilder<FileSystemCache<T>>
     }
 
     /// <summary>
-    ///     Sets the duration old files will be kept to allow clients to finish
-    ///     their downloads.
+    /// Sets the duration old files will be kept to allow clients to finish
+    /// their downloads.
     /// </summary>
     /// <param name="expiration"></param>
     /// <returns></returns>
     /// <remarks>
-    ///     Defaults to 30 minutes. If you serve very large files or your clients
-    ///     download very slow, consider to increase this value..
+    /// Defaults to 30 minutes. If you serve very large files or your clients
+    /// download very slow, consider to increase this value..
     /// </remarks>
     public FileSystemCacheBuilder<T> AccessExpiration(TimeSpan expiration)
     {

@@ -4,18 +4,18 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Engine.Protocol;
 
 /// <summary>
-///     Parses and stores forwarding information passed by proxy
-///     servers along with the request.
+/// Parses and stores forwarding information passed by proxy
+/// servers along with the request.
 /// </summary>
 internal sealed class ForwardingCollection : List<Forwarding>, IForwardingCollection
 {
-    private const int DEFAULT_SIZE = 1;
+    private const int DefaultSize = 1;
 
-    private const string HEADER_FOR = "X-Forwarded-For";
-    private const string HEADER_HOST = "X-Forwarded-Host";
-    private const string HEADER_PROTO = "X-Forwarded-Proto";
+    private const string HeaderFor = "X-Forwarded-For";
+    private const string HeaderHost = "X-Forwarded-Host";
+    private const string HeaderProto = "X-Forwarded-Proto";
 
-    internal ForwardingCollection() : base(DEFAULT_SIZE)
+    internal ForwardingCollection() : base(DefaultSize)
     {
 
     }
@@ -27,14 +27,14 @@ internal sealed class ForwardingCollection : List<Forwarding>, IForwardingCollec
         IPAddress? address = null;
         ClientProtocol? protocol = null;
 
-        headers.TryGetValue(HEADER_HOST, out var host);
+        headers.TryGetValue(HeaderHost, out var host);
 
-        if (headers.TryGetValue(HEADER_FOR, out var stringAddress))
+        if (headers.TryGetValue(HeaderFor, out var stringAddress))
         {
             address = ParseAddress(stringAddress);
         }
 
-        if (headers.TryGetValue(HEADER_PROTO, out var stringProtocol))
+        if (headers.TryGetValue(HeaderProto, out var stringProtocol))
         {
             protocol = ParseProtocol(stringProtocol);
         }
@@ -95,11 +95,11 @@ internal sealed class ForwardingCollection : List<Forwarding>, IForwardingCollec
         {
             if (string.Equals(protocol, "https", StringComparison.OrdinalIgnoreCase))
             {
-                return ClientProtocol.HTTPS;
+                return ClientProtocol.Https;
             }
             if (string.Equals(protocol, "http", StringComparison.OrdinalIgnoreCase))
             {
-                return ClientProtocol.HTTP;
+                return ClientProtocol.Http;
             }
         }
 

@@ -18,9 +18,9 @@ public class ServerCacheHandlerBuilder : IConcernBuilder
     #region Functionality
 
     /// <summary>
-    ///     If disabled, the concern will not invalidate the cache by invoking
-    ///     the handler to check for content changes. Therefore, it will always just
-    ///     cache the first response.
+    /// If disabled, the concern will not invalidate the cache by invoking
+    /// the handler to check for content changes. Therefore, it will always just
+    /// cache the first response.
     /// </summary>
     /// <param name="invalidate">false, if the cache should not be invalidated automatically</param>
     public ServerCacheHandlerBuilder Invalidate(bool invalidate)
@@ -30,8 +30,8 @@ public class ServerCacheHandlerBuilder : IConcernBuilder
     }
 
     /// <summary>
-    ///     A predicate that will be invoked to check, whether the given response
-    ///     should be cached or not.
+    /// A predicate that will be invoked to check, whether the given response
+    /// should be cached or not.
     /// </summary>
     /// <param name="predicate">The predicate to evaluate before a response is cached</param>
     public ServerCacheHandlerBuilder Predicate(Func<IRequest, IResponse, bool> predicate)

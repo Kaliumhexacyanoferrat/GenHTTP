@@ -9,14 +9,14 @@ using GenHTTP.Modules.Webservices.Provider;
 namespace GenHTTP.Modules.Webservices;
 
 /// <summary>
-///     Extensions to simplify handling of service resources.
+/// Extensions to simplify handling of service resources.
 /// </summary>
 public static class Extensions
 {
 
     /// <summary>
-    ///     Adds the given webservice resource to the layout, accessible using
-    ///     the specified path.
+    /// Adds the given webservice resource to the layout, accessible using
+    /// the specified path.
     /// </summary>
     /// <typeparam name="T">The type of the resource to be added</typeparam>
     /// <param name="path">The path the resource should be available at</param>
@@ -27,8 +27,8 @@ public static class Extensions
         layout.Add(path, ServiceResource.From<T>().Configured(injectors, serializers, formatters));
 
     /// <summary>
-    ///     Adds the given webservice resource to the layout, accessible using
-    ///     the specified path.
+    /// Adds the given webservice resource to the layout, accessible using
+    /// the specified path.
     /// </summary>
     /// <param name="path">The path the resource should be available at</param>
     /// <param name="instance">The webservice resource instance</param>

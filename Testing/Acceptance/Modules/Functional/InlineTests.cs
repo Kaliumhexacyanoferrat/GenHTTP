@@ -109,7 +109,7 @@ public sealed class InlineTests
         using var host = TestHost.Run(Inline.Create().Get((IRequest request) =>
         {
             return request.Respond()
-                          .Status(ResponseStatus.OK)
+                          .Status(ResponseStatus.Ok)
                           .Content("42");
         }));
 

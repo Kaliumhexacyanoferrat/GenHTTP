@@ -5,7 +5,7 @@ namespace GenHTTP.Engine.Utilities;
 
 internal class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>, IEnumerator<KeyValuePair<TKey, TValue>> where TKey : IEquatable<TKey>
 {
-    private static readonly ArrayPool<KeyValuePair<TKey, TValue>> POOL = ArrayPool<KeyValuePair<TKey, TValue>>.Shared;
+    private static readonly ArrayPool<KeyValuePair<TKey, TValue>> Pool = ArrayPool<KeyValuePair<TKey, TValue>>.Shared;
 
     private short _Enumerator = -1;
     private ushort _Index;
@@ -22,7 +22,7 @@ internal class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IRead
         {
             if (_Entries is null)
             {
-                _Entries = POOL.Rent(Capacity);
+                _Entries = Pool.Rent(Capacity);
             }
 
             return _Entries!;
@@ -245,7 +245,7 @@ internal class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IRead
                     Capacity *= 2;
                 }
 
-                _Entries = POOL.Rent(Capacity);
+                _Entries = Pool.Rent(Capacity);
 
                 for (var i = 0; i < _Index; i++)
                 {
@@ -254,7 +254,7 @@ internal class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IRead
             }
             finally
             {
-                POOL.Return(oldEntries);
+                Pool.Return(oldEntries);
             }
         }
     }
@@ -263,21 +263,21 @@ internal class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IRead
 
     #region IDisposable Support
 
-    private bool disposedValue;
+    private bool _Disposed = false;
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
-        if (!disposedValue)
+        if (!_Disposed)
         {
             if (disposing)
             {
                 if (HasEntries)
                 {
-                    POOL.Return(Entries);
+                    Pool.Return(Entries);
                 }
             }
 
-            disposedValue = true;
+            _Disposed = true;
         }
     }
 

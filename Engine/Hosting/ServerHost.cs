@@ -121,7 +121,7 @@ public sealed class ServerHost : IServerHost
         {
             var waitEvent = new ManualResetEvent(false);
 
-            AppDomain.CurrentDomain.ProcessExit += (_, __) =>
+            AppDomain.CurrentDomain.ProcessExit += (_, _) =>
             {
                 waitEvent.Set();
             };

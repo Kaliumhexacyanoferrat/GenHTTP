@@ -11,7 +11,7 @@ public enum ResponseStatus
 
     Processing = 102,
 
-    OK = 200,
+    Ok = 200,
 
     Created = 201,
 
@@ -75,7 +75,7 @@ public enum ResponseStatus
 
     FailedDependency = 424,
 
-    ReservedForWebDAV = 425,
+    ReservedForWebDav = 425,
 
     UpgradeRequired = 426,
 
@@ -112,25 +112,25 @@ public enum ResponseStatus
 #endregion
 
 /// <summary>
-///     The status of the response send to the client.
+/// The status of the response send to the client.
 /// </summary>
-public struct FlexibleResponseStatus
+public readonly struct FlexibleResponseStatus
 {
 
     #region Get-/Setters
 
     /// <summary>
-    ///     The known status, if any.
+    /// The known status, if any.
     /// </summary>
     public ResponseStatus? KnownStatus { get; }
 
     /// <summary>
-    ///     The raw HTTP status.
+    /// The raw HTTP status.
     /// </summary>
     public int RawStatus { get; }
 
     /// <summary>
-    ///     The reason phrase to be send.
+    /// The reason phrase to be send.
     /// </summary>
     public string Phrase { get; }
 
@@ -153,7 +153,7 @@ public struct FlexibleResponseStatus
         { ResponseStatus.NotFound, "Not Found" },
         { ResponseStatus.NotImplemented, "Not Implemented" },
         { ResponseStatus.NotModified, "Not Modified" },
-        { ResponseStatus.OK, "OK" },
+        { ResponseStatus.Ok, "OK" },
         { ResponseStatus.ServiceUnavailable, "Service Unavailable" },
         { ResponseStatus.Unauthorized, "Unauthorized" },
         { ResponseStatus.PartialContent, "Partial Content" },
@@ -178,7 +178,7 @@ public struct FlexibleResponseStatus
         { ResponseStatus.UnprocessableEntity, "Unprocessable Entity" },
         { ResponseStatus.Locked, "Locked" },
         { ResponseStatus.FailedDependency, "Failed Dependency" },
-        { ResponseStatus.ReservedForWebDAV, "Reserved For WebDAV" },
+        { ResponseStatus.ReservedForWebDav, "Reserved For WebDAV" },
         { ResponseStatus.UpgradeRequired, "Upgrade Required" },
         { ResponseStatus.PreconditionRequired, "Precondition Required" },
         { ResponseStatus.TooManyRequests, "Too Many Requests" },

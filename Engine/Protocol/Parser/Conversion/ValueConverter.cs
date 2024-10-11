@@ -5,8 +5,7 @@ namespace GenHTTP.Engine.Protocol.Parser.Conversion;
 
 internal static class ValueConverter
 {
-
-    private static readonly Encoding ASCII = Encoding.ASCII;
+    private static readonly Encoding Ascii = Encoding.ASCII;
 
     internal static bool CompareTo(ReadOnlySequence<byte> buffer, string expected)
     {
@@ -39,7 +38,7 @@ internal static class ValueConverter
             {
                 foreach (var segment in sequence)
                 {
-                    ASCII.GetChars(segment.Span, span);
+                    Ascii.GetChars(segment.Span, span);
                     span = span[segment.Length..];
                 }
             });

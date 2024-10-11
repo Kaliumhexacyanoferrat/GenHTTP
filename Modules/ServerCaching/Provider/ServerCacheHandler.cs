@@ -47,7 +47,7 @@ public sealed class ServerCacheHandler : IConcern
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        if (request.HasType(RequestMethod.GET, RequestMethod.HEAD))
+        if (request.HasType(RequestMethod.Get, RequestMethod.Head))
         {
             var response = Invalidate ? await Content.HandleAsync(request) : null;
 
@@ -71,7 +71,7 @@ public sealed class ServerCacheHandler : IConcern
                 response = await Content.HandleAsync(request);
             }
 
-            if (response != null && (response.Status == ResponseStatus.OK || response.Status == ResponseStatus.NoContent))
+            if (response != null && (response.Status == ResponseStatus.Ok || response.Status == ResponseStatus.NoContent))
             {
                 if (Predicate == null || Predicate(request, response))
                 {

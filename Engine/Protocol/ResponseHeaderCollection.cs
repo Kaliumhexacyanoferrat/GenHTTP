@@ -5,9 +5,9 @@ namespace GenHTTP.Engine.Protocol;
 
 internal sealed class ResponseHeaderCollection : PooledDictionary<string, string>, IHeaderCollection, IEditableHeaderCollection
 {
-    private const int DEFAULT_SIZE = 18;
+    private const int DefaultSize = 18;
 
-    private static readonly HashSet<string> RESERVED_HEADERS = new(StringComparer.InvariantCultureIgnoreCase)
+    private static readonly HashSet<string> ReservedHeaders = new(StringComparer.InvariantCultureIgnoreCase)
     {
         "Date", "Connection", "Content-Type", "Content-Encoding", "Content-Length",
         "Transfer-Encoding", "Last-Modified", "Expires"
@@ -15,7 +15,7 @@ internal sealed class ResponseHeaderCollection : PooledDictionary<string, string
 
     #region Initialization
 
-    internal ResponseHeaderCollection() : base(DEFAULT_SIZE, StringComparer.InvariantCultureIgnoreCase)
+    internal ResponseHeaderCollection() : base(DefaultSize, StringComparer.InvariantCultureIgnoreCase)
     {
 
     }
@@ -52,7 +52,7 @@ internal sealed class ResponseHeaderCollection : PooledDictionary<string, string
 
     private static void CheckKey(string key)
     {
-        if (RESERVED_HEADERS.Contains(key))
+        if (ReservedHeaders.Contains(key))
         {
             throw new ArgumentException($"Header '{key}' cannot be set via header. Please use the designated property instead.");
         }

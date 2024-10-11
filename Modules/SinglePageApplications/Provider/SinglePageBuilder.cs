@@ -29,8 +29,8 @@ public sealed class SinglePageBuilder : IHandlerBuilder<SinglePageBuilder>
     public SinglePageBuilder Tree(IBuilder<IResourceTree> tree) => Tree(tree.Build());
 
     /// <summary>
-    ///     If enabled, the server will serve the SPA index for
-    ///     every unknown route, which enables path based routing.
+    /// If enabled, the server will serve the SPA index for
+    /// every unknown route, which enables path based routing.
     /// </summary>
     public SinglePageBuilder ServerSideRouting()
     {

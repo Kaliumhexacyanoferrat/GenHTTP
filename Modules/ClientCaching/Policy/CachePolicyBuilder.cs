@@ -13,8 +13,8 @@ public sealed class CachePolicyBuilder : IConcernBuilder
     #region Functionality
 
     /// <summary>
-    ///     Instructs the client to cache the content generated
-    ///     by the server for the given duration.
+    /// Instructs the client to cache the content generated
+    /// by the server for the given duration.
     /// </summary>
     /// <param name="duration">The duration the content should be cached on the client</param>
     public CachePolicyBuilder Duration(TimeSpan duration)
@@ -24,15 +24,15 @@ public sealed class CachePolicyBuilder : IConcernBuilder
     }
 
     /// <summary>
-    ///     Instructs the client to cache the content generated
-    ///     by the server for the given number of days.
+    /// Instructs the client to cache the content generated
+    /// by the server for the given number of days.
     /// </summary>
     /// <param name="duration">The number of days the content should be cached on the client</param>
     public CachePolicyBuilder Duration(int days) => Duration(TimeSpan.FromDays(days));
 
     /// <summary>
-    ///     Allows to filter the responses which should be cached
-    ///     by the client.
+    /// Allows to filter the responses which should be cached
+    /// by the client.
     /// </summary>
     /// <param name="predicate">The predicate to be evaluated to check, whether content should be cached</param>
     public CachePolicyBuilder Predicate(Func<IRequest, IResponse, bool> predicate)

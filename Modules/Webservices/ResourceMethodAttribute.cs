@@ -9,29 +9,29 @@ public class ResourceMethodAttribute : MethodAttribute
     #region Get-/Setters
 
     /// <summary>
-    ///     The path this method is availabe at.
+    /// The path this method is availabe at.
     /// </summary>
-    public string? Path { get; set; }
+    public string? Path { get; }
 
     #endregion
 
     #region Initialization
 
     /// <summary>
-    ///     Marks the method as a webservice method.
+    /// Marks the method as a webservice method.
     /// </summary>
     /// <param name="requestMethod">The HTTP verb used to invoke the method</param>
     /// <param name="path">The path the method should be available at</param>
-    public ResourceMethodAttribute(RequestMethod requestMethod = RequestMethod.GET, string? path = null) : base(requestMethod)
+    public ResourceMethodAttribute(RequestMethod requestMethod = RequestMethod.Get, string? path = null) : base(requestMethod)
     {
         Path = path;
     }
 
     /// <summary>
-    ///     Configures the method to be invoked via GET at the given path.
+    /// Configures the method to be invoked via GET at the given path.
     /// </summary>
     /// <param name="path">The path the method should be available at</param>
-    public ResourceMethodAttribute(string path) : this(RequestMethod.GET, path)
+    public ResourceMethodAttribute(string path) : this(RequestMethod.Get, path)
     {
 
     }

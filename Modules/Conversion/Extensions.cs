@@ -8,7 +8,7 @@ public static class Extensions
 {
 
     /// <summary>
-    ///     Attempts to convert the given string value to the specified type.
+    /// Attempts to convert the given string value to the specified type.
     /// </summary>
     /// <param name="value">The value to be converted</param>
     /// <param name="type">The target type to convert the value to</param>

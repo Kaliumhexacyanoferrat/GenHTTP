@@ -16,7 +16,7 @@ public sealed class CompressionTests
 {
 
     /// <summary>
-    ///     As a developer, I expect responses to be compressed out of the box.
+    /// As a developer, I expect responses to be compressed out of the box.
     /// </summary>
     [TestMethod]
     public async Task TestCompression()
@@ -32,8 +32,8 @@ public sealed class CompressionTests
     }
 
     /// <summary>
-    ///     As a browser, I expect only supported compression algorithms to be used
-    ///     to generate my response.
+    /// As a browser, I expect only supported compression algorithms to be used
+    /// to generate my response.
     /// </summary>
     [TestMethod]
     public async Task TestSpecificAlgorithms()
@@ -52,7 +52,7 @@ public sealed class CompressionTests
     }
 
     /// <summary>
-    ///     As a developer, I want to be able to disable compression.
+    /// As a developer, I want to be able to disable compression.
     /// </summary>
     [TestMethod]
     public async Task TestCompressionDisabled()
@@ -65,7 +65,7 @@ public sealed class CompressionTests
     }
 
     /// <summary>
-    ///     As a developer, I want to be able to add custom compression algorithms.
+    /// As a developer, I want to be able to add custom compression algorithms.
     /// </summary>
     [TestMethod]
     public async Task TestCustomCompression()
@@ -83,7 +83,7 @@ public sealed class CompressionTests
     }
 
     /// <summary>
-    ///     As a developer, I want already compressed content not to be compressed again.
+    /// As a developer, I want already compressed content not to be compressed again.
     /// </summary>
     [TestMethod]
     public async Task TestNoAdditionalCompression()

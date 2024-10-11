@@ -1,17 +1,25 @@
 ﻿namespace GenHTTP.Api.Routing;
 
 /// <summary>
-///     Specifies a resource available on the server.
+/// Specifies a resource available on the server.
 /// </summary>
-public sealed class WebPath
+public sealed class WebPath(IReadOnlyList<WebPathPart> parts, bool trailingSlash)
 {
 
     #region Initialization
 
-    public WebPath(IReadOnlyList<WebPathPart> parts, bool trailingSlash)
+    public static WebPath FromString(string path)
     {
-        Parts = parts;
-        TrailingSlash = trailingSlash;
+        var split = path.Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+
+        var parts = new List<WebPathPart>(split.Length);
+
+        foreach (var entry in split)
+        {
+            parts.Add(new WebPathPart(entry));
+        }
+
+        return new WebPath(parts, path.EndsWith('/'));
     }
 
     #endregion
@@ -19,23 +27,23 @@ public sealed class WebPath
     #region Get-/Setters
 
     /// <summary>
-    ///     The segments the path consists of.
+    /// The segments the path consists of.
     /// </summary>
-    public IReadOnlyList<WebPathPart> Parts { get; }
+    public IReadOnlyList<WebPathPart> Parts { get; } = parts;
 
     /// <summary>
-    ///     Specifies, whether the path ends with a trailing slash.
+    /// Specifies, whether the path ends with a trailing slash.
     /// </summary>
-    public bool TrailingSlash { get; }
+    public bool TrailingSlash { get; } = trailingSlash;
 
     /// <summary>
-    ///     Specifies, whether the path equals the root of the server instance.
+    /// Specifies, whether the path equals the root of the server instance.
     /// </summary>
     public bool IsRoot => Parts.Count == 0;
 
     /// <summary>
-    ///     The name of the file that is referenced by this path (if this is
-    ///     the path to a file).
+    /// The name of the file that is referenced by this path (if this is
+    /// the path to a file).
     /// </summary>
     public string? File
     {
@@ -43,7 +51,7 @@ public sealed class WebPath
         {
             if (!TrailingSlash)
             {
-                var part = Parts.Count > 0 ? Parts[Parts.Count - 1] : null;
+                var part = Parts.Count > 0 ? Parts[^1] : null;
 
                 return part?.Value.Contains('.') ?? false ? part.Value : null;
             }
@@ -56,17 +64,10 @@ public sealed class WebPath
 
     #region Functionality
 
-    /// <summary>
-    ///     Creates a builder that allows to edit this path.
-    /// </summary>
-    /// <param name="trailingSlash">Specifies, whether the new path will have a trailing slash</param>
-    /// <returns>The newly created builder instance</returns>
-    public PathBuilder Edit(bool trailingSlash) => new(Parts, trailingSlash);
-
     public override string ToString() => ToString(false);
 
     /// <summary>
-    ///     Generates the string representation of this path.
+    /// Generates the string representation of this path.
     /// </summary>
     /// <param name="encoded">Specifies, whether special characters in the path should be percent encoded</param>
     /// <returns>The string representation of the path</returns>
@@ -74,9 +75,9 @@ public sealed class WebPath
     {
         if (!IsRoot)
         {
-            var parts = Parts.Select(p => encoded ? p.Original : p.Value);
+            var segments = Parts.Select(p => encoded ? p.Original : p.Value);
 
-            return "/" + string.Join('/', parts) + (TrailingSlash ? "/" : "");
+            return "/" + string.Join('/', segments) + (TrailingSlash ? "/" : "");
         }
 
         return "/";

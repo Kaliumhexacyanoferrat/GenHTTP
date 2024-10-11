@@ -5,7 +5,7 @@ using GenHTTP.Api.Routing;
 namespace GenHTTP.Engine.Protocol;
 
 /// <summary>
-///     Provides methods to access a recieved http request.
+/// Provides methods to access a recieved http request.
 /// </summary>
 internal sealed class Request : IRequest
 {
@@ -48,7 +48,7 @@ internal sealed class Request : IRequest
 
     #region Functionality
 
-    public IResponseBuilder Respond() => new ResponseBuilder().Status(ResponseStatus.OK);
+    public IResponseBuilder Respond() => new ResponseBuilder().Status(ResponseStatus.Ok);
 
     #endregion
 
@@ -98,18 +98,7 @@ internal sealed class Request : IRequest
 
     public string? UserAgent => this["User-Agent"];
 
-    public string? this[string additionalHeader]
-    {
-        get
-        {
-            if (Headers.ContainsKey(additionalHeader))
-            {
-                return Headers[additionalHeader];
-            }
-
-            return null;
-        }
-    }
+    public string? this[string additionalHeader] => Headers.GetValueOrDefault(additionalHeader);
 
     public ICookieCollection Cookies
     {
@@ -135,11 +124,11 @@ internal sealed class Request : IRequest
 
     #region IDisposable Support
 
-    private bool disposed;
+    private bool _Disposed;
 
     public void Dispose()
     {
-        if (!disposed)
+        if (!_Disposed)
         {
             Headers.Dispose();
 
@@ -151,10 +140,8 @@ internal sealed class Request : IRequest
 
             Content?.Dispose();
 
-            disposed = true;
+            _Disposed = true;
         }
-
-        GC.SuppressFinalize(this);
     }
 
     #endregion

@@ -9,7 +9,7 @@ public sealed class EncodingTests
 {
 
     /// <summary>
-    ///     As a developer, I want UTF-8 to be my default encoding.
+    /// As a developer, I want UTF-8 to be my default encoding.
     /// </summary>
     [TestMethod]
     public async Task TestUtf8DefaultEncoding()

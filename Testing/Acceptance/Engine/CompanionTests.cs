@@ -11,7 +11,7 @@ public sealed class CompanionTests
 {
 
     /// <summary>
-    ///     As a developer, I want to configure the server to easily log to the console.
+    /// As a developer, I want to configure the server to easily log to the console.
     /// </summary>
     [TestMethod]
     public async Task TestConsole()
@@ -24,7 +24,7 @@ public sealed class CompanionTests
     }
 
     /// <summary>
-    ///     As a developer, I want to add custom companions to get notified by server actions.
+    /// As a developer, I want to add custom companions to get notified by server actions.
     /// </summary>
     [TestMethod]
     public async Task TestCustom()

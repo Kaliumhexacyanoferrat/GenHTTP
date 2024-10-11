@@ -12,8 +12,8 @@ public sealed class FlexibleTypeTests
 {
 
     /// <summary>
-    ///     As a developer I would like to use status codes and content types
-    ///     not supported by the server.
+    /// As a developer I would like to use status codes and content types
+    /// not supported by the server.
     /// </summary>
     [TestMethod]
     public async Task TestFlexibleStatus()

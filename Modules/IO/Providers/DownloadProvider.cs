@@ -44,7 +44,7 @@ public sealed class DownloadProvider : IHandler
             return new ValueTask<IResponse?>();
         }
 
-        if (!request.HasType(RequestMethod.GET, RequestMethod.HEAD))
+        if (!request.HasType(RequestMethod.Get, RequestMethod.Head))
         {
             throw new ProviderException(ResponseStatus.MethodNotAllowed, "Only GET requests are allowed by this handler");
         }

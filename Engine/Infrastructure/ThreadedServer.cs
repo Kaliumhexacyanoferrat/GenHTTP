@@ -13,7 +13,7 @@ internal sealed class ThreadedServer : IServer
 
     public string Version { get; }
 
-    public bool Running => !disposed;
+    public bool Running => !_Disposed;
 
     public bool Development => Configuration.DevelopmentMode;
 
@@ -59,18 +59,16 @@ internal sealed class ThreadedServer : IServer
 
     #region IDisposable Support
 
-    private bool disposed;
+    private bool _Disposed;
 
     public void Dispose()
     {
-        if (!disposed)
+        if (!_Disposed)
         {
             _EndPoints.Dispose();
 
-            disposed = true;
+            _Disposed = true;
         }
-
-        GC.SuppressFinalize(this);
     }
 
     #endregion

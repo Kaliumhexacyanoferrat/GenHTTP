@@ -7,8 +7,8 @@ public static class ResourceTreeExtensions
 {
 
     /// <summary>
-    ///     Attempts to resolve the requested node and/or resource from
-    ///     the given container, according to the specified routing target.
+    /// Attempts to resolve the requested node and/or resource from
+    /// the given container, according to the specified routing target.
     /// </summary>
     /// <param name="node">The node used to resolve the target</param>
     /// <param name="target">The target to be resolved</param>

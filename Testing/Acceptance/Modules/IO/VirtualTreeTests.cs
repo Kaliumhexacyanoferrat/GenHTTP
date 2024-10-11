@@ -61,5 +61,6 @@ public sealed class VirtualTreeTests
         await response.AssertStatusAsync(HttpStatusCode.OK);
     }
 
-    private static RoutingTarget GetTarget(string path) => new(new PathBuilder(path).Build());
+    private static RoutingTarget GetTarget(string path) => new(WebPath.FromString(path));
+
 }

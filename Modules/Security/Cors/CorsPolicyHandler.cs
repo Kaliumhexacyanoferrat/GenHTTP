@@ -44,7 +44,7 @@ public sealed class CorsPolicyHandler : IConcern
 
         IResponse? response;
 
-        if (request.HasType(RequestMethod.OPTIONS))
+        if (request.HasType(RequestMethod.Options))
         {
             response = request.Respond()
                               .Status(ResponseStatus.NoContent)
@@ -124,7 +124,7 @@ public sealed class CorsPolicyHandler : IConcern
     {
         if (values is not null)
         {
-            return string.Join(", ", values.Select(v => v.RawMethod));
+            return string.Join(", ", values.Select(v => v.RawMethod.ToUpper()));
         }
 
         return ALLOW_ANY;

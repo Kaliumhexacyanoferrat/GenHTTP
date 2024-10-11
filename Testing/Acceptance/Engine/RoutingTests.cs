@@ -9,7 +9,7 @@ public sealed class RoutingTests
 {
 
     /// <summary>
-    ///     As a client, I expect the server to return 404 for non-existing files.
+    /// As a client, I expect the server to return 404 for non-existing files.
     /// </summary>
     [TestMethod]
     public async Task NotFoundForUnknownRoute()

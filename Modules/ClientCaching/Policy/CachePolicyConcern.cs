@@ -41,7 +41,7 @@ public sealed class CachePolicyConcern : IConcern
 
         if (response != null)
         {
-            if (request.HasType(RequestMethod.GET) && response.Status.KnownStatus == ResponseStatus.OK)
+            if (request.HasType(RequestMethod.Get) && response.Status.KnownStatus == ResponseStatus.Ok)
             {
                 if (Predicate == null || Predicate(request, response))
                 {

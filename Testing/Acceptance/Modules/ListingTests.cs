@@ -11,8 +11,8 @@ public sealed class ListingTests
 {
 
     /// <summary>
-    ///     As an user of a web application, I can view the folders and files available
-    ///     on root level of a listed directory.
+    /// As an user of a web application, I can view the folders and files available
+    /// on root level of a listed directory.
     /// </summary>
     [TestMethod]
     public async Task TestGetMainListing()
@@ -32,8 +32,8 @@ public sealed class ListingTests
     }
 
     /// <summary>
-    ///     As an user of a web application, I can view the folders and files available
-    ///     within a subdirectory of a listed directory.
+    /// As an user of a web application, I can view the folders and files available
+    /// within a subdirectory of a listed directory.
     /// </summary>
     [TestMethod]
     public async Task TestGetSubdirectory()
@@ -48,8 +48,8 @@ public sealed class ListingTests
     }
 
     /// <summary>
-    ///     As an user of a web application, I can download the files listed by the
-    ///     directory listing feature.
+    /// As an user of a web application, I can download the files listed by the
+    /// directory listing feature.
     /// </summary>
     [TestMethod]
     public async Task TestDownload()

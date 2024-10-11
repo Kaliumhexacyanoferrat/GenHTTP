@@ -80,9 +80,9 @@ public static class StreamExtensions
     }
 
     /// <summary>
-    ///     Efficiently calculates the checksum of the stream, beginning
-    ///     from the current position. Resets the position to the previous
-    ///     one.
+    /// Efficiently calculates the checksum of the stream, beginning
+    /// from the current position. Resets the position to the previous
+    /// one.
     /// </summary>
     /// <returns>The checksum of the stream</returns>
     public static async ValueTask<ulong?> CalculateChecksumAsync(this Stream stream)

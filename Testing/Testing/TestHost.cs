@@ -7,8 +7,8 @@ using GenHTTP.Modules.Practices;
 namespace GenHTTP.Testing;
 
 /// <summary>
-///     Hosts GenHTTP projects on a random port and provides convenience functionality
-///     to test the responses of the server.
+/// Hosts GenHTTP projects on a random port and provides convenience functionality
+/// to test the responses of the server.
 /// </summary>
 public class TestHost : IDisposable
 {
@@ -23,12 +23,12 @@ public class TestHost : IDisposable
     #region Get-/Setters
 
     /// <summary>
-    ///     The port this host listens to.
+    /// The port this host listens to.
     /// </summary>
     public int Port { get; }
 
     /// <summary>
-    ///     The host managed by this testing host.
+    /// The host managed by this testing host.
     /// </summary>
     public IServerHost Host { get; }
 
@@ -42,8 +42,8 @@ public class TestHost : IDisposable
     }
 
     /// <summary>
-    ///     Creates a test host that will use the given handler to provide content,
-    ///     but has yet to be started.
+    /// Creates a test host that will use the given handler to provide content,
+    /// but has yet to be started.
     /// </summary>
     /// <param name="handlerBuilder">The handler to be tested</param>
     /// <param name="defaults">true, if the defaults (such as compression) should be added to this handler</param>
@@ -68,8 +68,8 @@ public class TestHost : IDisposable
     }
 
     /// <summary>
-    ///     Creates a test host that will use the given handler to provide content
-    ///     and starts it immediately.
+    /// Creates a test host that will use the given handler to provide content
+    /// and starts it immediately.
     /// </summary>
     /// <param name="handlerBuilder">The handler to be tested</param>
     /// <param name="defaults">true, if the defaults (such as compression) should be added to this handler</param>
@@ -84,11 +84,11 @@ public class TestHost : IDisposable
     }
 
     /// <summary>
-    ///     Starts the server managed by this testing host.
+    /// Starts the server managed by this testing host.
     /// </summary>
     /// <remarks>
-    ///     Dispose this runner to shut down the server and release all resources
-    ///     or close the host via the <see cref="Host" /> property.
+    /// Dispose this runner to shut down the server and release all resources
+    /// or close the host via the <see cref="Host" /> property.
     /// </remarks>
     public void Start()
     {
@@ -100,28 +100,28 @@ public class TestHost : IDisposable
     #region Functionality
 
     /// <summary>
-    ///     Returns the next free port to be used by the testing host
-    ///     to provide content.
+    /// Returns the next free port to be used by the testing host
+    /// to provide content.
     /// </summary>
     /// <remarks>
-    ///     You typically do not need to call this method by yourself, as the
-    ///     test host runner methods will automatically claim the next free port.
+    /// You typically do not need to call this method by yourself, as the
+    /// test host runner methods will automatically claim the next free port.
     /// </remarks>
     /// <returns>The next free port to be used</returns>
     public static int NextPort() => Interlocked.Increment(ref _NextPort);
 
     /// <summary>
-    ///     Computes the URL which can be used to fetch the given path
-    ///     from the hosted server.
+    /// Computes the URL which can be used to fetch the given path
+    /// from the hosted server.
     /// </summary>
     /// <param name="path">The path to fetch from the server</param>
     /// <returns>The URL that can be used to fetch the content</returns>
     public string GetUrl(string? path = null) => $"http://localhost:{Port}{path ?? ""}";
 
     /// <summary>
-    ///     Fetches a request instance for the given path and method which
-    ///     can then be configured before being passed to the <see cref="GetResponseAsync(HttpRequestMessage, HttpClient?)" />
-    ///     method.
+    /// Fetches a request instance for the given path and method which
+    /// can then be configured before being passed to the <see cref="GetResponseAsync(HttpRequestMessage, HttpClient?)" />
+    /// method.
     /// </summary>
     /// <param name="path">The path the request should fetch</param>
     /// <param name="method">The method to be used for the request, if not GET</param>
@@ -129,7 +129,7 @@ public class TestHost : IDisposable
     public HttpRequestMessage GetRequest(string? path = null, HttpMethod? method = null) => new(method ?? HttpMethod.Get, GetUrl(path));
 
     /// <summary>
-    ///     Runs a GET request against the given path.
+    /// Runs a GET request against the given path.
     /// </summary>
     /// <param name="path">The path to be fetched</param>
     /// <param name="client">The configured HTTP client to be used or null, if the default client should be used</param>
@@ -142,7 +142,7 @@ public class TestHost : IDisposable
     }
 
     /// <summary>
-    ///     Executes the given request against the test server.
+    /// Executes the given request against the test server.
     /// </summary>
     /// <param name="message">The request to be executed</param>
     /// <param name="client">The configured HTTP client to be used or null, if the default client should be used</param>
@@ -205,7 +205,7 @@ public class TestHost : IDisposable
     }
 
     /// <summary>
-    ///     Stops the test host and releases all resources.
+    /// Stops the test host and releases all resources.
     /// </summary>
     public void Dispose()
     {

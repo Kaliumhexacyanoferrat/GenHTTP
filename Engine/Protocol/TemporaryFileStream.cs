@@ -1,8 +1,8 @@
 ﻿namespace GenHTTP.Engine.Protocol;
 
 /// <summary>
-///     Provides and maintains a temporary file used by the server engine
-///     to save information, such as the body of a large request.
+/// Provides and maintains a temporary file used by the server engine
+/// to save information, such as the body of a large request.
 /// </summary>
 internal sealed class TemporaryFileStream : FileStream
 {
@@ -35,7 +35,7 @@ internal sealed class TemporaryFileStream : FileStream
     }
 
     /// <summary>
-    ///     Creates a new temporary file which can be used for data storage.
+    /// Creates a new temporary file which can be used for data storage.
     /// </summary>
     /// <returns>The newly created file stream</returns>
     internal static Stream Create() => new TemporaryFileStream(Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".genhttp.tmp"));

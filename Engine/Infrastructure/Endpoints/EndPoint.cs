@@ -33,7 +33,7 @@ internal abstract class EndPoint : IEndPoint
             throw new BindingException($"Failed to bind to {endPoint}.", e);
         }
 
-        Task = Task.Run(() => Listen());
+        Task = Task.Run(Listen);
     }
 
     #endregion
@@ -72,11 +72,11 @@ internal abstract class EndPoint : IEndPoint
             {
                 Handle(await Socket.AcceptAsync());
             }
-            while (!shuttingDown);
+            while (!_ShuttingDown);
         }
         catch (Exception e)
         {
-            if (!shuttingDown)
+            if (!_ShuttingDown)
             {
                 Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, null, e);
             }
@@ -103,13 +103,13 @@ internal abstract class EndPoint : IEndPoint
 
     #region IDisposable Support
 
-    private bool disposed, shuttingDown;
+    private bool _Disposed, _ShuttingDown;
 
     protected virtual void Dispose(bool disposing)
     {
-        shuttingDown = true;
+        _ShuttingDown = true;
 
-        if (!disposed)
+        if (!_Disposed)
         {
             if (disposing)
             {
@@ -126,7 +126,7 @@ internal abstract class EndPoint : IEndPoint
                 }
             }
 
-            disposed = true;
+            _Disposed = true;
         }
     }
 

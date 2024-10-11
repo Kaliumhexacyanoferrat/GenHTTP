@@ -15,9 +15,7 @@ public sealed class ErrorHandlingTests
         public int Test([FromPath] int? id) => 42;
     }
 
-    public sealed class ComplexPath
-    {
-    }
+    public sealed class ComplexPath;
 
     public sealed class ControllerWithComplexPath
     {

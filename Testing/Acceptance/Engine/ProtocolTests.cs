@@ -11,7 +11,7 @@ public sealed class ProtocolTests
 {
 
     /// <summary>
-    ///     As a client I can stream data to the server.
+    /// As a client I can stream data to the server.
     /// </summary>
     [TestMethod]
     public async Task TestPost()
@@ -33,7 +33,7 @@ public sealed class ProtocolTests
     }
 
     /// <summary>
-    ///     As a client I can submit large data.
+    /// As a client I can submit large data.
     /// </summary>
     [TestMethod]
     public async Task TestPutLarge()

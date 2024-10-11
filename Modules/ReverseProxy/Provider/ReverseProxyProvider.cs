@@ -224,9 +224,9 @@ public sealed class ReverseProxyProvider : IHandler
         }
     }
 
-    private static bool CanSendBody(IRequest request) => !request.HasType(RequestMethod.GET, RequestMethod.HEAD, RequestMethod.OPTIONS);
+    private static bool CanSendBody(IRequest request) => !request.HasType(RequestMethod.Get, RequestMethod.Head, RequestMethod.Options);
 
-    private static bool HasBody(IRequest request, HttpResponseMessage response) => !request.HasType(RequestMethod.HEAD) && response.Content.Headers.ContentType is not null;
+    private static bool HasBody(IRequest request, HttpResponseMessage response) => !request.HasType(RequestMethod.Head) && response.Content.Headers.ContentType is not null;
 
     private string RewriteLocation(string location, IRequest request)
     {

@@ -13,12 +13,12 @@ using GenHTTP.Modules.Reflection.Injectors;
 namespace GenHTTP.Modules.Reflection;
 
 /// <summary>
-///     Allows to invoke a function on a service oriented resource.
+/// Allows to invoke a function on a service oriented resource.
 /// </summary>
 /// <remarks>
-///     This provider analyzes the target method to be invoked and supplies
-///     the required arguments. The result of the method is analyzed and
-///     converted into a HTTP response.
+/// This provider analyzes the target method to be invoked and supplies
+/// the required arguments. The result of the method is analyzed and
+/// converted into a HTTP response.
 /// </remarks>
 public sealed class MethodHandler : IHandler
 {
@@ -96,7 +96,7 @@ public sealed class MethodHandler : IHandler
         {
             sourceParameters = Routing.ParsedPath.Match(request.Target.GetRemaining().ToString());
 
-            var matchedPath = new PathBuilder(sourceParameters.Value).Build();
+            var matchedPath = WebPath.FromString(sourceParameters.Value);
 
             foreach (var _ in matchedPath.Parts) request.Target.Advance();
         }
@@ -105,7 +105,7 @@ public sealed class MethodHandler : IHandler
         {
             var targetArguments = new object?[targetParameters.Length];
 
-            var bodyArguments = targetParameters.Length > 0 ? FormFormat.GetContent(request) : null;
+            var bodyArguments = FormFormat.GetContent(request);
 
             for (var i = 0; i < targetParameters.Length; i++)
             {

@@ -46,11 +46,11 @@ internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPoi
 
     #region IDisposable Support
 
-    private bool disposed;
+    private bool _Disposed;
 
     public void Dispose()
     {
-        if (!disposed)
+        if (!_Disposed)
         {
             foreach (var endpoint in this)
             {
@@ -66,10 +66,8 @@ internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPoi
 
             Clear();
 
-            disposed = true;
+            _Disposed = true;
         }
-
-        GC.SuppressFinalize(this);
     }
 
     #endregion

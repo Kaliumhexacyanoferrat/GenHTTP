@@ -12,8 +12,8 @@ public static class Extensions
 {
 
     /// <summary>
-    ///     Causes all requests to the specified path to be handled by the
-    ///     given controller class.
+    /// Causes all requests to the specified path to be handled by the
+    /// given controller class.
     /// </summary>
     /// <typeparam name="T">The type of the controller used to handle requests</typeparam>
     /// <param name="builder">The layout the controller should be added to</param>
@@ -28,8 +28,8 @@ public static class Extensions
     }
 
     /// <summary>
-    ///     Causes the specified controller class to be used to handle the index of
-    ///     this layout.
+    /// Causes the specified controller class to be used to handle the index of
+    /// this layout.
     /// </summary>
     /// <typeparam name="T">The type of the controller used to handle requests</typeparam>
     /// <param name="builder">The layout the controller should be added to</param>

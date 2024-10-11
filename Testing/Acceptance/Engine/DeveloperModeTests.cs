@@ -10,8 +10,8 @@ public sealed class DeveloperModeTests
 {
 
     /// <summary>
-    ///     As a developer of a web project, I would like to see exceptions rendered
-    ///     in the browser, so that I can trace an error more quickly
+    /// As a developer of a web project, I would like to see exceptions rendered
+    /// in the browser, so that I can trace an error more quickly
     /// </summary>
     [TestMethod]
     public async Task TestExceptionsWithTrace()
@@ -28,8 +28,8 @@ public sealed class DeveloperModeTests
     }
 
     /// <summary>
-    ///     As a devops member, I do not want an web application to leak internal
-    ///     implementation detail with exception messages
+    /// As a devops member, I do not want an web application to leak internal
+    /// implementation detail with exception messages
     /// </summary>
     [TestMethod]
     public async Task TestExceptionsWithNoTrace()

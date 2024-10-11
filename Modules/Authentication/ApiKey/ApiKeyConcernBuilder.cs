@@ -14,8 +14,8 @@ public sealed class ApiKeyConcernBuilder : IConcernBuilder
     #region Functionality
 
     /// <summary>
-    ///     Configures the logic that is used to extract an API key from
-    ///     an incoming request (e.g. by reading a header value).
+    /// Configures the logic that is used to extract an API key from
+    /// an incoming request (e.g. by reading a header value).
     /// </summary>
     /// <param name="keyExtractor">The logic to be executed to fetch an API key from a request</param>
     public ApiKeyConcernBuilder Extractor(Func<IRequest, string?> keyExtractor)
@@ -25,8 +25,8 @@ public sealed class ApiKeyConcernBuilder : IConcernBuilder
     }
 
     /// <summary>
-    ///     Configures the handler to read the API key from the
-    ///     specified HTTP header.
+    /// Configures the handler to read the API key from the
+    /// specified HTTP header.
     /// </summary>
     /// <param name="headerName">The name of the header to be read from the request</param>
     public ApiKeyConcernBuilder WithHeader(string headerName)
@@ -36,8 +36,8 @@ public sealed class ApiKeyConcernBuilder : IConcernBuilder
     }
 
     /// <summary>
-    ///     Configures the handler to read the API key from the
-    ///     specified query parameter.
+    /// Configures the handler to read the API key from the
+    /// specified query parameter.
     /// </summary>
     /// <param name="headerName">The name of the query parameter to be read from the request</param>
     public ApiKeyConcernBuilder WithQueryParameter(string parameter)
@@ -47,8 +47,8 @@ public sealed class ApiKeyConcernBuilder : IConcernBuilder
     }
 
     /// <summary>
-    ///     Configures the logic that checks whether a given API key
-    ///     is valid.
+    /// Configures the logic that checks whether a given API key
+    /// is valid.
     /// </summary>
     /// <param name="authenticator">The logic to be executed to authenticate a request</param>
     public ApiKeyConcernBuilder Authenticator(Func<IRequest, string, ValueTask<IUser?>> authenticator)
@@ -58,7 +58,7 @@ public sealed class ApiKeyConcernBuilder : IConcernBuilder
     }
 
     /// <summary>
-    ///     Configures the handler to accept any of the given API keys.
+    /// Configures the handler to accept any of the given API keys.
     /// </summary>
     /// <param name="allowedKeys">The keys which are allowed to access the content secured by the concern</param>
     public ApiKeyConcernBuilder Keys(params string[] allowedKeys)

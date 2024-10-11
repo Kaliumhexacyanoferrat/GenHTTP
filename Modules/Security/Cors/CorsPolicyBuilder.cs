@@ -12,7 +12,7 @@ public sealed class CorsPolicyBuilder : IConcernBuilder
     #region Functionality
 
     /// <summary>
-    ///     Sets the default policy to be applied, if no origin is given or
+    /// Sets the default policy to be applied, if no origin is given or
     /// </summary>
     /// <param name="policy"></param>
     /// <returns></returns>
@@ -23,7 +23,7 @@ public sealed class CorsPolicyBuilder : IConcernBuilder
     }
 
     /// <summary>
-    ///     Adds a custom policy for the specified origin.
+    /// Adds a custom policy for the specified origin.
     /// </summary>
     /// <param name="origin">The origin the policy applies to (e.g. https://example.com)</param>
     /// <param name="policy">The policy to be applied (if not set, access will be denied)</param>
@@ -34,7 +34,7 @@ public sealed class CorsPolicyBuilder : IConcernBuilder
     }
 
     /// <summary>
-    ///     Adds a custom policy for the specified origin.
+    /// Adds a custom policy for the specified origin.
     /// </summary>
     /// <param name="origin">The origin the policy applies to (e.g. https://example.com)</param>
     /// <param name="allowedMethods">The HTTP methods the client is allowed to access (any, if not given)</param>

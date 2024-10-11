@@ -46,10 +46,10 @@ public sealed class WebserviceTests
         [ResourceMethod("guid")]
         public Guid Guid(Guid id) => id;
 
-        [ResourceMethod(RequestMethod.POST, "entity")]
+        [ResourceMethod(RequestMethod.Post, "entity")]
         public TestEntity Entity(TestEntity entity) => entity;
 
-        [ResourceMethod(RequestMethod.PUT, "stream")]
+        [ResourceMethod(RequestMethod.Put, "stream")]
         public Stream Stream(Stream input) => new MemoryStream(Encoding.UTF8.GetBytes(input.Length.ToString()));
 
         [ResourceMethod("requestResponse")]

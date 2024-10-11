@@ -3,9 +3,9 @@
 namespace GenHTTP.Modules.Conversion.Serializers;
 
 /// <summary>
-///     Registers formats that can be used to serialize and
-///     deserialize objects sent to or received from a
-///     service oriented handler.
+/// Registers formats that can be used to serialize and
+/// deserialize objects sent to or received from a
+/// service oriented handler.
 /// </summary>
 public sealed class SerializationRegistry
 {

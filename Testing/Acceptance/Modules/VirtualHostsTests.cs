@@ -11,8 +11,8 @@ public sealed class VirtualHostsTests
 {
 
     /// <summary>
-    ///     As a hoster, I would like to provide several domains using the
-    ///     same server instance.
+    /// As a hoster, I would like to provide several domains using the
+    /// same server instance.
     /// </summary>
     [TestMethod]
     public async Task TestDomains()
@@ -31,8 +31,8 @@ public sealed class VirtualHostsTests
     }
 
     /// <summary>
-    ///     As a developer, I expect the server to return no content if
-    ///     no given route matches.
+    /// As a developer, I expect the server to return no content if
+    /// no given route matches.
     /// </summary>
     [TestMethod]
     public async Task TestNoDefault()

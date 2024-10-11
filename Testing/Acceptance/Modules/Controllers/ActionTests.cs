@@ -34,14 +34,14 @@ public sealed class ActionTests
 
         public IHandlerBuilder Action(int? query) => Content.From(Resource.FromString(query?.ToString() ?? "Action"));
 
-        [ControllerAction(RequestMethod.PUT)]
+        [ControllerAction(RequestMethod.Put)]
         public IHandlerBuilder Action(int? value1, string value2) => Content.From(Resource.FromString((value1?.ToString() ?? "Action") + $" {value2}"));
 
         public IHandlerBuilder SimpleAction([FromPath] int id) => Content.From(Resource.FromString(id.ToString()));
 
         public IHandlerBuilder ComplexAction(int three, [FromPath] int one, [FromPath] int two) => Content.From(Resource.FromString((one + two + three).ToString()));
 
-        [ControllerAction(RequestMethod.POST)]
+        [ControllerAction(RequestMethod.Post)]
         public IHandlerBuilder Action(Model data) => Content.From(Resource.FromString(data.Field ?? "no content"));
 
         public IHandlerBuilder HypenCAsing99() => Content.From(Resource.FromString("OK"));

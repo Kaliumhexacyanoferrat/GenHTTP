@@ -6,14 +6,14 @@ using PooledAwait;
 namespace GenHTTP.Engine.Protocol.Parser;
 
 /// <summary>
-///     Reads the next HTTP request to be handled by the server from
-///     the client connection.
+/// Reads the next HTTP request to be handled by the server from
+/// the client connection.
 /// </summary>
 /// <remarks>
-///     Be aware that this code path is heavily optimized for low
-///     memory allocations. Changes to this class should allocate
-///     as few memory as possible to avoid the performance of
-///     the server from being impacted in a negative manner.
+/// Be aware that this code path is heavily optimized for low
+/// memory allocations. Changes to this class should allocate
+/// as few memory as possible to avoid the performance of
+/// the server from being impacted in a negative manner.
 /// </remarks>
 internal sealed class RequestParser
 {

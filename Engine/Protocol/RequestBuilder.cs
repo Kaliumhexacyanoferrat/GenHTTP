@@ -143,7 +143,7 @@ internal sealed class RequestBuilder : IBuilder<IRequest>
                 throw new BuilderMissingPropertyException("Target");
             }
 
-            var protocol = _EndPoint.Secure ? ClientProtocol.HTTPS : ClientProtocol.HTTP;
+            var protocol = _EndPoint.Secure ? ClientProtocol.Https : ClientProtocol.Http;
 
             if (!Headers.TryGetValue("Host", out var host))
             {

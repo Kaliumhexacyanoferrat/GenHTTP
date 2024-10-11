@@ -1,8 +1,8 @@
 ﻿namespace GenHTTP.Modules.IO.Ranges;
 
 /// <summary>
-///     A stream that can be configured to just write a specified
-///     portion of the incoming data into the underlying stream.
+/// A stream that can be configured to just write a specified
+/// portion of the incoming data into the underlying stream.
 /// </summary>
 public class RangedStream : Stream
 {
@@ -10,8 +10,8 @@ public class RangedStream : Stream
     #region Initialization
 
     /// <summary>
-    ///     Creates a ranged stream that writes the specified portion of
-    ///     data to the given target stream.
+    /// Creates a ranged stream that writes the specified portion of
+    /// data to the given target stream.
     /// </summary>
     /// <param name="target">The stream to write to</param>
     /// <param name="start">The zero based index of the starting position</param>

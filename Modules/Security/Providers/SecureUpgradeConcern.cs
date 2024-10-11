@@ -52,7 +52,7 @@ public sealed class SecureUpgradeConcern : IConcern
                     }
                     if (Mode == SecureUpgrade.Allow)
                     {
-                        if (request.Method.KnownMethod == RequestMethod.GET)
+                        if (request.Method.KnownMethod == RequestMethod.Get)
                         {
                             if (request.Headers.TryGetValue("Upgrade-Insecure-Requests", out var flag))
                             {

@@ -6,7 +6,7 @@ public static class Redirect
 {
 
     /// <summary>
-    ///     Redirects the requesting client to the specified location.
+    /// Redirects the requesting client to the specified location.
     /// </summary>
     /// <param name="location">The location to redirect the client to (an absolute or relative route)</param>
     /// <param name="temporary"><c>false</c>, if the client should remember this redirection</param>

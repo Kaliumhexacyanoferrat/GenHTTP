@@ -21,7 +21,7 @@ public sealed class ForwardingTests
 
         using var response = await host.GetResponseAsync(request);
 
-        Assert.AreEqual("ClientConnection { IPAddress = 85.192.1.5, Protocol = HTTPS, Host = google.com }", await response.GetContentAsync());
+        Assert.AreEqual("ClientConnection { IPAddress = 85.192.1.5, Protocol = Https, Host = google.com }", await response.GetContentAsync());
     }
 
     [TestMethod]
@@ -39,7 +39,7 @@ public sealed class ForwardingTests
 
         using var response = await host.GetResponseAsync(request);
 
-        Assert.AreEqual("ClientConnection { IPAddress = 85.192.1.5, Protocol = HTTP, Host = google.com }", await response.GetContentAsync());
+        Assert.AreEqual("ClientConnection { IPAddress = 85.192.1.5, Protocol = Http, Host = google.com }", await response.GetContentAsync());
     }
 
     [TestMethod]
@@ -59,7 +59,7 @@ public sealed class ForwardingTests
 
         using var response = await host.GetResponseAsync(request);
 
-        Assert.AreEqual("ClientConnection { IPAddress = 85.192.1.1, Protocol = HTTPS, Host = google.com }", await response.GetContentAsync());
+        Assert.AreEqual("ClientConnection { IPAddress = 85.192.1.1, Protocol = Https, Host = google.com }", await response.GetContentAsync());
     }
 
     [TestMethod]

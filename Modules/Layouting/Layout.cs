@@ -6,7 +6,7 @@ public static class Layout
 {
 
     /// <summary>
-    ///     Creates a new layout that can be used to route requests.
+    /// Creates a new layout that can be used to route requests.
     /// </summary>
     /// <returns>The newly created layout builder</returns>
     public static LayoutBuilder Create() => new();

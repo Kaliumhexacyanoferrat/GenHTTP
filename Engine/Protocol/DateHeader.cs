@@ -1,14 +1,14 @@
 ﻿namespace GenHTTP.Engine.Protocol;
 
 /// <summary>
-///     Caches the value of the date header for one second
-///     before creating a new value, saving some allocations.
+/// Caches the value of the date header for one second
+/// before creating a new value, saving some allocations.
 /// </summary>
 public static class DateHeader
 {
-    private static string _Value = string.Empty;
+    private static string _value = string.Empty;
 
-    private static byte _Second = 61;
+    private static byte _second = 61;
 
     #region Functionality
 
@@ -18,13 +18,13 @@ public static class DateHeader
 
         var second = now.Second;
 
-        if (second != _Second)
+        if (second != _second)
         {
-            _Second = (byte)second;
-            _Value = now.ToString("r");
+            _second = (byte)second;
+            _value = now.ToString("r");
         }
 
-        return _Value;
+        return _value;
     }
 
     #endregion

@@ -6,8 +6,8 @@ public static class Inline
 {
 
     /// <summary>
-    ///     Creates a functional handler that accepts delegates
-    ///     which are executed to respond to incoming requests.
+    /// Creates a functional handler that accepts delegates
+    /// which are executed to respond to incoming requests.
     /// </summary>
     public static InlineBuilder Create() => new();
 }

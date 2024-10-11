@@ -23,7 +23,7 @@ internal sealed class SimpleCertificateProvider : ICertificateProvider
 
     #region Functionaliy
 
-    public X509Certificate2? Provide(string? host) => Certificate;
+    public X509Certificate2 Provide(string? host) => Certificate;
 
     #endregion
 

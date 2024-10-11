@@ -8,7 +8,7 @@ public sealed class CacheValidationHandler : IConcern
 {
     private const string ETAG_HEADER = "ETag";
 
-    private static readonly RequestMethod[] _SupportedMethods = { RequestMethod.GET, RequestMethod.HEAD };
+    private static readonly RequestMethod[] _SupportedMethods = { RequestMethod.Get, RequestMethod.Head };
 
     #region Initialization
 

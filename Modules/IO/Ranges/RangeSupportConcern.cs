@@ -35,13 +35,13 @@ public partial class RangeSupportConcern : IConcern
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        if (request.Method == RequestMethod.GET || request.Method == RequestMethod.HEAD)
+        if (request.Method == RequestMethod.Get || request.Method == RequestMethod.Head)
         {
             var response = await Content.HandleAsync(request);
 
             if (response != null)
             {
-                if (response.Status == ResponseStatus.OK)
+                if (response.Status == ResponseStatus.Ok)
                 {
                     var length = response.ContentLength;
 

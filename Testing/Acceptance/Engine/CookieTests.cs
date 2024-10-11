@@ -11,7 +11,7 @@ public sealed class CookieTests
 {
 
     /// <summary>
-    ///     As a developer, I want to be able to set cookies to be accepted by the browser.
+    /// As a developer, I want to be able to set cookies to be accepted by the browser.
     /// </summary>
     [TestMethod]
     public async Task TestCookiesCanBeReturned()
@@ -24,7 +24,7 @@ public sealed class CookieTests
     }
 
     /// <summary>
-    ///     As a developer, I want to be able to read cookies from the client.
+    /// As a developer, I want to be able to read cookies from the client.
     /// </summary>
     [TestMethod]
     public async Task TestCookiesCanBeRead()

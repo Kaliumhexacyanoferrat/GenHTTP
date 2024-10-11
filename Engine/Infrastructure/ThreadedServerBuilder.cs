@@ -10,17 +10,18 @@ namespace GenHTTP.Engine.Infrastructure;
 
 internal sealed class ThreadedServerBuilder : IServerBuilder
 {
+    private readonly List<EndPointConfiguration> _EndPoints = [];
 
-    private readonly List<IConcernBuilder> _Concerns = new();
-
-    private readonly List<EndPointConfiguration> _EndPoints = new();
-    private ushort _Backlog = 1024;
     private IServerCompanion? _Companion;
+
+    private IHandlerBuilder? _Handler;
+
+    private readonly List<IConcernBuilder> _Concerns = [];
 
     private bool _Development;
 
-    private IHandlerBuilder? _Handler;
     private ushort _Port = 8080;
+    private ushort _Backlog = 1024;
 
     private uint _RequestMemoryLimit = 1 * 1024 * 1024; // 1 MB
 

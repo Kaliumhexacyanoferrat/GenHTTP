@@ -49,9 +49,9 @@ public sealed class ChangeTrackingResource : IResource
     public ValueTask<ulong> CalculateChecksumAsync() => Source.CalculateChecksumAsync();
 
     /// <summary>
-    ///     True, if the content of the resource has changed
-    ///     since <see cref="GetContentAsync()" /> has been called
-    ///     the last time.
+    /// True, if the content of the resource has changed
+    /// since <see cref="GetContentAsync()" /> has been called
+    /// the last time.
     /// </summary>
     public async ValueTask<bool> HasChanged() => await CalculateChecksumAsync() != _LastChecksum;
 

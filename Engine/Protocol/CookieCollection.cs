@@ -5,9 +5,9 @@ namespace GenHTTP.Engine.Protocol;
 
 internal sealed class CookieCollection : PooledDictionary<string, Cookie>, ICookieCollection
 {
-    internal const int DEFAULT_SIZE = 6;
+    private const int DefaultSize = 6;
 
-    internal CookieCollection() : base(DEFAULT_SIZE, StringComparer.InvariantCultureIgnoreCase)
+    internal CookieCollection() : base(DefaultSize, StringComparer.InvariantCultureIgnoreCase)
     {
 
     }

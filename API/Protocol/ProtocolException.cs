@@ -1,8 +1,8 @@
 ﻿namespace GenHTTP.Api.Protocol;
 
 /// <summary>
-///     Thrown by the server, if the HTTP protocol has
-///     somehow been violated (either by the server or the client).
+/// Thrown by the server, if the HTTP protocol has
+/// somehow been violated (either by the server or the client).
 /// </summary>
 [Serializable]
 public class ProtocolException : Exception

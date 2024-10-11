@@ -3,8 +3,8 @@
 namespace GenHTTP.Engine.Protocol.Parser;
 
 /// <summary>
-///     Efficiently reads the body from the HTTP request, storing it
-///     in a temporary file if it exceeds the buffering limits.
+/// Efficiently reads the body from the HTTP request, storing it
+/// in a temporary file if it exceeds the buffering limits.
 /// </summary>
 internal sealed class RequestContentParser
 {

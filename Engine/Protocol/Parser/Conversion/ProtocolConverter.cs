@@ -21,11 +21,11 @@ internal static class ProtocolConverter
 
         if (ValueConverter.CompareTo(version, "1.1"))
         {
-            return HttpProtocol.Http_1_1;
+            return HttpProtocol.Http11;
         }
         if (ValueConverter.CompareTo(version, "1.0"))
         {
-            return HttpProtocol.Http_1_0;
+            return HttpProtocol.Http10;
         }
 
         var versionString = ValueConverter.GetString(version);

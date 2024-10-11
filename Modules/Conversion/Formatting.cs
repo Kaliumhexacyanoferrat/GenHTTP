@@ -3,15 +3,15 @@
 namespace GenHTTP.Modules.Conversion;
 
 /// <summary>
-///     Entry point to customize the string representation generated for
-///     various types that can be returned or read by services.
+/// Entry point to customize the string representation generated for
+/// various types that can be returned or read by services.
 /// </summary>
 public static class Formatting
 {
 
     /// <summary>
-    ///     The default formatters to be used with support for enums, GUIDs,
-    ///     primitive types and strings.
+    /// The default formatters to be used with support for enums, GUIDs,
+    /// primitive types and strings.
     /// </summary>
     /// <returns>The default formatters</returns>
     public static FormatterBuilder Default() => new FormatterBuilder().Add<StringFormatter>()
@@ -22,8 +22,8 @@ public static class Formatting
                                                                       .Add<PrimitiveFormatter>();
 
     /// <summary>
-    ///     Creates an empty formatter registry that can be extended
-    ///     as needed.
+    /// Creates an empty formatter registry that can be extended
+    /// as needed.
     /// </summary>
     /// <returns>An empty formatter registry</returns>
     public static FormatterBuilder Empty() => new();

@@ -15,7 +15,7 @@ public sealed class SecurityTests
 {
 
     /// <summary>
-    ///     As a developer I would like to serve my application in a secure manner.
+    /// As a developer I would like to serve my application in a secure manner.
     /// </summary>
     [TestMethod]
     public Task TestSecure()
@@ -32,8 +32,8 @@ public sealed class SecurityTests
     }
 
     /// <summary>
-    ///     As a developer, I expect the server to redirect to a secure endpoint
-    ///     by default.
+    /// As a developer, I expect the server to redirect to a secure endpoint
+    /// by default.
     /// </summary>
     [TestMethod]
     public Task TestDefaultRedirection()
@@ -50,8 +50,8 @@ public sealed class SecurityTests
     }
 
     /// <summary>
-    ///     As a developer, I expect HTTP requests not to be redirected if
-    ///     upgrades are allowed but not requested by the client.
+    /// As a developer, I expect HTTP requests not to be redirected if
+    /// upgrades are allowed but not requested by the client.
     /// </summary>
     [TestMethod]
     public Task TestNoRedirectionWithAllowed()
@@ -67,8 +67,8 @@ public sealed class SecurityTests
     }
 
     /// <summary>
-    ///     As I developer, I expect requests to be upgraded if requested
-    ///     by the client.
+    /// As I developer, I expect requests to be upgraded if requested
+    /// by the client.
     /// </summary>
     [TestMethod]
     public Task TestRedirectionWhenRequested()
@@ -90,8 +90,8 @@ public sealed class SecurityTests
     }
 
     /// <summary>
-    ///     As the hoster of a web application, I want my application to enforce strict
-    ///     transport security, so that man-in-the-middle attacks can be avoided to some extend.
+    /// As the hoster of a web application, I want my application to enforce strict
+    /// transport security, so that man-in-the-middle attacks can be avoided to some extend.
     /// </summary>
     [TestMethod]
     public Task TestTransportPolicy()
@@ -114,8 +114,8 @@ public sealed class SecurityTests
     }
 
     /// <summary>
-    ///     As the operator of the server, I expect the server to resume
-    ///     normal operation after a security error has happened.
+    /// As the operator of the server, I expect the server to resume
+    /// normal operation after a security error has happened.
     /// </summary>
     [TestMethod]
     public Task TestSecurityError()
@@ -137,8 +137,8 @@ public sealed class SecurityTests
     }
 
     /// <summary>
-    ///     As a web developer, I can decide not to return a certificate which will
-    ///     abort the server SSL handshake.
+    /// As a web developer, I can decide not to return a certificate which will
+    /// abort the server SSL handshake.
     /// </summary>
     [TestMethod]
     public Task TestNoCertificate()

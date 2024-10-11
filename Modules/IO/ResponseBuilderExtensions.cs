@@ -10,23 +10,23 @@ public static class ResponseBuilderExtensions
     private static readonly FlexibleContentType _TextPlainType = new(ContentType.TextPlain, "UTF-8");
 
     /// <summary>
-    ///     Sends the given string to the client.
+    /// Sends the given string to the client.
     /// </summary>
     /// <param name="text">The string to be sent</param>
     public static IResponseBuilder Content(this IResponseBuilder builder, string text) => builder.Content(Resource.FromString(text).Type(_TextPlainType).Build());
 
     /// <summary>
-    ///     Sends the given resource to the client.
+    /// Sends the given resource to the client.
     /// </summary>
     /// <param name="resource">The resource to be sent</param>
     /// <remarks>
-    ///     This method will set the content, but not the content
-    ///     type of the response.
+    /// This method will set the content, but not the content
+    /// type of the response.
     /// </remarks>
     public static IResponseBuilder Content(this IResponseBuilder builder, IResource resource) => builder.Content(new ResourceContent(resource)).Type(resource.ContentType ?? FlexibleContentType.Get(ContentType.ApplicationOctetStream));
 
     /// <summary>
-    ///     Sends the given stream to the client.
+    /// Sends the given stream to the client.
     /// </summary>
     /// <param name="stream">The stream to be sent</param>
     /// <param name="knownLength">The known length of the stream (if the stream does not propagate this information)</param>
@@ -34,7 +34,7 @@ public static class ResponseBuilderExtensions
     public static IResponseBuilder Content(this IResponseBuilder builder, Stream stream, ulong? knownLength, Func<ValueTask<ulong?>> checksumProvider) => builder.Content(new StreamContent(stream, knownLength, checksumProvider));
 
     /// <summary>
-    ///     Sends the given stream to the client.
+    /// Sends the given stream to the client.
     /// </summary>
     /// <param name="stream">The stream to be sent</param>
     /// <param name="checksumProvider">The logic to efficiently calculate checksums</param>

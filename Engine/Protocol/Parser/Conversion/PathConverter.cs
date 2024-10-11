@@ -5,14 +5,13 @@ namespace GenHTTP.Engine.Protocol.Parser.Conversion;
 
 internal static class PathConverter
 {
-
-    private static readonly WebPath ROOT = new(new List<WebPathPart>(), true);
+    private static readonly WebPath Root = new(new List<WebPathPart>(), true);
 
     internal static WebPath ToPath(ReadOnlySequence<byte> value)
     {
         if (value.Length == 1)
         {
-            return ROOT;
+            return Root;
         }
 
         var reader = new SequenceReader<byte>(value);

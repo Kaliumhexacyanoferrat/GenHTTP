@@ -15,7 +15,7 @@ public class TemplateRenderer
     public ChangeTrackingResource Template { get; }
 
     /// <summary>
-    ///     Renders the template with the given model.
+    /// Renders the template with the given model.
     /// </summary>
     /// <param name="model">The model to be used for rendering</param>
     /// <returns>The generated response</returns>

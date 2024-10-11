@@ -13,9 +13,9 @@ public static class PathArguments
     private static readonly Regex VAR_PATTERN = new(@"\:([a-z]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     /// <summary>
-    ///     Parses the given path and returns a routing structure
-    ///     expected by the method provider to check which logic
-    ///     to be executed on request.
+    /// Parses the given path and returns a routing structure
+    /// expected by the method provider to check which logic
+    /// to be executed on request.
     /// </summary>
     /// <param name="path">The path to be analyzed</param>
     /// <param name="wildcard">If true, a route will be created that matches any sub path</param>
@@ -53,9 +53,9 @@ public static class PathArguments
     }
 
     /// <summary>
-    ///     Checks, whether the given type ultimately returns a handler or handler builder,
-    ///     so requests should passed to this handler which means that we allow any sub
-    ///     routes here.
+    /// Checks, whether the given type ultimately returns a handler or handler builder,
+    /// so requests should passed to this handler which means that we allow any sub
+    /// routes here.
     /// </summary>
     /// <param name="returnType">The return type to be checked</param>
     /// <returns>true, if the given type will ultimately create an IHandler instance that should handle the request</returns>

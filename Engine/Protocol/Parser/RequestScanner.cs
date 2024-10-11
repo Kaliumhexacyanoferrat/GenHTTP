@@ -54,6 +54,7 @@ internal sealed class RequestScanner
         {
             return await Next(buffer, true, includeWhitespace);
         }
+
         return Current = RequestToken.None;
     }
 

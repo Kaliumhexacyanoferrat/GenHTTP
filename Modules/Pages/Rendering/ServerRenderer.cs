@@ -16,13 +16,13 @@ public sealed class ServerRenderer
     }
 
     /// <summary>
-    ///     Renders a server-styled HTML page for the given title and content.
+    /// Renders a server-styled HTML page for the given title and content.
     /// </summary>
     /// <param name="title">The title of the page to be rendered</param>
     /// <param name="content">The HTML content of the page</param>
     /// <returns>The generated HTML page</returns>
     /// <remarks>
-    ///     This method will not escape the given title or content.
+    /// This method will not escape the given title or content.
     /// </remarks>
     public async ValueTask<string> RenderAsync(string title, string content) => await _TemplateRender.RenderAsync(new Dictionary<Value, Value>
     {
@@ -31,7 +31,7 @@ public sealed class ServerRenderer
     });
 
     /// <summary>
-    ///     Renders a server-styled HTML error page for the given exception.
+    /// Renders a server-styled HTML error page for the given exception.
     /// </summary>
     /// <param name="title">The title of the page to be rendered</param>
     /// <param name="error">The error which has ocurred</param>

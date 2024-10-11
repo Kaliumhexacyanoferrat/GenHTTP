@@ -21,7 +21,7 @@ public sealed class ChunkedContentTest
 
         using var client = TestHost.GetClient();
 
-        using var response = await client.PutAsJsonAsync<Model>(runner.GetUrl(), new Model("Hello World"));
+        using var response = await client.PutAsJsonAsync(runner.GetUrl(), new Model("Hello World"));
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
 

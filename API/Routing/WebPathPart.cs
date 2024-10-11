@@ -1,7 +1,7 @@
 ﻿namespace GenHTTP.Api.Routing;
 
 /// <summary>
-///     Represents a part of an URL (between two slashes).
+/// Represents a part of an URL (between two slashes).
 /// </summary>
 public class WebPathPart
 {
@@ -10,7 +10,7 @@ public class WebPathPart
     #region Initialization
 
     /// <summary>
-    ///     Creates a new part from the original string.
+    /// Creates a new part from the original string.
     /// </summary>
     /// <param name="original">The original string</param>
     public WebPathPart(string original)
@@ -23,25 +23,14 @@ public class WebPathPart
     #region Get-/Setters
 
     /// <summary>
-    ///     The string as received by the server (e.g. "some%20path").
+    /// The string as received by the server (e.g. "some%20path").
     /// </summary>
     public string Original { get; }
 
     /// <summary>
-    ///     The decoded representation of the path (e.g. "some path").
+    /// The decoded representation of the path (e.g. "some path").
     /// </summary>
-    public string Value
-    {
-        get
-        {
-            if (_Value is null)
-            {
-                _Value = Original.Contains('%') ? Uri.UnescapeDataString(Original) : Original;
-            }
-
-            return _Value;
-        }
-    }
+    public string Value => _Value ??= Original.Contains('%') ? Uri.UnescapeDataString(Original) : Original;
 
     #endregion
 

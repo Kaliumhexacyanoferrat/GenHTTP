@@ -4,7 +4,7 @@ namespace GenHTTP.Engine.Protocol;
 
 internal sealed class Response : IResponse
 {
-    private static readonly FlexibleResponseStatus STATUS_OK = new(ResponseStatus.OK);
+    private static readonly FlexibleResponseStatus StatusOk = new(ResponseStatus.Ok);
 
     private readonly ResponseHeaderCollection _Headers = new();
 
@@ -14,7 +14,7 @@ internal sealed class Response : IResponse
 
     internal Response()
     {
-        Status = STATUS_OK;
+        Status = StatusOk;
     }
 
     #endregion
@@ -52,25 +52,14 @@ internal sealed class Response : IResponse
 
     public string? this[string field]
     {
-        get
-        {
-            if (_Headers.TryGetValue(field, out var value))
-            {
-                return value;
-            }
-
-            return null;
-        }
+        get => _Headers.GetValueOrDefault(field);
         set
         {
             if (value is not null)
             {
                 _Headers[field] = value;
             }
-            else if (_Headers.ContainsKey(field))
-            {
-                _Headers.Remove(field);
-            }
+            else _Headers.Remove(field);
         }
     }
 
@@ -83,11 +72,11 @@ internal sealed class Response : IResponse
 
     #region IDisposable Support
 
-    private bool disposed;
+    private bool _Disposed;
 
     public void Dispose()
     {
-        if (!disposed)
+        if (!_Disposed)
         {
             Headers.Dispose();
 
@@ -98,10 +87,8 @@ internal sealed class Response : IResponse
                 disposableContent.Dispose();
             }
 
-            disposed = true;
+            _Disposed = true;
         }
-
-        GC.SuppressFinalize(this);
     }
 
     #endregion

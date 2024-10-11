@@ -7,12 +7,12 @@ using GenHTTP.Engine.Protocol.Parser.Conversion;
 namespace GenHTTP.Engine.Protocol.Parser;
 
 /// <summary>
-///     Reads the chunked encoded body of a client request into
-///     a stream.
+/// Reads the chunked encoded body of a client request into
+/// a stream.
 /// </summary>
 /// <remarks>
-///     As we cannot know the length of the request beforehand,
-///     this will always use a file stream for buffering.
+/// As we cannot know the length of the request beforehand,
+/// this will always use a file stream for buffering.
 /// </remarks>
 internal sealed class ChunkedContentParser
 {

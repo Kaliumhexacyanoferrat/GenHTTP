@@ -63,7 +63,7 @@ public sealed partial class RedirectProvider : IHandler
 
     private static ResponseStatus MapStatus(IRequest request, bool temporary)
     {
-        if (request.HasType(RequestMethod.GET, RequestMethod.HEAD))
+        if (request.HasType(RequestMethod.Get, RequestMethod.Head))
         {
             return temporary ? ResponseStatus.TemporaryRedirect : ResponseStatus.MovedPermanently;
         }

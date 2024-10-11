@@ -9,13 +9,13 @@ namespace GenHTTP.Engine.Protocol;
 
 internal sealed class ResponseHandler
 {
-    private const string SERVER_HEADER = "Server";
+    private const string ServerHeader = "Server";
 
-    private static readonly string NL = "\r\n";
+    private const string NL = "\r\n";
 
-    private static readonly Encoding ASCII = Encoding.ASCII;
+    private static readonly Encoding Ascii = Encoding.ASCII;
 
-    private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
+    private static readonly ArrayPool<byte> Pool = ArrayPool<byte>.Shared;
 
     #region Initialization
 
@@ -36,7 +36,7 @@ internal sealed class ResponseHandler
 
     private Stream OutputStream { get; }
 
-    internal NetworkConfiguration Configuration { get; }
+    private NetworkConfiguration Configuration { get; }
 
     #endregion
 
@@ -78,7 +78,7 @@ internal sealed class ResponseHandler
         }
     }
 
-    private static bool ShouldSendBody(IRequest? request, IResponse response) => (request == null || request.Method.KnownMethod != RequestMethod.HEAD) &&
+    private static bool ShouldSendBody(IRequest? request, IResponse response) => (request == null || request.Method.KnownMethod != RequestMethod.Head) &&
     (
         response.ContentLength > 0 || response.Content?.Length > 0 ||
         response.ContentType is not null || response.ContentEncoding is not null
@@ -86,16 +86,16 @@ internal sealed class ResponseHandler
 
     private ValueTask WriteStatus(IRequest? request, IResponse response)
     {
-        var version = request?.ProtocolType == HttpProtocol.Http_1_1 ? "1.1" : "1.0";
+        var version = request?.ProtocolType == HttpProtocol.Http11 ? "1.1" : "1.0";
 
         return Write("HTTP/", version, " ", NumberStringCache.Convert(response.Status.RawStatus), " ", response.Status.Phrase, NL);
     }
 
     private async ValueTask WriteHeader(IResponse response, bool keepAlive)
     {
-        if (response.Headers.TryGetValue(SERVER_HEADER, out var server))
+        if (response.Headers.TryGetValue(ServerHeader, out var server))
         {
-            await WriteHeaderLine(SERVER_HEADER, server);
+            await WriteHeaderLine(ServerHeader, server);
         }
         else
         {
@@ -151,7 +151,7 @@ internal sealed class ResponseHandler
 
         foreach (var header in response.Headers)
         {
-            if (!header.Key.Equals(SERVER_HEADER, StringComparison.OrdinalIgnoreCase))
+            if (!header.Key.Equals(ServerHeader, StringComparison.OrdinalIgnoreCase))
             {
                 await WriteHeaderLine(header.Key, header.Value);
             }
@@ -172,7 +172,7 @@ internal sealed class ResponseHandler
         {
             if (response.ContentLength is null)
             {
-                using var chunked = new ChunkedStream(OutputStream);
+                await using var chunked = new ChunkedStream(OutputStream);
 
                 await response.Content.WriteAsync(chunked, Configuration.TransferBufferSize);
 
@@ -206,12 +206,12 @@ internal sealed class ResponseHandler
     }
 
     /// <summary>
-    ///     Writes the given parts to the output stream.
+    /// Writes the given parts to the output stream.
     /// </summary>
     /// <remarks>
-    ///     Reduces the number of writes to the output stream by collecting
-    ///     data to be written. Cannot use params keyword because it allocates
-    ///     an array.
+    /// Reduces the number of writes to the output stream by collecting
+    /// data to be written. Cannot use params keyword because it allocates
+    /// an array.
     /// </remarks>
     private async ValueTask Write(string part1, string? part2 = null, string? part3 = null,
         string? part4 = null, string? part5 = null, string? part6 = null, string? part7 = null)
@@ -219,47 +219,47 @@ internal sealed class ResponseHandler
         var length = part1.Length + (part2?.Length ?? 0) + (part3?.Length ?? 0) + (part4?.Length ?? 0)
             + (part5?.Length ?? 0) + (part6?.Length ?? 0) + (part7?.Length ?? 0);
 
-        var buffer = POOL.Rent(length);
+        var buffer = Pool.Rent(length);
 
         try
         {
-            var index = ASCII.GetBytes(part1, 0, part1.Length, buffer, 0);
+            var index = Ascii.GetBytes(part1, 0, part1.Length, buffer, 0);
 
             if (part2 is not null)
             {
-                index += ASCII.GetBytes(part2, 0, part2.Length, buffer, index);
+                index += Ascii.GetBytes(part2, 0, part2.Length, buffer, index);
             }
 
             if (part3 is not null)
             {
-                index += ASCII.GetBytes(part3, 0, part3.Length, buffer, index);
+                index += Ascii.GetBytes(part3, 0, part3.Length, buffer, index);
             }
 
             if (part4 is not null)
             {
-                index += ASCII.GetBytes(part4, 0, part4.Length, buffer, index);
+                index += Ascii.GetBytes(part4, 0, part4.Length, buffer, index);
             }
 
             if (part5 is not null)
             {
-                index += ASCII.GetBytes(part5, 0, part5.Length, buffer, index);
+                index += Ascii.GetBytes(part5, 0, part5.Length, buffer, index);
             }
 
             if (part6 is not null)
             {
-                index += ASCII.GetBytes(part6, 0, part6.Length, buffer, index);
+                index += Ascii.GetBytes(part6, 0, part6.Length, buffer, index);
             }
 
             if (part7 is not null)
             {
-                ASCII.GetBytes(part7, 0, part7.Length, buffer, index);
+                Ascii.GetBytes(part7, 0, part7.Length, buffer, index);
             }
 
             await OutputStream.WriteAsync(buffer.AsMemory(0, length));
         }
         finally
         {
-            POOL.Return(buffer);
+            Pool.Return(buffer);
         }
     }
 

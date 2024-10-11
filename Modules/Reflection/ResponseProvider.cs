@@ -9,8 +9,8 @@ using GenHTTP.Modules.IO.Streaming;
 namespace GenHTTP.Modules.Reflection;
 
 /// <summary>
-///     Converts the result fetched from an invocation using reflection
-///     into a HTTP response.
+/// Converts the result fetched from an invocation using reflection
+/// into a HTTP response.
 /// </summary>
 public class ResponseProvider
 {

@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace GenHTTP.Testing.Acceptance;
 
 /// <summary>
-///     Compatibility assertions for XUnit.
+/// Compatibility assertions for XUnit.
 /// </summary>
 public static class AssertX
 {
@@ -41,9 +41,9 @@ public static class AssertX
     public static void IsNullOrEmpty(string? value) => Assert.IsTrue(string.IsNullOrEmpty(value));
 
     /// <summary>
-    ///     Raises an assertion expection if the response does not have the expected status code
-    ///     and additionally prints information about the response to be able to further debug
-    ///     issues in workflow runs.
+    /// Raises an assertion expection if the response does not have the expected status code
+    /// and additionally prints information about the response to be able to further debug
+    /// issues in workflow runs.
     /// </summary>
     /// <param name="response">The response to be evaluated</param>
     /// <param name="expectedStatus">The expected status code to check for</param>

@@ -31,7 +31,7 @@ public sealed class DataTests
     public class TestController
     {
 
-        [ControllerAction(RequestMethod.POST)]
+        [ControllerAction(RequestMethod.Post)]
         public DateOnly Date(DateOnly date) => date;
     }
 

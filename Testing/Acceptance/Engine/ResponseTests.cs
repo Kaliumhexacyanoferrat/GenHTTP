@@ -13,7 +13,7 @@ public sealed class ResponseTests
 {
 
     /// <summary>
-    ///     As a developer, I'd like to use all of the response builders methods.
+    /// As a developer, I'd like to use all of the response builders methods.
     /// </summary>
     [TestMethod]
     public async Task TestProperties()
@@ -38,7 +38,7 @@ public sealed class ResponseTests
     }
 
     /// <summary>
-    ///     As a client, I'd like a response containing an empty body to return a Content-Length of 0.
+    /// As a client, I'd like a response containing an empty body to return a Content-Length of 0.
     /// </summary>
     [TestMethod]
     public async Task TestEmptyBody()
@@ -77,7 +77,7 @@ public sealed class ResponseTests
         {
             return request.Method.KnownMethod switch
             {
-                RequestMethod.POST => request.Respond()
+                RequestMethod.Post => request.Respond()
                                              .Content("")
                                              .Type("")
                                              .BuildTask(),
