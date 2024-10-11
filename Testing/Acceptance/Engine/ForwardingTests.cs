@@ -6,16 +6,15 @@ using GenHTTP.Modules.Functional;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Engine
+namespace GenHTTP.Testing.Acceptance.Engine;
+
+[TestClass]
+public sealed class ForwardingTests
 {
 
-    [TestClass]
-    public sealed class ForwardingTests
+    [TestMethod]
+    public async Task TestModern()
     {
-
-        [TestMethod]
-        public async Task TestModern()
-        {
             var responder = Inline.Create().Get((IRequest request) => $"{request.Client}");
 
             using var host = TestHost.Run(responder);
@@ -29,9 +28,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
             Assert.AreEqual("ClientConnection { IPAddress = 85.192.1.5, Protocol = HTTPS, Host = google.com }", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestLegacy()
-        {
+    [TestMethod]
+    public async Task TestLegacy()
+    {
             var responder = Inline.Create().Get((IRequest request) => $"{request.Client}");
 
             using var host = TestHost.Run(responder);
@@ -47,9 +46,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
             Assert.AreEqual("ClientConnection { IPAddress = 85.192.1.5, Protocol = HTTP, Host = google.com }", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestBoth()
-        {
+    [TestMethod]
+    public async Task TestBoth()
+    {
             var responder = Inline.Create().Get((IRequest request) => $"{request.Client}");
 
             using var host = TestHost.Run(responder);
@@ -67,9 +66,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
             Assert.AreEqual("ClientConnection { IPAddress = 85.192.1.1, Protocol = HTTPS, Host = google.com }", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestInvalid()
-        {
+    [TestMethod]
+    public async Task TestInvalid()
+    {
             var responder = Inline.Create().Get((IRequest request) => $"{request.Forwardings.First().ToString()}");
 
             using var host = TestHost.Run(responder);
@@ -82,7 +81,5 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             Assert.AreEqual("Forwarding { For = , Host = google.com, Protocol =  }", await response.GetContentAsync());
         }
-
-    }
 
 }

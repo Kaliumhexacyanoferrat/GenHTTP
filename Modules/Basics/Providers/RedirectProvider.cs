@@ -4,45 +4,44 @@ using System.Threading.Tasks;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Basics.Providers
+namespace GenHTTP.Modules.Basics.Providers;
+
+public sealed partial class RedirectProvider : IHandler
 {
+    private static readonly Regex PROTOCOL_MATCHER = CreateProtocolMatcher();
 
-    public sealed partial class RedirectProvider : IHandler
+    #region Get-/Setters
+
+    public string Target { get; }
+
+    public bool Temporary { get; }
+
+    public IHandler Parent { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public RedirectProvider(IHandler parent, string location, bool temporary)
     {
-        private static readonly Regex PROTOCOL_MATCHER = CreateProtocolMatcher();
-
-        #region Get-/Setters
-
-        public string Target { get; }
-
-        public bool Temporary { get; }
-
-        public IHandler Parent { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public RedirectProvider(IHandler parent, string location, bool temporary)
-        {
             Parent = parent;
 
             Target = location;
             Temporary = temporary;
         }
 
-        [GeneratedRegex("^[a-z_-]+://", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
-        private static partial Regex CreateProtocolMatcher();
+    [GeneratedRegex("^[a-z_-]+://", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex CreateProtocolMatcher();
 
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             var resolved = ResolveRoute(request, Target);
 
             var response = request.Respond()
@@ -53,8 +52,8 @@ namespace GenHTTP.Modules.Basics.Providers
             return new ValueTask<IResponse?>(response.Status(status).Build());
         }
 
-        private static string ResolveRoute(IRequest request, string route)
-        {
+    private static string ResolveRoute(IRequest request, string route)
+    {
             if (PROTOCOL_MATCHER.IsMatch(route))
             {
                 return route;
@@ -65,8 +64,8 @@ namespace GenHTTP.Modules.Basics.Providers
             return $"{protocol}{request.Host}{route}";
         }
 
-        private static ResponseStatus MapStatus(IRequest request, bool temporary)
-        {
+    private static ResponseStatus MapStatus(IRequest request, bool temporary)
+    {
             if (request.HasType(RequestMethod.GET, RequestMethod.HEAD))
             {
                 return (temporary) ? ResponseStatus.TemporaryRedirect : ResponseStatus.MovedPermanently;
@@ -77,8 +76,6 @@ namespace GenHTTP.Modules.Basics.Providers
             }
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

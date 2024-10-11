@@ -13,29 +13,28 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Layouting;
 
-namespace GenHTTP.Testing.Acceptance.Engine
+namespace GenHTTP.Testing.Acceptance.Engine;
+
+[TestClass]
+public sealed class ResponseTests
 {
 
-    [TestClass]
-    public sealed class ResponseTests
+    private class ResponseProvider : IHandler
     {
 
-        private class ResponseProvider : IHandler
+        public DateTime Modified { get; }
+
+        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
+        public IHandler Parent => throw new NotImplementedException();
+
+        public ResponseProvider()
         {
-
-            public DateTime Modified { get; }
-
-            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
-
-            public IHandler Parent => throw new NotImplementedException();
-
-            public ResponseProvider()
-            {
                 Modified = DateTime.Now.AddDays(-10);
             }
 
-            public ValueTask<IResponse?> HandleAsync(IRequest request)
-            {
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
+        {
                 return request.Method.KnownMethod switch
                 {
                     RequestMethod.POST => request.Respond()
@@ -52,14 +51,14 @@ namespace GenHTTP.Testing.Acceptance.Engine
                 };
             }
 
-        }
+    }
 
-        /// <summary>
-        /// As a developer, I'd like to use all of the response builders methods.
-        /// </summary>
-        [TestMethod]
-        public async Task TestProperties()
-        {
+    /// <summary>
+    /// As a developer, I'd like to use all of the response builders methods.
+    /// </summary>
+    [TestMethod]
+    public async Task TestProperties()
+    {
             var provider = new ResponseProvider();
 
             var router = Layout.Create().Index(provider.Wrap());
@@ -79,12 +78,12 @@ namespace GenHTTP.Testing.Acceptance.Engine
             Assert.AreEqual("Test Runner", response.GetHeader("X-Powered-By"));
         }
 
-        /// <summary>
-        /// As a client, I'd like a response containing an empty body to return a Content-Length of 0.
-        /// </summary>
-        [TestMethod]
-        public async Task TestEmptyBody()
-        {
+    /// <summary>
+    /// As a client, I'd like a response containing an empty body to return a Content-Length of 0.
+    /// </summary>
+    [TestMethod]
+    public async Task TestEmptyBody()
+    {
             var provider = new ResponseProvider();
 
             var router = Layout.Create().Index(provider.Wrap());
@@ -100,7 +99,5 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             Assert.AreEqual("0", response.GetContentHeader("Content-Length"));
         }
-
-    }
 
 }

@@ -4,34 +4,33 @@ using System.Threading.Tasks;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Security.Providers
+namespace GenHTTP.Modules.Security.Providers;
+
+public class SnifferPreventionConcern : IConcern
 {
 
-    public class SnifferPreventionConcern : IConcern
+    #region Get-/Setters
+
+    public IHandler Parent { get; }
+
+    public IHandler Content { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public SnifferPreventionConcern(IHandler parent, Func<IHandler, IHandler> contentFactory)
     {
-
-        #region Get-/Setters
-
-        public IHandler Parent { get; }
-
-        public IHandler Content { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public SnifferPreventionConcern(IHandler parent, Func<IHandler, IHandler> contentFactory)
-        {
             Parent = parent;
             Content = contentFactory(this);
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             var content = await Content.HandleAsync(request);
 
             if (content != null)
@@ -42,10 +41,8 @@ namespace GenHTTP.Modules.Security.Providers
             return content;
         }
 
-        public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-        #endregion
-
-    }
+    #endregion
 
 }

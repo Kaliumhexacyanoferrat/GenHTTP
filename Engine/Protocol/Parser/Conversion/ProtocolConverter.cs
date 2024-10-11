@@ -2,14 +2,13 @@
 
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Engine.Protocol.Parser.Conversion
+namespace GenHTTP.Engine.Protocol.Parser.Conversion;
+
+internal static class ProtocolConverter
 {
 
-    internal static class ProtocolConverter
+    internal static HttpProtocol ToProtocol(ReadOnlySequence<byte> value)
     {
-
-        internal static HttpProtocol ToProtocol(ReadOnlySequence<byte> value)
-        {
             var reader = new SequenceReader<byte>(value);
 
             if (value.Length != 8)
@@ -34,7 +33,5 @@ namespace GenHTTP.Engine.Protocol.Parser.Conversion
 
             throw new ProtocolException($"Unexpected protocol version '{versionString}'");
         }
-
-    }
 
 }

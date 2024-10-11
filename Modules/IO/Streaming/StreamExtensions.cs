@@ -4,19 +4,18 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GenHTTP.Modules.IO.Streaming
+namespace GenHTTP.Modules.IO.Streaming;
+
+public static class StreamExtensions
 {
+    private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
 
-    public static class StreamExtensions
+    private static readonly Encoding UTF8 = Encoding.UTF8;
+
+    private static readonly Encoder ENCODER = UTF8.GetEncoder();
+
+    public static async ValueTask CopyPooledAsync(this Stream source, Stream target, uint bufferSize)
     {
-        private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Shared;
-
-        private static readonly Encoding UTF8 = Encoding.UTF8;
-
-        private static readonly Encoder ENCODER = UTF8.GetEncoder();
-
-        public static async ValueTask CopyPooledAsync(this Stream source, Stream target, uint bufferSize)
-        {
             if (source.CanSeek && source.Position != 0)
             {
                 source.Seek(0, SeekOrigin.Begin);
@@ -47,8 +46,8 @@ namespace GenHTTP.Modules.IO.Streaming
             }
         }
 
-        public static async ValueTask WriteAsync(this string content, Stream target)
-        {
+    public static async ValueTask WriteAsync(this string content, Stream target)
+    {
             var bytes = ENCODER.GetByteCount(content, false);
 
             var buffer = POOL.Rent(bytes);
@@ -65,8 +64,8 @@ namespace GenHTTP.Modules.IO.Streaming
             }
         }
 
-        public static void Write(this string content, Stream target)
-        {
+    public static void Write(this string content, Stream target)
+    {
             var length = ENCODER.GetByteCount(content, false);
 
             var buffer = POOL.Rent(length);
@@ -83,14 +82,14 @@ namespace GenHTTP.Modules.IO.Streaming
             }
         }
 
-        /// <summary>
-        /// Efficiently calculates the checksum of the stream, beginning
-        /// from the current position. Resets the position to the previous
-        /// one.
-        /// </summary>
-        /// <returns>The checksum of the stream</returns>
-        public static async ValueTask<ulong?> CalculateChecksumAsync(this Stream stream)
-        {
+    /// <summary>
+    /// Efficiently calculates the checksum of the stream, beginning
+    /// from the current position. Resets the position to the previous
+    /// one.
+    /// </summary>
+    /// <returns>The checksum of the stream</returns>
+    public static async ValueTask<ulong?> CalculateChecksumAsync(this Stream stream)
+    {
             if (stream.CanSeek)
             {
                 var position = stream.Position;
@@ -134,7 +133,5 @@ namespace GenHTTP.Modules.IO.Streaming
 
             return null;
         }
-
-    }
 
 }

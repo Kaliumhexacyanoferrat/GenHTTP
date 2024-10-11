@@ -12,48 +12,47 @@ using GenHTTP.Modules.Webservices;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Webservices
+namespace GenHTTP.Testing.Acceptance.Modules.Webservices;
+
+[TestClass]
+public sealed class HandlerResultTests
 {
 
-    [TestClass]
-    public sealed class HandlerResultTests
+    #region Supporting data structures
+
+    public sealed class RootService
     {
+        private static readonly IBuilder<IResourceTree> _Tree = CreateTree();
 
-        #region Supporting data structures
-
-        public sealed class RootService
+        [ResourceMethod]
+        public IHandlerBuilder Root()
         {
-            private static readonly IBuilder<IResourceTree> _Tree = CreateTree();
-
-            [ResourceMethod]
-            public IHandlerBuilder Root()
-            {
                 return StaticWebsite.From(_Tree);
             }
 
-        }
+    }
 
-        public sealed class PathService
+    public sealed class PathService
+    {
+        private static readonly IBuilder<IResourceTree> _Tree = CreateTree();
+
+        [ResourceMethod(path: "/mypath/:pathParam/")]
+        public IHandlerBuilder Pathed(string pathParam)
         {
-            private static readonly IBuilder<IResourceTree> _Tree = CreateTree();
-
-            [ResourceMethod(path: "/mypath/:pathParam/")]
-            public IHandlerBuilder Pathed(string pathParam)
-            {
                 Assert.AreEqual("param", pathParam);
 
                 return StaticWebsite.From(_Tree);
             }
 
-        }
+    }
 
-        public sealed class PathAsyncService
+    public sealed class PathAsyncService
+    {
+        private static readonly IBuilder<IResourceTree> _Tree = CreateTree();
+
+        [ResourceMethod(path: "/mypath/:pathParam/")]
+        public Task<IHandlerBuilder> Pathed(string pathParam)
         {
-            private static readonly IBuilder<IResourceTree> _Tree = CreateTree();
-
-            [ResourceMethod(path: "/mypath/:pathParam/")]
-            public Task<IHandlerBuilder> Pathed(string pathParam)
-            {
                 Assert.AreEqual("param", pathParam);
 
                 IHandlerBuilder handlerBuilder = StaticWebsite.From(_Tree);
@@ -61,15 +60,15 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
                 return Task.FromResult(handlerBuilder);
             }
 
-        }
+    }
 
-        #endregion
+    #endregion
 
-        #region Tests
+    #region Tests
 
-        [TestMethod]
-        public async Task TestRoot()
-        {
+    [TestMethod]
+    public async Task TestRoot()
+    {
             var app = Layout.Create()
                             .AddService<RootService>("c");
 
@@ -82,9 +81,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
             Assert.AreEqual("My Textfile", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestPathed()
-        {
+    [TestMethod]
+    public async Task TestPathed()
+    {
             var app = Layout.Create()
                             .AddService<PathService>("c");
 
@@ -97,9 +96,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
             Assert.AreEqual("My Textfile", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestPathedAsync()
-        {
+    [TestMethod]
+    public async Task TestPathedAsync()
+    {
             var app = Layout.Create()
                             .AddService<PathAsyncService>("c");
 
@@ -112,12 +111,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
             Assert.AreEqual("My Textfile", await response.GetContentAsync());
         }
 
-        #endregion
+    #endregion
 
-        #region Helpers
+    #region Helpers
 
-        public static IBuilder<IResourceTree> CreateTree()
-        {
+    public static IBuilder<IResourceTree> CreateTree()
+    {
             var subTree = VirtualTree.Create()
                                      .Add("index.htm", Resource.FromString("Sub Index"))
                                      .Add("my.txt", Resource.FromString("My Textfile"));
@@ -127,8 +126,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
                               .Add("sub", subTree);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

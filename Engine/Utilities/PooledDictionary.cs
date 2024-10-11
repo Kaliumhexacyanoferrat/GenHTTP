@@ -3,26 +3,25 @@ using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace GenHTTP.Engine.Utilities
+namespace GenHTTP.Engine.Utilities;
+
+internal class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>, IEnumerator<KeyValuePair<TKey, TValue>> where TKey : IEquatable<TKey>
 {
+    private static readonly ArrayPool<KeyValuePair<TKey, TValue>> POOL = ArrayPool<KeyValuePair<TKey, TValue>>.Shared;
 
-    internal class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>, IEnumerator<KeyValuePair<TKey, TValue>> where TKey : IEquatable<TKey>
+    private short _Enumerator = -1;
+    private ushort _Index = 0;
+
+    private KeyValuePair<TKey, TValue>[]? _Entries;
+
+    private readonly IEqualityComparer<TKey> _Comparer;
+
+    #region Get-/Setters
+
+    private KeyValuePair<TKey, TValue>[] Entries
     {
-        private static readonly ArrayPool<KeyValuePair<TKey, TValue>> POOL = ArrayPool<KeyValuePair<TKey, TValue>>.Shared;
-
-        private short _Enumerator = -1;
-        private ushort _Index = 0;
-
-        private KeyValuePair<TKey, TValue>[]? _Entries;
-
-        private readonly IEqualityComparer<TKey> _Comparer;
-
-        #region Get-/Setters
-
-        private KeyValuePair<TKey, TValue>[] Entries
+        get
         {
-            get
-            {
                 if (_Entries is null)
                 {
                     _Entries = POOL.Rent(Capacity);
@@ -30,14 +29,14 @@ namespace GenHTTP.Engine.Utilities
 
                 return _Entries!;
             }
-        }
+    }
 
-        private bool HasEntries => _Entries is not null;
+    private bool HasEntries => _Entries is not null;
 
-        public virtual TValue this[TKey key]
+    public virtual TValue this[TKey key]
+    {
+        get
         {
-            get
-            {
                 if (HasEntries)
                 {
                     for (int i = 0; i < _Index; i++)
@@ -51,8 +50,8 @@ namespace GenHTTP.Engine.Utilities
 
                 throw new KeyNotFoundException();
             }
-            set
-            {
+        set
+        {
                 if (HasEntries)
                 {
                     for (int i = 0; i < _Index; i++)
@@ -67,12 +66,12 @@ namespace GenHTTP.Engine.Utilities
 
                 Add(key, value);
             }
-        }
+    }
 
-        public ICollection<TKey> Keys
+    public ICollection<TKey> Keys
+    {
+        get
         {
-            get
-            {
                 var result = new List<TKey>(_Index);
 
                 if (HasEntries)
@@ -85,12 +84,12 @@ namespace GenHTTP.Engine.Utilities
 
                 return result;
             }
-        }
+    }
 
-        public ICollection<TValue> Values
+    public ICollection<TValue> Values
+    {
+        get
         {
-            get
-            {
                 var result = new List<TValue>(_Index);
 
                 if (HasEntries)
@@ -103,61 +102,61 @@ namespace GenHTTP.Engine.Utilities
 
                 return result;
             }
+    }
+
+    public int Count => _Index;
+
+    public bool IsReadOnly => false;
+
+    IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => Keys;
+
+    IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
+
+    public KeyValuePair<TKey, TValue> Current => Entries[_Enumerator];
+
+    object IEnumerator.Current => Entries[_Enumerator];
+
+    public int Capacity { get; private set; }
+
+    #endregion
+
+    #region Initialization
+
+    internal PooledDictionary() : this(4, EqualityComparer<TKey>.Default)
+    {
+
         }
 
-        public int Count => _Index;
-
-        public bool IsReadOnly => false;
-
-        IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => Keys;
-
-        IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
-
-        public KeyValuePair<TKey, TValue> Current => Entries[_Enumerator];
-
-        object IEnumerator.Current => Entries[_Enumerator];
-
-        public int Capacity { get; private set; }
-
-        #endregion
-
-        #region Initialization
-
-        internal PooledDictionary() : this(4, EqualityComparer<TKey>.Default)
-        {
-
-        }
-
-        internal PooledDictionary(int initialCapacity, IEqualityComparer<TKey> comparer)
-        {
+    internal PooledDictionary(int initialCapacity, IEqualityComparer<TKey> comparer)
+    {
             Capacity = initialCapacity;
 
             _Comparer = comparer;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public virtual void Add(TKey key, TValue value)
-        {
+    public virtual void Add(TKey key, TValue value)
+    {
             CheckResize();
             Entries[_Index++] = new(key, value);
         }
 
-        public virtual void Add(KeyValuePair<TKey, TValue> item)
-        {
+    public virtual void Add(KeyValuePair<TKey, TValue> item)
+    {
             CheckResize();
             Entries[_Index++] = item;
         }
 
-        public void Clear()
-        {
+    public void Clear()
+    {
             _Index = 0;
         }
 
-        public bool Contains(KeyValuePair<TKey, TValue> item)
-        {
+    public bool Contains(KeyValuePair<TKey, TValue> item)
+    {
             if (HasEntries)
             {
                 for (int i = 0; i < _Index; i++)
@@ -172,8 +171,8 @@ namespace GenHTTP.Engine.Utilities
             return false;
         }
 
-        public bool ContainsKey(TKey key)
-        {
+    public bool ContainsKey(TKey key)
+    {
             if (HasEntries)
             {
                 for (int i = 0; i < _Index; i++)
@@ -188,29 +187,29 @@ namespace GenHTTP.Engine.Utilities
             return false;
         }
 
-        public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
-        {
+    public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
+    {
             throw new NotSupportedException();
         }
 
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
-        {
+    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+    {
             _Enumerator = -1;
             return this;
         }
 
-        public bool Remove(TKey key)
-        {
+    public bool Remove(TKey key)
+    {
             throw new NotSupportedException();
         }
 
-        public bool Remove(KeyValuePair<TKey, TValue> item)
-        {
+    public bool Remove(KeyValuePair<TKey, TValue> item)
+    {
             throw new NotSupportedException();
         }
 
-        public bool TryGetValue(TKey key, out TValue value)
-        {
+    public bool TryGetValue(TKey key, out TValue value)
+    {
             if (ContainsKey(key))
             {
                 value = this[key];
@@ -224,24 +223,24 @@ namespace GenHTTP.Engine.Utilities
             return false;
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
+    IEnumerator IEnumerable.GetEnumerator()
+    {
             return this;
         }
 
-        public bool MoveNext()
-        {
+    public bool MoveNext()
+    {
             _Enumerator++;
             return (_Enumerator < _Index);
         }
 
-        public void Reset()
-        {
+    public void Reset()
+    {
             _Enumerator = -1;
         }
 
-        private void CheckResize()
-        {
+    private void CheckResize()
+    {
             if (_Index >= Entries.Length)
             {
                 var oldEntries = Entries;
@@ -271,14 +270,14 @@ namespace GenHTTP.Engine.Utilities
             }
         }
 
-        #endregion
+    #endregion
 
-        #region IDisposable Support
+    #region IDisposable Support
 
-        private bool disposedValue = false;
+    private bool disposedValue = false;
 
-        protected virtual void Dispose(bool disposing)
-        {
+    protected virtual void Dispose(bool disposing)
+    {
             if (!disposedValue)
             {
                 if (disposing)
@@ -293,13 +292,11 @@ namespace GenHTTP.Engine.Utilities
             }
         }
 
-        public void Dispose()
-        {
+    public void Dispose()
+    {
             Dispose(true);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

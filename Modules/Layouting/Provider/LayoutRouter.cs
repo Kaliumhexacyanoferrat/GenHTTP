@@ -8,31 +8,30 @@ using GenHTTP.Api.Routing;
 
 using GenHTTP.Modules.Basics;
 
-namespace GenHTTP.Modules.Layouting.Provider
+namespace GenHTTP.Modules.Layouting.Provider;
+
+public sealed class LayoutRouter : IHandler
 {
 
-    public sealed class LayoutRouter : IHandler
+    #region Get-/Setters
+
+    public IHandler Parent { get; }
+
+    private Dictionary<string, IHandler> RoutedHandlers { get; }
+
+    private List<IHandler> RootHandlers { get; }
+
+    private IHandler? Index { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public LayoutRouter(IHandler parent,
+        Dictionary<string, IHandlerBuilder> routedHandlers,
+        List<IHandlerBuilder> rootHandlers,
+        IHandlerBuilder? index)
     {
-
-        #region Get-/Setters
-
-        public IHandler Parent { get; }
-
-        private Dictionary<string, IHandler> RoutedHandlers { get; }
-
-        private List<IHandler> RootHandlers { get; }
-
-        private IHandler? Index { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public LayoutRouter(IHandler parent,
-                            Dictionary<string, IHandlerBuilder> routedHandlers,
-                            List<IHandlerBuilder> rootHandlers,
-                            IHandlerBuilder? index)
-        {
             Parent = parent;
 
             RoutedHandlers = routedHandlers.ToDictionary(kv => kv.Key, kv => kv.Value.Build(this));
@@ -42,12 +41,12 @@ namespace GenHTTP.Modules.Layouting.Provider
             Index = index?.Build(this);
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             var current = request.Target.Current;
 
             if (current is not null)
@@ -88,8 +87,8 @@ namespace GenHTTP.Modules.Layouting.Provider
             return null;
         }
 
-        public async ValueTask PrepareAsync()
-        {
+    public async ValueTask PrepareAsync()
+    {
             if (Index != null)
             {
                 await Index.PrepareAsync();
@@ -106,8 +105,6 @@ namespace GenHTTP.Modules.Layouting.Provider
             }
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

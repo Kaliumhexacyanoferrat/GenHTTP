@@ -1,22 +1,21 @@
 ﻿using System;
 using System.Globalization;
 
-namespace GenHTTP.Modules.DirectoryBrowsing.Provider
+namespace GenHTTP.Modules.DirectoryBrowsing.Provider;
+
+public static class FileSizeFormatter
 {
 
-    public static class FileSizeFormatter
+    private const double KILOBYTES = 1024.0;
+
+    private const double MEGABYTES = KILOBYTES * 1024;
+
+    private const double GIGABYTES = MEGABYTES * 1024;
+
+    private const double TERABYTES = GIGABYTES * 1024;
+
+    public static string Format(ulong? bytes)
     {
-
-        private const double KILOBYTES = 1024.0;
-
-        private const double MEGABYTES = KILOBYTES * 1024;
-
-        private const double GIGABYTES = MEGABYTES * 1024;
-
-        private const double TERABYTES = GIGABYTES * 1024;
-
-        public static string Format(ulong? bytes)
-        {
             if (bytes is not null)
             {
                 var b = (long)bytes;
@@ -43,7 +42,5 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider
 
             return "-";
         }
-
-    }
 
 }

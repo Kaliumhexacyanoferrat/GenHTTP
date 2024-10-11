@@ -7,42 +7,41 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Conversion.Formatters;
-using GenHTTP.Modules.Conversion.Providers;
+using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.IO.Streaming;
 
-namespace GenHTTP.Modules.Reflection
+namespace GenHTTP.Modules.Reflection;
+
+/// <summary>
+/// Converts the result fetched from an invocation using reflection
+/// into a HTTP response.
+/// </summary>
+public class ResponseProvider
 {
 
-    /// <summary>
-    /// Converts the result fetched from an invocation using reflection
-    /// into a HTTP response.
-    /// </summary>
-    public class ResponseProvider
+    #region Get-/Setters
+
+    private SerializationRegistry Serialization { get; }
+
+    private FormatterRegistry Formatting { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public ResponseProvider(SerializationRegistry serialization, FormatterRegistry formatting)
     {
-
-        #region Get-/Setters
-
-        private SerializationRegistry Serialization { get; }
-
-        private FormatterRegistry Formatting { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public ResponseProvider(SerializationRegistry serialization, FormatterRegistry formatting)
-        {
             Serialization = serialization;
             Formatting = formatting;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public async ValueTask<IResponse?> GetResponseAsync(IRequest request, IHandler handler, object? result, Action<IResponseBuilder>? adjustments = null)
-        {
+    public async ValueTask<IResponse?> GetResponseAsync(IRequest request, IHandler handler, object? result, Action<IResponseBuilder>? adjustments = null)
+    {
             // no result = 204
             if (result is null)
             {
@@ -129,8 +128,6 @@ namespace GenHTTP.Modules.Reflection
             throw new ProviderException(ResponseStatus.InternalServerError, "Result type must be one of: IHandlerBuilder, IHandler, IResponseBuilder, IResponse, Stream");
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

@@ -4,29 +4,28 @@ using System.Threading.Tasks;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Security.Providers
+namespace GenHTTP.Modules.Security.Providers;
+
+public sealed class StrictTransportConcern : IConcern
 {
+    private const string HEADER = "Strict-Transport-Security";
 
-    public sealed class StrictTransportConcern : IConcern
+    #region Get-/Setters
+
+    public IHandler Parent { get; }
+
+    public IHandler Content { get; }
+
+    public StrictTransportPolicy Policy { get; }
+
+    private string HeaderValue { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public StrictTransportConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, StrictTransportPolicy policy)
     {
-        private const string HEADER = "Strict-Transport-Security";
-
-        #region Get-/Setters
-
-        public IHandler Parent { get; }
-
-        public IHandler Content { get; }
-
-        public StrictTransportPolicy Policy { get; }
-
-        private string HeaderValue { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public StrictTransportConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, StrictTransportPolicy policy)
-        {
             Parent = parent;
             Content = contentFactory(this);
 
@@ -34,12 +33,12 @@ namespace GenHTTP.Modules.Security.Providers
             HeaderValue = GetPolicyHeader();
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             var response = await Content.HandleAsync(request);
 
             if (response is not null)
@@ -56,8 +55,8 @@ namespace GenHTTP.Modules.Security.Providers
             return response;
         }
 
-        private string GetPolicyHeader()
-        {
+    private string GetPolicyHeader()
+    {
             var seconds = (int)Policy.MaximumAge.TotalSeconds;
 
             var result = $"max-age={seconds}";
@@ -75,10 +74,8 @@ namespace GenHTTP.Modules.Security.Providers
             return result;
         }
 
-        public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-        #endregion
-
-    }
+    #endregion
 
 }

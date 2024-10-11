@@ -1,13 +1,10 @@
-﻿namespace GenHTTP.Engine.Protocol.Parser
+﻿namespace GenHTTP.Engine.Protocol.Parser;
+
+internal enum RequestToken
 {
-
-    internal enum RequestToken
-    {
-        None,
-        Word,
-        Path,
-        PathWithQuery,
-        NewLine
-    }
-
+    None,
+    Word,
+    Path,
+    PathWithQuery,
+    NewLine
 }

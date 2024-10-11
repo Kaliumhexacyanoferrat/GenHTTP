@@ -1,10 +1,7 @@
-﻿namespace GenHTTP.Api.Protocol
+﻿namespace GenHTTP.Api.Protocol;
+
+public enum ClientProtocol
 {
-
-    public enum ClientProtocol
-    {
-        HTTP,
-        HTTPS
-    }
-
+    HTTP,
+    HTTPS
 }

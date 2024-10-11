@@ -9,44 +9,43 @@ using GenHTTP.Modules.Basics;
 
 using GenHTTP.Modules.IO.Streaming;
 
-namespace GenHTTP.Modules.IO.FileSystem
+namespace GenHTTP.Modules.IO.FileSystem;
+
+public sealed class FileResource : IResource
 {
 
-    public sealed class FileResource : IResource
+    #region Get-/Setters
+
+    public FileInfo File { get; }
+
+    public string? Name { get; }
+
+    public DateTime? Modified
     {
-
-        #region Get-/Setters
-
-        public FileInfo File { get; }
-
-        public string? Name { get; }
-
-        public DateTime? Modified
+        get
         {
-            get
-            {
                 File.Refresh();
                 return File.LastWriteTimeUtc;
             }
-        }
+    }
 
-        public FlexibleContentType? ContentType { get; }
+    public FlexibleContentType? ContentType { get; }
 
-        public ulong? Length
+    public ulong? Length
+    {
+        get
         {
-            get
-            {
                 File.Refresh();
                 return (ulong)File.Length;
             }
-        }
+    }
 
-        #endregion
+    #endregion
 
-        #region Initialization
+    #region Initialization
 
-        public FileResource(FileInfo file, string? name, FlexibleContentType? contentType)
-        {
+    public FileResource(FileInfo file, string? name, FlexibleContentType? contentType)
+    {
             if (!file.Exists)
             {
                 throw new FileNotFoundException("File does not exist", file.FullName);
@@ -59,17 +58,17 @@ namespace GenHTTP.Modules.IO.FileSystem
             ContentType = contentType ?? FlexibleContentType.Get(Name.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload);
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public ValueTask<Stream> GetContentAsync()
-        {
+    public ValueTask<Stream> GetContentAsync()
+    {
             return new ValueTask<Stream>(File.OpenRead());
         }
 
-        public ValueTask<ulong> CalculateChecksumAsync()
-        {
+    public ValueTask<ulong> CalculateChecksumAsync()
+    {
             unchecked
             {
                 ulong hash = 17;
@@ -83,15 +82,13 @@ namespace GenHTTP.Modules.IO.FileSystem
             }
         }
 
-        public async ValueTask WriteAsync(Stream target, uint bufferSize)
-        {
+    public async ValueTask WriteAsync(Stream target, uint bufferSize)
+    {
             using var content = File.OpenRead();
 
             await content.CopyPooledAsync(target, bufferSize);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

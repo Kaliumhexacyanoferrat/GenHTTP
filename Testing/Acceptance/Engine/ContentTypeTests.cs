@@ -4,16 +4,15 @@ using GenHTTP.Api.Protocol;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Engine
+namespace GenHTTP.Testing.Acceptance.Engine;
+
+[TestClass]
+public sealed class ContentTypeTests
 {
 
-    [TestClass]
-    public sealed class ContentTypeTests
+    [TestMethod]
+    public void MapContentTypeTests()
     {
-
-        [TestMethod]
-        public void MapContentTypeTests()
-        {
             foreach (ContentType contentType in Enum.GetValues(typeof(ContentType)))
             {
                 var mapped = new FlexibleContentType(contentType);
@@ -22,15 +21,13 @@ namespace GenHTTP.Testing.Acceptance.Engine
             }
         }
 
-        [TestMethod]
-        public void ConcurrentContentTypeAccessTest()
-        {
+    [TestMethod]
+    public void ConcurrentContentTypeAccessTest()
+    {
             Parallel.For(0, 10, (_) =>
             {
                 FlexibleContentType.Parse("application/json");
             });
         }
-
-    }
 
 }

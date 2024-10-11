@@ -6,29 +6,28 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
 
-namespace GenHTTP.Modules.ClientCaching.Policy
+namespace GenHTTP.Modules.ClientCaching.Policy;
+
+public sealed class CachePolicyConcern : IConcern
 {
 
-    public sealed class CachePolicyConcern : IConcern
+    #region Get-/Setters
+
+    public IHandler Content { get; }
+
+    public IHandler Parent { get; }
+
+    private TimeSpan Duration { get; }
+
+    private Func<IRequest, IResponse, bool>? Predicate { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public CachePolicyConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, 
+        TimeSpan duration, Func<IRequest, IResponse, bool>? predicate)
     {
-
-        #region Get-/Setters
-
-        public IHandler Content { get; }
-
-        public IHandler Parent { get; }
-
-        private TimeSpan Duration { get; }
-
-        private Func<IRequest, IResponse, bool>? Predicate { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public CachePolicyConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, 
-                                  TimeSpan duration, Func<IRequest, IResponse, bool>? predicate)
-        {
             Parent = parent;
             Content = contentFactory(this);
 
@@ -36,12 +35,12 @@ namespace GenHTTP.Modules.ClientCaching.Policy
             Predicate = predicate;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             var response = await Content.HandleAsync(request);
 
             if (response != null)
@@ -58,10 +57,8 @@ namespace GenHTTP.Modules.ClientCaching.Policy
             return response;
         }
 
-        public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-        #endregion
-
-    }
+    #endregion
 
 }

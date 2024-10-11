@@ -10,24 +10,23 @@ using GenHTTP.Modules.Reflection;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Reflection
+namespace GenHTTP.Testing.Acceptance.Modules.Reflection;
+
+[TestClass]
+public sealed class ResultTests
 {
 
-    [TestClass]
-    public sealed class ResultTests
+    #region Supporting data structures
+
+    public record class MyPayload(string Message);
+
+    #endregion
+
+    #region Tests
+
+    [TestMethod]
+    public async Task TestResponseCanBeModified()
     {
-
-        #region Supporting data structures
-
-        public record class MyPayload(string Message);
-
-        #endregion
-
-        #region Tests
-
-        [TestMethod]
-        public async Task TestResponseCanBeModified()
-        {
             var result = new Result<MyPayload>(new("Hello World!"))
                 .Status(ResponseStatus.Accepted)
                 .Status(202, "Accepted Custom")
@@ -50,9 +49,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Reflection
             Assert.AreEqual("Value", response.GetHeader("X-Custom"));
         }
 
-        [TestMethod]
-        public async Task TestStreamsCanBeWrapped()
-        {
+    [TestMethod]
+    public async Task TestStreamsCanBeWrapped()
+    {
             var stream = new MemoryStream(Encoding.UTF8.GetBytes("Hello World!"));
 
             var inline = Inline.Create()
@@ -67,8 +66,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.Reflection
             Assert.AreEqual("Hello World!", await response.GetContentAsync());
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

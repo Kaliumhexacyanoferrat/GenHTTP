@@ -6,14 +6,13 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Pages;
 
-namespace GenHTTP.Modules.ErrorHandling
+namespace GenHTTP.Modules.ErrorHandling;
+
+public class HtmlErrorMapper : IErrorMapper<Exception>
 {
 
-    public class HtmlErrorMapper : IErrorMapper<Exception>
+    public async ValueTask<IResponse?> Map(IRequest request, IHandler handler, Exception error)
     {
-
-        public async ValueTask<IResponse?> Map(IRequest request, IHandler handler, Exception error)
-        {
             var developmentMode = request.Server.Development;
 
             if (error is ProviderException e)
@@ -36,15 +35,13 @@ namespace GenHTTP.Modules.ErrorHandling
             }
         }
 
-        public async ValueTask<IResponse?> GetNotFound(IRequest request, IHandler handler)
-        {
+    public async ValueTask<IResponse?> GetNotFound(IRequest request, IHandler handler)
+    {
             var content = await Renderer.Server.RenderAsync("Not Found", "The specified content was not found on this server.");
 
             return request.GetPage(content)
                           .Status(ResponseStatus.NotFound)
                           .Build();
         }
-
-    }
 
 }

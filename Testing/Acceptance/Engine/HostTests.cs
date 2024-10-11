@@ -5,16 +5,15 @@ using GenHTTP.Modules.Layouting;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Engine
+namespace GenHTTP.Testing.Acceptance.Engine;
+
+[TestClass]
+public sealed class HostTests
 {
 
-    [TestClass]
-    public sealed class HostTests
+    [TestMethod]
+    public async Task TestStart()
     {
-
-        [TestMethod]
-        public async Task TestStart()
-        {
             using var runner = new TestHost(Layout.Create());
 
             runner.Host.Start();
@@ -24,9 +23,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
             await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
-        [TestMethod]
-        public async Task TestRestart()
-        {
+    [TestMethod]
+    public async Task TestRestart()
+    {
             using var runner = new TestHost(Layout.Create());
 
             runner.Host.Restart();
@@ -35,7 +34,5 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
-
-    }
 
 }

@@ -7,16 +7,15 @@ using GenHTTP.Testing.Acceptance.Utilities;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules
+namespace GenHTTP.Testing.Acceptance.Modules;
+
+[TestClass]
+public sealed class CacheValidationTests
 {
 
-    [TestClass]
-    public sealed class CacheValidationTests
+    [TestMethod]
+    public async Task TestETagIsGenerated()
     {
-
-        [TestMethod]
-        public async Task TestETagIsGenerated()
-        {
             using var runner = TestHost.Run(Content.From(Resource.FromString("Hello World!")));
 
             using var response = await runner.GetResponseAsync();
@@ -29,9 +28,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
             AssertX.EndsWith("\"", eTag);
         }
 
-        [TestMethod]
-        public async Task TestServerReturnsUnmodified()
-        {
+    [TestMethod]
+    public async Task TestServerReturnsUnmodified()
+    {
             using var runner = TestHost.Run(Content.From(Resource.FromString("Hello World!")));
 
             using var response = await runner.GetResponseAsync();
@@ -49,9 +48,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
             Assert.AreEqual("0", cached.GetContentHeader("Content-Length"));
         }
 
-        [TestMethod]
-        public async Task TestServerReturnsModified()
-        {
+    [TestMethod]
+    public async Task TestServerReturnsModified()
+    {
             using var runner = TestHost.Run(Content.From(Resource.FromString("Hello World!")));
 
             var request = runner.GetRequest();
@@ -63,9 +62,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
             await reloaded.AssertStatusAsync(HttpStatusCode.OK);
         }
 
-        [TestMethod]
-        public async Task TestNoContentNoEtag()
-        {
+    [TestMethod]
+    public async Task TestNoContentNoEtag()
+    {
             var noContent = new FunctionalHandler(responseProvider: (r) =>
             {
                 return r.Respond().Status(Api.Protocol.ResponseStatus.NoContent).Build();
@@ -78,9 +77,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
             Assert.IsFalse(response.Headers.Contains("ETag"));
         }
 
-        [TestMethod]
-        public async Task TestOtherMethodNoETag()
-        {
+    [TestMethod]
+    public async Task TestOtherMethodNoETag()
+    {
             using var runner = TestHost.Run(Content.From(Resource.FromString("Hello World!")));
 
             var request = runner.GetRequest();
@@ -91,7 +90,5 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             Assert.IsFalse(response.Headers.Contains("ETag"));
         }
-
-    }
 
 }

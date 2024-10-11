@@ -9,36 +9,35 @@ using GenHTTP.Modules.Webservices;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Webservices
+namespace GenHTTP.Testing.Acceptance.Modules.Webservices;
+
+[TestClass]
+public sealed class AmbiguityTests
 {
 
-    [TestClass]
-    public sealed class AmbiguityTests
+    #region Supporting data structures
+
+    public sealed class TestService
     {
 
-        #region Supporting data structures
-
-        public sealed class TestService
+        [ResourceMethod]
+        public IHandlerBuilder Wildcard()
         {
-
-            [ResourceMethod]
-            public IHandlerBuilder Wildcard()
-            {
                 return Content.From(Resource.FromString("Wildcard"));
             }
 
-            [ResourceMethod(path: "/my.txt")]
-            public string Specific() => "Specific";
+        [ResourceMethod(path: "/my.txt")]
+        public string Specific() => "Specific";
 
-        }
+    }
 
-        #endregion
+    #endregion
 
-        #region Tests
+    #region Tests
 
-        [TestMethod]
-        public async Task TestSpecificPreferred()
-        {
+    [TestMethod]
+    public async Task TestSpecificPreferred()
+    {
             var app = Layout.Create()
                             .AddService<TestService>("c");
 
@@ -51,8 +50,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.Webservices
             Assert.AreEqual("Specific", await response.GetContentAsync());
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

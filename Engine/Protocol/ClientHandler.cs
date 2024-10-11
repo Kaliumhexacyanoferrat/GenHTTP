@@ -3,55 +3,49 @@ using System.Buffers;
 using System.IO;
 using System.IO.Pipelines;
 using System.Net.Sockets;
-
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Engine.Infrastructure.Configuration;
-using GenHTTP.Engine.Protocol;
+using GenHTTP.Engine.Infrastructure;
 using GenHTTP.Engine.Protocol.Parser;
-
 using GenHTTP.Modules.IO.Strings;
-
 using PooledAwait;
 
-namespace GenHTTP.Engine
+namespace GenHTTP.Engine.Protocol;
+
+/// <summary>
+/// Maintains a single connection to a client, continuously reading
+/// requests and generating responses.
+/// </summary>
+/// <remarks>
+/// Implements keep alive and maintains the connection state (e.g. by
+/// closing it after the last request has been handled).
+/// </remarks>
+internal sealed class ClientHandler
 {
+    private static readonly StreamPipeReaderOptions READER_OPTIONS = new(pool: MemoryPool<byte>.Shared, leaveOpen: true, bufferSize: 65536);
 
-    /// <summary>
-    /// Maintains a single connection to a client, continuously reading
-    /// requests and generating responses.
-    /// </summary>
-    /// <remarks>
-    /// Implements keep alive and maintains the connection state (e.g. by
-    /// closing it after the last request has been handled).
-    /// </remarks>
-    internal sealed class ClientHandler
+    #region Get-/Setter
+
+    public IServer Server { get; }
+
+    public IEndPoint EndPoint { get; }
+
+    internal NetworkConfiguration Configuration { get; }
+
+    internal Socket Connection { get; }
+
+    internal Stream Stream { get; }
+
+    private bool? KeepAlive { get; set; }
+
+    private ResponseHandler ResponseHandler { get; set; }
+
+    #endregion
+
+    #region Initialization
+
+    internal ClientHandler(Socket socket, Stream stream, IServer server, IEndPoint endPoint, NetworkConfiguration config)
     {
-        private static readonly StreamPipeReaderOptions READER_OPTIONS = new(pool: MemoryPool<byte>.Shared, leaveOpen: true, bufferSize: 65536);
-
-        #region Get-/Setter
-
-        public IServer Server { get; }
-
-        public IEndPoint EndPoint { get; }
-
-        internal NetworkConfiguration Configuration { get; }
-
-        internal Socket Connection { get; }
-
-        internal Stream Stream { get; }
-
-        private bool? KeepAlive { get; set; }
-
-        private ResponseHandler ResponseHandler { get; set; }
-
-        #endregion
-
-        #region Initialization
-
-        internal ClientHandler(Socket socket, Stream stream, IServer server, IEndPoint endPoint, NetworkConfiguration config)
-        {
             Server = server;
             EndPoint = endPoint;
 
@@ -63,12 +57,12 @@ namespace GenHTTP.Engine
             ResponseHandler = new ResponseHandler(Server, Stream, Configuration);
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        internal async PooledValueTask Run()
-        {
+    internal async PooledValueTask Run()
+    {
             try
             {
                 await HandlePipe(PipeReader.Create(Stream, READER_OPTIONS));
@@ -103,8 +97,8 @@ namespace GenHTTP.Engine
             }
         }
 
-        private async PooledValueTask HandlePipe(PipeReader reader)
-        {
+    private async PooledValueTask HandlePipe(PipeReader reader)
+    {
             try
             {
                 using var buffer = new RequestBuffer(reader, Configuration);
@@ -142,8 +136,8 @@ namespace GenHTTP.Engine
             }
         }
 
-        private async PooledValueTask<bool> HandleRequest(RequestBuilder builder, bool dataRemaining)
-        {
+    private async PooledValueTask<bool> HandleRequest(RequestBuilder builder, bool dataRemaining)
+    {
             using var request = builder.Connection(Server, EndPoint, Connection.GetAddress()).Build();
 
             KeepAlive ??= request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? (request.ProtocolType == HttpProtocol.Http_1_1);
@@ -157,8 +151,8 @@ namespace GenHTTP.Engine
             return (success && keepAlive);
         }
 
-        private async PooledValueTask SendError(Exception e, ResponseStatus status)
-        {
+    private async PooledValueTask SendError(Exception e, ResponseStatus status)
+    {
             try
             {
                 var message = Server.Development ? e.ToString() : e.Message;
@@ -172,8 +166,6 @@ namespace GenHTTP.Engine
             catch { /* no recovery here */ }
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

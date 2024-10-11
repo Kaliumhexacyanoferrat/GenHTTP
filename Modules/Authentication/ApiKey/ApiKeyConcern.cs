@@ -5,28 +5,27 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Authentication.ApiKey
+namespace GenHTTP.Modules.Authentication.ApiKey;
+
+public sealed class ApiKeyConcern : IConcern
 {
 
-    public sealed class ApiKeyConcern : IConcern
+    #region Get-/Setters
+
+    public IHandler Parent { get; }
+
+    public IHandler Content { get; }
+
+    private Func<IRequest, string?> KeyExtractor { get; }
+
+    private Func<IRequest, string, ValueTask<IUser?>> Authenticator { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public ApiKeyConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, Func<IRequest, string?> keyExtractor, Func<IRequest, string, ValueTask<IUser?>> authenticator)
     {
-
-        #region Get-/Setters
-
-        public IHandler Parent { get; }
-
-        public IHandler Content { get; }
-
-        private Func<IRequest, string?> KeyExtractor { get; }
-
-        private Func<IRequest, string, ValueTask<IUser?>> Authenticator { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public ApiKeyConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, Func<IRequest, string?> keyExtractor, Func<IRequest, string, ValueTask<IUser?>> authenticator)
-        {
             Parent = parent;
             Content = contentFactory(this);
 
@@ -34,12 +33,12 @@ namespace GenHTTP.Modules.Authentication.ApiKey
             Authenticator = authenticator;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             var key = KeyExtractor(request);
 
             if (key != null)
@@ -65,10 +64,8 @@ namespace GenHTTP.Modules.Authentication.ApiKey
                           .Build();
         }
 
-        public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-        #endregion
-
-    }
+    #endregion
 
 }

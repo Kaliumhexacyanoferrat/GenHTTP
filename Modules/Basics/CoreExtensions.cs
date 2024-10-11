@@ -8,16 +8,15 @@ using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
-namespace GenHTTP.Modules.Basics
+namespace GenHTTP.Modules.Basics;
+
+public static class CoreExtensions
 {
 
-    public static class CoreExtensions
+    #region Request
+
+    public static bool HasType(this IRequest request, params RequestMethod[] methods)
     {
-
-        #region Request
-
-        public static bool HasType(this IRequest request, params RequestMethod[] methods)
-        {
             foreach (var method in methods)
             {
                 if (request.Method == method)
@@ -29,8 +28,8 @@ namespace GenHTTP.Modules.Basics
             return false;
         }
 
-        public static string? HostWithoutPort(this IRequest request)
-        {
+    public static string? HostWithoutPort(this IRequest request)
+    {
             var host = request.Host;
 
             if (host is not null)
@@ -50,92 +49,92 @@ namespace GenHTTP.Modules.Basics
             return null;
         }
 
-        #endregion
+    #endregion
 
-        #region Response builder
+    #region Response builder
 
-        /// <summary>
-        /// Specifies the content type of this response.
-        /// </summary>
-        /// <param name="contentType">The content type of this response</param>
-        public static IResponseBuilder Type(this IResponseBuilder builder, ContentType contentType) => builder.Type(FlexibleContentType.Get(contentType));
+    /// <summary>
+    /// Specifies the content type of this response.
+    /// </summary>
+    /// <param name="contentType">The content type of this response</param>
+    public static IResponseBuilder Type(this IResponseBuilder builder, ContentType contentType) => builder.Type(FlexibleContentType.Get(contentType));
 
-        /// <summary>
-        /// Specifies the content type of this response.
-        /// </summary>
-        /// <param name="contentType">The content type of this response</param>
-        public static IResponseBuilder Type(this IResponseBuilder builder, string contentType) => builder.Type(FlexibleContentType.Parse(contentType));
+    /// <summary>
+    /// Specifies the content type of this response.
+    /// </summary>
+    /// <param name="contentType">The content type of this response</param>
+    public static IResponseBuilder Type(this IResponseBuilder builder, string contentType) => builder.Type(FlexibleContentType.Parse(contentType));
 
-        #endregion
+    #endregion
 
-        #region Content types
+    #region Content types
 
-        private static readonly Dictionary<string, ContentType> CONTENT_TYPES = new() {
-            // CSS
-            { "css", ContentType.TextCss },
-            // HTML
-            { "html", ContentType.TextHtml },
-            { "htm", ContentType.TextHtml },
-            // Text files            
-            { "txt", ContentType.TextPlain },
-            { "conf", ContentType.TextPlain },
-            { "config", ContentType.TextPlain },
-            // Fonts 
-            { "eot", ContentType.FontEmbeddedOpenTypeFont },
-            { "ttf", ContentType.FontTrueTypeFont },
-            { "otf", ContentType.FontOpenTypeFont },
-            { "woff", ContentType.FontWoff },
-            { "woff2", ContentType.FontWoff2 },
-            // Scripts
-            { "js", ContentType.ApplicationJavaScript },
-            { "mjs", ContentType.ApplicationJavaScript },
-            // Images
-            { "ico", ContentType.ImageIcon },
-            { "gif", ContentType.ImageGif },
-            { "jpeg", ContentType.ImageJpg },
-            { "jpg", ContentType.ImageJpg },
-            { "png", ContentType.ImagePng },
-            { "bmp", ContentType.ImageBmp },
-            { "tiff", ContentType.ImageTiff },
-            { "svg", ContentType.ImageScalableVectorGraphicsXml },
-            { "svgz", ContentType.ImageScalableVectorGraphicsCompressed },
-            // Audio
-            { "ogg", ContentType.AudioOgg },
-            { "mp3", ContentType.AudioMpeg },
-            { "wav", ContentType.AudioWav },
-            // Video
-            { "avi", ContentType.VideoMpeg },
-            { "3gp", ContentType.Video3Gpp },
-            { "3g2", ContentType.Video3Gpp2 },
-            { "av1", ContentType.VideoAV1 },
-            { "avc", ContentType.VideoAvc },
-            { "dv", ContentType.VideoDV },
-            { "mkv", ContentType.VideoMatroska },
-            { "mk3d", ContentType.VideoMatroska3D },
-            { "mj2", ContentType.VideoMJ2 },
-            { "mpg", ContentType.VideoMpeg },
-            { "mp4", ContentType.VideoMP4 },
-            { "mpeg", ContentType.VideoMpeg },
-            { "mpv", ContentType.VideoMpv },
-            { "mov", ContentType.VideoQuicktime },
-            { "hdmov", ContentType.VideoQuicktime },
-            { "vc1", ContentType.VideoVC1 },
-            { "vc2", ContentType.VideoVC2 },
-            { "webm", ContentType.VideoWebM },
-            // Documents
-            { "csv", ContentType.TextCsv },
-            { "rtf", ContentType.TextRichText },
-            { "docx", ContentType.ApplicationOfficeDocumentWordProcessing },
-            { "pptx", ContentType.ApplicationOfficeDocumentPresentation },
-            { "ppsx", ContentType.ApplicationOfficeDocumentSlideshow },
-            { "xslx", ContentType.ApplicationOfficeDocumentSheet },
-            // Object models
-            { "json", ContentType.ApplicationJson },
-            { "xml", ContentType.TextXml }
-        };
+    private static readonly Dictionary<string, ContentType> CONTENT_TYPES = new() {
+        // CSS
+        { "css", ContentType.TextCss },
+        // HTML
+        { "html", ContentType.TextHtml },
+        { "htm", ContentType.TextHtml },
+        // Text files
+        { "txt", ContentType.TextPlain },
+        { "conf", ContentType.TextPlain },
+        { "config", ContentType.TextPlain },
+        // Fonts
+        { "eot", ContentType.FontEmbeddedOpenTypeFont },
+        { "ttf", ContentType.FontTrueTypeFont },
+        { "otf", ContentType.FontOpenTypeFont },
+        { "woff", ContentType.FontWoff },
+        { "woff2", ContentType.FontWoff2 },
+        // Scripts
+        { "js", ContentType.ApplicationJavaScript },
+        { "mjs", ContentType.ApplicationJavaScript },
+        // Images
+        { "ico", ContentType.ImageIcon },
+        { "gif", ContentType.ImageGif },
+        { "jpeg", ContentType.ImageJpg },
+        { "jpg", ContentType.ImageJpg },
+        { "png", ContentType.ImagePng },
+        { "bmp", ContentType.ImageBmp },
+        { "tiff", ContentType.ImageTiff },
+        { "svg", ContentType.ImageScalableVectorGraphicsXml },
+        { "svgz", ContentType.ImageScalableVectorGraphicsCompressed },
+        // Audio
+        { "ogg", ContentType.AudioOgg },
+        { "mp3", ContentType.AudioMpeg },
+        { "wav", ContentType.AudioWav },
+        // Video
+        { "avi", ContentType.VideoMpeg },
+        { "3gp", ContentType.Video3Gpp },
+        { "3g2", ContentType.Video3Gpp2 },
+        { "av1", ContentType.VideoAV1 },
+        { "avc", ContentType.VideoAvc },
+        { "dv", ContentType.VideoDV },
+        { "mkv", ContentType.VideoMatroska },
+        { "mk3d", ContentType.VideoMatroska3D },
+        { "mj2", ContentType.VideoMJ2 },
+        { "mpg", ContentType.VideoMpeg },
+        { "mp4", ContentType.VideoMP4 },
+        { "mpeg", ContentType.VideoMpeg },
+        { "mpv", ContentType.VideoMpv },
+        { "mov", ContentType.VideoQuicktime },
+        { "hdmov", ContentType.VideoQuicktime },
+        { "vc1", ContentType.VideoVC1 },
+        { "vc2", ContentType.VideoVC2 },
+        { "webm", ContentType.VideoWebM },
+        // Documents
+        { "csv", ContentType.TextCsv },
+        { "rtf", ContentType.TextRichText },
+        { "docx", ContentType.ApplicationOfficeDocumentWordProcessing },
+        { "pptx", ContentType.ApplicationOfficeDocumentPresentation },
+        { "ppsx", ContentType.ApplicationOfficeDocumentSlideshow },
+        { "xslx", ContentType.ApplicationOfficeDocumentSheet },
+        // Object models
+        { "json", ContentType.ApplicationJson },
+        { "xml", ContentType.TextXml }
+    };
 
-        public static ContentType? GuessContentType(this string fileName)
-        {
+    public static ContentType? GuessContentType(this string fileName)
+    {
             var extension = Path.GetExtension(fileName);
 
             if (extension is not null && extension.Length > 1)
@@ -151,23 +150,23 @@ namespace GenHTTP.Modules.Basics
             return null;
         }
 
-        #endregion
+    #endregion
 
-        #region Resource provider
+    #region Resource provider
 
-        public static async ValueTask<string> GetResourceAsStringAsync(this IResource resourceProvider)
-        {
+    public static async ValueTask<string> GetResourceAsStringAsync(this IResource resourceProvider)
+    {
             using var stream = await resourceProvider.GetContentAsync();
 
             return await new StreamReader(stream).ReadToEndAsync();
         }
 
-        #endregion
+    #endregion
 
-        #region Routing
+    #region Routing
 
-        public static string RelativeTo(this WebPath path, WebPath target)
-        {
+    public static string RelativeTo(this WebPath path, WebPath target)
+    {
             var common = CommonParts(path, target);
 
             var hops = path.Parts.Count - common + (path.TrailingSlash ? 1 : 0) - 1;
@@ -199,8 +198,8 @@ namespace GenHTTP.Modules.Basics
             return new WebPath(relativeParts, trailing).ToString()[1..];
         }
 
-        public static WebPath Combine(this WebPath path, WebPath target)
-        {
+    public static WebPath Combine(this WebPath path, WebPath target)
+    {
             var parts = new List<WebPathPart>(path.Parts);
 
             if (target.Parts.Count > 0)
@@ -238,8 +237,8 @@ namespace GenHTTP.Modules.Basics
             return new WebPath(parts, target.TrailingSlash);
         }
 
-        private static int CommonParts(WebPath one, WebPath two)
-        {
+    private static int CommonParts(WebPath one, WebPath two)
+    {
             int common;
 
             for (common = 0; common < one.Parts.Count; common++)
@@ -258,8 +257,6 @@ namespace GenHTTP.Modules.Basics
             return common;
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

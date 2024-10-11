@@ -12,47 +12,46 @@ using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Reflection;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Controllers
+namespace GenHTTP.Testing.Acceptance.Modules.Controllers;
+
+[TestClass]
+public sealed class ResultTypeTests
 {
 
-    [TestClass]
-    public sealed class ResultTypeTests
+    #region Supporting data structures
+
+    public sealed class TestController
     {
 
-        #region Supporting data structures
-
-        public sealed class TestController
+        public IHandlerBuilder HandlerBuilder()
         {
-
-            public IHandlerBuilder HandlerBuilder()
-            {
                 return Content.From(Resource.FromString("HandlerBuilder"));
             }
 
-            public IHandler Handler(IHandler parent)
-            {
+        public IHandler Handler(IHandler parent)
+        {
                 return Content.From(Resource.FromString("Handler")).Build(parent);
             }
 
-            public IResponseBuilder ResponseBuilder(IRequest request)
-            {
+        public IResponseBuilder ResponseBuilder(IRequest request)
+        {
                 return request.Respond().Content("ResponseBuilder");
             }
 
-            public IResponse Response(IRequest request)
-            {
+        public IResponse Response(IRequest request)
+        {
                 return request.Respond().Content("Response").Build();
             }
 
-        }
+    }
 
-        #endregion
+    #endregion
 
-        #region Tests
+    #region Tests
 
-        [TestMethod]
-        public async Task ControllerMayReturnHandlerBuilder()
-        {
+    [TestMethod]
+    public async Task ControllerMayReturnHandlerBuilder()
+    {
             using var runner = GetRunner();
 
             using var response = await runner.GetResponseAsync("/t/handler-builder/");
@@ -61,9 +60,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             Assert.AreEqual("HandlerBuilder", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task ControllerMayReturnHandler()
-        {
+    [TestMethod]
+    public async Task ControllerMayReturnHandler()
+    {
             using var runner = GetRunner();
 
             using var response = await runner.GetResponseAsync("/t/handler/");
@@ -72,9 +71,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             Assert.AreEqual("Handler", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task ControllerMayReturnResponseBuilder()
-        {
+    [TestMethod]
+    public async Task ControllerMayReturnResponseBuilder()
+    {
             using var runner = GetRunner();
 
             using var response = await runner.GetResponseAsync("/t/response-builder/");
@@ -83,9 +82,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             Assert.AreEqual("ResponseBuilder", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task ControllerMayReturnResponse()
-        {
+    [TestMethod]
+    public async Task ControllerMayReturnResponse()
+    {
             using var runner = GetRunner();
 
             using var response = await runner.GetResponseAsync("/t/response/");
@@ -94,12 +93,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             Assert.AreEqual("Response", await response.GetContentAsync());
         }
 
-        #endregion
+    #endregion
 
-        #region Helpers
+    #region Helpers
 
-        private static TestHost GetRunner()
-        {
+    private static TestHost GetRunner()
+    {
             var controller = Controller.From<TestController>()
                                        .Serializers(Serialization.Default())
                                        .Injectors(Injection.Default());
@@ -107,8 +106,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             return TestHost.Run(Layout.Create().Add("t", controller));
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

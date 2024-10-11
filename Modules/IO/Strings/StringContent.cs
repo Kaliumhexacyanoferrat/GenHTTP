@@ -5,27 +5,26 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.IO.Strings
+namespace GenHTTP.Modules.IO.Strings;
+
+public sealed class StringContent : IResponseContent
 {
+    private static readonly Encoding UTF8 = Encoding.UTF8;
 
-    public sealed class StringContent : IResponseContent
-    {
-        private static readonly Encoding UTF8 = Encoding.UTF8;
+    private readonly byte[] _Content;
 
-        private readonly byte[] _Content;
+    private readonly ulong _Checksum;
 
-        private readonly ulong _Checksum;
+    #region Get-/Setters
 
-        #region Get-/Setters
+    public ulong? Length { get; }
 
-        public ulong? Length { get; }
+    #endregion
 
-        #endregion
+    #region Initialization
 
-        #region Initialization
-
-        public StringContent(string content) 
-        { 
+    public StringContent(string content) 
+    { 
             _Content = UTF8.GetBytes(content);
 
             Length = (ulong)_Content.Length;
@@ -33,19 +32,17 @@ namespace GenHTTP.Modules.IO.Strings
             _Checksum = (ulong)content.GetHashCode();
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public ValueTask<ulong?> CalculateChecksumAsync() => new(_Checksum);
+    public ValueTask<ulong?> CalculateChecksumAsync() => new(_Checksum);
 
-        public async ValueTask WriteAsync(Stream target, uint bufferSize)
-        {
+    public async ValueTask WriteAsync(Stream target, uint bufferSize)
+    {
             await target.WriteAsync(_Content.AsMemory());
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

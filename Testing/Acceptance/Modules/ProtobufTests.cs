@@ -14,33 +14,33 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ProtoBuf;
 
-namespace GenHTTP.Testing.Acceptance.Modules
+namespace GenHTTP.Testing.Acceptance.Modules;
+
+[TestClass]
+public sealed class ProtobufTests
 {
-    [TestClass]
-    public sealed class ProtobufTests
+
+    #region Supporting structures
+
+    [ProtoContract]
+    public sealed class TestEntity
+    {
+        [ProtoMember(1)]
+        public int ID { get; set; }
+
+        [ProtoMember(2)]
+        public string? Name { get; set; }
+
+        [ProtoMember(3)]
+        public double? Nullable { get; set; }
+
+    }
+    public sealed class TestResource
     {
 
-        #region Supporting structures
-
-        [ProtoContract]
-        public sealed class TestEntity
+        [ResourceMethod]
+        public TestEntity? GetEntity()
         {
-            [ProtoMember(1)]
-            public int ID { get; set; }
-
-            [ProtoMember(2)]
-            public string? Name { get; set; }
-
-            [ProtoMember(3)]
-            public double? Nullable { get; set; }
-
-        }
-        public sealed class TestResource
-        {
-
-            [ResourceMethod]
-            public TestEntity? GetEntity()
-            {
 
                 TestEntity entity = new TestEntity()
                 {
@@ -51,21 +51,21 @@ namespace GenHTTP.Testing.Acceptance.Modules
                 return entity;
             }
 
-            [ResourceMethod(RequestMethod.POST)]
-            public TestEntity PostEntity(TestEntity entity)
-            {
+        [ResourceMethod(RequestMethod.POST)]
+        public TestEntity PostEntity(TestEntity entity)
+        {
                  return entity;
             }
 
-        }
+    }
 
-        #endregion
+    #endregion
 
-        #region Tests
+    #region Tests
 
-        [TestMethod]
-        public async Task TestGetEntityAsProtobuf()
-        {
+    [TestMethod]
+    public async Task TestGetEntityAsProtobuf()
+    {
             TestEntity? result = null;
             await WithResponse(string.Empty, HttpMethod.Get, null, "application/protobuf", "application/protobuf", async r =>
             {
@@ -77,9 +77,9 @@ namespace GenHTTP.Testing.Acceptance.Modules
             Assert.AreEqual("test1", result!.Name);
         }
 
-        [TestMethod]
-        public async Task TestPostEntityAsProtobuf()
-        {
+    [TestMethod]
+    public async Task TestPostEntityAsProtobuf()
+    {
             TestEntity entity = new TestEntity()
             {
                 ID = 2,
@@ -108,12 +108,12 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
         }
 
-        #endregion
+    #endregion
 
-        #region Helpers
+    #region Helpers
 
-        private async Task WithResponse(string uri, HttpMethod method, byte[]? body, string? contentType, string? accept, Func<HttpResponseMessage, Task> logic)
-        {
+    private async Task WithResponse(string uri, HttpMethod method, byte[]? body, string? contentType, string? accept, Func<HttpResponseMessage, Task> logic)
+    {
             using var service = GetService();
 
             var request = service.GetRequest($"/t/{uri}");
@@ -144,8 +144,8 @@ namespace GenHTTP.Testing.Acceptance.Modules
             await logic(response);
         }
 
-        private static TestHost GetService()
-        {
+    private static TestHost GetService()
+    {
             var service = ServiceResource.From<TestResource>()
                                          .Serializers(Serialization.Default().AddProtobuf())
                                          .Injectors(Injection.Default());
@@ -153,8 +153,6 @@ namespace GenHTTP.Testing.Acceptance.Modules
             return TestHost.Run(Layout.Create().Add("t", service));
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

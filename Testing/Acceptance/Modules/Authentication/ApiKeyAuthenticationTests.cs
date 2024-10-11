@@ -12,16 +12,15 @@ using GenHTTP.Modules.Authentication;
 using GenHTTP.Modules.Authentication.ApiKey;
 using GenHTTP.Modules.IO;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Authentication
+namespace GenHTTP.Testing.Acceptance.Modules.Authentication;
+
+[TestClass]
+public sealed class ApiKeyAuthenticationTests
 {
 
-    [TestClass]
-    public sealed class ApiKeyAuthenticationTests
+    [TestMethod]
+    public async Task TestNoKey()
     {
-
-        [TestMethod]
-        public async Task TestNoKey()
-        {
             using var runner = GetRunnerWithKeys("123");
 
             using var response = await runner.GetResponseAsync();
@@ -29,9 +28,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             await response.AssertStatusAsync(HttpStatusCode.Unauthorized);
         }
 
-        [TestMethod]
-        public async Task TestInvalidKey()
-        {
+    [TestMethod]
+    public async Task TestInvalidKey()
+    {
             using var runner = GetRunnerWithKeys("123");
 
             var request = runner.GetRequest();
@@ -42,9 +41,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             Assert.AreEqual(HttpStatusCode.Forbidden, response.StatusCode);
         }
 
-        [TestMethod]
-        public async Task TestValidKey()
-        {
+    [TestMethod]
+    public async Task TestValidKey()
+    {
             using var runner = GetRunnerWithKeys("123");
 
             var request = runner.GetRequest();
@@ -55,9 +54,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             await response.AssertStatusAsync(HttpStatusCode.OK);
         }
 
-        [TestMethod]
-        public async Task TestValidKeyFromQuery()
-        {
+    [TestMethod]
+    public async Task TestValidKeyFromQuery()
+    {
             var auth = ApiKeyAuthentication.Create()
                                            .WithQueryParameter("key")
                                            .Keys("123");
@@ -69,9 +68,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
 
-        [TestMethod]
-        public async Task TestValidKeyFromHeader()
-        {
+    [TestMethod]
+    public async Task TestValidKeyFromHeader()
+    {
             var auth = ApiKeyAuthentication.Create()
                                            .WithHeader("key")
                                            .Keys("123");
@@ -86,9 +85,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             await response.AssertStatusAsync(HttpStatusCode.OK);
         }
 
-        [TestMethod]
-        public async Task TestCustomExtractor()
-        {
+    [TestMethod]
+    public async Task TestCustomExtractor()
+    {
             var auth = ApiKeyAuthentication.Create()
                                            .Extractor((r) => r.UserAgent)
                                            .Keys("123");
@@ -103,9 +102,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             await response.AssertStatusAsync(HttpStatusCode.OK);
         }
 
-        [TestMethod]
-        public async Task TestCustomAuthenticator()
-        {
+    [TestMethod]
+    public async Task TestCustomAuthenticator()
+    {
             static ValueTask<IUser?> authenticator(IRequest r, string k) => (k.Length == 5) ? new ValueTask<IUser?>(new ApiKeyUser(k)) : new ValueTask<IUser?>();
 
             var auth = ApiKeyAuthentication.Create()
@@ -121,23 +120,21 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             await response.AssertStatusAsync(HttpStatusCode.OK);
         }
 
-        private static TestHost GetRunnerWithKeys(params string[] keys)
-        {
+    private static TestHost GetRunnerWithKeys(params string[] keys)
+    {
             var auth = ApiKeyAuthentication.Create()
                                            .Keys(keys);
 
             return GetRunnerWithAuth(auth);
         }
 
-        private static TestHost GetRunnerWithAuth(ApiKeyConcernBuilder auth)
-        {
+    private static TestHost GetRunnerWithAuth(ApiKeyConcernBuilder auth)
+    {
             var content = GetContent().Authentication(auth);
 
             return TestHost.Run(content);
         }
 
-        private static LayoutBuilder GetContent() => Layout.Create().Add(Content.From(Resource.FromString("Hello World!")));
-
-    }
+    private static LayoutBuilder GetContent() => Layout.Create().Add(Content.From(Resource.FromString("Hello World!")));
 
 }

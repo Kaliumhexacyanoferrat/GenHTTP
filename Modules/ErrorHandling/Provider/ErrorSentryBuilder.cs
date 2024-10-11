@@ -2,36 +2,33 @@
 
 using GenHTTP.Api.Content;
 
-namespace GenHTTP.Modules.ErrorHandling.Provider
+namespace GenHTTP.Modules.ErrorHandling.Provider;
+
+public sealed class ErrorSentryBuilder<T> : IConcernBuilder where T : Exception
 {
 
-    public sealed class ErrorSentryBuilder<T> : IConcernBuilder where T : Exception
+    #region Get-/Setters
+
+    private IErrorMapper<T> Handler { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public ErrorSentryBuilder(IErrorMapper<T> handler)
     {
-
-        #region Get-/Setters
-
-        private IErrorMapper<T> Handler { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public ErrorSentryBuilder(IErrorMapper<T> handler)
-        {
             Handler = handler;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
-        {
+    public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
+    {
             return new ErrorSentry<T>(parent, contentFactory, Handler);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

@@ -5,20 +5,19 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Engine.Utilities;
 
-namespace GenHTTP.Engine.Protocol
+namespace GenHTTP.Engine.Protocol;
+
+internal sealed class CookieCollection : PooledDictionary<string, Cookie>, ICookieCollection
 {
+    internal const int DEFAULT_SIZE = 6;
 
-    internal sealed class CookieCollection : PooledDictionary<string, Cookie>, ICookieCollection
+    internal CookieCollection() : base(DEFAULT_SIZE, StringComparer.InvariantCultureIgnoreCase)
     {
-        internal const int DEFAULT_SIZE = 6;
-
-        internal CookieCollection() : base(DEFAULT_SIZE, StringComparer.InvariantCultureIgnoreCase)
-        {
 
         }
 
-        internal void Add(string header)
-        {
+    internal void Add(string header)
+    {
             foreach (var cookie in Parse(header))
             {
                 if (!ContainsKey(cookie.Name))
@@ -28,8 +27,8 @@ namespace GenHTTP.Engine.Protocol
             }
         }
 
-        private static List<Cookie> Parse(string value)
-        {
+    private static List<Cookie> Parse(string value)
+    {
             var result = new List<Cookie>(2);
 
             var cookies = value.Split("; ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
@@ -46,7 +45,5 @@ namespace GenHTTP.Engine.Protocol
 
             return result;
         }
-
-    }
 
 }

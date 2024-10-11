@@ -5,16 +5,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Engine.Utilities;
 
-namespace GenHTTP.Testing.Acceptance.Engine
+namespace GenHTTP.Testing.Acceptance.Engine;
+
+[TestClass]
+public sealed class PooledDictionaryTests
 {
 
-    [TestClass]
-    public sealed class PooledDictionaryTests
+    [TestMethod]
+    public void TestReplace()
     {
-
-        [TestMethod]
-        public void TestReplace()
-        {
             using var dict = new PooledDictionary<string, string>();
 
             dict["one"] = "One";
@@ -26,17 +25,17 @@ namespace GenHTTP.Testing.Acceptance.Engine
             Assert.AreEqual("Two", dict["one"]);
         }
 
-        [TestMethod]
-        public void TestNotFound()
-        {
+    [TestMethod]
+    public void TestNotFound()
+    {
             using var dict = new PooledDictionary<string, string>();
 
             Assert.ThrowsException<KeyNotFoundException>(() => dict["nope"]);
         }
 
-        [TestMethod]
-        public void TestCounts()
-        {
+    [TestMethod]
+    public void TestCounts()
+    {
             using var dict = new PooledDictionary<string, string>();
 
             Assert.AreEqual(0, dict.Keys.Count);
@@ -52,9 +51,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
             AssertX.Single(dict);
         }
 
-        [TestMethod]
-        public void TestClear()
-        {
+    [TestMethod]
+    public void TestClear()
+    {
             using var dict = new PooledDictionary<string, string>();
             dict["one"] = "One";
 
@@ -63,9 +62,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
             Assert.IsFalse(dict.ContainsKey("one"));
         }
 
-        [TestMethod]
-        public void TestResize()
-        {
+    [TestMethod]
+    public void TestResize()
+    {
             using var dict = new PooledDictionary<int, int>();
 
             for (int i = 0; i < 25; i++)
@@ -81,22 +80,20 @@ namespace GenHTTP.Testing.Acceptance.Engine
             }
         }
 
-        [TestMethod]
-        public void TestNoRemove()
-        {
+    [TestMethod]
+    public void TestNoRemove()
+    {
             using var dict = new PooledDictionary<string, string>();
 
             Assert.ThrowsException<NotSupportedException>(() => dict.Remove(""));
         }
 
-        [TestMethod]
-        public void TestNoRemove2()
-        {
+    [TestMethod]
+    public void TestNoRemove2()
+    {
             using var dict = new PooledDictionary<string, string>();
 
             Assert.ThrowsException<NotSupportedException>(() => dict.Remove(new KeyValuePair<string, string>("", "")));
         }
-
-    }
 
 }

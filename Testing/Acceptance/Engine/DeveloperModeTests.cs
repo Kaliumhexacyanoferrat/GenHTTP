@@ -9,34 +9,33 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Layouting;
 
-namespace GenHTTP.Testing.Acceptance.Engine
+namespace GenHTTP.Testing.Acceptance.Engine;
+
+[TestClass]
+public sealed class DeveloperModeTests
 {
 
-    [TestClass]
-    public sealed class DeveloperModeTests
+    private class ThrowingProvider : IHandler
     {
 
-        private class ThrowingProvider : IHandler
+        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
+        public IHandler Parent => throw new NotImplementedException();
+
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-
-            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
-
-            public IHandler Parent => throw new NotImplementedException();
-
-            public ValueTask<IResponse?> HandleAsync(IRequest request)
-            {
                 throw new InvalidOperationException("Nope!");
             }
 
-        }
+    }
 
-        /// <summary>
-        /// As a developer of a web project, I would like to see exceptions rendered 
-        /// in the browser, so that I can trace an error more quickly
-        /// </summary>
-        [TestMethod]
-        public async Task TestExceptionsWithTrace()
-        {
+    /// <summary>
+    /// As a developer of a web project, I would like to see exceptions rendered 
+    /// in the browser, so that I can trace an error more quickly
+    /// </summary>
+    [TestMethod]
+    public async Task TestExceptionsWithTrace()
+    {
             using var runner = new TestHost(Layout.Create());
 
             var router = Layout.Create().Index(new ThrowingProvider().Wrap());
@@ -48,13 +47,13 @@ namespace GenHTTP.Testing.Acceptance.Engine
             Assert.IsTrue((await response.GetContentAsync()).Contains("at GenHTTP"));
         }
 
-        /// <summary>
-        /// As a devops member, I do not want an web application to leak internal
-        /// implementation detail with exception messages
-        /// </summary>
-        [TestMethod]
-        public async Task TestExceptionsWithNoTrace()
-        {
+    /// <summary>
+    /// As a devops member, I do not want an web application to leak internal
+    /// implementation detail with exception messages
+    /// </summary>
+    [TestMethod]
+    public async Task TestExceptionsWithNoTrace()
+    {
             var router = Layout.Create().Index(new ThrowingProvider().Wrap());
 
             using var runner = TestHost.Run(router, development: false);
@@ -64,7 +63,4 @@ namespace GenHTTP.Testing.Acceptance.Engine
             Assert.IsFalse((await response.GetContentAsync()).Contains("at GenHTTP"));
         }
 
-    }
-
 }
-

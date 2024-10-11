@@ -1,22 +1,21 @@
 ﻿using GenHTTP.Modules.Conversion.Formatters;
 
-namespace GenHTTP.Modules.Conversion
+namespace GenHTTP.Modules.Conversion;
+
+/// <summary>
+/// Entry point to customize the string representation generated for
+/// various types that can be returned or read by services.
+/// </summary>
+public static class Formatting
 {
 
     /// <summary>
-    /// Entry point to customize the string representation generated for
-    /// various types that can be returned or read by services.
+    /// The default formatters to be used with support for enums, GUIDs,
+    /// primitive types and strings.
     /// </summary>
-    public static class Formatting
+    /// <returns>The default formatters</returns>
+    public static FormatterBuilder Default()
     {
-
-        /// <summary>
-        /// The default formatters to be used with support for enums, GUIDs,
-        /// primitive types and strings.
-        /// </summary>
-        /// <returns>The default formatters</returns>
-        public static FormatterBuilder Default()
-        {
             return new FormatterBuilder().Add<StringFormatter>()
                                          .Add<BoolFormatter>()
                                          .Add<EnumFormatter>()
@@ -25,13 +24,11 @@ namespace GenHTTP.Modules.Conversion
                                          .Add<PrimitiveFormatter>();
         }
 
-        /// <summary>
-        /// Creates an empty formatter registry that can be extended
-        /// as needed.
-        /// </summary>
-        /// <returns>An empty formatter registry</returns>
-        public static FormatterBuilder Empty() => new FormatterBuilder();
-
-    }
+    /// <summary>
+    /// Creates an empty formatter registry that can be extended
+    /// as needed.
+    /// </summary>
+    /// <returns>An empty formatter registry</returns>
+    public static FormatterBuilder Empty() => new FormatterBuilder();
 
 }

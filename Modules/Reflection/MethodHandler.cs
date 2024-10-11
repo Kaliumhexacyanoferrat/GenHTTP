@@ -11,57 +11,56 @@ using GenHTTP.Api.Routing;
 
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Formatters;
-using GenHTTP.Modules.Conversion.Providers;
-using GenHTTP.Modules.Conversion.Providers.Forms;
+using GenHTTP.Modules.Conversion.Serializers;
+using GenHTTP.Modules.Conversion.Serializers.Forms;
 using GenHTTP.Modules.Reflection.Injectors;
 
-namespace GenHTTP.Modules.Reflection
+namespace GenHTTP.Modules.Reflection;
+
+/// <summary>
+/// Allows to invoke a function on a service oriented resource.
+/// </summary>
+/// <remarks>
+/// This provider analyzes the target method to be invoked and supplies
+/// the required arguments. The result of the method is analyzed and
+/// converted into a HTTP response.
+/// </remarks>
+public sealed class MethodHandler : IHandler
 {
+    private static readonly object?[] NO_ARGUMENTS = Array.Empty<object?>();
 
-    /// <summary>
-    /// Allows to invoke a function on a service oriented resource.
-    /// </summary>
-    /// <remarks>
-    /// This provider analyzes the target method to be invoked and supplies
-    /// the required arguments. The result of the method is analyzed and
-    /// converted into a HTTP response.
-    /// </remarks>
-    public sealed class MethodHandler : IHandler
+    private static readonly Type? VOID_TASK_RESULT = Type.GetType("System.Threading.Tasks.VoidTaskResult");
+
+    #region Get-/Setters
+
+    public IHandler Parent { get; }
+
+    public MethodRouting Routing { get; }
+
+    public IMethodConfiguration Configuration { get; }
+
+    public MethodInfo Method { get; }
+
+    private Guid ID { get; }
+
+    private Func<object> InstanceProvider { get; }
+
+    private Func<IRequest, IHandler, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> ResponseProvider { get; }
+
+    private SerializationRegistry Serialization { get; }
+
+    private InjectionRegistry Injection { get; }
+
+    private FormatterRegistry Formatting { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public MethodHandler(IHandler parent, MethodInfo method, MethodRouting routing, Func<object> instanceProvider, IMethodConfiguration metaData,
+        Func<IRequest, IHandler, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> responseProvider, SerializationRegistry serialization,
+        InjectionRegistry injection, FormatterRegistry formatting)
     {
-        private static readonly object?[] NO_ARGUMENTS = Array.Empty<object?>();
-
-        private static readonly Type? VOID_TASK_RESULT = Type.GetType("System.Threading.Tasks.VoidTaskResult");
-
-        #region Get-/Setters
-
-        public IHandler Parent { get; }
-
-        public MethodRouting Routing { get; }
-
-        public IMethodConfiguration Configuration { get; }
-
-        public MethodInfo Method { get; }
-
-        private Guid ID { get; }
-
-        private Func<object> InstanceProvider { get; }
-
-        private Func<IRequest, IHandler, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> ResponseProvider { get; }
-
-        private SerializationRegistry Serialization { get; }
-
-        private InjectionRegistry Injection { get; }
-
-        private FormatterRegistry Formatting { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public MethodHandler(IHandler parent, MethodInfo method, MethodRouting routing, Func<object> instanceProvider, IMethodConfiguration metaData,
-            Func<IRequest, IHandler, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> responseProvider, SerializationRegistry serialization,
-            InjectionRegistry injection, FormatterRegistry formatting)
-        {
             Parent = parent;
 
             Method = method;
@@ -79,12 +78,12 @@ namespace GenHTTP.Modules.Reflection
             ID = Guid.NewGuid();
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             var arguments = await GetArguments(request);
 
             var result = Invoke(arguments);
@@ -92,8 +91,8 @@ namespace GenHTTP.Modules.Reflection
             return await ResponseProvider(request, this, await UnwrapAsync(result), null);
         }
 
-        private async ValueTask<object?[]> GetArguments(IRequest request)
-        {
+    private async ValueTask<object?[]> GetArguments(IRequest request)
+    {
             var targetParameters = Method.GetParameters();
 
             Match? sourceParameters = null;
@@ -143,7 +142,7 @@ namespace GenHTTP.Modules.Reflection
                             if (request.Content != null)
                             {
                                 using var reader = new StreamReader(request.Content, leaveOpen: true);
-                                
+
                                 var body = await reader.ReadToEndAsync();
 
                                 if (!string.IsNullOrWhiteSpace(body))
@@ -223,10 +222,10 @@ namespace GenHTTP.Modules.Reflection
             return NO_ARGUMENTS;
         }
 
-        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        private object? Invoke(object?[] arguments)
-        {
+    private object? Invoke(object?[] arguments)
+    {
             try
             {
                 return Method.Invoke(InstanceProvider(), arguments);
@@ -243,8 +242,8 @@ namespace GenHTTP.Modules.Reflection
             }
         }
 
-        private static async ValueTask<object?> UnwrapAsync(object? result)
-        {
+    private static async ValueTask<object?> UnwrapAsync(object? result)
+    {
             if (result == null)
             {
                 return null;
@@ -277,8 +276,6 @@ namespace GenHTTP.Modules.Reflection
             return result;
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

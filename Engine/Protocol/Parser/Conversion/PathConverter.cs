@@ -3,16 +3,15 @@ using System.Collections.Generic;
 
 using GenHTTP.Api.Routing;
 
-namespace GenHTTP.Engine.Protocol.Parser.Conversion
+namespace GenHTTP.Engine.Protocol.Parser.Conversion;
+
+internal static class PathConverter
 {
 
-    internal static class PathConverter
+    private static readonly WebPath ROOT = new(new List<WebPathPart>(), true);
+
+    internal static WebPath ToPath(ReadOnlySequence<byte> value)
     {
-
-        private static readonly WebPath ROOT = new(new List<WebPathPart>(), true);
-
-        internal static WebPath ToPath(ReadOnlySequence<byte> value)
-        {
             if (value.Length == 1)
             {
                 return ROOT;
@@ -39,7 +38,5 @@ namespace GenHTTP.Engine.Protocol.Parser.Conversion
 
             return new WebPath(parts, true);
         }
-
-    }
 
 }

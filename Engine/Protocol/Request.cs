@@ -1,54 +1,50 @@
 ﻿using System;
 using System.IO;
-
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
-using GenHTTP.Engine.Protocol;
+namespace GenHTTP.Engine.Protocol;
 
-namespace GenHTTP.Engine
+/// <summary>
+/// Provides methods to access a recieved http request.
+/// </summary>
+internal sealed class Request : IRequest
 {
+    private ICookieCollection? _Cookies;
 
-    /// <summary>
-    /// Provides methods to access a recieved http request.
-    /// </summary>
-    internal sealed class Request : IRequest
+    private IForwardingCollection? _Forwardings;
+
+    private IRequestQuery? _Query;
+
+    private RequestProperties? _Properties;
+
+    private FlexibleContentType? _ContentType;
+
+    #region Get-/Setters
+
+    public IServer Server { get; }
+
+    public IEndPoint EndPoint { get; }
+
+    public IClientConnection Client { get; }
+
+    public IClientConnection LocalClient { get; }
+
+    public HttpProtocol ProtocolType { get; }
+
+    public FlexibleRequestMethod Method { get; }
+
+    public RoutingTarget Target { get; }
+
+    public IHeaderCollection Headers { get; }
+
+    public Stream? Content { get; }
+
+    public FlexibleContentType? ContentType
     {
-        private ICookieCollection? _Cookies;
-
-        private IForwardingCollection? _Forwardings;
-
-        private IRequestQuery? _Query;
-
-        private RequestProperties? _Properties;
-
-        private FlexibleContentType? _ContentType;
-
-        #region Get-/Setters
-
-        public IServer Server { get; }
-
-        public IEndPoint EndPoint { get; }
-
-        public IClientConnection Client { get; }
-
-        public IClientConnection LocalClient { get; }
-
-        public HttpProtocol ProtocolType { get; }
-
-        public FlexibleRequestMethod Method { get; }
-
-        public RoutingTarget Target { get; }
-
-        public IHeaderCollection Headers { get; }
-
-        public Stream? Content { get; }
-
-        public FlexibleContentType? ContentType
+        get
         {
-            get
-            {
                 if (_ContentType is not null)
                 {
                     return _ContentType;
@@ -63,18 +59,18 @@ namespace GenHTTP.Engine
 
                 return null;
             }
-        }
+    }
 
-        public string? Host => Client.Host;
+    public string? Host => Client.Host;
 
-        public string? Referer => this["Referer"];
+    public string? Referer => this["Referer"];
 
-        public string? UserAgent => this["User-Agent"];
+    public string? UserAgent => this["User-Agent"];
 
-        public string? this[string additionalHeader]
+    public string? this[string additionalHeader]
+    {
+        get
         {
-            get
-            {
                 if (Headers.ContainsKey(additionalHeader))
                 {
                     return Headers[additionalHeader];
@@ -82,36 +78,36 @@ namespace GenHTTP.Engine
 
                 return null;
             }
-        }
+    }
 
-        public ICookieCollection Cookies
-        {
-            get { return _Cookies ??= new CookieCollection(); }
-        }
+    public ICookieCollection Cookies
+    {
+        get { return _Cookies ??= new CookieCollection(); }
+    }
 
-        public IForwardingCollection Forwardings
-        {
-            get { return _Forwardings ??= new ForwardingCollection(); }
-        }
+    public IForwardingCollection Forwardings
+    {
+        get { return _Forwardings ??= new ForwardingCollection(); }
+    }
 
-        public IRequestQuery Query
-        {
-            get { return _Query ??= new RequestQuery(); }
-        }
+    public IRequestQuery Query
+    {
+        get { return _Query ??= new RequestQuery(); }
+    }
 
-        public IRequestProperties Properties
-        {
-            get { return _Properties ??= new RequestProperties(); }
-        }
+    public IRequestProperties Properties
+    {
+        get { return _Properties ??= new RequestProperties(); }
+    }
 
-        #endregion
+    #endregion
 
-        #region Initialization
+    #region Initialization
 
-        internal Request(IServer server, IEndPoint endPoint, IClientConnection client, IClientConnection localClient, HttpProtocol protocol, FlexibleRequestMethod method,
-                         RoutingTarget target, IHeaderCollection headers, ICookieCollection? cookies, IForwardingCollection? forwardings,
-                         IRequestQuery? query, Stream? content)
-        {
+    internal Request(IServer server, IEndPoint endPoint, IClientConnection client, IClientConnection localClient, HttpProtocol protocol, FlexibleRequestMethod method,
+        RoutingTarget target, IHeaderCollection headers, ICookieCollection? cookies, IForwardingCollection? forwardings,
+        IRequestQuery? query, Stream? content)
+    {
             Client = client;
             LocalClient = localClient;
 
@@ -131,23 +127,23 @@ namespace GenHTTP.Engine
             Content = content;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public IResponseBuilder Respond()
-        {
+    public IResponseBuilder Respond()
+    {
             return new ResponseBuilder().Status(ResponseStatus.OK);
         }
 
-        #endregion
+    #endregion
 
-        #region IDisposable Support
+    #region IDisposable Support
 
-        private bool disposed = false;
+    private bool disposed = false;
 
-        public void Dispose()
-        {
+    public void Dispose()
+    {
             if (!disposed)
             {
                 Headers.Dispose();
@@ -166,8 +162,6 @@ namespace GenHTTP.Engine
             GC.SuppressFinalize(this);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

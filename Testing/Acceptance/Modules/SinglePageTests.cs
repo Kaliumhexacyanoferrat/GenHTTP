@@ -1,24 +1,20 @@
 ﻿using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-
+using GenHTTP.Modules.IO;
+using GenHTTP.Modules.SinglePageApplications;
+using GenHTTP.Testing.Acceptance.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using GenHTTP.Modules.SinglePageApplications;
-using GenHTTP.Modules.IO;
+namespace GenHTTP.Testing.Acceptance.Modules;
 
-using GenHTTP.Testing.Acceptance.Utilities;
-
-namespace GenHTTP.Testing.Acceptance.Providers
+[TestClass]
+public sealed class SinglePageTests
 {
 
-    [TestClass]
-    public sealed class SinglePageTests
+    [TestMethod]
+    public async Task TestIndex()
     {
-
-        [TestMethod]
-        public async Task TestIndex()
-        {
             var root = CreateRoot();
 
             FileUtil.WriteText(Path.Combine(root, "index.html"), "This is the index!");
@@ -35,9 +31,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.AreEqual("This is the index!", content);
         }
 
-        [TestMethod]
-        public async Task TestIndexServedWithRouting()
-        {
+    [TestMethod]
+    public async Task TestIndexServedWithRouting()
+    {
             var root = CreateRoot();
 
             FileUtil.WriteText(Path.Combine(root, "index.html"), "This is the index!");
@@ -53,9 +49,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.AreEqual("text/html", index.GetContentHeader("Content-Type"));
         }
 
-        [TestMethod]
-        public async Task TestNoIndex()
-        {
+    [TestMethod]
+    public async Task TestNoIndex()
+    {
             using var runner = TestHost.Run(SinglePageApplication.From(ResourceTree.FromDirectory(CreateRoot())));
 
             using var index = await runner.GetResponseAsync("/");
@@ -63,9 +59,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
             await index.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
-        [TestMethod]
-        public async Task TestFile()
-        {
+    [TestMethod]
+    public async Task TestFile()
+    {
             var root = CreateRoot();
 
             FileUtil.WriteText(Path.Combine(root, "some.txt"), "This is some text file :)");
@@ -82,9 +78,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.AreEqual("This is some text file :)", content);
         }
 
-        [TestMethod]
-        public async Task TestNoFile()
-        {
+    [TestMethod]
+    public async Task TestNoFile()
+    {
             using var runner = TestHost.Run(SinglePageApplication.From(ResourceTree.FromDirectory(CreateRoot())));
 
             using var index = await runner.GetResponseAsync("/nope.txt");
@@ -92,15 +88,13 @@ namespace GenHTTP.Testing.Acceptance.Providers
             await index.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
-        private static string CreateRoot()
-        {
+    private static string CreateRoot()
+    {
             var tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
             Directory.CreateDirectory(tempDirectory);
 
             return tempDirectory;
         }
-
-    }
 
 }

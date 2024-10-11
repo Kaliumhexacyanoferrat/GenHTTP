@@ -2,210 +2,209 @@
 using System.Linq;
 using System.Collections.Generic;
 
-namespace GenHTTP.Api.Protocol
+namespace GenHTTP.Api.Protocol;
+
+#region Known Types
+
+public enum ResponseStatus
 {
 
-    #region Known Types
+    Continue = 100,
 
-    public enum ResponseStatus
-    {
+    SwitchingProtocols = 101,
 
-        Continue = 100,
+    Processing = 102,
 
-        SwitchingProtocols = 101,
+    OK = 200,
 
-        Processing = 102,
+    Created = 201,
 
-        OK = 200,
+    Accepted = 202,
 
-        Created = 201,
+    NoContent = 204,
 
-        Accepted = 202,
+    PartialContent = 206,
 
-        NoContent = 204,
+    MultiStatus = 207,
 
-        PartialContent = 206,
+    AlreadyReported = 208,
 
-        MultiStatus = 207,
+    MovedPermanently = 301,
 
-        AlreadyReported = 208,
+    Found = 302,
 
-        MovedPermanently = 301,
+    SeeOther = 303,
 
-        Found = 302,
+    NotModified = 304,
 
-        SeeOther = 303,
+    TemporaryRedirect = 307,
 
-        NotModified = 304,
+    PermanentRedirect = 308,
 
-        TemporaryRedirect = 307,
+    BadRequest = 400,
 
-        PermanentRedirect = 308,
+    Unauthorized = 401,
 
-        BadRequest = 400,
+    Forbidden = 403,
 
-        Unauthorized = 401,
+    NotFound = 404,
 
-        Forbidden = 403,
+    MethodNotAllowed = 405,
 
-        NotFound = 404,
+    NotAcceptable = 406,
 
-        MethodNotAllowed = 405,
+    ProxyAuthenticationRequired = 407,
 
-        NotAcceptable = 406,
+    Conflict = 409,
 
-        ProxyAuthenticationRequired = 407,
+    Gone = 410,
 
-        Conflict = 409,
+    LengthRequired = 411,
 
-        Gone = 410,
+    PreconditionFailed = 412,
 
-        LengthRequired = 411,
+    RequestEntityTooLarge = 413,
 
-        PreconditionFailed = 412,
+    RequestUriTooLong = 414,
 
-        RequestEntityTooLarge = 413,
+    UnsupportedMediaType = 415,
 
-        RequestUriTooLong = 414,
+    RequestedRangeNotSatisfiable = 416,
 
-        UnsupportedMediaType = 415,
+    ExpectationFailed = 417,
 
-        RequestedRangeNotSatisfiable = 416,
+    UnprocessableEntity = 422,
 
-        ExpectationFailed = 417,
+    Locked = 423,
 
-        UnprocessableEntity = 422,
+    FailedDependency = 424,
 
-        Locked = 423,
+    ReservedForWebDAV = 425,
 
-        FailedDependency = 424,
+    UpgradeRequired = 426,
 
-        ReservedForWebDAV = 425,
+    PreconditionRequired = 428,
 
-        UpgradeRequired = 426,
+    TooManyRequests = 429,
 
-        PreconditionRequired = 428,
+    RequestHeaderFieldsTooLarge = 431,
 
-        TooManyRequests = 429,
+    UnavailableForLegalReasons = 451,
 
-        RequestHeaderFieldsTooLarge = 431,
+    InternalServerError = 500,
 
-        UnavailableForLegalReasons = 451,
+    NotImplemented = 501,
 
-        InternalServerError = 500,
+    BadGateway = 502,
 
-        NotImplemented = 501,
+    ServiceUnavailable = 503,
 
-        BadGateway = 502,
+    GatewayTimeout = 504,
 
-        ServiceUnavailable = 503,
+    HttpVersionNotSupported = 505,
 
-        GatewayTimeout = 504,
+    InsufficientStorage = 507,
 
-        HttpVersionNotSupported = 505,
+    LoopDetected = 508,
 
-        InsufficientStorage = 507,
+    NotExtended = 510,
 
-        LoopDetected = 508,
+    NetworkAuthenticationRequired = 511
 
-        NotExtended = 510,
+}
 
-        NetworkAuthenticationRequired = 511
+#endregion
 
-    }
+/// <summary>
+/// The status of the response send to the client.
+/// </summary>
+public struct FlexibleResponseStatus
+{
+
+    #region Get-/Setters
+
+    /// <summary>
+    /// The known status, if any.
+    /// </summary>
+    public ResponseStatus? KnownStatus { get; }
+
+    /// <summary>
+    /// The raw HTTP status.
+    /// </summary>
+    public int RawStatus { get; }
+
+    /// <summary>
+    /// The reason phrase to be send.
+    /// </summary>
+    public string Phrase { get; }
 
     #endregion
 
-    /// <summary>
-    /// The status of the response send to the client.
-    /// </summary>
-    public struct FlexibleResponseStatus
+    #region Mapping
+
+    private static readonly Dictionary<ResponseStatus, string> MAPPING = new()
     {
+        { ResponseStatus.Accepted, "Accepted" },
+        { ResponseStatus.BadGateway, "Bad Gateway" },
+        { ResponseStatus.BadRequest, "Bad Request" },
+        { ResponseStatus.Created, "Created" },
+        { ResponseStatus.Forbidden, "Forbidden" },
+        { ResponseStatus.InternalServerError, "Internal Server Error" },
+        { ResponseStatus.MethodNotAllowed, "Method Not Allowed" },
+        { ResponseStatus.MovedPermanently, "Moved Permamently" },
+        { ResponseStatus.Found, "Found" },
+        { ResponseStatus.NoContent, "No Content" },
+        { ResponseStatus.NotFound, "Not Found" },
+        { ResponseStatus.NotImplemented, "Not Implemented" },
+        { ResponseStatus.NotModified, "Not Modified" },
+        { ResponseStatus.OK, "OK" },
+        { ResponseStatus.ServiceUnavailable, "Service Unavailable"},
+        { ResponseStatus.Unauthorized, "Unauthorized"},
+        { ResponseStatus.PartialContent, "Partial Content"},
+        { ResponseStatus.MultiStatus, "Multi-Status"},
+        { ResponseStatus.AlreadyReported, "Already Reported"},
+        { ResponseStatus.SeeOther, "See Other" },
+        { ResponseStatus.TemporaryRedirect, "Temporary Redirect"},
+        { ResponseStatus.PermanentRedirect, "Permanent Redirect"},
+        { ResponseStatus.Continue, "Continue" },
+        { ResponseStatus.SwitchingProtocols, "Switching Protocols" },
+        { ResponseStatus.NotAcceptable, "Not Acceptable" },
+        { ResponseStatus.ProxyAuthenticationRequired, "Proxy Authentication Required" },
+        { ResponseStatus.Conflict, "Conflict" },
+        { ResponseStatus.Gone, "Gone" },
+        { ResponseStatus.LengthRequired, "Length Required" },
+        { ResponseStatus.PreconditionFailed, "Precondition Failed" },
+        { ResponseStatus.RequestEntityTooLarge, "Request Entity Too Large" },
+        { ResponseStatus.RequestUriTooLong, "Request Uri Too Long" },
+        { ResponseStatus.UnsupportedMediaType, "Unsupported Media Type" },
+        { ResponseStatus.RequestedRangeNotSatisfiable, "Requested Range Not Satisfiable" },
+        { ResponseStatus.ExpectationFailed, "Expectation Failed" },
+        { ResponseStatus.UnprocessableEntity, "Unprocessable Entity" },
+        { ResponseStatus.Locked, "Locked" },
+        { ResponseStatus.FailedDependency, "Failed Dependency" },
+        { ResponseStatus.ReservedForWebDAV, "Reserved For WebDAV" },
+        { ResponseStatus.UpgradeRequired, "Upgrade Required" },
+        { ResponseStatus.PreconditionRequired, "Precondition Required" },
+        { ResponseStatus.TooManyRequests, "Too Many Requests" },
+        { ResponseStatus.RequestHeaderFieldsTooLarge, "Request Header Fields Too Large" },
+        { ResponseStatus.UnavailableForLegalReasons, "Unavailable For Legal Reasons" },
+        { ResponseStatus.GatewayTimeout, "Gateway Timeout" },
+        { ResponseStatus.HttpVersionNotSupported, "HTTP Version Not Supported" },
+        { ResponseStatus.InsufficientStorage, "Insufficient Storage" },
+        { ResponseStatus.LoopDetected, "Loop Detected" },
+        { ResponseStatus.NotExtended, "Not Extended" },
+        { ResponseStatus.NetworkAuthenticationRequired, "Network Authentication Required" },
+        { ResponseStatus.Processing, "Processing" }
+    };
 
-        #region Get-/Setters
+    private static readonly Dictionary<int, ResponseStatus> CODE_MAPPING = MAPPING.Keys.ToDictionary((k) => (int)k, (k) => k);
 
-        /// <summary>
-        /// The known status, if any.
-        /// </summary>
-        public ResponseStatus? KnownStatus { get; }
+    #endregion
 
-        /// <summary>
-        /// The raw HTTP status.
-        /// </summary>
-        public int RawStatus { get; }
+    #region Initialization
 
-        /// <summary>
-        /// The reason phrase to be send.
-        /// </summary>
-        public string Phrase { get; }
-
-        #endregion
-
-        #region Mapping
-
-        private static readonly Dictionary<ResponseStatus, string> MAPPING = new()
-        {
-            { ResponseStatus.Accepted, "Accepted" },
-            { ResponseStatus.BadGateway, "Bad Gateway" },
-            { ResponseStatus.BadRequest, "Bad Request" },
-            { ResponseStatus.Created, "Created" },
-            { ResponseStatus.Forbidden, "Forbidden" },
-            { ResponseStatus.InternalServerError, "Internal Server Error" },
-            { ResponseStatus.MethodNotAllowed, "Method Not Allowed" },
-            { ResponseStatus.MovedPermanently, "Moved Permamently" },
-            { ResponseStatus.Found, "Found" },
-            { ResponseStatus.NoContent, "No Content" },
-            { ResponseStatus.NotFound, "Not Found" },
-            { ResponseStatus.NotImplemented, "Not Implemented" },
-            { ResponseStatus.NotModified, "Not Modified" },
-            { ResponseStatus.OK, "OK" },
-            { ResponseStatus.ServiceUnavailable, "Service Unavailable"},
-            { ResponseStatus.Unauthorized, "Unauthorized"},
-            { ResponseStatus.PartialContent, "Partial Content"},
-            { ResponseStatus.MultiStatus, "Multi-Status"},
-            { ResponseStatus.AlreadyReported, "Already Reported"},
-            { ResponseStatus.SeeOther, "See Other" },
-            { ResponseStatus.TemporaryRedirect, "Temporary Redirect"},
-            { ResponseStatus.PermanentRedirect, "Permanent Redirect"},
-            { ResponseStatus.Continue, "Continue" },
-            { ResponseStatus.SwitchingProtocols, "Switching Protocols" },
-            { ResponseStatus.NotAcceptable, "Not Acceptable" },
-            { ResponseStatus.ProxyAuthenticationRequired, "Proxy Authentication Required" },
-            { ResponseStatus.Conflict, "Conflict" },
-            { ResponseStatus.Gone, "Gone" },
-            { ResponseStatus.LengthRequired, "Length Required" },
-            { ResponseStatus.PreconditionFailed, "Precondition Failed" },
-            { ResponseStatus.RequestEntityTooLarge, "Request Entity Too Large" },
-            { ResponseStatus.RequestUriTooLong, "Request Uri Too Long" },
-            { ResponseStatus.UnsupportedMediaType, "Unsupported Media Type" },
-            { ResponseStatus.RequestedRangeNotSatisfiable, "Requested Range Not Satisfiable" },
-            { ResponseStatus.ExpectationFailed, "Expectation Failed" },
-            { ResponseStatus.UnprocessableEntity, "Unprocessable Entity" },
-            { ResponseStatus.Locked, "Locked" },
-            { ResponseStatus.FailedDependency, "Failed Dependency" },
-            { ResponseStatus.ReservedForWebDAV, "Reserved For WebDAV" },
-            { ResponseStatus.UpgradeRequired, "Upgrade Required" },
-            { ResponseStatus.PreconditionRequired, "Precondition Required" },
-            { ResponseStatus.TooManyRequests, "Too Many Requests" },
-            { ResponseStatus.RequestHeaderFieldsTooLarge, "Request Header Fields Too Large" },
-            { ResponseStatus.UnavailableForLegalReasons, "Unavailable For Legal Reasons" },
-            { ResponseStatus.GatewayTimeout, "Gateway Timeout" },
-            { ResponseStatus.HttpVersionNotSupported, "HTTP Version Not Supported" },
-            { ResponseStatus.InsufficientStorage, "Insufficient Storage" },
-            { ResponseStatus.LoopDetected, "Loop Detected" },
-            { ResponseStatus.NotExtended, "Not Extended" },
-            { ResponseStatus.NetworkAuthenticationRequired, "Network Authentication Required" },
-            { ResponseStatus.Processing, "Processing" }
-        };
-
-        private static readonly Dictionary<int, ResponseStatus> CODE_MAPPING = MAPPING.Keys.ToDictionary((k) => (int)k, (k) => k);
-
-        #endregion
-
-        #region Initialization
-
-        public FlexibleResponseStatus(int status, string phrase)
-        {
+    public FlexibleResponseStatus(int status, string phrase)
+    {
             RawStatus = status;
             Phrase = phrase;
 
@@ -219,32 +218,30 @@ namespace GenHTTP.Api.Protocol
             }
         }
 
-        public FlexibleResponseStatus(ResponseStatus status)
-        {
+    public FlexibleResponseStatus(ResponseStatus status)
+    {
             KnownStatus = status;
 
             RawStatus = (int)status;
             Phrase = MAPPING[status];
         }
 
-        #endregion
+    #endregion
 
-        #region Convenience
+    #region Convenience
 
-        public static bool operator ==(FlexibleResponseStatus status, ResponseStatus knownStatus) => status.KnownStatus == knownStatus;
+    public static bool operator ==(FlexibleResponseStatus status, ResponseStatus knownStatus) => status.KnownStatus == knownStatus;
 
-        public static bool operator !=(FlexibleResponseStatus status, ResponseStatus knownStatus) => status.KnownStatus != knownStatus;
+    public static bool operator !=(FlexibleResponseStatus status, ResponseStatus knownStatus) => status.KnownStatus != knownStatus;
 
-        public static bool operator ==(FlexibleResponseStatus status, int rawStatus) => status.RawStatus == rawStatus;
+    public static bool operator ==(FlexibleResponseStatus status, int rawStatus) => status.RawStatus == rawStatus;
 
-        public static bool operator !=(FlexibleResponseStatus status, int rawStatus) => status.RawStatus != rawStatus;
+    public static bool operator !=(FlexibleResponseStatus status, int rawStatus) => status.RawStatus != rawStatus;
 
-        public override bool Equals(object? obj) => obj is FlexibleResponseStatus status && RawStatus == status.RawStatus;
+    public override bool Equals(object? obj) => obj is FlexibleResponseStatus status && RawStatus == status.RawStatus;
 
-        public override int GetHashCode() => RawStatus.GetHashCode();
+    public override int GetHashCode() => RawStatus.GetHashCode();
 
-        #endregion
-
-    }
+    #endregion
 
 }

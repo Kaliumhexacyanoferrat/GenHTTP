@@ -5,16 +5,15 @@ using GenHTTP.Testing.Acceptance.Utilities;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Engine
+namespace GenHTTP.Testing.Acceptance.Engine;
+
+[TestClass]
+public class HeaderTests
 {
 
-    [TestClass]
-    public class HeaderTests
+    [TestMethod]
+    public async Task TestServerHeaderCanBeSet()
     {
-
-        [TestMethod]
-        public async Task TestServerHeaderCanBeSet()
-        {
             var handler = new FunctionalHandler(responseProvider: (r) =>
             {
                 return r.Respond()
@@ -29,9 +28,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
             Assert.AreEqual("TFB", response.GetHeader("Server"));
         }
 
-        [TestMethod]
-        public async Task TestReservedHeaderCannotBeSet()
-        {
+    [TestMethod]
+    public async Task TestReservedHeaderCannotBeSet()
+    {
             var handler = new FunctionalHandler(responseProvider: (r) =>
             {
                 return r.Respond()
@@ -45,7 +44,5 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             await response.AssertStatusAsync(HttpStatusCode.InternalServerError);
         }
-
-    }
 
 }

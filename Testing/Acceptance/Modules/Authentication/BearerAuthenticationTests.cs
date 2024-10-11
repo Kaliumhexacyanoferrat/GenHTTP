@@ -12,28 +12,27 @@ using GenHTTP.Modules.Functional;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Authentication
+namespace GenHTTP.Testing.Acceptance.Modules.Authentication;
+
+[TestClass]
+public sealed class BearerAuthenticationTests
 {
+    private const string VALID_TOKEN = @"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
 
-    [TestClass]
-    public sealed class BearerAuthenticationTests
+    #region Supporting data structures
+
+    internal class MyUser : IUser
     {
-        private const string VALID_TOKEN = @"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
 
-        #region Supporting data structures
-
-        internal class MyUser : IUser
-        {
-
-            public string DisplayName { get; set; } = "";
+        public string DisplayName { get; set; } = "";
         
-        }
+    }
 
-        #endregion
+    #endregion
 
-        [TestMethod]
-        public async Task TestValidToken()
-        {
+    [TestMethod]
+    public async Task TestValidToken()
+    {
             var auth = BearerAuthentication.Create()
                                            .AllowExpired();
 
@@ -44,9 +43,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             Assert.AreEqual("Secured", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestCustomValidator()
-        {
+    [TestMethod]
+    public async Task TestCustomValidator()
+    {
             var auth = BearerAuthentication.Create()
                                            .Validation((token) => throw new ProviderException(ResponseStatus.Forbidden, "Nah"))
                                            .AllowExpired();
@@ -56,9 +55,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             await response.AssertStatusAsync(HttpStatusCode.Forbidden);
         }
 
-        [TestMethod]
-        public async Task TestNoUser()
-        {
+    [TestMethod]
+    public async Task TestNoUser()
+    {
             var auth = BearerAuthentication.Create()
                                            .UserMapping((r, t) => new())
                                            .AllowExpired();
@@ -68,9 +67,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             await response.AssertStatusAsync(HttpStatusCode.OK);
         }
 
-        [TestMethod]
-        public async Task TestUser()
-        {
+    [TestMethod]
+    public async Task TestUser()
+    {
             var auth = BearerAuthentication.Create()
                                            .UserMapping((r, t) => new(new MyUser() { DisplayName = "User Name" }))
                                            .AllowExpired();
@@ -80,9 +79,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             await response.AssertStatusAsync(HttpStatusCode.OK);
         }
 
-        [TestMethod]
-        public async Task TestNoToken()
-        {
+    [TestMethod]
+    public async Task TestNoToken()
+    {
             var auth = BearerAuthentication.Create()
                                            .AllowExpired();
 
@@ -91,9 +90,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             await response.AssertStatusAsync(HttpStatusCode.Unauthorized);
         }
 
-        [TestMethod]
-        public async Task TestMalformedToken()
-        {
+    [TestMethod]
+    public async Task TestMalformedToken()
+    {
             var auth = BearerAuthentication.Create()
                                            .AllowExpired();
 
@@ -102,8 +101,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
             await response.AssertStatusAsync(HttpStatusCode.BadRequest);
         }
 
-        private static async Task<HttpResponseMessage> Execute(BearerAuthenticationConcernBuilder builder, string? token = null)
-        {
+    private static async Task<HttpResponseMessage> Execute(BearerAuthenticationConcernBuilder builder, string? token = null)
+    {
             var handler = Inline.Create()
                                 .Get(() => "Secured")
                                 .Add(builder);
@@ -119,7 +118,5 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication
 
             return await host.GetResponseAsync(request);
         }
-
-    }
 
 }

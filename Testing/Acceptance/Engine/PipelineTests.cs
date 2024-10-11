@@ -6,16 +6,15 @@ using GenHTTP.Modules.IO;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Engine
+namespace GenHTTP.Testing.Acceptance.Engine;
+
+[TestClass]
+public sealed class PipelineTests
 {
 
-    [TestClass]
-    public sealed class PipelineTests
+    [TestMethod]
+    public void ServerSupportsPipelining()
     {
-
-        [TestMethod]
-        public void ServerSupportsPipelining()
-        {
             using var runner = TestHost.Run(Content.From(Resource.FromString("Hello World!")));
 
             using var client = new TcpClient("127.0.0.1", runner.Port)
@@ -32,8 +31,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
             ReadRequests(stream, count, "Hello World!");
         }
 
-        private static void WriteRequests(Stream stream, int count)
-        {
+    private static void WriteRequests(Stream stream, int count)
+    {
             using var writer = new StreamWriter(stream, leaveOpen: true);
 
             var builder = new StringBuilder();
@@ -50,8 +49,8 @@ namespace GenHTTP.Testing.Acceptance.Engine
             writer.Flush();
         }
 
-        private static void ReadRequests(Stream stream, int count, string searchFor)
-        {
+    private static void ReadRequests(Stream stream, int count, string searchFor)
+    {
             using var reader = new StreamReader(stream, leaveOpen: true);
 
             string? line;
@@ -76,7 +75,5 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             Assert.AreEqual(count - 1, found); // last body does not end with \r\n
         }
-
-    }
 
 }

@@ -1,50 +1,49 @@
 ﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Engine.Infrastructure.Configuration;
+using GenHTTP.Engine.Infrastructure;
 using GenHTTP.Engine.Protocol.Parser.Conversion;
 
 using PooledAwait;
 
-namespace GenHTTP.Engine.Protocol.Parser
+namespace GenHTTP.Engine.Protocol.Parser;
+
+/// <summary>
+/// Reads the next HTTP request to be handled by the server from
+/// the client connection.
+/// </summary>
+/// <remarks>
+/// Be aware that this code path is heavily optimized for low
+/// memory allocations. Changes to this class should allocate
+/// as few memory as possible to avoid the performance of
+/// the server from being impacted in a negative manner.
+/// </remarks>
+internal sealed class RequestParser
 {
+    private RequestBuilder? _Builder;
 
-    /// <summary>
-    /// Reads the next HTTP request to be handled by the server from
-    /// the client connection. 
-    /// </summary>
-    /// <remarks>
-    /// Be aware that this code path is heavily optimized for low
-    /// memory allocations. Changes to this class should allocate
-    /// as few memory as possible to avoid the performance of
-    /// the server from being impacted in a negative manner.
-    /// </remarks>
-    internal sealed class RequestParser
+    #region Get-/Setters
+
+    private NetworkConfiguration Configuration { get; }
+
+    private RequestBuilder Request => _Builder ??= new();
+
+    private RequestScanner Scanner { get; }
+
+    #endregion
+
+    #region Initialization
+
+    internal RequestParser(NetworkConfiguration configuration)
     {
-        private RequestBuilder? _Builder;
-
-        #region Get-/Setters
-
-        private NetworkConfiguration Configuration { get; }
-
-        private RequestBuilder Request => _Builder ??= new();
-
-        private RequestScanner Scanner { get; }
-
-        #endregion
-
-        #region Initialization
-
-        internal RequestParser(NetworkConfiguration configuration)
-        {
             Configuration = configuration;
             Scanner = new();
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        internal async PooledValueTask<RequestBuilder?> TryParseAsync(RequestBuffer buffer)
-        {
+    internal async PooledValueTask<RequestBuilder?> TryParseAsync(RequestBuffer buffer)
+    {
             if (!await Type(buffer))
             {
                 if (!buffer.Data.IsEmpty)
@@ -69,8 +68,8 @@ namespace GenHTTP.Engine.Protocol.Parser
             return result;
         }
 
-        private async PooledValueTask<bool> Type(RequestBuffer buffer)
-        {
+    private async PooledValueTask<bool> Type(RequestBuffer buffer)
+    {
             Scanner.Mode = ScannerMode.Words;
 
             if (await Scanner.Next(buffer, RequestToken.Word, allowNone: true))
@@ -84,8 +83,8 @@ namespace GenHTTP.Engine.Protocol.Parser
             }
         }
 
-        private async PooledValueTask Path(RequestBuffer buffer)
-        {
+    private async PooledValueTask Path(RequestBuffer buffer)
+    {
             Scanner.Mode = ScannerMode.Path;
 
             var token = await Scanner.Next(buffer);
@@ -118,8 +117,8 @@ namespace GenHTTP.Engine.Protocol.Parser
             }
         }
 
-        private async PooledValueTask Protocol(RequestBuffer buffer)
-        {
+    private async PooledValueTask Protocol(RequestBuffer buffer)
+    {
             Scanner.Mode = ScannerMode.Words;
 
             if (await Scanner.Next(buffer, RequestToken.Word))
@@ -128,8 +127,8 @@ namespace GenHTTP.Engine.Protocol.Parser
             }
         }
 
-        private async PooledValueTask Headers(RequestBuffer buffer)
-        {
+    private async PooledValueTask Headers(RequestBuffer buffer)
+    {
             Scanner.Mode = ScannerMode.HeaderKey;
 
             while (await Scanner.Next(buffer) == RequestToken.Word)
@@ -147,8 +146,8 @@ namespace GenHTTP.Engine.Protocol.Parser
             }
         }
 
-        private async PooledValueTask Body(RequestBuffer buffer)
-        {
+    private async PooledValueTask Body(RequestBuffer buffer)
+    {
             if (Request.Headers.TryGetValue("Content-Length", out var bodyLength))
             {
                 if (long.TryParse(bodyLength, out var length))
@@ -176,8 +175,6 @@ namespace GenHTTP.Engine.Protocol.Parser
             }
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

@@ -4,54 +4,53 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Compression.Providers
+namespace GenHTTP.Modules.Compression.Providers;
+
+public class CompressedResponseContent : IResponseContent, IDisposable
 {
 
-    public class CompressedResponseContent : IResponseContent, IDisposable
+    #region Get-/Setters
+
+    public ulong? Length => null;
+
+    private IResponseContent OriginalContent { get; }
+
+    private Func<Stream, Stream> Generator { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public CompressedResponseContent(IResponseContent originalContent, Func<Stream, Stream> generator)
     {
-
-        #region Get-/Setters
-
-        public ulong? Length => null;
-
-        private IResponseContent OriginalContent { get; }
-
-        private Func<Stream, Stream> Generator { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public CompressedResponseContent(IResponseContent originalContent, Func<Stream, Stream> generator)
-        {
             OriginalContent = originalContent;
             Generator = generator;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public async ValueTask WriteAsync(Stream target, uint bufferSize)
-        {
+    public async ValueTask WriteAsync(Stream target, uint bufferSize)
+    {
             using var compressed = Generator(target);
 
             await OriginalContent.WriteAsync(compressed, bufferSize);
         }
 
-        public ValueTask<ulong?> CalculateChecksumAsync()
-        {
+    public ValueTask<ulong?> CalculateChecksumAsync()
+    {
             return OriginalContent.CalculateChecksumAsync();
         }
 
-        #endregion
+    #endregion
 
-        #region IDisposable Support
+    #region IDisposable Support
 
-        private bool disposedValue = false;
+    private bool disposedValue = false;
 
-        protected virtual void Dispose(bool disposing)
-        {
+    protected virtual void Dispose(bool disposing)
+    {
             if (!disposedValue)
             {
                 if (disposing)
@@ -66,19 +65,17 @@ namespace GenHTTP.Modules.Compression.Providers
             }
         }
 
-        ~CompressedResponseContent()
-        {
+    ~CompressedResponseContent()
+    {
             Dispose(false);
         }
 
-        public void Dispose()
-        {
+    public void Dispose()
+    {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

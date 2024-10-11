@@ -1,28 +1,24 @@
 ﻿using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using GenHTTP.Modules.DirectoryBrowsing;
 using GenHTTP.Modules.IO;
-
 using GenHTTP.Testing.Acceptance.Utilities;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Providers
+namespace GenHTTP.Testing.Acceptance.Modules;
+
+[TestClass]
+public sealed class ListingTests
 {
 
-    [TestClass]
-    public sealed class ListingTests
+    /// <summary>
+    /// As an user of a web application, I can view the folders and files available
+    /// on root level of a listed directory.
+    /// </summary>
+    [TestMethod]
+    public async Task TestGetMainListing()
     {
-
-        /// <summary>
-        /// As an user of a web application, I can view the folders and files available
-        /// on root level of a listed directory.
-        /// </summary>
-        [TestMethod]
-        public async Task TestGetMainListing()
-        {
             using var runner = GetEnvironment();
 
             using var response = await runner.GetResponseAsync("/");
@@ -37,13 +33,13 @@ namespace GenHTTP.Testing.Acceptance.Providers
             AssertX.DoesNotContain("..", content);
         }
 
-        /// <summary>
-        /// As an user of a web application, I can view the folders and files available
-        /// within a subdirectory of a listed directory.
-        /// </summary>
-        [TestMethod]
-        public async Task TestGetSubdirectory()
-        {
+    /// <summary>
+    /// As an user of a web application, I can view the folders and files available
+    /// within a subdirectory of a listed directory.
+    /// </summary>
+    [TestMethod]
+    public async Task TestGetSubdirectory()
+    {
             using var runner = GetEnvironment();
 
             using var response = await runner.GetResponseAsync("/Subdirectory/");
@@ -53,13 +49,13 @@ namespace GenHTTP.Testing.Acceptance.Providers
             AssertX.Contains("..", content);
         }
 
-        /// <summary>
-        /// As an user of a web application, I can download the files listed by the
-        /// directory listing feature.
-        /// </summary>
-        [TestMethod]
-        public async Task TestDownload()
-        {
+    /// <summary>
+    /// As an user of a web application, I can download the files listed by the
+    /// directory listing feature.
+    /// </summary>
+    [TestMethod]
+    public async Task TestDownload()
+    {
             using var runner = GetEnvironment();
 
             using var response = await runner.GetResponseAsync("/my.txt");
@@ -67,9 +63,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.AreEqual("Hello World!", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestNonExistingFolder()
-        {
+    [TestMethod]
+    public async Task TestNonExistingFolder()
+    {
             using var runner = GetEnvironment();
 
             using var response = await runner.GetResponseAsync("/idonotexist/");
@@ -77,9 +73,9 @@ namespace GenHTTP.Testing.Acceptance.Providers
             await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
-        [TestMethod]
-        public async Task TestSameListingSameChecksum()
-        {
+    [TestMethod]
+    public async Task TestSameListingSameChecksum()
+    {
             using var runner = GetEnvironment();
 
             using var resp1 = await runner.GetResponseAsync();
@@ -90,8 +86,8 @@ namespace GenHTTP.Testing.Acceptance.Providers
             Assert.AreEqual(resp1.GetETag(), resp2.GetETag());
         }
 
-        private static TestHost GetEnvironment()
-        {
+    private static TestHost GetEnvironment()
+    {
             var tempFolder = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
             Directory.CreateDirectory(tempFolder);
@@ -106,7 +102,5 @@ namespace GenHTTP.Testing.Acceptance.Providers
 
             return TestHost.Run(listing);
         }
-
-    }
 
 }

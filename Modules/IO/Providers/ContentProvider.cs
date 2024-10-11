@@ -7,28 +7,27 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO.Streaming;
 
-namespace GenHTTP.Modules.IO.Providers
+namespace GenHTTP.Modules.IO.Providers;
+
+public sealed class ContentProvider : IHandler
 {
 
-    public sealed class ContentProvider : IHandler
+    #region Get-/Setters
+
+    public IHandler Parent { get; }
+
+    public IResource Resource { get; }
+
+    private IResponseContent Content { get; }
+
+    private FlexibleContentType ContentType { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public ContentProvider(IHandler parent, IResource resourceProvider)
     {
-
-        #region Get-/Setters
-
-        public IHandler Parent { get; }
-
-        public IResource Resource { get; }
-
-        private IResponseContent Content { get; }
-
-        private FlexibleContentType ContentType { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public ContentProvider(IHandler parent, IResource resourceProvider)
-        {
             Parent = parent;
             Resource = resourceProvider;
 
@@ -36,22 +35,20 @@ namespace GenHTTP.Modules.IO.Providers
             ContentType = Resource.ContentType ?? FlexibleContentType.Get(Resource.Name?.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload);
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             return request.Respond()
                           .Content(Content)
                           .Type(ContentType)
                           .BuildTask();
         }
 
-        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        #endregion
-
-    }
+    #endregion
 
 }

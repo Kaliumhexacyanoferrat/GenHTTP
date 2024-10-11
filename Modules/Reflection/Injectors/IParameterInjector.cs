@@ -3,16 +3,13 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Reflection.Injectors
+namespace GenHTTP.Modules.Reflection.Injectors;
+
+public interface IParameterInjector
 {
 
-    public interface IParameterInjector
-    {
+    bool Supports(Type type);
 
-        bool Supports(Type type);
-
-        object? GetValue(IHandler handler, IRequest request, Type targetType);
-
-    }
+    object? GetValue(IHandler handler, IRequest request, Type targetType);
 
 }

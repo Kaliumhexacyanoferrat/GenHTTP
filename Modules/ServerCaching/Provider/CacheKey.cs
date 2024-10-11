@@ -1,14 +1,13 @@
 ﻿using GenHTTP.Api.Protocol;
 using System.Collections.Generic;
 
-namespace GenHTTP.Modules.ServerCaching.Provider
+namespace GenHTTP.Modules.ServerCaching.Provider;
+
+public static class CacheKey
 {
 
-    public static class CacheKey
+    public static string GetKey(this IRequest request)
     {
-
-        public static string GetKey(this IRequest request)
-        {
             unchecked
             {
                 ulong hash = 17;
@@ -30,8 +29,8 @@ namespace GenHTTP.Modules.ServerCaching.Provider
             }
         }
 
-        public static string GetVariationKey(this Dictionary<string, string>? variations)
-        {
+    public static string GetVariationKey(this Dictionary<string, string>? variations)
+    {
             unchecked
             {
                 ulong hash = 17;
@@ -48,7 +47,5 @@ namespace GenHTTP.Modules.ServerCaching.Provider
                 return hash.ToString();
             }
         }
-
-    }
 
 }

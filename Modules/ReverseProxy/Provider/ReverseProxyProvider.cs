@@ -13,45 +13,44 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
 
-namespace GenHTTP.Modules.ReverseProxy.Provider
+namespace GenHTTP.Modules.ReverseProxy.Provider;
+
+public sealed class ReverseProxyProvider : IHandler
 {
-
-    public sealed class ReverseProxyProvider : IHandler
+    private static readonly HashSet<string> RESERVED_RESPONSE_HEADERS = new(StringComparer.OrdinalIgnoreCase)
     {
-        private static readonly HashSet<string> RESERVED_RESPONSE_HEADERS = new(StringComparer.OrdinalIgnoreCase)
-        {
-            "Server",
-            "Date",
-            "Content-Encoding",
-            "Transfer-Encoding",
-            "Content-Type",
-            "Connection",
-            "Content-Length",
-            "Keep-Alive"
-        };
+        "Server",
+        "Date",
+        "Content-Encoding",
+        "Transfer-Encoding",
+        "Content-Type",
+        "Connection",
+        "Content-Length",
+        "Keep-Alive"
+    };
 
-        private static readonly HashSet<string> RESERVED_REQUEST_HEADERS = new(StringComparer.OrdinalIgnoreCase)
-        {
-            "Host",
-            "Connection",
-            "Forwarded",
-            "Upgrade-Insecure-Requests"
-        };
+    private static readonly HashSet<string> RESERVED_REQUEST_HEADERS = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Host",
+        "Connection",
+        "Forwarded",
+        "Upgrade-Insecure-Requests"
+    };
 
-        #region Get-/Setters
+    #region Get-/Setters
 
-        public IHandler Parent { get; }
+    public IHandler Parent { get; }
 
-        public string Upstream { get; }
+    public string Upstream { get; }
 
-        private HttpClient Client { get; }
+    private HttpClient Client { get; }
 
-        #endregion
+    #endregion
 
-        #region Initialization
+    #region Initialization
 
-        public ReverseProxyProvider(IHandler parent, string upstream, TimeSpan connectTimeout, TimeSpan readTimeout)
-        {
+    public ReverseProxyProvider(IHandler parent, string upstream, TimeSpan connectTimeout, TimeSpan readTimeout)
+    {
             Parent = parent;
             Upstream = upstream;
 
@@ -68,12 +67,12 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             };
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             try
             {
                 var req = ConfigureRequest(request);
@@ -92,8 +91,8 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             }
         }
 
-        private HttpRequestMessage ConfigureRequest(IRequest request)
-        {
+    private HttpRequestMessage ConfigureRequest(IRequest request)
+    {
             var req = new HttpRequestMessage(new(request.Method.RawMethod), GetRequestUri(request));
 
             if (request.Content is not null && CanSendBody(request))
@@ -128,13 +127,13 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             return req;
         }
 
-        private string GetRequestUri(IRequest request)
-        {
+    private string GetRequestUri(IRequest request)
+    {
             return Upstream + request.Target.GetRemaining().ToString(true) + GetQueryString(request);
         }
 
-        private static string GetQueryString(IRequest request)
-        {
+    private static string GetQueryString(IRequest request)
+    {
             if (request.Query.Count > 0)
             {
                 var query = HttpUtility.ParseQueryString(string.Empty);
@@ -152,8 +151,8 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             return string.Empty;
         }
 
-        private IResponseBuilder GetResponse(HttpResponseMessage response, IRequest request)
-        {
+    private IResponseBuilder GetResponse(HttpResponseMessage response, IRequest request)
+    {
             var builder = request.Respond();
 
             builder.Status((int)response.StatusCode, response.ReasonPhrase ?? "No Reason");
@@ -189,8 +188,8 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             return builder;
         }
 
-        private void SetHeaders(IResponseBuilder builder, IRequest request, HttpHeaders headers)
-        {
+    private void SetHeaders(IResponseBuilder builder, IRequest request, HttpHeaders headers)
+    {
             foreach (var kv in headers)
             {
                 var key = kv.Key;
@@ -235,18 +234,18 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             }
         }
 
-        private static bool CanSendBody(IRequest request)
-        {
+    private static bool CanSendBody(IRequest request)
+    {
             return !request.HasType(RequestMethod.GET, RequestMethod.HEAD, RequestMethod.OPTIONS);
         }
 
-        private static bool HasBody(IRequest request, HttpResponseMessage response)
-        {
+    private static bool HasBody(IRequest request, HttpResponseMessage response)
+    {
             return !request.HasType(RequestMethod.HEAD) && response.Content.Headers.ContentType is not null;
         }
 
-        private string RewriteLocation(string location, IRequest request)
-        {
+    private string RewriteLocation(string location, IRequest request)
+    {
             if (location.StartsWith(Upstream))
             {
                 var path = request.Target.Path.ToString();
@@ -271,15 +270,15 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             return location;
         }
 
-        private static string GetForwardings(IRequest request)
-        {
+    private static string GetForwardings(IRequest request)
+    {
             return string.Join(", ", request.Forwardings
                                             .Union(new[] { new Forwarding(request.LocalClient.IPAddress, request.LocalClient.Host, request.LocalClient.Protocol) })
                                             .Select(f => GetForwarding(f)));
         }
 
-        private static string GetForwarding(Forwarding forwarding)
-        {
+    private static string GetForwarding(Forwarding forwarding)
+    {
             var result = new List<string>(2);
 
             if (forwarding.For is not null)
@@ -300,15 +299,13 @@ namespace GenHTTP.Modules.ReverseProxy.Provider
             return string.Join("; ", result);
         }
 
-        private static bool TryParseDate(string value, out DateTime parsedValue)
-        {
+    private static bool TryParseDate(string value, out DateTime parsedValue)
+    {
             return DateTime.TryParseExact(value, CultureInfo.InvariantCulture.DateTimeFormat.RFC1123Pattern, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces | DateTimeStyles.AssumeUniversal, out parsedValue);
         }
 
-        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        #endregion
-
-    }
+    #endregion
 
 }

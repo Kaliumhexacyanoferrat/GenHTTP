@@ -6,36 +6,35 @@ using System.Threading.Tasks;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Reflection
+namespace GenHTTP.Modules.Reflection;
+
+public sealed class MethodCollection : IHandler
 {
 
-    public sealed class MethodCollection : IHandler
+    #region Get-/Setters
+
+    public IHandler Parent { get; }
+
+    public List<MethodHandler> Methods { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public MethodCollection(IHandler parent, IEnumerable<Func<IHandler, MethodHandler>> methodFactories)
     {
-
-        #region Get-/Setters
-
-        public IHandler Parent { get; }
-
-        public List<MethodHandler> Methods { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public MethodCollection(IHandler parent, IEnumerable<Func<IHandler, MethodHandler>> methodFactories)
-        {
             Parent = parent;
 
             Methods = methodFactories.Select(factory => factory(this))
                                      .ToList();
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             var methods = FindProviders(request.Target.GetRemaining().ToString(), request.Method, out var foundOthers);
 
             if (methods.Count == 1)
@@ -65,16 +64,16 @@ namespace GenHTTP.Modules.Reflection
             }
         }
 
-        public async ValueTask PrepareAsync()
-        {
+    public async ValueTask PrepareAsync()
+    {
             foreach (var handler in Methods)
             {
                 await handler.PrepareAsync();
             }
         }
 
-        private List<MethodHandler> FindProviders(string path, FlexibleRequestMethod requestedMethod, out bool foundOthers)
-        {
+    private List<MethodHandler> FindProviders(string path, FlexibleRequestMethod requestedMethod, out bool foundOthers)
+    {
             foundOthers = false;
 
             var result = new List<MethodHandler>(2);
@@ -111,8 +110,6 @@ namespace GenHTTP.Modules.Reflection
             return result;
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

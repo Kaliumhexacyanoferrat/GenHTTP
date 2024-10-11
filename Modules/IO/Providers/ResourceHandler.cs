@@ -6,36 +6,35 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
 
-namespace GenHTTP.Modules.IO.Providers
+namespace GenHTTP.Modules.IO.Providers;
+
+public sealed class ResourceHandler : IHandler
 {
 
-    public sealed class ResourceHandler : IHandler
+    #region Get-/Setters
+
+    public IHandler Parent { get; }
+
+    private IResourceTree Tree { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public ResourceHandler(IHandler parent, IResourceTree tree)
     {
-
-        #region Get-/Setters
-
-        public IHandler Parent { get; }
-
-        private IResourceTree Tree { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public ResourceHandler(IHandler parent, IResourceTree tree)
-        {
             Parent = parent;
             Tree = tree;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             var (_, resource) = await Tree.Find(request.Target);
 
             if (resource is not null)
@@ -51,8 +50,6 @@ namespace GenHTTP.Modules.IO.Providers
             return null;
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

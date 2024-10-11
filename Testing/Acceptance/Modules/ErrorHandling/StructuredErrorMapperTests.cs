@@ -10,16 +10,15 @@ using GenHTTP.Modules.Functional;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.ErrorHandling
+namespace GenHTTP.Testing.Acceptance.Modules.ErrorHandling;
+
+[TestClass]
+public sealed class StructuredErrorMapperTests
 {
 
-    [TestClass]
-    public sealed class StructuredErrorMapperTests
+    [TestMethod]
+    public async Task TestNotFound()
     {
-
-        [TestMethod]
-        public async Task TestNotFound()
-        {
             using var host = TestHost.Run(Inline.Create());
 
             using var response = await host.GetResponseAsync();
@@ -33,9 +32,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ErrorHandling
             Assert.IsNull(model.StackTrace);
         }
 
-        [TestMethod]
-        public async Task TestGeneralError()
-        {
+    [TestMethod]
+    public async Task TestGeneralError()
+    {
             var handler = Inline.Create()
                                 .Get(() => DoThrow(new Exception("Oops")));
 
@@ -52,9 +51,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ErrorHandling
             Assert.IsNotNull(model.StackTrace);
         }
 
-        [TestMethod]
-        public async Task TestProviderError()
-        {
+    [TestMethod]
+    public async Task TestProviderError()
+    {
             var handler = Inline.Create()
                                 .Get(() => DoThrow(new ProviderException(ResponseStatus.Locked, "Locked up!")));
 
@@ -71,9 +70,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ErrorHandling
             Assert.IsNotNull(model.StackTrace);
         }
 
-        [TestMethod]
-        public async Task TestNoTraceInProduction()
-        {
+    [TestMethod]
+    public async Task TestNoTraceInProduction()
+    {
             var handler = Inline.Create()
                                 .Get(() => DoThrow(new Exception("Oops")));
 
@@ -88,11 +87,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.ErrorHandling
             Assert.IsNull(model.StackTrace);
         }
 
-        private static void DoThrow(Exception e)
-        {
+    private static void DoThrow(Exception e)
+    {
             throw e;
         }
-
-    }
 
 }

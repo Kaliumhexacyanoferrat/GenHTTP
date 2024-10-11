@@ -6,37 +6,36 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
 
-namespace GenHTTP.Modules.ClientCaching.Validation
+namespace GenHTTP.Modules.ClientCaching.Validation;
+
+public sealed class CacheValidationHandler : IConcern
 {
+    private const string ETAG_HEADER = "ETag";
 
-    public sealed class CacheValidationHandler : IConcern
+    private static readonly RequestMethod[] _SupportedMethods = new[] { RequestMethod.GET, RequestMethod.HEAD };
+
+    #region Get-/Setters
+
+    public IHandler Parent { get; }
+
+    public IHandler Content { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public CacheValidationHandler(IHandler parent, Func<IHandler, IHandler> contentFactory)
     {
-        private const string ETAG_HEADER = "ETag";
-
-        private static readonly RequestMethod[] _SupportedMethods = new[] { RequestMethod.GET, RequestMethod.HEAD };
-
-        #region Get-/Setters
-
-        public IHandler Parent { get; }
-
-        public IHandler Content { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public CacheValidationHandler(IHandler parent, Func<IHandler, IHandler> contentFactory)
-        {
             Parent = parent;
             Content = contentFactory(this);
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             var response = await Content.HandleAsync(request);
 
             if (request.HasType(_SupportedMethods))
@@ -68,10 +67,10 @@ namespace GenHTTP.Modules.ClientCaching.Validation
             return response;
         }
 
-        public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-        private static async ValueTask<string?> CalculateETag(IResponse response)
-        {
+    private static async ValueTask<string?> CalculateETag(IResponse response)
+    {
             if (response.Headers.TryGetValue(ETAG_HEADER, out var eTag))
             {
                 return eTag;
@@ -90,8 +89,6 @@ namespace GenHTTP.Modules.ClientCaching.Validation
             return null;
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

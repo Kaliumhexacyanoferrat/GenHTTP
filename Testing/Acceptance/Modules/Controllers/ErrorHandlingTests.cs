@@ -4,38 +4,37 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Modules.Controllers;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Controllers
+namespace GenHTTP.Testing.Acceptance.Modules.Controllers;
+
+[TestClass]
+public sealed class ErrorHandlingTests
 {
 
-    [TestClass]
-    public sealed class ErrorHandlingTests
+    #region Supporting data structures
+
+    public sealed class ControllerWithNullablePath
     {
 
-        #region Supporting data structures
+        public int Test([FromPath] int? id) => 42;
 
-        public sealed class ControllerWithNullablePath
-        {
+    }
 
-            public int Test([FromPath] int? id) => 42;
+    public sealed class ComplexPath { }
 
-        }
+    public sealed class ControllerWithComplexPath
+    {
 
-        public sealed class ComplexPath { }
+        public int Test([FromPath] ComplexPath value) => 42;
 
-        public sealed class ControllerWithComplexPath
-        {
+    }
 
-            public int Test([FromPath] ComplexPath value) => 42;
+    #endregion
 
-        }
+    #region Tests
 
-        #endregion
-
-        #region Tests
-
-        [TestMethod]
-        public void TestNoNullablePathArguments()
-        {
+    [TestMethod]
+    public void TestNoNullablePathArguments()
+    {
             Assert.ThrowsException<InvalidOperationException>(() =>
             {
                 var controller = Controller.From<ControllerWithNullablePath>();
@@ -43,9 +42,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             });
         }
 
-        [TestMethod]
-        public void TestNoComplexPathArguments()
-        {
+    [TestMethod]
+    public void TestNoComplexPathArguments()
+    {
             Assert.ThrowsException<InvalidOperationException>(() =>
             {
                 var controller = Controller.From<ControllerWithComplexPath>();
@@ -53,8 +52,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             });
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

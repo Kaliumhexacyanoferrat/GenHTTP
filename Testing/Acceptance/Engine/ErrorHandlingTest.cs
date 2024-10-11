@@ -6,16 +6,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Testing.Acceptance.Utilities;
 
-namespace GenHTTP.Testing.Acceptance.Engine
+namespace GenHTTP.Testing.Acceptance.Engine;
+
+[TestClass]
+public sealed class ErrorHandlingTest
 {
 
-    [TestClass]
-    public sealed class ErrorHandlingTest
+    [TestMethod]
+    public async Task TestGenericError()
     {
-
-        [TestMethod]
-        public async Task TestGenericError()
-        {
             var handler = new FunctionalHandler(responseProvider: (r) =>
             {
                 throw new NotImplementedException();
@@ -28,9 +27,9 @@ namespace GenHTTP.Testing.Acceptance.Engine
             await response.AssertStatusAsync(HttpStatusCode.InternalServerError);
         }
 
-        [TestMethod]
-        public async Task TestEscaping()
-        {
+    [TestMethod]
+    public async Task TestEscaping()
+    {
             var handler = new FunctionalHandler(responseProvider: (r) =>
             {
                 throw new Exception("Nah <>");
@@ -43,7 +42,5 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             AssertX.DoesNotContain("<>", await response.GetContentAsync());
         }
-
-    }
 
 }

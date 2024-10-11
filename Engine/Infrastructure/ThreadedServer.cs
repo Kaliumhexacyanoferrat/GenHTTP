@@ -4,39 +4,36 @@ using System.Threading.Tasks;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
-
-using GenHTTP.Engine.Infrastructure.Configuration;
 using GenHTTP.Engine.Infrastructure.Endpoints;
 
-namespace GenHTTP.Engine.Infrastructure
+namespace GenHTTP.Engine.Infrastructure;
+
+internal sealed class ThreadedServer : IServer
 {
+    private readonly EndPointCollection _EndPoints;
 
-    internal sealed class ThreadedServer : IServer
+    #region Get-/Setters
+
+    public string Version { get; }
+
+    public bool Running => !disposed;
+
+    public bool Development => Configuration.DevelopmentMode;
+
+    public IHandler Handler { get; private set; }
+
+    public IServerCompanion? Companion { get; private set; }
+
+    public IEndPointCollection EndPoints => _EndPoints;
+
+    internal ServerConfiguration Configuration { get; }
+
+    #endregion
+
+    #region Constructors
+
+    internal ThreadedServer(IServerCompanion? companion, ServerConfiguration configuration, IHandler handler)
     {
-        private readonly EndPointCollection _EndPoints;
-
-        #region Get-/Setters
-
-        public string Version { get; }
-
-        public bool Running => !disposed;
-
-        public bool Development => Configuration.DevelopmentMode;
-
-        public IHandler Handler { get; private set; }
-
-        public IServerCompanion? Companion { get; private set; }
-
-        public IEndPointCollection EndPoints => _EndPoints;
-
-        internal ServerConfiguration Configuration { get; }
-
-        #endregion
-
-        #region Constructors
-
-        internal ThreadedServer(IServerCompanion? companion, ServerConfiguration configuration, IHandler handler)
-        {
             Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "(n/a)";
 
             Companion = companion;
@@ -49,8 +46,8 @@ namespace GenHTTP.Engine.Infrastructure
             _EndPoints = new(this, configuration.EndPoints, configuration.Network);
         }
 
-        private static async ValueTask PrepareHandlerAsync(IHandler handler, IServerCompanion? companion)
-        {
+    private static async ValueTask PrepareHandlerAsync(IHandler handler, IServerCompanion? companion)
+    {
             try
             {
                 await handler.PrepareAsync();
@@ -61,14 +58,14 @@ namespace GenHTTP.Engine.Infrastructure
             }
         }
 
-        #endregion
+    #endregion
 
-        #region IDisposable Support
+    #region IDisposable Support
 
-        private bool disposed = false;
+    private bool disposed = false;
 
-        public void Dispose()
-        {
+    public void Dispose()
+    {
             if (!disposed)
             {
                 _EndPoints.Dispose();
@@ -79,8 +76,6 @@ namespace GenHTTP.Engine.Infrastructure
             GC.SuppressFinalize(this);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

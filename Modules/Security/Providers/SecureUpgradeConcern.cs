@@ -9,38 +9,37 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
 
-namespace GenHTTP.Modules.Security.Providers
+namespace GenHTTP.Modules.Security.Providers;
+
+public sealed class SecureUpgradeConcern : IConcern
 {
 
-    public sealed class SecureUpgradeConcern : IConcern
+    #region Get-/Setters
+
+    public SecureUpgrade Mode { get; }
+
+    public IHandler Parent { get; }
+
+    public IHandler Content { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public SecureUpgradeConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, SecureUpgrade mode)
     {
-
-        #region Get-/Setters
-
-        public SecureUpgrade Mode { get; }
-
-        public IHandler Parent { get; }
-
-        public IHandler Content { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public SecureUpgradeConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, SecureUpgrade mode)
-        {
             Parent = parent;
             Content = contentFactory(this);
 
             Mode = mode;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             if (!request.EndPoint.Secure)
             {
                 if (request.Server.EndPoints.Any(e => e.Secure))
@@ -84,8 +83,8 @@ namespace GenHTTP.Modules.Security.Providers
             return await Content.HandleAsync(request);
         }
 
-        private static string GetRedirectLocation(IRequest request, List<IEndPoint> endPoints)
-        {
+    private static string GetRedirectLocation(IRequest request, List<IEndPoint> endPoints)
+    {
             var targetPort = GetTargetPort(request, endPoints);
 
             var port = targetPort == 443 ? string.Empty : $":{targetPort}";
@@ -93,8 +92,8 @@ namespace GenHTTP.Modules.Security.Providers
             return $"https://{request.HostWithoutPort()}{port}{request.Target.Path}";
         }
 
-        private static ushort GetTargetPort(IRequest request, List<IEndPoint> endPoints)
-        {
+    private static ushort GetTargetPort(IRequest request, List<IEndPoint> endPoints)
+    {
             // this extension can only be added if there are secure endpoints available
             if (endPoints.Count == 0)
             {
@@ -119,10 +118,8 @@ namespace GenHTTP.Modules.Security.Providers
             return endPoints.First().Port;
         }
 
-        public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-        #endregion
-
-    }
+    #endregion
 
 }

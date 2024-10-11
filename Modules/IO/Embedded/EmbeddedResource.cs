@@ -9,33 +9,32 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO.Streaming;
 
-namespace GenHTTP.Modules.IO.Embedded
+namespace GenHTTP.Modules.IO.Embedded;
+
+public sealed class EmbeddedResource : IResource
 {
+    private ulong? _Checksum;
 
-    public sealed class EmbeddedResource : IResource
+    #region Get-/Setters
+
+    public Assembly Source { get; }
+
+    public string QualifiedName { get; }
+
+    public string? Name { get; }
+
+    public DateTime? Modified { get; }
+
+    public FlexibleContentType? ContentType { get; }
+
+    public ulong? Length { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public EmbeddedResource(Assembly source, string path, string? name, FlexibleContentType? contentType, DateTime? modified)
     {
-        private ulong? _Checksum;
-
-        #region Get-/Setters
-
-        public Assembly Source { get; }
-
-        public string QualifiedName { get; }
-
-        public string? Name { get; }
-
-        public DateTime? Modified { get; }
-
-        public FlexibleContentType? ContentType { get; }
-
-        public ulong? Length { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public EmbeddedResource(Assembly source, string path, string? name, FlexibleContentType? contentType, DateTime? modified)
-        {
             var fqn = source.GetManifestResourceNames()
                             .FirstOrDefault(n => (n == path) || n.EndsWith($".{path}"));
 
@@ -51,14 +50,14 @@ namespace GenHTTP.Modules.IO.Embedded
             Length = (ulong)content.Length;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public ValueTask<Stream> GetContentAsync() => new(TryGetStream());
+    public ValueTask<Stream> GetContentAsync() => new(TryGetStream());
 
-        public async ValueTask<ulong> CalculateChecksumAsync()
-        {
+    public async ValueTask<ulong> CalculateChecksumAsync()
+    {
             if (_Checksum is null)
             {
                 using var stream = TryGetStream();
@@ -69,17 +68,15 @@ namespace GenHTTP.Modules.IO.Embedded
             return _Checksum.Value;
         }
 
-        public async ValueTask WriteAsync(Stream target, uint bufferSize)
-        {
+    public async ValueTask WriteAsync(Stream target, uint bufferSize)
+    {
             using var content = TryGetStream();
 
             await content.CopyPooledAsync(target, bufferSize);
         }
 
-        private Stream TryGetStream() => Source.GetManifestResourceStream(QualifiedName) ?? throw new InvalidOperationException($"Unable to resolve resource '{QualifiedName}' in assembly '{Source}'");
+    private Stream TryGetStream() => Source.GetManifestResourceStream(QualifiedName) ?? throw new InvalidOperationException($"Unable to resolve resource '{QualifiedName}' in assembly '{Source}'");
 
-        #endregion
-
-    }
+    #endregion
 
 }

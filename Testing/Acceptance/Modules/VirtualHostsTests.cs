@@ -7,20 +7,19 @@ using GenHTTP.Modules.VirtualHosting;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 
-namespace GenHTTP.Testing.Acceptance.Modules
+namespace GenHTTP.Testing.Acceptance.Modules;
+
+[TestClass]
+public sealed class VirtualHostsTests
 {
 
-    [TestClass]
-    public sealed class VirtualHostsTests
+    /// <summary>
+    /// As a hoster, I would like to provide several domains using the
+    /// same server instance.
+    /// </summary>
+    [TestMethod]
+    public async Task TestDomains()
     {
-
-        /// <summary>
-        /// As a hoster, I would like to provide several domains using the
-        /// same server instance.
-        /// </summary>
-        [TestMethod]
-        public async Task TestDomains()
-        {
             var hosts = VirtualHosts.Create()
                                     .Add("domain1.com", Content.From(Resource.FromString("domain1.com")))
                                     .Add("domain2.com", Content.From(Resource.FromString("domain2.com")))
@@ -34,13 +33,13 @@ namespace GenHTTP.Testing.Acceptance.Modules
             await RunTest(runner, "localhost", "default");
         }
 
-        /// <summary>
-        /// As a developer, I expect the server to return no content if
-        /// no given route matches.
-        /// </summary>
-        [TestMethod]
-        public async Task TestNoDefault()
-        {
+    /// <summary>
+    /// As a developer, I expect the server to return no content if
+    /// no given route matches.
+    /// </summary>
+    [TestMethod]
+    public async Task TestNoDefault()
+    {
             using var runner = TestHost.Run(VirtualHosts.Create());
 
             using var response = await runner.GetResponseAsync();
@@ -48,8 +47,8 @@ namespace GenHTTP.Testing.Acceptance.Modules
             await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
-        private static async Task RunTest(TestHost runner, string host, string? expected = null)
-        {
+    private static async Task RunTest(TestHost runner, string host, string? expected = null)
+    {
             var request = runner.GetRequest();
             request.Headers.Add("Host", host);
 
@@ -57,7 +56,5 @@ namespace GenHTTP.Testing.Acceptance.Modules
 
             Assert.AreEqual(expected ?? host, await response.GetContentAsync());
         }
-
-    }
 
 }

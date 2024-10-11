@@ -4,27 +4,26 @@ using System.Text.RegularExpressions;
 
 using GenHTTP.Api.Content;
 
-namespace GenHTTP.Modules.Reflection
+namespace GenHTTP.Modules.Reflection;
+
+public static class PathArguments
 {
+    private static readonly MethodRouting EMPTY = new("/", "^(/|)$", null, true, false);
 
-    public static class PathArguments
+    private static readonly MethodRouting EMPTY_WILDCARD = new("/", "^.*", null, true, true);
+
+    private static readonly Regex VAR_PATTERN = new(@"\:([a-z]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    /// <summary>
+    /// Parses the given path and returns a routing structure
+    /// expected by the method provider to check which logic
+    /// to be executed on request.
+    /// </summary>
+    /// <param name="path">The path to be analyzed</param>
+    /// <param name="wildcard">If true, a route will be created that matches any sub path</param>
+    /// <returns>The routing information to be used by the method provider</returns>
+    public static MethodRouting Route(string? path, bool wildcard = false)
     {
-        private static readonly MethodRouting EMPTY = new("/", "^(/|)$", null, true, false);
-
-        private static readonly MethodRouting EMPTY_WILDCARD = new("/", "^.*", null, true, true);
-
-        private static readonly Regex VAR_PATTERN = new(@"\:([a-z]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-        /// <summary>
-        /// Parses the given path and returns a routing structure
-        /// expected by the method provider to check which logic
-        /// to be executed on request.
-        /// </summary>
-        /// <param name="path">The path to be analyzed</param>
-        /// <param name="wildcard">If true, a route will be created that matches any sub path</param>
-        /// <returns>The routing information to be used by the method provider</returns>
-        public static MethodRouting Route(string? path, bool wildcard = false)
-        {
             if (path is not null)
             {
                 var builder = new StringBuilder(path);
@@ -55,15 +54,15 @@ namespace GenHTTP.Modules.Reflection
             return (wildcard) ? EMPTY_WILDCARD : EMPTY;
         }
 
-        /// <summary>
-        /// Checks, whether the given type ultimately returns a handler or handler builder,
-        /// so requests should passed to this handler which means that we allow any sub
-        /// routes here.
-        /// </summary>
-        /// <param name="returnType">The return type to be checked</param>
-        /// <returns>true, if the given type will ultimately create an IHandler instance that should handle the request</returns>
-        public static bool CheckWildcardRoute(Type returnType)
-        {
+    /// <summary>
+    /// Checks, whether the given type ultimately returns a handler or handler builder,
+    /// so requests should passed to this handler which means that we allow any sub
+    /// routes here.
+    /// </summary>
+    /// <param name="returnType">The return type to be checked</param>
+    /// <returns>true, if the given type will ultimately create an IHandler instance that should handle the request</returns>
+    public static bool CheckWildcardRoute(Type returnType)
+    {
             if (IsHandlerType(returnType))
             {
                 return true;
@@ -80,11 +79,9 @@ namespace GenHTTP.Modules.Reflection
             return false;
         }
 
-        private static bool IsHandlerType(Type returnType)
-        {
+    private static bool IsHandlerType(Type returnType)
+    {
             return typeof(IHandlerBuilder).IsAssignableFrom(returnType) || typeof(IHandler).IsAssignableFrom(returnType);
         }
-
-    }
 
 }

@@ -4,43 +4,41 @@ using System.IO;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Engine.Infrastructure.Configuration;
+using GenHTTP.Engine.Infrastructure;
 using GenHTTP.Engine.Protocol.Parser.Conversion;
 
-namespace GenHTTP.Engine.Protocol.Parser
+namespace GenHTTP.Engine.Protocol.Parser;
+
+/// <summary>
+/// Reads the chunked encoded body of a client request into
+/// a stream.
+/// </summary>
+/// <remarks>
+/// As we cannot know the length of the request beforehand,
+/// this will always use a file stream for buffering.
+/// </remarks>
+internal sealed class ChunkedContentParser
 {
 
-    /// <summary>
-    /// Reads the chunked encoded body of a client request into
-    /// a stream.
-    /// </summary>
-    /// <remarks>
-    /// As we cannot know the length of the request beforehand,
-    /// this will always use a file stream for buffering.
-    /// </remarks>
-    internal sealed class ChunkedContentParser
+    #region Get-/Setters
+
+    private NetworkConfiguration Configuration { get; }
+
+    #endregion
+
+    #region Initialization
+
+    internal ChunkedContentParser(NetworkConfiguration networkConfiguration)
     {
-
-        #region Get-/Setters
-
-        private NetworkConfiguration Configuration { get; }
-
-        #endregion
-
-        #region Initialization
-
-        internal ChunkedContentParser(NetworkConfiguration networkConfiguration)
-        {
             Configuration = networkConfiguration;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        internal async ValueTask<Stream> GetBody(RequestBuffer buffer)
-        {
+    internal async ValueTask<Stream> GetBody(RequestBuffer buffer)
+    {
             var body = TemporaryFileStream.Create();
 
             var bufferSize = Configuration.TransferBufferSize;
@@ -52,8 +50,8 @@ namespace GenHTTP.Engine.Protocol.Parser
             return body;
         }
 
-        private static async ValueTask<bool> NextChunkAsync(RequestBuffer buffer, Stream target, uint bufferSize)
-        {
+    private static async ValueTask<bool> NextChunkAsync(RequestBuffer buffer, Stream target, uint bufferSize)
+    {
             await EnsureDataAsync(buffer);
 
             //
@@ -81,8 +79,8 @@ namespace GenHTTP.Engine.Protocol.Parser
             }
         }
 
-        private static long GetChunkSize(RequestBuffer buffer)
-        {
+    private static long GetChunkSize(RequestBuffer buffer)
+    {
             var reader = new SequenceReader<byte>(buffer.Data);
 
             if (reader.IsNext((byte)'0'))
@@ -109,8 +107,8 @@ namespace GenHTTP.Engine.Protocol.Parser
             }
         }
 
-        private static async ValueTask EnsureDataAsync(RequestBuffer buffer)
-        {
+    private static async ValueTask EnsureDataAsync(RequestBuffer buffer)
+    {
             if (buffer.ReadRequired)
             {
                 if (await buffer.ReadAsync() == null)
@@ -120,8 +118,6 @@ namespace GenHTTP.Engine.Protocol.Parser
             }
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

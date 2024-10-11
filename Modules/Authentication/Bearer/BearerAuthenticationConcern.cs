@@ -12,53 +12,52 @@ using GenHTTP.Api.Protocol;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 
-namespace GenHTTP.Modules.Authentication.Bearer
+namespace GenHTTP.Modules.Authentication.Bearer;
+
+#region Supporting data structures
+
+internal class OpenIDConfiguration
 {
 
-    #region Supporting data structures
+    [JsonPropertyName("jwks_uri")]
+    public string? KeySetUrl { get; set; }
 
-    internal class OpenIDConfiguration
-    {
+}
 
-        [JsonPropertyName("jwks_uri")]
-        public string? KeySetUrl { get; set; }
+#endregion
 
-    }
+internal sealed class BearerAuthenticationConcern : IConcern
+{
+    private ICollection<SecurityKey>? _IssuerKeys = null;
+
+    #region Get-/Setters
+
+    public IHandler Content { get; }
+
+    public IHandler Parent { get; }
+
+    private TokenValidationOptions ValidationOptions { get; }
 
     #endregion
 
-    internal sealed class BearerAuthenticationConcern : IConcern
+    #region Initialization
+
+    internal BearerAuthenticationConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, TokenValidationOptions validationOptions)
     {
-        private ICollection<SecurityKey>? _IssuerKeys = null;
-
-        #region Get-/Setters
-
-        public IHandler Content { get; }
-
-        public IHandler Parent { get; }
-
-        private TokenValidationOptions ValidationOptions { get; }
-
-        #endregion
-
-        #region Initialization
-
-        internal BearerAuthenticationConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, TokenValidationOptions validationOptions)
-        {
             Parent = parent;
             Content = contentFactory(this);
 
             ValidationOptions = validationOptions;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             IdentityModelEventSource.LogCompleteSecurityArtifact = true;
 
             if (!request.Headers.TryGetValue("Authorization", out var authHeader))
@@ -133,8 +132,8 @@ namespace GenHTTP.Modules.Authentication.Bearer
             }
         }
 
-        private static async Task<ICollection<SecurityKey>> FetchSigningKeys(string issuer)
-        {
+    private static async Task<ICollection<SecurityKey>> FetchSigningKeys(string issuer)
+    {
             try
             {
                 var configUrl = $"{issuer}/.well-known/openid-configuration";
@@ -158,8 +157,6 @@ namespace GenHTTP.Modules.Authentication.Bearer
             }
         }
 
-    }
-
-    #endregion
-
 }
+
+#endregion

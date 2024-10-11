@@ -8,16 +8,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.IO
+namespace GenHTTP.Testing.Acceptance.Modules.IO;
+
+[TestClass]
+public sealed class DownloadTests
 {
 
-    [TestClass]
-    public sealed class DownloadTests
+    [TestMethod]
+    public async Task TestDownload()
     {
-
-        [TestMethod]
-        public async Task TestDownload()
-        {
             using var runner = TestHost.Run(Download.From(Resource.FromAssembly("File.txt")));
 
             using var response = await runner.GetResponseAsync();
@@ -28,9 +27,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             Assert.AreEqual("text/plain", response.GetContentHeader("Content-Type"));
         }
 
-        [TestMethod]
-        public async Task TestDownloadDoesNotAcceptRouting()
-        {
+    [TestMethod]
+    public async Task TestDownloadDoesNotAcceptRouting()
+    {
             var layout = Layout.Create()
                                .Add("file.txt", Download.From(Resource.FromAssembly("File.txt")));
 
@@ -41,9 +40,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             await response.AssertStatusAsync(HttpStatusCode.NotFound);
         }
 
-        [TestMethod]
-        public async Task DownloadsCannotBeModified()
-        {
+    [TestMethod]
+    public async Task DownloadsCannotBeModified()
+    {
             var download = Download.From(Resource.FromAssembly("File.txt"));
 
             using var runner = TestHost.Run(download);
@@ -58,9 +57,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             await response.AssertStatusAsync(HttpStatusCode.MethodNotAllowed);
         }
 
-        [TestMethod]
-        public async Task TestFileName()
-        {
+    [TestMethod]
+    public async Task TestFileName()
+    {
             var download = Download.From(Resource.FromAssembly("File.txt"))
                                    .FileName("myfile.txt");
 
@@ -71,9 +70,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             Assert.AreEqual("attachment; filename=\"myfile.txt\"", response.GetContentHeader("Content-Disposition"));
         }
 
-        [TestMethod]
-        public async Task TestNoFileName()
-        {
+    [TestMethod]
+    public async Task TestNoFileName()
+    {
             var download = Download.From(Resource.FromAssembly("File.txt"));
 
             using var runner = TestHost.Run(download);
@@ -82,10 +81,10 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             Assert.AreEqual("attachment", response.GetContentHeader("Content-Disposition"));
         }
-        
-        [TestMethod]
-        public async Task TestFileNameFromResource()
-        {
+
+    [TestMethod]
+    public async Task TestFileNameFromResource()
+    {
             var download = Download.From(Resource.FromAssembly("File.txt").Name("myfile.txt"));
 
             using var runner = TestHost.Run(download);
@@ -94,7 +93,5 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
 
             Assert.AreEqual("attachment; filename=\"myfile.txt\"", response.GetContentHeader("Content-Disposition"));
         }
-
-    }
 
 }

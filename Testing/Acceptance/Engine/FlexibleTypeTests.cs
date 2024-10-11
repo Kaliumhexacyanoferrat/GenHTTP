@@ -10,22 +10,21 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Layouting;
 
-namespace GenHTTP.Testing.Acceptance.Engine
+namespace GenHTTP.Testing.Acceptance.Engine;
+
+[TestClass]
+public sealed class FlexibleTypeTests
 {
 
-    [TestClass]
-    public sealed class FlexibleTypeTests
+    private class Provider : IHandler
     {
 
-        private class Provider : IHandler
+        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
+        public IHandler Parent => throw new System.NotImplementedException();
+
+        public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-
-            public ValueTask PrepareAsync() => ValueTask.CompletedTask;
-
-            public IHandler Parent => throw new System.NotImplementedException();
-
-            public ValueTask<IResponse?> HandleAsync(IRequest request)
-            {
                 return request.Respond()
                               .Content("Hello World!")
                               .Type("application/x-custom")
@@ -33,15 +32,15 @@ namespace GenHTTP.Testing.Acceptance.Engine
                               .BuildTask();
             }
 
-        }
+    }
 
-        /// <summary>
-        /// As a developer I would like to use status codes and content types
-        /// not supported by the server.
-        /// </summary>
-        [TestMethod]
-        public async Task TestFlexibleStatus()
-        {
+    /// <summary>
+    /// As a developer I would like to use status codes and content types
+    /// not supported by the server.
+    /// </summary>
+    [TestMethod]
+    public async Task TestFlexibleStatus()
+    {
             var content = Layout.Create().Index(new Provider().Wrap());
 
             using var runner = TestHost.Run(content);
@@ -53,7 +52,5 @@ namespace GenHTTP.Testing.Acceptance.Engine
 
             Assert.AreEqual("application/x-custom", response.GetContentHeader("Content-Type"));
         }
-
-    }
 
 }

@@ -10,33 +10,32 @@ using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
-namespace GenHTTP.Modules.Compression.Providers
+namespace GenHTTP.Modules.Compression.Providers;
+
+public sealed class CompressionConcern : IConcern
 {
+    private const string ACCEPT_ENCODING = "Accept-Encoding";
 
-    public sealed class CompressionConcern : IConcern
+    private const string VARY = "Vary";
+
+    #region Get-/Setters
+
+    public IHandler Content { get; }
+
+    public IHandler Parent { get; }
+
+    private IReadOnlyDictionary<string, ICompressionAlgorithm> Algorithms { get; }
+
+    private CompressionLevel Level { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public CompressionConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, 
+        IReadOnlyDictionary<string, ICompressionAlgorithm> algorithms,
+        CompressionLevel level)
     {
-        private const string ACCEPT_ENCODING = "Accept-Encoding";
-
-        private const string VARY = "Vary";
-
-        #region Get-/Setters
-
-        public IHandler Content { get; }
-
-        public IHandler Parent { get; }
-
-        private IReadOnlyDictionary<string, ICompressionAlgorithm> Algorithms { get; }
-
-        private CompressionLevel Level { get; }
-
-        #endregion
-
-        #region Initialization
-
-        public CompressionConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, 
-                                  IReadOnlyDictionary<string, ICompressionAlgorithm> algorithms,
-                                  CompressionLevel level)
-        {
             Parent = parent;
             Content = contentFactory(this);
 
@@ -44,12 +43,12 @@ namespace GenHTTP.Modules.Compression.Providers
             Level = level;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public async ValueTask<IResponse?> HandleAsync(IRequest request)
-        {
+    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
             var response = await Content.HandleAsync(request);
 
             if (response is not null)
@@ -93,8 +92,8 @@ namespace GenHTTP.Modules.Compression.Providers
             return response;
         }
 
-        private static bool ShouldCompress(WebPath path, ContentType? type)
-        {
+    private static bool ShouldCompress(WebPath path, ContentType? type)
+    {
             if (type is not null)
             {
                 switch (type)
@@ -134,10 +133,8 @@ namespace GenHTTP.Modules.Compression.Providers
             return false;
         }
 
-        public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-        #endregion
-
-    }
+    #endregion
 
 }

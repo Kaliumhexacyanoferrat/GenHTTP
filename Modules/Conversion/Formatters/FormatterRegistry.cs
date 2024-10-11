@@ -1,31 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GenHTTP.Modules.Conversion.Formatters
+namespace GenHTTP.Modules.Conversion.Formatters;
+
+public sealed class FormatterRegistry
 {
 
-    public sealed class FormatterRegistry
+    #region Get-/Setters
+
+    public IReadOnlyList<IFormatter> Formatters { get; private set; }
+
+    #endregion
+
+    #region Initialization
+
+    public FormatterRegistry(List<IFormatter> formatters)
     {
-
-        #region Get-/Setters
-
-        public IReadOnlyList<IFormatter> Formatters { get; private set; }
-
-        #endregion
-
-        #region Initialization
-
-        public FormatterRegistry(List<IFormatter> formatters)
-        {
             Formatters = formatters;
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        public bool CanHandle(Type type)
-        {
+    public bool CanHandle(Type type)
+    {
             for (int i = 0; i < Formatters.Count; i++)
             {
                 if (Formatters[i].CanHandle(type))
@@ -37,8 +36,8 @@ namespace GenHTTP.Modules.Conversion.Formatters
             return false;
         }
 
-        public object? Read(string value, Type type)
-        {
+    public object? Read(string value, Type type)
+    {
             for (int i = 0; i < Formatters.Count; i++)
             {
                 if (Formatters[i].CanHandle(type))
@@ -51,8 +50,8 @@ namespace GenHTTP.Modules.Conversion.Formatters
         }
 
 
-        public string? Write(object value, Type type)
-        {
+    public string? Write(object value, Type type)
+    {
             for (int i = 0; i < Formatters.Count; i++)
             {
                 if (Formatters[i].CanHandle(type))
@@ -64,8 +63,6 @@ namespace GenHTTP.Modules.Conversion.Formatters
             return null;
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

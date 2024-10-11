@@ -9,16 +9,15 @@ using GenHTTP.Modules.IO;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.IO
+namespace GenHTTP.Testing.Acceptance.Modules.IO;
+
+[TestClass]
+public sealed class VirtualTreeTests
 {
 
-    [TestClass]
-    public sealed class VirtualTreeTests
+    [TestMethod]
+    public async Task TestNestedTree()
     {
-
-        [TestMethod]
-        public async Task TestNestedTree()
-        {
             var tree = ResourceTree.FromAssembly("Resources");
 
             var virt = VirtualTree.Create()
@@ -35,9 +34,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             Assert.IsNotNull(virt.Modified);
         }
 
-        [TestMethod]
-        public async Task TestResource()
-        {
+    [TestMethod]
+    public async Task TestResource()
+    {
             var virt = VirtualTree.Create()
                                   .Add("res.txt", Resource.FromString("Blubb"))
                                   .Build();
@@ -48,9 +47,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             Assert.IsNotNull(file);
         }
 
-        [TestMethod]
-        public async Task TestUsage()
-        {
+    [TestMethod]
+    public async Task TestUsage()
+    {
             var tree = ResourceTree.FromAssembly("Resources");
 
             var virt = VirtualTree.Create()
@@ -66,8 +65,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO
             await response.AssertStatusAsync(HttpStatusCode.OK);
         }
 
-        private static RoutingTarget GetTarget(string path) => new(new PathBuilder(path).Build());
-
-    }
+    private static RoutingTarget GetTarget(string path) => new(new PathBuilder(path).Build());
 
 }

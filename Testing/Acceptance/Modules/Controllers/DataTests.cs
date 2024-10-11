@@ -13,30 +13,29 @@ using GenHTTP.Modules.Reflection;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Controllers
+namespace GenHTTP.Testing.Acceptance.Modules.Controllers;
+
+[TestClass]
+public sealed class DataTests
 {
 
-    [TestClass]
-    public sealed class DataTests
+    #region Controller
+
+    public class TestController
     {
 
-        #region Controller
+        [ControllerAction(RequestMethod.POST)]
+        public DateOnly Date(DateOnly date) => date;
 
-        public class TestController
-        {
+    }
 
-            [ControllerAction(RequestMethod.POST)]
-            public DateOnly Date(DateOnly date) => date;
+    #endregion
 
-        }
+    #region Tests
 
-        #endregion
-
-        #region Tests
-
-        [TestMethod]
-        public async Task TestDateOnly()
-        {
+    [TestMethod]
+    public async Task TestDateOnly()
+    {
             using var host = GetHost();
 
             var request = host.GetRequest("/t/date/", HttpMethod.Post);
@@ -55,9 +54,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             Assert.AreEqual("2024-03-11", await response.GetContentAsync());
         }
 
-        [TestMethod]
-        public async Task TestInvalidDateOnly()
-        {
+    [TestMethod]
+    public async Task TestInvalidDateOnly()
+    {
             using var host = GetHost();
 
             var request = host.GetRequest("/t/date/", HttpMethod.Post);
@@ -74,12 +73,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             await response.AssertStatusAsync(HttpStatusCode.BadRequest);
         }
 
-        #endregion
+    #endregion
 
-        #region Helpers
+    #region Helpers
 
-        private static TestHost GetHost()
-        {
+    private static TestHost GetHost()
+    {
             var app = Layout.Create()
                             .AddController<TestController>("t", serializers: Serialization.Default(),
                                                                 injectors: Injection.Default(), 
@@ -88,8 +87,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.Controllers
             return TestHost.Run(app);
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }

@@ -7,34 +7,31 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using GenHTTP.Api.Infrastructure;
-
-using GenHTTP.Engine.Infrastructure.Configuration;
 using GenHTTP.Engine.Protocol;
 using GenHTTP.Engine.Utilities;
 
 using PooledAwait;
 
-namespace GenHTTP.Engine.Infrastructure.Endpoints
+namespace GenHTTP.Engine.Infrastructure.Endpoints;
+
+internal sealed class SecureEndPoint : EndPoint
 {
 
-    internal sealed class SecureEndPoint : EndPoint
+    #region Get-/Setters
+
+    internal SecurityConfiguration Options { get; }
+
+    public override bool Secure => true;
+
+    private SslServerAuthenticationOptions AuthenticationOptions { get; }
+
+    #endregion
+
+    #region Initialization
+
+    internal SecureEndPoint(IServer server, IPEndPoint endPoint, SecurityConfiguration options, NetworkConfiguration configuration)
+        : base(server, endPoint, configuration)
     {
-
-        #region Get-/Setters
-
-        internal SecurityConfiguration Options { get; }
-
-        public override bool Secure => true;
-
-        private SslServerAuthenticationOptions AuthenticationOptions { get; }
-
-        #endregion
-
-        #region Initialization
-
-        internal SecureEndPoint(IServer server, IPEndPoint endPoint, SecurityConfiguration options, NetworkConfiguration configuration)
-            : base(server, endPoint, configuration)
-        {
             Options = options;
 
             AuthenticationOptions = new()
@@ -49,12 +46,12 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
             };
         }
 
-        #endregion
+    #endregion
 
-        #region Functionality
+    #region Functionality
 
-        protected override async PooledValueTask Accept(Socket client)
-        {
+    protected override async PooledValueTask Accept(Socket client)
+    {
             var stream = await TryAuthenticate(client);
 
             if (stream is not null)
@@ -75,8 +72,8 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
             }
         }
 
-        private async ValueTask<SslStream?> TryAuthenticate(Socket client)
-        {
+    private async ValueTask<SslStream?> TryAuthenticate(Socket client)
+    {
             try
             {
                 var stream = new SslStream(new NetworkStream(client), false);
@@ -93,8 +90,8 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
             }
         }
 
-        private X509Certificate2 SelectCertificate(object sender, string? hostName)
-        {
+    private X509Certificate2 SelectCertificate(object sender, string? hostName)
+    {
             var certificate = Options.Certificate.Provide(hostName);
 
             if (certificate is null)
@@ -105,8 +102,6 @@ namespace GenHTTP.Engine.Infrastructure.Endpoints
             return certificate;
         }
 
-        #endregion
-
-    }
+    #endregion
 
 }
