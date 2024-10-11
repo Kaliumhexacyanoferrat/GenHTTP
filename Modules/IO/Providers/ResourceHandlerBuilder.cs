@@ -2,8 +2,6 @@
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
 
-using System.Collections.Generic;
-
 namespace GenHTTP.Modules.IO.Providers;
 
 public sealed class ResourceHandlerBuilder : IHandlerBuilder<ResourceHandlerBuilder>

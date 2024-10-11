@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GenHTTP.Api.Infrastructure;
+﻿namespace GenHTTP.Api.Infrastructure;
 
 /// <summary>
 /// Will be thrown, if a builder is missing a required property

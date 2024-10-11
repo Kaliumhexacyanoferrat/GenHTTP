@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GenHTTP.Api.Content;
+﻿namespace GenHTTP.Api.Content;
 
 /// <summary>
 /// Interface which needs to be implementd by factories providing concern instances.

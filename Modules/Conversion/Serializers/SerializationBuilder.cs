@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using GenHTTP.Api.Infrastructure;
+﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Conversion.Serializers;

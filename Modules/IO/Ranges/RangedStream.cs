@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace GenHTTP.Modules.IO.Ranges;
+﻿namespace GenHTTP.Modules.IO.Ranges;
 
 /// <summary>
 /// A stream that can be configured to just write a specified

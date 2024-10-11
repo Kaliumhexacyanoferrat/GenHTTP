@@ -1,8 +1,4 @@
-﻿using System;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-
+﻿using System.Net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Api.Infrastructure;

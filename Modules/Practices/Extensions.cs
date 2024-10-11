@@ -1,6 +1,4 @@
-﻿using System;
-
-using GenHTTP.Api.Infrastructure;
+﻿using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Modules.ClientCaching;
 using GenHTTP.Modules.Compression;

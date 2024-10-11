@@ -1,6 +1,4 @@
-﻿using System;
-
-using GenHTTP.Modules.Reflection;
+﻿using GenHTTP.Modules.Reflection;
 
 namespace GenHTTP.Modules.Functional.Provider;
 

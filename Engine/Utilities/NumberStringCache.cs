@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace GenHTTP.Engine.Utilities;
+﻿namespace GenHTTP.Engine.Utilities;
 
 /// <summary>
 /// Caches the string representation of small numbers,

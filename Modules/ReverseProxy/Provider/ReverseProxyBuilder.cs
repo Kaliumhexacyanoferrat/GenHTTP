@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Modules.ReverseProxy.Provider;

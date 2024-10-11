@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-using GenHTTP.Api.Content.IO;
+﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.IO;

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Net;
-using System.Threading.Tasks;
-
+﻿using System.Net;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 

@@ -1,6 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 

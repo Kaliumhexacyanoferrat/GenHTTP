@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Conversion.Serializers.Xml;

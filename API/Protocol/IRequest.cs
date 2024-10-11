@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-using GenHTTP.Api.Infrastructure;
+﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Api.Protocol;

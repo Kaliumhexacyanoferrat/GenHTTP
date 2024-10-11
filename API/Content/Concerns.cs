@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace GenHTTP.Api.Content;
+﻿namespace GenHTTP.Api.Content;
 
 /// <summary>
 /// Utility class to work with concerns.

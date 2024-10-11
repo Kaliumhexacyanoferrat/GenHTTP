@@ -1,9 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
-using System.Threading.Tasks;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
-using System;
 
 namespace GenHTTP.Testing.Acceptance.Modules;
 

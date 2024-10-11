@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace GenHTTP.Api.Content.IO;
+﻿namespace GenHTTP.Api.Content.IO;
 
 /// <summary>
 /// Provides a single hierarchy level in a structure

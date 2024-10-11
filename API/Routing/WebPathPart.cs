@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GenHTTP.Api.Routing;
+﻿namespace GenHTTP.Api.Routing;
 
 /// <summary>
 /// Represents a part of an URL (between two slashes).

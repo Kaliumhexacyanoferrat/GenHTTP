@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GenHTTP.Modules.Controllers;
+﻿namespace GenHTTP.Modules.Controllers;
 
 /// <summary>
 /// Marking an argument of a controller method with this attribute causes

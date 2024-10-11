@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace GenHTTP.Api.Routing;
+﻿namespace GenHTTP.Api.Routing;
 
 /// <summary>
 /// Specifies a resource available on the server.

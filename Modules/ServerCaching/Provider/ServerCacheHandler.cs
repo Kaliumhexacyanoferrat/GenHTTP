@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Caching;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.IO.Streaming;
+using StreamContent = GenHTTP.Modules.IO.Streaming.StreamContent;
 
 namespace GenHTTP.Modules.ServerCaching.Provider;
 

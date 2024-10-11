@@ -1,5 +1,4 @@
-﻿using System;
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 
 namespace GenHTTP.Api.Infrastructure;
 

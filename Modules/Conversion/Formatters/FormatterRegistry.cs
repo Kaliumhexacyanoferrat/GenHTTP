@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace GenHTTP.Modules.Conversion.Formatters;
+﻿namespace GenHTTP.Modules.Conversion.Formatters;
 
 public sealed class FormatterRegistry
 {

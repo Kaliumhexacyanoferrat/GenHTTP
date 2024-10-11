@@ -1,5 +1,4 @@
 ﻿using GenHTTP.Api.Protocol;
-using System.Collections.Generic;
 
 namespace GenHTTP.Modules.ServerCaching.Provider;
 

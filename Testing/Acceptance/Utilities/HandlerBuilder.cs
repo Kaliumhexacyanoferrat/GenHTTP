@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 
 namespace GenHTTP.Testing.Acceptance.Utilities;
 

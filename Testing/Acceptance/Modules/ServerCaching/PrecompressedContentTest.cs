@@ -1,7 +1,5 @@
 ﻿using System.IO.Compression;
 using System.Net;
-using System.Threading.Tasks;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using GenHTTP.Modules.Compression;

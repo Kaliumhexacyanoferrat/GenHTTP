@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace GenHTTP.Api.Protocol;
+﻿namespace GenHTTP.Api.Protocol;
 
 public enum RequestMethod
 {

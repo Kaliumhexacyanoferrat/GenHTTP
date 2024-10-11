@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GenHTTP.Modules.Conversion.Formatters;
+﻿namespace GenHTTP.Modules.Conversion.Formatters;
 
 public sealed class StringFormatter : IFormatter
 {

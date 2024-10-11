@@ -1,6 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading.Tasks;
-
 using GenHTTP.Modules.Security;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;

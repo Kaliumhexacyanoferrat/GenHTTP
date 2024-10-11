@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace GenHTTP.Engine.Protocol;
+﻿namespace GenHTTP.Engine.Protocol;
 
 /// <summary>
 /// Provides and maintains a temporary file used by the server engine

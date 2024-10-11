@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-
-using GenHTTP.Api.Content.Caching;
+﻿using GenHTTP.Api.Content.Caching;
 using GenHTTP.Modules.Caching;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GenHTTP.Modules.Security.Providers;
+﻿namespace GenHTTP.Modules.Security.Providers;
 
 public sealed class StrictTransportPolicy
 {

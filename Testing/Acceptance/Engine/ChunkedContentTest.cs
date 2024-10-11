@@ -1,7 +1,5 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
-
 using GenHTTP.Modules.Functional;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;

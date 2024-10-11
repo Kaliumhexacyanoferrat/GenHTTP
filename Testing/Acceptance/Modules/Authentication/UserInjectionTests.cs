@@ -1,6 +1,4 @@
 ﻿using System.Net;
-using System.Threading.Tasks;
-
 using GenHTTP.Modules.Authentication;
 using GenHTTP.Modules.Authentication.Basic;
 using GenHTTP.Modules.Functional;

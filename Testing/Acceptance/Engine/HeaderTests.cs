@@ -1,6 +1,4 @@
 ﻿using System.Net;
-using System.Threading.Tasks;
-
 using GenHTTP.Testing.Acceptance.Utilities;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;

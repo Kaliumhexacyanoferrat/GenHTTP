@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Reflection;
 

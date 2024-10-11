@@ -1,14 +1,8 @@
-﻿using System;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-
+﻿using System.Net;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Caching;
 using GenHTTP.Modules.Compression;
 using GenHTTP.Modules.IO;
-using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.ServerCaching;
 using GenHTTP.Modules.ServerCaching.Provider;
 

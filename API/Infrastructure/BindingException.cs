@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GenHTTP.Api.Infrastructure;
+﻿namespace GenHTTP.Api.Infrastructure;
 
 /// <summary>
 /// Will be thrown, if the server cannot bind to the requested port for some reason.

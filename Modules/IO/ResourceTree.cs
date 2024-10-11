@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Reflection;
+﻿using System.Reflection;
 
 using GenHTTP.Modules.IO.Embedded;
 using GenHTTP.Modules.IO.FileSystem;

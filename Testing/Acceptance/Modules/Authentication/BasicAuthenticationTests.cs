@@ -1,7 +1,4 @@
 ﻿using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-
 using GenHTTP.Api.Content.Authentication;
 
 using GenHTTP.Modules.Authentication;

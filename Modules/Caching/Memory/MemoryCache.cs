@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-using GenHTTP.Api.Content.Caching;
+﻿using GenHTTP.Api.Content.Caching;
 
 namespace GenHTTP.Modules.Caching.Memory;
 

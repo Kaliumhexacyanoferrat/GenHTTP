@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-using GenHTTP.Api.Content.IO;
+﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Modules.IO.FileSystem;

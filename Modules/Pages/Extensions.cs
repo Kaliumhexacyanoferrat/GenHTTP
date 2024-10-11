@@ -1,8 +1,7 @@
 ﻿using System.Web;
 
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.IO.Strings;
+using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
 namespace GenHTTP.Modules.Pages;
 

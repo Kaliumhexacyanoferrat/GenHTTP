@@ -1,7 +1,4 @@
 ﻿using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-
 using GenHTTP.Modules.IO;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Specialized;
-using System.IO;
+﻿using System.Collections.Specialized;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion.Formatters;

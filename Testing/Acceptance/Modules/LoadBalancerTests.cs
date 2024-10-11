@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Threading.Tasks;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.LoadBalancing;

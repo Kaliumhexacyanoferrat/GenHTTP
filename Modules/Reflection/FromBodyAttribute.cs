@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GenHTTP.Modules.Reflection;
+﻿namespace GenHTTP.Modules.Reflection;
 
 /// <summary>
 /// Marking an argument of a service method with this attribute will

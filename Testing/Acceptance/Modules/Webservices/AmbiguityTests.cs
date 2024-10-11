@@ -1,6 +1,4 @@
 ﻿using System.Net;
-using System.Threading.Tasks;
-
 using GenHTTP.Api.Content;
 
 using GenHTTP.Modules.IO;

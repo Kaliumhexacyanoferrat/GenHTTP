@@ -1,6 +1,4 @@
 ﻿using System.Net;
-using System.Threading.Tasks;
-
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.StaticWebsites;
 

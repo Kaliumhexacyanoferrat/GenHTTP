@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace GenHTTP.Api.Routing;
+﻿namespace GenHTTP.Api.Routing;
 
 /// <summary>
 /// Provides a view on the target path of a request.

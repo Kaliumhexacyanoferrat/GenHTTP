@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GenHTTP.Engine.Protocol;
+﻿namespace GenHTTP.Engine.Protocol;
 
 /// <summary>
 /// Caches the value of the date header for one second

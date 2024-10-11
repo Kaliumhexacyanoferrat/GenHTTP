@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-
-using GenHTTP.Modules.IO.Tracking;
+﻿using GenHTTP.Modules.IO.Tracking;
 
 using Cottle;
 

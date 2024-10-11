@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Content.IO;

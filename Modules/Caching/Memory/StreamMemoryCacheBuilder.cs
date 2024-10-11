@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-using GenHTTP.Api.Content.Caching;
+﻿using GenHTTP.Api.Content.Caching;
 
 namespace GenHTTP.Modules.Caching.Memory;
 

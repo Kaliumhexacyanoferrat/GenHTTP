@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Net;
-using System.Threading.Tasks;
+﻿using System.Net;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.SinglePageApplications;
 using GenHTTP.Testing.Acceptance.Utilities;

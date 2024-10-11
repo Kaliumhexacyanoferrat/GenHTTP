@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GenHTTP.Modules.Conversion.Formatters;
+﻿namespace GenHTTP.Modules.Conversion.Formatters;
 
 /// <summary>
 /// Allows to add support for a specific type to be used as a parameter

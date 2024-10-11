@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-using GenHTTP.Modules.Caching.FileSystem;
+﻿using GenHTTP.Modules.Caching.FileSystem;
 using GenHTTP.Modules.Caching.Memory;
 
 namespace GenHTTP.Modules.Caching;

@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using System.Net.Http;
-
-namespace GenHTTP.Testing;
+﻿namespace GenHTTP.Testing;
 
 public static class HeaderExtensions
 {

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
