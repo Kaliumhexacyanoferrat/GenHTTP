@@ -53,11 +53,11 @@ namespace GenHTTP.Testing.Acceptance.Engine
             using var runner = TestHost.Run(Layout.Create());
 
             var request = runner.GetRequest();
-            request.Headers.Add("Accept-Encoding", "gzip, br");
+            request.Headers.Add("Accept-Encoding", "gzip, br, zstd");
 
             using var response = await runner.GetResponseAsync(request);
 
-            Assert.AreEqual("br", response.Content.Headers.ContentEncoding.First());
+            Assert.AreEqual("zstd", response.Content.Headers.ContentEncoding.First());
         }
 
         /// <summary>
@@ -65,16 +65,19 @@ namespace GenHTTP.Testing.Acceptance.Engine
         /// to generate my response.
         /// </summary>
         [TestMethod]
-        public async Task TestSpecficAlgorithm()
+        public async Task TestSpecificAlgorithms()
         {
-            using var runner = TestHost.Run(Layout.Create());
+            foreach (var algorithm in new[] { "gzip", "br", "zstd" })
+            {
+                using var runner = TestHost.Run(Layout.Create());
 
-            var request = runner.GetRequest();
-            request.Headers.Add("Accept-Encoding", "gzip");
+                var request = runner.GetRequest();
+                request.Headers.Add("Accept-Encoding", algorithm);
 
-            using var response = await runner.GetResponseAsync(request);
+                using var response = await runner.GetResponseAsync(request);
 
-            Assert.AreEqual("gzip", response.Content.Headers.ContentEncoding.First());
+                Assert.AreEqual(algorithm, response.Content.Headers.ContentEncoding.First());
+            }
         }
 
         /// <summary>
