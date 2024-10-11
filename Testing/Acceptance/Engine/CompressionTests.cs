@@ -61,7 +61,7 @@ public sealed class CompressionTests
 
         using var response = await runner.GetResponseAsync();
 
-        Assert.IsFalse(response.Content.Headers.ContentEncoding.Any());
+        Assert.IsFalse(response.Content.Headers.ContentEncoding.Count != 0);
     }
 
     /// <summary>
@@ -94,7 +94,7 @@ public sealed class CompressionTests
 
         using var response = await runner.GetResponseAsync("/uncompressed");
 
-        Assert.IsFalse(response.Content.Headers.ContentEncoding.Any());
+        Assert.IsFalse(response.Content.Headers.ContentEncoding.Count != 0);
     }
 
     [TestMethod]
@@ -164,9 +164,4 @@ public sealed class CompressionTests
         public IResponseContent Compress(IResponseContent content, CompressionLevel level) => content;
     }
 
-    private class CustomAlgorithmBuilder : IBuilder<ICompressionAlgorithm>
-    {
-
-        public ICompressionAlgorithm Build() => new CustomAlgorithm();
-    }
 }

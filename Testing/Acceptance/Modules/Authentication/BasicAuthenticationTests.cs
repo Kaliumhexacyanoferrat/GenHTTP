@@ -65,7 +65,7 @@ public sealed class BasicAuthenticationTests
     [TestMethod]
     public async Task TestCustomUser()
     {
-        var content = GetContent().Authentication(BasicAuthentication.Create((u, p) => new ValueTask<IUser?>(new BasicAuthenticationUser("my"))));
+        var content = GetContent().Authentication(BasicAuthentication.Create((_, _) => new ValueTask<IUser?>(new BasicAuthenticationUser("my"))));
 
         using var runner = TestHost.Run(content);
 
@@ -77,7 +77,7 @@ public sealed class BasicAuthenticationTests
     [TestMethod]
     public async Task TestNoCustomUser()
     {
-        var content = GetContent().Authentication(BasicAuthentication.Create((u, p) => new ValueTask<IUser?>()));
+        var content = GetContent().Authentication(BasicAuthentication.Create((_, _) => new ValueTask<IUser?>()));
 
         using var runner = TestHost.Run(content);
 

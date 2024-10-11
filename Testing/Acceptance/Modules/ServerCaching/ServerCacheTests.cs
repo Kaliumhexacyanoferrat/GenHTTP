@@ -25,14 +25,14 @@ public class ServerCacheTests
             using var runner = TestHost.Run(Content.From(Resource.FromFile(file))
                                                    .Add(ServerCache.Memory()));
 
-            FileUtil.WriteText(file, "1");
+            await FileUtil.WriteTextAsync(file, "1");
 
             using var first = await runner.GetResponseAsync();
 
             await first.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("1", await first.GetContentAsync());
 
-            FileUtil.WriteText(file, "12");
+            await FileUtil.WriteTextAsync(file, "12");
 
             using var second = await runner.GetResponseAsync();
 
@@ -58,14 +58,14 @@ public class ServerCacheTests
             using var runner = TestHost.Run(Content.From(Resource.FromFile(file))
                                                    .Add(ServerCache.Memory().Invalidate(false)));
 
-            FileUtil.WriteText(file, "1");
+            await FileUtil.WriteTextAsync(file, "1");
 
             using var first = await runner.GetResponseAsync();
 
             await first.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("1", await first.GetContentAsync());
 
-            FileUtil.WriteText(file, "12");
+            await FileUtil.WriteTextAsync(file, "12");
 
             using var second = await runner.GetResponseAsync();
 
@@ -86,7 +86,7 @@ public class ServerCacheTests
     {
         var file = Path.GetTempFileName();
 
-        FileUtil.WriteText(file, "This is some content!");
+        await FileUtil.WriteTextAsync(file, "This is some content!");
 
         try
         {

@@ -101,10 +101,10 @@ public sealed class ApiKeyAuthenticationTests
     [TestMethod]
     public async Task TestCustomAuthenticator()
     {
-        static ValueTask<IUser?> authenticator(IRequest r, string k) => k.Length == 5 ? new ValueTask<IUser?>(new ApiKeyUser(k)) : new ValueTask<IUser?>();
+        static ValueTask<IUser?> Authenticator(IRequest r, string k) => k.Length == 5 ? new ValueTask<IUser?>(new ApiKeyUser(k)) : new ValueTask<IUser?>();
 
         var auth = ApiKeyAuthentication.Create()
-                                       .Authenticator(authenticator);
+                                       .Authenticator(Authenticator);
 
         using var runner = GetRunnerWithAuth(auth);
 

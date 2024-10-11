@@ -20,7 +20,7 @@ public sealed class SecurityTests
     [TestMethod]
     public Task TestSecure()
     {
-        return RunSecure(async (insec, sec) =>
+        return RunSecure(async (_, sec) =>
         {
             using var client = TestHost.GetClient(ignoreSecurityErrors: true);
 
@@ -56,7 +56,7 @@ public sealed class SecurityTests
     [TestMethod]
     public Task TestNoRedirectionWithAllowed()
     {
-        return RunSecure(async (insec, sec) =>
+        return RunSecure(async (insec, _) =>
         {
             using var client = TestHost.GetClient(followRedirects: false);
 
@@ -120,7 +120,7 @@ public sealed class SecurityTests
     [TestMethod]
     public Task TestSecurityError()
     {
-        return RunSecure(async (insec, sec) =>
+        return RunSecure(async (_, sec) =>
         {
             await Assert.ThrowsExceptionAsync<HttpRequestException>(async () =>
             {
@@ -143,7 +143,7 @@ public sealed class SecurityTests
     [TestMethod]
     public Task TestNoCertificate()
     {
-        return RunSecure(async (insec, sec) =>
+        return RunSecure(async (_, sec) =>
         {
             await Assert.ThrowsExceptionAsync<HttpRequestException>(async () =>
             {

@@ -162,7 +162,7 @@ public sealed class WireTests
 
         sender(writer);
 
-        writer.Flush();
+        await writer.FlushAsync();
 
         using var reader = new StreamReader(stream, leaveOpen: true);
 

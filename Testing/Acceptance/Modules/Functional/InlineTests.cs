@@ -121,7 +121,7 @@ public sealed class InlineTests
     [TestMethod]
     public async Task TestStream()
     {
-        using var host = TestHost.Run(Inline.Create().Get(() => new MemoryStream(Encoding.UTF8.GetBytes("42"))));
+        using var host = TestHost.Run(Inline.Create().Get(() => new MemoryStream("42"u8.ToArray())));
 
         using var response = await host.GetResponseAsync();
 
@@ -161,7 +161,7 @@ public sealed class InlineTests
         {
             var stream = new MemoryStream();
 
-            await stream.WriteAsync(Encoding.UTF8.GetBytes("42"));
+            await stream.WriteAsync("42"u8.ToArray());
 
             stream.Seek(0, SeekOrigin.Begin);
 

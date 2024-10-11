@@ -16,10 +16,7 @@ public sealed class ReverseProxyTests
     [TestMethod]
     public async Task TestBasics()
     {
-        using var setup = TestSetup.Create(r =>
-        {
-            return r.Respond().Content("Hello World!").Build();
-        });
+        using var setup = TestSetup.Create(r => r.Respond().Content("Hello World!").Build());
 
         var runner = setup.Runner;
 
@@ -316,11 +313,11 @@ public sealed class ReverseProxyTests
 
         #region IDisposable Support
 
-        private bool disposedValue;
+        private bool _DisposedValue;
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!_DisposedValue)
             {
                 if (disposing)
                 {
@@ -328,7 +325,7 @@ public sealed class ReverseProxyTests
                     _Target.Dispose();
                 }
 
-                disposedValue = true;
+                _DisposedValue = true;
             }
         }
 

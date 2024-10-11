@@ -4,8 +4,8 @@ namespace GenHTTP.Testing.Acceptance.Utilities;
 
 public class HandlerBuilder : IHandlerBuilder<HandlerBuilder>
 {
+    private readonly List<IConcernBuilder> _Concerns = [];
 
-    private readonly List<IConcernBuilder> _Concerns = new();
     private readonly IHandler _Handler;
 
     public HandlerBuilder(IHandler handler) { _Handler = handler; }

@@ -78,7 +78,7 @@ public class RangedStreamTests
 
         stream.Position = position;
 
-        stream.Write(Encoding.ASCII.GetBytes("0123456789"), offset, count);
+        stream.Write("0123456789"u8.ToArray(), offset, count);
 
         return Encoding.ASCII.GetString(target.ToArray());
     }

@@ -83,7 +83,7 @@ public sealed class WebserviceTests
         public int? Nullable(int? input) => input;
 
         [ResourceMethod("request")]
-        public string? Request(IHandler handler, IRequest request) => "yes";
+        public string Request(IHandler handler, IRequest request) => "yes";
     }
 
     #endregion
@@ -155,14 +155,14 @@ public sealed class WebserviceTests
     [TestMethod]
     public async Task TestEntityWithNulls()
     {
-        var entity = "{\"id\":42}";
+        const string entity = "{\"id\":42}";
         await WithResponse("entity", HttpMethod.Post, entity, null, null, async r => Assert.AreEqual(entity, await r.GetContentAsync()));
     }
 
     [TestMethod]
     public async Task TestEntityWithNoNulls()
     {
-        var entity = "{\"id\":42,\"nullable\":123.456}";
+        const string entity = "{\"id\":42,\"nullable\":123.456}";
         await WithResponse("entity", HttpMethod.Post, entity, null, null, async r => Assert.AreEqual(entity, await r.GetContentAsync()));
     }
 
@@ -175,7 +175,7 @@ public sealed class WebserviceTests
     [TestMethod]
     public async Task TestUnsupportedDownloadEnforcesDefault()
     {
-        var entity = "{\"id\":42,\"nullable\":123.456}";
+        const string entity = "{\"id\":42,\"nullable\":123.456}";
         await WithResponse("entity", HttpMethod.Post, entity, null, "bla/blubb", async r => Assert.AreEqual(entity, await r.GetContentAsync()));
     }
 
@@ -210,9 +210,9 @@ public sealed class WebserviceTests
     }
 
     [TestMethod]
-    public async Task TestEntityAsXML()
+    public async Task TestEntityAsXml()
     {
-        var entity = "<TestEntity><ID>1</ID><Nullable>1234.56</Nullable></TestEntity>";
+        const string entity = "<TestEntity><ID>1</ID><Nullable>1234.56</Nullable></TestEntity>";
 
         await WithResponse("entity", HttpMethod.Post, entity, "text/xml", "text/xml", async r =>
         {

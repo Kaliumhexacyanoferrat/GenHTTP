@@ -48,7 +48,7 @@ public sealed class ResultTests
     [TestMethod]
     public async Task TestStreamsCanBeWrapped()
     {
-        var stream = new MemoryStream(Encoding.UTF8.GetBytes("Hello World!"));
+        var stream = new MemoryStream("Hello World!"u8.ToArray());
 
         var inline = Inline.Create()
                            .Get(() => new Result<Stream>(stream).Status(ResponseStatus.Created));

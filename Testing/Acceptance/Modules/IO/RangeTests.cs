@@ -7,7 +7,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.IO;
 [TestClass]
 public class RangeTests
 {
-    private const string CONTENT = "0123456789";
+    private const string Content = "0123456789";
 
     [TestMethod]
     public async Task TestRangesAreOptional()
@@ -15,7 +15,7 @@ public class RangeTests
         using var response = await GetResponse(null);
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
-        Assert.AreEqual(CONTENT, await response.GetContentAsync());
+        Assert.AreEqual(Content, await response.GetContentAsync());
     }
 
     [TestMethod]
@@ -122,7 +122,7 @@ public class RangeTests
         using var response = await GetResponse("bytes=1-8", HttpMethod.Post);
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
-        Assert.AreEqual(CONTENT, await response.GetContentAsync());
+        Assert.AreEqual(Content, await response.GetContentAsync());
     }
 
     [TestMethod]
@@ -163,7 +163,7 @@ public class RangeTests
 
     private static TestHost GetRunner()
     {
-        var content = Content.From(Resource.FromString(CONTENT));
+        var content = GenHTTP.Modules.IO.Content.From(Resource.FromString(Content));
 
         content.AddRangeSupport();
 

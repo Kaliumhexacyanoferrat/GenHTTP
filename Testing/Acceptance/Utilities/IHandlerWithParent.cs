@@ -6,4 +6,5 @@ public interface IHandlerWithParent : IHandler
 {
 
     public new IHandler Parent { get; set; }
+
 }

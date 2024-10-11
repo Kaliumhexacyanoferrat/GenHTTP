@@ -18,7 +18,7 @@ public sealed class ProtocolTests
     {
         var recorder = new ValueRecorder();
 
-        var str = "From client with ❤";
+        const string str = "From client with ❤";
 
         using var runner = TestHost.Run(recorder.Wrap());
 

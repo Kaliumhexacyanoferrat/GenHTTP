@@ -32,7 +32,7 @@ public sealed class FunctionalHandler : IHandlerWithParent
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-    public ValueTask<IResponse?> HandleAsync(IRequest request) => new(_ResponseProvider is not null ? _ResponseProvider(request) : null);
+    public ValueTask<IResponse?> HandleAsync(IRequest request) => new(_ResponseProvider?.Invoke(request));
 
     #endregion
 

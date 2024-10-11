@@ -15,7 +15,7 @@ public sealed class SinglePageTests
     {
         var root = CreateRoot();
 
-        FileUtil.WriteText(Path.Combine(root, "index.html"), "This is the index!");
+        await FileUtil.WriteTextAsync(Path.Combine(root, "index.html"), "This is the index!");
 
         using var runner = TestHost.Run(SinglePageApplication.From(ResourceTree.FromDirectory(root)));
 
@@ -34,7 +34,7 @@ public sealed class SinglePageTests
     {
         var root = CreateRoot();
 
-        FileUtil.WriteText(Path.Combine(root, "index.html"), "This is the index!");
+        await FileUtil.WriteTextAsync(Path.Combine(root, "index.html"), "This is the index!");
 
         var spa = SinglePageApplication.From(ResourceTree.FromDirectory(root))
                                        .ServerSideRouting();
@@ -62,7 +62,7 @@ public sealed class SinglePageTests
     {
         var root = CreateRoot();
 
-        FileUtil.WriteText(Path.Combine(root, "some.txt"), "This is some text file :)");
+        await FileUtil.WriteTextAsync(Path.Combine(root, "some.txt"), "This is some text file :)");
 
         using var runner = TestHost.Run(SinglePageApplication.From(ResourceTree.FromDirectory(root)));
 

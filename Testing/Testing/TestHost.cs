@@ -13,12 +13,12 @@ namespace GenHTTP.Testing;
 public class TestHost : IDisposable
 {
 #if NET8_0
-        private static volatile int _NextPort = 20000;
+    private static volatile int _nextPort = 20000;
 #else
-    private static volatile int _NextPort = 30000;
+    private static volatile int _nextPort = 30000;
 #endif
 
-    private static readonly HttpClient _DefaultClient = GetClient();
+    private static readonly HttpClient DefaultClient = GetClient();
 
     #region Get-/Setters
 
@@ -108,7 +108,7 @@ public class TestHost : IDisposable
     /// test host runner methods will automatically claim the next free port.
     /// </remarks>
     /// <returns>The next free port to be used</returns>
-    public static int NextPort() => Interlocked.Increment(ref _NextPort);
+    public static int NextPort() => Interlocked.Increment(ref _nextPort);
 
     /// <summary>
     /// Computes the URL which can be used to fetch the given path
@@ -136,7 +136,7 @@ public class TestHost : IDisposable
     /// <returns>The response returned by the server</returns>
     public async Task<HttpResponseMessage> GetResponseAsync(string? path = null, HttpClient? client = null)
     {
-        var actualClient = client ?? _DefaultClient;
+        var actualClient = client ?? DefaultClient;
 
         return await actualClient.GetAsync(GetUrl(path));
     }
@@ -149,7 +149,7 @@ public class TestHost : IDisposable
     /// <returns>The response returned by the server</returns>
     public async Task<HttpResponseMessage> GetResponseAsync(HttpRequestMessage message, HttpClient? client = null)
     {
-        var actualClient = client ?? _DefaultClient;
+        var actualClient = client ?? DefaultClient;
 
         return await actualClient.SendAsync(message);
     }
@@ -189,18 +189,18 @@ public class TestHost : IDisposable
 
     #region IDisposable Support
 
-    private bool disposed;
+    private bool _Disposed;
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!disposed)
+        if (!_Disposed)
         {
             if (disposing)
             {
                 Host.Stop();
             }
 
-            disposed = true;
+            _Disposed = true;
         }
     }
 

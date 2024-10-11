@@ -20,7 +20,7 @@ public sealed class ProtobufTests
     public sealed class TestEntity
     {
         [ProtoMember(1)]
-        public int ID { get; set; }
+        public int Id { get; set; }
 
         [ProtoMember(2)]
         public string? Name { get; set; }
@@ -33,12 +33,11 @@ public sealed class ProtobufTests
     {
 
         [ResourceMethod]
-        public TestEntity? GetEntity()
+        public TestEntity GetEntity()
         {
-
             var entity = new TestEntity
             {
-                ID = 1,
+                Id = 1,
                 Name = "test1"
             };
 
@@ -47,6 +46,7 @@ public sealed class ProtobufTests
 
         [ResourceMethod(RequestMethod.Post)]
         public TestEntity PostEntity(TestEntity entity) => entity;
+
     }
 
     #endregion
@@ -63,7 +63,7 @@ public sealed class ProtobufTests
 
         });
 
-        Assert.AreEqual(1, result!.ID);
+        Assert.AreEqual(1, result!.Id);
         Assert.AreEqual("test1", result!.Name);
     }
 
@@ -72,7 +72,7 @@ public sealed class ProtobufTests
     {
         var entity = new TestEntity
         {
-            ID = 2,
+            Id = 2,
             Name = "test2",
             Nullable = null
         };
@@ -92,7 +92,7 @@ public sealed class ProtobufTests
         });
 
         Assert.IsNotNull(result);
-        Assert.AreEqual(entity.ID, result!.ID);
+        Assert.AreEqual(entity.Id, result!.Id);
         Assert.AreEqual(entity.Name, result!.Name);
         Assert.IsNull(result!.Nullable);
 

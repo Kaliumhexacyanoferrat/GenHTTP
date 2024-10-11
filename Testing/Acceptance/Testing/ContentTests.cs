@@ -53,5 +53,6 @@ public sealed class ContentTests
         });
     }
 
-    public record MyType(int ID);
+    public record MyType(int Id);
+
 }

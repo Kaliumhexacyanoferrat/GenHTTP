@@ -21,7 +21,7 @@ public sealed class PipelineTests
 
         var stream = client.GetStream();
 
-        var count = 10;
+        const int count = 10;
 
         WriteRequests(stream, count);
 

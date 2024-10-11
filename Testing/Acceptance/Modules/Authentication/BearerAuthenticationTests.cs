@@ -13,7 +13,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.Authentication;
 [TestClass]
 public sealed class BearerAuthenticationTests
 {
-    private const string VALID_TOKEN = @"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+    private const string ValidToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
 
     [TestMethod]
     public async Task TestValidToken()
@@ -21,7 +21,7 @@ public sealed class BearerAuthenticationTests
         var auth = BearerAuthentication.Create()
                                        .AllowExpired();
 
-        using var response = await Execute(auth, VALID_TOKEN);
+        using var response = await Execute(auth, ValidToken);
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
 
@@ -32,10 +32,10 @@ public sealed class BearerAuthenticationTests
     public async Task TestCustomValidator()
     {
         var auth = BearerAuthentication.Create()
-                                       .Validation(token => throw new ProviderException(ResponseStatus.Forbidden, "Nah"))
+                                       .Validation(_ => throw new ProviderException(ResponseStatus.Forbidden, "Nah"))
                                        .AllowExpired();
 
-        using var response = await Execute(auth, VALID_TOKEN);
+        using var response = await Execute(auth, ValidToken);
 
         await response.AssertStatusAsync(HttpStatusCode.Forbidden);
     }
@@ -44,10 +44,10 @@ public sealed class BearerAuthenticationTests
     public async Task TestNoUser()
     {
         var auth = BearerAuthentication.Create()
-                                       .UserMapping((r, t) => new ValueTask<IUser?>())
+                                       .UserMapping((_, _) => new ValueTask<IUser?>())
                                        .AllowExpired();
 
-        using var response = await Execute(auth, VALID_TOKEN);
+        using var response = await Execute(auth, ValidToken);
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
     }
@@ -56,11 +56,11 @@ public sealed class BearerAuthenticationTests
     public async Task TestUser()
     {
         var auth = BearerAuthentication.Create()
-                                       .UserMapping((r, t) => new ValueTask<IUser?>(new MyUser
+                                       .UserMapping((_, _) => new ValueTask<IUser?>(new MyUser
                                                                                         { DisplayName = "User Name" }))
                                        .AllowExpired();
 
-        using var response = await Execute(auth, VALID_TOKEN);
+        using var response = await Execute(auth, ValidToken);
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
     }
@@ -110,7 +110,7 @@ public sealed class BearerAuthenticationTests
     internal class MyUser : IUser
     {
 
-        public string DisplayName { get; set; } = "";
+        public string DisplayName { get; init; } = "";
     }
 
     #endregion

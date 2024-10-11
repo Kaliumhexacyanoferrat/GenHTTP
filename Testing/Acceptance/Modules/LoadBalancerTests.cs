@@ -58,8 +58,8 @@ public sealed class LoadBalancerTests
     public async Task TestPriorities()
     {
         var loadbalancer = LoadBalancer.Create()
-                                       .Add(Content.From(Resource.FromString("Prio A")), r => Priority.High)
-                                       .Add(Content.From(Resource.FromString("Prio B")), r => Priority.Low);
+                                       .Add(Content.From(Resource.FromString("Prio A")), _ => Priority.High)
+                                       .Add(Content.From(Resource.FromString("Prio B")), _ => Priority.Low);
 
         using var runner = TestHost.Run(loadbalancer);
 
@@ -72,9 +72,9 @@ public sealed class LoadBalancerTests
     public async Task TestMultiplePriorities()
     {
         var loadbalancer = LoadBalancer.Create()
-                                       .Add(Content.From(Resource.FromString("Prio A1")), r => Priority.High)
-                                       .Add(Content.From(Resource.FromString("Prio A2")), r => Priority.High)
-                                       .Add(Content.From(Resource.FromString("Prio A3")), r => Priority.High);
+                                       .Add(Content.From(Resource.FromString("Prio A1")), _ => Priority.High)
+                                       .Add(Content.From(Resource.FromString("Prio A2")), _ => Priority.High)
+                                       .Add(Content.From(Resource.FromString("Prio A3")), _ => Priority.High);
 
         using var runner = TestHost.Run(loadbalancer);
 

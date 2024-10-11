@@ -33,35 +33,35 @@ public sealed class HandlerResultTests
 
     public sealed class RootService
     {
-        private static readonly IBuilder<IResourceTree> _Tree = CreateTree();
+        private static readonly IBuilder<IResourceTree> Tree = CreateTree();
 
         [ResourceMethod]
-        public IHandlerBuilder Root() => StaticWebsite.From(_Tree);
+        public IHandlerBuilder Root() => StaticWebsite.From(Tree);
     }
 
     public sealed class PathService
     {
-        private static readonly IBuilder<IResourceTree> _Tree = CreateTree();
+        private static readonly IBuilder<IResourceTree> Tree = CreateTree();
 
         [ResourceMethod(path: "/mypath/:pathParam/")]
         public IHandlerBuilder Pathed(string pathParam)
         {
             Assert.AreEqual("param", pathParam);
 
-            return StaticWebsite.From(_Tree);
+            return StaticWebsite.From(Tree);
         }
     }
 
     public sealed class PathAsyncService
     {
-        private static readonly IBuilder<IResourceTree> _Tree = CreateTree();
+        private static readonly IBuilder<IResourceTree> Tree = CreateTree();
 
         [ResourceMethod(path: "/mypath/:pathParam/")]
         public Task<IHandlerBuilder> Pathed(string pathParam)
         {
             Assert.AreEqual("param", pathParam);
 
-            IHandlerBuilder handlerBuilder = StaticWebsite.From(_Tree);
+            IHandlerBuilder handlerBuilder = StaticWebsite.From(Tree);
 
             return Task.FromResult(handlerBuilder);
         }
