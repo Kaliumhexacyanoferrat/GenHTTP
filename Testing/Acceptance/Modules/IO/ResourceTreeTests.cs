@@ -1,6 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using GenHTTP.Modules.IO;
+﻿using GenHTTP.Modules.IO;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.IO;
 
@@ -11,15 +10,14 @@ public sealed class ResourceTreeTests
     [TestMethod]
     public async Task TestAssembly()
     {
-            var tree = ResourceTree.FromAssembly("Resources").Build();
+        var tree = ResourceTree.FromAssembly("Resources").Build();
 
-            Assert.IsNotNull(await tree.TryGetNodeAsync("Subdirectory"));
-            
-            Assert.IsNotNull(await tree.TryGetResourceAsync("File.txt"));
+        Assert.IsNotNull(await tree.TryGetNodeAsync("Subdirectory"));
 
-            Assert.AreEqual(1, (await tree.GetNodes()).Count);
+        Assert.IsNotNull(await tree.TryGetResourceAsync("File.txt"));
 
-            Assert.AreEqual(5, (await tree.GetResources()).Count);
-        }
+        Assert.AreEqual(1, (await tree.GetNodes()).Count);
 
+        Assert.AreEqual(5, (await tree.GetResources()).Count);
+    }
 }

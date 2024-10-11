@@ -5,6 +5,16 @@ namespace GenHTTP.Modules.Protobuf.Providers;
 
 public sealed class ProtobufContent : IResponseContent
 {
+
+    #region Initialization
+
+    public ProtobufContent(object data)
+    {
+        Data = data;
+    }
+
+    #endregion
+
     #region Get-/Setters
 
     public ulong? Length => null;
@@ -13,28 +23,17 @@ public sealed class ProtobufContent : IResponseContent
 
     #endregion
 
-    #region Initialization
-
-    public ProtobufContent(object data)
-    {
-            Data = data;
-        }
-
-    #endregion
-
     #region Functionality
 
-    public ValueTask<ulong?> CalculateChecksumAsync()
-    {
-            return new ValueTask<ulong?>((ulong)Data.GetHashCode());
-        }
+    public ValueTask<ulong?> CalculateChecksumAsync() => new((ulong)Data.GetHashCode());
 
     public ValueTask WriteAsync(Stream target, uint bufferSize)
     {
-            Serializer.Serialize(target, Data);
+        Serializer.Serialize(target, Data);
 
-            return new ValueTask();
-        }
+        return new ValueTask();
+    }
 
     #endregion
+
 }

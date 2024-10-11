@@ -8,18 +8,6 @@ namespace GenHTTP.Modules.Authentication.Basic;
 public sealed class BasicAuthenticationConcern : IConcern
 {
 
-    #region Get-/Setters
-
-    public IHandler Content { get; }
-
-    public IHandler Parent { get; }
-
-    private string Realm { get; }
-
-    private Func<string, string, ValueTask<IUser?>> Authenticator { get; }
-
-    #endregion
-
     #region Initialization
 
     public BasicAuthenticationConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, string realm,
@@ -31,6 +19,18 @@ public sealed class BasicAuthenticationConcern : IConcern
         Realm = realm;
         Authenticator = authenticator;
     }
+
+    #endregion
+
+    #region Get-/Setters
+
+    public IHandler Content { get; }
+
+    public IHandler Parent { get; }
+
+    private string Realm { get; }
+
+    private Func<string, string, ValueTask<IUser?>> Authenticator { get; }
 
     #endregion
 
@@ -67,13 +67,10 @@ public sealed class BasicAuthenticationConcern : IConcern
         return await Content.HandleAsync(request);
     }
 
-    private IResponse GetChallenge(IRequest request)
-    {
-        return request.Respond()
-            .Status(ResponseStatus.Unauthorized)
-            .Header("WWW-Authenticate", $"Basic realm=\"{Realm}\", charset=\"UTF-8\"")
-            .Build();
-    }
+    private IResponse GetChallenge(IRequest request) => request.Respond()
+                                                               .Status(ResponseStatus.Unauthorized)
+                                                               .Header("WWW-Authenticate", $"Basic realm=\"{Realm}\", charset=\"UTF-8\"")
+                                                               .Build();
 
     private static bool TryDecode(string header, out (string username, string password) credentials)
     {
@@ -84,7 +81,7 @@ public sealed class BasicAuthenticationConcern : IConcern
 
             var colon = str.IndexOf(':');
 
-            if ((colon > -1) && (str.Length > colon))
+            if (colon > -1 && str.Length > colon)
             {
                 credentials = (str.Substring(0, colon), str[(colon + 1)..]);
                 return true;

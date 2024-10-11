@@ -9,22 +9,22 @@ public sealed class FunctionalHandler : IHandlerWithParent
 
     private IHandler? _Parent;
 
-    #region Get-/Setters
-
-    public IHandler Parent
-    {
-        get { return _Parent ?? throw new InvalidOperationException(); }
-        set { _Parent = value; }
-    }
-
-    #endregion
-
     #region Initialization
 
     public FunctionalHandler(Func<IRequest, IResponse?>? responseProvider = null)
     {
-            _ResponseProvider = responseProvider;
-        }
+        _ResponseProvider = responseProvider;
+    }
+
+    #endregion
+
+    #region Get-/Setters
+
+    public IHandler Parent
+    {
+        get => _Parent ?? throw new InvalidOperationException();
+        set => _Parent = value;
+    }
 
     #endregion
 
@@ -32,7 +32,7 @@ public sealed class FunctionalHandler : IHandlerWithParent
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-    public ValueTask<IResponse?> HandleAsync(IRequest request) => new((_ResponseProvider is not null) ? _ResponseProvider(request) : null);
+    public ValueTask<IResponse?> HandleAsync(IRequest request) => new(_ResponseProvider is not null ? _ResponseProvider(request) : null);
 
     #endregion
 

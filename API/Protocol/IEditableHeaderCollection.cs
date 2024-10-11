@@ -2,5 +2,4 @@
 
 public interface IEditableHeaderCollection : IDictionary<string, string>, IDisposable
 {
-
 }

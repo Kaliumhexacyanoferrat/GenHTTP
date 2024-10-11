@@ -1,6 +1,6 @@
 ﻿using System.Net;
+using System.Net.Http.Headers;
 using GenHTTP.Modules.Functional;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Conversion;
@@ -9,33 +9,33 @@ namespace GenHTTP.Testing.Acceptance.Modules.Conversion;
 public class ErrorHandlingTests
 {
 
-    #region Supporting data structures
-
-    record MyEntity(string Data);
-
-    #endregion
-
     #region Tests
 
     [TestMethod]
     public async Task UndeserializableBodyReturnsWithBadRequest()
     {
-            var inline = Inline.Create()
-                               .Post("/t", (MyEntity entity) => entity.Data);
+        var inline = Inline.Create()
+                           .Post("/t", (MyEntity entity) => entity.Data);
 
-            using var runner = TestHost.Run(inline);
+        using var runner = TestHost.Run(inline);
 
-            using var request = runner.GetRequest("/t");
+        using var request = runner.GetRequest("/t");
 
-            request.Method = HttpMethod.Post;
+        request.Method = HttpMethod.Post;
 
-            request.Content = new StringContent("I cannot be deserialized", null, "application/json");
-            request.Content.Headers.ContentType = new("application/json");
+        request.Content = new StringContent("I cannot be deserialized", null, "application/json");
+        request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-            using var response = await runner.GetResponseAsync(request);
+        using var response = await runner.GetResponseAsync(request);
 
-            await response.AssertStatusAsync(HttpStatusCode.BadRequest);
-        }
+        await response.AssertStatusAsync(HttpStatusCode.BadRequest);
+    }
+
+    #endregion
+
+    #region Supporting data structures
+
+    private record MyEntity(string Data);
 
     #endregion
 

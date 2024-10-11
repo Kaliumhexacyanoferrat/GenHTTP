@@ -8,5 +8,4 @@ public sealed class GuidFormatter : IFormatter
     public object? Read(string value, Type type) => Guid.Parse(value);
 
     public string? Write(object value, Type type) => value.ToString();
-
 }

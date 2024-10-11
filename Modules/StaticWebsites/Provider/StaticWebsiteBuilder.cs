@@ -6,30 +6,30 @@ namespace GenHTTP.Modules.StaticWebsites.Provider;
 
 public class StaticWebsiteBuilder : IHandlerBuilder<StaticWebsiteBuilder>
 {
-    private IResourceTree? _Tree;
 
     private readonly List<IConcernBuilder> _Concerns = new();
+    private IResourceTree? _Tree;
 
     #region Functionality
 
     public StaticWebsiteBuilder Tree(IResourceTree tree)
     {
-            _Tree = tree;
-            return this;
-        }
+        _Tree = tree;
+        return this;
+    }
 
     public StaticWebsiteBuilder Add(IConcernBuilder concern)
     {
-            _Concerns.Add(concern);
-            return this;
-        }
+        _Concerns.Add(concern);
+        return this;
+    }
 
     public IHandler Build(IHandler parent)
     {
-            var tree = _Tree ?? throw new BuilderMissingPropertyException("tree");
+        var tree = _Tree ?? throw new BuilderMissingPropertyException("tree");
 
-            return Concerns.Chain(parent, _Concerns, (p) => new StaticWebsiteHandler(p, tree));
-        }
+        return Concerns.Chain(parent, _Concerns, p => new StaticWebsiteHandler(p, tree));
+    }
 
     #endregion
 

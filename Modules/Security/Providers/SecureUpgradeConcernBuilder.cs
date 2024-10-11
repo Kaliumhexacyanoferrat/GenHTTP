@@ -11,14 +11,11 @@ public sealed class SecureUpgradeConcernBuilder : IConcernBuilder
 
     public SecureUpgradeConcernBuilder Mode(SecureUpgrade mode)
     {
-            _Mode = mode;
-            return this;
-        }
+        _Mode = mode;
+        return this;
+    }
 
-    public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
-    {
-            return new SecureUpgradeConcern(parent, contentFactory, _Mode);
-        }
+    public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory) => new SecureUpgradeConcern(parent, contentFactory, _Mode);
 
     #endregion
 

@@ -7,6 +7,19 @@ namespace GenHTTP.Modules.Authentication.ApiKey;
 public sealed class ApiKeyConcern : IConcern
 {
 
+    #region Initialization
+
+    public ApiKeyConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, Func<IRequest, string?> keyExtractor, Func<IRequest, string, ValueTask<IUser?>> authenticator)
+    {
+        Parent = parent;
+        Content = contentFactory(this);
+
+        KeyExtractor = keyExtractor;
+        Authenticator = authenticator;
+    }
+
+    #endregion
+
     #region Get-/Setters
 
     public IHandler Parent { get; }
@@ -19,47 +32,31 @@ public sealed class ApiKeyConcern : IConcern
 
     #endregion
 
-    #region Initialization
-
-    public ApiKeyConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, Func<IRequest, string?> keyExtractor, Func<IRequest, string, ValueTask<IUser?>> authenticator)
-    {
-            Parent = parent;
-            Content = contentFactory(this);
-
-            KeyExtractor = keyExtractor;
-            Authenticator = authenticator;
-        }
-
-    #endregion
-
     #region Functionality
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-            var key = KeyExtractor(request);
+        var key = KeyExtractor(request);
 
-            if (key != null)
+        if (key != null)
+        {
+            var user = await Authenticator(request, key);
+
+            if (user != null)
             {
-                var user = await Authenticator(request, key);
+                request.SetUser(user);
 
-                if (user != null)
-                {
-                    request.SetUser(user);
-
-                    return await Content.HandleAsync(request);
-                }
-                else
-                {
-                    return request.Respond()
-                                  .Status(ResponseStatus.Forbidden)
-                                  .Build();
-                }
+                return await Content.HandleAsync(request);
             }
-
             return request.Respond()
-                          .Status(ResponseStatus.Unauthorized)
+                          .Status(ResponseStatus.Forbidden)
                           .Build();
         }
+
+        return request.Respond()
+                      .Status(ResponseStatus.Unauthorized)
+                      .Build();
+    }
 
     public ValueTask PrepareAsync() => Content.PrepareAsync();
 

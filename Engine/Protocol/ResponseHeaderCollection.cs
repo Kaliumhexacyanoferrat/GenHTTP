@@ -1,5 +1,4 @@
 ﻿using GenHTTP.Api.Protocol;
-
 using GenHTTP.Engine.Utilities;
 
 namespace GenHTTP.Engine.Protocol;
@@ -14,29 +13,26 @@ internal sealed class ResponseHeaderCollection : PooledDictionary<string, string
         "Transfer-Encoding", "Last-Modified", "Expires"
     };
 
-    #region Get-/Setters
-
-    public override string this[string key]
-    {
-        get
-        {
-                return base[key];
-            }
-        set
-        {
-                CheckKey(key);
-                base[key] = value;
-            }
-    }
-
-    #endregion
-
     #region Initialization
 
     internal ResponseHeaderCollection() : base(DEFAULT_SIZE, StringComparer.InvariantCultureIgnoreCase)
     {
 
+    }
+
+    #endregion
+
+    #region Get-/Setters
+
+    public override string this[string key]
+    {
+        get => base[key];
+        set
+        {
+            CheckKey(key);
+            base[key] = value;
         }
+    }
 
     #endregion
 
@@ -44,23 +40,23 @@ internal sealed class ResponseHeaderCollection : PooledDictionary<string, string
 
     public override void Add(string key, string value)
     {
-            CheckKey(key);
-            base.Add(key, value);
-        }
+        CheckKey(key);
+        base.Add(key, value);
+    }
 
     public override void Add(KeyValuePair<string, string> item)
     {
-            CheckKey(item.Key);
-            base.Add(item);
-        }
+        CheckKey(item.Key);
+        base.Add(item);
+    }
 
     private static void CheckKey(string key)
     {
-            if (RESERVED_HEADERS.Contains(key))
-            {
-                throw new ArgumentException($"Header '{key}' cannot be set via header. Please use the designated property instead.");
-            }
+        if (RESERVED_HEADERS.Contains(key))
+        {
+            throw new ArgumentException($"Header '{key}' cannot be set via header. Please use the designated property instead.");
         }
+    }
 
     #endregion
 

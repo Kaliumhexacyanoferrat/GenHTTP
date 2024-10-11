@@ -17,22 +17,22 @@ public sealed class CompressionConcernBuilder : IConcernBuilder
 
     public CompressionConcernBuilder Add(ICompressionAlgorithm algorithm)
     {
-            _Algorithms.Add(algorithm);
-            return this;
-        }
+        _Algorithms.Add(algorithm);
+        return this;
+    }
 
     public CompressionConcernBuilder Level(CompressionLevel level)
     {
-            _Level = level;
-            return this;
-        }
+        _Level = level;
+        return this;
+    }
 
     public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
     {
-            var algorithms = _Algorithms.ToDictionary(a => a.Name);
+        var algorithms = _Algorithms.ToDictionary(a => a.Name);
 
-            return new CompressionConcern(parent, contentFactory, algorithms, _Level);
-        }
+        return new CompressionConcern(parent, contentFactory, algorithms, _Level);
+    }
 
     #endregion
 

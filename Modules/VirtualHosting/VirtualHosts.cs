@@ -5,9 +5,5 @@ namespace GenHTTP.Modules.VirtualHosting;
 public static class VirtualHosts
 {
 
-    public static VirtualHostRouterBuilder Create()
-    {
-            return new VirtualHostRouterBuilder();
-        }
-
+    public static VirtualHostRouterBuilder Create() => new();
 }

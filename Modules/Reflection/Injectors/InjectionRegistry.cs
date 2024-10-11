@@ -8,7 +8,7 @@ public class InjectionRegistry : List<IParameterInjector>
     public InjectionRegistry(IEnumerable<IParameterInjector> injectors) : base(injectors)
     {
 
-        }
+    }
 
     #endregion
 

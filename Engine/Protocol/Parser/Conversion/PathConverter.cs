@@ -10,31 +10,30 @@ internal static class PathConverter
 
     internal static WebPath ToPath(ReadOnlySequence<byte> value)
     {
-            if (value.Length == 1)
-            {
-                return ROOT;
-            }
-
-            var reader = new SequenceReader<byte>(value);
-
-            reader.Advance(1);
-
-            var parts = new List<WebPathPart>(4);
-
-            while (reader.TryReadTo(out ReadOnlySequence<byte> segment, (byte)'/'))
-            {
-                parts.Add(new(ValueConverter.GetString(segment)));
-            }
-
-            if (!reader.End)
-            {
-                var remainder = reader.Sequence.Slice(reader.Position);
-                parts.Add(new(ValueConverter.GetString(remainder)));
-
-                return new WebPath(parts, false);
-            }
-
-            return new WebPath(parts, true);
+        if (value.Length == 1)
+        {
+            return ROOT;
         }
 
+        var reader = new SequenceReader<byte>(value);
+
+        reader.Advance(1);
+
+        var parts = new List<WebPathPart>(4);
+
+        while (reader.TryReadTo(out ReadOnlySequence<byte> segment, (byte)'/'))
+        {
+            parts.Add(new WebPathPart(ValueConverter.GetString(segment)));
+        }
+
+        if (!reader.End)
+        {
+            var remainder = reader.Sequence.Slice(reader.Position);
+            parts.Add(new WebPathPart(ValueConverter.GetString(remainder)));
+
+            return new WebPath(parts, false);
+        }
+
+        return new WebPath(parts, true);
+    }
 }

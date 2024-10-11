@@ -1,7 +1,6 @@
 ﻿using System.Net;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using GenHTTP.Testing.Acceptance.Utilities;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
 
@@ -12,32 +11,31 @@ public sealed class ErrorHandlingTest
     [TestMethod]
     public async Task TestGenericError()
     {
-            var handler = new FunctionalHandler(responseProvider: (r) =>
-            {
-                throw new NotImplementedException();
-            });
+        var handler = new FunctionalHandler(responseProvider: r =>
+        {
+            throw new NotImplementedException();
+        });
 
-            using var runner = TestHost.Run(handler.Wrap());
+        using var runner = TestHost.Run(handler.Wrap());
 
-            using var response = await runner.GetResponseAsync();
+        using var response = await runner.GetResponseAsync();
 
-            await response.AssertStatusAsync(HttpStatusCode.InternalServerError);
-        }
+        await response.AssertStatusAsync(HttpStatusCode.InternalServerError);
+    }
 
     [TestMethod]
     public async Task TestEscaping()
     {
-            var handler = new FunctionalHandler(responseProvider: (r) =>
-            {
-                throw new Exception("Nah <>");
-            });
+        var handler = new FunctionalHandler(responseProvider: r =>
+        {
+            throw new Exception("Nah <>");
+        });
 
 
-            using var runner = TestHost.Run(handler.Wrap());
+        using var runner = TestHost.Run(handler.Wrap());
 
-            using var response = await runner.GetResponseAsync();
+        using var response = await runner.GetResponseAsync();
 
-            AssertX.DoesNotContain("<>", await response.GetContentAsync());
-        }
-
+        AssertX.DoesNotContain("<>", await response.GetContentAsync());
+    }
 }

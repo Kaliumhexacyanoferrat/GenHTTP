@@ -4,28 +4,33 @@ namespace GenHTTP.Engine.Protocol.Parser.Conversion;
 
 internal static class HeaderConverter
 {
-    private static readonly string[] KNOWN_HEADERS = new[] { "Host", "User-Agent", "Accept", "Content-Type", "Content-Length" };
+    private static readonly string[] KNOWN_HEADERS = { "Host", "User-Agent", "Accept", "Content-Type", "Content-Length" };
 
-    private static readonly string[] KNOWN_VALUES = new[] { "*/*" };
+    private static readonly string[] KNOWN_VALUES = { "*/*" };
 
     internal static string ToKey(ReadOnlySequence<byte> value)
     {
-            foreach (var known in KNOWN_HEADERS)
+        foreach (var known in KNOWN_HEADERS)
+        {
+            if (ValueConverter.CompareTo(value, known))
             {
-                if (ValueConverter.CompareTo(value, known)) return known;
+                return known;
             }
-
-            return ValueConverter.GetString(value);
         }
+
+        return ValueConverter.GetString(value);
+    }
 
     internal static string ToValue(ReadOnlySequence<byte> value)
     {
-            foreach (var known in KNOWN_VALUES)
+        foreach (var known in KNOWN_VALUES)
+        {
+            if (ValueConverter.CompareTo(value, known))
             {
-                if (ValueConverter.CompareTo(value, known)) return known;
+                return known;
             }
-
-            return ValueConverter.GetString(value);
         }
 
+        return ValueConverter.GetString(value);
+    }
 }

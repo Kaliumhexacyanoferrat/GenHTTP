@@ -9,5 +9,4 @@ public interface IParameterInjector
     bool Supports(Type type);
 
     object? GetValue(IHandler handler, IRequest request, Type targetType);
-
 }

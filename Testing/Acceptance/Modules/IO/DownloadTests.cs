@@ -1,9 +1,8 @@
 ﻿using System.Net;
 using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.IO;
 
@@ -14,81 +13,80 @@ public sealed class DownloadTests
     [TestMethod]
     public async Task TestDownload()
     {
-            using var runner = TestHost.Run(Download.From(Resource.FromAssembly("File.txt")));
+        using var runner = TestHost.Run(Download.From(Resource.FromAssembly("File.txt")));
 
-            using var response = await runner.GetResponseAsync();
+        using var response = await runner.GetResponseAsync();
 
-            await response.AssertStatusAsync(HttpStatusCode.OK);
+        await response.AssertStatusAsync(HttpStatusCode.OK);
 
-            Assert.AreEqual("This is text!", await response.GetContentAsync());
-            Assert.AreEqual("text/plain", response.GetContentHeader("Content-Type"));
-        }
+        Assert.AreEqual("This is text!", await response.GetContentAsync());
+        Assert.AreEqual("text/plain", response.GetContentHeader("Content-Type"));
+    }
 
     [TestMethod]
     public async Task TestDownloadDoesNotAcceptRouting()
     {
-            var layout = Layout.Create()
-                               .Add("file.txt", Download.From(Resource.FromAssembly("File.txt")));
+        var layout = Layout.Create()
+                           .Add("file.txt", Download.From(Resource.FromAssembly("File.txt")));
 
-            using var runner = TestHost.Run(layout);
+        using var runner = TestHost.Run(layout);
 
-            using var response = await runner.GetResponseAsync("/file.txt/blubb");
+        using var response = await runner.GetResponseAsync("/file.txt/blubb");
 
-            await response.AssertStatusAsync(HttpStatusCode.NotFound);
-        }
+        await response.AssertStatusAsync(HttpStatusCode.NotFound);
+    }
 
     [TestMethod]
     public async Task DownloadsCannotBeModified()
     {
-            var download = Download.From(Resource.FromAssembly("File.txt"));
+        var download = Download.From(Resource.FromAssembly("File.txt"));
 
-            using var runner = TestHost.Run(download);
+        using var runner = TestHost.Run(download);
 
-            var request = runner.GetRequest();
+        var request = runner.GetRequest();
 
-            request.Method = HttpMethod.Put;
-            request.Content = new StringContent("Hello World!", Encoding.UTF8, "text/plain");
+        request.Method = HttpMethod.Put;
+        request.Content = new StringContent("Hello World!", Encoding.UTF8, "text/plain");
 
-            using var response = await runner.GetResponseAsync(request);
+        using var response = await runner.GetResponseAsync(request);
 
-            await response.AssertStatusAsync(HttpStatusCode.MethodNotAllowed);
-        }
+        await response.AssertStatusAsync(HttpStatusCode.MethodNotAllowed);
+    }
 
     [TestMethod]
     public async Task TestFileName()
     {
-            var download = Download.From(Resource.FromAssembly("File.txt"))
-                                   .FileName("myfile.txt");
+        var download = Download.From(Resource.FromAssembly("File.txt"))
+                               .FileName("myfile.txt");
 
-            using var runner = TestHost.Run(download);
+        using var runner = TestHost.Run(download);
 
-            using var response = await runner.GetResponseAsync();
+        using var response = await runner.GetResponseAsync();
 
-            Assert.AreEqual("attachment; filename=\"myfile.txt\"", response.GetContentHeader("Content-Disposition"));
-        }
+        Assert.AreEqual("attachment; filename=\"myfile.txt\"", response.GetContentHeader("Content-Disposition"));
+    }
 
     [TestMethod]
     public async Task TestNoFileName()
     {
-            var download = Download.From(Resource.FromAssembly("File.txt"));
+        var download = Download.From(Resource.FromAssembly("File.txt"));
 
-            using var runner = TestHost.Run(download);
+        using var runner = TestHost.Run(download);
 
-            using var response = await runner.GetResponseAsync();
+        using var response = await runner.GetResponseAsync();
 
-            Assert.AreEqual("attachment", response.GetContentHeader("Content-Disposition"));
-        }
+        Assert.AreEqual("attachment", response.GetContentHeader("Content-Disposition"));
+    }
 
     [TestMethod]
     public async Task TestFileNameFromResource()
     {
-            var download = Download.From(Resource.FromAssembly("File.txt").Name("myfile.txt"));
+        var download = Download.From(Resource.FromAssembly("File.txt").Name("myfile.txt"));
 
-            using var runner = TestHost.Run(download);
+        using var runner = TestHost.Run(download);
 
-            using var response = await runner.GetResponseAsync();
+        using var response = await runner.GetResponseAsync();
 
-            Assert.AreEqual("attachment; filename=\"myfile.txt\"", response.GetContentHeader("Content-Disposition"));
-        }
-
+        Assert.AreEqual("attachment; filename=\"myfile.txt\"", response.GetContentHeader("Content-Disposition"));
+    }
 }

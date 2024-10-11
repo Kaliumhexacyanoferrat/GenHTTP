@@ -7,8 +7,7 @@ public static class Extensions
 
     public static IServerHost ClientCaching(this IServerHost host)
     {
-            host.Add(ClientCache.Validation());
-            return host;
-        }
-
+        host.Add(ClientCache.Validation());
+        return host;
+    }
 }

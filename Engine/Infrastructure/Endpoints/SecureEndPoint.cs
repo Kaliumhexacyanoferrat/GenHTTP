@@ -5,13 +5,34 @@ using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Engine.Protocol;
 using GenHTTP.Engine.Utilities;
-
 using PooledAwait;
 
 namespace GenHTTP.Engine.Infrastructure.Endpoints;
 
 internal sealed class SecureEndPoint : EndPoint
 {
+
+    #region Initialization
+
+    internal SecureEndPoint(IServer server, IPEndPoint endPoint, SecurityConfiguration options, NetworkConfiguration configuration)
+        : base(server, endPoint, configuration)
+    {
+        Options = options;
+
+        AuthenticationOptions = new SslServerAuthenticationOptions
+        {
+            EnabledSslProtocols = Options.Protocols,
+            ClientCertificateRequired = false,
+            AllowRenegotiation = true,
+            ApplicationProtocols = new List<SslApplicationProtocol>
+                { SslApplicationProtocol.Http11 },
+            CertificateRevocationCheckMode = X509RevocationMode.NoCheck, // no support for client certificates yet
+            EncryptionPolicy = EncryptionPolicy.RequireEncryption,
+            ServerCertificateSelectionCallback = SelectCertificate
+        };
+    }
+
+    #endregion
 
     #region Get-/Setters
 
@@ -23,80 +44,59 @@ internal sealed class SecureEndPoint : EndPoint
 
     #endregion
 
-    #region Initialization
-
-    internal SecureEndPoint(IServer server, IPEndPoint endPoint, SecurityConfiguration options, NetworkConfiguration configuration)
-        : base(server, endPoint, configuration)
-    {
-            Options = options;
-
-            AuthenticationOptions = new()
-            {
-                EnabledSslProtocols = Options.Protocols,
-                ClientCertificateRequired = false,
-                AllowRenegotiation = true,
-                ApplicationProtocols = new() { SslApplicationProtocol.Http11 },
-                CertificateRevocationCheckMode = X509RevocationMode.NoCheck, // no support for client certificates yet
-                EncryptionPolicy = EncryptionPolicy.RequireEncryption,
-                ServerCertificateSelectionCallback = SelectCertificate
-            };
-        }
-
-    #endregion
-
     #region Functionality
 
     protected override async PooledValueTask Accept(Socket client)
     {
-            var stream = await TryAuthenticate(client);
+        var stream = await TryAuthenticate(client);
 
-            if (stream is not null)
-            {
-                await Handle(client, new PoolBufferedStream(stream, Configuration.TransferBufferSize));
-            }
-            else
-            {
-                try
-                {
-                    client.Close();
-                    client.Dispose();
-                }
-                catch (Exception e)
-                {
-                    Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, client.GetAddress(), e);
-                }
-            }
+        if (stream is not null)
+        {
+            await Handle(client, new PoolBufferedStream(stream, Configuration.TransferBufferSize));
         }
-
-    private async ValueTask<SslStream?> TryAuthenticate(Socket client)
-    {
+        else
+        {
             try
             {
-                var stream = new SslStream(new NetworkStream(client), false);
-
-                await stream.AuthenticateAsServerAsync(AuthenticationOptions, CancellationToken.None);
-
-                return stream;
+                client.Close();
+                client.Dispose();
             }
             catch (Exception e)
             {
-                Server.Companion?.OnServerError(ServerErrorScope.Security, client.GetAddress(), e);
-
-                return null;
+                Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, client.GetAddress(), e);
             }
         }
+    }
+
+    private async ValueTask<SslStream?> TryAuthenticate(Socket client)
+    {
+        try
+        {
+            var stream = new SslStream(new NetworkStream(client), false);
+
+            await stream.AuthenticateAsServerAsync(AuthenticationOptions, CancellationToken.None);
+
+            return stream;
+        }
+        catch (Exception e)
+        {
+            Server.Companion?.OnServerError(ServerErrorScope.Security, client.GetAddress(), e);
+
+            return null;
+        }
+    }
 
     private X509Certificate2 SelectCertificate(object sender, string? hostName)
     {
-            var certificate = Options.Certificate.Provide(hostName);
+        var certificate = Options.Certificate.Provide(hostName);
 
-            if (certificate is null)
-            {
-                throw new InvalidOperationException($"The provider did not return a certificate to be used for host '{hostName}'");
-            }
-
-            return certificate;
+        if (certificate is null)
+        {
+            throw new InvalidOperationException($"The provider did not return a certificate to be used for host '{hostName}'");
         }
+
+        return certificate;
+    }
 
     #endregion
 

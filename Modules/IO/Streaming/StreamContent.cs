@@ -8,6 +8,18 @@ public class StreamContent : IResponseContent, IDisposable
 
     private readonly ulong? _KnownLengh;
 
+    #region Initialization
+
+    public StreamContent(Stream content, ulong? knownLength, Func<ValueTask<ulong?>> checksumProvider)
+    {
+        Content = content;
+
+        _KnownLengh = knownLength;
+        _ChecksumProvider = checksumProvider;
+    }
+
+    #endregion
+
     #region Get-/Setters
 
     private Stream Content { get; }
@@ -16,31 +28,19 @@ public class StreamContent : IResponseContent, IDisposable
     {
         get
         {
-                if (_KnownLengh != null)
-                {
-                    return _KnownLengh;
-                }
-
-                if (Content.CanSeek)
-                {
-                    return (ulong)Content.Length;
-                }
-
-                return null;
+            if (_KnownLengh != null)
+            {
+                return _KnownLengh;
             }
-    }
 
-    #endregion
+            if (Content.CanSeek)
+            {
+                return (ulong)Content.Length;
+            }
 
-    #region Initialization
-
-    public StreamContent(Stream content, ulong? knownLength, Func<ValueTask<ulong?>> checksumProvider)
-    {
-            Content = content;
-
-            _KnownLengh = knownLength;
-            _ChecksumProvider = checksumProvider;
+            return null;
         }
+    }
 
     #endregion
 
@@ -48,40 +48,37 @@ public class StreamContent : IResponseContent, IDisposable
 
     public ValueTask<ulong?> CalculateChecksumAsync() => _ChecksumProvider();
 
-    public ValueTask WriteAsync(Stream target, uint bufferSize)
-    {
-            return Content.CopyPooledAsync(target, bufferSize);
-        }
+    public ValueTask WriteAsync(Stream target, uint bufferSize) => Content.CopyPooledAsync(target, bufferSize);
 
     #endregion
 
     #region IDisposable Support
 
-    private bool disposedValue = false;
+    private bool disposedValue;
 
     protected virtual void Dispose(bool disposing)
     {
-            if (!disposedValue)
+        if (!disposedValue)
+        {
+            if (disposing)
             {
-                if (disposing)
-                {
-                    Content.Dispose();
-                }
-
-                disposedValue = true;
+                Content.Dispose();
             }
+
+            disposedValue = true;
         }
+    }
 
     ~StreamContent()
     {
-            Dispose(false);
-        }
+        Dispose(false);
+    }
 
     public void Dispose()
     {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
     #endregion
 

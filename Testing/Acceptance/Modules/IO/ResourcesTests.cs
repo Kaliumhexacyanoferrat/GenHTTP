@@ -1,7 +1,6 @@
 ﻿using System.Net;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using GenHTTP.Modules.IO;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.IO;
 
@@ -12,74 +11,73 @@ public sealed class ResourcesTests
     [TestMethod]
     public async Task TestFileDownload()
     {
-            using var runner = TestHost.Run(Resources.From(ResourceTree.FromAssembly()));
+        using var runner = TestHost.Run(Resources.From(ResourceTree.FromAssembly()));
 
-            using var response = await runner.GetResponseAsync("/Resources/File.txt");
+        using var response = await runner.GetResponseAsync("/Resources/File.txt");
 
-            await response.AssertStatusAsync(HttpStatusCode.OK);
-            Assert.AreEqual("This is text!", await response.GetContentAsync());
-        }
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+        Assert.AreEqual("This is text!", await response.GetContentAsync());
+    }
 
     [TestMethod]
     public async Task TestSubdirectoryFileDownload()
     {
-            using var runner = TestHost.Run(Resources.From(ResourceTree.FromAssembly()));
+        using var runner = TestHost.Run(Resources.From(ResourceTree.FromAssembly()));
 
-            using var response = await runner.GetResponseAsync("/Resources/Subdirectory/AnotherFile.txt");
+        using var response = await runner.GetResponseAsync("/Resources/Subdirectory/AnotherFile.txt");
 
-            await response.AssertStatusAsync(HttpStatusCode.OK);
-            Assert.AreEqual("This is another text!", await response.GetContentAsync());
-        }
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+        Assert.AreEqual("This is another text!", await response.GetContentAsync());
+    }
 
     [TestMethod]
     public async Task TestNoFileDownload()
     {
-            using var runner = TestHost.Run(Resources.From(ResourceTree.FromAssembly()));
+        using var runner = TestHost.Run(Resources.From(ResourceTree.FromAssembly()));
 
-            using var response = await runner.GetResponseAsync("/Resources/nah.txt");
+        using var response = await runner.GetResponseAsync("/Resources/nah.txt");
 
-            await response.AssertStatusAsync(HttpStatusCode.NotFound);
-        }
+        await response.AssertStatusAsync(HttpStatusCode.NotFound);
+    }
 
     [TestMethod]
     public async Task TestNoSubdirectoryFileDownload()
     {
-            using var runner = TestHost.Run(Resources.From(ResourceTree.FromAssembly()));
+        using var runner = TestHost.Run(Resources.From(ResourceTree.FromAssembly()));
 
-            using var response = await runner.GetResponseAsync("/Resources/nah/File.txt");
+        using var response = await runner.GetResponseAsync("/Resources/nah/File.txt");
 
-            await response.AssertStatusAsync(HttpStatusCode.NotFound);
-        }
+        await response.AssertStatusAsync(HttpStatusCode.NotFound);
+    }
 
     [TestMethod]
     public async Task TestRootDownload()
     {
-            using var runner = TestHost.Run(Resources.From(ResourceTree.FromAssembly("Resources")));
+        using var runner = TestHost.Run(Resources.From(ResourceTree.FromAssembly("Resources")));
 
-            using var response = await runner.GetResponseAsync("/File.txt");
+        using var response = await runner.GetResponseAsync("/File.txt");
 
-            await response.AssertStatusAsync(HttpStatusCode.OK);
-            Assert.AreEqual("This is text!", await response.GetContentAsync());
-        }
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+        Assert.AreEqual("This is text!", await response.GetContentAsync());
+    }
 
     [TestMethod]
     public async Task TestDirectory()
     {
-            using var runner = TestHost.Run(Resources.From(ResourceTree.FromAssembly()));
+        using var runner = TestHost.Run(Resources.From(ResourceTree.FromAssembly()));
 
-            using var response = await runner.GetResponseAsync("/Resources/nah/");
+        using var response = await runner.GetResponseAsync("/Resources/nah/");
 
-            await response.AssertStatusAsync(HttpStatusCode.NotFound);
-        }
+        await response.AssertStatusAsync(HttpStatusCode.NotFound);
+    }
 
     [TestMethod]
     public async Task TestNonExistingDirectory()
     {
-            using var runner = TestHost.Run(Resources.From(ResourceTree.FromAssembly()));
+        using var runner = TestHost.Run(Resources.From(ResourceTree.FromAssembly()));
 
-            using var response = await runner.GetResponseAsync("/Resources/nah/");
+        using var response = await runner.GetResponseAsync("/Resources/nah/");
 
-            await response.AssertStatusAsync(HttpStatusCode.NotFound);
-        }
-
+        await response.AssertStatusAsync(HttpStatusCode.NotFound);
+    }
 }

@@ -1,7 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Net;
+﻿using System.Net;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules;
 
@@ -10,13 +10,13 @@ public sealed class LayoutTests
 {
 
     /// <summary>
-    /// As a developer I can define the default route to be devlivered.
+    ///     As a developer I can define the default route to be devlivered.
     /// </summary>
     [TestMethod]
     public async Task TestGetIndex()
     {
         var layout = Layout.Create()
-            .Index(Content.From(Resource.FromString("Hello World!")));
+                           .Index(Content.From(Resource.FromString("Hello World!")));
 
         using var runner = TestHost.Run(layout);
 
@@ -31,7 +31,7 @@ public sealed class LayoutTests
     }
 
     /// <summary>
-    /// As a developer I can set a default handler to be used for requests.
+    ///     As a developer I can set a default handler to be used for requests.
     /// </summary>
     [TestMethod]
     public async Task TestDefaultContent()
@@ -40,7 +40,7 @@ public sealed class LayoutTests
 
         using var runner = TestHost.Run(layout);
 
-        foreach (var path in new string[] { "/something", "/" })
+        foreach (var path in new[] { "/something", "/" })
         {
             using var response = await runner.GetResponseAsync(path);
 
@@ -50,14 +50,14 @@ public sealed class LayoutTests
     }
 
     /// <summary>
-    /// As the developer of a web application, I don't want my application
-    /// to produce duplicate content for missing trailing slashes.
+    ///     As the developer of a web application, I don't want my application
+    ///     to produce duplicate content for missing trailing slashes.
     /// </summary>
     [TestMethod]
     public async Task TestRedirect()
     {
         var layout = Layout.Create()
-            .Add("section", Layout.Create().Index(Content.From(Resource.FromString("Hello World!"))));
+                           .Add("section", Layout.Create().Index(Content.From(Resource.FromString("Hello World!"))));
 
         using var runner = TestHost.Run(layout);
 
@@ -78,5 +78,4 @@ public sealed class LayoutTests
     {
         Layout.Create().Add("some/path", Content.From(Resource.FromString("Hello World")));
     }
-
 }

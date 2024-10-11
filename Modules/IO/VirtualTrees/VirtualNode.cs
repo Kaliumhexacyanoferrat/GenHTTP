@@ -5,6 +5,18 @@ namespace GenHTTP.Modules.IO.VirtualTrees;
 public sealed class VirtualNode : IResourceNode
 {
 
+    #region Initialization
+
+    public VirtualNode(IResourceContainer parent, string name, IResourceContainer container)
+    {
+        Parent = parent;
+
+        Name = name;
+        Container = container;
+    }
+
+    #endregion
+
     #region Get-/Setters
 
     public string Name { get; }
@@ -14,18 +26,6 @@ public sealed class VirtualNode : IResourceNode
     public DateTime? Modified => Container.Modified;
 
     private IResourceContainer Container { get; }
-
-    #endregion
-
-    #region Initialization
-
-    public VirtualNode(IResourceContainer parent, string name, IResourceContainer container)
-    {
-            Parent = parent;
-
-            Name = name;
-            Container = container;
-        }
 
     #endregion
 

@@ -6,5 +6,4 @@ public record BasicAuthenticationUser(string Name) : IUser
 {
 
     public string DisplayName => Name;
-
 }

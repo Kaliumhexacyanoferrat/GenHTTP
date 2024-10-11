@@ -10,9 +10,9 @@ public class InjectionRegistryBuilder : IBuilder<InjectionRegistry>
 
     public InjectionRegistryBuilder Add(IParameterInjector injector)
     {
-            _Injectors.Add(injector);
-            return this;
-        }
+        _Injectors.Add(injector);
+        return this;
+    }
 
     public InjectionRegistry Build() => new(_Injectors);
 

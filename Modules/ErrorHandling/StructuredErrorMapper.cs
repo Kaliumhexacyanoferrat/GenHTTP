@@ -1,6 +1,5 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Conversion.Serializers.Json;
@@ -10,9 +9,12 @@ namespace GenHTTP.Modules.ErrorHandling;
 public sealed class StructuredErrorMapper : IErrorMapper<Exception>
 {
 
-    #region Supporting data structures
+    #region Initialization
 
-    public record ErrorModel(ResponseStatus Status, string Message, string? StackTrace = null);
+    public StructuredErrorMapper(SerializationRegistry? registry)
+    {
+        Registry = registry ?? Serialization.Default().Build();
+    }
 
     #endregion
 
@@ -22,12 +24,9 @@ public sealed class StructuredErrorMapper : IErrorMapper<Exception>
 
     #endregion
 
-    #region Initialization
+    #region Supporting data structures
 
-    public StructuredErrorMapper(SerializationRegistry? registry)
-    {
-        Registry = registry ?? Serialization.Default().Build();
-    }
+    public record ErrorModel(ResponseStatus Status, string Message, string? StackTrace = null);
 
     #endregion
 

@@ -1,9 +1,9 @@
 ﻿namespace GenHTTP.Engine.Utilities;
 
 /// <summary>
-/// Caches the string representation of small numbers,
-/// reducing the amount of string allocations needed 
-/// by the engine when writing HTTP responses.
+///     Caches the string representation of small numbers,
+///     reducing the amount of string allocations needed
+///     by the engine when writing HTTP responses.
 /// </summary>
 public static class NumberStringCache
 {
@@ -19,12 +19,15 @@ public static class NumberStringCache
 
     public static string Convert(int number)
     {
-            if (number < 0) throw new ArgumentOutOfRangeException(nameof(number), "Only positive numbers are supported");
-
-            return Convert((ulong)number);
+        if (number < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(number), "Only positive numbers are supported");
         }
 
-    public static string Convert(ulong number) => (number <= LIMIT) ? _Cache[number] : $"{number}";
+        return Convert((ulong)number);
+    }
+
+    public static string Convert(ulong number) => number <= LIMIT ? _Cache[number] : $"{number}";
 
     #endregion
 

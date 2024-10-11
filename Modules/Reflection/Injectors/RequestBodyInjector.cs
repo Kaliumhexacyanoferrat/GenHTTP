@@ -10,12 +10,11 @@ public class RequestBodyInjector : IParameterInjector
 
     public object? GetValue(IHandler handler, IRequest request, Type targetType)
     {
-            if (request.Content is null)
-            {
-                throw new ProviderException(ResponseStatus.BadRequest, "Request body expected");
-            }
-
-            return request.Content;
+        if (request.Content is null)
+        {
+            throw new ProviderException(ResponseStatus.BadRequest, "Request body expected");
         }
 
+        return request.Content;
+    }
 }

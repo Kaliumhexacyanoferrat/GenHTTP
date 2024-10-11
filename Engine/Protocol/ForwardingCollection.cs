@@ -1,12 +1,11 @@
 ﻿using System.Net;
-
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Protocol;
 
 /// <summary>
-/// Parses and stores forwarding information passed by proxy
-/// servers along with the request.
+///     Parses and stores forwarding information passed by proxy
+///     servers along with the request.
 /// </summary>
 internal sealed class ForwardingCollection : List<Forwarding>, IForwardingCollection
 {
@@ -19,105 +18,104 @@ internal sealed class ForwardingCollection : List<Forwarding>, IForwardingCollec
     internal ForwardingCollection() : base(DEFAULT_SIZE)
     {
 
-        }
+    }
 
     internal void Add(string header) => AddRange(Parse(header));
 
     internal void TryAddLegacy(RequestHeaderCollection headers)
     {
-            IPAddress? address = null;
-            ClientProtocol? protocol = null;
+        IPAddress? address = null;
+        ClientProtocol? protocol = null;
 
-            headers.TryGetValue(HEADER_HOST, out var host);
+        headers.TryGetValue(HEADER_HOST, out var host);
 
-            if (headers.TryGetValue(HEADER_FOR, out var stringAddress))
-            {
-                address = ParseAddress(stringAddress);
-            }
-
-            if (headers.TryGetValue(HEADER_PROTO, out var stringProtocol))
-            {
-                protocol = ParseProtocol(stringProtocol);
-            }
-
-            if ((address is not null) || (host is not null) || (protocol is not null))
-            {
-                Add(new Forwarding(address, host, protocol));
-            }
+        if (headers.TryGetValue(HEADER_FOR, out var stringAddress))
+        {
+            address = ParseAddress(stringAddress);
         }
+
+        if (headers.TryGetValue(HEADER_PROTO, out var stringProtocol))
+        {
+            protocol = ParseProtocol(stringProtocol);
+        }
+
+        if (address is not null || host is not null || protocol is not null)
+        {
+            Add(new Forwarding(address, host, protocol));
+        }
+    }
 
     private static IEnumerable<Forwarding> Parse(string value)
     {
-            var forwardings = value.Split(',', StringSplitOptions.RemoveEmptyEntries);
+        var forwardings = value.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
-            foreach (var forwarding in forwardings)
+        foreach (var forwarding in forwardings)
+        {
+            IPAddress? address = null;
+            ClientProtocol? protocol = null;
+
+            string? host = null;
+
+            var fields = forwarding.Split(';', StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var field in fields)
             {
-                IPAddress? address = null;
-                ClientProtocol? protocol = null;
+                var kv = field.Split('=', StringSplitOptions.RemoveEmptyEntries);
 
-                string? host = null;
-
-                var fields = forwarding.Split(';', StringSplitOptions.RemoveEmptyEntries);
-
-                foreach (var field in fields)
+                if (kv.Length == 2)
                 {
-                    var kv = field.Split('=', StringSplitOptions.RemoveEmptyEntries);
+                    var key = kv[0].Trim().ToLower();
+                    var val = kv[1].Trim();
 
-                    if (kv.Length == 2)
+                    if (key == "for")
                     {
-                        var key = kv[0].Trim().ToLower();
-                        var val = kv[1].Trim();
-
-                        if (key == "for")
-                        {
-                            address = ParseAddress(val);
-                        }
-                        else if (key == "host")
-                        {
-                            host = val;
-                        }
-                        else if (key == "proto")
-                        {
-                            protocol = ParseProtocol(val);
-                        }
+                        address = ParseAddress(val);
+                    }
+                    else if (key == "host")
+                    {
+                        host = val;
+                    }
+                    else if (key == "proto")
+                    {
+                        protocol = ParseProtocol(val);
                     }
                 }
+            }
 
-                if ((address is not null) || (host is not null) || (protocol is not null))
-                {
-                    yield return new Forwarding(address, host, protocol);
-                }
+            if (address is not null || host is not null || protocol is not null)
+            {
+                yield return new Forwarding(address, host, protocol);
             }
         }
+    }
 
     private static ClientProtocol? ParseProtocol(string? protocol)
     {
-            if (protocol != null)
+        if (protocol != null)
+        {
+            if (string.Equals(protocol, "https", StringComparison.OrdinalIgnoreCase))
             {
-                if (string.Equals(protocol, "https", StringComparison.OrdinalIgnoreCase))
-                {
-                    return ClientProtocol.HTTPS;
-                }
-                else if (string.Equals(protocol, "http", StringComparison.OrdinalIgnoreCase))
-                {
-                    return ClientProtocol.HTTP;
-                }
+                return ClientProtocol.HTTPS;
             }
-
-            return null;
+            if (string.Equals(protocol, "http", StringComparison.OrdinalIgnoreCase))
+            {
+                return ClientProtocol.HTTP;
+            }
         }
+
+        return null;
+    }
 
     private static IPAddress? ParseAddress(string? address)
     {
-            if (address != null)
+        if (address != null)
+        {
+            if (IPAddress.TryParse(address, out var ip))
             {
-                if (IPAddress.TryParse(address, out var ip))
-                {
-                    return ip;
-                }
+                return ip;
             }
-
-            return null;
         }
 
+        return null;
+    }
 }

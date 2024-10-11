@@ -14,18 +14,14 @@ public sealed class JsonFormat : ISerializationFormat
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
-    public ValueTask<object?> DeserializeAsync(Stream stream, Type type)
-    {
-            return JsonSerializer.DeserializeAsync(stream, type, OPTIONS);
-        }
+    public ValueTask<object?> DeserializeAsync(Stream stream, Type type) => JsonSerializer.DeserializeAsync(stream, type, OPTIONS);
 
     public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)
     {
-            var result = request.Respond()
-                                .Content(new JsonContent(response, OPTIONS))
-                                .Type(ContentType.ApplicationJson);
+        var result = request.Respond()
+                            .Content(new JsonContent(response, OPTIONS))
+                            .Type(ContentType.ApplicationJson);
 
-            return new ValueTask<IResponseBuilder>(result);
-        }
-
+        return new ValueTask<IResponseBuilder>(result);
+    }
 }

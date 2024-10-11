@@ -10,20 +10,19 @@ public sealed class DateOnlyFormatter : IFormatter
 
     public object? Read(string value, Type type)
     {
-            var match = DATE_ONLY_PATTERN.Match(value);
+        var match = DATE_ONLY_PATTERN.Match(value);
 
-            if (match.Success)
-            {
-                var year = int.Parse(match.Groups[1].Value);
-                var month = int.Parse(match.Groups[2].Value);
-                var day = int.Parse(match.Groups[3].Value);
+        if (match.Success)
+        {
+            var year = int.Parse(match.Groups[1].Value);
+            var month = int.Parse(match.Groups[2].Value);
+            var day = int.Parse(match.Groups[3].Value);
 
-                return new DateOnly(year, month, day);
-            }
-
-            throw new ArgumentException($"Input does not match the requested format (yyyy-mm-dd): {value}");
+            return new DateOnly(year, month, day);
         }
 
-    public string? Write(object value, Type type) => ((DateOnly)value).ToString("yyyy-MM-dd");
+        throw new ArgumentException($"Input does not match the requested format (yyyy-mm-dd): {value}");
+    }
 
+    public string? Write(object value, Type type) => ((DateOnly)value).ToString("yyyy-MM-dd");
 }

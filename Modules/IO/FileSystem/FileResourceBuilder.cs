@@ -16,38 +16,35 @@ public sealed class FileResourceBuilder : IResourceBuilder<FileResourceBuilder>
 
     public FileResourceBuilder File(FileInfo file)
     {
-            _File = file;
-            return this;
-        }
+        _File = file;
+        return this;
+    }
 
     public FileResourceBuilder Name(string name)
     {
-            _Name = name;
-            return this;
-        }
+        _Name = name;
+        return this;
+    }
 
     public FileResourceBuilder Type(FlexibleContentType contentType)
     {
-            _Type = contentType;
-            return this;
-        }
+        _Type = contentType;
+        return this;
+    }
 
-    public FileResourceBuilder Modified(DateTime modified)
-    {
-            throw new NotSupportedException("Modification date of file resources cannot be changed");
-        }
+    public FileResourceBuilder Modified(DateTime modified) => throw new NotSupportedException("Modification date of file resources cannot be changed");
 
     public IResource Build()
     {
-            var file = _File ?? throw new BuilderMissingPropertyException("file");
+        var file = _File ?? throw new BuilderMissingPropertyException("file");
 
-            if (!file.Exists)
-            {
-                throw new FileNotFoundException("The given file does not exist", file.FullName);
-            }
-
-            return new FileResource(file, _Name, _Type);
+        if (!file.Exists)
+        {
+            throw new FileNotFoundException("The given file does not exist", file.FullName);
         }
+
+        return new FileResource(file, _Name, _Type);
+    }
 
     #endregion
 

@@ -9,50 +9,49 @@ namespace GenHTTP.Testing.Acceptance.Testing;
 public sealed class ContentTests
 {
 
-    public record MyType(int ID);
-
     [TestMethod]
     public async Task TestDeserialization()
     {
-            var expectation = new MyType(42);
+        var expectation = new MyType(42);
 
-            var handler = Inline.Create()
-                                .Get(() => expectation);
+        var handler = Inline.Create()
+                            .Get(() => expectation);
 
-            using var host = TestHost.Run(handler);
+        using var host = TestHost.Run(handler);
 
-            using var response = await host.GetResponseAsync();
+        using var response = await host.GetResponseAsync();
 
-            Assert.AreEqual(expectation, await response.GetContentAsync<MyType>());
-        }
+        Assert.AreEqual(expectation, await response.GetContentAsync<MyType>());
+    }
 
     [TestMethod]
     public async Task TestNull()
     {
-            var handler = Inline.Create()
-                                .Get(() => (MyType?)null);
+        var handler = Inline.Create()
+                            .Get(() => (MyType?)null);
 
-            using var host = TestHost.Run(handler);
+        using var host = TestHost.Run(handler);
 
-            using var response = await host.GetResponseAsync();
+        using var response = await host.GetResponseAsync();
 
-            Assert.IsNull(await response.GetOptionalContentAsync<MyType>());
-        }
+        Assert.IsNull(await response.GetOptionalContentAsync<MyType>());
+    }
 
     [TestMethod]
     public async Task TestUnsupported()
     {
-            var handler = Inline.Create()
-                                .Get(() => new Result<string>("Nah").Type(FlexibleContentType.Get("text/html")));
+        var handler = Inline.Create()
+                            .Get(() => new Result<string>("Nah").Type(FlexibleContentType.Get("text/html")));
 
-            using var host = TestHost.Run(handler);
+        using var host = TestHost.Run(handler);
 
-            using var response = await host.GetResponseAsync();
+        using var response = await host.GetResponseAsync();
 
-            await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
-            {
-                await response.GetOptionalContentAsync<MyType>();
-            });
-        }
+        await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
+        {
+            await response.GetOptionalContentAsync<MyType>();
+        });
+    }
 
+    public record MyType(int ID);
 }

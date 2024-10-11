@@ -15,31 +15,30 @@ public static class FileSizeFormatter
 
     public static string Format(ulong? bytes)
     {
-            if (bytes is not null)
+        if (bytes is not null)
+        {
+            var b = (long)bytes;
+
+            if (bytes > TERABYTES)
             {
-                var b = (long)bytes;
-
-                if (bytes > TERABYTES)
-                {
-                    return Math.Round(b / TERABYTES, 2).ToString(CultureInfo.InvariantCulture) + " TB";
-                }
-                if (bytes > GIGABYTES)
-                {
-                    return Math.Round(b / GIGABYTES, 2).ToString(CultureInfo.InvariantCulture) + " GB";
-                }
-                else if (bytes > MEGABYTES)
-                {
-                    return Math.Round(b / MEGABYTES, 2).ToString(CultureInfo.InvariantCulture) + " MB";
-                }
-                else if (bytes > KILOBYTES)
-                {
-                    return Math.Round(b / KILOBYTES, 2).ToString(CultureInfo.InvariantCulture) + " KB";
-                }
-
-                return $"{bytes} Bytes";
+                return Math.Round(b / TERABYTES, 2).ToString(CultureInfo.InvariantCulture) + " TB";
+            }
+            if (bytes > GIGABYTES)
+            {
+                return Math.Round(b / GIGABYTES, 2).ToString(CultureInfo.InvariantCulture) + " GB";
+            }
+            if (bytes > MEGABYTES)
+            {
+                return Math.Round(b / MEGABYTES, 2).ToString(CultureInfo.InvariantCulture) + " MB";
+            }
+            if (bytes > KILOBYTES)
+            {
+                return Math.Round(b / KILOBYTES, 2).ToString(CultureInfo.InvariantCulture) + " KB";
             }
 
-            return "-";
+            return $"{bytes} Bytes";
         }
 
+        return "-";
+    }
 }

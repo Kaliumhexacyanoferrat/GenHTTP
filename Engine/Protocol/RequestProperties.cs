@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Engine.Utilities;
 
 namespace GenHTTP.Engine.Protocol;
@@ -14,31 +12,28 @@ public sealed class RequestProperties : IRequestProperties
 
     #region Get-/Setters
 
-    public object this[string key] 
+    public object this[string key]
     {
         get
         {
-                object? result = null;
+            object? result = null;
 
-                if (Data.TryGetValue(key, out var value))
-                {
-                    result = value;
-                }
-                
-                if (result == null) 
-                {
-                    throw new KeyNotFoundException($"Key '{key}' does not exist in request properties");
-                }
+            if (Data.TryGetValue(key, out var value))
+            {
+                result = value;
+            }
 
-                return result;
+            if (result == null)
+            {
+                throw new KeyNotFoundException($"Key '{key}' does not exist in request properties");
             }
-        set 
-        {
-                Data[key] = value; 
-            }
+
+            return result;
+        }
+        set => Data[key] = value;
     }
 
-    private PooledDictionary<string, object?> Data =>  _Data ??= new();
+    private PooledDictionary<string, object?> Data => _Data ??= new PooledDictionary<string, object?>();
 
     #endregion
 
@@ -46,23 +41,23 @@ public sealed class RequestProperties : IRequestProperties
 
     public bool TryGet<T>(string key, [MaybeNullWhen(returnValue: false)] out T entry)
     {
-            if (Data.TryGetValue(key, out var value))
+        if (Data.TryGetValue(key, out var value))
+        {
+            if (value is T result)
             {
-                if (value is T result) 
-                {
-                    entry = result;
-                    return true;
-                } 
+                entry = result;
+                return true;
             }
-
-            entry = default;
-            return false;
         }
+
+        entry = default;
+        return false;
+    }
 
     public void Clear(string key)
     {
-            Data[key] = null;
-        }
+        Data[key] = null;
+    }
 
     #endregion
 
@@ -70,23 +65,23 @@ public sealed class RequestProperties : IRequestProperties
 
     private void Dispose(bool disposing)
     {
-            if (!_Disposed)
+        if (!_Disposed)
+        {
+            if (disposing)
             {
-                if (disposing)
-                {
-                    _Data?.Dispose();
-                }
-
-                _Data = null;
-                _Disposed = true;
+                _Data?.Dispose();
             }
+
+            _Data = null;
+            _Disposed = true;
         }
+    }
 
     public void Dispose()
     {
-            Dispose(disposing: true);
-            System.GC.SuppressFinalize(this);
-        }
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
 
     #endregion
 

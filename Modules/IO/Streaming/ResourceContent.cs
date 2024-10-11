@@ -6,20 +6,20 @@ namespace GenHTTP.Modules.IO.Streaming;
 public sealed class ResourceContent : IResponseContent
 {
 
+    #region Initialization
+
+    public ResourceContent(IResource resource)
+    {
+        Resource = resource;
+    }
+
+    #endregion
+
     #region Get-/Setters
 
     public ulong? Length => Resource.Length;
 
     private IResource Resource { get; }
-
-    #endregion
-
-    #region Initialization
-
-    public ResourceContent(IResource resource)
-    {
-            Resource = resource;
-        }
 
     #endregion
 

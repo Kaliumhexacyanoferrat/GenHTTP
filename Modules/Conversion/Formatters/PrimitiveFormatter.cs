@@ -10,5 +10,4 @@ public sealed class PrimitiveFormatter : IFormatter
     public object? Read(string value, Type type) => Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
 
     public string? Write(object value, Type type) => Convert.ChangeType(value, typeof(string), CultureInfo.InvariantCulture) as string;
-
 }

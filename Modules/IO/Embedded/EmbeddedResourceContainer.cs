@@ -9,53 +9,53 @@ internal class EmbeddedResourceContainer : IResourceContainer
 
     private readonly Dictionary<string, IResource> _Resources = new();
 
-    #region Get-/Setters
-
-    public DateTime? Modified { get; }
-
-    #endregion
-
     #region Initialization
 
     protected EmbeddedResourceContainer(Assembly source, string prefix)
     {
-            Modified = source.GetModificationDate();
+        Modified = source.GetModificationDate();
 
-            foreach (var resource in source.GetManifestResourceNames())
+        foreach (var resource in source.GetManifestResourceNames())
+        {
+            var index = resource.IndexOf(prefix);
+
+            if (index > -1)
             {
-                var index = resource.IndexOf(prefix);
+                var remainder = resource[(index + prefix.Length + 1)..];
 
-                if (index > -1)
+                var parts = remainder.Split(".".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+
+                if (parts.Length <= 2)
                 {
-                    var remainder = resource[(index + prefix.Length + 1)..];
+                    var file = Resource.FromAssembly(source, resource)
+                                       .Name(remainder)
+                                       .Build();
 
-                    var parts = remainder.Split(".".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                    _Resources.Add(remainder, file);
+                }
+                else
+                {
+                    var childName = parts[0];
 
-                    if (parts.Length <= 2)
+                    if (!_Nodes.ContainsKey(childName))
                     {
-                        var file = Resource.FromAssembly(source, resource)
-                                           .Name(remainder)
-                                           .Build();
+                        var childPrefix = $"{prefix}.{childName}";
 
-                        _Resources.Add(remainder, file);
-                    }
-                    else
-                    {
-                        var childName = parts[0];
+                        var node = new EmbeddedResourceNode(source, childPrefix, this, childName);
 
-                        if (!_Nodes.ContainsKey(childName))
-                        {
-                            var childPrefix = $"{prefix}.{childName}";
-
-                            var node = new EmbeddedResourceNode(source, childPrefix, this, childName);
-
-                            _Nodes.Add(childName, node);
-                        }
+                        _Nodes.Add(childName, node);
                     }
                 }
             }
-
         }
+
+    }
+
+    #endregion
+
+    #region Get-/Setters
+
+    public DateTime? Modified { get; }
 
     #endregion
 

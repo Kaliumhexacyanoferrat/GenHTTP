@@ -16,5 +16,4 @@ internal sealed class TokenValidationOptions
     internal Func<JwtSecurityToken, Task>? CustomValidator { get; set; }
 
     internal Func<IRequest, JwtSecurityToken, ValueTask<IUser?>>? UserMapping { get; set; }
-
 }

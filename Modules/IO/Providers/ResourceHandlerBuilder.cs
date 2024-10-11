@@ -16,22 +16,22 @@ public sealed class ResourceHandlerBuilder : IHandlerBuilder<ResourceHandlerBuil
 
     public ResourceHandlerBuilder Tree(IResourceTree tree)
     {
-            _Tree = tree;
-            return this;
-        }
+        _Tree = tree;
+        return this;
+    }
 
     public ResourceHandlerBuilder Add(IConcernBuilder concern)
     {
-            _Concerns.Add(concern);
-            return this;
-        }
+        _Concerns.Add(concern);
+        return this;
+    }
 
     public IHandler Build(IHandler parent)
     {
-            var tree = _Tree ?? throw new BuilderMissingPropertyException("tree");
+        var tree = _Tree ?? throw new BuilderMissingPropertyException("tree");
 
-            return Concerns.Chain(parent, _Concerns, (p) => new ResourceHandler(p, tree));
-        }
+        return Concerns.Chain(parent, _Concerns, p => new ResourceHandler(p, tree));
+    }
 
     #endregion
 

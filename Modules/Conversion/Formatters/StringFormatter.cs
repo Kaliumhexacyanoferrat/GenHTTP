@@ -8,5 +8,4 @@ public sealed class StringFormatter : IFormatter
     public object? Read(string value, Type type) => value;
 
     public string? Write(object value, Type type) => (string)value;
-
 }

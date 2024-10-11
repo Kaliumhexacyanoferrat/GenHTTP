@@ -1,8 +1,6 @@
-﻿using GenHTTP.Api.Content.IO;
-
+﻿using Cottle;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Modules.IO;
-
-using Cottle;
 
 namespace GenHTTP.Modules.Pages.Rendering;
 
@@ -14,29 +12,26 @@ public sealed class ServerRenderer
 
     public ServerRenderer()
     {
-            _TemplateRender = Renderer.From(_ServerTemplate);
-        }
+        _TemplateRender = Renderer.From(_ServerTemplate);
+    }
 
     /// <summary>
-    /// Renders a server-styled HTML page for the given title and content.
+    ///     Renders a server-styled HTML page for the given title and content.
     /// </summary>
     /// <param name="title">The title of the page to be rendered</param>
     /// <param name="content">The HTML content of the page</param>
     /// <returns>The generated HTML page</returns>
     /// <remarks>
-    /// This method will not escape the given title or content.
+    ///     This method will not escape the given title or content.
     /// </remarks>
-    public async ValueTask<string> RenderAsync(string title, string content)
+    public async ValueTask<string> RenderAsync(string title, string content) => await _TemplateRender.RenderAsync(new Dictionary<Value, Value>
     {
-            return await _TemplateRender.RenderAsync(new Dictionary<Value, Value>()
-            {
-                ["title"] = title,
-                ["content"] = content
-            });
-        }
+        ["title"] = title,
+        ["content"] = content
+    });
 
     /// <summary>
-    /// Renders a server-styled HTML error page for the given exception.
+    ///     Renders a server-styled HTML error page for the given exception.
     /// </summary>
     /// <param name="title">The title of the page to be rendered</param>
     /// <param name="error">The error which has ocurred</param>
@@ -44,5 +39,4 @@ public sealed class ServerRenderer
     /// <returns>The generated HTML error page</returns>
     public ValueTask<string> RenderAsync(string title, Exception error, bool developmentMode)
         => RenderAsync(title, developmentMode ? error.ToString().Escaped() : error.Message.Escaped());
-
 }

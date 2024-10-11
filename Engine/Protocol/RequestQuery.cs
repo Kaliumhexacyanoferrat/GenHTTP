@@ -10,6 +10,5 @@ internal sealed class RequestQuery : PooledDictionary<string, string>, IRequestQ
     internal RequestQuery() : base(DEFAULT_SIZE, StringComparer.OrdinalIgnoreCase)
     {
 
-        }
-
+    }
 }

@@ -6,5 +6,4 @@ public static class LoadBalancer
 {
 
     public static LoadBalancerBuilder Create() => new();
-
 }

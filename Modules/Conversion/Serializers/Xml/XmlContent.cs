@@ -6,6 +6,15 @@ namespace GenHTTP.Modules.Conversion.Serializers.Xml;
 public sealed class XmlContent : IResponseContent
 {
 
+    #region Initialization
+
+    public XmlContent(object data)
+    {
+        Data = data;
+    }
+
+    #endregion
+
     #region Get-/Setters
 
     public ulong? Length => null;
@@ -14,29 +23,17 @@ public sealed class XmlContent : IResponseContent
 
     #endregion
 
-    #region Initialization
-
-    public XmlContent(object data)
-    {
-            Data = data;
-        }
-
-    #endregion
-
     #region Functionality
 
-    public ValueTask<ulong?> CalculateChecksumAsync()
-    {
-            return new ValueTask<ulong?>((ulong)Data.GetHashCode());
-        }
+    public ValueTask<ulong?> CalculateChecksumAsync() => new((ulong)Data.GetHashCode());
 
     public ValueTask WriteAsync(Stream target, uint bufferSize)
     {
-            var serializer = new XmlSerializer(Data.GetType());
-            serializer.Serialize(target, Data);
+        var serializer = new XmlSerializer(Data.GetType());
+        serializer.Serialize(target, Data);
 
-            return new ValueTask();
-        }
+        return new ValueTask();
+    }
 
     #endregion
 

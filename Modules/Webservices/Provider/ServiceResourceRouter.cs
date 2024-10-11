@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Reflection;
@@ -32,9 +31,9 @@ public sealed class ServiceResourceRouter : IHandler
 
         Instance = instance;
 
-        ResponseProvider = new(serialization, formatting);
+        ResponseProvider = new ResponseProvider(serialization, formatting);
 
-        Methods = new(this, AnalyzeMethods(instance.GetType(), serialization, injection, formatting));
+        Methods = new MethodCollection(this, AnalyzeMethods(instance.GetType(), serialization, injection, formatting));
     }
 
     private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
@@ -49,7 +48,7 @@ public sealed class ServiceResourceRouter : IHandler
 
                 var path = PathArguments.Route(attribute.Path, wildcardRoute);
 
-                yield return (parent) => new MethodHandler(parent, method, path, () => Instance, attribute, ResponseProvider.GetResponseAsync, serialization, injection, formatting);
+                yield return parent => new MethodHandler(parent, method, path, () => Instance, attribute, ResponseProvider.GetResponseAsync, serialization, injection, formatting);
             }
         }
     }

@@ -112,7 +112,7 @@ public enum ResponseStatus
 #endregion
 
 /// <summary>
-/// The status of the response send to the client.
+///     The status of the response send to the client.
 /// </summary>
 public struct FlexibleResponseStatus
 {
@@ -120,17 +120,17 @@ public struct FlexibleResponseStatus
     #region Get-/Setters
 
     /// <summary>
-    /// The known status, if any.
+    ///     The known status, if any.
     /// </summary>
     public ResponseStatus? KnownStatus { get; }
 
     /// <summary>
-    /// The raw HTTP status.
+    ///     The raw HTTP status.
     /// </summary>
     public int RawStatus { get; }
 
     /// <summary>
-    /// The reason phrase to be send.
+    ///     The reason phrase to be send.
     /// </summary>
     public string Phrase { get; }
 
@@ -154,14 +154,14 @@ public struct FlexibleResponseStatus
         { ResponseStatus.NotImplemented, "Not Implemented" },
         { ResponseStatus.NotModified, "Not Modified" },
         { ResponseStatus.OK, "OK" },
-        { ResponseStatus.ServiceUnavailable, "Service Unavailable"},
-        { ResponseStatus.Unauthorized, "Unauthorized"},
-        { ResponseStatus.PartialContent, "Partial Content"},
-        { ResponseStatus.MultiStatus, "Multi-Status"},
-        { ResponseStatus.AlreadyReported, "Already Reported"},
+        { ResponseStatus.ServiceUnavailable, "Service Unavailable" },
+        { ResponseStatus.Unauthorized, "Unauthorized" },
+        { ResponseStatus.PartialContent, "Partial Content" },
+        { ResponseStatus.MultiStatus, "Multi-Status" },
+        { ResponseStatus.AlreadyReported, "Already Reported" },
         { ResponseStatus.SeeOther, "See Other" },
-        { ResponseStatus.TemporaryRedirect, "Temporary Redirect"},
-        { ResponseStatus.PermanentRedirect, "Permanent Redirect"},
+        { ResponseStatus.TemporaryRedirect, "Temporary Redirect" },
+        { ResponseStatus.PermanentRedirect, "Permanent Redirect" },
         { ResponseStatus.Continue, "Continue" },
         { ResponseStatus.SwitchingProtocols, "Switching Protocols" },
         { ResponseStatus.NotAcceptable, "Not Acceptable" },
@@ -193,7 +193,7 @@ public struct FlexibleResponseStatus
         { ResponseStatus.Processing, "Processing" }
     };
 
-    private static readonly Dictionary<int, ResponseStatus> CODE_MAPPING = MAPPING.Keys.ToDictionary((k) => (int)k, (k) => k);
+    private static readonly Dictionary<int, ResponseStatus> CODE_MAPPING = MAPPING.Keys.ToDictionary(k => (int)k, k => k);
 
     #endregion
 
@@ -201,26 +201,26 @@ public struct FlexibleResponseStatus
 
     public FlexibleResponseStatus(int status, string phrase)
     {
-            RawStatus = status;
-            Phrase = phrase;
+        RawStatus = status;
+        Phrase = phrase;
 
-            if (CODE_MAPPING.TryGetValue(status, out var known))
-            {
-                KnownStatus = known;
-            }
-            else
-            {
-                KnownStatus = null;
-            }
+        if (CODE_MAPPING.TryGetValue(status, out var known))
+        {
+            KnownStatus = known;
         }
+        else
+        {
+            KnownStatus = null;
+        }
+    }
 
     public FlexibleResponseStatus(ResponseStatus status)
     {
-            KnownStatus = status;
+        KnownStatus = status;
 
-            RawStatus = (int)status;
-            Phrase = MAPPING[status];
-        }
+        RawStatus = (int)status;
+        Phrase = MAPPING[status];
+    }
 
     #endregion
 

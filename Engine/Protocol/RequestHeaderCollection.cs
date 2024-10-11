@@ -1,5 +1,4 @@
 ﻿using GenHTTP.Api.Protocol;
-
 using GenHTTP.Engine.Utilities;
 
 namespace GenHTTP.Engine.Protocol;
@@ -13,7 +12,7 @@ internal sealed class RequestHeaderCollection : PooledDictionary<string, string>
     internal RequestHeaderCollection() : base(DEFAULT_SIZE, StringComparer.InvariantCultureIgnoreCase)
     {
 
-        }
+    }
 
     #endregion
 

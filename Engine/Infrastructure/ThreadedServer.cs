@@ -17,9 +17,9 @@ internal sealed class ThreadedServer : IServer
 
     public bool Development => Configuration.DevelopmentMode;
 
-    public IHandler Handler { get; private set; }
+    public IHandler Handler { get; }
 
-    public IServerCompanion? Companion { get; private set; }
+    public IServerCompanion? Companion { get; }
 
     public IEndPointCollection EndPoints => _EndPoints;
 
@@ -31,47 +31,47 @@ internal sealed class ThreadedServer : IServer
 
     internal ThreadedServer(IServerCompanion? companion, ServerConfiguration configuration, IHandler handler)
     {
-            Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "(n/a)";
+        Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "(n/a)";
 
-            Companion = companion;
-            Configuration = configuration;
+        Companion = companion;
+        Configuration = configuration;
 
-            Handler = handler;
+        Handler = handler;
 
-            Task.Run(() => PrepareHandlerAsync(handler, companion));
+        Task.Run(() => PrepareHandlerAsync(handler, companion));
 
-            _EndPoints = new(this, configuration.EndPoints, configuration.Network);
-        }
+        _EndPoints = new EndPointCollection(this, configuration.EndPoints, configuration.Network);
+    }
 
     private static async ValueTask PrepareHandlerAsync(IHandler handler, IServerCompanion? companion)
     {
-            try
-            {
-                await handler.PrepareAsync();
-            }
-            catch (Exception e)
-            {
-                companion?.OnServerError(ServerErrorScope.General, null, e);
-            }
+        try
+        {
+            await handler.PrepareAsync();
         }
+        catch (Exception e)
+        {
+            companion?.OnServerError(ServerErrorScope.General, null, e);
+        }
+    }
 
     #endregion
 
     #region IDisposable Support
 
-    private bool disposed = false;
+    private bool disposed;
 
     public void Dispose()
     {
-            if (!disposed)
-            {
-                _EndPoints.Dispose();
+        if (!disposed)
+        {
+            _EndPoints.Dispose();
 
-                disposed = true;
-            }
-
-            GC.SuppressFinalize(this);
+            disposed = true;
         }
+
+        GC.SuppressFinalize(this);
+    }
 
     #endregion
 

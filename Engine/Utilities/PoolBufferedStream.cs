@@ -3,22 +3,54 @@
 namespace GenHTTP.Engine.Utilities;
 
 /// <summary>
-/// An output stream using a pooled array to buffer small writes.
+///     An output stream using a pooled array to buffer small writes.
 /// </summary>
 /// <remarks>
-/// Reduces write calls on underlying streams by collecting small writes
-/// and flushing them only on request or if the internal buffer overflows. 
-/// Using a rented buffer from the array pool keeps allocations low.
-/// 
-/// Decreases the overhead of response content that issues a lot of small
-/// writes (such as serializers or template renderers). As the content
-/// length for such responses is typically not known beforehand, this
-/// would cause all of those small writes to be converted into chunks, adding 
-/// a lot of communication overhead to the client connection.
+///     Reduces write calls on underlying streams by collecting small writes
+///     and flushing them only on request or if the internal buffer overflows.
+///     Using a rented buffer from the array pool keeps allocations low.
+///     Decreases the overhead of response content that issues a lot of small
+///     writes (such as serializers or template renderers). As the content
+///     length for such responses is typically not known beforehand, this
+///     would cause all of those small writes to be converted into chunks, adding
+///     a lot of communication overhead to the client connection.
 /// </remarks>
 public sealed class PoolBufferedStream : Stream
 {
     private static readonly ArrayPool<byte> POOL = ArrayPool<byte>.Create(128 * 1024, 8192); // 1 GB 
+
+    #region Initialization
+
+    public PoolBufferedStream(Stream stream, uint bufferSize)
+    {
+        Stream = stream;
+
+        Buffer = POOL.Rent((int)bufferSize);
+        Current = 0;
+    }
+
+    #endregion
+
+    #region Disposing
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            try
+            {
+                Stream.Dispose();
+            }
+            finally
+            {
+                POOL.Return(Buffer);
+            }
+        }
+
+        base.Dispose(disposing);
+    }
+
+    #endregion
 
     #region Get-/Setters
 
@@ -44,18 +76,6 @@ public sealed class PoolBufferedStream : Stream
 
     #endregion
 
-    #region Initialization
-
-    public PoolBufferedStream(Stream stream, uint bufferSize)
-    {
-            Stream = stream;
-
-            Buffer = POOL.Rent((int)bufferSize);
-            Current = 0;
-        }
-
-    #endregion
-
     #region Functionality
 
     public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) => Stream.ReadAsync(buffer, offset, count, cancellationToken);
@@ -74,107 +94,86 @@ public sealed class PoolBufferedStream : Stream
 
     public override void Write(byte[] buffer, int offset, int count)
     {
-            if (count < (Buffer.Length - Current))
-            {
-                System.Buffer.BlockCopy(buffer, offset, Buffer, Current, count);
+        if (count < (Buffer.Length - Current))
+        {
+            System.Buffer.BlockCopy(buffer, offset, Buffer, Current, count);
 
-                Current += count;
+            Current += count;
 
-                if (Current == Buffer.Length)
-                {
-                    WriteBuffer();
-                }
-            }
-            else
+            if (Current == Buffer.Length)
             {
                 WriteBuffer();
-
-                Stream.Write(buffer, offset, count);
             }
         }
+        else
+        {
+            WriteBuffer();
+
+            Stream.Write(buffer, offset, count);
+        }
+    }
 
     public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
-            await WriteAsync(buffer.AsMemory(offset, count - offset), cancellationToken);
-        }
+        await WriteAsync(buffer.AsMemory(offset, count - offset), cancellationToken);
+    }
 
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
-            var count = buffer.Length;
+        var count = buffer.Length;
 
-            if (count < (Buffer.Length - Current))
-            {
-                buffer.CopyTo(Buffer.AsMemory()[Current..]);
+        if (count < (Buffer.Length - Current))
+        {
+            buffer.CopyTo(Buffer.AsMemory()[Current..]);
 
-                Current += count;
+            Current += count;
 
-                if (Current == Buffer.Length)
-                {
-                    await WriteBufferAsync(cancellationToken);
-                }
-            }
-            else
+            if (Current == Buffer.Length)
             {
                 await WriteBufferAsync(cancellationToken);
-
-                await Stream.WriteAsync(buffer, cancellationToken);
             }
         }
+        else
+        {
+            await WriteBufferAsync(cancellationToken);
+
+            await Stream.WriteAsync(buffer, cancellationToken);
+        }
+    }
 
     public override void Flush()
     {
-            WriteBuffer();
+        WriteBuffer();
 
-            Stream.Flush();
-        }
+        Stream.Flush();
+    }
 
     public override async Task FlushAsync(CancellationToken cancellationToken)
     {
-            await WriteBufferAsync(cancellationToken);
+        await WriteBufferAsync(cancellationToken);
 
-            await Stream.FlushAsync(cancellationToken);
-        }
+        await Stream.FlushAsync(cancellationToken);
+    }
 
     private void WriteBuffer()
     {
-            if (Current > 0)
-            {
-                Stream.Write(Buffer, 0, Current);
+        if (Current > 0)
+        {
+            Stream.Write(Buffer, 0, Current);
 
-                Current = 0;
-            }
+            Current = 0;
         }
+    }
 
     private async ValueTask WriteBufferAsync(CancellationToken cancellationToken)
     {
-            if (Current > 0)
-            {
-                await Stream.WriteAsync(Buffer.AsMemory(0, Current), cancellationToken);
+        if (Current > 0)
+        {
+            await Stream.WriteAsync(Buffer.AsMemory(0, Current), cancellationToken);
 
-                Current = 0;
-            }
+            Current = 0;
         }
-
-    #endregion
-
-    #region Disposing
-
-    protected override void Dispose(bool disposing)
-    {
-            if (disposing)
-            {
-                try
-                {
-                    Stream.Dispose();
-                }
-                finally
-                {
-                    POOL.Return(Buffer);
-                }
-            }
-
-            base.Dispose(disposing);
-        }
+    }
 
     #endregion
 

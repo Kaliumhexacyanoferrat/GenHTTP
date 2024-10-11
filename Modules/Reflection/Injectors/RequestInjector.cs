@@ -9,5 +9,4 @@ public class RequestInjector : IParameterInjector
     public bool Supports(Type type) => type == typeof(IRequest);
 
     public object? GetValue(IHandler handler, IRequest request, Type targetType) => request;
-
 }

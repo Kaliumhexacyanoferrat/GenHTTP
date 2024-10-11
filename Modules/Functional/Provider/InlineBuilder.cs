@@ -1,12 +1,11 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Serializers;
-using GenHTTP.Modules.Reflection.Injectors;
 using GenHTTP.Modules.Reflection;
+using GenHTTP.Modules.Reflection.Injectors;
 
 namespace GenHTTP.Modules.Functional.Provider;
 
@@ -18,17 +17,17 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>
 
     private readonly List<InlineFunction> _Functions = new();
 
-    private IBuilder<SerializationRegistry>? _Serializers;
+    private IBuilder<FormatterRegistry>? _Formatters;
 
     private IBuilder<InjectionRegistry>? _Injectors;
 
-    private IBuilder<FormatterRegistry>? _Formatters;
+    private IBuilder<SerializationRegistry>? _Serializers;
 
     #region Functionality
 
     /// <summary>
-    /// Configures the serialization registry to be used by this handler. Allows
-    /// to add support for additional formats such as protobuf.
+    ///     Configures the serialization registry to be used by this handler. Allows
+    ///     to add support for additional formats such as protobuf.
     /// </summary>
     /// <param name="registry">The registry to be used by the handler</param>
     public InlineBuilder Serializers(IBuilder<SerializationRegistry> registry)
@@ -38,7 +37,7 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>
     }
 
     /// <summary>
-    /// Configures the injectors to be used to extract complex parameter values.
+    ///     Configures the injectors to be used to extract complex parameter values.
     /// </summary>
     /// <param name="registry">The registry to be used by the handler</param>
     public InlineBuilder Injectors(IBuilder<InjectionRegistry> registry)
@@ -48,7 +47,7 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>
     }
 
     /// <summary>
-    /// Configures the formatters to be used to extract path values.
+    ///     Configures the formatters to be used to extract path values.
     /// </summary>
     /// <param name="registry">The registry to be used by the handler</param>
     public InlineBuilder Formatters(IBuilder<FormatterRegistry> registry)
@@ -58,101 +57,99 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>
     }
 
     /// <summary>
-    /// Adds a route for a request of any type to the root of the handler.
+    ///     Adds a route for a request of any type to the root of the handler.
     /// </summary>
     /// <param name="function">The logic to be executed</param>
     /// <param name="ignoreContent">True to exclude the content from sitemaps etc.</param>
     /// <param name="contentHints">A type implementing IContentHints to allow content discovery</param>
-    public InlineBuilder Any(Delegate function, bool ignoreContent = false, Type? contentHints = null)
-    {
-        return On(function, ALL_METHODS, null, ignoreContent, contentHints);
-    }
+    public InlineBuilder Any(Delegate function, bool ignoreContent = false, Type? contentHints = null) => On(function, ALL_METHODS, null, ignoreContent, contentHints);
 
     /// <summary>
-    /// Adds a route for a request of any type to the specified path.
+    ///     Adds a route for a request of any type to the specified path.
     /// </summary>
     /// <param name="path">The path of the request to handle (e.g. "/my-method")</param>
     /// <param name="function">The logic to be executed</param>
     /// <param name="ignoreContent">True to exclude the content from sitemaps etc.</param>
     /// <param name="contentHints">A type implementing IContentHints to allow content discovery</param>
-    public InlineBuilder Any(string path, Delegate function, bool ignoreContent = false, Type? contentHints = null)
-    {
-        return On(function, ALL_METHODS, path, ignoreContent, contentHints);
-    }
+    public InlineBuilder Any(string path, Delegate function, bool ignoreContent = false, Type? contentHints = null) => On(function, ALL_METHODS, path, ignoreContent, contentHints);
 
     /// <summary>
-    /// Adds a route for a GET request to the root of the handler.
+    ///     Adds a route for a GET request to the root of the handler.
     /// </summary>
     /// <param name="function">The logic to be executed</param>
     /// <param name="ignoreContent">True to exclude the content from sitemaps etc.</param>
     /// <param name="contentHints">A type implementing IContentHints to allow content discovery</param>
-    public InlineBuilder Get(Delegate function, bool ignoreContent = false, Type? contentHints = null)
-    {
-        return On(function, new() { FlexibleRequestMethod.Get(RequestMethod.GET) }, null, ignoreContent, contentHints);
-    }
+    public InlineBuilder Get(Delegate function, bool ignoreContent = false, Type? contentHints = null) => On(function, new HashSet<FlexibleRequestMethod>
+                                                                                                                 { FlexibleRequestMethod.Get(RequestMethod.GET) }, null, ignoreContent, contentHints);
 
     /// <summary>
-    /// Adds a route for a GET request to the specified path.
+    ///     Adds a route for a GET request to the specified path.
     /// </summary>
     /// <param name="path">The path of the request to handle (e.g. "/my-method")</param>
     /// <param name="function">The logic to be executed</param>
     /// <param name="ignoreContent">True to exclude the content from sitemaps etc.</param>
     /// <param name="contentHints">A type implementing IContentHints to allow content discovery</param>
-    public InlineBuilder Get(string path, Delegate function, bool ignoreContent = false, Type? contentHints = null)
-    {
-        return On(function, new() { FlexibleRequestMethod.Get(RequestMethod.GET) }, path, ignoreContent, contentHints);
-    }
+    public InlineBuilder Get(string path, Delegate function, bool ignoreContent = false, Type? contentHints = null) => On(function, new HashSet<FlexibleRequestMethod>
+                                                                                                                              { FlexibleRequestMethod.Get(RequestMethod.GET) }, path, ignoreContent, contentHints);
 
     /// <summary>
-    /// Adds a route for a HEAD request to the root of the handler.
+    ///     Adds a route for a HEAD request to the root of the handler.
     /// </summary>
     /// <param name="function">The logic to be executed</param>
-    public InlineBuilder Head(Delegate function) => On(function, new() { FlexibleRequestMethod.Get(RequestMethod.HEAD) });
+    public InlineBuilder Head(Delegate function) => On(function, new HashSet<FlexibleRequestMethod>
+                                                           { FlexibleRequestMethod.Get(RequestMethod.HEAD) });
 
     /// <summary>
-    /// Adds a route for a HEAD request to the specified path.
+    ///     Adds a route for a HEAD request to the specified path.
     /// </summary>
     /// <param name="path">The path of the request to handle (e.g. "/my-method")</param>
-    public InlineBuilder Head(string path, Delegate function) => On(function, new() { FlexibleRequestMethod.Get(RequestMethod.HEAD) }, path);
+    public InlineBuilder Head(string path, Delegate function) => On(function, new HashSet<FlexibleRequestMethod>
+                                                                        { FlexibleRequestMethod.Get(RequestMethod.HEAD) }, path);
 
     /// <summary>
-    /// Adds a route for a POST request to the root of the handler.
+    ///     Adds a route for a POST request to the root of the handler.
     /// </summary>
     /// <param name="function">The logic to be executed</param>
-    public InlineBuilder Post(Delegate function) => On(function, new() { FlexibleRequestMethod.Get(RequestMethod.POST) });
+    public InlineBuilder Post(Delegate function) => On(function, new HashSet<FlexibleRequestMethod>
+                                                           { FlexibleRequestMethod.Get(RequestMethod.POST) });
 
     /// <summary>
-    /// Adds a route for a POST request to the specified path.
+    ///     Adds a route for a POST request to the specified path.
     /// </summary>
     /// <param name="path">The path of the request to handle (e.g. "/my-method")</param>
-    public InlineBuilder Post(string path, Delegate function) => On(function, new() { FlexibleRequestMethod.Get(RequestMethod.POST) }, path);
+    public InlineBuilder Post(string path, Delegate function) => On(function, new HashSet<FlexibleRequestMethod>
+                                                                        { FlexibleRequestMethod.Get(RequestMethod.POST) }, path);
 
     /// <summary>
-    /// Adds a route for a PUT request to the root of the handler.
+    ///     Adds a route for a PUT request to the root of the handler.
     /// </summary>
     /// <param name="function">The logic to be executed</param>
-    public InlineBuilder Put(Delegate function) => On(function, new() { FlexibleRequestMethod.Get(RequestMethod.PUT) });
+    public InlineBuilder Put(Delegate function) => On(function, new HashSet<FlexibleRequestMethod>
+                                                          { FlexibleRequestMethod.Get(RequestMethod.PUT) });
 
     /// <summary>
-    /// Adds a route for a PUT request to the specified path.
+    ///     Adds a route for a PUT request to the specified path.
     /// </summary>
     /// <param name="path">The path of the request to handle (e.g. "/my-method")</param>
-    public InlineBuilder Put(string path, Delegate function) => On(function, new() { FlexibleRequestMethod.Get(RequestMethod.PUT) }, path);
+    public InlineBuilder Put(string path, Delegate function) => On(function, new HashSet<FlexibleRequestMethod>
+                                                                       { FlexibleRequestMethod.Get(RequestMethod.PUT) }, path);
 
     /// <summary>
-    /// Adds a route for a DELETE request to the root of the handler.
+    ///     Adds a route for a DELETE request to the root of the handler.
     /// </summary>
     /// <param name="function">The logic to be executed</param>
-    public InlineBuilder Delete(Delegate function) => On(function, new() { FlexibleRequestMethod.Get(RequestMethod.DELETE) });
+    public InlineBuilder Delete(Delegate function) => On(function, new HashSet<FlexibleRequestMethod>
+                                                             { FlexibleRequestMethod.Get(RequestMethod.DELETE) });
 
     /// <summary>
-    /// Adds a route for a DELETE request to the specified path.
+    ///     Adds a route for a DELETE request to the specified path.
     /// </summary>
     /// <param name="path">The path of the request to handle (e.g. "/my-method")</param>
-    public InlineBuilder Delete(string path, Delegate function) => On(function, new() { FlexibleRequestMethod.Get(RequestMethod.DELETE) }, path);
+    public InlineBuilder Delete(string path, Delegate function) => On(function, new HashSet<FlexibleRequestMethod>
+                                                                          { FlexibleRequestMethod.Get(RequestMethod.DELETE) }, path);
 
     /// <summary>
-    /// Executes the given function for the specified path and method.
+    ///     Executes the given function for the specified path and method.
     /// </summary>
     /// <param name="function">The logic to be executed</param>
     /// <param name="methods">The HTTP verbs to respond to</param>
@@ -194,7 +191,7 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>
 
         var formatters = (_Formatters ?? Formatting.Default()).Build();
 
-        return Concerns.Chain(parent, _Concerns, (p) => new InlineHandler(p, _Functions, serializers, injectors, formatters));
+        return Concerns.Chain(parent, _Concerns, p => new InlineHandler(p, _Functions, serializers, injectors, formatters));
     }
 
     #endregion
