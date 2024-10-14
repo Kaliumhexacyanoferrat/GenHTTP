@@ -1,5 +1,7 @@
 ﻿using GenHTTP.Api.Content;
 
+using Microsoft.OpenApi.Models;
+
 namespace GenHTTP.Modules.OpenApi.Discovery;
 
 public sealed class ApiDiscoveryRegistry
@@ -22,13 +24,13 @@ public sealed class ApiDiscoveryRegistry
 
     #region Functionality
 
-    internal void Explore(IHandler handler, List<string> path)
+    internal void Explore(IHandler handler, List<string> path, OpenApiDocument document)
     {
         foreach (var explorer in Explorers)
         {
             if (explorer.CanExplore(handler))
             {
-                explorer.Explore(handler, path, this);
+                explorer.Explore(handler, path, document, this);
             }
         }
     }

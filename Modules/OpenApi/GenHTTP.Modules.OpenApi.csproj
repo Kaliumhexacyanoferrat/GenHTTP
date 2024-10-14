@@ -44,8 +44,12 @@
 
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj"/>
 
+        <ProjectReference Include="..\Functional\GenHTTP.Modules.Functional.csproj" />
+
         <ProjectReference Include="..\Layouting\GenHTTP.Modules.Layouting.csproj" />
 
+        <ProjectReference Include="..\Reflection\GenHTTP.Modules.Reflection.csproj" />
+        
 		<PackageReference Include="Microsoft.OpenApi" Version="1.6.22" />
 
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>

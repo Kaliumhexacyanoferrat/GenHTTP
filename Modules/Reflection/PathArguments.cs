@@ -29,7 +29,7 @@ public static partial class PathArguments
         {
             var builder = new StringBuilder(path);
 
-            if (builder[0] == '/')
+            if (builder.Length > 0 && builder[0] == '/')
             {
                 builder.Remove(0, 1);
             }

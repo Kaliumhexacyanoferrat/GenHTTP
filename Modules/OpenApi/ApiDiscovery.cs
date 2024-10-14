@@ -7,7 +7,10 @@ public static class ApiDiscovery
 
     public static ApiDiscoveryRegistryBuilder Empty() => new();
 
-    public static ApiDiscoveryRegistryBuilder Default() => Empty().Add<LayoutExplorer>()
-                                                                  .Add<ConcernExplorer>();
+    public static ApiDiscoveryRegistryBuilder Default() => Empty().Add<ConcernExplorer>()
+                                                                  .Add<LayoutExplorer>()
+                                                                  .Add<InlineExplorer>()
+                                                                  .Add<MethodCollectionExplorer>()
+                                                                  .Add<MethodHandlerExplorer>();
 
 }

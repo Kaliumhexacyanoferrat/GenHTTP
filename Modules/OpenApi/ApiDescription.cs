@@ -7,8 +7,8 @@ namespace GenHTTP.Modules.OpenApi;
 public static class ApiDescription
 {
 
-    public static OpenApiHandlerBuilder Create() => new();
+    public static OpenApiConcernBuilder Create() => new();
 
-    public static OpenApiHandlerBuilder From(OpenApiDocument document) => new(document);
+    public static OpenApiConcernBuilder From(OpenApiDocument document) => new(document);
 
 }

@@ -1,19 +1,19 @@
 ﻿using GenHTTP.Api.Content;
-
+using GenHTTP.Modules.Functional.Provider;
 using Microsoft.OpenApi.Models;
 
 namespace GenHTTP.Modules.OpenApi.Discovery;
 
-public class ConcernExplorer : IApiExplorer
+public class InlineExplorer : IApiExplorer
 {
 
-    public bool CanExplore(IHandler handler) => handler is IConcern;
+    public bool CanExplore(IHandler handler) => handler is InlineHandler;
 
     public void Explore(IHandler handler, List<string> path, OpenApiDocument document, ApiDiscoveryRegistry registry)
     {
-        if (handler is IConcern concern)
+        if (handler is InlineHandler inlineHandler)
         {
-            registry.Explore(concern.Content, path, document);
+            registry.Explore(inlineHandler, path, document);
         }
     }
 

@@ -5,10 +5,8 @@ using Microsoft.OpenApi.Models;
 
 namespace GenHTTP.Modules.OpenApi.Handler;
 
-public sealed class OpenApiHandlerBuilder : IHandlerBuilder<OpenApiHandlerBuilder>
+public sealed class OpenApiConcernBuilder : IConcernBuilder
 {
-    private readonly List<IConcernBuilder> _Concerns = [];
-
     private ApiDiscoveryRegistry? _Discovery;
 
     private bool _Cache = true;
@@ -23,7 +21,7 @@ public sealed class OpenApiHandlerBuilder : IHandlerBuilder<OpenApiHandlerBuilde
 
     #region Initialization
 
-    public OpenApiHandlerBuilder(OpenApiDocument? document = null)
+    public OpenApiConcernBuilder(OpenApiDocument? document = null)
     {
         Document = document ?? new OpenApiDocument();
     }
@@ -32,47 +30,41 @@ public sealed class OpenApiHandlerBuilder : IHandlerBuilder<OpenApiHandlerBuilde
 
     #region Functionality
 
-    public OpenApiHandlerBuilder Specification(OpenApiSpecVersion version)
+    public OpenApiConcernBuilder Specification(OpenApiSpecVersion version)
     {
         _Specfication = version;
         return this;
     }
 
-    public OpenApiHandlerBuilder Discovery(ApiDiscoveryRegistryBuilder discovery) => Discovery(discovery.Build());
+    public OpenApiConcernBuilder Discovery(ApiDiscoveryRegistryBuilder discovery) => Discovery(discovery.Build());
 
-    public OpenApiHandlerBuilder Discovery(ApiDiscoveryRegistry discovery)
+    public OpenApiConcernBuilder Discovery(ApiDiscoveryRegistry discovery)
     {
         _Discovery = discovery;
         return this;
     }
 
-    public OpenApiHandlerBuilder Cache(bool enabled)
+    public OpenApiConcernBuilder Cache(bool enabled)
     {
         _Cache = enabled;
         return this;
     }
 
-    public OpenApiHandlerBuilder Title(string title)
+    public OpenApiConcernBuilder Title(string title)
     {
         (Document.Info ??= new()).Title = title;
         return this;
     }
 
-    public OpenApiHandlerBuilder Version(string version)
+    public OpenApiConcernBuilder Version(string version)
     {
         (Document.Info ??= new()).Version = version;
         return this;
     }
 
-    public OpenApiHandlerBuilder Add(IConcernBuilder concern)
+    public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
     {
-        _Concerns.Add(concern);
-        return this;
-    }
-
-    public IHandler Build(IHandler parent)
-    {
-        return Concerns.Chain(parent, _Concerns, p => new OpenApiHandler(p, Document, _Specfication, _Discovery));
+        return new OpenApiConcern(parent, contentFactory, Document, _Specfication, _Discovery);
     }
 
     #endregion

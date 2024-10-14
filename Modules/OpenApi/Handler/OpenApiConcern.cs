@@ -8,12 +8,14 @@ using Microsoft.OpenApi.Models;
 
 namespace GenHTTP.Modules.OpenApi.Handler;
 
-public sealed class OpenApiHandler : IHandler
+public sealed class OpenApiConcern : IConcern
 {
 
     #region Get-/Setters
 
     public IHandler Parent { get; }
+
+    public IHandler Content { get; }
 
     private OpenApiDocument Document { get; }
 
@@ -25,9 +27,10 @@ public sealed class OpenApiHandler : IHandler
 
     #region Initialization
 
-    public OpenApiHandler(IHandler parent, OpenApiDocument document, OpenApiSpecVersion version, ApiDiscoveryRegistry? discovery)
+    public OpenApiConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, OpenApiDocument document, OpenApiSpecVersion version, ApiDiscoveryRegistry? discovery)
     {
         Parent = parent;
+        Content = contentFactory(this);
 
         Document = document;
         Version = version;
@@ -40,7 +43,7 @@ public sealed class OpenApiHandler : IHandler
 
     public ValueTask PrepareAsync() => new();
 
-    public ValueTask<IResponse?> HandleAsync(IRequest request)
+    public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
         var path = request.Target.Current?.Original;
 
@@ -66,19 +69,19 @@ public sealed class OpenApiHandler : IHandler
 
                 response.Headers.Add("Vary", "Accept");
 
-                return new(response);
+                return response;
             }
             else if (string.Compare(path, "openapi.json", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                return new(GetDocument(request, OpenApiFormat.Json));
+                return GetDocument(request, OpenApiFormat.Json);
             }
             else if (string.Compare(path, "openapi.yaml", StringComparison.OrdinalIgnoreCase) == 0 || string.Compare(path, "openapi.yml", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                return new (GetDocument(request, OpenApiFormat.Yaml));
+                return GetDocument(request, OpenApiFormat.Yaml);
             }
         }
 
-        return new();
+        return await Content.HandleAsync(request);
     }
 
     private IResponse GetDocument(IRequest request, OpenApiFormat format)
@@ -99,23 +102,9 @@ public sealed class OpenApiHandler : IHandler
     {
         var document = new OpenApiDocument(Document);
 
-        var parent = GetParent();
-
-        registry.Explore(parent, []);
+        registry.Explore(Content, [], document);
 
         return document;
-    }
-
-    private IHandler GetParent()
-    {
-        var parent = Parent;
-
-        while (parent is IConcern)
-        {
-            parent = parent.Parent;
-        }
-
-        return parent;
     }
 
     #endregion
