@@ -6,6 +6,8 @@ using GenHTTP.Modules.Practices;
 
 // todo bug: Inline.Get("/") => wirft fehler!
 
+// todo: formale parameterbeschreibung plus parameter-typ (müsste sich überall durchziehen ...)
+
 var description = ApiDescription.Create()
                                 .Discovery(ApiDiscovery.Default());
 

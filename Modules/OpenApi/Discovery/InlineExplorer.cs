@@ -13,7 +13,7 @@ public class InlineExplorer : IApiExplorer
     {
         if (handler is InlineHandler inlineHandler)
         {
-            registry.Explore(inlineHandler, path, document);
+            registry.Explore(inlineHandler.Methods, path, document);
         }
     }
 

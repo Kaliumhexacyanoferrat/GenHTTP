@@ -23,6 +23,8 @@ public class MethodHandlerExplorer : IApiExplorer
     {
         var stringPath = $"/{string.Join('/', path)}/{route.ParsedPath}";
 
+        document.Paths ??= new();
+
         if (document.Paths.TryGetValue(stringPath, out var existing))
         {
             return existing;

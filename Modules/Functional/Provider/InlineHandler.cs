@@ -14,7 +14,7 @@ public class InlineHandler : IHandler
 
     public IHandler Parent { get; }
 
-    private MethodCollection Methods { get; }
+    public MethodCollection Methods { get; }
 
     private ResponseProvider ResponseProvider { get; }
 
