@@ -31,6 +31,11 @@ public enum ContentType
     ApplicationJson,
 
     /// <summary>
+    /// A YAML file.
+    /// </summary>
+    ApplicationYaml,
+
+    /// <summary>
     /// A PNG image.
     /// </summary>
     ImagePng,
@@ -314,9 +319,9 @@ public enum ContentType
 /// </summary>
 public class FlexibleContentType
 {
-    private static readonly ConcurrentDictionary<string, FlexibleContentType> _RawCache = new(StringComparer.InvariantCultureIgnoreCase);
+    private static readonly ConcurrentDictionary<string, FlexibleContentType> RawCache = new(StringComparer.InvariantCultureIgnoreCase);
 
-    private static readonly Dictionary<ContentType, FlexibleContentType> _KnownCache = new();
+    private static readonly Dictionary<ContentType, FlexibleContentType> KnownCache = new();
 
     #region Get-/Setters
 
@@ -339,7 +344,7 @@ public class FlexibleContentType
 
     #region Mapping
 
-    private static readonly Dictionary<ContentType, string> MAPPING = new()
+    private static readonly Dictionary<ContentType, string> Mapping = new()
     {
         { ContentType.AudioMp4, "audio/mp4" },
         { ContentType.AudioOgg, "audio/ogg" },
@@ -353,6 +358,7 @@ public class FlexibleContentType
         { ContentType.ApplicationForceDownload, "application/force-download" },
         { ContentType.ApplicationOctetStream, "application/octet-stream" },
         { ContentType.ApplicationJson, "application/json" },
+        { ContentType.ApplicationYaml, "application/yaml" },
         { ContentType.ApplicationWwwFormUrlEncoded, "application/x-www-form-urlencoded" },
         { ContentType.ApplicationProtobuf, "application/protobuf" },
         { ContentType.FontEmbeddedOpenTypeFont, "font/eot" },
@@ -402,7 +408,7 @@ public class FlexibleContentType
         { ContentType.VideoWebM, "video/webm" }
     };
 
-    private static readonly Dictionary<string, ContentType> MAPPING_REVERSE = MAPPING.ToDictionary(x => x.Value, x => x.Key);
+    private static readonly Dictionary<string, ContentType> MAPPING_REVERSE = Mapping.ToDictionary(x => x.Value, x => x.Key);
 
     #endregion
 
@@ -436,7 +442,7 @@ public class FlexibleContentType
     public FlexibleContentType(ContentType type, string? charset = null)
     {
         KnownType = type;
-        RawType = MAPPING[type];
+        RawType = Mapping[type];
 
         Charset = charset;
     }
@@ -457,14 +463,14 @@ public class FlexibleContentType
             return new FlexibleContentType(rawType, charset);
         }
 
-        if (_RawCache.TryGetValue(rawType, out var found))
+        if (RawCache.TryGetValue(rawType, out var found))
         {
             return found;
         }
 
         var type = new FlexibleContentType(rawType);
 
-        _RawCache[rawType] = type;
+        RawCache[rawType] = type;
 
         return type;
     }
@@ -481,14 +487,14 @@ public class FlexibleContentType
             return new FlexibleContentType(knownType, charset);
         }
 
-        if (_KnownCache.TryGetValue(knownType, out var found))
+        if (KnownCache.TryGetValue(knownType, out var found))
         {
             return found;
         }
 
         var type = new FlexibleContentType(knownType);
 
-        _KnownCache[knownType] = type;
+        KnownCache[knownType] = type;
 
         return type;
     }

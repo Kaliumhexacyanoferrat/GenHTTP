@@ -29,11 +29,11 @@ public sealed class LayoutRouter : IHandler
 
     public IHandler Parent { get; }
 
-    private Dictionary<string, IHandler> RoutedHandlers { get; }
+    public IReadOnlyDictionary<string, IHandler> RoutedHandlers { get; }
 
-    private List<IHandler> RootHandlers { get; }
+    public IReadOnlyList<IHandler> RootHandlers { get; }
 
-    private IHandler? Index { get; }
+    public IHandler? Index { get; }
 
     #endregion
 
