@@ -15,7 +15,7 @@ public static partial class OperationBuilder
 
     #region Functionality
 
-    public static Operation Create(string? definition, MethodInfo method)
+    public static Operation Create(string? definition, MethodInfo method, bool forceTrailingSlash = false)
     {
         var isWildcard = CheckWildcardRoute(method.ReturnType);
 
@@ -49,7 +49,8 @@ public static partial class OperationBuilder
                 nameBuilder.Replace(match.Value, "{" + match.Groups[1].Value + "}");
             }
 
-            var end = isWildcard ? "(/|)" : "(/|)$";
+            var end = forceTrailingSlash ? "/" : "(/|)";
+            end = isWildcard ? end : $"{end}$";
 
             var matcher = new Regex($"^/{matchBuilder}{end}", RegexOptions.Compiled);
 

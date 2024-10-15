@@ -30,7 +30,7 @@ public sealed class ActionTests
     public sealed class TestController
     {
 
-        public IHandlerBuilder Index() => Content.From(Resource.FromString("Hello World!"));
+        public string Index() => "Hello World!";
 
         public IHandlerBuilder Action(int? query) => Content.From(Resource.FromString(query?.ToString() ?? "Action"));
 

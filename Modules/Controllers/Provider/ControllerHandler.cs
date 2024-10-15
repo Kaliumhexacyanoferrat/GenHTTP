@@ -60,18 +60,18 @@ public sealed partial class ControllerHandler : IHandler
 
     private static Operation CreateOperation(MethodInfo method, List<string> arguments)
     {
-        var pathArguments = string.Join('/', arguments.Select(a => "{" + a + "}"));
+        var pathArguments = string.Join('/', arguments.Select(a => $":{a}"));
 
         if (method.Name == "Index")
         {
-            return OperationBuilder.Create(pathArguments.Length > 0 ? $"/{pathArguments}/" : null, method);
+            return OperationBuilder.Create(pathArguments.Length > 0 ? $"/{pathArguments}/" : null, method, true);
         }
 
         var name = HypenCase(method.Name);
 
         var path = $"/{name}";
 
-        return OperationBuilder.Create(pathArguments.Length > 0 ? $"{path}/{pathArguments}" : $"{path}/", method);
+        return OperationBuilder.Create(pathArguments.Length > 0 ? $"{path}/{pathArguments}/" : $"{path}/", method, true);
     }
 
     private List<string> FindPathArguments(MethodInfo method)
