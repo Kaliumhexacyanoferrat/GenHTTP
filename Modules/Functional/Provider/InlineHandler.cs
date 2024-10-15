@@ -4,6 +4,7 @@ using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Injectors;
+using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Functional.Provider;
 
@@ -37,13 +38,11 @@ public class InlineHandler : IHandler
         {
             var method = function.Delegate.Method;
 
-            var wildcardRoute = PathArguments.CheckWildcardRoute(method.ReturnType);
-
-            var path = PathArguments.Route(function.Path, wildcardRoute);
+            var operation = OperationBuilder.Create(function.Path, method);
 
             var target = function.Delegate.Target ?? throw new InvalidOperationException("Delegate target must not be null");
 
-            yield return parent => new MethodHandler(parent, method, path, () => target, function.Configuration, ResponseProvider.GetResponseAsync, formats, injection, formatting);
+            yield return parent => new MethodHandler(parent, method, operation, () => target, function.Configuration, ResponseProvider.GetResponseAsync, formats, injection, formatting);
         }
     }
 

@@ -14,6 +14,7 @@ var description = ApiDescription.Create()
 var app = Inline.Create()
                 .Get(() => 42)
                 .Get("/users", () => new List<string>() { "a" })
+                .Get("/users/:name", (string name) => name)
                 .Add(description);
 
 Host.Create()

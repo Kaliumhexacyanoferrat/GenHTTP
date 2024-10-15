@@ -9,6 +9,7 @@ using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Conversion.Serializers.Forms;
 using GenHTTP.Modules.Reflection.Injectors;
+using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Reflection;
 
@@ -26,9 +27,31 @@ public sealed class MethodHandler : IHandler
 
     private static readonly Type? VoidTaskResult = Type.GetType("System.Threading.Tasks.VoidTaskResult");
 
+    #region Get-/Setters
+
+    public IHandler Parent { get; }
+
+    public Operation Operation { get; }
+
+    public IMethodConfiguration Configuration { get; }
+
+    public MethodInfo Method { get; }
+
+    private Func<object> InstanceProvider { get; }
+
+    private Func<IRequest, IHandler, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> ResponseProvider { get; }
+
+    private SerializationRegistry Serialization { get; }
+
+    private InjectionRegistry Injection { get; }
+
+    private FormatterRegistry Formatting { get; }
+
+    #endregion
+
     #region Initialization
 
-    public MethodHandler(IHandler parent, MethodInfo method, MethodRouting routing, Func<object> instanceProvider, IMethodConfiguration metaData,
+    public MethodHandler(IHandler parent, MethodInfo method, Operation operation, Func<object> instanceProvider, IMethodConfiguration metaData,
         Func<IRequest, IHandler, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> responseProvider, SerializationRegistry serialization,
         InjectionRegistry injection, FormatterRegistry formatting)
     {
@@ -44,30 +67,8 @@ public sealed class MethodHandler : IHandler
 
         ResponseProvider = responseProvider;
 
-        Routing = routing;
+        Operation = operation;
     }
-
-    #endregion
-
-    #region Get-/Setters
-
-    public IHandler Parent { get; }
-
-    public MethodRouting Routing { get; }
-
-    public IMethodConfiguration Configuration { get; }
-
-    public MethodInfo Method { get; }
-
-    private Func<object> InstanceProvider { get; }
-
-    private Func<IRequest, IHandler, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> ResponseProvider { get; }
-
-    private SerializationRegistry Serialization { get; }
-
-    private InjectionRegistry Injection { get; }
-
-    private FormatterRegistry Formatting { get; }
 
     #endregion
 
@@ -88,9 +89,9 @@ public sealed class MethodHandler : IHandler
 
         Match? sourceParameters = null;
 
-        if (!Routing.IsIndex)
+        if (!Operation.Path.IsIndex)
         {
-            sourceParameters = Routing.ParsedPath.Match(request.Target.GetRemaining().ToString());
+            sourceParameters = Operation.Path.Matcher.Match(request.Target.GetRemaining().ToString());
 
             var matchedPath = WebPath.FromString(sourceParameters.Value);
 
@@ -181,6 +182,7 @@ public sealed class MethodHandler : IHandler
                     // assume the default value
                     continue;
                 }
+
                 // deserialize from body
                 var deserializer = Serialization.GetDeserialization(request);
 

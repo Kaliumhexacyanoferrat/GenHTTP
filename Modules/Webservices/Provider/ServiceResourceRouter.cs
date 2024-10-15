@@ -5,6 +5,7 @@ using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Injectors;
+using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Webservices.Provider;
 
@@ -44,11 +45,9 @@ public sealed class ServiceResourceRouter : IHandler
 
             if (attribute is not null)
             {
-                var wildcardRoute = PathArguments.CheckWildcardRoute(method.ReturnType);
+                var operation = OperationBuilder.Create(attribute.Path, method);
 
-                var path = PathArguments.Route(attribute.Path, wildcardRoute);
-
-                yield return parent => new MethodHandler(parent, method, path, () => Instance, attribute, ResponseProvider.GetResponseAsync, serialization, injection, formatting);
+                yield return parent => new MethodHandler(parent, method, operation, () => Instance, attribute, ResponseProvider.GetResponseAsync, serialization, injection, formatting);
             }
         }
     }

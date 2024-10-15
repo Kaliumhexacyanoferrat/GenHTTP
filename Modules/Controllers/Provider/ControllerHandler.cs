@@ -1,18 +1,19 @@
 ﻿using System.Reflection;
 using System.Text.RegularExpressions;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Injectors;
+using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Controllers.Provider;
 
 public sealed partial class ControllerHandler : IHandler
 {
-    private static readonly MethodRouting Empty = new("^(/|)$", true, false);
-
     private static readonly Regex HyphenMatcher = CreateHyphenMatcher();
 
     #region Get-/Setters
@@ -51,28 +52,26 @@ public sealed partial class ControllerHandler : IHandler
 
             var arguments = FindPathArguments(method);
 
-            var path = DeterminePath(method, arguments);
+            var path = CreateOperation(method, arguments);
 
             yield return parent => new MethodHandler(parent, method, path, () => Instance, annotation, ResponseProvider.GetResponseAsync, serialization, injection, formatting);
         }
     }
 
-    private static MethodRouting DeterminePath(MethodInfo method, List<string> arguments)
+    private static Operation CreateOperation(MethodInfo method, List<string> arguments)
     {
-        var pathArgs = string.Join('/', arguments.Select(a => a.ToParameter()));
-
-        var isWildcard = PathArguments.CheckWildcardRoute(method.ReturnType);
+        var pathArguments = string.Join('/', arguments.Select(a => "{" + a + "}"));
 
         if (method.Name == "Index")
         {
-            return pathArgs.Length > 0 ? new MethodRouting($"^/{pathArgs}/", false, isWildcard) : Empty;
+            return OperationBuilder.Create(pathArguments.Length > 0 ? $"/{pathArguments}/" : null, method);
         }
 
         var name = HypenCase(method.Name);
 
-        var path = $"^/{name}";
+        var path = $"/{name}";
 
-        return pathArgs.Length > 0 ? new MethodRouting( $"{path}/{pathArgs}/", false, isWildcard) : new MethodRouting($"{path}/", false, isWildcard);
+        return OperationBuilder.Create(pathArguments.Length > 0 ? $"{path}/{pathArguments}" : $"{path}/", method);
     }
 
     private List<string> FindPathArguments(MethodInfo method)
