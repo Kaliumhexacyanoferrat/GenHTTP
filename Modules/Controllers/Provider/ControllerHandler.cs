@@ -4,10 +4,7 @@ using System.Text.RegularExpressions;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Conversion.Formatters;
-using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Reflection;
-using GenHTTP.Modules.Reflection.Injectors;
 using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Controllers.Provider;
@@ -24,7 +21,7 @@ public sealed partial class ControllerHandler : IHandler
 
     private ResponseProvider ResponseProvider { get; }
 
-    private FormatterRegistry Formatting { get; }
+    private MethodExtensions Extensions { get; }
 
     private object Instance { get; }
 
@@ -32,19 +29,19 @@ public sealed partial class ControllerHandler : IHandler
 
     #region Initialization
 
-    public ControllerHandler(IHandler parent, object instance, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
+    public ControllerHandler(IHandler parent, object instance, MethodExtensions extensions)
     {
         Parent = parent;
-        Formatting = formatting;
+        Extensions = extensions;
 
         Instance = instance;
 
-        ResponseProvider = new ResponseProvider(serialization, formatting);
+        ResponseProvider = new ResponseProvider(extensions);
 
-        Provider = new MethodCollection(this, AnalyzeMethods(instance.GetType(), serialization, injection, formatting));
+        Provider = new MethodCollection(this, AnalyzeMethods(instance.GetType(), extensions));
     }
 
-    private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
+    private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, MethodExtensions extensions)
     {
         foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
         {
@@ -52,54 +49,40 @@ public sealed partial class ControllerHandler : IHandler
 
             var arguments = FindPathArguments(method);
 
-            var path = CreateOperation(method, arguments);
+            var operation = CreateOperation(method, arguments);
 
-            yield return parent => new MethodHandler(parent, method, path, () => Instance, annotation, ResponseProvider.GetResponseAsync, serialization, injection, formatting);
+            yield return parent => new MethodHandler(parent, operation, () => Instance, annotation, ResponseProvider.GetResponseAsync, extensions);
         }
     }
 
-    private static Operation CreateOperation(MethodInfo method, List<string> arguments)
+    private Operation CreateOperation(MethodInfo method, List<string> arguments)
     {
         var pathArguments = string.Join('/', arguments.Select(a => $":{a}"));
 
         if (method.Name == "Index")
         {
-            return OperationBuilder.Create(pathArguments.Length > 0 ? $"/{pathArguments}/" : null, method, true);
+            return OperationBuilder.Create(pathArguments.Length > 0 ? $"/{pathArguments}/" : null, method, Extensions,true);
         }
 
         var name = HypenCase(method.Name);
 
         var path = $"/{name}";
 
-        return OperationBuilder.Create(pathArguments.Length > 0 ? $"{path}/{pathArguments}/" : $"{path}/", method, true);
+        return OperationBuilder.Create(pathArguments.Length > 0 ? $"{path}/{pathArguments}/" : $"{path}/", method, Extensions, true);
     }
 
     private List<string> FindPathArguments(MethodInfo method)
     {
         var found = new List<string>();
 
-        var parameters = method.GetParameters();
-
-        foreach (var parameter in parameters)
+        foreach (var parameter in method.GetParameters())
         {
-            if (parameter.GetCustomAttribute<FromPathAttribute>(true) is not null)
+            if (parameter.Name != null)
             {
-                if (!parameter.CanFormat(Formatting))
+                if (parameter.GetCustomAttribute<FromPathAttribute>(true) is not null)
                 {
-                    throw new InvalidOperationException("Parameters marked as 'FromPath' must be formattable (e.g. string or int)");
+                    found.Add(parameter.Name);
                 }
-
-                if (parameter.CheckNullable())
-                {
-                    throw new InvalidOperationException("Parameters marked as 'FromPath' are not allowed to be nullable");
-                }
-
-                if (parameter.Name is null)
-                {
-                    throw new InvalidOperationException("Parameters marked as 'FromPath' must have a name");
-                }
-
-                found.Add(parameter.Name);
             }
         }
 

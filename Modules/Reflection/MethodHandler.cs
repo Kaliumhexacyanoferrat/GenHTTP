@@ -1,14 +1,12 @@
 ﻿using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text.RegularExpressions;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
-using GenHTTP.Modules.Conversion;
-using GenHTTP.Modules.Conversion.Formatters;
-using GenHTTP.Modules.Conversion.Serializers;
+
 using GenHTTP.Modules.Conversion.Serializers.Forms;
-using GenHTTP.Modules.Reflection.Injectors;
 using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Reflection;
@@ -35,39 +33,29 @@ public sealed class MethodHandler : IHandler
 
     public IMethodConfiguration Configuration { get; }
 
-    public MethodInfo Method { get; }
-
     private Func<object> InstanceProvider { get; }
 
     private Func<IRequest, IHandler, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> ResponseProvider { get; }
 
-    private SerializationRegistry Serialization { get; }
-
-    private InjectionRegistry Injection { get; }
-
-    private FormatterRegistry Formatting { get; }
+    public MethodExtensions Extensions { get; }
 
     #endregion
 
     #region Initialization
 
-    public MethodHandler(IHandler parent, MethodInfo method, Operation operation, Func<object> instanceProvider, IMethodConfiguration metaData,
-        Func<IRequest, IHandler, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> responseProvider, SerializationRegistry serialization,
-        InjectionRegistry injection, FormatterRegistry formatting)
+    public MethodHandler(IHandler parent, Operation operation, Func<object> instanceProvider, IMethodConfiguration metaData,
+        Func<IRequest, IHandler, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> responseProvider,
+        MethodExtensions extensions)
     {
         Parent = parent;
 
-        Method = method;
         Configuration = metaData;
         InstanceProvider = instanceProvider;
-
-        Serialization = serialization;
-        Injection = injection;
-        Formatting = formatting;
 
         ResponseProvider = responseProvider;
 
         Operation = operation;
+        Extensions = extensions;
     }
 
     #endregion
@@ -85,7 +73,7 @@ public sealed class MethodHandler : IHandler
 
     private async ValueTask<object?[]> GetArguments(IRequest request)
     {
-        var targetParameters = Method.GetParameters();
+        var targetParameters = Operation.Method.GetParameters();
 
         Match? sourceParameters = null;
 
@@ -108,103 +96,21 @@ public sealed class MethodHandler : IHandler
             {
                 var par = targetParameters[i];
 
-                // try to provide via injector
-                var injected = false;
-
-                foreach (var injector in Injection)
+                if (par.Name != null)
                 {
-                    if (injector.Supports(par.ParameterType))
+                    if (Operation.Arguments.TryGetValue(par.Name, out var arg))
                     {
-                        targetArguments[i] = injector.GetValue(this, request, par.ParameterType);
-
-                        injected = true;
-                        break;
+                        targetArguments[i] = arg.Source switch
+                        {
+                            OperationArgumentSource.Injected => ArgumentProvider.GetInjectedArgument(request, this, arg, Extensions),
+                            OperationArgumentSource.Path => ArgumentProvider.GetPathArgument(arg, sourceParameters, Extensions),
+                            OperationArgumentSource.Body => await ArgumentProvider.GetBodyArgumentAsync(request, arg, Extensions),
+                            OperationArgumentSource.Query => ArgumentProvider.GetQueryArgument(request, bodyArguments, arg, Extensions),
+                            OperationArgumentSource.Content => await ArgumentProvider.GetContentAsync(request, arg, Extensions),
+                            _ => throw new ProviderException(ResponseStatus.InternalServerError, $"Unable to map argument '{arg.Name}' of type '{arg.Type}' because source '{arg.Source}' is not supported")
+                        };
                     }
                 }
-
-                if (injected)
-                {
-                    continue;
-                }
-
-                if (par.Name is not null && par.CanFormat(Formatting))
-                {
-                    // should the value be read from the body?
-                    var fromBody = par.GetCustomAttribute<FromBodyAttribute>();
-
-                    if (fromBody != null)
-                    {
-                        if (request.Content != null)
-                        {
-                            using var reader = new StreamReader(request.Content, leaveOpen: true);
-
-                            var body = await reader.ReadToEndAsync();
-
-                            if (!string.IsNullOrWhiteSpace(body))
-                            {
-                                targetArguments[i] = body.ConvertTo(par.ParameterType, Formatting);
-                            }
-
-                            request.Content.Seek(0, SeekOrigin.Begin);
-                        }
-                    }
-                    else
-                    {
-                        // is there a named parameter?
-                        if (sourceParameters is not null)
-                        {
-                            var sourceArgument = sourceParameters.Groups[par.Name];
-
-                            if (sourceArgument.Success)
-                            {
-                                targetArguments[i] = sourceArgument.Value.ConvertTo(par.ParameterType, Formatting);
-                                continue;
-                            }
-                        }
-
-                        // is there a query parameter?
-                        if (request.Query.TryGetValue(par.Name, out var queryValue))
-                        {
-                            targetArguments[i] = queryValue.ConvertTo(par.ParameterType, Formatting);
-                            continue;
-                        }
-
-                        // is there a parameter from the body?
-                        if (bodyArguments is not null)
-                        {
-                            if (bodyArguments.TryGetValue(par.Name, out var bodyValue))
-                            {
-                                targetArguments[i] = bodyValue.ConvertTo(par.ParameterType, Formatting);
-                            }
-                        }
-                    }
-
-                    // assume the default value
-                    continue;
-                }
-
-                // deserialize from body
-                var deserializer = Serialization.GetDeserialization(request);
-
-                if (deserializer is null)
-                {
-                    throw new ProviderException(ResponseStatus.UnsupportedMediaType, "Requested format is not supported");
-                }
-
-                if (request.Content is null)
-                {
-                    throw new ProviderException(ResponseStatus.BadRequest, "Request body expected");
-                }
-
-                try
-                {
-                    targetArguments[i] = await deserializer.DeserializeAsync(request.Content, par.ParameterType);
-                }
-                catch (Exception e)
-                {
-                    throw new ProviderException(ResponseStatus.BadRequest, "Failed to deserialize request body", e);
-                }
-
             }
 
             return targetArguments;
@@ -219,7 +125,7 @@ public sealed class MethodHandler : IHandler
     {
         try
         {
-            return Method.Invoke(InstanceProvider(), arguments);
+            return Operation.Method.Invoke(InstanceProvider(), arguments);
         }
         catch (TargetInvocationException e)
         {

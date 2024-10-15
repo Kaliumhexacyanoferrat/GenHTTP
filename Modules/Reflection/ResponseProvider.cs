@@ -15,12 +15,17 @@ namespace GenHTTP.Modules.Reflection;
 public class ResponseProvider
 {
 
+    #region Get-/Setters
+
+    private MethodExtensions Extensions { get; }
+
+    #endregion
+
     #region Initialization
 
-    public ResponseProvider(SerializationRegistry serialization, FormatterRegistry formatting)
+    public ResponseProvider(MethodExtensions extensions)
     {
-        Serialization = serialization;
-        Formatting = formatting;
+        Extensions = extensions;
     }
 
     #endregion
@@ -86,17 +91,17 @@ public class ResponseProvider
         }
 
         // format the value if possible
-        if (Formatting.CanHandle(type))
+        if (Extensions.Formatting.CanHandle(type))
         {
             return request.Respond()
-                          .Content(Formatting.Write(result, type) ?? string.Empty)
+                          .Content(Extensions.Formatting.Write(result, type) ?? string.Empty)
                           .Type(ContentType.TextPlain)
                           .Adjust(adjustments)
                           .Build();
         }
 
         // serialize the result
-        var serializer = Serialization.GetSerialization(request);
+        var serializer = Extensions.Serialization.GetSerialization(request);
 
         if (serializer is null)
         {
@@ -108,14 +113,6 @@ public class ResponseProvider
         return serializedResult.Adjust(adjustments)
                                .Build();
     }
-
-    #endregion
-
-    #region Get-/Setters
-
-    private SerializationRegistry Serialization { get; }
-
-    private FormatterRegistry Formatting { get; }
 
     #endregion
 

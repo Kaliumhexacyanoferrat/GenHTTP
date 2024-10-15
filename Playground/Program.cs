@@ -1,6 +1,5 @@
 ﻿using GenHTTP.Engine;
 using GenHTTP.Modules.Functional;
-using GenHTTP.Modules.IO;
 using GenHTTP.Modules.OpenApi;
 using GenHTTP.Modules.Practices;
 
@@ -12,9 +11,7 @@ var description = ApiDescription.Create()
                                 .Discovery(ApiDiscovery.Default());
 
 var app = Inline.Create()
-                .Get(() => 42)
-                .Get("/users", () => new List<string>() { "a" })
-                .Get("/users/:name", (string name) => name)
+                .Get("/(?<param>[0-9]+)", (int param) => param)
                 .Add(description);
 
 Host.Create()

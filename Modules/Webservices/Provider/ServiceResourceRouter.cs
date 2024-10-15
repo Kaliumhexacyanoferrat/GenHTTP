@@ -1,10 +1,8 @@
 ﻿using System.Reflection;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Conversion.Formatters;
-using GenHTTP.Modules.Conversion.Serializers;
+
 using GenHTTP.Modules.Reflection;
-using GenHTTP.Modules.Reflection.Injectors;
 using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Webservices.Provider;
@@ -26,18 +24,18 @@ public sealed class ServiceResourceRouter : IHandler
 
     #region Initialization
 
-    public ServiceResourceRouter(IHandler parent, object instance, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
+    public ServiceResourceRouter(IHandler parent, object instance, MethodExtensions extensions)
     {
         Parent = parent;
 
         Instance = instance;
 
-        ResponseProvider = new ResponseProvider(serialization, formatting);
+        ResponseProvider = new ResponseProvider(extensions);
 
-        Methods = new MethodCollection(this, AnalyzeMethods(instance.GetType(), serialization, injection, formatting));
+        Methods = new MethodCollection(this, AnalyzeMethods(instance.GetType(), extensions));
     }
 
-    private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
+    private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, MethodExtensions extensions)
     {
         foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
         {
@@ -45,9 +43,9 @@ public sealed class ServiceResourceRouter : IHandler
 
             if (attribute is not null)
             {
-                var operation = OperationBuilder.Create(attribute.Path, method);
+                var operation = OperationBuilder.Create(attribute.Path, method, extensions);
 
-                yield return parent => new MethodHandler(parent, method, operation, () => Instance, attribute, ResponseProvider.GetResponseAsync, serialization, injection, formatting);
+                yield return parent => new MethodHandler(parent, operation, () => Instance, attribute, ResponseProvider.GetResponseAsync, extensions);
             }
         }
     }

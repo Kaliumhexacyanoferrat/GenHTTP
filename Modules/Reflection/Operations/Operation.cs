@@ -1,9 +1,13 @@
-﻿namespace GenHTTP.Modules.Reflection.Operations;
+﻿using System.Reflection;
+
+namespace GenHTTP.Modules.Reflection.Operations;
 
 public sealed class Operation
 {
 
     #region Get-/Setters
+
+    public MethodInfo Method { get; }
 
     public OperationPath Path { get; }
 
@@ -13,8 +17,9 @@ public sealed class Operation
 
     #region Initialization
 
-    public Operation(OperationPath path, IReadOnlyDictionary<string, OperationArgument> arguments)
+    public Operation(MethodInfo method, OperationPath path, IReadOnlyDictionary<string, OperationArgument> arguments)
     {
+        Method = method;
         Path = path;
         Arguments = arguments;
     }

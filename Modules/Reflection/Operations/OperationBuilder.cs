@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+
 using GenHTTP.Api.Content;
 
 namespace GenHTTP.Modules.Reflection.Operations;
@@ -9,26 +11,29 @@ public static partial class OperationBuilder
 {
     private static readonly Regex VarPattern = CreateVarPattern();
 
+    private static readonly Regex RegexPattern = CreateRegexPattern();
+
     private static readonly Regex EmptyWildcardRoute = CreateEmptyWildcardRoute();
 
     private static readonly Regex EmptyRoute = CreateEmptyRoute();
 
     #region Functionality
 
-    public static Operation Create(string? definition, MethodInfo method, bool forceTrailingSlash = false)
+    public static Operation Create(string? definition, MethodInfo method, MethodExtensions extensions, bool forceTrailingSlash = false)
     {
         var isWildcard = CheckWildcardRoute(method.ReturnType);
 
         OperationPath path;
 
-        Dictionary<string, OperationArgument> pathArguments = [];
+        var pathArguments = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         if (string.IsNullOrWhiteSpace(definition))
         {
             if (isWildcard)
             {
-                pathArguments.Add("wildcard", new OperationArgument("wildcard", OperationArgumentSource.Path));
-                path = new OperationPath("/{wildcard}", EmptyWildcardRoute, true, true);
+                // ToDo: document the injection possibilities
+                path = new OperationPath("/{path}", EmptyWildcardRoute, true, true);
+                pathArguments.Add("path");
             }
             else
             {
@@ -45,8 +50,22 @@ public static partial class OperationBuilder
             // convert parameters of the format ":var" into appropriate groups
             foreach (Match match in VarPattern.Matches(definition))
             {
-                matchBuilder.Replace(match.Value, match.Groups[1].Value.ToParameter());
-                nameBuilder.Replace(match.Value, "{" + match.Groups[1].Value + "}");
+                var name = match.Groups[1].Value;
+
+                matchBuilder.Replace(match.Value, name.ToParameter());
+                nameBuilder.Replace(match.Value, "{" + name + "}");
+
+                pathArguments.Add(name);
+            }
+
+            // convert advanced regex params as well
+            foreach (Match match in RegexPattern.Matches(definition))
+            {
+                var name = match.Groups[1].Value;
+
+                nameBuilder.Replace(match.Value, "{" + name + "}");
+
+                pathArguments.Add(name);
             }
 
             var end = forceTrailingSlash ? "/" : "(/|)";
@@ -57,13 +76,9 @@ public static partial class OperationBuilder
             path = new OperationPath(nameBuilder.ToString(), matcher, false, isWildcard);
         }
 
-        return new Operation(path, AnalyzeArguments(path, pathArguments, method));
-    }
+        var arguments = SignatureAnalyzer.GetArguments(method, pathArguments, extensions);
 
-    private static IReadOnlyDictionary<string, OperationArgument> AnalyzeArguments(OperationPath path, Dictionary<string, OperationArgument> pathArguments, MethodInfo method)
-    {
-
-        return pathArguments;
+        return new Operation(method, path, arguments);
     }
 
     private static bool CheckWildcardRoute(Type returnType)
@@ -125,6 +140,9 @@ public static partial class OperationBuilder
 
     [GeneratedRegex(@"\:([a-z]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
     private static partial Regex CreateVarPattern();
+
+    [GeneratedRegex(@"\(\?\<([a-z]+)\>([^)]+)\)", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex CreateRegexPattern();
 
     [GeneratedRegex("^.*", RegexOptions.Compiled)]
     private static partial Regex CreateEmptyWildcardRoute();
