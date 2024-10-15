@@ -37,7 +37,7 @@ public sealed class MethodHandler : IHandler
 
     private Func<IRequest, IHandler, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> ResponseProvider { get; }
 
-    public MethodExtensions Extensions { get; }
+    public MethodRegistry Registry { get; }
 
     #endregion
 
@@ -45,7 +45,7 @@ public sealed class MethodHandler : IHandler
 
     public MethodHandler(IHandler parent, Operation operation, Func<object> instanceProvider, IMethodConfiguration metaData,
         Func<IRequest, IHandler, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> responseProvider,
-        MethodExtensions extensions)
+        MethodRegistry registry)
     {
         Parent = parent;
 
@@ -55,7 +55,7 @@ public sealed class MethodHandler : IHandler
         ResponseProvider = responseProvider;
 
         Operation = operation;
-        Extensions = extensions;
+        Registry = registry;
     }
 
     #endregion
@@ -102,11 +102,11 @@ public sealed class MethodHandler : IHandler
                     {
                         targetArguments[i] = arg.Source switch
                         {
-                            OperationArgumentSource.Injected => ArgumentProvider.GetInjectedArgument(request, this, arg, Extensions),
-                            OperationArgumentSource.Path => ArgumentProvider.GetPathArgument(arg, sourceParameters, Extensions),
-                            OperationArgumentSource.Body => await ArgumentProvider.GetBodyArgumentAsync(request, arg, Extensions),
-                            OperationArgumentSource.Query => ArgumentProvider.GetQueryArgument(request, bodyArguments, arg, Extensions),
-                            OperationArgumentSource.Content => await ArgumentProvider.GetContentAsync(request, arg, Extensions),
+                            OperationArgumentSource.Injected => ArgumentProvider.GetInjectedArgument(request, this, arg, Registry),
+                            OperationArgumentSource.Path => ArgumentProvider.GetPathArgument(arg, sourceParameters, Registry),
+                            OperationArgumentSource.Body => await ArgumentProvider.GetBodyArgumentAsync(request, arg, Registry),
+                            OperationArgumentSource.Query => ArgumentProvider.GetQueryArgument(request, bodyArguments, arg, Registry),
+                            OperationArgumentSource.Content => await ArgumentProvider.GetContentAsync(request, arg, Registry),
                             _ => throw new ProviderException(ResponseStatus.InternalServerError, $"Unable to map argument '{arg.Name}' of type '{arg.Type}' because source '{arg.Source}' is not supported")
                         };
                     }

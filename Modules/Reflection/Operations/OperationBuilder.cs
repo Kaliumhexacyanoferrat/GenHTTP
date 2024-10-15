@@ -19,7 +19,7 @@ public static partial class OperationBuilder
 
     #region Functionality
 
-    public static Operation Create(string? definition, MethodInfo method, MethodExtensions extensions, bool forceTrailingSlash = false)
+    public static Operation Create(string? definition, MethodInfo method, MethodRegistry registry, bool forceTrailingSlash = false)
     {
         var isWildcard = CheckWildcardRoute(method.ReturnType);
 
@@ -76,7 +76,7 @@ public static partial class OperationBuilder
             path = new OperationPath(nameBuilder.ToString(), matcher, false, isWildcard);
         }
 
-        var arguments = SignatureAnalyzer.GetArguments(method, pathArguments, extensions);
+        var arguments = SignatureAnalyzer.GetArguments(method, pathArguments, registry);
 
         return new Operation(method, path, arguments);
     }

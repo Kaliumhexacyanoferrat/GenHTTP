@@ -6,7 +6,7 @@ namespace GenHTTP.Modules.Reflection.Operations;
 public static class SignatureAnalyzer
 {
 
-    public static Dictionary<string, OperationArgument> GetArguments(MethodInfo method, HashSet<string> pathArguments, MethodExtensions extensions)
+    public static Dictionary<string, OperationArgument> GetArguments(MethodInfo method, HashSet<string> pathArguments, MethodRegistry registry)
     {
         var result = new Dictionary<string, OperationArgument>(StringComparer.OrdinalIgnoreCase);
 
@@ -20,13 +20,13 @@ public static class SignatureAnalyzer
                 continue;
             }
 
-            if (TryInject(param, extensions, out var injectedArg))
+            if (TryInject(param, registry, out var injectedArg))
             {
                 result.Add(param.Name, injectedArg);
                 continue;
             }
 
-            if (param.CanFormat(extensions.Formatting))
+            if (param.CanFormat(registry.Formatting))
             {
                 if (TryFromBody(param, out var bodyArg))
                 {
@@ -46,9 +46,9 @@ public static class SignatureAnalyzer
         return result;
     }
 
-    private static bool TryInject(ParameterInfo param, MethodExtensions extensions, [NotNullWhen(true)] out OperationArgument? argument)
+    private static bool TryInject(ParameterInfo param, MethodRegistry registry, [NotNullWhen(true)] out OperationArgument? argument)
     {
-        foreach (var injector in extensions.Injection)
+        foreach (var injector in registry.Injection)
         {
             if (injector.Supports(param.ParameterType))
             {

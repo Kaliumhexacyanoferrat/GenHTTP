@@ -69,7 +69,7 @@ public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>
 
         var instance = _Instance ?? throw new BuilderMissingPropertyException("Instance or Type");
 
-        var extensions = new MethodExtensions(serializers, injectors, formatters);
+        var extensions = new MethodRegistry(serializers, injectors, formatters);
 
         return Concerns.Chain(parent, _Concerns, p => new ControllerHandler(p, instance, extensions));
     }

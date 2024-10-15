@@ -10,9 +10,9 @@ namespace GenHTTP.Modules.Reflection.Operations;
 public static class ArgumentProvider
 {
 
-    public static object? GetInjectedArgument(IRequest request, IHandler handler, OperationArgument argument, MethodExtensions extensions)
+    public static object? GetInjectedArgument(IRequest request, IHandler handler, OperationArgument argument, MethodRegistry registry)
     {
-        foreach (var injector in extensions.Injection)
+        foreach (var injector in registry.Injection)
         {
             if (injector.Supports(argument.Type))
             {
@@ -23,7 +23,7 @@ public static class ArgumentProvider
         return null;
     }
 
-    public static object? GetPathArgument(OperationArgument argument, Match? matchedPath, MethodExtensions extensions)
+    public static object? GetPathArgument(OperationArgument argument, Match? matchedPath, MethodRegistry registry)
     {
         if (matchedPath != null)
         {
@@ -31,14 +31,14 @@ public static class ArgumentProvider
 
             if (sourceArgument.Success)
             {
-                return sourceArgument.Value.ConvertTo(argument.Type, extensions.Formatting);
+                return sourceArgument.Value.ConvertTo(argument.Type, registry.Formatting);
             }
         }
 
         return null;
     }
 
-    public static async ValueTask<object?> GetBodyArgumentAsync(IRequest request, OperationArgument argument, MethodExtensions extensions)
+    public static async ValueTask<object?> GetBodyArgumentAsync(IRequest request, OperationArgument argument, MethodRegistry registry)
     {
         if (request.Content == null)
         {
@@ -53,7 +53,7 @@ public static class ArgumentProvider
 
         if (!string.IsNullOrWhiteSpace(body))
         {
-            result = body.ConvertTo(argument.Type, extensions.Formatting);
+            result = body.ConvertTo(argument.Type, registry.Formatting);
         }
 
         request.Content.Seek(0, SeekOrigin.Begin);
@@ -61,27 +61,27 @@ public static class ArgumentProvider
         return result;
     }
 
-    public static object? GetQueryArgument(IRequest request, Dictionary<string, string>? formArguments, OperationArgument argument, MethodExtensions extensions)
+    public static object? GetQueryArgument(IRequest request, Dictionary<string, string>? formArguments, OperationArgument argument, MethodRegistry registry)
     {
         if (request.Query.TryGetValue(argument.Name, out var queryValue))
         {
-            return queryValue.ConvertTo(argument.Type, extensions.Formatting);
+            return queryValue.ConvertTo(argument.Type, registry.Formatting);
         }
 
         if (formArguments is not null)
         {
             if (formArguments.TryGetValue(argument.Name, out var bodyValue))
             {
-                return bodyValue.ConvertTo(argument.Type, extensions.Formatting);
+                return bodyValue.ConvertTo(argument.Type, registry.Formatting);
             }
         }
 
         return null;
     }
 
-    public static async ValueTask<object?> GetContentAsync(IRequest request, OperationArgument argument, MethodExtensions extensions)
+    public static async ValueTask<object?> GetContentAsync(IRequest request, OperationArgument argument, MethodRegistry registry)
     {
-        var deserializer = extensions.Serialization.GetDeserialization(request);
+        var deserializer = registry.Serialization.GetDeserialization(request);
 
         if (deserializer is null)
         {

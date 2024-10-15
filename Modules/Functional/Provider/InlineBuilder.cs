@@ -181,7 +181,7 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>
 
         var formatters = (_Formatters ?? Formatting.Default()).Build();
 
-        var extensions = new MethodExtensions(serializers, injectors, formatters);
+        var extensions = new MethodRegistry(serializers, injectors, formatters);
 
         return Concerns.Chain(parent, _Concerns, p => new InlineHandler(p, _Functions, extensions));
     }

@@ -21,7 +21,7 @@ public sealed partial class ControllerHandler : IHandler
 
     private ResponseProvider ResponseProvider { get; }
 
-    private MethodExtensions Extensions { get; }
+    private MethodRegistry Registry { get; }
 
     private object Instance { get; }
 
@@ -29,19 +29,19 @@ public sealed partial class ControllerHandler : IHandler
 
     #region Initialization
 
-    public ControllerHandler(IHandler parent, object instance, MethodExtensions extensions)
+    public ControllerHandler(IHandler parent, object instance, MethodRegistry registry)
     {
         Parent = parent;
-        Extensions = extensions;
+        Registry = registry;
 
         Instance = instance;
 
-        ResponseProvider = new ResponseProvider(extensions);
+        ResponseProvider = new ResponseProvider(registry);
 
-        Provider = new MethodCollection(this, AnalyzeMethods(instance.GetType(), extensions));
+        Provider = new MethodCollection(this, AnalyzeMethods(instance.GetType(), registry));
     }
 
-    private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, MethodExtensions extensions)
+    private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, MethodRegistry registry)
     {
         foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
         {
@@ -51,7 +51,7 @@ public sealed partial class ControllerHandler : IHandler
 
             var operation = CreateOperation(method, arguments);
 
-            yield return parent => new MethodHandler(parent, operation, () => Instance, annotation, ResponseProvider.GetResponseAsync, extensions);
+            yield return parent => new MethodHandler(parent, operation, () => Instance, annotation, ResponseProvider.GetResponseAsync, registry);
         }
     }
 
@@ -61,14 +61,14 @@ public sealed partial class ControllerHandler : IHandler
 
         if (method.Name == "Index")
         {
-            return OperationBuilder.Create(pathArguments.Length > 0 ? $"/{pathArguments}/" : null, method, Extensions,true);
+            return OperationBuilder.Create(pathArguments.Length > 0 ? $"/{pathArguments}/" : null, method, Registry,true);
         }
 
         var name = HypenCase(method.Name);
 
         var path = $"/{name}";
 
-        return OperationBuilder.Create(pathArguments.Length > 0 ? $"{path}/{pathArguments}/" : $"{path}/", method, Extensions, true);
+        return OperationBuilder.Create(pathArguments.Length > 0 ? $"{path}/{pathArguments}/" : $"{path}/", method, Registry, true);
     }
 
     private List<string> FindPathArguments(MethodInfo method)

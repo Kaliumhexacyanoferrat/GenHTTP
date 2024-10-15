@@ -24,18 +24,18 @@ public sealed class ServiceResourceRouter : IHandler
 
     #region Initialization
 
-    public ServiceResourceRouter(IHandler parent, object instance, MethodExtensions extensions)
+    public ServiceResourceRouter(IHandler parent, object instance, MethodRegistry registry)
     {
         Parent = parent;
 
         Instance = instance;
 
-        ResponseProvider = new ResponseProvider(extensions);
+        ResponseProvider = new ResponseProvider(registry);
 
-        Methods = new MethodCollection(this, AnalyzeMethods(instance.GetType(), extensions));
+        Methods = new MethodCollection(this, AnalyzeMethods(instance.GetType(), registry));
     }
 
-    private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, MethodExtensions extensions)
+    private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, MethodRegistry registry)
     {
         foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
         {
@@ -43,9 +43,9 @@ public sealed class ServiceResourceRouter : IHandler
 
             if (attribute is not null)
             {
-                var operation = OperationBuilder.Create(attribute.Path, method, extensions);
+                var operation = OperationBuilder.Create(attribute.Path, method, registry);
 
-                yield return parent => new MethodHandler(parent, operation, () => Instance, attribute, ResponseProvider.GetResponseAsync, extensions);
+                yield return parent => new MethodHandler(parent, operation, () => Instance, attribute, ResponseProvider.GetResponseAsync, registry);
             }
         }
     }

@@ -21,26 +21,26 @@ public class InlineHandler : IHandler
 
     #region Initialization
 
-    public InlineHandler(IHandler parent, List<InlineFunction> functions, MethodExtensions extensions)
+    public InlineHandler(IHandler parent, List<InlineFunction> functions, MethodRegistry registry)
     {
         Parent = parent;
 
-        ResponseProvider = new ResponseProvider(extensions);
+        ResponseProvider = new ResponseProvider(registry);
 
-        Methods = new MethodCollection(this, AnalyzeMethods(functions, extensions));
+        Methods = new MethodCollection(this, AnalyzeMethods(functions, registry));
     }
 
-    private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(List<InlineFunction> functions, MethodExtensions extensions)
+    private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(List<InlineFunction> functions, MethodRegistry registry)
     {
         foreach (var function in functions)
         {
             var method = function.Delegate.Method;
 
-            var operation = OperationBuilder.Create(function.Path, method, extensions);
+            var operation = OperationBuilder.Create(function.Path, method, registry);
 
             var target = function.Delegate.Target ?? throw new InvalidOperationException("Delegate target must not be null");
 
-            yield return parent => new MethodHandler(parent, operation, () => target, function.Configuration, ResponseProvider.GetResponseAsync, extensions);
+            yield return parent => new MethodHandler(parent, operation, () => target, function.Configuration, ResponseProvider.GetResponseAsync, registry);
         }
     }
 

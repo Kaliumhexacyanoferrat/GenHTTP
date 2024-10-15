@@ -17,15 +17,15 @@ public class ResponseProvider
 
     #region Get-/Setters
 
-    private MethodExtensions Extensions { get; }
+    private MethodRegistry Registry { get; }
 
     #endregion
 
     #region Initialization
 
-    public ResponseProvider(MethodExtensions extensions)
+    public ResponseProvider(MethodRegistry registry)
     {
-        Extensions = extensions;
+        Registry = registry;
     }
 
     #endregion
@@ -91,17 +91,17 @@ public class ResponseProvider
         }
 
         // format the value if possible
-        if (Extensions.Formatting.CanHandle(type))
+        if (Registry.Formatting.CanHandle(type))
         {
             return request.Respond()
-                          .Content(Extensions.Formatting.Write(result, type) ?? string.Empty)
+                          .Content(Registry.Formatting.Write(result, type) ?? string.Empty)
                           .Type(ContentType.TextPlain)
                           .Adjust(adjustments)
                           .Build();
         }
 
         // serialize the result
-        var serializer = Extensions.Serialization.GetSerialization(request);
+        var serializer = Registry.Serialization.GetSerialization(request);
 
         if (serializer is null)
         {
