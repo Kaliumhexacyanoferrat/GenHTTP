@@ -73,7 +73,7 @@ to [join our Discord community](https://discord.gg/GwtDyUpkpV) to get help.
 
 ## ⚙️ Building the Server
 
-To build the server from source, clone this repository and run the playground project launcher for .NET 8:
+To build the server from source, clone this repository and run the playground project launcher for .NET 9:
 
 ```sh
 git clone https://github.com/Kaliumhexacyanoferrat/GenHTTP.git
