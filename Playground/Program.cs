@@ -1,7 +1,9 @@
 ﻿using GenHTTP.Engine;
 using GenHTTP.Modules.Functional;
+using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.OpenApi;
 using GenHTTP.Modules.Practices;
+using GenHTTP.Modules.Webservices;
 
 // todo bug: Inline.Get("/") => wirft fehler!
 
@@ -11,13 +13,23 @@ var description = ApiDescription.Create()
                                                   .Title("My API")
                                                   .Version("1.0.0");
 
-var app = Inline.Create()
-                .Get("/users/:id", (int id) => id)
+var api = Layout.Create()
+                .AddService<UserService>("users")
                 .Add(description);
 
 Host.Create()
-    .Handler(app)
+    .Handler(api)
     .Defaults()
     .Development()
     .Console()
     .Run();
+
+public record User(int ID, string Name);
+
+public class UserService
+{
+
+    [ResourceMethod]
+    public List<User> GetUsers() { return []; }
+
+}

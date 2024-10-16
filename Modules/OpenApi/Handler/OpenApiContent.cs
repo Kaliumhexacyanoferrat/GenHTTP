@@ -31,7 +31,7 @@ public class OpenApiContent : IResponseContent
 
     #region Functionality
 
-    public ValueTask<ulong?> CalculateChecksumAsync() => new((ulong)Document.GetHashCode()); // todo
+    public ValueTask<ulong?> CalculateChecksumAsync() => new((ulong)Document.ToJson().GetHashCode());
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {

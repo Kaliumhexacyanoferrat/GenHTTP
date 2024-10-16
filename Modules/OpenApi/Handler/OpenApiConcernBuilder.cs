@@ -5,6 +5,7 @@ namespace GenHTTP.Modules.OpenApi.Handler;
 
 public sealed class OpenApiConcernBuilder : IConcernBuilder
 {
+    private bool _Caching = true;
 
     #region Get-/Setters
 
@@ -35,9 +36,15 @@ public sealed class OpenApiConcernBuilder : IConcernBuilder
         return this;
     }
 
+    public OpenApiConcernBuilder Caching(bool enabled)
+    {
+        _Caching = enabled;
+        return this;
+    }
+
     public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
     {
-        return new OpenApiConcern(parent, contentFactory, Discovery);
+        return new OpenApiConcern(parent, contentFactory, Discovery, _Caching);
     }
 
     #endregion

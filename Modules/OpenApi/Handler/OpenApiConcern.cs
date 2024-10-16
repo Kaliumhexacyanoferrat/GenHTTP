@@ -9,6 +9,7 @@ namespace GenHTTP.Modules.OpenApi.Handler;
 
 public sealed class OpenApiConcern : IConcern
 {
+    private OpenApiDocument? _Cached;
 
     #region Get-/Setters
 
@@ -18,16 +19,19 @@ public sealed class OpenApiConcern : IConcern
 
     private ApiDiscoveryRegistry Discovery { get; }
 
+    private bool EnableCaching { get; }
+
     #endregion
 
     #region Initialization
 
-    public OpenApiConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, ApiDiscoveryRegistry discovery)
+    public OpenApiConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, ApiDiscoveryRegistry discovery, bool enableCaching)
     {
         Parent = parent;
         Content = contentFactory(this);
 
         Discovery = discovery;
+        EnableCaching = enableCaching;
     }
 
     #endregion
@@ -93,6 +97,11 @@ public sealed class OpenApiConcern : IConcern
 
     private OpenApiDocument Discover(IRequest request, ApiDiscoveryRegistry registry)
     {
+        if (EnableCaching && (_Cached != null))
+        {
+            return _Cached;
+        }
+
         var document = new OpenApiDocument();
 
         document.SchemaType = SchemaType.OpenApi3;
@@ -105,6 +114,11 @@ public sealed class OpenApiConcern : IConcern
         });
 
         registry.Explore(Content, [], document);
+
+        if (EnableCaching)
+        {
+            _Cached = document;
+        }
 
         return document;
     }
