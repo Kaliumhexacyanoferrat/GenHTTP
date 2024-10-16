@@ -6,7 +6,7 @@ using NSwag;
 
 namespace GenHTTP.Modules.OpenApi.Handler;
 
-public partial class SchemaManager
+public class SchemaManager
 {
     private readonly JsonSchemaGenerator _Generator;
 

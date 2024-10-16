@@ -48,15 +48,23 @@ public class MethodHandlerExplorer : IApiExplorer
                 {
                     if (arg.Value.Source == OperationArgumentSource.Injected) continue;
 
-                    var param = new OpenApiParameter()
+                    if (arg.Value.Source == OperationArgumentSource.Content)
                     {
-                        Name = arg.Key,
-                        Schema = JsonSchema.FromType(arg.Value.Type),
-                        Kind = MapArgumentType(arg.Value.Source),
-                        IsRequired = MapRequired(arg.Value.Source)
-                    };
+                        var supportedTypes = methodHandler.Registry.Serialization.Formats.Select(s => s.Key.RawType).ToArray();
+                        operation.RequestBody = GetRequestBody(schemata, arg.Value.Type, supportedTypes);
+                    }
+                    else
+                    {
+                        var param = new OpenApiParameter()
+                        {
+                            Name = arg.Key,
+                            Schema = JsonSchema.FromType(arg.Value.Type),
+                            Kind = MapArgumentType(arg.Value.Source),
+                            IsRequired = MapRequired(arg.Value.Source)
+                        };
 
-                    operation.Parameters.Add(param);
+                        operation.Parameters.Add(param);
+                    }
                 }
 
                 foreach (var (key, value) in GetResponses(methodHandler.Operation, schemata, methodHandler.Registry))
@@ -142,7 +150,7 @@ public class MethodHandlerExplorer : IApiExplorer
         var sink = operation.Result.Sink;
         var type = operation.Result.Type;
 
-        if (sink == OperationResultSink.None || MightBeNull(type))
+        if (sink == OperationResultSink.None || type.MightBeNull())
         {
             result.Add("204", new OpenApiResponse()
             {
@@ -192,14 +200,23 @@ public class MethodHandlerExplorer : IApiExplorer
         return result;
     }
 
-    private static bool MightBeNull(Type type)
+    private static OpenApiRequestBody GetRequestBody(SchemaManager schemata, Type type, params string[] mediaTypes)
     {
-        if (type.IsClass)
+        var requestBody = new OpenApiRequestBody();
+
+        var schema = schemata.GetOrCreateSchema(type);
+
+        foreach (var mediaType in mediaTypes)
         {
-            return true;
+            var media = new OpenApiMediaType
+            {
+                Schema = schema
+            };
+
+            requestBody.Content.Add(mediaType, media);
         }
 
-        return Nullable.GetUnderlyingType(type) != null;
+        return requestBody;
     }
 
     private static OpenApiResponse GetResponse(SchemaManager schemata, Type type, params string[] mediaTypes)

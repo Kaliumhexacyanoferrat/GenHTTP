@@ -1,4 +1,5 @@
-﻿using GenHTTP.Engine;
+﻿using GenHTTP.Api.Protocol;
+using GenHTTP.Engine;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.OpenApi;
@@ -29,7 +30,13 @@ public record User(int ID, string Name);
 public class UserService
 {
 
-    [ResourceMethod]
-    public List<User> GetUsers() { return []; }
+    //[ResourceMethod]
+    //public List<User> GetUsers() { return []; }
+
+    //[ResourceMethod(RequestMethod.Get, ":id")]
+    //public User GetUser(int id) { return new(id, "Me"); }
+
+    [ResourceMethod(RequestMethod.Put)]
+    public void PutUser(User user) { }
 
 }

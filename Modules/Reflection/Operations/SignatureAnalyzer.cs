@@ -81,7 +81,7 @@ public static class SignatureAnalyzer
     {
         var type = FindActualType(method);
 
-        if (type == null)
+        if (type == null || type.FullName == "System.Void")
         {
             return new OperationResult(method.ReturnType, OperationResultSink.None);
         }
