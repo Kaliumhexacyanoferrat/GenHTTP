@@ -2,9 +2,8 @@
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.OpenApi.Discovery;
-
-using Microsoft.OpenApi;
-using Microsoft.OpenApi.Models;
+using NJsonSchema;
+using NSwag;
 
 namespace GenHTTP.Modules.OpenApi.Handler;
 
@@ -17,23 +16,17 @@ public sealed class OpenApiConcern : IConcern
 
     public IHandler Content { get; }
 
-    private OpenApiDocument Document { get; }
-
-    private ApiDiscoveryRegistry? Discovery { get; }
-
-    private OpenApiSpecVersion Version { get; }
+    private ApiDiscoveryRegistry Discovery { get; }
 
     #endregion
 
     #region Initialization
 
-    public OpenApiConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, OpenApiDocument document, OpenApiSpecVersion version, ApiDiscoveryRegistry? discovery)
+    public OpenApiConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, ApiDiscoveryRegistry discovery)
     {
         Parent = parent;
         Content = contentFactory(this);
 
-        Document = document;
-        Version = version;
         Discovery = discovery;
     }
 
@@ -86,9 +79,9 @@ public sealed class OpenApiConcern : IConcern
 
     private IResponse GetDocument(IRequest request, OpenApiFormat format)
     {
-        var document = (Discovery != null) ? Discover(Discovery) : Document;
+        var document = Discover(request, Discovery);
 
-        var content = new OpenApiContent(document, format, Version);
+        var content = new OpenApiContent(document, format);
 
         var contentType = (format == OpenApiFormat.Json) ? FlexibleContentType.Get(ContentType.ApplicationJson) : FlexibleContentType.Get(ContentType.ApplicationYaml);
 
@@ -98,9 +91,18 @@ public sealed class OpenApiConcern : IConcern
                       .Build();
     }
 
-    private OpenApiDocument Discover(ApiDiscoveryRegistry registry)
+    private OpenApiDocument Discover(IRequest request, ApiDiscoveryRegistry registry)
     {
-        var document = new OpenApiDocument(Document);
+        var document = new OpenApiDocument();
+
+        document.SchemaType = SchemaType.OpenApi3;
+
+        var path = request.Target.Path.ToString();
+
+        document.Servers.Add(new OpenApiServer()
+        {
+            Url = ((request.EndPoint.Secure) ? "https://" : "http://") + request.Host +  path[..path.LastIndexOf('/')]
+        });
 
         registry.Explore(Content, [], document);
 

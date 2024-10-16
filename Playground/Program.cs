@@ -8,10 +8,11 @@ using GenHTTP.Modules.Practices;
 // todo: formale parameterbeschreibung plus parameter-typ (müsste sich überall durchziehen ...)
 
 var description = ApiDescription.Create()
-                                .Discovery(ApiDiscovery.Default());
+                                                  .Title("My API")
+                                                  .Version("1.0.0");
 
 var app = Inline.Create()
-                .Get("/(?<param>[0-9]+)", (int param) => param)
+                .Get("/users/:id", (int id) => id)
                 .Add(description);
 
 Host.Create()

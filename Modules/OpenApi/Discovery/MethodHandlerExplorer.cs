@@ -1,10 +1,10 @@
 ﻿using System.Text;
 using GenHTTP.Api.Content;
-
+using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Operations;
-
-using Microsoft.OpenApi.Models;
+using NJsonSchema;
+using NSwag;
 
 namespace GenHTTP.Modules.OpenApi.Discovery;
 
@@ -17,15 +17,67 @@ public class MethodHandlerExplorer : IApiExplorer
     {
         if (handler is MethodHandler methodHandler)
         {
+            var tag = GetTag(methodHandler.Operation);
+
+            if (tag != null)
+            {
+                if (!document.Tags.Any(t => t.Name == tag))
+                {
+                    document.Tags.Add(new OpenApiTag()
+                    {
+                        Name = tag
+                    });
+                }
+            }
+
             var pathItem = GetPathItem(document, path, methodHandler.Operation);
+
+            foreach (var method in methodHandler.Configuration.SupportedMethods)
+            {
+                if ((method == RequestMethod.Head) && methodHandler.Configuration.SupportedMethods.Count > 1) continue;
+
+                var operation = new OpenApiOperation();
+
+                if (tag != null)
+                {
+                    operation.Tags.Add(tag);
+                }
+
+                foreach (var arg in methodHandler.Operation.Arguments)
+                {
+                    if (arg.Value.Source == OperationArgumentSource.Injected) continue;
+
+                    var param = new OpenApiParameter()
+                    {
+                        Name = arg.Key,
+                        Schema = JsonSchema.FromType(arg.Value.Type),
+                        Kind = MapArgumentType(arg.Value.Source),
+                        IsRequired = MapRequired(arg.Value.Source)
+                    };
+
+                    operation.Parameters.Add(param);
+                }
+
+                var response = new OpenApiResponse();
+
+                var media = new OpenApiMediaType();
+
+                media.Schema = JsonSchema.FromType(methodHandler.Operation.Method.ReturnType);
+
+                response.Content.Add("application/json", media);
+
+                // todo: methodHandler.Registry.Formatting.Formatters
+
+                operation.Responses.Add("200", response);
+
+                pathItem.Add(method.RawMethod, operation);
+            }
         }
     }
 
     private OpenApiPathItem GetPathItem(OpenApiDocument document, List<string> path, Operation operation)
     {
         var stringPath = BuildPath(operation.Path.Name, path);
-
-        document.Paths ??= new();
 
         if (document.Paths.TryGetValue(stringPath, out var existing))
         {
@@ -59,6 +111,34 @@ public class MethodHandlerExplorer : IApiExplorer
         }
 
         return builder.ToString();
+    }
+
+    private static OpenApiParameterKind MapArgumentType(OperationArgumentSource source) => source switch
+    {
+        OperationArgumentSource.Path => OpenApiParameterKind.Path,
+        OperationArgumentSource.Body => OpenApiParameterKind.Body,
+        OperationArgumentSource.Content => OpenApiParameterKind.ModelBinding,
+        OperationArgumentSource.Query => OpenApiParameterKind.Query,
+        _ => OpenApiParameterKind.Undefined
+    };
+
+    private static bool MapRequired(OperationArgumentSource source) => source switch
+    {
+        OperationArgumentSource.Path => true,
+        OperationArgumentSource.Content => true,
+        _ => false
+    };
+
+    private string? GetTag(Operation operation)
+    {
+        var type = operation.Method.DeclaringType?.Name;
+
+        if (type != null)
+        {
+            return (type.Contains("<>")) ? "Inline" : type;
+        }
+
+        return null;
     }
 
 }

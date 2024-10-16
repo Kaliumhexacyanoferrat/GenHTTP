@@ -23,7 +23,7 @@ public enum RequestMethod
 /// </summary>
 public class FlexibleRequestMethod
 {
-    private static readonly Dictionary<string, FlexibleRequestMethod> _RawCache = new(StringComparer.InvariantCultureIgnoreCase)
+    private static readonly Dictionary<string, FlexibleRequestMethod> RawCache = new(StringComparer.InvariantCultureIgnoreCase)
     {
         { "HEAD", new FlexibleRequestMethod(RequestMethod.Head) },
         { "GET", new FlexibleRequestMethod(RequestMethod.Get) },
@@ -33,7 +33,7 @@ public class FlexibleRequestMethod
         { "OPTIONS", new FlexibleRequestMethod(RequestMethod.Options) }
     };
 
-    private static readonly Dictionary<RequestMethod, FlexibleRequestMethod> _KnownCache = new()
+    private static readonly Dictionary<RequestMethod, FlexibleRequestMethod> KnownCache = new()
     {
         { RequestMethod.Head, new FlexibleRequestMethod(RequestMethod.Head) },
         { RequestMethod.Get, new FlexibleRequestMethod(RequestMethod.Get) },
@@ -45,7 +45,7 @@ public class FlexibleRequestMethod
 
     #region Mapping
 
-    private static readonly Dictionary<string, RequestMethod> MAPPING = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, RequestMethod> Mapping = new(StringComparer.OrdinalIgnoreCase)
     {
         { "GET", RequestMethod.Get },
         { "HEAD", RequestMethod.Head },
@@ -99,7 +99,7 @@ public class FlexibleRequestMethod
     {
         RawMethod = rawType;
 
-        if (MAPPING.TryGetValue(rawType, out var type))
+        if (Mapping.TryGetValue(rawType, out var type))
         {
             KnownMethod = type;
         }
@@ -120,14 +120,14 @@ public class FlexibleRequestMethod
     /// <returns>The content type instance to be used</returns>
     public static FlexibleRequestMethod Get(string rawMethod)
     {
-        if (_RawCache.TryGetValue(rawMethod, out var found))
+        if (RawCache.TryGetValue(rawMethod, out var found))
         {
             return found;
         }
 
         var method = new FlexibleRequestMethod(rawMethod);
 
-        _RawCache[rawMethod] = method;
+        RawCache[rawMethod] = method;
 
         return method;
     }
@@ -139,14 +139,14 @@ public class FlexibleRequestMethod
     /// <returns>The content type instance to be used</returns>
     public static FlexibleRequestMethod Get(RequestMethod knownMethod)
     {
-        if (_KnownCache.TryGetValue(knownMethod, out var found))
+        if (KnownCache.TryGetValue(knownMethod, out var found))
         {
             return found;
         }
 
         var method = new FlexibleRequestMethod(knownMethod);
 
-        _KnownCache[knownMethod] = method;
+        KnownCache[knownMethod] = method;
 
         return method;
     }

@@ -68,14 +68,12 @@ public class ResponseProvider
         if (result is IHandlerBuilder handlerBuilder)
         {
             return await handlerBuilder.Build(handler)
-                                       .HandleAsync(request)
-                ;
+                                       .HandleAsync(request);
         }
 
         if (result is IHandler resultHandler)
         {
-            return await resultHandler.HandleAsync(request)
-                ;
+            return await resultHandler.HandleAsync(request);
         }
 
         // stream returned as a download

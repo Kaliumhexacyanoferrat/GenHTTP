@@ -49,9 +49,13 @@
         <ProjectReference Include="..\Layouting\GenHTTP.Modules.Layouting.csproj" />
 
         <ProjectReference Include="..\Reflection\GenHTTP.Modules.Reflection.csproj" />
-        
-		<PackageReference Include="Microsoft.OpenApi" Version="1.6.22" />
 
+        <PackageReference Include="NSwag.Core" Version="14.1.0" />
+
+        <PackageReference Include="NSwag.Core.Yaml" Version="14.1.0" />
+
+        <PackageReference Include="NSwag.Generation" Version="14.1.0" />
+        
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
 
     </ItemGroup>

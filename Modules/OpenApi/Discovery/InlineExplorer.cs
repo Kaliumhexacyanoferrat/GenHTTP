@@ -1,6 +1,7 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Modules.Functional.Provider;
-using Microsoft.OpenApi.Models;
+
+using NSwag;
 
 namespace GenHTTP.Modules.OpenApi.Discovery;
 

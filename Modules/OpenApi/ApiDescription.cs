@@ -1,14 +1,13 @@
-﻿using GenHTTP.Modules.OpenApi.Handler;
-
-using Microsoft.OpenApi.Models;
+﻿using GenHTTP.Modules.OpenApi.Discovery;
+using GenHTTP.Modules.OpenApi.Handler;
 
 namespace GenHTTP.Modules.OpenApi;
 
 public static class ApiDescription
 {
 
-    public static OpenApiConcernBuilder Create() => new();
+    public static OpenApiConcernBuilder Create() => With(ApiDiscovery.Default());
 
-    public static OpenApiConcernBuilder From(OpenApiDocument document) => new(document);
+    public static OpenApiConcernBuilder With(ApiDiscoveryRegistryBuilder discovery) => new(discovery.Build());
 
 }

@@ -2,7 +2,7 @@
 
 using GenHTTP.Modules.Reflection;
 
-using Microsoft.OpenApi.Models;
+using NSwag;
 
 namespace GenHTTP.Modules.OpenApi.Discovery;
 
