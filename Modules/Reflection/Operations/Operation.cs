@@ -13,14 +13,17 @@ public sealed class Operation
 
     public IReadOnlyDictionary<string, OperationArgument> Arguments { get; }
 
+    public OperationResult Result { get; }
+
     #endregion
 
     #region Initialization
 
-    public Operation(MethodInfo method, OperationPath path, IReadOnlyDictionary<string, OperationArgument> arguments)
+    public Operation(MethodInfo method, OperationPath path, OperationResult result, IReadOnlyDictionary<string, OperationArgument> arguments)
     {
         Method = method;
         Path = path;
+        Result = result;
         Arguments = arguments;
     }
 

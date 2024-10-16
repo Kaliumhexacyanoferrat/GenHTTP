@@ -78,7 +78,9 @@ public static partial class OperationBuilder
 
         var arguments = SignatureAnalyzer.GetArguments(method, pathArguments, registry);
 
-        return new Operation(method, path, arguments);
+        var result = SignatureAnalyzer.GetResult(method, registry);
+
+        return new Operation(method, path, result, arguments);
     }
 
     private static bool CheckWildcardRoute(Type returnType)

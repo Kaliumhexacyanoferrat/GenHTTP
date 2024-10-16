@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Reflection.Operations;
 
@@ -73,6 +75,57 @@ public static class SignatureAnalyzer
 
         argument = null;
         return false;
+    }
+
+    public static OperationResult GetResult(MethodInfo method, MethodRegistry registry)
+    {
+        var type = FindActualType(method);
+
+        if (type == null)
+        {
+            return new OperationResult(method.ReturnType, OperationResultSink.None);
+        }
+
+        if (typeof(IHandler).IsAssignableFrom(type) || typeof(IHandlerBuilder).IsAssignableFrom(type) || typeof(IResponse).IsAssignableFrom(type) ||  typeof(IResponseBuilder).IsAssignableFrom(type))
+        {
+            return new OperationResult(type, OperationResultSink.Dynamic);
+        }
+
+        if (typeof(Stream).IsAssignableFrom(type))
+        {
+            return new OperationResult(type, OperationResultSink.Stream);
+        }
+
+        if (registry.Formatting.CanHandle(type))
+        {
+            return new OperationResult(type, OperationResultSink.Formatter);
+        }
+
+        return new OperationResult(type, OperationResultSink.Serializer);
+    }
+
+    private static Type? FindActualType(MethodInfo method)
+    {
+        var type = method.ReturnType;
+
+        if (type.IsAsyncGeneric())
+        {
+            return type.IsGenericallyVoid() ? null : type.GenericTypeArguments[0];
+        }
+        else
+        {
+            if (type == typeof(ValueTask) || type == typeof(Task))
+            {
+                return null;
+            }
+        }
+
+        if (typeof(IResultWrapper).IsAssignableFrom(type))
+        {
+            return type.GenericTypeArguments[0];
+        }
+
+        return type;
     }
 
 }

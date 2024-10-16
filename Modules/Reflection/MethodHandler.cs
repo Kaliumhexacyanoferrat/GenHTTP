@@ -23,8 +23,6 @@ public sealed class MethodHandler : IHandler
 {
     private static readonly object?[] NoArguments = [];
 
-    private static readonly Type? VoidTaskResult = Type.GetType("System.Threading.Tasks.VoidTaskResult");
-
     #region Get-/Setters
 
     public IHandler Parent { get; }
@@ -35,7 +33,7 @@ public sealed class MethodHandler : IHandler
 
     private Func<object> InstanceProvider { get; }
 
-    private Func<IRequest, IHandler, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> ResponseProvider { get; }
+    private Func<IRequest, IHandler, Operation, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> ResponseProvider { get; }
 
     public MethodRegistry Registry { get; }
 
@@ -44,7 +42,7 @@ public sealed class MethodHandler : IHandler
     #region Initialization
 
     public MethodHandler(IHandler parent, Operation operation, Func<object> instanceProvider, IMethodConfiguration metaData,
-        Func<IRequest, IHandler, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> responseProvider,
+        Func<IRequest, IHandler, Operation, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> responseProvider,
         MethodRegistry registry)
     {
         Parent = parent;
@@ -68,7 +66,7 @@ public sealed class MethodHandler : IHandler
 
         var result = Invoke(arguments);
 
-        return await ResponseProvider(request, this, await UnwrapAsync(result), null);
+        return await ResponseProvider(request, this, Operation, await UnwrapAsync(result), null);
     }
 
     private async ValueTask<object?[]> GetArguments(IRequest request)
@@ -154,12 +152,8 @@ public sealed class MethodHandler : IHandler
 
             await task;
 
-            if (type.GenericTypeArguments.Length == 1 && type.GenericTypeArguments[0] == VoidTaskResult)
-            {
-                return null;
-            }
+            return type.IsGenericallyVoid() ? null : task.Result;
 
-            return task.Result;
         }
         if (type == typeof(ValueTask) || type == typeof(Task))
         {

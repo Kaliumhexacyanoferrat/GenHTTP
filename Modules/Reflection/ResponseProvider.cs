@@ -1,10 +1,10 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.Conversion.Formatters;
-using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.IO.Streaming;
+using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Reflection;
 
@@ -32,15 +32,12 @@ public class ResponseProvider
 
     #region Functionality
 
-    public async ValueTask<IResponse?> GetResponseAsync(IRequest request, IHandler handler, object? result, Action<IResponseBuilder>? adjustments = null)
+    public async ValueTask<IResponse?> GetResponseAsync(IRequest request, IHandler handler, Operation operation, object? result, Action<IResponseBuilder>? adjustments = null)
     {
         // no result = 204
         if (result is null)
         {
-            return request.Respond()
-                          .Status(ResponseStatus.NoContent)
-                          .Adjust(adjustments)
-                          .Build();
+            return GetNoContent(request, adjustments);
         }
 
         var type = result.GetType();
@@ -50,10 +47,30 @@ public class ResponseProvider
         {
             var wrapped = (IResultWrapper)result;
 
-            return await GetResponseAsync(request, handler, wrapped.Payload, b => wrapped.Apply(b));
+            return await GetResponseAsync(request, handler, operation, wrapped.Payload, b => wrapped.Apply(b));
         }
 
-        // response returned by the method
+        return operation.Result.Sink switch
+        {
+            OperationResultSink.Dynamic => await GetDynamicResponse(request, result, handler, adjustments),
+            OperationResultSink.Stream => GetDownloadResponse(request, (Stream)result, adjustments),
+            OperationResultSink.Formatter => GetFormattedResponse(request, result, type, adjustments),
+            OperationResultSink.Serializer => await GetSerializedResponse(request, result, adjustments),
+            OperationResultSink.None => GetNoContent(request, adjustments),
+            _ => throw new ProviderException(ResponseStatus.InternalServerError, $"Unsupported sink '{operation.Result.Sink}' for type '{operation.Result.Type}'")
+        };
+    }
+
+    private static IResponse GetNoContent(IRequest request, Action<IResponseBuilder>? adjustments)
+    {
+        return request.Respond()
+                      .Status(ResponseStatus.NoContent)
+                      .Adjust(adjustments)
+                      .Build();
+    }
+
+    private static async Task<IResponse?> GetDynamicResponse(IRequest request, object result, IHandler handler, Action<IResponseBuilder>? adjustments)
+    {
         if (result is IResponseBuilder responseBuilder)
         {
             return responseBuilder.Adjust(adjustments).Build();
@@ -64,7 +81,6 @@ public class ResponseProvider
             return response;
         }
 
-        // handler returned by the method
         if (result is IHandlerBuilder handlerBuilder)
         {
             return await handlerBuilder.Build(handler)
@@ -76,29 +92,31 @@ public class ResponseProvider
             return await resultHandler.HandleAsync(request);
         }
 
-        // stream returned as a download
-        if (result is Stream download)
-        {
-            var downloadResponse = request.Respond()
-                                          .Content(download, () => download.CalculateChecksumAsync())
-                                          .Type(ContentType.ApplicationForceDownload)
-                                          .Adjust(adjustments)
-                                          .Build();
+        throw new ProviderException(ResponseStatus.InternalServerError, $"Unexpected return type '{result.GetType()}' to be processed by dynamic sink");
+    }
 
-            return downloadResponse;
-        }
+    private static IResponse GetDownloadResponse(IRequest request, Stream download, Action<IResponseBuilder>? adjustments)
+    {
+        var downloadResponse = request.Respond()
+                                      .Content(download, download.CalculateChecksumAsync)
+                                      .Type(ContentType.ApplicationForceDownload)
+                                      .Adjust(adjustments)
+                                      .Build();
 
-        // format the value if possible
-        if (Registry.Formatting.CanHandle(type))
-        {
-            return request.Respond()
-                          .Content(Registry.Formatting.Write(result, type) ?? string.Empty)
-                          .Type(ContentType.TextPlain)
-                          .Adjust(adjustments)
-                          .Build();
-        }
+        return downloadResponse;
+    }
 
-        // serialize the result
+    private IResponse GetFormattedResponse(IRequest request, object result, Type type, Action<IResponseBuilder>? adjustments)
+    {
+        return request.Respond()
+                      .Content(Registry.Formatting.Write(result, type) ?? string.Empty)
+                      .Type(ContentType.TextPlain)
+                      .Adjust(adjustments)
+                      .Build();
+    }
+
+    private async ValueTask<IResponse> GetSerializedResponse(IRequest request, object result, Action<IResponseBuilder>? adjustments)
+    {
         var serializer = Registry.Serialization.GetSerialization(request);
 
         if (serializer is null)
