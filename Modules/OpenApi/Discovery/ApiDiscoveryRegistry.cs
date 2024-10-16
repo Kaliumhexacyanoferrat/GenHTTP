@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Modules.OpenApi.Handler;
 
 using NSwag;
 
@@ -24,13 +25,13 @@ public sealed class ApiDiscoveryRegistry
 
     #region Functionality
 
-    internal void Explore(IHandler handler, List<string> path, OpenApiDocument document)
+    internal void Explore(IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata)
     {
         foreach (var explorer in Explorers)
         {
             if (explorer.CanExplore(handler))
             {
-                explorer.Explore(handler, path, document, this);
+                explorer.Explore(handler, path, document, schemata, this);
             }
         }
     }

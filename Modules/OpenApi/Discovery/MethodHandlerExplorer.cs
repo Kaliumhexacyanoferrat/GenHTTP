@@ -1,10 +1,9 @@
 ﻿using System.Text;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.OpenApi.Handler;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Operations;
-
 using NJsonSchema;
 using NSwag;
 
@@ -15,7 +14,7 @@ public class MethodHandlerExplorer : IApiExplorer
 
     public bool CanExplore(IHandler handler) => handler is MethodHandler;
 
-    public void Explore(IHandler handler, List<string> path, OpenApiDocument document, ApiDiscoveryRegistry registry)
+    public void Explore(IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, ApiDiscoveryRegistry registry)
     {
         if (handler is MethodHandler methodHandler)
         {
@@ -60,7 +59,7 @@ public class MethodHandlerExplorer : IApiExplorer
                     operation.Parameters.Add(param);
                 }
 
-                foreach (var (key, value) in GetResponses(methodHandler.Operation, methodHandler.Registry))
+                foreach (var (key, value) in GetResponses(methodHandler.Operation, schemata, methodHandler.Registry))
                 {
                     operation.Responses.Add(key, value);
                 }
@@ -136,7 +135,7 @@ public class MethodHandlerExplorer : IApiExplorer
         return null;
     }
 
-    private static Dictionary<string, OpenApiResponse> GetResponses(Operation operation, MethodRegistry registry)
+    private static Dictionary<string, OpenApiResponse> GetResponses(Operation operation, SchemaManager schemata, MethodRegistry registry)
     {
         var result = new Dictionary<string, OpenApiResponse>();
 
@@ -153,11 +152,11 @@ public class MethodHandlerExplorer : IApiExplorer
 
         if (sink == OperationResultSink.Formatter)
         {
-            result.Add("200", GetResponse(type, "text/plain"));
+            result.Add("200", GetResponse(schemata, type, "text/plain"));
         }
         else if (sink == OperationResultSink.Serializer)
         {
-            result.Add("200", GetResponse(type, registry.Serialization.Formats.Select(s => s.Key.RawType).ToArray()));
+            result.Add("200", GetResponse(schemata, type, registry.Serialization.Formats.Select(s => s.Key.RawType).ToArray()));
         }
         else if (sink == OperationResultSink.Stream)
         {
@@ -171,7 +170,10 @@ public class MethodHandlerExplorer : IApiExplorer
                 Format = "binary"
             };
 
-            response.Content.Add("application/octet-stream", new OpenApiMediaType() { Schema = schema });
+            response.Content.Add("application/octet-stream", new OpenApiMediaType()
+            {
+                Schema = schema
+            });
 
             result.Add("200", response);
         }
@@ -200,15 +202,17 @@ public class MethodHandlerExplorer : IApiExplorer
         return Nullable.GetUnderlyingType(type) != null;
     }
 
-    private static OpenApiResponse GetResponse(Type type, params string[] mediaTypes)
+    private static OpenApiResponse GetResponse(SchemaManager schemata, Type type, params string[] mediaTypes)
     {
         var response = new OpenApiResponse();
+
+        var schema = schemata.GetOrCreateSchema(type);
 
         foreach (var mediaType in mediaTypes)
         {
             var media = new OpenApiMediaType
             {
-                Schema = JsonSchema.FromType(type)
+                Schema = schema
             };
 
             response.Content.Add(mediaType, media);

@@ -1,6 +1,5 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.OpenApi.Discovery;
 using NJsonSchema;
 using NSwag;
@@ -104,16 +103,21 @@ public sealed class OpenApiConcern : IConcern
 
         var document = new OpenApiDocument();
 
+        var schemata = new SchemaManager(document);
+
         document.SchemaType = SchemaType.OpenApi3;
 
         var path = request.Target.Path.ToString();
 
-        document.Servers.Add(new OpenApiServer()
+        if (request.Host != null)
         {
-            Url = ((request.EndPoint.Secure) ? "https://" : "http://") + request.Host +  path[..path.LastIndexOf('/')]
-        });
+            document.Servers.Add(new OpenApiServer()
+            {
+                Url = ((request.EndPoint.Secure) ? "https://" : "http://") + request.Host + path[..path.LastIndexOf('/')]
+            });
+        }
 
-        registry.Explore(Content, [], document);
+        registry.Explore(Content, [], document, schemata);
 
         if (EnableCaching)
         {
