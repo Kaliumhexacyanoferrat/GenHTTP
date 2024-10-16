@@ -22,7 +22,7 @@ public class MethodHandlerExplorer : IApiExplorer
 
             if (tag != null)
             {
-                if (!document.Tags.Any(t => t.Name == tag))
+                if (document.Tags.All(t => t.Name != tag))
                 {
                     document.Tags.Add(new OpenApiTag()
                     {
@@ -38,6 +38,8 @@ public class MethodHandlerExplorer : IApiExplorer
                 if ((method == RequestMethod.Head) && methodHandler.Configuration.SupportedMethods.Count > 1) continue;
 
                 var operation = new OpenApiOperation();
+
+                operation.IsDeprecated = methodHandler.Operation.Method.GetCustomAttributes(typeof(ObsoleteAttribute), true).Length > 0;
 
                 if (tag != null)
                 {

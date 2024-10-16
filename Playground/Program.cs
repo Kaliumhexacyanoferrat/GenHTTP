@@ -11,8 +11,6 @@ using GenHTTP.Modules.Webservices;
 
 // todo bug: Inline.Get("/") => wirft fehler!
 
-// todo: formale parameterbeschreibung plus parameter-typ (müsste sich überall durchziehen ...)
-
 var description = ApiDescription.Create()
                                                   .Title("My API")
                                                   .Version("1.0.0");
@@ -55,5 +53,9 @@ public class DeviceController
 
     [ControllerAction(RequestMethod.Get)]
     public IHandlerBuilder Wildcard() => Redirect.To("https://google.de");
+
+    [Obsolete]
+    [ControllerAction(RequestMethod.Get)]
+    public ValueTask<User?> GetUserAsync() { return new(); }
 
 }
