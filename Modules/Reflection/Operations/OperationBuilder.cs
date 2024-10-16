@@ -68,10 +68,27 @@ public static partial class OperationBuilder
                 pathArguments.Add(name);
             }
 
-            var end = forceTrailingSlash ? "/" : "(/|)";
-            end = isWildcard ? end : $"{end}$";
+            if (forceTrailingSlash)
+            {
+                matchBuilder.Append('/');
+                nameBuilder.Append('/');
+            }
+            else
+            {
+                matchBuilder.Append("(/|)");
+            }
 
-            var matcher = new Regex($"^/{matchBuilder}{end}", RegexOptions.Compiled);
+            if (isWildcard)
+            {
+                nameBuilder.Append("{path}");
+                pathArguments.Add("path");
+            }
+            else
+            {
+                matchBuilder.Append('$');
+            }
+
+            var matcher = new Regex($"^/{matchBuilder}", RegexOptions.Compiled);
 
             path = new OperationPath(nameBuilder.ToString(), matcher, false, isWildcard);
         }

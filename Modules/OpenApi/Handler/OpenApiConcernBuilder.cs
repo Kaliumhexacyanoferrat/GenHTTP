@@ -1,11 +1,19 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.OpenApi.Discovery;
+
+using NSwag;
 
 namespace GenHTTP.Modules.OpenApi.Handler;
 
 public sealed class OpenApiConcernBuilder : IConcernBuilder
 {
     private bool _Caching = true;
+
+    private string? _Title, _Version;
+
+    private Action<IRequest, OpenApiDocument>? _PostProcessor;
 
     #region Get-/Setters
 
@@ -26,13 +34,13 @@ public sealed class OpenApiConcernBuilder : IConcernBuilder
 
     public OpenApiConcernBuilder Title(string title)
     {
-        // todo
+        _Title = title;
         return this;
     }
 
     public OpenApiConcernBuilder Version(string version)
     {
-        // todo
+        _Version = version;
         return this;
     }
 
@@ -42,9 +50,30 @@ public sealed class OpenApiConcernBuilder : IConcernBuilder
         return this;
     }
 
+    public OpenApiConcernBuilder PostProcessor(Action<IRequest, OpenApiDocument> action)
+    {
+        _PostProcessor = action;
+        return this;
+    }
+
     public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
     {
-        return new OpenApiConcern(parent, contentFactory, Discovery, _Caching);
+        return new OpenApiConcern(parent, contentFactory, Discovery, _Caching, DoPostProcessing);
+    }
+
+    private void DoPostProcessing(IRequest request, OpenApiDocument document)
+    {
+        if (_Title != null)
+        {
+            document.Info.Title = _Title;
+        }
+
+        if (_Version != null)
+        {
+            document.Info.Version = _Version;
+        }
+
+        _PostProcessor?.Invoke(request, document);
     }
 
     #endregion

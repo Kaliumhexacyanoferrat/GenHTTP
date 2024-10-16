@@ -20,17 +20,20 @@ public sealed class OpenApiConcern : IConcern
 
     private bool EnableCaching { get; }
 
+    private Action<IRequest, OpenApiDocument> PostProcessor { get; }
+
     #endregion
 
     #region Initialization
 
-    public OpenApiConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, ApiDiscoveryRegistry discovery, bool enableCaching)
+    public OpenApiConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, ApiDiscoveryRegistry discovery, bool enableCaching, Action<IRequest, OpenApiDocument> postProcessor)
     {
         Parent = parent;
         Content = contentFactory(this);
 
         Discovery = discovery;
         EnableCaching = enableCaching;
+        PostProcessor = postProcessor;
     }
 
     #endregion
@@ -118,6 +121,8 @@ public sealed class OpenApiConcern : IConcern
         }
 
         registry.Explore(Content, [], document, schemata);
+
+        PostProcessor.Invoke(request, document);
 
         if (EnableCaching)
         {
