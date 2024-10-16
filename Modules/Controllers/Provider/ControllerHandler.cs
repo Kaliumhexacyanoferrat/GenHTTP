@@ -9,7 +9,7 @@ using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Controllers.Provider;
 
-public sealed partial class ControllerHandler : IHandler
+public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 {
     private static readonly Regex HyphenMatcher = CreateHyphenMatcher();
 
@@ -17,7 +17,7 @@ public sealed partial class ControllerHandler : IHandler
 
     public IHandler Parent { get; }
 
-    private MethodCollection Provider { get; }
+    public MethodCollection Methods { get; }
 
     private ResponseProvider ResponseProvider { get; }
 
@@ -38,7 +38,7 @@ public sealed partial class ControllerHandler : IHandler
 
         ResponseProvider = new ResponseProvider(registry);
 
-        Provider = new MethodCollection(this, AnalyzeMethods(instance.GetType(), registry));
+        Methods = new MethodCollection(this, AnalyzeMethods(instance.GetType(), registry));
     }
 
     private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, MethodRegistry registry)
@@ -98,9 +98,9 @@ public sealed partial class ControllerHandler : IHandler
 
     #region Functionality
 
-    public ValueTask PrepareAsync() => Provider.PrepareAsync();
+    public ValueTask PrepareAsync() => Methods.PrepareAsync();
 
-    public ValueTask<IResponse?> HandleAsync(IRequest request) => Provider.HandleAsync(request);
+    public ValueTask<IResponse?> HandleAsync(IRequest request) => Methods.HandleAsync(request);
 
     #endregion
 

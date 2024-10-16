@@ -1,8 +1,10 @@
 ﻿using System.Text;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Operations;
+
 using NJsonSchema;
 using NSwag;
 
@@ -58,24 +60,17 @@ public class MethodHandlerExplorer : IApiExplorer
                     operation.Parameters.Add(param);
                 }
 
-                var response = new OpenApiResponse();
-
-                var media = new OpenApiMediaType();
-
-                media.Schema = JsonSchema.FromType(methodHandler.Operation.Method.ReturnType);
-
-                response.Content.Add("application/json", media);
-
-                // todo: methodHandler.Registry.Formatting.Formatters
-
-                operation.Responses.Add("200", response);
+                foreach (var (key, value) in GetResponses(methodHandler.Operation, methodHandler.Registry))
+                {
+                    operation.Responses.Add(key, value);
+                }
 
                 pathItem.Add(method.RawMethod, operation);
             }
         }
     }
 
-    private OpenApiPathItem GetPathItem(OpenApiDocument document, List<string> path, Operation operation)
+    private static OpenApiPathItem GetPathItem(OpenApiDocument document, List<string> path, Operation operation)
     {
         var stringPath = BuildPath(operation.Path.Name, path);
 
@@ -129,7 +124,7 @@ public class MethodHandlerExplorer : IApiExplorer
         _ => false
     };
 
-    private string? GetTag(Operation operation)
+    private static string? GetTag(Operation operation)
     {
         var type = operation.Method.DeclaringType?.Name;
 
@@ -139,6 +134,87 @@ public class MethodHandlerExplorer : IApiExplorer
         }
 
         return null;
+    }
+
+    private static Dictionary<string, OpenApiResponse> GetResponses(Operation operation, MethodRegistry registry)
+    {
+        var result = new Dictionary<string, OpenApiResponse>();
+
+        var sink = operation.Result.Sink;
+        var type = operation.Result.Type;
+
+        if (sink == OperationResultSink.None || MightBeNull(type))
+        {
+            result.Add("204", new OpenApiResponse()
+            {
+                Description = "A response containing no body"
+            });
+        }
+
+        if (sink == OperationResultSink.Formatter)
+        {
+            result.Add("200", GetResponse(type, "text/plain"));
+        }
+        else if (sink == OperationResultSink.Serializer)
+        {
+            result.Add("200", GetResponse(type, registry.Serialization.Formats.Select(s => s.Key.RawType).ToArray()));
+        }
+        else if (sink == OperationResultSink.Stream)
+        {
+            var response = new OpenApiResponse()
+            {
+                Description = "A dynamically generated response"
+            };
+
+            var schema = new JsonSchema()
+            {
+                Format = "binary"
+            };
+
+            response.Content.Add("application/octet-stream", new OpenApiMediaType() { Schema = schema });
+
+            result.Add("200", response);
+        }
+        else if (sink == OperationResultSink.Dynamic)
+        {
+            var response = new OpenApiResponse()
+            {
+                Description = "A dynamically generated response"
+            };
+
+            response.Content.Add("*/*", new OpenApiMediaType());
+
+            result.Add("200", response);
+        }
+
+        return result;
+    }
+
+    private static bool MightBeNull(Type type)
+    {
+        if (type.IsClass)
+        {
+            return true;
+        }
+
+        return Nullable.GetUnderlyingType(type) != null;
+    }
+
+    private static OpenApiResponse GetResponse(Type type, params string[] mediaTypes)
+    {
+        var response = new OpenApiResponse();
+
+        foreach (var mediaType in mediaTypes)
+        {
+            var media = new OpenApiMediaType
+            {
+                Schema = JsonSchema.FromType(type)
+            };
+
+            response.Content.Add(mediaType, media);
+        }
+
+        return response;
     }
 
 }

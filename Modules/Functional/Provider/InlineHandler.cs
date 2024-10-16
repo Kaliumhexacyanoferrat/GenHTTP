@@ -6,7 +6,7 @@ using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Functional.Provider;
 
-public class InlineHandler : IHandler
+public class InlineHandler : IHandler, IServiceMethodProvider
 {
 
     #region Get-/Setters

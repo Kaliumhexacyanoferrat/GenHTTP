@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
@@ -7,12 +8,12 @@ using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Webservices.Provider;
 
-public sealed class ServiceResourceRouter : IHandler
+public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 {
 
     #region Get-/Setters
 
-    private MethodCollection Methods { get; }
+    public MethodCollection Methods { get; }
 
     public IHandler Parent { get; }
 
