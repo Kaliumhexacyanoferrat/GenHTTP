@@ -50,8 +50,11 @@ public class MethodHandlerExplorer : IApiExplorer
 
                     if (arg.Value.Source == OperationArgumentSource.Content)
                     {
-                        var supportedTypes = methodHandler.Registry.Serialization.Formats.Select(s => s.Key.RawType).ToArray();
-                        operation.RequestBody = GetRequestBody(schemata, arg.Value.Type, supportedTypes);
+                        if (method.KnownMethod != RequestMethod.Get)
+                        {
+                            var supportedTypes = methodHandler.Registry.Serialization.Formats.Select(s => s.Key.RawType).ToArray();
+                            operation.RequestBody = GetRequestBody(schemata, arg.Value.Type, supportedTypes);
+                        }
                     }
                     else
                     {

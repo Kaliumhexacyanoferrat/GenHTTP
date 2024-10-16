@@ -30,13 +30,7 @@ public record User(int ID, string Name);
 public class UserService
 {
 
-    //[ResourceMethod]
-    //public List<User> GetUsers() { return []; }
-
-    //[ResourceMethod(RequestMethod.Get, ":id")]
-    //public User GetUser(int id) { return new(id, "Me"); }
-
-    [ResourceMethod(RequestMethod.Put)]
-    public void PutUser(User user) { }
+    [ResourceMethod]
+    public Stream Avatar(DateTime cannot, short s, byte b, bool b2) { return new MemoryStream();  }
 
 }
