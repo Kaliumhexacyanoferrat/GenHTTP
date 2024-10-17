@@ -40,9 +40,10 @@ public class MethodHandlerExplorer : IApiExplorer
                     continue;
                 }
 
-                var operation = new OpenApiOperation();
-
-                operation.IsDeprecated = methodHandler.Operation.Method.GetCustomAttributes(typeof(ObsoleteAttribute), true).Length > 0;
+                var operation = new OpenApiOperation
+                {
+                    IsDeprecated = methodHandler.Operation.Method.GetCustomAttributes(typeof(ObsoleteAttribute), true).Length > 0
+                };
 
                 if (tag != null)
                 {

@@ -4,7 +4,7 @@ using NJsonSchema.Generation;
 using NJsonSchema.NewtonsoftJson.Generation;
 using NSwag;
 
-namespace GenHTTP.Modules.OpenApi.Handler;
+namespace GenHTTP.Modules.OpenApi.Discovery;
 
 public class SchemaManager
 {
