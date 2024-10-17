@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.OpenApi.Handler;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Operations;
 using NJsonSchema;

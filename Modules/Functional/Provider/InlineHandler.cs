@@ -29,7 +29,7 @@ public class InlineHandler : IHandler, IServiceMethodProvider
         Methods = new MethodCollection(this, AnalyzeMethods(functions, registry));
     }
 
-    private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(List<InlineFunction> functions, MethodRegistry registry)
+    private static IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(List<InlineFunction> functions, MethodRegistry registry)
     {
         foreach (var function in functions)
         {
