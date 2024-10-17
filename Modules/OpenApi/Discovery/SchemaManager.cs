@@ -6,13 +6,13 @@ using NSwag;
 
 namespace GenHTTP.Modules.OpenApi.Discovery;
 
-public class SchemaManager
+public sealed class SchemaManager
 {
     private readonly JsonSchemaGenerator _Generator;
 
     private readonly OpenApiSchemaResolver _Resolver;
 
-    public SchemaManager(OpenApiDocument document)
+    internal SchemaManager(OpenApiDocument document)
     {
         var settings = new NewtonsoftJsonSchemaGeneratorSettings
         {
@@ -24,5 +24,11 @@ public class SchemaManager
         _Resolver = new OpenApiSchemaResolver(document, settings);
     }
 
+    /// <summary>
+    /// Generates or retrieves a JSON schema that represents the given type.
+    /// </summary>
+    /// <param name="type">The type to generate a schema for</param>
+    /// <returns>The generated or retrieved JSON schema</returns>
     public JsonSchema GetOrCreateSchema(Type type) => _Generator.GenerateWithReferenceAndNullability<JsonSchema>(type.ToContextualType(), false, _Resolver);
+
 }

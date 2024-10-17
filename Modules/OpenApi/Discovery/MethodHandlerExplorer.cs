@@ -9,7 +9,7 @@ using NSwag;
 
 namespace GenHTTP.Modules.OpenApi.Discovery;
 
-public class MethodHandlerExplorer : IApiExplorer
+public sealed class MethodHandlerExplorer : IApiExplorer
 {
 
     public bool CanExplore(IHandler handler) => handler is MethodHandler;
@@ -273,4 +273,5 @@ public class MethodHandlerExplorer : IApiExplorer
 
         return response;
     }
+
 }

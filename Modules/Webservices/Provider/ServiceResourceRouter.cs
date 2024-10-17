@@ -44,7 +44,7 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
             {
                 var operation = OperationBuilder.Create(attribute.Path, method, registry);
 
-                yield return parent => new MethodHandler(parent, operation, () => Instance, attribute, ResponseProvider.GetResponseAsync, registry);
+                yield return parent => new MethodHandler(parent, operation, Instance, attribute, registry);
             }
         }
     }

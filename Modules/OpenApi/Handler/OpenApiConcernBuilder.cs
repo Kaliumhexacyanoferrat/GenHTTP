@@ -30,24 +30,42 @@ public sealed class OpenApiConcernBuilder : IConcernBuilder
 
     #region Functionality
 
+    /// <summary>
+    /// Sets the title of the OpenAPI specification.
+    /// </summary>
+    /// <param name="title">The title of the API</param>
     public OpenApiConcernBuilder Title(string title)
     {
         _Title = title;
         return this;
     }
 
+    /// <summary>
+    /// Sets the version of the described API.
+    /// </summary>
+    /// <param name="version">The version of the API</param>
     public OpenApiConcernBuilder Version(string version)
     {
         _Version = version;
         return this;
     }
 
+    /// <summary>
+    /// Specifies, whether the generated OpenAPI specification should
+    /// get cached on first request, so it is no re-generated on every request.
+    /// </summary>
+    /// <param name="enabled">Whether to use caching or not</param>
     public OpenApiConcernBuilder Caching(bool enabled)
     {
         _Caching = enabled;
         return this;
     }
 
+    /// <summary>
+    /// Registers a function that will be called when an OpenAPI document has been
+    /// generated, directly before it is served to the client.
+    /// </summary>
+    /// <param name="action">The method to be invoked to adjust the generated document</param>
     public OpenApiConcernBuilder PostProcessor(Action<IRequest, OpenApiDocument> action)
     {
         _PostProcessor = action;

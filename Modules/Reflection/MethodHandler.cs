@@ -21,25 +21,6 @@ public sealed class MethodHandler : IHandler
 {
     private static readonly object?[] NoArguments = [];
 
-    #region Initialization
-
-    public MethodHandler(IHandler parent, Operation operation, Func<object> instanceProvider, IMethodConfiguration metaData,
-        Func<IRequest, IHandler, Operation, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> responseProvider,
-        MethodRegistry registry)
-    {
-        Parent = parent;
-
-        Configuration = metaData;
-        InstanceProvider = instanceProvider;
-
-        ResponseProvider = responseProvider;
-
-        Operation = operation;
-        Registry = registry;
-    }
-
-    #endregion
-
     #region Get-/Setters
 
     public IHandler Parent { get; }
@@ -48,11 +29,36 @@ public sealed class MethodHandler : IHandler
 
     public IMethodConfiguration Configuration { get; }
 
-    private Func<object> InstanceProvider { get; }
-
-    private Func<IRequest, IHandler, Operation, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> ResponseProvider { get; }
+    private object Instance { get; }
 
     public MethodRegistry Registry { get; }
+
+    private ResponseProvider ResponseProvider { get; }
+
+    #endregion
+
+    #region Initialization
+
+    /// <summary>
+    /// Creates a new handler to serve a single API operation.
+    /// </summary>
+    /// <param name="parent">The parent of this handler</param>
+    /// <param name="operation">The operation to be executed and provided (use <see cref="OperationBuilder"/> to create an operation)</param>
+    /// <param name="instance">The object to execute the operation on</param>
+    /// <param name="metaData">Additional, use-specified information about the operation</param>
+    /// <param name="registry">The customized registry to be used to read and write data</param>
+    public MethodHandler(IHandler parent, Operation operation, object instance, IMethodConfiguration metaData, MethodRegistry registry)
+    {
+        Parent = parent;
+
+        Configuration = metaData;
+        Instance = instance;
+
+        Operation = operation;
+        Registry = registry;
+
+        ResponseProvider = new(registry);
+    }
 
     #endregion
 
@@ -64,7 +70,7 @@ public sealed class MethodHandler : IHandler
 
         var result = Invoke(arguments);
 
-        return await ResponseProvider(request, this, Operation, await UnwrapAsync(result), null);
+        return await ResponseProvider.GetResponseAsync(request, this, Operation, await UnwrapAsync(result), null);
     }
 
     private async ValueTask<object?[]> GetArguments(IRequest request)
@@ -122,7 +128,7 @@ public sealed class MethodHandler : IHandler
     {
         try
         {
-            return Operation.Method.Invoke(InstanceProvider(), arguments);
+            return Operation.Method.Invoke(Instance, arguments);
         }
         catch (TargetInvocationException e)
         {

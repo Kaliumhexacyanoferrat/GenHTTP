@@ -39,7 +39,7 @@ public class InlineHandler : IHandler, IServiceMethodProvider
 
             var target = function.Delegate.Target ?? throw new InvalidOperationException("Delegate target must not be null");
 
-            yield return parent => new MethodHandler(parent, operation, () => target, function.Configuration, ResponseProvider.GetResponseAsync, registry);
+            yield return parent => new MethodHandler(parent, operation, target, function.Configuration, registry);
         }
     }
 

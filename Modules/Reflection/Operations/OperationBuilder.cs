@@ -18,6 +18,15 @@ public static partial class OperationBuilder
 
     #region Functionality
 
+    /// <summary>
+    /// Analyzes the given configuration and converts it into an operation that can
+    /// get executed by the <see cref="MethodHandler" />.
+    /// </summary>
+    /// <param name="definition">The path definition of the endpoint, e.g. "/users/:id"</param>
+    /// <param name="method">The actual .NET method to be executed to retrieve a result</param>
+    /// <param name="registry">The customizable registry used to read and write data</param>
+    /// <param name="forceTrailingSlash">If set to true, the operation requires the client to append a trailing slash to the path</param>
+    /// <returns>The newly created operation</returns>
     public static Operation Create(string? definition, MethodInfo method, MethodRegistry registry, bool forceTrailingSlash = false)
     {
         var isWildcard = CheckWildcardRoute(method.ReturnType);

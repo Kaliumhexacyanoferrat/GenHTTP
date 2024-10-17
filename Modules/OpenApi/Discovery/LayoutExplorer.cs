@@ -1,6 +1,5 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Modules.Layouting.Provider;
-using GenHTTP.Modules.OpenApi.Handler;
 using NSwag;
 
 namespace GenHTTP.Modules.OpenApi.Discovery;

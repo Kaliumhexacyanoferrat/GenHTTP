@@ -49,7 +49,7 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 
             var operation = CreateOperation(method, arguments);
 
-            yield return parent => new MethodHandler(parent, operation, () => Instance, annotation, ResponseProvider.GetResponseAsync, registry);
+            yield return parent => new MethodHandler(parent, operation, Instance, annotation, registry);
         }
     }
 
