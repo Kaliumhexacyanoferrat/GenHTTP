@@ -8,5 +8,4 @@ public sealed class EnumFormatter : IFormatter
     public object Read(string value, Type type) => Enum.Parse(type, value);
 
     public string? Write(object value, Type type) => value.ToString();
-
 }

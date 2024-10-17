@@ -1,7 +1,7 @@
 # GenHTTP Webserver
 
 GenHTTP is a lightweight web server written in pure C# with only a few dependencies to 3rd-party libraries. The main
-purpose of this project is to quickly create web services written in .NET 6/7/8, allowing developers to concentrate on
+purpose of this project is to quickly create web services written in .NET 8/9, allowing developers to concentrate on
 the functionality rather than on messing around with configuration files.
 
 [![CI](https://github.com/Kaliumhexacyanoferrat/GenHTTP/actions/workflows/ci.yml/badge.svg)](https://github.com/Kaliumhexacyanoferrat/GenHTTP/actions/workflows/ci.yml) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GenHTTP&metric=coverage)](https://sonarcloud.io/dashboard?id=GenHTTP) [![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Core.svg)](https://www.nuget.org/packages/GenHTTP.Core/) [](https://discord.gg/cW6tPJS7nt) [![Discord](https://discordapp.com/api/guilds/1177529388229734410/widget.png?style=shield)](https://discord.gg/GwtDyUpkpV)
@@ -47,8 +47,7 @@ After the project has been created, you can run it via `dotnet run` and access t
 
 ### Extending Existing Apps
 
-If you would like to extend an existing .NET application, just add a nuget reference to the `GenHTTP.Core` nuget
-package. You can then spawn a new server instance with just a few lines of code:
+If you would like to extend an existing .NET application, just add a nuget reference to the `GenHTTP.Core` nuget package. You can then spawn a new server instance with just a few lines of code:
 
 ```csharp
 var content = Content.From(Resource.FromString("Hello World!"));
@@ -74,7 +73,7 @@ to [join our Discord community](https://discord.gg/GwtDyUpkpV) to get help.
 
 ## ⚙️ Building the Server
 
-To build the server from source, clone this repository and run the playground project launcher for .NET 8:
+To build the server from source, clone this repository and run the playground project launcher for .NET 9:
 
 ```sh
 git clone https://github.com/Kaliumhexacyanoferrat/GenHTTP.git
@@ -82,9 +81,7 @@ cd ./GenHTTP/Playground
 dotnet run
 ```
 
-This will build the playground project launcher with all the server dependencies and launch the server process on port
-
-8080. You can access the playground in the browser via http://localhost:8080.
+This will build the playground project launcher with all the server dependencies and launch the server process on port 8080. You can access the playground in the browser via http://localhost:8080.
 
 ## 🙌 Contributing
 

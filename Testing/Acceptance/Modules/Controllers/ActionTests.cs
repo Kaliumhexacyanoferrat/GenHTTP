@@ -30,7 +30,7 @@ public sealed class ActionTests
     public sealed class TestController
     {
 
-        public IHandlerBuilder Index() => Content.From(Resource.FromString("Hello World!"));
+        public string Index() => "Hello World!";
 
         public IHandlerBuilder Action(int? query) => Content.From(Resource.FromString(query?.ToString() ?? "Action"));
 
@@ -93,7 +93,9 @@ public sealed class ActionTests
 
         var dict = new Dictionary<string, string>
         {
-            { "value2", "test" }
+            {
+                "value2", "test"
+            }
         };
 
         var request = runner.GetRequest("/t/action/");

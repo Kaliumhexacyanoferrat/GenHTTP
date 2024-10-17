@@ -9,7 +9,8 @@ public sealed class SinglePageProvider : IHandler
 {
     private static readonly HashSet<string> IndexFiles = new(StringComparer.InvariantCultureIgnoreCase)
     {
-        "index.html", "index.htm"
+        "index.html",
+        "index.htm"
     };
 
     private IHandler? _Index;

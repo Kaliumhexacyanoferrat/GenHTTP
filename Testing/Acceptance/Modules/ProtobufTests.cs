@@ -46,7 +46,6 @@ public sealed class ProtobufTests
 
         [ResourceMethod(RequestMethod.Post)]
         public TestEntity PostEntity(TestEntity entity) => entity;
-
     }
 
     #endregion

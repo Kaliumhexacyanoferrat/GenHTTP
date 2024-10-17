@@ -12,14 +12,10 @@ public static class Extensions
         request.Properties[UserProperty] = user;
     }
 
-    public static T? GetUser<T>(this IRequest request) where T : class, IUser
-    {
-        return request.Properties.TryGet<T>(UserProperty, out var user) ? user : null;
-    }
+    public static T? GetUser<T>(this IRequest request) where T : class, IUser => request.Properties.TryGet<T>(UserProperty, out var user) ? user : null;
 
     public static void ClearUser(this IRequest request)
     {
         request.Properties.Clear(UserProperty);
     }
-
 }

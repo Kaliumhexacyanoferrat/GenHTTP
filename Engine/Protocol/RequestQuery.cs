@@ -11,5 +11,4 @@ internal sealed class RequestQuery : PooledDictionary<string, string>, IRequestQ
     {
 
     }
-
 }

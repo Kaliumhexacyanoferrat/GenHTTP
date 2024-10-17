@@ -65,7 +65,9 @@ public sealed class ServiceResourceBuilder : IHandlerBuilder<ServiceResourceBuil
 
         var instance = _Instance ?? throw new BuilderMissingPropertyException("instance");
 
-        return Concerns.Chain(parent, _Concerns, p => new ServiceResourceRouter(p, instance, serializers, injectors, formatters));
+        var extensions = new MethodRegistry(serializers, injectors, formatters);
+
+        return Concerns.Chain(parent, _Concerns, p => new ServiceResourceRouter(p, instance, extensions));
     }
 
     #endregion

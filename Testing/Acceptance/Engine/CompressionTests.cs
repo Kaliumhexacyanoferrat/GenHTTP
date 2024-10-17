@@ -38,7 +38,10 @@ public sealed class CompressionTests
     [TestMethod]
     public async Task TestSpecificAlgorithms()
     {
-        foreach (var algorithm in new[] { "gzip", "br", "zstd" })
+        foreach (var algorithm in new[]
+                 {
+                     "gzip", "br", "zstd"
+                 })
         {
             using var runner = TestHost.Run(Layout.Create());
 
@@ -163,5 +166,4 @@ public sealed class CompressionTests
 
         public IResponseContent Compress(IResponseContent content, CompressionLevel level) => content;
     }
-
 }

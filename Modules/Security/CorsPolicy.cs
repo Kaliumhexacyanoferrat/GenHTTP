@@ -19,7 +19,10 @@ public static class CorsPolicy
                 null,
                 allowAuthorization
                     ? new List<string>
-                        { "*", "Authorization" }
+                    {
+                        "*",
+                        "Authorization"
+                    }
                     : null,
                 null,
                 true,

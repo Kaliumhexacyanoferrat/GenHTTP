@@ -39,7 +39,7 @@ public sealed class MethodCollection : IHandler
         if (methods.Count > 1)
         {
             // if there is only one non-wildcard, use this one
-            var nonWildcards = methods.Where(m => !m.Routing.IsWildcard).ToList();
+            var nonWildcards = methods.Where(m => !m.Operation.Path.IsWildcard).ToList();
 
             if (nonWildcards.Count == 1)
             {
@@ -72,7 +72,7 @@ public sealed class MethodCollection : IHandler
 
         foreach (var method in Methods)
         {
-            if (method.Routing.IsIndex && path == "/")
+            if (method.Operation.Path.IsIndex && path == "/")
             {
                 if (method.Configuration.SupportedMethods.Contains(requestedMethod))
                 {
@@ -85,7 +85,7 @@ public sealed class MethodCollection : IHandler
             }
             else
             {
-                if (method.Routing.ParsedPath.IsMatch(path))
+                if (method.Operation.Path.Matcher.IsMatch(path))
                 {
                     if (method.Configuration.SupportedMethods.Contains(requestedMethod))
                     {

@@ -6,9 +6,6 @@ public sealed partial class DateOnlyFormatter : IFormatter
 {
     private static readonly Regex DateOnlyPattern = CreateDateOnlyPattern();
 
-    [GeneratedRegex(@"^([0-9]{4})\-([0-9]{2})\-([0-9]{2})$", RegexOptions.Compiled)]
-    private static partial Regex CreateDateOnlyPattern();
-
     public bool CanHandle(Type type) => type == typeof(DateOnly);
 
     public object Read(string value, Type type)
@@ -29,4 +26,6 @@ public sealed partial class DateOnlyFormatter : IFormatter
 
     public string Write(object value, Type type) => ((DateOnly)value).ToString("yyyy-MM-dd");
 
+    [GeneratedRegex(@"^([0-9]{4})\-([0-9]{2})\-([0-9]{2})$", RegexOptions.Compiled)]
+    private static partial Regex CreateDateOnlyPattern();
 }

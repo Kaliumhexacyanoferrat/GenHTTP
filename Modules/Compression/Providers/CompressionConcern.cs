@@ -110,7 +110,7 @@ public sealed class CompressionConcern : IConcern
                 case ContentType.ImageBmp:
                 case ContentType.TextXml:
                 case ContentType.TextJavaScript:
-
+                case ContentType.ApplicationYaml:
                     {
                         return true;
                     }

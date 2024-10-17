@@ -27,5 +27,4 @@ public static class Formatting
     /// </summary>
     /// <returns>An empty formatter registry</returns>
     public static FormatterBuilder Empty() => new();
-
 }

@@ -10,18 +10,18 @@ namespace GenHTTP.Engine.Infrastructure;
 
 internal sealed class ThreadedServerBuilder : IServerBuilder
 {
+
+    private readonly List<IConcernBuilder> _Concerns = [];
     private readonly List<EndPointConfiguration> _EndPoints = [];
+    private ushort _Backlog = 1024;
 
     private IServerCompanion? _Companion;
 
-    private IHandlerBuilder? _Handler;
-
-    private readonly List<IConcernBuilder> _Concerns = [];
-
     private bool _Development;
 
+    private IHandlerBuilder? _Handler;
+
     private ushort _Port = 8080;
-    private ushort _Backlog = 1024;
 
     private uint _RequestMemoryLimit = 1 * 1024 * 1024; // 1 MB
 
@@ -69,7 +69,10 @@ internal sealed class ThreadedServerBuilder : IServerBuilder
 
         var config = new ServerConfiguration(_Development, endpoints, network);
 
-        var concerns = new[] { ErrorHandler.Default() }.Concat(_Concerns);
+        var concerns = new[]
+        {
+            ErrorHandler.Default()
+        }.Concat(_Concerns);
 
         var handler = new CoreRouter(_Handler, concerns);
 
