@@ -1,19 +1,17 @@
 ﻿using System.Reflection;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Conversion.Formatters;
-using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Reflection;
-using GenHTTP.Modules.Reflection.Injectors;
+using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Webservices.Provider;
 
-public sealed class ServiceResourceRouter : IHandler
+public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 {
 
     #region Get-/Setters
 
-    private MethodCollection Methods { get; }
+    public MethodCollection Methods { get; }
 
     public IHandler Parent { get; }
 
@@ -25,18 +23,18 @@ public sealed class ServiceResourceRouter : IHandler
 
     #region Initialization
 
-    public ServiceResourceRouter(IHandler parent, object instance, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
+    public ServiceResourceRouter(IHandler parent, object instance, MethodRegistry registry)
     {
         Parent = parent;
 
         Instance = instance;
 
-        ResponseProvider = new ResponseProvider(serialization, formatting);
+        ResponseProvider = new ResponseProvider(registry);
 
-        Methods = new MethodCollection(this, AnalyzeMethods(instance.GetType(), serialization, injection, formatting));
+        Methods = new MethodCollection(this, AnalyzeMethods(instance.GetType(), registry));
     }
 
-    private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
+    private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, MethodRegistry registry)
     {
         foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
         {
@@ -44,11 +42,9 @@ public sealed class ServiceResourceRouter : IHandler
 
             if (attribute is not null)
             {
-                var wildcardRoute = PathArguments.CheckWildcardRoute(method.ReturnType);
+                var operation = OperationBuilder.Create(attribute.Path, method, registry);
 
-                var path = PathArguments.Route(attribute.Path, wildcardRoute);
-
-                yield return parent => new MethodHandler(parent, method, path, () => Instance, attribute, ResponseProvider.GetResponseAsync, serialization, injection, formatting);
+                yield return parent => new MethodHandler(parent, operation, Instance, attribute, registry);
             }
         }
     }

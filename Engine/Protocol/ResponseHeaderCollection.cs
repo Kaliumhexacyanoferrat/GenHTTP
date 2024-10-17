@@ -9,8 +9,14 @@ internal sealed class ResponseHeaderCollection : PooledDictionary<string, string
 
     private static readonly HashSet<string> ReservedHeaders = new(StringComparer.InvariantCultureIgnoreCase)
     {
-        "Date", "Connection", "Content-Type", "Content-Encoding", "Content-Length",
-        "Transfer-Encoding", "Last-Modified", "Expires"
+        "Date",
+        "Connection",
+        "Content-Type",
+        "Content-Encoding",
+        "Content-Length",
+        "Transfer-Encoding",
+        "Last-Modified",
+        "Expires"
     };
 
     #region Initialization

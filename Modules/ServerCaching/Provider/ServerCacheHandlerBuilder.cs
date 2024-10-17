@@ -7,9 +7,9 @@ namespace GenHTTP.Modules.ServerCaching.Provider;
 
 public class ServerCacheHandlerBuilder : IConcernBuilder
 {
-    private bool _Invalidate = true;
 
     private ICache<Stream>? _Data;
+    private bool _Invalidate = true;
     private ICache<CachedResponse>? _Meta;
 
     private Func<IRequest, IResponse, bool>? _Predicate;

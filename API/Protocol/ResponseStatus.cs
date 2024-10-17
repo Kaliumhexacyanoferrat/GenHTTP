@@ -140,57 +140,159 @@ public readonly struct FlexibleResponseStatus
 
     private static readonly Dictionary<ResponseStatus, string> MAPPING = new()
     {
-        { ResponseStatus.Accepted, "Accepted" },
-        { ResponseStatus.BadGateway, "Bad Gateway" },
-        { ResponseStatus.BadRequest, "Bad Request" },
-        { ResponseStatus.Created, "Created" },
-        { ResponseStatus.Forbidden, "Forbidden" },
-        { ResponseStatus.InternalServerError, "Internal Server Error" },
-        { ResponseStatus.MethodNotAllowed, "Method Not Allowed" },
-        { ResponseStatus.MovedPermanently, "Moved Permamently" },
-        { ResponseStatus.Found, "Found" },
-        { ResponseStatus.NoContent, "No Content" },
-        { ResponseStatus.NotFound, "Not Found" },
-        { ResponseStatus.NotImplemented, "Not Implemented" },
-        { ResponseStatus.NotModified, "Not Modified" },
-        { ResponseStatus.Ok, "OK" },
-        { ResponseStatus.ServiceUnavailable, "Service Unavailable" },
-        { ResponseStatus.Unauthorized, "Unauthorized" },
-        { ResponseStatus.PartialContent, "Partial Content" },
-        { ResponseStatus.MultiStatus, "Multi-Status" },
-        { ResponseStatus.AlreadyReported, "Already Reported" },
-        { ResponseStatus.SeeOther, "See Other" },
-        { ResponseStatus.TemporaryRedirect, "Temporary Redirect" },
-        { ResponseStatus.PermanentRedirect, "Permanent Redirect" },
-        { ResponseStatus.Continue, "Continue" },
-        { ResponseStatus.SwitchingProtocols, "Switching Protocols" },
-        { ResponseStatus.NotAcceptable, "Not Acceptable" },
-        { ResponseStatus.ProxyAuthenticationRequired, "Proxy Authentication Required" },
-        { ResponseStatus.Conflict, "Conflict" },
-        { ResponseStatus.Gone, "Gone" },
-        { ResponseStatus.LengthRequired, "Length Required" },
-        { ResponseStatus.PreconditionFailed, "Precondition Failed" },
-        { ResponseStatus.RequestEntityTooLarge, "Request Entity Too Large" },
-        { ResponseStatus.RequestUriTooLong, "Request Uri Too Long" },
-        { ResponseStatus.UnsupportedMediaType, "Unsupported Media Type" },
-        { ResponseStatus.RequestedRangeNotSatisfiable, "Requested Range Not Satisfiable" },
-        { ResponseStatus.ExpectationFailed, "Expectation Failed" },
-        { ResponseStatus.UnprocessableEntity, "Unprocessable Entity" },
-        { ResponseStatus.Locked, "Locked" },
-        { ResponseStatus.FailedDependency, "Failed Dependency" },
-        { ResponseStatus.ReservedForWebDav, "Reserved For WebDAV" },
-        { ResponseStatus.UpgradeRequired, "Upgrade Required" },
-        { ResponseStatus.PreconditionRequired, "Precondition Required" },
-        { ResponseStatus.TooManyRequests, "Too Many Requests" },
-        { ResponseStatus.RequestHeaderFieldsTooLarge, "Request Header Fields Too Large" },
-        { ResponseStatus.UnavailableForLegalReasons, "Unavailable For Legal Reasons" },
-        { ResponseStatus.GatewayTimeout, "Gateway Timeout" },
-        { ResponseStatus.HttpVersionNotSupported, "HTTP Version Not Supported" },
-        { ResponseStatus.InsufficientStorage, "Insufficient Storage" },
-        { ResponseStatus.LoopDetected, "Loop Detected" },
-        { ResponseStatus.NotExtended, "Not Extended" },
-        { ResponseStatus.NetworkAuthenticationRequired, "Network Authentication Required" },
-        { ResponseStatus.Processing, "Processing" }
+        {
+            ResponseStatus.Accepted, "Accepted"
+        },
+        {
+            ResponseStatus.BadGateway, "Bad Gateway"
+        },
+        {
+            ResponseStatus.BadRequest, "Bad Request"
+        },
+        {
+            ResponseStatus.Created, "Created"
+        },
+        {
+            ResponseStatus.Forbidden, "Forbidden"
+        },
+        {
+            ResponseStatus.InternalServerError, "Internal Server Error"
+        },
+        {
+            ResponseStatus.MethodNotAllowed, "Method Not Allowed"
+        },
+        {
+            ResponseStatus.MovedPermanently, "Moved Permamently"
+        },
+        {
+            ResponseStatus.Found, "Found"
+        },
+        {
+            ResponseStatus.NoContent, "No Content"
+        },
+        {
+            ResponseStatus.NotFound, "Not Found"
+        },
+        {
+            ResponseStatus.NotImplemented, "Not Implemented"
+        },
+        {
+            ResponseStatus.NotModified, "Not Modified"
+        },
+        {
+            ResponseStatus.Ok, "OK"
+        },
+        {
+            ResponseStatus.ServiceUnavailable, "Service Unavailable"
+        },
+        {
+            ResponseStatus.Unauthorized, "Unauthorized"
+        },
+        {
+            ResponseStatus.PartialContent, "Partial Content"
+        },
+        {
+            ResponseStatus.MultiStatus, "Multi-Status"
+        },
+        {
+            ResponseStatus.AlreadyReported, "Already Reported"
+        },
+        {
+            ResponseStatus.SeeOther, "See Other"
+        },
+        {
+            ResponseStatus.TemporaryRedirect, "Temporary Redirect"
+        },
+        {
+            ResponseStatus.PermanentRedirect, "Permanent Redirect"
+        },
+        {
+            ResponseStatus.Continue, "Continue"
+        },
+        {
+            ResponseStatus.SwitchingProtocols, "Switching Protocols"
+        },
+        {
+            ResponseStatus.NotAcceptable, "Not Acceptable"
+        },
+        {
+            ResponseStatus.ProxyAuthenticationRequired, "Proxy Authentication Required"
+        },
+        {
+            ResponseStatus.Conflict, "Conflict"
+        },
+        {
+            ResponseStatus.Gone, "Gone"
+        },
+        {
+            ResponseStatus.LengthRequired, "Length Required"
+        },
+        {
+            ResponseStatus.PreconditionFailed, "Precondition Failed"
+        },
+        {
+            ResponseStatus.RequestEntityTooLarge, "Request Entity Too Large"
+        },
+        {
+            ResponseStatus.RequestUriTooLong, "Request Uri Too Long"
+        },
+        {
+            ResponseStatus.UnsupportedMediaType, "Unsupported Media Type"
+        },
+        {
+            ResponseStatus.RequestedRangeNotSatisfiable, "Requested Range Not Satisfiable"
+        },
+        {
+            ResponseStatus.ExpectationFailed, "Expectation Failed"
+        },
+        {
+            ResponseStatus.UnprocessableEntity, "Unprocessable Entity"
+        },
+        {
+            ResponseStatus.Locked, "Locked"
+        },
+        {
+            ResponseStatus.FailedDependency, "Failed Dependency"
+        },
+        {
+            ResponseStatus.ReservedForWebDav, "Reserved For WebDAV"
+        },
+        {
+            ResponseStatus.UpgradeRequired, "Upgrade Required"
+        },
+        {
+            ResponseStatus.PreconditionRequired, "Precondition Required"
+        },
+        {
+            ResponseStatus.TooManyRequests, "Too Many Requests"
+        },
+        {
+            ResponseStatus.RequestHeaderFieldsTooLarge, "Request Header Fields Too Large"
+        },
+        {
+            ResponseStatus.UnavailableForLegalReasons, "Unavailable For Legal Reasons"
+        },
+        {
+            ResponseStatus.GatewayTimeout, "Gateway Timeout"
+        },
+        {
+            ResponseStatus.HttpVersionNotSupported, "HTTP Version Not Supported"
+        },
+        {
+            ResponseStatus.InsufficientStorage, "Insufficient Storage"
+        },
+        {
+            ResponseStatus.LoopDetected, "Loop Detected"
+        },
+        {
+            ResponseStatus.NotExtended, "Not Extended"
+        },
+        {
+            ResponseStatus.NetworkAuthenticationRequired, "Network Authentication Required"
+        },
+        {
+            ResponseStatus.Processing, "Processing"
+        }
     };
 
     private static readonly Dictionary<int, ResponseStatus> CODE_MAPPING = MAPPING.Keys.ToDictionary(k => (int)k, k => k);

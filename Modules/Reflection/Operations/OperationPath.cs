@@ -1,33 +1,22 @@
 ﻿using System.Text.RegularExpressions;
-using GenHTTP.Api.Routing;
 
-namespace GenHTTP.Modules.Reflection;
+namespace GenHTTP.Modules.Reflection.Operations;
 
-public sealed class MethodRouting
+public sealed class OperationPath
 {
-    private readonly string _PathExpression;
-
-    private Regex? _ParsedPath;
-
-    #region Initialization
-
-    public MethodRouting(string pathExpression, bool isIndex, bool isWildcard)
-    {
-        _PathExpression = pathExpression;
-
-        IsIndex = isIndex;
-        IsWildcard = isWildcard;
-    }
-
-    #endregion
 
     #region Get-/Setters
+
+    /// <summary>
+    /// An user-friendly string to display this path.
+    /// </summary>
+    public string Name { get; }
 
     /// <summary>
     /// The path of the method, converted into a regular
     /// expression to be evaluated at runtime.
     /// </summary>
-    public Regex ParsedPath => _ParsedPath ??= new Regex(_PathExpression, RegexOptions.Compiled);
+    public Regex Matcher { get; }
 
     /// <summary>
     /// True, if this route matches the index of the
@@ -46,6 +35,18 @@ public sealed class MethodRouting
     /// ambiguous.
     /// </remarks>
     public bool IsWildcard { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public OperationPath(string name, Regex matcher, bool isIndex, bool isWildcard)
+    {
+        Matcher = matcher;
+        Name = name;
+        IsIndex = isIndex;
+        IsWildcard = isWildcard;
+    }
 
     #endregion
 

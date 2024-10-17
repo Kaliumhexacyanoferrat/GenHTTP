@@ -11,5 +11,4 @@ public static class TestExtensions
     public static string? GetETag(this HttpResponseMessage response) => response.GetHeader("ETag");
 
     public static DateTime WithoutMs(this DateTime date) => new(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Kind);
-
 }

@@ -31,5 +31,4 @@ public interface IRequestProperties : IDisposable
     /// </summary>
     /// <param name="key">The entry to be removed</param>
     void Clear(string key);
-
 }

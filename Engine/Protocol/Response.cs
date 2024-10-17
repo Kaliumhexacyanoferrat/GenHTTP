@@ -59,7 +59,10 @@ internal sealed class Response : IResponse
             {
                 _Headers[field] = value;
             }
-            else _Headers.Remove(field);
+            else
+            {
+                _Headers.Remove(field);
+            }
         }
     }
 

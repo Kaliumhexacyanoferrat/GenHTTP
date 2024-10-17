@@ -2,28 +2,24 @@
 using System.Text.RegularExpressions;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Conversion.Formatters;
-using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Reflection;
-using GenHTTP.Modules.Reflection.Injectors;
+using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Controllers.Provider;
 
-public sealed partial class ControllerHandler : IHandler
+public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 {
-    private static readonly MethodRouting Empty = new("^(/|)$", true, false);
-
     private static readonly Regex HyphenMatcher = CreateHyphenMatcher();
 
     #region Get-/Setters
 
     public IHandler Parent { get; }
 
-    private MethodCollection Provider { get; }
+    public MethodCollection Methods { get; }
 
     private ResponseProvider ResponseProvider { get; }
 
-    private FormatterRegistry Formatting { get; }
+    private MethodRegistry Registry { get; }
 
     private object Instance { get; }
 
@@ -31,19 +27,19 @@ public sealed partial class ControllerHandler : IHandler
 
     #region Initialization
 
-    public ControllerHandler(IHandler parent, object instance, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
+    public ControllerHandler(IHandler parent, object instance, MethodRegistry registry)
     {
         Parent = parent;
-        Formatting = formatting;
+        Registry = registry;
 
         Instance = instance;
 
-        ResponseProvider = new ResponseProvider(serialization, formatting);
+        ResponseProvider = new ResponseProvider(registry);
 
-        Provider = new MethodCollection(this, AnalyzeMethods(instance.GetType(), serialization, injection, formatting));
+        Methods = new MethodCollection(this, AnalyzeMethods(instance.GetType(), registry));
     }
 
-    private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
+    private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, MethodRegistry registry)
     {
         foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
         {
@@ -51,56 +47,40 @@ public sealed partial class ControllerHandler : IHandler
 
             var arguments = FindPathArguments(method);
 
-            var path = DeterminePath(method, arguments);
+            var operation = CreateOperation(method, arguments);
 
-            yield return parent => new MethodHandler(parent, method, path, () => Instance, annotation, ResponseProvider.GetResponseAsync, serialization, injection, formatting);
+            yield return parent => new MethodHandler(parent, operation, Instance, annotation, registry);
         }
     }
 
-    private static MethodRouting DeterminePath(MethodInfo method, List<string> arguments)
+    private Operation CreateOperation(MethodInfo method, List<string> arguments)
     {
-        var pathArgs = string.Join('/', arguments.Select(a => a.ToParameter()));
-
-        var isWildcard = PathArguments.CheckWildcardRoute(method.ReturnType);
+        var pathArguments = string.Join('/', arguments.Select(a => $":{a}"));
 
         if (method.Name == "Index")
         {
-            return pathArgs.Length > 0 ? new MethodRouting($"^/{pathArgs}/", false, isWildcard) : Empty;
+            return OperationBuilder.Create(pathArguments.Length > 0 ? $"/{pathArguments}/" : null, method, Registry, true);
         }
 
         var name = HypenCase(method.Name);
 
-        var path = $"^/{name}";
+        var path = $"/{name}";
 
-        return pathArgs.Length > 0 ? new MethodRouting( $"{path}/{pathArgs}/", false, isWildcard) : new MethodRouting($"{path}/", false, isWildcard);
+        return OperationBuilder.Create(pathArguments.Length > 0 ? $"{path}/{pathArguments}/" : $"{path}/", method, Registry, true);
     }
 
-    private List<string> FindPathArguments(MethodInfo method)
+    private static List<string> FindPathArguments(MethodInfo method)
     {
         var found = new List<string>();
 
-        var parameters = method.GetParameters();
-
-        foreach (var parameter in parameters)
+        foreach (var parameter in method.GetParameters())
         {
-            if (parameter.GetCustomAttribute<FromPathAttribute>(true) is not null)
+            if (parameter.Name != null)
             {
-                if (!parameter.CanFormat(Formatting))
+                if (parameter.GetCustomAttribute<FromPathAttribute>(true) is not null)
                 {
-                    throw new InvalidOperationException("Parameters marked as 'FromPath' must be formattable (e.g. string or int)");
+                    found.Add(parameter.Name);
                 }
-
-                if (parameter.CheckNullable())
-                {
-                    throw new InvalidOperationException("Parameters marked as 'FromPath' are not allowed to be nullable");
-                }
-
-                if (parameter.Name is null)
-                {
-                    throw new InvalidOperationException("Parameters marked as 'FromPath' must have a name");
-                }
-
-                found.Add(parameter.Name);
             }
         }
 
@@ -116,9 +96,9 @@ public sealed partial class ControllerHandler : IHandler
 
     #region Functionality
 
-    public ValueTask PrepareAsync() => Provider.PrepareAsync();
+    public ValueTask PrepareAsync() => Methods.PrepareAsync();
 
-    public ValueTask<IResponse?> HandleAsync(IRequest request) => Provider.HandleAsync(request);
+    public ValueTask<IResponse?> HandleAsync(IRequest request) => Methods.HandleAsync(request);
 
     #endregion
 

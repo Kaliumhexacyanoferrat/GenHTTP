@@ -15,7 +15,6 @@ internal class OpenIDConfiguration
 
     [JsonPropertyName("jwks_uri")]
     public string? KeySetUrl { get; init; }
-
 }
 
 #endregion

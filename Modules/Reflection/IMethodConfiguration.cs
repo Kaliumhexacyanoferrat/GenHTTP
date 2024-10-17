@@ -13,5 +13,4 @@ public interface IMethodConfiguration
     /// The HTTP verbs which are supported by this method.
     /// </summary>
     public HashSet<FlexibleRequestMethod> SupportedMethods { get; }
-
 }

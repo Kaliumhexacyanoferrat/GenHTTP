@@ -25,7 +25,7 @@ public sealed class SerializationRegistry
 
     private FlexibleContentType Default { get; }
 
-    private Dictionary<FlexibleContentType, ISerializationFormat> Formats { get; }
+    public IReadOnlyDictionary<FlexibleContentType, ISerializationFormat> Formats { get; }
 
     #endregion
 

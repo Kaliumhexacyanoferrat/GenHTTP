@@ -39,7 +39,7 @@ public class MethodAttribute : Attribute, IMethodConfiguration
     /// <param name="methods">The HTTP verbs supported by this method</param>
     public MethodAttribute(params RequestMethod[] methods)
     {
-        SupportedMethods = new HashSet<FlexibleRequestMethod>(methods.Select(m => FlexibleRequestMethod.Get(m)));
+        SupportedMethods = new HashSet<FlexibleRequestMethod>(methods.Select(FlexibleRequestMethod.Get));
     }
 
     /// <summary>

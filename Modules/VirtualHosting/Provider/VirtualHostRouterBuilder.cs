@@ -4,9 +4,9 @@ namespace GenHTTP.Modules.VirtualHosting.Provider;
 
 public sealed class VirtualHostRouterBuilder : IHandlerBuilder<VirtualHostRouterBuilder>
 {
-    private readonly Dictionary<string, IHandlerBuilder> _Hosts = [];
 
     private readonly List<IConcernBuilder> _Concerns = [];
+    private readonly Dictionary<string, IHandlerBuilder> _Hosts = [];
 
     private IHandlerBuilder? _DefaultRoute;
 

@@ -263,7 +263,7 @@ internal class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IRead
 
     #region IDisposable Support
 
-    private bool _Disposed = false;
+    private bool _Disposed;
 
     private void Dispose(bool disposing)
     {

@@ -104,7 +104,10 @@ public class CacheTests
     {
         foreach (var cache in GetCaches<Stream>())
         {
-            await cache.StoreDirectAsync("k", "v", s => s.WriteAsync(new byte[] { 1 }));
+            await cache.StoreDirectAsync("k", "v", s => s.WriteAsync(new byte[]
+            {
+                1
+            }));
 
             Assert.AreEqual(1, (await cache.GetEntriesAsync("k")).Length);
 
@@ -119,9 +122,15 @@ public class CacheTests
     {
         foreach (var cache in GetCaches<Stream>())
         {
-            await cache.StoreDirectAsync("k", "v", s => s.WriteAsync(new byte[] { 1 }));
+            await cache.StoreDirectAsync("k", "v", s => s.WriteAsync(new byte[]
+            {
+                1
+            }));
 
-            await cache.StoreDirectAsync("k", "v", s => s.WriteAsync(new byte[] { 1 }));
+            await cache.StoreDirectAsync("k", "v", s => s.WriteAsync(new byte[]
+            {
+                1
+            }));
 
             Assert.AreEqual(1, (await cache.GetEntriesAsync("k")).Length);
         }
@@ -138,12 +147,9 @@ public class CacheTests
         }
     }
 
-    private static ICache<T>[] GetCaches<T>()
-    {
-        return
-        [
-            Cache.Memory<T>().Build(),
-            Cache.TemporaryFiles<T>().Build()
-        ];
-    }
+    private static ICache<T>[] GetCaches<T>() =>
+    [
+        Cache.Memory<T>().Build(),
+        Cache.TemporaryFiles<T>().Build()
+    ];
 }

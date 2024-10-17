@@ -62,5 +62,4 @@ public sealed class VirtualTreeTests
     }
 
     private static RoutingTarget GetTarget(string path) => new(WebPath.FromString(path));
-
 }

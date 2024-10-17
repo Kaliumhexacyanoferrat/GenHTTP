@@ -1,20 +1,18 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Conversion.Formatters;
-using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Reflection;
-using GenHTTP.Modules.Reflection.Injectors;
+using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Functional.Provider;
 
-public class InlineHandler : IHandler
+public class InlineHandler : IHandler, IServiceMethodProvider
 {
 
     #region Get-/Setters
 
     public IHandler Parent { get; }
 
-    private MethodCollection Methods { get; }
+    public MethodCollection Methods { get; }
 
     private ResponseProvider ResponseProvider { get; }
 
@@ -22,28 +20,26 @@ public class InlineHandler : IHandler
 
     #region Initialization
 
-    public InlineHandler(IHandler parent, List<InlineFunction> functions, SerializationRegistry serialization, InjectionRegistry injection, FormatterRegistry formatting)
+    public InlineHandler(IHandler parent, List<InlineFunction> functions, MethodRegistry registry)
     {
         Parent = parent;
 
-        ResponseProvider = new ResponseProvider(serialization, formatting);
+        ResponseProvider = new ResponseProvider(registry);
 
-        Methods = new MethodCollection(this, AnalyzeMethods(functions, serialization, injection, formatting));
+        Methods = new MethodCollection(this, AnalyzeMethods(functions, registry));
     }
 
-    private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(List<InlineFunction> functions, SerializationRegistry formats, InjectionRegistry injection, FormatterRegistry formatting)
+    private static IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(List<InlineFunction> functions, MethodRegistry registry)
     {
         foreach (var function in functions)
         {
             var method = function.Delegate.Method;
 
-            var wildcardRoute = PathArguments.CheckWildcardRoute(method.ReturnType);
-
-            var path = PathArguments.Route(function.Path, wildcardRoute);
+            var operation = OperationBuilder.Create(function.Path, method, registry);
 
             var target = function.Delegate.Target ?? throw new InvalidOperationException("Delegate target must not be null");
 
-            yield return parent => new MethodHandler(parent, method, path, () => target, function.Configuration, ResponseProvider.GetResponseAsync, formats, injection, formatting);
+            yield return parent => new MethodHandler(parent, operation, target, function.Configuration, registry);
         }
     }
 

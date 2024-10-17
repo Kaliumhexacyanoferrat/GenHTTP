@@ -5,6 +5,7 @@ namespace GenHTTP.Modules.Reflection;
 
 public static class Extensions
 {
+    private static readonly Type? VoidTaskResult = Type.GetType("System.Threading.Tasks.VoidTaskResult");
 
     /// <summary>
     /// Checks, whether the given parameter can be passed via the URL.
@@ -29,6 +30,8 @@ public static class Extensions
     public static string ToParameter(this string name) => $"(?<{name}>[^/]+)";
 
     public static bool IsAsyncGeneric(this Type resultType) => resultType.IsAssignableToGenericType(typeof(ValueTask<>)) || resultType.IsAssignableToGenericType(typeof(Task<>));
+
+    public static bool IsGenericallyVoid(this Type type) => type.GenericTypeArguments.Length == 1 && type.GenericTypeArguments[0] == VoidTaskResult;
 
     public static bool IsAssignableToGenericType(this Type givenType, Type genericType)
     {
@@ -56,5 +59,4 @@ public static class Extensions
 
         return IsAssignableToGenericType(baseType, genericType);
     }
-
 }

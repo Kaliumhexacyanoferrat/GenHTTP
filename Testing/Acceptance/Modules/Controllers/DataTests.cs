@@ -48,7 +48,9 @@ public sealed class DataTests
 
         var data = new Dictionary<string, string>
         {
-            { "date", "2024-03-11" }
+            {
+                "date", "2024-03-11"
+            }
         };
 
         request.Content = new FormUrlEncodedContent(data);
@@ -69,7 +71,9 @@ public sealed class DataTests
 
         var data = new Dictionary<string, string>
         {
-            { "date", "ABC" }
+            {
+                "date", "ABC"
+            }
         };
 
         request.Content = new FormUrlEncodedContent(data);

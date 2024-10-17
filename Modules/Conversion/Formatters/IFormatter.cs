@@ -36,5 +36,4 @@ public interface IFormatter
     /// or to generate form encoded data.
     /// </remarks>
     string? Write(object value, Type type);
-
 }

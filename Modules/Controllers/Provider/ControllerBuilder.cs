@@ -17,9 +17,9 @@ public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>
 
     private IBuilder<InjectionRegistry>? _Injection;
 
-    private IBuilder<SerializationRegistry>? _Serializers;
-
     private object? _Instance;
+
+    private IBuilder<SerializationRegistry>? _Serializers;
 
     #region Functionality
 
@@ -69,7 +69,9 @@ public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>
 
         var instance = _Instance ?? throw new BuilderMissingPropertyException("Instance or Type");
 
-        return Concerns.Chain(parent, _Concerns, p => new ControllerHandler(p, instance, serializers, injectors, formatters));
+        var extensions = new MethodRegistry(serializers, injectors, formatters);
+
+        return Concerns.Chain(parent, _Concerns, p => new ControllerHandler(p, instance, extensions));
     }
 
     #endregion

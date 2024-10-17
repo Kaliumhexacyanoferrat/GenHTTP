@@ -31,6 +31,11 @@ public enum ContentType
     ApplicationJson,
 
     /// <summary>
+    /// A YAML file.
+    /// </summary>
+    ApplicationYaml,
+
+    /// <summary>
     /// A PNG image.
     /// </summary>
     ImagePng,
@@ -314,9 +319,9 @@ public enum ContentType
 /// </summary>
 public class FlexibleContentType
 {
-    private static readonly ConcurrentDictionary<string, FlexibleContentType> _RawCache = new(StringComparer.InvariantCultureIgnoreCase);
+    private static readonly ConcurrentDictionary<string, FlexibleContentType> RawCache = new(StringComparer.InvariantCultureIgnoreCase);
 
-    private static readonly Dictionary<ContentType, FlexibleContentType> _KnownCache = new();
+    private static readonly Dictionary<ContentType, FlexibleContentType> KnownCache = new();
 
     #region Get-/Setters
 
@@ -339,70 +344,191 @@ public class FlexibleContentType
 
     #region Mapping
 
-    private static readonly Dictionary<ContentType, string> MAPPING = new()
+    private static readonly Dictionary<ContentType, string> Mapping = new()
     {
-        { ContentType.AudioMp4, "audio/mp4" },
-        { ContentType.AudioOgg, "audio/ogg" },
-        { ContentType.AudioMpeg, "audio/mpeg" },
-        { ContentType.AudioWav, "audio/wav" },
-        { ContentType.ApplicationJavaScript, "application/javascript" },
-        { ContentType.ApplicationOfficeDocumentWordProcessing, "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
-        { ContentType.ApplicationOfficeDocumentPresentation, "application/vnd.openxmlformats-officedocument.presentationml.presentation" },
-        { ContentType.ApplicationOfficeDocumentSlideshow, "application/vnd.openxmlformats-officedocument.presentationml.slideshow" },
-        { ContentType.ApplicationOfficeDocumentSheet, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
-        { ContentType.ApplicationForceDownload, "application/force-download" },
-        { ContentType.ApplicationOctetStream, "application/octet-stream" },
-        { ContentType.ApplicationJson, "application/json" },
-        { ContentType.ApplicationWwwFormUrlEncoded, "application/x-www-form-urlencoded" },
-        { ContentType.ApplicationProtobuf, "application/protobuf" },
-        { ContentType.FontEmbeddedOpenTypeFont, "font/eot" },
-        { ContentType.FontOpenTypeFont, "font/otf" },
-        { ContentType.FontTrueTypeFont, "font/ttf" },
-        { ContentType.FontWoff, "font/woff" },
-        { ContentType.FontWoff2, "font/woff2" },
-        { ContentType.ImageIcon, "image/x-icon" },
-        { ContentType.ImageGif, "image/gif" },
-        { ContentType.ImageJpg, "image/jpg" },
-        { ContentType.ImagePng, "image/png" },
-        { ContentType.ImageTiff, "image/tiff" },
-        { ContentType.ImageBmp, "image/bmp" },
-        { ContentType.ImageScalableVectorGraphics, "image/svg" },
-        { ContentType.ImageScalableVectorGraphicsXml, "image/svg+xml" },
-        { ContentType.ImageScalableVectorGraphicsCompressed, "image/svgz" },
-        { ContentType.TextHtml, "text/html" },
-        { ContentType.TextCss, "text/css" },
-        { ContentType.TextCsv, "text/csv" },
-        { ContentType.TextRichText, "text/richtext" },
-        { ContentType.TextPlain, "text/plain" },
-        { ContentType.TextJavaScript, "text/javascript" },
-        { ContentType.TextXml, "text/xml" },
-        { ContentType.Video3Gpp, "video/3gpp" },
-        { ContentType.Video3Gpp2, "video/3gpp2" },
-        { ContentType.VideoAV1, "video/av1" },
-        { ContentType.VideoAvc, "video/av" },
-        { ContentType.VideoDV, "video/dv" },
-        { ContentType.VideoH261, "video/H261" },
-        { ContentType.VideoH263, "video/H263" },
-        { ContentType.VideoH264, "video/H264" },
-        { ContentType.VideoH265, "video/H265" },
-        { ContentType.VideoH266, "video/H266" },
-        { ContentType.VideoMatroska, "video/matroska" },
-        { ContentType.VideoMatroska3D, "video/matroska-3d" },
-        { ContentType.VideoMJ2, "video/mj2" },
-        { ContentType.VideoMP4, "video/mp4" },
-        { ContentType.VideoMpeg, "video/mpeg" },
-        { ContentType.VideoMpeg4Generic, "video/mpeg4-generic" },
-        { ContentType.VideoMpv, "video/MPV" },
-        { ContentType.VideoQuicktime, "video/quicktime" },
-        { ContentType.VideoRaw, "video/raw" },
-        { ContentType.VideoVC1, "video/vc1" },
-        { ContentType.VideoVC2, "video/vc2" },
-        { ContentType.VideoVP8, "video/VP8" },
-        { ContentType.VideoVP9, "video/VP9" },
-        { ContentType.VideoWebM, "video/webm" }
+        {
+            ContentType.AudioMp4, "audio/mp4"
+        },
+        {
+            ContentType.AudioOgg, "audio/ogg"
+        },
+        {
+            ContentType.AudioMpeg, "audio/mpeg"
+        },
+        {
+            ContentType.AudioWav, "audio/wav"
+        },
+        {
+            ContentType.ApplicationJavaScript, "application/javascript"
+        },
+        {
+            ContentType.ApplicationOfficeDocumentWordProcessing, "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        },
+        {
+            ContentType.ApplicationOfficeDocumentPresentation, "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        },
+        {
+            ContentType.ApplicationOfficeDocumentSlideshow, "application/vnd.openxmlformats-officedocument.presentationml.slideshow"
+        },
+        {
+            ContentType.ApplicationOfficeDocumentSheet, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        },
+        {
+            ContentType.ApplicationForceDownload, "application/force-download"
+        },
+        {
+            ContentType.ApplicationOctetStream, "application/octet-stream"
+        },
+        {
+            ContentType.ApplicationJson, "application/json"
+        },
+        {
+            ContentType.ApplicationYaml, "application/yaml"
+        },
+        {
+            ContentType.ApplicationWwwFormUrlEncoded, "application/x-www-form-urlencoded"
+        },
+        {
+            ContentType.ApplicationProtobuf, "application/protobuf"
+        },
+        {
+            ContentType.FontEmbeddedOpenTypeFont, "font/eot"
+        },
+        {
+            ContentType.FontOpenTypeFont, "font/otf"
+        },
+        {
+            ContentType.FontTrueTypeFont, "font/ttf"
+        },
+        {
+            ContentType.FontWoff, "font/woff"
+        },
+        {
+            ContentType.FontWoff2, "font/woff2"
+        },
+        {
+            ContentType.ImageIcon, "image/x-icon"
+        },
+        {
+            ContentType.ImageGif, "image/gif"
+        },
+        {
+            ContentType.ImageJpg, "image/jpg"
+        },
+        {
+            ContentType.ImagePng, "image/png"
+        },
+        {
+            ContentType.ImageTiff, "image/tiff"
+        },
+        {
+            ContentType.ImageBmp, "image/bmp"
+        },
+        {
+            ContentType.ImageScalableVectorGraphics, "image/svg"
+        },
+        {
+            ContentType.ImageScalableVectorGraphicsXml, "image/svg+xml"
+        },
+        {
+            ContentType.ImageScalableVectorGraphicsCompressed, "image/svgz"
+        },
+        {
+            ContentType.TextHtml, "text/html"
+        },
+        {
+            ContentType.TextCss, "text/css"
+        },
+        {
+            ContentType.TextCsv, "text/csv"
+        },
+        {
+            ContentType.TextRichText, "text/richtext"
+        },
+        {
+            ContentType.TextPlain, "text/plain"
+        },
+        {
+            ContentType.TextJavaScript, "text/javascript"
+        },
+        {
+            ContentType.TextXml, "text/xml"
+        },
+        {
+            ContentType.Video3Gpp, "video/3gpp"
+        },
+        {
+            ContentType.Video3Gpp2, "video/3gpp2"
+        },
+        {
+            ContentType.VideoAV1, "video/av1"
+        },
+        {
+            ContentType.VideoAvc, "video/av"
+        },
+        {
+            ContentType.VideoDV, "video/dv"
+        },
+        {
+            ContentType.VideoH261, "video/H261"
+        },
+        {
+            ContentType.VideoH263, "video/H263"
+        },
+        {
+            ContentType.VideoH264, "video/H264"
+        },
+        {
+            ContentType.VideoH265, "video/H265"
+        },
+        {
+            ContentType.VideoH266, "video/H266"
+        },
+        {
+            ContentType.VideoMatroska, "video/matroska"
+        },
+        {
+            ContentType.VideoMatroska3D, "video/matroska-3d"
+        },
+        {
+            ContentType.VideoMJ2, "video/mj2"
+        },
+        {
+            ContentType.VideoMP4, "video/mp4"
+        },
+        {
+            ContentType.VideoMpeg, "video/mpeg"
+        },
+        {
+            ContentType.VideoMpeg4Generic, "video/mpeg4-generic"
+        },
+        {
+            ContentType.VideoMpv, "video/MPV"
+        },
+        {
+            ContentType.VideoQuicktime, "video/quicktime"
+        },
+        {
+            ContentType.VideoRaw, "video/raw"
+        },
+        {
+            ContentType.VideoVC1, "video/vc1"
+        },
+        {
+            ContentType.VideoVC2, "video/vc2"
+        },
+        {
+            ContentType.VideoVP8, "video/VP8"
+        },
+        {
+            ContentType.VideoVP9, "video/VP9"
+        },
+        {
+            ContentType.VideoWebM, "video/webm"
+        }
     };
 
-    private static readonly Dictionary<string, ContentType> MAPPING_REVERSE = MAPPING.ToDictionary(x => x.Value, x => x.Key);
+    private static readonly Dictionary<string, ContentType> MAPPING_REVERSE = Mapping.ToDictionary(x => x.Value, x => x.Key);
 
     #endregion
 
@@ -436,7 +562,7 @@ public class FlexibleContentType
     public FlexibleContentType(ContentType type, string? charset = null)
     {
         KnownType = type;
-        RawType = MAPPING[type];
+        RawType = Mapping[type];
 
         Charset = charset;
     }
@@ -457,14 +583,14 @@ public class FlexibleContentType
             return new FlexibleContentType(rawType, charset);
         }
 
-        if (_RawCache.TryGetValue(rawType, out var found))
+        if (RawCache.TryGetValue(rawType, out var found))
         {
             return found;
         }
 
         var type = new FlexibleContentType(rawType);
 
-        _RawCache[rawType] = type;
+        RawCache[rawType] = type;
 
         return type;
     }
@@ -481,14 +607,14 @@ public class FlexibleContentType
             return new FlexibleContentType(knownType, charset);
         }
 
-        if (_KnownCache.TryGetValue(knownType, out var found))
+        if (KnownCache.TryGetValue(knownType, out var found))
         {
             return found;
         }
 
         var type = new FlexibleContentType(knownType);
 
-        _KnownCache[knownType] = type;
+        KnownCache[knownType] = type;
 
         return type;
     }
