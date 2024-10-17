@@ -103,4 +103,14 @@ public static class ArgumentProvider
         }
     }
 
+    public static object? GetStream(IRequest request)
+    {
+        if (request.Content == null)
+        {
+            throw new ProviderException(ResponseStatus.BadRequest, "Request body expected");
+        }
+
+        return request.Content;
+    }
+
 }

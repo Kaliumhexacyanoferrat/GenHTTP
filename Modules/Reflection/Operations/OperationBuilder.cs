@@ -68,7 +68,7 @@ public static partial class OperationBuilder
                 pathArguments.Add(name);
             }
 
-            if (forceTrailingSlash)
+            if (forceTrailingSlash || definition.EndsWith('/'))
             {
                 matchBuilder.Append('/');
                 nameBuilder.Append('/');

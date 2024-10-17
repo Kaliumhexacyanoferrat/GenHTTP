@@ -7,6 +7,7 @@ using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.OpenApi;
 using GenHTTP.Modules.Practices;
+using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Webservices;
 
 // todo bug: Inline.Get("/") => wirft fehler!
@@ -16,17 +17,11 @@ var description = ApiDescription.Create()
                                                   .Version("1.0.0");
 
 var inline = Inline.Create()
-                   .Head("bla", () => 42)
-                   .Get("redirect", () => Redirect.To("https://google.de"));
-
-var api = Layout.Create()
-                .AddService<UserService>("users")
-                .Add("inline", inline)
-                .AddController<DeviceController>("device")
-                .Add(description);
+                   .Put("file", (Stream stream) => true)
+                   .Add(description);
 
 Host.Create()
-    .Handler(api)
+    .Handler(inline)
     .Defaults()
     .Development()
     .Console()

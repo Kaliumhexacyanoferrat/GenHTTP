@@ -50,12 +50,33 @@ public class MethodHandlerExplorer : IApiExplorer
                 {
                     if (arg.Value.Source == OperationArgumentSource.Injected) continue;
 
-                    if (arg.Value.Source == OperationArgumentSource.Content)
+                    if (arg.Value.Source == OperationArgumentSource.Body)
+                    {
+                        if (method.KnownMethod != RequestMethod.Get)
+                        {
+                            operation.RequestBody = GetRequestBody(schemata, typeof(string), "text/plain");
+                        }
+                    }
+                    else if (arg.Value.Source == OperationArgumentSource.Content)
                     {
                         if (method.KnownMethod != RequestMethod.Get)
                         {
                             var supportedTypes = methodHandler.Registry.Serialization.Formats.Select(s => s.Key.RawType).ToArray();
                             operation.RequestBody = GetRequestBody(schemata, arg.Value.Type, supportedTypes);
+                        }
+                    }
+                    else if (arg.Value.Source == OperationArgumentSource.Streamed)
+                    {
+                        if (method.KnownMethod != RequestMethod.Get)
+                        {
+                            var body = new OpenApiRequestBody();
+
+                            body.Content.Add("*/*", new OpenApiMediaType()
+                            {
+                                Schema = new JsonSchema() { Format = "binary" }
+                            });
+
+                            operation.RequestBody = body;
                         }
                     }
                     else

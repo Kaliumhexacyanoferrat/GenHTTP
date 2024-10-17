@@ -28,6 +28,12 @@ public static class SignatureAnalyzer
                 continue;
             }
 
+            if (TryStream(param, out var streamedArg))
+            {
+                result.Add(param.Name, streamedArg);
+                continue;
+            }
+
             if (param.CanFormat(registry.Formatting))
             {
                 if (TryFromBody(param, out var bodyArg))
@@ -51,6 +57,18 @@ public static class SignatureAnalyzer
         }
 
         return result;
+    }
+
+    private static bool TryStream(ParameterInfo param, [NotNullWhen(true)] out OperationArgument? argument)
+    {
+        if (param.ParameterType == typeof(Stream))
+        {
+            argument = new OperationArgument(param.Name!, param.ParameterType, OperationArgumentSource.Streamed);
+            return true;
+        }
+
+        argument = null;
+        return false;
     }
 
     private static bool TryInject(ParameterInfo param, MethodRegistry registry, [NotNullWhen(true)] out OperationArgument? argument)

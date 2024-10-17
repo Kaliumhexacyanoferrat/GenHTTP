@@ -6,7 +6,7 @@ using NSwag;
 
 namespace GenHTTP.Modules.OpenApi.Handler;
 
-public class OpenApiContent : IResponseContent
+internal class OpenApiContent : IResponseContent
 {
 
     #region Get-/Setters
@@ -21,7 +21,7 @@ public class OpenApiContent : IResponseContent
 
     #region Initialization
 
-    public OpenApiContent(OpenApiDocument document, OpenApiFormat format)
+    internal OpenApiContent(OpenApiDocument document, OpenApiFormat format)
     {
         Document = document;
         Format = format;

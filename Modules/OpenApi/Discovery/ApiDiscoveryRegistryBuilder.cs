@@ -8,11 +8,7 @@ public sealed class ApiDiscoveryRegistryBuilder : IBuilder<ApiDiscoveryRegistry>
 
     #region Functionality
 
-    public ApiDiscoveryRegistryBuilder Add<TExplorer>() where TExplorer : IApiExplorer, new()
-    {
-        _Explorers.Add(new TExplorer());
-        return this;
-    }
+    public ApiDiscoveryRegistryBuilder Add<TExplorer>() where TExplorer : IApiExplorer, new() => Add(new TExplorer());
 
     public ApiDiscoveryRegistryBuilder Add(IApiExplorer explorer)
     {
@@ -20,10 +16,7 @@ public sealed class ApiDiscoveryRegistryBuilder : IBuilder<ApiDiscoveryRegistry>
         return this;
     }
 
-    public ApiDiscoveryRegistry Build()
-    {
-        return new(_Explorers);
-    }
+    public ApiDiscoveryRegistry Build() => new(_Explorers);
 
     #endregion
 

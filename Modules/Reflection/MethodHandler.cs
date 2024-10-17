@@ -105,6 +105,7 @@ public sealed class MethodHandler : IHandler
                             OperationArgumentSource.Body => await ArgumentProvider.GetBodyArgumentAsync(request, arg, Registry),
                             OperationArgumentSource.Query => ArgumentProvider.GetQueryArgument(request, bodyArguments, arg, Registry),
                             OperationArgumentSource.Content => await ArgumentProvider.GetContentAsync(request, arg, Registry),
+                            OperationArgumentSource.Streamed => ArgumentProvider.GetStream(request),
                             _ => throw new ProviderException(ResponseStatus.InternalServerError, $"Unable to map argument '{arg.Name}' of type '{arg.Type}' because source '{arg.Source}' is not supported")
                         };
                     }

@@ -40,15 +40,18 @@
 
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1"/>
 
+        <PackageReference Include="Microsoft.OpenApi" Version="1.6.22" />
+        <PackageReference Include="Microsoft.OpenApi.Readers" Version="1.6.22" />
+
         <PackageReference Include="MSTest.TestAdapter" Version="3.6.1"/>
         <PackageReference Include="MSTest.TestFramework" Version="3.6.1"/>
 
+        <PackageReference Include="NSubstitute" Version="5.1.0"/>
+        
         <PackageReference Include="coverlet.collector" Version="6.0.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-
-        <PackageReference Include="NSubstitute" Version="5.1.0"/>
 
     </ItemGroup>
 
@@ -83,6 +86,7 @@
         <ProjectReference Include="..\..\Modules\StaticWebsites\GenHTTP.Modules.StaticWebsites.csproj"/>
         <ProjectReference Include="..\..\Modules\VirtualHosting\GenHTTP.Modules.VirtualHosting.csproj"/>
         <ProjectReference Include="..\..\Modules\Webservices\GenHTTP.Modules.Webservices.csproj"/>
+        <ProjectReference Include="..\..\Modules\OpenApi\GenHTTP.Modules.OpenApi.csproj" />
 
     </ItemGroup>
 

@@ -6,7 +6,8 @@ public enum OperationArgumentSource
     Query,
     Body,
     Injected,
-    Content
+    Content,
+    Streamed
 }
 
 public sealed class OperationArgument
