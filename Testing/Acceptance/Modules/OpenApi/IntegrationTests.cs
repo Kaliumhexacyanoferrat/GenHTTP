@@ -39,6 +39,14 @@ public class IntegrationTests
 
     }
 
+    public class MultipleMethodsController
+    {
+
+        [ControllerAction(RequestMethod.Get, RequestMethod.Options)]
+        public int Method() => 42;
+
+    }
+
     #endregion
 
     [TestMethod]
@@ -87,6 +95,18 @@ public class IntegrationTests
         var doc = (await api.GetOpenApiAsync()).OpenApiDocument;
 
         Assert.IsTrue(doc.Paths.First().Value.Operations.First().Value.Deprecated);
+    }
+
+    [TestMethod]
+    public async Task TestControllerWithMultipleMethods()
+    {
+        var api = Layout.Create()
+                        .AddController<MultipleMethodsController>("my")
+                        .Add(ApiDescription.Create());
+
+        var doc = (await api.GetOpenApiAsync()).OpenApiDocument;
+
+        Assert.AreEqual(2, doc.Paths["/my/method/"].Operations.Count);
     }
 
 }
