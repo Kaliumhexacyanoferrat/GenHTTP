@@ -16,5 +16,4 @@ public class ConcernExplorer : IApiExplorer
             registry.Explore(concern.Content, path, document, schemata);
         }
     }
-
 }

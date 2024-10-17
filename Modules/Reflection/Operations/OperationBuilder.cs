@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -31,7 +30,6 @@ public static partial class OperationBuilder
         {
             if (isWildcard)
             {
-                // ToDo: document the injection possibilities
                 path = new OperationPath("/{path}", EmptyWildcardRoute, true, true);
                 pathArguments.Add("path");
             }

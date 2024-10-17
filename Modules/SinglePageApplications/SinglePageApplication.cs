@@ -10,5 +10,4 @@ public static class SinglePageApplication
     public static SinglePageBuilder From(IBuilder<IResourceTree> tree) => From(tree.Build());
 
     public static SinglePageBuilder From(IResourceTree tree) => new SinglePageBuilder().Tree(tree);
-
 }

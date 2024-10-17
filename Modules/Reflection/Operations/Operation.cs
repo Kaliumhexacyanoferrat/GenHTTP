@@ -5,18 +5,6 @@ namespace GenHTTP.Modules.Reflection.Operations;
 public sealed class Operation
 {
 
-    #region Get-/Setters
-
-    public MethodInfo Method { get; }
-
-    public OperationPath Path { get; }
-
-    public IReadOnlyDictionary<string, OperationArgument> Arguments { get; }
-
-    public OperationResult Result { get; }
-
-    #endregion
-
     #region Initialization
 
     public Operation(MethodInfo method, OperationPath path, OperationResult result, IReadOnlyDictionary<string, OperationArgument> arguments)
@@ -26,6 +14,18 @@ public sealed class Operation
         Result = result;
         Arguments = arguments;
     }
+
+    #endregion
+
+    #region Get-/Setters
+
+    public MethodInfo Method { get; }
+
+    public OperationPath Path { get; }
+
+    public IReadOnlyDictionary<string, OperationArgument> Arguments { get; }
+
+    public OperationResult Result { get; }
 
     #endregion
 

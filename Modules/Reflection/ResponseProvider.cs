@@ -1,6 +1,5 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.IO.Streaming;
@@ -15,18 +14,18 @@ namespace GenHTTP.Modules.Reflection;
 public class ResponseProvider
 {
 
-    #region Get-/Setters
-
-    private MethodRegistry Registry { get; }
-
-    #endregion
-
     #region Initialization
 
     public ResponseProvider(MethodRegistry registry)
     {
         Registry = registry;
     }
+
+    #endregion
+
+    #region Get-/Setters
+
+    private MethodRegistry Registry { get; }
 
     #endregion
 
@@ -61,13 +60,10 @@ public class ResponseProvider
         };
     }
 
-    private static IResponse GetNoContent(IRequest request, Action<IResponseBuilder>? adjustments)
-    {
-        return request.Respond()
-                      .Status(ResponseStatus.NoContent)
-                      .Adjust(adjustments)
-                      .Build();
-    }
+    private static IResponse GetNoContent(IRequest request, Action<IResponseBuilder>? adjustments) => request.Respond()
+                                                                                                             .Status(ResponseStatus.NoContent)
+                                                                                                             .Adjust(adjustments)
+                                                                                                             .Build();
 
     private static async Task<IResponse?> GetDynamicResponse(IRequest request, object result, IHandler handler, Action<IResponseBuilder>? adjustments)
     {
@@ -106,14 +102,11 @@ public class ResponseProvider
         return downloadResponse;
     }
 
-    private IResponse GetFormattedResponse(IRequest request, object result, Type type, Action<IResponseBuilder>? adjustments)
-    {
-        return request.Respond()
-                      .Content(Registry.Formatting.Write(result, type) ?? string.Empty)
-                      .Type(ContentType.TextPlain)
-                      .Adjust(adjustments)
-                      .Build();
-    }
+    private IResponse GetFormattedResponse(IRequest request, object result, Type type, Action<IResponseBuilder>? adjustments) => request.Respond()
+                                                                                                                                        .Content(Registry.Formatting.Write(result, type) ?? string.Empty)
+                                                                                                                                        .Type(ContentType.TextPlain)
+                                                                                                                                        .Adjust(adjustments)
+                                                                                                                                        .Build();
 
     private async ValueTask<IResponse> GetSerializedResponse(IRequest request, object result, Action<IResponseBuilder>? adjustments)
     {

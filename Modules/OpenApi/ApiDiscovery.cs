@@ -12,5 +12,4 @@ public static class ApiDiscovery
                                                                   .Add<ServiceExplorer>()
                                                                   .Add<MethodCollectionExplorer>()
                                                                   .Add<MethodHandlerExplorer>();
-
 }

@@ -1,6 +1,5 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Operations;
 

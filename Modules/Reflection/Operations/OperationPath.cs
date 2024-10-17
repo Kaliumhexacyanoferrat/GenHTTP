@@ -5,6 +5,18 @@ namespace GenHTTP.Modules.Reflection.Operations;
 public sealed class OperationPath
 {
 
+    #region Initialization
+
+    public OperationPath(string name, Regex matcher, bool isIndex, bool isWildcard)
+    {
+        Matcher = matcher;
+        Name = name;
+        IsIndex = isIndex;
+        IsWildcard = isWildcard;
+    }
+
+    #endregion
+
     #region Get-/Setters
 
     /// <summary>
@@ -35,18 +47,6 @@ public sealed class OperationPath
     /// ambiguous.
     /// </remarks>
     public bool IsWildcard { get; }
-
-    #endregion
-
-    #region Initialization
-
-    public OperationPath(string name, Regex matcher, bool isIndex, bool isWildcard)
-    {
-        Matcher = matcher;
-        Name = name;
-        IsIndex = isIndex;
-        IsWildcard = isWildcard;
-    }
 
     #endregion
 

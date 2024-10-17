@@ -40,7 +40,10 @@ public sealed class LayoutTests
 
         using var runner = TestHost.Run(layout);
 
-        foreach (var path in new[] { "/something", "/" })
+        foreach (var path in new[]
+                 {
+                     "/something", "/"
+                 })
         {
             using var response = await runner.GetResponseAsync(path);
 

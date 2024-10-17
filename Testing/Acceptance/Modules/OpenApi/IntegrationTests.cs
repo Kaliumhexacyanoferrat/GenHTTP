@@ -12,43 +12,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.OpenApi;
 public class IntegrationTests
 {
 
-    #region Supporting data structures
-
-    public class MyService
-    {
-
-        [ResourceMethod]
-        public int Method() => 42;
-
-    }
-
-    public class ObsoleteService
-    {
-
-        [Obsolete("Don't use this anymore")]
-        [ResourceMethod("obsolete")]
-        public int Obsolete() => 43;
-
-    }
-
-    public class MyController
-    {
-
-        [ControllerAction(RequestMethod.Get)]
-        public int Method() => 42;
-
-    }
-
-    public class MultipleMethodsController
-    {
-
-        [ControllerAction(RequestMethod.Get, RequestMethod.Options)]
-        public int Method() => 42;
-
-    }
-
-    #endregion
-
     [TestMethod]
     public async Task TestWebserviceSupported()
     {
@@ -108,5 +71,38 @@ public class IntegrationTests
 
         Assert.AreEqual(2, doc.Paths["/my/method/"].Operations.Count);
     }
+
+    #region Supporting data structures
+
+    public class MyService
+    {
+
+        [ResourceMethod]
+        public int Method() => 42;
+    }
+
+    public class ObsoleteService
+    {
+
+        [Obsolete("Don't use this anymore")]
+        [ResourceMethod("obsolete")]
+        public int Obsolete() => 43;
+    }
+
+    public class MyController
+    {
+
+        [ControllerAction(RequestMethod.Get)]
+        public int Method() => 42;
+    }
+
+    public class MultipleMethodsController
+    {
+
+        [ControllerAction(RequestMethod.Get, RequestMethod.Options)]
+        public int Method() => 42;
+    }
+
+    #endregion
 
 }

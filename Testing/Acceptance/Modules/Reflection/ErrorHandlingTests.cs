@@ -26,5 +26,4 @@ public class ErrorHandlingTests
 
         await response.AssertStatusAsync(HttpStatusCode.UnsupportedMediaType);
     }
-
 }

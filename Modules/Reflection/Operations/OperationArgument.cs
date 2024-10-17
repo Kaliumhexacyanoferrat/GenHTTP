@@ -13,16 +13,6 @@ public enum OperationArgumentSource
 public sealed class OperationArgument
 {
 
-    #region Get-/Setters
-
-    public string Name { get; }
-
-    public Type Type { get; }
-
-    public OperationArgumentSource Source { get; }
-
-    #endregion
-
     #region Initialization
 
     public OperationArgument(string name, Type type, OperationArgumentSource source)
@@ -31,6 +21,16 @@ public sealed class OperationArgument
         Type = type;
         Source = source;
     }
+
+    #endregion
+
+    #region Get-/Setters
+
+    public string Name { get; }
+
+    public Type Type { get; }
+
+    public OperationArgumentSource Source { get; }
 
     #endregion
 

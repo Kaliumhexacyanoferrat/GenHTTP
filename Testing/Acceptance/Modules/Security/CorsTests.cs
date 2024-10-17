@@ -93,8 +93,12 @@ public sealed class CorsTests
     {
         var policy = CorsPolicy.Restrictive()
                                .Add("http://google.de", new List<FlexibleRequestMethod>
-                                        { new(RequestMethod.Get) }, null, new List<string>
-                                        { "Accept" }, false);
+                               {
+                                   new(RequestMethod.Get)
+                               }, null, new List<string>
+                               {
+                                   "Accept"
+                               }, false);
 
         using var runner = GetRunner(policy);
 

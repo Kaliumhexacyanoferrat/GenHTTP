@@ -10,20 +10,6 @@ public sealed class OpenApiConcern : IConcern
 {
     private OpenApiDocument? _Cached;
 
-    #region Get-/Setters
-
-    public IHandler Parent { get; }
-
-    public IHandler Content { get; }
-
-    private ApiDiscoveryRegistry Discovery { get; }
-
-    private bool EnableCaching { get; }
-
-    private Action<IRequest, OpenApiDocument> PostProcessor { get; }
-
-    #endregion
-
     #region Initialization
 
     public OpenApiConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, ApiDiscoveryRegistry discovery, bool enableCaching, Action<IRequest, OpenApiDocument> postProcessor)
@@ -35,6 +21,20 @@ public sealed class OpenApiConcern : IConcern
         EnableCaching = enableCaching;
         PostProcessor = postProcessor;
     }
+
+    #endregion
+
+    #region Get-/Setters
+
+    public IHandler Parent { get; }
+
+    public IHandler Content { get; }
+
+    private ApiDiscoveryRegistry Discovery { get; }
+
+    private bool EnableCaching { get; }
+
+    private Action<IRequest, OpenApiDocument> PostProcessor { get; }
 
     #endregion
 
@@ -70,11 +70,11 @@ public sealed class OpenApiConcern : IConcern
 
                 return response;
             }
-            else if (string.Compare(path, "openapi.json", StringComparison.OrdinalIgnoreCase) == 0)
+            if (string.Compare(path, "openapi.json", StringComparison.OrdinalIgnoreCase) == 0)
             {
                 return GetDocument(request, OpenApiFormat.Json);
             }
-            else if (string.Compare(path, "openapi.yaml", StringComparison.OrdinalIgnoreCase) == 0 || string.Compare(path, "openapi.yml", StringComparison.OrdinalIgnoreCase) == 0)
+            if (string.Compare(path, "openapi.yaml", StringComparison.OrdinalIgnoreCase) == 0 || string.Compare(path, "openapi.yml", StringComparison.OrdinalIgnoreCase) == 0)
             {
                 return GetDocument(request, OpenApiFormat.Yaml);
             }
@@ -89,7 +89,7 @@ public sealed class OpenApiConcern : IConcern
 
         var content = new OpenApiContent(document, format);
 
-        var contentType = (format == OpenApiFormat.Json) ? FlexibleContentType.Get(ContentType.ApplicationJson) : FlexibleContentType.Get(ContentType.ApplicationYaml);
+        var contentType = format == OpenApiFormat.Json ? FlexibleContentType.Get(ContentType.ApplicationJson) : FlexibleContentType.Get(ContentType.ApplicationYaml);
 
         return request.Respond()
                       .Content(content)
@@ -99,7 +99,7 @@ public sealed class OpenApiConcern : IConcern
 
     private OpenApiDocument Discover(IRequest request, ApiDiscoveryRegistry registry)
     {
-        if (EnableCaching && (_Cached != null))
+        if (EnableCaching && _Cached != null)
         {
             return _Cached;
         }
@@ -114,9 +114,9 @@ public sealed class OpenApiConcern : IConcern
 
         if (request.Host != null)
         {
-            document.Servers.Add(new OpenApiServer()
+            document.Servers.Add(new OpenApiServer
             {
-                Url = ((request.EndPoint.Secure) ? "https://" : "http://") + request.Host + path[..path.LastIndexOf('/')]
+                Url = (request.EndPoint.Secure ? "https://" : "http://") + request.Host + path[..path.LastIndexOf('/')]
             });
         }
 

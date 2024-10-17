@@ -4,17 +4,15 @@ using GenHTTP.Engine;
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.Functional;
-using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.OpenApi;
 using GenHTTP.Modules.Practices;
-using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Webservices;
 
 // todo bug: Inline.Get("/") => wirft fehler!
 
 var description = ApiDescription.Create()
-                                                  .Title("My API")
-                                                  .Version("1.0.0");
+                                .Title("My API")
+                                .Version("1.0.0");
 
 var inline = Inline.Create()
                    .Put("file", (Stream stream) => true)
@@ -33,8 +31,7 @@ public class UserService
 {
 
     [ResourceMethod]
-    public Stream Avatar(DateTime cannot, short s, byte b, bool b2) { return new MemoryStream();  }
-
+    public Stream Avatar(DateTime cannot, short s, byte b, bool b2) => new MemoryStream();
 }
 
 public class DeviceController
@@ -51,6 +48,5 @@ public class DeviceController
 
     [Obsolete]
     [ControllerAction(RequestMethod.Get)]
-    public ValueTask<User?> GetUserAsync() { return new(); }
-
+    public ValueTask<User?> GetUserAsync() => new();
 }

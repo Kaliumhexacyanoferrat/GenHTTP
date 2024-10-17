@@ -59,5 +59,4 @@ public static class Extensions
 
         return IsAssignableToGenericType(baseType, genericType);
     }
-
 }

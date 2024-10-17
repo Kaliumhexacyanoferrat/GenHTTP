@@ -14,11 +14,14 @@ public static class SignatureAnalyzer
 
         foreach (var param in method.GetParameters())
         {
-            if (param.Name == null) continue;
+            if (param.Name == null)
+            {
+                continue;
+            }
 
             if (pathArguments.Contains(param.Name))
             {
-                result.Add(param.Name, new(param.Name, param.ParameterType, OperationArgumentSource.Path));
+                result.Add(param.Name, new OperationArgument(param.Name, param.ParameterType, OperationArgumentSource.Path));
                 continue;
             }
 
@@ -42,12 +45,12 @@ public static class SignatureAnalyzer
                 }
                 else
                 {
-                    result.Add(param.Name, new(param.Name, param.ParameterType, OperationArgumentSource.Query));
+                    result.Add(param.Name, new OperationArgument(param.Name, param.ParameterType, OperationArgumentSource.Query));
                 }
             }
             else
             {
-                result.Add(param.Name, new(param.Name, param.ParameterType, OperationArgumentSource.Content));
+                result.Add(param.Name, new OperationArgument(param.Name, param.ParameterType, OperationArgumentSource.Content));
             }
         }
 
@@ -109,7 +112,7 @@ public static class SignatureAnalyzer
             return new OperationResult(method.ReturnType, OperationResultSink.None);
         }
 
-        if (typeof(IHandler).IsAssignableFrom(type) || typeof(IHandlerBuilder).IsAssignableFrom(type) || typeof(IResponse).IsAssignableFrom(type) ||  typeof(IResponseBuilder).IsAssignableFrom(type))
+        if (typeof(IHandler).IsAssignableFrom(type) || typeof(IHandlerBuilder).IsAssignableFrom(type) || typeof(IResponse).IsAssignableFrom(type) || typeof(IResponseBuilder).IsAssignableFrom(type))
         {
             return new OperationResult(type, OperationResultSink.Dynamic);
         }
@@ -135,12 +138,9 @@ public static class SignatureAnalyzer
         {
             return type.IsGenericallyVoid() ? null : type.GenericTypeArguments[0];
         }
-        else
+        if (type == typeof(ValueTask) || type == typeof(Task))
         {
-            if (type == typeof(ValueTask) || type == typeof(Task))
-            {
-                return null;
-            }
+            return null;
         }
 
         if (typeof(IResultWrapper).IsAssignableFrom(type))
@@ -150,5 +150,4 @@ public static class SignatureAnalyzer
 
         return type;
     }
-
 }

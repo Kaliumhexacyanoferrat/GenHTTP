@@ -1,8 +1,6 @@
 ﻿using System.Text.RegularExpressions;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Conversion;
 
 namespace GenHTTP.Modules.Reflection.Operations;
@@ -112,5 +110,4 @@ public static class ArgumentProvider
 
         return request.Content;
     }
-
 }

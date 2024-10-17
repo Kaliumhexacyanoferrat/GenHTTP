@@ -59,5 +59,4 @@ public class MetaDataTests
                      .Get(() => "Hello World")
                      .Add(description);
     }
-
 }

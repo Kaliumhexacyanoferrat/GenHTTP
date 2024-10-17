@@ -9,5 +9,4 @@ public static class ApiDescription
     public static OpenApiConcernBuilder Create() => With(ApiDiscovery.Default());
 
     public static OpenApiConcernBuilder With(ApiDiscoveryRegistryBuilder discovery) => new(discovery.Build());
-
 }

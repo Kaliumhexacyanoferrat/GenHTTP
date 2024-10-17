@@ -1,7 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Modules.OpenApi.Handler;
 using GenHTTP.Modules.Reflection;
-
 using NSwag;
 
 namespace GenHTTP.Modules.OpenApi.Discovery;
@@ -21,5 +20,4 @@ public class MethodCollectionExplorer : IApiExplorer
             }
         }
     }
-
 }

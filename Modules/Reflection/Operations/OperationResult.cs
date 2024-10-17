@@ -12,14 +12,6 @@ public enum OperationResultSink
 public class OperationResult
 {
 
-    #region Get-/Setters
-
-    public OperationResultSink Sink { get; }
-
-    public Type Type { get; }
-
-    #endregion
-
     #region Initialization
 
     public OperationResult(Type type, OperationResultSink sink)
@@ -27,6 +19,14 @@ public class OperationResult
         Type = type;
         Sink = sink;
     }
+
+    #endregion
+
+    #region Get-/Setters
+
+    public OperationResultSink Sink { get; }
+
+    public Type Type { get; }
 
     #endregion
 

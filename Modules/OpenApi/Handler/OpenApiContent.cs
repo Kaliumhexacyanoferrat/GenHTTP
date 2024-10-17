@@ -1,23 +1,11 @@
 ﻿using System.Text;
-
 using GenHTTP.Api.Protocol;
-
 using NSwag;
 
 namespace GenHTTP.Modules.OpenApi.Handler;
 
 internal class OpenApiContent : IResponseContent
 {
-
-    #region Get-/Setters
-
-    public ulong? Length => null;
-
-    private OpenApiDocument Document { get; }
-
-    private OpenApiFormat Format { get; }
-
-    #endregion
 
     #region Initialization
 
@@ -26,6 +14,16 @@ internal class OpenApiContent : IResponseContent
         Document = document;
         Format = format;
     }
+
+    #endregion
+
+    #region Get-/Setters
+
+    public ulong? Length => null;
+
+    private OpenApiDocument Document { get; }
+
+    private OpenApiFormat Format { get; }
 
     #endregion
 

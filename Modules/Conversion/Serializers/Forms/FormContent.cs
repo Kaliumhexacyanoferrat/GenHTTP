@@ -55,8 +55,8 @@ public sealed class FormContent : IResponseContent
         }
 
         var replaced = query.ToString()?
-                                  .Replace("+", "%20")
-                                  .Replace("%2b", "+");
+                            .Replace("+", "%20")
+                            .Replace("%2b", "+");
 
         await writer.WriteAsync(replaced);
     }

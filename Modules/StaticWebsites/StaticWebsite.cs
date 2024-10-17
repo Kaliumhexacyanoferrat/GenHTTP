@@ -22,5 +22,4 @@ public static class StaticWebsite
     /// </summary>
     /// <param name="tree">The resource to generate the application from</param>
     public static StaticWebsiteBuilder From(IResourceTree tree) => new StaticWebsiteBuilder().Tree(tree);
-
 }

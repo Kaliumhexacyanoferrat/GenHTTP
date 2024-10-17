@@ -57,7 +57,9 @@ public sealed class BearerAuthenticationTests
     {
         var auth = BearerAuthentication.Create()
                                        .UserMapping((_, _) => new ValueTask<IUser?>(new MyUser
-                                                                                        { DisplayName = "User Name" }))
+                                       {
+                                           DisplayName = "User Name"
+                                       }))
                                        .AllowExpired();
 
         using var response = await Execute(auth, ValidToken);

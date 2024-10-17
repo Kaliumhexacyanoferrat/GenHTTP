@@ -26,16 +26,10 @@ public class InfrastructureTests
     }
 
     [TestMethod]
-    public async Task TestCaching()
-    {
-        Assert.AreEqual(1, await RunCachingTest(true));
-    }
+    public async Task TestCaching() => Assert.AreEqual(1, await RunCachingTest(true));
 
     [TestMethod]
-    public async Task TestNoCaching()
-    {
-        Assert.AreEqual(2, await RunCachingTest(false));
-    }
+    public async Task TestNoCaching() => Assert.AreEqual(2, await RunCachingTest(false));
 
     private async Task<int> RunCachingTest(bool cacheEnabled)
     {
@@ -54,5 +48,4 @@ public class InfrastructureTests
 
         return counter;
     }
-
 }

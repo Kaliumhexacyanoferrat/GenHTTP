@@ -1,7 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Modules.OpenApi.Handler;
 using GenHTTP.Modules.Reflection;
-
 using NSwag;
 
 namespace GenHTTP.Modules.OpenApi.Discovery;
@@ -18,5 +17,4 @@ public class ServiceExplorer : IApiExplorer
             registry.Explore(serviceProvider.Methods, path, document, schemata);
         }
     }
-
 }

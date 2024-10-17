@@ -79,5 +79,4 @@ public class ResponseTests
         Assert.IsTrue(op.Responses.ContainsKey("200"));
         Assert.IsTrue(op.Responses["200"].Content.ContainsKey("application/json"));
     }
-
 }

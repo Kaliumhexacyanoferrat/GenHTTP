@@ -4,5 +4,4 @@ public interface IServiceMethodProvider
 {
 
     MethodCollection Methods { get; }
-
 }

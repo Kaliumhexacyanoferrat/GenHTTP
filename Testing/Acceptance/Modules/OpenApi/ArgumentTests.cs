@@ -1,7 +1,10 @@
 ﻿using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Reflection;
+
 using Microsoft.OpenApi.Models;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.OpenApi;

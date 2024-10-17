@@ -23,7 +23,7 @@ public static class BasicAuthentication
     /// <param name="realm">The name of the realm returned to the client</param>
     /// <returns>The newly created basic authentication concern</returns>
     public static BasicAuthenticationConcernBuilder Create(Func<string, string, ValueTask<IUser?>> authenticator, string realm = DefaultRealm) => new BasicAuthenticationConcernBuilder().Handler(authenticator)
-                                                                                                                                                                                          .Realm(realm);
+                                                                                                                                                                                         .Realm(realm);
 
     /// <summary>
     /// Creates a basic authentication concern that stores credentials in

@@ -1,9 +1,7 @@
 ﻿using System.Reflection;
 using System.Text.RegularExpressions;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Operations;
 
@@ -61,7 +59,7 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 
         if (method.Name == "Index")
         {
-            return OperationBuilder.Create(pathArguments.Length > 0 ? $"/{pathArguments}/" : null, method, Registry,true);
+            return OperationBuilder.Create(pathArguments.Length > 0 ? $"/{pathArguments}/" : null, method, Registry, true);
         }
 
         var name = HypenCase(method.Name);
@@ -71,7 +69,7 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
         return OperationBuilder.Create(pathArguments.Length > 0 ? $"{path}/{pathArguments}/" : $"{path}/", method, Registry, true);
     }
 
-    private List<string> FindPathArguments(MethodInfo method)
+    private static List<string> FindPathArguments(MethodInfo method)
     {
         var found = new List<string>();
 

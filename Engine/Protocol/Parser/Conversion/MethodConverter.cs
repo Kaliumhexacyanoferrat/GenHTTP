@@ -7,13 +7,27 @@ internal static class MethodConverter
 {
     private static readonly Dictionary<string, RequestMethod> KnownMethods = new(7)
     {
-        { "GET", RequestMethod.Get },
-        { "HEAD", RequestMethod.Head },
-        { "POST", RequestMethod.Post },
-        { "PUT", RequestMethod.Put },
-        { "PATCH", RequestMethod.Patch },
-        { "DELETE", RequestMethod.Delete },
-        { "OPTIONS", RequestMethod.Options }
+        {
+            "GET", RequestMethod.Get
+        },
+        {
+            "HEAD", RequestMethod.Head
+        },
+        {
+            "POST", RequestMethod.Post
+        },
+        {
+            "PUT", RequestMethod.Put
+        },
+        {
+            "PATCH", RequestMethod.Patch
+        },
+        {
+            "DELETE", RequestMethod.Delete
+        },
+        {
+            "OPTIONS", RequestMethod.Options
+        }
     };
 
     internal static FlexibleRequestMethod ToRequestMethod(ReadOnlySequence<byte> value)

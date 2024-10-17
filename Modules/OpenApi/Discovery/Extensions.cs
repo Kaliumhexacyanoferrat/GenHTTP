@@ -12,5 +12,4 @@ internal static class Extensions
 
         return Nullable.GetUnderlyingType(type) != null;
     }
-
 }

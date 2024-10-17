@@ -2,7 +2,6 @@
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Functional.Provider;
 using GenHTTP.Modules.OpenApi;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.OpenApi;
@@ -12,19 +11,19 @@ public class FormatTests
 {
 
     [TestMethod]
-    public Task TestJsonFile() => TestApi("/openapi.json", expectedContentType: "application/json");
+    public Task TestJsonFile() => TestApi("/openapi.json", "application/json");
 
     [TestMethod]
-    public Task TestJsonFileUpper() => TestApi("/OPENAPI.JSON", expectedContentType: "application/json");
+    public Task TestJsonFileUpper() => TestApi("/OPENAPI.JSON", "application/json");
 
     [TestMethod]
-    public Task TestJsonFallback() => TestApi("/openapi", expectedContentType: "application/json");
+    public Task TestJsonFallback() => TestApi("/openapi", "application/json");
 
     [TestMethod]
-    public Task TestYamlFile() => TestApi("/openapi.yaml", expectedContentType: "application/yaml");
+    public Task TestYamlFile() => TestApi("/openapi.yaml", "application/yaml");
 
     [TestMethod]
-    public Task TestYmlFile() => TestApi("/openapi.yml", expectedContentType: "application/yaml");
+    public Task TestYmlFile() => TestApi("/openapi.yml", "application/yaml");
 
     [TestMethod]
     public Task TestJsonByAccept() => TestApi("/openapi", accept: "application/json");
@@ -74,5 +73,4 @@ public class FormatTests
                      .Get(() => "Hello World")
                      .Add(ApiDescription.Create());
     }
-
 }

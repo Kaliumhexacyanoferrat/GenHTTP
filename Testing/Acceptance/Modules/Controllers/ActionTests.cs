@@ -93,7 +93,9 @@ public sealed class ActionTests
 
         var dict = new Dictionary<string, string>
         {
-            { "value2", "test" }
+            {
+                "value2", "test"
+            }
         };
 
         var request = runner.GetRequest("/t/action/");

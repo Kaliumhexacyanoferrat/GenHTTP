@@ -1,11 +1,9 @@
 ﻿using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text.RegularExpressions;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
-
 using GenHTTP.Modules.Conversion.Serializers.Forms;
 using GenHTTP.Modules.Reflection.Operations;
 
@@ -23,22 +21,6 @@ public sealed class MethodHandler : IHandler
 {
     private static readonly object?[] NoArguments = [];
 
-    #region Get-/Setters
-
-    public IHandler Parent { get; }
-
-    public Operation Operation { get; }
-
-    public IMethodConfiguration Configuration { get; }
-
-    private Func<object> InstanceProvider { get; }
-
-    private Func<IRequest, IHandler, Operation, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> ResponseProvider { get; }
-
-    public MethodRegistry Registry { get; }
-
-    #endregion
-
     #region Initialization
 
     public MethodHandler(IHandler parent, Operation operation, Func<object> instanceProvider, IMethodConfiguration metaData,
@@ -55,6 +37,22 @@ public sealed class MethodHandler : IHandler
         Operation = operation;
         Registry = registry;
     }
+
+    #endregion
+
+    #region Get-/Setters
+
+    public IHandler Parent { get; }
+
+    public Operation Operation { get; }
+
+    public IMethodConfiguration Configuration { get; }
+
+    private Func<object> InstanceProvider { get; }
+
+    private Func<IRequest, IHandler, Operation, object?, Action<IResponseBuilder>?, ValueTask<IResponse?>> ResponseProvider { get; }
+
+    public MethodRegistry Registry { get; }
 
     #endregion
 

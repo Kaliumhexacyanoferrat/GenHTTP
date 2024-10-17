@@ -1,6 +1,5 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Modules.OpenApi.Handler;
-
 using NSwag;
 
 namespace GenHTTP.Modules.OpenApi.Discovery;
@@ -8,18 +7,18 @@ namespace GenHTTP.Modules.OpenApi.Discovery;
 public sealed class ApiDiscoveryRegistry
 {
 
-    #region Get-/Setters
-
-    public List<IApiExplorer> Explorers { get; }
-
-    #endregion
-
     #region Initialization
 
     public ApiDiscoveryRegistry(List<IApiExplorer> explorers)
     {
         Explorers = explorers;
     }
+
+    #endregion
+
+    #region Get-/Setters
+
+    public List<IApiExplorer> Explorers { get; }
 
     #endregion
 

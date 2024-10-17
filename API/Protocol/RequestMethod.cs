@@ -25,42 +25,94 @@ public class FlexibleRequestMethod
 {
     private static readonly Dictionary<string, FlexibleRequestMethod> RawCache = new(StringComparer.InvariantCultureIgnoreCase)
     {
-        { "HEAD", new FlexibleRequestMethod(RequestMethod.Head) },
-        { "GET", new FlexibleRequestMethod(RequestMethod.Get) },
-        { "POST", new FlexibleRequestMethod(RequestMethod.Post) },
-        { "PUT", new FlexibleRequestMethod(RequestMethod.Put) },
-        { "DELETE", new FlexibleRequestMethod(RequestMethod.Delete) },
-        { "OPTIONS", new FlexibleRequestMethod(RequestMethod.Options) }
+        {
+            "HEAD", new FlexibleRequestMethod(RequestMethod.Head)
+        },
+        {
+            "GET", new FlexibleRequestMethod(RequestMethod.Get)
+        },
+        {
+            "POST", new FlexibleRequestMethod(RequestMethod.Post)
+        },
+        {
+            "PUT", new FlexibleRequestMethod(RequestMethod.Put)
+        },
+        {
+            "DELETE", new FlexibleRequestMethod(RequestMethod.Delete)
+        },
+        {
+            "OPTIONS", new FlexibleRequestMethod(RequestMethod.Options)
+        }
     };
 
     private static readonly Dictionary<RequestMethod, FlexibleRequestMethod> KnownCache = new()
     {
-        { RequestMethod.Head, new FlexibleRequestMethod(RequestMethod.Head) },
-        { RequestMethod.Get, new FlexibleRequestMethod(RequestMethod.Get) },
-        { RequestMethod.Post, new FlexibleRequestMethod(RequestMethod.Post) },
-        { RequestMethod.Put, new FlexibleRequestMethod(RequestMethod.Put) },
-        { RequestMethod.Delete, new FlexibleRequestMethod(RequestMethod.Delete) },
-        { RequestMethod.Options, new FlexibleRequestMethod(RequestMethod.Options) }
+        {
+            RequestMethod.Head, new FlexibleRequestMethod(RequestMethod.Head)
+        },
+        {
+            RequestMethod.Get, new FlexibleRequestMethod(RequestMethod.Get)
+        },
+        {
+            RequestMethod.Post, new FlexibleRequestMethod(RequestMethod.Post)
+        },
+        {
+            RequestMethod.Put, new FlexibleRequestMethod(RequestMethod.Put)
+        },
+        {
+            RequestMethod.Delete, new FlexibleRequestMethod(RequestMethod.Delete)
+        },
+        {
+            RequestMethod.Options, new FlexibleRequestMethod(RequestMethod.Options)
+        }
     };
 
     #region Mapping
 
     private static readonly Dictionary<string, RequestMethod> Mapping = new(StringComparer.OrdinalIgnoreCase)
     {
-        { "GET", RequestMethod.Get },
-        { "HEAD", RequestMethod.Head },
-        { "POST", RequestMethod.Post },
-        { "PUT", RequestMethod.Put },
-        { "PATCH", RequestMethod.Patch },
-        { "DELETE", RequestMethod.Delete },
-        { "OPTIONS", RequestMethod.Options },
-        { "PROPFIND", RequestMethod.PropFind },
-        { "PROPPATCH", RequestMethod.PropPatch },
-        { "MKCOL", RequestMethod.MkCol },
-        { "COPY", RequestMethod.Copy },
-        { "MOVE", RequestMethod.Move },
-        { "LOCK", RequestMethod.Lock },
-        { "UNLOCK", RequestMethod.Unlock }
+        {
+            "GET", RequestMethod.Get
+        },
+        {
+            "HEAD", RequestMethod.Head
+        },
+        {
+            "POST", RequestMethod.Post
+        },
+        {
+            "PUT", RequestMethod.Put
+        },
+        {
+            "PATCH", RequestMethod.Patch
+        },
+        {
+            "DELETE", RequestMethod.Delete
+        },
+        {
+            "OPTIONS", RequestMethod.Options
+        },
+        {
+            "PROPFIND", RequestMethod.PropFind
+        },
+        {
+            "PROPPATCH", RequestMethod.PropPatch
+        },
+        {
+            "MKCOL", RequestMethod.MkCol
+        },
+        {
+            "COPY", RequestMethod.Copy
+        },
+        {
+            "MOVE", RequestMethod.Move
+        },
+        {
+            "LOCK", RequestMethod.Lock
+        },
+        {
+            "UNLOCK", RequestMethod.Unlock
+        }
     };
 
     #endregion

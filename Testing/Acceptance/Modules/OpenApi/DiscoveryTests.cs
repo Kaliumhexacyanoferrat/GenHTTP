@@ -1,12 +1,15 @@
 ﻿using GenHTTP.Api.Content;
+
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.OpenApi;
 using GenHTTP.Modules.OpenApi.Discovery;
 using GenHTTP.Modules.OpenApi.Handler;
+
 using Microsoft.OpenApi.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using OpenApiDocument = NSwag.OpenApiDocument;
 
 namespace GenHTTP.Testing.Acceptance.Modules.OpenApi;
@@ -14,22 +17,6 @@ namespace GenHTTP.Testing.Acceptance.Modules.OpenApi;
 [TestClass]
 public class DiscoveryTests
 {
-
-    #region Supporting data structures
-
-    public class CustomExplorer : IApiExplorer
-    {
-
-        public bool CanExplore(IHandler handler) => true;
-
-        public void Explore(IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, ApiDiscoveryRegistry registry)
-        {
-            document.Servers.First().Description = "Added by explorer";
-        }
-
-    }
-
-    #endregion
 
     [TestMethod]
     public async Task TestTraversal()
@@ -77,5 +64,20 @@ public class DiscoveryTests
         Assert.IsTrue(operations.ContainsKey(OperationType.Get));
         Assert.IsTrue(operations.ContainsKey(OperationType.Put));
     }
+
+    #region Supporting data structures
+
+    public class CustomExplorer : IApiExplorer
+    {
+
+        public bool CanExplore(IHandler handler) => true;
+
+        public void Explore(IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, ApiDiscoveryRegistry registry)
+        {
+            document.Servers.First().Description = "Added by explorer";
+        }
+    }
+
+    #endregion
 
 }

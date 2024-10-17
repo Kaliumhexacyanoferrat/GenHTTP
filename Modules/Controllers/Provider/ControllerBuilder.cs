@@ -17,9 +17,9 @@ public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>
 
     private IBuilder<InjectionRegistry>? _Injection;
 
-    private IBuilder<SerializationRegistry>? _Serializers;
-
     private object? _Instance;
+
+    private IBuilder<SerializationRegistry>? _Serializers;
 
     #region Functionality
 

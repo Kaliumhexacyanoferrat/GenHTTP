@@ -24,7 +24,7 @@ public class MethodHandlerExplorer : IApiExplorer
             {
                 if (document.Tags.All(t => t.Name != tag))
                 {
-                    document.Tags.Add(new OpenApiTag()
+                    document.Tags.Add(new OpenApiTag
                     {
                         Name = tag
                     });
@@ -35,7 +35,10 @@ public class MethodHandlerExplorer : IApiExplorer
 
             foreach (var method in methodHandler.Configuration.SupportedMethods)
             {
-                if ((method == RequestMethod.Head) && methodHandler.Configuration.SupportedMethods.Count > 1) continue;
+                if (method == RequestMethod.Head && methodHandler.Configuration.SupportedMethods.Count > 1)
+                {
+                    continue;
+                }
 
                 var operation = new OpenApiOperation();
 
@@ -48,7 +51,10 @@ public class MethodHandlerExplorer : IApiExplorer
 
                 foreach (var arg in methodHandler.Operation.Arguments)
                 {
-                    if (arg.Value.Source == OperationArgumentSource.Injected) continue;
+                    if (arg.Value.Source == OperationArgumentSource.Injected)
+                    {
+                        continue;
+                    }
 
                     if (arg.Value.Source == OperationArgumentSource.Body)
                     {
@@ -71,9 +77,12 @@ public class MethodHandlerExplorer : IApiExplorer
                         {
                             var body = new OpenApiRequestBody();
 
-                            body.Content.Add("*/*", new OpenApiMediaType()
+                            body.Content.Add("*/*", new OpenApiMediaType
                             {
-                                Schema = new JsonSchema() { Format = "binary" }
+                                Schema = new JsonSchema
+                                {
+                                    Format = "binary"
+                                }
                             });
 
                             operation.RequestBody = body;
@@ -81,7 +90,7 @@ public class MethodHandlerExplorer : IApiExplorer
                     }
                     else
                     {
-                        var param = new OpenApiParameter()
+                        var param = new OpenApiParameter
                         {
                             Name = arg.Key,
                             Schema = JsonSchema.FromType(arg.Value.Type),
@@ -163,7 +172,7 @@ public class MethodHandlerExplorer : IApiExplorer
 
         if (type != null)
         {
-            return (type.Contains("<>")) ? "Inline" : type;
+            return type.Contains("<>") ? "Inline" : type;
         }
 
         return null;
@@ -178,7 +187,7 @@ public class MethodHandlerExplorer : IApiExplorer
 
         if (sink == OperationResultSink.None || type.MightBeNull())
         {
-            result.Add("204", new OpenApiResponse()
+            result.Add("204", new OpenApiResponse
             {
                 Description = "A response containing no body"
             });
@@ -194,17 +203,17 @@ public class MethodHandlerExplorer : IApiExplorer
         }
         else if (sink == OperationResultSink.Stream)
         {
-            var response = new OpenApiResponse()
+            var response = new OpenApiResponse
             {
                 Description = "A dynamically generated response"
             };
 
-            var schema = new JsonSchema()
+            var schema = new JsonSchema
             {
                 Format = "binary"
             };
 
-            response.Content.Add("application/octet-stream", new OpenApiMediaType()
+            response.Content.Add("application/octet-stream", new OpenApiMediaType
             {
                 Schema = schema
             });
@@ -213,7 +222,7 @@ public class MethodHandlerExplorer : IApiExplorer
         }
         else if (sink == OperationResultSink.Dynamic)
         {
-            var response = new OpenApiResponse()
+            var response = new OpenApiResponse
             {
                 Description = "A dynamically generated response"
             };
@@ -263,5 +272,4 @@ public class MethodHandlerExplorer : IApiExplorer
 
         return response;
     }
-
 }

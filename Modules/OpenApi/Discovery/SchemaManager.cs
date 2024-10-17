@@ -14,7 +14,7 @@ public class SchemaManager
 
     public SchemaManager(OpenApiDocument document)
     {
-        var settings = new NewtonsoftJsonSchemaGeneratorSettings()
+        var settings = new NewtonsoftJsonSchemaGeneratorSettings
         {
             SchemaType = SchemaType.OpenApi3,
             AllowReferencesWithProperties = true
@@ -24,9 +24,5 @@ public class SchemaManager
         _Resolver = new OpenApiSchemaResolver(document, settings);
     }
 
-    public JsonSchema GetOrCreateSchema(Type type)
-    {
-        return _Generator.GenerateWithReferenceAndNullability<JsonSchema>(type.ToContextualType(), false, _Resolver);
-    }
-
+    public JsonSchema GetOrCreateSchema(Type type) => _Generator.GenerateWithReferenceAndNullability<JsonSchema>(type.ToContextualType(), false, _Resolver);
 }
