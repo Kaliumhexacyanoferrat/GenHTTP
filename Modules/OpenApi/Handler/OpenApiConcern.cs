@@ -6,9 +6,11 @@ using NSwag;
 
 namespace GenHTTP.Modules.OpenApi.Handler;
 
+internal record ReturnDocument(OpenApiDocument Document, ulong Checksum);
+
 public sealed class OpenApiConcern : IConcern
 {
-    private OpenApiDocument? _Cached;
+    private ReturnDocument? _Cached;
 
     #region Initialization
 
@@ -97,7 +99,7 @@ public sealed class OpenApiConcern : IConcern
                       .Build();
     }
 
-    private OpenApiDocument Discover(IRequest request, ApiDiscoveryRegistry registry)
+    private ReturnDocument Discover(IRequest request, ApiDiscoveryRegistry registry)
     {
         if (EnableCaching && _Cached != null)
         {
@@ -126,11 +128,14 @@ public sealed class OpenApiConcern : IConcern
 
         if (EnableCaching)
         {
-            _Cached = document;
+            _Cached = new (document, GetChecksum(document));
+            return _Cached;
         }
 
-        return document;
+        return new (document, GetChecksum(document));
     }
+
+    private static ulong GetChecksum(OpenApiDocument document) => (ulong)document.ToJson().GetHashCode();
 
     #endregion
 

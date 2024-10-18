@@ -9,7 +9,7 @@ internal class OpenApiContent : IResponseContent
 
     #region Initialization
 
-    internal OpenApiContent(OpenApiDocument document, OpenApiFormat format)
+    internal OpenApiContent(ReturnDocument document, OpenApiFormat format)
     {
         Document = document;
         Format = format;
@@ -21,7 +21,7 @@ internal class OpenApiContent : IResponseContent
 
     public ulong? Length => null;
 
-    private OpenApiDocument Document { get; }
+    private ReturnDocument Document { get; }
 
     private OpenApiFormat Format { get; }
 
@@ -29,17 +29,17 @@ internal class OpenApiContent : IResponseContent
 
     #region Functionality
 
-    public ValueTask<ulong?> CalculateChecksumAsync() => new((ulong)Document.ToJson().GetHashCode());
+    public ValueTask<ulong?> CalculateChecksumAsync() => new(Document.Checksum);
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
         if (Format == OpenApiFormat.Json)
         {
-            await target.WriteAsync(Encoding.UTF8.GetBytes(Document.ToJson()));
+            await target.WriteAsync(Encoding.UTF8.GetBytes(Document.Document.ToJson()));
         }
         else
         {
-            await target.WriteAsync(Encoding.UTF8.GetBytes(Document.ToYaml()));
+            await target.WriteAsync(Encoding.UTF8.GetBytes(Document.Document.ToYaml()));
         }
     }
 

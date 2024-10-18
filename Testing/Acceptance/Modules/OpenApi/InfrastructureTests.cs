@@ -14,7 +14,7 @@ public class InfrastructureTests
     {
         var api = Inline.Create()
                         .Get("/some-path", () => "Hello World")
-                        .Add(ApiDescription.Create());
+                        .AddOpenApi();
 
         using var host = TestHost.Run(api);
 
@@ -43,9 +43,10 @@ public class InfrastructureTests
 
         using var host = TestHost.Run(api);
 
-        await host.GetResponseAsync("/openapi.json");
-        await host.GetResponseAsync("/openapi.json");
+        AssertX.Contains("\"openapi\"", await (await host.GetResponseAsync("/openapi.json")).GetContentAsync());
+        AssertX.Contains("openapi:", await (await host.GetResponseAsync("/openapi.yaml")).GetContentAsync());
 
         return counter;
     }
+
 }
