@@ -1,10 +1,9 @@
-﻿using GenHTTP.Engine;
+﻿using GenHTTP.Engine.Internal;
 
-using GenHTTP.Modules.Inspection;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Practices;
 
-var app = Content.From(Resource.FromString("Hello World")).AddInspector();
+var app = Content.From(Resource.FromString("Hello World"));
 
 Host.Create()
     .Handler(app)

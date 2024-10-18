@@ -52,9 +52,9 @@ public class TestHost : IDisposable
     {
         Port = NextPort();
 
-        Host = Engine.Host.Create()
-                     .Handler(handler)
-                     .Port((ushort)Port);
+        Host = Engine.Internal.Host.Create()
+                              .Handler(handler)
+                              .Port((ushort)Port);
 
         if (defaults)
         {

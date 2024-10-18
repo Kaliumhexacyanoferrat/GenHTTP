@@ -61,11 +61,7 @@
 
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
 
-        <ProjectReference Include="..\..\Engine\GenHTTP.Engine.csproj" />
-
-        <ProjectReference Include="..\..\Modules\Inspection\GenHTTP.Modules.Inspection.csproj" />
-
-        <ProjectReference Include="..\..\Modules\ServerSentEvents\GenHTTP.Modules.ServerSentEvents.csproj" />
+        <ProjectReference Include="..\..\Engine\Internal\GenHTTP.Engine.Internal.csproj" />
 
         <ProjectReference Include="..\Testing\GenHTTP.Testing.csproj" />
 
@@ -93,7 +89,9 @@
         <ProjectReference Include="..\..\Modules\VirtualHosting\GenHTTP.Modules.VirtualHosting.csproj" />
         <ProjectReference Include="..\..\Modules\Webservices\GenHTTP.Modules.Webservices.csproj" />
         <ProjectReference Include="..\..\Modules\OpenApi\GenHTTP.Modules.OpenApi.csproj" />
-		<ProjectReference Include="..\..\Modules\Websockets\GenHTTP.Modules.Websockets.csproj" />
+	<ProjectReference Include="..\..\Modules\Websockets\GenHTTP.Modules.Websockets.csproj" />                                    
+        <ProjectReference Include="..\..\Modules\Inspection\GenHTTP.Modules.Inspection.csproj" />
+        <ProjectReference Include="..\..\Modules\ServerSentEvents\GenHTTP.Modules.ServerSentEvents.csproj" />
 
     </ItemGroup>
 
