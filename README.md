@@ -12,6 +12,7 @@ the functionality rather than on messing around with configuration files.
   using [project templates](https://genhttp.org/documentation/content/templates)
 - Embed web services into your existing console, service, WPF, WinForms, WinUI, MAUI or Uno application
 - Projects are fully described in code - no configuration files needed, no magical behavior you need to learn
+- Supports current standards such as automatically generated Open API specifications or JWT authentication
 - [Optimized](https://genhttp.org/features) out of the box
 - Small memory and storage [footprint](https://genhttp.org/features#footprint)
 - Grade A+ security level according to SSL Labs
