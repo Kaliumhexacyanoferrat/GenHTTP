@@ -30,6 +30,8 @@ public interface IRequest : IDisposable
     /// <returns>The newly created response</returns>
     IResponseBuilder Respond();
 
+    UpgradeInfo Upgrade();
+
     #endregion
 
     #region General Infrastructure
@@ -51,7 +53,7 @@ public interface IRequest : IDisposable
 
     /// <summary>
     /// If the request has been forwarded by a proxy, the client property
-    /// will return the originating client where this property will return
+    /// will return the originating client while this property will return
     /// the information of the proxy.
     /// </summary>
     IClientConnection LocalClient { get; }

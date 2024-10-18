@@ -26,6 +26,8 @@ internal sealed class ClientHandler
 
     internal ClientHandler(Socket socket, Stream stream, IServer server, IEndPoint endPoint, NetworkConfiguration config)
     {
+        Socket = socket;
+
         Server = server;
         EndPoint = endPoint;
 
@@ -42,6 +44,8 @@ internal sealed class ClientHandler
     #region Get-/Setter
 
     internal IServer Server { get; }
+
+    internal Socket Socket { get; }
 
     internal IEndPoint EndPoint { get; }
 
@@ -61,9 +65,11 @@ internal sealed class ClientHandler
 
     internal async PooledValueTask Run()
     {
+        var status = ConnectionStatus.Close;
+
         try
         {
-            await HandlePipe(PipeReader.Create(Stream, ReaderOptions)).ConfigureAwait(false);
+            status = await HandlePipe(PipeReader.Create(Stream, ReaderOptions)).ConfigureAwait(false);
         }
         catch (Exception e)
         {
@@ -71,31 +77,34 @@ internal sealed class ClientHandler
         }
         finally
         {
-            try
+            if (status != ConnectionStatus.Upgraded)
             {
-                await Stream.DisposeAsync();
-            }
-            catch (Exception e)
-            {
-                Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, Connection.GetAddress(), e);
-            }
+                try
+                {
+                    await Stream.DisposeAsync();
+                }
+                catch (Exception e)
+                {
+                    Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, Connection.GetAddress(), e);
+                }
 
-            try
-            {
-                Connection.Shutdown(SocketShutdown.Both);
-                await Connection.DisconnectAsync(false);
-                Connection.Close();
+                try
+                {
+                    Connection.Shutdown(SocketShutdown.Both);
+                    await Connection.DisconnectAsync(false);
+                    Connection.Close();
 
-                Connection.Dispose();
-            }
-            catch (Exception e)
-            {
-                Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, Connection.GetAddress(), e);
+                    Connection.Dispose();
+                }
+                catch (Exception e)
+                {
+                    Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, Connection.GetAddress(), e);
+                }
             }
         }
     }
 
-    private async PooledValueTask HandlePipe(PipeReader reader)
+    private async PooledValueTask<ConnectionStatus> HandlePipe(PipeReader reader)
     {
         try
         {
@@ -109,9 +118,11 @@ internal sealed class ClientHandler
             {
                 while (Server.Running && (request = await parser.TryParseAsync(buffer)) is not null)
                 {
-                    if (!await HandleRequest(request, !buffer.ReadRequired))
+                    var status = await HandleRequest(request, !buffer.ReadRequired);
+
+                    if (status is ConnectionStatus.Close or ConnectionStatus.Upgraded)
                     {
-                        break;
+                        return status;
                     }
                 }
             }
@@ -132,11 +143,13 @@ internal sealed class ClientHandler
         {
             await reader.CompleteAsync();
         }
+
+        return ConnectionStatus.Close;
     }
 
-    private async PooledValueTask<bool> HandleRequest(RequestBuilder builder, bool dataRemaining)
+    private async PooledValueTask<ConnectionStatus> HandleRequest(RequestBuilder builder, bool dataRemaining)
     {
-        using var request = builder.Connection(Server, EndPoint, Connection.GetAddress()).Build();
+        using var request = builder.Connection(Server, Socket, EndPoint, Connection.GetAddress()).Build();
 
         KeepAlive ??= request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? request.ProtocolType == HttpProtocol.Http11;
 
@@ -144,9 +157,14 @@ internal sealed class ClientHandler
 
         using var response = await Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
 
+        if (response.Upgraded)
+        {
+            return ConnectionStatus.Upgraded;
+        }
+
         var success = await ResponseHandler.Handle(request, response, keepAlive, dataRemaining);
 
-        return success && keepAlive;
+        return (success && keepAlive) ? ConnectionStatus.KeepAlive : ConnectionStatus.Close;
     }
 
     private async PooledValueTask SendError(Exception e, ResponseStatus status)
