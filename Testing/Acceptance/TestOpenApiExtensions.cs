@@ -3,7 +3,7 @@ using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance;
 
-public static class TestExtensions
+public static class TestOpenApiExtensions
 {
 
     public static IHandlerBuilder<HandlerBuilder> Wrap(this IHandler handler) => new HandlerBuilder(handler);
