@@ -15,6 +15,8 @@ public class WebsocketHandlerBuilder : IHandlerBuilder<WebsocketHandlerBuilder>
 
     private readonly List<string> _SupportedProtocols = [];
 
+    #region Functionality
+
     public WebsocketHandlerBuilder Add(IConcernBuilder concern)
     {
         _Concerns.Add(concern);
@@ -39,5 +41,7 @@ public class WebsocketHandlerBuilder : IHandlerBuilder<WebsocketHandlerBuilder>
 
         return Concerns.Chain(parent, _Concerns, (p) => new WebsocketHandler(p, handler, _SupportedProtocols));
     }
+
+    #endregion
 
 }

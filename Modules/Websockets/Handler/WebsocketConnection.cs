@@ -1,5 +1,6 @@
 ﻿using System.Net.Sockets;
 using Fleck;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Websockets.Handler;
@@ -14,13 +15,13 @@ public sealed class WebsocketConnection : IWebSocketConnection
 
     #region Get-/Setters
 
-    public ISocket Socket { get; set; }
+    public ISocket Socket { get; }
 
-    public IHandler? Handler { get; set; }
+    public IHandler? Handler { get; private set; }
 
     public IWebSocketConnectionInfo? ConnectionInfo { get; private set; }
 
-    public Action<IWebSocketConnection> OnInit { get; private set; }
+    public Action<IWebSocketConnection> OnInit { get; }
 
     public Action OnOpen { get; set; }
 
@@ -50,6 +51,7 @@ public sealed class WebsocketConnection : IWebSocketConnection
     public WebsocketConnection(Socket socket, List<string> supportedProtocols, Action<IWebSocketConnection> onInit)
     {
         Socket = new SocketWrapper(socket);
+
         SupportedProtocols = supportedProtocols;
         OnInit = onInit;
 
@@ -109,6 +111,8 @@ public sealed class WebsocketConnection : IWebSocketConnection
     {
         var mappedRequest = request.Map();
 
+        OnInit(this);
+
         Handler = HandlerFactory.BuildHandler(mappedRequest, OnMessage, OnClose, OnBinary, OnPing, OnPong);
 
         var subProtocol = SubProtocolNegotiator.Negotiate(SupportedProtocols, mappedRequest.SubProtocols);
@@ -116,8 +120,6 @@ public sealed class WebsocketConnection : IWebSocketConnection
 
         var handshake = Handler.CreateHandshake(subProtocol);
         SendBytes(handshake, OnOpen);
-
-        OnInit(this);
 
         var data = new List<byte>(ReadSize);
         var buffer = new byte[ReadSize];

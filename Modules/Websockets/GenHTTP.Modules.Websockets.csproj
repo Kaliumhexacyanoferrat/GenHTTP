@@ -44,7 +44,7 @@
 
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj"/>
 
-	  <PackageReference Include="Fleck" Version="1.2.0" />
+	    <PackageReference Include="Fleck" Version="1.2.0" />
 
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
 
