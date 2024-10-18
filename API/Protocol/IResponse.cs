@@ -13,6 +13,8 @@ public interface IResponse : IDisposable
     /// </summary>
     FlexibleResponseStatus Status { get; set; }
 
+    public bool Upgraded { get; }
+
     #endregion
 
     #region Headers

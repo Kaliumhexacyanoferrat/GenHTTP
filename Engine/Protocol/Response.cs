@@ -42,6 +42,8 @@ internal sealed class Response : IResponse
 
     public ulong? ContentLength { get; set; }
 
+    public bool Upgraded { get; set; }
+
     public IResponseContent? Content { get; set; }
 
     public ICookieCollection Cookies => WriteableCookies;
