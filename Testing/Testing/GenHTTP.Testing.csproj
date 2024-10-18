@@ -44,7 +44,7 @@
 
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj"/>
 
-        <ProjectReference Include="..\..\Engine\GenHTTP.Engine.csproj"/>
+        <ProjectReference Include="..\..\Engine\Internal\GenHTTP.Engine.Internal.csproj"/>
 
         <ProjectReference Include="..\..\Modules\Basics\GenHTTP.Modules.Basics.csproj"/>
         <ProjectReference Include="..\..\Modules\Layouting\GenHTTP.Modules.Layouting.csproj"/>
