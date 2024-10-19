@@ -151,6 +151,7 @@ public sealed class WebsocketConnection : IWebSocketConnection, IWebsocketConnec
         }
 
         var bytes = Handler.FrameClose(code);
+        
         if (bytes.Length == 0)
             CloseSocket();
         else

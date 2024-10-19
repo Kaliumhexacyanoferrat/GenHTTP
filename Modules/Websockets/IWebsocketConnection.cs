@@ -1,27 +1,24 @@
 ﻿using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Websockets
+namespace GenHTTP.Modules.Websockets;
+
+public interface IWebsocketConnection
 {
 
-    public interface IWebsocketConnection
-    {
+    IRequest Request { get; }
 
-        IRequest Request { get; }
+    bool IsAvailable { get; }
 
-        bool IsAvailable { get; }
+    Task Send(string message);
 
-        Task Send(string message);
+    Task Send(byte[] message);
 
-        Task Send(byte[] message);
+    Task SendPing(byte[] message);
 
-        Task SendPing(byte[] message);
+    Task SendPong(byte[] message);
 
-        Task SendPong(byte[] message);
+    void Close();
 
-        void Close();
-
-        void Close(int code);
-
-    }
+    void Close(int code);
 
 }
