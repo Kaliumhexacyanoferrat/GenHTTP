@@ -10,7 +10,7 @@ namespace GenHTTP.Engine.Protocol;
 /// </summary>
 internal sealed class Request : IRequest
 {
-    private Socket _Socket;
+    private readonly Socket _Socket;
 
     private FlexibleContentType? _ContentType;
     private ICookieCollection? _Cookies;

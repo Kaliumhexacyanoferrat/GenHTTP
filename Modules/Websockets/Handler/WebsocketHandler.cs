@@ -1,6 +1,4 @@
-﻿using Fleck;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 using IHandler = GenHTTP.Api.Content.IHandler;

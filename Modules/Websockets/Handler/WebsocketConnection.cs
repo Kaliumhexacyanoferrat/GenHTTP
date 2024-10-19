@@ -1,6 +1,7 @@
 ﻿using System.Net.Sockets;
+
 using Fleck;
-using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Websockets.Handler;
@@ -183,11 +184,9 @@ public sealed class WebsocketConnection : IWebSocketConnection, IWebsocketConnec
 
     private void HandleReadError(Exception e)
     {
-        if (e is AggregateException)
+        if (e is AggregateException agg)
         {
-            var agg = e as AggregateException;
-
-            if (agg?.InnerException != null)
+            if (agg.InnerException != null)
             {
                 HandleReadError(agg.InnerException);
             }
@@ -203,10 +202,10 @@ public sealed class WebsocketConnection : IWebSocketConnection, IWebsocketConnec
 
         OnError(e);
 
-        if (e is WebSocketException)
+        if (e is WebSocketException exception)
         {
-            FleckLog.Debug("Error while reading", e);
-            Close(((WebSocketException)e).StatusCode);
+            FleckLog.Debug("Error while reading", exception);
+            Close(exception.StatusCode);
         }
         else if (e is SubProtocolNegotiationFailureException)
         {

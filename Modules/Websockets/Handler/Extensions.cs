@@ -23,7 +23,7 @@ internal static class Extensions
             Method = request.Method.RawMethod,
             Path = request.Target.Path.ToString(true),
             Scheme = request.EndPoint.Secure ? "wss" : "ws",
-            Bytes = [], // todo
+            Bytes = [],
             Body = body ?? string.Empty
         };
 
