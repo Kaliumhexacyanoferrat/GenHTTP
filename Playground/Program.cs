@@ -1,28 +1,24 @@
-﻿using Fleck;
-using GenHTTP.Engine;
+﻿using GenHTTP.Engine;
 using GenHTTP.Modules.Practices;
 using GenHTTP.Modules.Websockets;
 
-var allSockets = new List<IWebSocketConnection>();
+var allSockets = new List<IWebsocketConnection>();
 
 var websocket = Websocket.Create()
-                         .Handler((socket) =>
+                         .OnOpen((socket) =>
                          {
-                             socket.OnOpen = () =>
-                             {
-                                 Console.WriteLine("Open!");
-                                 allSockets.Add(socket);
-                             };
-                             socket.OnClose = () =>
-                             {
-                                 Console.WriteLine("Close!");
-                                 allSockets.Remove(socket);
-                             };
-                             socket.OnMessage = message =>
-                             {
-                                 Console.WriteLine(message);
-                                 allSockets.ToList().ForEach(s => s.Send("Echo: " + message));
-                             };
+                             Console.WriteLine("Open!");
+                             allSockets.Add(socket);
+                         })
+                         .OnClose((socket) =>
+                         {
+                             Console.WriteLine("Close!");
+                             allSockets.Remove(socket);
+                         })
+                         .OnMessage((socket, message) =>
+                         {
+                             Console.WriteLine(message);
+                             allSockets.ToList().ForEach(s => s.Send("Echo: " + message));
                          });
 
 var host = Host.Create()
@@ -37,9 +33,12 @@ var input = Console.ReadLine();
 
 while (input != "exit")
 {
-    foreach (var socket in allSockets.ToList())
+    if (input != null)
     {
-        await socket.Send(input);
+        foreach (var socket in allSockets.ToList())
+        {
+            await socket.Send(input);
+        }
     }
 
     input = Console.ReadLine();

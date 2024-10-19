@@ -5,7 +5,7 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Websockets.Handler;
 
-public sealed class WebsocketConnection : IWebSocketConnection
+public sealed class WebsocketConnection : IWebSocketConnection, IWebsocketConnection
 {
     private const int ReadSize = 1024 * 4;
 
@@ -19,9 +19,9 @@ public sealed class WebsocketConnection : IWebSocketConnection
 
     public IHandler? Handler { get; private set; }
 
-    public IWebSocketConnectionInfo? ConnectionInfo { get; private set; }
+    public IRequest Request { get; }
 
-    public Action<IWebSocketConnection> OnInit { get; }
+    public IWebSocketConnectionInfo? ConnectionInfo { get; private set; }
 
     public Action OnOpen { get; set; }
 
@@ -48,20 +48,27 @@ public sealed class WebsocketConnection : IWebSocketConnection
 
     #region Initialization
 
-    public WebsocketConnection(Socket socket, List<string> supportedProtocols, Action<IWebSocketConnection> onInit)
+    public WebsocketConnection(Socket socket, IRequest request, List<string> supportedProtocols,
+        Action<IWebsocketConnection>? onOpen,
+        Action<IWebsocketConnection>? onClose,
+        Action<IWebsocketConnection, string>? onMessage,
+        Action<IWebsocketConnection, byte[]>? onBinary,
+        Action<IWebsocketConnection, byte[]>? onPing,
+        Action<IWebsocketConnection, byte[]>? onPong,
+        Action<IWebsocketConnection, Exception>? onError)
     {
         Socket = new SocketWrapper(socket);
+        Request = request;
 
         SupportedProtocols = supportedProtocols;
-        OnInit = onInit;
-
-        OnOpen = () => { };
-        OnClose = () => { };
-        OnMessage = x => { };
-        OnBinary = x => { };
-        OnPing = x => SendPong(x);
-        OnPong = x => { };
-        OnError = x => { };
+        
+        OnOpen = (onOpen != null) ? () => onOpen(this) : () => { };
+        OnClose = (onClose != null) ? () => onClose(this) : () => { };
+        OnMessage = (onMessage != null) ? (x) => onMessage(this, x) : x => { };
+        OnBinary = (onBinary != null) ? (x) => onBinary(this, x) : x => { };
+        OnPing = (onPing != null) ? (x) => onPing(this, x) : x => SendPong(x);
+        OnPong = (onPong != null) ? (x) => onPong(this, x) : x => { };
+        OnError = (onError != null) ? (x) => onError(this, x) : x => { };
     }
 
     #endregion
@@ -107,11 +114,9 @@ public sealed class WebsocketConnection : IWebSocketConnection
         return SendBytes(bytes);
     }
 
-    public void Start(IRequest request)
+    public void Start()
     {
-        var mappedRequest = request.Map();
-
-        OnInit(this);
+        var mappedRequest = Request.Map();
 
         Handler = HandlerFactory.BuildHandler(mappedRequest, OnMessage, OnClose, OnBinary, OnPing, OnPong);
 
