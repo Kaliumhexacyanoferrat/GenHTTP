@@ -1,4 +1,5 @@
 ﻿using System.Net;
+
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Infrastructure;
@@ -25,4 +26,5 @@ public interface IClientConnection
     /// to the server.
     /// </summary>
     string? Host { get; }
+
 }

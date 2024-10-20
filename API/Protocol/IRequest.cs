@@ -30,6 +30,18 @@ public interface IRequest : IDisposable
     /// <returns>The newly created response</returns>
     IResponseBuilder Respond();
 
+    /// <summary>
+    /// Upgrades the connection of the client, causing the underlying socket
+    /// to be exposed and to be used by another protocol, such as a websocket handler.
+    /// </summary>
+    /// <returns>The upgrade information to use</returns>
+    /// <remarks>
+    /// After upgrading a connection, the server will surrender this socket to your logic
+    /// to no further interaction is done by the framework with the client and is up to
+    /// your logic.
+    /// </remarks>
+    UpgradeInfo Upgrade();
+
     #endregion
 
     #region General Infrastructure
@@ -51,7 +63,7 @@ public interface IRequest : IDisposable
 
     /// <summary>
     /// If the request has been forwarded by a proxy, the client property
-    /// will return the originating client where this property will return
+    /// will return the originating client while this property will return
     /// the information of the proxy.
     /// </summary>
     IClientConnection LocalClient { get; }

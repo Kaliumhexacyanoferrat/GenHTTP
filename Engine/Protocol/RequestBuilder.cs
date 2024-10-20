@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Sockets;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
@@ -7,7 +8,7 @@ namespace GenHTTP.Engine.Protocol;
 
 internal sealed class RequestBuilder : IBuilder<IRequest>
 {
-
+    private Socket? _Socket;
     private IPAddress? _Address;
 
     private Stream? _Content;
@@ -52,8 +53,9 @@ internal sealed class RequestBuilder : IBuilder<IRequest>
 
     #region Functionality
 
-    public RequestBuilder Connection(IServer server, IEndPoint endPoint, IPAddress? address)
+    public RequestBuilder Connection(IServer server, Socket socket, IEndPoint endPoint, IPAddress? address)
     {
+        _Socket = socket;
         _Server = server;
         _Address = address;
         _EndPoint = endPoint;
@@ -118,6 +120,11 @@ internal sealed class RequestBuilder : IBuilder<IRequest>
                 throw new BuilderMissingPropertyException("Server");
             }
 
+            if (_Socket == null)
+            {
+                throw new BuilderMissingPropertyException("Socket");
+            }
+
             if (_EndPoint is null)
             {
                 throw new BuilderMissingPropertyException("EndPoint");
@@ -159,7 +166,7 @@ internal sealed class RequestBuilder : IBuilder<IRequest>
 
             var client = DetermineClient() ?? localClient;
 
-            return new Request(_Server, _EndPoint, client, localClient, (HttpProtocol)_Protocol, _RequestMethod,
+            return new Request(_Server, _Socket, _EndPoint, client, localClient, (HttpProtocol)_Protocol, _RequestMethod,
                                _Target, Headers, _Cookies, _Forwardings, _Query, _Content);
         }
         catch (Exception)
