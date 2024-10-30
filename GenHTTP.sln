@@ -92,6 +92,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Modules.OpenApi", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Modules.Websockets", "Modules\Websockets\GenHTTP.Modules.Websockets.csproj", "{9D3D3B40-691D-4EE1-B948-82525F28FBB2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Modules.ServerSentEvents", "Modules\ServerSentEvents\GenHTTP.Modules.ServerSentEvents.csproj", "{69F3862A-0027-4312-A890-45549AF5D2B1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -222,6 +224,10 @@ Global
 		{9D3D3B40-691D-4EE1-B948-82525F28FBB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D3D3B40-691D-4EE1-B948-82525F28FBB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D3D3B40-691D-4EE1-B948-82525F28FBB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69F3862A-0027-4312-A890-45549AF5D2B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69F3862A-0027-4312-A890-45549AF5D2B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69F3862A-0027-4312-A890-45549AF5D2B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69F3862A-0027-4312-A890-45549AF5D2B1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -260,6 +266,7 @@ Global
 		{4CDA31EB-A6C2-4634-9379-9306D3996B21} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 		{A5149821-D510-4854-9DC9-D489323BC545} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 		{9D3D3B40-691D-4EE1-B948-82525F28FBB2} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
+		{69F3862A-0027-4312-A890-45549AF5D2B1} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}

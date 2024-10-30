@@ -37,6 +37,7 @@
         <ProjectReference Include="..\Modules\ReverseProxy\GenHTTP.Modules.ReverseProxy.csproj"/>
         <ProjectReference Include="..\Modules\Security\GenHTTP.Modules.Security.csproj"/>
         <ProjectReference Include="..\Modules\ServerCaching\GenHTTP.Modules.ServerCaching.csproj"/>
+        <ProjectReference Include="..\Modules\ServerSentEvents\GenHTTP.Modules.ServerSentEvents.csproj" />
         <ProjectReference Include="..\Modules\SinglePageApplications\GenHTTP.Modules.SinglePageApplications.csproj"/>
         <ProjectReference Include="..\Modules\StaticWebsites\GenHTTP.Modules.StaticWebsites.csproj"/>
         <ProjectReference Include="..\Modules\VirtualHosting\GenHTTP.Modules.VirtualHosting.csproj"/>
@@ -44,5 +45,5 @@
         <ProjectReference Include="..\Modules\Websockets\GenHTTP.Modules.Websockets.csproj"/>
 
     </ItemGroup>
-
+    
 </Project>

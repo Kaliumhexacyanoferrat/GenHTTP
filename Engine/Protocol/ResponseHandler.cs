@@ -1,7 +1,10 @@
 ﻿using System.Buffers;
+using System.Net.Sockets;
 using System.Text;
+
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Engine.Infrastructure;
 using GenHTTP.Engine.Utilities;
 
@@ -17,26 +20,29 @@ internal sealed class ResponseHandler
 
     private static readonly ArrayPool<byte> Pool = ArrayPool<byte>.Shared;
 
-    #region Initialization
-
-    internal ResponseHandler(IServer server, Stream outputstream, NetworkConfiguration configuration)
-    {
-        Server = server;
-
-        OutputStream = outputstream;
-
-        Configuration = configuration;
-    }
-
-    #endregion
-
     #region Get-/Setters
 
     private IServer Server { get; }
 
+    private Socket Socket { get; }
+
     private Stream OutputStream { get; }
 
     private NetworkConfiguration Configuration { get; }
+
+    #endregion
+
+    #region Initialization
+
+    internal ResponseHandler(IServer server, Socket socket, Stream outputStream, NetworkConfiguration configuration)
+    {
+        Server = server;
+        Socket = socket;
+
+        OutputStream = outputStream;
+
+        Configuration = configuration;
+    }
 
     #endregion
 
@@ -57,9 +63,11 @@ internal sealed class ResponseHandler
                 await WriteBody(response);
             }
 
+            var connected = Socket.Connected;
+
             // flush if the client waits for this response
             // otherwise save flushes for improved performance when pipelining
-            if (!dataRemaining)
+            if (!dataRemaining && connected)
             {
                 await OutputStream.FlushAsync();
             }
@@ -69,7 +77,7 @@ internal sealed class ResponseHandler
                 Server.Companion?.OnRequestHandled(request, response);
             }
 
-            return true;
+            return connected;
         }
         catch (Exception e)
         {
