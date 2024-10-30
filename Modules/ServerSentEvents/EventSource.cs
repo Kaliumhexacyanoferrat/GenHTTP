@@ -1,8 +1,10 @@
-﻿namespace GenHTTP.Modules.ServerSentEvents;
+﻿using GenHTTP.Modules.ServerSentEvents.Handler;
 
-public static class Events
+namespace GenHTTP.Modules.ServerSentEvents;
+
+public static class EventSource
 {
 
-
+    public static EventSourceHandlerBuilder Create() => new();
 
 }

@@ -1,9 +1,11 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
+using GenHTTP.Modules.Conversion.Formatters;
+
 namespace GenHTTP.Modules.ServerSentEvents.Handler;
 
-public class EventSourceHandler : IHandler
+public sealed class EventSourceHandler : IHandler
 {
 
     #region Get-/Setters
@@ -14,16 +16,19 @@ public class EventSourceHandler : IHandler
 
     private Func<IEventConnection, ValueTask> Generator { get; }
 
+    private FormatterRegistry Formatters { get; }
+
     #endregion
 
     #region Initialization
 
-    public EventSourceHandler(IHandler parent, Func<IRequest, string?, ValueTask<bool>>? inspector, Func<IEventConnection, ValueTask> generator)
+    public EventSourceHandler(IHandler parent, Func<IRequest, string?, ValueTask<bool>>? inspector, Func<IEventConnection, ValueTask> generator, FormatterRegistry formatters)
     {
         Parent = parent;
 
         Inspector = inspector;
         Generator = generator;
+        Formatters = formatters;
     }
 
     #endregion
@@ -48,7 +53,7 @@ public class EventSourceHandler : IHandler
                           .Build();
         }
 
-        var content = new EventStream(request, lastId, Generator);
+        var content = new EventStream(request, lastId, Generator, Formatters);
 
         return request.Respond()
                       .Type(FlexibleContentType.Get(ContentType.TextEventStream))

@@ -17,6 +17,6 @@ public interface IEventConnection
 
     ValueTask<bool> DataAsync<T>(T data, string? eventType = null, string? eventId = null);
 
-    ValueTask<bool> Retry(int milliseconds);
+    ValueTask<bool> RetryAsync(int milliseconds);
 
 }
