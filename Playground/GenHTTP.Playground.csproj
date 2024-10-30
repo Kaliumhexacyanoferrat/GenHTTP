@@ -45,10 +45,5 @@
         <ProjectReference Include="..\Modules\Websockets\GenHTTP.Modules.Websockets.csproj"/>
 
     </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="Resources\Client.html" />
-      <EmbeddedResource Include="Resources\Client.html" />
-    </ItemGroup>
-
+    
 </Project>
