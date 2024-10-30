@@ -95,7 +95,7 @@ public sealed class EventConnection : IEventConnection
 
     public async ValueTask<bool> RetryAsync(int milliseconds)
     {
-        if (await SendAsync($"retry {milliseconds}{NL}{NL}"))
+        if (await SendAsync($"retry: {milliseconds}{NL}{NL}"))
         {
             Connected = false;
             return true;

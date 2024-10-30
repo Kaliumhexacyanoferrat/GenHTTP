@@ -63,6 +63,8 @@
 
         <ProjectReference Include="..\..\Engine\GenHTTP.Engine.csproj" />
 
+        <ProjectReference Include="..\..\Modules\ServerSentEvents\GenHTTP.Modules.ServerSentEvents.csproj" />
+
         <ProjectReference Include="..\Testing\GenHTTP.Testing.csproj" />
 
         <ProjectReference Include="..\..\Modules\Authentication\GenHTTP.Modules.Authentication.csproj" />
