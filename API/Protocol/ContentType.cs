@@ -111,6 +111,11 @@ public enum ContentType
     TextJavaScript,
 
     /// <summary>
+    /// A SSE stream.
+    /// </summary>
+    TextEventStream,
+
+    /// <summary>
     /// A uncompressed audio file.
     /// </summary>
     AudioWav,
@@ -455,6 +460,9 @@ public class FlexibleContentType
             ContentType.TextXml, "text/xml"
         },
         {
+            ContentType.TextEventStream, "text/event-stream"
+        },
+        {
             ContentType.Video3Gpp, "video/3gpp"
         },
         {
@@ -528,7 +536,7 @@ public class FlexibleContentType
         }
     };
 
-    private static readonly Dictionary<string, ContentType> MAPPING_REVERSE = Mapping.ToDictionary(x => x.Value, x => x.Key);
+    private static readonly Dictionary<string, ContentType> MappingReverse = Mapping.ToDictionary(x => x.Value, x => x.Key);
 
     #endregion
 
@@ -544,7 +552,7 @@ public class FlexibleContentType
         RawType = rawType;
         Charset = charset;
 
-        if (MAPPING_REVERSE.TryGetValue(rawType, out var knownType))
+        if (MappingReverse.TryGetValue(rawType, out var knownType))
         {
             KnownType = knownType;
         }
