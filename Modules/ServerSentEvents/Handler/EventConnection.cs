@@ -118,6 +118,8 @@ public sealed class EventConnection : IEventConnection
 
             await Target.WriteAsync(buffer.AsMemory(0, length));
 
+            await Target.FlushAsync();
+
             return true;
         }
         catch (IOException)

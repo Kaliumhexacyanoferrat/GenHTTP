@@ -36,7 +36,7 @@ internal sealed class ClientHandler
 
         Stream = stream;
 
-        ResponseHandler = new ResponseHandler(Server, Stream, Configuration);
+        ResponseHandler = new ResponseHandler(Server, socket, Stream, Configuration);
     }
 
     #endregion
@@ -162,9 +162,9 @@ internal sealed class ClientHandler
             return ConnectionStatus.Upgraded;
         }
 
-        var success = await ResponseHandler.Handle(request, response, keepAlive, dataRemaining);
+        var active = await ResponseHandler.Handle(request, response, keepAlive, dataRemaining);
 
-        return (success && keepAlive) ? ConnectionStatus.KeepAlive : ConnectionStatus.Close;
+        return (active && keepAlive) ? ConnectionStatus.KeepAlive : ConnectionStatus.Close;
     }
 
     private async PooledValueTask SendError(Exception e, ResponseStatus status)
