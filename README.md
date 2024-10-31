@@ -121,4 +121,6 @@ in C#.
 
 ## 🙏 Thanks
 
-- [.NET](https://github.com/dotnet/core) for a nice platform
+- Powered by [.NET](https://github.com/dotnet/core)
+- Less allocations thanks to [PooledAwait](https://github.com/mgravell/PooledAwait)
+- Modules implemented with [NSwag (Open API)](https://github.com/RicoSuter/NSwag), [Fleck (WebSockets)](https://github.com/statianzo/Fleck)
