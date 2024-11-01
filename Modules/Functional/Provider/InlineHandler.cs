@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Operations;
 
@@ -10,8 +11,6 @@ public class InlineHandler : IHandler, IServiceMethodProvider
 
     #region Get-/Setters
 
-    public IHandler Parent { get; }
-
     public MethodCollection Methods { get; }
 
     private ResponseProvider ResponseProvider { get; }
@@ -20,16 +19,14 @@ public class InlineHandler : IHandler, IServiceMethodProvider
 
     #region Initialization
 
-    public InlineHandler(IHandler parent, List<InlineFunction> functions, MethodRegistry registry)
+    public InlineHandler(List<InlineFunction> functions, MethodRegistry registry)
     {
-        Parent = parent;
-
         ResponseProvider = new ResponseProvider(registry);
 
-        Methods = new MethodCollection(this, AnalyzeMethods(functions, registry));
+        Methods = new MethodCollection(AnalyzeMethods(functions, registry));
     }
 
-    private static IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(List<InlineFunction> functions, MethodRegistry registry)
+    private static IEnumerable<MethodHandler> AnalyzeMethods(List<InlineFunction> functions, MethodRegistry registry)
     {
         foreach (var function in functions)
         {
@@ -39,7 +36,7 @@ public class InlineHandler : IHandler, IServiceMethodProvider
 
             var target = function.Delegate.Target ?? throw new InvalidOperationException("Delegate target must not be null");
 
-            yield return parent => new MethodHandler(parent, operation, target, function.Configuration, registry);
+            yield return new MethodHandler(operation, target, function.Configuration, registry);
         }
     }
 

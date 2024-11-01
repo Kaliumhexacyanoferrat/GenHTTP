@@ -6,23 +6,10 @@ using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Authentication;
 
-public class UserReturningHandlerBuilder : IHandlerBuilder
-{
-
-    public IHandler Build(IHandler parent) => new UserReturningHandler(parent);
-}
-
 public class UserReturningHandler : IHandler
 {
 
-    public UserReturningHandler(IHandler parent)
-    {
-        Parent = parent;
-    }
-
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
-
-    public IHandler Parent { get; }
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
@@ -32,4 +19,5 @@ public class UserReturningHandler : IHandler
                       .Content(content)
                       .BuildTask();
     }
+
 }

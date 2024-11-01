@@ -6,21 +6,18 @@ namespace GenHTTP.Modules.Security.Providers;
 public class SnifferPreventionConcern : IConcern
 {
 
-    #region Initialization
+    #region Get-/Setters
 
-    public SnifferPreventionConcern(IHandler parent, Func<IHandler, IHandler> contentFactory)
-    {
-        Parent = parent;
-        Content = contentFactory(this);
-    }
+    public IHandler Content { get; }
 
     #endregion
 
-    #region Get-/Setters
+    #region Initialization
 
-    public IHandler Parent { get; }
-
-    public IHandler Content { get; }
+    public SnifferPreventionConcern(IHandler content)
+    {
+        Content = content;
+    }
 
     #endregion
 

@@ -34,9 +34,9 @@ public sealed class VirtualHostRouterBuilder : IHandlerBuilder<VirtualHostRouter
         return this;
     }
 
-    public IHandler Build(IHandler parent)
+    public IHandler Build()
     {
-        return Concerns.Chain(parent, _Concerns, p => new VirtualHostRouter(p, _Hosts, _DefaultRoute));
+        return Concerns.Chain(_Concerns,  new VirtualHostRouter( _Hosts, _DefaultRoute));
     }
 
     #endregion

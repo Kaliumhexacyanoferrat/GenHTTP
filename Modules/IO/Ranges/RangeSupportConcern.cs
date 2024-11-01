@@ -12,16 +12,13 @@ public partial class RangeSupportConcern : IConcern
 
     public IHandler Content { get; }
 
-    public IHandler Parent { get; }
-
     #endregion
 
     #region Initialization
 
-    public RangeSupportConcern(IHandler parent, Func<IHandler, IHandler> contentFactory)
+    public RangeSupportConcern(IHandler content)
     {
-        Parent = parent;
-        Content = contentFactory(this);
+        Content = content;
     }
 
     [GeneratedRegex(@"^\s*bytes\s*=\s*([0-9]*)-([0-9]*)\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]

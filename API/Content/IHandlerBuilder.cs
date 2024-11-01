@@ -9,9 +9,9 @@ public interface IHandlerBuilder
     /// <summary>
     /// Creates the configured handler instance.
     /// </summary>
-    /// <param name="parent">The parent of the handler to be created</param>
     /// <returns>The newly created handler instance</returns>
-    IHandler Build(IHandler parent);
+    IHandler Build();
+
 }
 
 public interface IHandlerBuilder<out TBuilder> : IHandlerBuilder where TBuilder : IHandlerBuilder<TBuilder>
@@ -26,4 +26,5 @@ public interface IHandlerBuilder<out TBuilder> : IHandlerBuilder where TBuilder 
     /// </remarks>
     /// <param name="concern">The concern to be added to the resulting handler</param>
     TBuilder Add(IConcernBuilder concern);
+
 }

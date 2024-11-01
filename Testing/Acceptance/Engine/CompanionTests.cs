@@ -1,7 +1,10 @@
 ﻿using System.Net;
+
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Layouting;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
@@ -16,7 +19,7 @@ public sealed class CompanionTests
     [TestMethod]
     public async Task TestConsole()
     {
-        using var runner = new TestHost(Layout.Create());
+        using var runner = new TestHost(Layout.Create().Build());
 
         runner.Host.Console().Start();
 
@@ -29,7 +32,7 @@ public sealed class CompanionTests
     [TestMethod]
     public async Task TestCustom()
     {
-        using var runner = new TestHost(Layout.Create());
+        using var runner = new TestHost(Layout.Create().Build());
 
         var companion = new CustomCompanion();
 

@@ -7,28 +7,25 @@ public sealed class StrictTransportConcern : IConcern
 {
     private const string Header = "Strict-Transport-Security";
 
-    #region Initialization
-
-    public StrictTransportConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, StrictTransportPolicy policy)
-    {
-        Parent = parent;
-        Content = contentFactory(this);
-
-        Policy = policy;
-        HeaderValue = GetPolicyHeader();
-    }
-
-    #endregion
-
     #region Get-/Setters
-
-    public IHandler Parent { get; }
 
     public IHandler Content { get; }
 
     public StrictTransportPolicy Policy { get; }
 
     private string HeaderValue { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public StrictTransportConcern(IHandler content, StrictTransportPolicy policy)
+    {
+        Content = content;
+
+        Policy = policy;
+        HeaderValue = GetPolicyHeader();
+    }
 
     #endregion
 

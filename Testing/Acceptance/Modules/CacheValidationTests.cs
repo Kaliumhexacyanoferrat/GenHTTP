@@ -67,7 +67,7 @@ public sealed class CacheValidationTests
             return r.Respond().Status(ResponseStatus.NoContent).Build();
         });
 
-        using var runner = TestHost.Run(noContent.Wrap());
+        using var runner = TestHost.Run(noContent);
 
         using var response = await runner.GetResponseAsync();
 
@@ -87,4 +87,5 @@ public sealed class CacheValidationTests
 
         Assert.IsFalse(response.Headers.Contains("ETag"));
     }
+
 }

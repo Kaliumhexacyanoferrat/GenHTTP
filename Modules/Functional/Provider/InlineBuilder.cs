@@ -193,7 +193,7 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>
         return this;
     }
 
-    public IHandler Build(IHandler parent)
+    public IHandler Build()
     {
         var serializers = (_Serializers ?? Serialization.Default()).Build();
 
@@ -203,7 +203,7 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>
 
         var extensions = new MethodRegistry(serializers, injectors, formatters);
 
-        return Concerns.Chain(parent, _Concerns, p => new InlineHandler(p, _Functions, extensions));
+        return Concerns.Chain(_Concerns,  new InlineHandler( _Functions, extensions));
     }
 
     #endregion

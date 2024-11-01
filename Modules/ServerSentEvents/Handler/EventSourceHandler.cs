@@ -10,8 +10,6 @@ public sealed class EventSourceHandler : IHandler
 
     #region Get-/Setters
 
-    public IHandler Parent { get; }
-
     private Func<IRequest, string?, ValueTask<bool>>? Inspector { get; }
 
     private Func<IEventConnection, ValueTask> Generator { get; }
@@ -22,10 +20,8 @@ public sealed class EventSourceHandler : IHandler
 
     #region Initialization
 
-    public EventSourceHandler(IHandler parent, Func<IRequest, string?, ValueTask<bool>>? inspector, Func<IEventConnection, ValueTask> generator, FormatterRegistry formatters)
+    public EventSourceHandler(Func<IRequest, string?, ValueTask<bool>>? inspector, Func<IEventConnection, ValueTask> generator, FormatterRegistry formatters)
     {
-        Parent = parent;
-
         Inspector = inspector;
         Generator = generator;
         Formatters = formatters;

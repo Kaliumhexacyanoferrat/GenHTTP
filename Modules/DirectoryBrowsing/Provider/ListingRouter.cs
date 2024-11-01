@@ -1,6 +1,7 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.DirectoryBrowsing.Provider;
@@ -8,21 +9,18 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider;
 public sealed class ListingRouter : IHandler
 {
 
-    #region Initialization
+    #region Get-/Setters
 
-    public ListingRouter(IHandler parent, IResourceTree tree)
-    {
-        Parent = parent;
-        Tree = tree;
-    }
+    private IResourceTree Tree { get; }
 
     #endregion
 
-    #region Get-/Setters
+    #region Initialization
 
-    public IHandler Parent { get; }
-
-    private IResourceTree Tree { get; }
+    public ListingRouter(IResourceTree tree)
+    {
+        Tree = tree;
+    }
 
     #endregion
 
@@ -35,12 +33,12 @@ public sealed class ListingRouter : IHandler
         if (resource is not null)
         {
             return await Content.From(resource)
-                                .Build(this)
+                                .Build()
                                 .HandleAsync(request);
         }
         if (node is not null)
         {
-            return await new ListingProvider(this, node).HandleAsync(request);
+            return await new ListingProvider(node).HandleAsync(request);
         }
 
         return null;

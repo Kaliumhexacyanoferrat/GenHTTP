@@ -158,7 +158,7 @@ public sealed class SecurityTests
     {
         var content = Layout.Create().Index(Content.From(Resource.FromString("Hello Alice!")));
 
-        using var runner = new TestHost(Layout.Create(), mode is null);
+        using var runner = new TestHost(Layout.Create().Build(), mode is null);
 
         var port = TestHost.NextPort();
 

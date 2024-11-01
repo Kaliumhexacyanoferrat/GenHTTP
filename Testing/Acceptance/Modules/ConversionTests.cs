@@ -73,21 +73,18 @@ public sealed class ConversionTests
             _Format = format;
         }
 
-        public IHandler Build(IHandler parent) => new ConversionHandler<T>(_Format, parent);
+        public IHandler Build() => new ConversionHandler<T>(_Format);
     }
 
     private class ConversionHandler<T> : IHandler
     {
 
-        public ConversionHandler(ISerializationFormat format, IHandler parent)
+        public ConversionHandler(ISerializationFormat format)
         {
-            Parent = parent;
             Format = format;
         }
 
         public ISerializationFormat Format { get; }
-
-        public IHandler Parent { get; }
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 

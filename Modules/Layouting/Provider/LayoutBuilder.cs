@@ -78,9 +78,9 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
         return this;
     }
 
-    public IHandler Build(IHandler parent)
+    public IHandler Build()
     {
-        return Concerns.Chain(parent, _Concerns, p => new LayoutRouter(p, RoutedHandlers, RootHandlers, _Index));
+        return Concerns.Chain(_Concerns,  new LayoutRouter( RoutedHandlers, RootHandlers, _Index));
     }
 
     #endregion

@@ -1,7 +1,9 @@
 ﻿using System.Reflection;
 using System.Text.RegularExpressions;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Operations;
 
@@ -12,8 +14,6 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
     private static readonly Regex HyphenMatcher = CreateHyphenMatcher();
 
     #region Get-/Setters
-
-    public IHandler Parent { get; }
 
     public MethodCollection Methods { get; }
 
@@ -27,19 +27,18 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 
     #region Initialization
 
-    public ControllerHandler(IHandler parent, object instance, MethodRegistry registry)
+    public ControllerHandler(object instance, MethodRegistry registry)
     {
-        Parent = parent;
         Registry = registry;
 
         Instance = instance;
 
         ResponseProvider = new ResponseProvider(registry);
 
-        Methods = new MethodCollection(this, AnalyzeMethods(instance.GetType(), registry));
+        Methods = new MethodCollection(AnalyzeMethods(instance.GetType(), registry));
     }
 
-    private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, MethodRegistry registry)
+    private IEnumerable<MethodHandler> AnalyzeMethods(Type type, MethodRegistry registry)
     {
         foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
         {
@@ -49,7 +48,7 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 
             var operation = CreateOperation(method, arguments);
 
-            yield return parent => new MethodHandler(parent, operation, Instance, annotation, registry);
+            yield return new MethodHandler(operation, Instance, annotation, registry);
         }
     }
 

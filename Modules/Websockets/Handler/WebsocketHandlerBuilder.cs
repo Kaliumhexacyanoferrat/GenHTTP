@@ -104,9 +104,9 @@ public class WebsocketHandlerBuilder : IHandlerBuilder<WebsocketHandlerBuilder>
         return this;
     }
 
-    public IHandler Build(IHandler parent)
+    public IHandler Build()
     {
-        return Concerns.Chain(parent, _Concerns, (p) => new WebsocketHandler(p, _SupportedProtocols, _OnOpen, _OnClose, _OnMessage, _OnBinary, _OnPing, _OnPong, _OnError));
+        return Concerns.Chain(_Concerns, new WebsocketHandler(_SupportedProtocols, _OnOpen, _OnClose, _OnMessage, _OnBinary, _OnPing, _OnPong, _OnError));
     }
 
     #endregion

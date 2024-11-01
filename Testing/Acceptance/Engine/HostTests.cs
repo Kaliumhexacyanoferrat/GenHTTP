@@ -11,7 +11,7 @@ public sealed class HostTests
     [TestMethod]
     public async Task TestStart()
     {
-        using var runner = new TestHost(Layout.Create());
+        using var runner = new TestHost(Layout.Create().Build());
 
         runner.Host.Start();
 
@@ -23,7 +23,7 @@ public sealed class HostTests
     [TestMethod]
     public async Task TestRestart()
     {
-        using var runner = new TestHost(Layout.Create());
+        using var runner = new TestHost(Layout.Create().Build());
 
         runner.Host.Restart();
 
@@ -31,4 +31,5 @@ public sealed class HostTests
 
         await response.AssertStatusAsync(HttpStatusCode.NotFound);
     }
+
 }

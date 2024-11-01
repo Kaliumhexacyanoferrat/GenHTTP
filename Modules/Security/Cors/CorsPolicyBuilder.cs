@@ -45,7 +45,7 @@ public sealed class CorsPolicyBuilder : IConcernBuilder
     public CorsPolicyBuilder Add(string origin, List<FlexibleRequestMethod>? allowedMethods, List<string>? allowedHeaders,
         List<string>? exposedHeaders, bool allowCredentials, uint maxAge = 86400) => Add(origin, new OriginPolicy(allowedMethods, allowedHeaders, exposedHeaders, allowCredentials, maxAge));
 
-    public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory) => new CorsPolicyHandler(parent, contentFactory, _DefaultPolicy, _AdditionalPolicies);
+    public IConcern Build(IHandler content) => new CorsPolicyHandler(content, _DefaultPolicy, _AdditionalPolicies);
 
     #endregion
 

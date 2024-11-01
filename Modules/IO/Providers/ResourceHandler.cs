@@ -1,6 +1,7 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Basics;
 
 namespace GenHTTP.Modules.IO.Providers;
@@ -8,21 +9,18 @@ namespace GenHTTP.Modules.IO.Providers;
 public sealed class ResourceHandler : IHandler
 {
 
-    #region Initialization
+    #region Get-/Setters
 
-    public ResourceHandler(IHandler parent, IResourceTree tree)
-    {
-        Parent = parent;
-        Tree = tree;
-    }
+    private IResourceTree Tree { get; }
 
     #endregion
 
-    #region Get-/Setters
+    #region Initialization
 
-    public IHandler Parent { get; }
-
-    private IResourceTree Tree { get; }
+    public ResourceHandler(IResourceTree tree)
+    {
+        Tree = tree;
+    }
 
     #endregion
 

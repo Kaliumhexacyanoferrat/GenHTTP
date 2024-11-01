@@ -70,13 +70,13 @@ public sealed class ApiKeyConcernBuilder : IConcernBuilder
         return this;
     }
 
-    public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
+    public IConcern Build(IHandler content)
     {
         var keyExtractor = _KeyExtractor ?? throw new BuilderMissingPropertyException("KeyExtractor");
 
         var authenticator = _Authenticator ?? throw new BuilderMissingPropertyException("Authenticator");
 
-        return new ApiKeyConcern(parent, contentFactory, keyExtractor, authenticator);
+        return new ApiKeyConcern(content, keyExtractor, authenticator);
     }
 
     #endregion

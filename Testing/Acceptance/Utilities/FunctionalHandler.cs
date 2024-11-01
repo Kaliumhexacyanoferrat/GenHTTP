@@ -3,27 +3,15 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Testing.Acceptance.Utilities;
 
-public sealed class FunctionalHandler : IHandlerWithParent
+public sealed class FunctionalHandler : IHandler
 {
     private readonly Func<IRequest, IResponse?>? _ResponseProvider;
-
-    private IHandler? _Parent;
 
     #region Initialization
 
     public FunctionalHandler(Func<IRequest, IResponse?>? responseProvider = null)
     {
         _ResponseProvider = responseProvider;
-    }
-
-    #endregion
-
-    #region Get-/Setters
-
-    public IHandler Parent
-    {
-        get => _Parent ?? throw new InvalidOperationException();
-        set => _Parent = value;
     }
 
     #endregion

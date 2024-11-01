@@ -30,11 +30,18 @@ public sealed class ReverseProxyProvider : IHandler
         "Upgrade-Insecure-Requests"
     };
 
+    #region Get-/Setters
+
+    public string Upstream { get; }
+
+    private HttpClient Client { get; }
+
+    #endregion
+
     #region Initialization
 
-    public ReverseProxyProvider(IHandler parent, string upstream, TimeSpan connectTimeout, TimeSpan readTimeout)
+    public ReverseProxyProvider(string upstream, TimeSpan connectTimeout, TimeSpan readTimeout)
     {
-        Parent = parent;
         Upstream = upstream;
 
         var handler = new SocketsHttpHandler
@@ -49,16 +56,6 @@ public sealed class ReverseProxyProvider : IHandler
             Timeout = readTimeout
         };
     }
-
-    #endregion
-
-    #region Get-/Setters
-
-    public IHandler Parent { get; }
-
-    public string Upstream { get; }
-
-    private HttpClient Client { get; }
 
     #endregion
 

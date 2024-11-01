@@ -91,7 +91,7 @@ public sealed class ServerHost : IServerHost
         return this;
     }
 
-    public IServerHost Handler(IHandlerBuilder handler)
+    public IServerHost Handler(IHandler handler)
     {
         _Builder.Handler(handler);
         return this;

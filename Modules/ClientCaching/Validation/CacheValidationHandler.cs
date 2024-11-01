@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Basics;
 
 namespace GenHTTP.Modules.ClientCaching.Validation;
@@ -10,21 +11,18 @@ public sealed class CacheValidationHandler : IConcern
 
     private static readonly RequestMethod[] SupportedMethods = [RequestMethod.Get, RequestMethod.Head];
 
-    #region Initialization
+    #region Get-/Setters
 
-    public CacheValidationHandler(IHandler parent, Func<IHandler, IHandler> contentFactory)
-    {
-        Parent = parent;
-        Content = contentFactory(this);
-    }
+    public IHandler Content { get; }
 
     #endregion
 
-    #region Get-/Setters
+    #region Initialization
 
-    public IHandler Parent { get; }
-
-    public IHandler Content { get; }
+    public CacheValidationHandler(IHandler content)
+    {
+        Content = content;
+    }
 
     #endregion
 

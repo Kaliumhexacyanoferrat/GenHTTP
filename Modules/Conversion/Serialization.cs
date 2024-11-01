@@ -1,8 +1,10 @@
 ﻿using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Conversion.Serializers.Forms;
 using GenHTTP.Modules.Conversion.Serializers.Json;
 using GenHTTP.Modules.Conversion.Serializers.Xml;
+using GenHTTP.Modules.Conversion.Serializers.Yaml;
 
 namespace GenHTTP.Modules.Conversion;
 
@@ -19,6 +21,7 @@ public static class Serialization
     /// </summary>
     public static SerializationBuilder Default() => new SerializationBuilder().Default(ContentType.ApplicationJson)
                                                                               .Add(ContentType.ApplicationJson, new JsonFormat())
+                                                                              .Add(ContentType.ApplicationYaml, new YamlFormat())
                                                                               .Add(ContentType.ApplicationWwwFormUrlEncoded, new FormFormat())
                                                                               .Add(ContentType.TextXml, new XmlFormat());
 
@@ -26,4 +29,5 @@ public static class Serialization
     /// Returns an empty registry to be customized.
     /// </summary>
     public static SerializationBuilder Empty() => new();
+
 }

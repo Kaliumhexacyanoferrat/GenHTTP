@@ -12,30 +12,26 @@ public sealed class CompressionConcern : IConcern
 
     private const string Vary = "Vary";
 
-    #region Initialization
-
-    public CompressionConcern(IHandler parent, Func<IHandler, IHandler> contentFactory,
-        IReadOnlyDictionary<string, ICompressionAlgorithm> algorithms,
-        CompressionLevel level)
-    {
-        Parent = parent;
-        Content = contentFactory(this);
-
-        Algorithms = algorithms;
-        Level = level;
-    }
-
-    #endregion
-
     #region Get-/Setters
 
     public IHandler Content { get; }
 
-    public IHandler Parent { get; }
-
     private IReadOnlyDictionary<string, ICompressionAlgorithm> Algorithms { get; }
 
     private CompressionLevel Level { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public CompressionConcern(IHandler content, IReadOnlyDictionary<string, ICompressionAlgorithm> algorithms,
+        CompressionLevel level)
+    {
+        Content = content;
+
+        Algorithms = algorithms;
+        Level = level;
+    }
 
     #endregion
 

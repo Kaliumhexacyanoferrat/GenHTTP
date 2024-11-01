@@ -15,30 +15,26 @@ public sealed class SinglePageProvider : IHandler
 
     private IHandler? _Index;
 
-    #region Initialization
-
-    public SinglePageProvider(IHandler parent, IResourceTree tree, bool serverSideRouting)
-    {
-        Parent = parent;
-
-        Tree = tree;
-        ServerSideRouting = serverSideRouting;
-
-        Resources = IO.Resources.From(tree)
-                      .Build(this);
-    }
-
-    #endregion
-
     #region Get-/Setters
-
-    public IHandler Parent { get; }
 
     private IResourceTree Tree { get; }
 
     private IHandler Resources { get; }
 
     private bool ServerSideRouting { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public SinglePageProvider(IResourceTree tree, bool serverSideRouting)
+    {
+        Tree = tree;
+        ServerSideRouting = serverSideRouting;
+
+        Resources = IO.Resources.From(tree)
+                      .Build();
+    }
 
     #endregion
 
@@ -86,7 +82,7 @@ public sealed class SinglePageProvider : IHandler
                 if ((indexFile = await Tree.TryGetResourceAsync(index)) != null)
                 {
                     _Index = Content.From(indexFile)
-                                    .Build(this);
+                                    .Build();
 
                     break;
                 }

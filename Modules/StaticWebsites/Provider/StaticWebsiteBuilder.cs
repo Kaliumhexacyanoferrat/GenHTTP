@@ -24,11 +24,11 @@ public class StaticWebsiteBuilder : IHandlerBuilder<StaticWebsiteBuilder>
         return this;
     }
 
-    public IHandler Build(IHandler parent)
+    public IHandler Build()
     {
         var tree = _Tree ?? throw new BuilderMissingPropertyException("tree");
 
-        return Concerns.Chain(parent, _Concerns, p => new StaticWebsiteHandler(p, tree));
+        return Concerns.Chain(_Concerns,  new StaticWebsiteHandler( tree));
     }
 
     #endregion

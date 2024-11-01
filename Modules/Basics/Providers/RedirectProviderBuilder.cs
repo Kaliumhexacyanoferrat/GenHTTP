@@ -30,14 +30,14 @@ public sealed class RedirectProviderBuilder : IHandlerBuilder<RedirectProviderBu
         return this;
     }
 
-    public IHandler Build(IHandler parent)
+    public IHandler Build()
     {
         if (_Location is null)
         {
             throw new BuilderMissingPropertyException("Location");
         }
 
-        return Concerns.Chain(parent, _Concerns, p => new RedirectProvider(p, _Location, _Temporary));
+        return Concerns.Chain(_Concerns, new RedirectProvider(_Location, _Temporary));
     }
 
     #endregion

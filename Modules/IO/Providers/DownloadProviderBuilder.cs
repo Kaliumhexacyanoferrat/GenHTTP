@@ -43,11 +43,11 @@ public sealed class DownloadProviderBuilder : IHandlerBuilder<DownloadProviderBu
         return this;
     }
 
-    public IHandler Build(IHandler parent)
+    public IHandler Build()
     {
         var resource = _ResourceProvider ?? throw new BuilderMissingPropertyException("resourceProvider");
 
-        return Concerns.Chain(parent, _Concerns, p => new DownloadProvider(p, resource, _FileName, _ContentType));
+        return Concerns.Chain(_Concerns,  new DownloadProvider( resource, _FileName, _ContentType));
     }
 
     #endregion

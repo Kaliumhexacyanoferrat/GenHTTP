@@ -55,13 +55,13 @@ public class ServerCacheHandlerBuilder : IConcernBuilder
 
     public ServerCacheHandlerBuilder DataStore(IBuilder<ICache<Stream>> cache) => DataStore(cache.Build());
 
-    public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
+    public IConcern Build(IHandler content)
     {
         var meta = _Meta ?? throw new BuilderMissingPropertyException("MetaStore");
 
         var data = _Data ?? throw new BuilderMissingPropertyException("DataStore");
 
-        return new ServerCacheHandler(parent, contentFactory, meta, data, _Predicate, _Invalidate);
+        return new ServerCacheHandler(content, meta, data, _Predicate, _Invalidate);
     }
 
     #endregion

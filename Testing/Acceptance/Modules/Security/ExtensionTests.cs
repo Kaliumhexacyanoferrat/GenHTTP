@@ -12,7 +12,7 @@ public sealed class ExtensionTests
     [TestMethod]
     public async Task ServerCanBeHardened()
     {
-        using var runner = new TestHost(Layout.Create());
+        using var runner = new TestHost(Layout.Create().Build());
 
         runner.Host.Handler(Content.From(Resource.FromString("Hello Eve!")))
               .Harden()

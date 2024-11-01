@@ -22,7 +22,7 @@ public sealed class ErrorSentryBuilder<T> : IConcernBuilder where T : Exception
 
     #region Functionality
 
-    public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory) => new ErrorSentry<T>(parent, contentFactory, Handler);
+    public IConcern Build(IHandler content) => new ErrorSentry<T>(content, Handler);
 
     #endregion
 

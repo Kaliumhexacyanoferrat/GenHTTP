@@ -12,23 +12,7 @@ public sealed class OpenApiConcern : IConcern
 {
     private ReturnDocument? _Cached;
 
-    #region Initialization
-
-    public OpenApiConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, ApiDiscoveryRegistry discovery, bool enableCaching, Action<IRequest, OpenApiDocument> postProcessor)
-    {
-        Parent = parent;
-        Content = contentFactory(this);
-
-        Discovery = discovery;
-        EnableCaching = enableCaching;
-        PostProcessor = postProcessor;
-    }
-
-    #endregion
-
     #region Get-/Setters
-
-    public IHandler Parent { get; }
 
     public IHandler Content { get; }
 
@@ -37,6 +21,19 @@ public sealed class OpenApiConcern : IConcern
     private bool EnableCaching { get; }
 
     private Action<IRequest, OpenApiDocument> PostProcessor { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public OpenApiConcern(IHandler content, ApiDiscoveryRegistry discovery, bool enableCaching, Action<IRequest, OpenApiDocument> postProcessor)
+    {
+        Content = content;
+
+        Discovery = discovery;
+        EnableCaching = enableCaching;
+        PostProcessor = postProcessor;
+    }
 
     #endregion
 

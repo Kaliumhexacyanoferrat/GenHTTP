@@ -10,11 +10,6 @@ public interface IHandler
 {
 
     /// <summary>
-    /// The parent of this handler within the routing tree.
-    /// </summary>
-    IHandler Parent { get; }
-
-    /// <summary>
     /// Invoked to perform computation heavy or IO bound work
     /// that initializes the handler before handling the
     /// first requests.
@@ -38,4 +33,5 @@ public interface IHandler
     /// <param name="request">The request to be handled</param>
     /// <returns>The response to be sent to the requesting client</returns>
     ValueTask<IResponse?> HandleAsync(IRequest request);
+
 }

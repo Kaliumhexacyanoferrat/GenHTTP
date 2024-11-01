@@ -1,9 +1,12 @@
 ﻿using System.Net;
+
 using GenHTTP.Api.Content.Authentication;
+
 using GenHTTP.Modules.Authentication;
 using GenHTTP.Modules.Authentication.Basic;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Layouting.Provider;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Authentication;
@@ -124,5 +127,6 @@ public sealed class BasicAuthenticationTests
     }
 
     private static LayoutBuilder GetContent() => Layout.Create()
-                                                       .Index(new UserReturningHandlerBuilder());
+                                                       .Index(new UserReturningHandler().Wrap());
+
 }

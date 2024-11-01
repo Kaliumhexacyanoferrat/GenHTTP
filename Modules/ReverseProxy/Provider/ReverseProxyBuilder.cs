@@ -44,14 +44,14 @@ public sealed class ReverseProxyBuilder : IHandlerBuilder<ReverseProxyBuilder>
         return this;
     }
 
-    public IHandler Build(IHandler parent)
+    public IHandler Build()
     {
         if (_Upstream is null)
         {
             throw new BuilderMissingPropertyException("Upstream");
         }
 
-        return Concerns.Chain(parent, _Concerns, p => new ReverseProxyProvider(p, _Upstream, _ConnectTimeout, _ReadTimeout));
+        return Concerns.Chain(_Concerns,  new ReverseProxyProvider( _Upstream, _ConnectTimeout, _ReadTimeout));
     }
 
     #endregion

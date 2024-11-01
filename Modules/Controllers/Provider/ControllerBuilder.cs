@@ -59,7 +59,7 @@ public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>
         return this;
     }
 
-    public IHandler Build(IHandler parent)
+    public IHandler Build()
     {
         var serializers = (_Serializers ?? Serialization.Default()).Build();
 
@@ -71,7 +71,7 @@ public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>
 
         var extensions = new MethodRegistry(serializers, injectors, formatters);
 
-        return Concerns.Chain(parent, _Concerns, p => new ControllerHandler(p, instance, extensions));
+        return Concerns.Chain(_Concerns, new ControllerHandler(instance, extensions));
     }
 
     #endregion

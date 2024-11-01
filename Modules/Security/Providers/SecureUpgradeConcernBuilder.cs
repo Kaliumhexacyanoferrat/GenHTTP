@@ -15,7 +15,7 @@ public sealed class SecureUpgradeConcernBuilder : IConcernBuilder
         return this;
     }
 
-    public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory) => new SecureUpgradeConcern(parent, contentFactory, _Mode);
+    public IConcern Build(IHandler content) => new SecureUpgradeConcern(content, _Mode);
 
     #endregion
 

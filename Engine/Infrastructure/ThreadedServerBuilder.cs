@@ -1,9 +1,12 @@
 ﻿using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Engine.Infrastructure.Endpoints;
+
 using GenHTTP.Modules.ErrorHandling;
 
 namespace GenHTTP.Engine.Infrastructure;
@@ -19,7 +22,7 @@ internal sealed class ThreadedServerBuilder : IServerBuilder
 
     private bool _Development;
 
-    private IHandlerBuilder? _Handler;
+    private IHandler? _Handler;
 
     private ushort _Port = 8080;
 
@@ -30,7 +33,7 @@ internal sealed class ThreadedServerBuilder : IServerBuilder
 
     #region Content
 
-    public IServerBuilder Handler(IHandlerBuilder handler)
+    public IServerBuilder Handler(IHandler handler)
     {
         _Handler = handler;
         return this;

@@ -6,23 +6,18 @@ namespace GenHTTP.Modules.Reflection;
 public sealed class MethodCollection : IHandler
 {
 
-    #region Initialization
+    #region Get-/Setters
 
-    public MethodCollection(IHandler parent, IEnumerable<Func<IHandler, MethodHandler>> methodFactories)
-    {
-        Parent = parent;
-
-        Methods = methodFactories.Select(factory => factory(this))
-                                 .ToList();
-    }
+    public List<MethodHandler> Methods { get; }
 
     #endregion
 
-    #region Get-/Setters
+    #region Initialization
 
-    public IHandler Parent { get; }
-
-    public List<MethodHandler> Methods { get; }
+    public MethodCollection(IEnumerable<MethodHandler> methods)
+    {
+        Methods = new(methods);
+    }
 
     #endregion
 
