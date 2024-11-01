@@ -108,8 +108,8 @@ public sealed class InspectionConcern : IConcern
             if (format == null)
             {
                 return request.Respond()
-                              .Status(ResponseStatus.Ok)
-                              .Content(new Strings.StringContent(model?.ToString() ?? string.Empty))
+                              .Status(ResponseStatus.UnsupportedMediaType)
+                              .Content(new Strings.StringContent("Unable to find serializer for requested format"))
                               .Build();
             }
 
