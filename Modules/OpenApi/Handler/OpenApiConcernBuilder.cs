@@ -72,7 +72,7 @@ public sealed class OpenApiConcernBuilder : IConcernBuilder
         return this;
     }
 
-    public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory) => new OpenApiConcern(parent, contentFactory, Discovery, _Caching, DoPostProcessing);
+    public IConcern Build(IHandler content) => new OpenApiConcern(content, Discovery, _Caching, DoPostProcessing);
 
     private void DoPostProcessing(IRequest request, OpenApiDocument document)
     {

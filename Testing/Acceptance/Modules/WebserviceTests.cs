@@ -11,6 +11,8 @@ using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Webservices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace GenHTTP.Testing.Acceptance.Modules;
 
@@ -26,6 +28,7 @@ public sealed class WebserviceTests
         public int ID { get; set; }
 
         public double? Nullable { get; set; }
+
     }
 
     public enum TestEnum
@@ -217,6 +220,32 @@ public sealed class WebserviceTests
         await WithResponse("entity", HttpMethod.Post, entity, "text/xml", "text/xml", async r =>
         {
             var result = new XmlSerializer(typeof(TestEntity)).Deserialize(await r.Content.ReadAsStreamAsync()) as TestEntity;
+
+            Assert.IsNotNull(result);
+
+            Assert.AreEqual(1, result.ID);
+            Assert.AreEqual(1234.56, result.Nullable);
+        });
+    }
+
+    [TestMethod]
+    public async Task TestEntityAsYaml()
+    {
+        const string entity = """
+                              id: 1
+                              nullable: 1234.56
+                              """;
+
+        await WithResponse("entity", HttpMethod.Post, entity, "application/yaml", "application/yaml", async r =>
+        {
+            await r.AssertStatusAsync(HttpStatusCode.OK);
+
+            var deserializer = new DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance)
+                                                        .Build();
+
+            using var reader = new StreamReader(await r.Content.ReadAsStreamAsync(), leaveOpen: true);
+
+            var result = deserializer.Deserialize(reader, typeof(TestEntity)) as TestEntity;
 
             Assert.IsNotNull(result);
 

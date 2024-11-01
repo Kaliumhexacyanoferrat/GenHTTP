@@ -81,7 +81,7 @@ public sealed class BearerAuthenticationConcernBuilder : IConcernBuilder
         return this;
     }
 
-    public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory) => new BearerAuthenticationConcern(parent, contentFactory, _Options);
+    public IConcern Build(IHandler content) => new BearerAuthenticationConcern(content, _Options);
 
     #endregion
 

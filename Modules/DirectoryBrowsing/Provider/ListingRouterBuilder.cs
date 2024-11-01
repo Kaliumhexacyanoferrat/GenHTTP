@@ -26,11 +26,11 @@ public sealed class ListingRouterBuilder : IHandlerBuilder<ListingRouterBuilder>
         return this;
     }
 
-    public IHandler Build(IHandler parent)
+    public IHandler Build()
     {
         var tree = _Tree ?? throw new BuilderMissingPropertyException("tree");
 
-        return Concerns.Chain(parent, _Concerns, p => new ListingRouter(p, tree));
+        return Concerns.Chain(_Concerns,  new ListingRouter( tree));
     }
 
     #endregion

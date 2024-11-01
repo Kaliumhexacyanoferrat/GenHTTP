@@ -29,9 +29,9 @@ public sealed class LoadBalancerBuilder : IHandlerBuilder<LoadBalancerBuilder>
 
     public LoadBalancerBuilder Proxy(string node, PriorityEvaluation? priority = null) => Add(ReverseProxy.Proxy.Create().Upstream(node), priority);
 
-    public IHandler Build(IHandler parent)
+    public IHandler Build()
     {
-        return Concerns.Chain(parent, _Concerns, p => new LoadBalancerHandler(p, _Nodes));
+        return Concerns.Chain(_Concerns,  new LoadBalancerHandler( _Nodes));
     }
 
     #endregion

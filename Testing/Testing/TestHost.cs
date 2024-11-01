@@ -45,15 +45,15 @@ public class TestHost : IDisposable
     /// Creates a test host that will use the given handler to provide content,
     /// but has yet to be started.
     /// </summary>
-    /// <param name="handlerBuilder">The handler to be tested</param>
+    /// <param name="handler">The handler to be tested</param>
     /// <param name="defaults">true, if the defaults (such as compression) should be added to this handler</param>
     /// <param name="development">true, if the server should be started in development mode</param>
-    public TestHost(IHandlerBuilder handlerBuilder, bool defaults = true, bool development = true)
+    public TestHost(IHandler handler, bool defaults = true, bool development = true)
     {
         Port = NextPort();
 
         Host = Engine.Host.Create()
-                     .Handler(handlerBuilder)
+                     .Handler(handler)
                      .Port((ushort)Port);
 
         if (defaults)
@@ -71,17 +71,26 @@ public class TestHost : IDisposable
     /// Creates a test host that will use the given handler to provide content
     /// and starts it immediately.
     /// </summary>
-    /// <param name="handlerBuilder">The handler to be tested</param>
+    /// <param name="handler">The handler to be tested</param>
     /// <param name="defaults">true, if the defaults (such as compression) should be added to this handler</param>
     /// <param name="development">true, if the server should be started in development mode</param>
-    public static TestHost Run(IHandlerBuilder handlerBuilder, bool defaults = true, bool development = true)
+    public static TestHost Run(IHandler handler, bool defaults = true, bool development = true)
     {
-        var runner = new TestHost(handlerBuilder, defaults, development);
+        var runner = new TestHost(handler, defaults, development);
 
         runner.Start();
 
         return runner;
     }
+
+    /// <summary>
+    /// Creates a test host that will use the given handler to provide content
+    /// and starts it immediately.
+    /// </summary>
+    /// <param name="handler">The handler to be tested</param>
+    /// <param name="defaults">true, if the defaults (such as compression) should be added to this handler</param>
+    /// <param name="development">true, if the server should be started in development mode</param>
+    public static TestHost Run(IHandlerBuilder handler, bool defaults = true, bool development = true) => Run(handler.Build(), defaults, development);
 
     /// <summary>
     /// Starts the server managed by this testing host.

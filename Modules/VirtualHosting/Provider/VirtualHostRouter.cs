@@ -7,27 +7,21 @@ namespace GenHTTP.Modules.VirtualHosting.Provider;
 public sealed class VirtualHostRouter : IHandler
 {
 
-    #region Initialization
-
-    public VirtualHostRouter(IHandler parent,
-        Dictionary<string, IHandlerBuilder> hosts,
-        IHandlerBuilder? defaultRoute)
-    {
-        Parent = parent;
-
-        Hosts = hosts.ToDictionary(kv => kv.Key, kv => kv.Value.Build(this));
-        DefaultRoute = defaultRoute?.Build(this);
-    }
-
-    #endregion
-
     #region Get-/Setters
-
-    public IHandler Parent { get; }
 
     private Dictionary<string, IHandler> Hosts { get; }
 
     private IHandler? DefaultRoute { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public VirtualHostRouter(Dictionary<string, IHandlerBuilder> hosts, IHandlerBuilder? defaultRoute)
+    {
+        Hosts = hosts.ToDictionary(kv => kv.Key, kv => kv.Value.Build());
+        DefaultRoute = defaultRoute?.Build();
+    }
 
     #endregion
 

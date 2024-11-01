@@ -14,16 +14,12 @@ public sealed partial class RedirectProvider : IHandler
 
     public bool Temporary { get; }
 
-    public IHandler Parent { get; }
-
     #endregion
 
     #region Initialization
 
-    public RedirectProvider(IHandler parent, string location, bool temporary)
+    public RedirectProvider(string location, bool temporary)
     {
-        Parent = parent;
-
         Target = location;
         Temporary = temporary;
     }

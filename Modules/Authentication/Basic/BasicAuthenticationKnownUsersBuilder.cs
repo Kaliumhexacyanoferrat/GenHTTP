@@ -24,11 +24,11 @@ public sealed class BasicAuthenticationKnownUsersBuilder : IConcernBuilder
         return this;
     }
 
-    public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
+    public IConcern Build(IHandler content)
     {
         var realm = _Realm ?? throw new BuilderMissingPropertyException("Realm");
 
-        return new BasicAuthenticationConcern(parent, contentFactory, realm, (user, password) =>
+        return new BasicAuthenticationConcern(content, realm, (user, password) =>
         {
             if (_Users.TryGetValue(user, out var expected))
             {

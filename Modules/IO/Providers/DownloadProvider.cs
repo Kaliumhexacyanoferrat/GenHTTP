@@ -8,30 +8,26 @@ namespace GenHTTP.Modules.IO.Providers;
 public sealed class DownloadProvider : IHandler
 {
 
-    #region Initialization
-
-    public DownloadProvider(IHandler parent, IResource resourceProvider, string? fileName, FlexibleContentType? contentType)
-    {
-        Parent = parent;
-
-        Resource = resourceProvider;
-
-        FileName = fileName ?? Resource.Name;
-
-        ContentType = contentType ?? Resource.ContentType ?? FlexibleContentType.Get(FileName?.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload);
-    }
-
-    #endregion
-
     #region Get-/Setters
-
-    public IHandler Parent { get; }
 
     public IResource Resource { get; }
 
     public string? FileName { get; }
 
     private FlexibleContentType ContentType { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public DownloadProvider(IResource resourceProvider, string? fileName, FlexibleContentType? contentType)
+    {
+        Resource = resourceProvider;
+
+        FileName = fileName ?? Resource.Name;
+
+        ContentType = contentType ?? Resource.ContentType ?? FlexibleContentType.Get(FileName?.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload);
+    }
 
     #endregion
 

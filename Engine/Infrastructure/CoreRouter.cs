@@ -11,24 +11,18 @@ namespace GenHTTP.Engine.Infrastructure;
 internal sealed class CoreRouter : IHandler
 {
 
-    #region Initialization
+    #region Get-/Setters
 
-    internal CoreRouter(IHandlerBuilder content, IEnumerable<IConcernBuilder> concerns)
-    {
-        Content = Concerns.Chain(this, concerns, content.Build);
-    }
+    internal IHandler Content { get; }
 
     #endregion
 
-    #region Get-/Setters
+    #region Initialization
 
-    public IHandler Parent
+    internal CoreRouter(IHandler content, IEnumerable<IConcernBuilder> concerns)
     {
-        get => throw new NotSupportedException("Core router has no parent");
-        set => throw new NotSupportedException("Setting core router's parent is not allowed");
+        Content = Concerns.Chain(concerns, content);
     }
-
-    internal IHandler Content { get; }
 
     #endregion
 

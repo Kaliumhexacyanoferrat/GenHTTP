@@ -9,29 +9,9 @@ namespace GenHTTP.Modules.ServerCaching.Provider;
 public sealed class ServerCacheHandler : IConcern
 {
 
-    #region Initialization
-
-    public ServerCacheHandler(IHandler parent, Func<IHandler, IHandler> contentFactory,
-        ICache<CachedResponse> meta, ICache<Stream> data,
-        Func<IRequest, IResponse, bool>? predicate, bool invalidate)
-    {
-        Parent = parent;
-        Content = contentFactory(this);
-
-        Meta = meta;
-        Data = data;
-
-        Predicate = predicate;
-        Invalidate = invalidate;
-    }
-
-    #endregion
-
     #region Get-/Setters
 
     public IHandler Content { get; }
-
-    public IHandler Parent { get; }
 
     private ICache<CachedResponse> Meta { get; }
 
@@ -40,6 +20,23 @@ public sealed class ServerCacheHandler : IConcern
     private bool Invalidate { get; }
 
     private Func<IRequest, IResponse, bool>? Predicate { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public ServerCacheHandler(IHandler content,
+        ICache<CachedResponse> meta, ICache<Stream> data,
+        Func<IRequest, IResponse, bool>? predicate, bool invalidate)
+    {
+        Content = content;
+
+        Meta = meta;
+        Data = data;
+
+        Predicate = predicate;
+        Invalidate = invalidate;
+    }
 
     #endregion
 

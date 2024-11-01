@@ -8,25 +8,22 @@ namespace GenHTTP.Modules.Security.Providers;
 public sealed class SecureUpgradeConcern : IConcern
 {
 
-    #region Initialization
-
-    public SecureUpgradeConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, SecureUpgrade mode)
-    {
-        Parent = parent;
-        Content = contentFactory(this);
-
-        Mode = mode;
-    }
-
-    #endregion
-
     #region Get-/Setters
 
     public SecureUpgrade Mode { get; }
 
-    public IHandler Parent { get; }
-
     public IHandler Content { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public SecureUpgradeConcern(IHandler content, SecureUpgrade mode)
+    {
+        Content = content;
+
+        Mode = mode;
+    }
 
     #endregion
 
@@ -46,7 +43,7 @@ public sealed class SecureUpgradeConcern : IConcern
                     if (Mode == SecureUpgrade.Force)
                     {
                         return await Redirect.To(GetRedirectLocation(request, endpoints))
-                                             .Build(this)
+                                             .Build()
                                              .HandleAsync(request)
                             ;
                     }
@@ -59,7 +56,7 @@ public sealed class SecureUpgradeConcern : IConcern
                                 if (flag == "1")
                                 {
                                     var response = await Redirect.To(GetRedirectLocation(request, endpoints), true)
-                                                                 .Build(this)
+                                                                 .Build()
                                                                  .HandleAsync(request)
                                         ;
 

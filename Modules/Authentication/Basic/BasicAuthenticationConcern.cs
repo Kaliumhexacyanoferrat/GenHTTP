@@ -1,4 +1,5 @@
 ﻿using System.Text;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
 using GenHTTP.Api.Protocol;
@@ -8,29 +9,25 @@ namespace GenHTTP.Modules.Authentication.Basic;
 public sealed class BasicAuthenticationConcern : IConcern
 {
 
-    #region Initialization
-
-    public BasicAuthenticationConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, string realm,
-        Func<string, string, ValueTask<IUser?>> authenticator)
-    {
-        Parent = parent;
-        Content = contentFactory(this);
-
-        Realm = realm;
-        Authenticator = authenticator;
-    }
-
-    #endregion
-
     #region Get-/Setters
 
     public IHandler Content { get; }
 
-    public IHandler Parent { get; }
-
     private string Realm { get; }
 
     private Func<string, string, ValueTask<IUser?>> Authenticator { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public BasicAuthenticationConcern(IHandler content, string realm, Func<string, string, ValueTask<IUser?>> authenticator)
+    {
+        Content = content;
+
+        Realm = realm;
+        Authenticator = authenticator;
+    }
 
     #endregion
 

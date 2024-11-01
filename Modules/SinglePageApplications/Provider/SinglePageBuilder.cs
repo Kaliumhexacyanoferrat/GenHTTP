@@ -38,11 +38,11 @@ public sealed class SinglePageBuilder : IHandlerBuilder<SinglePageBuilder>
         return this;
     }
 
-    public IHandler Build(IHandler parent)
+    public IHandler Build()
     {
         var tree = _Tree ?? throw new BuilderMissingPropertyException("tree");
 
-        return Concerns.Chain(parent, _Concerns, p => new SinglePageProvider(p, tree, _ServerSideRouting));
+        return Concerns.Chain(_Concerns,  new SinglePageProvider( tree, _ServerSideRouting));
     }
 
     #endregion

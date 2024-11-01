@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Basics;
 
 namespace GenHTTP.Modules.ClientCaching.Policy;
@@ -7,29 +8,25 @@ namespace GenHTTP.Modules.ClientCaching.Policy;
 public sealed class CachePolicyConcern : IConcern
 {
 
-    #region Initialization
-
-    public CachePolicyConcern(IHandler parent, Func<IHandler, IHandler> contentFactory,
-        TimeSpan duration, Func<IRequest, IResponse, bool>? predicate)
-    {
-        Parent = parent;
-        Content = contentFactory(this);
-
-        Duration = duration;
-        Predicate = predicate;
-    }
-
-    #endregion
-
     #region Get-/Setters
 
     public IHandler Content { get; }
 
-    public IHandler Parent { get; }
-
     private TimeSpan Duration { get; }
 
     private Func<IRequest, IResponse, bool>? Predicate { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public CachePolicyConcern(IHandler content, TimeSpan duration, Func<IRequest, IResponse, bool>? predicate)
+    {
+        Content = content;
+
+        Duration = duration;
+        Predicate = predicate;
+    }
 
     #endregion
 

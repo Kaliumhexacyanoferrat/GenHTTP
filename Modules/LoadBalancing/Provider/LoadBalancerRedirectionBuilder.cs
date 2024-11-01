@@ -23,11 +23,11 @@ public sealed class LoadBalancerRedirectionBuilder : IHandlerBuilder<LoadBalance
         return this;
     }
 
-    public IHandler Build(IHandler parent)
+    public IHandler Build()
     {
         var root = _Root ?? throw new BuilderMissingPropertyException("root");
 
-        return Concerns.Chain(parent, _Concerns, p => new LoadBalancerRedirectionHandler(p, root));
+        return Concerns.Chain(_Concerns,  new LoadBalancerRedirectionHandler( root));
     }
 
     #endregion

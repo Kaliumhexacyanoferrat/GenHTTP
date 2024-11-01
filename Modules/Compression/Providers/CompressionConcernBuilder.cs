@@ -27,11 +27,11 @@ public sealed class CompressionConcernBuilder : IConcernBuilder
         return this;
     }
 
-    public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
+    public IConcern Build(IHandler content)
     {
         var algorithms = _Algorithms.ToDictionary(a => a.Name);
 
-        return new CompressionConcern(parent, contentFactory, algorithms, _Level);
+        return new CompressionConcern(content, algorithms, _Level);
     }
 
     #endregion

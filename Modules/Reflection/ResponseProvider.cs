@@ -51,7 +51,7 @@ public class ResponseProvider
 
         return operation.Result.Sink switch
         {
-            OperationResultSink.Dynamic => await GetDynamicResponse(request, result, handler, adjustments),
+            OperationResultSink.Dynamic => await GetDynamicResponse(request, result, adjustments),
             OperationResultSink.Stream => GetDownloadResponse(request, (Stream)result, adjustments),
             OperationResultSink.Formatter => GetFormattedResponse(request, result, type, adjustments),
             OperationResultSink.Serializer => await GetSerializedResponse(request, result, adjustments),
@@ -65,7 +65,7 @@ public class ResponseProvider
                                                                                                              .Adjust(adjustments)
                                                                                                              .Build();
 
-    private static async Task<IResponse?> GetDynamicResponse(IRequest request, object result, IHandler handler, Action<IResponseBuilder>? adjustments)
+    private static async Task<IResponse?> GetDynamicResponse(IRequest request, object result, Action<IResponseBuilder>? adjustments)
     {
         if (result is IResponseBuilder responseBuilder)
         {
@@ -79,7 +79,7 @@ public class ResponseProvider
 
         if (result is IHandlerBuilder handlerBuilder)
         {
-            return await handlerBuilder.Build(handler)
+            return await handlerBuilder.Build()
                                        .HandleAsync(request);
         }
 

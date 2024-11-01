@@ -55,7 +55,7 @@ public sealed class ServiceResourceBuilder : IHandlerBuilder<ServiceResourceBuil
         return this;
     }
 
-    public IHandler Build(IHandler parent)
+    public IHandler Build()
     {
         var serializers = (_Serializers ?? Serialization.Default()).Build();
 
@@ -67,7 +67,7 @@ public sealed class ServiceResourceBuilder : IHandlerBuilder<ServiceResourceBuil
 
         var extensions = new MethodRegistry(serializers, injectors, formatters);
 
-        return Concerns.Chain(parent, _Concerns, p => new ServiceResourceRouter(p, instance, extensions));
+        return Concerns.Chain(_Concerns,  new ServiceResourceRouter( instance, extensions));
     }
 
     #endregion

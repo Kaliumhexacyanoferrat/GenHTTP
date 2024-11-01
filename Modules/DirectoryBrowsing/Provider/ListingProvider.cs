@@ -8,21 +8,18 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider;
 public sealed class ListingProvider : IHandler
 {
 
-    #region Initialization
+    #region Get-/Setters
 
-    public ListingProvider(IHandler parent, IResourceContainer container)
-    {
-        Parent = parent;
-        Container = container;
-    }
+    public IResourceContainer Container { get; }
 
     #endregion
 
-    #region Get-/Setters
+    #region Initialization
 
-    public IHandler Parent { get; }
-
-    public IResourceContainer Container { get; }
+    public ListingProvider(IResourceContainer container)
+    {
+        Container = container;
+    }
 
     #endregion
 

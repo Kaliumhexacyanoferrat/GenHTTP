@@ -16,7 +16,7 @@ public sealed class DeveloperModeTests
     [TestMethod]
     public async Task TestExceptionsWithTrace()
     {
-        using var runner = new TestHost(Layout.Create());
+        using var runner = new TestHost(Layout.Create().Build());
 
         var router = Layout.Create().Index(new ThrowingProvider().Wrap());
 

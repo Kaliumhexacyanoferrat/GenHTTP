@@ -7,33 +7,24 @@ namespace GenHTTP.Modules.Layouting.Provider;
 public sealed class LayoutRouter : IHandler
 {
 
-    #region Initialization
-
-    public LayoutRouter(IHandler parent,
-        Dictionary<string, IHandlerBuilder> routedHandlers,
-        List<IHandlerBuilder> rootHandlers,
-        IHandlerBuilder? index)
-    {
-        Parent = parent;
-
-        RoutedHandlers = routedHandlers.ToDictionary(kv => kv.Key, kv => kv.Value.Build(this));
-
-        RootHandlers = rootHandlers.Select(h => h.Build(this)).ToList();
-
-        Index = index?.Build(this);
-    }
-
-    #endregion
-
     #region Get-/Setters
-
-    public IHandler Parent { get; }
 
     public IReadOnlyDictionary<string, IHandler> RoutedHandlers { get; }
 
     public IReadOnlyList<IHandler> RootHandlers { get; }
 
     public IHandler? Index { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public LayoutRouter(Dictionary<string, IHandler> routedHandlers, List<IHandler> rootHandlers, IHandler? index)
+    {
+        RoutedHandlers = routedHandlers;
+        RootHandlers = rootHandlers;
+        Index = index;
+    }
 
     #endregion
 
@@ -58,7 +49,7 @@ public sealed class LayoutRouter : IHandler
             if (!request.Target.Path.TrailingSlash)
             {
                 return await Redirect.To($"{request.Target.Path}/")
-                                     .Build(this)
+                                     .Build()
                                      .HandleAsync(request);
             }
 

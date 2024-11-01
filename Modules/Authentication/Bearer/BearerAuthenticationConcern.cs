@@ -23,25 +23,22 @@ internal sealed class BearerAuthenticationConcern : IConcern
 {
     private ICollection<SecurityKey>? _IssuerKeys;
 
-    #region Initialization
-
-    internal BearerAuthenticationConcern(IHandler parent, Func<IHandler, IHandler> contentFactory, TokenValidationOptions validationOptions)
-    {
-        Parent = parent;
-        Content = contentFactory(this);
-
-        ValidationOptions = validationOptions;
-    }
-
-    #endregion
-
     #region Get-/Setters
 
     public IHandler Content { get; }
 
-    public IHandler Parent { get; }
-
     private TokenValidationOptions ValidationOptions { get; }
+
+    #endregion
+
+    #region Initialization
+
+    internal BearerAuthenticationConcern(IHandler content, TokenValidationOptions validationOptions)
+    {
+        Content = content;
+
+        ValidationOptions = validationOptions;
+    }
 
     #endregion
 

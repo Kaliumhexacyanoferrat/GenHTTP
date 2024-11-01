@@ -58,7 +58,7 @@ public class ResponseTests
     public async Task TestDynamic()
     {
         var api = Inline.Create()
-                        .Get("h", (IHandler parent) => Redirect.To("https://google.de").Build(parent))
+                        .Get("h", (IHandler parent) => Redirect.To("https://google.de").Build())
                         .Get("hb", () => Redirect.To("https://google.de"))
                         .Get("r", (IRequest request) => request.Respond().Build())
                         .Get("rb", (IRequest request) => request.Respond());

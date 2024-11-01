@@ -11,7 +11,7 @@ public sealed class BasicTests
     [TestMethod]
     public async Task TestBuilder()
     {
-        using var runner = new TestHost(Layout.Create());
+        using var runner = new TestHost(Layout.Create().Build());
 
         runner.Host.RequestMemoryLimit(128)
               .TransferBufferSize(128)

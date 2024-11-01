@@ -190,7 +190,7 @@ public sealed class InlineTests
     {
         var target = "https://www.google.de/";
 
-        using var host = TestHost.Run(Inline.Create().Get((IHandler parent) => Redirect.To(target).Build(parent)));
+        using var host = TestHost.Run(Inline.Create().Get((IHandler parent) => Redirect.To(target).Build()));
 
         using var response = await host.GetResponseAsync();
 

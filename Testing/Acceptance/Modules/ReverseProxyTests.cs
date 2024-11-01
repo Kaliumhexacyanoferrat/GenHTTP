@@ -292,9 +292,9 @@ public sealed class ReverseProxyTests
         public static TestSetup Create(Func<IRequest, IResponse?> response)
         {
             // server hosting the actual web app
-            var testServer = new TestHost(Layout.Create(), false);
+            var testServer = new TestHost(Layout.Create().Build(), false);
 
-            testServer.Host.Handler(new ProxiedRouter(response).Wrap())
+            testServer.Host.Handler(new ProxiedRouter(response))
                       .Start();
 
             // proxying server
@@ -303,7 +303,7 @@ public sealed class ReverseProxyTests
                              .ReadTimeout(TimeSpan.FromSeconds(5))
                              .Upstream("http://localhost:" + testServer.Port);
 
-            var runner = new TestHost(Layout.Create());
+            var runner = new TestHost(Layout.Create().Build());
 
             runner.Host.Handler(proxy)
                   .Start();
@@ -362,8 +362,6 @@ public sealed class ReverseProxyTests
         {
             _Response = response;
         }
-
-        public IHandler Parent => throw new NotImplementedException();
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 

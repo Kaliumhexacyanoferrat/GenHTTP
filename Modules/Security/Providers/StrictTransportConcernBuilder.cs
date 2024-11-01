@@ -15,11 +15,11 @@ public sealed class StrictTransportConcernBuilder : IConcernBuilder
         return this;
     }
 
-    public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
+    public IConcern Build(IHandler content)
     {
         var policy = _Policy ?? throw new BuilderMissingPropertyException("policy");
 
-        return new StrictTransportConcern(parent, contentFactory, policy);
+        return new StrictTransportConcern(content, policy);
     }
 
     #endregion

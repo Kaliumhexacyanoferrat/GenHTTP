@@ -24,13 +24,13 @@ public sealed class BasicAuthenticationConcernBuilder : IConcernBuilder
         return this;
     }
 
-    public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
+    public IConcern Build(IHandler content)
     {
         var realm = _Realm ?? throw new BuilderMissingPropertyException("Realm");
 
         var handler = _Handler ?? throw new BuilderMissingPropertyException("Handler");
 
-        return new BasicAuthenticationConcern(parent, contentFactory, realm, handler);
+        return new BasicAuthenticationConcern(content, realm, handler);
     }
 
     #endregion

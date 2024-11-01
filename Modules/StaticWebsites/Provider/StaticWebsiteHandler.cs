@@ -9,26 +9,23 @@ public sealed class StaticWebsiteHandler : IHandler
 {
     private static readonly string[] IndexFiles = ["index.html", "index.htm"];
 
-    #region Initialization
-
-    public StaticWebsiteHandler(IHandler parent, IResourceTree tree)
-    {
-        Parent = parent;
-        Tree = tree;
-
-        Resources = IO.Resources.From(tree)
-                      .Build(this);
-    }
-
-    #endregion
-
     #region Get-/Setters
-
-    public IHandler Parent { get; }
 
     private IResourceTree Tree { get; }
 
     private IHandler Resources { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public StaticWebsiteHandler(IResourceTree tree)
+    {
+        Tree = tree;
+
+        Resources = IO.Resources.From(tree)
+                      .Build();
+    }
 
     #endregion
 
@@ -49,7 +46,7 @@ public sealed class StaticWebsiteHandler : IHandler
                     if ((file = await node.TryGetResourceAsync(indexFile)) != null)
                     {
                         return await Content.From(file)
-                                            .Build(this)
+                                            .Build()
                                             .HandleAsync(request);
                     }
                 }

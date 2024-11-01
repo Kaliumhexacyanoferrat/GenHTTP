@@ -41,11 +41,11 @@ public sealed class CachePolicyBuilder : IConcernBuilder
         return this;
     }
 
-    public IConcern Build(IHandler parent, Func<IHandler, IHandler> contentFactory)
+    public IConcern Build(IHandler content)
     {
         var duration = _Duration ?? throw new BuilderMissingPropertyException("Duration");
 
-        return new CachePolicyConcern(parent, contentFactory, duration, _Predicate);
+        return new CachePolicyConcern(content, duration, _Predicate);
     }
 
     #endregion

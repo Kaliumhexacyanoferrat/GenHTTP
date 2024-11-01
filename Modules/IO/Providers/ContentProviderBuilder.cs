@@ -24,11 +24,11 @@ public sealed class ContentProviderBuilder : IHandlerBuilder<ContentProviderBuil
         return this;
     }
 
-    public IHandler Build(IHandler parent)
+    public IHandler Build()
     {
         var resource = _ResourceProvider ?? throw new BuilderMissingPropertyException("resourceProvider");
 
-        return Concerns.Chain(parent, _Concerns, p => new ContentProvider(p, resource));
+        return Concerns.Chain(_Concerns,  new ContentProvider( resource));
     }
 
     #endregion

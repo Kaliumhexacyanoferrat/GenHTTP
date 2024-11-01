@@ -13,8 +13,6 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 
     public MethodCollection Methods { get; }
 
-    public IHandler Parent { get; }
-
     public ResponseProvider ResponseProvider { get; }
 
     public object Instance { get; }
@@ -23,18 +21,16 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 
     #region Initialization
 
-    public ServiceResourceRouter(IHandler parent, object instance, MethodRegistry registry)
+    public ServiceResourceRouter(object instance, MethodRegistry registry)
     {
-        Parent = parent;
-
         Instance = instance;
 
         ResponseProvider = new ResponseProvider(registry);
 
-        Methods = new MethodCollection(this, AnalyzeMethods(instance.GetType(), registry));
+        Methods = new MethodCollection(AnalyzeMethods(instance.GetType(), registry));
     }
 
-    private IEnumerable<Func<IHandler, MethodHandler>> AnalyzeMethods(Type type, MethodRegistry registry)
+    private IEnumerable<MethodHandler> AnalyzeMethods(Type type, MethodRegistry registry)
     {
         foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
         {
@@ -44,7 +40,7 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
             {
                 var operation = OperationBuilder.Create(attribute.Path, method, registry);
 
-                yield return parent => new MethodHandler(parent, operation, Instance, attribute, registry);
+                yield return new MethodHandler(operation, Instance, attribute, registry);
             }
         }
     }

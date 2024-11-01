@@ -7,24 +7,20 @@ namespace GenHTTP.Modules.LoadBalancing.Provider;
 public sealed class LoadBalancerHandler : IHandler
 {
 
-    #region Initialization
-
-    public LoadBalancerHandler(IHandler parent, List<(IHandlerBuilder, PriorityEvaluation)> nodes)
-    {
-        Parent = parent;
-
-        _Nodes = nodes.Select(n => (n.Item1.Build(this), n.Item2)).ToList();
-    }
-
-    #endregion
-
     #region Get-/Setters
-
-    public IHandler Parent { get; }
 
     private readonly List<(IHandler, PriorityEvaluation)> _Nodes;
 
     private static readonly Random Random = new();
+
+    #endregion
+
+    #region Initialization
+
+    public LoadBalancerHandler(List<(IHandlerBuilder, PriorityEvaluation)> nodes)
+    {
+        _Nodes = nodes.Select(n => (n.Item1.Build(), n.Item2)).ToList();
+    }
 
     #endregion
 

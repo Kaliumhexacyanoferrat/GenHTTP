@@ -26,11 +26,11 @@ public sealed class ResourceHandlerBuilder : IHandlerBuilder<ResourceHandlerBuil
         return this;
     }
 
-    public IHandler Build(IHandler parent)
+    public IHandler Build()
     {
         var tree = _Tree ?? throw new BuilderMissingPropertyException("tree");
 
-        return Concerns.Chain(parent, _Concerns, p => new ResourceHandler(p, tree));
+        return Concerns.Chain(_Concerns,  new ResourceHandler( tree));
     }
 
     #endregion

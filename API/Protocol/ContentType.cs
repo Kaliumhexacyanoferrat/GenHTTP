@@ -21,6 +21,11 @@ public enum ContentType
     TextCss,
 
     /// <summary>
+    /// A human readable YAML file.
+    /// </summary>
+    TextYaml,
+
+    /// <summary>
     /// A JavaScript source file.
     /// </summary>
     ApplicationJavaScript,
@@ -461,6 +466,9 @@ public class FlexibleContentType
         },
         {
             ContentType.TextEventStream, "text/event-stream"
+        },
+        {
+            ContentType.TextYaml, "text/yaml"
         },
         {
             ContentType.Video3Gpp, "video/3gpp"

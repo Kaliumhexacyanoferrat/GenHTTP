@@ -44,11 +44,11 @@ public sealed class EventSourceHandlerBuilder : IHandlerBuilder<EventSourceHandl
         return this;
     }
 
-    public IHandler Build(IHandler parent)
+    public IHandler Build()
     {
         var generator = _Generator ?? throw new BuilderMissingPropertyException("Generator");
 
-        return Concerns.Chain(parent, _Concerns, (p) => new EventSourceHandler(p, _Inspector, generator, _Formatters.Build()));
+        return Concerns.Chain(_Concerns, new EventSourceHandler( _Inspector, generator, _Formatters.Build()));
     }
 
     #endregion

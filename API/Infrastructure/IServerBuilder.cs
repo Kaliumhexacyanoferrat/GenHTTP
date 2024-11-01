@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+
 using GenHTTP.Api.Content;
 
 namespace GenHTTP.Api.Infrastructure;
@@ -27,7 +28,18 @@ public interface IServerBuilder<out T> : IBuilder<IServer>
     /// Note that only a single handler is supported. To build are more
     /// complex application, consider passing a Layout instead.
     /// </remarks>
-    T Handler(IHandlerBuilder handler);
+    T Handler(IHandler handler);
+
+    /// <summary>
+    /// Specifies the root handler that will be invoked when
+    /// a client request needs to be handled.
+    /// </summary>
+    /// <param name="handler">The handler to be invoked to handle requests</param>
+    /// <remarks>
+    /// Note that only a single handler is supported. To build are more
+    /// complex application, consider passing a Layout instead.
+    /// </remarks>
+    T Handler(IHandlerBuilder handlerBuilder) => Handler(handlerBuilder.Build());
 
     #endregion
 

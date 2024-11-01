@@ -8,29 +8,25 @@ public sealed class CorsPolicyHandler : IConcern
 {
     public const string ALLOW_ANY = "*";
 
-    #region Initialization
-
-    public CorsPolicyHandler(IHandler parent, Func<IHandler, IHandler> contentFactory,
-        OriginPolicy? defaultPolicy, IDictionary<string, OriginPolicy?> additionalPolicies)
-    {
-        Parent = parent;
-        Content = contentFactory(this);
-
-        DefaultPolicy = defaultPolicy;
-        AdditionalPolicies = additionalPolicies;
-    }
-
-    #endregion
-
     #region Get-/Setters
 
     public IHandler Content { get; }
 
-    public IHandler Parent { get; }
-
     public OriginPolicy? DefaultPolicy { get; }
 
     public IDictionary<string, OriginPolicy?> AdditionalPolicies { get; }
+
+    #endregion
+
+    #region Initialization
+
+    public CorsPolicyHandler(IHandler content, OriginPolicy? defaultPolicy, IDictionary<string, OriginPolicy?> additionalPolicies)
+    {
+        Content = content;
+
+        DefaultPolicy = defaultPolicy;
+        AdditionalPolicies = additionalPolicies;
+    }
 
     #endregion
 

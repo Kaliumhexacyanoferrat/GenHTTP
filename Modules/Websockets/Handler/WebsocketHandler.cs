@@ -10,8 +10,6 @@ public sealed class WebsocketHandler : IHandler
 
     #region Get-/Setters
 
-    public IHandler Parent { get; }
-
     public Action<IWebsocketConnection>? OnOpen { get; }
 
     public Action<IWebsocketConnection>? OnClose { get; }
@@ -32,7 +30,7 @@ public sealed class WebsocketHandler : IHandler
 
     #region Initialization
 
-    public WebsocketHandler(IHandler parent, List<string> supportedProtocols,
+    public WebsocketHandler(List<string> supportedProtocols,
         Action<IWebsocketConnection>? onOpen,
         Action<IWebsocketConnection>? onClose,
         Action<IWebsocketConnection, string>? onMessage,
@@ -41,7 +39,6 @@ public sealed class WebsocketHandler : IHandler
         Action<IWebsocketConnection, byte[]>? onPong,
         Action<IWebsocketConnection, Exception>? onError)
     {
-        Parent = parent;   
         SupportedProtocols = supportedProtocols;
 
         OnOpen = onOpen;

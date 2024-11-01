@@ -21,7 +21,7 @@ public sealed class CompressionTests
     [TestMethod]
     public async Task TestCompression()
     {
-        using var runner = TestHost.Run(Layout.Create());
+        using var runner = TestHost.Run(Layout.Create().Build());
 
         var request = runner.GetRequest();
         request.Headers.Add("Accept-Encoding", "gzip, br, zstd");
@@ -73,7 +73,7 @@ public sealed class CompressionTests
     [TestMethod]
     public async Task TestCustomCompression()
     {
-        using var runner = new TestHost(Layout.Create());
+        using var runner = new TestHost(Layout.Create().Build());
 
         runner.Host.Compression(CompressedContent.Default().Add(new CustomAlgorithm()).Level(CompressionLevel.Optimal)).Start();
 

@@ -16,16 +16,9 @@ public class HandlerBuilder : IHandlerBuilder<HandlerBuilder>
         return this;
     }
 
-    public IHandler Build(IHandler parent)
+    public IHandler Build()
     {
-        return Concerns.Chain(parent, _Concerns, p =>
-        {
-            if (_Handler is IHandlerWithParent par)
-            {
-                par.Parent = p;
-            }
-
-            return _Handler;
-        });
+        return Concerns.Chain(_Concerns, _Handler);
     }
+
 }

@@ -34,7 +34,7 @@ public sealed class ResultTypeTests
 
         public IHandlerBuilder HandlerBuilder() => Content.From(Resource.FromString("HandlerBuilder"));
 
-        public IHandler Handler(IHandler parent) => Content.From(Resource.FromString("Handler")).Build(parent);
+        public IHandler Handler(IHandler parent) => Content.From(Resource.FromString("Handler")).Build();
 
         public IResponseBuilder ResponseBuilder(IRequest request) => request.Respond().Content("ResponseBuilder");
 

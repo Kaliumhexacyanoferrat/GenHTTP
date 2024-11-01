@@ -23,8 +23,6 @@ public sealed class MethodHandler : IHandler
 
     #region Get-/Setters
 
-    public IHandler Parent { get; }
-
     public Operation Operation { get; }
 
     public IMethodConfiguration Configuration { get; }
@@ -42,15 +40,12 @@ public sealed class MethodHandler : IHandler
     /// <summary>
     /// Creates a new handler to serve a single API operation.
     /// </summary>
-    /// <param name="parent">The parent of this handler</param>
     /// <param name="operation">The operation to be executed and provided (use <see cref="OperationBuilder"/> to create an operation)</param>
     /// <param name="instance">The object to execute the operation on</param>
     /// <param name="metaData">Additional, use-specified information about the operation</param>
     /// <param name="registry">The customized registry to be used to read and write data</param>
-    public MethodHandler(IHandler parent, Operation operation, object instance, IMethodConfiguration metaData, MethodRegistry registry)
+    public MethodHandler(Operation operation, object instance, IMethodConfiguration metaData, MethodRegistry registry)
     {
-        Parent = parent;
-
         Configuration = metaData;
         Instance = instance;
 
