@@ -19,13 +19,11 @@ public sealed class LayoutRouter : IHandler
 
     #region Initialization
 
-    public LayoutRouter(Dictionary<string, IHandlerBuilder> routedHandlers, List<IHandlerBuilder> rootHandlers, IHandlerBuilder? index)
+    public LayoutRouter(Dictionary<string, IHandler> routedHandlers, List<IHandler> rootHandlers, IHandler? index)
     {
-        RoutedHandlers = routedHandlers.ToDictionary(kv => kv.Key, kv => kv.Value.Build());
-
-        RootHandlers = rootHandlers.Select(h => h.Build()).ToList();
-
-        Index = index?.Build();
+        RoutedHandlers = routedHandlers;
+        RootHandlers = rootHandlers;
+        Index = index;
     }
 
     #endregion
