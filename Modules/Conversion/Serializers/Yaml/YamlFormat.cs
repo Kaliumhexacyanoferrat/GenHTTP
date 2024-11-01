@@ -3,14 +3,24 @@
 using GenHTTP.Modules.Basics;
 
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace GenHTTP.Modules.Conversion.Serializers.Yaml;
 
 public sealed class YamlFormat : ISerializationFormat
 {
-    private static readonly IDeserializer Deserializer = new DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance)
+    private static readonly IDeserializer Deserializer = new DeserializerBuilder().WithNamingConvention(new IgnoreCaseNamingConvention())
                                                                                   .Build();
+
+    #region Supporting data structures
+
+    private sealed class IgnoreCaseNamingConvention : INamingConvention
+    {
+        public string Apply(string value) => value.ToLowerInvariant();
+
+        public string Reverse(string value) => throw new NotImplementedException();
+    }
+
+    #endregion
 
     #region Functionality
 
