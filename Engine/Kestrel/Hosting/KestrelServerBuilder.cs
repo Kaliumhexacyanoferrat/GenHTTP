@@ -1,13 +1,12 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
-
 using GenHTTP.Engine.Shared.Infrastructure;
 
-namespace GenHTTP.Engine.Internal.Hosting;
+namespace GenHTTP.Engine.Kestrel.Hosting;
 
 public class KestrelServerBuilder : ServerBuilder
 {
 
-    protected override IServer Build(IServerCompanion? companion, ServerConfiguration config, IHandler handler) => throw new NotImplementedException();
+    protected override IServer Build(IServerCompanion? companion, ServerConfiguration config, IHandler handler) => new KestrelServer(companion, config, handler);
 
 }

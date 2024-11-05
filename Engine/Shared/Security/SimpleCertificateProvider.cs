@@ -3,12 +3,12 @@ using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Engine.Shared.Security;
 
-internal sealed class SimpleCertificateProvider : ICertificateProvider
+public sealed class SimpleCertificateProvider : ICertificateProvider
 {
 
     #region Initialization
 
-    internal SimpleCertificateProvider(X509Certificate2 certificate)
+    public SimpleCertificateProvider(X509Certificate2 certificate)
     {
         Certificate = certificate;
     }

@@ -1,4 +1,5 @@
-﻿using GenHTTP.Engine.Internal.Utilities;
+﻿using GenHTTP.Engine.Shared.Types;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Engine;

@@ -1,11 +1,12 @@
 ﻿using System.Reflection;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Engine.Kestrel.Types;
 using GenHTTP.Engine.Shared.Infrastructure;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 
 namespace GenHTTP.Engine.Kestrel.Hosting;
 
@@ -16,7 +17,7 @@ internal sealed class KestrelServer : IServer
 
     public string Version { get; }
 
-    public bool Running { get; }
+    public bool Running { get; private set; }
 
     public bool Development { get; }
 
@@ -41,9 +42,19 @@ internal sealed class KestrelServer : IServer
         Companion = companion;
         Configuration = configuration;
 
+        Development = configuration.DevelopmentMode;
+
         Handler = handler;
 
+        var endpoints = new KestrelEndpoints();
+
+        endpoints.AddRange(configuration.EndPoints.Select(e => new KestrelEndpoint(e.Address, e.Port, e.Security is not null)));
+
+        EndPoints = endpoints;
+
         Application = Spawn();
+
+        Task.Run(async () => await Start());
     }
 
     #endregion
@@ -58,21 +69,31 @@ internal sealed class KestrelServer : IServer
 
         var app = builder.Build();
 
-        app.Run(MapAsync);
+        app.Run(async (context) => await MapAsync(context));
 
         return app;
     }
 
-    private void Configure(WebApplicationBuilder builder)
+    private async ValueTask Start()
     {
+        await Handler.PrepareAsync();
 
+        await Application.StartAsync();
+
+        Running = true;
     }
 
-    private async Task MapAsync(HttpContext context)
+    private void Configure(WebApplicationBuilder builder)
     {
-        using var request = new Request(context);
+        builder.WebHost.ConfigureKestrel(options =>
+        {
+            options.ListenAnyIP(8080);
+        });
+    }
 
-        // todo: Handler.PrepareAsync()
+    private async ValueTask MapAsync(HttpContext context)
+    {
+        using var request = new Request(this, context);
 
         using var response = await Handler.HandleAsync(request);
 
@@ -82,13 +103,33 @@ internal sealed class KestrelServer : IServer
         }
         else
         {
-            Write(response, context);
+            await WriteAsync(response, context);
         }
     }
 
-    private void Write(IResponse response, HttpContext context)
+    private async ValueTask WriteAsync(IResponse response, HttpContext context)
     {
+        var target = context.Response;
 
+        target.StatusCode = response.Status.RawStatus;
+
+        foreach (var header in response.Headers)
+        {
+            target.Headers[header.Key] = header.Value;
+        }
+
+        if (response.Content != null)
+        {
+            target.ContentLength = (long?)response.ContentLength ?? (long?)response.Content.Length;
+            target.ContentType = response.ContentType?.RawType; // todo charset
+
+            if (response.ContentEncoding != null)
+            {
+                target.Headers["Content-Encoding"] = response.ContentEncoding;
+            }
+
+            await response.Content.WriteAsync(target.Body, 4096); // todo
+        }
     }
 
     #endregion
@@ -101,7 +142,12 @@ internal sealed class KestrelServer : IServer
     {
         if (!_Disposed)
         {
-            Task.Run(() => Application.DisposeAsync());
+            Task.Run(async () =>
+            {
+                await Application.StopAsync();
+
+                await Application.DisposeAsync();
+            });
 
             _Disposed = true;
         }

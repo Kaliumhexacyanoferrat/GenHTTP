@@ -1,8 +1,13 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
+
+using GenHTTP.Engine.Shared.Types;
+
+using CookieCollection = System.Net.CookieCollection;
 
 namespace GenHTTP.Engine.Internal.Protocol;
 
@@ -13,7 +18,7 @@ internal sealed class RequestBuilder : IBuilder<IRequest>
 
     private Stream? _Content;
 
-    private CookieCollection? _Cookies;
+    private Shared.Types.CookieCollection? _Cookies;
     private IEndPoint? _EndPoint;
 
     private ForwardingCollection? _Forwardings;
@@ -37,9 +42,9 @@ internal sealed class RequestBuilder : IBuilder<IRequest>
 
     #region Get-/Setters
 
-    private CookieCollection Cookies
+    private Shared.Types.CookieCollection Cookies
     {
-        get { return _Cookies ??= new CookieCollection(); }
+        get { return _Cookies ??= new Shared.Types.CookieCollection(); }
     }
 
     private ForwardingCollection Forwardings

@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Engine.Internal.Hosting;
+
+using GenHTTP.Engine.Kestrel.Hosting;
 
 namespace GenHTTP.Engine.Kestrel;
 

@@ -11,7 +11,7 @@ public sealed class CookieCollection : PooledDictionary<string, Cookie>, ICookie
 
     }
 
-    internal void Add(string header)
+    public void Add(string header)
     {
         foreach (var cookie in Parse(header))
         {
@@ -40,4 +40,5 @@ public sealed class CookieCollection : PooledDictionary<string, Cookie>, ICookie
 
         return result;
     }
+
 }

@@ -1,5 +1,7 @@
 ﻿using GenHTTP.Api.Protocol;
 
+using Cookie = GenHTTP.Api.Protocol.Cookie;
+
 namespace GenHTTP.Engine.Shared.Types;
 
 public sealed class Response : IResponse
