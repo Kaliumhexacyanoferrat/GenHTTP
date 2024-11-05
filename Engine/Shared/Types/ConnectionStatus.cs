@@ -1,4 +1,4 @@
-﻿namespace GenHTTP.Engine.Internal.Protocol;
+﻿namespace GenHTTP.Engine.Shared.Types;
 
 /// <summary>
 /// Tells the client handler how to proceed with this client.

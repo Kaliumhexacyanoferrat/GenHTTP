@@ -5,8 +5,8 @@ using System.Text;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Engine.Internal.Infrastructure;
 using GenHTTP.Engine.Internal.Utilities;
+using GenHTTP.Engine.Shared.Infrastructure;
 
 namespace GenHTTP.Engine.Internal.Protocol;
 

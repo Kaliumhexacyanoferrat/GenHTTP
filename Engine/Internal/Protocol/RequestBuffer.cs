@@ -1,6 +1,8 @@
 ﻿using System.Buffers;
 using System.IO.Pipelines;
-using GenHTTP.Engine.Internal.Infrastructure;
+
+using GenHTTP.Engine.Shared.Infrastructure;
+
 using PooledAwait;
 
 namespace GenHTTP.Engine.Internal.Protocol;

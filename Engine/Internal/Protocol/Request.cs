@@ -2,6 +2,7 @@
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
+using GenHTTP.Engine.Shared.Types;
 
 namespace GenHTTP.Engine.Internal.Protocol;
 

@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Api.Infrastructure;
 
-namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
+namespace GenHTTP.Engine.Shared.Security;
 
 internal sealed class SimpleCertificateProvider : ICertificateProvider
 {

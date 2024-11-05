@@ -1,13 +1,12 @@
 ﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Engine.Internal.Utilities;
 
-namespace GenHTTP.Engine.Internal.Protocol;
+namespace GenHTTP.Engine.Shared.Types;
 
-internal sealed class CookieCollection : PooledDictionary<string, Cookie>, ICookieCollection
+public sealed class CookieCollection : PooledDictionary<string, Cookie>, ICookieCollection
 {
     private const int DefaultSize = 6;
 
-    internal CookieCollection() : base(DefaultSize, StringComparer.InvariantCultureIgnoreCase)
+    public CookieCollection() : base(DefaultSize, StringComparer.InvariantCultureIgnoreCase)
     {
 
     }

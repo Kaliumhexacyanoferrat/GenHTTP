@@ -1,13 +1,13 @@
 ﻿using System.Net;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Engine.Internal.Protocol;
+namespace GenHTTP.Engine.Shared.Types;
 
 /// <summary>
 /// Parses and stores forwarding information passed by proxy
 /// servers along with the request.
 /// </summary>
-internal sealed class ForwardingCollection : List<Forwarding>, IForwardingCollection
+public sealed class ForwardingCollection : List<Forwarding>, IForwardingCollection
 {
     private const int DefaultSize = 1;
 
@@ -15,7 +15,7 @@ internal sealed class ForwardingCollection : List<Forwarding>, IForwardingCollec
     private const string HeaderHost = "X-Forwarded-Host";
     private const string HeaderProto = "X-Forwarded-Proto";
 
-    internal ForwardingCollection() : base(DefaultSize)
+    public ForwardingCollection() : base(DefaultSize)
     {
 
     }

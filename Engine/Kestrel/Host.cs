@@ -1,7 +1,8 @@
 ﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Engine.Internal;
 using GenHTTP.Engine.Shared.Hosting;
 
-namespace GenHTTP.Engine.Internal;
+namespace GenHTTP.Engine.Kestrel;
 
 public static class Host
 {

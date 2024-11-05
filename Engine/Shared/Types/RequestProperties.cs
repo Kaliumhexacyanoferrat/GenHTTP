@@ -1,8 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Engine.Internal.Utilities;
 
-namespace GenHTTP.Engine.Internal.Protocol;
+namespace GenHTTP.Engine.Shared.Types;
 
 public sealed class RequestProperties : IRequestProperties
 {

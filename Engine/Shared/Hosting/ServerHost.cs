@@ -2,18 +2,28 @@
 using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
-namespace GenHTTP.Engine.Internal.Hosting;
+namespace GenHTTP.Engine.Shared.Hosting;
 
 public sealed class ServerHost : IServerHost
 {
-    private readonly IServerBuilder _Builder = Server.Create();
+    private readonly IServerBuilder _Builder;
 
     #region Get-/Setters
 
     public IServer? Instance { get; private set; }
+
+    #endregion
+
+    #region  Initialization
+
+    public ServerHost(IServerBuilder builder)
+    {
+        _Builder = builder;
+    }
 
     #endregion
 

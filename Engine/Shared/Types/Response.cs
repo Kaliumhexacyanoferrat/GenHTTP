@@ -1,8 +1,8 @@
 ﻿using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Engine.Internal.Protocol;
+namespace GenHTTP.Engine.Shared.Types;
 
-internal sealed class Response : IResponse
+public sealed class Response : IResponse
 {
     private static readonly FlexibleResponseStatus StatusOk = new(ResponseStatus.Ok);
 
@@ -12,7 +12,7 @@ internal sealed class Response : IResponse
 
     #region Initialization
 
-    internal Response()
+    public Response()
     {
         Status = StatusOk;
     }

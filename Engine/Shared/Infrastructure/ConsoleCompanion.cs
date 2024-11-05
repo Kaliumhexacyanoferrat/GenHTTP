@@ -1,10 +1,11 @@
 ﻿using System.Net;
+
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Engine.Internal.Infrastructure;
+namespace GenHTTP.Engine.Shared.Infrastructure;
 
-internal sealed class ConsoleCompanion : IServerCompanion
+public sealed class ConsoleCompanion : IServerCompanion
 {
 
     public void OnRequestHandled(IRequest request, IResponse response)

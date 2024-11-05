@@ -2,6 +2,7 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Engine.Internal.Infrastructure.Endpoints;
+using GenHTTP.Engine.Shared.Infrastructure;
 
 namespace GenHTTP.Engine.Internal.Infrastructure;
 

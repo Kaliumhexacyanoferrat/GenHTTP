@@ -1,9 +1,8 @@
 ﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Engine.Internal.Utilities;
 
-namespace GenHTTP.Engine.Internal.Protocol;
+namespace GenHTTP.Engine.Shared.Types;
 
-internal sealed class ResponseHeaderCollection : PooledDictionary<string, string>, IHeaderCollection, IEditableHeaderCollection
+public sealed class ResponseHeaderCollection : PooledDictionary<string, string>, IHeaderCollection, IEditableHeaderCollection
 {
     private const int DefaultSize = 18;
 
@@ -21,7 +20,7 @@ internal sealed class ResponseHeaderCollection : PooledDictionary<string, string
 
     #region Initialization
 
-    internal ResponseHeaderCollection() : base(DefaultSize, StringComparer.InvariantCultureIgnoreCase)
+    public ResponseHeaderCollection() : base(DefaultSize, StringComparer.InvariantCultureIgnoreCase)
     {
 
     }

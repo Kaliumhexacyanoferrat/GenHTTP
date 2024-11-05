@@ -1,9 +1,9 @@
 ﻿using System.Buffers;
 using System.Collections;
 
-namespace GenHTTP.Engine.Internal.Utilities;
+namespace GenHTTP.Engine.Shared.Types;
 
-internal class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>, IEnumerator<KeyValuePair<TKey, TValue>> where TKey : IEquatable<TKey>
+public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>, IEnumerator<KeyValuePair<TKey, TValue>> where TKey : IEquatable<TKey>
 {
     private static readonly ArrayPool<KeyValuePair<TKey, TValue>> Pool = ArrayPool<KeyValuePair<TKey, TValue>>.Shared;
 
@@ -120,12 +120,12 @@ internal class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IRead
 
     #region Initialization
 
-    internal PooledDictionary() : this(4, EqualityComparer<TKey>.Default)
+    public PooledDictionary() : this(4, EqualityComparer<TKey>.Default)
     {
 
     }
 
-    internal PooledDictionary(int initialCapacity, IEqualityComparer<TKey> comparer)
+    public PooledDictionary(int initialCapacity, IEqualityComparer<TKey> comparer)
     {
         Capacity = initialCapacity;
 

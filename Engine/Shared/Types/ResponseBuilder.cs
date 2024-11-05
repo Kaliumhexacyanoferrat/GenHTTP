@@ -1,8 +1,8 @@
 ﻿using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Engine.Internal.Protocol;
+namespace GenHTTP.Engine.Shared.Types;
 
-internal sealed class ResponseBuilder : IResponseBuilder
+public sealed class ResponseBuilder : IResponseBuilder
 {
     private readonly Response _Response = new();
 

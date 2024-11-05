@@ -5,9 +5,9 @@ using System.Net.Sockets;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Engine.Internal.Infrastructure;
 using GenHTTP.Engine.Internal.Protocol.Parser;
-
+using GenHTTP.Engine.Shared.Infrastructure;
+using GenHTTP.Engine.Shared.Types;
 using PooledAwait;
 
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;

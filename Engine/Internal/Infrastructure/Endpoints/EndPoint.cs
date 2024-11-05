@@ -2,7 +2,9 @@
 using System.Net.Sockets;
 
 using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Engine.Internal.Protocol;
+using GenHTTP.Engine.Shared.Infrastructure;
 
 using PooledAwait;
 
