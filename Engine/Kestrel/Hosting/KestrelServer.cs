@@ -54,7 +54,15 @@ internal sealed class KestrelServer : IServer
 
         Application = Spawn();
 
-        Task.Run(async () => await Start());
+        using var semaphore = new SemaphoreSlim(0, 1);
+
+        Task.Run(async () =>
+        {
+            await Start();
+            semaphore.Release();
+        });
+
+        semaphore.Wait();
     }
 
     #endregion
