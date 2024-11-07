@@ -14,9 +14,10 @@ public sealed class InlineTests
 {
 
     [TestMethod]
-    public async Task TestGetRoot()
+    [MultiEngineTest]
+    public async Task TestGetRoot(TestEngine engine)
     {
-        using var host = TestHost.Run(Inline.Create().Get(() => 42));
+        using var host = TestHost.Run(Inline.Create().Get(() => 42), engine: engine);
 
         using var response = await host.GetResponseAsync();
 
@@ -24,9 +25,10 @@ public sealed class InlineTests
     }
 
     [TestMethod]
-    public async Task TestGetPath()
+    [MultiEngineTest]
+    public async Task TestGetPath(TestEngine engine)
     {
-        using var host = TestHost.Run(Inline.Create().Get("/blubb", () => 42));
+        using var host = TestHost.Run(Inline.Create().Get("/blubb", () => 42), engine: engine);
 
         using var response = await host.GetResponseAsync("/blubb");
 
@@ -34,9 +36,10 @@ public sealed class InlineTests
     }
 
     [TestMethod]
-    public async Task TestGetQueryParam()
+    [MultiEngineTest]
+    public async Task TestGetQueryParam(TestEngine engine)
     {
-        using var host = TestHost.Run(Inline.Create().Get((int param) => param + 1));
+        using var host = TestHost.Run(Inline.Create().Get((int param) => param + 1), engine: engine);
 
         using var response = await host.GetResponseAsync("/?param=41");
 
@@ -44,9 +47,10 @@ public sealed class InlineTests
     }
 
     [TestMethod]
-    public async Task TestGetEmptyBooleanQueryParam()
+    [MultiEngineTest]
+    public async Task TestGetEmptyBooleanQueryParam(TestEngine engine)
     {
-        using var host = TestHost.Run(Inline.Create().Get((bool param) => param));
+        using var host = TestHost.Run(Inline.Create().Get((bool param) => param), engine: engine);
 
         using var response = await host.GetResponseAsync("/?param=");
 
@@ -54,9 +58,10 @@ public sealed class InlineTests
     }
 
     [TestMethod]
-    public async Task TestGetEmptyDoubleQueryParam()
+    [MultiEngineTest]
+    public async Task TestGetEmptyDoubleQueryParam(TestEngine engine)
     {
-        using var host = TestHost.Run(Inline.Create().Get((double param) => param));
+        using var host = TestHost.Run(Inline.Create().Get((double param) => param), engine: engine);
 
         using var response = await host.GetResponseAsync("/?param=");
 
@@ -64,9 +69,10 @@ public sealed class InlineTests
     }
 
     [TestMethod]
-    public async Task TestGetEmptyStringQueryParam()
+    [MultiEngineTest]
+    public async Task TestGetEmptyStringQueryParam(TestEngine engine)
     {
-        using var host = TestHost.Run(Inline.Create().Get((string param) => param));
+        using var host = TestHost.Run(Inline.Create().Get((string param) => param), engine: engine);
 
         using var response = await host.GetResponseAsync("/?param=");
 
@@ -74,9 +80,10 @@ public sealed class InlineTests
     }
 
     [TestMethod]
-    public async Task TestGetEmptyEnumQueryParam()
+    [MultiEngineTest]
+    public async Task TestGetEmptyEnumQueryParam(TestEngine engine)
     {
-        using var host = TestHost.Run(Inline.Create().Get((EnumData param) => param));
+        using var host = TestHost.Run(Inline.Create().Get((EnumData param) => param), engine: engine);
 
         using var response = await host.GetResponseAsync("/?param=");
 
@@ -84,9 +91,10 @@ public sealed class InlineTests
     }
 
     [TestMethod]
-    public async Task TestGetPathParam()
+    [MultiEngineTest]
+    public async Task TestGetPathParam(TestEngine engine)
     {
-        using var host = TestHost.Run(Inline.Create().Get(":param", (int param) => param + 1));
+        using var host = TestHost.Run(Inline.Create().Get(":param", (int param) => param + 1), engine: engine);
 
         using var response = await host.GetResponseAsync("/41");
 
@@ -94,9 +102,10 @@ public sealed class InlineTests
     }
 
     [TestMethod]
-    public async Task TestNotFound()
+    [MultiEngineTest]
+    public async Task TestNotFound(TestEngine engine)
     {
-        using var host = TestHost.Run(Inline.Create().Get(() => 42));
+        using var host = TestHost.Run(Inline.Create().Get(() => 42), engine: engine);
 
         using var response = await host.GetResponseAsync("/nope");
 
@@ -104,14 +113,15 @@ public sealed class InlineTests
     }
 
     [TestMethod]
-    public async Task TestRaw()
+    [MultiEngineTest]
+    public async Task TestRaw(TestEngine engine)
     {
         using var host = TestHost.Run(Inline.Create().Get((IRequest request) =>
         {
             return request.Respond()
                           .Status(ResponseStatus.Ok)
                           .Content("42");
-        }));
+        }), engine: engine);
 
         using var response = await host.GetResponseAsync();
 
@@ -119,9 +129,10 @@ public sealed class InlineTests
     }
 
     [TestMethod]
-    public async Task TestStream()
+    [MultiEngineTest]
+    public async Task TestStream(TestEngine engine)
     {
-        using var host = TestHost.Run(Inline.Create().Get(() => new MemoryStream("42"u8.ToArray())));
+        using var host = TestHost.Run(Inline.Create().Get(() => new MemoryStream("42"u8.ToArray())), engine: engine);
 
         using var response = await host.GetResponseAsync();
 
@@ -129,9 +140,10 @@ public sealed class InlineTests
     }
 
     [TestMethod]
-    public async Task TestJson()
+    [MultiEngineTest]
+    public async Task TestJson(TestEngine engine)
     {
-        using var host = TestHost.Run(Inline.Create().Get(() => new MyClass("42", 42, 42.0)));
+        using var host = TestHost.Run(Inline.Create().Get(() => new MyClass("42", 42, 42.0)), engine: engine);
 
         using var response = await host.GetResponseAsync();
 
@@ -139,9 +151,10 @@ public sealed class InlineTests
     }
 
     [TestMethod]
-    public async Task TestPostJson()
+    [MultiEngineTest]
+    public async Task TestPostJson(TestEngine engine)
     {
-        using var host = TestHost.Run(Inline.Create().Post((MyClass input) => input));
+        using var host = TestHost.Run(Inline.Create().Post((MyClass input) => input), engine: engine);
 
         var request = host.GetRequest();
 
@@ -155,7 +168,8 @@ public sealed class InlineTests
     }
 
     [TestMethod]
-    public async Task TestAsync()
+    [MultiEngineTest]
+    public async Task TestAsync(TestEngine engine)
     {
         using var host = TestHost.Run(Inline.Create().Get(async () =>
         {
@@ -166,7 +180,7 @@ public sealed class InlineTests
             stream.Seek(0, SeekOrigin.Begin);
 
             return stream;
-        }));
+        }), engine: engine);
 
         using var response = await host.GetResponseAsync();
 
@@ -174,11 +188,12 @@ public sealed class InlineTests
     }
 
     [TestMethod]
-    public async Task TestHandlerBuilder()
+    [MultiEngineTest]
+    public async Task TestHandlerBuilder(TestEngine engine)
     {
         var target = "https://www.google.de/";
 
-        using var host = TestHost.Run(Inline.Create().Get(() => Redirect.To(target)));
+        using var host = TestHost.Run(Inline.Create().Get(() => Redirect.To(target)), engine: engine);
 
         using var response = await host.GetResponseAsync();
 
@@ -186,11 +201,12 @@ public sealed class InlineTests
     }
 
     [TestMethod]
-    public async Task TestHandler()
+    [MultiEngineTest]
+    public async Task TestHandler(TestEngine engine)
     {
         var target = "https://www.google.de/";
 
-        using var host = TestHost.Run(Inline.Create().Get((IHandler parent) => Redirect.To(target).Build()));
+        using var host = TestHost.Run(Inline.Create().Get((IHandler parent) => Redirect.To(target).Build()), engine: engine);
 
         using var response = await host.GetResponseAsync();
 

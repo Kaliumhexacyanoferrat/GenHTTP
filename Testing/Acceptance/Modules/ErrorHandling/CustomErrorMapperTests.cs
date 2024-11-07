@@ -36,19 +36,21 @@ public sealed class CustomErrorMapperTests
     #region Tests
 
     [TestMethod]
-    public async Task Test404Mapped()
+    [MultiEngineTest]
+    public async Task Test404Mapped(TestEngine engine)
     {
         var test = Layout.Create()
                          .Add(ErrorHandler.From(new ErrorLengthMapper()));
 
-        using var runner = TestHost.Run(test);
+        using var runner = TestHost.Run(test, engine: engine);
 
         using var response = await runner.GetResponseAsync("/");
         Assert.AreEqual("404", await response.GetContentAsync());
     }
 
     [TestMethod]
-    public async Task TestExceptionMapped()
+    [MultiEngineTest]
+    public async Task TestExceptionMapped(TestEngine engine)
     {
         Action thrower = () => throw new Exception("Nope!");
 
@@ -56,7 +58,7 @@ public sealed class CustomErrorMapperTests
                          .Add(Inline.Create().Get(thrower))
                          .Add(ErrorHandler.From(new ErrorLengthMapper()));
 
-        using var runner = TestHost.Run(test);
+        using var runner = TestHost.Run(test, engine: engine);
 
         using var response = await runner.GetResponseAsync("/");
         Assert.AreEqual("5", await response.GetContentAsync());

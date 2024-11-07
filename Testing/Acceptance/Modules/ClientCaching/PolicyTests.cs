@@ -10,12 +10,13 @@ public sealed class PolicyTests
 {
 
     [TestMethod]
-    public async Task TestExpireHeaderSet()
+    [MultiEngineTest]
+    public async Task TestExpireHeaderSet(TestEngine engine)
     {
         var content = Content.From(Resource.FromString("Content"))
                              .Add(ClientCache.Policy().Duration(1));
 
-        using var runner = TestHost.Run(content);
+        using var runner = TestHost.Run(content, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -23,12 +24,13 @@ public sealed class PolicyTests
     }
 
     [TestMethod]
-    public async Task TestExpireHeaderNotSetForOtherMethods()
+    [MultiEngineTest]
+    public async Task TestExpireHeaderNotSetForOtherMethods(TestEngine engine)
     {
         var content = Content.From(Resource.FromString("Content"))
                              .Add(ClientCache.Policy().Duration(1));
 
-        using var runner = TestHost.Run(content);
+        using var runner = TestHost.Run(content, engine: engine);
 
         var request = runner.GetRequest();
         request.Method = HttpMethod.Head;
@@ -39,12 +41,13 @@ public sealed class PolicyTests
     }
 
     [TestMethod]
-    public async Task TestExpireHeaderNotSetForOtherStatus()
+    [MultiEngineTest]
+    public async Task TestExpireHeaderNotSetForOtherStatus(TestEngine engine)
     {
         var content = Layout.Create()
                             .Add(ClientCache.Policy().Duration(1));
 
-        using var runner = TestHost.Run(content);
+        using var runner = TestHost.Run(content, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -52,12 +55,13 @@ public sealed class PolicyTests
     }
 
     [TestMethod]
-    public async Task TestPredicate()
+    [MultiEngineTest]
+    public async Task TestPredicate(TestEngine engine)
     {
         var content = Content.From(Resource.FromString("Content"))
                              .Add(ClientCache.Policy().Duration(1).Predicate((_, r) => r.ContentType?.RawType != "text/plain"));
 
-        using var runner = TestHost.Run(content);
+        using var runner = TestHost.Run(content, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 

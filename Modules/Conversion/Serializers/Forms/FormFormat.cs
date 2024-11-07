@@ -128,7 +128,10 @@ public sealed class FormFormat : ISerializationFormat
 
         var content = reader.ReadToEnd();
 
-        request.Content?.Seek(0, SeekOrigin.Begin);
+        if (request.Content?.CanSeek ?? false)
+        {
+            request.Content?.Seek(0, SeekOrigin.Begin);
+        }
 
         return content;
     }

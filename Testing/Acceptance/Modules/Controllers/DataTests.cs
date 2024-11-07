@@ -14,14 +14,14 @@ public sealed class DataTests
 
     #region Helpers
 
-    private static TestHost GetHost()
+    private static TestHost GetHost(TestEngine engine)
     {
         var app = Layout.Create()
                         .AddController<TestController>("t", serializers: Serialization.Default(),
                                                        injectors: Injection.Default(),
                                                        formatters: Formatting.Default());
 
-        return TestHost.Run(app);
+        return TestHost.Run(app, engine: engine);
     }
 
     #endregion
@@ -40,9 +40,10 @@ public sealed class DataTests
     #region Tests
 
     [TestMethod]
-    public async Task TestDateOnly()
+    [MultiEngineTest]
+    public async Task TestDateOnly(TestEngine engine)
     {
-        using var host = GetHost();
+        using var host = GetHost(engine);
 
         var request = host.GetRequest("/t/date/", HttpMethod.Post);
 
@@ -63,9 +64,10 @@ public sealed class DataTests
     }
 
     [TestMethod]
-    public async Task TestInvalidDateOnly()
+    [MultiEngineTest]
+    public async Task TestInvalidDateOnly(TestEngine engine)
     {
-        using var host = GetHost();
+        using var host = GetHost(engine);
 
         var request = host.GetRequest("/t/date/", HttpMethod.Post);
 

@@ -12,9 +12,10 @@ public sealed class StructuredErrorMapperTests
 {
 
     [TestMethod]
-    public async Task TestNotFound()
+    [MultiEngineTest]
+    public async Task TestNotFound(TestEngine engine)
     {
-        using var host = TestHost.Run(Inline.Create());
+        using var host = TestHost.Run(Inline.Create(), engine: engine);
 
         using var response = await host.GetResponseAsync();
 
@@ -28,12 +29,13 @@ public sealed class StructuredErrorMapperTests
     }
 
     [TestMethod]
-    public async Task TestGeneralError()
+    [MultiEngineTest]
+    public async Task TestGeneralError(TestEngine engine)
     {
         var handler = Inline.Create()
                             .Get(() => DoThrow(new Exception("Oops")));
 
-        using var host = TestHost.Run(handler);
+        using var host = TestHost.Run(handler, engine: engine);
 
         using var response = await host.GetResponseAsync();
 
@@ -47,12 +49,13 @@ public sealed class StructuredErrorMapperTests
     }
 
     [TestMethod]
-    public async Task TestProviderError()
+    [MultiEngineTest]
+    public async Task TestProviderError(TestEngine engine)
     {
         var handler = Inline.Create()
                             .Get(() => DoThrow(new ProviderException(ResponseStatus.Locked, "Locked up!")));
 
-        using var host = TestHost.Run(handler);
+        using var host = TestHost.Run(handler, engine: engine);
 
         using var response = await host.GetResponseAsync();
 
@@ -66,12 +69,13 @@ public sealed class StructuredErrorMapperTests
     }
 
     [TestMethod]
-    public async Task TestNoTraceInProduction()
+    [MultiEngineTest]
+    public async Task TestNoTraceInProduction(TestEngine engine)
     {
         var handler = Inline.Create()
                             .Get(() => DoThrow(new Exception("Oops")));
 
-        using var host = TestHost.Run(handler, development: false);
+        using var host = TestHost.Run(handler, development: false, engine: engine);
 
         using var response = await host.GetResponseAsync();
 
@@ -86,4 +90,5 @@ public sealed class StructuredErrorMapperTests
     {
         throw e;
     }
+
 }

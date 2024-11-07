@@ -15,7 +15,7 @@ public sealed class ActionTests
 
     #region Helpers
 
-    private TestHost GetRunner() => TestHost.Run(Layout.Create().AddController<TestController>("t"));
+    private TestHost GetRunner(TestEngine engine) => TestHost.Run(Layout.Create().AddController<TestController>("t"), engine: engine);
 
     #endregion
 
@@ -54,9 +54,10 @@ public sealed class ActionTests
     #region Tests
 
     [TestMethod]
-    public async Task TestIndex()
+    [MultiEngineTest]
+    public async Task TestIndex(TestEngine engine)
     {
-        using var runner = GetRunner();
+        using var runner = GetRunner(engine);
 
         using var response = await runner.GetResponseAsync("/t/");
 
@@ -65,9 +66,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    public async Task TestAction()
+    [MultiEngineTest]
+    public async Task TestAction(TestEngine engine)
     {
-        using var runner = GetRunner();
+        using var runner = GetRunner(engine);
 
         using var response = await runner.GetResponseAsync("/t/action/");
 
@@ -76,9 +78,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    public async Task TestActionWithQuery()
+    [MultiEngineTest]
+    public async Task TestActionWithQuery(TestEngine engine)
     {
-        using var runner = GetRunner();
+        using var runner = GetRunner(engine);
 
         using var response = await runner.GetResponseAsync("/t/action/?query=0815");
 
@@ -87,9 +90,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    public async Task TestActionWithQueryFromBody()
+    [MultiEngineTest]
+    public async Task TestActionWithQueryFromBody(TestEngine engine)
     {
-        using var runner = GetRunner();
+        using var runner = GetRunner(engine);
 
         var dict = new Dictionary<string, string>
         {
@@ -110,9 +114,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    public async Task TestActionWithBody()
+    [MultiEngineTest]
+    public async Task TestActionWithBody(TestEngine engine)
     {
-        using var runner = GetRunner();
+        using var runner = GetRunner(engine);
 
         var request = runner.GetRequest("/t/action/");
 
@@ -128,9 +133,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    public async Task TestActionWithParameter()
+    [MultiEngineTest]
+    public async Task TestActionWithParameter(TestEngine engine)
     {
-        using var runner = GetRunner();
+        using var runner = GetRunner(engine);
 
         using var response = await runner.GetResponseAsync("/t/simple-action/4711/");
 
@@ -139,9 +145,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    public async Task TestActionWithBadParameter()
+    [MultiEngineTest]
+    public async Task TestActionWithBadParameter(TestEngine engine)
     {
-        using var runner = GetRunner();
+        using var runner = GetRunner(engine);
 
         using var response = await runner.GetResponseAsync("/t/simple-action/string/");
 
@@ -149,9 +156,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    public async Task TestActionWithMixedParameters()
+    [MultiEngineTest]
+    public async Task TestActionWithMixedParameters(TestEngine engine)
     {
-        using var runner = GetRunner();
+        using var runner = GetRunner(engine);
 
         using var response = await runner.GetResponseAsync("/t/complex-action/1/2/?three=3");
 
@@ -160,9 +168,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    public async Task TestActionWithNoResult()
+    [MultiEngineTest]
+    public async Task TestActionWithNoResult(TestEngine engine)
     {
-        using var runner = GetRunner();
+        using var runner = GetRunner(engine);
 
         using var response = await runner.GetResponseAsync("/t/void/");
 
@@ -170,9 +179,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    public async Task TestNonExistingAction()
+    [MultiEngineTest]
+    public async Task TestNonExistingAction(TestEngine engine)
     {
-        using var runner = GetRunner();
+        using var runner = GetRunner(engine);
 
         using var response = await runner.GetResponseAsync("/t/nope/");
 
@@ -180,9 +190,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    public async Task TestHypenCasing()
+    [MultiEngineTest]
+    public async Task TestHypenCasing(TestEngine engine)
     {
-        using var runner = GetRunner();
+        using var runner = GetRunner(engine);
 
         using var response = await runner.GetResponseAsync("/t/hypen-casing-99/");
 
@@ -191,9 +202,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    public async Task TestIndexController()
+    [MultiEngineTest]
+    public async Task TestIndexController(TestEngine engine)
     {
-        using var runner = TestHost.Run(Layout.Create().IndexController<TestController>());
+        using var runner = TestHost.Run(Layout.Create().IndexController<TestController>(), engine: engine);
 
         using var response = await runner.GetResponseAsync("/simple-action/4711/");
 

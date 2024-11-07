@@ -12,12 +12,13 @@ public class ErrorHandlingTests
     #region Tests
 
     [TestMethod]
-    public async Task UndeserializableBodyReturnsWithBadRequest()
+    [MultiEngineTest]
+    public async Task UndeserializableBodyReturnsWithBadRequest(TestEngine engine)
     {
         var inline = Inline.Create()
                            .Post("/t", (MyEntity entity) => entity.Data);
 
-        using var runner = TestHost.Run(inline);
+        using var runner = TestHost.Run(inline, engine: engine);
 
         using var request = runner.GetRequest("/t");
 
