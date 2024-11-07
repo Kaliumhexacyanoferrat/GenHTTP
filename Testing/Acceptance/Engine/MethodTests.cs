@@ -1,4 +1,6 @@
 ﻿using System.Net;
+using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -9,11 +11,15 @@ public sealed class MethodTests
 {
 
     [TestMethod]
-    public async Task TestCustomMethods()
+    [MultiEngineTest]
+    public async Task TestCustomMethods(TestEngine engine)
     {
-        var result = Content.From(Resource.FromString("OK"));
+        var result = Inline.Create().On(() => "Hmm, Beer", new()
+        {
+            FlexibleRequestMethod.Get("BREW")
+        });
 
-        using var host = TestHost.Run(result);
+        using var host = TestHost.Run(result, engine: engine);
 
         var request = host.GetRequest(method: new HttpMethod("BREW"));
 

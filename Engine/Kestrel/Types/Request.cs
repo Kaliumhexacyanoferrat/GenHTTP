@@ -1,11 +1,9 @@
 ﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
-
 using GenHTTP.Engine.Shared.Types;
 using Microsoft.AspNetCore.Http;
 using Local = GenHTTP.Engine.Kestrel.Hosting;
-
 using HttpProtocol = GenHTTP.Api.Protocol.HttpProtocol;
 
 namespace GenHTTP.Engine.Kestrel.Types;
@@ -18,7 +16,7 @@ public sealed class Request : IRequest
 
     private Cookies? _Cookies;
 
-    private Forwardings? _Forwardings;
+    private readonly ForwardingCollection _Forwardings = new();
 
     private Headers? _Headers;
 
@@ -61,10 +59,7 @@ public sealed class Request : IRequest
         get { return _Cookies ??= new Cookies(Context); }
     }
 
-    public IForwardingCollection Forwardings
-    {
-        get { return _Forwardings ??= new Forwardings(Context); }
-    }
+    public IForwardingCollection Forwardings => _Forwardings;
 
     public IHeaderCollection Headers
     {
@@ -91,7 +86,21 @@ public sealed class Request : IRequest
         Method = FlexibleRequestMethod.Get(Context.Method);
         Target = new RoutingTarget(WebPath.FromString(Context.Path));
 
-        LocalClient = Client = new Local.ClientConnection(context.Connection, context.Request);
+        if (context.Request.Headers.TryGetValue("forwarded", out var forwardings))
+        {
+            foreach (var entry in forwardings)
+            {
+                if (entry != null) _Forwardings.Add(entry);
+            }
+        }
+        else
+        {
+            _Forwardings.TryAddLegacy(Headers);
+        }
+
+        LocalClient = new Local.ClientConnection(context.Connection, context.Request);
+
+        Client = _Forwardings.DetermineClient() ?? LocalClient;
 
         // todo
         EndPoint = Server.EndPoints.First(e => e.Port == context.Connection.LocalPort);

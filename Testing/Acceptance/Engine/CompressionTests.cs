@@ -19,9 +19,10 @@ public sealed class CompressionTests
     /// As a developer, I expect responses to be compressed out of the box.
     /// </summary>
     [TestMethod]
-    public async Task TestCompression()
+    [MultiEngineTest]
+    public async Task TestCompression(TestEngine engine)
     {
-        using var runner = TestHost.Run(Layout.Create().Build());
+        using var runner = TestHost.Run(Layout.Create().Build(), engine: engine);
 
         var request = runner.GetRequest();
         request.Headers.Add("Accept-Encoding", "gzip, br, zstd");
@@ -36,14 +37,12 @@ public sealed class CompressionTests
     /// to generate my response.
     /// </summary>
     [TestMethod]
-    public async Task TestSpecificAlgorithms()
+    [MultiEngineTest]
+    public async Task TestSpecificAlgorithms(TestEngine engine)
     {
-        foreach (var algorithm in new[]
-                 {
-                     "gzip", "br", "zstd"
-                 })
+        foreach (var algorithm in new[] { "gzip", "br", "zstd" })
         {
-            using var runner = TestHost.Run(Layout.Create());
+            using var runner = TestHost.Run(Layout.Create(), engine: engine);
 
             var request = runner.GetRequest();
             request.Headers.Add("Accept-Encoding", algorithm);
@@ -58,9 +57,10 @@ public sealed class CompressionTests
     /// As a developer, I want to be able to disable compression.
     /// </summary>
     [TestMethod]
-    public async Task TestCompressionDisabled()
+    [MultiEngineTest]
+    public async Task TestCompressionDisabled(TestEngine engine)
     {
-        using var runner = TestHost.Run(Layout.Create(), false);
+        using var runner = TestHost.Run(Layout.Create(), false, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -71,9 +71,10 @@ public sealed class CompressionTests
     /// As a developer, I want to be able to add custom compression algorithms.
     /// </summary>
     [TestMethod]
-    public async Task TestCustomCompression()
+    [MultiEngineTest]
+    public async Task TestCustomCompression(TestEngine engine)
     {
-        using var runner = new TestHost(Layout.Create().Build());
+        using var runner = new TestHost(Layout.Create().Build(), engine: engine);
 
         runner.Host.Compression(CompressedContent.Default().Add(new CustomAlgorithm()).Level(CompressionLevel.Optimal)).Start();
 
@@ -89,11 +90,12 @@ public sealed class CompressionTests
     /// As a developer, I want already compressed content not to be compressed again.
     /// </summary>
     [TestMethod]
-    public async Task TestNoAdditionalCompression()
+    [MultiEngineTest]
+    public async Task TestNoAdditionalCompression(TestEngine engine)
     {
         var image = Resource.FromString("Image!").Type(ContentType.ImageJpg);
 
-        using var runner = TestHost.Run(Layout.Create().Add("uncompressed", Content.From(image)));
+        using var runner = TestHost.Run(Layout.Create().Add("uncompressed", Content.From(image)), engine: engine);
 
         using var response = await runner.GetResponseAsync("/uncompressed");
 
@@ -101,9 +103,10 @@ public sealed class CompressionTests
     }
 
     [TestMethod]
-    public async Task TestVariyHeaderAdded()
+    [MultiEngineTest]
+    public async Task TestVariyHeaderAdded(TestEngine engine)
     {
-        using var runner = TestHost.Run(Layout.Create());
+        using var runner = TestHost.Run(Layout.Create(), engine: engine);
 
         var request = runner.GetRequest();
         request.Headers.Add("Accept-Encoding", "gzip");
@@ -114,7 +117,8 @@ public sealed class CompressionTests
     }
 
     [TestMethod]
-    public async Task TestVariyHeaderExtendedAdded()
+    [MultiEngineTest]
+    public async Task TestVariyHeaderExtendedAdded(TestEngine engine)
     {
         var handler = new FunctionalHandler(responseProvider: r =>
         {
@@ -125,7 +129,7 @@ public sealed class CompressionTests
                     .Build();
         });
 
-        using var runner = TestHost.Run(handler.Wrap());
+        using var runner = TestHost.Run(handler.Wrap(), engine: engine);
 
         var request = runner.GetRequest();
         request.Headers.Add("Accept-Encoding", "gzip");
@@ -137,7 +141,8 @@ public sealed class CompressionTests
     }
 
     [TestMethod]
-    public async Task TestContentType()
+    [MultiEngineTest]
+    public async Task TestContentType(TestEngine engine)
     {
         var handler = new FunctionalHandler(responseProvider: r =>
         {
@@ -147,7 +152,7 @@ public sealed class CompressionTests
                     .Build();
         });
 
-        using var runner = TestHost.Run(handler.Wrap());
+        using var runner = TestHost.Run(handler.Wrap(), engine: engine);
 
         var request = runner.GetRequest();
         request.Headers.Add("Accept-Encoding", "gzip, deflate, br");
@@ -166,4 +171,5 @@ public sealed class CompressionTests
 
         public IResponseContent Compress(IResponseContent content, CompressionLevel level) => content;
     }
+
 }

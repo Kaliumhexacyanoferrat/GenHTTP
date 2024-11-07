@@ -12,11 +12,13 @@ public sealed class RoutingTests
     /// As a client, I expect the server to return 404 for non-existing files.
     /// </summary>
     [TestMethod]
-    public async Task NotFoundForUnknownRoute()
+    [MultiEngineTest]
+    public async Task NotFoundForUnknownRoute(TestEngine engine)
     {
-        using var runner = TestHost.Run(Layout.Create());
+        using var runner = TestHost.Run(Layout.Create(), engine: engine);
 
         using var response = await runner.GetResponseAsync();
         await response.AssertStatusAsync(HttpStatusCode.NotFound);
     }
+
 }

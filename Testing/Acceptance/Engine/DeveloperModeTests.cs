@@ -14,9 +14,10 @@ public sealed class DeveloperModeTests
     /// in the browser, so that I can trace an error more quickly
     /// </summary>
     [TestMethod]
-    public async Task TestExceptionsWithTrace()
+    [MultiEngineTest]
+    public async Task TestExceptionsWithTrace(TestEngine engine)
     {
-        using var runner = new TestHost(Layout.Create().Build());
+        using var runner = new TestHost(Layout.Create().Build(), engine: engine);
 
         var router = Layout.Create().Index(new ThrowingProvider().Wrap());
 
@@ -32,11 +33,12 @@ public sealed class DeveloperModeTests
     /// implementation detail with exception messages
     /// </summary>
     [TestMethod]
-    public async Task TestExceptionsWithNoTrace()
+    [MultiEngineTest]
+    public async Task TestExceptionsWithNoTrace(TestEngine engine)
     {
         var router = Layout.Create().Index(new ThrowingProvider().Wrap());
 
-        using var runner = TestHost.Run(router, development: false);
+        using var runner = TestHost.Run(router, development: false, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 

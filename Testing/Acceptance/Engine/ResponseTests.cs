@@ -16,13 +16,14 @@ public sealed class ResponseTests
     /// As a developer, I'd like to use all of the response builders methods.
     /// </summary>
     [TestMethod]
-    public async Task TestProperties()
+    [MultiEngineTest]
+    public async Task TestProperties(TestEngine engine)
     {
         var provider = new ResponseProvider();
 
         var router = Layout.Create().Index(provider.Wrap());
 
-        using var runner = TestHost.Run(router);
+        using var runner = TestHost.Run(router, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -41,13 +42,14 @@ public sealed class ResponseTests
     /// As a client, I'd like a response containing an empty body to return a Content-Length of 0.
     /// </summary>
     [TestMethod]
-    public async Task TestEmptyBody()
+    [MultiEngineTest]
+    public async Task TestEmptyBody(TestEngine engine)
     {
         var provider = new ResponseProvider();
 
         var router = Layout.Create().Index(provider.Wrap());
 
-        using var runner = TestHost.Run(router);
+        using var runner = TestHost.Run(router, engine: engine);
 
         var request = runner.GetRequest();
         request.Method = HttpMethod.Post;
@@ -71,8 +73,6 @@ public sealed class ResponseTests
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public IHandler Parent => throw new NotImplementedException();
-
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             return request.Method.KnownMethod switch
@@ -90,5 +90,7 @@ public sealed class ResponseTests
                             .BuildTask()
             };
         }
+
     }
+
 }

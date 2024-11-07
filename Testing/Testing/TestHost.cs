@@ -1,7 +1,9 @@
 ﻿using System.Net;
 using System.Net.Cache;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Modules.Practices;
 
 namespace GenHTTP.Testing;
@@ -48,13 +50,15 @@ public class TestHost : IDisposable
     /// <param name="handler">The handler to be tested</param>
     /// <param name="defaults">true, if the defaults (such as compression) should be added to this handler</param>
     /// <param name="development">true, if the server should be started in development mode</param>
-    public TestHost(IHandler handler, bool defaults = true, bool development = true)
+    /// <param name="engine">The server engine to use for hosting</param>
+    public TestHost(IHandler handler, bool defaults = true, bool development = true, TestEngine engine = TestEngine.Internal)
     {
         Port = NextPort();
 
-        Host = Engine.Internal.Host.Create()
-                              .Handler(handler)
-                              .Port((ushort)Port);
+        Host = (engine == TestEngine.Internal) ? Engine.Internal.Host.Create() : Engine.Kestrel.Host.Create();
+
+        Host.Handler(handler);
+        Host.Port((ushort)Port);
 
         if (defaults)
         {
@@ -74,9 +78,10 @@ public class TestHost : IDisposable
     /// <param name="handler">The handler to be tested</param>
     /// <param name="defaults">true, if the defaults (such as compression) should be added to this handler</param>
     /// <param name="development">true, if the server should be started in development mode</param>
-    public static TestHost Run(IHandler handler, bool defaults = true, bool development = true)
+    /// <param name="engine">The server engine to use for hosting</param>
+    public static TestHost Run(IHandler handler, bool defaults = true, bool development = true, TestEngine engine = TestEngine.Internal)
     {
-        var runner = new TestHost(handler, defaults, development);
+        var runner = new TestHost(handler, defaults, development, engine);
 
         runner.Start();
 
@@ -90,7 +95,8 @@ public class TestHost : IDisposable
     /// <param name="handler">The handler to be tested</param>
     /// <param name="defaults">true, if the defaults (such as compression) should be added to this handler</param>
     /// <param name="development">true, if the server should be started in development mode</param>
-    public static TestHost Run(IHandlerBuilder handler, bool defaults = true, bool development = true) => Run(handler.Build(), defaults, development);
+    /// <param name="engine">The server engine to use for hosting</param>
+    public static TestHost Run(IHandlerBuilder handler, bool defaults = true, bool development = true, TestEngine engine = TestEngine.Internal) => Run(handler.Build(), defaults, development, engine);
 
     /// <summary>
     /// Starts the server managed by this testing host.

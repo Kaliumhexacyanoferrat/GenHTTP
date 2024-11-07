@@ -9,9 +9,10 @@ public sealed class HostTests
 {
 
     [TestMethod]
-    public async Task TestStart()
+    [MultiEngineTest]
+    public async Task TestStart(TestEngine engine)
     {
-        using var runner = new TestHost(Layout.Create().Build());
+        using var runner = new TestHost(Layout.Create().Build(), engine: engine);
 
         runner.Host.Start();
 
@@ -21,9 +22,10 @@ public sealed class HostTests
     }
 
     [TestMethod]
-    public async Task TestRestart()
+    [MultiEngineTest]
+    public async Task TestRestart(TestEngine engine)
     {
-        using var runner = new TestHost(Layout.Create().Build());
+        using var runner = new TestHost(Layout.Create().Build(), engine: engine);
 
         runner.Host.Restart();
 

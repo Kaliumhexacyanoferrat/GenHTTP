@@ -10,9 +10,10 @@ public sealed class PipelineTests
 {
 
     [TestMethod]
-    public void ServerSupportsPipelining()
+    [MultiEngineTest]
+    public void ServerSupportsPipelining(TestEngine engine)
     {
-        using var runner = TestHost.Run(Content.From(Resource.FromString("Hello World!")));
+        using var runner = TestHost.Run(Content.From(Resource.FromString("Hello World!")), engine: engine);
 
         using var client = new TcpClient("127.0.0.1", runner.Port)
         {

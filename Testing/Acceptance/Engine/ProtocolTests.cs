@@ -14,13 +14,14 @@ public sealed class ProtocolTests
     /// As a client I can stream data to the server.
     /// </summary>
     [TestMethod]
-    public async Task TestPost()
+    [MultiEngineTest]
+    public async Task TestPost(TestEngine engine)
     {
         var recorder = new ValueRecorder();
 
         const string str = "From client with ❤";
 
-        using var runner = TestHost.Run(recorder.Wrap());
+        using var runner = TestHost.Run(recorder.Wrap(), engine: engine);
 
         var request = runner.GetRequest();
 
@@ -36,9 +37,10 @@ public sealed class ProtocolTests
     /// As a client I can submit large data.
     /// </summary>
     [TestMethod]
-    public async Task TestPutLarge()
+    [MultiEngineTest]
+    public async Task TestPutLarge(TestEngine engine)
     {
-        using var runner = TestHost.Run(new ContentLengthResponder().Wrap());
+        using var runner = TestHost.Run(new ContentLengthResponder().Wrap(), engine: engine);
 
         using var content = new MemoryStream();
 
@@ -71,8 +73,6 @@ public sealed class ProtocolTests
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public IHandler Parent => throw new NotImplementedException();
-
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             if (request.Content is not null)
@@ -90,16 +90,28 @@ public sealed class ProtocolTests
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public IHandler Parent => throw new NotImplementedException();
-
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var content = request.Content?.Length.ToString() ?? "No Content";
+            int read;
+
+            var total = 0;
+
+            if (request.Content != null)
+            {
+                var buffer = new byte[4096];
+
+                while ((read = request.Content.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    total += read;
+                }
+            }
 
             return request.Respond()
-                          .Content(content)
+                          .Content(total.ToString())
                           .Type(ContentType.TextPlain)
                           .BuildTask();
         }
+
     }
+
 }

@@ -9,9 +9,10 @@ public sealed class BasicTests
 {
 
     [TestMethod]
-    public async Task TestBuilder()
+    [MultiEngineTest]
+    public async Task TestBuilder(TestEngine engine)
     {
-        using var runner = new TestHost(Layout.Create().Build());
+        using var runner = new TestHost(Layout.Create().Build(), engine: engine);
 
         runner.Host.RequestMemoryLimit(128)
               .TransferBufferSize(128)
@@ -26,9 +27,10 @@ public sealed class BasicTests
     }
 
     [TestMethod]
-    public async Task TestLegacyHttp()
+    [MultiEngineTest]
+    public async Task TestLegacyHttp(TestEngine engine)
     {
-        using var runner = TestHost.Run(Layout.Create());
+        using var runner = TestHost.Run(Layout.Create(), engine: engine);
 
         using var client = TestHost.GetClient(protocolVersion: new Version(1, 0));
 
@@ -38,9 +40,10 @@ public sealed class BasicTests
     }
 
     [TestMethod]
-    public async Task TestConnectionClose()
+    [MultiEngineTest]
+    public async Task TestConnectionClose(TestEngine engine)
     {
-        using var runner = TestHost.Run(Layout.Create());
+        using var runner = TestHost.Run(Layout.Create(), engine: engine);
 
         var request = runner.GetRequest();
         request.Headers.Add("Connection", "close");
@@ -52,9 +55,10 @@ public sealed class BasicTests
     }
 
     [TestMethod]
-    public async Task TestEmptyQuery()
+    [MultiEngineTest]
+    public async Task TestEmptyQuery(TestEngine engine)
     {
-        using var runner = TestHost.Run(Layout.Create());
+        using var runner = TestHost.Run(Layout.Create(), engine: engine);
 
         using var response = await runner.GetResponseAsync("/?");
 
@@ -70,4 +74,5 @@ public sealed class BasicTests
 
         Assert.IsTrue(response.Headers.Connection.Contains("Keep-Alive"));
     }
+
 }

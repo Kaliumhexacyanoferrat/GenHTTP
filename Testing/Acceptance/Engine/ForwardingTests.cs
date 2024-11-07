@@ -1,4 +1,5 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Functional;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -9,11 +10,12 @@ public sealed class ForwardingTests
 {
 
     [TestMethod]
-    public async Task TestModern()
+    [MultiEngineTest]
+    public async Task TestModern(TestEngine engine)
     {
-        var responder = Inline.Create().Get((IRequest request) => $"{request.Client}");
+        var responder = Inline.Create().Get((IRequest request) => ToString(request.Client));
 
-        using var host = TestHost.Run(responder);
+        using var host = TestHost.Run(responder, engine: engine);
 
         var request = host.GetRequest();
 
@@ -21,15 +23,16 @@ public sealed class ForwardingTests
 
         using var response = await host.GetResponseAsync(request);
 
-        Assert.AreEqual("ClientConnection { IPAddress = 85.192.1.5, Protocol = Https, Host = google.com }", await response.GetContentAsync());
+        Assert.AreEqual("IPAddress = 85.192.1.5, Protocol = Https, Host = google.com", await response.GetContentAsync());
     }
 
     [TestMethod]
-    public async Task TestLegacy()
+    [MultiEngineTest]
+    public async Task TestLegacy(TestEngine engine)
     {
-        var responder = Inline.Create().Get((IRequest request) => $"{request.Client}");
+        var responder = Inline.Create().Get((IRequest request) => ToString(request.Client));
 
-        using var host = TestHost.Run(responder);
+        using var host = TestHost.Run(responder, engine: engine);
 
         var request = host.GetRequest();
 
@@ -39,15 +42,16 @@ public sealed class ForwardingTests
 
         using var response = await host.GetResponseAsync(request);
 
-        Assert.AreEqual("ClientConnection { IPAddress = 85.192.1.5, Protocol = Http, Host = google.com }", await response.GetContentAsync());
+        Assert.AreEqual("IPAddress = 85.192.1.5, Protocol = Http, Host = google.com", await response.GetContentAsync());
     }
 
     [TestMethod]
-    public async Task TestBoth()
+    [MultiEngineTest]
+    public async Task TestBoth(TestEngine engine)
     {
-        var responder = Inline.Create().Get((IRequest request) => $"{request.Client}");
+        var responder = Inline.Create().Get((IRequest request) => ToString(request.Client));
 
-        using var host = TestHost.Run(responder);
+        using var host = TestHost.Run(responder, engine: engine);
 
         var request = host.GetRequest();
 
@@ -59,15 +63,16 @@ public sealed class ForwardingTests
 
         using var response = await host.GetResponseAsync(request);
 
-        Assert.AreEqual("ClientConnection { IPAddress = 85.192.1.1, Protocol = Https, Host = google.com }", await response.GetContentAsync());
+        Assert.AreEqual("IPAddress = 85.192.1.1, Protocol = Https, Host = google.com", await response.GetContentAsync());
     }
 
     [TestMethod]
-    public async Task TestInvalid()
+    [MultiEngineTest]
+    public async Task TestInvalid(TestEngine engine)
     {
-        var responder = Inline.Create().Get((IRequest request) => $"{request.Forwardings.First()}");
+        var responder = Inline.Create().Get((IRequest request) => ToString(request.Forwardings.First()));
 
-        using var host = TestHost.Run(responder);
+        using var host = TestHost.Run(responder, engine: engine);
 
         var request = host.GetRequest();
 
@@ -75,6 +80,17 @@ public sealed class ForwardingTests
 
         using var response = await host.GetResponseAsync(request);
 
-        Assert.AreEqual("Forwarding { For = , Host = google.com, Protocol =  }", await response.GetContentAsync());
+        Assert.AreEqual("For = , Host = google.com, Protocol = ", await response.GetContentAsync());
     }
+
+    private string ToString(IClientConnection connection)
+    {
+        return $"IPAddress = {connection.IPAddress}, Protocol = {connection.Protocol}, Host = {connection.Host}";
+    }
+
+    private string ToString(Forwarding forwarding)
+    {
+        return $"For = {forwarding.For}, Host = {forwarding.Host}, Protocol = {forwarding.Protocol}";
+    }
+
 }

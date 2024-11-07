@@ -10,9 +10,10 @@ public sealed class ParserTests
 {
 
     [TestMethod]
-    public async Task TestEndodedUri()
+    [MultiEngineTest]
+    public async Task TestEndodedUri(TestEngine engine)
     {
-        using var runner = TestHost.Run(new PathReturner().Wrap());
+        using var runner = TestHost.Run(new PathReturner().Wrap(), engine: engine);
 
         using var respose = await runner.GetResponseAsync("/söme/ürl/with specialities/");
 
@@ -20,9 +21,10 @@ public sealed class ParserTests
     }
 
     [TestMethod]
-    public async Task TestEncodedQuery()
+    [MultiEngineTest]
+    public async Task TestEncodedQuery(TestEngine engine)
     {
-        using var runner = TestHost.Run(new QueryReturner().Wrap());
+        using var runner = TestHost.Run(new QueryReturner().Wrap(), engine: engine);
 
         using var respose = await runner.GetResponseAsync("/?söme key=💕");
 
@@ -40,9 +42,10 @@ public sealed class ParserTests
     }
 
     [TestMethod]
-    public async Task TestEmptyQuery()
+    [MultiEngineTest]
+    public async Task TestEmptyQuery(TestEngine engine)
     {
-        using var runner = TestHost.Run(new QueryReturner().Wrap());
+        using var runner = TestHost.Run(new QueryReturner().Wrap(), engine: engine);
 
         using var respose = await runner.GetResponseAsync("/?");
 
@@ -50,9 +53,10 @@ public sealed class ParserTests
     }
 
     [TestMethod]
-    public async Task TestUnkeyedQuery()
+    [MultiEngineTest]
+    public async Task TestUnkeyedQuery(TestEngine engine)
     {
-        using var runner = TestHost.Run(new QueryReturner().Wrap());
+        using var runner = TestHost.Run(new QueryReturner().Wrap(), engine: engine);
 
         using var respose = await runner.GetResponseAsync("/?query");
 
@@ -60,9 +64,10 @@ public sealed class ParserTests
     }
 
     [TestMethod]
-    public async Task TestQueryWithSlashes()
+    [MultiEngineTest]
+    public async Task TestQueryWithSlashes(TestEngine engine)
     {
-        using var runner = TestHost.Run(new QueryReturner().Wrap());
+        using var runner = TestHost.Run(new QueryReturner().Wrap(), engine: engine);
 
         using var respose = await runner.GetResponseAsync("/?key=/one/two");
 
@@ -86,8 +91,6 @@ public sealed class ParserTests
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public IHandler Parent => throw new NotImplementedException();
-
         public ValueTask<IResponse?> HandleAsync(IRequest request) => request.Respond()
                                                                              .Content(request.Target.Path.ToString())
                                                                              .BuildTask();
@@ -97,8 +100,6 @@ public sealed class ParserTests
     {
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
-
-        public IHandler Parent => throw new NotImplementedException();
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {

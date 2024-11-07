@@ -169,7 +169,7 @@ internal sealed class RequestBuilder : IBuilder<IRequest>
 
             var localClient = new ClientConnection(_Address, protocol, host);
 
-            var client = DetermineClient() ?? localClient;
+            var client = Forwardings.DetermineClient() ?? localClient;
 
             return new Request(_Server, _Socket, _EndPoint, client, localClient, (HttpProtocol)_Protocol, _RequestMethod,
                                _Target, Headers, _Cookies, _Forwardings, _Query, _Content);
@@ -183,22 +183,6 @@ internal sealed class RequestBuilder : IBuilder<IRequest>
 
             throw;
         }
-    }
-
-    private ClientConnection? DetermineClient()
-    {
-        if (_Forwardings is not null)
-        {
-            foreach (var forwarding in Forwardings)
-            {
-                if (forwarding.For is not null)
-                {
-                    return new ClientConnection(forwarding.For, forwarding.Protocol, forwarding.Host);
-                }
-            }
-        }
-
-        return null;
     }
 
     #endregion

@@ -9,7 +9,8 @@ public class HeaderTests
 {
 
     [TestMethod]
-    public async Task TestServerHeaderCanBeSet()
+    [MultiEngineTest]
+    public async Task TestServerHeaderCanBeSet(TestEngine engine)
     {
         var handler = new FunctionalHandler(responseProvider: r =>
         {
@@ -18,7 +19,7 @@ public class HeaderTests
                     .Build();
         });
 
-        using var runner = TestHost.Run(handler.Wrap());
+        using var runner = TestHost.Run(handler.Wrap(), engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -26,7 +27,8 @@ public class HeaderTests
     }
 
     [TestMethod]
-    public async Task TestReservedHeaderCannotBeSet()
+    [MultiEngineTest]
+    public async Task TestReservedHeaderCannotBeSet(TestEngine engine)
     {
         var handler = new FunctionalHandler(responseProvider: r =>
         {
@@ -35,10 +37,11 @@ public class HeaderTests
                     .Build();
         });
 
-        using var runner = TestHost.Run(handler.Wrap());
+        using var runner = TestHost.Run(handler.Wrap(), engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
         await response.AssertStatusAsync(HttpStatusCode.InternalServerError);
     }
+
 }

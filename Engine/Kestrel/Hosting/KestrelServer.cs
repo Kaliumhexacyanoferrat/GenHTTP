@@ -87,23 +87,37 @@ internal sealed class KestrelServer : IServer
     {
         builder.WebHost.ConfigureKestrel(options =>
         {
-            options.ListenAnyIP(8080);
+            // todo: security
+            foreach (var endpoint in Configuration.EndPoints)
+            {
+                options.Listen(endpoint.Address, endpoint.Port);
+            }
         });
     }
 
     private async ValueTask MapAsync(HttpContext context)
     {
-        using var request = new Request(this, context);
-
-        using var response = await Handler.HandleAsync(request);
-
-        if (response == null)
+        try
         {
-            context.Response.StatusCode = 204;
+            using var request = new Request(this, context);
+
+            using var response = await Handler.HandleAsync(request);
+
+            if (response == null)
+            {
+                context.Response.StatusCode = 204;
+            }
+            else
+            {
+                await WriteAsync(response, context);
+
+                Companion?.OnRequestHandled(request, response);
+            }
         }
-        else
+        catch (Exception e)
         {
-            await WriteAsync(response, context);
+            Companion?.OnServerError(ServerErrorScope.ServerConnection, context.Connection.RemoteIpAddress, e);
+            throw;
         }
     }
 
@@ -118,14 +132,40 @@ internal sealed class KestrelServer : IServer
             target.Headers[header.Key] = header.Value;
         }
 
+        if (response.Modified != null)
+        {
+            target.Headers.LastModified = response.Modified.Value.ToUniversalTime().ToString("r");
+        }
+
+        if (response.Expires != null)
+        {
+            target.Headers.Expires = response.Expires.Value.ToUniversalTime().ToString("r");
+        }
+
+        if (response.HasCookies)
+        {
+            foreach (var cookie in response.Cookies)
+            {
+                if (cookie.Value.MaxAge != null)
+                {
+                    target.Cookies.Append(cookie.Key, cookie.Value.Value, new() { MaxAge = TimeSpan.FromSeconds(cookie.Value.MaxAge.Value)});
+                }
+                else
+                {
+                    target.Cookies.Append(cookie.Key, cookie.Value.Value);
+                }
+            }
+        }
+
         if (response.Content != null)
         {
             target.ContentLength = (long?)response.ContentLength ?? (long?)response.Content.Length;
-            target.ContentType = response.ContentType?.RawType; // todo charset
+
+            target.ContentType = response.ContentType?.Charset != null ? $"{response.ContentType?.RawType}; charset={response.ContentType?.Charset}" : response.ContentType?.RawType;
 
             if (response.ContentEncoding != null)
             {
-                target.Headers["Content-Encoding"] = response.ContentEncoding;
+                target.Headers.ContentEncoding = response.ContentEncoding;
             }
 
             await response.Content.WriteAsync(target.Body, 4096); // todo
