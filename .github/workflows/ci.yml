@@ -36,7 +36,7 @@ jobs:
     - name: Build project
       run: dotnet build GenHTTP.sln -c Release
     - name: Test project
-      run: dotnet test GenHTTP.sln -c Release --no-build --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+      run: dotnet test -d -c Release --no-build --collect:"XPlat Code Coverage" GenHTTP.sln -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
     - name: End scan
       if: env.SONAR_TOKEN != null && env.SONAR_TOKEN != ''
       run: dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
