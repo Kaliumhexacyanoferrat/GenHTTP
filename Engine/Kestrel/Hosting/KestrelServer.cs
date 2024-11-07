@@ -62,7 +62,9 @@ internal sealed class KestrelServer : IServer
             startEvent.Set();
         });
 
-        startEvent.Wait();
+        var started = startEvent.Wait(5000);
+
+        if (!started) throw new InvalidOperationException("Server did not start within 5 seconds");
     }
 
     #endregion
