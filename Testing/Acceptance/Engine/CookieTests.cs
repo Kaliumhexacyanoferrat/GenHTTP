@@ -50,8 +50,6 @@ public sealed class CookieTests
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public IHandler Parent => throw new NotSupportedException();
-
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             Cookies = request.Cookies;

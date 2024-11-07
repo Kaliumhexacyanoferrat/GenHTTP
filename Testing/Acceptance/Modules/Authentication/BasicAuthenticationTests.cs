@@ -16,11 +16,12 @@ public sealed class BasicAuthenticationTests
 {
 
     [TestMethod]
-    public async Task TestNoUser()
+    [MultiEngineTest]
+    public async Task TestNoUser(TestEngine engine)
     {
         var content = GetContent().Authentication(BasicAuthentication.Create());
 
-        using var runner = TestHost.Run(content);
+        using var runner = TestHost.Run(content, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -28,12 +29,13 @@ public sealed class BasicAuthenticationTests
     }
 
     [TestMethod]
-    public async Task TestValidUser()
+    [MultiEngineTest]
+    public async Task TestValidUser(TestEngine engine)
     {
         var content = GetContent().Authentication(BasicAuthentication.Create()
                                                                      .Add("user", "password"));
 
-        using var runner = TestHost.Run(content);
+        using var runner = TestHost.Run(content, engine: engine);
 
         using var response = await GetResponse(runner, "user", "password");
 
@@ -41,12 +43,13 @@ public sealed class BasicAuthenticationTests
     }
 
     [TestMethod]
-    public async Task TestInvalidPassword()
+    [MultiEngineTest]
+    public async Task TestInvalidPassword(TestEngine engine)
     {
         var content = GetContent().Authentication(BasicAuthentication.Create()
                                                                      .Add("user", "password"));
 
-        using var runner = TestHost.Run(content);
+        using var runner = TestHost.Run(content, engine: engine);
 
         using var response = await GetResponse(runner, "user", "p");
 
@@ -54,11 +57,12 @@ public sealed class BasicAuthenticationTests
     }
 
     [TestMethod]
-    public async Task TestInvalidUser()
+    [MultiEngineTest]
+    public async Task TestInvalidUser(TestEngine engine)
     {
         var content = GetContent().Authentication(BasicAuthentication.Create());
 
-        using var runner = TestHost.Run(content);
+        using var runner = TestHost.Run(content, engine: engine);
 
         using var response = await GetResponse(runner, "u", "password");
 
@@ -66,11 +70,12 @@ public sealed class BasicAuthenticationTests
     }
 
     [TestMethod]
-    public async Task TestCustomUser()
+    [MultiEngineTest]
+    public async Task TestCustomUser(TestEngine engine)
     {
         var content = GetContent().Authentication(BasicAuthentication.Create((_, _) => new ValueTask<IUser?>(new BasicAuthenticationUser("my"))));
 
-        using var runner = TestHost.Run(content);
+        using var runner = TestHost.Run(content, engine: engine);
 
         using var response = await GetResponse(runner, "_", "_");
 
@@ -78,11 +83,12 @@ public sealed class BasicAuthenticationTests
     }
 
     [TestMethod]
-    public async Task TestNoCustomUser()
+    [MultiEngineTest]
+    public async Task TestNoCustomUser(TestEngine engine)
     {
         var content = GetContent().Authentication(BasicAuthentication.Create((_, _) => new ValueTask<IUser?>()));
 
-        using var runner = TestHost.Run(content);
+        using var runner = TestHost.Run(content, engine: engine);
 
         using var response = await GetResponse(runner, "_", "_");
 
@@ -90,11 +96,12 @@ public sealed class BasicAuthenticationTests
     }
 
     [TestMethod]
-    public async Task TestOtherAuthenticationIsNotAccepted()
+    [MultiEngineTest]
+    public async Task TestOtherAuthenticationIsNotAccepted(TestEngine engine)
     {
         var content = GetContent().Authentication(BasicAuthentication.Create());
 
-        using var runner = TestHost.Run(content);
+        using var runner = TestHost.Run(content, engine: engine);
 
         var request = runner.GetRequest();
         request.Headers.Add("Authorization", "Bearer 123");
@@ -105,11 +112,12 @@ public sealed class BasicAuthenticationTests
     }
 
     [TestMethod]
-    public async Task TestNoValidBase64()
+    [MultiEngineTest]
+    public async Task TestNoValidBase64(TestEngine engine)
     {
         var content = GetContent().Authentication(BasicAuthentication.Create());
 
-        using var runner = TestHost.Run(content);
+        using var runner = TestHost.Run(content, engine: engine);
 
         var request = runner.GetRequest();
         request.Headers.Add("Authorization", "Basic 123");

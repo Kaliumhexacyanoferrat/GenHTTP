@@ -35,12 +35,11 @@ public sealed class FlexibleTypeTests
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public IHandler Parent => throw new NotImplementedException();
-
         public ValueTask<IResponse?> HandleAsync(IRequest request) => request.Respond()
                                                                              .Content("Hello World!")
                                                                              .Type("application/x-custom")
                                                                              .Status(256, "Custom Status")
                                                                              .BuildTask();
+
     }
 }

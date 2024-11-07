@@ -349,9 +349,8 @@ public sealed class ReverseProxyTests
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public IHandler Parent => throw new NotImplementedException();
-
         public ValueTask<IResponse?> HandleAsync(IRequest request) => new ProxiedProvider(_Response).HandleAsync(request);
+
     }
 
     private class ProxiedProvider : IHandler
