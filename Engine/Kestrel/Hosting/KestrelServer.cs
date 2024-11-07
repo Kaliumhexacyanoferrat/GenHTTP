@@ -87,10 +87,23 @@ internal sealed class KestrelServer : IServer
     {
         builder.WebHost.ConfigureKestrel(options =>
         {
-            // todo: security
             foreach (var endpoint in Configuration.EndPoints)
             {
-                options.Listen(endpoint.Address, endpoint.Port);
+                if (endpoint.Security != null)
+                {
+                    options.Listen(endpoint.Address, endpoint.Port, listenOptions =>
+                    {
+                        listenOptions.UseHttps(httpsOptions =>
+                        {
+                            httpsOptions.SslProtocols = endpoint.Security.Protocols;
+                            httpsOptions.ServerCertificateSelector = (_, hostName) => endpoint.Security.Certificate.Provide(hostName);
+                        });
+                    });
+                }
+                else
+                {
+                    options.Listen(endpoint.Address, endpoint.Port);
+                }
             }
         });
     }

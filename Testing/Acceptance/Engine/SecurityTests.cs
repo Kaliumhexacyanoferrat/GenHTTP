@@ -18,7 +18,8 @@ public sealed class SecurityTests
     /// As a developer I would like to serve my application in a secure manner.
     /// </summary>
     [TestMethod]
-    public Task TestSecure()
+    [MultiEngineTest]
+    public Task TestSecure(TestEngine engine)
     {
         return RunSecure(async (_, sec) =>
         {
@@ -28,7 +29,7 @@ public sealed class SecurityTests
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("Hello Alice!", await response.Content.ReadAsStringAsync());
-        });
+        }, engine);
     }
 
     /// <summary>
@@ -36,7 +37,8 @@ public sealed class SecurityTests
     /// by default.
     /// </summary>
     [TestMethod]
-    public Task TestDefaultRedirection()
+    [MultiEngineTest]
+    public Task TestDefaultRedirection(TestEngine engine)
     {
         return RunSecure(async (insec, sec) =>
         {
@@ -46,7 +48,7 @@ public sealed class SecurityTests
 
             await response.AssertStatusAsync(HttpStatusCode.MovedPermanently);
             Assert.AreEqual($"https://localhost:{sec}/", response.Headers.GetValues("Location").First());
-        });
+        }, engine);
     }
 
     /// <summary>
@@ -54,7 +56,8 @@ public sealed class SecurityTests
     /// upgrades are allowed but not requested by the client.
     /// </summary>
     [TestMethod]
-    public Task TestNoRedirectionWithAllowed()
+    [MultiEngineTest]
+    public Task TestNoRedirectionWithAllowed(TestEngine engine)
     {
         return RunSecure(async (insec, _) =>
         {
@@ -63,7 +66,7 @@ public sealed class SecurityTests
             using var response = await client.GetAsync($"http://localhost:{insec}");
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
-        }, SecureUpgrade.Allow);
+        }, engine, SecureUpgrade.Allow);
     }
 
     /// <summary>
@@ -71,7 +74,8 @@ public sealed class SecurityTests
     /// by the client.
     /// </summary>
     [TestMethod]
-    public Task TestRedirectionWhenRequested()
+    [MultiEngineTest]
+    public Task TestRedirectionWhenRequested(TestEngine engine)
     {
         return RunSecure(async (insec, sec) =>
         {
@@ -86,15 +90,16 @@ public sealed class SecurityTests
 
             Assert.AreEqual($"https://localhost:{sec}/", response.Headers.GetValues("Location").First());
             Assert.AreEqual("Upgrade-Insecure-Requests", response.Headers.GetValues("Vary").First());
-        }, SecureUpgrade.Allow);
+        }, engine, SecureUpgrade.Allow);
     }
 
     /// <summary>
-    /// As the hoster of a web application, I want my application to enforce strict
-    /// transport security, so that man-in-the-middle attacks can be avoided to some extend.
+    /// As the host of a web application, I want my application to enforce strict
+    /// transport security, so that man-in-the-middle attacks can be avoided to some extent.
     /// </summary>
     [TestMethod]
-    public Task TestTransportPolicy()
+    [MultiEngineTest]
+    public Task TestTransportPolicy(TestEngine engine)
     {
         return RunSecure(async (insec, sec) =>
         {
@@ -110,7 +115,7 @@ public sealed class SecurityTests
             await secureResponse.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("max-age=31536000; includeSubDomains; preload", secureResponse.Headers.GetValues("Strict-Transport-Security").First());
 
-        }, SecureUpgrade.None);
+        }, engine, SecureUpgrade.None);
     }
 
     /// <summary>
@@ -118,7 +123,8 @@ public sealed class SecurityTests
     /// normal operation after a security error has happened.
     /// </summary>
     [TestMethod]
-    public Task TestSecurityError()
+    [MultiEngineTest]
+    public Task TestSecurityError(TestEngine engine)
     {
         return RunSecure(async (_, sec) =>
         {
@@ -133,7 +139,7 @@ public sealed class SecurityTests
             using var response = await client.GetAsync($"https://localhost:{sec}");
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
-        });
+        }, engine);
     }
 
     /// <summary>
@@ -141,7 +147,8 @@ public sealed class SecurityTests
     /// abort the server SSL handshake.
     /// </summary>
     [TestMethod]
-    public Task TestNoCertificate()
+    [MultiEngineTest]
+    public Task TestNoCertificate(TestEngine engine)
     {
         return RunSecure(async (_, sec) =>
         {
@@ -151,14 +158,14 @@ public sealed class SecurityTests
 
                 using var failedResponse = await client.GetAsync($"https://localhost:{sec}");
             });
-        }, host: "myserver");
+        }, engine, host: "myserver");
     }
 
-    private static async Task RunSecure(Func<ushort, ushort, Task> logic, SecureUpgrade? mode = null, string host = "localhost")
+    private static async Task RunSecure(Func<ushort, ushort, Task> logic, TestEngine engine, SecureUpgrade? mode = null, string host = "localhost")
     {
         var content = Layout.Create().Index(Content.From(Resource.FromString("Hello Alice!")));
 
-        using var runner = new TestHost(Layout.Create().Build(), mode is null);
+        using var runner = new TestHost(Layout.Create().Build(), mode is null, engine: engine);
 
         var port = TestHost.NextPort();
 
@@ -208,4 +215,5 @@ public sealed class SecurityTests
 
         public X509Certificate2? Provide(string? host) => host == Host ? Certificate : null;
     }
+
 }
