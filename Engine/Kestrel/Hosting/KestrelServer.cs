@@ -54,15 +54,15 @@ internal sealed class KestrelServer : IServer
 
         Application = Spawn();
 
-        using var semaphore = new SemaphoreSlim(0, 1);
+        using var startEvent = new ManualResetEventSlim(false);
 
         Task.Run(async () =>
         {
             await Start();
-            semaphore.Release();
+            startEvent.Set();
         });
 
-        semaphore.Wait();
+        startEvent.Wait();
     }
 
     #endregion
