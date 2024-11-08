@@ -54,10 +54,10 @@ If you would like to extend an existing .NET application, just add a nuget refer
 ```csharp
 var content = Content.From(Resource.FromString("Hello World!"));
 
-using var server = Host.Create()
-                       .Handler(content)
-                       .Defaults()
-                       .Start(); // or .Run() to block until the application is shut down
+var host = Host.Create()
+               .Handler(content)
+               .Defaults()
+               .StartAsync(); // or .RunAsync() to block until the application is shut down
 ```
 
 When you run this sample it can be accessed in the browser via http://localhost:8080.
