@@ -10,10 +10,28 @@ public class MultiEngineTestAttribute : Attribute, ITestDataSource
 
     public IEnumerable<object[]> GetData(MethodInfo methodInfo)
     {
+        var engines = Environment.GetEnvironmentVariable("GENHTTP_TEST_ENGINES");
+
+        if (engines != null)
+        {
+            var result = new List<object[]>();
+
+            if (engines.Contains("Internal"))
+            {
+                result.Add(new object[] { TestEngine.Internal });
+            }
+
+            if (engines.Contains("Kestrel"))
+            {
+                result.Add(new object[] { TestEngine.Kestrel });
+            }
+
+            return result;
+        }
+
         return new List<object[]>
         {
-            new object[] { TestEngine.Internal },
-           // new object[] { TestEngine.Kestrel }
+            new object[] { TestEngine.Internal}
         };
     }
 

@@ -15,9 +15,9 @@ namespace GenHTTP.Testing;
 public class TestHost : IAsyncDisposable
 {
 #if NET8_0
-    private static volatile int _nextPort = new Random().Next(20000, 30000);
+    private static volatile int _nextPort = 20000;
 #else
-    private static volatile int _nextPort = new Random().Next(30000, 40000);
+    private static volatile int _nextPort = 30000;
 #endif
 
     private static readonly HttpClient DefaultClient = GetClient();
