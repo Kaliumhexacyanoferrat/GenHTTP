@@ -13,61 +13,66 @@ public class IntegrationTests
 {
 
     [TestMethod]
-    public async Task TestWebserviceSupported()
+    [MultiEngineTest]
+    public async Task TestWebserviceSupported(TestEngine engine)
     {
         var api = Layout.Create()
                         .AddService<MyService>("my")
                         .Add(ApiDescription.Create());
 
-        var doc = (await api.GetOpenApiAsync()).OpenApiDocument;
+        var doc = (await api.GetOpenApiAsync(engine)).OpenApiDocument;
 
         Assert.AreEqual("/my/", doc.Paths.First().Key);
     }
 
     [TestMethod]
-    public async Task TestControllerSupported()
+    [MultiEngineTest]
+    public async Task TestControllerSupported(TestEngine engine)
     {
         var api = Layout.Create()
                         .AddController<MyController>("my")
                         .Add(ApiDescription.Create());
 
-        var doc = (await api.GetOpenApiAsync()).OpenApiDocument;
+        var doc = (await api.GetOpenApiAsync(engine)).OpenApiDocument;
 
         Assert.AreEqual("/my/method/", doc.Paths.First().Key);
     }
 
     [TestMethod]
-    public async Task TestInlineSupported()
+    [MultiEngineTest]
+    public async Task TestInlineSupported(TestEngine engine)
     {
         var api = Inline.Create()
                         .Get("/method", () => 42)
                         .Add(ApiDescription.Create());
 
-        var doc = (await api.GetOpenApiAsync()).OpenApiDocument;
+        var doc = (await api.GetOpenApiAsync(engine)).OpenApiDocument;
 
         Assert.AreEqual("/method", doc.Paths.First().Key);
     }
 
     [TestMethod]
-    public async Task TestObsoleteOperation()
+    [MultiEngineTest]
+    public async Task TestObsoleteOperation(TestEngine engine)
     {
         var api = Layout.Create()
                         .AddService<ObsoleteService>("my")
                         .Add(ApiDescription.Create());
 
-        var doc = (await api.GetOpenApiAsync()).OpenApiDocument;
+        var doc = (await api.GetOpenApiAsync(engine)).OpenApiDocument;
 
         Assert.IsTrue(doc.Paths.First().Value.Operations.First().Value.Deprecated);
     }
 
     [TestMethod]
-    public async Task TestControllerWithMultipleMethods()
+    [MultiEngineTest]
+    public async Task TestControllerWithMultipleMethods(TestEngine engine)
     {
         var api = Layout.Create()
                         .AddController<MultipleMethodsController>("my")
                         .Add(ApiDescription.Create());
 
-        var doc = (await api.GetOpenApiAsync()).OpenApiDocument;
+        var doc = (await api.GetOpenApiAsync(engine)).OpenApiDocument;
 
         Assert.AreEqual(2, doc.Paths["/my/method/"].Operations.Count);
     }

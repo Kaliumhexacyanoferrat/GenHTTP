@@ -11,7 +11,8 @@ public class ErrorHandlingTests
 {
 
     [TestMethod]
-    public async Task TestSerializationNotPossible()
+    [MultiEngineTest]
+    public async Task TestSerializationNotPossible(TestEngine engine)
     {
         var serialization = Serialization.Empty()
                                          .Default(ContentType.AudioMp4);
@@ -20,7 +21,7 @@ public class ErrorHandlingTests
                         .Get(() => new HashSet<int>())
                         .Serializers(serialization);
 
-        await using var host = await TestHost.RunAsync(api);
+        await using var host = await TestHost.RunAsync(api, engine: engine);
 
         using var response = await host.GetResponseAsync();
 

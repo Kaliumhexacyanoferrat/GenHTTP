@@ -9,9 +9,10 @@ public sealed class ContentTests
 {
 
     [TestMethod]
-    public async Task TestContent()
+    [MultiEngineTest]
+    public async Task TestContent(TestEngine engine)
     {
-        await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")));
+        await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")), engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -20,9 +21,10 @@ public sealed class ContentTests
     }
 
     [TestMethod]
-    public async Task TestContentIgnoresRouting()
+    [MultiEngineTest]
+    public async Task TestContentIgnoresRouting(TestEngine engine)
     {
-        await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")));
+        await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")), engine: engine);
 
         using var response = await runner.GetResponseAsync("/some/path");
 

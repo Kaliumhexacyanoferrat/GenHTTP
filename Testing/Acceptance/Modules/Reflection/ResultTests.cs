@@ -20,7 +20,8 @@ public sealed class ResultTests
     #region Tests
 
     [TestMethod]
-    public async Task TestResponseCanBeModified()
+    [MultiEngineTest]
+    public async Task TestResponseCanBeModified(TestEngine engine)
     {
         var result = new Result<MyPayload>(new MyPayload("Hello World!"))
                      .Status(ResponseStatus.Accepted)
@@ -35,7 +36,7 @@ public sealed class ResultTests
         var inline = Inline.Create()
                            .Get(() => result);
 
-        await using var runner = await TestHost.RunAsync(inline);
+        await using var runner = await TestHost.RunAsync(inline, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -45,14 +46,15 @@ public sealed class ResultTests
     }
 
     [TestMethod]
-    public async Task TestStreamsCanBeWrapped()
+    [MultiEngineTest]
+    public async Task TestStreamsCanBeWrapped(TestEngine engine)
     {
         var stream = new MemoryStream("Hello World!"u8.ToArray());
 
         var inline = Inline.Create()
                            .Get(() => new Result<Stream>(stream).Status(ResponseStatus.Created));
 
-        await using var runner = await TestHost.RunAsync(inline);
+        await using var runner = await TestHost.RunAsync(inline, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 

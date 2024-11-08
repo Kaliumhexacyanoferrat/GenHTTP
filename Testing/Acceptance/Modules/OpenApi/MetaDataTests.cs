@@ -11,31 +11,34 @@ public class MetaDataTests
 {
 
     [TestMethod]
-    public async Task TestDefaultTitleAndVersion()
+    [MultiEngineTest]
+    public async Task TestDefaultTitleAndVersion(TestEngine engine)
     {
-        var doc = await GetApi(ApiDescription.Create()).GetOpenApiAsync();
+        var doc = await GetApi(ApiDescription.Create()).GetOpenApiAsync(engine);
 
         Assert.AreEqual("Swagger specification", doc.OpenApiDocument.Info.Title);
         Assert.AreEqual("1.0.0", doc.OpenApiDocument.Info.Version);
     }
 
     [TestMethod]
-    public async Task TestCustomTitleAndVersion()
+    [MultiEngineTest]
+    public async Task TestCustomTitleAndVersion(TestEngine engine)
     {
         var desc = ApiDescription.Create()
                                  .Title("My Title")
                                  .Version("2.0.1");
 
-        var doc = await GetApi(desc).GetOpenApiAsync();
+        var doc = await GetApi(desc).GetOpenApiAsync(engine);
 
         Assert.AreEqual("My Title", doc.OpenApiDocument.Info.Title);
         Assert.AreEqual("2.0.1", doc.OpenApiDocument.Info.Version);
     }
 
     [TestMethod]
-    public async Task TestServerGenerated()
+    [MultiEngineTest]
+    public async Task TestServerGenerated(TestEngine engine)
     {
-        var doc = await GetApi(ApiDescription.Create()).GetOpenApiAsync();
+        var doc = await GetApi(ApiDescription.Create()).GetOpenApiAsync(engine);
 
         var server = doc.OpenApiDocument.Servers.First();
 
@@ -43,12 +46,13 @@ public class MetaDataTests
     }
 
     [TestMethod]
-    public async Task TestPostProcessing()
+    [MultiEngineTest]
+    public async Task TestPostProcessing(TestEngine engine)
     {
         var desc = ApiDescription.Create()
                                  .PostProcessor((_, doc) => doc.Servers.First().Url = "https://google.de/");
 
-        var doc = await GetApi(desc).GetOpenApiAsync();
+        var doc = await GetApi(desc).GetOpenApiAsync(engine);
 
         Assert.AreEqual("https://google.de/", doc.OpenApiDocument.Servers.First().Url);
     }

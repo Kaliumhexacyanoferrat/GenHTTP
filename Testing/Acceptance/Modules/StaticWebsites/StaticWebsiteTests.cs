@@ -10,13 +10,14 @@ public sealed class StaticWebsiteTests
 {
 
     [TestMethod]
-    public async Task TestWithIndex()
+    [MultiEngineTest]
+    public async Task TestWithIndex(TestEngine engine)
     {
         var tree = VirtualTree.Create()
                               .Add("index.html", Resource.FromString("Index 1"))
                               .Add("sub", VirtualTree.Create().Add("index.htm", Resource.FromString("Index 2")));
 
-        await using var runner = await TestHost.RunAsync(StaticWebsite.From(tree));
+        await using var runner = await TestHost.RunAsync(StaticWebsite.From(tree), engine: engine);
 
         using var indexResponse = await runner.GetResponseAsync();
         Assert.AreEqual("Index 1", await indexResponse.GetContentAsync());
@@ -26,12 +27,13 @@ public sealed class StaticWebsiteTests
     }
 
     [TestMethod]
-    public async Task TestNoIndex()
+    [MultiEngineTest]
+    public async Task TestNoIndex(TestEngine engine)
     {
         var tree = VirtualTree.Create()
                               .Add("sub", VirtualTree.Create());
 
-        await using var runner = await TestHost.RunAsync(StaticWebsite.From(tree));
+        await using var runner = await TestHost.RunAsync(StaticWebsite.From(tree), engine: engine);
 
         using var indexResponse = await runner.GetResponseAsync();
         await indexResponse.AssertStatusAsync(HttpStatusCode.NotFound);

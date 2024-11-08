@@ -11,9 +11,10 @@ public sealed class LoadBalancerTests
 {
 
     [TestMethod]
-    public async Task TestProxy()
+    [MultiEngineTest]
+    public async Task TestProxy(TestEngine engine)
     {
-        await using var upstream = await TestHost.RunAsync(Content.From(Resource.FromString("Proxy!")));
+        await using var upstream = await TestHost.RunAsync(Content.From(Resource.FromString("Proxy!")), engine: engine);
 
         var loadbalancer = LoadBalancer.Create()
                                        .Proxy($"http://localhost:{upstream.Port}");
@@ -27,12 +28,13 @@ public sealed class LoadBalancerTests
     }
 
     [TestMethod]
-    public async Task TestRedirect()
+    [MultiEngineTest]
+    public async Task TestRedirect(TestEngine engine)
     {
         var loadbalancer = LoadBalancer.Create()
                                        .Redirect("http://node");
 
-        await using var runner = await TestHost.RunAsync(loadbalancer);
+        await using var runner = await TestHost.RunAsync(loadbalancer, engine: engine);
 
         using var response = await runner.GetResponseAsync("/page");
 
@@ -41,12 +43,13 @@ public sealed class LoadBalancerTests
     }
 
     [TestMethod]
-    public async Task TestCustomHandler()
+    [MultiEngineTest]
+    public async Task TestCustomHandler(TestEngine engine)
     {
         var loadbalancer = LoadBalancer.Create()
                                        .Add(Content.From(Resource.FromString("My Content!")));
 
-        await using var runner = await TestHost.RunAsync(loadbalancer);
+        await using var runner = await TestHost.RunAsync(loadbalancer, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -55,13 +58,14 @@ public sealed class LoadBalancerTests
     }
 
     [TestMethod]
-    public async Task TestPriorities()
+    [MultiEngineTest]
+    public async Task TestPriorities(TestEngine engine)
     {
         var loadbalancer = LoadBalancer.Create()
                                        .Add(Content.From(Resource.FromString("Prio A")), _ => Priority.High)
                                        .Add(Content.From(Resource.FromString("Prio B")), _ => Priority.Low);
 
-        await using var runner = await TestHost.RunAsync(loadbalancer);
+        await using var runner = await TestHost.RunAsync(loadbalancer, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -69,14 +73,15 @@ public sealed class LoadBalancerTests
     }
 
     [TestMethod]
-    public async Task TestMultiplePriorities()
+    [MultiEngineTest]
+    public async Task TestMultiplePriorities(TestEngine engine)
     {
         var loadbalancer = LoadBalancer.Create()
                                        .Add(Content.From(Resource.FromString("Prio A1")), _ => Priority.High)
                                        .Add(Content.From(Resource.FromString("Prio A2")), _ => Priority.High)
                                        .Add(Content.From(Resource.FromString("Prio A3")), _ => Priority.High);
 
-        await using var runner = await TestHost.RunAsync(loadbalancer);
+        await using var runner = await TestHost.RunAsync(loadbalancer, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -84,9 +89,10 @@ public sealed class LoadBalancerTests
     }
 
     [TestMethod]
-    public async Task TestNoNodes()
+    [MultiEngineTest]
+    public async Task TestNoNodes(TestEngine engine)
     {
-        await using var runner = await TestHost.RunAsync(LoadBalancer.Create());
+        await using var runner = await TestHost.RunAsync(LoadBalancer.Create(), engine: engine);
 
         using var response = await runner.GetResponseAsync();
 

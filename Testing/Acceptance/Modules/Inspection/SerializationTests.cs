@@ -16,7 +16,8 @@ public sealed class SerializationTests
 {
 
     [TestMethod]
-    public async Task TestCustomFormat()
+    [MultiEngineTest]
+    public async Task TestCustomFormat(TestEngine engine)
     {
         var serialization = Serialization.Empty()
                                          .Default(ContentType.ApplicationJson)
@@ -27,7 +28,7 @@ public sealed class SerializationTests
 
         var app = Layout.Create().Add(inspection);
 
-        await using var host = await TestHost.RunAsync(app);
+        await using var host = await TestHost.RunAsync(app, engine: engine);
 
         using var inspected = await host.GetResponseAsync("/one/two?inspect");
 
@@ -37,7 +38,8 @@ public sealed class SerializationTests
     }
 
     [TestMethod]
-    public async Task TestNoFormats()
+    [MultiEngineTest]
+    public async Task TestNoFormats(TestEngine engine)
     {
         var serialization = Serialization.Empty()
                                          .Default(ContentType.AudioMp4)
@@ -47,7 +49,7 @@ public sealed class SerializationTests
 
         var app = Layout.Create().Add(inspection);
 
-        await using var host = await TestHost.RunAsync(app);
+        await using var host = await TestHost.RunAsync(app, engine: engine);
 
         using var inspected = await host.GetResponseAsync("/one/two?inspect");
 

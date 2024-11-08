@@ -10,14 +10,15 @@ public sealed class ContentTests
 {
 
     [TestMethod]
-    public async Task TestDeserialization()
+    [MultiEngineTest]
+    public async Task TestDeserialization(TestEngine engine)
     {
         var expectation = new MyType(42);
 
         var handler = Inline.Create()
                             .Get(() => expectation);
 
-        await using var host = await TestHost.RunAsync(handler);
+        await using var host = await TestHost.RunAsync(handler, engine: engine);
 
         using var response = await host.GetResponseAsync();
 
@@ -25,12 +26,13 @@ public sealed class ContentTests
     }
 
     [TestMethod]
-    public async Task TestNull()
+    [MultiEngineTest]
+    public async Task TestNull(TestEngine engine)
     {
         var handler = Inline.Create()
                             .Get(() => (MyType?)null);
 
-        await using var host = await TestHost.RunAsync(handler);
+        await using var host = await TestHost.RunAsync(handler, engine: engine);
 
         using var response = await host.GetResponseAsync();
 
@@ -38,12 +40,13 @@ public sealed class ContentTests
     }
 
     [TestMethod]
-    public async Task TestUnsupported()
+    [MultiEngineTest]
+    public async Task TestUnsupported(TestEngine engine)
     {
         var handler = Inline.Create()
                             .Get(() => new Result<string>("Nah").Type(FlexibleContentType.Get("text/html")));
 
-        await using var host = await TestHost.RunAsync(handler);
+        await using var host = await TestHost.RunAsync(handler, engine: engine);
 
         using var response = await host.GetResponseAsync();
 

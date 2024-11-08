@@ -14,12 +14,13 @@ public sealed class AmbiguityTests
     #region Tests
 
     [TestMethod]
-    public async Task TestSpecificPreferred()
+    [MultiEngineTest]
+    public async Task TestSpecificPreferred(TestEngine engine)
     {
         var app = Layout.Create()
                         .AddService<TestService>("c");
 
-        await using var host = await TestHost.RunAsync(app);
+        await using var host = await TestHost.RunAsync(app, engine: engine);
 
         using var response = await host.GetResponseAsync("/c/my.txt");
 

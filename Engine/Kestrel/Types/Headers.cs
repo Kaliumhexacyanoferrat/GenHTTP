@@ -60,7 +60,7 @@ public sealed class Headers : IHeaderCollection
 
     public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
     {
-        foreach (var entry in Request.Query)
+        foreach (var entry in Request.Headers)
         {
             foreach (var stringEntry in entry.Value)
             {

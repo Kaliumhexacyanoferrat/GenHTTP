@@ -53,21 +53,22 @@ public sealed class ProtobufTests
     #region Tests
 
     [TestMethod]
-    public async Task TestGetEntityAsProtobuf()
+    [MultiEngineTest]
+    public async Task TestGetEntityAsProtobuf(TestEngine engine)
     {
         TestEntity? result = null;
         await WithResponse(string.Empty, HttpMethod.Get, null, "application/protobuf", "application/protobuf", async r =>
         {
             result = Serializer.Deserialize<TestEntity>(await r.Content.ReadAsStreamAsync());
-
-        });
+        }, engine);
 
         Assert.AreEqual(1, result!.Id);
         Assert.AreEqual("test1", result!.Name);
     }
 
     [TestMethod]
-    public async Task TestPostEntityAsProtobuf()
+    [MultiEngineTest]
+    public async Task TestPostEntityAsProtobuf(TestEngine engine)
     {
         var entity = new TestEntity
         {
@@ -87,8 +88,7 @@ public sealed class ProtobufTests
         await WithResponse(string.Empty, HttpMethod.Post, encodedEntity, "application/protobuf", "application/protobuf", async r =>
         {
             result = Serializer.Deserialize<TestEntity>(await r.Content.ReadAsStreamAsync());
-
-        });
+        }, engine);
 
         Assert.IsNotNull(result);
         Assert.AreEqual(entity.Id, result!.Id);
@@ -101,9 +101,9 @@ public sealed class ProtobufTests
 
     #region Helpers
 
-    private async Task WithResponse(string uri, HttpMethod method, byte[]? body, string? contentType, string? accept, Func<HttpResponseMessage, Task> logic)
+    private async Task WithResponse(string uri, HttpMethod method, byte[]? body, string? contentType, string? accept, Func<HttpResponseMessage, Task> logic, TestEngine engine)
     {
-        await using var service = await GetService();
+        await using var service = await GetService(engine);
 
         var request = service.GetRequest($"/t/{uri}");
 
@@ -133,13 +133,13 @@ public sealed class ProtobufTests
         await logic(response);
     }
 
-    private static async Task<TestHost> GetService()
+    private static async Task<TestHost> GetService(TestEngine engine)
     {
         var service = ServiceResource.From<TestResource>()
                                      .Serializers(Serialization.Default().AddProtobuf())
                                      .Injectors(Injection.Default());
 
-        return await TestHost.RunAsync(Layout.Create().Add("t", service));
+        return await TestHost.RunAsync(Layout.Create().Add("t", service), engine: engine);
     }
 
     #endregion

@@ -13,11 +13,12 @@ public sealed class InspectionTests
 {
 
     [TestMethod]
-    public async Task TestInspection()
+    [MultiEngineTest]
+    public async Task TestInspection(TestEngine engine)
     {
         var app = Content.From(Resource.FromString("Hello World")).AddInspector();
 
-        await using var host = await TestHost.RunAsync(app);
+        await using var host = await TestHost.RunAsync(app, engine: engine);
 
         using var inspected = await host.GetResponseAsync("/one/two?inspect");
 
@@ -27,11 +28,12 @@ public sealed class InspectionTests
     }
 
     [TestMethod]
-    public async Task TestNoInspection()
+    [MultiEngineTest]
+    public async Task TestNoInspection(TestEngine engine)
     {
         var app = Content.From(Resource.FromString("Hello World")).AddInspector();
 
-        await using var host = await TestHost.RunAsync(app);
+        await using var host = await TestHost.RunAsync(app, engine: engine);
 
         using var notInspected = await host.GetResponseAsync("/one/two");
 
@@ -41,11 +43,12 @@ public sealed class InspectionTests
     }
 
     [TestMethod]
-    public async Task TestNotFoundInspected()
+    [MultiEngineTest]
+    public async Task TestNotFoundInspected(TestEngine engine)
     {
         var app = Layout.Create().AddInspector();
 
-        await using var host = await TestHost.RunAsync(app);
+        await using var host = await TestHost.RunAsync(app, engine: engine);
 
         using var inspected = await host.GetResponseAsync("/one/two?inspect");
 

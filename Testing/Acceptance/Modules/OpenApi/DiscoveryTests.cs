@@ -17,7 +17,8 @@ public class DiscoveryTests
 {
 
     [TestMethod]
-    public async Task TestTraversal()
+    [MultiEngineTest]
+    public async Task TestTraversal(TestEngine engine)
     {
         var api = Layout.Create()
                         .Add("service", Layout.Create().Add(Inline.Create().Get("/method", () => 1)))
@@ -25,33 +26,35 @@ public class DiscoveryTests
                         .AddRangeSupport()
                         .Add(ApiDescription.Create());
 
-        var doc = (await api.GetOpenApiAsync()).OpenApiDocument;
+        var doc = (await api.GetOpenApiAsync(engine)).OpenApiDocument;
 
         Assert.IsTrue(doc.Paths.ContainsKey("/service/method"));
         Assert.IsTrue(doc.Paths.ContainsKey("/method2"));
     }
 
     [TestMethod]
-    public async Task TestCustomExplorer()
+    [MultiEngineTest]
+    public async Task TestCustomExplorer(TestEngine engine)
     {
         var discovery = ApiDiscovery.Empty().Add<CustomExplorer>();
 
         var api = Inline.Create().Add(ApiDescription.With(discovery));
 
-        var doc = (await api.GetOpenApiAsync(false)).OpenApiDocument;
+        var doc = (await api.GetOpenApiAsync(engine, false)).OpenApiDocument;
 
         Assert.AreEqual("Added by explorer", doc.Servers.First().Description);
     }
 
     [TestMethod]
-    public async Task TestSamePathWithDifferentMethods()
+    [MultiEngineTest]
+    public async Task TestSamePathWithDifferentMethods(TestEngine engine)
     {
         var api = Inline.Create()
                         .Get("/method", () => 42)
                         .Put("/method", (int i) => i)
                         .Add(ApiDescription.Create());
 
-        var doc = (await api.GetOpenApiAsync()).OpenApiDocument;
+        var doc = (await api.GetOpenApiAsync(engine)).OpenApiDocument;
 
         Assert.AreEqual(1, doc.Paths.Count);
 

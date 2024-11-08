@@ -92,6 +92,8 @@ internal sealed class KestrelServer : IServer
 
         builder.WebHost.ConfigureKestrel(options =>
         {
+            options.AllowSynchronousIO = true;
+
             foreach (var endpoint in Configuration.EndPoints)
             {
                 if (endpoint.Security != null)
@@ -147,7 +149,7 @@ internal sealed class KestrelServer : IServer
 
         foreach (var header in response.Headers)
         {
-            target.Headers[header.Key] = header.Value;
+            target.Headers.Append(header.Key, header.Value);
         }
 
         if (response.Modified != null)

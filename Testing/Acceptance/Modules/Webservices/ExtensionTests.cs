@@ -14,7 +14,8 @@ public sealed class ExtensionTests
     #region Tests
 
     [TestMethod]
-    public async Task TestConfiguration()
+    [MultiEngineTest]
+    public async Task TestConfiguration(TestEngine engine)
     {
         var injectors = Injection.Default();
 
@@ -24,7 +25,7 @@ public sealed class ExtensionTests
                         .AddService<TestService>("by-type", injectors, formats)
                         .AddService("by-instance", new TestService(), injectors, formats);
 
-        await using var host = await TestHost.RunAsync(app);
+        await using var host = await TestHost.RunAsync(app, engine: engine);
 
         using var r1 = await host.GetResponseAsync("/by-type");
 

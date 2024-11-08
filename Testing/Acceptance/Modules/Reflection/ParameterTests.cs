@@ -27,12 +27,13 @@ public sealed class ParameterTests
     }
 
     [TestMethod]
-    public async Task TestCanPassEmptyString()
+    [MultiEngineTest]
+    public async Task TestCanPassEmptyString(TestEngine engine)
     {
         var inline = Inline.Create()
                            .Post(([FromBody] int number) => number);
 
-        await using var runner = await TestHost.RunAsync(inline);
+        await using var runner = await TestHost.RunAsync(inline, engine: engine);
 
         using var response = await PostAsync(runner, " ");
 
@@ -61,12 +62,13 @@ public sealed class ParameterTests
     }
 
     [TestMethod]
-    public async Task TestConversionError()
+    [MultiEngineTest]
+    public async Task TestConversionError(TestEngine engine)
     {
         var inline = Inline.Create()
                            .Post(([FromBody] int number) => number);
 
-        await using var runner = await TestHost.RunAsync(inline);
+        await using var runner = await TestHost.RunAsync(inline, engine: engine);
 
         using var response = await PostAsync(runner, "ABC");
 

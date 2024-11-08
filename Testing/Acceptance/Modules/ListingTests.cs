@@ -15,9 +15,10 @@ public sealed class ListingTests
     /// on root level of a listed directory.
     /// </summary>
     [TestMethod]
-    public async Task TestGetMainListing()
+    [MultiEngineTest]
+    public async Task TestGetMainListing(TestEngine engine)
     {
-        await using var runner = await GetEnvironmentAsync();
+        await using var runner = await GetEnvironmentAsync(engine);
 
         using var response = await runner.GetResponseAsync("/");
 
@@ -36,9 +37,10 @@ public sealed class ListingTests
     /// within a subdirectory of a listed directory.
     /// </summary>
     [TestMethod]
-    public async Task TestGetSubdirectory()
+    [MultiEngineTest]
+    public async Task TestGetSubdirectory(TestEngine engine)
     {
-        await using var runner = await GetEnvironmentAsync();
+        await using var runner = await GetEnvironmentAsync(engine);
 
         using var response = await runner.GetResponseAsync("/Subdirectory/");
 
@@ -52,9 +54,10 @@ public sealed class ListingTests
     /// directory listing feature.
     /// </summary>
     [TestMethod]
-    public async Task TestDownload()
+    [MultiEngineTest]
+    public async Task TestDownload(TestEngine engine)
     {
-        await using var runner = await GetEnvironmentAsync();
+        await using var runner = await GetEnvironmentAsync(engine);
 
         using var response = await runner.GetResponseAsync("/my.txt");
 
@@ -62,9 +65,10 @@ public sealed class ListingTests
     }
 
     [TestMethod]
-    public async Task TestNonExistingFolder()
+    [MultiEngineTest]
+    public async Task TestNonExistingFolder(TestEngine engine)
     {
-        await using var runner = await GetEnvironmentAsync();
+        await using var runner = await GetEnvironmentAsync(engine);
 
         using var response = await runner.GetResponseAsync("/idonotexist/");
 
@@ -72,9 +76,10 @@ public sealed class ListingTests
     }
 
     [TestMethod]
-    public async Task TestSameListingSameChecksum()
+    [MultiEngineTest]
+    public async Task TestSameListingSameChecksum(TestEngine engine)
     {
-        await using var runner = await GetEnvironmentAsync();
+        await using var runner = await GetEnvironmentAsync(engine);
 
         using var resp1 = await runner.GetResponseAsync();
         using var resp2 = await runner.GetResponseAsync();
@@ -84,7 +89,7 @@ public sealed class ListingTests
         Assert.AreEqual(resp1.GetETag(), resp2.GetETag());
     }
 
-    private static async Task<TestHost> GetEnvironmentAsync()
+    private static async Task<TestHost> GetEnvironmentAsync(TestEngine engine)
     {
         var tempFolder = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
@@ -98,6 +103,6 @@ public sealed class ListingTests
 
         var listing = Listing.From(ResourceTree.FromDirectory(tempFolder));
 
-        return await TestHost.RunAsync(listing);
+        return await TestHost.RunAsync(listing, engine: engine);
     }
 }

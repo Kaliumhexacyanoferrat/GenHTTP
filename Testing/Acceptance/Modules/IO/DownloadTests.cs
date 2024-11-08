@@ -11,9 +11,10 @@ public sealed class DownloadTests
 {
 
     [TestMethod]
-    public async Task TestDownload()
+    [MultiEngineTest]
+    public async Task TestDownload(TestEngine engine)
     {
-        await using var runner = await TestHost.RunAsync(Download.From(Resource.FromAssembly("File.txt")));
+        await using var runner = await TestHost.RunAsync(Download.From(Resource.FromAssembly("File.txt")), engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -24,12 +25,13 @@ public sealed class DownloadTests
     }
 
     [TestMethod]
-    public async Task TestDownloadDoesNotAcceptRouting()
+    [MultiEngineTest]
+    public async Task TestDownloadDoesNotAcceptRouting(TestEngine engine)
     {
         var layout = Layout.Create()
                            .Add("file.txt", Download.From(Resource.FromAssembly("File.txt")));
 
-        await using var runner = await TestHost.RunAsync(layout);
+        await using var runner = await TestHost.RunAsync(layout, engine: engine);
 
         using var response = await runner.GetResponseAsync("/file.txt/blubb");
 
@@ -37,11 +39,12 @@ public sealed class DownloadTests
     }
 
     [TestMethod]
-    public async Task DownloadsCannotBeModified()
+    [MultiEngineTest]
+    public async Task DownloadsCannotBeModified(TestEngine engine)
     {
         var download = Download.From(Resource.FromAssembly("File.txt"));
 
-        await using var runner = await TestHost.RunAsync(download);
+        await using var runner = await TestHost.RunAsync(download, engine: engine);
 
         var request = runner.GetRequest();
 
@@ -54,12 +57,13 @@ public sealed class DownloadTests
     }
 
     [TestMethod]
-    public async Task TestFileName()
+    [MultiEngineTest]
+    public async Task TestFileName(TestEngine engine)
     {
         var download = Download.From(Resource.FromAssembly("File.txt"))
                                .FileName("myfile.txt");
 
-        await using var runner = await TestHost.RunAsync(download);
+        await using var runner = await TestHost.RunAsync(download, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -67,11 +71,12 @@ public sealed class DownloadTests
     }
 
     [TestMethod]
-    public async Task TestNoFileName()
+    [MultiEngineTest]
+    public async Task TestNoFileName(TestEngine engine)
     {
         var download = Download.From(Resource.FromAssembly("File.txt"));
 
-        await using var runner = await TestHost.RunAsync(download);
+        await using var runner = await TestHost.RunAsync(download, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -79,11 +84,12 @@ public sealed class DownloadTests
     }
 
     [TestMethod]
-    public async Task TestFileNameFromResource()
+    [MultiEngineTest]
+    public async Task TestFileNameFromResource(TestEngine engine)
     {
         var download = Download.From(Resource.FromAssembly("File.txt").Name("myfile.txt"));
 
-        await using var runner = await TestHost.RunAsync(download);
+        await using var runner = await TestHost.RunAsync(download, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 

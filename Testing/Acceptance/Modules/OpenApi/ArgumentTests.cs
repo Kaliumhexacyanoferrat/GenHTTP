@@ -14,47 +14,51 @@ public class ArgumentTests
 {
 
     [TestMethod]
-    public async Task TestInjectionCausesNoArgument()
+    [MultiEngineTest]
+    public async Task TestInjectionCausesNoArgument(TestEngine engine)
     {
         var api = Inline.Create()
                         .Get((IRequest request) => request.Host);
 
-        var (_, op) = await Extensions.GetOperationAsync(api);
+        var (_, op) = await Extensions.GetOperationAsync(engine, api);
 
         AssertX.Empty(op.Parameters);
     }
 
     [TestMethod]
-    public async Task TestPathParam()
+    [MultiEngineTest]
+    public async Task TestPathParam(TestEngine engine)
     {
         var api = Inline.Create()
                         .Get("/users/:id", (int id) => id);
 
-        var (path, operation) = await Extensions.GetOperationAsync(api);
+        var (path, operation) = await Extensions.GetOperationAsync(engine, api);
 
         Assert.AreEqual("/users/{id}", path.Item1);
         AssertParameter(operation, "id", ParameterLocation.Path);
     }
 
     [TestMethod]
-    public async Task TestQueryParam()
+    [MultiEngineTest]
+    public async Task TestQueryParam(TestEngine engine)
     {
         var api = Inline.Create()
                         .Get("/users/", (int id) => id);
 
-        var (path, operation) = await Extensions.GetOperationAsync(api);
+        var (path, operation) = await Extensions.GetOperationAsync(engine, api);
 
         Assert.AreEqual("/users/", path.Item1);
         AssertParameter(operation, "id", ParameterLocation.Query);
     }
 
     [TestMethod]
-    public async Task TestBodyParam()
+    [MultiEngineTest]
+    public async Task TestBodyParam(TestEngine engine)
     {
         var api = Inline.Create()
                         .Post("/users/filter", (HashSet<int> items) => items.Count);
 
-        var (path, operation) = await Extensions.GetOperationAsync(api);
+        var (path, operation) = await Extensions.GetOperationAsync(engine, api);
 
         Assert.AreEqual("/users/filter", path.Item1);
 
@@ -63,12 +67,13 @@ public class ArgumentTests
     }
 
     [TestMethod]
-    public async Task TestContentParam()
+    [MultiEngineTest]
+    public async Task TestContentParam(TestEngine engine)
     {
         var api = Inline.Create()
                         .Post("/users/filter", ([FromBody] DateOnly date) => date);
 
-        var (path, operation) = await Extensions.GetOperationAsync(api);
+        var (path, operation) = await Extensions.GetOperationAsync(engine, api);
 
         Assert.AreEqual("/users/filter", path.Item1);
 
@@ -76,12 +81,13 @@ public class ArgumentTests
     }
 
     [TestMethod]
-    public async Task TestStreamParam()
+    [MultiEngineTest]
+    public async Task TestStreamParam(TestEngine engine)
     {
         var api = Inline.Create()
                         .Put("/users/avatar", (Stream file) => true);
 
-        var (path, operation) = await Extensions.GetOperationAsync(api);
+        var (path, operation) = await Extensions.GetOperationAsync(engine, api);
 
         Assert.AreEqual("/users/avatar", path.Item1);
 
