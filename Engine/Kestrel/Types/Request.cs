@@ -110,7 +110,7 @@ public sealed class Request : IRequest
 
     public IResponseBuilder Respond() => new ResponseBuilder().Status(ResponseStatus.Ok);
 
-    public UpgradeInfo Upgrade() => throw new NotImplementedException();
+    public UpgradeInfo Upgrade() => throw new NotSupportedException("Web sockets are not supported by the Kestrel server implementation");
 
     #endregion
 
