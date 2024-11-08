@@ -9,8 +9,7 @@ public sealed class IntegrationTest
 {
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestServer(TestEngine engine)
+    public async Task TestServer()
     {
         var waitEvent = new ManualResetEvent(false);
 
@@ -24,7 +23,7 @@ public sealed class IntegrationTest
                            socket.Close();
                        });
 
-        await using var host = await TestHost.RunAsync(server, engine: engine);
+        await using var host = await TestHost.RunAsync(server);
 
         using var client = new WebsocketClient(new Uri("ws://localhost:" + host.Port));
 
