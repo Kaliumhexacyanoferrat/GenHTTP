@@ -36,7 +36,7 @@ internal sealed class KestrelServer : IServer
 
     #region Initialization
 
-    internal KestrelServer(IServerCompanion? companion, ServerConfiguration configuration, IHandler handler)
+    internal KestrelServer(IServerCompanion? companion, ServerConfiguration configuration, IHandler handler, Action<WebApplicationBuilder>? configurationHook, Action<WebApplication>? applicationHook)
     {
         Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "(n/a)";
 
@@ -53,22 +53,26 @@ internal sealed class KestrelServer : IServer
 
         EndPoints = endpoints;
 
-        Application = Spawn();
+        Application = Spawn(configurationHook, applicationHook);
     }
 
     #endregion
 
     #region Functionality
 
-    private WebApplication Spawn()
+    private WebApplication Spawn(Action<WebApplicationBuilder>? configurationHook, Action<WebApplication>? applicationHook)
     {
         var builder = WebApplication.CreateBuilder();
 
         Configure(builder);
 
+        configurationHook?.Invoke(builder);
+
         var app = builder.Build();
 
         app.Run(async (context) => await MapAsync(context));
+
+        applicationHook?.Invoke(app);
 
         return app;
     }
