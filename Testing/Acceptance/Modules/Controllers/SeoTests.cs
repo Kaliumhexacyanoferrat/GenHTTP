@@ -22,7 +22,7 @@ public sealed class SeoTests
     [MultiEngineTest]
     public async Task TestActionCasingMatters(TestEngine engine)
     {
-        using var runner = GetRunner(engine);
+        await using var runner = await GetRunnerAsync(engine);
 
         using var response = await runner.GetResponseAsync("/t/Action/");
 
@@ -33,7 +33,7 @@ public sealed class SeoTests
 
     #region Helpers
 
-    private TestHost GetRunner(TestEngine engine) => TestHost.Run(Layout.Create().AddController<TestController>("t"), engine: engine);
+    private async Task<TestHost> GetRunnerAsync(TestEngine engine) => await TestHost.RunAsync(Layout.Create().AddController<TestController>("t"), engine: engine);
 
     #endregion
 

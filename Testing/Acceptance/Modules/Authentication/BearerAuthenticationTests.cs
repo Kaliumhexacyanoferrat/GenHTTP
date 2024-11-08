@@ -101,7 +101,7 @@ public sealed class BearerAuthenticationTests
                             .Get(() => "Secured")
                             .Add(builder);
 
-        using var host = TestHost.Run(handler, engine: engine);
+        await using var host = await TestHost.RunAsync(handler, engine: engine);
 
         var request = host.GetRequest();
 

@@ -39,8 +39,6 @@ internal sealed class ThreadedServer : IServer
 
         Handler = handler;
 
-        Task.Run(() => PrepareHandlerAsync(handler, companion));
-
         _EndPoints = new EndPointCollection(this, configuration.EndPoints, configuration.Network);
     }
 
@@ -58,11 +56,22 @@ internal sealed class ThreadedServer : IServer
 
     #endregion
 
+    #region Functionality
+
+    public async ValueTask StartAsync()
+    {
+        await PrepareHandlerAsync(Handler, Companion);
+
+        _EndPoints.Start();
+    }
+
+    #endregion
+
     #region IDisposable Support
 
     private bool _Disposed;
 
-    public void Dispose()
+    public ValueTask DisposeAsync()
     {
         if (!_Disposed)
         {
@@ -70,6 +79,8 @@ internal sealed class ThreadedServer : IServer
 
             _Disposed = true;
         }
+
+        return new();
     }
 
     #endregion

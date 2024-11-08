@@ -22,7 +22,7 @@ public sealed class VirtualHostsTests
                                 .Add("domain2.com", Content.From(Resource.FromString("domain2.com")))
                                 .Default(Layout.Create().Index(Content.From(Resource.FromString("default"))));
 
-        using var runner = TestHost.Run(hosts);
+        await using var runner = await TestHost.RunAsync(hosts);
 
         await RunTest(runner, "domain1.com");
         await RunTest(runner, "domain2.com");
@@ -37,7 +37,7 @@ public sealed class VirtualHostsTests
     [TestMethod]
     public async Task TestNoDefault()
     {
-        using var runner = TestHost.Run(VirtualHosts.Create());
+        await using var runner = await TestHost.RunAsync(VirtualHosts.Create());
 
         using var response = await runner.GetResponseAsync();
 

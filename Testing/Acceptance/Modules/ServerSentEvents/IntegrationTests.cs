@@ -17,7 +17,7 @@ public sealed class IntegrationTests
                                 .Formatting(Formatting.Empty())
                                 .Generator(async (c) => await c.DataAsync(DateOnly.MaxValue));
 
-        using var host = TestHost.Run(source);
+        await using var host = await TestHost.RunAsync(source);
 
         using var response = await host.GetResponseAsync();
 

@@ -271,7 +271,7 @@ public sealed class WebserviceTests
     {
         var layout = Layout.Create().AddService("t", new TestResource());
 
-        using var runner = TestHost.Run(layout);
+        await using var runner = await TestHost.RunAsync(layout);
 
         using var response = await runner.GetResponseAsync("/t");
 
@@ -286,7 +286,7 @@ public sealed class WebserviceTests
 
     private async Task WithResponse(string uri, HttpMethod method, string? body, string? contentType, string? accept, Func<HttpResponseMessage, Task> logic)
     {
-        using var service = GetService();
+        await using var service = await GetServiceAsync();
 
         var request = service.GetRequest($"/t/{uri}");
 
@@ -316,13 +316,13 @@ public sealed class WebserviceTests
         await logic(response);
     }
 
-    private static TestHost GetService()
+    private static async Task<TestHost> GetServiceAsync()
     {
         var service = ServiceResource.From<TestResource>()
                                      .Serializers(Serialization.Default())
                                      .Injectors(Injection.Default());
 
-        return TestHost.Run(Layout.Create().Add("t", service));
+        return await TestHost.RunAsync(Layout.Create().Add("t", service));
     }
 
     #endregion

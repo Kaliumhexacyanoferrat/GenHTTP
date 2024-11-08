@@ -16,7 +16,7 @@ public sealed class PolicyTests
         var content = Content.From(Resource.FromString("Content"))
                              .Add(ClientCache.Policy().Duration(1));
 
-        using var runner = TestHost.Run(content, engine: engine);
+        await using var runner = await TestHost.RunAsync(content, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -30,7 +30,7 @@ public sealed class PolicyTests
         var content = Content.From(Resource.FromString("Content"))
                              .Add(ClientCache.Policy().Duration(1));
 
-        using var runner = TestHost.Run(content, engine: engine);
+        await using var runner = await TestHost.RunAsync(content, engine: engine);
 
         var request = runner.GetRequest();
         request.Method = HttpMethod.Head;
@@ -47,7 +47,7 @@ public sealed class PolicyTests
         var content = Layout.Create()
                             .Add(ClientCache.Policy().Duration(1));
 
-        using var runner = TestHost.Run(content, engine: engine);
+        await using var runner = await TestHost.RunAsync(content, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -61,7 +61,7 @@ public sealed class PolicyTests
         var content = Content.From(Resource.FromString("Content"))
                              .Add(ClientCache.Policy().Duration(1).Predicate((_, r) => r.ContentType?.RawType != "text/plain"));
 
-        using var runner = TestHost.Run(content, engine: engine);
+        await using var runner = await TestHost.RunAsync(content, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 

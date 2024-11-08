@@ -21,7 +21,7 @@ public sealed class ProtocolTests
 
         const string str = "From client with ❤";
 
-        using var runner = TestHost.Run(recorder.Wrap(), engine: engine);
+        await using var runner = await TestHost.RunAsync(recorder.Wrap(), engine: engine);
 
         var request = runner.GetRequest();
 
@@ -40,7 +40,7 @@ public sealed class ProtocolTests
     [MultiEngineTest]
     public async Task TestPutLarge(TestEngine engine)
     {
-        using var runner = TestHost.Run(new ContentLengthResponder().Wrap(), engine: engine);
+        await using var runner = await TestHost.RunAsync(new ContentLengthResponder().Wrap(), engine: engine);
 
         using var content = new MemoryStream();
 

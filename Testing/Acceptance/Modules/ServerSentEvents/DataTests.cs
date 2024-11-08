@@ -36,7 +36,7 @@ public sealed class DataTests
         var source = EventSource.Create()
                                 .Generator(generator);
 
-        using var host = TestHost.Run(source);
+        await using var host = await TestHost.RunAsync(source);
 
         using var response = await host.GetResponseAsync();
 

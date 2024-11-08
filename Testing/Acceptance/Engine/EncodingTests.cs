@@ -17,7 +17,7 @@ public sealed class EncodingTests
     {
         var layout = Layout.Create().Add("utf8", Content.From(Resource.FromString("From GenHTTP with ❤")));
 
-        using var runner = TestHost.Run(layout, engine: engine);
+        await using var runner = await TestHost.RunAsync(layout, engine: engine);
 
         using var response = await runner.GetResponseAsync("/utf8");
 

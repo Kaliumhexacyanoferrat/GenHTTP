@@ -103,7 +103,7 @@ public sealed class ProtobufTests
 
     private async Task WithResponse(string uri, HttpMethod method, byte[]? body, string? contentType, string? accept, Func<HttpResponseMessage, Task> logic)
     {
-        using var service = GetService();
+        await using var service = await GetService();
 
         var request = service.GetRequest($"/t/{uri}");
 
@@ -133,13 +133,13 @@ public sealed class ProtobufTests
         await logic(response);
     }
 
-    private static TestHost GetService()
+    private static async Task<TestHost> GetService()
     {
         var service = ServiceResource.From<TestResource>()
                                      .Serializers(Serialization.Default().AddProtobuf())
                                      .Injectors(Injection.Default());
 
-        return TestHost.Run(Layout.Create().Add("t", service));
+        return await TestHost.RunAsync(Layout.Create().Add("t", service));
     }
 
     #endregion

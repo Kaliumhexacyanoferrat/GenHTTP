@@ -35,7 +35,7 @@ public sealed class ResultTests
         var inline = Inline.Create()
                            .Get(() => result);
 
-        using var runner = TestHost.Run(inline);
+        await using var runner = await TestHost.RunAsync(inline);
 
         using var response = await runner.GetResponseAsync();
 
@@ -52,7 +52,7 @@ public sealed class ResultTests
         var inline = Inline.Create()
                            .Get(() => new Result<Stream>(stream).Status(ResponseStatus.Created));
 
-        using var runner = TestHost.Run(inline);
+        await using var runner = await TestHost.RunAsync(inline);
 
         using var response = await runner.GetResponseAsync();
 

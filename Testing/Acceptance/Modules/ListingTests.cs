@@ -17,7 +17,7 @@ public sealed class ListingTests
     [TestMethod]
     public async Task TestGetMainListing()
     {
-        using var runner = GetEnvironment();
+        await using var runner = await GetEnvironmentAsync();
 
         using var response = await runner.GetResponseAsync("/");
 
@@ -38,7 +38,7 @@ public sealed class ListingTests
     [TestMethod]
     public async Task TestGetSubdirectory()
     {
-        using var runner = GetEnvironment();
+        await using var runner = await GetEnvironmentAsync();
 
         using var response = await runner.GetResponseAsync("/Subdirectory/");
 
@@ -54,7 +54,7 @@ public sealed class ListingTests
     [TestMethod]
     public async Task TestDownload()
     {
-        using var runner = GetEnvironment();
+        await using var runner = await GetEnvironmentAsync();
 
         using var response = await runner.GetResponseAsync("/my.txt");
 
@@ -64,7 +64,7 @@ public sealed class ListingTests
     [TestMethod]
     public async Task TestNonExistingFolder()
     {
-        using var runner = GetEnvironment();
+        await using var runner = await GetEnvironmentAsync();
 
         using var response = await runner.GetResponseAsync("/idonotexist/");
 
@@ -74,7 +74,7 @@ public sealed class ListingTests
     [TestMethod]
     public async Task TestSameListingSameChecksum()
     {
-        using var runner = GetEnvironment();
+        await using var runner = await GetEnvironmentAsync();
 
         using var resp1 = await runner.GetResponseAsync();
         using var resp2 = await runner.GetResponseAsync();
@@ -84,7 +84,7 @@ public sealed class ListingTests
         Assert.AreEqual(resp1.GetETag(), resp2.GetETag());
     }
 
-    private static TestHost GetEnvironment()
+    private static async Task<TestHost> GetEnvironmentAsync()
     {
         var tempFolder = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
@@ -98,6 +98,6 @@ public sealed class ListingTests
 
         var listing = Listing.From(ResourceTree.FromDirectory(tempFolder));
 
-        return TestHost.Run(listing);
+        return await TestHost.RunAsync(listing);
     }
 }

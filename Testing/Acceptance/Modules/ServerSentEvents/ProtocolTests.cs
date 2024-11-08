@@ -50,7 +50,7 @@ public sealed class ProtocolTests
                                     return new();
                                 });
 
-        using var host = TestHost.Run(source);
+        await using var host = await TestHost.RunAsync(source);
 
         var request = host.GetRequest();
 
@@ -72,7 +72,7 @@ public sealed class ProtocolTests
                                      return new();
                                 });
 
-        using var host = TestHost.Run(source);
+        await using var host = await TestHost.RunAsync(source);
 
         using var response = await host.GetResponseAsync();
 
@@ -88,7 +88,7 @@ public sealed class ProtocolTests
         var source = EventSource.Create()
                                 .Generator((_) => new());
 
-        using var host = TestHost.Run(source);
+        await using var host = await TestHost.RunAsync(source);
 
         var request = host.GetRequest(method: HttpMethod.Head);
 
@@ -107,7 +107,7 @@ public sealed class ProtocolTests
                                     return new();
                                 });
 
-        using var host = TestHost.Run(source);
+        await using var host = await TestHost.RunAsync(source);
 
         using var response = await host.GetResponseAsync();
 
@@ -119,7 +119,7 @@ public sealed class ProtocolTests
         var source = EventSource.Create()
                                 .Generator(generator);
 
-        using var host = TestHost.Run(source);
+        await using var host = await TestHost.RunAsync(source);
 
         using var response = await host.GetResponseAsync();
 

@@ -42,7 +42,7 @@ public sealed class CustomErrorMapperTests
         var test = Layout.Create()
                          .Add(ErrorHandler.From(new ErrorLengthMapper()));
 
-        using var runner = TestHost.Run(test, engine: engine);
+        await using var runner = await TestHost.RunAsync(test, engine: engine);
 
         using var response = await runner.GetResponseAsync("/");
         Assert.AreEqual("404", await response.GetContentAsync());
@@ -58,7 +58,7 @@ public sealed class CustomErrorMapperTests
                          .Add(Inline.Create().Get(thrower))
                          .Add(ErrorHandler.From(new ErrorLengthMapper()));
 
-        using var runner = TestHost.Run(test, engine: engine);
+        await using var runner = await TestHost.RunAsync(test, engine: engine);
 
         using var response = await runner.GetResponseAsync("/");
         Assert.AreEqual("5", await response.GetContentAsync());

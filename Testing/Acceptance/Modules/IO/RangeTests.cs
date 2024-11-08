@@ -140,7 +140,7 @@ public class RangeTests
         var download = Download.From(Resource.FromString("Hello World!"))
                                .AddRangeSupport();
 
-        using var runner = TestHost.Run(download);
+        await using var runner = await TestHost.RunAsync(download);
 
         using var response = await runner.GetResponseAsync();
 
@@ -149,7 +149,7 @@ public class RangeTests
 
     private static async Task<HttpResponseMessage> GetResponse(string? requestedRange, HttpMethod? method = null)
     {
-        using var runner = GetRunner();
+        await using var runner = await GetRunnerAsync();
 
         var request = runner.GetRequest(method: method ?? HttpMethod.Get);
 
@@ -161,12 +161,12 @@ public class RangeTests
         return await runner.GetResponseAsync(request);
     }
 
-    private static TestHost GetRunner()
+    private static async Task<TestHost> GetRunnerAsync()
     {
         var content = GenHTTP.Modules.IO.Content.From(Resource.FromString(Content));
 
         content.AddRangeSupport();
 
-        return TestHost.Run(content);
+        return await TestHost.RunAsync(content);
     }
 }

@@ -1,11 +1,8 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-
 using GenHTTP.Api.Infrastructure;
-
 using GenHTTP.Engine.Internal.Protocol;
 using GenHTTP.Engine.Shared.Infrastructure;
-
 using PooledAwait;
 
 namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
@@ -13,46 +10,17 @@ namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
 internal abstract class EndPoint : IEndPoint
 {
 
-    #region Initialization
-
-    protected EndPoint(IServer server, IPEndPoint endPoint, NetworkConfiguration configuration)
-    {
-        Server = server;
-
-        Endpoint = endPoint;
-        Configuration = configuration;
-
-        IPAddress = endPoint.Address;
-        Port = (ushort)endPoint.Port;
-
-        try
-        {
-            Socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-            Socket.Bind(Endpoint);
-            Socket.Listen(Configuration.Backlog);
-        }
-        catch (Exception e)
-        {
-            throw new BindingException($"Failed to bind to {endPoint}.", e);
-        }
-
-        Task = Task.Run(Listen);
-    }
-
-    #endregion
-
     #region Get-/Setters
 
     protected IServer Server { get; }
 
     protected NetworkConfiguration Configuration { get; }
 
-    private Task Task { get; }
-
     private IPEndPoint Endpoint { get; }
 
-    private Socket Socket { get; }
+    private Task? Task { get; set; }
+
+    private Socket? Socket { get; set; }
 
     #endregion
 
@@ -66,10 +34,44 @@ internal abstract class EndPoint : IEndPoint
 
     #endregion
 
+    #region Initialization
+
+    protected EndPoint(IServer server, IPEndPoint endPoint, NetworkConfiguration configuration)
+    {
+        Server = server;
+
+        Endpoint = endPoint;
+        Configuration = configuration;
+
+        IPAddress = endPoint.Address;
+        Port = (ushort)endPoint.Port;
+    }
+
+    #endregion
+
     #region Functionality
+
+    public void Start()
+    {
+        try
+        {
+            Socket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+            Socket.Bind(Endpoint);
+            Socket.Listen(Configuration.Backlog);
+        }
+        catch (Exception e)
+        {
+            throw new BindingException($"Failed to bind to {Endpoint}.", e);
+        }
+
+        Task = Task.Run(Listen);
+    }
 
     private async Task Listen()
     {
+        if (Socket == null) throw new InvalidOperationException("The endpoint has not been started");
+
         try
         {
             do
@@ -119,10 +121,13 @@ internal abstract class EndPoint : IEndPoint
             {
                 try
                 {
-                    Socket.Close();
-                    Socket.Dispose();
+                    if (Socket != null && Task != null)
+                    {
+                        Socket.Close();
+                        Socket.Dispose();
 
-                    Task.Wait();
+                        Task.Wait();
+                    }
                 }
                 catch (Exception e)
                 {

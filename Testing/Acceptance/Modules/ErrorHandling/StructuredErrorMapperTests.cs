@@ -15,7 +15,7 @@ public sealed class StructuredErrorMapperTests
     [MultiEngineTest]
     public async Task TestNotFound(TestEngine engine)
     {
-        using var host = TestHost.Run(Inline.Create(), engine: engine);
+        await using var host = await TestHost.RunAsync(Inline.Create(), engine: engine);
 
         using var response = await host.GetResponseAsync();
 
@@ -35,7 +35,7 @@ public sealed class StructuredErrorMapperTests
         var handler = Inline.Create()
                             .Get(() => DoThrow(new Exception("Oops")));
 
-        using var host = TestHost.Run(handler, engine: engine);
+        await using var host = await TestHost.RunAsync(handler, engine: engine);
 
         using var response = await host.GetResponseAsync();
 
@@ -55,7 +55,7 @@ public sealed class StructuredErrorMapperTests
         var handler = Inline.Create()
                             .Get(() => DoThrow(new ProviderException(ResponseStatus.Locked, "Locked up!")));
 
-        using var host = TestHost.Run(handler, engine: engine);
+        await using var host = await TestHost.RunAsync(handler, engine: engine);
 
         using var response = await host.GetResponseAsync();
 
@@ -75,7 +75,7 @@ public sealed class StructuredErrorMapperTests
         var handler = Inline.Create()
                             .Get(() => DoThrow(new Exception("Oops")));
 
-        using var host = TestHost.Run(handler, development: false, engine: engine);
+        await using var host = await TestHost.RunAsync(handler, development: false, engine: engine);
 
         using var response = await host.GetResponseAsync();
 

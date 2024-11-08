@@ -18,7 +18,7 @@ public sealed class ChunkedContentTest
         var inline = Inline.Create()
                            .Put((Model model) => model);
 
-        using var runner = TestHost.Run(inline, engine: engine);
+        await using var runner = await TestHost.RunAsync(inline, engine: engine);
 
         using var client = TestHost.GetClient();
 

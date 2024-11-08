@@ -54,7 +54,7 @@ public sealed class VirtualTreeTests
 
         var handler = Listing.From(virt);
 
-        using var host = TestHost.Run(handler);
+        await using var host = await TestHost.RunAsync(handler);
 
         using var response = await host.GetResponseAsync();
 

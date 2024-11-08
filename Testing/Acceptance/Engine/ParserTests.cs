@@ -13,7 +13,7 @@ public sealed class ParserTests
     [MultiEngineTest]
     public async Task TestEndodedUri(TestEngine engine)
     {
-        using var runner = TestHost.Run(new PathReturner().Wrap(), engine: engine);
+        await using var runner = await TestHost.RunAsync(new PathReturner().Wrap(), engine: engine);
 
         using var respose = await runner.GetResponseAsync("/söme/ürl/with specialities/");
 
@@ -24,7 +24,7 @@ public sealed class ParserTests
     [MultiEngineTest]
     public async Task TestEncodedQuery(TestEngine engine)
     {
-        using var runner = TestHost.Run(new QueryReturner().Wrap(), engine: engine);
+        await using var runner = await TestHost.RunAsync(new QueryReturner().Wrap(), engine: engine);
 
         using var respose = await runner.GetResponseAsync("/?söme key=💕");
 
@@ -34,7 +34,7 @@ public sealed class ParserTests
     [TestMethod]
     public async Task TestMultipleSlashes()
     {
-        using var runner = TestHost.Run(new PathReturner().Wrap());
+        await using var runner = await TestHost.RunAsync(new PathReturner().Wrap());
 
         using var respose = await runner.GetResponseAsync("//one//two//three//");
 
@@ -45,7 +45,7 @@ public sealed class ParserTests
     [MultiEngineTest]
     public async Task TestEmptyQuery(TestEngine engine)
     {
-        using var runner = TestHost.Run(new QueryReturner().Wrap(), engine: engine);
+        await using var runner = await TestHost.RunAsync(new QueryReturner().Wrap(), engine: engine);
 
         using var respose = await runner.GetResponseAsync("/?");
 
@@ -56,7 +56,7 @@ public sealed class ParserTests
     [MultiEngineTest]
     public async Task TestUnkeyedQuery(TestEngine engine)
     {
-        using var runner = TestHost.Run(new QueryReturner().Wrap(), engine: engine);
+        await using var runner = await TestHost.RunAsync(new QueryReturner().Wrap(), engine: engine);
 
         using var respose = await runner.GetResponseAsync("/?query");
 
@@ -67,7 +67,7 @@ public sealed class ParserTests
     [MultiEngineTest]
     public async Task TestQueryWithSlashes(TestEngine engine)
     {
-        using var runner = TestHost.Run(new QueryReturner().Wrap(), engine: engine);
+        await using var runner = await TestHost.RunAsync(new QueryReturner().Wrap(), engine: engine);
 
         using var respose = await runner.GetResponseAsync("/?key=/one/two");
 
@@ -77,7 +77,7 @@ public sealed class ParserTests
     [TestMethod]
     public async Task TestQueryWithSpaces()
     {
-        using var runner = TestHost.Run(new QueryReturner().Wrap());
+        await using var runner = await TestHost.RunAsync(new QueryReturner().Wrap());
 
         using var respose = await runner.GetResponseAsync("/?path=/Some+Folder/With%20Subfolders/");
 

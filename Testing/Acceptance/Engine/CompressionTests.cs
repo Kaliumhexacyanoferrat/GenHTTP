@@ -22,7 +22,7 @@ public sealed class CompressionTests
     [MultiEngineTest]
     public async Task TestCompression(TestEngine engine)
     {
-        using var runner = TestHost.Run(Layout.Create().Build(), engine: engine);
+        await using var runner = await TestHost.RunAsync(Layout.Create().Build(), engine: engine);
 
         var request = runner.GetRequest();
         request.Headers.Add("Accept-Encoding", "gzip, br, zstd");
@@ -42,7 +42,7 @@ public sealed class CompressionTests
     {
         foreach (var algorithm in new[] { "gzip", "br", "zstd" })
         {
-            using var runner = TestHost.Run(Layout.Create(), engine: engine);
+            await using var runner = await TestHost.RunAsync(Layout.Create(), engine: engine);
 
             var request = runner.GetRequest();
             request.Headers.Add("Accept-Encoding", algorithm);
@@ -60,7 +60,7 @@ public sealed class CompressionTests
     [MultiEngineTest]
     public async Task TestCompressionDisabled(TestEngine engine)
     {
-        using var runner = TestHost.Run(Layout.Create(), false, engine: engine);
+        await using var runner = await TestHost.RunAsync(Layout.Create(), false, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -74,9 +74,9 @@ public sealed class CompressionTests
     [MultiEngineTest]
     public async Task TestCustomCompression(TestEngine engine)
     {
-        using var runner = new TestHost(Layout.Create().Build(), engine: engine);
+        await using var runner = new TestHost(Layout.Create().Build(), engine: engine);
 
-        runner.Host.Compression(CompressedContent.Default().Add(new CustomAlgorithm()).Level(CompressionLevel.Optimal)).Start();
+        await runner.Host.Compression(CompressedContent.Default().Add(new CustomAlgorithm()).Level(CompressionLevel.Optimal)).StartAsync();
 
         var request = runner.GetRequest();
         request.Headers.Add("Accept-Encoding", "custom");
@@ -95,7 +95,7 @@ public sealed class CompressionTests
     {
         var image = Resource.FromString("Image!").Type(ContentType.ImageJpg);
 
-        using var runner = TestHost.Run(Layout.Create().Add("uncompressed", Content.From(image)), engine: engine);
+        await using var runner = await TestHost.RunAsync(Layout.Create().Add("uncompressed", Content.From(image)), engine: engine);
 
         using var response = await runner.GetResponseAsync("/uncompressed");
 
@@ -106,7 +106,7 @@ public sealed class CompressionTests
     [MultiEngineTest]
     public async Task TestVariyHeaderAdded(TestEngine engine)
     {
-        using var runner = TestHost.Run(Layout.Create(), engine: engine);
+        await using var runner = await TestHost.RunAsync(Layout.Create(), engine: engine);
 
         var request = runner.GetRequest();
         request.Headers.Add("Accept-Encoding", "gzip");
@@ -129,7 +129,7 @@ public sealed class CompressionTests
                     .Build();
         });
 
-        using var runner = TestHost.Run(handler.Wrap(), engine: engine);
+        await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
 
         var request = runner.GetRequest();
         request.Headers.Add("Accept-Encoding", "gzip");
@@ -152,7 +152,7 @@ public sealed class CompressionTests
                     .Build();
         });
 
-        using var runner = TestHost.Run(handler.Wrap(), engine: engine);
+        await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
 
         var request = runner.GetRequest();
         request.Headers.Add("Accept-Encoding", "gzip, deflate, br");

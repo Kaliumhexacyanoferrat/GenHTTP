@@ -165,7 +165,7 @@ public sealed class SecurityTests
     {
         var content = Layout.Create().Index(Content.From(Resource.FromString("Hello Alice!")));
 
-        using var runner = new TestHost(Layout.Create().Build(), mode is null, engine: engine);
+        await using var runner = new TestHost(Layout.Create().Build(), mode is null, engine: engine);
 
         var port = TestHost.NextPort();
 
@@ -181,7 +181,7 @@ public sealed class SecurityTests
             runner.Host.StrictTransport(new StrictTransportPolicy(TimeSpan.FromDays(365), true, true));
         }
 
-        runner.Start();
+        await runner.StartAsync();
 
         await logic((ushort)runner.Port, (ushort)port);
     }

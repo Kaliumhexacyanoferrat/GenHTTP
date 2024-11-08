@@ -30,7 +30,7 @@ internal static class Extensions
 
     internal static async Task<ReadResult> GetOpenApiAsync(this IHandlerBuilder api, bool validate = true)
     {
-        using var host = TestHost.Run(api);
+        await using var host = await TestHost.RunAsync(api);
 
         using var response = await host.GetResponseAsync("/openapi.json");
 

@@ -77,7 +77,7 @@ public sealed class HandlerResultTests
         var app = Layout.Create()
                         .AddService<RootService>("c");
 
-        using var host = TestHost.Run(app);
+        await using var host = await TestHost.RunAsync(app);
 
         using var response = await host.GetResponseAsync("/c/sub/my.txt");
 
@@ -92,7 +92,7 @@ public sealed class HandlerResultTests
         var app = Layout.Create()
                         .AddService<PathService>("c");
 
-        using var host = TestHost.Run(app);
+        await using var host = await TestHost.RunAsync(app);
 
         using var response = await host.GetResponseAsync("/c/mypath/param/sub/my.txt");
 
@@ -107,7 +107,7 @@ public sealed class HandlerResultTests
         var app = Layout.Create()
                         .AddService<PathAsyncService>("c");
 
-        using var host = TestHost.Run(app);
+        await using var host = await TestHost.RunAsync(app);
 
         using var response = await host.GetResponseAsync("/c/mypath/param/sub/my.txt");
 

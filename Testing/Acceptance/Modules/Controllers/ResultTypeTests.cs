@@ -16,13 +16,13 @@ public sealed class ResultTypeTests
 
     #region Helpers
 
-    private static TestHost GetRunner(TestEngine engine)
+    private static async Task<TestHost> GetRunnerAsync(TestEngine engine)
     {
         var controller = Controller.From<TestController>()
                                    .Serializers(Serialization.Default())
                                    .Injectors(Injection.Default());
 
-        return TestHost.Run(Layout.Create().Add("t", controller), engine: engine);
+        return await TestHost.RunAsync(Layout.Create().Add("t", controller), engine: engine);
     }
 
     #endregion
@@ -49,7 +49,7 @@ public sealed class ResultTypeTests
     [MultiEngineTest]
     public async Task ControllerMayReturnHandlerBuilder(TestEngine engine)
     {
-        using var runner = GetRunner(engine);
+        await using var runner = await GetRunnerAsync(engine);
 
         using var response = await runner.GetResponseAsync("/t/handler-builder/");
 
@@ -61,7 +61,7 @@ public sealed class ResultTypeTests
     [MultiEngineTest]
     public async Task ControllerMayReturnHandler(TestEngine engine)
     {
-        using var runner = GetRunner(engine);
+        await using var runner = await GetRunnerAsync(engine);
 
         using var response = await runner.GetResponseAsync("/t/handler/");
 
@@ -73,7 +73,7 @@ public sealed class ResultTypeTests
     [MultiEngineTest]
     public async Task ControllerMayReturnResponseBuilder(TestEngine engine)
     {
-        using var runner = GetRunner(engine);
+        await using var runner = await GetRunnerAsync(engine);
 
         using var response = await runner.GetResponseAsync("/t/response-builder/");
 
@@ -85,7 +85,7 @@ public sealed class ResultTypeTests
     [MultiEngineTest]
     public async Task ControllerMayReturnResponse(TestEngine engine)
     {
-        using var runner = GetRunner(engine);
+        await using var runner = await GetRunnerAsync(engine);
 
         using var response = await runner.GetResponseAsync("/t/response/");
 

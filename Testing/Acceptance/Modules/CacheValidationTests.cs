@@ -13,7 +13,7 @@ public sealed class CacheValidationTests
     [TestMethod]
     public async Task TestETagIsGenerated()
     {
-        using var runner = TestHost.Run(Content.From(Resource.FromString("Hello World!")));
+        await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")));
 
         using var response = await runner.GetResponseAsync();
 
@@ -28,7 +28,7 @@ public sealed class CacheValidationTests
     [TestMethod]
     public async Task TestServerReturnsUnmodified()
     {
-        using var runner = TestHost.Run(Content.From(Resource.FromString("Hello World!")));
+        await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")));
 
         using var response = await runner.GetResponseAsync();
 
@@ -48,7 +48,7 @@ public sealed class CacheValidationTests
     [TestMethod]
     public async Task TestServerReturnsModified()
     {
-        using var runner = TestHost.Run(Content.From(Resource.FromString("Hello World!")));
+        await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")));
 
         var request = runner.GetRequest();
 
@@ -67,7 +67,7 @@ public sealed class CacheValidationTests
             return r.Respond().Status(ResponseStatus.NoContent).Build();
         });
 
-        using var runner = TestHost.Run(noContent);
+        await using var runner = await TestHost.RunAsync(noContent);
 
         using var response = await runner.GetResponseAsync();
 
@@ -77,7 +77,7 @@ public sealed class CacheValidationTests
     [TestMethod]
     public async Task TestOtherMethodNoETag()
     {
-        using var runner = TestHost.Run(Content.From(Resource.FromString("Hello World!")));
+        await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")));
 
         var request = runner.GetRequest();
 

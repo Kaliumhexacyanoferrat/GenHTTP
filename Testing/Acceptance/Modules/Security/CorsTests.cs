@@ -15,7 +15,7 @@ public sealed class CorsTests
     [TestMethod]
     public async Task TestPreflight()
     {
-        using var runner = GetRunner(CorsPolicy.Permissive());
+        await using var runner = await GetRunnerAsync(CorsPolicy.Permissive());
 
         var request = new HttpRequestMessage(HttpMethod.Options, runner.GetUrl("/t"));
 
@@ -27,7 +27,7 @@ public sealed class CorsTests
     [TestMethod]
     public async Task TestPermissive()
     {
-        using var runner = GetRunner(CorsPolicy.Permissive());
+        await using var runner = await GetRunnerAsync(CorsPolicy.Permissive());
 
         using var response = await runner.GetResponseAsync("/t");
 
@@ -49,7 +49,7 @@ public sealed class CorsTests
     [TestMethod]
     public async Task TestPermissiveWithoutDefaultAuthorizationHeader()
     {
-        using var runner = GetRunner(CorsPolicy.Permissive(false));
+        await using var runner = await GetRunnerAsync(CorsPolicy.Permissive(false));
 
         using var response = await runner.GetResponseAsync("/t");
 
@@ -71,7 +71,7 @@ public sealed class CorsTests
     [TestMethod]
     public async Task TestRestrictive()
     {
-        using var runner = GetRunner(CorsPolicy.Restrictive());
+        await using var runner = await GetRunnerAsync(CorsPolicy.Restrictive());
 
         using var response = await runner.GetResponseAsync("/t");
 
@@ -100,7 +100,7 @@ public sealed class CorsTests
                                    "Accept"
                                }, false);
 
-        using var runner = GetRunner(policy);
+        await using var runner = await GetRunnerAsync(policy);
 
         var request = runner.GetRequest("/t");
         request.Headers.Add("Origin", "http://google.de");
@@ -118,12 +118,12 @@ public sealed class CorsTests
         Assert.AreEqual("Origin", response.GetHeader("Vary"));
     }
 
-    private static TestHost GetRunner(CorsPolicyBuilder policy)
+    private static async Task<TestHost> GetRunnerAsync(CorsPolicyBuilder policy)
     {
         var handler = Layout.Create()
                             .Add("t", Content.From(Resource.FromString("Hello World")))
                             .Add(policy);
 
-        return TestHost.Run(handler);
+        return await TestHost.RunAsync(handler);
     }
 }

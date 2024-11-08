@@ -18,7 +18,7 @@ public sealed class ApiKeyAuthenticationTests
     [MultiEngineTest]
     public async Task TestNoKey(TestEngine engine)
     {
-        using var runner = GetRunnerWithKeys(engine, "123");
+        await using var runner = await GetRunnerWithKeysAsync(engine, "123");
 
         using var response = await runner.GetResponseAsync();
 
@@ -29,7 +29,7 @@ public sealed class ApiKeyAuthenticationTests
     [MultiEngineTest]
     public async Task TestInvalidKey(TestEngine engine)
     {
-        using var runner = GetRunnerWithKeys(engine, "123");
+        await using var runner = await GetRunnerWithKeysAsync(engine, "123");
 
         var request = runner.GetRequest();
         request.Headers.Add("X-API-Key", "124");
@@ -43,7 +43,7 @@ public sealed class ApiKeyAuthenticationTests
     [MultiEngineTest]
     public async Task TestValidKey(TestEngine engine)
     {
-        using var runner = GetRunnerWithKeys(engine, "123");
+        await using var runner = await GetRunnerWithKeysAsync(engine, "123");
 
         var request = runner.GetRequest();
         request.Headers.Add("X-API-Key", "123");
@@ -61,7 +61,7 @@ public sealed class ApiKeyAuthenticationTests
                                        .WithQueryParameter("key")
                                        .Keys("123");
 
-        using var runner = GetRunnerWithAuth(auth, engine);
+        await using var runner = await GetRunnerWithAuthAsync(auth, engine);
 
         using var response = await runner.GetResponseAsync("/?key=123");
 
@@ -76,7 +76,7 @@ public sealed class ApiKeyAuthenticationTests
                                        .WithHeader("key")
                                        .Keys("123");
 
-        using var runner = GetRunnerWithAuth(auth, engine);
+        await using var runner = await GetRunnerWithAuthAsync(auth, engine);
 
         var request = runner.GetRequest();
         request.Headers.Add("key", "123");
@@ -94,7 +94,7 @@ public sealed class ApiKeyAuthenticationTests
                                        .Extractor(r => r.UserAgent)
                                        .Keys("123");
 
-        using var runner = GetRunnerWithAuth(auth, engine);
+        await using var runner = await GetRunnerWithAuthAsync(auth, engine);
 
         var request = runner.GetRequest();
         request.Headers.Add("User-Agent", "123");
@@ -113,7 +113,7 @@ public sealed class ApiKeyAuthenticationTests
         var auth = ApiKeyAuthentication.Create()
                                        .Authenticator(Authenticator);
 
-        using var runner = GetRunnerWithAuth(auth, engine);
+        await using var runner = await GetRunnerWithAuthAsync(auth, engine);
 
         var request = runner.GetRequest();
         request.Headers.Add("X-API-Key", "12345");
@@ -123,19 +123,19 @@ public sealed class ApiKeyAuthenticationTests
         await response.AssertStatusAsync(HttpStatusCode.OK);
     }
 
-    private static TestHost GetRunnerWithKeys(TestEngine engine, params string[] keys)
+    private static async Task<TestHost> GetRunnerWithKeysAsync(TestEngine engine, params string[] keys)
     {
         var auth = ApiKeyAuthentication.Create()
                                        .Keys(keys);
 
-        return GetRunnerWithAuth(auth, engine);
+        return await GetRunnerWithAuthAsync(auth, engine);
     }
 
-    private static TestHost GetRunnerWithAuth(ApiKeyConcernBuilder auth, TestEngine engine)
+    private static async Task<TestHost> GetRunnerWithAuthAsync(ApiKeyConcernBuilder auth, TestEngine engine)
     {
         var content = GetContent().Authentication(auth);
 
-        return TestHost.Run(content, engine: engine);
+        return await TestHost.RunAsync(content, engine: engine);
     }
 
     private static LayoutBuilder GetContent() => Layout.Create().Add(Content.From(Resource.FromString("Hello World!")));

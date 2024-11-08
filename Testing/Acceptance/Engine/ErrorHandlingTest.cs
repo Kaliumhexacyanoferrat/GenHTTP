@@ -17,7 +17,7 @@ public sealed class ErrorHandlingTest
             throw new NotImplementedException();
         });
 
-        using var runner = TestHost.Run(handler.Wrap(), engine: engine);
+        await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -33,7 +33,7 @@ public sealed class ErrorHandlingTest
             throw new Exception("Nah <>");
         });
 
-        using var runner = TestHost.Run(handler.Wrap(), engine: engine);
+        await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
 
         using var response = await runner.GetResponseAsync();
 

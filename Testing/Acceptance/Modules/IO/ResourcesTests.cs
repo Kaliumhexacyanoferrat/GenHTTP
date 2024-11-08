@@ -11,7 +11,7 @@ public sealed class ResourcesTests
     [TestMethod]
     public async Task TestFileDownload()
     {
-        using var runner = TestHost.Run(Resources.From(ResourceTree.FromAssembly()));
+        await using var runner = await TestHost.RunAsync(Resources.From(ResourceTree.FromAssembly()));
 
         using var response = await runner.GetResponseAsync("/Resources/File.txt");
 
@@ -22,7 +22,7 @@ public sealed class ResourcesTests
     [TestMethod]
     public async Task TestSubdirectoryFileDownload()
     {
-        using var runner = TestHost.Run(Resources.From(ResourceTree.FromAssembly()));
+        await using var runner = await TestHost.RunAsync(Resources.From(ResourceTree.FromAssembly()));
 
         using var response = await runner.GetResponseAsync("/Resources/Subdirectory/AnotherFile.txt");
 
@@ -33,7 +33,7 @@ public sealed class ResourcesTests
     [TestMethod]
     public async Task TestNoFileDownload()
     {
-        using var runner = TestHost.Run(Resources.From(ResourceTree.FromAssembly()));
+        await using var runner = await TestHost.RunAsync(Resources.From(ResourceTree.FromAssembly()));
 
         using var response = await runner.GetResponseAsync("/Resources/nah.txt");
 
@@ -43,7 +43,7 @@ public sealed class ResourcesTests
     [TestMethod]
     public async Task TestNoSubdirectoryFileDownload()
     {
-        using var runner = TestHost.Run(Resources.From(ResourceTree.FromAssembly()));
+        await using var runner = await TestHost.RunAsync(Resources.From(ResourceTree.FromAssembly()));
 
         using var response = await runner.GetResponseAsync("/Resources/nah/File.txt");
 
@@ -53,7 +53,7 @@ public sealed class ResourcesTests
     [TestMethod]
     public async Task TestRootDownload()
     {
-        using var runner = TestHost.Run(Resources.From(ResourceTree.FromAssembly("Resources")));
+        await using var runner = await TestHost.RunAsync(Resources.From(ResourceTree.FromAssembly("Resources")));
 
         using var response = await runner.GetResponseAsync("/File.txt");
 
@@ -64,7 +64,7 @@ public sealed class ResourcesTests
     [TestMethod]
     public async Task TestDirectory()
     {
-        using var runner = TestHost.Run(Resources.From(ResourceTree.FromAssembly()));
+        await using var runner = await TestHost.RunAsync(Resources.From(ResourceTree.FromAssembly()));
 
         using var response = await runner.GetResponseAsync("/Resources/nah/");
 
@@ -74,7 +74,7 @@ public sealed class ResourcesTests
     [TestMethod]
     public async Task TestNonExistingDirectory()
     {
-        using var runner = TestHost.Run(Resources.From(ResourceTree.FromAssembly()));
+        await using var runner = await TestHost.RunAsync(Resources.From(ResourceTree.FromAssembly()));
 
         using var response = await runner.GetResponseAsync("/Resources/nah/");
 

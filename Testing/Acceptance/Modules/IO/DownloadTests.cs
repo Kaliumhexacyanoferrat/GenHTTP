@@ -13,7 +13,7 @@ public sealed class DownloadTests
     [TestMethod]
     public async Task TestDownload()
     {
-        using var runner = TestHost.Run(Download.From(Resource.FromAssembly("File.txt")));
+        await using var runner = await TestHost.RunAsync(Download.From(Resource.FromAssembly("File.txt")));
 
         using var response = await runner.GetResponseAsync();
 
@@ -29,7 +29,7 @@ public sealed class DownloadTests
         var layout = Layout.Create()
                            .Add("file.txt", Download.From(Resource.FromAssembly("File.txt")));
 
-        using var runner = TestHost.Run(layout);
+        await using var runner = await TestHost.RunAsync(layout);
 
         using var response = await runner.GetResponseAsync("/file.txt/blubb");
 
@@ -41,7 +41,7 @@ public sealed class DownloadTests
     {
         var download = Download.From(Resource.FromAssembly("File.txt"));
 
-        using var runner = TestHost.Run(download);
+        await using var runner = await TestHost.RunAsync(download);
 
         var request = runner.GetRequest();
 
@@ -59,7 +59,7 @@ public sealed class DownloadTests
         var download = Download.From(Resource.FromAssembly("File.txt"))
                                .FileName("myfile.txt");
 
-        using var runner = TestHost.Run(download);
+        await using var runner = await TestHost.RunAsync(download);
 
         using var response = await runner.GetResponseAsync();
 
@@ -71,7 +71,7 @@ public sealed class DownloadTests
     {
         var download = Download.From(Resource.FromAssembly("File.txt"));
 
-        using var runner = TestHost.Run(download);
+        await using var runner = await TestHost.RunAsync(download);
 
         using var response = await runner.GetResponseAsync();
 
@@ -83,7 +83,7 @@ public sealed class DownloadTests
     {
         var download = Download.From(Resource.FromAssembly("File.txt").Name("myfile.txt"));
 
-        using var runner = TestHost.Run(download);
+        await using var runner = await TestHost.RunAsync(download);
 
         using var response = await runner.GetResponseAsync();
 

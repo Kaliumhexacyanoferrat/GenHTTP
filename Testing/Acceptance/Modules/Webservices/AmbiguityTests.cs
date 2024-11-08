@@ -19,7 +19,7 @@ public sealed class AmbiguityTests
         var app = Layout.Create()
                         .AddService<TestService>("c");
 
-        using var host = TestHost.Run(app);
+        await using var host = await TestHost.RunAsync(app);
 
         using var response = await host.GetResponseAsync("/c/my.txt");
 

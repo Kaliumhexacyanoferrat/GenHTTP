@@ -37,7 +37,7 @@ public class FormatTests
     [TestMethod]
     public async Task TestUnsupportedFormat()
     {
-        using var host = TestHost.Run(GetApi());
+        await using var host = await TestHost.RunAsync(GetApi());
 
         var request = host.GetRequest("/openapi");
 
@@ -50,8 +50,7 @@ public class FormatTests
 
     private static async Task TestApi(string path, string? expectedContentType = null, string? accept = null)
     {
-
-        using var host = TestHost.Run(GetApi());
+        await using var host = await TestHost.RunAsync(GetApi());
 
         var request = host.GetRequest(path);
 

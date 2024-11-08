@@ -12,9 +12,9 @@ public sealed class HostTests
     [MultiEngineTest]
     public async Task TestStart(TestEngine engine)
     {
-        using var runner = new TestHost(Layout.Create().Build(), engine: engine);
+        await using var runner = new TestHost(Layout.Create().Build(), engine: engine);
 
-        runner.Host.Start();
+        await runner.Host.StartAsync();
 
         using var response = await runner.GetResponseAsync();
 
@@ -25,9 +25,9 @@ public sealed class HostTests
     [MultiEngineTest]
     public async Task TestRestart(TestEngine engine)
     {
-        using var runner = new TestHost(Layout.Create().Build(), engine: engine);
+        await using var runner = new TestHost(Layout.Create().Build(), engine: engine);
 
-        runner.Host.Restart();
+        await runner.Host.RestartAsync();
 
         using var response = await runner.GetResponseAsync();
 

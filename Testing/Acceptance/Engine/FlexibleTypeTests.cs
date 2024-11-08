@@ -20,7 +20,7 @@ public sealed class FlexibleTypeTests
     {
         var content = Layout.Create().Index(new Provider().Wrap());
 
-        using var runner = TestHost.Run(content);
+        await using var runner = await TestHost.RunAsync(content);
 
         using var response = await runner.GetResponseAsync();
 

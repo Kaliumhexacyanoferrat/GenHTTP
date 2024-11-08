@@ -14,7 +14,7 @@ public sealed class RedirectTests
     {
         var redirect = Redirect.To("https://google.de/", true);
 
-        using var runner = TestHost.Run(redirect);
+        await using var runner = await TestHost.RunAsync(redirect);
 
         using var response = await runner.GetResponseAsync();
 
@@ -27,7 +27,7 @@ public sealed class RedirectTests
     {
         var redirect = Redirect.To("https://google.de/", true);
 
-        using var runner = TestHost.Run(redirect);
+        await using var runner = await TestHost.RunAsync(redirect);
 
         var request = runner.GetRequest();
         request.Method = HttpMethod.Post;
@@ -43,7 +43,7 @@ public sealed class RedirectTests
     {
         var redirect = Redirect.To("https://google.de/");
 
-        using var runner = TestHost.Run(redirect);
+        await using var runner = await TestHost.RunAsync(redirect);
 
         using var response = await runner.GetResponseAsync();
 
@@ -56,7 +56,7 @@ public sealed class RedirectTests
     {
         var redirect = Redirect.To("https://google.de/");
 
-        using var runner = TestHost.Run(redirect);
+        await using var runner = await TestHost.RunAsync(redirect);
 
         var request = runner.GetRequest();
         request.Method = HttpMethod.Post;
@@ -73,7 +73,7 @@ public sealed class RedirectTests
         var layout = Layout.Create()
                            .Add("redirect", Redirect.To("/me/to/"));
 
-        using var runner = TestHost.Run(layout);
+        await using var runner = await TestHost.RunAsync(layout);
 
         using var response = await runner.GetResponseAsync("/redirect/");
 

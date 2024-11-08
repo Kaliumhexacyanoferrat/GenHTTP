@@ -27,7 +27,7 @@ public sealed class SerializationTests
 
         var app = Layout.Create().Add(inspection);
 
-        using var host = TestHost.Run(app);
+        await using var host = await TestHost.RunAsync(app);
 
         using var inspected = await host.GetResponseAsync("/one/two?inspect");
 
@@ -47,7 +47,7 @@ public sealed class SerializationTests
 
         var app = Layout.Create().Add(inspection);
 
-        using var host = TestHost.Run(app);
+        await using var host = await TestHost.RunAsync(app);
 
         using var inspected = await host.GetResponseAsync("/one/two?inspect");
 

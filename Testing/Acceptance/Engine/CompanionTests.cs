@@ -20,9 +20,9 @@ public sealed class CompanionTests
     [MultiEngineTest]
     public async Task TestConsole(TestEngine engine)
     {
-        using var runner = new TestHost(Layout.Create().Build(), engine: engine);
+        await using var runner = new TestHost(Layout.Create().Build(), engine: engine);
 
-        runner.Host.Console().Start();
+        await runner.Host.Console().StartAsync();
 
         using var __ = await runner.GetResponseAsync();
     }
@@ -34,11 +34,11 @@ public sealed class CompanionTests
     [MultiEngineTest]
     public async Task TestCustom(TestEngine engine)
     {
-        using var runner = new TestHost(Layout.Create().Build(), engine: engine);
+        await using var runner = new TestHost(Layout.Create().Build(), engine: engine);
 
         var companion = new CustomCompanion();
 
-        runner.Host.Companion(companion).Start();
+        await runner.Host.Companion(companion).StartAsync();
 
         using var __ = await runner.GetResponseAsync();
 

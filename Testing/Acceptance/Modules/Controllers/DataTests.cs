@@ -14,14 +14,14 @@ public sealed class DataTests
 
     #region Helpers
 
-    private static TestHost GetHost(TestEngine engine)
+    private static async Task<TestHost> GetHostAsync(TestEngine engine)
     {
         var app = Layout.Create()
                         .AddController<TestController>("t", serializers: Serialization.Default(),
                                                        injectors: Injection.Default(),
                                                        formatters: Formatting.Default());
 
-        return TestHost.Run(app, engine: engine);
+        return await TestHost.RunAsync(app, engine: engine);
     }
 
     #endregion
@@ -43,7 +43,7 @@ public sealed class DataTests
     [MultiEngineTest]
     public async Task TestDateOnly(TestEngine engine)
     {
-        using var host = GetHost(engine);
+        await using var host = await GetHostAsync(engine);
 
         var request = host.GetRequest("/t/date/", HttpMethod.Post);
 
@@ -67,7 +67,7 @@ public sealed class DataTests
     [MultiEngineTest]
     public async Task TestInvalidDateOnly(TestEngine engine)
     {
-        using var host = GetHost(engine);
+        await using var host = await GetHostAsync(engine);
 
         var request = host.GetRequest("/t/date/", HttpMethod.Post);
 

@@ -5,9 +5,9 @@ using GenHTTP.Modules.Practices;
 
 var app = Listing.From(ResourceTree.FromDirectory("."));
 
-Host.Create()
-    .Handler(app)
-    .Defaults()
-    .Development()
-    .Console()
-    .Run();
+await Host.Create()
+          .Handler(app)
+          .Defaults()
+          .Development()
+          .Console()
+          .RunAsync();

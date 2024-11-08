@@ -13,7 +13,7 @@ public class ChecksumTests
     [MultiEngineTest]
     public async Task TestSameErrorSameChecksum(TestEngine engine)
     {
-        using var runner = TestHost.Run(Layout.Create(), engine: engine);
+        await using var runner = await TestHost.RunAsync(Layout.Create(), engine: engine);
 
         using var resp1 = await runner.GetResponseAsync();
         using var resp2 = await runner.GetResponseAsync();
@@ -27,7 +27,7 @@ public class ChecksumTests
     [MultiEngineTest]
     public async Task TestSameContentSameChecksum(TestEngine engine)
     {
-        using var runner = TestHost.Run(Content.From(Resource.FromString("Hello World!")), engine: engine);
+        await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")), engine: engine);
 
         using var resp1 = await runner.GetResponseAsync();
         using var resp2 = await runner.GetResponseAsync();

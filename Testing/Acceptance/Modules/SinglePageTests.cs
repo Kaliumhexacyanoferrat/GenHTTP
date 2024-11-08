@@ -17,7 +17,7 @@ public sealed class SinglePageTests
 
         await FileUtil.WriteTextAsync(Path.Combine(root, "index.html"), "This is the index!");
 
-        using var runner = TestHost.Run(SinglePageApplication.From(ResourceTree.FromDirectory(root)));
+        await using var runner = await TestHost.RunAsync(SinglePageApplication.From(ResourceTree.FromDirectory(root)));
 
         using var index = await runner.GetResponseAsync("/");
 
@@ -39,7 +39,7 @@ public sealed class SinglePageTests
         var spa = SinglePageApplication.From(ResourceTree.FromDirectory(root))
                                        .ServerSideRouting();
 
-        using var runner = TestHost.Run(spa);
+        await using var runner = await TestHost.RunAsync(spa);
 
         using var index = await runner.GetResponseAsync("/some-route/");
 
@@ -50,7 +50,7 @@ public sealed class SinglePageTests
     [TestMethod]
     public async Task TestNoIndex()
     {
-        using var runner = TestHost.Run(SinglePageApplication.From(ResourceTree.FromDirectory(CreateRoot())));
+        await using var runner = await TestHost.RunAsync(SinglePageApplication.From(ResourceTree.FromDirectory(CreateRoot())));
 
         using var index = await runner.GetResponseAsync("/");
 
@@ -64,7 +64,7 @@ public sealed class SinglePageTests
 
         await FileUtil.WriteTextAsync(Path.Combine(root, "some.txt"), "This is some text file :)");
 
-        using var runner = TestHost.Run(SinglePageApplication.From(ResourceTree.FromDirectory(root)));
+        await using var runner = await TestHost.RunAsync(SinglePageApplication.From(ResourceTree.FromDirectory(root)));
 
         using var index = await runner.GetResponseAsync("/some.txt");
 
@@ -79,7 +79,7 @@ public sealed class SinglePageTests
     [TestMethod]
     public async Task TestNoFile()
     {
-        using var runner = TestHost.Run(SinglePageApplication.From(ResourceTree.FromDirectory(CreateRoot())));
+        await using var runner = await TestHost.RunAsync(SinglePageApplication.From(ResourceTree.FromDirectory(CreateRoot())));
 
         using var index = await runner.GetResponseAsync("/nope.txt");
 

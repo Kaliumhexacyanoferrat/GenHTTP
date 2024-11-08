@@ -17,7 +17,7 @@ public sealed class ConversionTests
     {
         var handler = new ConversionHandlerBuilder<TData>(new TFormat());
 
-        using var runner = TestHost.Run(handler);
+        await using var runner = await TestHost.RunAsync(handler);
 
         var request = runner.GetRequest();
 

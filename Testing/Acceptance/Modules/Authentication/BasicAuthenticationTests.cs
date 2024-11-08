@@ -21,7 +21,7 @@ public sealed class BasicAuthenticationTests
     {
         var content = GetContent().Authentication(BasicAuthentication.Create());
 
-        using var runner = TestHost.Run(content, engine: engine);
+        await using var runner = await TestHost.RunAsync(content, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -35,7 +35,7 @@ public sealed class BasicAuthenticationTests
         var content = GetContent().Authentication(BasicAuthentication.Create()
                                                                      .Add("user", "password"));
 
-        using var runner = TestHost.Run(content, engine: engine);
+        await using var runner = await TestHost.RunAsync(content, engine: engine);
 
         using var response = await GetResponse(runner, "user", "password");
 
@@ -49,7 +49,7 @@ public sealed class BasicAuthenticationTests
         var content = GetContent().Authentication(BasicAuthentication.Create()
                                                                      .Add("user", "password"));
 
-        using var runner = TestHost.Run(content, engine: engine);
+        await using var runner = await TestHost.RunAsync(content, engine: engine);
 
         using var response = await GetResponse(runner, "user", "p");
 
@@ -62,7 +62,7 @@ public sealed class BasicAuthenticationTests
     {
         var content = GetContent().Authentication(BasicAuthentication.Create());
 
-        using var runner = TestHost.Run(content, engine: engine);
+        await using var runner = await TestHost.RunAsync(content, engine: engine);
 
         using var response = await GetResponse(runner, "u", "password");
 
@@ -75,7 +75,7 @@ public sealed class BasicAuthenticationTests
     {
         var content = GetContent().Authentication(BasicAuthentication.Create((_, _) => new ValueTask<IUser?>(new BasicAuthenticationUser("my"))));
 
-        using var runner = TestHost.Run(content, engine: engine);
+        await using var runner = await TestHost.RunAsync(content, engine: engine);
 
         using var response = await GetResponse(runner, "_", "_");
 
@@ -88,7 +88,7 @@ public sealed class BasicAuthenticationTests
     {
         var content = GetContent().Authentication(BasicAuthentication.Create((_, _) => new ValueTask<IUser?>()));
 
-        using var runner = TestHost.Run(content, engine: engine);
+        await using var runner = await TestHost.RunAsync(content, engine: engine);
 
         using var response = await GetResponse(runner, "_", "_");
 
@@ -101,7 +101,7 @@ public sealed class BasicAuthenticationTests
     {
         var content = GetContent().Authentication(BasicAuthentication.Create());
 
-        using var runner = TestHost.Run(content, engine: engine);
+        await using var runner = await TestHost.RunAsync(content, engine: engine);
 
         var request = runner.GetRequest();
         request.Headers.Add("Authorization", "Bearer 123");
@@ -117,7 +117,7 @@ public sealed class BasicAuthenticationTests
     {
         var content = GetContent().Authentication(BasicAuthentication.Create());
 
-        using var runner = TestHost.Run(content, engine: engine);
+        await using var runner = await TestHost.RunAsync(content, engine: engine);
 
         var request = runner.GetRequest();
         request.Headers.Add("Authorization", "Basic 123");

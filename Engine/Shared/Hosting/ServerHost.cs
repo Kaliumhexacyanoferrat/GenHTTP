@@ -125,7 +125,7 @@ public sealed class ServerHost : IServerHost
 
     #region Functionality
 
-    public int Run()
+    public async ValueTask<int> RunAsync()
     {
         try
         {
@@ -136,7 +136,7 @@ public sealed class ServerHost : IServerHost
                 waitEvent.Set();
             };
 
-            Start();
+            await StartAsync();
 
             try
             {
@@ -144,7 +144,7 @@ public sealed class ServerHost : IServerHost
             }
             finally
             {
-                Stop();
+                await StopAsync();
             }
 
             return 0;
@@ -171,26 +171,33 @@ public sealed class ServerHost : IServerHost
         }
     }
 
-    public IServerHost Start()
+    public async ValueTask<IServerHost> StartAsync()
     {
-        Stop();
+        await StopAsync();
 
         Instance = Build();
+
+        await Instance.StartAsync();
+
         return this;
     }
 
-    public IServerHost Stop()
+    public async ValueTask<IServerHost> StopAsync()
     {
-        Instance?.Dispose();
+        if (Instance != null)
+        {
+            await Instance.DisposeAsync();
+        }
+
         Instance = null;
 
         return this;
     }
 
-    public IServerHost Restart()
+    public async ValueTask<IServerHost> RestartAsync()
     {
-        Stop();
-        Start();
+        await StopAsync();
+        await StartAsync();
 
         return this;
     }

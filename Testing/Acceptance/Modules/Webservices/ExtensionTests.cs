@@ -24,7 +24,7 @@ public sealed class ExtensionTests
                         .AddService<TestService>("by-type", injectors, formats)
                         .AddService("by-instance", new TestService(), injectors, formats);
 
-        using var host = TestHost.Run(app);
+        await using var host = await TestHost.RunAsync(app);
 
         using var r1 = await host.GetResponseAsync("/by-type");
 

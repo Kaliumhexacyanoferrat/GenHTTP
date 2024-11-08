@@ -17,7 +17,7 @@ public sealed class InspectionTests
     {
         var app = Content.From(Resource.FromString("Hello World")).AddInspector();
 
-        using var host = TestHost.Run(app);
+        await using var host = await TestHost.RunAsync(app);
 
         using var inspected = await host.GetResponseAsync("/one/two?inspect");
 
@@ -31,7 +31,7 @@ public sealed class InspectionTests
     {
         var app = Content.From(Resource.FromString("Hello World")).AddInspector();
 
-        using var host = TestHost.Run(app);
+        await using var host = await TestHost.RunAsync(app);
 
         using var notInspected = await host.GetResponseAsync("/one/two");
 
@@ -45,7 +45,7 @@ public sealed class InspectionTests
     {
         var app = Layout.Create().AddInspector();
 
-        using var host = TestHost.Run(app);
+        await using var host = await TestHost.RunAsync(app);
 
         using var inspected = await host.GetResponseAsync("/one/two?inspect");
 

@@ -18,7 +18,7 @@ public sealed class LayoutTests
         var layout = Layout.Create()
                            .Index(Content.From(Resource.FromString("Hello World!")));
 
-        using var runner = TestHost.Run(layout);
+        await using var runner = await TestHost.RunAsync(layout);
 
         using var response = await runner.GetResponseAsync();
 
@@ -38,7 +38,7 @@ public sealed class LayoutTests
     {
         var layout = Layout.Create().Add(Content.From(Resource.FromString("Hello World!")));
 
-        using var runner = TestHost.Run(layout);
+        await using var runner = await TestHost.RunAsync(layout);
 
         foreach (var path in new[]
                  {
@@ -62,7 +62,7 @@ public sealed class LayoutTests
         var layout = Layout.Create()
                            .Add("section", Layout.Create().Index(Content.From(Resource.FromString("Hello World!"))));
 
-        using var runner = TestHost.Run(layout);
+        await using var runner = await TestHost.RunAsync(layout);
 
         using var response = await runner.GetResponseAsync("/section/");
 

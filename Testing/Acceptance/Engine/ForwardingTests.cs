@@ -15,7 +15,7 @@ public sealed class ForwardingTests
     {
         var responder = Inline.Create().Get((IRequest request) => ToString(request.Client));
 
-        using var host = TestHost.Run(responder, engine: engine);
+        await using var host = await TestHost.RunAsync(responder, engine: engine);
 
         var request = host.GetRequest();
 
@@ -32,7 +32,7 @@ public sealed class ForwardingTests
     {
         var responder = Inline.Create().Get((IRequest request) => ToString(request.Client));
 
-        using var host = TestHost.Run(responder, engine: engine);
+        await using var host = await TestHost.RunAsync(responder, engine: engine);
 
         var request = host.GetRequest();
 
@@ -51,7 +51,7 @@ public sealed class ForwardingTests
     {
         var responder = Inline.Create().Get((IRequest request) => ToString(request.Client));
 
-        using var host = TestHost.Run(responder, engine: engine);
+        await using var host = await TestHost.RunAsync(responder, engine: engine);
 
         var request = host.GetRequest();
 
@@ -72,7 +72,7 @@ public sealed class ForwardingTests
     {
         var responder = Inline.Create().Get((IRequest request) => ToString(request.Forwardings.First()));
 
-        using var host = TestHost.Run(responder, engine: engine);
+        await using var host = await TestHost.RunAsync(responder, engine: engine);
 
         var request = host.GetRequest();
 

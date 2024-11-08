@@ -11,7 +11,7 @@ public sealed class ContentTests
     [TestMethod]
     public async Task TestContent()
     {
-        using var runner = TestHost.Run(Content.From(Resource.FromString("Hello World!")));
+        await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")));
 
         using var response = await runner.GetResponseAsync();
 
@@ -22,7 +22,7 @@ public sealed class ContentTests
     [TestMethod]
     public async Task TestContentIgnoresRouting()
     {
-        using var runner = TestHost.Run(Content.From(Resource.FromString("Hello World!")));
+        await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")));
 
         using var response = await runner.GetResponseAsync("/some/path");
 

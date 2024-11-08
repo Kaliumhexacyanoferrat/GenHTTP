@@ -17,7 +17,7 @@ internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPoi
 
         foreach (var config in configuration)
         {
-            Add(Start(config));
+            Add(Build(config));
         }
     }
 
@@ -25,7 +25,7 @@ internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPoi
 
     #region Functionality
 
-    private EndPoint Start(EndPointConfiguration configuration)
+    private EndPoint Build(EndPointConfiguration configuration)
     {
         var endpoint = new IPEndPoint(configuration.Address, configuration.Port);
 
@@ -34,6 +34,14 @@ internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPoi
             return new InsecureEndPoint(Server, endpoint, NetworkConfiguration);
         }
         return new SecureEndPoint(Server, endpoint, configuration.Security, NetworkConfiguration);
+    }
+
+    internal void Start()
+    {
+        foreach (EndPoint endPoint in this)
+        {
+            endPoint.Start();
+        }
     }
 
     #endregion

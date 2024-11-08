@@ -22,7 +22,7 @@ public class ServerCacheTests
 
         try
         {
-            using var runner = TestHost.Run(Content.From(Resource.FromFile(file))
+            await using var runner = await TestHost.RunAsync(Content.From(Resource.FromFile(file))
                                                    .Add(ServerCache.Memory()));
 
             await FileUtil.WriteTextAsync(file, "1");
@@ -55,7 +55,7 @@ public class ServerCacheTests
 
         try
         {
-            using var runner = TestHost.Run(Content.From(Resource.FromFile(file))
+            await using var runner = await TestHost.RunAsync(Content.From(Resource.FromFile(file))
                                                    .Add(ServerCache.Memory().Invalidate(false)));
 
             await FileUtil.WriteTextAsync(file, "1");
@@ -90,7 +90,7 @@ public class ServerCacheTests
 
         try
         {
-            using var runner = TestHost.Run(Content.From(Resource.FromFile(file).Type(new FlexibleContentType(ContentType.TextPlain)))
+            await using var runner = await TestHost.RunAsync(Content.From(Resource.FromFile(file).Type(new FlexibleContentType(ContentType.TextPlain)))
                                                    .Add(CompressedContent.Default())
                                                    .Add(ServerCache.Memory().Invalidate(false)), false);
 
@@ -145,7 +145,7 @@ public class ServerCacheTests
                     .Build();
         });
 
-        using var runner = TestHost.Run(handler.Wrap().Add(ServerCache.Memory().Invalidate(false)), false);
+        await using var runner = await TestHost.RunAsync(handler.Wrap().Add(ServerCache.Memory().Invalidate(false)), false);
 
         using var _ = await runner.GetResponseAsync();
 
@@ -177,7 +177,7 @@ public class ServerCacheTests
                     .Build();
         });
 
-        using var runner = TestHost.Run(handler.Wrap().Add(ServerCache.Memory().Invalidate(false)), false);
+        await using var runner = await TestHost.RunAsync(handler.Wrap().Add(ServerCache.Memory().Invalidate(false)), false);
 
         using var _ = await runner.GetResponseAsync();
 
@@ -200,7 +200,7 @@ public class ServerCacheTests
                     .Build();
         });
 
-        using var runner = TestHost.Run(handler.Wrap().Add(ServerCache.Memory().Invalidate(false)), false);
+        await using var runner = await TestHost.RunAsync(handler.Wrap().Add(ServerCache.Memory().Invalidate(false)), false);
 
         using var _ = await runner.GetResponseAsync();
 
@@ -228,7 +228,7 @@ public class ServerCacheTests
                                .Predicate((_, r) => r.ContentType?.KnownType != ContentType.TextHtml)
                                .Invalidate(false);
 
-        using var runner = TestHost.Run(handler.Wrap().Add(cache), false);
+        await using var runner = await TestHost.RunAsync(handler.Wrap().Add(cache), false);
 
         using var _ = await runner.GetResponseAsync();
 
@@ -256,7 +256,7 @@ public class ServerCacheTests
                                .Predicate((_, r) => r.ContentType?.KnownType != ContentType.TextHtml)
                                .Invalidate(false);
 
-        using var runner = TestHost.Run(handler.Wrap().Add(cache), false);
+        await using var runner = await TestHost.RunAsync(handler.Wrap().Add(cache), false);
 
         using var _ = await runner.GetResponseAsync();
 
@@ -282,7 +282,7 @@ public class ServerCacheTests
         var cache = ServerCache.Memory()
                                .Invalidate(false);
 
-        using var runner = TestHost.Run(handler.Wrap().Add(cache), false);
+        await using var runner = await TestHost.RunAsync(handler.Wrap().Add(cache), false);
 
         using var _ = await runner.GetResponseAsync("/?a=1");
 
@@ -307,7 +307,7 @@ public class ServerCacheTests
         var cache = ServerCache.Memory()
                                .Invalidate(false);
 
-        using var runner = TestHost.Run(handler.Wrap().Add(cache), false);
+        await using var runner = await TestHost.RunAsync(handler.Wrap().Add(cache), false);
 
         using var _ = await runner.GetResponseAsync(GetPostRequest(runner));
 
@@ -343,7 +343,7 @@ public class ServerCacheTests
         var cache = ServerCache.Memory()
                                .Invalidate(false);
 
-        using var runner = TestHost.Run(handler.Wrap().Add(cache), false);
+        await using var runner = await TestHost.RunAsync(handler.Wrap().Add(cache), false);
 
         using var _ = await runner.GetResponseAsync(GetVaryRequest(runner));
 
@@ -377,7 +377,7 @@ public class ServerCacheTests
                         .Build();
             });
 
-            using var runner = TestHost.Run(handler.Wrap().Add(serverCache.Invalidate(false)), false);
+            await using var runner = await TestHost.RunAsync(handler.Wrap().Add(serverCache.Invalidate(false)), false);
 
             using var _ = await runner.GetResponseAsync();
 
@@ -406,7 +406,7 @@ public class ServerCacheTests
         var data = Cache.TemporaryFiles<Stream>()
                         .AccessExpiration(TimeSpan.FromMilliseconds(0));
 
-        using var runner = TestHost.Run(handler.Wrap().Add(ServerCache.Create(meta, data)), false);
+        await using var runner = await TestHost.RunAsync(handler.Wrap().Add(ServerCache.Create(meta, data)), false);
 
         using var _ = await runner.GetResponseAsync();
 

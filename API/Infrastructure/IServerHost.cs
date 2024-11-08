@@ -15,18 +15,18 @@ public interface IServerHost : IServerBuilder<IServerHost>
     /// Builds a server instance from the current configuration
     /// and starts it.
     /// </summary>
-    IServerHost Start();
+    ValueTask<IServerHost> StartAsync();
 
     /// <summary>
     /// Stops the currently running server instance, if any.
     /// </summary>
-    IServerHost Stop();
+    ValueTask<IServerHost> StopAsync();
 
     /// <summary>
     /// Stops the currently running server instance and starts
     /// a new one.
     /// </summary>
-    IServerHost Restart();
+    ValueTask<IServerHost> RestartAsync();
 
     /// <summary>
     /// Builds a server instance from the current configuration
@@ -37,5 +37,6 @@ public interface IServerHost : IServerBuilder<IServerHost>
     /// console or docker based applications.
     /// </remarks>
     /// <returns>The return code to be passed to the operating system</returns>
-    int Run();
+    ValueTask<int> RunAsync();
+
 }

@@ -18,7 +18,7 @@ public class PrecompressedContentTest
                                .Add(CompressedContent.Default().Level(CompressionLevel.Optimal))
                                .Add(ServerCache.Memory());
 
-        using var runner = TestHost.Run(content, false);
+        await using var runner = await TestHost.RunAsync(content, false);
 
         var request = runner.GetRequest("/Template.html");
 

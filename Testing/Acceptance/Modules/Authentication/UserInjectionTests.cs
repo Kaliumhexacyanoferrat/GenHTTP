@@ -14,7 +14,7 @@ public class UserInjectionTests
 
     #region Helpers
 
-    private static TestHost GetRunner(TestEngine engine)
+    private static async Task<TestHost> GetRunnerAsync(TestEngine engine)
     {
         var auth = BasicAuthentication.Create()
                                       .Add("abc", "def");
@@ -27,7 +27,7 @@ public class UserInjectionTests
                             .Injectors(injection)
                             .Authentication(auth);
 
-        return TestHost.Run(content, engine: engine);
+        return await TestHost.RunAsync(content, engine: engine);
     }
 
     #endregion
@@ -38,7 +38,7 @@ public class UserInjectionTests
     [MultiEngineTest]
     public async Task TestUserInjected(TestEngine engine)
     {
-        using var runner = GetRunner(engine);
+        await using var runner = await GetRunnerAsync(engine);
 
         using var client = TestHost.GetClient(creds: new NetworkCredential("abc", "def"));
 
@@ -52,7 +52,7 @@ public class UserInjectionTests
     [MultiEngineTest]
     public async Task TestNoUser(TestEngine engine)
     {
-        using var runner = GetRunner(engine);
+        await using var runner = await GetRunnerAsync(engine);
 
         using var response = await runner.GetResponseAsync();
 

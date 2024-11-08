@@ -16,7 +16,7 @@ public sealed class StaticWebsiteTests
                               .Add("index.html", Resource.FromString("Index 1"))
                               .Add("sub", VirtualTree.Create().Add("index.htm", Resource.FromString("Index 2")));
 
-        using var runner = TestHost.Run(StaticWebsite.From(tree));
+        await using var runner = await TestHost.RunAsync(StaticWebsite.From(tree));
 
         using var indexResponse = await runner.GetResponseAsync();
         Assert.AreEqual("Index 1", await indexResponse.GetContentAsync());
@@ -31,7 +31,7 @@ public sealed class StaticWebsiteTests
         var tree = VirtualTree.Create()
                               .Add("sub", VirtualTree.Create());
 
-        using var runner = TestHost.Run(StaticWebsite.From(tree));
+        await using var runner = await TestHost.RunAsync(StaticWebsite.From(tree));
 
         using var indexResponse = await runner.GetResponseAsync();
         await indexResponse.AssertStatusAsync(HttpStatusCode.NotFound);

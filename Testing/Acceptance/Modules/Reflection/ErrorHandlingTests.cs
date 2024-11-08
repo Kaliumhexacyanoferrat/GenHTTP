@@ -20,10 +20,11 @@ public class ErrorHandlingTests
                         .Get(() => new HashSet<int>())
                         .Serializers(serialization);
 
-        using var host = TestHost.Run(api);
+        await using var host = await TestHost.RunAsync(api);
 
         using var response = await host.GetResponseAsync();
 
         await response.AssertStatusAsync(HttpStatusCode.UnsupportedMediaType);
     }
+
 }

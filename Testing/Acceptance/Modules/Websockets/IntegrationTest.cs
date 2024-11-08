@@ -9,7 +9,7 @@ public sealed class IntegrationTest
 {
 
     [TestMethod]
-    public void TestServer()
+    public async Task TestServer()
     {
         var waitEvent = new ManualResetEvent(false);
 
@@ -23,7 +23,7 @@ public sealed class IntegrationTest
                            socket.Close();
                        });
 
-        using var host = TestHost.Run(server);
+        await using var host = await TestHost.RunAsync(server);
 
         using var client = new WebsocketClient(new Uri("ws://localhost:" + host.Port));
 
@@ -33,9 +33,9 @@ public sealed class IntegrationTest
             waitEvent.Set();
         });
 
-        client.Start();
+        await client.Start();
 
-        Task.Run(() => client.Send("1234567890"));
+        _ = Task.Run(() => client.Send("1234567890"));
 
         Assert.IsTrue(waitEvent.WaitOne(TimeSpan.FromSeconds(5)));
 

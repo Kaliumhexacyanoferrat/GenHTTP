@@ -16,7 +16,7 @@ public class InfrastructureTests
                         .Get("/some-path", () => "Hello World")
                         .AddOpenApi();
 
-        using var host = TestHost.Run(api);
+        await using var host = await TestHost.RunAsync(api);
 
         using var response = await host.GetResponseAsync("/some-path");
 
@@ -41,7 +41,7 @@ public class InfrastructureTests
                         .Get(() => "Hello World")
                         .Add(description);
 
-        using var host = TestHost.Run(api);
+        await using var host = await TestHost.RunAsync(api);
 
         AssertX.Contains("\"openapi\"", await (await host.GetResponseAsync("/openapi.json")).GetContentAsync());
         AssertX.Contains("openapi:", await (await host.GetResponseAsync("/openapi.yaml")).GetContentAsync());

@@ -23,7 +23,7 @@ public sealed class ResponseTests
 
         var router = Layout.Create().Index(provider.Wrap());
 
-        using var runner = TestHost.Run(router, engine: engine);
+        await using var runner = await TestHost.RunAsync(router, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -49,7 +49,7 @@ public sealed class ResponseTests
 
         var router = Layout.Create().Index(provider.Wrap());
 
-        using var runner = TestHost.Run(router, engine: engine);
+        await using var runner = await TestHost.RunAsync(router, engine: engine);
 
         var request = runner.GetRequest();
         request.Method = HttpMethod.Post;

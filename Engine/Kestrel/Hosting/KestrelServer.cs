@@ -53,18 +53,6 @@ internal sealed class KestrelServer : IServer
         EndPoints = endpoints;
 
         Application = Spawn();
-
-        using var startEvent = new ManualResetEventSlim(false);
-
-        Task.Run(async () =>
-        {
-            await Start();
-            startEvent.Set();
-        });
-
-        var started = startEvent.Wait(5000);
-
-        if (!started) throw new InvalidOperationException("Server did not start within 5 seconds");
     }
 
     #endregion
@@ -84,7 +72,7 @@ internal sealed class KestrelServer : IServer
         return app;
     }
 
-    private async ValueTask Start()
+    public async ValueTask StartAsync()
     {
         await Handler.PrepareAsync();
 
@@ -171,7 +159,10 @@ internal sealed class KestrelServer : IServer
             {
                 if (cookie.Value.MaxAge != null)
                 {
-                    target.Cookies.Append(cookie.Key, cookie.Value.Value, new() { MaxAge = TimeSpan.FromSeconds(cookie.Value.MaxAge.Value)});
+                    target.Cookies.Append(cookie.Key, cookie.Value.Value, new()
+                    {
+                        MaxAge = TimeSpan.FromSeconds(cookie.Value.MaxAge.Value)
+                    });
                 }
                 else
                 {
@@ -201,16 +192,13 @@ internal sealed class KestrelServer : IServer
 
     private bool _Disposed;
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         if (!_Disposed)
         {
-            Task.Run(async () =>
-            {
-                await Application.StopAsync();
+            await Application.StopAsync();
 
-                await Application.DisposeAsync();
-            });
+            await Application.DisposeAsync();
 
             _Disposed = true;
         }

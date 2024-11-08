@@ -17,7 +17,7 @@ public sealed class ContentTests
         var handler = Inline.Create()
                             .Get(() => expectation);
 
-        using var host = TestHost.Run(handler);
+        await using var host = await TestHost.RunAsync(handler);
 
         using var response = await host.GetResponseAsync();
 
@@ -30,7 +30,7 @@ public sealed class ContentTests
         var handler = Inline.Create()
                             .Get(() => (MyType?)null);
 
-        using var host = TestHost.Run(handler);
+        await using var host = await TestHost.RunAsync(handler);
 
         using var response = await host.GetResponseAsync();
 
@@ -43,7 +43,7 @@ public sealed class ContentTests
         var handler = Inline.Create()
                             .Get(() => new Result<string>("Nah").Type(FlexibleContentType.Get("text/html")));
 
-        using var host = TestHost.Run(handler);
+        await using var host = await TestHost.RunAsync(handler);
 
         using var response = await host.GetResponseAsync();
 

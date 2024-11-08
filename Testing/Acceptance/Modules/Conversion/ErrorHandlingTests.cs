@@ -18,7 +18,7 @@ public class ErrorHandlingTests
         var inline = Inline.Create()
                            .Post("/t", (MyEntity entity) => entity.Data);
 
-        using var runner = TestHost.Run(inline, engine: engine);
+        await using var runner = await TestHost.RunAsync(inline, engine: engine);
 
         using var request = runner.GetRequest("/t");
 

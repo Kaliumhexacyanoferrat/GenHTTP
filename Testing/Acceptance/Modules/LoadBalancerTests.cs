@@ -13,12 +13,12 @@ public sealed class LoadBalancerTests
     [TestMethod]
     public async Task TestProxy()
     {
-        using var upstream = TestHost.Run(Content.From(Resource.FromString("Proxy!")));
+        await using var upstream = await TestHost.RunAsync(Content.From(Resource.FromString("Proxy!")));
 
         var loadbalancer = LoadBalancer.Create()
                                        .Proxy($"http://localhost:{upstream.Port}");
 
-        using var runner = TestHost.Run(loadbalancer);
+        await using var runner = await TestHost.RunAsync(loadbalancer);
 
         using var response = await runner.GetResponseAsync();
 
@@ -32,7 +32,7 @@ public sealed class LoadBalancerTests
         var loadbalancer = LoadBalancer.Create()
                                        .Redirect("http://node");
 
-        using var runner = TestHost.Run(loadbalancer);
+        await using var runner = await TestHost.RunAsync(loadbalancer);
 
         using var response = await runner.GetResponseAsync("/page");
 
@@ -46,7 +46,7 @@ public sealed class LoadBalancerTests
         var loadbalancer = LoadBalancer.Create()
                                        .Add(Content.From(Resource.FromString("My Content!")));
 
-        using var runner = TestHost.Run(loadbalancer);
+        await using var runner = await TestHost.RunAsync(loadbalancer);
 
         using var response = await runner.GetResponseAsync();
 
@@ -61,7 +61,7 @@ public sealed class LoadBalancerTests
                                        .Add(Content.From(Resource.FromString("Prio A")), _ => Priority.High)
                                        .Add(Content.From(Resource.FromString("Prio B")), _ => Priority.Low);
 
-        using var runner = TestHost.Run(loadbalancer);
+        await using var runner = await TestHost.RunAsync(loadbalancer);
 
         using var response = await runner.GetResponseAsync();
 
@@ -76,7 +76,7 @@ public sealed class LoadBalancerTests
                                        .Add(Content.From(Resource.FromString("Prio A2")), _ => Priority.High)
                                        .Add(Content.From(Resource.FromString("Prio A3")), _ => Priority.High);
 
-        using var runner = TestHost.Run(loadbalancer);
+        await using var runner = await TestHost.RunAsync(loadbalancer);
 
         using var response = await runner.GetResponseAsync();
 
@@ -86,7 +86,7 @@ public sealed class LoadBalancerTests
     [TestMethod]
     public async Task TestNoNodes()
     {
-        using var runner = TestHost.Run(LoadBalancer.Create());
+        await using var runner = await TestHost.RunAsync(LoadBalancer.Create());
 
         using var response = await runner.GetResponseAsync();
 

@@ -33,9 +33,9 @@ public class ResultTypeTests
 
     #region Helpers
 
-    private TestHost GetRunner() => TestHost.Run(Layout.Create().AddService<TestResource>("t", serializers: Serialization.Default(),
-                                                                                          injectors: Injection.Default(),
-                                                                                          formatters: Formatting.Default()));
+    private async Task<TestHost> GetRunnerAsync() => await TestHost.RunAsync(Layout.Create().AddService<TestResource>("t", serializers: Serialization.Default(),
+                                                                                                                      injectors: Injection.Default(),
+                                                                                                                      formatters: Formatting.Default()));
 
     #endregion
 
@@ -44,7 +44,7 @@ public class ResultTypeTests
     [TestMethod]
     public async Task ControllerMayReturnTask()
     {
-        using var runner = GetRunner();
+        await using var runner = await GetRunnerAsync();
 
         using var response = await runner.GetResponseAsync("/t/task");
 
@@ -54,7 +54,7 @@ public class ResultTypeTests
     [TestMethod]
     public async Task ControllerMayReturnValueTask()
     {
-        using var runner = GetRunner();
+        await using var runner = await GetRunnerAsync();
 
         using var response = await runner.GetResponseAsync("/t/value-task");
 
@@ -64,7 +64,7 @@ public class ResultTypeTests
     [TestMethod]
     public async Task ControllerMayReturnGenericTask()
     {
-        using var runner = GetRunner();
+        await using var runner = await GetRunnerAsync();
 
         using var response = await runner.GetResponseAsync("/t/generic-task");
 
@@ -75,7 +75,7 @@ public class ResultTypeTests
     [TestMethod]
     public async Task ControllerMayReturnGenericValueTask()
     {
-        using var runner = GetRunner();
+        await using var runner = await GetRunnerAsync();
 
         using var response = await runner.GetResponseAsync("/t/generic-value-task");
 

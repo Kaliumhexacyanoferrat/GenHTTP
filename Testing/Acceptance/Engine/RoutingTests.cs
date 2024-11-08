@@ -15,7 +15,7 @@ public sealed class RoutingTests
     [MultiEngineTest]
     public async Task NotFoundForUnknownRoute(TestEngine engine)
     {
-        using var runner = TestHost.Run(Layout.Create(), engine: engine);
+        await using var runner = await TestHost.RunAsync(Layout.Create(), engine: engine);
 
         using var response = await runner.GetResponseAsync();
         await response.AssertStatusAsync(HttpStatusCode.NotFound);

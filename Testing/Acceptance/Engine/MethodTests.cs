@@ -19,7 +19,7 @@ public sealed class MethodTests
             FlexibleRequestMethod.Get("BREW")
         });
 
-        using var host = TestHost.Run(result, engine: engine);
+        await using var host = await TestHost.RunAsync(result, engine: engine);
 
         var request = host.GetRequest(method: new HttpMethod("BREW"));
 

@@ -17,7 +17,7 @@ public sealed class CookieTests
     [MultiEngineTest]
     public async Task TestCookiesCanBeReturned(TestEngine engine)
     {
-        using var runner = TestHost.Run(new TestProvider().Wrap(), engine: engine);
+        await using var runner = await TestHost.RunAsync(new TestProvider().Wrap(), engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -33,7 +33,7 @@ public sealed class CookieTests
     {
         var provider = new TestProvider();
 
-        using var runner = TestHost.Run(provider.Wrap(), engine: engine);
+        await using var runner = await TestHost.RunAsync(provider.Wrap(), engine: engine);
 
         var request = runner.GetRequest();
         request.Headers.Add("Cookie", "1=2; 3=4");

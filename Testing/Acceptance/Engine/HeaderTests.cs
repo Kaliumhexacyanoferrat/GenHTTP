@@ -19,7 +19,7 @@ public class HeaderTests
                     .Build();
         });
 
-        using var runner = TestHost.Run(handler.Wrap(), engine: engine);
+        await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -37,7 +37,7 @@ public class HeaderTests
                     .Build();
         });
 
-        using var runner = TestHost.Run(handler.Wrap(), engine: engine);
+        await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
 
         using var response = await runner.GetResponseAsync();
 

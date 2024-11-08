@@ -16,7 +16,7 @@ public sealed class ReverseProxyTests
     [TestMethod]
     public async Task TestBasics()
     {
-        using var setup = TestSetup.Create(r => r.Respond().Content("Hello World!").Build());
+        await using var setup = await TestSetup.CreateAsync(r => r.Respond().Content("Hello World!").Build());
 
         var runner = setup.Runner;
 
@@ -27,7 +27,7 @@ public sealed class ReverseProxyTests
     [TestMethod]
     public async Task TestRedirection()
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(r =>
         {
             return r.Respond().Header("Location", $"http://localhost:{r.EndPoint.Port}/target").Status(ResponseStatus.TemporaryRedirect).Build();
         });
@@ -42,7 +42,7 @@ public sealed class ReverseProxyTests
     [TestMethod]
     public async Task TestHead()
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(r =>
         {
             return r.Respond().Content("Hello World!").Build();
         });
@@ -60,7 +60,7 @@ public sealed class ReverseProxyTests
     [TestMethod]
     public async Task TestCookies()
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(r =>
         {
             Assert.AreEqual("World", r.Cookies["Hello"].Value);
 
@@ -95,7 +95,7 @@ public sealed class ReverseProxyTests
     {
         var now = DateTime.UtcNow;
 
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(r =>
         {
             return r.Respond()
                     .Content("Hello World")
@@ -122,7 +122,7 @@ public sealed class ReverseProxyTests
     [TestMethod]
     public async Task TestPost()
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(r =>
         {
             using var reader = new StreamReader(r.Content!);
             return r.Respond().Content(reader.ReadToEnd()).Build();
@@ -144,7 +144,7 @@ public sealed class ReverseProxyTests
     [TestMethod]
     public async Task TestPathing()
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(r =>
         {
             return r.Respond().Content(r.Target.Path.ToString()).Build();
         });
@@ -164,7 +164,7 @@ public sealed class ReverseProxyTests
     [TestMethod]
     public async Task TestQuery()
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(r =>
         {
             var result = string.Join('|', r.Query.Select(kv => $"{kv.Key}={kv.Value}"));
             return r.Respond().Content(result).Build();
@@ -185,7 +185,7 @@ public sealed class ReverseProxyTests
     [TestMethod]
     public async Task TestQuerySpecialChars()
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(r =>
         {
             var result = string.Join('|', r.Query.Select(kv => $"{kv.Key}={kv.Value}"));
             return r.Respond().Content(result).Build();
@@ -200,7 +200,7 @@ public sealed class ReverseProxyTests
     [TestMethod]
     public async Task TestPathSpecialChars()
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(r =>
         {
             return r.Respond().Content(r.Target.Path.ToString(true)).Build();
         });
@@ -214,7 +214,7 @@ public sealed class ReverseProxyTests
     [TestMethod]
     public async Task TestPathPreservesSpecialChars()
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(r =>
         {
             return r.Respond().Content(r.Target.Path.ToString(true)).Build();
         });
@@ -228,7 +228,7 @@ public sealed class ReverseProxyTests
     [TestMethod]
     public async Task TestContentLengthPreserved()
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(r =>
         {
             return r.Respond()
                     .Content("Hello World")
@@ -248,7 +248,7 @@ public sealed class ReverseProxyTests
         var proxy = Proxy.Create()
                          .Upstream("http://icertainlydonotexistasadomain");
 
-        using var runner = TestHost.Run(proxy);
+        await using var runner = await TestHost.RunAsync(proxy);
 
         using var response = await runner.GetResponseAsync();
 
@@ -259,7 +259,7 @@ public sealed class ReverseProxyTests
     [TestMethod]
     public async Task TestCompression()
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(r =>
         {
             return r.Respond().Content("Hello World!").Build();
         });
@@ -277,7 +277,7 @@ public sealed class ReverseProxyTests
 
     #region Supporting data structures
 
-    private class TestSetup : IDisposable
+    private class TestSetup : IAsyncDisposable
     {
         private readonly TestHost _Target;
 
@@ -289,13 +289,13 @@ public sealed class ReverseProxyTests
 
         public TestHost Runner { get; }
 
-        public static TestSetup Create(Func<IRequest, IResponse?> response)
+        public static async Task<TestSetup> CreateAsync(Func<IRequest, IResponse?> response)
         {
             // server hosting the actual web app
             var testServer = new TestHost(Layout.Create().Build(), false);
 
-            testServer.Host.Handler(new ProxiedRouter(response))
-                      .Start();
+            await testServer.Host.Handler(new ProxiedRouter(response))
+                      .StartAsync();
 
             // proxying server
             var proxy = Proxy.Create()
@@ -305,8 +305,8 @@ public sealed class ReverseProxyTests
 
             var runner = new TestHost(Layout.Create().Build());
 
-            runner.Host.Handler(proxy)
-                  .Start();
+            await runner.Host.Handler(proxy)
+                  .StartAsync();
 
             return new TestSetup(runner, testServer);
         }
@@ -315,24 +315,21 @@ public sealed class ReverseProxyTests
 
         private bool _DisposedValue;
 
-        protected virtual void Dispose(bool disposing)
+        protected virtual async ValueTask DisposeAsync(bool disposing)
         {
             if (!_DisposedValue)
             {
                 if (disposing)
                 {
-                    Runner.Dispose();
-                    _Target.Dispose();
+                    await Runner.DisposeAsync();
+                    await _Target.DisposeAsync();
                 }
 
                 _DisposedValue = true;
             }
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public ValueTask DisposeAsync() => DisposeAsync(true);
 
         #endregion
 
