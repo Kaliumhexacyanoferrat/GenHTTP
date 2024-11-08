@@ -7,6 +7,7 @@ using GenHTTP.Engine.Shared.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace GenHTTP.Engine.Kestrel.Hosting;
 
@@ -83,6 +84,8 @@ internal sealed class KestrelServer : IServer
 
     private void Configure(WebApplicationBuilder builder)
     {
+        builder.Logging.ClearProviders();
+
         builder.WebHost.ConfigureKestrel(options =>
         {
             foreach (var endpoint in Configuration.EndPoints)
