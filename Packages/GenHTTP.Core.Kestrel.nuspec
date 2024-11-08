@@ -1,0 +1,44 @@
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+
+    <metadata>
+
+        <id>GenHTTP.Core</id>
+        <version>9.0.0</version>
+
+        <description>Basic dependencies for projects using the GenHTTP framework, combined with the Kestrel HTTP engine to serve requests</description>
+        <copyright></copyright>
+
+        <projectUrl>https://genhttp.org/</projectUrl>
+
+        <authors>Andreas Nägeli</authors>
+        <tags>HTTP Webserver Library C# Server REST API Host Kestrel</tags>
+
+        <icon>images\icon.png</icon>
+
+        <license type="file">LICENSE</license>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+
+        <dependencies>
+
+            <group>
+
+                <dependency id="GenHTTP.Api" version="9.0.0"/>
+
+                <dependency id="GenHTTP.Engine.Kestrel" version="9.0.0"/>
+
+                <dependency id="GenHTTP.Modules.Practices" version="9.0.0"/>
+                <dependency id="GenHTTP.Modules.Basics" version="9.0.0"/>
+                <dependency id="GenHTTP.Modules.Layouting" version="9.0.0"/>
+
+            </group>
+
+        </dependencies>
+
+    </metadata>
+
+    <files>
+        <file src="..\Resources\icon.png" target="images\"/>
+        <file src="..\LICENSE" target="LICENSE"/>
+    </files>
+
+</package>
