@@ -81,7 +81,6 @@ public sealed class Request : IRequest
         Server = server;
         Context = context.Request;
 
-        // todo
         ProtocolType = Context.Protocol == "HTTP/1.1" ? HttpProtocol.Http11 : HttpProtocol.Http10;
         Method = FlexibleRequestMethod.Get(Context.Method);
         Target = new RoutingTarget(WebPath.FromString(Context.Path));
@@ -102,7 +101,6 @@ public sealed class Request : IRequest
 
         Client = _Forwardings.DetermineClient() ?? LocalClient;
 
-        // todo
         EndPoint = Server.EndPoints.First(e => e.Port == context.Connection.LocalPort);
     }
 
