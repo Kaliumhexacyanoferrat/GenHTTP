@@ -5,14 +5,14 @@ using Microsoft.AspNetCore.Http;
 
 namespace GenHTTP.Engine.Kestrel.Hosting;
 
-public class ClientConnection : IClientConnection
+public sealed class ClientConnection : IClientConnection
 {
 
     #region Get-/Setters
 
     public IPAddress IPAddress => Info.RemoteIpAddress ?? throw new InvalidOperationException("Remote client IP address is not known");
 
-    public ClientProtocol? Protocol => ClientProtocol.Http; // todo
+    public ClientProtocol? Protocol { get; }
 
     public string? Host => Request.Host.HasValue ? Request.Host.Value : null;
 
@@ -28,8 +28,11 @@ public class ClientConnection : IClientConnection
     {
         Info = info;
         Request = request;
+
+        Protocol = (request.IsHttps) ? ClientProtocol.Https : ClientProtocol.Http;
     }
 
     #endregion
+
 
 }

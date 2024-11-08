@@ -1,6 +1,7 @@
 ﻿using System.Net;
 
 using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Engine.Shared.Infrastructure;
 
 namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
@@ -38,9 +39,9 @@ internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPoi
 
     internal void Start()
     {
-        foreach (EndPoint endPoint in this)
+        foreach (var endPoint in this)
         {
-            endPoint.Start();
+            (endPoint as EndPoint)?.Start();
         }
     }
 

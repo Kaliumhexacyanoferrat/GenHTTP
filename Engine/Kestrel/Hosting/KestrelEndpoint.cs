@@ -3,7 +3,7 @@ using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Engine.Kestrel.Hosting;
 
-public class KestrelEndpoint : IEndPoint
+public sealed class KestrelEndpoint : IEndPoint
 {
 
     #region Get-/Setters

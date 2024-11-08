@@ -7,8 +7,6 @@ using GenHTTP.Api.Routing;
 
 using GenHTTP.Engine.Shared.Types;
 
-using CookieCollection = System.Net.CookieCollection;
-
 namespace GenHTTP.Engine.Internal.Protocol;
 
 internal sealed class RequestBuilder : IBuilder<IRequest>

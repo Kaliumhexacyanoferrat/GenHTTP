@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace GenHTTP.Engine.Kestrel.Types;
 
-public class Cookies : Dictionary<string, Cookie>, ICookieCollection
+public sealed class Cookies : Dictionary<string, Cookie>, ICookieCollection
 {
 
     public Cookies(HttpRequest request)

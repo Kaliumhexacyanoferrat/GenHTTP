@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Functional;
-using GenHTTP.Modules.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Engine;

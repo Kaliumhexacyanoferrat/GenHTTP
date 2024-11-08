@@ -1,5 +1,4 @@
-﻿using GenHTTP.Engine.Internal.Infrastructure;
-using GenHTTP.Engine.Shared.Infrastructure;
+﻿using GenHTTP.Engine.Shared.Infrastructure;
 
 namespace GenHTTP.Engine.Internal.Protocol.Parser;
 

@@ -1,5 +1,4 @@
 ﻿using System.Buffers;
-using GenHTTP.Engine.Shared.Types;
 
 namespace GenHTTP.Engine.Internal.Protocol.Parser.Conversion;
 

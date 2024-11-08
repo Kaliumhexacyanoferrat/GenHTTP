@@ -4,8 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace GenHTTP.Engine.Kestrel.Types;
 
-// todo: abstract into strings-collection (same as headers)
-public class Query : IRequestQuery
+public sealed class Query : IRequestQuery
 {
 
     #region Get-/Setters

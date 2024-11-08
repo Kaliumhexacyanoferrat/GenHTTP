@@ -182,7 +182,7 @@ internal sealed class KestrelServer : IServer
                 target.Headers.ContentEncoding = response.ContentEncoding;
             }
 
-            await response.Content.WriteAsync(target.Body, 4096); // todo
+            await response.Content.WriteAsync(target.Body, Configuration.Network.TransferBufferSize);
         }
     }
 

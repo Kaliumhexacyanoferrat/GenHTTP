@@ -1,5 +1,4 @@
 using System.Net;
-using GenHTTP.Engine;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using WS = GenHTTP.Modules.Websockets.Websocket;

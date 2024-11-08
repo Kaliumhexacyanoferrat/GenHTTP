@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace GenHTTP.Engine.Kestrel.Types;
 
-public class Headers : IHeaderCollection
+public sealed class Headers : IHeaderCollection
 {
 
     #region Get-/Setters
