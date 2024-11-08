@@ -100,6 +100,7 @@ internal sealed class KestrelServer : IServer
                 }
                 else
                 {
+                    Console.WriteLine($"Address = {endpoint.Address}, Port = {endpoint.Port}");
                     options.Listen(endpoint.Address, endpoint.Port);
                 }
             }
