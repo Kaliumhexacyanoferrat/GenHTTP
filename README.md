@@ -8,13 +8,12 @@ the functionality rather than on messing around with configuration files.
 
 ## 🚀 Features
 
-- Setup new webservices in a couple of minutes
+- Setup new webservices in a couple of minutes using [project templates](https://genhttp.org/documentation/content/templates)
 - Supports current standards such as Open API, Websockets, Server Sent Events or JWT authentication
-  using [project templates](https://genhttp.org/documentation/content/templates)
 - Embed web services into your existing console, service, WPF, WinForms, WinUI, MAUI or Uno application
 - Projects are fully described in code - no configuration files needed, no magical behavior you need to learn
-- [Optimized](https://genhttp.org/features) out of the box
-- Small memory and storage [footprint](https://genhttp.org/features#footprint)
+- Supports [Kestrel](https://genhttp.org/documentation/server/engines/) as an underlying HTTP engine
+- [Optimized](https://genhttp.org/features) out of the box, small memory and storage [footprint](https://genhttp.org/features#footprint)
 - Grade A+ security level according to SSL Labs
 
 ## 📖 Getting Started
