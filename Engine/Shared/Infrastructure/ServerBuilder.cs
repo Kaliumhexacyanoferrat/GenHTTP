@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Runtime.InteropServices;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
@@ -154,8 +155,15 @@ public abstract class ServerBuilder : IServerBuilder
 
         if (endpoints.Count == 0)
         {
-            endpoints.Add(new EndPointConfiguration(IPAddress.Any, _Port, null));
-            endpoints.Add(new EndPointConfiguration(IPAddress.IPv6Any, _Port, null));
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                endpoints.Add(new EndPointConfiguration(IPAddress.Any, _Port, null));
+                endpoints.Add(new EndPointConfiguration(IPAddress.IPv6Any, _Port, null));
+            }
+            else
+            {
+                endpoints.Add(new EndPointConfiguration(IPAddress.Any, _Port, null));
+            }
         }
 
         var config = new ServerConfiguration(_Development, endpoints, network);
