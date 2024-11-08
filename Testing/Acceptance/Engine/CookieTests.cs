@@ -14,24 +14,26 @@ public sealed class CookieTests
     /// As a developer, I want to be able to set cookies to be accepted by the browser.
     /// </summary>
     [TestMethod]
-    public async Task TestCookiesCanBeReturned()
+    [MultiEngineTest]
+    public async Task TestCookiesCanBeReturned(TestEngine engine)
     {
-        using var runner = TestHost.Run(new TestProvider().Wrap());
+        await using var runner = await TestHost.RunAsync(new TestProvider().Wrap(), engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
-        Assert.AreEqual("TestCookie=TestValue; Max-Age=86400; Path=/", response.GetHeader("Set-Cookie"));
+        Assert.AreEqual("TestCookie=TestValue; Max-Age=86400; Path=/", response.GetHeader("Set-Cookie"), StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>
     /// As a developer, I want to be able to read cookies from the client.
     /// </summary>
     [TestMethod]
-    public async Task TestCookiesCanBeRead()
+    [MultiEngineTest]
+    public async Task TestCookiesCanBeRead(TestEngine engine)
     {
         var provider = new TestProvider();
 
-        using var runner = TestHost.Run(provider.Wrap());
+        await using var runner = await TestHost.RunAsync(provider.Wrap(), engine: engine);
 
         var request = runner.GetRequest();
         request.Headers.Add("Cookie", "1=2; 3=4");
@@ -47,8 +49,6 @@ public sealed class CookieTests
         public ICookieCollection? Cookies { get; private set; }
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
-
-        public IHandler Parent => throw new NotSupportedException();
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {

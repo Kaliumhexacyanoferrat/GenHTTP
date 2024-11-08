@@ -1,20 +1,19 @@
 # GenHTTP Webserver
 
 GenHTTP is a lightweight web server written in pure C# with only a few dependencies to 3rd-party libraries. The main
-purpose of this project is to quickly create web services written in .NET 8/9, allowing developers to concentrate on
+purpose of this project is to quickly create web services written in .NET 8 / 9, allowing developers to concentrate on
 the functionality rather than on messing around with configuration files.
 
 [![CI](https://github.com/Kaliumhexacyanoferrat/GenHTTP/actions/workflows/ci.yml/badge.svg)](https://github.com/Kaliumhexacyanoferrat/GenHTTP/actions/workflows/ci.yml) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GenHTTP&metric=coverage)](https://sonarcloud.io/dashboard?id=GenHTTP) [![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Core.svg)](https://www.nuget.org/packages/GenHTTP.Core/) [](https://discord.gg/cW6tPJS7nt) [![Discord](https://discordapp.com/api/guilds/1177529388229734410/widget.png?style=shield)](https://discord.gg/GwtDyUpkpV)
 
 ## 🚀 Features
 
-- Setup new webservices in a couple of minutes
-  using [project templates](https://genhttp.org/documentation/content/templates)
+- Setup new webservices in a couple of minutes using [project templates](https://genhttp.org/documentation/content/templates)
+- Supports current standards such as Open API, Websockets, Server Sent Events or JWT authentication
 - Embed web services into your existing console, service, WPF, WinForms, WinUI, MAUI or Uno application
 - Projects are fully described in code - no configuration files needed, no magical behavior you need to learn
-- Supports current standards such as Open API, Websockets, Server Sent Events or JWT authentication
-- [Optimized](https://genhttp.org/features) out of the box
-- Small memory and storage [footprint](https://genhttp.org/features#footprint)
+- Supports [Kestrel](https://genhttp.org/documentation/server/engines/) as an underlying HTTP engine
+- [Optimized](https://genhttp.org/features) out of the box, small memory and storage [footprint](https://genhttp.org/features#footprint)
 - Grade A+ security level according to SSL Labs
 
 ## 📖 Getting Started
@@ -54,10 +53,10 @@ If you would like to extend an existing .NET application, just add a nuget refer
 ```csharp
 var content = Content.From(Resource.FromString("Hello World!"));
 
-using var server = Host.Create()
-                       .Handler(content)
-                       .Defaults()
-                       .Start(); // or .Run() to block until the application is shut down
+var host = Host.Create()
+               .Handler(content)
+               .Defaults()
+               .StartAsync(); // or .RunAsync() to block until the application is shut down
 ```
 
 When you run this sample it can be accessed in the browser via http://localhost:8080.

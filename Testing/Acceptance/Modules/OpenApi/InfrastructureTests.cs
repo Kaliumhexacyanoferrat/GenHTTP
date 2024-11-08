@@ -10,13 +10,14 @@ public class InfrastructureTests
 {
 
     [TestMethod]
-    public async Task TestContentIsPassed()
+    [MultiEngineTest]
+    public async Task TestContentIsPassed(TestEngine engine)
     {
         var api = Inline.Create()
                         .Get("/some-path", () => "Hello World")
                         .AddOpenApi();
 
-        using var host = TestHost.Run(api);
+        await using var host = await TestHost.RunAsync(api, engine: engine);
 
         using var response = await host.GetResponseAsync("/some-path");
 
@@ -26,12 +27,14 @@ public class InfrastructureTests
     }
 
     [TestMethod]
-    public async Task TestCaching() => Assert.AreEqual(1, await RunCachingTest(true));
+    [MultiEngineTest]
+    public async Task TestCaching(TestEngine engine) => Assert.AreEqual(1, await RunCachingTest(engine, true));
 
     [TestMethod]
-    public async Task TestNoCaching() => Assert.AreEqual(2, await RunCachingTest(false));
+    [MultiEngineTest]
+    public async Task TestNoCaching(TestEngine engine) => Assert.AreEqual(2, await RunCachingTest(engine, false));
 
-    private async Task<int> RunCachingTest(bool cacheEnabled)
+    private async Task<int> RunCachingTest(TestEngine engine, bool cacheEnabled)
     {
         var counter = 0;
 
@@ -41,7 +44,7 @@ public class InfrastructureTests
                         .Get(() => "Hello World")
                         .Add(description);
 
-        using var host = TestHost.Run(api);
+        await using var host = await TestHost.RunAsync(api, engine: engine);
 
         AssertX.Contains("\"openapi\"", await (await host.GetResponseAsync("/openapi.json")).GetContentAsync());
         AssertX.Contains("openapi:", await (await host.GetResponseAsync("/openapi.yaml")).GetContentAsync());

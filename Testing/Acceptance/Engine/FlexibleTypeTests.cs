@@ -20,7 +20,7 @@ public sealed class FlexibleTypeTests
     {
         var content = Layout.Create().Index(new Provider().Wrap());
 
-        using var runner = TestHost.Run(content);
+        await using var runner = await TestHost.RunAsync(content);
 
         using var response = await runner.GetResponseAsync();
 
@@ -35,12 +35,11 @@ public sealed class FlexibleTypeTests
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public IHandler Parent => throw new NotImplementedException();
-
         public ValueTask<IResponse?> HandleAsync(IRequest request) => request.Respond()
                                                                              .Content("Hello World!")
                                                                              .Type("application/x-custom")
                                                                              .Status(256, "Custom Status")
                                                                              .BuildTask();
+
     }
 }

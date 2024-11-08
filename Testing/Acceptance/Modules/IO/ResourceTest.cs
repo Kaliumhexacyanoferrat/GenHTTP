@@ -83,7 +83,7 @@ public sealed class ResourceTest
                            .Add("1", Content.From(Resource.FromAssembly("File.txt")))
                            .Add("2", Content.From(Resource.FromAssembly("OtherFile.txt")));
 
-        using var runner = TestHost.Run(layout);
+        await using var runner = await TestHost.RunAsync(layout);
 
         using var f1 = await runner.GetResponseAsync("/1");
         Assert.AreEqual("This is text!", await f1.GetContentAsync());

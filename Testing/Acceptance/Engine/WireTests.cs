@@ -18,7 +18,7 @@ public sealed class WireTests
     {
         var app = Inline.Create().Get((IRequest r) => r.Headers["x-my-header"]);
 
-        using var host = TestHost.Run(app);
+        await using var host = await TestHost.RunAsync(app);
 
         var result = await SendAsync(host, w =>
         {
@@ -36,7 +36,7 @@ public sealed class WireTests
     {
         var app = Inline.Create().Get("/some-path/", (IRequest r) => r.Headers["X-My-Header"]);
 
-        using var host = TestHost.Run(app);
+        await using var host = await TestHost.RunAsync(app);
 
         var result = await SendAsync(host, w =>
         {
@@ -76,7 +76,7 @@ public sealed class WireTests
     [TestMethod]
     public async Task TestNoKeepAliveForHttp10()
     {
-        using var host = TestHost.Run(Layout.Create());
+        await using var host = await TestHost.RunAsync(Layout.Create());
 
         var result = await SendAsync(host, w =>
         {
@@ -91,7 +91,7 @@ public sealed class WireTests
     [TestMethod]
     public async Task TestNoKeepAliveForConnectionClose()
     {
-        using var host = TestHost.Run(Layout.Create());
+        await using var host = await TestHost.RunAsync(Layout.Create());
 
         var result = await SendAsync(host, w =>
         {
@@ -107,7 +107,7 @@ public sealed class WireTests
     [TestMethod]
     public async Task TestNonHttp()
     {
-        using var host = TestHost.Run(Layout.Create());
+        await using var host = await TestHost.RunAsync(Layout.Create());
 
         var result = await SendAsync(host, w =>
         {
@@ -121,7 +121,7 @@ public sealed class WireTests
     [TestMethod]
     public async Task TestNonHttpButText()
     {
-        using var host = TestHost.Run(Layout.Create());
+        await using var host = await TestHost.RunAsync(Layout.Create());
 
         var result = await SendAsync(host, w =>
         {
@@ -138,7 +138,7 @@ public sealed class WireTests
 
     private static async ValueTask TestAsync(string request, string assertion)
     {
-        using var host = TestHost.Run(Layout.Create());
+        await using var host = await TestHost.RunAsync(Layout.Create());
 
         var result = await SendAsync(host, w =>
         {

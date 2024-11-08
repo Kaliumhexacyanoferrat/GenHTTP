@@ -72,12 +72,13 @@ public sealed class HandlerResultTests
     #region Tests
 
     [TestMethod]
-    public async Task TestRoot()
+    [MultiEngineTest]
+    public async Task TestRoot(TestEngine engine)
     {
         var app = Layout.Create()
                         .AddService<RootService>("c");
 
-        using var host = TestHost.Run(app);
+        await using var host = await TestHost.RunAsync(app, engine: engine);
 
         using var response = await host.GetResponseAsync("/c/sub/my.txt");
 
@@ -87,12 +88,13 @@ public sealed class HandlerResultTests
     }
 
     [TestMethod]
-    public async Task TestPathed()
+    [MultiEngineTest]
+    public async Task TestPathed(TestEngine engine)
     {
         var app = Layout.Create()
                         .AddService<PathService>("c");
 
-        using var host = TestHost.Run(app);
+        await using var host = await TestHost.RunAsync(app, engine: engine);
 
         using var response = await host.GetResponseAsync("/c/mypath/param/sub/my.txt");
 
@@ -102,12 +104,13 @@ public sealed class HandlerResultTests
     }
 
     [TestMethod]
-    public async Task TestPathedAsync()
+    [MultiEngineTest]
+    public async Task TestPathedAsync(TestEngine engine)
     {
         var app = Layout.Create()
                         .AddService<PathAsyncService>("c");
 
-        using var host = TestHost.Run(app);
+        await using var host = await TestHost.RunAsync(app, engine: engine);
 
         using var response = await host.GetResponseAsync("/c/mypath/param/sub/my.txt");
 

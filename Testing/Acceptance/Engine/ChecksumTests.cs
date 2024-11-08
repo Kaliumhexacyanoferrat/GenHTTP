@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
@@ -9,9 +10,10 @@ public class ChecksumTests
 {
 
     [TestMethod]
-    public async Task TestSameErrorSameChecksum()
+    [MultiEngineTest]
+    public async Task TestSameErrorSameChecksum(TestEngine engine)
     {
-        using var runner = TestHost.Run(Layout.Create());
+        await using var runner = await TestHost.RunAsync(Layout.Create(), engine: engine);
 
         using var resp1 = await runner.GetResponseAsync();
         using var resp2 = await runner.GetResponseAsync();
@@ -22,9 +24,10 @@ public class ChecksumTests
     }
 
     [TestMethod]
-    public async Task TestSameContentSameChecksum()
+    [MultiEngineTest]
+    public async Task TestSameContentSameChecksum(TestEngine engine)
     {
-        using var runner = TestHost.Run(Content.From(Resource.FromString("Hello World!")));
+        await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")), engine: engine);
 
         using var resp1 = await runner.GetResponseAsync();
         using var resp2 = await runner.GetResponseAsync();
@@ -33,4 +36,5 @@ public class ChecksumTests
 
         Assert.AreEqual(resp1.GetETag(), resp2.GetETag());
     }
+
 }

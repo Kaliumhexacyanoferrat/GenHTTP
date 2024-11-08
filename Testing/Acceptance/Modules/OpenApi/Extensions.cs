@@ -10,9 +10,9 @@ namespace GenHTTP.Testing.Acceptance.Modules.OpenApi;
 internal static class Extensions
 {
 
-    internal static async Task<((string, OpenApiPathItem), OpenApiOperation)> GetOperationAsync(InlineBuilder api)
+    internal static async Task<((string, OpenApiPathItem), OpenApiOperation)> GetOperationAsync(TestEngine engine, InlineBuilder api)
     {
-        var doc = (await api.Add(ApiDescription.Create()).GetOpenApiAsync()).OpenApiDocument;
+        var doc = (await api.Add(ApiDescription.Create()).GetOpenApiAsync(engine)).OpenApiDocument;
 
         var path = doc.Paths.First();
 
@@ -28,9 +28,9 @@ internal static class Extensions
         return await new OpenApiStreamReader().ReadAsync(content);
     }
 
-    internal static async Task<ReadResult> GetOpenApiAsync(this IHandlerBuilder api, bool validate = true)
+    internal static async Task<ReadResult> GetOpenApiAsync(this IHandlerBuilder api, TestEngine engine, bool validate = true)
     {
-        using var host = TestHost.Run(api);
+        await using var host = await TestHost.RunAsync(api, engine: engine);
 
         using var response = await host.GetResponseAsync("/openapi.json");
 

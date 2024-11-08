@@ -1,5 +1,5 @@
 ﻿using System.Security.Cryptography.X509Certificates;
-using GenHTTP.Engine.Infrastructure.Endpoints;
+using GenHTTP.Engine.Shared.Security;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 

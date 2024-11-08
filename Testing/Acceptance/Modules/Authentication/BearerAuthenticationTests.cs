@@ -16,12 +16,13 @@ public sealed class BearerAuthenticationTests
     private const string ValidToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
 
     [TestMethod]
-    public async Task TestValidToken()
+    [MultiEngineTest]
+    public async Task TestValidToken(TestEngine engine)
     {
         var auth = BearerAuthentication.Create()
                                        .AllowExpired();
 
-        using var response = await Execute(auth, ValidToken);
+        using var response = await Execute(auth, engine, ValidToken);
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
 
@@ -29,31 +30,34 @@ public sealed class BearerAuthenticationTests
     }
 
     [TestMethod]
-    public async Task TestCustomValidator()
+    [MultiEngineTest]
+    public async Task TestCustomValidator(TestEngine engine)
     {
         var auth = BearerAuthentication.Create()
                                        .Validation(_ => throw new ProviderException(ResponseStatus.Forbidden, "Nah"))
                                        .AllowExpired();
 
-        using var response = await Execute(auth, ValidToken);
+        using var response = await Execute(auth, engine, ValidToken);
 
         await response.AssertStatusAsync(HttpStatusCode.Forbidden);
     }
 
     [TestMethod]
-    public async Task TestNoUser()
+    [MultiEngineTest]
+    public async Task TestNoUser(TestEngine engine)
     {
         var auth = BearerAuthentication.Create()
                                        .UserMapping((_, _) => new ValueTask<IUser?>())
                                        .AllowExpired();
 
-        using var response = await Execute(auth, ValidToken);
+        using var response = await Execute(auth, engine, ValidToken);
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
     }
 
     [TestMethod]
-    public async Task TestUser()
+    [MultiEngineTest]
+    public async Task TestUser(TestEngine engine)
     {
         var auth = BearerAuthentication.Create()
                                        .UserMapping((_, _) => new ValueTask<IUser?>(new MyUser
@@ -62,40 +66,42 @@ public sealed class BearerAuthenticationTests
                                        }))
                                        .AllowExpired();
 
-        using var response = await Execute(auth, ValidToken);
+        using var response = await Execute(auth, engine, ValidToken);
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
     }
 
     [TestMethod]
-    public async Task TestNoToken()
+    [MultiEngineTest]
+    public async Task TestNoToken(TestEngine engine)
     {
         var auth = BearerAuthentication.Create()
                                        .AllowExpired();
 
-        using var response = await Execute(auth);
+        using var response = await Execute(auth, engine);
 
         await response.AssertStatusAsync(HttpStatusCode.Unauthorized);
     }
 
     [TestMethod]
-    public async Task TestMalformedToken()
+    [MultiEngineTest]
+    public async Task TestMalformedToken(TestEngine engine)
     {
         var auth = BearerAuthentication.Create()
                                        .AllowExpired();
 
-        using var response = await Execute(auth, "Lorem Ipsum");
+        using var response = await Execute(auth, engine, "Lorem Ipsum");
 
         await response.AssertStatusAsync(HttpStatusCode.BadRequest);
     }
 
-    private static async Task<HttpResponseMessage> Execute(BearerAuthenticationConcernBuilder builder, string? token = null)
+    private static async Task<HttpResponseMessage> Execute(BearerAuthenticationConcernBuilder builder, TestEngine engine, string? token = null)
     {
         var handler = Inline.Create()
                             .Get(() => "Secured")
                             .Add(builder);
 
-        using var host = TestHost.Run(handler);
+        await using var host = await TestHost.RunAsync(handler, engine: engine);
 
         var request = host.GetRequest();
 

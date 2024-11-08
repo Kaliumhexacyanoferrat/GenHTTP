@@ -1,14 +1,13 @@
-﻿using GenHTTP.Engine;
-
-using GenHTTP.Modules.Inspection;
+﻿using GenHTTP.Engine.Kestrel;
+using GenHTTP.Modules.DirectoryBrowsing;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Practices;
 
-var app = Content.From(Resource.FromString("Hello World")).AddInspector();
+var app = Listing.From(ResourceTree.FromDirectory("."));
 
-Host.Create()
-    .Handler(app)
-    .Defaults()
-    .Development()
-    .Console()
-    .Run();
+await Host.Create()
+          .Handler(app)
+          .Defaults()
+          .Development()
+          .Console()
+          .RunAsync();

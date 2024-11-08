@@ -20,23 +20,27 @@ public sealed class DataTests
     #region Tests
 
     [TestMethod]
-    public Task TestString() => TestAsync(async (c) => await c.DataAsync("my string"), "my string");
+    [MultiEngineTest]
+    public Task TestString(TestEngine engine) => TestAsync(engine, async (c) => await c.DataAsync("my string"), "my string");
 
     [TestMethod]
-    public Task TestInt() => TestAsync(async (c) => await c.DataAsync(42), "42");
+    [MultiEngineTest]
+    public Task TestInt(TestEngine engine) => TestAsync(engine, async (c) => await c.DataAsync(42), "42");
 
     [TestMethod]
-    public Task TestDate() => TestAsync(async (c) => await c.DataAsync(DateOnly.FromDayNumber(8445)), "0024-02-15");
+    [MultiEngineTest]
+    public Task TestDate(TestEngine engine) => TestAsync(engine, async (c) => await c.DataAsync(DateOnly.FromDayNumber(8445)), "0024-02-15");
 
     [TestMethod]
-    public Task TestComplex() => TestAsync(async (c) => await c.DataAsync(new MyType("1", 2)), "{\"one\":\"1\",\"two\":2}");
+    [MultiEngineTest]
+    public Task TestComplex(TestEngine engine) => TestAsync(engine, async (c) => await c.DataAsync(new MyType("1", 2)), "{\"one\":\"1\",\"two\":2}");
 
-    private static async Task TestAsync(Func<IEventConnection, ValueTask> generator, string expected)
+    private static async Task TestAsync(TestEngine engine, Func<IEventConnection, ValueTask> generator, string expected)
     {
         var source = EventSource.Create()
                                 .Generator(generator);
 
-        using var host = TestHost.Run(source);
+        await using var host = await TestHost.RunAsync(source, engine: engine);
 
         using var response = await host.GetResponseAsync();
 

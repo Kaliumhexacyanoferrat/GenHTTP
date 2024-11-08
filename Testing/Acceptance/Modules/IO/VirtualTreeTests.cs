@@ -44,7 +44,8 @@ public sealed class VirtualTreeTests
     }
 
     [TestMethod]
-    public async Task TestUsage()
+    [MultiEngineTest]
+    public async Task TestUsage(TestEngine engine)
     {
         var tree = ResourceTree.FromAssembly("Resources");
 
@@ -54,7 +55,7 @@ public sealed class VirtualTreeTests
 
         var handler = Listing.From(virt);
 
-        using var host = TestHost.Run(handler);
+        await using var host = await TestHost.RunAsync(handler, engine: engine);
 
         using var response = await host.GetResponseAsync();
 

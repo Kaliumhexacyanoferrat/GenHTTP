@@ -13,9 +13,10 @@ public sealed class CorsTests
 {
 
     [TestMethod]
-    public async Task TestPreflight()
+    [MultiEngineTest]
+    public async Task TestPreflight(TestEngine engine)
     {
-        using var runner = GetRunner(CorsPolicy.Permissive());
+        await using var runner = await GetRunnerAsync(CorsPolicy.Permissive(), engine);
 
         var request = new HttpRequestMessage(HttpMethod.Options, runner.GetUrl("/t"));
 
@@ -25,9 +26,10 @@ public sealed class CorsTests
     }
 
     [TestMethod]
-    public async Task TestPermissive()
+    [MultiEngineTest]
+    public async Task TestPermissive(TestEngine engine)
     {
-        using var runner = GetRunner(CorsPolicy.Permissive());
+        await using var runner = await GetRunnerAsync(CorsPolicy.Permissive(), engine);
 
         using var response = await runner.GetResponseAsync("/t");
 
@@ -47,9 +49,10 @@ public sealed class CorsTests
     }
 
     [TestMethod]
-    public async Task TestPermissiveWithoutDefaultAuthorizationHeader()
+    [MultiEngineTest]
+    public async Task TestPermissiveWithoutDefaultAuthorizationHeader(TestEngine engine)
     {
-        using var runner = GetRunner(CorsPolicy.Permissive(false));
+        await using var runner = await GetRunnerAsync(CorsPolicy.Permissive(false), engine);
 
         using var response = await runner.GetResponseAsync("/t");
 
@@ -69,9 +72,10 @@ public sealed class CorsTests
     }
 
     [TestMethod]
-    public async Task TestRestrictive()
+    [MultiEngineTest]
+    public async Task TestRestrictive(TestEngine engine)
     {
-        using var runner = GetRunner(CorsPolicy.Restrictive());
+        await using var runner = await GetRunnerAsync(CorsPolicy.Restrictive(), engine);
 
         using var response = await runner.GetResponseAsync("/t");
 
@@ -89,7 +93,8 @@ public sealed class CorsTests
     }
 
     [TestMethod]
-    public async Task TestCustom()
+    [MultiEngineTest]
+    public async Task TestCustom(TestEngine engine)
     {
         var policy = CorsPolicy.Restrictive()
                                .Add("http://google.de", new List<FlexibleRequestMethod>
@@ -100,7 +105,7 @@ public sealed class CorsTests
                                    "Accept"
                                }, false);
 
-        using var runner = GetRunner(policy);
+        await using var runner = await GetRunnerAsync(policy, engine);
 
         var request = runner.GetRequest("/t");
         request.Headers.Add("Origin", "http://google.de");
@@ -118,12 +123,13 @@ public sealed class CorsTests
         Assert.AreEqual("Origin", response.GetHeader("Vary"));
     }
 
-    private static TestHost GetRunner(CorsPolicyBuilder policy)
+    private static async Task<TestHost> GetRunnerAsync(CorsPolicyBuilder policy, TestEngine engine)
     {
         var handler = Layout.Create()
                             .Add("t", Content.From(Resource.FromString("Hello World")))
                             .Add(policy);
 
-        return TestHost.Run(handler);
+        return await TestHost.RunAsync(handler, engine: engine);
     }
+
 }

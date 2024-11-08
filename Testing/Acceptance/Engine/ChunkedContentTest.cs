@@ -12,12 +12,13 @@ public sealed class ChunkedContentTest
     #region Tests
 
     [TestMethod]
-    public async Task TestChunkedUpload()
+    [MultiEngineTest]
+    public async Task TestChunkedUpload(TestEngine engine)
     {
         var inline = Inline.Create()
                            .Put((Model model) => model);
 
-        using var runner = TestHost.Run(inline);
+        await using var runner = await TestHost.RunAsync(inline, engine: engine);
 
         using var client = TestHost.GetClient();
 

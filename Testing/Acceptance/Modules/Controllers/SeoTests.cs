@@ -19,9 +19,10 @@ public sealed class SeoTests
     /// by accepting upper case letters in action names.
     /// </summary>
     [TestMethod]
-    public async Task TestActionCasingMatters()
+    [MultiEngineTest]
+    public async Task TestActionCasingMatters(TestEngine engine)
     {
-        using var runner = GetRunner();
+        await using var runner = await GetRunnerAsync(engine);
 
         using var response = await runner.GetResponseAsync("/t/Action/");
 
@@ -32,7 +33,7 @@ public sealed class SeoTests
 
     #region Helpers
 
-    private TestHost GetRunner() => TestHost.Run(Layout.Create().AddController<TestController>("t"));
+    private async Task<TestHost> GetRunnerAsync(TestEngine engine) => await TestHost.RunAsync(Layout.Create().AddController<TestController>("t"), engine: engine);
 
     #endregion
 

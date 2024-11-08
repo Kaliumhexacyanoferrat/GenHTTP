@@ -14,13 +14,14 @@ public sealed class DeveloperModeTests
     /// in the browser, so that I can trace an error more quickly
     /// </summary>
     [TestMethod]
-    public async Task TestExceptionsWithTrace()
+    [MultiEngineTest]
+    public async Task TestExceptionsWithTrace(TestEngine engine)
     {
-        using var runner = new TestHost(Layout.Create().Build());
+        await using var runner = new TestHost(Layout.Create().Build(), engine: engine);
 
         var router = Layout.Create().Index(new ThrowingProvider().Wrap());
 
-        runner.Host.Handler(router).Development().Start();
+        await runner.Host.Handler(router).Development().StartAsync();
 
         using var response = await runner.GetResponseAsync();
 
@@ -32,11 +33,12 @@ public sealed class DeveloperModeTests
     /// implementation detail with exception messages
     /// </summary>
     [TestMethod]
-    public async Task TestExceptionsWithNoTrace()
+    [MultiEngineTest]
+    public async Task TestExceptionsWithNoTrace(TestEngine engine)
     {
         var router = Layout.Create().Index(new ThrowingProvider().Wrap());
 
-        using var runner = TestHost.Run(router, development: false);
+        await using var runner = await TestHost.RunAsync(router, development: false, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -48,8 +50,7 @@ public sealed class DeveloperModeTests
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public IHandler Parent => throw new NotImplementedException();
-
         public ValueTask<IResponse?> HandleAsync(IRequest request) => throw new InvalidOperationException("Nope!");
+
     }
 }

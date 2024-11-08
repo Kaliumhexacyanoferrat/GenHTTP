@@ -54,7 +54,10 @@ public static class ArgumentProvider
             result = body.ConvertTo(argument.Type, registry.Formatting);
         }
 
-        request.Content.Seek(0, SeekOrigin.Begin);
+        if (request.Content.CanSeek)
+        {
+            request.Content.Seek(0, SeekOrigin.Begin);
+        }
 
         return result;
     }

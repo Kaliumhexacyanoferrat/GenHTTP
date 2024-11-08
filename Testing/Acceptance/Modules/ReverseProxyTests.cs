@@ -14,9 +14,10 @@ public sealed class ReverseProxyTests
 {
 
     [TestMethod]
-    public async Task TestBasics()
+    [MultiEngineTest]
+    public async Task TestBasics(TestEngine engine)
     {
-        using var setup = TestSetup.Create(r => r.Respond().Content("Hello World!").Build());
+        await using var setup = await TestSetup.CreateAsync(engine, r => r.Respond().Content("Hello World!").Build());
 
         var runner = setup.Runner;
 
@@ -25,9 +26,10 @@ public sealed class ReverseProxyTests
     }
 
     [TestMethod]
-    public async Task TestRedirection()
+    [MultiEngineTest]
+    public async Task TestRedirection(TestEngine engine)
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
             return r.Respond().Header("Location", $"http://localhost:{r.EndPoint.Port}/target").Status(ResponseStatus.TemporaryRedirect).Build();
         });
@@ -40,9 +42,10 @@ public sealed class ReverseProxyTests
     }
 
     [TestMethod]
-    public async Task TestHead()
+    [MultiEngineTest]
+    public async Task TestHead(TestEngine engine)
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
             return r.Respond().Content("Hello World!").Build();
         });
@@ -58,9 +61,10 @@ public sealed class ReverseProxyTests
     }
 
     [TestMethod]
-    public async Task TestCookies()
+    [MultiEngineTest]
+    public async Task TestCookies(TestEngine engine)
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
             Assert.AreEqual("World", r.Cookies["Hello"].Value);
 
@@ -91,11 +95,12 @@ public sealed class ReverseProxyTests
     }
 
     [TestMethod]
-    public async Task TestHeaders()
+    [MultiEngineTest]
+    public async Task TestHeaders(TestEngine engine)
     {
         var now = DateTime.UtcNow;
 
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
             return r.Respond()
                     .Content("Hello World")
@@ -120,9 +125,10 @@ public sealed class ReverseProxyTests
     }
 
     [TestMethod]
-    public async Task TestPost()
+    [MultiEngineTest]
+    public async Task TestPost(TestEngine engine)
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
             using var reader = new StreamReader(r.Content!);
             return r.Respond().Content(reader.ReadToEnd()).Build();
@@ -142,9 +148,10 @@ public sealed class ReverseProxyTests
     }
 
     [TestMethod]
-    public async Task TestPathing()
+    [MultiEngineTest]
+    public async Task TestPathing(TestEngine engine)
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
             return r.Respond().Content(r.Target.Path.ToString()).Build();
         });
@@ -162,9 +169,10 @@ public sealed class ReverseProxyTests
     }
 
     [TestMethod]
-    public async Task TestQuery()
+    [MultiEngineTest]
+    public async Task TestQuery(TestEngine engine)
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
             var result = string.Join('|', r.Query.Select(kv => $"{kv.Key}={kv.Value}"));
             return r.Respond().Content(result).Build();
@@ -185,7 +193,7 @@ public sealed class ReverseProxyTests
     [TestMethod]
     public async Task TestQuerySpecialChars()
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(TestEngine.Internal, r =>
         {
             var result = string.Join('|', r.Query.Select(kv => $"{kv.Key}={kv.Value}"));
             return r.Respond().Content(result).Build();
@@ -200,7 +208,7 @@ public sealed class ReverseProxyTests
     [TestMethod]
     public async Task TestPathSpecialChars()
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(TestEngine.Internal, r =>
         {
             return r.Respond().Content(r.Target.Path.ToString(true)).Build();
         });
@@ -212,9 +220,10 @@ public sealed class ReverseProxyTests
     }
 
     [TestMethod]
-    public async Task TestPathPreservesSpecialChars()
+    [MultiEngineTest]
+    public async Task TestPathPreservesSpecialChars(TestEngine engine)
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
             return r.Respond().Content(r.Target.Path.ToString(true)).Build();
         });
@@ -226,9 +235,10 @@ public sealed class ReverseProxyTests
     }
 
     [TestMethod]
-    public async Task TestContentLengthPreserved()
+    [MultiEngineTest]
+    public async Task TestContentLengthPreserved(TestEngine engine)
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
             return r.Respond()
                     .Content("Hello World")
@@ -243,12 +253,13 @@ public sealed class ReverseProxyTests
     }
 
     [TestMethod]
-    public async Task TestBadGateway()
+    [MultiEngineTest]
+    public async Task TestBadGateway(TestEngine engine)
     {
         var proxy = Proxy.Create()
                          .Upstream("http://icertainlydonotexistasadomain");
 
-        using var runner = TestHost.Run(proxy);
+        await using var runner = await TestHost.RunAsync(proxy, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -257,9 +268,10 @@ public sealed class ReverseProxyTests
 
 
     [TestMethod]
-    public async Task TestCompression()
+    [MultiEngineTest]
+    public async Task TestCompression(TestEngine engine)
     {
-        using var setup = TestSetup.Create(r =>
+        await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
             return r.Respond().Content("Hello World!").Build();
         });
@@ -277,7 +289,7 @@ public sealed class ReverseProxyTests
 
     #region Supporting data structures
 
-    private class TestSetup : IDisposable
+    private class TestSetup : IAsyncDisposable
     {
         private readonly TestHost _Target;
 
@@ -289,13 +301,13 @@ public sealed class ReverseProxyTests
 
         public TestHost Runner { get; }
 
-        public static TestSetup Create(Func<IRequest, IResponse?> response)
+        public static async Task<TestSetup> CreateAsync(TestEngine engine, Func<IRequest, IResponse?> response)
         {
             // server hosting the actual web app
-            var testServer = new TestHost(Layout.Create().Build(), false);
+            var testServer = new TestHost(Layout.Create().Build(), false, engine: engine);
 
-            testServer.Host.Handler(new ProxiedRouter(response))
-                      .Start();
+            await testServer.Host.Handler(new ProxiedRouter(response))
+                      .StartAsync();
 
             // proxying server
             var proxy = Proxy.Create()
@@ -303,10 +315,10 @@ public sealed class ReverseProxyTests
                              .ReadTimeout(TimeSpan.FromSeconds(5))
                              .Upstream("http://localhost:" + testServer.Port);
 
-            var runner = new TestHost(Layout.Create().Build());
+            var runner = new TestHost(Layout.Create().Build(), engine: engine);
 
-            runner.Host.Handler(proxy)
-                  .Start();
+            await runner.Host.Handler(proxy)
+                  .StartAsync();
 
             return new TestSetup(runner, testServer);
         }
@@ -315,24 +327,21 @@ public sealed class ReverseProxyTests
 
         private bool _DisposedValue;
 
-        protected virtual void Dispose(bool disposing)
+        protected virtual async ValueTask DisposeAsync(bool disposing)
         {
             if (!_DisposedValue)
             {
                 if (disposing)
                 {
-                    Runner.Dispose();
-                    _Target.Dispose();
+                    await Runner.DisposeAsync();
+                    await _Target.DisposeAsync();
                 }
 
                 _DisposedValue = true;
             }
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public ValueTask DisposeAsync() => DisposeAsync(true);
 
         #endregion
 
@@ -349,9 +358,8 @@ public sealed class ReverseProxyTests
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public IHandler Parent => throw new NotImplementedException();
-
         public ValueTask<IResponse?> HandleAsync(IRequest request) => new ProxiedProvider(_Response).HandleAsync(request);
+
     }
 
     private class ProxiedProvider : IHandler

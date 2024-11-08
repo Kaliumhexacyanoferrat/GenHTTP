@@ -12,13 +12,14 @@ public class PrecompressedContentTest
 {
 
     [TestMethod]
-    public async Task TestContentCanBePreCompressed()
+    [MultiEngineTest]
+    public async Task TestContentCanBePreCompressed(TestEngine engine)
     {
         var content = Resources.From(ResourceTree.FromAssembly("Resources"))
                                .Add(CompressedContent.Default().Level(CompressionLevel.Optimal))
                                .Add(ServerCache.Memory());
 
-        using var runner = TestHost.Run(content, false);
+        await using var runner = await TestHost.RunAsync(content, false, engine: engine);
 
         var request = runner.GetRequest("/Template.html");
 
@@ -29,4 +30,5 @@ public class PrecompressedContentTest
         await response.AssertStatusAsync(HttpStatusCode.OK);
         Assert.AreEqual("br", response.GetContentHeader("Content-Encoding"));
     }
+
 }

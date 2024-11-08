@@ -17,11 +17,12 @@ public sealed class CompanionTests
     /// As a developer, I want to configure the server to easily log to the console.
     /// </summary>
     [TestMethod]
-    public async Task TestConsole()
+    [MultiEngineTest]
+    public async Task TestConsole(TestEngine engine)
     {
-        using var runner = new TestHost(Layout.Create().Build());
+        await using var runner = new TestHost(Layout.Create().Build(), engine: engine);
 
-        runner.Host.Console().Start();
+        await runner.Host.Console().StartAsync();
 
         using var __ = await runner.GetResponseAsync();
     }
@@ -30,13 +31,14 @@ public sealed class CompanionTests
     /// As a developer, I want to add custom companions to get notified by server actions.
     /// </summary>
     [TestMethod]
-    public async Task TestCustom()
+    [MultiEngineTest]
+    public async Task TestCustom(TestEngine engine)
     {
-        using var runner = new TestHost(Layout.Create().Build());
+        await using var runner = new TestHost(Layout.Create().Build(), engine: engine);
 
         var companion = new CustomCompanion();
 
-        runner.Host.Companion(companion).Start();
+        await runner.Host.Companion(companion).StartAsync();
 
         using var __ = await runner.GetResponseAsync();
 

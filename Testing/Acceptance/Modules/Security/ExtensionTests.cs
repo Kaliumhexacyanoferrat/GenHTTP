@@ -10,13 +10,14 @@ public sealed class ExtensionTests
 {
 
     [TestMethod]
-    public async Task ServerCanBeHardened()
+    [MultiEngineTest]
+    public async Task ServerCanBeHardened(TestEngine engine)
     {
-        using var runner = new TestHost(Layout.Create().Build());
+        await using var runner = new TestHost(Layout.Create().Build(), engine: engine);
 
-        runner.Host.Handler(Content.From(Resource.FromString("Hello Eve!")))
+        await runner.Host.Handler(Content.From(Resource.FromString("Hello Eve!")))
               .Harden()
-              .Start();
+              .StartAsync();
 
         using var response = await runner.GetResponseAsync();
 

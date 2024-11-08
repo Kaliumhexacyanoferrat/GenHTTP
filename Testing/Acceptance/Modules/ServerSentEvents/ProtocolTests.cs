@@ -14,29 +14,36 @@ public sealed class ProtocolTests
     #region Tests
 
     [TestMethod]
-    public Task TestComment() => TestAsync(async (c) => await c.CommentAsync("invisible"), ": invisible");
+    [MultiEngineTest]
+    public Task TestComment(TestEngine engine) => TestAsync(engine, async (c) => await c.CommentAsync("invisible"), ": invisible");
 
     [TestMethod]
-    public Task TestRetry() => TestAsync(async (c) => await c.RetryAsync(10000), "retry: 10000");
+    [MultiEngineTest]
+    public Task TestRetry(TestEngine engine) => TestAsync(engine, async (c) => await c.RetryAsync(10000), "retry: 10000");
 
     [TestMethod]
-    public Task TestRetryTwice() => TestAsync(async (c) =>
+    [MultiEngineTest]
+    public Task TestRetryTwice(TestEngine engine) => TestAsync(engine, async (c) =>
     {
         await c.RetryAsync(10000);
         await c.RetryAsync(1);
     }, "retry: 10000");
 
     [TestMethod]
-    public Task TestType() => TestAsync(async (c) => await c.DataAsync("data", eventType: "TYPE"), $"event: TYPE{NL}data: data");
+    [MultiEngineTest]
+    public Task TestType(TestEngine engine) => TestAsync(engine, async (c) => await c.DataAsync("data", eventType: "TYPE"), $"event: TYPE{NL}data: data");
 
     [TestMethod]
-    public Task TestId() => TestAsync(async (c) => await c.DataAsync("data", eventId: "4711"), $"id: 4711{NL}data: data");
+    [MultiEngineTest]
+    public Task TestId(TestEngine engine) => TestAsync(engine, async (c) => await c.DataAsync("data", eventId: "4711"), $"id: 4711{NL}data: data");
 
     [TestMethod]
-    public Task TestNull() => TestAsync(async (c) => await c.DataAsync((int?)null), $"data: ");
+    [MultiEngineTest]
+    public Task TestNull(TestEngine engine) => TestAsync(engine, async (c) => await c.DataAsync((int?)null), $"data: ");
 
     [TestMethod]
-    public async Task TestResume()
+    [MultiEngineTest]
+    public async Task TestResume(TestEngine engine)
     {
         var source = EventSource.Create()
                                 .Inspector((r, id) =>
@@ -50,7 +57,7 @@ public sealed class ProtocolTests
                                     return new();
                                 });
 
-        using var host = TestHost.Run(source);
+        await using var host = await TestHost.RunAsync(source, engine: engine);
 
         var request = host.GetRequest();
 
@@ -62,7 +69,8 @@ public sealed class ProtocolTests
     }
 
     [TestMethod]
-    public async Task TestNoContent()
+    [MultiEngineTest]
+    public async Task TestNoContent(TestEngine engine)
     {
         var source = EventSource.Create()
                                 .Inspector((r, id) => new (false))
@@ -72,7 +80,7 @@ public sealed class ProtocolTests
                                      return new();
                                 });
 
-        using var host = TestHost.Run(source);
+        await using var host = await TestHost.RunAsync(source, engine: engine);
 
         using var response = await host.GetResponseAsync();
 
@@ -80,15 +88,17 @@ public sealed class ProtocolTests
     }
 
     [TestMethod]
-    public Task TestException() => TestAsync((c) => throw new InvalidOperationException("Nope"), $"retry: 30000");
+    [MultiEngineTest]
+    public Task TestException(TestEngine engine) => TestAsync(engine, (c) => throw new InvalidOperationException("Nope"), $"retry: 30000");
 
     [TestMethod]
-    public async Task TestGetOnly()
+    [MultiEngineTest]
+    public async Task TestGetOnly(TestEngine engine)
     {
         var source = EventSource.Create()
                                 .Generator((_) => new());
 
-        using var host = TestHost.Run(source);
+        await using var host = await TestHost.RunAsync(source, engine: engine);
 
         var request = host.GetRequest(method: HttpMethod.Head);
 
@@ -98,7 +108,8 @@ public sealed class ProtocolTests
     }
 
     [TestMethod]
-    public async Task TestRequestAccess()
+    [MultiEngineTest]
+    public async Task TestRequestAccess(TestEngine engine)
     {
         var source = EventSource.Create()
                                 .Generator((c) =>
@@ -107,19 +118,19 @@ public sealed class ProtocolTests
                                     return new();
                                 });
 
-        using var host = TestHost.Run(source);
+        await using var host = await TestHost.RunAsync(source, engine: engine);
 
         using var response = await host.GetResponseAsync();
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
     }
 
-    private static async Task TestAsync(Func<IEventConnection, ValueTask> generator, string expected)
+    private static async Task TestAsync(TestEngine engine, Func<IEventConnection, ValueTask> generator, string expected)
     {
         var source = EventSource.Create()
                                 .Generator(generator);
 
-        using var host = TestHost.Run(source);
+        await using var host = await TestHost.RunAsync(source, engine: engine);
 
         using var response = await host.GetResponseAsync();
 

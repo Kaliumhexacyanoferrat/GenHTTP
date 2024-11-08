@@ -13,12 +13,13 @@ public sealed class LayoutTests
     /// As a developer I can define the default route to be devlivered.
     /// </summary>
     [TestMethod]
-    public async Task TestGetIndex()
+    [MultiEngineTest]
+    public async Task TestGetIndex(TestEngine engine)
     {
         var layout = Layout.Create()
                            .Index(Content.From(Resource.FromString("Hello World!")));
 
-        using var runner = TestHost.Run(layout);
+        await using var runner = await TestHost.RunAsync(layout, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -34,11 +35,12 @@ public sealed class LayoutTests
     /// As a developer I can set a default handler to be used for requests.
     /// </summary>
     [TestMethod]
-    public async Task TestDefaultContent()
+    [MultiEngineTest]
+    public async Task TestDefaultContent(TestEngine engine)
     {
         var layout = Layout.Create().Add(Content.From(Resource.FromString("Hello World!")));
 
-        using var runner = TestHost.Run(layout);
+        await using var runner = await TestHost.RunAsync(layout, engine: engine);
 
         foreach (var path in new[]
                  {
@@ -57,12 +59,13 @@ public sealed class LayoutTests
     /// to produce duplicate content for missing trailing slashes.
     /// </summary>
     [TestMethod]
-    public async Task TestRedirect()
+    [MultiEngineTest]
+    public async Task TestRedirect(TestEngine engine)
     {
         var layout = Layout.Create()
                            .Add("section", Layout.Create().Index(Content.From(Resource.FromString("Hello World!"))));
 
-        using var runner = TestHost.Run(layout);
+        await using var runner = await TestHost.RunAsync(layout, engine: engine);
 
         using var response = await runner.GetResponseAsync("/section/");
 

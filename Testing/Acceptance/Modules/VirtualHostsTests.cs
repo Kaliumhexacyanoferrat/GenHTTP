@@ -15,14 +15,15 @@ public sealed class VirtualHostsTests
     /// same server instance.
     /// </summary>
     [TestMethod]
-    public async Task TestDomains()
+    [MultiEngineTest]
+    public async Task TestDomains(TestEngine engine)
     {
         var hosts = VirtualHosts.Create()
                                 .Add("domain1.com", Content.From(Resource.FromString("domain1.com")))
                                 .Add("domain2.com", Content.From(Resource.FromString("domain2.com")))
                                 .Default(Layout.Create().Index(Content.From(Resource.FromString("default"))));
 
-        using var runner = TestHost.Run(hosts);
+        await using var runner = await TestHost.RunAsync(hosts, engine: engine);
 
         await RunTest(runner, "domain1.com");
         await RunTest(runner, "domain2.com");
@@ -35,9 +36,10 @@ public sealed class VirtualHostsTests
     /// no given route matches.
     /// </summary>
     [TestMethod]
-    public async Task TestNoDefault()
+    [MultiEngineTest]
+    public async Task TestNoDefault(TestEngine engine)
     {
-        using var runner = TestHost.Run(VirtualHosts.Create());
+        await using var runner = await TestHost.RunAsync(VirtualHosts.Create(), engine: engine);
 
         using var response = await runner.GetResponseAsync();
 

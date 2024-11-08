@@ -1,7 +1,9 @@
 ﻿using System.Net;
 using System.Net.Cache;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Modules.Practices;
 
 namespace GenHTTP.Testing;
@@ -10,7 +12,7 @@ namespace GenHTTP.Testing;
 /// Hosts GenHTTP projects on a random port and provides convenience functionality
 /// to test the responses of the server.
 /// </summary>
-public class TestHost : IDisposable
+public class TestHost : IAsyncDisposable
 {
 #if NET8_0
     private static volatile int _nextPort = 20000;
@@ -48,13 +50,15 @@ public class TestHost : IDisposable
     /// <param name="handler">The handler to be tested</param>
     /// <param name="defaults">true, if the defaults (such as compression) should be added to this handler</param>
     /// <param name="development">true, if the server should be started in development mode</param>
-    public TestHost(IHandler handler, bool defaults = true, bool development = true)
+    /// <param name="engine">The server engine to use for hosting</param>
+    public TestHost(IHandler handler, bool defaults = true, bool development = true, TestEngine engine = TestEngine.Internal)
     {
         Port = NextPort();
 
-        Host = Engine.Host.Create()
-                     .Handler(handler)
-                     .Port((ushort)Port);
+        Host = (engine == TestEngine.Internal) ? Engine.Internal.Host.Create() : Engine.Kestrel.Host.Create();
+
+        Host.Handler(handler);
+        Host.Port((ushort)Port);
 
         if (defaults)
         {
@@ -74,11 +78,12 @@ public class TestHost : IDisposable
     /// <param name="handler">The handler to be tested</param>
     /// <param name="defaults">true, if the defaults (such as compression) should be added to this handler</param>
     /// <param name="development">true, if the server should be started in development mode</param>
-    public static TestHost Run(IHandler handler, bool defaults = true, bool development = true)
+    /// <param name="engine">The server engine to use for hosting</param>
+    public static async Task<TestHost> RunAsync(IHandler handler, bool defaults = true, bool development = true, TestEngine engine = TestEngine.Internal)
     {
-        var runner = new TestHost(handler, defaults, development);
+        var runner = new TestHost(handler, defaults, development, engine);
 
-        runner.Start();
+        await runner.StartAsync();
 
         return runner;
     }
@@ -90,7 +95,8 @@ public class TestHost : IDisposable
     /// <param name="handler">The handler to be tested</param>
     /// <param name="defaults">true, if the defaults (such as compression) should be added to this handler</param>
     /// <param name="development">true, if the server should be started in development mode</param>
-    public static TestHost Run(IHandlerBuilder handler, bool defaults = true, bool development = true) => Run(handler.Build(), defaults, development);
+    /// <param name="engine">The server engine to use for hosting</param>
+    public static Task<TestHost> RunAsync(IHandlerBuilder handler, bool defaults = true, bool development = true, TestEngine engine = TestEngine.Internal) => RunAsync(handler.Build(), defaults, development, engine);
 
     /// <summary>
     /// Starts the server managed by this testing host.
@@ -99,9 +105,9 @@ public class TestHost : IDisposable
     /// Dispose this runner to shut down the server and release all resources
     /// or close the host via the <see cref="Host" /> property.
     /// </remarks>
-    public void Start()
+    public async Task StartAsync()
     {
-        Host.Start();
+        await Host.StartAsync();
     }
 
     #endregion
@@ -200,13 +206,13 @@ public class TestHost : IDisposable
 
     private bool _Disposed;
 
-    protected virtual void Dispose(bool disposing)
+    protected async virtual ValueTask DisposeAsync(bool disposing)
     {
         if (!_Disposed)
         {
             if (disposing)
             {
-                Host.Stop();
+                await Host.StopAsync();
             }
 
             _Disposed = true;
@@ -216,9 +222,9 @@ public class TestHost : IDisposable
     /// <summary>
     /// Stops the test host and releases all resources.
     /// </summary>
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-        Dispose(true);
+        await DisposeAsync(true);
         GC.SuppressFinalize(this);
     }
 

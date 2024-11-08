@@ -10,11 +10,12 @@ public sealed class RedirectTests
 {
 
     [TestMethod]
-    public async Task TestTemporary()
+    [MultiEngineTest]
+    public async Task TestTemporary(TestEngine engine)
     {
         var redirect = Redirect.To("https://google.de/", true);
 
-        using var runner = TestHost.Run(redirect);
+        await using var runner = await TestHost.RunAsync(redirect, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -23,11 +24,12 @@ public sealed class RedirectTests
     }
 
     [TestMethod]
-    public async Task TestTemporaryPost()
+    [MultiEngineTest]
+    public async Task TestTemporaryPost(TestEngine engine)
     {
         var redirect = Redirect.To("https://google.de/", true);
 
-        using var runner = TestHost.Run(redirect);
+        await using var runner = await TestHost.RunAsync(redirect, engine: engine);
 
         var request = runner.GetRequest();
         request.Method = HttpMethod.Post;
@@ -39,11 +41,12 @@ public sealed class RedirectTests
     }
 
     [TestMethod]
-    public async Task TestPermanent()
+    [MultiEngineTest]
+    public async Task TestPermanent(TestEngine engine)
     {
         var redirect = Redirect.To("https://google.de/");
 
-        using var runner = TestHost.Run(redirect);
+        await using var runner = await TestHost.RunAsync(redirect, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -52,11 +55,12 @@ public sealed class RedirectTests
     }
 
     [TestMethod]
-    public async Task TestPermanentPost()
+    [MultiEngineTest]
+    public async Task TestPermanentPost(TestEngine engine)
     {
         var redirect = Redirect.To("https://google.de/");
 
-        using var runner = TestHost.Run(redirect);
+        await using var runner = await TestHost.RunAsync(redirect, engine: engine);
 
         var request = runner.GetRequest();
         request.Method = HttpMethod.Post;
@@ -68,12 +72,13 @@ public sealed class RedirectTests
     }
 
     [TestMethod]
-    public async Task TestAbsoluteRoute()
+    [MultiEngineTest]
+    public async Task TestAbsoluteRoute(TestEngine engine)
     {
         var layout = Layout.Create()
                            .Add("redirect", Redirect.To("/me/to/"));
 
-        using var runner = TestHost.Run(layout);
+        await using var runner = await TestHost.RunAsync(layout, engine: engine);
 
         using var response = await runner.GetResponseAsync("/redirect/");
 

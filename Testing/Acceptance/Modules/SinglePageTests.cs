@@ -11,13 +11,14 @@ public sealed class SinglePageTests
 {
 
     [TestMethod]
-    public async Task TestIndex()
+    [MultiEngineTest]
+    public async Task TestIndex(TestEngine engine)
     {
         var root = CreateRoot();
 
         await FileUtil.WriteTextAsync(Path.Combine(root, "index.html"), "This is the index!");
 
-        using var runner = TestHost.Run(SinglePageApplication.From(ResourceTree.FromDirectory(root)));
+        await using var runner = await TestHost.RunAsync(SinglePageApplication.From(ResourceTree.FromDirectory(root)), engine: engine);
 
         using var index = await runner.GetResponseAsync("/");
 
@@ -30,7 +31,8 @@ public sealed class SinglePageTests
     }
 
     [TestMethod]
-    public async Task TestIndexServedWithRouting()
+    [MultiEngineTest]
+    public async Task TestIndexServedWithRouting(TestEngine engine)
     {
         var root = CreateRoot();
 
@@ -39,7 +41,7 @@ public sealed class SinglePageTests
         var spa = SinglePageApplication.From(ResourceTree.FromDirectory(root))
                                        .ServerSideRouting();
 
-        using var runner = TestHost.Run(spa);
+        await using var runner = await TestHost.RunAsync(spa, engine: engine);
 
         using var index = await runner.GetResponseAsync("/some-route/");
 
@@ -48,9 +50,10 @@ public sealed class SinglePageTests
     }
 
     [TestMethod]
-    public async Task TestNoIndex()
+    [MultiEngineTest]
+    public async Task TestNoIndex(TestEngine engine)
     {
-        using var runner = TestHost.Run(SinglePageApplication.From(ResourceTree.FromDirectory(CreateRoot())));
+        await using var runner = await TestHost.RunAsync(SinglePageApplication.From(ResourceTree.FromDirectory(CreateRoot())), engine: engine);
 
         using var index = await runner.GetResponseAsync("/");
 
@@ -58,13 +61,14 @@ public sealed class SinglePageTests
     }
 
     [TestMethod]
-    public async Task TestFile()
+    [MultiEngineTest]
+    public async Task TestFile(TestEngine engine)
     {
         var root = CreateRoot();
 
         await FileUtil.WriteTextAsync(Path.Combine(root, "some.txt"), "This is some text file :)");
 
-        using var runner = TestHost.Run(SinglePageApplication.From(ResourceTree.FromDirectory(root)));
+        await using var runner = await TestHost.RunAsync(SinglePageApplication.From(ResourceTree.FromDirectory(root)), engine: engine);
 
         using var index = await runner.GetResponseAsync("/some.txt");
 
@@ -77,9 +81,10 @@ public sealed class SinglePageTests
     }
 
     [TestMethod]
-    public async Task TestNoFile()
+    [MultiEngineTest]
+    public async Task TestNoFile(TestEngine engine)
     {
-        using var runner = TestHost.Run(SinglePageApplication.From(ResourceTree.FromDirectory(CreateRoot())));
+        await using var runner = await TestHost.RunAsync(SinglePageApplication.From(ResourceTree.FromDirectory(CreateRoot())), engine: engine);
 
         using var index = await runner.GetResponseAsync("/nope.txt");
 

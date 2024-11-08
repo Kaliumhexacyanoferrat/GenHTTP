@@ -11,9 +11,10 @@ public sealed class CacheValidationTests
 {
 
     [TestMethod]
-    public async Task TestETagIsGenerated()
+    [MultiEngineTest]
+    public async Task TestETagIsGenerated(TestEngine engine)
     {
-        using var runner = TestHost.Run(Content.From(Resource.FromString("Hello World!")));
+        await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")), engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -26,9 +27,10 @@ public sealed class CacheValidationTests
     }
 
     [TestMethod]
-    public async Task TestServerReturnsUnmodified()
+    [MultiEngineTest]
+    public async Task TestServerReturnsUnmodified(TestEngine engine)
     {
-        using var runner = TestHost.Run(Content.From(Resource.FromString("Hello World!")));
+        await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")), engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -42,13 +44,17 @@ public sealed class CacheValidationTests
 
         await cached.AssertStatusAsync(HttpStatusCode.NotModified);
 
-        Assert.AreEqual("0", cached.GetContentHeader("Content-Length"));
+        if (engine == TestEngine.Internal)
+        {
+            Assert.AreEqual("0", cached.GetContentHeader("Content-Length"));
+        }
     }
 
     [TestMethod]
-    public async Task TestServerReturnsModified()
+    [MultiEngineTest]
+    public async Task TestServerReturnsModified(TestEngine engine)
     {
-        using var runner = TestHost.Run(Content.From(Resource.FromString("Hello World!")));
+        await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")), engine: engine);
 
         var request = runner.GetRequest();
 
@@ -60,14 +66,15 @@ public sealed class CacheValidationTests
     }
 
     [TestMethod]
-    public async Task TestNoContentNoEtag()
+    [MultiEngineTest]
+    public async Task TestNoContentNoEtag(TestEngine engine)
     {
         var noContent = new FunctionalHandler(responseProvider: r =>
         {
             return r.Respond().Status(ResponseStatus.NoContent).Build();
         });
 
-        using var runner = TestHost.Run(noContent);
+        await using var runner = await TestHost.RunAsync(noContent, engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -75,9 +82,10 @@ public sealed class CacheValidationTests
     }
 
     [TestMethod]
-    public async Task TestOtherMethodNoETag()
+    [MultiEngineTest]
+    public async Task TestOtherMethodNoETag(TestEngine engine)
     {
-        using var runner = TestHost.Run(Content.From(Resource.FromString("Hello World!")));
+        await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")), engine: engine);
 
         var request = runner.GetRequest();
 

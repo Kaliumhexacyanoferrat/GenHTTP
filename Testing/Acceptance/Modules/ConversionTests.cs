@@ -13,11 +13,11 @@ public sealed class ConversionTests
 
     #region Helpers
 
-    private static async Task RunTest<TFormat, TData>(string serialized) where TFormat : ISerializationFormat, new()
+    private static async Task RunTest<TFormat, TData>(string serialized, TestEngine engine) where TFormat : ISerializationFormat, new()
     {
         var handler = new ConversionHandlerBuilder<TData>(new TFormat());
 
-        using var runner = TestHost.Run(handler);
+        await using var runner = await TestHost.RunAsync(handler, engine: engine);
 
         var request = runner.GetRequest();
 
@@ -101,16 +101,20 @@ public sealed class ConversionTests
     #region Tests
 
     [TestMethod]
-    public async Task TestFormFieldSerialization() => await RunTest<FormFormat, FieldData>("field=20");
+    [MultiEngineTest]
+    public async Task TestFormFieldSerialization(TestEngine engine) => await RunTest<FormFormat, FieldData>("field=20", engine);
 
     [TestMethod]
-    public async Task TestFormPropertySerialization() => await RunTest<FormFormat, PropertyData>("Field=20");
+    [MultiEngineTest]
+    public async Task TestFormPropertySerialization(TestEngine engine) => await RunTest<FormFormat, PropertyData>("Field=20", engine);
 
     [TestMethod]
-    public async Task TestFormTypeSerialization() => await RunTest<FormFormat, TypedData>("Boolean=1&Double=0.2&String=Test&Enum=One");
+    [MultiEngineTest]
+    public async Task TestFormTypeSerialization(TestEngine engine) => await RunTest<FormFormat, TypedData>("Boolean=1&Double=0.2&String=Test&Enum=One", engine);
 
     [TestMethod]
-    public async Task TestFormDefaultValueSerialization() => await RunTest<FormFormat, TypedData>("Boolean=0&Double=0&String=&Enum=One");
+    [MultiEngineTest]
+    public async Task TestFormDefaultValueSerialization(TestEngine engine) => await RunTest<FormFormat, TypedData>("Boolean=0&Double=0&String=&Enum=One", engine);
 
     #endregion
 

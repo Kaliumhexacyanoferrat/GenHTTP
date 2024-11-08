@@ -9,14 +9,15 @@ public sealed class ErrorHandlingTest
 {
 
     [TestMethod]
-    public async Task TestGenericError()
+    [MultiEngineTest]
+    public async Task TestGenericError(TestEngine engine)
     {
         var handler = new FunctionalHandler(responseProvider: r =>
         {
             throw new NotImplementedException();
         });
 
-        using var runner = TestHost.Run(handler.Wrap());
+        await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -24,18 +25,19 @@ public sealed class ErrorHandlingTest
     }
 
     [TestMethod]
-    public async Task TestEscaping()
+    [MultiEngineTest]
+    public async Task TestEscaping(TestEngine engine)
     {
         var handler = new FunctionalHandler(responseProvider: r =>
         {
             throw new Exception("Nah <>");
         });
 
-
-        using var runner = TestHost.Run(handler.Wrap());
+        await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
         AssertX.DoesNotContain("<>", await response.GetContentAsync());
     }
+
 }

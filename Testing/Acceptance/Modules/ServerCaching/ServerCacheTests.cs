@@ -6,6 +6,7 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.ServerCaching;
 using GenHTTP.Modules.ServerCaching.Provider;
 using GenHTTP.Testing.Acceptance.Utilities;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Cookie = GenHTTP.Api.Protocol.Cookie;
 
@@ -16,14 +17,15 @@ public class ServerCacheTests
 {
 
     [TestMethod]
-    public async Task TestContentIsInvalidated()
+    [MultiEngineTest]
+    public async Task TestContentIsInvalidated(TestEngine engine)
     {
         var file = Path.GetTempFileName();
 
         try
         {
-            using var runner = TestHost.Run(Content.From(Resource.FromFile(file))
-                                                   .Add(ServerCache.Memory()));
+            await using var runner = await TestHost.RunAsync(Content.From(Resource.FromFile(file))
+                                                   .Add(ServerCache.Memory()), engine: engine);
 
             await FileUtil.WriteTextAsync(file, "1");
 
@@ -49,14 +51,15 @@ public class ServerCacheTests
     }
 
     [TestMethod]
-    public async Task TestContentNotInvalidated()
+    [MultiEngineTest]
+    public async Task TestContentNotInvalidated(TestEngine engine)
     {
         var file = Path.GetTempFileName();
 
         try
         {
-            using var runner = TestHost.Run(Content.From(Resource.FromFile(file))
-                                                   .Add(ServerCache.Memory().Invalidate(false)));
+            await using var runner = await TestHost.RunAsync(Content.From(Resource.FromFile(file))
+                                                   .Add(ServerCache.Memory().Invalidate(false)), engine: engine);
 
             await FileUtil.WriteTextAsync(file, "1");
 
@@ -82,7 +85,8 @@ public class ServerCacheTests
     }
 
     [TestMethod]
-    public async Task TestVariationRespected()
+    [MultiEngineTest]
+    public async Task TestVariationRespected(TestEngine engine)
     {
         var file = Path.GetTempFileName();
 
@@ -90,9 +94,9 @@ public class ServerCacheTests
 
         try
         {
-            using var runner = TestHost.Run(Content.From(Resource.FromFile(file).Type(new FlexibleContentType(ContentType.TextPlain)))
+            await using var runner = await TestHost.RunAsync(Content.From(Resource.FromFile(file).Type(new FlexibleContentType(ContentType.TextPlain)))
                                                    .Add(CompressedContent.Default())
-                                                   .Add(ServerCache.Memory().Invalidate(false)), false);
+                                                   .Add(ServerCache.Memory().Invalidate(false)), false, engine: engine);
 
             var gzipRequest = runner.GetRequest();
 
@@ -128,7 +132,8 @@ public class ServerCacheTests
     }
 
     [TestMethod]
-    public async Task TestHeadersPreserved()
+    [MultiEngineTest]
+    public async Task TestHeadersPreserved(TestEngine engine)
     {
         var now = DateTime.UtcNow;
 
@@ -145,7 +150,7 @@ public class ServerCacheTests
                     .Build();
         });
 
-        using var runner = TestHost.Run(handler.Wrap().Add(ServerCache.Memory().Invalidate(false)), false);
+        await using var runner = await TestHost.RunAsync(handler.Wrap().Add(ServerCache.Memory().Invalidate(false)), false, engine: engine);
 
         using var _ = await runner.GetResponseAsync();
 
@@ -164,7 +169,8 @@ public class ServerCacheTests
     }
 
     [TestMethod]
-    public async Task TestNoContentCached()
+    [MultiEngineTest]
+    public async Task TestNoContentCached(TestEngine engine)
     {
         var i = 0;
 
@@ -177,7 +183,7 @@ public class ServerCacheTests
                     .Build();
         });
 
-        using var runner = TestHost.Run(handler.Wrap().Add(ServerCache.Memory().Invalidate(false)), false);
+        await using var runner = await TestHost.RunAsync(handler.Wrap().Add(ServerCache.Memory().Invalidate(false)), false, engine: engine);
 
         using var _ = await runner.GetResponseAsync();
 
@@ -187,7 +193,8 @@ public class ServerCacheTests
     }
 
     [TestMethod]
-    public async Task TestNotOkNotCached()
+    [MultiEngineTest]
+    public async Task TestNotOkNotCached(TestEngine engine)
     {
         var i = 0;
 
@@ -200,7 +207,7 @@ public class ServerCacheTests
                     .Build();
         });
 
-        using var runner = TestHost.Run(handler.Wrap().Add(ServerCache.Memory().Invalidate(false)), false);
+        await using var runner = await TestHost.RunAsync(handler.Wrap().Add(ServerCache.Memory().Invalidate(false)), false, engine: engine);
 
         using var _ = await runner.GetResponseAsync();
 
@@ -210,7 +217,8 @@ public class ServerCacheTests
     }
 
     [TestMethod]
-    public async Task TestPredicateNoMatchNoCache()
+    [MultiEngineTest]
+    public async Task TestPredicateNoMatchNoCache(TestEngine engine)
     {
         var i = 0;
 
@@ -228,7 +236,7 @@ public class ServerCacheTests
                                .Predicate((_, r) => r.ContentType?.KnownType != ContentType.TextHtml)
                                .Invalidate(false);
 
-        using var runner = TestHost.Run(handler.Wrap().Add(cache), false);
+        await using var runner = await TestHost.RunAsync(handler.Wrap().Add(cache), false, engine: engine);
 
         using var _ = await runner.GetResponseAsync();
 
@@ -238,7 +246,8 @@ public class ServerCacheTests
     }
 
     [TestMethod]
-    public async Task TestPredicateMatchCached()
+    [MultiEngineTest]
+    public async Task TestPredicateMatchCached(TestEngine engine)
     {
         var i = 0;
 
@@ -256,7 +265,7 @@ public class ServerCacheTests
                                .Predicate((_, r) => r.ContentType?.KnownType != ContentType.TextHtml)
                                .Invalidate(false);
 
-        using var runner = TestHost.Run(handler.Wrap().Add(cache), false);
+        await using var runner = await TestHost.RunAsync(handler.Wrap().Add(cache), false, engine: engine);
 
         using var _ = await runner.GetResponseAsync();
 
@@ -266,7 +275,8 @@ public class ServerCacheTests
     }
 
     [TestMethod]
-    public async Task TestQueryDifferenceNotCached()
+    [MultiEngineTest]
+    public async Task TestQueryDifferenceNotCached(TestEngine engine)
     {
         var i = 0;
 
@@ -282,7 +292,7 @@ public class ServerCacheTests
         var cache = ServerCache.Memory()
                                .Invalidate(false);
 
-        using var runner = TestHost.Run(handler.Wrap().Add(cache), false);
+        await using var runner = await TestHost.RunAsync(handler.Wrap().Add(cache), false, engine: engine);
 
         using var _ = await runner.GetResponseAsync("/?a=1");
 
@@ -292,7 +302,8 @@ public class ServerCacheTests
     }
 
     [TestMethod]
-    public async Task TestPostNotCached()
+    [MultiEngineTest]
+    public async Task TestPostNotCached(TestEngine engine)
     {
         var i = 0;
 
@@ -307,7 +318,7 @@ public class ServerCacheTests
         var cache = ServerCache.Memory()
                                .Invalidate(false);
 
-        using var runner = TestHost.Run(handler.Wrap().Add(cache), false);
+        await using var runner = await TestHost.RunAsync(handler.Wrap().Add(cache), false, engine: engine);
 
         using var _ = await runner.GetResponseAsync(GetPostRequest(runner));
 
@@ -327,7 +338,8 @@ public class ServerCacheTests
     }
 
     [TestMethod]
-    public async Task TestVariationCached()
+    [MultiEngineTest]
+    public async Task TestVariationCached(TestEngine engine)
     {
         var i = 0;
 
@@ -343,7 +355,7 @@ public class ServerCacheTests
         var cache = ServerCache.Memory()
                                .Invalidate(false);
 
-        using var runner = TestHost.Run(handler.Wrap().Add(cache), false);
+        await using var runner = await TestHost.RunAsync(handler.Wrap().Add(cache), false, engine: engine);
 
         using var _ = await runner.GetResponseAsync(GetVaryRequest(runner));
 
@@ -362,7 +374,8 @@ public class ServerCacheTests
     }
 
     [TestMethod]
-    public async Task TestDifferentStorageBackends()
+    [MultiEngineTest]
+    public async Task TestDifferentStorageBackends(TestEngine engine)
     {
         foreach (var serverCache in GetBackends())
         {
@@ -377,7 +390,7 @@ public class ServerCacheTests
                         .Build();
             });
 
-            using var runner = TestHost.Run(handler.Wrap().Add(serverCache.Invalidate(false)), false);
+            await using var runner = await TestHost.RunAsync(handler.Wrap().Add(serverCache.Invalidate(false)), false, engine: engine);
 
             using var _ = await runner.GetResponseAsync();
 
@@ -388,7 +401,8 @@ public class ServerCacheTests
     }
 
     [TestMethod]
-    public async Task TestAccessExpiration()
+    [MultiEngineTest]
+    public async Task TestAccessExpiration(TestEngine engine)
     {
         var i = 0;
 
@@ -406,7 +420,7 @@ public class ServerCacheTests
         var data = Cache.TemporaryFiles<Stream>()
                         .AccessExpiration(TimeSpan.FromMilliseconds(0));
 
-        using var runner = TestHost.Run(handler.Wrap().Add(ServerCache.Create(meta, data)), false);
+        await using var runner = await TestHost.RunAsync(handler.Wrap().Add(ServerCache.Create(meta, data)), false, engine: engine);
 
         using var _ = await runner.GetResponseAsync();
 

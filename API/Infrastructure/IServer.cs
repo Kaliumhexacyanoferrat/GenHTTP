@@ -6,7 +6,7 @@ namespace GenHTTP.Api.Infrastructure;
 /// Listens for incoming HTTP requests and dispatches them
 /// to the registered routers and content providers.
 /// </summary>
-public interface IServer : IDisposable
+public interface IServer : IAsyncDisposable
 {
 
     /// <summary>
@@ -46,4 +46,11 @@ public interface IServer : IDisposable
     /// incoming HTTP requests.
     /// </summary>
     IHandler Handler { get; }
+
+    /// <summary>
+    /// Starts to listen for requests, shut down by disposing
+    /// this instance.
+    /// </summary>
+    ValueTask StartAsync();
+
 }

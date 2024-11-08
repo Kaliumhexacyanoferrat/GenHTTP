@@ -16,13 +16,13 @@ public sealed class ResultTypeTests
 
     #region Helpers
 
-    private static TestHost GetRunner()
+    private static async Task<TestHost> GetRunnerAsync(TestEngine engine)
     {
         var controller = Controller.From<TestController>()
                                    .Serializers(Serialization.Default())
                                    .Injectors(Injection.Default());
 
-        return TestHost.Run(Layout.Create().Add("t", controller));
+        return await TestHost.RunAsync(Layout.Create().Add("t", controller), engine: engine);
     }
 
     #endregion
@@ -46,9 +46,10 @@ public sealed class ResultTypeTests
     #region Tests
 
     [TestMethod]
-    public async Task ControllerMayReturnHandlerBuilder()
+    [MultiEngineTest]
+    public async Task ControllerMayReturnHandlerBuilder(TestEngine engine)
     {
-        using var runner = GetRunner();
+        await using var runner = await GetRunnerAsync(engine);
 
         using var response = await runner.GetResponseAsync("/t/handler-builder/");
 
@@ -57,9 +58,10 @@ public sealed class ResultTypeTests
     }
 
     [TestMethod]
-    public async Task ControllerMayReturnHandler()
+    [MultiEngineTest]
+    public async Task ControllerMayReturnHandler(TestEngine engine)
     {
-        using var runner = GetRunner();
+        await using var runner = await GetRunnerAsync(engine);
 
         using var response = await runner.GetResponseAsync("/t/handler/");
 
@@ -68,9 +70,10 @@ public sealed class ResultTypeTests
     }
 
     [TestMethod]
-    public async Task ControllerMayReturnResponseBuilder()
+    [MultiEngineTest]
+    public async Task ControllerMayReturnResponseBuilder(TestEngine engine)
     {
-        using var runner = GetRunner();
+        await using var runner = await GetRunnerAsync(engine);
 
         using var response = await runner.GetResponseAsync("/t/response-builder/");
 
@@ -79,9 +82,10 @@ public sealed class ResultTypeTests
     }
 
     [TestMethod]
-    public async Task ControllerMayReturnResponse()
+    [MultiEngineTest]
+    public async Task ControllerMayReturnResponse(TestEngine engine)
     {
-        using var runner = GetRunner();
+        await using var runner = await GetRunnerAsync(engine);
 
         using var response = await runner.GetResponseAsync("/t/response/");
 

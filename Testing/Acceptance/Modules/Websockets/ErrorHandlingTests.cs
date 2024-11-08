@@ -1,5 +1,4 @@
 using System.Net;
-using GenHTTP.Engine;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using WS = GenHTTP.Modules.Websockets.Websocket;
@@ -13,11 +12,11 @@ public sealed class ErrorHandlingTests
     [TestMethod]
     public async Task TestInvalidRequest()
     {
-        using var host = TestHost.Run(WS.Create());
+        await using var host = await TestHost.RunAsync(WS.Create());
 
         using var response = await host.GetResponseAsync();
-        
+
         Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
     }
-    
+
 }

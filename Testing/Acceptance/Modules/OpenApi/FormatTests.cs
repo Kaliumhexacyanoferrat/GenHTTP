@@ -11,33 +11,42 @@ public class FormatTests
 {
 
     [TestMethod]
-    public Task TestJsonFile() => TestApi("/openapi.json", "application/json");
+    [MultiEngineTest]
+    public Task TestJsonFile(TestEngine engine) => TestApi(engine, "/openapi.json", "application/json");
 
     [TestMethod]
-    public Task TestJsonFileUpper() => TestApi("/OPENAPI.JSON", "application/json");
+    [MultiEngineTest]
+    public Task TestJsonFileUpper(TestEngine engine) => TestApi(engine, "/OPENAPI.JSON", "application/json");
 
     [TestMethod]
-    public Task TestJsonFallback() => TestApi("/openapi", "application/json");
+    [MultiEngineTest]
+    public Task TestJsonFallback(TestEngine engine) => TestApi(engine, "/openapi", "application/json");
 
     [TestMethod]
-    public Task TestYamlFile() => TestApi("/openapi.yaml", "application/yaml");
+    [MultiEngineTest]
+    public Task TestYamlFile(TestEngine engine) => TestApi(engine, "/openapi.yaml", "application/yaml");
 
     [TestMethod]
-    public Task TestYmlFile() => TestApi("/openapi.yml", "application/yaml");
+    [MultiEngineTest]
+    public Task TestYmlFile(TestEngine engine) => TestApi(engine, "/openapi.yml", "application/yaml");
 
     [TestMethod]
-    public Task TestJsonByAccept() => TestApi("/openapi", accept: "application/json");
+    [MultiEngineTest]
+    public Task TestJsonByAccept(TestEngine engine) => TestApi(engine, "/openapi", accept: "application/json");
 
     [TestMethod]
-    public Task TestJsonByAcceptUpper() => TestApi("/OPENAPI", accept: "application/json");
+    [MultiEngineTest]
+    public Task TestJsonByAcceptUpper(TestEngine engine) => TestApi(engine, "/OPENAPI", accept: "application/json");
 
     [TestMethod]
-    public Task TestYamlByAccept() => TestApi("/openapi", accept: "application/yaml");
+    [MultiEngineTest]
+    public Task TestYamlByAccept(TestEngine engine) => TestApi(engine, "/openapi", accept: "application/yaml");
 
     [TestMethod]
-    public async Task TestUnsupportedFormat()
+    [MultiEngineTest]
+    public async Task TestUnsupportedFormat(TestEngine engine)
     {
-        using var host = TestHost.Run(GetApi());
+        await using var host = await TestHost.RunAsync(GetApi(), engine: engine);
 
         var request = host.GetRequest("/openapi");
 
@@ -48,10 +57,9 @@ public class FormatTests
         await response.AssertStatusAsync(HttpStatusCode.BadRequest);
     }
 
-    private static async Task TestApi(string path, string? expectedContentType = null, string? accept = null)
+    private static async Task TestApi(TestEngine engine, string path, string? expectedContentType = null, string? accept = null)
     {
-
-        using var host = TestHost.Run(GetApi());
+        await using var host = await TestHost.RunAsync(GetApi(), engine: engine);
 
         var request = host.GetRequest(path);
 

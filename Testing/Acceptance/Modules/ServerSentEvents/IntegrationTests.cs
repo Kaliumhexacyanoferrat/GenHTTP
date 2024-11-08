@@ -11,13 +11,14 @@ public sealed class IntegrationTests
 {
 
     [TestMethod]
-    public async Task TestCustomFormatting()
+    [MultiEngineTest]
+    public async Task TestCustomFormatting(TestEngine engine)
     {
         var source = EventSource.Create()
                                 .Formatting(Formatting.Empty())
                                 .Generator(async (c) => await c.DataAsync(DateOnly.MaxValue));
 
-        using var host = TestHost.Run(source);
+        await using var host = await TestHost.RunAsync(source, engine: engine);
 
         using var response = await host.GetResponseAsync();
 
