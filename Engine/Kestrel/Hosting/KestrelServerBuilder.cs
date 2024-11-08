@@ -1,15 +1,17 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Engine.Shared.Infrastructure;
+
 using Microsoft.AspNetCore.Builder;
 
 namespace GenHTTP.Engine.Kestrel.Hosting;
 
 public sealed class KestrelServerBuilder : ServerBuilder
 {
-    private Action<WebApplicationBuilder>? _ConfigurationHook;
+    private readonly Action<WebApplicationBuilder>? _ConfigurationHook;
 
-    private Action<WebApplication>? _ApplicationHook;
+    private readonly Action<WebApplication>? _ApplicationHook;
 
     public KestrelServerBuilder(Action<WebApplicationBuilder>? configurationHook, Action<WebApplication>? applicationHook)
     {

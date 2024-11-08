@@ -25,7 +25,7 @@
 
                 <dependency id="GenHTTP.Api" version="9.0.0"/>
 
-                <dependency id="GenHTTP.Engine" version="9.0.0"/>
+                <dependency id="GenHTTP.Engine.Internal" version="9.0.0"/>
 
                 <dependency id="GenHTTP.Modules.Practices" version="9.0.0"/>
                 <dependency id="GenHTTP.Modules.Basics" version="9.0.0"/>
