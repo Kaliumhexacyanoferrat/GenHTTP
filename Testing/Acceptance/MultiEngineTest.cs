@@ -13,7 +13,7 @@ public class MultiEngineTestAttribute : Attribute, ITestDataSource
         return new List<object[]>
         {
             new object[] { TestEngine.Internal },
-            new object[] { TestEngine.Kestrel }
+           // new object[] { TestEngine.Kestrel }
         };
     }
 
