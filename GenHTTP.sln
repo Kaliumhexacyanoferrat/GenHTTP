@@ -55,6 +55,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Practices",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Packages", "Packages", "{E7697B84-4CED-49EC-BEF2-AD9C9766D97E}"
 	ProjectSection(SolutionItems) = preProject
+		Packages\GenHTTP.Core.Kestrel.nuspec = Packages\GenHTTP.Core.Kestrel.nuspec
 		Packages\GenHTTP.Core.nuspec = Packages\GenHTTP.Core.nuspec
 	EndProjectSection
 EndProject
@@ -290,7 +291,7 @@ Global
 		{7CEE048E-FA6A-4D8C-B6A6-EEEA0B048C54} = {AFBFE61E-0C33-42F6-9370-9F5088EB8633}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
 		LessCompiler = 2603124e-1287-4d61-9540-6ac3efad4eb9
+		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
 	EndGlobalSection
 EndGlobal

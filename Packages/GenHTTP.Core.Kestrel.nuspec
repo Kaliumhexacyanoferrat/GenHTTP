@@ -2,7 +2,7 @@
 
     <metadata>
 
-        <id>GenHTTP.Core</id>
+        <id>GenHTTP.Core.Kestrel</id>
         <version>9.0.0</version>
 
         <description>Basic dependencies for projects using the GenHTTP framework, combined with the Kestrel HTTP engine to serve requests</description>
