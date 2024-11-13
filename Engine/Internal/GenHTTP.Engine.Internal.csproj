@@ -34,12 +34,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Remove="Resources\Error.html"/>
-        <None Remove="Resources\ErrorStacked.html"/>
-        <None Remove="Resources\Template.html"/>
-    </ItemGroup>
-
-    <ItemGroup>
 
         <None Include="..\..\LICENSE" Pack="true" PackagePath="\"/>
         <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\"/>
