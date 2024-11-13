@@ -21,13 +21,9 @@ jobs:
       with:
         fetch-depth: 0
     - name: Download .NET SDK
-      run: |
-        wget -nv https://download.visualstudio.microsoft.com/download/pr/202e929a-e985-4eab-a78a-d7159fc204e4/0c85219d441cd3bbffd4fb65b7e36fe5/dotnet-sdk-9.0.100-rc.2.24474.11-linux-x64.tar.gz
-        mkdir -p $HOME/dotnet
-        tar -zxf dotnet-sdk-9.0.100-rc.2.24474.11-linux-x64.tar.gz -C $HOME/dotnet
-    - name: Setup .NET PATH
-      run: |
-        echo "$HOME/dotnet" >> $GITHUB_PATH        
+      uses: actions/setup-dotnet@v4.1.0
+      with:
+        dotnet-version: 9.0
     - name: Restore tools
       run: dotnet tool restore
     - name: Begin scan
