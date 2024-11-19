@@ -42,7 +42,7 @@ internal sealed class BearerAuthenticationConcern : IConcern
 
     #endregion
 
-#region Functionality
+    #region Functionality
 
     public ValueTask PrepareAsync() => Content.PrepareAsync();
 
@@ -147,6 +147,6 @@ internal sealed class BearerAuthenticationConcern : IConcern
         }
     }
 
-}
+    #endregion
 
-#endregion
+}
