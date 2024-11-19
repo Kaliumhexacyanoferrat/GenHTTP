@@ -109,32 +109,9 @@ public interface IServerBuilder<out T> : IBuilder<IServer>
     /// <param name="address">The address to bind to</param>
     /// <param name="port">The port to listen on</param>
     /// <param name="certificate">The certificate used to negoiate a connection with</param>
-    /// <remarks>
-    /// By default, the endpoint will accept TLS 1.2 connections only.
-    /// </remarks>
-    T Bind(IPAddress address, ushort port, X509Certificate2 certificate);
-
-    /// <summary>
-    /// Registers a secure endpoint the server will bind to on
-    /// startup to listen for incoming HTTPS requests.
-    /// </summary>
-    /// <param name="address">The address to bind to</param>
-    /// <param name="port">The port to listen on</param>
-    /// <param name="certificate">The certificate used to negoiate a connection with</param>
     /// <param name="protocols">The SSL/TLS protocl versions which should be supported by the endpoint</param>
-    T Bind(IPAddress address, ushort port, X509Certificate2 certificate, SslProtocols protocols);
-
-    /// <summary>
-    /// Registers a secure endpoint the server will bind to on
-    /// startup to listen for incoming HTTPS requests.
-    /// </summary>
-    /// <param name="address">The address to bind to</param>
-    /// <param name="port">The port to listen on</param>
-    /// <param name="certificateProvider">The provider to select the certificate used to negoiate a connection with</param>
-    /// <remarks>
-    /// By default, the endpoint will accept TLS 1.2 connections only.
-    /// </remarks>
-    T Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider);
+    /// <param name="certificateValidator">The validator to check the validity of client certificates with</param>
+    T Bind(IPAddress address, ushort port, X509Certificate2 certificate, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null);
 
     /// <summary>
     /// Registers a secure endpoint the server will bind to on
@@ -144,7 +121,8 @@ public interface IServerBuilder<out T> : IBuilder<IServer>
     /// <param name="port">The port to listen on</param>
     /// <param name="certificateProvider">The provider to select the certificate used to negoiate a connection with</param>
     /// <param name="protocols">The SSL/TLS protocl versions which should be supported by the endpoint</param>
-    T Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols);
+    /// <param name="certificateValidator">The validator to check the validity of client certificates with</param>
+    T Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null);
 
     #endregion
 

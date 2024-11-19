@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-
+using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
@@ -13,6 +13,7 @@ internal sealed class RequestBuilder : IBuilder<IRequest>
 {
     private Socket? _Socket;
     private IPAddress? _Address;
+    private X509Certificate? _ClientCertificate;
 
     private Stream? _Content;
 
@@ -56,12 +57,13 @@ internal sealed class RequestBuilder : IBuilder<IRequest>
 
     #region Functionality
 
-    public RequestBuilder Connection(IServer server, Socket socket, IEndPoint endPoint, IPAddress? address)
+    public RequestBuilder Connection(IServer server, Socket socket, IEndPoint endPoint, IPAddress? address, X509Certificate? clientCertificate)
     {
         _Socket = socket;
         _Server = server;
         _Address = address;
         _EndPoint = endPoint;
+        _ClientCertificate = clientCertificate;
 
         return this;
     }
@@ -165,9 +167,9 @@ internal sealed class RequestBuilder : IBuilder<IRequest>
                 Forwardings.TryAddLegacy(Headers);
             }
 
-            var localClient = new ClientConnection(_Address, protocol, host);
+            var localClient = new ClientConnection(_Address, protocol, host, _ClientCertificate);
 
-            var client = Forwardings.DetermineClient() ?? localClient;
+            var client = Forwardings.DetermineClient(_ClientCertificate) ?? localClient;
 
             return new Request(_Server, _Socket, _EndPoint, client, localClient, (HttpProtocol)_Protocol, _RequestMethod,
                                _Target, Headers, _Cookies, _Forwardings, _Query, _Content);

@@ -99,7 +99,7 @@ public sealed class Request : IRequest
 
         LocalClient = new Local.ClientConnection(context.Connection, context.Request);
 
-        Client = _Forwardings.DetermineClient() ?? LocalClient;
+        Client = _Forwardings.DetermineClient(context.Connection.ClientCertificate) ?? LocalClient;
 
         EndPoint = Server.EndPoints.First(e => e.Port == context.Connection.LocalPort);
     }

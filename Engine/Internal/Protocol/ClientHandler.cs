@@ -1,7 +1,7 @@
 ﻿using System.Buffers;
 using System.IO.Pipelines;
 using System.Net.Sockets;
-
+using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
@@ -26,30 +26,9 @@ internal sealed class ClientHandler
 {
     private static readonly StreamPipeReaderOptions ReaderOptions = new(MemoryPool<byte>.Shared, leaveOpen: true, bufferSize: 65536);
 
-    #region Initialization
-
-    internal ClientHandler(Socket socket, Stream stream, IServer server, IEndPoint endPoint, NetworkConfiguration config)
-    {
-        Socket = socket;
-
-        Server = server;
-        EndPoint = endPoint;
-
-        Configuration = config;
-        Connection = socket;
-
-        Stream = stream;
-
-        ResponseHandler = new ResponseHandler(Server, socket, Stream, Configuration);
-    }
-
-    #endregion
-
     #region Get-/Setter
 
     internal IServer Server { get; }
-
-    internal Socket Socket { get; }
 
     internal IEndPoint EndPoint { get; }
 
@@ -57,11 +36,32 @@ internal sealed class ClientHandler
 
     internal Socket Connection { get; }
 
+    internal X509Certificate? ClientCertificate { get; set; }
+
     internal Stream Stream { get; }
 
     private bool? KeepAlive { get; set; }
 
     private ResponseHandler ResponseHandler { get; }
+
+    #endregion
+
+    #region Initialization
+
+    internal ClientHandler(Socket socket, Stream stream, X509Certificate? clientCertificate, IServer server, IEndPoint endPoint, NetworkConfiguration config)
+    {
+        Server = server;
+        EndPoint = endPoint;
+
+        Connection = socket;
+        ClientCertificate = clientCertificate;
+
+        Configuration = config;
+
+        Stream = stream;
+
+        ResponseHandler = new ResponseHandler(Server, socket, Stream, Configuration);
+    }
 
     #endregion
 
@@ -153,7 +153,7 @@ internal sealed class ClientHandler
 
     private async PooledValueTask<ConnectionStatus> HandleRequest(RequestBuilder builder, bool dataRemaining)
     {
-        using var request = builder.Connection(Server, Socket, EndPoint, Connection.GetAddress()).Build();
+        using var request = builder.Connection(Server, Connection, EndPoint, Connection.GetAddress(), ClientCertificate).Build();
 
         KeepAlive ??= request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? request.ProtocolType == HttpProtocol.Http11;
 

@@ -26,15 +26,16 @@ internal sealed class SecureEndPoint : EndPoint
         AuthenticationOptions = new SslServerAuthenticationOptions
         {
             EnabledSslProtocols = Options.Protocols,
-            ClientCertificateRequired = false,
             AllowRenegotiation = true,
             ApplicationProtocols = new List<SslApplicationProtocol>
             {
                 SslApplicationProtocol.Http11
             },
-            CertificateRevocationCheckMode = X509RevocationMode.NoCheck, // no support for client certificates yet
             EncryptionPolicy = EncryptionPolicy.RequireEncryption,
-            ServerCertificateSelectionCallback = SelectCertificate
+            ServerCertificateSelectionCallback = SelectCertificate,
+            ClientCertificateRequired = Options.CertificateValidator?.ForceClientCertificate ?? false,
+            CertificateRevocationCheckMode = Options.CertificateValidator?.RevocationMode ?? X509RevocationMode.NoCheck,
+            RemoteCertificateValidationCallback = ValidateClient
         };
     }
 
@@ -58,7 +59,7 @@ internal sealed class SecureEndPoint : EndPoint
 
         if (stream is not null)
         {
-            await Handle(client, new PoolBufferedStream(stream, Configuration.TransferBufferSize));
+            await Handle(client, new PoolBufferedStream(stream, Configuration.TransferBufferSize), stream.RemoteCertificate);
         }
         else
         {
@@ -92,9 +93,9 @@ internal sealed class SecureEndPoint : EndPoint
         }
     }
 
-    private X509Certificate2 SelectCertificate(object sender, string? hostName)
+    private X509Certificate2 SelectCertificate(object _, string? hostName)
     {
-        var certificate = Options.Certificate.Provide(hostName);
+        var certificate = Options.CertificateProvider.Provide(hostName);
 
         if (certificate is null)
         {
@@ -103,6 +104,9 @@ internal sealed class SecureEndPoint : EndPoint
 
         return certificate;
     }
+
+    private bool ValidateClient(object _, X509Certificate? certificate, X509Chain? chain, SslPolicyErrors sslpolicyerrors)
+        => Options.CertificateValidator?.Validate(certificate, chain, sslpolicyerrors) ?? true;
 
     #endregion
 

@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
@@ -7,6 +8,7 @@ using GenHTTP.Engine.Shared.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.Extensions.Logging;
 
 namespace GenHTTP.Engine.Kestrel.Hosting;
@@ -103,7 +105,16 @@ internal sealed class KestrelServer : IServer
                         listenOptions.UseHttps(httpsOptions =>
                         {
                             httpsOptions.SslProtocols = endpoint.Security.Protocols;
-                            httpsOptions.ServerCertificateSelector = (_, hostName) => endpoint.Security.Certificate.Provide(hostName);
+                            httpsOptions.ServerCertificateSelector = (_, hostName) => endpoint.Security.CertificateProvider.Provide(hostName);
+
+                            var validator = endpoint.Security.CertificateValidator;
+
+                            if (validator != null)
+                            {
+                                httpsOptions.ClientCertificateMode = validator.ForceClientCertificate ? ClientCertificateMode.RequireCertificate : ClientCertificateMode.AllowCertificate;
+                                httpsOptions.ClientCertificateValidation = validator.Validate;
+                                httpsOptions.CheckCertificateRevocation = (validator.RevocationMode != X509RevocationMode.NoCheck);
+                            }
                         });
                     });
                 }
