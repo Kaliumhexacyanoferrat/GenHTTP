@@ -93,11 +93,11 @@ public abstract class ServerBuilder : IServerBuilder
         return this;
     }
 
-    public IServerBuilder Bind(IPAddress address, ushort port, X509Certificate2 certificate, SslProtocols protocols, ICertificateValidator? validator) => Bind(address, port, new SimpleCertificateProvider(certificate), protocols, validator);
+    public IServerBuilder Bind(IPAddress address, ushort port, X509Certificate2 certificate, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null) => Bind(address, port, new SimpleCertificateProvider(certificate), protocols, certificateValidator);
 
-    public IServerBuilder Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols, ICertificateValidator? validator)
+    public IServerBuilder Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null)
     {
-        _EndPoints.Add(new EndPointConfiguration(address, port, new SecurityConfiguration(certificateProvider, protocols, validator)));
+        _EndPoints.Add(new EndPointConfiguration(address, port, new SecurityConfiguration(certificateProvider, protocols, certificateValidator)));
         return this;
     }
 

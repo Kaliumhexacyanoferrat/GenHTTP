@@ -16,6 +16,16 @@ namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
 internal sealed class SecureEndPoint : EndPoint
 {
 
+    #region Get-/Setters
+
+    internal SecurityConfiguration Options { get; }
+
+    public override bool Secure => true;
+
+    private SslServerAuthenticationOptions AuthenticationOptions { get; }
+
+    #endregion
+
     #region Initialization
 
     internal SecureEndPoint(IServer server, IPEndPoint endPoint, SecurityConfiguration options, NetworkConfiguration configuration)
@@ -33,21 +43,11 @@ internal sealed class SecureEndPoint : EndPoint
             },
             EncryptionPolicy = EncryptionPolicy.RequireEncryption,
             ServerCertificateSelectionCallback = SelectCertificate,
-            ClientCertificateRequired = Options.CertificateValidator?.ForceClientCertificate ?? false,
-            CertificateRevocationCheckMode = Options.CertificateValidator?.RevocationMode ?? X509RevocationMode.NoCheck,
+            ClientCertificateRequired = Options.CertificateValidator?.RequireCertificate ?? false,
+            CertificateRevocationCheckMode = Options.CertificateValidator?.RevocationCheck ?? X509RevocationMode.NoCheck,
             RemoteCertificateValidationCallback = ValidateClient
         };
     }
-
-    #endregion
-
-    #region Get-/Setters
-
-    internal SecurityConfiguration Options { get; }
-
-    public override bool Secure => true;
-
-    private SslServerAuthenticationOptions AuthenticationOptions { get; }
 
     #endregion
 

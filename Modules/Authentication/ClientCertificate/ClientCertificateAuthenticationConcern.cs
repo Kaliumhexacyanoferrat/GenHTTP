@@ -1,22 +1,22 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Authentication.Client;
+namespace GenHTTP.Modules.Authentication.ClientCertificate;
 
-public sealed class ClientAuthenticationConcern : IConcern
+public sealed class ClientCertificateAuthenticationConcern : IConcern
 {
 
     #region Get-/Setters
 
     public IHandler Content { get; }
 
-    private ClientAuthenticationOptions Options { get; }
+    private ClientCertificateAuthenticationOptions Options { get; }
 
     #endregion
 
     #region Initialization
 
-    internal ClientAuthenticationConcern(IHandler content, ClientAuthenticationOptions options)
+    internal ClientCertificateAuthenticationConcern(IHandler content, ClientCertificateAuthenticationOptions options)
     {
         Content = content;
         Options = options;
@@ -32,9 +32,9 @@ public sealed class ClientAuthenticationConcern : IConcern
     {
         var certificate = request.Client.Certificate;
 
-        if (Options.Authenticator != null)
+        if (Options.Authorizer != null)
         {
-            if (!await Options.Authenticator(request, certificate))
+            if (!await Options.Authorizer(request, certificate))
             {
                 throw new ProviderException(ResponseStatus.Forbidden, "You are not allowed to access this resource");
             }

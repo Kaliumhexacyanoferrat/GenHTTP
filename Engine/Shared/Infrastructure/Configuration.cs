@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
+
 using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Engine.Shared.Infrastructure;

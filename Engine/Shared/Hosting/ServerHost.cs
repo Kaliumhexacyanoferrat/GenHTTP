@@ -41,13 +41,13 @@ public sealed class ServerHost : IServerHost
         return this;
     }
 
-    public IServerHost Bind(IPAddress address, ushort port, X509Certificate2 certificate, SslProtocols protocols, ICertificateValidator? certificateValidator)
+    public IServerHost Bind(IPAddress address, ushort port, X509Certificate2 certificate, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null)
     {
         _Builder.Bind(address, port, certificate, protocols, certificateValidator);
         return this;
     }
 
-    public IServerHost Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols, ICertificateValidator? certificateValidator)
+    public IServerHost Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null)
     {
         _Builder.Bind(address, port, certificateProvider, protocols, certificateValidator);
         return this;

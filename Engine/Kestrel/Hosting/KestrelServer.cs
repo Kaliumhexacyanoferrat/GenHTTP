@@ -111,9 +111,9 @@ internal sealed class KestrelServer : IServer
 
                             if (validator != null)
                             {
-                                httpsOptions.ClientCertificateMode = validator.ForceClientCertificate ? ClientCertificateMode.RequireCertificate : ClientCertificateMode.AllowCertificate;
+                                httpsOptions.ClientCertificateMode = validator.RequireCertificate ? ClientCertificateMode.RequireCertificate : ClientCertificateMode.AllowCertificate;
                                 httpsOptions.ClientCertificateValidation = validator.Validate;
-                                httpsOptions.CheckCertificateRevocation = (validator.RevocationMode != X509RevocationMode.NoCheck);
+                                httpsOptions.CheckCertificateRevocation = (validator.RevocationCheck != X509RevocationMode.NoCheck);
                             }
                         });
                     });

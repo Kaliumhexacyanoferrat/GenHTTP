@@ -17,71 +17,6 @@ public interface IServerBuilder : IServerBuilder<IServerBuilder>;
 public interface IServerBuilder<out T> : IBuilder<IServer>
 {
 
-    #region Content
-
-    /// <summary>
-    /// Specifies the root handler that will be invoked when
-    /// a client request needs to be handled.
-    /// </summary>
-    /// <param name="handler">The handler to be invoked to handle requests</param>
-    /// <remarks>
-    /// Note that only a single handler is supported. To build are more
-    /// complex application, consider passing a Layout instead.
-    /// </remarks>
-    T Handler(IHandler handler);
-
-    /// <summary>
-    /// Specifies the root handler that will be invoked when
-    /// a client request needs to be handled.
-    /// </summary>
-    /// <param name="handler">The handler to be invoked to handle requests</param>
-    /// <remarks>
-    /// Note that only a single handler is supported. To build are more
-    /// complex application, consider passing a Layout instead.
-    /// </remarks>
-    T Handler(IHandlerBuilder handlerBuilder) => Handler(handlerBuilder.Build());
-
-    #endregion
-
-    #region Extensibility
-
-    /// <summary>
-    /// Adds a concern to the server instance which will be executed before
-    /// and after the root handler is invoked.
-    /// </summary>
-    /// <param name="concern">The concern to be added to the instance</param>
-    T Add(IConcernBuilder concern);
-
-    #endregion
-
-    #region Infrastructure
-
-    /// <summary>
-    /// Registers a companion that will log all handled requests and
-    /// errors to the console.
-    /// </summary>
-    T Console();
-
-    /// <summary>
-    /// Registers the given companion to be used by the server, allowing
-    /// to log and handle requests and errors.
-    /// </summary>
-    /// <param name="companion">The companion to be used by the server</param>
-    T Companion(IServerCompanion companion);
-
-    /// <summary>
-    /// Enables or disables the development mode on the server instance. When in
-    /// development mode, the server will return additional information
-    /// useful for developers of web applications.
-    /// </summary>
-    /// <param name="developmentMode">Whether the development should be active</param>
-    /// <remarks>
-    /// By default, the development mode is disabled.
-    /// </remarks>
-    T Development(bool developmentMode = true);
-
-    #endregion
-
     #region Binding
 
     /// <summary>
@@ -126,6 +61,34 @@ public interface IServerBuilder<out T> : IBuilder<IServer>
 
     #endregion
 
+    #region Infrastructure
+
+    /// <summary>
+    /// Registers a companion that will log all handled requests and
+    /// errors to the console.
+    /// </summary>
+    T Console();
+
+    /// <summary>
+    /// Registers the given companion to be used by the server, allowing
+    /// to log and handle requests and errors.
+    /// </summary>
+    /// <param name="companion">The companion to be used by the server</param>
+    T Companion(IServerCompanion companion);
+
+    /// <summary>
+    /// Enables or disables the development mode on the server instance. When in
+    /// development mode, the server will return additional information
+    /// useful for developers of web applications.
+    /// </summary>
+    /// <param name="developmentMode">Whether the development should be active</param>
+    /// <remarks>
+    /// By default, the development mode is disabled.
+    /// </remarks>
+    T Development(bool developmentMode = true);
+
+    #endregion
+
     #region Network settings
 
     /// <summary>
@@ -156,6 +119,39 @@ public interface IServerBuilder<out T> : IBuilder<IServer>
     /// data streams (such as uploads or downloads).
     /// </summary>
     T TransferBufferSize(uint bufferSize);
+
+    #endregion
+
+    #region Content
+
+    /// <summary>
+    /// Specifies the root handler that will be invoked when
+    /// a client request needs to be handled.
+    /// </summary>
+    /// <param name="handler">The handler to be invoked to handle requests</param>
+    /// <remarks>
+    /// Note that only a single handler is supported. To build are more
+    /// complex application, consider passing a Layout instead.
+    /// </remarks>
+    T Handler(IHandler handler);
+
+    /// <summary>
+    /// Specifies the root handler that will be invoked when
+    /// a client request needs to be handled.
+    /// </summary>
+    /// <param name="handler">The handler to be invoked to handle requests</param>
+    /// <remarks>
+    /// Note that only a single handler is supported. To build are more
+    /// complex application, consider passing a Layout instead.
+    /// </remarks>
+    T Handler(IHandlerBuilder handlerBuilder) => Handler(handlerBuilder.Build());
+
+    /// <summary>
+    /// Adds a concern to the server instance which will be executed before
+    /// and after the root handler is invoked.
+    /// </summary>
+    /// <param name="concern">The concern to be added to the instance</param>
+    T Add(IConcernBuilder concern);
 
     #endregion
 
