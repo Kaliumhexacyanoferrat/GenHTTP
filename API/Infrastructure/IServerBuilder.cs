@@ -17,40 +17,47 @@ public interface IServerBuilder : IServerBuilder<IServerBuilder>;
 public interface IServerBuilder<out T> : IBuilder<IServer>
 {
 
-    #region Content
+    #region Binding
 
     /// <summary>
-    /// Specifies the root handler that will be invoked when
-    /// a client request needs to be handled.
+    /// Specifies the port, the server will listen on (defaults to 8080 on IPv4/IPv6).
     /// </summary>
-    /// <param name="handler">The handler to be invoked to handle requests</param>
+    /// <param name="port">The port the server should listen on</param>
     /// <remarks>
-    /// Note that only a single handler is supported. To build are more
-    /// complex application, consider passing a Layout instead.
+    /// If you register custom endpoints using the Bind methods, this value
+    /// will be ignored.
     /// </remarks>
-    T Handler(IHandler handler);
+    T Port(ushort port);
 
     /// <summary>
-    /// Specifies the root handler that will be invoked when
-    /// a client request needs to be handled.
+    /// Registers an endpoint for the given address and port the server will
+    /// bind to on startup to listen for incomming HTTP requests.
     /// </summary>
-    /// <param name="handler">The handler to be invoked to handle requests</param>
-    /// <remarks>
-    /// Note that only a single handler is supported. To build are more
-    /// complex application, consider passing a Layout instead.
-    /// </remarks>
-    T Handler(IHandlerBuilder handlerBuilder) => Handler(handlerBuilder.Build());
-
-    #endregion
-
-    #region Extensibility
+    /// <param name="address">The address to bind to</param>
+    /// <param name="port">The port to listen on</param>
+    T Bind(IPAddress address, ushort port);
 
     /// <summary>
-    /// Adds a concern to the server instance which will be executed before
-    /// and after the root handler is invoked.
+    /// Registers a secure endpoint the server will bind to on
+    /// startup to listen for incoming HTTPS requests.
     /// </summary>
-    /// <param name="concern">The concern to be added to the instance</param>
-    T Add(IConcernBuilder concern);
+    /// <param name="address">The address to bind to</param>
+    /// <param name="port">The port to listen on</param>
+    /// <param name="certificate">The certificate used to negoiate a connection with</param>
+    /// <param name="protocols">The SSL/TLS protocl versions which should be supported by the endpoint</param>
+    /// <param name="certificateValidator">The validator to check the validity of client certificates with</param>
+    T Bind(IPAddress address, ushort port, X509Certificate2 certificate, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null);
+
+    /// <summary>
+    /// Registers a secure endpoint the server will bind to on
+    /// startup to listen for incoming HTTPS requests.
+    /// </summary>
+    /// <param name="address">The address to bind to</param>
+    /// <param name="port">The port to listen on</param>
+    /// <param name="certificateProvider">The provider to select the certificate used to negoiate a connection with</param>
+    /// <param name="protocols">The SSL/TLS protocl versions which should be supported by the endpoint</param>
+    /// <param name="certificateValidator">The validator to check the validity of client certificates with</param>
+    T Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null);
 
     #endregion
 
@@ -79,72 +86,6 @@ public interface IServerBuilder<out T> : IBuilder<IServer>
     /// By default, the development mode is disabled.
     /// </remarks>
     T Development(bool developmentMode = true);
-
-    #endregion
-
-    #region Binding
-
-    /// <summary>
-    /// Specifies the port, the server will listen on (defaults to 8080 on IPv4/IPv6).
-    /// </summary>
-    /// <param name="port">The port the server should listen on</param>
-    /// <remarks>
-    /// If you register custom endpoints using the Bind methods, this value
-    /// will be ignored.
-    /// </remarks>
-    T Port(ushort port);
-
-    /// <summary>
-    /// Registers an endpoint for the given address and port the server will
-    /// bind to on startup to listen for incomming HTTP requests.
-    /// </summary>
-    /// <param name="address">The address to bind to</param>
-    /// <param name="port">The port to listen on</param>
-    T Bind(IPAddress address, ushort port);
-
-    /// <summary>
-    /// Registers a secure endpoint the server will bind to on
-    /// startup to listen for incoming HTTPS requests.
-    /// </summary>
-    /// <param name="address">The address to bind to</param>
-    /// <param name="port">The port to listen on</param>
-    /// <param name="certificate">The certificate used to negoiate a connection with</param>
-    /// <remarks>
-    /// By default, the endpoint will accept TLS 1.2 connections only.
-    /// </remarks>
-    T Bind(IPAddress address, ushort port, X509Certificate2 certificate);
-
-    /// <summary>
-    /// Registers a secure endpoint the server will bind to on
-    /// startup to listen for incoming HTTPS requests.
-    /// </summary>
-    /// <param name="address">The address to bind to</param>
-    /// <param name="port">The port to listen on</param>
-    /// <param name="certificate">The certificate used to negoiate a connection with</param>
-    /// <param name="protocols">The SSL/TLS protocl versions which should be supported by the endpoint</param>
-    T Bind(IPAddress address, ushort port, X509Certificate2 certificate, SslProtocols protocols);
-
-    /// <summary>
-    /// Registers a secure endpoint the server will bind to on
-    /// startup to listen for incoming HTTPS requests.
-    /// </summary>
-    /// <param name="address">The address to bind to</param>
-    /// <param name="port">The port to listen on</param>
-    /// <param name="certificateProvider">The provider to select the certificate used to negoiate a connection with</param>
-    /// <remarks>
-    /// By default, the endpoint will accept TLS 1.2 connections only.
-    /// </remarks>
-    T Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider);
-
-    /// <summary>
-    /// Registers a secure endpoint the server will bind to on
-    /// startup to listen for incoming HTTPS requests.
-    /// </summary>
-    /// <param name="address">The address to bind to</param>
-    /// <param name="port">The port to listen on</param>
-    /// <param name="certificateProvider">The provider to select the certificate used to negoiate a connection with</param>
-    /// <param name="protocols">The SSL/TLS protocl versions which should be supported by the endpoint</param>
-    T Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols);
 
     #endregion
 
@@ -178,6 +119,39 @@ public interface IServerBuilder<out T> : IBuilder<IServer>
     /// data streams (such as uploads or downloads).
     /// </summary>
     T TransferBufferSize(uint bufferSize);
+
+    #endregion
+
+    #region Content
+
+    /// <summary>
+    /// Specifies the root handler that will be invoked when
+    /// a client request needs to be handled.
+    /// </summary>
+    /// <param name="handler">The handler to be invoked to handle requests</param>
+    /// <remarks>
+    /// Note that only a single handler is supported. To build are more
+    /// complex application, consider passing a Layout instead.
+    /// </remarks>
+    T Handler(IHandler handler);
+
+    /// <summary>
+    /// Specifies the root handler that will be invoked when
+    /// a client request needs to be handled.
+    /// </summary>
+    /// <param name="handler">The handler to be invoked to handle requests</param>
+    /// <remarks>
+    /// Note that only a single handler is supported. To build are more
+    /// complex application, consider passing a Layout instead.
+    /// </remarks>
+    T Handler(IHandlerBuilder handlerBuilder) => Handler(handlerBuilder.Build());
+
+    /// <summary>
+    /// Adds a concern to the server instance which will be executed before
+    /// and after the root handler is invoked.
+    /// </summary>
+    /// <param name="concern">The concern to be added to the instance</param>
+    T Add(IConcernBuilder concern);
 
     #endregion
 

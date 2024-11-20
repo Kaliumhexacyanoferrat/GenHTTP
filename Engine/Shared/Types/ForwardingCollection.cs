@@ -1,5 +1,5 @@
 ﻿using System.Net;
-
+using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
@@ -47,13 +47,13 @@ public sealed class ForwardingCollection : List<Forwarding>, IForwardingCollecti
         }
     }
 
-    public IClientConnection? DetermineClient()
+    public IClientConnection? DetermineClient(X509Certificate? clientCertificate)
     {
         foreach (var forwarding in this)
         {
             if (forwarding.For is not null)
             {
-                return new ClientConnection(forwarding.For, forwarding.Protocol, forwarding.Host);
+                return new ClientConnection(forwarding.For, forwarding.Protocol, forwarding.Host, clientCertificate);
             }
         }
 

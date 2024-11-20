@@ -1,5 +1,5 @@
 ﻿using System.Net;
-
+using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Infrastructure;
@@ -26,5 +26,10 @@ public interface IClientConnection
     /// to the server.
     /// </summary>
     string? Host { get; }
+
+    /// <summary>
+    /// The certificate used by the client to connect.
+    /// </summary>
+    X509Certificate? Certificate { get; }
 
 }

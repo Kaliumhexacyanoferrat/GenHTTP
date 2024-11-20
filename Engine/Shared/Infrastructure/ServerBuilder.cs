@@ -52,7 +52,6 @@ public abstract class ServerBuilder : IServerBuilder
 
     #endregion
 
-
     #region Infrastructure
 
     public IServerBuilder Console()
@@ -94,19 +93,11 @@ public abstract class ServerBuilder : IServerBuilder
         return this;
     }
 
-    public IServerBuilder Bind(IPAddress address, ushort port, X509Certificate2 certificate) => Bind(address, port, new SimpleCertificateProvider(certificate));
+    public IServerBuilder Bind(IPAddress address, ushort port, X509Certificate2 certificate, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null) => Bind(address, port, new SimpleCertificateProvider(certificate), protocols, certificateValidator);
 
-    public IServerBuilder Bind(IPAddress address, ushort port, X509Certificate2 certificate, SslProtocols protocols) => Bind(address, port, new SimpleCertificateProvider(certificate), protocols);
-
-    public IServerBuilder Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider)
+    public IServerBuilder Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null)
     {
-        _EndPoints.Add(new EndPointConfiguration(address, port, new SecurityConfiguration(certificateProvider, SslProtocols.Tls12 | SslProtocols.Tls13)));
-        return this;
-    }
-
-    public IServerBuilder Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols)
-    {
-        _EndPoints.Add(new EndPointConfiguration(address, port, new SecurityConfiguration(certificateProvider, protocols)));
+        _EndPoints.Add(new EndPointConfiguration(address, port, new SecurityConfiguration(certificateProvider, protocols, certificateValidator)));
         return this;
     }
 

@@ -6,6 +6,7 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Security;
 using GenHTTP.Modules.Security.Providers;
+using GenHTTP.Testing.Acceptance.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
@@ -169,7 +170,7 @@ public sealed class SecurityTests
 
         var port = TestHost.NextPort();
 
-        using var cert = await GetCertificate();
+        using var cert = await Security.GetCertificateAsync();
 
         runner.Host.Handler(content)
               .Bind(IPAddress.Any, (ushort)runner.Port)
@@ -184,20 +185,6 @@ public sealed class SecurityTests
         await runner.StartAsync();
 
         await logic((ushort)runner.Port, (ushort)port);
-    }
-
-    private static async ValueTask<X509Certificate2> GetCertificate()
-    {
-        await using var stream = await Resource.FromAssembly("Certificate.pfx").Build().GetContentAsync();
-
-        using var mem = new MemoryStream();
-
-        await stream.CopyToAsync(mem);
-#if NET8_0
-        return new X509Certificate2(mem.ToArray());
-#else
-        return X509CertificateLoader.LoadPkcs12(mem.ToArray(), null);
-#endif
     }
 
     private class PickyCertificateProvider : ICertificateProvider

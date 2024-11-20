@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using Microsoft.AspNetCore.Http;
@@ -15,6 +16,8 @@ public sealed class ClientConnection : IClientConnection
     public ClientProtocol? Protocol { get; }
 
     public string? Host => Request.Host.HasValue ? Request.Host.Value : null;
+
+    public X509Certificate? Certificate => Info.ClientCertificate;
 
     private ConnectionInfo Info { get; }
 
@@ -33,6 +36,5 @@ public sealed class ClientConnection : IClientConnection
     }
 
     #endregion
-
 
 }

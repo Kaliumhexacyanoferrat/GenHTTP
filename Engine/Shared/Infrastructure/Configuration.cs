@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Security.Authentication;
+
 using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Engine.Shared.Infrastructure;
@@ -12,4 +13,4 @@ public record NetworkConfiguration(TimeSpan RequestReadTimeout, uint RequestMemo
 
 public record EndPointConfiguration(IPAddress Address, ushort Port, SecurityConfiguration? Security);
 
-public record SecurityConfiguration(ICertificateProvider Certificate, SslProtocols Protocols);
+public record SecurityConfiguration(ICertificateProvider CertificateProvider, SslProtocols Protocols, ICertificateValidator? CertificateValidator);
