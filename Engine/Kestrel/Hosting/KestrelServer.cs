@@ -8,6 +8,7 @@ using GenHTTP.Engine.Shared.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.Extensions.Logging;
 
@@ -102,6 +103,7 @@ internal sealed class KestrelServer : IServer
                 {
                     options.Listen(endpoint.Address, endpoint.Port, listenOptions =>
                     {
+                        listenOptions.Protocols = (endpoint.EnableQuic) ? HttpProtocols.Http1AndHttp2AndHttp3 : HttpProtocols.Http1AndHttp2;
                         listenOptions.UseHttps(httpsOptions =>
                         {
                             httpsOptions.SslProtocols = endpoint.Security.Protocols;

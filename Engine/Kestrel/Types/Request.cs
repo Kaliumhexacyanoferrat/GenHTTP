@@ -81,7 +81,15 @@ public sealed class Request : IRequest
         Server = server;
         Context = context.Request;
 
-        ProtocolType = Context.Protocol == "HTTP/1.1" ? HttpProtocol.Http11 : HttpProtocol.Http10;
+        ProtocolType = Context.Protocol switch
+        {
+            "HTTP/1.0" => HttpProtocol.Http10,
+            "HTTP/1.1" => HttpProtocol.Http11,
+            "HTTP/2" => HttpProtocol.Http2,
+            "HTTP/3" => HttpProtocol.Http3,
+            _ => HttpProtocol.Http11
+        };
+
         Method = FlexibleRequestMethod.Get(Context.Method);
         Target = new RoutingTarget(WebPath.FromString(Context.Path));
 
