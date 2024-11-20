@@ -20,7 +20,7 @@ public interface ICertificateValidator
 
     /// <summary>
     /// Specifies how the server should check whether the client
-    /// has been revoked using a CRL.
+    /// certificate has been revoked using a CRL.
     /// </summary>
     X509RevocationMode RevocationCheck => X509RevocationMode.Offline;
 
