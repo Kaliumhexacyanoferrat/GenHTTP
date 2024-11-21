@@ -23,7 +23,9 @@ jobs:
         fetch-depth: 0
 
     - name: Install msquic
-      run: apt-get update && apt-get install -y libmsquic
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libmsquic
         
     - name: Download .NET SDK
       uses: actions/setup-dotnet@v4.1.0
