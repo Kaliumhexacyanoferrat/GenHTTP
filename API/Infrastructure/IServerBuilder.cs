@@ -46,7 +46,8 @@ public interface IServerBuilder<out T> : IBuilder<IServer>
     /// <param name="certificate">The certificate used to negoiate a connection with</param>
     /// <param name="protocols">The SSL/TLS protocl versions which should be supported by the endpoint</param>
     /// <param name="certificateValidator">The validator to check the validity of client certificates with</param>
-    T Bind(IPAddress address, ushort port, X509Certificate2 certificate, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null);
+    /// <param name="enableQuic">If enabled, the server will host a HTTP/3 endpoint via QUIC</param>
+    T Bind(IPAddress address, ushort port, X509Certificate2 certificate, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false);
 
     /// <summary>
     /// Registers a secure endpoint the server will bind to on
@@ -57,7 +58,8 @@ public interface IServerBuilder<out T> : IBuilder<IServer>
     /// <param name="certificateProvider">The provider to select the certificate used to negoiate a connection with</param>
     /// <param name="protocols">The SSL/TLS protocl versions which should be supported by the endpoint</param>
     /// <param name="certificateValidator">The validator to check the validity of client certificates with</param>
-    T Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null);
+    /// <param name="enableQuic">If enabled, the server will host a HTTP/3 endpoint via QUIC</param>
+    T Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false);
 
     #endregion
 

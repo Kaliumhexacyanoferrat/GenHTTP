@@ -16,23 +16,35 @@ jobs:
       DOTNET_ROLL_FORWARD: Major
 
     steps:
+    
     - name: Checkout
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+
+    - name: Install msquic
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libmsquic
+        
     - name: Download .NET SDK
       uses: actions/setup-dotnet@v4.1.0
       with:
         dotnet-version: 9.0
+        
     - name: Restore tools
       run: dotnet tool restore
+      
     - name: Begin scan
       if: env.SONAR_TOKEN != null && env.SONAR_TOKEN != ''
       run: dotnet sonarscanner begin /k:"GenHTTP" /d:sonar.token="$SONAR_TOKEN" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/bin/**/*,**/obj/**/*,**/Playground/**/*,**/*.css,**/*.js,**/*.html" /o:"kaliumhexacyanoferrat" /k:"GenHTTP" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.branch.name="${GITHUB_REF##*/}" /d:sonar.dotnet.excludeTestProjects=true
+      
     - name: Build project
       run: dotnet build GenHTTP.sln -c Release
+      
     - name: Test project
       run: dotnet test GenHTTP.sln --no-build --collect:"XPlat Code Coverage" -c Release -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+      
     - name: End scan
       if: env.SONAR_TOKEN != null && env.SONAR_TOKEN != ''
       run: dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
