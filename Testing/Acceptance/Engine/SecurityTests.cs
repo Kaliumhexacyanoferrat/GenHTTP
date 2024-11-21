@@ -91,6 +91,8 @@ public sealed class SecurityTests
 
             Assert.AreEqual($"https://localhost:{sec}/", response.Headers.GetValues("Location").First());
             Assert.AreEqual("Upgrade-Insecure-Requests", response.Headers.GetValues("Vary").First());
+
+            Assert.IsFalse(response.Headers.Contains("ETag"));
         }, engine, SecureUpgrade.Allow);
     }
 
