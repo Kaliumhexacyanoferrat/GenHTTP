@@ -1,6 +1,6 @@
 # GenHTTP Webserver
 
-GenHTTP is a lightweight web server written in pure C# with only a few dependencies to 3rd-party libraries. The main
+GenHTTP is a lightweight web server written in pure C# with a strong focus on developer experience. The main
 purpose of this project is to quickly create web services written in .NET 8 / 9, allowing developers to concentrate on
 the functionality rather than on messing around with configuration files.
 
