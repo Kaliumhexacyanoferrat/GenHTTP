@@ -1,16 +1,16 @@
 # GenHTTP Webserver
 
-GenHTTP is a lightweight web server written in pure C# with only a few dependencies to 3rd-party libraries. The main
+GenHTTP is a lightweight web server written in pure C# with a strong focus on developer experience. The main
 purpose of this project is to quickly create web services written in .NET 8 / 9, allowing developers to concentrate on
-the functionality rather than on messing around with configuration files.
+the functionality rather than on messing around with configuration files or complex concepts.
 
 [![CI](https://github.com/Kaliumhexacyanoferrat/GenHTTP/actions/workflows/ci.yml/badge.svg)](https://github.com/Kaliumhexacyanoferrat/GenHTTP/actions/workflows/ci.yml) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GenHTTP&metric=coverage)](https://sonarcloud.io/dashboard?id=GenHTTP) [![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Core.svg)](https://www.nuget.org/packages/GenHTTP.Core/) [](https://discord.gg/cW6tPJS7nt) [![Discord](https://discordapp.com/api/guilds/1177529388229734410/widget.png?style=shield)](https://discord.gg/GwtDyUpkpV)
 
 ## 🚀 Features
 
 - Setup new webservices in a couple of minutes using [project templates](https://genhttp.org/documentation/content/templates)
-- Supports current standards such as Open API, Websockets, Server Sent Events or JWT authentication
-- Embed web services into your existing console, service, WPF, WinForms, WinUI, MAUI or Uno application
+- Supports [current standards](https://genhttp.org/features) such as Open API, Websockets, Server Sent Events or JWT authentication
+- Embed web services into a new or already existing console, service, WPF, WinForms, WinUI, MAUI or Uno application
 - Projects are fully described in code - no configuration files needed, no magical behavior you need to learn
 - Supports [Kestrel](https://genhttp.org/documentation/server/engines/) as an underlying HTTP engine (enables HTTP/2 and HTTP/3 via QUIC)
 - [Optimized](https://genhttp.org/features) out of the box, small memory and storage [footprint](https://genhttp.org/features#footprint)
@@ -112,11 +112,11 @@ in C#. In 2024 the focus has shifted towards API development, dropping support f
 ## 📌 Links
 
 - Related to
-  GenHTTP: [Templates](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Templates) | [Themes](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Themes) | [Website](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Website)
+  GenHTTP: [Templates](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Templates) | [Website](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Website)
 - Reference
   projects: [GenHTTP Gateway](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Gateway) | [MockH](https://github.com/Kaliumhexacyanoferrat/MockH)
 - Similar
-  projects: [EmbedIO](https://github.com/unosquare/embedio) | [NetCoreServer](https://github.com/chronoxor/NetCoreServer) | [Watson Webserver](https://github.com/jchristn/WatsonWebserver)
+  projects: [EmbedIO](https://github.com/unosquare/embedio) | [NetCoreServer](https://github.com/chronoxor/NetCoreServer) | [Watson Webserver](https://github.com/jchristn/WatsonWebserver) | [SimpleW](https://github.com/stratdev3/SimpleW)
 
 ## 🙏 Thanks
 
