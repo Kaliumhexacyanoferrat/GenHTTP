@@ -7,7 +7,7 @@ using GenHTTP.Modules.ReverseProxy;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Cookie = GenHTTP.Api.Protocol.Cookie;
 
-namespace GenHTTP.Testing.Acceptance.Modules;
+namespace GenHTTP.Testing.Acceptance.Modules.ReverseProxy;
 
 [TestClass]
 public sealed class ReverseProxyTests

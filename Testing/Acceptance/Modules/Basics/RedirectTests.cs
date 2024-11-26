@@ -3,7 +3,7 @@ using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Layouting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules;
+namespace GenHTTP.Testing.Acceptance.Modules.Basics;
 
 [TestClass]
 public sealed class RedirectTests

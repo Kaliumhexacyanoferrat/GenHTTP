@@ -4,7 +4,7 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Testing.Acceptance.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules;
+namespace GenHTTP.Testing.Acceptance.Modules.ClientCaching;
 
 [TestClass]
 public sealed class CacheValidationTests

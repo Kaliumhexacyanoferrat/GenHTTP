@@ -2,9 +2,10 @@
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.VirtualHosting;
+using GenHTTP.Testing.Acceptance.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules;
+namespace GenHTTP.Testing.Acceptance.Modules.VirtualHosting;
 
 [TestClass]
 public sealed class VirtualHostsTests
@@ -44,6 +45,12 @@ public sealed class VirtualHostsTests
         using var response = await runner.GetResponseAsync();
 
         await response.AssertStatusAsync(HttpStatusCode.NotFound);
+    }
+
+    [TestMethod]
+    public void TestConcernChaining()
+    {
+        Chain.Works(VirtualHosts.Create());
     }
 
     private static async Task RunTest(TestHost runner, string host, string? expected = null)
