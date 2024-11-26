@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.StaticWebsites;
+using GenHTTP.Testing.Acceptance.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.StaticWebsites;
@@ -41,4 +42,13 @@ public sealed class StaticWebsiteTests
         using var subIndexResponse = await runner.GetResponseAsync("/sub/");
         await subIndexResponse.AssertStatusAsync(HttpStatusCode.NotFound);
     }
+
+    [TestMethod]
+    public void TestConcernChaining()
+    {
+        var site = StaticWebsite.From(VirtualTree.Create());
+
+        Chain.Works(site);
+    }
+
 }

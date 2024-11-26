@@ -5,7 +5,7 @@ using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Conversion.Serializers.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules;
+namespace GenHTTP.Testing.Acceptance.Modules.Conversion;
 
 [TestClass]
 public sealed class ConversionTests

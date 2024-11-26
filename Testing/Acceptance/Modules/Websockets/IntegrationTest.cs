@@ -1,4 +1,5 @@
-﻿using WS = GenHTTP.Modules.Websockets;
+﻿using GenHTTP.Testing.Acceptance.Utilities;
+using WS = GenHTTP.Modules.Websockets;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Websocket.Client;
 
@@ -22,6 +23,8 @@ public sealed class IntegrationTest
                            socket.Send(msg);
                            socket.Close();
                        });
+
+        Chain.Works(server);
 
         await using var host = await TestHost.RunAsync(server);
 

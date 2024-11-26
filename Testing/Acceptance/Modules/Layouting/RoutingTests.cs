@@ -2,7 +2,7 @@
 using GenHTTP.Modules.Layouting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Engine;
+namespace GenHTTP.Testing.Acceptance.Modules.Layouting;
 
 [TestClass]
 public sealed class RoutingTests

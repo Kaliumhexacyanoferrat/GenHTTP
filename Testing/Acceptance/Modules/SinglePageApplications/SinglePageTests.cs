@@ -4,7 +4,7 @@ using GenHTTP.Modules.SinglePageApplications;
 using GenHTTP.Testing.Acceptance.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules;
+namespace GenHTTP.Testing.Acceptance.Modules.SinglePageApplications;
 
 [TestClass]
 public sealed class SinglePageTests
@@ -89,6 +89,14 @@ public sealed class SinglePageTests
         using var index = await runner.GetResponseAsync("/nope.txt");
 
         await index.AssertStatusAsync(HttpStatusCode.NotFound);
+    }
+
+    [TestMethod]
+    public void TestConcernChaining()
+    {
+        var app = SinglePageApplication.From(ResourceTree.FromDirectory(CreateRoot()));
+
+        Chain.Works(app);
     }
 
     private static string CreateRoot()

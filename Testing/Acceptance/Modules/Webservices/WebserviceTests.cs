@@ -10,11 +10,12 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Webservices;
+using GenHTTP.Testing.Acceptance.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
-namespace GenHTTP.Testing.Acceptance.Modules;
+namespace GenHTTP.Testing.Acceptance.Modules.Webservices;
 
 [TestClass]
 public sealed class WebserviceTests
@@ -299,6 +300,14 @@ public sealed class WebserviceTests
         using var response = await runner.GetResponseAsync("/t");
 
         await response.AssertStatusAsync(HttpStatusCode.NoContent);
+    }
+
+    [TestMethod]
+    public void TestConcernChaining()
+    {
+        var service = ServiceResource.From<TestResource>();
+
+        Chain.Works(service);
     }
 
     #endregion

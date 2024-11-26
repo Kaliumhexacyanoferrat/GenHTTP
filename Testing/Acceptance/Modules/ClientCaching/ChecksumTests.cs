@@ -1,9 +1,8 @@
 ﻿using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Engine;
+namespace GenHTTP.Testing.Acceptance.Modules.ClientCaching;
 
 [TestClass]
 public class ChecksumTests

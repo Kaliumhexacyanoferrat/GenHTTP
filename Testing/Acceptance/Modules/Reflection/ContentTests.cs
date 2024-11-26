@@ -3,7 +3,7 @@ using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules;
+namespace GenHTTP.Testing.Acceptance.Modules.Reflection;
 
 [TestClass]
 public sealed class ContentTests

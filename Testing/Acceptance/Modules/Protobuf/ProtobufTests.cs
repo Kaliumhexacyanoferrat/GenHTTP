@@ -8,7 +8,7 @@ using GenHTTP.Modules.Webservices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ProtoBuf;
 
-namespace GenHTTP.Testing.Acceptance.Modules;
+namespace GenHTTP.Testing.Acceptance.Modules.Protobuf;
 
 [TestClass]
 public sealed class ProtobufTests

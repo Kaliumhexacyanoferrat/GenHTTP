@@ -4,7 +4,7 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.LoadBalancing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules;
+namespace GenHTTP.Testing.Acceptance.Modules.LoadBalancing;
 
 [TestClass]
 public sealed class LoadBalancerTests

@@ -4,6 +4,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance;
 
+/// <summary>
+/// When attributed on a test method, this attribute
+/// injects the engines that are target to be tested
+/// into the test method.
+/// </summary>
 [AttributeUsage(AttributeTargets.Method)]
 public class MultiEngineTestAttribute : Attribute, ITestDataSource
 {

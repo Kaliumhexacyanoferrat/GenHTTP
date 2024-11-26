@@ -9,7 +9,7 @@ using GenHTTP.Modules.Layouting;
 using GenHTTP.Testing.Acceptance.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Engine;
+namespace GenHTTP.Testing.Acceptance.Modules.Compression;
 
 [TestClass]
 public sealed class CompressionTests

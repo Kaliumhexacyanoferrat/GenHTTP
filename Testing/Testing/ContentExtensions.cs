@@ -57,4 +57,5 @@ public static class ContentExtensions
 
         return (T?)await format.DeserializeAsync(body, typeof(T));
     }
+
 }

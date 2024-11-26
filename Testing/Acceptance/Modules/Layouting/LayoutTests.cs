@@ -3,7 +3,7 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GenHTTP.Testing.Acceptance.Modules;
+namespace GenHTTP.Testing.Acceptance.Modules.Layouting;
 
 [TestClass]
 public sealed class LayoutTests
