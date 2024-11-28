@@ -4,7 +4,7 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using Microsoft.AspNetCore.Http;
 
-namespace GenHTTP.Engine.Kestrel.Hosting;
+namespace GenHTTP.Adapters.AspNetCore.Types;
 
 public sealed class ClientConnection : IClientConnection
 {

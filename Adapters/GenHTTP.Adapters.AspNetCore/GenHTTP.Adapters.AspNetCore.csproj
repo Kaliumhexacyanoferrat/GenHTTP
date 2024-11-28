@@ -19,8 +19,8 @@
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
-        <Description>Lightweight web server written in pure C# with few dependencies to 3rd-party libraries.</Description>
-        <PackageTags>HTTP Embedded Webserver Website Server Library C# Standard Engine</PackageTags>
+        <Description>Adapter to run GenHTTP handlers within an ASP.NET Core app.</Description>
+        <PackageTags>ASP.NET Core Adapter GenHTTP</PackageTags>
 
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <IncludeSymbols>true</IncludeSymbols>
@@ -46,9 +46,7 @@
 
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj"/>
 
-        <ProjectReference Include="..\..\Adapters\GenHTTP.Adapters.AspNetCore\GenHTTP.Adapters.AspNetCore.csproj" />
-        
-        <ProjectReference Include="..\Shared\GenHTTP.Engine.Shared.csproj" />
+        <ProjectReference Include="..\..\Engine\Shared\GenHTTP.Engine.Shared.csproj" />
 
         <ProjectReference Include="..\..\Modules\IO\GenHTTP.Modules.IO.csproj"/>
         <ProjectReference Include="..\..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj"/>

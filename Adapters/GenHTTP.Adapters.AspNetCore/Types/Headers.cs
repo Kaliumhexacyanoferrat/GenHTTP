@@ -2,22 +2,22 @@
 using GenHTTP.Api.Protocol;
 using Microsoft.AspNetCore.Http;
 
-namespace GenHTTP.Engine.Kestrel.Types;
+namespace GenHTTP.Adapters.AspNetCore.Types;
 
-public sealed class Query : IRequestQuery
+public sealed class Headers : IHeaderCollection
 {
 
     #region Get-/Setters
 
-    public int Count => Request.Query.Count;
+    public int Count => Request.Headers.Count;
 
-    public bool ContainsKey(string key) => Request.Query.ContainsKey(key);
+    public bool ContainsKey(string key) => Request.Headers.ContainsKey(key);
 
     public bool TryGetValue(string key, out string value)
     {
-        if (Request.Query.TryGetValue(key, out var stringValue))
+        if (Request.Headers.TryGetValue(key, out var strings))
         {
-            value = stringValue.FirstOrDefault() ?? string.Empty;
+            value = strings.FirstOrDefault() ?? string.Empty;
             return true;
         }
 
@@ -25,15 +25,15 @@ public sealed class Query : IRequestQuery
         return false;
     }
 
-    public string this[string key] => Request.Query[key][0] ?? string.Empty;
+    public string this[string key] => Request.Headers[key].FirstOrDefault() ?? string.Empty;
 
-    public IEnumerable<string> Keys => Request.Query.Keys;
+    public IEnumerable<string> Keys => Request.Headers.Keys;
 
     public IEnumerable<string> Values
     {
         get
         {
-            foreach (var entry in Request.Query)
+            foreach (var entry in Request.Headers)
             {
                 foreach (var value in entry.Value)
                 {
@@ -49,7 +49,7 @@ public sealed class Query : IRequestQuery
 
     #region Initialization
 
-    public Query(HttpRequest request)
+    public Headers(HttpRequest request)
     {
         Request = request;
     }
@@ -60,7 +60,7 @@ public sealed class Query : IRequestQuery
 
     public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
     {
-        foreach (var entry in Request.Query)
+        foreach (var entry in Request.Headers)
         {
             foreach (var stringEntry in entry.Value)
             {
