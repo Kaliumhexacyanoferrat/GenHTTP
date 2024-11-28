@@ -9,7 +9,6 @@ using GenHTTP.Modules.ErrorHandling;
 using GenHTTP.Modules.IO;
 
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 
 namespace GenHTTP.Adapters.AspNetCore;
 
