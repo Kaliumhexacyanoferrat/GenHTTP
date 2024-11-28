@@ -1,12 +1,14 @@
 ﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
+
 using GenHTTP.Engine.Shared.Types;
+
 using Microsoft.AspNetCore.Http;
-using Local = GenHTTP.Engine.Kestrel.Hosting;
+
 using HttpProtocol = GenHTTP.Api.Protocol.HttpProtocol;
 
-namespace GenHTTP.Engine.Kestrel.Types;
+namespace GenHTTP.Adapters.AspNetCore.Types;
 
 public sealed class Request : IRequest
 {
@@ -20,6 +22,8 @@ public sealed class Request : IRequest
 
     private Headers? _Headers;
 
+    private readonly IEndPoint? _EndPoint;
+
     #region Get-/Setters
 
     public IRequestProperties Properties
@@ -29,7 +33,7 @@ public sealed class Request : IRequest
 
     public IServer Server { get; }
 
-    public IEndPoint EndPoint { get; }
+    public IEndPoint EndPoint => _EndPoint ?? throw new InvalidOperationException("EndPoint is not available as it is managed by ASP.NET Core");
 
     public IClientConnection Client { get; }
 
@@ -105,11 +109,11 @@ public sealed class Request : IRequest
             _Forwardings.TryAddLegacy(Headers);
         }
 
-        LocalClient = new Local.ClientConnection(context.Connection, context.Request);
+        LocalClient = new ClientConnection(context.Connection, context.Request);
 
         Client = _Forwardings.DetermineClient(context.Connection.ClientCertificate) ?? LocalClient;
 
-        EndPoint = Server.EndPoints.First(e => e.Port == context.Connection.LocalPort);
+        _EndPoint = Server.EndPoints.FirstOrDefault(e => e.Port == context.Connection.LocalPort);
     }
 
     #endregion

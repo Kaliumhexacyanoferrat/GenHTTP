@@ -101,6 +101,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Engine.Kestrel", "E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Engine.Shared", "Engine\Shared\GenHTTP.Engine.Shared.csproj", "{7CEE048E-FA6A-4D8C-B6A6-EEEA0B048C54}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Adapters", "Adapters", "{C3265C1A-E9A9-45FD-BD24-66DE9C7062F1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Adapters.AspNetCore", "Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj", "{AD7904BC-27BE-4EB5-84BC-62FF32DCBB78}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -247,6 +251,10 @@ Global
 		{7CEE048E-FA6A-4D8C-B6A6-EEEA0B048C54}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7CEE048E-FA6A-4D8C-B6A6-EEEA0B048C54}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7CEE048E-FA6A-4D8C-B6A6-EEEA0B048C54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD7904BC-27BE-4EB5-84BC-62FF32DCBB78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD7904BC-27BE-4EB5-84BC-62FF32DCBB78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD7904BC-27BE-4EB5-84BC-62FF32DCBB78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD7904BC-27BE-4EB5-84BC-62FF32DCBB78}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -289,6 +297,7 @@ Global
 		{4A492C9D-4338-4CCD-A227-F7829D032221} = {AFBFE61E-0C33-42F6-9370-9F5088EB8633}
 		{4137673D-9218-4D42-924C-A36A6F412F5E} = {AFBFE61E-0C33-42F6-9370-9F5088EB8633}
 		{7CEE048E-FA6A-4D8C-B6A6-EEEA0B048C54} = {AFBFE61E-0C33-42F6-9370-9F5088EB8633}
+		{AD7904BC-27BE-4EB5-84BC-62FF32DCBB78} = {C3265C1A-E9A9-45FD-BD24-66DE9C7062F1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		LessCompiler = 2603124e-1287-4d61-9540-6ac3efad4eb9
