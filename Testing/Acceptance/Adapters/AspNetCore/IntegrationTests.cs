@@ -52,7 +52,7 @@ public class IntegrationTests
 
         var options = (WebApplication app) =>
         {
-            app.Map("/content", Content.From(Resource.FromString("Hello World")).Defaults());
+            app.Map("/content", Content.From(Resource.FromString("Hello World")).Defaults(rangeSupport: true));
         };
 
         await using var app = await RunApplicationAsync(port, options);
@@ -96,7 +96,14 @@ public class IntegrationTests
 
         var options = (WebApplication app) =>
         {
-            app.Map("/server", Inline.Create().Get((IRequest r) => r.Server));
+            app.Map("/server", Inline.Create().Get(async (IRequest r) =>
+            {
+                await r.Server.DisposeAsync(); // nop
+
+                await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await r.Server.StartAsync());
+
+                return r.Server;
+            }));
         };
 
         await using var app = await RunApplicationAsync(port, options);
