@@ -1,10 +1,8 @@
 ﻿using GenHTTP.Adapters.AspNetCore.Server;
 using GenHTTP.Adapters.AspNetCore.Types;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-
 using Microsoft.AspNetCore.Http;
 
 namespace GenHTTP.Adapters.AspNetCore.Mapping;
@@ -12,7 +10,7 @@ namespace GenHTTP.Adapters.AspNetCore.Mapping;
 public static class Bridge
 {
 
-    public static async ValueTask MapAsync(HttpContext context, IHandler handler, IServer? server = null, IServerCompanion? companion = null)
+    public static async ValueTask MapAsync(HttpContext context, IHandler handler, IServer? server = null, IServerCompanion? companion = null, string? registeredPath = null)
     {
         var actualServer = server ?? new ImplicitServer(handler, companion);
 
@@ -20,11 +18,16 @@ public static class Bridge
         {
             using var request = new Request(actualServer, context);
 
+            if (registeredPath != null)
+            {
+                AdvanceTo(request, registeredPath);
+            }
+
             using var response = await handler.HandleAsync(request);
 
             if (response == null)
             {
-                context.Response.StatusCode = 204;
+                context.Response.StatusCode = 404;
             }
             else
             {
@@ -91,6 +94,16 @@ public static class Bridge
             }
 
             await response.Content.WriteAsync(target.Body, 65 * 1024);
+        }
+    }
+
+    private static void AdvanceTo(Request request, string registeredPath)
+    {
+        var parts = registeredPath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (var _ in parts)
+        {
+            request.Target.Advance();
         }
     }
 

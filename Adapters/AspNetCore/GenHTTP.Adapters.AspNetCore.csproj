@@ -48,6 +48,10 @@
 
         <ProjectReference Include="..\..\Engine\Shared\GenHTTP.Engine.Shared.csproj" />
 
+        <ProjectReference Include="..\..\Modules\ClientCaching\GenHTTP.Modules.ClientCaching.csproj" />
+
+        <ProjectReference Include="..\..\Modules\Compression\GenHTTP.Modules.Compression.csproj" />
+
         <ProjectReference Include="..\..\Modules\IO\GenHTTP.Modules.IO.csproj"/>
         <ProjectReference Include="..\..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj"/>
 

@@ -22,7 +22,7 @@ public sealed class Request : IRequest
 
     private Headers? _Headers;
 
-    private IEndPoint? _EndPoint;
+    private readonly IEndPoint? _EndPoint;
 
     #region Get-/Setters
 

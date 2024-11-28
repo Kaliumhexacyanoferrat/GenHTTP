@@ -64,6 +64,8 @@
         <ProjectReference Include="..\..\Engine\Internal\GenHTTP.Engine.Internal.csproj" />
         <ProjectReference Include="..\..\Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj" />
         <ProjectReference Include="..\..\Engine\Shared\GenHTTP.Engine.Shared.csproj" />
+        
+        <ProjectReference Include="..\..\Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj" />
 
         <ProjectReference Include="..\Testing\GenHTTP.Testing.csproj" />
 

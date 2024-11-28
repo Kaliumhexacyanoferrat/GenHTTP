@@ -1,0 +1,147 @@
+﻿using System.Net;
+
+using GenHTTP.Adapters.AspNetCore;
+using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Functional;
+using GenHTTP.Modules.IO;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+
+using Microsoft.Extensions.Logging;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace GenHTTP.Testing.Acceptance.Adapters.AspNetCore;
+
+[TestClass]
+public class IntegrationTests
+{
+
+    #region Tests
+
+    [TestMethod]
+    public async Task TestMapping()
+    {
+        var port = TestHost.NextPort();
+
+        var options = (WebApplication app) =>
+        {
+            app.Map("/builder", Inline.Create().Get("/a", () => "a"));
+            app.Map("/handler", Inline.Create().Get("/b", () => "b").Build());
+        };
+
+        await using var app = await RunApplicationAsync(port, options);
+
+        using var client = new HttpClient();
+
+        using var builderResponse = await GetResponseAsync(client, "/builder/a", port);
+
+        await builderResponse.AssertStatusAsync(HttpStatusCode.OK);
+        Assert.AreEqual("a", await builderResponse.GetContentAsync());
+
+        using var handlerResponse = await GetResponseAsync(client, "/handler/b", port);
+
+        await handlerResponse.AssertStatusAsync(HttpStatusCode.OK);
+        Assert.AreEqual("b", await handlerResponse.GetContentAsync());
+    }
+
+    [TestMethod]
+    public async Task TestDefaults()
+    {
+        var port = TestHost.NextPort();
+
+        var options = (WebApplication app) =>
+        {
+            app.Map("/content", Content.From(Resource.FromString("Hello World")).Defaults());
+        };
+
+        await using var app = await RunApplicationAsync(port, options);
+
+        using var client = new HttpClient();
+
+        using var response = await GetResponseAsync(client, "/content", port);
+
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+
+        Assert.AreEqual("Hello World", await response.GetContentAsync());
+
+        Assert.IsTrue(response.Headers.Contains("ETag"));
+    }
+
+    [TestMethod]
+    public async Task TestErrorHandling()
+    {
+        var port = TestHost.NextPort();
+
+        var options = (WebApplication app) =>
+        {
+            app.Map("/notfound", Inline.Create().Defaults());
+        };
+
+        await using var app = await RunApplicationAsync(port, options);
+
+        using var client = new HttpClient();
+
+        using var response = await GetResponseAsync(client, "/notfound", port);
+
+        await response.AssertStatusAsync(HttpStatusCode.NotFound);
+
+        AssertX.Contains("404", await response.GetContentAsync());
+    }
+
+    [TestMethod]
+    public async Task TestImplicitServer()
+    {
+        var port = TestHost.NextPort();
+
+        var options = (WebApplication app) =>
+        {
+            app.Map("/server", Inline.Create().Get((IRequest r) => r.Server));
+        };
+
+        await using var app = await RunApplicationAsync(port, options);
+
+        using var client = new HttpClient();
+
+        using var response = await GetResponseAsync(client, "/server", port);
+
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+
+        var content = await response.GetContentAsync();
+
+        AssertX.Contains("\"running\":true", content);
+        AssertX.Contains("\"development\":false", content);
+        AssertX.Contains("\"version\"", content);
+    }
+
+    #endregion
+
+    #region Helpers
+
+    private static async ValueTask<WebApplication> RunApplicationAsync(int port, Action<WebApplication> options)
+    {
+        var builder = WebApplication.CreateBuilder();
+
+        builder.Logging.ClearProviders();
+
+        builder.WebHost.ConfigureKestrel(options =>
+        {
+            options.AllowSynchronousIO = true;
+            options.Listen(IPAddress.Any, port);
+        });
+
+        var app = builder.Build();
+
+        options.Invoke(app);
+
+        await app.StartAsync();
+
+        return app;
+    }
+
+    private static async ValueTask<HttpResponseMessage> GetResponseAsync(HttpClient client, string path, int port)
+        => await client.GetAsync($"http://localhost:{port}{path}");
+
+    #endregion
+
+}

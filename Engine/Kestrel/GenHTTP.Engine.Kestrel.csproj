@@ -46,7 +46,7 @@
 
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj"/>
 
-        <ProjectReference Include="..\..\Adapters\GenHTTP.Adapters.AspNetCore\GenHTTP.Adapters.AspNetCore.csproj" />
+        <ProjectReference Include="..\..\Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj" />
         
         <ProjectReference Include="..\Shared\GenHTTP.Engine.Shared.csproj" />
 
