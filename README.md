@@ -122,4 +122,4 @@ in C#. In 2024 the focus has shifted towards API development, dropping support f
 
 - Powered by [.NET](https://github.com/dotnet/core)
 - Less allocations thanks to [PooledAwait](https://github.com/mgravell/PooledAwait)
-- Modules implemented with [NSwag (Open API)](https://github.com/RicoSuter/NSwag), [Fleck (WebSockets)](https://github.com/statianzo/Fleck)
+- Modules implemented with [NSwag](https://github.com/RicoSuter/NSwag) (Open API), [Fleck](https://github.com/statianzo/Fleck) (WebSockets)
