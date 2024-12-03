@@ -28,7 +28,7 @@
 
                 <dependency id="GenHTTP.Modules.Practices" version="9.2.0"/>
                 <dependency id="GenHTTP.Modules.Basics" version="9.2.0"/>
-                <dependency id="GenHTTP.Modules.Layouting" version="9.2.0"/>
+                <dependency id="GenHTTP.Modules.Layouting" version="9.2.1"/>
 
             </group>
 
