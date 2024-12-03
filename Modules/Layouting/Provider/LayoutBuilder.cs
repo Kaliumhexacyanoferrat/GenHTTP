@@ -6,13 +6,13 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
 {
     private readonly List<IConcernBuilder> _Concerns = [];
 
-    private IHandler? _Index;
+    private IHandlerBuilder? _Index;
 
     #region Get-/Setters
 
-    private Dictionary<string, IHandler> RoutedHandlers { get; }
+    private Dictionary<string, IHandlerBuilder> RoutedHandlers { get; }
 
-    private List<IHandler> RootHandlers { get; }
+    private List<IHandlerBuilder> RootHandlers { get; }
 
     #endregion
 
@@ -33,18 +33,18 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
     /// the index of the layout.
     /// </summary>
     /// <param name="handler">The handler used for the index of the layout</param>
-    public LayoutBuilder Index(IHandler handler)
-    {
-        _Index = handler;
-        return this;
-    }
+    public LayoutBuilder Index(IHandler handler) => Index(new HandlerWrapper(handler));
 
     /// <summary>
     /// Sets the handler which should be invoked to provide
     /// the index of the layout.
     /// </summary>
     /// <param name="handler">The handler used for the index of the layout</param>
-    public LayoutBuilder Index(IHandlerBuilder handler) => Index(handler.Build());
+    public LayoutBuilder Index(IHandlerBuilder handler)
+    {
+        _Index = handler;
+        return this;
+    }
 
     /// <summary>
     /// Adds a handler that will be invoked for all URLs below
@@ -52,7 +52,15 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
     /// </summary>
     /// <param name="name">The name of the path segment to be handled</param>
     /// <param name="handler">The handler which will handle the segment</param>
-    public LayoutBuilder Add(string name, IHandler handler)
+    public LayoutBuilder Add(string name, IHandler handler) => Add(new HandlerWrapper(handler));
+
+    /// <summary>
+    /// Adds a handler that will be invoked for all URLs below
+    /// the specified path segment.
+    /// </summary>
+    /// <param name="name">The name of the path segment to be handled</param>
+    /// <param name="handler">The handler which will handle the segment</param>
+    public LayoutBuilder Add(string name, IHandlerBuilder handler)
     {
         if (name.Contains('/'))
         {
@@ -64,12 +72,16 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
     }
 
     /// <summary>
-    /// Adds a handler that will be invoked for all URLs below
-    /// the specified path segment.
+    /// Adds a handler on root level that will be invoked if neither a
+    /// path segment has been detected nor the index has been invoked.
     /// </summary>
-    /// <param name="name">The name of the path segment to be handled</param>
-    /// <param name="handler">The handler which will handle the segment</param>
-    public LayoutBuilder Add(string name, IHandlerBuilder handler) => Add(name, handler.Build());
+    /// <param name="handler">The root level handler to be added</param>
+    /// <remarks>
+    /// Can be used to provide one or multiple fallback handlers for the layout.
+    /// Fallback handlers will be executed in the order they have been added
+    /// to the layout.
+    /// </remarks>
+    public LayoutBuilder Add(IHandler handler) => Add(new HandlerWrapper(handler));
 
     /// <summary>
     /// Adds a handler on root level that will be invoked if neither a
@@ -81,23 +93,11 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
     /// Fallback handlers will be executed in the order they have been added
     /// to the layout.
     /// </remarks>
-    public LayoutBuilder Add(IHandler handler)
+    public LayoutBuilder Add(IHandlerBuilder handler)
     {
         RootHandlers.Add(handler);
         return this;
     }
-
-    /// <summary>
-    /// Adds a handler on root level that will be invoked if neither a
-    /// path segment has been detected nor the index has been invoked.
-    /// </summary>
-    /// <param name="handler">The root level handler to be added</param>
-    /// <remarks>
-    /// Can be used to provide one or multiple fallback handlers for the layout.
-    /// Fallback handlers will be executed in the order they have been added
-    /// to the layout.
-    /// </remarks>
-    public LayoutBuilder Add(IHandlerBuilder handler) => Add(handler.Build());
 
     public LayoutBuilder Add(IConcernBuilder concern)
     {
@@ -107,7 +107,10 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
 
     public IHandler Build()
     {
-        return Concerns.Chain(_Concerns, new LayoutRouter(RoutedHandlers, RootHandlers, _Index));
+        var routed = RoutedHandlers.ToDictionary(kv => kv.Key, kv => kv.Value.Build());
+        var root = RootHandlers.Select(h => h.Build()).ToList();
+
+        return Concerns.Chain(_Concerns, new LayoutRouter(routed, root, _Index?.Build()));
     }
 
     #endregion
