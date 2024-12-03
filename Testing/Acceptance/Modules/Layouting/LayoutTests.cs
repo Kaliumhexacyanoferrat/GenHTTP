@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Modules.Authentication;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -84,4 +85,25 @@ public sealed class LayoutTests
     {
         Layout.Create().Add("some/path", Content.From(Resource.FromString("Hello World")));
     }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestLazyBuilding(TestEngine engine)
+    {
+        var inner = Layout.Create();
+
+        var outer = Layout.Create()
+                          .Add("inner", inner);
+
+        // add a concern _after_ the inner handler has already been added
+        // still has to take effect
+        inner.Authentication((_, _) => new());
+
+        await using var host = await TestHost.RunAsync(outer, engine: engine);
+
+        using var response = await host.GetResponseAsync("/inner/");
+
+        await response.AssertStatusAsync(HttpStatusCode.Unauthorized);
+    }
+
 }
