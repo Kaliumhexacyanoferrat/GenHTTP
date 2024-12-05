@@ -104,7 +104,9 @@ public static partial class OperationBuilder
 
         var result = SignatureAnalyzer.GetResult(method, registry);
 
-        return new Operation(method, path, result, arguments);
+        var interceptors = InterceptorAnalyzer.GetInterceptors(method);
+
+        return new Operation(method, path, result, arguments, interceptors);
     }
 
     private static bool CheckWildcardRoute(Type returnType)
