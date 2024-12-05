@@ -10,19 +10,9 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
 
     #region Get-/Setters
 
-    private Dictionary<string, IHandlerBuilder> RoutedHandlers { get; }
+    internal Dictionary<string, IHandlerBuilder> RoutedHandlers { get; } = [];
 
-    private List<IHandlerBuilder> RootHandlers { get; }
-
-    #endregion
-
-    #region Initialization
-
-    public LayoutBuilder()
-    {
-        RoutedHandlers = [];
-        RootHandlers = [];
-    }
+    internal List<IHandlerBuilder> RootHandlers { get; } = [];
 
     #endregion
 
