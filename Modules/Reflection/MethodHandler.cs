@@ -1,9 +1,11 @@
 ﻿using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text.RegularExpressions;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
+
 using GenHTTP.Modules.Conversion.Serializers.Forms;
 using GenHTTP.Modules.Reflection.Operations;
 
@@ -19,7 +21,7 @@ namespace GenHTTP.Modules.Reflection;
 /// </remarks>
 public sealed class MethodHandler : IHandler
 {
-    private static readonly object?[] NoArguments = [];
+    private static readonly Dictionary<string, object?> NoArguments = [];
 
     #region Get-/Setters
 
@@ -63,12 +65,19 @@ public sealed class MethodHandler : IHandler
     {
         var arguments = await GetArguments(request);
 
-        var result = Invoke(arguments);
+        var interception = await InterceptAsync(request, arguments);
+
+        if (interception is not null)
+        {
+            return interception;
+        }
+
+        var result = Invoke(arguments.Values.ToArray());
 
         return await ResponseProvider.GetResponseAsync(request, this, Operation, await UnwrapAsync(result), null);
     }
 
-    private async ValueTask<object?[]> GetArguments(IRequest request)
+    private async ValueTask<IReadOnlyDictionary<string, object?>> GetArguments(IRequest request)
     {
         var targetParameters = Operation.Method.GetParameters();
 
@@ -85,7 +94,7 @@ public sealed class MethodHandler : IHandler
 
         if (targetParameters.Length > 0)
         {
-            var targetArguments = new object?[targetParameters.Length];
+            var targetArguments = new Dictionary<string, object?>(targetParameters.Length);
 
             var bodyArguments = FormFormat.GetContent(request);
 
@@ -97,7 +106,7 @@ public sealed class MethodHandler : IHandler
                 {
                     if (Operation.Arguments.TryGetValue(par.Name, out var arg))
                     {
-                        targetArguments[i] = arg.Source switch
+                        targetArguments[arg.Name] = arg.Source switch
                         {
                             OperationArgumentSource.Injected => ArgumentProvider.GetInjectedArgument(request, this, arg, Registry),
                             OperationArgumentSource.Path => ArgumentProvider.GetPathArgument(arg, sourceParameters, Registry),
@@ -118,6 +127,22 @@ public sealed class MethodHandler : IHandler
     }
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
+    private async ValueTask<IResponse?> InterceptAsync(IRequest request, IReadOnlyDictionary<string, object?> arguments)
+    {
+        if (Operation.Interceptors.Count > 0)
+        {
+            foreach (var interceptor in Operation.Interceptors)
+            {
+                if (await interceptor.InterceptAsync(request, Operation, arguments) is IResultWrapper result)
+                {
+                    return await ResponseProvider.GetResponseAsync(request, this, Operation, result.Payload, (r) => result.Apply(r));
+                }
+            }
+        }
+
+        return null;
+    }
 
     private object? Invoke(object?[] arguments)
     {
