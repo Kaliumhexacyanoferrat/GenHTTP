@@ -38,7 +38,7 @@ public class RoleInterceptor : IOperationInterceptor
             {
                 foreach (var role in _Roles)
                 {
-                    if (!userRoles.Contains(role))
+                    if (!userRoles.Contains(role, StringComparer.OrdinalIgnoreCase))
                     {
                         missing.Add(role);
                     }

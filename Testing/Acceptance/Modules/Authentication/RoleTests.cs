@@ -102,6 +102,25 @@ public class RoleTests
         await response.AssertStatusAsync(HttpStatusCode.OK);
     }
 
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestCasingDoesNotMatter(TestEngine engine)
+    {
+        using var response = await RunAsync(new RoleUser(["admin", "Super_Admin"]), engine);
+
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+    }
+
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestOtherRolesDoNotMatter(TestEngine engine)
+    {
+        using var response = await RunAsync(new RoleUser(["ADMIN", "USER", "SUPER_ADMIN"]), engine);
+
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+    }
+
     #endregion
 
     #region Helpers
