@@ -27,7 +27,7 @@ public class RoleInterceptor : IOperationInterceptor
 
             if (user == null)
             {
-                throw new ProviderException(ResponseStatus.Unauthorized, "Credentials are required for this endpoint");
+                throw new ProviderException(ResponseStatus.Unauthorized, "Authorization required to access this endpoint");
             }
 
             var userRoles = user.Roles;
@@ -51,7 +51,7 @@ public class RoleInterceptor : IOperationInterceptor
 
             if (missing.Count > 0)
             {
-                throw new ProviderException(ResponseStatus.Forbidden, $"User lacks the following roles to access this endpoint: {string.Join(", ", missing)}");
+                throw new ProviderException(ResponseStatus.Forbidden, $"User is not authorized to access this endpoint.");
             }
         }
 

@@ -89,8 +89,6 @@ public class RoleTests
         using var response = await RunAsync(new RoleUser(["ADMIN"]), engine);
 
         await response.AssertStatusAsync(HttpStatusCode.Forbidden);
-
-        AssertX.Contains("SUPER_ADMIN", await response.GetContentAsync());
     }
 
     [TestMethod]
