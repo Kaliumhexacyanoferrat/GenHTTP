@@ -8,8 +8,8 @@ public static class MultiAuthentication
     #region Builder
 
     /// <summary>
-    /// Creates a customizable API key authentication handler that will
-    /// read the key from the HTTP header named "X-API-Key".
+    /// Creates a authentication handler that will use
+    /// underlying handlers to authenticate the request.
     /// </summary>
     public static MultiConcernBuilder Create() => new();
 
