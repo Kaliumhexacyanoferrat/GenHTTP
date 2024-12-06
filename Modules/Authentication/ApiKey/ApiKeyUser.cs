@@ -7,9 +7,10 @@ public class ApiKeyUser : IUser
 
     #region Initialization
 
-    public ApiKeyUser(string key)
+    public ApiKeyUser(string key, params string[] roles)
     {
         Key = key;
+        Roles = roles;
     }
 
     #endregion
@@ -19,6 +20,8 @@ public class ApiKeyUser : IUser
     public string DisplayName => Key;
 
     public string Key { get; }
+
+    public string[] Roles { get; }
 
     #endregion
 
