@@ -55,6 +55,7 @@ public sealed class MultiAuthenticationConcern : IConcern
 
     #endregion
 
+    #region Helper structure
 
     private record ResponseOrException(IResponse? Response = null, ProviderException? Exception = null)
     { 
@@ -70,4 +71,6 @@ public sealed class MultiAuthenticationConcern : IConcern
 
         public ResponseStatus? Status => Exception?.Status ?? Response?.Status.KnownStatus;
     }
+
+    #endregion
 }
