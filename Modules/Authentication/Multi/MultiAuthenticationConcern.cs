@@ -41,7 +41,7 @@ public sealed class MultiAuthenticationConcern : IConcern
 
             if (lastResponse.Status != ResponseStatus.Unauthorized)
             {
-                return lastResponse?.Get();
+                return lastResponse.Get();
             }
         }
 
