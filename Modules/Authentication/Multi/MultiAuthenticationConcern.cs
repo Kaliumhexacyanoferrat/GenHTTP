@@ -30,6 +30,8 @@ public sealed class MultiAuthenticationConcern : IConcern
         ResponseOrException? lastResponse = null;
         foreach (var concern in _delegatingConcerns)
         {
+            lastResponse?.Dispose();
+
             try
             {
                 lastResponse = new(await concern.HandleAsync(request));
@@ -57,7 +59,7 @@ public sealed class MultiAuthenticationConcern : IConcern
 
     #region Helper structure
 
-    private record ResponseOrException(IResponse? Response = null, ProviderException? Exception = null)
+    private record ResponseOrException(IResponse? Response = null, ProviderException? Exception = null) : IDisposable
     { 
         public IResponse? Get()
         {
@@ -67,6 +69,11 @@ public sealed class MultiAuthenticationConcern : IConcern
             }
 
             return Response;
+        }
+
+        public void Dispose()
+        {
+            Response?.Dispose();
         }
 
         public ResponseStatus? Status => Exception?.Status ?? Response?.Status.KnownStatus;

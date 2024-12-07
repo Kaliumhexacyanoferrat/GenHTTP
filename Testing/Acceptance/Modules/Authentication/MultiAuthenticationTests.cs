@@ -112,6 +112,7 @@ public sealed class MultiAuthenticationTests
             request => request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes("user:invalidpass"))));
 
         await response.AssertStatusAsync(HttpStatusCode.Unauthorized);
+        AssertBasicChallenge(response);
     }
 
     [TestMethod]
@@ -164,6 +165,7 @@ public sealed class MultiAuthenticationTests
             request => request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes("user:invalidpass"))));
 
         await response.AssertStatusAsync(HttpStatusCode.Unauthorized);
+        AssertBasicChallenge(response);
     }
 
     [TestMethod]
@@ -176,6 +178,11 @@ public sealed class MultiAuthenticationTests
         {
             using var response = Execute(builder, engine).GetAwaiter().GetResult();
         });
+    }
+
+    private static void AssertBasicChallenge(HttpResponseMessage response)
+    {
+        Assert.IsNotNull(response.Headers.WwwAuthenticate.FirstOrDefault(x => x.Scheme == "Basic" && (x.Parameter?.StartsWith("realm") ?? false)));
     }
 
     private static async Task<HttpResponseMessage> Execute(MultiAuthenticationConcernBuilder builder, TestEngine engine, Action<HttpRequestMessage>? authAction = null)
