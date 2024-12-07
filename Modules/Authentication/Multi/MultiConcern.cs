@@ -27,24 +27,21 @@ public sealed class MultiConcern : IConcern
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var authorized = true;
+        IResponse? lastResponse = null;
         foreach (var concern in _delegatingConcerns)
         {
-            var response = await concern.HandleAsync(request);
+            lastResponse = await concern.HandleAsync(request);
 
-            if (response?.Status.KnownStatus != ResponseStatus.Unauthorized)
+            if (lastResponse?.Status.KnownStatus != ResponseStatus.Unauthorized)
             {
-                return response;
+                return lastResponse;
             }
-
-            authorized = false;
         }
 
-        return authorized
-            ? await Content.HandleAsync(request)
-            : request.Respond()
-                     .Status(ResponseStatus.Unauthorized)
-                     .Build();
+        return lastResponse ??
+               request.Respond()
+                      .Status(ResponseStatus.Unauthorized)
+                      .Build();
     }
 
     public ValueTask PrepareAsync() => Content.PrepareAsync();
