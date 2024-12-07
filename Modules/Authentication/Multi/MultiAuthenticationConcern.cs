@@ -3,7 +3,7 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Authentication.Multi;
 
-public sealed class MultiConcern : IConcern
+public sealed class MultiAuthenticationConcern : IConcern
 {
     #region Get-/Setters
 
@@ -15,7 +15,7 @@ public sealed class MultiConcern : IConcern
 
     #region Initialization
 
-    public MultiConcern(IHandler content, IConcern[] delegatingConcerns)
+    public MultiAuthenticationConcern(IHandler content, IConcern[] delegatingConcerns)
     {
         Content = content;
         _delegatingConcerns = delegatingConcerns ?? [];

@@ -9,7 +9,7 @@ namespace GenHTTP.Modules.Authentication.Multi;
 /// <summary>
 /// Builder for creating a multi-concern authentication handler.
 /// </summary>
-public sealed class MultiConcernBuilder : IConcernBuilder
+public sealed class MultiAuthenticationConcernBuilder : IConcernBuilder
 {
     #region Fields
 
@@ -19,7 +19,7 @@ public sealed class MultiConcernBuilder : IConcernBuilder
 
     #region Private add functionality
 
-    private MultiConcernBuilder AddIfNotNull(IConcernBuilder concernBuilder)
+    private MultiAuthenticationConcernBuilder AddIfNotNull(IConcernBuilder concernBuilder)
     {
         if (concernBuilder == null) return this;
 
@@ -35,35 +35,35 @@ public sealed class MultiConcernBuilder : IConcernBuilder
     /// Add nested API concern builder to this multi concern.
     /// </summary>
     /// <param name="apiKeyBuilder">Nested API key concern builder</param>
-    public MultiConcernBuilder Add(ApiKeyConcernBuilder apiKeyBuilder)
+    public MultiAuthenticationConcernBuilder Add(ApiKeyConcernBuilder apiKeyBuilder)
         => AddIfNotNull(apiKeyBuilder);
 
     /// <summary>
     /// Add nested API concern builder to this multi concern.
     /// </summary>
     /// <param name="basicBuilder">Nested Basic concern builder</param>
-    public MultiConcernBuilder Add(BasicAuthenticationConcernBuilder basicBuilder)
+    public MultiAuthenticationConcernBuilder Add(BasicAuthenticationConcernBuilder basicBuilder)
         => AddIfNotNull(basicBuilder);
 
     /// <summary>
     /// Add nested API concern builder to this multi concern.
     /// </summary>
     /// <param name="basicKnownUsersBuilder">Nested Basic Known Users concern builder</param>
-    public MultiConcernBuilder Add(BasicAuthenticationKnownUsersBuilder basicKnownUsersBuilder)
+    public MultiAuthenticationConcernBuilder Add(BasicAuthenticationKnownUsersBuilder basicKnownUsersBuilder)
         => AddIfNotNull(basicKnownUsersBuilder);
 
     /// <summary>
     /// Add nested API concern builder to this multi concern.
     /// </summary>
     /// <param name="bearerBuilder">Nested Bearer concern builder</param>
-    public MultiConcernBuilder Add(BearerAuthenticationConcernBuilder bearerBuilder)
+    public MultiAuthenticationConcernBuilder Add(BearerAuthenticationConcernBuilder bearerBuilder)
         => AddIfNotNull(bearerBuilder);
 
     /// <summary>
     /// Add nested API concern builder to this multi concern.
     /// </summary>
     /// <param name="clientCertificateBuilder">Nested Client Certificate concern builder</param>
-    public MultiConcernBuilder Add(ClientCertificateAuthenticationBuilder clientCertificateBuilder)
+    public MultiAuthenticationConcernBuilder Add(ClientCertificateAuthenticationBuilder clientCertificateBuilder)
         => AddIfNotNull(clientCertificateBuilder);
 
     /// <summary>
@@ -73,7 +73,7 @@ public sealed class MultiConcernBuilder : IConcernBuilder
     /// <returns></returns>
     public IConcern Build(IHandler content)
     {
-        return new MultiConcern(
+        return new MultiAuthenticationConcern(
             content,
             _delegatingConcernsBuilders.Select(x => x.Build(content)).ToArray()
             );
