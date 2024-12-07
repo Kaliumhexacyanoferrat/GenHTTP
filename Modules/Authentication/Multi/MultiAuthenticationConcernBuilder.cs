@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Authentication.ApiKey;
 using GenHTTP.Modules.Authentication.Basic;
 using GenHTTP.Modules.Authentication.Bearer;
@@ -73,9 +74,12 @@ public sealed class MultiAuthenticationConcernBuilder : IConcernBuilder
     /// <returns></returns>
     public IConcern Build(IHandler content)
     {
+        var delegatingConcerns = _delegatingConcernsBuilders.Select(x => x.Build(content)).ToArray();
+        if (delegatingConcerns.Length == 0) throw new BuilderMissingPropertyException("Concerns");
+
         return new MultiAuthenticationConcern(
             content,
-            _delegatingConcernsBuilders.Select(x => x.Build(content)).ToArray()
+            delegatingConcerns
             );
     }
 
