@@ -59,7 +59,7 @@ public sealed class MultiAuthenticationConcern : IConcern
 
     #region Helper structure
 
-    private record ResponseOrException(IResponse? Response = null, ProviderException? Exception = null) : IDisposable
+    private sealed record ResponseOrException(IResponse? Response = null, ProviderException? Exception = null) : IDisposable
     { 
         public IResponse? Get()
         {
