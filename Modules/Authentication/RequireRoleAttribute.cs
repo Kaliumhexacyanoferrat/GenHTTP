@@ -8,7 +8,7 @@ namespace GenHTTP.Modules.Authentication;
 /// if the authenticated user has the specified roles.
 /// </summary>
 /// <param name="roles">The roles which need to be present in order to let the request pass</param>
-[AttributeUsage(AttributeTargets.Method)]
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 public class RequireRoleAttribute(params string[] roles) : InterceptWithAttribute<RoleInterceptor>
 {
 
