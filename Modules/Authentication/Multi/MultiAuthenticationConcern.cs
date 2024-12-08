@@ -18,7 +18,7 @@ public sealed class MultiAuthenticationConcern : IConcern
     public MultiAuthenticationConcern(IHandler content, IConcern[] delegatingConcerns)
     {
         Content = content;
-        _delegatingConcerns = delegatingConcerns ?? [];
+        _delegatingConcerns = delegatingConcerns;
     }
 
     #endregion
