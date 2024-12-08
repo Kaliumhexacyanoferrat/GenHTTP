@@ -10,7 +10,6 @@ public sealed class LocalizationConcern : IConcern
 
     public IHandler Content { get; }
 
-    private const string LangKey = "lang";
     private readonly CultureInfo _defaultCulture;
     private readonly CultureSelector_Delegate _cultureSelector;
     private readonly CultureFilter_Delegate _cultureFilter;
