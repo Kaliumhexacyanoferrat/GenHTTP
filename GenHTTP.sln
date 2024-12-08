@@ -87,23 +87,25 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Testing", "Testing\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Pages", "Modules\Pages\GenHTTP.Modules.Pages.csproj", "{4CDA31EB-A6C2-4634-9379-9306D3996B21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Modules.OpenApi", "Modules\OpenApi\GenHTTP.Modules.OpenApi.csproj", "{A5149821-D510-4854-9DC9-D489323BC545}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.OpenApi", "Modules\OpenApi\GenHTTP.Modules.OpenApi.csproj", "{A5149821-D510-4854-9DC9-D489323BC545}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Modules.Websockets", "Modules\Websockets\GenHTTP.Modules.Websockets.csproj", "{9D3D3B40-691D-4EE1-B948-82525F28FBB2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Websockets", "Modules\Websockets\GenHTTP.Modules.Websockets.csproj", "{9D3D3B40-691D-4EE1-B948-82525F28FBB2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Modules.ServerSentEvents", "Modules\ServerSentEvents\GenHTTP.Modules.ServerSentEvents.csproj", "{69F3862A-0027-4312-A890-45549AF5D2B1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.ServerSentEvents", "Modules\ServerSentEvents\GenHTTP.Modules.ServerSentEvents.csproj", "{69F3862A-0027-4312-A890-45549AF5D2B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Modules.Inspection", "Modules\Inspection\GenHTTP.Modules.Inspection.csproj", "{2FE9B758-187F-41B3-96BF-1C2BB006F809}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Modules.Inspection", "Modules\Inspection\GenHTTP.Modules.Inspection.csproj", "{2FE9B758-187F-41B3-96BF-1C2BB006F809}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Engine.Internal", "Engine\Internal\GenHTTP.Engine.Internal.csproj", "{4A492C9D-4338-4CCD-A227-F7829D032221}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Engine.Internal", "Engine\Internal\GenHTTP.Engine.Internal.csproj", "{4A492C9D-4338-4CCD-A227-F7829D032221}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Engine.Kestrel", "Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj", "{4137673D-9218-4D42-924C-A36A6F412F5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Engine.Kestrel", "Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj", "{4137673D-9218-4D42-924C-A36A6F412F5E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Engine.Shared", "Engine\Shared\GenHTTP.Engine.Shared.csproj", "{7CEE048E-FA6A-4D8C-B6A6-EEEA0B048C54}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Engine.Shared", "Engine\Shared\GenHTTP.Engine.Shared.csproj", "{7CEE048E-FA6A-4D8C-B6A6-EEEA0B048C54}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Adapters", "Adapters", "{C3265C1A-E9A9-45FD-BD24-66DE9C7062F1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Adapters.AspNetCore", "Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj", "{AD7904BC-27BE-4EB5-84BC-62FF32DCBB78}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenHTTP.Adapters.AspNetCore", "Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj", "{AD7904BC-27BE-4EB5-84BC-62FF32DCBB78}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenHTTP.Modules.I18n", "Modules\GenHTTP.Modules.I18n\GenHTTP.Modules.I18n.csproj", "{E17F6CF0-295D-408C-9664-FE18C6E83433}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -255,6 +257,10 @@ Global
 		{AD7904BC-27BE-4EB5-84BC-62FF32DCBB78}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD7904BC-27BE-4EB5-84BC-62FF32DCBB78}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD7904BC-27BE-4EB5-84BC-62FF32DCBB78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E17F6CF0-295D-408C-9664-FE18C6E83433}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E17F6CF0-295D-408C-9664-FE18C6E83433}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E17F6CF0-295D-408C-9664-FE18C6E83433}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E17F6CF0-295D-408C-9664-FE18C6E83433}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -298,9 +304,10 @@ Global
 		{4137673D-9218-4D42-924C-A36A6F412F5E} = {AFBFE61E-0C33-42F6-9370-9F5088EB8633}
 		{7CEE048E-FA6A-4D8C-B6A6-EEEA0B048C54} = {AFBFE61E-0C33-42F6-9370-9F5088EB8633}
 		{AD7904BC-27BE-4EB5-84BC-62FF32DCBB78} = {C3265C1A-E9A9-45FD-BD24-66DE9C7062F1}
+		{E17F6CF0-295D-408C-9664-FE18C6E83433} = {23B23225-275E-4F52-8B29-6F44C85B6ACE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		LessCompiler = 2603124e-1287-4d61-9540-6ac3efad4eb9
 		SolutionGuid = {9C67B3AF-0BF6-4E21-8C39-3F74CFCF9632}
+		LessCompiler = 2603124e-1287-4d61-9540-6ac3efad4eb9
 	EndGlobalSection
 EndGlobal
