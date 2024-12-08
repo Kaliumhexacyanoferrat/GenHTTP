@@ -22,6 +22,8 @@ public sealed class ClientCertificateUser : IUser
     /// </summary>
     public X509Certificate Certificate { get; }
 
+    public string[] Roles { get; }
+
     #endregion
 
     #region Initialization
@@ -30,9 +32,10 @@ public sealed class ClientCertificateUser : IUser
     /// Creates a new user instance for the given certificate.
     /// </summary>
     /// <param name="clientCertificate">The certificate the client authenticated with</param>
-    public ClientCertificateUser(X509Certificate clientCertificate)
+    public ClientCertificateUser(X509Certificate clientCertificate, params string[] roles)
     {
         Certificate = clientCertificate;
+        Roles = roles;
     }
 
     #endregion
