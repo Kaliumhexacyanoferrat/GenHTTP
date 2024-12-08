@@ -14,7 +14,7 @@
         <Version>9.3.0</Version>
 
         <Authors>Andreas Nägeli</Authors>
-        <Company/>
+        <Company />
 
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
@@ -35,20 +35,20 @@
 
     <ItemGroup>
 
-        <None Include="..\..\LICENSE" Pack="true" PackagePath="\"/>
-        <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\"/>
+        <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
+        <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\" />
 
     </ItemGroup>
 
     <ItemGroup>
 
-        <ProjectReference Include="..\..\API\GenHTTP.Api.csproj"/>
+        <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
 
         <ProjectReference Include="..\Reflection\GenHTTP.Modules.Reflection.csproj" />
         
         <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.2.1" />
 
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.2.1" />
         
