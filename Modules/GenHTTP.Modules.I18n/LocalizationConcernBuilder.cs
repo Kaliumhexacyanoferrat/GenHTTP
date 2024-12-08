@@ -27,21 +27,15 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     public LocalizationConcernBuilder AddFromCookie(string cookieName = "lang")
         => AddFromLanguage(request =>
         {
-            if (request.Cookies.TryGetValue(cookieName, out var languageCookie))
-            {
-                return languageCookie.Value;
-            }
-            return null;
+            request.Cookies.TryGetValue(cookieName, out var languageCookie);
+            return languageCookie.Value;
         });
 
     public LocalizationConcernBuilder AddFromQuery(string queryName = "lang")
         => AddFromLanguage(request =>
         {
-            if (request.Query.TryGetValue(queryName, out var language))
-            {
-                return language;
-            }
-            return null;
+            request.Query.TryGetValue(queryName, out var language);
+            return language;
         });
 
     public LocalizationConcernBuilder AddFromHeader(string headerName = "Accept-Language")
