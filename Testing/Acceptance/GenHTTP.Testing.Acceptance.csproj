@@ -66,6 +66,8 @@
         <ProjectReference Include="..\..\Engine\Shared\GenHTTP.Engine.Shared.csproj" />
         
         <ProjectReference Include="..\..\Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj" />
+        
+        <ProjectReference Include="..\..\Modules\GenHTTP.Modules.I18n\GenHTTP.Modules.I18n.csproj" />
 
         <ProjectReference Include="..\Testing\GenHTTP.Testing.csproj" />
 
