@@ -14,9 +14,9 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
 
     private CultureInfo _defaultCulture = CultureInfo.CurrentCulture;
 
-    private readonly List<CultureSelectorDelegate> _cultureSelectors = [];
-    private CultureFilterDelegate _cultureFilter = (_, _) => true;
-    private readonly List<CultureSetterDelegate> _cultureSetters = [];
+    private readonly List<CultureSelectorAsyncDelegate> _cultureSelectors = [];
+    private CultureFilterAsyncDelegate _cultureFilter = (_, _) => ValueTask.FromResult(true);
+    private readonly List<CultureSetterAsyncDelegate> _cultureSetters = [];
 
     #endregion
 
@@ -46,13 +46,19 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
         });
 
     public LocalizationConcernBuilder FromLanguage(Func<IRequest, string?> languageSelector)
-        => FromRequest(request =>
+        => FromLanguage(request => ValueTask.FromResult(languageSelector(request)));
+
+    public LocalizationConcernBuilder FromLanguage(Func<IRequest, ValueTask<string?>> languageSelector)
+        => FromRequest(async request =>
         {
-            var language = languageSelector(request);
+            var language = await languageSelector(request);
             return CultureInfoParser.ParseFromLanguage(language);
         });
 
-    public LocalizationConcernBuilder FromRequest(CultureSelectorDelegate cultureSelector)
+    public LocalizationConcernBuilder FromRequest(CultureSelectorDelegate cultureSelector)        
+        => FromRequest(request => ValueTask.FromResult(cultureSelector(request)));
+
+    public LocalizationConcernBuilder FromRequest(CultureSelectorAsyncDelegate cultureSelector)
     {
         _cultureSelectors.Add(cultureSelector);
         return this;
@@ -71,7 +77,13 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     public LocalizationConcernBuilder Supports(Predicate<CultureInfo> culturePredicate)
         => Supports((_, culture) => culturePredicate(culture));
 
+    public LocalizationConcernBuilder Supports(Func<CultureInfo, ValueTask<bool>> culturePredicate)
+        => Supports((_, culture) => culturePredicate(culture));
+
     public LocalizationConcernBuilder Supports(CultureFilterDelegate cultureFilter)
+        => Supports((request, culture) => ValueTask.FromResult(cultureFilter(request, culture)));
+
+    public LocalizationConcernBuilder Supports(CultureFilterAsyncDelegate cultureFilter)
     {
         _cultureFilter = cultureFilter;
         return this;
@@ -100,10 +112,20 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
         return this;
     }
 
+    public LocalizationConcernBuilder Setter(Func<CultureInfo, ValueTask> cultureSetter)
+        => Setter((_, culture) => cultureSetter(culture));
+
     public LocalizationConcernBuilder Setter(Action<CultureInfo> cultureSetter)
         => Setter((_, culture) => cultureSetter(culture));
 
     public LocalizationConcernBuilder Setter(CultureSetterDelegate cultureSetter)
+        => Setter((request, culture) => 
+        {
+            cultureSetter(request, culture);
+            return ValueTask.CompletedTask;
+        });
+
+    public LocalizationConcernBuilder Setter(CultureSetterAsyncDelegate cultureSetter)
     {
         _cultureSetters.Add(cultureSetter);
         return this;
@@ -146,14 +168,24 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
 
     #region Composite functions
 
-    private IEnumerable<CultureInfo> CultureSelector(IRequest request)
-        => _cultureSelectors.SelectMany(selector => selector(request));
+    private async IAsyncEnumerable<CultureInfo> CultureSelector(IRequest request)
+    {        
+        foreach (var selector in _cultureSelectors)
+        {
+            var cultures = await selector(request);
+            foreach (var culture in cultures)
+            {
+                yield return culture;
+            }
+        }
+    }
 
-    private void CultureSetter(IRequest request, CultureInfo cultureInfo)
+
+    private async ValueTask CultureSetter(IRequest request, CultureInfo cultureInfo)
     {
         foreach (var setter in _cultureSetters)
         {
-            setter(request, cultureInfo);
+            await setter(request, cultureInfo);
         }
     }
 

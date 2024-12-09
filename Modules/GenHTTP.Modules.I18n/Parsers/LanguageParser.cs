@@ -44,7 +44,6 @@ public static class CultureInfoParser
 
         try
         {
-
             var actualCount = 0;
             var start = 0;
             int commaIndex;
@@ -95,7 +94,6 @@ public static class CultureInfoParser
                         rentedArray[actualCount++] = (languagePart.ToString(), qValue);
                     }
                 }
-
             } while (commaIndex >= 0);
 
             if (actualCount == 0)

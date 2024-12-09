@@ -11,9 +11,9 @@ public sealed class LocalizationConcern : IConcern
     public IHandler Content { get; }
 
     private readonly CultureInfo _defaultCulture;
-    private readonly CultureSelectorDelegate _cultureSelector;
-    private readonly CultureFilterDelegate _cultureFilter;
-    private readonly CultureSetterDelegate _cultureSetter;
+    private readonly CultureSelectorCombinedAsyncDelegate _cultureSelector;
+    private readonly CultureFilterAsyncDelegate _cultureFilter;
+    private readonly CultureSetterAsyncDelegate _cultureSetter;
 
     #endregion
 
@@ -22,9 +22,9 @@ public sealed class LocalizationConcern : IConcern
     public LocalizationConcern(
         IHandler content,
         CultureInfo defaultCulture,
-        CultureSelectorDelegate cultureSelector,
-        CultureFilterDelegate cultureFilter,
-        CultureSetterDelegate cultureSetter
+        CultureSelectorCombinedAsyncDelegate cultureSelector,
+        CultureFilterAsyncDelegate cultureFilter,
+        CultureSetterAsyncDelegate cultureSetter
         )
     {
         Content = content;
@@ -40,13 +40,23 @@ public sealed class LocalizationConcern : IConcern
 
     #region Functionality
 
+    private async ValueTask<CultureInfo?> ResolveCultureInfoAsync(IRequest request)
+    {
+        await foreach (var candidate in _cultureSelector(request))
+        {
+            if (await _cultureFilter(request, candidate))
+            {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var culture = (_cultureSelector(request) ?? [])
-            .FirstOrDefault(c => _cultureFilter(request, c))
-            ?? _defaultCulture;
+        var culture = await ResolveCultureInfoAsync(request) ?? _defaultCulture;
 
-        _cultureSetter(request, culture);
+        await _cultureSetter(request, culture);
 
         return await Content.HandleAsync(request);
     }
