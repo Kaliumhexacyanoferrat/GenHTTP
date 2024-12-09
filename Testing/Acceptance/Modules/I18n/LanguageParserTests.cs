@@ -19,9 +19,17 @@ public sealed class LanguageParserTests
         new (null, []),
         new (string.Empty, []),
         new (" ", []),
+        new (",", []),
+        new (" ,", []),
+        new (", ", []),
+        new (" , ", []),
 
         //Invalid input
         new ("unknown", []),
+        new ("unknown,zw", []),
+
+        //Invalid quality
+        new ("en;q=0_8,de;q=0#9", [Culture("en"), Culture("de")]),
 
         //Trailing/leading whitespaces
         new (" en", [Culture("en")]),
