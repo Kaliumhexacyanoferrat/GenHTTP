@@ -116,8 +116,12 @@ public static class CultureInfoParser
                 }
 
                 try
-                {
-                    results.Add(CultureInfo.CreateSpecificCulture(lang));
+                { 
+                    var parsed = CultureInfo.CreateSpecificCulture(lang);
+                    if (parsed.LCID != CultureInfo.InvariantCulture.LCID)
+                    {
+                        results.Add(parsed);
+                    }
                 }
                 catch (CultureNotFoundException)
                 {

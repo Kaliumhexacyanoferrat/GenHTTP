@@ -58,6 +58,7 @@ public sealed class LanguageParserTests
         new ("en ;q=0.9,fr;q=0.8,de", [Culture("de"), Culture("en"), Culture("fr")]),
         new ("en; q=0.9 ,  fr; q=  0.8,  de", [Culture("de"), Culture("en"), Culture("fr")]),
         new ("en-UK;q=0.9,fr;q=0.8,de", [Culture("de"), Culture("en-uk"), Culture("fr")]),
+        new ("en-UK;q=0.9,ww;q=0.8,de", [Culture("de"), Culture("en-uk")]),
     ];
 
     [TestMethod]
