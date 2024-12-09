@@ -10,8 +10,7 @@ public static class CultureInfoParser
     public static CultureInfo[] Parse(IEnumerable<string> languages)
         => languages
             .Select(Parse)
-            .Where(culture => culture != null)
-            .Select(culture => culture!)
+            .OfType<CultureInfo>()
             .ToArray();
 
     private static CultureInfo? Parse(string name)

@@ -2,7 +2,7 @@
 using GenHTTP.Api.Protocol;
 using System.Globalization;
 
-namespace GenHTTP.Modules.I18n;
+namespace GenHTTP.Modules.I18n.Provider;
 
 public sealed class LocalizationConcern : IConcern
 {
@@ -11,9 +11,9 @@ public sealed class LocalizationConcern : IConcern
     public IHandler Content { get; }
 
     private readonly CultureInfo _defaultCulture;
-    private readonly CultureSelector_Delegate _cultureSelector;
-    private readonly CultureFilter_Delegate _cultureFilter;
-    private readonly CultureSetter_Delegate _cultureSetter;
+    private readonly CultureSelectorDelegate _cultureSelector;
+    private readonly CultureFilterDelegate _cultureFilter;
+    private readonly CultureSetterDelegate _cultureSetter;
 
     #endregion
 
@@ -22,15 +22,15 @@ public sealed class LocalizationConcern : IConcern
     public LocalizationConcern(
         IHandler content,
         CultureInfo defaultCulture,
-        CultureSelector_Delegate cultureSelector,
-        CultureFilter_Delegate cultureFilter,
-        CultureSetter_Delegate cultureSetter
+        CultureSelectorDelegate cultureSelector,
+        CultureFilterDelegate cultureFilter,
+        CultureSetterDelegate cultureSetter
         )
     {
         Content = content;
 
         _defaultCulture = defaultCulture;
-        _cultureSelector = cultureSelector;        
+        _cultureSelector = cultureSelector;
         _cultureFilter = cultureFilter;
 
         _cultureSetter = cultureSetter;

@@ -19,8 +19,8 @@
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
-		<Description>Allows to handle requests in a functional manner.</Description>
-		<PackageTags>HTTP Webserver C# Module Functional Inline Request Response</PackageTags>
+		<Description>Allows to handle requests in a culture specific manner.</Description>
+		<PackageTags>HTTP Webserver C# Module i18n</PackageTags>
 
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<IncludeSymbols>true</IncludeSymbols>

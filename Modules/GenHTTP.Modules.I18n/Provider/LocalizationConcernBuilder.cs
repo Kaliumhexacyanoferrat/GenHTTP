@@ -3,7 +3,7 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.I18n.Parsers;
 using System.Globalization;
 
-namespace GenHTTP.Modules.I18n;
+namespace GenHTTP.Modules.I18n.Provider;
 
 /// <summary>
 /// Builder class to configure and create an instance of <see cref="LocalizationConcern"/>.
@@ -14,9 +14,9 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
 
     private CultureInfo _defaultCulture = CultureInfo.CurrentCulture;
 
-    private readonly List<CultureSelector_Delegate> _cultureSelectors = [];
-    private CultureFilter_Delegate _cultureFilter = (_, _) => true;
-    private readonly List<CultureSetter_Delegate> _cultureSetters = [];
+    private readonly List<CultureSelectorDelegate> _cultureSelectors = [];
+    private CultureFilterDelegate _cultureFilter = (_, _) => true;
+    private readonly List<CultureSetterDelegate> _cultureSetters = [];
 
     #endregion
 
@@ -24,35 +24,35 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
 
     #region Selectors
 
-    public LocalizationConcernBuilder AddFromCookie(string cookieName = "lang")
-        => AddFromLanguage(request =>
+    public LocalizationConcernBuilder FromCookie(string cookieName = "lang")
+        => FromLanguage(request =>
         {
             request.Cookies.TryGetValue(cookieName, out var languageCookie);
             return languageCookie.Value;
         });
 
-    public LocalizationConcernBuilder AddFromQuery(string queryName = "lang")
-        => AddFromLanguage(request =>
+    public LocalizationConcernBuilder FromQuery(string queryName = "lang")
+        => FromLanguage(request =>
         {
             request.Query.TryGetValue(queryName, out var language);
             return language;
         });
 
-    public LocalizationConcernBuilder AddFromHeader(string headerName = "Accept-Language")
-        => AddFromLanguage(request =>
+    public LocalizationConcernBuilder FromHeader(string headerName = "Accept-Language")
+        => FromLanguage(request =>
         {
             request.Headers.TryGetValue(headerName, out var language);
             return language;
         });
 
-    public LocalizationConcernBuilder AddFromLanguage(Func<IRequest, string?> languageSelector)
-        => AddFromRequest(request =>
+    public LocalizationConcernBuilder FromLanguage(Func<IRequest, string?> languageSelector)
+        => FromRequest(request =>
         {
             var language = languageSelector(request);
             return CultureInfoParser.ParseFromLanguage(language);
         });
 
-    public LocalizationConcernBuilder AddFromRequest(CultureSelector_Delegate cultureSelector)
+    public LocalizationConcernBuilder FromRequest(CultureSelectorDelegate cultureSelector)
     {
         _cultureSelectors.Add(cultureSelector);
         return this;
@@ -71,7 +71,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     public LocalizationConcernBuilder Supports(Predicate<CultureInfo> culturePredicate)
         => Supports((_, culture) => culturePredicate(culture));
 
-    public LocalizationConcernBuilder Supports(CultureFilter_Delegate cultureFilter)
+    public LocalizationConcernBuilder Supports(CultureFilterDelegate cultureFilter)
     {
         _cultureFilter = cultureFilter;
         return this;
@@ -81,24 +81,24 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
 
     #region Setters
 
-    public LocalizationConcernBuilder AddSet(bool currentCulture = false, bool currentUICulture = true)
+    public LocalizationConcernBuilder Setter(bool currentCulture = false, bool currentUICulture = true)
     {
         //Note: this is a minor optimization so that the flags are not evaluated for each request
         if (currentCulture)
         {
-            AddSet(culture => CultureInfo.CurrentCulture = culture);
+            Setter(culture => CultureInfo.CurrentCulture = culture);
         }
         if (currentUICulture)
         {
-            AddSet(culture => CultureInfo.CurrentUICulture = culture);
+            Setter(culture => CultureInfo.CurrentUICulture = culture);
         }
         return this;
     }
 
-    public LocalizationConcernBuilder AddSet(Action<CultureInfo> cultureSetter)
-        => AddSet((_, culture) => cultureSetter(culture));
+    public LocalizationConcernBuilder Setter(Action<CultureInfo> cultureSetter)
+        => Setter((_, culture) => cultureSetter(culture));
 
-    public LocalizationConcernBuilder AddSet(CultureSetter_Delegate cultureSetter)
+    public LocalizationConcernBuilder Setter(CultureSetterDelegate cultureSetter)
     {
         _cultureSetters.Add(cultureSetter);
         return this;
@@ -120,19 +120,19 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     {
         if (_cultureSelectors.Count == 0)
         {
-            AddFromHeader();
+            FromHeader();
         }
 
         if (_cultureSetters.Count == 0)
         {
-            AddSet();
+            Setter();
         }
 
         return new LocalizationConcern(
-            content, 
+            content,
             _defaultCulture,
             CultureSelector,
-            _cultureFilter, 
+            _cultureFilter,
             CultureSetter
             );
     }
@@ -142,7 +142,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     #region Composite functions
 
     private IEnumerable<CultureInfo> CultureSelector(IRequest request)
-        => _cultureSelectors.SelectMany(selector => selector(request));   
+        => _cultureSelectors.SelectMany(selector => selector(request));
 
     private void CultureSetter(IRequest request, CultureInfo cultureInfo)
     {
