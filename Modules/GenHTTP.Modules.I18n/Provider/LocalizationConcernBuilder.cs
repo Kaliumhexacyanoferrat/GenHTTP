@@ -30,7 +30,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// <param name="cookieName">The name of the cookie to extract the language from.</param>
     /// <returns></returns>
     public LocalizationConcernBuilder FromCookie(string cookieName = "lang")
-        => FromLanguage(request =>
+        => FromRequest(request =>
         {
             request.Cookies.TryGetValue(cookieName, out var languageCookie);
             return languageCookie.Value;
@@ -42,7 +42,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// <param name="queryName">The name of the query parameter to extract the language from.</param>
     /// <returns></returns>
     public LocalizationConcernBuilder FromQuery(string queryName = "lang")
-        => FromLanguage(request =>
+        => FromRequest(request =>
         {
             request.Query.TryGetValue(queryName, out var language);
             return language;
@@ -54,7 +54,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// <param name="headerName">The name of the header to extract the language from.</param>
     /// <returns></returns>
     public LocalizationConcernBuilder FromHeader(string headerName = "Accept-Language")
-        => FromLanguage(request =>
+        => FromRequest(request =>
         {
             request.Headers.TryGetValue(headerName, out var language);
             return language;
@@ -65,15 +65,15 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// </summary>
     /// <param name="languageSelector">The selector to extract the language from.</param>
     /// <returns></returns>
-    public LocalizationConcernBuilder FromLanguage(Func<IRequest, string?> languageSelector)
-        => FromLanguage(request => ValueTask.FromResult(languageSelector(request)));
+    public LocalizationConcernBuilder FromRequest(Func<IRequest, string?> languageSelector)
+        => FromRequest(request => ValueTask.FromResult(languageSelector(request)));
 
     /// <summary>
     /// Extracts the language from a custom async selector.
     /// </summary>
     /// <param name="languageSelector">The async selector to extract the language from.</param>
     /// <returns></returns>
-    public LocalizationConcernBuilder FromLanguage(Func<IRequest, ValueTask<string?>> languageSelector)
+    public LocalizationConcernBuilder FromRequest(Func<IRequest, ValueTask<string?>> languageSelector)
         => FromRequest(async request =>
         {
             var language = await languageSelector(request);
@@ -85,7 +85,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// </summary>
     /// <param name="cultureSelector">The selector to extract the culture from.</param>
     /// <returns></returns>
-    public LocalizationConcernBuilder FromRequest(CultureSelectorDelegate cultureSelector)        
+    public LocalizationConcernBuilder FromRequest(CultureSelectorDelegate cultureSelector)
         => FromRequest(request => ValueTask.FromResult(cultureSelector(request)));
 
     /// <summary>
@@ -260,7 +260,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     #region Composite functions
 
     private async IAsyncEnumerable<CultureInfo> CultureSelector(IRequest request)
-    {        
+    {
         foreach (var selector in _cultureSelectors)
         {
             var cultures = await selector(request);

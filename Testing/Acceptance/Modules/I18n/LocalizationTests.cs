@@ -112,7 +112,7 @@ public sealed class LocalizationTests
     {
         var localization = Localization
             .Create()
-            .FromLanguage(_ => "en,de,cs,fr")
+            .FromRequest(_ => "en,de,cs,fr")
             .Supports([CultureInfo.CreateSpecificCulture("fr"), CultureInfo.CreateSpecificCulture("cs")]);
 
         await TestLocalization(engine, localization,
@@ -128,7 +128,7 @@ public sealed class LocalizationTests
     {
         var localization = Localization
             .Create()
-            .FromLanguage(_ => "en,de,cs,fr")
+            .FromRequest(_ => "en,de,cs,fr")
             .Supports(culture => culture.Equals(CultureInfo.CreateSpecificCulture("fr")));
 
         await TestLocalization(engine, localization,
@@ -159,7 +159,7 @@ public sealed class LocalizationTests
     {
         var localization = Localization
             .Create()
-            .FromLanguage(_ => "de")
+            .FromRequest(_ => "de")
             .Setter((request, culture) => request.Properties["culture"] = culture);
 
         await TestLocalization(engine, localization, request =>
@@ -177,7 +177,7 @@ public sealed class LocalizationTests
             .FromQuery()            
             .FromCookie()
             .FromHeader()
-            .FromLanguage(_ => "de")
+            .FromRequest(_ => "de")
             .Supports([CultureInfo.CreateSpecificCulture("de")])
             .Setter(currentCulture: true)
             .Setter((request, culture) => request.Properties["culture"] = culture);

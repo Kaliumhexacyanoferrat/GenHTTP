@@ -40,17 +40,7 @@ public sealed class LocalizationConcern : IConcern
 
     #region Functionality
 
-    private async ValueTask<CultureInfo?> ResolveCultureInfoAsync(IRequest request)
-    {
-        await foreach (var candidate in _cultureSelector(request))
-        {
-            if (await _cultureFilter(request, candidate))
-            {
-                return candidate;
-            }
-        }
-        return null;
-    }
+    public ValueTask PrepareAsync() => Content.PrepareAsync();
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
@@ -69,7 +59,18 @@ public sealed class LocalizationConcern : IConcern
         return await Content.HandleAsync(request);
     }
 
-    public ValueTask PrepareAsync() => Content.PrepareAsync();
+    private async ValueTask<CultureInfo?> ResolveCultureInfoAsync(IRequest request)
+    {
+        await foreach (var candidate in _cultureSelector(request))
+        {
+            if (await _cultureFilter(request, candidate))
+            {
+                return candidate;
+            }
+        }
+        return null;
+    }
 
     #endregion
+
 }
