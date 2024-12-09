@@ -83,6 +83,11 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
 
     public LocalizationConcernBuilder Setter(bool currentCulture = false, bool currentUICulture = true)
     {
+        if (!currentCulture && !currentUICulture)
+        {
+            throw new ArgumentException("At least one of the flags must be set to true.", nameof(currentCulture));
+        }
+
         //Note: this is a minor optimization so that the flags are not evaluated for each request
         if (currentCulture)
         {
