@@ -42,6 +42,7 @@ public sealed class LanguageParserTests
         new ("de,en", [Culture("de"), Culture("en")]),
         new ("en, de", [Culture("en"), Culture("de")]),
         new ("en, de, fr", [Culture("en"), Culture("de"), Culture("fr")]),
+        new ("en,en,de", [Culture("en"), Culture("en"), Culture("de")]),
 
         new ("de,en-uk,fr", [Culture("de"), Culture("en-UK"), Culture("fr")]),
         new ("de, en-uk,fr", [Culture("de"), Culture("en-UK"), Culture("fr")]),
@@ -59,6 +60,10 @@ public sealed class LanguageParserTests
         new ("en; q=0.9 ,  fr; q=  0.8,  de", [Culture("de"), Culture("en"), Culture("fr")]),
         new ("en-UK;q=0.9,fr;q=0.8,de", [Culture("de"), Culture("en-uk"), Culture("fr")]),
         new ("en-UK;q=0.9,ww;q=0.8,de", [Culture("de"), Culture("en-uk")]),
+
+        //Malformed
+        new ("en;q=0.9,fr;;q=0.8,de", [Culture("fr"), Culture("de"), Culture("en")]),
+        new ("en;q=0.9,frq=0.8,de", [Culture("de"), Culture("en")]),
     ];
 
     [TestMethod]
