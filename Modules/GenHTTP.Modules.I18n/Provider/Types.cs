@@ -3,6 +3,8 @@ using System.Globalization;
 
 namespace GenHTTP.Modules.I18n.Provider;
 
+public sealed record AsyncOrSyncSetter(CultureSetterDelegate? SyncSetter = null, CultureSetterAsyncDelegate? AsyncSetter = null);
+
 /// <summary>
 /// Delegate to extract the cultures for a given request.
 /// </summary>

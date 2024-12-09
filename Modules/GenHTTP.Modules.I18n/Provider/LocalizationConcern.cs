@@ -13,7 +13,7 @@ public sealed class LocalizationConcern : IConcern
     private readonly CultureInfo _defaultCulture;
     private readonly CultureSelectorCombinedAsyncDelegate _cultureSelector;
     private readonly CultureFilterAsyncDelegate _cultureFilter;
-    private readonly CultureSetterAsyncDelegate _cultureSetter;
+    private readonly AsyncOrSyncSetter[] _cultureSetters;
 
     #endregion
 
@@ -24,7 +24,7 @@ public sealed class LocalizationConcern : IConcern
         CultureInfo defaultCulture,
         CultureSelectorCombinedAsyncDelegate cultureSelector,
         CultureFilterAsyncDelegate cultureFilter,
-        CultureSetterAsyncDelegate cultureSetter
+        AsyncOrSyncSetter[] cultureSetters
         )
     {
         Content = content;
@@ -33,7 +33,7 @@ public sealed class LocalizationConcern : IConcern
         _cultureSelector = cultureSelector;
         _cultureFilter = cultureFilter;
 
-        _cultureSetter = cultureSetter;
+        _cultureSetters = cultureSetters;
     }
 
     #endregion
@@ -56,7 +56,15 @@ public sealed class LocalizationConcern : IConcern
     {
         var culture = await ResolveCultureInfoAsync(request) ?? _defaultCulture;
 
-        await _cultureSetter(request, culture);
+        foreach(var _cultureSetter in _cultureSetters)
+        {
+            _cultureSetter.SyncSetter?.Invoke(request, culture);
+
+            if (_cultureSetter.AsyncSetter != null)
+            {
+                await _cultureSetter.AsyncSetter(request, culture);
+            }
+        }
 
         return await Content.HandleAsync(request);
     }
