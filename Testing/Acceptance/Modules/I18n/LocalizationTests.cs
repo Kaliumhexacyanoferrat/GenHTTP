@@ -12,7 +12,7 @@ public sealed class LocalizationTests
 {
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestDefault(TestEngine engine)
+    public async Task TestDefaultBehavior(TestEngine engine)
     {
         var currentCulture = CultureInfo.CurrentUICulture;
 
@@ -21,6 +21,20 @@ public sealed class LocalizationTests
         await TestLocalization(engine, localization, _ =>
         {
             Assert.AreEqual(currentCulture, CultureInfo.CurrentUICulture);
+        });
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestDefault(TestEngine engine)
+    {
+        var localization = Localization
+            .Create()
+            .Default(CultureInfo.CreateSpecificCulture("fr"));
+
+        await TestLocalization(engine, localization, _ =>
+        {
+            Assert.AreEqual(CultureInfo.CreateSpecificCulture("fr"), CultureInfo.CurrentUICulture);
         });
     }
 
