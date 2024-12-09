@@ -50,7 +50,7 @@
 
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.2.1" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.3.0" />
         
     </ItemGroup>
 
