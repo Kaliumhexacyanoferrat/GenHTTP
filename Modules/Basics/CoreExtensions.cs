@@ -62,6 +62,17 @@ public static class CoreExtensions
     /// <param name="contentType">The content type of this response</param>
     public static IResponseBuilder Type(this IResponseBuilder builder, string contentType) => builder.Type(FlexibleContentType.Parse(contentType));
 
+    /// <summary>
+    /// Applies the given modifications to the response.
+    /// </summary>
+    /// <param name="builder">The response to be modified</param>
+    /// <param name="modifications">The modifications to be applied</param>
+    public static IResponseBuilder Apply(this IResponseBuilder builder, Action<IResponseBuilder>? modifications)
+    {
+        modifications?.Invoke(builder);
+        return builder;
+    }
+
     #endregion
 
     #region Content types

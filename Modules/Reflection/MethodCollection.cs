@@ -25,7 +25,7 @@ public sealed class MethodCollection : IHandler
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var methods = FindProviders(request.Target.GetRemaining().ToString(), request.Method, out var foundOthers);
+        var methods = FindProviders(request.Target.GetRemaining().ToString(), request.Method, out var others);
 
         if (methods.Count == 1)
         {
@@ -43,9 +43,15 @@ public sealed class MethodCollection : IHandler
 
             throw new ProviderException(ResponseStatus.BadRequest, $"There are multiple methods matching '{request.Target.Path}'");
         }
-        if (foundOthers)
+
+        if (others.Count > 0)
         {
-            throw new ProviderException(ResponseStatus.MethodNotAllowed, "There is no method of a matching request type");
+            throw new ProviderException(ResponseStatus.MethodNotAllowed, "There is no method of a matching request type", AddAcceptHeader);
+
+            void AddAcceptHeader(IResponseBuilder b)
+            {
+                b.Header("Accept", string.Join(", ", others.Select(o => o.RawMethod.ToUpper())));
+            }
         }
 
         return new ValueTask<IResponse?>();
@@ -59,9 +65,9 @@ public sealed class MethodCollection : IHandler
         }
     }
 
-    private List<MethodHandler> FindProviders(string path, FlexibleRequestMethod requestedMethod, out bool foundOthers)
+    private List<MethodHandler> FindProviders(string path, FlexibleRequestMethod requestedMethod, out HashSet<FlexibleRequestMethod> otherMethods)
     {
-        foundOthers = false;
+        otherMethods = new HashSet<FlexibleRequestMethod>();
 
         var result = new List<MethodHandler>(2);
 
@@ -75,7 +81,7 @@ public sealed class MethodCollection : IHandler
                 }
                 else
                 {
-                    foundOthers = true;
+                    otherMethods.UnionWith(method.Configuration.SupportedMethods);
                 }
             }
             else
@@ -88,7 +94,7 @@ public sealed class MethodCollection : IHandler
                     }
                     else
                     {
-                        foundOthers = true;
+                        otherMethods.UnionWith(method.Configuration.SupportedMethods);
                     }
                 }
             }
