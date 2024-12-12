@@ -42,6 +42,7 @@
         <ProjectReference Include="..\Modules\ServerSentEvents\GenHTTP.Modules.ServerSentEvents.csproj" />
         <ProjectReference Include="..\Modules\SinglePageApplications\GenHTTP.Modules.SinglePageApplications.csproj"/>
         <ProjectReference Include="..\Modules\StaticWebsites\GenHTTP.Modules.StaticWebsites.csproj"/>
+        <ProjectReference Include="..\Modules\Swagger\GenHTTP.Modules.Swagger.csproj" />
         <ProjectReference Include="..\Modules\VirtualHosting\GenHTTP.Modules.VirtualHosting.csproj"/>
         <ProjectReference Include="..\Modules\Webservices\GenHTTP.Modules.Webservices.csproj"/>
         <ProjectReference Include="..\Modules\Websockets\GenHTTP.Modules.Websockets.csproj"/>
