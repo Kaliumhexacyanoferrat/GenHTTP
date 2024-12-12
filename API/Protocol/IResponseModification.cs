@@ -8,8 +8,7 @@
 /// This can be useful if you would like to add behavior that the
 /// original handler (such as a page renderer) does not provide.
 /// For example, as the page handlers implement this interface,
-/// you can add an additional header to the response being generated
-/// for a page.
+/// you can add a header to the response being generated for a page.
 /// </remarks>
 /// <typeparam name="TBuilder">The type of builder used as a return value</typeparam>
 public interface IResponseModification<out TBuilder>

@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Conversion.Serializers.Json;
@@ -45,13 +46,13 @@ public sealed class StructuredErrorMapper : IErrorMapper<Exception>
         {
             var model = new ErrorModel(e.Status, error.Message, stackTrace);
 
-            return await RenderAsync(request, model);
+            return (await RenderAsync(request, model)).Apply(e.Modifications).Build();
         }
         else
         {
             var model = new ErrorModel(ResponseStatus.InternalServerError, error.Message, stackTrace);
 
-            return await RenderAsync(request, model);
+            return (await RenderAsync(request, model)).Build();
         }
     }
 
@@ -59,10 +60,10 @@ public sealed class StructuredErrorMapper : IErrorMapper<Exception>
     {
         var model = new ErrorModel(ResponseStatus.NotFound, "The requested resource does not exist on this server");
 
-        return await RenderAsync(request, model);
+        return (await RenderAsync(request, model)).Build();
     }
 
-    private async ValueTask<IResponse> RenderAsync(IRequest request, ErrorModel model)
+    private async ValueTask<IResponseBuilder> RenderAsync(IRequest request, ErrorModel model)
     {
         var format = Registry.GetSerialization(request) ?? new JsonFormat();
 
@@ -70,7 +71,7 @@ public sealed class StructuredErrorMapper : IErrorMapper<Exception>
 
         response.Status(model.Status);
 
-        return response.Build();
+        return response;
     }
 
     #endregion

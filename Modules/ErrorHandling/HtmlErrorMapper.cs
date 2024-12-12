@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Pages;
 
 namespace GenHTTP.Modules.ErrorHandling;
@@ -19,6 +20,7 @@ public class HtmlErrorMapper : IErrorMapper<Exception>
 
             return request.GetPage(page)
                           .Status(e.Status)
+                          .Apply(e.Modifications)
                           .Build();
         }
         else
