@@ -54,6 +54,8 @@ public sealed class DownloadTests
         using var response = await runner.GetResponseAsync(request);
 
         await response.AssertStatusAsync(HttpStatusCode.MethodNotAllowed);
+
+        Assert.AreEqual("GET", response.GetContentHeader("Allow"));
     }
 
     [TestMethod]

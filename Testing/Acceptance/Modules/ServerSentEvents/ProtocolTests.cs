@@ -105,6 +105,8 @@ public sealed class ProtocolTests
         using var response = await host.GetResponseAsync(request);
 
         await response.AssertStatusAsync(HttpStatusCode.MethodNotAllowed);
+
+        Assert.AreEqual("GET", response.GetContentHeader("Allow"));
     }
 
     [TestMethod]

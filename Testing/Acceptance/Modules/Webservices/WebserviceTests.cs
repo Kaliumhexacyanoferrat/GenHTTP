@@ -201,7 +201,7 @@ public sealed class WebserviceTests
     [MultiEngineTest]
     public async Task TestWrongMethod(TestEngine engine)
     {
-        await WithResponse(engine, "entity", HttpMethod.Put, "123", null, null, async r => { await r.AssertStatusAsync(HttpStatusCode.MethodNotAllowed); });
+        await WithResponse(engine, "entity", HttpMethod.Put, "123", null, null, async r => { await r.AssertStatusAsync(HttpStatusCode.MethodNotAllowed); Assert.AreEqual("POST", r.GetContentHeader("Allow")); });
     }
 
     [TestMethod]
