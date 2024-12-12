@@ -46,11 +46,11 @@ public sealed class MethodCollection : IHandler
 
         if (others.Count > 0)
         {
-            throw new ProviderException(ResponseStatus.MethodNotAllowed, "There is no method of a matching request type", AddAcceptHeader);
+            throw new ProviderException(ResponseStatus.MethodNotAllowed, "There is no method of a matching request type", AddAllowHeader);
 
-            void AddAcceptHeader(IResponseBuilder b)
+            void AddAllowHeader(IResponseBuilder b)
             {
-                b.Header("Accept", string.Join(", ", others.Select(o => o.RawMethod.ToUpper())));
+                b.Header("Allow", string.Join(", ", others.Select(o => o.RawMethod.ToUpper())));
             }
         }
 

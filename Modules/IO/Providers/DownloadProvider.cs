@@ -42,7 +42,7 @@ public sealed class DownloadProvider : IHandler
 
         if (!request.HasType(RequestMethod.Get, RequestMethod.Head))
         {
-            throw new ProviderException(ResponseStatus.MethodNotAllowed, "Only GET requests are allowed by this handler");
+            throw new ProviderException(ResponseStatus.MethodNotAllowed, "Only GET requests are allowed by this handler", (b) => b.Header("Allow", "GET, HEAD"));
         }
 
         var response = request.Respond()
