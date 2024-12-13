@@ -6,9 +6,9 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Pages;
 using GenHTTP.Modules.Pages.Rendering;
 
-namespace GenHTTP.Modules.Swagger.Handler;
+namespace GenHTTP.Modules.ApiBrowsing.Common;
 
-public sealed class SwaggerUIHandler : IHandler
+public sealed class BrowserHandler: IHandler
 {
 
     #region Get-/Setters
@@ -23,12 +23,12 @@ public sealed class SwaggerUIHandler : IHandler
 
     #region Initialization
 
-    public SwaggerUIHandler(string? url)
+    public BrowserHandler(string resourceRoot, string? url)
     {
-        StaticResources = Resources.From(ResourceTree.FromAssembly("Resources.Static"))
+        StaticResources = Resources.From(ResourceTree.FromAssembly($"{resourceRoot}.Static"))
                                    .Build();
 
-        Template = Renderer.From(Resource.FromAssembly("Index.html").Build());
+        Template = Renderer.From(Resource.FromAssembly($"{resourceRoot}.Index.html").Build());
 
         Url = url ?? "../openapi.json";
     }

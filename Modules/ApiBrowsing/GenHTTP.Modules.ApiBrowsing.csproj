@@ -19,8 +19,8 @@
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
-        <Description>Serves Swagger UI for debugging purposes.</Description>
-        <PackageTags>HTTP Webserver C# Module Swagger UI</PackageTags>
+        <Description>Serves API browsers such as Swagger UI.</Description>
+        <PackageTags>HTTP Webserver C# Module Swagger UI API Browser Browsing</PackageTags>
 
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <IncludeSymbols>true</IncludeSymbols>
@@ -56,12 +56,21 @@
 
     <ItemGroup>
       <None Remove="Resources\Static\swagger-ui.css" />
-      <EmbeddedResource Include="Resources\Static\swagger-ui.css" />
       <None Remove="Resources\Static\swagger-ui-bundle.js" />
-      <EmbeddedResource Include="Resources\Static\swagger-ui-bundle.js" />
       <None Remove="Resources\Static\swagger-ui-standalone-preset.js" />
       <None Remove="Resources\Templates\Index.html" />
-      <EmbeddedResource Include="Resources\Templates\Index.html" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="Redoc\Index.html" />
+      <EmbeddedResource Include="Redoc\Static\redoc-standalone.js" />
+      <EmbeddedResource Include="Redoc\Static\roboto.css" />
+      <EmbeddedResource Include="Swagger\Index.html" />
+      <EmbeddedResource Include="Swagger\Static\swagger-ui-bundle.js" />
+      <EmbeddedResource Include="Swagger\Static\swagger-ui.css" />
+      <None Remove="Redoc\Resources\Index.html" />
+      <None Remove="Redoc\Resources\Static\redoc.standalone.js" />
+      <None Remove="Redoc\Resources\Static\roboto.css" />
     </ItemGroup>
 
 </Project>

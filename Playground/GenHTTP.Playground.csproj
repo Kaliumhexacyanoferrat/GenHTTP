@@ -19,6 +19,7 @@
         <ProjectReference Include="..\Engine\Internal\GenHTTP.Engine.Internal.csproj"/>
         <ProjectReference Include="..\Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj"/>
 
+        <ProjectReference Include="..\Modules\ApiBrowsing\GenHTTP.Modules.ApiBrowsing.csproj"/>
         <ProjectReference Include="..\Modules\Authentication\GenHTTP.Modules.Authentication.csproj"/>
         <ProjectReference Include="..\Modules\Basics\GenHTTP.Modules.Basics.csproj"/>
         <ProjectReference Include="..\Modules\Caching\GenHTTP.Modules.Caching.csproj"/>
@@ -42,7 +43,6 @@
         <ProjectReference Include="..\Modules\ServerSentEvents\GenHTTP.Modules.ServerSentEvents.csproj" />
         <ProjectReference Include="..\Modules\SinglePageApplications\GenHTTP.Modules.SinglePageApplications.csproj"/>
         <ProjectReference Include="..\Modules\StaticWebsites\GenHTTP.Modules.StaticWebsites.csproj"/>
-        <ProjectReference Include="..\Modules\Swagger\GenHTTP.Modules.Swagger.csproj" />
         <ProjectReference Include="..\Modules\VirtualHosting\GenHTTP.Modules.VirtualHosting.csproj"/>
         <ProjectReference Include="..\Modules\Webservices\GenHTTP.Modules.Webservices.csproj"/>
         <ProjectReference Include="..\Modules\Websockets\GenHTTP.Modules.Websockets.csproj"/>
