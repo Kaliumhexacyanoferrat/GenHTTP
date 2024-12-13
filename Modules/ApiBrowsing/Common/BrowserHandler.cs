@@ -17,20 +17,20 @@ public sealed class BrowserHandler: IHandler
 
     public TemplateRenderer Template { get; }
 
-    public string Url { get; }
+    public BrowserMetaData MetaData { get; }
 
     #endregion
 
     #region Initialization
 
-    public BrowserHandler(string resourceRoot, string? url)
+    public BrowserHandler(string resourceRoot, BrowserMetaData metaData)
     {
         StaticResources = Resources.From(ResourceTree.FromAssembly($"{resourceRoot}.Static"))
                                    .Build();
 
         Template = Renderer.From(Resource.FromAssembly($"{resourceRoot}.Index.html").Build());
 
-        Url = url ?? "../openapi.json";
+        MetaData = metaData;
     }
 
     #endregion
@@ -50,7 +50,8 @@ public sealed class BrowserHandler: IHandler
         {
             var config = new Dictionary<Value, Value>
             {
-                ["url"] = Url
+                ["title"] = MetaData.Title,
+                ["url"] = (MetaData.Url ?? "../openapi.json")
             };
 
             var content = await Template.RenderAsync(config);
