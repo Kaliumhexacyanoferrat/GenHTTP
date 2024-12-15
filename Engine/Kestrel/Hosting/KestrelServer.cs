@@ -100,6 +100,8 @@ internal sealed class KestrelServer : IServer
         {
             options.AllowSynchronousIO = true;
 
+            options.Limits.MaxRequestBodySize = null;
+
             foreach (var endpoint in Configuration.EndPoints)
             {
                 if (endpoint.Security != null)
