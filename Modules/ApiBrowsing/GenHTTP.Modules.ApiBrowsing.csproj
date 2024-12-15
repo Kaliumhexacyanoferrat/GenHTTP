@@ -1,0 +1,76 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+
+        <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+
+        <LangVersion>13.0</LangVersion>
+        <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <ImplicitUsings>enable</ImplicitUsings>
+
+        <AssemblyVersion>9.4.0.0</AssemblyVersion>
+        <FileVersion>9.4.0.0</FileVersion>
+        <Version>9.4.0</Version>
+
+        <Authors>Andreas Nägeli</Authors>
+        <Company/>
+
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
+
+        <Description>Serves API browsers such as Swagger UI.</Description>
+        <PackageTags>HTTP Webserver C# Module Swagger UI API Browser Browsing</PackageTags>
+
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>CS1591,CS1587,CS1572,CS1573</NoWarn>
+
+        <PackageIcon>icon.png</PackageIcon>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+
+        <None Include="..\..\LICENSE" Pack="true" PackagePath="\"/>
+        <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\"/>
+
+    </ItemGroup>
+
+    <ItemGroup>
+
+        <ProjectReference Include="..\..\API\GenHTTP.Api.csproj"/>
+
+        <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
+
+        <ProjectReference Include="..\Layouting\GenHTTP.Modules.Layouting.csproj"/>
+
+        <ProjectReference Include="..\Pages\GenHTTP.Modules.Pages.csproj" />
+        
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+        
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Resources\Static\swagger-ui.css" />
+      <None Remove="Resources\Static\swagger-ui-bundle.js" />
+      <None Remove="Resources\Static\swagger-ui-standalone-preset.js" />
+      <None Remove="Resources\Templates\Index.html" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="Redoc\Index.html" />
+      <EmbeddedResource Include="Redoc\Static\redoc-standalone.js" />
+      <EmbeddedResource Include="Redoc\Static\roboto.css" />
+      <EmbeddedResource Include="Swagger\Index.html" />
+      <EmbeddedResource Include="Swagger\Static\swagger-ui-bundle.js" />
+      <EmbeddedResource Include="Swagger\Static\swagger-ui.css" />
+      <None Remove="Redoc\Resources\Index.html" />
+      <None Remove="Redoc\Resources\Static\redoc.standalone.js" />
+      <None Remove="Redoc\Resources\Static\roboto.css" />
+    </ItemGroup>
+
+</Project>

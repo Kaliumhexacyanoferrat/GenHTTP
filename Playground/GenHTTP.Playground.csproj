@@ -19,6 +19,7 @@
         <ProjectReference Include="..\Engine\Internal\GenHTTP.Engine.Internal.csproj"/>
         <ProjectReference Include="..\Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj"/>
 
+        <ProjectReference Include="..\Modules\ApiBrowsing\GenHTTP.Modules.ApiBrowsing.csproj"/>
         <ProjectReference Include="..\Modules\Authentication\GenHTTP.Modules.Authentication.csproj"/>
         <ProjectReference Include="..\Modules\Basics\GenHTTP.Modules.Basics.csproj"/>
         <ProjectReference Include="..\Modules\Caching\GenHTTP.Modules.Caching.csproj"/>

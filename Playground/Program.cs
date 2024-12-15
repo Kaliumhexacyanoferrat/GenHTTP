@@ -1,9 +1,8 @@
 ﻿using GenHTTP.Engine.Kestrel;
-using GenHTTP.Modules.DirectoryBrowsing;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Practices;
 
-var app = Listing.From(ResourceTree.FromDirectory("."));
+var app = Content.From(Resource.FromString("Hello World"));
 
 await Host.Create()
           .Handler(app)

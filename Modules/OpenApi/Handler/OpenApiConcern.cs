@@ -39,7 +39,7 @@ public sealed class OpenApiConcern : IConcern
 
     #region Functionality
 
-    public ValueTask PrepareAsync() => new();
+    public ValueTask PrepareAsync() => Content.PrepareAsync();
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
