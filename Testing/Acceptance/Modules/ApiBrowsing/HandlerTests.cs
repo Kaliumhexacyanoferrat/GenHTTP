@@ -4,7 +4,7 @@ using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Layouting.Provider;
 using GenHTTP.Modules.OpenApi;
-
+using GenHTTP.Testing.Acceptance.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.ApiBrowsing;
@@ -69,6 +69,12 @@ public class HandlerTests
 
         AssertX.Contains("https://localhost:5001/swagger.json", content);
         AssertX.Contains("My API", content);
+    }
+
+    [TestMethod]
+    public void TestConcernChaining()
+    {
+        Chain.Works(ApiBrowser.Redoc());
     }
 
     private static LayoutBuilder GetApi()
