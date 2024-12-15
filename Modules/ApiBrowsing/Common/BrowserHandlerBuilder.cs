@@ -10,12 +10,21 @@ public class BrowserHandlerBuilder(string resourceRoot, string title) : IHandler
 
     private string _Title = title;
 
+    /// <summary>
+    /// Sets the URL of the Open API definition to be consumed (defaults to "../openapi.json").
+    /// Should be relative to avoid issues with CORS etc.
+    /// </summary>
+    /// <param name="url">The URL the application will fetch the Open API definition from</param>
     public BrowserHandlerBuilder Url(string url)
     {
         _Url = url;
         return this;
     }
 
+    /// <summary>
+    /// Sets the title of the application that will be rendered by the browser (e.g. the title of the tab).
+    /// </summary>
+    /// <param name="title">The title of the application to be set</param>
     public BrowserHandlerBuilder Title(string title)
     {
         _Title = title;
