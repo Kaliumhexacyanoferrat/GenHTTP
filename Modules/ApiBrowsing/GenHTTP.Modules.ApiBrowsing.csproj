@@ -65,12 +65,19 @@
       <EmbeddedResource Include="Redoc\Index.html" />
       <EmbeddedResource Include="Redoc\Static\redoc-standalone.js" />
       <EmbeddedResource Include="Redoc\Static\roboto.css" />
+      <EmbeddedResource Include="Scalar\Index.html" />
       <EmbeddedResource Include="Swagger\Index.html" />
       <EmbeddedResource Include="Swagger\Static\swagger-ui-bundle.js" />
       <EmbeddedResource Include="Swagger\Static\swagger-ui.css" />
       <None Remove="Redoc\Resources\Index.html" />
       <None Remove="Redoc\Resources\Static\redoc.standalone.js" />
       <None Remove="Redoc\Resources\Static\roboto.css" />
+      <None Remove="Scalar\Static\scalar.js" />
+      <EmbeddedResource Include="Scalar\Static\scalar.js" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Scalar\Static\" />
     </ItemGroup>
 
 </Project>
