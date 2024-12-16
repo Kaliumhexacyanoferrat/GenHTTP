@@ -92,13 +92,13 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
     /// <summary>
     /// Creates a new layout and registers it at the given path.
     /// </summary>
-    /// <param name="section">The path of the section to be added</param>
-    /// <returns>The newly created section</returns>
-    public LayoutBuilder AddSection(string section)
+    /// <param name="section">The path of the segment to be added</param>
+    /// <returns>The newly created segment</returns>
+    public LayoutBuilder AddSegment(string segment)
     {
         var child = Layout.Create();
 
-        Add(section, child);
+        Add(segment, child);
 
         return child;
     }
