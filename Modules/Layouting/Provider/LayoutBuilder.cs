@@ -89,6 +89,20 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
         return this;
     }
 
+    /// <summary>
+    /// Creates a new layout and registers it at the given path.
+    /// </summary>
+    /// <param name="section">The path of the section to be added</param>
+    /// <returns>The newly created section</returns>
+    public LayoutBuilder AddSection(string section)
+    {
+        var child = Layout.Create();
+
+        Add(section, child);
+
+        return child;
+    }
+
     public LayoutBuilder Add(IConcernBuilder concern)
     {
         _Concerns.Add(concern);
