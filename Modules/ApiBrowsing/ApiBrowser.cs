@@ -21,4 +21,10 @@ public static class ApiBrowser
     /// <returns>The newly created handler</returns>
     public static BrowserHandlerBuilder Redoc() => new("Redoc", "Redoc");
 
+    /// <summary>
+    /// Creates a handler that will provide a Scalar app.
+    /// </summary>
+    /// <returns>The newly created handler</returns>
+    public static BrowserHandlerBuilder Scalar() => new("Scalar", "Scalar");
+
 }

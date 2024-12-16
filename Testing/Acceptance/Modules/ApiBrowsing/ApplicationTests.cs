@@ -47,4 +47,22 @@ public class ApplicationTests
         AssertX.Contains("Redoc", await response.GetContentAsync());
     }
 
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestScalar(TestEngine engine)
+    {
+        var app = Layout.Create()
+                        .Add(Inline.Create().Get(() => 42))
+                        .AddOpenApi()
+                        .AddScalar();
+
+        await using var host = await TestHost.RunAsync(app, engine: engine);
+
+        using var response = await host.GetResponseAsync("/scalar/");
+
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+
+        AssertX.Contains("Scalar", await response.GetContentAsync());
+    }
+
 }
