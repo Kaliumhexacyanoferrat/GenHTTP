@@ -56,7 +56,19 @@ public sealed class LocalizationConcern : IConcern
             }
         }
 
-        return await Content.HandleAsync(request);
+        var response = await Content.HandleAsync(request);
+
+        if (response?.Content != null)
+        {
+            var tag = culture.IetfLanguageTag;
+
+            if (!string.IsNullOrEmpty(tag))
+            {
+                response.Headers.TryAdd("Content-Language", tag);
+            }
+        }
+
+        return response;
     }
 
     private async ValueTask<CultureInfo?> ResolveCultureInfoAsync(IRequest request)
