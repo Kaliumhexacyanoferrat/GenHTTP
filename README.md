@@ -8,12 +8,12 @@ the functionality rather than on messing around with configuration files or comp
 
 ## 🚀 Features
 
-- Setup new webservices in a couple of minutes using [project templates](https://genhttp.org/documentation/content/templates)
-- Supports [current standards](https://genhttp.org/features) such as Open API, Websockets, Server Sent Events or JWT authentication
+- Setup new webservices in a couple of minutes using [project templates](https://genhttp.org/documentation/content/templates/)
+- Supports [current standards](https://genhttp.org/features/) such as Open API, Websockets, Server Sent Events or JWT authentication
 - Embed web services into a new or already existing console, service, WPF, WinForms, WinUI, MAUI or Uno application
 - Projects are fully described in code - no configuration files needed, no magical behavior you need to learn
 - Supports [Kestrel](https://genhttp.org/documentation/server/engines/) as an underlying HTTP engine (enables HTTP/2 and HTTP/3 via QUIC)
-- [Optimized](https://genhttp.org/features) out of the box, small memory and storage [footprint](https://genhttp.org/features#footprint)
+- [Optimized](https://genhttp.org/features/) out of the box, small memory and storage [footprint](https://genhttp.org/features/#footprint)
 - Grade A+ security level according to SSL Labs
 
 ## 📖 Getting Started
@@ -39,8 +39,8 @@ To create a project by using the terminal, create a new folder for your app and 
 |-------------------------------|---------------------------------------------|------------------------------------------------------------------------------------------------------------------|
 | REST Webservice               | `dotnet new genhttp-webservice`             | [Webservices](https://genhttp.org/documentation/content/frameworks/webservices/)                                 |
 | REST Webservice (single file) | `dotnet new genhttp-webservice-minimal`     | [Functional Handlers](https://genhttp.org/documentation/content/frameworks/functional/)                          |
-| REST Webservice (controllers) | `dotnet new genhttp-webservice-controllers` | [Controllers](https://genhttp.org/documentation/content/frameworks/controllers)                                  |
-| Websocket                     | `dotnet new genhttp-websocket`              | [Websockets](https://genhttp.org/documentation/content/frameworks/websockets)                                    |
+| REST Webservice (controllers) | `dotnet new genhttp-webservice-controllers` | [Controllers](https://genhttp.org/documentation/content/frameworks/controllers/)                                  |
+| Websocket                     | `dotnet new genhttp-websocket`              | [Websockets](https://genhttp.org/documentation/content/frameworks/websockets/)                                    |
 | Website (Static HTML)         | `dotnet new genhttp-website-static`         | [Statics Websites](https://genhttp.org/documentation/content/frameworks/static-websites/)                        |
 | Single Page Application (SPA) | `dotnet new genhttp-spa`                    | [Single Page Applications (SPA)](https://genhttp.org/documentation/content/frameworks/single-page-applications/) |
 
@@ -65,8 +65,8 @@ When you run this sample it can be accessed in the browser via http://localhost:
 
 The [documentation](https://genhttp.org/documentation/) provides a step-by-step starting guide as well as additional
 information on how to
-implement [webservices](https://genhttp.org/documentation/content/frameworks/webservices), [minimal webservices](https://genhttp.org/documentation/content/frameworks/functional), [controller-based webservices](https://genhttp.org/documentation/content/frameworks/controllers), [static websites](https://genhttp.org/documentation/content/frameworks/static-websites),
-or [single page applications](https://genhttp.org/documentation/content/frameworks/single-page-applications) and how
+implement [webservices](https://genhttp.org/documentation/content/frameworks/webservices/), [minimal webservices](https://genhttp.org/documentation/content/frameworks/functional/), [controller-based webservices](https://genhttp.org/documentation/content/frameworks/controllers/), [static websites](https://genhttp.org/documentation/content/frameworks/static-websites/),
+or [single page applications](https://genhttp.org/documentation/content/frameworks/single-page-applications/) and how
 to [host your application](https://genhttp.org/documentation/hosting/) via Docker.
 
 If you encounter issues implementing your application, feel free
@@ -91,7 +91,7 @@ extending the server core, you might want to
 
 - Leave a star on GitHub
 - Extend the content capabilities of the server (e.g. by adding a new serialization format or rendering engine)
-- Refine our [project templates](https://genhttp.org/documentation/content/templates)
+- Refine our [project templates](https://genhttp.org/documentation/content/templates/)
 - Perform code reviews
 - Analyze the performance or security of the server
 - Clarfify and extend our tests
