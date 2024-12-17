@@ -71,4 +71,20 @@ public class MultiSegmentTests
         });
     }
 
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestEmpty(TestEngine engine)
+    {
+        var app = Layout.Create()
+                        .Add([], Content.From(Resource.FromString("Hello Empty!")));
+
+        await using var host = await TestHost.RunAsync(app, engine: engine);
+
+        using var response = await host.GetResponseAsync();
+
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+
+        Assert.AreEqual("Hello Empty!", await response.GetContentAsync());
+    }
+
 }

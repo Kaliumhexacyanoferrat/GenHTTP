@@ -22,13 +22,33 @@ public static class MultiSegmentSupport
             return builder.Add(handler);
         }
 
+        var last = builder.AddSegments(segments[..^1]);
+
+        last.Add(segments[^1], handler);
+
+        return builder;
+    }
+
+    /// <summary>
+    /// Adds all the given segments to the layout and returns the
+    /// last one.
+    /// </summary>
+    /// <param name="builder">The layout to add the sections to</param>
+    /// <param name="segments">The segments to be added</param>
+    /// <returns>The last created layout</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there are incompatible handlers already registered at a segment</exception>
+    public static LayoutBuilder AddSegments(this LayoutBuilder builder, params string[] segments)
+    {
+        if (segments.Length == 0)
+        {
+            return builder;
+        }
+
         var current = builder;
 
-        for (var i = 0; i < segments.Length - 1; i++)
+        foreach (var section in segments)
         {
-            var segment = segments[i];
-
-            if (current.RoutedHandlers.TryGetValue(segment, out var existing))
+            if (current.RoutedHandlers.TryGetValue(section, out var existing))
             {
                 if (existing is LayoutBuilder existingLayout)
                 {
@@ -36,21 +56,19 @@ public static class MultiSegmentSupport
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Existing segment '{segment}' is no layout");
+                    throw new InvalidOperationException($"Existing section '{section}' is no layout");
                 }
             }
             else
             {
                 var newLayout = Layout.Create();
 
-                current.Add(segment, newLayout);
+                current.Add(section, newLayout);
                 current = newLayout;
             }
         }
 
-        current.Add(segments[^1], handler);
-
-        return builder;
+        return current;
     }
 
 }

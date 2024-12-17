@@ -95,6 +95,20 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
         return this;
     }
 
+    /// <summary>
+    /// Creates a new layout and registers it at the given path.
+    /// </summary>
+    /// <param name="section">The path of the segment to be added</param>
+    /// <returns>The newly created segment</returns>
+    public LayoutBuilder AddSegment(string segment)
+    {
+        var child = Layout.Create();
+
+        Add(segment, child);
+
+        return child;
+    }
+
     public IHandler Build()
     {
         var routed = RoutedHandlers.ToDictionary(kv => kv.Key, kv => kv.Value.Build());
