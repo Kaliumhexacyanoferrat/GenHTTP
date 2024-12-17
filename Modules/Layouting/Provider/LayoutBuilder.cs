@@ -89,6 +89,12 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
         return this;
     }
 
+    public LayoutBuilder Add(IConcernBuilder concern)
+    {
+        _Concerns.Add(concern);
+        return this;
+    }
+
     /// <summary>
     /// Creates a new layout and registers it at the given path.
     /// </summary>
@@ -101,12 +107,6 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
         Add(segment, child);
 
         return child;
-    }
-
-    public LayoutBuilder Add(IConcernBuilder concern)
-    {
-        _Concerns.Add(concern);
-        return this;
     }
 
     public IHandler Build()
