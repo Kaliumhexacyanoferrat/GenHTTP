@@ -9,12 +9,12 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <ImplicitUsings>enable</ImplicitUsings>
 
-        <AssemblyVersion>9.4.0.0</AssemblyVersion>
-        <FileVersion>9.4.0.0</FileVersion>
-        <Version>9.4.0</Version>
+        <AssemblyVersion>9.5.0.0</AssemblyVersion>
+        <FileVersion>9.5.0.0</FileVersion>
+        <Version>9.5.0</Version>
 
         <Authors>Andreas Nägeli</Authors>
-        <Company/>
+        <Company />
 
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
@@ -35,8 +35,8 @@
 
     <ItemGroup>
 
-        <None Include="..\..\LICENSE" Pack="true" PackagePath="\"/>
-        <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\"/>
+        <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
+        <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\" />
 
     </ItemGroup>
 
@@ -44,16 +44,16 @@
 
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
 
-        <ProjectReference Include="..\..\API\GenHTTP.Api.csproj"/>
+        <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
 
         <ProjectReference Include="..\..\Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj" />
         
         <ProjectReference Include="..\Shared\GenHTTP.Engine.Shared.csproj" />
 
-        <ProjectReference Include="..\..\Modules\IO\GenHTTP.Modules.IO.csproj"/>
-        <ProjectReference Include="..\..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj"/>
+        <ProjectReference Include="..\..\Modules\IO\GenHTTP.Modules.IO.csproj" />
+        <ProjectReference Include="..\..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj" />
 
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 
     </ItemGroup>
 
