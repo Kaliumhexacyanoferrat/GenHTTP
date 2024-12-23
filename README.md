@@ -39,8 +39,9 @@ To create a project by using the terminal, create a new folder for your app and 
 |-------------------------------|---------------------------------------------|------------------------------------------------------------------------------------------------------------------|
 | REST Webservice               | `dotnet new genhttp-webservice`             | [Webservices](https://genhttp.org/documentation/content/frameworks/webservices/)                                 |
 | REST Webservice (single file) | `dotnet new genhttp-webservice-minimal`     | [Functional Handlers](https://genhttp.org/documentation/content/frameworks/functional/)                          |
-| REST Webservice (controllers) | `dotnet new genhttp-webservice-controllers` | [Controllers](https://genhttp.org/documentation/content/frameworks/controllers/)                                  |
-| Websocket                     | `dotnet new genhttp-websocket`              | [Websockets](https://genhttp.org/documentation/content/frameworks/websockets/)                                    |
+| REST Webservice (controllers) | `dotnet new genhttp-webservice-controllers` | [Controllers](https://genhttp.org/documentation/content/frameworks/controllers/)                                 |
+| Websocket                     | `dotnet new genhttp-websocket`              | [Websockets](https://genhttp.org/documentation/content/frameworks/websockets/)                                   |
+| Server Sent Events (SSE)      | `dotnet new genhttp-sse`                    | [Server Sent Events](https://genhttp.org/documentation/content/handlers/server-sent-events/)                     |
 | Website (Static HTML)         | `dotnet new genhttp-website-static`         | [Statics Websites](https://genhttp.org/documentation/content/frameworks/static-websites/)                        |
 | Single Page Application (SPA) | `dotnet new genhttp-spa`                    | [Single Page Applications (SPA)](https://genhttp.org/documentation/content/frameworks/single-page-applications/) |
 
