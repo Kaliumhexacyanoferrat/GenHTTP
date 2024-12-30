@@ -46,7 +46,7 @@
 
         <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
 
-        <PackageReference Include="YamlDotNet" Version="16.2.1" />
+        <PackageReference Include="YamlDotNet" Version="16.3.0" />
         
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 
