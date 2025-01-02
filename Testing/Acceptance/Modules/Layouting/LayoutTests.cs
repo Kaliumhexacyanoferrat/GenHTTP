@@ -95,6 +95,17 @@ public sealed class LayoutTests
     }
 
     [TestMethod]
+    public void TestSameSegmentTwice()
+    {
+        var content = Content.From(Resource.FromString("Hello World!"));
+
+        Assert.ThrowsException<InvalidOperationException>(() =>
+        {
+            Layout.Create().Add("one", content).Add("one", content);
+        });
+    }
+
+    [TestMethod]
     [MultiEngineTest]
     public async Task TestLazyBuilding(TestEngine engine)
     {
