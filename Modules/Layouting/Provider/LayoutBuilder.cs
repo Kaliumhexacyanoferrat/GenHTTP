@@ -42,7 +42,7 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
     /// </summary>
     /// <param name="name">The name of the path segment to be handled</param>
     /// <param name="handler">The handler which will handle the segment</param>
-    public LayoutBuilder Add(string name, IHandler handler) => Add(new HandlerWrapper(handler));
+    public LayoutBuilder Add(string name, IHandler handler) => Add(name, new HandlerWrapper(handler));
 
     /// <summary>
     /// Adds a handler that will be invoked for all URLs below
@@ -54,10 +54,14 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
     {
         if (name.Contains('/'))
         {
-            throw new ArgumentException("Path seperators are not allowed in the name of the segment.", nameof(name));
+            return this.Add(name.Split('/', StringSplitOptions.RemoveEmptyEntries), handler);
         }
 
-        RoutedHandlers.Add(name, handler);
+        if (!RoutedHandlers.TryAdd(name, handler))
+        {
+            throw new InvalidOperationException($"A segment with the name '{name}' has already been added to the layout");
+        }
+
         return this;
     }
 

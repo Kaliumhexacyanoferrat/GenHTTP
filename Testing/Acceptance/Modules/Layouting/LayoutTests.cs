@@ -80,10 +80,18 @@ public sealed class LayoutTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
-    public void TestIllegalPathCharacters()
+    [MultiEngineTest]
+    public async Task TestMultiSegmentInName(TestEngine engine)
     {
-        Layout.Create().Add("some/path", Content.From(Resource.FromString("Hello World")));
+        var layout = Layout.Create().Add("/api/v1/", Content.From(Resource.FromString("Hello World")));
+
+        await using var runner = await TestHost.RunAsync(layout, engine: engine);
+
+        using var response = await runner.GetResponseAsync("/api/v1/");
+
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+
+        Assert.AreEqual("Hello World", await response.GetContentAsync());
     }
 
     [TestMethod]
