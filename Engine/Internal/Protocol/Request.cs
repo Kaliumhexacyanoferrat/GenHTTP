@@ -1,4 +1,5 @@
 ﻿using System.Net.Sockets;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
@@ -12,6 +13,7 @@ namespace GenHTTP.Engine.Internal.Protocol;
 internal sealed class Request : IRequest
 {
     private readonly Socket _Socket;
+    private readonly Stream _Stream;
 
     private FlexibleContentType? _ContentType;
     private ICookieCollection? _Cookies;
@@ -24,11 +26,12 @@ internal sealed class Request : IRequest
 
     #region Initialization
 
-    internal Request(IServer server, Socket socket, IEndPoint endPoint, IClientConnection client, IClientConnection localClient, HttpProtocol protocol, FlexibleRequestMethod method,
+    internal Request(IServer server, Socket socket, Stream stream, IEndPoint endPoint, IClientConnection client, IClientConnection localClient, HttpProtocol protocol, FlexibleRequestMethod method,
         RoutingTarget target, IHeaderCollection headers, ICookieCollection? cookies, IForwardingCollection? forwardings,
         IRequestQuery? query, Stream? content)
     {
         _Socket = socket;
+        _Stream = stream;
 
         Client = client;
         LocalClient = localClient;
@@ -55,7 +58,7 @@ internal sealed class Request : IRequest
 
     public IResponseBuilder Respond() => new ResponseBuilder().Status(ResponseStatus.Ok);
 
-    public UpgradeInfo Upgrade() => new(_Socket, new Response() { Upgraded = true });
+    public UpgradeInfo Upgrade() => new(_Socket, _Stream, new Response { Upgraded = true });
 
     #endregion
 
