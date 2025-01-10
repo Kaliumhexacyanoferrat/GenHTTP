@@ -58,6 +58,8 @@ internal abstract class EndPoint : IEndPoint
         {
             Socket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
+            Socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
+
             Socket.Bind(Endpoint);
             Socket.Listen(Configuration.Backlog);
         }
