@@ -1,6 +1,4 @@
-﻿using System.Net.Sockets;
-
-using Fleck;
+﻿using Fleck;
 
 using GenHTTP.Api.Protocol;
 

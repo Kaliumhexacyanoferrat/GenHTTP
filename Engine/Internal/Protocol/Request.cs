@@ -1,5 +1,4 @@
 ﻿using System.Net.Sockets;
-using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
