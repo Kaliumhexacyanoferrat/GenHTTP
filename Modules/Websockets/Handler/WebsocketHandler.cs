@@ -65,7 +65,9 @@ public sealed class WebsocketHandler : IHandler
 
         var upgrade = request.Upgrade();
 
-        var connection = new WebsocketConnection(upgrade.Socket, request, SupportedProtocols, OnOpen, OnClose, OnMessage, OnBinary, OnPing, OnPong, OnError);
+        var socket = new WrappedSocket(upgrade);
+
+        var connection = new WebsocketConnection(socket, request, SupportedProtocols, OnOpen, OnClose, OnMessage, OnBinary, OnPing, OnPong, OnError);
 
         connection.Start();
 

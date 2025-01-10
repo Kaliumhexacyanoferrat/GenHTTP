@@ -1,6 +1,4 @@
-﻿using System.Net.Sockets;
-
-using Fleck;
+﻿using Fleck;
 
 using GenHTTP.Api.Protocol;
 
@@ -49,7 +47,7 @@ public sealed class WebsocketConnection : IWebSocketConnection, IWebsocketConnec
 
     #region Initialization
 
-    public WebsocketConnection(Socket socket, IRequest request, List<string> supportedProtocols,
+    public WebsocketConnection(ISocket socket, IRequest request, List<string> supportedProtocols,
         Action<IWebsocketConnection>? onOpen,
         Action<IWebsocketConnection>? onClose,
         Action<IWebsocketConnection, string>? onMessage,
@@ -58,11 +56,11 @@ public sealed class WebsocketConnection : IWebSocketConnection, IWebsocketConnec
         Action<IWebsocketConnection, byte[]>? onPong,
         Action<IWebsocketConnection, Exception>? onError)
     {
-        Socket = new SocketWrapper(socket);
+        Socket = socket;
         Request = request;
 
         SupportedProtocols = supportedProtocols;
-        
+
         OnOpen = (onOpen != null) ? () => onOpen(this) : () => { };
         OnClose = (onClose != null) ? () => onClose(this) : () => { };
         OnMessage = (onMessage != null) ? (x) => onMessage(this, x) : x => { };
@@ -152,7 +150,7 @@ public sealed class WebsocketConnection : IWebSocketConnection, IWebsocketConnec
         }
 
         var bytes = Handler.FrameClose(code);
-        
+
         if (bytes.Length == 0)
             CloseSocket();
         else

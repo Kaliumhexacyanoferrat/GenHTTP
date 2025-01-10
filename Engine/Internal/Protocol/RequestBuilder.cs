@@ -12,6 +12,8 @@ namespace GenHTTP.Engine.Internal.Protocol;
 internal sealed class RequestBuilder : IBuilder<IRequest>
 {
     private Socket? _Socket;
+    private Stream? _Stream;
+
     private IPAddress? _Address;
     private X509Certificate? _ClientCertificate;
 
@@ -57,9 +59,11 @@ internal sealed class RequestBuilder : IBuilder<IRequest>
 
     #region Functionality
 
-    public RequestBuilder Connection(IServer server, Socket socket, IEndPoint endPoint, IPAddress? address, X509Certificate? clientCertificate)
+    public RequestBuilder Connection(IServer server, Socket socket, Stream stream, IEndPoint endPoint, IPAddress? address, X509Certificate? clientCertificate)
     {
         _Socket = socket;
+        _Stream = stream;
+
         _Server = server;
         _Address = address;
         _EndPoint = endPoint;
@@ -130,6 +134,11 @@ internal sealed class RequestBuilder : IBuilder<IRequest>
                 throw new BuilderMissingPropertyException("Socket");
             }
 
+            if (_Stream == null)
+            {
+                throw new BuilderMissingPropertyException("Stream");
+            }
+
             if (_EndPoint is null)
             {
                 throw new BuilderMissingPropertyException("EndPoint");
@@ -171,7 +180,7 @@ internal sealed class RequestBuilder : IBuilder<IRequest>
 
             var client = Forwardings.DetermineClient(_ClientCertificate) ?? localClient;
 
-            return new Request(_Server, _Socket, _EndPoint, client, localClient, (HttpProtocol)_Protocol, _RequestMethod,
+            return new Request(_Server, _Socket, _Stream, _EndPoint, client, localClient, (HttpProtocol)_Protocol, _RequestMethod,
                                _Target, Headers, _Cookies, _Forwardings, _Query, _Content);
         }
         catch (Exception)

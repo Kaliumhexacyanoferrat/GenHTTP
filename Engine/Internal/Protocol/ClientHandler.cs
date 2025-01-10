@@ -153,7 +153,7 @@ internal sealed class ClientHandler
 
     private async PooledValueTask<ConnectionStatus> HandleRequest(RequestBuilder builder, bool dataRemaining)
     {
-        using var request = builder.Connection(Server, Connection, EndPoint, Connection.GetAddress(), ClientCertificate).Build();
+        using var request = builder.Connection(Server, Connection, Stream, EndPoint, Connection.GetAddress(), ClientCertificate).Build();
 
         KeepAlive ??= request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? request.ProtocolType == HttpProtocol.Http11;
 
