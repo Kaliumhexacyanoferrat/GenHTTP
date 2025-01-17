@@ -153,7 +153,9 @@ public abstract class ServerBuilder : IServerBuilder
             }
             else
             {
-                endpoints.Add(new EndPointConfiguration(IPAddress.Any, _Port, null, false));
+                // we cannot bind to both IPv6 and IPv4 on linux
+                // listening to IPv6 will also listen to IPv4 due to dual-stack
+                endpoints.Add(new EndPointConfiguration(IPAddress.IPv6Any, _Port, null, false));
             }
         }
 
