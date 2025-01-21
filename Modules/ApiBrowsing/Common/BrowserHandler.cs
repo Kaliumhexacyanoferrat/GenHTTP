@@ -43,7 +43,7 @@ public sealed class BrowserHandler: IHandler
     {
         if (!request.HasType(RequestMethod.Get, RequestMethod.Head))
         {
-            throw new ProviderException(ResponseStatus.MethodNotAllowed, "Only GET requests are allowed by this handler", (b) => b.Header("Allow", "GET"));
+            throw new ProviderException(ResponseStatus.MethodNotAllowed, "Only GET requests are allowed by this handler", b => b.Header("Allow", "GET"));
         }
 
         if (request.Target.Ended)

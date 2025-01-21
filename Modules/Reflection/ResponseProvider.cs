@@ -31,7 +31,7 @@ public class ResponseProvider
 
     #region Functionality
 
-    public async ValueTask<IResponse?> GetResponseAsync(IRequest request, IHandler handler, Operation operation, object? result, Action<IResponseBuilder>? adjustments = null)
+    public async ValueTask<IResponse?> GetResponseAsync(IRequest request, Operation operation, object? result, Action<IResponseBuilder>? adjustments = null)
     {
         // no result = 204
         if (result is null)
@@ -46,7 +46,7 @@ public class ResponseProvider
         {
             var wrapped = (IResultWrapper)result;
 
-            return await GetResponseAsync(request, handler, operation, wrapped.Payload, b => wrapped.Apply(b));
+            return await GetResponseAsync(request, operation, wrapped.Payload, b => wrapped.Apply(b));
         }
 
         return operation.Result.Sink switch

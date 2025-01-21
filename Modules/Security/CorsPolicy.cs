@@ -15,18 +15,11 @@ public static class CorsPolicy
     /// </param>
     public static CorsPolicyBuilder Permissive(bool allowAuthorization = true)
         => new CorsPolicyBuilder().Default(
-            new OriginPolicy(
-                null,
-                allowAuthorization
-                    ? new List<string>
-                    {
-                        "*",
-                        "Authorization"
-                    }
-                    : null,
-                null,
-                true,
-                86400));
+            new OriginPolicy(null,
+                             allowAuthorization ? [ "*", "Authorization" ] : null,
+                             null,
+                             true,
+                             86400));
 
     /// <summary>
     /// Creates a policy that denies access to resources by browsers.
@@ -35,4 +28,5 @@ public static class CorsPolicy
     /// You may add more permissive policies for specific origins.
     /// </remarks>
     public static CorsPolicyBuilder Restrictive() => new();
+
 }

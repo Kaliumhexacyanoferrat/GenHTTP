@@ -6,7 +6,7 @@ namespace GenHTTP.Modules.Security.Cors;
 
 public sealed class CorsPolicyHandler : IConcern
 {
-    public const string ALLOW_ANY = "*";
+    public const string AllowAny = "*";
 
     #region Get-/Setters
 
@@ -85,7 +85,7 @@ public sealed class CorsPolicyHandler : IConcern
 
         response.Headers["Access-Control-Max-Age"] = policy.MaxAge.ToString();
 
-        if (origin != ALLOW_ANY)
+        if (origin != AllowAny)
         {
             response.Headers["Vary"] = "Origin";
         }
@@ -103,14 +103,14 @@ public sealed class CorsPolicyHandler : IConcern
             }
         }
 
-        return (origin ?? ALLOW_ANY, DefaultPolicy);
+        return (origin ?? AllowAny, DefaultPolicy);
     }
 
     private static string GetListOrWildcard(List<string>? values)
-        => values is not null ? string.Join(", ", values) : ALLOW_ANY;
+        => values is not null ? string.Join(", ", values) : AllowAny;
 
     private static string GetListOrWildcard(List<FlexibleRequestMethod>? values)
-        => values is not null ? string.Join(", ", values.Select(v => v.RawMethod.ToUpper())) : ALLOW_ANY;
+        => values is not null ? string.Join(", ", values.Select(v => v.RawMethod.ToUpper())) : AllowAny;
 
     private static bool HasValue<T>(List<T>? list) => list is null || list.Count > 0;
 

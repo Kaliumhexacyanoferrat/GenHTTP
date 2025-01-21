@@ -33,7 +33,7 @@ public static class Adapter
     /// <param name="handler">The handler to be registered</param>
     /// <param name="companion">An object that will be informed about handled requests and any error</param>
     public static void Map(this WebApplication app, string path, IHandler handler, IServerCompanion? companion = null)
-        => app.Map(path + "/{*any}", async (context) => await Bridge.MapAsync(context, handler, companion: companion, registeredPath: path));
+        => app.Map(path + "/{*any}", async context => await Bridge.MapAsync(context, handler, companion: companion, registeredPath: path));
 
     /// <summary>
     /// Registers the given handler to respond to any request.
@@ -42,7 +42,7 @@ public static class Adapter
     /// <param name="handler">The handler to be registered</param>
     /// <param name="server">The server instance that would like to execute requests</param>
     public static void Run(this IApplicationBuilder app, IHandler handler, IServer server)
-        => app.Run(async (context) => await Bridge.MapAsync(context, handler, server));
+        => app.Run(async context => await Bridge.MapAsync(context, handler, server));
 
     /// <summary>
     /// Enables default features on the given handler. This should be used on the

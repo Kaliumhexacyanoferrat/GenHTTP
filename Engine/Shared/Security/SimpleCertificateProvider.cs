@@ -17,7 +17,7 @@ public sealed class SimpleCertificateProvider : ICertificateProvider
 
     #region Get-/Setters
 
-    internal X509Certificate2 Certificate { get; }
+    public X509Certificate2 Certificate { get; }
 
     #endregion
 

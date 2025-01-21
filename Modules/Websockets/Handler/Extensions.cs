@@ -18,7 +18,7 @@ internal static class Extensions
             body = reader.ReadToEnd();
         }
 
-        var mapped = new WebSocketHttpRequest()
+        var mapped = new WebSocketHttpRequest
         {
             Method = request.Method.RawMethod,
             Path = request.Target.Path.ToString(true),

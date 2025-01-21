@@ -21,19 +21,19 @@ public sealed class DataTests
 
     [TestMethod]
     [MultiEngineTest]
-    public Task TestString(TestEngine engine) => TestAsync(engine, async (c) => await c.DataAsync("my string"), "my string");
+    public Task TestString(TestEngine engine) => TestAsync(engine, async c => await c.DataAsync("my string"), "my string");
 
     [TestMethod]
     [MultiEngineTest]
-    public Task TestInt(TestEngine engine) => TestAsync(engine, async (c) => await c.DataAsync(42), "42");
+    public Task TestInt(TestEngine engine) => TestAsync(engine, async c => await c.DataAsync(42), "42");
 
     [TestMethod]
     [MultiEngineTest]
-    public Task TestDate(TestEngine engine) => TestAsync(engine, async (c) => await c.DataAsync(DateOnly.FromDayNumber(8445)), "0024-02-15");
+    public Task TestDate(TestEngine engine) => TestAsync(engine, async c => await c.DataAsync(DateOnly.FromDayNumber(8445)), "0024-02-15");
 
     [TestMethod]
     [MultiEngineTest]
-    public Task TestComplex(TestEngine engine) => TestAsync(engine, async (c) => await c.DataAsync(new MyType("1", 2)), "{\"one\":\"1\",\"two\":2}");
+    public Task TestComplex(TestEngine engine) => TestAsync(engine, async c => await c.DataAsync(new MyType("1", 2)), "{\"one\":\"1\",\"two\":2}");
 
     private static async Task TestAsync(TestEngine engine, Func<IEventConnection, ValueTask> generator, string expected)
     {

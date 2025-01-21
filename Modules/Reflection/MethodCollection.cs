@@ -16,7 +16,7 @@ public sealed class MethodCollection : IHandler
 
     public MethodCollection(IEnumerable<MethodHandler> methods)
     {
-        Methods = new(methods);
+        Methods = [..methods];
     }
 
     #endregion
@@ -67,7 +67,7 @@ public sealed class MethodCollection : IHandler
 
     private List<MethodHandler> FindProviders(string path, FlexibleRequestMethod requestedMethod, out HashSet<FlexibleRequestMethod> otherMethods)
     {
-        otherMethods = new HashSet<FlexibleRequestMethod>();
+        otherMethods = [];
 
         var result = new List<MethodHandler>(2);
 

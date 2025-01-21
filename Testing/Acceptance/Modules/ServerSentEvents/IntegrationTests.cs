@@ -16,7 +16,7 @@ public sealed class IntegrationTests
     {
         var source = EventSource.Create()
                                 .Formatting(Formatting.Empty())
-                                .Generator(async (c) => await c.DataAsync(DateOnly.MaxValue));
+                                .Generator(async c => await c.DataAsync(DateOnly.MaxValue));
 
         await using var host = await TestHost.RunAsync(source, engine: engine);
 
@@ -28,6 +28,6 @@ public sealed class IntegrationTests
     }
 
     [TestMethod]
-    public void TestConcernChaining() => Chain.Works(EventSource.Create().Generator((_) => new()));
+    public void TestConcernChaining() => Chain.Works(EventSource.Create().Generator(_ => new()));
 
 }

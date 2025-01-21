@@ -116,10 +116,10 @@ internal sealed class ClientHandler
 
             var parser = new RequestParser(Configuration);
 
-            RequestBuilder? request;
-
             try
             {
+                RequestBuilder? request;
+
                 while (Server.Running && (request = await parser.TryParseAsync(buffer)) is not null)
                 {
                     var status = await HandleRequest(request, !buffer.ReadRequired);

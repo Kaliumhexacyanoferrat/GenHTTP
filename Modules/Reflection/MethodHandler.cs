@@ -74,7 +74,7 @@ public sealed class MethodHandler : IHandler
 
         var result = Invoke(arguments.Values.ToArray());
 
-        return await ResponseProvider.GetResponseAsync(request, this, Operation, await UnwrapAsync(result), null);
+        return await ResponseProvider.GetResponseAsync(request, Operation, await UnwrapAsync(result), null);
     }
 
     private async ValueTask<IReadOnlyDictionary<string, object?>> GetArguments(IRequest request)
@@ -136,7 +136,7 @@ public sealed class MethodHandler : IHandler
             {
                 if (await interceptor.InterceptAsync(request, Operation, arguments) is IResultWrapper result)
                 {
-                    return await ResponseProvider.GetResponseAsync(request, this, Operation, result.Payload, (r) => result.Apply(r));
+                    return await ResponseProvider.GetResponseAsync(request, Operation, result.Payload, r => result.Apply(r));
                 }
             }
         }

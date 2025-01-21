@@ -2,7 +2,4 @@
 
 namespace GenHTTP.Engine.Kestrel.Hosting;
 
-public sealed class KestrelEndpoints : List<IEndPoint>, IEndPointCollection
-{
-
-}
+public sealed class KestrelEndpoints : List<IEndPoint>, IEndPointCollection;

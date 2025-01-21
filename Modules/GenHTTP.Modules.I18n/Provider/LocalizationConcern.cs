@@ -10,10 +10,10 @@ public sealed class LocalizationConcern : IConcern
 
     public IHandler Content { get; }
 
-    private readonly CultureInfo _defaultCulture;
-    private readonly CultureSelectorCombinedAsyncDelegate _cultureSelector;
-    private readonly CultureFilterAsyncDelegate _cultureFilter;
-    private readonly AsyncOrSyncSetter[] _cultureSetters;
+    private readonly CultureInfo _DefaultCulture;
+    private readonly CultureSelectorCombinedAsyncDelegate _CultureSelector;
+    private readonly CultureFilterAsyncDelegate _CultureFilter;
+    private readonly AsyncOrSyncSetter[] _CultureSetters;
 
     #endregion
 
@@ -29,11 +29,11 @@ public sealed class LocalizationConcern : IConcern
     {
         Content = content;
 
-        _defaultCulture = defaultCulture;
-        _cultureSelector = cultureSelector;
-        _cultureFilter = cultureFilter;
+        _DefaultCulture = defaultCulture;
+        _CultureSelector = cultureSelector;
+        _CultureFilter = cultureFilter;
 
-        _cultureSetters = cultureSetters;
+        _CultureSetters = cultureSetters;
     }
 
     #endregion
@@ -44,9 +44,9 @@ public sealed class LocalizationConcern : IConcern
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var culture = await ResolveCultureInfoAsync(request) ?? _defaultCulture;
+        var culture = await ResolveCultureInfoAsync(request) ?? _DefaultCulture;
 
-        foreach(var _cultureSetter in _cultureSetters)
+        foreach(var _cultureSetter in _CultureSetters)
         {
             _cultureSetter.SyncSetter?.Invoke(request, culture);
 
@@ -73,9 +73,9 @@ public sealed class LocalizationConcern : IConcern
 
     private async ValueTask<CultureInfo?> ResolveCultureInfoAsync(IRequest request)
     {
-        await foreach (var candidate in _cultureSelector(request))
+        await foreach (var candidate in _CultureSelector(request))
         {
-            if (await _cultureFilter(request, candidate))
+            if (await _CultureFilter(request, candidate))
             {
                 return candidate;
             }

@@ -11,8 +11,8 @@ public class InitializerTest
     public void InitializeAll()
     {
         WS.Websocket.Create()
-          .OnOpen((s) => { })
-          .OnClose((s) => { })
+          .OnOpen(s => { })
+          .OnClose(s => { })
           .OnPing((s, b) => { s.SendPong(b); })
           .OnPong((s, b) => { })
           .OnMessage((s, x) => { })
