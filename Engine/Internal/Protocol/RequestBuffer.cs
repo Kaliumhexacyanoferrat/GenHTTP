@@ -3,8 +3,6 @@ using System.IO.Pipelines;
 
 using GenHTTP.Engine.Shared.Infrastructure;
 
-using PooledAwait;
-
 namespace GenHTTP.Engine.Internal.Protocol;
 
 /// <summary>
@@ -50,7 +48,7 @@ internal sealed class RequestBuffer : IDisposable
 
     #region Functionality
 
-    internal async PooledValueTask<long?> ReadAsync(bool force = false)
+    internal async ValueTask<long?> ReadAsync(bool force = false)
     {
         if (ReadRequired || force)
         {

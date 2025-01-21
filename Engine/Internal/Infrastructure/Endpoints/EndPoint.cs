@@ -1,10 +1,11 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
+
 using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Engine.Internal.Protocol;
 using GenHTTP.Engine.Shared.Infrastructure;
-using PooledAwait;
 
 namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
 
@@ -95,9 +96,9 @@ internal abstract class EndPoint : IEndPoint
         Task.Run(() => Accept(client));
     }
 
-    protected abstract PooledValueTask Accept(Socket client);
+    protected abstract ValueTask Accept(Socket client);
 
-    protected PooledValueTask Handle(Socket client, Stream inputStream, X509Certificate? clientCertificate = null)
+    protected ValueTask Handle(Socket client, Stream inputStream, X509Certificate? clientCertificate = null)
     {
         client.NoDelay = true;
 

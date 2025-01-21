@@ -2,8 +2,6 @@
 
 using GenHTTP.Api.Protocol;
 
-using PooledAwait;
-
 namespace GenHTTP.Engine.Internal.Protocol.Parser;
 
 internal sealed class RequestScanner
@@ -21,7 +19,7 @@ internal sealed class RequestScanner
 
     internal ScannerMode Mode { get; set; }
 
-    internal async PooledValueTask<bool> Next(RequestBuffer buffer, RequestToken expectedToken, bool allowNone = false, bool includeWhitespace = false)
+    internal async ValueTask<bool> Next(RequestBuffer buffer, RequestToken expectedToken, bool allowNone = false, bool includeWhitespace = false)
     {
         var read = await Next(buffer, false, includeWhitespace);
 
@@ -38,7 +36,7 @@ internal sealed class RequestScanner
         return true;
     }
 
-    internal async PooledValueTask<RequestToken> Next(RequestBuffer buffer, bool forceRead = false, bool includeWhitespace = false)
+    internal async ValueTask<RequestToken> Next(RequestBuffer buffer, bool forceRead = false, bool includeWhitespace = false)
     {
         // ensure we have data to be scanned
         if (await Fill(buffer, forceRead))
@@ -185,7 +183,7 @@ internal sealed class RequestScanner
         return false;
     }
 
-    private static async PooledValueTask<bool> Fill(RequestBuffer buffer, bool force = false)
+    private static async ValueTask<bool> Fill(RequestBuffer buffer, bool force = false)
     {
         if (buffer.ReadRequired || force)
         {
@@ -194,4 +192,5 @@ internal sealed class RequestScanner
 
         return !buffer.Data.IsEmpty;
     }
+
 }
