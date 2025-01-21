@@ -17,17 +17,11 @@ internal abstract class EndPoint : IEndPoint
 
     protected NetworkConfiguration Configuration { get; }
 
-    private IPEndPoint Endpoint { get; }
-
     private Task? Task { get; set; }
 
     private Socket? Socket { get; set; }
 
-    #endregion
-
-    #region Basic Information
-
-    public IPAddress IPAddress { get; }
+    public IReadOnlyList<IPAddress>? Addresses { get; }
 
     public ushort Port { get; }
 
@@ -37,15 +31,14 @@ internal abstract class EndPoint : IEndPoint
 
     #region Initialization
 
-    protected EndPoint(IServer server, IPEndPoint endPoint, NetworkConfiguration configuration)
+    protected EndPoint(IServer server, IReadOnlyList<IPAddress>? addresses, ushort port, NetworkConfiguration configuration)
     {
         Server = server;
 
-        Endpoint = endPoint;
         Configuration = configuration;
 
-        IPAddress = endPoint.Address;
-        Port = (ushort)endPoint.Port;
+        Addresses = addresses;
+        Port = port;
     }
 
     #endregion
@@ -54,18 +47,24 @@ internal abstract class EndPoint : IEndPoint
 
     public void Start()
     {
+        var bindings = Addresses ?? [ IPAddress.IPv6Any ];
+
         try
         {
-            Socket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            Socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
 
             Socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
 
-            Socket.Bind(Endpoint);
+            foreach (var address in bindings)
+            {
+                Socket.Bind(new IPEndPoint(address, Port));
+            }
+
             Socket.Listen(Configuration.Backlog);
         }
         catch (Exception e)
         {
-            throw new BindingException($"Failed to bind to {Endpoint}.", e);
+            throw new BindingException($"Failed to bind to on [ {string.Join(", ", bindings)} ] port {Port}.", e);
         }
 
         Task = Task.Run(Listen);

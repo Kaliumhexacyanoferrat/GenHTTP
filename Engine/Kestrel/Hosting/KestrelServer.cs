@@ -55,7 +55,7 @@ internal sealed class KestrelServer : IServer
 
         var endpoints = new KestrelEndpoints();
 
-        endpoints.AddRange(configuration.EndPoints.Select(e => new KestrelEndpoint(e.Address, e.Port, e.Security is not null)));
+        endpoints.AddRange(configuration.EndPoints.Select(e => new KestrelEndpoint(e.Addresses, e.Port, e.Security is not null)));
 
         EndPoints = endpoints;
 
@@ -104,31 +104,51 @@ internal sealed class KestrelServer : IServer
 
             foreach (var endpoint in Configuration.EndPoints)
             {
-                if (endpoint.Security != null)
+                if (endpoint.Addresses != null)
                 {
-                    options.Listen(endpoint.Address, endpoint.Port, listenOptions =>
+                    foreach (var address in endpoint.Addresses)
                     {
-                        listenOptions.Protocols = (endpoint.EnableQuic) ? HttpProtocols.Http1AndHttp2AndHttp3 : HttpProtocols.Http1AndHttp2;
-                        listenOptions.UseHttps(httpsOptions =>
+                        if (endpoint.Security != null)
                         {
-                            httpsOptions.SslProtocols = endpoint.Security.Protocols;
-                            httpsOptions.ServerCertificateSelector = (_, hostName) => endpoint.Security.CertificateProvider.Provide(hostName);
-
-                            var validator = endpoint.Security.CertificateValidator;
-
-                            if (validator != null)
-                            {
-                                httpsOptions.ClientCertificateMode = validator.RequireCertificate ? ClientCertificateMode.RequireCertificate : ClientCertificateMode.AllowCertificate;
-                                httpsOptions.ClientCertificateValidation = validator.Validate;
-                                httpsOptions.CheckCertificateRevocation = (validator.RevocationCheck != X509RevocationMode.NoCheck);
-                            }
-                        });
-                    });
+                            options.Listen(address, endpoint.Port, listenOptions => Secure(listenOptions, endpoint, endpoint.Security));
+                        }
+                        else
+                        {
+                            options.Listen(address, endpoint.Port);
+                        }
+                    }
                 }
                 else
                 {
-                    options.Listen(endpoint.Address, endpoint.Port);
+                    if (endpoint.Security != null)
+                    {
+                        options.ListenAnyIP(endpoint.Port,listenOptions => Secure(listenOptions, endpoint, endpoint.Security));
+                    }
+                    else
+                    {
+                        options.ListenAnyIP(endpoint.Port);
+                    }
                 }
+            }
+        });
+    }
+
+    private static void Secure(ListenOptions options, EndPointConfiguration endpoint, SecurityConfiguration security)
+    {
+        options.Protocols = (endpoint.EnableQuic) ? HttpProtocols.Http1AndHttp2AndHttp3 : HttpProtocols.Http1AndHttp2;
+
+        options.UseHttps(httpsOptions =>
+        {
+            httpsOptions.SslProtocols = security.Protocols;
+            httpsOptions.ServerCertificateSelector = (_, hostName) => security.CertificateProvider.Provide(hostName);
+
+            var validator = security.CertificateValidator;
+
+            if (validator != null)
+            {
+                httpsOptions.ClientCertificateMode = validator.RequireCertificate ? ClientCertificateMode.RequireCertificate : ClientCertificateMode.AllowCertificate;
+                httpsOptions.ClientCertificateValidation = validator.Validate;
+                httpsOptions.CheckCertificateRevocation = (validator.RevocationCheck != X509RevocationMode.NoCheck);
             }
         });
     }

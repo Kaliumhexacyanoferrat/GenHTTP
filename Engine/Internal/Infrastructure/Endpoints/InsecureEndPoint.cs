@@ -15,8 +15,8 @@ internal sealed class InsecureEndPoint : EndPoint
 
     #region Initialization
 
-    internal InsecureEndPoint(IServer server, IPEndPoint endPoint, NetworkConfiguration configuration)
-        : base(server, endPoint, configuration)
+    internal InsecureEndPoint(IServer server, IReadOnlyList<IPAddress>? addresses, ushort port, NetworkConfiguration configuration)
+        : base(server, addresses, port, configuration)
     {
 
     }

@@ -87,9 +87,11 @@ public abstract class ServerBuilder : IServerBuilder
         return this;
     }
 
+    // todo: overloads for multiple adresses and no adresses
+
     public IServerBuilder Bind(IPAddress address, ushort port)
     {
-        _EndPoints.Add(new EndPointConfiguration(address, port, null, false));
+        _EndPoints.Add(new EndPointConfiguration([address], port, null, false));
         return this;
     }
 
@@ -97,7 +99,7 @@ public abstract class ServerBuilder : IServerBuilder
 
     public IServerBuilder Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false)
     {
-        _EndPoints.Add(new EndPointConfiguration(address, port, new SecurityConfiguration(certificateProvider, protocols, certificateValidator), enableQuic));
+        _EndPoints.Add(new EndPointConfiguration([address], port, new SecurityConfiguration(certificateProvider, protocols, certificateValidator), enableQuic));
         return this;
     }
 
@@ -146,17 +148,7 @@ public abstract class ServerBuilder : IServerBuilder
 
         if (endpoints.Count == 0)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                endpoints.Add(new EndPointConfiguration(IPAddress.Any, _Port, null, false));
-                endpoints.Add(new EndPointConfiguration(IPAddress.IPv6Any, _Port, null, false));
-            }
-            else
-            {
-                // we cannot bind to both IPv6 and IPv4 on linux
-                // listening to IPv6 will also listen to IPv4 due to dual-stack
-                endpoints.Add(new EndPointConfiguration(IPAddress.IPv6Any, _Port, null, false));
-            }
+            endpoints.Add(new EndPointConfiguration(null, _Port, null, false));
         }
 
         var config = new ServerConfiguration(_Development, endpoints, network);
