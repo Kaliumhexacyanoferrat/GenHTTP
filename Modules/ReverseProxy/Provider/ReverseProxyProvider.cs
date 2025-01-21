@@ -1,9 +1,10 @@
 ﻿using System.Globalization;
-using System.Net;
 using System.Net.Http.Headers;
 using System.Web;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Basics;
 
 namespace GenHTTP.Modules.ReverseProxy.Provider;
@@ -40,21 +41,10 @@ public sealed class ReverseProxyProvider : IHandler
 
     #region Initialization
 
-    public ReverseProxyProvider(string upstream, TimeSpan connectTimeout, TimeSpan readTimeout)
+    public ReverseProxyProvider(string upstream, HttpClient client)
     {
         Upstream = upstream;
-
-        var handler = new SocketsHttpHandler
-        {
-            AllowAutoRedirect = false,
-            AutomaticDecompression = DecompressionMethods.None,
-            ConnectTimeout = connectTimeout
-        };
-
-        Client = new HttpClient(handler)
-        {
-            Timeout = readTimeout
-        };
+        Client = client;
     }
 
     #endregion

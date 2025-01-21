@@ -287,6 +287,21 @@ public sealed class ReverseProxyTests
         Assert.AreEqual("br", response.GetContentHeader("Content-Encoding"));
     }
 
+    [TestMethod]
+    public void TestAdjustments()
+    {
+        var i = 0;
+
+        var proxy = Proxy.Create()
+                         .Upstream("https://google.com")
+                         .AdjustHandler(h => i++)
+                         .AdjustClient(c => i++);
+
+        proxy.Build();
+
+        Assert.AreEqual(2, i);
+    }
+
     #region Supporting data structures
 
     private class TestSetup : IAsyncDisposable
