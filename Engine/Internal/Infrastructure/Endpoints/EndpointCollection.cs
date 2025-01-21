@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-using GenHTTP.Api.Infrastructure;
+﻿using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Shared.Infrastructure;
 
