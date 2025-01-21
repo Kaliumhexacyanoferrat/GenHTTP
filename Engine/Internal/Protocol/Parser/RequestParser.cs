@@ -3,8 +3,6 @@
 using GenHTTP.Engine.Internal.Protocol.Parser.Conversion;
 using GenHTTP.Engine.Shared.Infrastructure;
 
-using PooledAwait;
-
 namespace GenHTTP.Engine.Internal.Protocol.Parser;
 
 /// <summary>
@@ -43,7 +41,7 @@ internal sealed class RequestParser
 
     #region Functionality
 
-    internal async PooledValueTask<RequestBuilder?> TryParseAsync(RequestBuffer buffer)
+    internal async ValueTask<RequestBuilder?> TryParseAsync(RequestBuffer buffer)
     {
         if (!await Type(buffer))
         {
@@ -69,7 +67,7 @@ internal sealed class RequestParser
         return result;
     }
 
-    private async PooledValueTask<bool> Type(RequestBuffer buffer)
+    private async ValueTask<bool> Type(RequestBuffer buffer)
     {
         Scanner.Mode = ScannerMode.Words;
 
@@ -78,10 +76,11 @@ internal sealed class RequestParser
             Request.Type(MethodConverter.ToRequestMethod(Scanner.Value));
             return true;
         }
+
         return false;
     }
 
-    private async PooledValueTask Path(RequestBuffer buffer)
+    private async ValueTask Path(RequestBuffer buffer)
     {
         Scanner.Mode = ScannerMode.Path;
 
@@ -115,7 +114,7 @@ internal sealed class RequestParser
         }
     }
 
-    private async PooledValueTask Protocol(RequestBuffer buffer)
+    private async ValueTask Protocol(RequestBuffer buffer)
     {
         Scanner.Mode = ScannerMode.Words;
 
@@ -125,7 +124,7 @@ internal sealed class RequestParser
         }
     }
 
-    private async PooledValueTask Headers(RequestBuffer buffer)
+    private async ValueTask Headers(RequestBuffer buffer)
     {
         Scanner.Mode = ScannerMode.HeaderKey;
 
@@ -144,7 +143,7 @@ internal sealed class RequestParser
         }
     }
 
-    private async PooledValueTask Body(RequestBuffer buffer)
+    private async ValueTask Body(RequestBuffer buffer)
     {
         if (Request.Headers.TryGetValue("Content-Length", out var bodyLength))
         {

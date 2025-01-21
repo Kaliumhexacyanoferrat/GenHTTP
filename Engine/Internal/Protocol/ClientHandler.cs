@@ -2,13 +2,13 @@
 using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
+
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Engine.Internal.Protocol.Parser;
 using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Types;
-using PooledAwait;
 
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
@@ -67,7 +67,7 @@ internal sealed class ClientHandler
 
     #region Functionality
 
-    internal async PooledValueTask Run()
+    internal async ValueTask Run()
     {
         var status = ConnectionStatus.Close;
 
@@ -108,7 +108,7 @@ internal sealed class ClientHandler
         }
     }
 
-    private async PooledValueTask<ConnectionStatus> HandlePipe(PipeReader reader)
+    private async ValueTask<ConnectionStatus> HandlePipe(PipeReader reader)
     {
         try
         {
@@ -151,7 +151,7 @@ internal sealed class ClientHandler
         return ConnectionStatus.Close;
     }
 
-    private async PooledValueTask<ConnectionStatus> HandleRequest(RequestBuilder builder, bool dataRemaining)
+    private async ValueTask<ConnectionStatus> HandleRequest(RequestBuilder builder, bool dataRemaining)
     {
         using var request = builder.Connection(Server, Connection, Stream, EndPoint, Connection.GetAddress(), ClientCertificate).Build();
 
@@ -171,7 +171,7 @@ internal sealed class ClientHandler
         return (active && keepAlive) ? ConnectionStatus.KeepAlive : ConnectionStatus.Close;
     }
 
-    private async PooledValueTask SendError(Exception e, ResponseStatus status)
+    private async ValueTask SendError(Exception e, ResponseStatus status)
     {
         try
         {
@@ -184,7 +184,8 @@ internal sealed class ClientHandler
             await ResponseHandler.Handle(null, response, false, false);
         }
         catch
-        { /* no recovery here */
+        {
+            /* no recovery here */
         }
     }
 

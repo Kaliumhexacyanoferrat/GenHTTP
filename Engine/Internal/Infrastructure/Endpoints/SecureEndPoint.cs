@@ -9,8 +9,6 @@ using GenHTTP.Engine.Internal.Protocol;
 using GenHTTP.Engine.Internal.Utilities;
 using GenHTTP.Engine.Shared.Infrastructure;
 
-using PooledAwait;
-
 namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
 
 internal sealed class SecureEndPoint : EndPoint
@@ -53,7 +51,7 @@ internal sealed class SecureEndPoint : EndPoint
 
     #region Functionality
 
-    protected override async PooledValueTask Accept(Socket client)
+    protected override async ValueTask Accept(Socket client)
     {
         var stream = await TryAuthenticate(client);
 

@@ -6,8 +6,6 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Engine.Internal.Utilities;
 using GenHTTP.Engine.Shared.Infrastructure;
 
-using PooledAwait;
-
 namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
 
 internal sealed class InsecureEndPoint : EndPoint
@@ -31,7 +29,7 @@ internal sealed class InsecureEndPoint : EndPoint
 
     #region Functionality
 
-    protected override PooledValueTask Accept(Socket client) => Handle(client, new PoolBufferedStream(new NetworkStream(client), Configuration.TransferBufferSize));
+    protected override ValueTask Accept(Socket client) => Handle(client, new PoolBufferedStream(new NetworkStream(client), Configuration.TransferBufferSize));
 
     #endregion
 
