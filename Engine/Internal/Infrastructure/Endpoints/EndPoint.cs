@@ -61,7 +61,7 @@ internal abstract class EndPoint : IEndPoint
         }
         catch (Exception e)
         {
-            throw new BindingException($"Failed to bind to on {address} port {Port}.", e);
+            throw new BindingException($"Failed to bind to {address} on port {Port}.", e);
         }
 
         Task = Task.Run(Listen);
