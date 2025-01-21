@@ -8,8 +8,10 @@ namespace GenHTTP.Api.Infrastructure;
 public interface IEndPoint : IDisposable
 {
 
-    // todo
-    IReadOnlyList<IPAddress>? Addresses { get; }
+    /// <summary>
+    /// The IP address the endpoint is bound to.
+    /// </summary>
+    IPAddress? Address { get; }
 
     /// <summary>
     /// The port the endpoint is listening on.

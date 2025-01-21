@@ -53,7 +53,7 @@ public sealed class InspectionConcern : IConcern
                     Endpoints = server.EndPoints.Select(e => new
                     {
                         Port = e.Port,
-                        IPAddress = e.Addresses?.Select(a => a.ToString()),
+                        IPAddress = e.Address?.ToString(),
                         Secure = e.Secure,
                         RequestSource = e == request.EndPoint
                     })

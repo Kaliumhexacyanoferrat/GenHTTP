@@ -28,8 +28,8 @@ internal sealed class SecureEndPoint : EndPoint
 
     #region Initialization
 
-    internal SecureEndPoint(IServer server, IReadOnlyList<IPAddress>? addresses, ushort port, SecurityConfiguration options, NetworkConfiguration configuration)
-        : base(server, addresses, port, configuration)
+    internal SecureEndPoint(IServer server, IPAddress? address, ushort port, SecurityConfiguration options, NetworkConfiguration configuration)
+        : base(server, address, port, configuration)
     {
         Options = options;
 

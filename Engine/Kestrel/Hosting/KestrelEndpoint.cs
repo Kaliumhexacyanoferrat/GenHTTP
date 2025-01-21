@@ -8,7 +8,7 @@ public sealed class KestrelEndpoint : IEndPoint
 
     #region Get-/Setters
 
-    public IReadOnlyList<IPAddress>? Addresses { get; }
+    public IPAddress? Address { get; }
 
     public ushort Port { get; }
 
@@ -18,9 +18,9 @@ public sealed class KestrelEndpoint : IEndPoint
 
     #region Initialization
 
-    public KestrelEndpoint(IReadOnlyList<IPAddress>? addresses, ushort port, bool secure)
+    public KestrelEndpoint(IPAddress? address, ushort port, bool secure)
     {
-        Addresses = addresses;
+        Address = address;
         Port = port;
         Secure = secure;
     }

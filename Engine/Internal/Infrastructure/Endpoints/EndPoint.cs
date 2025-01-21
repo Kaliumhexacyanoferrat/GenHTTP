@@ -21,7 +21,7 @@ internal abstract class EndPoint : IEndPoint
 
     private Socket? Socket { get; set; }
 
-    public IReadOnlyList<IPAddress>? Addresses { get; }
+    public IPAddress? Address { get; }
 
     public ushort Port { get; }
 
@@ -31,13 +31,13 @@ internal abstract class EndPoint : IEndPoint
 
     #region Initialization
 
-    protected EndPoint(IServer server, IReadOnlyList<IPAddress>? addresses, ushort port, NetworkConfiguration configuration)
+    protected EndPoint(IServer server, IPAddress? address, ushort port, NetworkConfiguration configuration)
     {
         Server = server;
 
         Configuration = configuration;
 
-        Addresses = addresses;
+        Address = address;
         Port = port;
     }
 
@@ -47,7 +47,7 @@ internal abstract class EndPoint : IEndPoint
 
     public void Start()
     {
-        var bindings = Addresses ?? [ IPAddress.IPv6Any ];
+        var address = Address ?? IPAddress.IPv6Any;
 
         try
         {
@@ -55,16 +55,13 @@ internal abstract class EndPoint : IEndPoint
 
             Socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
 
-            foreach (var address in bindings)
-            {
-                Socket.Bind(new IPEndPoint(address, Port));
-            }
+            Socket.Bind(new IPEndPoint(address, Port));
 
             Socket.Listen(Configuration.Backlog);
         }
         catch (Exception e)
         {
-            throw new BindingException($"Failed to bind to on [ {string.Join(", ", bindings)} ] port {Port}.", e);
+            throw new BindingException($"Failed to bind to on {address} port {Port}.", e);
         }
 
         Task = Task.Run(Listen);
