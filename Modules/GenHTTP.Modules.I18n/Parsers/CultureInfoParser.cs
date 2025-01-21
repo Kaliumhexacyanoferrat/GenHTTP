@@ -12,9 +12,9 @@ public static class CultureInfoParser
     /// Parses the given language header (e.g. from Accept-Language) into an array of CultureInfo,
     /// sorted by their quality values in descending order. If no valid languages are found,
     /// returns an empty array.
-    /// 
+    ///
     /// Specification: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language
-    /// 
+    ///
     /// This implementation uses ArrayPool to minimize allocations.
     /// </summary>
     /// <param name="language">The language header string to parse.</param>
@@ -34,13 +34,15 @@ public static class CultureInfoParser
 
         // Count how many segments (comma-delimited)
         var count = 1;
-        for (int i = 0; i < span.Length; i++)
+
+        for (var i = 0; i < span.Length; i++)
         {
             if (span[i] == ',') count++;
         }
 
         var pool = ArrayPool<(string Language, double Quality)>.Shared;
-        (string Language, double Quality)[] rentedArray = pool.Rent(count);
+
+        var rentedArray = pool.Rent(count);
 
         try
         {
@@ -116,7 +118,7 @@ public static class CultureInfoParser
                 }
 
                 try
-                { 
+                {
                     var parsed = CultureInfo.CreateSpecificCulture(lang);
                     if (parsed.LCID != CultureInfo.InvariantCulture.LCID)
                     {

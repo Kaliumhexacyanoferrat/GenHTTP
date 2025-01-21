@@ -9,7 +9,7 @@
 /// </remarks>
 public sealed class RoutingTarget
 {
-    private static readonly List<WebPathPart> EMPTY_LIST = [];
+    private static readonly List<WebPathPart> EmptyList = [];
 
     private int _Index;
 
@@ -74,7 +74,7 @@ public sealed class RoutingTarget
     {
         var remaining = Path.Parts.Count - _Index;
 
-        var resultList = remaining > 0 ? new List<WebPathPart>(remaining) : EMPTY_LIST;
+        var resultList = remaining > 0 ? new List<WebPathPart>(remaining) : EmptyList;
 
         for (var i = _Index; i < Path.Parts.Count; i++)
         {

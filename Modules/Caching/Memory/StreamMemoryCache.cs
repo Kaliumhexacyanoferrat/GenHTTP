@@ -26,12 +26,7 @@ public sealed class StreamMemoryCache : ICache<Stream>
     {
         var entry = await _Cache.GetEntryAsync(key, variation);
 
-        if (entry != null)
-        {
-            return new MemoryStream(entry);
-        }
-
-        return null;
+        return (entry != null) ? new MemoryStream(entry) : null;
     }
 
     public async ValueTask StoreAsync(string key, string variation, Stream? entry)

@@ -656,6 +656,7 @@ public class FlexibleContentType
             {
                 return Get(contentType, span[(charsetIndex + 1)..].Trim().ToString());
             }
+
             return Get(contentType);
         }
         return Get(header);

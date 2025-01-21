@@ -35,10 +35,7 @@ internal sealed class SecureEndPoint : EndPoint
         {
             EnabledSslProtocols = Options.Protocols,
             AllowRenegotiation = true,
-            ApplicationProtocols = new List<SslApplicationProtocol>
-            {
-                SslApplicationProtocol.Http11
-            },
+            ApplicationProtocols = [ SslApplicationProtocol.Http11 ],
             EncryptionPolicy = EncryptionPolicy.RequireEncryption,
             ServerCertificateSelectionCallback = SelectCertificate,
             ClientCertificateRequired = Options.CertificateValidator?.RequireCertificate ?? false,

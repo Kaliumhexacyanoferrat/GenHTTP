@@ -101,7 +101,7 @@ public static class StreamExtensions
 
                     try
                     {
-                        var read = 0;
+                        int read;
 
                         do
                         {

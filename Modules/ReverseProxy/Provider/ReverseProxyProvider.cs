@@ -242,10 +242,9 @@ public sealed class ReverseProxyProvider : IHandler
     private static string GetForwardings(IRequest request)
     {
         return string.Join(", ", request.Forwardings
-                                        .Union(new[]
-                                        {
+                                        .Union([
                                             new Forwarding(request.LocalClient.IPAddress, request.LocalClient.Host, request.LocalClient.Protocol)
-                                        })
+                                        ])
                                         .Select(GetForwarding));
     }
 

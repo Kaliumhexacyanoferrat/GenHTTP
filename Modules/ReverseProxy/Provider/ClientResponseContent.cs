@@ -3,22 +3,13 @@ using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.ReverseProxy.Provider;
 
-internal sealed class ClientResponseContent : IResponseContent, IDisposable
+internal sealed class ClientResponseContent(HttpResponseMessage message) : IResponseContent, IDisposable
 {
     private bool _Disposed;
 
-    #region Initialization
-
-    public ClientResponseContent(HttpResponseMessage message)
-    {
-        Message = message;
-    }
-
-    #endregion
-
     #region Get/Setters
 
-    private HttpResponseMessage Message { get; }
+    private HttpResponseMessage Message { get; } = message;
 
     public ulong? Length
     {

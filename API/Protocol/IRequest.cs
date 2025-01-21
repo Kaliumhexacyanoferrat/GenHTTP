@@ -97,7 +97,7 @@ public interface IRequest : IDisposable
     string? UserAgent { get; }
 
     /// <summary>
-    /// The referrer which caused the invociation of this request, if any.
+    /// The referrer which caused the invocation of this request, if any.
     /// </summary>
     string? Referer { get; }
 

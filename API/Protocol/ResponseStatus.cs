@@ -138,7 +138,7 @@ public readonly struct FlexibleResponseStatus
 
     #region Mapping
 
-    private static readonly Dictionary<ResponseStatus, string> MAPPING = new()
+    private static readonly Dictionary<ResponseStatus, string> Mapping = new()
     {
         {
             ResponseStatus.Accepted, "Accepted"
@@ -295,7 +295,7 @@ public readonly struct FlexibleResponseStatus
         }
     };
 
-    private static readonly Dictionary<int, ResponseStatus> CODE_MAPPING = MAPPING.Keys.ToDictionary(k => (int)k, k => k);
+    private static readonly Dictionary<int, ResponseStatus> CodeMapping = Mapping.Keys.ToDictionary(k => (int)k, k => k);
 
     #endregion
 
@@ -306,7 +306,7 @@ public readonly struct FlexibleResponseStatus
         RawStatus = status;
         Phrase = phrase;
 
-        if (CODE_MAPPING.TryGetValue(status, out var known))
+        if (CodeMapping.TryGetValue(status, out var known))
         {
             KnownStatus = known;
         }
@@ -321,7 +321,7 @@ public readonly struct FlexibleResponseStatus
         KnownStatus = status;
 
         RawStatus = (int)status;
-        Phrase = MAPPING[status];
+        Phrase = Mapping[status];
     }
 
     #endregion

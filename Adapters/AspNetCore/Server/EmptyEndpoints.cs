@@ -2,7 +2,4 @@
 
 namespace GenHTTP.Adapters.AspNetCore.Server;
 
-public class EmptyEndpoints : List<IEndPoint>, IEndPointCollection
-{
-
-}
+public class EmptyEndpoints : List<IEndPoint>, IEndPointCollection;

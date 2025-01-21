@@ -6,7 +6,7 @@ namespace GenHTTP.Modules.ServerSentEvents.Handler;
 
 public sealed class EventStream : IResponseContent
 {
-    private const int ERROR_RETRY_TIMEOUT = 30_000;
+    private const int ErrorRetryTimeout = 30_000;
 
     #region Get-/Setters
 
@@ -48,7 +48,7 @@ public sealed class EventStream : IResponseContent
         {
             Request.Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, Request.Client.IPAddress, e);
 
-            await connection.RetryAsync(ERROR_RETRY_TIMEOUT);
+            await connection.RetryAsync(ErrorRetryTimeout);
         }
     }
 

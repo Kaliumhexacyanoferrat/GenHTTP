@@ -63,11 +63,11 @@ public sealed class WebsocketConnection : IWebSocketConnection, IWebsocketConnec
 
         OnOpen = (onOpen != null) ? () => onOpen(this) : () => { };
         OnClose = (onClose != null) ? () => onClose(this) : () => { };
-        OnMessage = (onMessage != null) ? (x) => onMessage(this, x) : x => { };
-        OnBinary = (onBinary != null) ? (x) => onBinary(this, x) : x => { };
-        OnPing = (onPing != null) ? (x) => onPing(this, x) : x => SendPong(x);
-        OnPong = (onPong != null) ? (x) => onPong(this, x) : x => { };
-        OnError = (onError != null) ? (x) => onError(this, x) : x => { };
+        OnMessage = (onMessage != null) ? x => onMessage(this, x) : x => { };
+        OnBinary = (onBinary != null) ? x => onBinary(this, x) : x => { };
+        OnPing = (onPing != null) ? x => onPing(this, x) : x => SendPong(x);
+        OnPong = (onPong != null) ? x => onPong(this, x) : x => { };
+        OnError = (onError != null) ? x => onError(this, x) : x => { };
     }
 
     #endregion

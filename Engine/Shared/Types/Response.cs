@@ -44,7 +44,7 @@ public sealed class Response : IResponse
 
     public ulong? ContentLength { get; set; }
 
-    public bool Upgraded { get; set; }
+    public bool Upgraded { get; init; }
 
     public IResponseContent? Content { get; set; }
 

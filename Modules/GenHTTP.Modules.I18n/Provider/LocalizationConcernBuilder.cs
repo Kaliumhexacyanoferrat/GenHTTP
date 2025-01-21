@@ -12,11 +12,11 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
 {
     #region Fields
 
-    private CultureInfo _defaultCulture = CultureInfo.CurrentUICulture;
+    private CultureInfo _DefaultCulture = CultureInfo.CurrentUICulture;
 
-    private readonly List<CultureSelectorAsyncDelegate> _cultureSelectors = [];
-    private CultureFilterAsyncDelegate _cultureFilter = (_, _) => ValueTask.FromResult(true);
-    private readonly List<AsyncOrSyncSetter> _cultureSetters = [];
+    private readonly List<CultureSelectorAsyncDelegate> _CultureSelectors = [];
+    private CultureFilterAsyncDelegate _CultureFilter = (_, _) => ValueTask.FromResult(true);
+    private readonly List<AsyncOrSyncSetter> _CultureSetters = [];
 
     #endregion
 
@@ -95,7 +95,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// <returns></returns>
     public LocalizationConcernBuilder FromRequest(CultureSelectorAsyncDelegate cultureSelector)
     {
-        _cultureSelectors.Add(cultureSelector);
+        _CultureSelectors.Add(cultureSelector);
         return this;
     }
 
@@ -145,7 +145,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// <returns></returns>
     public LocalizationConcernBuilder Supports(CultureFilterAsyncDelegate cultureFilter)
     {
-        _cultureFilter = cultureFilter;
+        _CultureFilter = cultureFilter;
         return this;
     }
 
@@ -202,7 +202,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// <returns></returns>
     public LocalizationConcernBuilder Setter(CultureSetterDelegate cultureSetter)
     {
-        _cultureSetters.Add(new(SyncSetter: cultureSetter));
+        _CultureSetters.Add(new(SyncSetter: cultureSetter));
         return this;
     }
 
@@ -213,7 +213,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// <returns></returns>
     public LocalizationConcernBuilder Setter(CultureSetterAsyncDelegate cultureSetter)
     {
-        _cultureSetters.Add(new (AsyncSetter: cultureSetter));
+        _CultureSetters.Add(new (AsyncSetter: cultureSetter));
         return this;
     }
 
@@ -228,7 +228,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// <returns></returns>
     public LocalizationConcernBuilder Default(CultureInfo culture)
     {
-        _defaultCulture = culture;
+        _DefaultCulture = culture;
         return this;
     }
 
@@ -236,22 +236,22 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
 
     public IConcern Build(IHandler content)
     {
-        if (_cultureSelectors.Count == 0)
+        if (_CultureSelectors.Count == 0)
         {
             FromHeader();
         }
 
-        if (_cultureSetters.Count == 0)
+        if (_CultureSetters.Count == 0)
         {
             Setter();
         }
 
         return new LocalizationConcern(
             content,
-            _defaultCulture,
+            _DefaultCulture,
             CultureSelector,
-            _cultureFilter,
-            [.. _cultureSetters]
+            _CultureFilter,
+            [.. _CultureSetters]
             );
     }
 
@@ -261,7 +261,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
 
     private async IAsyncEnumerable<CultureInfo> CultureSelector(IRequest request)
     {
-        foreach (var selector in _cultureSelectors)
+        foreach (var selector in _CultureSelectors)
         {
             var cultures = await selector(request);
             foreach (var culture in cultures)

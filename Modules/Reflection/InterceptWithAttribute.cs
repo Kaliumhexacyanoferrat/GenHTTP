@@ -10,7 +10,4 @@
 /// Allows to implement concerns on operation level such as authorization.
 /// </remarks>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public class InterceptWithAttribute<T> : Attribute where T : IOperationInterceptor, new()
-{
-
-}
+public class InterceptWithAttribute<T> : Attribute where T : IOperationInterceptor, new();

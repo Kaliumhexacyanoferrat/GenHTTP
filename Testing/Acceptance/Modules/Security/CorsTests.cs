@@ -97,13 +97,7 @@ public sealed class CorsTests
     public async Task TestCustom(TestEngine engine)
     {
         var policy = CorsPolicy.Restrictive()
-                               .Add("http://google.de", new List<FlexibleRequestMethod>
-                               {
-                                   new(RequestMethod.Get)
-                               }, null, new List<string>
-                               {
-                                   "Accept"
-                               }, false);
+                               .Add("http://google.de", [new(RequestMethod.Get)], null, ["Accept"], false);
 
         await using var runner = await GetRunnerAsync(policy, engine);
 

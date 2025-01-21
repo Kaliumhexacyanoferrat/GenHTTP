@@ -37,7 +37,7 @@ public sealed class EventSourceHandler : IHandler
     {
         if (request.Method.KnownMethod != RequestMethod.Get)
         {
-            throw new ProviderException(ResponseStatus.MethodNotAllowed, "Server Sent Events require a GET request to establish a connection", (b) => b.Header("Allow", "GET"));
+            throw new ProviderException(ResponseStatus.MethodNotAllowed, "Server Sent Events require a GET request to establish a connection", b => b.Header("Allow", "GET"));
         }
 
         request.Headers.TryGetValue("Last-Event-ID", out var lastId);

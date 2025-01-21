@@ -16,18 +16,7 @@ public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOn
 
     #region Get-/Setters
 
-    private KeyValuePair<TKey, TValue>[] Entries
-    {
-        get
-        {
-            if (_Entries is null)
-            {
-                _Entries = Pool.Rent(Capacity);
-            }
-
-            return _Entries!;
-        }
-    }
+    private KeyValuePair<TKey, TValue>[] Entries => _Entries ??= Pool.Rent(Capacity);
 
     private bool HasEntries => _Entries is not null;
 

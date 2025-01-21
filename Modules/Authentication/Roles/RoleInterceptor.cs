@@ -51,7 +51,7 @@ public class RoleInterceptor : IOperationInterceptor
 
             if (missing.Count > 0)
             {
-                throw new ProviderException(ResponseStatus.Forbidden, $"User is not authorized to access this endpoint.");
+                throw new ProviderException(ResponseStatus.Forbidden, "User is not authorized to access this endpoint.");
             }
         }
 

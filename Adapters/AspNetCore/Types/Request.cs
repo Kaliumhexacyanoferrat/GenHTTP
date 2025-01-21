@@ -70,7 +70,7 @@ public sealed class Request : IRequest
         get { return _Headers ??= new Headers(Context); }
     }
 
-    public Stream? Content => Context.BodyReader.AsStream(true);
+    public Stream Content => Context.BodyReader.AsStream(true);
 
     public FlexibleContentType? ContentType => (Context.ContentType != null) ? new(Context.ContentType) : null;
 
