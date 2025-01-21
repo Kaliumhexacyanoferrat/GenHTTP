@@ -2,7 +2,6 @@
 using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Adapters.AspNetCore;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
@@ -104,31 +103,48 @@ internal sealed class KestrelServer : IServer
 
             foreach (var endpoint in Configuration.EndPoints)
             {
-                if (endpoint.Security != null)
+                if (endpoint.Address != null)
                 {
-                    options.Listen(endpoint.Address, endpoint.Port, listenOptions =>
+                    if (endpoint.Security != null)
                     {
-                        listenOptions.Protocols = (endpoint.EnableQuic) ? HttpProtocols.Http1AndHttp2AndHttp3 : HttpProtocols.Http1AndHttp2;
-                        listenOptions.UseHttps(httpsOptions =>
-                        {
-                            httpsOptions.SslProtocols = endpoint.Security.Protocols;
-                            httpsOptions.ServerCertificateSelector = (_, hostName) => endpoint.Security.CertificateProvider.Provide(hostName);
-
-                            var validator = endpoint.Security.CertificateValidator;
-
-                            if (validator != null)
-                            {
-                                httpsOptions.ClientCertificateMode = validator.RequireCertificate ? ClientCertificateMode.RequireCertificate : ClientCertificateMode.AllowCertificate;
-                                httpsOptions.ClientCertificateValidation = validator.Validate;
-                                httpsOptions.CheckCertificateRevocation = (validator.RevocationCheck != X509RevocationMode.NoCheck);
-                            }
-                        });
-                    });
+                        options.Listen(endpoint.Address, endpoint.Port, listenOptions => Secure(listenOptions, endpoint, endpoint.Security));
+                    }
+                    else
+                    {
+                        options.Listen(endpoint.Address, endpoint.Port);
+                    }
                 }
                 else
                 {
-                    options.Listen(endpoint.Address, endpoint.Port);
+                    if (endpoint.Security != null)
+                    {
+                        options.ListenAnyIP(endpoint.Port, listenOptions => Secure(listenOptions, endpoint, endpoint.Security));
+                    }
+                    else
+                    {
+                        options.ListenAnyIP(endpoint.Port);
+                    }
                 }
+            }
+        });
+    }
+
+    private static void Secure(ListenOptions options, EndPointConfiguration endpoint, SecurityConfiguration security)
+    {
+        options.Protocols = (endpoint.EnableQuic) ? HttpProtocols.Http1AndHttp2AndHttp3 : HttpProtocols.Http1AndHttp2;
+
+        options.UseHttps(httpsOptions =>
+        {
+            httpsOptions.SslProtocols = security.Protocols;
+            httpsOptions.ServerCertificateSelector = (_, hostName) => security.CertificateProvider.Provide(hostName);
+
+            var validator = security.CertificateValidator;
+
+            if (validator != null)
+            {
+                httpsOptions.ClientCertificateMode = validator.RequireCertificate ? ClientCertificateMode.RequireCertificate : ClientCertificateMode.AllowCertificate;
+                httpsOptions.ClientCertificateValidation = validator.Validate;
+                httpsOptions.CheckCertificateRevocation = (validator.RevocationCheck != X509RevocationMode.NoCheck);
             }
         });
     }

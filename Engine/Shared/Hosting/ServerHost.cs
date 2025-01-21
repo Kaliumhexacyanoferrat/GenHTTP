@@ -35,19 +35,19 @@ public sealed class ServerHost : IServerHost
         return this;
     }
 
-    public IServerHost Bind(IPAddress address, ushort port)
+    public IServerHost Bind(IPAddress? address, ushort port)
     {
         _Builder.Bind(address, port);
         return this;
     }
 
-    public IServerHost Bind(IPAddress address, ushort port, X509Certificate2 certificate, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false)
+    public IServerHost Bind(IPAddress? address, ushort port, X509Certificate2 certificate, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false)
     {
         _Builder.Bind(address, port, certificate, protocols, certificateValidator, enableQuic);
         return this;
     }
 
-    public IServerHost Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false)
+    public IServerHost Bind(IPAddress? address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false)
     {
         _Builder.Bind(address, port, certificateProvider, protocols, certificateValidator, enableQuic);
         return this;

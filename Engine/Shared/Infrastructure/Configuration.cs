@@ -11,6 +11,6 @@ public record ServerConfiguration(bool DevelopmentMode, IEnumerable<EndPointConf
 public record NetworkConfiguration(TimeSpan RequestReadTimeout, uint RequestMemoryLimit,
     uint TransferBufferSize, ushort Backlog);
 
-public record EndPointConfiguration(IPAddress Address, ushort Port, SecurityConfiguration? Security, bool EnableQuic);
+public record EndPointConfiguration(IPAddress? Address, ushort Port, SecurityConfiguration? Security, bool EnableQuic);
 
 public record SecurityConfiguration(ICertificateProvider CertificateProvider, SslProtocols Protocols, ICertificateValidator? CertificateValidator);

@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Runtime.InteropServices;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
@@ -87,15 +86,15 @@ public abstract class ServerBuilder : IServerBuilder
         return this;
     }
 
-    public IServerBuilder Bind(IPAddress address, ushort port)
+    public IServerBuilder Bind(IPAddress? address, ushort port)
     {
         _EndPoints.Add(new EndPointConfiguration(address, port, null, false));
         return this;
     }
 
-    public IServerBuilder Bind(IPAddress address, ushort port, X509Certificate2 certificate, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false) => Bind(address, port, new SimpleCertificateProvider(certificate), protocols, certificateValidator, enableQuic);
+    public IServerBuilder Bind(IPAddress? address, ushort port, X509Certificate2 certificate, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false) => Bind(address, port, new SimpleCertificateProvider(certificate), protocols, certificateValidator, enableQuic);
 
-    public IServerBuilder Bind(IPAddress address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false)
+    public IServerBuilder Bind(IPAddress? address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false)
     {
         _EndPoints.Add(new EndPointConfiguration(address, port, new SecurityConfiguration(certificateProvider, protocols, certificateValidator), enableQuic));
         return this;
@@ -146,15 +145,7 @@ public abstract class ServerBuilder : IServerBuilder
 
         if (endpoints.Count == 0)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                endpoints.Add(new EndPointConfiguration(IPAddress.Any, _Port, null, false));
-                endpoints.Add(new EndPointConfiguration(IPAddress.IPv6Any, _Port, null, false));
-            }
-            else
-            {
-                endpoints.Add(new EndPointConfiguration(IPAddress.Any, _Port, null, false));
-            }
+            endpoints.Add(new EndPointConfiguration(null, _Port, null, false));
         }
 
         var config = new ServerConfiguration(_Development, endpoints, network);

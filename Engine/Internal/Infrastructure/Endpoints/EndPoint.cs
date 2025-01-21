@@ -17,17 +17,11 @@ internal abstract class EndPoint : IEndPoint
 
     protected NetworkConfiguration Configuration { get; }
 
-    private IPEndPoint Endpoint { get; }
-
     private Task? Task { get; set; }
 
     private Socket? Socket { get; set; }
 
-    #endregion
-
-    #region Basic Information
-
-    public IPAddress IPAddress { get; }
+    public IPAddress? Address { get; }
 
     public ushort Port { get; }
 
@@ -37,15 +31,14 @@ internal abstract class EndPoint : IEndPoint
 
     #region Initialization
 
-    protected EndPoint(IServer server, IPEndPoint endPoint, NetworkConfiguration configuration)
+    protected EndPoint(IServer server, IPAddress? address, ushort port, NetworkConfiguration configuration)
     {
         Server = server;
 
-        Endpoint = endPoint;
         Configuration = configuration;
 
-        IPAddress = endPoint.Address;
-        Port = (ushort)endPoint.Port;
+        Address = address;
+        Port = port;
     }
 
     #endregion
@@ -54,16 +47,21 @@ internal abstract class EndPoint : IEndPoint
 
     public void Start()
     {
+        var address = Address ?? IPAddress.IPv6Any;
+
         try
         {
-            Socket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            Socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
 
-            Socket.Bind(Endpoint);
+            Socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
+
+            Socket.Bind(new IPEndPoint(address, Port));
+
             Socket.Listen(Configuration.Backlog);
         }
         catch (Exception e)
         {
-            throw new BindingException($"Failed to bind to {Endpoint}.", e);
+            throw new BindingException($"Failed to bind to {address} on port {Port}.", e);
         }
 
         Task = Task.Run(Listen);

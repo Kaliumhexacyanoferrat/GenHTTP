@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-using GenHTTP.Api.Infrastructure;
+﻿using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Shared.Infrastructure;
 
@@ -28,13 +26,12 @@ internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPoi
 
     private EndPoint Build(EndPointConfiguration configuration)
     {
-        var endpoint = new IPEndPoint(configuration.Address, configuration.Port);
-
         if (configuration.Security is null)
         {
-            return new InsecureEndPoint(Server, endpoint, NetworkConfiguration);
+            return new InsecureEndPoint(Server, configuration.Address, configuration.Port, NetworkConfiguration);
         }
-        return new SecureEndPoint(Server, endpoint, configuration.Security, NetworkConfiguration);
+
+        return new SecureEndPoint(Server, configuration.Address, configuration.Port, configuration.Security, NetworkConfiguration);
     }
 
     internal void Start()
