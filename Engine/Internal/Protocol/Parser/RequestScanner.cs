@@ -50,7 +50,7 @@ internal sealed class RequestScanner
         }
 
         // did not recognize any tokens, probably due to missing input data
-        if (!forceRead)
+        if (!forceRead && !buffer.Timeout)
         {
             return await Next(buffer, true, includeWhitespace);
         }

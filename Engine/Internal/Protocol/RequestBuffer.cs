@@ -44,6 +44,8 @@ internal sealed class RequestBuffer : IDisposable
 
     internal bool ReadRequired => _Data == null || _Data.Value.IsEmpty;
 
+    internal bool Timeout { get; private set; }
+
     #endregion
 
     #region Functionality
@@ -66,6 +68,8 @@ internal sealed class RequestBuffer : IDisposable
             {
                 Cancellation.Dispose();
                 Cancellation = null;
+
+                Timeout = true;
 
                 return null;
             }
