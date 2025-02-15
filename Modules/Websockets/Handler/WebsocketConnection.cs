@@ -159,25 +159,23 @@ public sealed class WebsocketConnection : IWebSocketConnection, IWebsocketConnec
 
     private void Read(List<byte> data, byte[] buffer)
     {
-        if (!IsAvailable)
-            return;
-
-        Socket.Receive(buffer, r =>
-                       {
-                           if (r <= 0)
-                           {
-                               FleckLog.Debug("0 bytes read. Closing.");
-                               CloseSocket();
-                               return;
-                           }
-                           FleckLog.Debug(r + " bytes read");
-                           var readBytes = buffer.Take(r);
-
-                           GetHandler().Receive(readBytes);
-
-                           Read(data, buffer);
-                       },
-                       HandleReadError);
+        Task.Run(async () => {
+            while (true) {
+                if (!IsAvailable) return;
+                int r = await Socket.Receive(buffer, (int i) => { }, HandleReadError);
+    
+                if (r <= 0)
+                {
+                    FleckLog.Debug("0 bytes read. Closing.");
+                    CloseSocket();
+                    return;
+                }
+                FleckLog.Debug(r + " bytes read");
+                var readBytes = buffer.Take(r);
+    
+                GetHandler().Receive(readBytes);
+            }
+        });
     }
 
     private void HandleReadError(Exception e)
