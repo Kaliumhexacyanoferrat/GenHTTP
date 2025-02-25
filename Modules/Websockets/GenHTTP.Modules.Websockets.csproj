@@ -13,7 +13,7 @@
         <FileVersion>9.7.0.0</FileVersion>
         <Version>9.7.0</Version>
 
-        <Authors>Andreas Nägeli</Authors>
+        <Authors>Andreas Nägeli, Magnus Johnsson</Authors>
         <Company/>
 
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
