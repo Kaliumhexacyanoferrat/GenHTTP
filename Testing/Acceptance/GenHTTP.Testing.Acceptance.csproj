@@ -38,13 +38,13 @@
 
     <ItemGroup>
 
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
 
         <PackageReference Include="Microsoft.OpenApi" Version="1.6.23" />
         <PackageReference Include="Microsoft.OpenApi.Readers" Version="1.6.23" />
 
-        <PackageReference Include="MSTest.TestAdapter" Version="3.7.3" />
-        <PackageReference Include="MSTest.TestFramework" Version="3.7.3" />
+        <PackageReference Include="MSTest.TestAdapter" Version="3.8.2" />
+        <PackageReference Include="MSTest.TestFramework" Version="3.8.2" />
 
         <PackageReference Include="NSubstitute" Version="5.3.0" />
 
@@ -70,7 +70,7 @@
         <ProjectReference Include="..\Testing\GenHTTP.Testing.csproj" />
 
         <ProjectReference Include="..\..\Modules\ApiBrowsing\GenHTTP.Modules.ApiBrowsing.csproj" />
-        <ProjectReference Include="..\..\Modules\GenHTTP.Modules.I18n\GenHTTP.Modules.I18n.csproj" />
+        <ProjectReference Include="..\..\Modules\I18n\GenHTTP.Modules.I18n.csproj" />
         <ProjectReference Include="..\..\Modules\Authentication\GenHTTP.Modules.Authentication.csproj" />
         <ProjectReference Include="..\..\Modules\Basics\GenHTTP.Modules.Basics.csproj" />
         <ProjectReference Include="..\..\Modules\Caching\GenHTTP.Modules.Caching.csproj" />
