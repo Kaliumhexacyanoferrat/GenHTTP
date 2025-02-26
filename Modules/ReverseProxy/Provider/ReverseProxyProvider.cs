@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Web;
 
@@ -154,7 +155,7 @@ public sealed class ReverseProxyProvider : IHandler
         }
         else
         {
-            if (knownLength != null)
+            if (request.HasType(RequestMethod.Head) && (knownLength != null))
             {
                 builder.Length(knownLength.Value);
             }
@@ -211,7 +212,12 @@ public sealed class ReverseProxyProvider : IHandler
 
     private static bool CanSendBody(IRequest request) => !request.HasType(RequestMethod.Get, RequestMethod.Head, RequestMethod.Options);
 
-    private static bool HasBody(IRequest request, HttpResponseMessage response) => !request.HasType(RequestMethod.Head) && response.Content.Headers.ContentType is not null;
+    private static bool HasBody(IRequest request, HttpResponseMessage response)
+    {
+        return !request.HasType(RequestMethod.Head)
+            && response.Content.Headers.ContentType is not null
+            && response.StatusCode != HttpStatusCode.NoContent;
+    }
 
     private string RewriteLocation(string location, IRequest request)
     {
