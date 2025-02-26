@@ -1,6 +1,7 @@
 ﻿using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Functional;
+using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Reflection;
 
 using Microsoft.OpenApi.Models;
@@ -93,6 +94,18 @@ public class ArgumentTests
 
         Assert.IsTrue(operation.RequestBody.Content.ContainsKey("*/*"));
         Assert.AreEqual("binary", operation.RequestBody.Content["*/*"].Schema.Format);
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestWildcardParameter(TestEngine engine)
+    {
+        var api = Inline.Create()
+                        .Get("/files/:tenant/", () => Content.From(Resource.FromString("File Content")));
+
+        var (path, operation) = await Extensions.GetOperationAsync(engine, api);
+
+        Assert.AreEqual("/files/{tenant}/{remainingPath}", path.Item1);
     }
 
     #region Helpers

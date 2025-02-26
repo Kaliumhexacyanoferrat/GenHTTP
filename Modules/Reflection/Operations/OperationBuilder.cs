@@ -39,8 +39,7 @@ public static partial class OperationBuilder
         {
             if (isWildcard)
             {
-                path = new OperationPath("/{path}", EmptyWildcardRoute, true, true);
-                pathArguments.Add("path");
+                path = new OperationPath("/", EmptyWildcardRoute, true, true);
             }
             else
             {
@@ -85,12 +84,7 @@ public static partial class OperationBuilder
                 matchBuilder.Append("(/|)");
             }
 
-            if (isWildcard)
-            {
-                nameBuilder.Append("{path}");
-                pathArguments.Add("path");
-            }
-            else
+            if (!isWildcard)
             {
                 matchBuilder.Append('$');
             }
