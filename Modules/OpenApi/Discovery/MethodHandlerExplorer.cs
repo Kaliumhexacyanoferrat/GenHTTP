@@ -101,6 +101,20 @@ public sealed class MethodHandlerExplorer : IApiExplorer
                     }
                 }
 
+                if (methodHandler.Operation.Path.IsWildcard)
+                {
+                    var param = new OpenApiParameter
+                    {
+                        Name = "remainingPath",
+                        Description = "Additional path segments to be handled by this operation",
+                        Kind = OpenApiParameterKind.Path,
+                        Schema = JsonSchema.FromType<string?>(),
+                        IsRequired = true
+                    };
+
+                    operation.Parameters.Add(param);
+                }
+
                 foreach (var (key, value) in GetResponses(methodHandler.Operation, schemata, methodHandler.Registry))
                 {
                     operation.Responses.Add(key, value);

@@ -19,7 +19,7 @@ public static class OpenApiExtensions
 
     public static OpenApiPathItem GetPathItem(OpenApiDocument document, List<string> path, Operation operation)
     {
-        var stringPath = BuildPath(operation.Path.Name, path);
+        var stringPath = BuildPath(operation.Path.Name, path, operation.Path.IsWildcard);
 
         if (document.Paths.TryGetValue(stringPath, out var existing))
         {
@@ -33,7 +33,7 @@ public static class OpenApiExtensions
         return newPath;
     }
 
-    public static string BuildPath(string name, List<string> pathParts)
+    public static string BuildPath(string name, List<string> pathParts, bool wildcard)
     {
         var builder = new StringBuilder("/");
 
@@ -50,6 +50,11 @@ public static class OpenApiExtensions
         else
         {
             builder.Append(name);
+        }
+
+        if (wildcard)
+        {
+            builder.Append("{remainingPath}");
         }
 
         return builder.ToString();

@@ -54,11 +54,6 @@ public static class SignatureAnalyzer
             }
         }
 
-        if (pathArguments.Contains("path"))
-        {
-            result.Add("path", new OperationArgument("path", typeof(string), OperationArgumentSource.Path));
-        }
-
         return result;
     }
 
