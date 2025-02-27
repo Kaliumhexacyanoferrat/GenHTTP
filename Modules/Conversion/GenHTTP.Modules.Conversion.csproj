@@ -9,9 +9,9 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <ImplicitUsings>enable</ImplicitUsings>
 
-        <AssemblyVersion>9.7.0.0</AssemblyVersion>
-        <FileVersion>9.7.0.0</FileVersion>
-        <Version>9.7.0</Version>
+        <AssemblyVersion>9.8.0.0</AssemblyVersion>
+        <FileVersion>9.8.0.0</FileVersion>
+        <Version>9.8.0</Version>
 
         <Authors>Andreas Nägeli</Authors>
         <Company />
@@ -41,13 +41,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        
+
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
 
         <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
 
         <PackageReference Include="YamlDotNet" Version="16.3.0" />
-        
+
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 
     </ItemGroup>

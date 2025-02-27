@@ -9,9 +9,9 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <ImplicitUsings>enable</ImplicitUsings>
 
-        <AssemblyVersion>9.7.0.0</AssemblyVersion>
-        <FileVersion>9.7.0.0</FileVersion>
-        <Version>9.7.0</Version>
+        <AssemblyVersion>9.8.0.0</AssemblyVersion>
+        <FileVersion>9.8.0.0</FileVersion>
+        <Version>9.8.0</Version>
 
         <Authors>Andreas Nägeli</Authors>
         <Company />
@@ -47,7 +47,7 @@
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
 
         <ProjectReference Include="..\..\Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj" />
-        
+
         <ProjectReference Include="..\Shared\GenHTTP.Engine.Shared.csproj" />
 
         <ProjectReference Include="..\..\Modules\IO\GenHTTP.Modules.IO.csproj" />

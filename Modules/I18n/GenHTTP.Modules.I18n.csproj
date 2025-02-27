@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		
+
 		<TargetFrameworks>net8.0;net9.0</TargetFrameworks>
 
 		<LangVersion>13.0</LangVersion>
@@ -9,9 +9,9 @@
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 		<ImplicitUsings>enable</ImplicitUsings>
 
-		<AssemblyVersion>9.7.0.0</AssemblyVersion>
-		<FileVersion>9.7.0.0</FileVersion>
-		<Version>9.7.0</Version>
+		<AssemblyVersion>9.8.0.0</AssemblyVersion>
+		<FileVersion>9.8.0.0</FileVersion>
+		<Version>9.8.0</Version>
 
 		<Authors>Andreas Nägeli, Martin Maťátko</Authors>
 		<Company />
@@ -30,7 +30,7 @@
 		<NoWarn>CS1591,CS1587,CS1572,CS1573</NoWarn>
 
 		<PackageIcon>icon.png</PackageIcon>
-		
+
 	</PropertyGroup>
 
 	<ItemGroup>

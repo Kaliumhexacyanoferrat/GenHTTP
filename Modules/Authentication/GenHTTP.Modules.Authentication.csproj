@@ -9,9 +9,9 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <ImplicitUsings>enable</ImplicitUsings>
 
-        <AssemblyVersion>9.7.0.0</AssemblyVersion>
-        <FileVersion>9.7.0.0</FileVersion>
-        <Version>9.7.0</Version>
+        <AssemblyVersion>9.8.0.0</AssemblyVersion>
+        <FileVersion>9.8.0.0</FileVersion>
+        <Version>9.8.0</Version>
 
         <Authors>Andreas Nägeli</Authors>
         <Company />
@@ -45,13 +45,13 @@
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
 
         <ProjectReference Include="..\Reflection\GenHTTP.Modules.Reflection.csproj" />
-        
+
         <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.6.0" />
 
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.6.0" />
-        
+
     </ItemGroup>
 
 </Project>
