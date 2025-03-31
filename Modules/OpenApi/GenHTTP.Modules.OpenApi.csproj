@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
 
@@ -48,9 +48,9 @@
 
         <ProjectReference Include="..\Reflection\GenHTTP.Modules.Reflection.csproj" />
 
-        <PackageReference Include="NSwag.Core" Version="14.2.0" />
+        <PackageReference Include="NSwag.Core" Version="14.3.0" />
 
-        <PackageReference Include="NSwag.Core.Yaml" Version="14.2.0" />
+        <PackageReference Include="NSwag.Core.Yaml" Version="14.3.0" />
 
         <PackageReference Include="NSwag.Generation" Version="14.2.0" />
 
