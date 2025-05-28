@@ -48,7 +48,7 @@
 
         <ProjectReference Include="..\..\Modules\IO\GenHTTP.Modules.IO.csproj" />
 
-        <PackageReference Include="System.IO.Pipelines" Version="9.0.4" />
+        <PackageReference Include="System.IO.Pipelines" Version="9.0.5" />
 
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 

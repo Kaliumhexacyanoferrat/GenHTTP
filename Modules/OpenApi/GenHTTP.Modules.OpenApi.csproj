@@ -48,11 +48,11 @@
 
         <ProjectReference Include="..\Reflection\GenHTTP.Modules.Reflection.csproj" />
 
-        <PackageReference Include="NSwag.Core" Version="14.3.0" />
+        <PackageReference Include="NSwag.Core" Version="14.4.0" />
 
-        <PackageReference Include="NSwag.Core.Yaml" Version="14.3.0" />
+        <PackageReference Include="NSwag.Core.Yaml" Version="14.4.0" />
 
-        <PackageReference Include="NSwag.Generation" Version="14.3.0" />
+        <PackageReference Include="NSwag.Generation" Version="14.4.0" />
 
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 
