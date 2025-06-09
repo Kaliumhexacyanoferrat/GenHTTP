@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
 
@@ -38,7 +38,7 @@
 
     <ItemGroup>
 
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
 
         <PackageReference Include="Microsoft.OpenApi" Version="1.6.24" />
         <PackageReference Include="Microsoft.OpenApi.Readers" Version="1.6.24" />
