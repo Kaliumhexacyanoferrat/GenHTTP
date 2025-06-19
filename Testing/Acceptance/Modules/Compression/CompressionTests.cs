@@ -118,7 +118,7 @@ public sealed class CompressionTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestVariyHeaderExtendedAdded(TestEngine engine)
+    public async Task TestVaryHeaderExtendedAdded(TestEngine engine)
     {
         var handler = new FunctionalHandler(responseProvider: r =>
         {
