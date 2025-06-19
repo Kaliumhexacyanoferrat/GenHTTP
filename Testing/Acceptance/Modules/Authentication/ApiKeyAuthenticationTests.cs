@@ -1,11 +1,17 @@
 ﻿using System.Net;
+
 using GenHTTP.Api.Content.Authentication;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Authentication;
 using GenHTTP.Modules.Authentication.ApiKey;
+using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Layouting.Provider;
+using GenHTTP.Modules.Reflection;
+using GenHTTP.Modules.Reflection.Injectors;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Authentication;
@@ -121,6 +127,31 @@ public sealed class ApiKeyAuthenticationTests
         using var response = await runner.GetResponseAsync(request);
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestGetUser(TestEngine engine)
+    {
+        var auth = ApiKeyAuthentication.Create()
+                                       .Keys("123");
+
+        var injection = Injection.Default()
+                                 .Add(new UserInjector<ApiKeyUser>());
+
+        var app = Inline.Create()
+                        .Get((ApiKeyUser u) => $"{u.Key}|{u.DisplayName}|{u.Roles.Length}")
+                        .Injectors(injection)
+                        .Add(auth);
+
+        await using var runner = await TestHost.RunAsync(app, engine: engine);
+
+        var request = runner.GetRequest();
+        request.Headers.Add("X-API-Key", "123");
+
+        using var response = await runner.GetResponseAsync(request);
+
+        Assert.AreEqual("123|123|0", await response.GetContentAsync());
     }
 
     private static async Task<TestHost> GetRunnerWithKeysAsync(TestEngine engine, params string[] keys)
