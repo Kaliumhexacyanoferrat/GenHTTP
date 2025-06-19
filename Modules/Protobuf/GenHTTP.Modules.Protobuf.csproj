@@ -2,47 +2,12 @@
 
     <PropertyGroup>
 
-        <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
-
-        <LangVersion>13.0</LangVersion>
-        <Nullable>enable</Nullable>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <ImplicitUsings>enable</ImplicitUsings>
-
-        <AssemblyVersion>9.8.0.0</AssemblyVersion>
-        <FileVersion>9.8.0.0</FileVersion>
-        <Version>9.8.0</Version>
-
         <Authors>Andreas Nägeli, Iulian Caluian</Authors>
-        <Company />
-
-        <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
 
         <Description>Allows to read and write responses in protobuf data format</Description>
         <PackageTags>HTTP Webserver C# Module Serialization Conversion Protobuf</PackageTags>
 
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>CS1591,CS1587,CS1572,CS1573</NoWarn>
-
-        <PackageIcon>icon.png</PackageIcon>
-
     </PropertyGroup>
-
-    <ItemGroup>
-
-        <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
-        <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\" />
-
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="protobuf-net" Version="3.2.52" />
-    </ItemGroup>
 
     <ItemGroup>
 
@@ -51,6 +16,8 @@
         <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
 
         <ProjectReference Include="..\Conversion\GenHTTP.Modules.Conversion.csproj" />
+
+        <PackageReference Include="protobuf-net" Version="3.2.52" />
 
     </ItemGroup>
 

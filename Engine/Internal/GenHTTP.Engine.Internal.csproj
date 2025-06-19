@@ -2,43 +2,10 @@
 
     <PropertyGroup>
 
-        <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
-
-        <LangVersion>13.0</LangVersion>
-        <Nullable>enable</Nullable>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <ImplicitUsings>enable</ImplicitUsings>
-
-        <AssemblyVersion>9.8.0.0</AssemblyVersion>
-        <FileVersion>9.8.0.0</FileVersion>
-        <Version>9.8.0</Version>
-
-        <Authors>Andreas Nägeli</Authors>
-        <Company />
-
-        <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
-
         <Description>Lightweight web server written in pure C# with few dependencies to 3rd-party libraries.</Description>
-        <PackageTags>HTTP Embedded Webserver Website Server Library C# Standard Engine</PackageTags>
-
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>CS1591,CS1587,CS1572,CS1573</NoWarn>
-
-        <PackageIcon>icon.png</PackageIcon>
+        <PackageTags>HTTP Embedded Webserver Server Library C# Standard Engine</PackageTags>
 
     </PropertyGroup>
-
-    <ItemGroup>
-
-        <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
-        <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\" />
-
-    </ItemGroup>
 
     <ItemGroup>
 
@@ -49,8 +16,6 @@
         <ProjectReference Include="..\..\Modules\IO\GenHTTP.Modules.IO.csproj" />
 
         <PackageReference Include="System.IO.Pipelines" Version="9.0.6" />
-
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 
     </ItemGroup>
 
