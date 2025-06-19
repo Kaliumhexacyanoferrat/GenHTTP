@@ -1,7 +1,9 @@
 ﻿using System.Net;
+
 using GenHTTP.Modules.DirectoryBrowsing;
 using GenHTTP.Modules.IO;
 using GenHTTP.Testing.Acceptance.Utilities;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.DirectoryBrowsing;
@@ -11,7 +13,7 @@ public sealed class ListingTests
 {
 
     /// <summary>
-    /// As an user of a web application, I can view the folders and files available
+    /// As a user of a web application, I can view the folders and files available
     /// on root level of a listed directory.
     /// </summary>
     [TestMethod]
@@ -87,6 +89,14 @@ public sealed class ListingTests
         Assert.IsNotNull(resp1.GetETag());
 
         Assert.AreEqual(resp1.GetETag(), resp2.GetETag());
+    }
+
+    [TestMethod]
+    public void TestConcernChaining()
+    {
+        var listing = Listing.From(ResourceTree.FromDirectory("./"));
+
+        Chain.Works(listing);
     }
 
     private static async Task<TestHost> GetEnvironmentAsync(TestEngine engine)
