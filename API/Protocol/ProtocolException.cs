@@ -13,8 +13,10 @@ public class ProtocolException : Exception
 
     }
 
+    [Obsolete("This constructor is not required by the engine and will be removed in GenHTTP 10")]
     public ProtocolException(string reason, Exception inner) : base(reason, inner)
     {
 
     }
+
 }
