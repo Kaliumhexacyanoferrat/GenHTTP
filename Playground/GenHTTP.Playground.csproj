@@ -5,11 +5,6 @@
         <OutputType>Exe</OutputType>
         <TargetFramework>net9.0</TargetFramework>
 
-        <LangVersion>13.0</LangVersion>
-        <Nullable>enable</Nullable>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <ImplicitUsings>enable</ImplicitUsings>
-
     </PropertyGroup>
 
     <ItemGroup>
@@ -47,6 +42,13 @@
         <ProjectReference Include="..\Modules\Webservices\GenHTTP.Modules.Webservices.csproj"/>
         <ProjectReference Include="..\Modules\Websockets\GenHTTP.Modules.Websockets.csproj"/>
         <ProjectReference Include="..\Modules\I18n\GenHTTP.Modules.I18n.csproj" />
+
+    </ItemGroup>
+
+    <ItemGroup>
+
+        <None Include="..\LICENSE" Pack="true" PackagePath="\"/>
+        <None Include="..\Resources\icon.png" Pack="true" PackagePath="\"/>
 
     </ItemGroup>
 

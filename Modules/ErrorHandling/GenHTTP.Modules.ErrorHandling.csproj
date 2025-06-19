@@ -2,43 +2,10 @@
 
     <PropertyGroup>
 
-        <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
-
-        <LangVersion>13.0</LangVersion>
-        <Nullable>enable</Nullable>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <ImplicitUsings>enable</ImplicitUsings>
-
-        <AssemblyVersion>9.8.0.0</AssemblyVersion>
-        <FileVersion>9.8.0.0</FileVersion>
-        <Version>9.8.0</Version>
-
-        <Authors>Andreas Nägeli</Authors>
-        <Company />
-
-        <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
-
         <Description>Allows to render custom error pages</Description>
         <PackageTags>HTTP Webserver C# Module Error Exception Handling</PackageTags>
 
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>CS1591,CS1587,CS1572,CS1573</NoWarn>
-
-        <PackageIcon>icon.png</PackageIcon>
-
     </PropertyGroup>
-
-    <ItemGroup>
-
-        <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
-        <None Include="..\..\Resources\icon.png" Pack="true" PackagePath="\" />
-
-    </ItemGroup>
 
     <ItemGroup>
 
@@ -47,8 +14,6 @@
         <ProjectReference Include="..\Conversion\GenHTTP.Modules.Conversion.csproj" />
 
         <ProjectReference Include="..\Pages\GenHTTP.Modules.Pages.csproj" />
-
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 
     </ItemGroup>
 
