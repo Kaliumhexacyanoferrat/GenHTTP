@@ -15,7 +15,7 @@
 
         <ProjectReference Include="..\..\Modules\IO\GenHTTP.Modules.IO.csproj" />
 
-        <PackageReference Include="System.IO.Pipelines" Version="9.0.6" />
+        <PackageReference Include="System.IO.Pipelines" Version="9.0.7" />
 
     </ItemGroup>
 
