@@ -30,11 +30,23 @@ public sealed class ServiceResourceBuilder : IHandlerBuilder<ServiceResourceBuil
 
     public ServiceResourceBuilder Type<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>() where T : new() => Instance(new T());
 
+    public ServiceResourceBuilder Type([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] Type type)
+    {
+        _Type = type;
+        return this;
+    }
+
     public ServiceResourceBuilder Instance(object instance)
     {
         _Type = instance.GetType();
         _InstanceProvider = (_) => ValueTask.FromResult(instance);
 
+        return this;
+    }
+
+    public ServiceResourceBuilder InstanceProvider(Func<IRequest, ValueTask<object>> provider)
+    {
+        _InstanceProvider = provider;
         return this;
     }
 
