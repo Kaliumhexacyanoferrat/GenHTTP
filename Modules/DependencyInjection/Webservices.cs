@@ -26,10 +26,7 @@ public static class Webservices
 
         injectionOverlay.Add(new DependencyInjector());
 
-        if (injectors != null)
-        {
-            builder.Injectors(injectors);
-        }
+        builder.Injectors(injectionOverlay);
 
         if (serializers != null)
         {

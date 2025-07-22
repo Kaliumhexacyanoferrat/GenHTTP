@@ -22,6 +22,7 @@
         <ProjectReference Include="..\Modules\Compression\GenHTTP.Modules.Compression.csproj"/>
         <ProjectReference Include="..\Modules\Controllers\GenHTTP.Modules.Controllers.csproj"/>
         <ProjectReference Include="..\Modules\Conversion\GenHTTP.Modules.Conversion.csproj"/>
+        <ProjectReference Include="..\Modules\DependencyInjection\GenHTTP.Modules.DependencyInjection.csproj" />
         <ProjectReference Include="..\Modules\DirectoryBrowsing\GenHTTP.Modules.DirectoryBrowsing.csproj"/>
         <ProjectReference Include="..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj"/>
         <ProjectReference Include="..\Modules\Functional\GenHTTP.Modules.Functional.csproj"/>
@@ -31,6 +32,7 @@
         <ProjectReference Include="..\Modules\LoadBalancing\GenHTTP.Modules.LoadBalancing.csproj"/>
         <ProjectReference Include="..\Modules\OpenApi\GenHTTP.Modules.OpenApi.csproj"/>
         <ProjectReference Include="..\Modules\Practices\GenHTTP.Modules.Practices.csproj"/>
+        <ProjectReference Include="..\Modules\Protobuf\GenHTTP.Modules.Protobuf.csproj" />
         <ProjectReference Include="..\Modules\Reflection\GenHTTP.Modules.Reflection.csproj"/>
         <ProjectReference Include="..\Modules\ReverseProxy\GenHTTP.Modules.ReverseProxy.csproj"/>
         <ProjectReference Include="..\Modules\Security\GenHTTP.Modules.Security.csproj"/>

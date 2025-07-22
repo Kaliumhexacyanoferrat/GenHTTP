@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Protocol;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace GenHTTP.Modules.DependencyInjection.Internal;
 
@@ -7,9 +8,15 @@ public static class InstanceProvider
 
     public static ValueTask<object> Provide<T>(IRequest request) where T : class
     {
-        var scope = request.GetScope();
+        var scope = request.GetServiceScope();
 
-        var instance = scope.ServiceProvider.GetService(typeof(T)) ?? throw new InvalidOperationException($"Service provider did not provide an instance for type '{typeof(T)}'");
+        var instance = scope.ServiceProvider.GetService(typeof(T))
+            ?? ActivatorUtilities.CreateInstance(scope.ServiceProvider, typeof(T));
+
+        if (instance == null)
+        {
+            throw new InvalidOperationException($"Unable to resolve or construct instance of type '{typeof(T)}'");
+        }
 
         return ValueTask.FromResult(instance);
     }

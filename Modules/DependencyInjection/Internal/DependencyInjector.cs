@@ -8,8 +8,17 @@ namespace GenHTTP.Modules.DependencyInjection.Internal;
 public class DependencyInjector : IParameterInjector
 {
 
-    public bool Supports(Type type) => throw new NotImplementedException(); // ToDo: need the request here to tell
+    public bool Supports(Type type)
+    {
+        // todo
+        return type.ToString().Contains("MyOtherService");
+    }
 
-    public object? GetValue(IHandler handler, IRequest request, Type targetType) => throw new NotImplementedException();
+    public object? GetValue(IHandler handler, IRequest request, Type targetType)
+    {
+        var scope = request.GetServiceScope();
+
+        return scope.ServiceProvider.GetService(targetType);
+    }
 
 }

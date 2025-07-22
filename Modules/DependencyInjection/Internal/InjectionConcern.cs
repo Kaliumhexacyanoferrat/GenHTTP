@@ -24,7 +24,7 @@ public class InjectionConcern : IConcern
     {
         using var scope = Services.CreateScope();
 
-        request.SetScope(scope);
+        request.Configure(Services, scope);
 
         return Content.HandleAsync(request);
     }
