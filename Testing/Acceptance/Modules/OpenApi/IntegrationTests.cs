@@ -20,9 +20,9 @@ public class IntegrationTests
                         .AddService<MyService>("my")
                         .Add(ApiDescription.Create());
 
-        var doc = (await api.GetOpenApiAsync(engine)).OpenApiDocument;
+        var doc = (await api.GetOpenApiAsync(engine)).Document;
 
-        Assert.AreEqual("/my/", doc.Paths.First().Key);
+        Assert.AreEqual("/my/", doc?.Paths.First().Key);
     }
 
     [TestMethod]
@@ -33,9 +33,9 @@ public class IntegrationTests
                         .AddController<MyController>("my")
                         .Add(ApiDescription.Create());
 
-        var doc = (await api.GetOpenApiAsync(engine)).OpenApiDocument;
+        var doc = (await api.GetOpenApiAsync(engine)).Document;
 
-        Assert.AreEqual("/my/method/", doc.Paths.First().Key);
+        Assert.AreEqual("/my/method/", doc?.Paths.First().Key);
     }
 
     [TestMethod]
@@ -46,9 +46,9 @@ public class IntegrationTests
                         .Get("/method", () => 42)
                         .Add(ApiDescription.Create());
 
-        var doc = (await api.GetOpenApiAsync(engine)).OpenApiDocument;
+        var doc = (await api.GetOpenApiAsync(engine)).Document;
 
-        Assert.AreEqual("/method", doc.Paths.First().Key);
+        Assert.AreEqual("/method", doc?.Paths.First().Key);
     }
 
     [TestMethod]
@@ -59,9 +59,9 @@ public class IntegrationTests
                         .AddService<ObsoleteService>("my")
                         .Add(ApiDescription.Create());
 
-        var doc = (await api.GetOpenApiAsync(engine)).OpenApiDocument;
+        var doc = (await api.GetOpenApiAsync(engine)).Document;
 
-        Assert.IsTrue(doc.Paths.First().Value.Operations.First().Value.Deprecated);
+        Assert.IsTrue(doc?.Paths.First().Value.Operations?.First().Value.Deprecated);
     }
 
     [TestMethod]
@@ -72,9 +72,9 @@ public class IntegrationTests
                         .AddController<MultipleMethodsController>("my")
                         .Add(ApiDescription.Create());
 
-        var doc = (await api.GetOpenApiAsync(engine)).OpenApiDocument;
+        var doc = (await api.GetOpenApiAsync(engine)).Document;
 
-        Assert.AreEqual(2, doc.Paths["/my/method/"].Operations.Count);
+        Assert.AreEqual(2, doc?.Paths?["/my/method/"].Operations?.Count);
     }
 
     #region Supporting data structures

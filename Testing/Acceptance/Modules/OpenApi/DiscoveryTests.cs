@@ -5,7 +5,7 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.OpenApi;
 using GenHTTP.Modules.OpenApi.Discovery;
-using Microsoft.OpenApi.Models;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using OpenApiDocument = NSwag.OpenApiDocument;
@@ -26,10 +26,10 @@ public class DiscoveryTests
                         .AddRangeSupport()
                         .Add(ApiDescription.Create());
 
-        var doc = (await api.GetOpenApiAsync(engine)).OpenApiDocument;
+        var doc = (await api.GetOpenApiAsync(engine)).Document;
 
-        Assert.IsTrue(doc.Paths.ContainsKey("/service/method"));
-        Assert.IsTrue(doc.Paths.ContainsKey("/method2"));
+        Assert.IsTrue(doc?.Paths.ContainsKey("/service/method") ?? false);
+        Assert.IsTrue(doc?.Paths.ContainsKey("/method2") ?? false);
     }
 
     [TestMethod]
@@ -40,9 +40,9 @@ public class DiscoveryTests
 
         var api = Inline.Create().Add(ApiDescription.With(discovery));
 
-        var doc = (await api.GetOpenApiAsync(engine, false)).OpenApiDocument;
+        var doc = (await api.GetOpenApiAsync(engine, false)).Document;
 
-        Assert.AreEqual("Added by explorer", doc.Servers.First().Description);
+        Assert.AreEqual("Added by explorer", doc?.Servers?.First().Description);
     }
 
     [TestMethod]
@@ -54,16 +54,16 @@ public class DiscoveryTests
                         .Put("/method", (int i) => i)
                         .Add(ApiDescription.Create());
 
-        var doc = (await api.GetOpenApiAsync(engine)).OpenApiDocument;
+        var doc = (await api.GetOpenApiAsync(engine)).Document!;
 
-        Assert.AreEqual(1, doc.Paths.Count);
+        Assert.AreEqual(1, doc.Paths?.Count ?? 0);
 
-        var operations = doc.Paths.First().Value.Operations;
+        var operations = doc.Paths?.First().Value.Operations;
 
-        Assert.AreEqual(2, operations.Count);
+        Assert.AreEqual(2, operations?.Count ?? 0);
 
-        Assert.IsTrue(operations.ContainsKey(OperationType.Get));
-        Assert.IsTrue(operations.ContainsKey(OperationType.Put));
+        Assert.IsTrue(operations?.ContainsKey(HttpMethod.Get));
+        Assert.IsTrue(operations?.ContainsKey(HttpMethod.Put));
     }
 
     #region Supporting data structures

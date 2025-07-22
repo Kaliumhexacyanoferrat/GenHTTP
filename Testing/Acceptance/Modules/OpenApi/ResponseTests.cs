@@ -1,7 +1,9 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Functional;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.OpenApi;
@@ -18,8 +20,8 @@ public class ResponseTests
 
         var (_, op) = await Extensions.GetOperationAsync(engine, api);
 
-        Assert.IsTrue(op.Responses.ContainsKey("200"));
-        Assert.IsTrue(op.Responses["200"].Content.ContainsKey("text/plain"));
+        Assert.IsTrue(op.Responses?.ContainsKey("200"));
+        Assert.IsTrue(op.Responses?["200"].Content?.ContainsKey("text/plain"));
     }
 
     [TestMethod]
@@ -30,7 +32,7 @@ public class ResponseTests
 
         var (_, op) = await Extensions.GetOperationAsync(engine, api);
 
-        Assert.IsTrue(op.Responses.ContainsKey("204"));
+        Assert.IsTrue(op.Responses?.ContainsKey("204"));
     }
 
     [TestMethod]
@@ -41,9 +43,10 @@ public class ResponseTests
 
         var (_, op) = await Extensions.GetOperationAsync(engine, api);
 
-        Assert.IsTrue(op.Responses.ContainsKey("200"));
-        Assert.IsTrue(op.Responses["200"].Content.ContainsKey("application/octet-stream"));
-        Assert.AreEqual("binary", op.Responses["200"].Content["application/octet-stream"].Schema.Format);
+        Assert.IsTrue(op.Responses?.ContainsKey("200"));
+        Assert.IsTrue(op.Responses?["200"].Content?.ContainsKey("application/octet-stream"));
+
+        Assert.AreEqual("binary", op.Responses?["200"].Content?["application/octet-stream"].Schema?.Format);
     }
 
     [TestMethod]
@@ -54,8 +57,8 @@ public class ResponseTests
 
         var (_, op) = await Extensions.GetOperationAsync(engine, api);
 
-        Assert.IsFalse(op.Responses.ContainsKey("200"));
-        Assert.IsTrue(op.Responses.ContainsKey("204"));
+        Assert.IsFalse(op.Responses?.ContainsKey("200"));
+        Assert.IsTrue(op.Responses?.ContainsKey("204"));
     }
 
     [TestMethod]
@@ -70,8 +73,8 @@ public class ResponseTests
 
         var (_, op) = await Extensions.GetOperationAsync(engine, api);
 
-        Assert.IsTrue(op.Responses.ContainsKey("200"));
-        Assert.IsTrue(op.Responses["200"].Content.ContainsKey("*/*"));
+        Assert.IsTrue(op.Responses?.ContainsKey("200"));
+        Assert.IsTrue(op.Responses?["200"].Content?.ContainsKey("*/*"));
     }
 
     [TestMethod]
@@ -82,7 +85,8 @@ public class ResponseTests
 
         var (_, op) = await Extensions.GetOperationAsync(engine, api);
 
-        Assert.IsTrue(op.Responses.ContainsKey("200"));
-        Assert.IsTrue(op.Responses["200"].Content.ContainsKey("application/json"));
+        Assert.IsTrue(op.Responses?.ContainsKey("200"));
+        Assert.IsTrue(op.Responses?["200"].Content?.ContainsKey("application/json"));
     }
+
 }

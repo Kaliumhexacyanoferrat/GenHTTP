@@ -2,6 +2,7 @@
 using GenHTTP.Modules.Functional.Provider;
 using GenHTTP.Modules.OpenApi;
 using GenHTTP.Modules.OpenApi.Handler;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.OpenApi;
@@ -16,8 +17,8 @@ public class MetaDataTests
     {
         var doc = await GetApi(ApiDescription.Create()).GetOpenApiAsync(engine);
 
-        Assert.AreEqual("Swagger specification", doc.OpenApiDocument.Info.Title);
-        Assert.AreEqual("1.0.0", doc.OpenApiDocument.Info.Version);
+        Assert.AreEqual("Swagger specification", doc.Document?.Info.Title);
+        Assert.AreEqual("1.0.0", doc.Document?.Info.Version);
     }
 
     [TestMethod]
@@ -30,8 +31,8 @@ public class MetaDataTests
 
         var doc = await GetApi(desc).GetOpenApiAsync(engine);
 
-        Assert.AreEqual("My Title", doc.OpenApiDocument.Info.Title);
-        Assert.AreEqual("2.0.1", doc.OpenApiDocument.Info.Version);
+        Assert.AreEqual("My Title", doc.Document?.Info.Title);
+        Assert.AreEqual("2.0.1", doc.Document?.Info.Version);
     }
 
     [TestMethod]
@@ -40,9 +41,9 @@ public class MetaDataTests
     {
         var doc = await GetApi(ApiDescription.Create()).GetOpenApiAsync(engine);
 
-        var server = doc.OpenApiDocument.Servers.First();
+        var server = doc.Document?.Servers?.First();
 
-        AssertX.Contains("http://localhost:", server.Url);
+        AssertX.Contains("http://localhost:", server?.Url);
     }
 
     [TestMethod]
@@ -54,7 +55,7 @@ public class MetaDataTests
 
         var doc = await GetApi(desc).GetOpenApiAsync(engine);
 
-        Assert.AreEqual("https://google.de/", doc.OpenApiDocument.Servers.First().Url);
+        Assert.AreEqual("https://google.de/", doc.Document?.Servers?.First().Url);
     }
 
     private static InlineBuilder GetApi(OpenApiConcernBuilder description)
