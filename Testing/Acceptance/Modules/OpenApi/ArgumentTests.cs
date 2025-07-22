@@ -4,7 +4,7 @@ using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Reflection;
 
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -63,8 +63,8 @@ public class ArgumentTests
 
         Assert.AreEqual("/users/filter", path.Item1);
 
-        Assert.IsTrue(operation.RequestBody.Content.ContainsKey("application/json"));
-        Assert.IsTrue(operation.RequestBody.Content.ContainsKey("text/xml"));
+        Assert.IsTrue(operation.RequestBody?.Content?.ContainsKey("application/json") ?? false);
+        Assert.IsTrue(operation.RequestBody?.Content?.ContainsKey("text/xml") ?? false);
     }
 
     [TestMethod]
@@ -78,7 +78,7 @@ public class ArgumentTests
 
         Assert.AreEqual("/users/filter", path.Item1);
 
-        Assert.IsTrue(operation.RequestBody.Content.ContainsKey("text/plain"));
+        Assert.IsTrue(operation.RequestBody?.Content?.ContainsKey("text/plain") ?? false);
     }
 
     [TestMethod]
@@ -92,8 +92,8 @@ public class ArgumentTests
 
         Assert.AreEqual("/users/avatar", path.Item1);
 
-        Assert.IsTrue(operation.RequestBody.Content.ContainsKey("*/*"));
-        Assert.AreEqual("binary", operation.RequestBody.Content["*/*"].Schema.Format);
+        Assert.IsTrue(operation.RequestBody?.Content?.ContainsKey("*/*") ?? false);
+        Assert.AreEqual("binary", operation.RequestBody?.Content?["*/*"].Schema?.Format);
     }
 
     [TestMethod]
@@ -112,9 +112,11 @@ public class ArgumentTests
 
     private static void AssertParameter(OpenApiOperation operation, string name, ParameterLocation location)
     {
-        Assert.AreEqual(1, operation.Parameters.Count);
+        Assert.AreEqual(1, operation.Parameters?.Count);
 
-        var param = operation.Parameters.First();
+        var param = operation.Parameters?.FirstOrDefault();
+
+        Assert.IsNotNull(param);
 
         Assert.AreEqual(name, param.Name);
         Assert.AreEqual(location, param.In);

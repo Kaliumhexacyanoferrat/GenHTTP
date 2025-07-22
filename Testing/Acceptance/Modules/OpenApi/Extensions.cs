@@ -1,22 +1,25 @@
 ﻿using System.Net;
+
 using GenHTTP.Api.Content;
+
 using GenHTTP.Modules.Functional.Provider;
 using GenHTTP.Modules.OpenApi;
-using Microsoft.OpenApi.Models;
-using Microsoft.OpenApi.Readers;
+
+using Microsoft.OpenApi;
+using Microsoft.OpenApi.Reader;
 
 namespace GenHTTP.Testing.Acceptance.Modules.OpenApi;
 
 internal static class Extensions
 {
 
-    internal static async Task<((string, OpenApiPathItem), OpenApiOperation)> GetOperationAsync(TestEngine engine, InlineBuilder api)
+    internal static async Task<((string, IOpenApiPathItem), OpenApiOperation)> GetOperationAsync(TestEngine engine, InlineBuilder api)
     {
-        var doc = (await api.Add(ApiDescription.Create()).GetOpenApiAsync(engine)).OpenApiDocument;
+        var doc = (await api.Add(ApiDescription.Create()).GetOpenApiAsync(engine)).Document!;
 
         var path = doc.Paths.First();
 
-        return ((path.Key, path.Value), path.Value.Operations.First().Value);
+        return ((path.Key, path.Value), path.Value.Operations?.First().Value!);
     }
 
     internal static async Task<ReadResult> AsOpenApiAsync(this HttpResponseMessage response)
@@ -25,7 +28,11 @@ internal static class Extensions
 
         await using var content = await response.Content.ReadAsStreamAsync();
 
-        return await new OpenApiStreamReader().ReadAsync(content);
+        var settings = new OpenApiReaderSettings();
+
+        settings.AddYamlReader();
+
+        return await OpenApiDocument.LoadAsync(content, settings: settings);
     }
 
     internal static async Task<ReadResult> GetOpenApiAsync(this IHandlerBuilder api, TestEngine engine, bool validate = true)
@@ -38,8 +45,8 @@ internal static class Extensions
 
         if (validate)
         {
-            AssertX.Empty(result.OpenApiDiagnostic.Errors);
-            AssertX.Empty(result.OpenApiDiagnostic.Warnings);
+            AssertX.Empty(result.Diagnostic?.Errors);
+            AssertX.Empty(result.Diagnostic?.Warnings);
         }
 
         return result;
