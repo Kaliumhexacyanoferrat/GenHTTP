@@ -13,16 +13,12 @@ public class InlineHandler : IHandler, IServiceMethodProvider
 
     public MethodCollection Methods { get; }
 
-    private ResponseProvider ResponseProvider { get; }
-
     #endregion
 
     #region Initialization
 
     public InlineHandler(List<InlineFunction> functions, MethodRegistry registry)
     {
-        ResponseProvider = new ResponseProvider(registry);
-
         Methods = new MethodCollection(AnalyzeMethods(functions, registry));
     }
 
@@ -36,7 +32,9 @@ public class InlineHandler : IHandler, IServiceMethodProvider
 
             var target = function.Delegate.Target ?? throw new InvalidOperationException("Delegate target must not be null");
 
-            yield return new MethodHandler(operation, target, function.Configuration, registry);
+            var instanceProvider = (IRequest _) => ValueTask.FromResult(target);
+
+            yield return new MethodHandler(operation, instanceProvider, function.Configuration, registry);
         }
     }
 

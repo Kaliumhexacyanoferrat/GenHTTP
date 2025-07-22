@@ -1,19 +1,15 @@
 ﻿<Solution>
-
   <Folder Name="/Adapters/">
     <Project Path="Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj" />
   </Folder>
-
   <Folder Name="/API/">
     <Project Path="API\GenHTTP.Api.csproj" />
   </Folder>
-
   <Folder Name="/Engine/">
     <Project Path="Engine\Internal\GenHTTP.Engine.Internal.csproj" />
     <Project Path="Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj" />
     <Project Path="Engine\Shared\GenHTTP.Engine.Shared.csproj" />
   </Folder>
-
   <Folder Name="/Modules/">
     <Project Path="Modules\ApiBrowsing\GenHTTP.Modules.ApiBrowsing.csproj" />
     <Project Path="Modules\Authentication\GenHTTP.Modules.Authentication.csproj" />
@@ -23,6 +19,7 @@
     <Project Path="Modules\Compression\GenHTTP.Modules.Compression.csproj" />
     <Project Path="Modules\Controllers\GenHTTP.Modules.Controllers.csproj" />
     <Project Path="Modules\Conversion\GenHTTP.Modules.Conversion.csproj" />
+    <Project Path="Modules\DependencyInjection\GenHTTP.Modules.DependencyInjection.csproj" Type="Classic C#" />
     <Project Path="Modules\DirectoryBrowsing\GenHTTP.Modules.DirectoryBrowsing.csproj" />
     <Project Path="Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj" />
     <Project Path="Modules\Functional\GenHTTP.Modules.Functional.csproj" />
@@ -46,29 +43,23 @@
     <Project Path="Modules\Webservices\GenHTTP.Modules.Webservices.csproj" />
     <Project Path="Modules\Websockets\GenHTTP.Modules.Websockets.csproj" />
   </Folder>
-
   <Folder Name="/Playground/">
     <Project Path="Playground\GenHTTP.Playground.csproj" />
   </Folder>
-
-  <Folder Name="/Testing/">
-    <Project Path="Testing\Acceptance\GenHTTP.Testing.Acceptance.csproj" />
-    <Project Path="Testing\Testing\GenHTTP.Testing.csproj" />
-  </Folder>
-
   <Folder Name="/Solution Items/">
     <File Path="CONTRIBUTING.md" />
     <File Path="LICENSE" />
     <File Path="README.md" />
   </Folder>
-
   <Folder Name="/Solution Items/Packages/">
     <File Path="Packages\GenHTTP.Core.Kestrel.nuspec" />
     <File Path="Packages\GenHTTP.Core.nuspec" />
   </Folder>
-
   <Folder Name="/Solution Items/Resources/">
     <File Path="Resources\icon.png" />
   </Folder>
-
+  <Folder Name="/Testing/">
+    <Project Path="Testing\Acceptance\GenHTTP.Testing.Acceptance.csproj" />
+    <Project Path="Testing\Testing\GenHTTP.Testing.csproj" />
+  </Folder>
 </Solution>

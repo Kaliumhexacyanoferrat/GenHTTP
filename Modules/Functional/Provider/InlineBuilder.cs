@@ -174,7 +174,7 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>
 
         var extensions = new MethodRegistry(serializers, injectors, formatters);
 
-        return Concerns.Chain(_Concerns,  new InlineHandler( _Functions, extensions));
+        return Concerns.Chain(_Concerns, new InlineHandler(_Functions, extensions));
     }
 
     #endregion

@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Operations;
 
@@ -13,24 +15,16 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 
     public MethodCollection Methods { get; }
 
-    public ResponseProvider ResponseProvider { get; }
-
-    public object Instance { get; }
-
     #endregion
 
     #region Initialization
 
-    public ServiceResourceRouter(object instance, MethodRegistry registry)
+    public ServiceResourceRouter(Type type, Func<IRequest, ValueTask<object>> instanceProvider, MethodRegistry registry)
     {
-        Instance = instance;
-
-        ResponseProvider = new ResponseProvider(registry);
-
-        Methods = new MethodCollection(AnalyzeMethods(instance.GetType(), registry));
+        Methods = new MethodCollection(AnalyzeMethods(type, instanceProvider, registry));
     }
 
-    private IEnumerable<MethodHandler> AnalyzeMethods(Type type, MethodRegistry registry)
+    private IEnumerable<MethodHandler> AnalyzeMethods(Type type, Func<IRequest, ValueTask<object>> instanceProvider, MethodRegistry registry)
     {
         foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
         {
@@ -40,7 +34,7 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
             {
                 var operation = OperationBuilder.Create(attribute.Path, method, registry);
 
-                yield return new MethodHandler(operation, Instance, attribute, registry);
+                yield return new MethodHandler(operation, instanceProvider, attribute, registry);
             }
         }
     }

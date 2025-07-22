@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+
+        <Description>Enables dependency injection for all framework services.</Description>
+        <PackageTags>HTTP Webserver C# Module DI Dependency Injection</PackageTags>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+
+        <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
+
+        <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
+
+    </ItemGroup>
+
+</Project>

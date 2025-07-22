@@ -1,6 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Serializers;
@@ -13,11 +16,13 @@ public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>
 {
     private readonly List<IConcernBuilder> _Concerns = [];
 
+    private Type? _Type;
+
+    private Func<IRequest, ValueTask<object>>? _InstanceProvider;
+
     private IBuilder<FormatterRegistry>? _Formatters;
 
     private IBuilder<InjectionRegistry>? _Injection;
-
-    private object? _Instance;
 
     private IBuilder<SerializationRegistry>? _Serializers;
 
@@ -42,14 +47,13 @@ public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>
     }
 
     public ControllerBuilder Type<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>() where T : new()
-    {
-        _Instance = new T();
-        return this;
-    }
+        => Instance(new T());
 
     public ControllerBuilder Instance(object instance)
     {
-        _Instance = instance;
+        _Type = instance.GetType();
+        _InstanceProvider = (_) => ValueTask.FromResult(instance);
+
         return this;
     }
 
@@ -67,11 +71,13 @@ public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>
 
         var formatters = (_Formatters ?? Formatting.Default()).Build();
 
-        var instance = _Instance ?? throw new BuilderMissingPropertyException("Instance or Type");
+        var instanceProvider = _InstanceProvider ?? throw new BuilderMissingPropertyException("Instance provider has not been set");
+
+        var type = _Type ?? throw new BuilderMissingPropertyException("Type has not been set");
 
         var extensions = new MethodRegistry(serializers, injectors, formatters);
 
-        return Concerns.Chain(_Concerns, new ControllerHandler(instance, extensions));
+        return Concerns.Chain(_Concerns, new ControllerHandler(type, instanceProvider, extensions));
     }
 
     #endregion
