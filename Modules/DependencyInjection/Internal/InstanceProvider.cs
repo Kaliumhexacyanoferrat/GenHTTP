@@ -11,7 +11,7 @@ public static class InstanceProvider
         var scope = request.GetServiceScope();
 
         var instance = scope.ServiceProvider.GetService(typeof(T))
-            ?? ActivatorUtilities.CreateInstance(scope.ServiceProvider, typeof(T));
+            ?? ActivatorUtilities.CreateInstance<T>(scope.ServiceProvider);
 
         if (instance == null)
         {

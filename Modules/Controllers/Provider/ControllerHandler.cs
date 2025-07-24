@@ -67,7 +67,7 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
         return _Methods = result;
     }
 
-    private Operation CreateOperation(IRequest request, MethodInfo method, List<string> arguments, MethodRegistry registry)
+    private static Operation CreateOperation(IRequest request, MethodInfo method, List<string> arguments, MethodRegistry registry)
     {
         var pathArguments = string.Join('/', arguments.Select(a => $":{a}"));
 
