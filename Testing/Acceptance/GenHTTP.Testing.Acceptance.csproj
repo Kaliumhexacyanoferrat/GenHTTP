@@ -70,6 +70,7 @@
         <ProjectReference Include="..\..\Modules\Controllers\GenHTTP.Modules.Controllers.csproj" />
         <ProjectReference Include="..\..\Modules\Conversion\GenHTTP.Modules.Conversion.csproj" />
         <ProjectReference Include="..\..\Modules\DirectoryBrowsing\GenHTTP.Modules.DirectoryBrowsing.csproj" />
+        <ProjectReference Include="..\..\Modules\DependencyInjection\GenHTTP.Modules.DependencyInjection.csproj" />
         <ProjectReference Include="..\..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj" />
         <ProjectReference Include="..\..\Modules\Functional\GenHTTP.Modules.Functional.csproj" />
         <ProjectReference Include="..\..\Modules\IO\GenHTTP.Modules.IO.csproj" />
