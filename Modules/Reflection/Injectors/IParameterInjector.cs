@@ -6,7 +6,7 @@ namespace GenHTTP.Modules.Reflection.Injectors;
 public interface IParameterInjector
 {
 
-    bool Supports(Type type);
+    bool Supports(IRequest request, Type type);
 
     object? GetValue(IHandler handler, IRequest request, Type targetType);
 

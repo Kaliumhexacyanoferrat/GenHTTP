@@ -1,6 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Serializers;
@@ -9,15 +12,17 @@ using GenHTTP.Modules.Reflection.Injectors;
 
 namespace GenHTTP.Modules.Webservices.Provider;
 
-public sealed class ServiceResourceBuilder : IHandlerBuilder<ServiceResourceBuilder>
+public sealed class ServiceResourceBuilder : IHandlerBuilder<ServiceResourceBuilder>, IRegistryBuilder<ServiceResourceBuilder>
 {
     private readonly List<IConcernBuilder> _Concerns = [];
+
+    private Type? _Type;
+
+    private Func<IRequest, ValueTask<object>>? _InstanceProvider;
 
     private IBuilder<FormatterRegistry>? _Formatters;
 
     private IBuilder<InjectionRegistry>? _Injectors;
-
-    private object? _Instance;
 
     private IBuilder<SerializationRegistry>? _Serializers;
 
@@ -25,9 +30,23 @@ public sealed class ServiceResourceBuilder : IHandlerBuilder<ServiceResourceBuil
 
     public ServiceResourceBuilder Type<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>() where T : new() => Instance(new T());
 
+    public ServiceResourceBuilder Type([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] Type type)
+    {
+        _Type = type;
+        return this;
+    }
+
     public ServiceResourceBuilder Instance(object instance)
     {
-        _Instance = instance;
+        _Type = instance.GetType();
+        _InstanceProvider = (_) => ValueTask.FromResult(instance);
+
+        return this;
+    }
+
+    public ServiceResourceBuilder InstanceProvider(Func<IRequest, ValueTask<object>> provider)
+    {
+        _InstanceProvider = provider;
         return this;
     }
 
@@ -63,11 +82,13 @@ public sealed class ServiceResourceBuilder : IHandlerBuilder<ServiceResourceBuil
 
         var formatters = (_Formatters ?? Formatting.Default()).Build();
 
-        var instance = _Instance ?? throw new BuilderMissingPropertyException("instance");
+        var instanceProvider = _InstanceProvider ?? throw new BuilderMissingPropertyException("Instance provider has not been set");
+
+        var type = _Type ?? throw new BuilderMissingPropertyException("Type has not been set");
 
         var extensions = new MethodRegistry(serializers, injectors, formatters);
 
-        return Concerns.Chain(_Concerns,  new ServiceResourceRouter( instance, extensions));
+        return Concerns.Chain(_Concerns,  new ServiceResourceRouter(type, instanceProvider, extensions));
     }
 
     #endregion

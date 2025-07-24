@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Reflection.Operations;
 
@@ -27,7 +28,7 @@ public static partial class OperationBuilder
     /// <param name="registry">The customizable registry used to read and write data</param>
     /// <param name="forceTrailingSlash">If set to true, the operation requires the client to append a trailing slash to the path</param>
     /// <returns>The newly created operation</returns>
-    public static Operation Create(string? definition, MethodInfo method, MethodRegistry registry, bool forceTrailingSlash = false)
+    public static Operation Create(IRequest request, string? definition, MethodInfo method, MethodRegistry registry, bool forceTrailingSlash = false)
     {
         var isWildcard = CheckWildcardRoute(method.ReturnType);
 
@@ -94,7 +95,7 @@ public static partial class OperationBuilder
             path = new OperationPath(nameBuilder.ToString(), matcher, false, isWildcard);
         }
 
-        var arguments = SignatureAnalyzer.GetArguments(method, pathArguments, registry);
+        var arguments = SignatureAnalyzer.GetArguments(request, method, pathArguments, registry);
 
         var result = SignatureAnalyzer.GetResult(method, registry);
 

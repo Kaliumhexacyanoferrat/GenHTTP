@@ -12,7 +12,7 @@ public static class ArgumentProvider
     {
         foreach (var injector in registry.Injection)
         {
-            if (injector.Supports(argument.Type))
+            if (injector.Supports(request, argument.Type))
             {
                 return injector.GetValue(handler, request, argument.Type);
             }

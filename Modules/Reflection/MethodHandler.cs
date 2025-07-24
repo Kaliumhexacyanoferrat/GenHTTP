@@ -29,7 +29,7 @@ public sealed class MethodHandler : IHandler
 
     public IMethodConfiguration Configuration { get; }
 
-    private object Instance { get; }
+    private Func<IRequest, ValueTask<object>> InstanceProvider { get; }
 
     public MethodRegistry Registry { get; }
 
@@ -43,13 +43,13 @@ public sealed class MethodHandler : IHandler
     /// Creates a new handler to serve a single API operation.
     /// </summary>
     /// <param name="operation">The operation to be executed and provided (use <see cref="OperationBuilder"/> to create an operation)</param>
-    /// <param name="instance">The object to execute the operation on</param>
+    /// <param name="instanceProvider">A factory that will provide an instance to actually execute the operation on</param>
     /// <param name="metaData">Additional, use-specified information about the operation</param>
     /// <param name="registry">The customized registry to be used to read and write data</param>
-    public MethodHandler(Operation operation, object instance, IMethodConfiguration metaData, MethodRegistry registry)
+    public MethodHandler(Operation operation, Func<IRequest, ValueTask<object>> instanceProvider, IMethodConfiguration metaData, MethodRegistry registry)
     {
         Configuration = metaData;
-        Instance = instance;
+        InstanceProvider = instanceProvider;
 
         Operation = operation;
         Registry = registry;
@@ -72,7 +72,7 @@ public sealed class MethodHandler : IHandler
             return interception;
         }
 
-        var result = Invoke(arguments.Values.ToArray());
+        var result = await InvokeAsync(request, arguments.Values.ToArray());
 
         return await ResponseProvider.GetResponseAsync(request, Operation, await UnwrapAsync(result), null);
     }
@@ -144,11 +144,13 @@ public sealed class MethodHandler : IHandler
         return null;
     }
 
-    private object? Invoke(object?[] arguments)
+    private async ValueTask<object?> InvokeAsync(IRequest request, object?[] arguments)
     {
         try
         {
-            return Operation.Method.Invoke(Instance, arguments);
+            var instance = await InstanceProvider(request);
+
+            return Operation.Method.Invoke(instance, arguments);
         }
         catch (TargetInvocationException e)
         {

@@ -8,12 +8,13 @@ namespace GenHTTP.Modules.Functional.Provider;
 
 public class InlineHandler : IHandler, IServiceMethodProvider
 {
+    private MethodCollection? _Methods;
 
     #region Get-/Setters
 
-    public MethodCollection Methods { get; }
+    private List<InlineFunction> Functions { get; }
 
-    private ResponseProvider ResponseProvider { get; }
+    private MethodRegistry Registry { get; }
 
     #endregion
 
@@ -21,32 +22,43 @@ public class InlineHandler : IHandler, IServiceMethodProvider
 
     public InlineHandler(List<InlineFunction> functions, MethodRegistry registry)
     {
-        ResponseProvider = new ResponseProvider(registry);
-
-        Methods = new MethodCollection(AnalyzeMethods(functions, registry));
-    }
-
-    private static IEnumerable<MethodHandler> AnalyzeMethods(List<InlineFunction> functions, MethodRegistry registry)
-    {
-        foreach (var function in functions)
-        {
-            var method = function.Delegate.Method;
-
-            var operation = OperationBuilder.Create(function.Path, method, registry);
-
-            var target = function.Delegate.Target ?? throw new InvalidOperationException("Delegate target must not be null");
-
-            yield return new MethodHandler(operation, target, function.Configuration, registry);
-        }
+        Functions = functions;
+        Registry = registry;
     }
 
     #endregion
 
     #region Functionality
 
-    public ValueTask PrepareAsync() => Methods.PrepareAsync();
+    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-    public ValueTask<IResponse?> HandleAsync(IRequest request) => Methods.HandleAsync(request);
+    public async ValueTask<IResponse?> HandleAsync(IRequest request) => await (await GetMethodsAsync(request)).HandleAsync(request);
+
+    public async ValueTask<MethodCollection> GetMethodsAsync(IRequest request)
+    {
+        if (_Methods != null) return _Methods;
+
+        var found = new List<MethodHandler>();
+
+        foreach (var function in Functions)
+        {
+            var method = function.Delegate.Method;
+
+            var operation = OperationBuilder.Create(request, function.Path, method, Registry);
+
+            var target = function.Delegate.Target ?? throw new InvalidOperationException("Delegate target must not be null");
+
+            var instanceProvider = (IRequest _) => ValueTask.FromResult(target);
+
+            found.Add(new MethodHandler(operation, instanceProvider, function.Configuration, Registry));
+        }
+
+        var result = new MethodCollection(found);
+
+        await result.PrepareAsync();
+
+        return _Methods = result;
+    }
 
     #endregion
 

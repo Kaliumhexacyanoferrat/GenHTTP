@@ -9,7 +9,7 @@ public class UserInjector<T> : IParameterInjector where T : IUser
 
     #region Get-/Setters
 
-    public bool Supports(Type type) => type == typeof(T);
+    public bool Supports(IRequest request, Type type) => type == typeof(T);
 
     #endregion
 
