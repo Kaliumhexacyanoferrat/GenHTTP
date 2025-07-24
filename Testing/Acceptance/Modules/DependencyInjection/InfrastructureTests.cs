@@ -31,4 +31,21 @@ public class InfrastructureTests
         Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
 
+    [TestMethod]
+    public async Task TestMeaningfulErrorIfNotConfigured()
+    {
+        var app = Inline.Create()
+                        .Get((IRequest r) =>
+                        {
+                            Assert.Throws<InvalidOperationException>(r.GetServiceProvider);
+                            Assert.Throws<InvalidOperationException>(r.GetServiceScope);
+                        });
+
+        await using var runner = await TestHost.RunAsync(app);
+
+        using var response = await runner.GetResponseAsync();
+
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
 }
