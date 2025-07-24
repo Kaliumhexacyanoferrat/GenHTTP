@@ -12,7 +12,7 @@ public sealed class MethodHandlerExplorer : IApiExplorer
 
     public bool CanExplore(IHandler handler) => handler is MethodHandler;
 
-    public void Explore(IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, ApiDiscoveryRegistry registry)
+    public ValueTask ExploreAsync(IRequest request, IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, ApiDiscoveryRegistry registry)
     {
         if (handler is MethodHandler methodHandler)
         {
@@ -123,6 +123,8 @@ public sealed class MethodHandlerExplorer : IApiExplorer
                 pathItem.Add(method.RawMethod, operation);
             }
         }
+
+        return ValueTask.CompletedTask;
     }
 
     private static OpenApiParameterKind MapArgumentType(OperationArgumentSource source) => source switch

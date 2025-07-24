@@ -1,5 +1,5 @@
 ﻿using GenHTTP.Api.Content;
-
+using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
@@ -73,9 +73,11 @@ public class DiscoveryTests
 
         public bool CanExplore(IHandler handler) => true;
 
-        public void Explore(IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, ApiDiscoveryRegistry registry)
+        public ValueTask ExploreAsync(IRequest request, IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, ApiDiscoveryRegistry registry)
         {
             document.Servers.First().Description = "Added by explorer";
+
+            return ValueTask.CompletedTask;
         }
     }
 

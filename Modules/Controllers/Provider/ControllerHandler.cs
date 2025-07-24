@@ -13,9 +13,15 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 {
     private static readonly Regex HyphenMatcher = CreateHyphenMatcher();
 
+    private MethodCollection? _Methods;
+
     #region Get-/Setters
 
-    public MethodCollection Methods { get; }
+    private Type Type { get; }
+
+    private Func<IRequest, ValueTask<object>> InstanceProvider { get; }
+
+    private MethodRegistry Registry { get; }
 
     #endregion
 
@@ -23,37 +29,58 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 
     public ControllerHandler(Type type, Func<IRequest, ValueTask<object>> instanceProvider, MethodRegistry registry)
     {
-        Methods = new MethodCollection(AnalyzeMethods(type, instanceProvider, registry));
+        Type = type;
+        InstanceProvider = instanceProvider;
+        Registry = registry;
     }
 
-    private IEnumerable<MethodHandler> AnalyzeMethods(Type type, Func<IRequest, ValueTask<object>> instanceProvider, MethodRegistry registry)
+    #endregion
+
+    #region Functionality
+
+    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+
+    public async ValueTask<IResponse?> HandleAsync(IRequest request) => await (await GetMethodsAsync(request)).HandleAsync(request);
+
+    public async ValueTask<MethodCollection> GetMethodsAsync(IRequest request)
     {
-        foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
+        if (_Methods != null) return _Methods;
+
+        var found = new List<MethodHandler>();
+
+
+        foreach (var method in Type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
         {
             var annotation = method.GetCustomAttribute<ControllerActionAttribute>(true) ?? new MethodAttribute();
 
             var arguments = FindPathArguments(method);
 
-            var operation = CreateOperation(method, arguments, registry);
+            var operation = CreateOperation(request, method, arguments, Registry);
 
-            yield return new MethodHandler(operation, instanceProvider, annotation, registry);
+            found.Add(new MethodHandler(operation, InstanceProvider, annotation, Registry));
         }
+
+        var result = new MethodCollection(found);
+
+        await result.PrepareAsync();
+
+        return _Methods = result;
     }
 
-    private Operation CreateOperation(MethodInfo method, List<string> arguments, MethodRegistry registry)
+    private Operation CreateOperation(IRequest request, MethodInfo method, List<string> arguments, MethodRegistry registry)
     {
         var pathArguments = string.Join('/', arguments.Select(a => $":{a}"));
 
         if (method.Name == "Index")
         {
-            return OperationBuilder.Create(pathArguments.Length > 0 ? $"/{pathArguments}/" : null, method, registry, true);
+            return OperationBuilder.Create(request, pathArguments.Length > 0 ? $"/{pathArguments}/" : null, method, registry, true);
         }
 
         var name = HypenCase(method.Name);
 
         var path = $"/{name}";
 
-        return OperationBuilder.Create(pathArguments.Length > 0 ? $"{path}/{pathArguments}/" : $"{path}/", method, registry, true);
+        return OperationBuilder.Create(request, pathArguments.Length > 0 ? $"{path}/{pathArguments}/" : $"{path}/", method, registry, true);
     }
 
     private static List<string> FindPathArguments(MethodInfo method)
@@ -78,14 +105,6 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 
     [GeneratedRegex("([a-z])([A-Z0-9]+)")]
     private static partial Regex CreateHyphenMatcher();
-
-    #endregion
-
-    #region Functionality
-
-    public ValueTask PrepareAsync() => Methods.PrepareAsync();
-
-    public ValueTask<IResponse?> HandleAsync(IRequest request) => Methods.HandleAsync(request);
 
     #endregion
 

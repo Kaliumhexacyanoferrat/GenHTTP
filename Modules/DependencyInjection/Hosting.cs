@@ -1,8 +1,6 @@
 ﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.DependencyInjection.Internal;
 
-using Microsoft.Extensions.DependencyInjection;
-
 namespace GenHTTP.Modules.DependencyInjection;
 
 public static class Hosting

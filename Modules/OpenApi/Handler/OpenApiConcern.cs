@@ -55,14 +55,14 @@ public sealed class OpenApiConcern : IConcern
                 {
                     response = accept.ToLowerInvariant() switch
                     {
-                        "application/json" or "application/application/vnd.oai.openapi+json" => GetDocument(request, OpenApiFormat.Json),
-                        "application/yaml" or "application/application/vnd.oai.openapi+yaml" => GetDocument(request, OpenApiFormat.Yaml),
+                        "application/json" or "application/application/vnd.oai.openapi+json" => await GetDocumentAsync(request, OpenApiFormat.Json),
+                        "application/yaml" or "application/application/vnd.oai.openapi+yaml" => await GetDocumentAsync(request, OpenApiFormat.Yaml),
                         _ => throw new ProviderException(ResponseStatus.BadRequest, $"Generating API specifications of format '{accept}' is not supported")
                     };
                 }
                 else
                 {
-                    response = GetDocument(request, OpenApiFormat.Json);
+                    response = await GetDocumentAsync(request, OpenApiFormat.Json);
                 }
 
                 response.Headers.Add("Vary", "Accept");
@@ -71,20 +71,20 @@ public sealed class OpenApiConcern : IConcern
             }
             if (string.Compare(path, "openapi.json", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                return GetDocument(request, OpenApiFormat.Json);
+                return await GetDocumentAsync(request, OpenApiFormat.Json);
             }
             if (string.Compare(path, "openapi.yaml", StringComparison.OrdinalIgnoreCase) == 0 || string.Compare(path, "openapi.yml", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                return GetDocument(request, OpenApiFormat.Yaml);
+                return await GetDocumentAsync(request, OpenApiFormat.Yaml);
             }
         }
 
         return await Content.HandleAsync(request);
     }
 
-    private IResponse GetDocument(IRequest request, OpenApiFormat format)
+    private async ValueTask<IResponse> GetDocumentAsync(IRequest request, OpenApiFormat format)
     {
-        var document = Discover(request, Discovery);
+        var document = await DiscoverAsync(request, Discovery);
 
         var content = new OpenApiContent(document, format);
 
@@ -96,7 +96,7 @@ public sealed class OpenApiConcern : IConcern
                       .Build();
     }
 
-    private ReturnDocument Discover(IRequest request, ApiDiscoveryRegistry registry)
+    private async ValueTask<ReturnDocument> DiscoverAsync(IRequest request, ApiDiscoveryRegistry registry)
     {
         if (EnableCaching && _Cached != null)
         {
@@ -119,7 +119,7 @@ public sealed class OpenApiConcern : IConcern
             });
         }
 
-        registry.Explore(Content, [], document, schemata);
+        await registry.ExploreAsync(request, Content, [], document, schemata);
 
         PostProcessor.Invoke(request, document);
 

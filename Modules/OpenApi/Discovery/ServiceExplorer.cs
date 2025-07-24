@@ -1,5 +1,8 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Reflection;
+
 using NSwag;
 
 namespace GenHTTP.Modules.OpenApi.Discovery;
@@ -9,11 +12,11 @@ public sealed class ServiceExplorer : IApiExplorer
 
     public bool CanExplore(IHandler handler) => handler is IServiceMethodProvider;
 
-    public void Explore(IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, ApiDiscoveryRegistry registry)
+    public async ValueTask ExploreAsync(IRequest request, IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, ApiDiscoveryRegistry registry)
     {
         if (handler is IServiceMethodProvider serviceProvider)
         {
-            registry.Explore(serviceProvider.Methods, path, document, schemata);
+            await registry.ExploreAsync(request, await serviceProvider.GetMethodsAsync(request), path, document, schemata);
         }
     }
 

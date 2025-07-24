@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.OpenApi.Discovery;
 
 using NSwag;
@@ -27,11 +28,12 @@ public interface IApiExplorer
     /// Analyzes the given handler and adds the endpoints defined by this handler to the resulting
     /// OpenAPI document.
     /// </summary>
+    /// <param name="request">The currently executed request</param>
     /// <param name="handler">The handler to be analyzed</param>
     /// <param name="path">The current stack of path segments that have already been analyzed, relative to the location of the OpenAPI concern</param>
     /// <param name="document">The document to be adjusted and enriched</param>
     /// <param name="schemata">The manager to generate JSON schemas with</param>
     /// <param name="registry">The registry containing all active explorers which can be used to further analyze any child handler of the given handler instance</param>
-    void Explore(IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, ApiDiscoveryRegistry registry);
+    ValueTask ExploreAsync(IRequest request, IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, ApiDiscoveryRegistry registry);
 
 }

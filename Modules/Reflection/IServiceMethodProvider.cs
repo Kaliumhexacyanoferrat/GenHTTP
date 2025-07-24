@@ -1,4 +1,6 @@
-﻿namespace GenHTTP.Modules.Reflection;
+﻿using GenHTTP.Api.Protocol;
+
+namespace GenHTTP.Modules.Reflection;
 
 /// <summary>
 /// Implemented by handlers that use the <see cref="MethodCollection" /> handler
@@ -9,8 +11,8 @@ public interface IServiceMethodProvider
 {
 
     /// <summary>
-    /// The method collection actually serving requests.
+    /// Retrieves the methods that are provided by this handler.
     /// </summary>
-    MethodCollection Methods { get; }
+    ValueTask<MethodCollection> GetMethodsAsync(IRequest request);
 
 }
