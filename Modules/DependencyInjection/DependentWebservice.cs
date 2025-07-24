@@ -6,7 +6,6 @@ using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.DependencyInjection.Infrastructure;
 using GenHTTP.Modules.Layouting.Provider;
-using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Injectors;
 using GenHTTP.Modules.Webservices.Provider;
 
@@ -22,21 +21,7 @@ public static class DependentWebservice
         builder.Type(typeof(T));
         builder.InstanceProvider(async (r) => await InstanceProvider.ProvideAsync<T>(r));
 
-        var injectionOverlay = injectors ?? Injection.Default();
-
-        injectionOverlay.Add(new DependencyInjector());
-
-        builder.Injectors(injectionOverlay);
-
-        if (serializers != null)
-        {
-            builder.Serializers(serializers);
-        }
-
-        if (formatters != null)
-        {
-            builder.Formatters(formatters);
-        }
+        builder.Configure(injectors, serializers, formatters);
 
         return layout.Add(path, builder);
     }

@@ -12,7 +12,7 @@ using GenHTTP.Modules.Reflection.Injectors;
 
 namespace GenHTTP.Modules.Controllers.Provider;
 
-public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>
+public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>, IRegistryBuilder<ControllerBuilder>
 {
     private readonly List<IConcernBuilder> _Concerns = [];
 

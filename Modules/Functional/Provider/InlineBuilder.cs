@@ -10,7 +10,7 @@ using GenHTTP.Modules.Reflection.Injectors;
 
 namespace GenHTTP.Modules.Functional.Provider;
 
-public class InlineBuilder : IHandlerBuilder<InlineBuilder>
+public class InlineBuilder : IHandlerBuilder<InlineBuilder>, IRegistryBuilder<InlineBuilder>
 {
     private static readonly HashSet<FlexibleRequestMethod> AllMethods = [..Enum.GetValues<RequestMethod>().Select(FlexibleRequestMethod.Get)];
 
