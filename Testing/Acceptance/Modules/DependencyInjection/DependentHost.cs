@@ -15,7 +15,8 @@ public static class DependentHost
 
         var services = new ServiceCollection();
 
-        services.AddSingleton<AwesomeService>();
+        services.AddSingleton<AwesomeService>()
+                .AddSingleton<AnotherAwesomeService>();
 
         host.Host.AddDependencyInjection(services.BuildServiceProvider());
 
@@ -23,5 +24,20 @@ public static class DependentHost
 
         return host;
     }
+
+}
+
+
+public class AwesomeService
+{
+
+    public string DoWork() => "42";
+
+}
+
+public class AnotherAwesomeService
+{
+
+    public string DoWork() => "24";
 
 }

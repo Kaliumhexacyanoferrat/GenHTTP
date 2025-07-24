@@ -85,6 +85,6 @@ public class BasicTests
         Assert.AreEqual("42", await response.GetContentAsync());
     }
 
-    #endregion;
+    #endregion
 
 }
