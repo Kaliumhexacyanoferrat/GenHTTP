@@ -4,18 +4,28 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace GenHTTP.Modules.DependencyInjection.Infrastructure;
 
-public class InjectionConcern : IConcern
+internal class InjectionConcern : IConcern
 {
+
+    #region Get-/Setters
 
     public IHandler Content { get; }
 
-    public IServiceProvider Services { get; }
+    internal IServiceProvider Services { get; }
 
-    public InjectionConcern(IHandler content, IServiceProvider services)
+    #endregion
+
+    #region Initialization
+
+    internal InjectionConcern(IHandler content, IServiceProvider services)
     {
         Content = content;
         Services = services;
     }
+
+    #endregion
+
+    #region Functionality
 
     public ValueTask PrepareAsync() => Content.PrepareAsync();
 
@@ -27,5 +37,7 @@ public class InjectionConcern : IConcern
 
         return Content.HandleAsync(request);
     }
+
+    #endregion
 
 }

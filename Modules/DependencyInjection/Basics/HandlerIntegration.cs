@@ -5,7 +5,7 @@ using GenHTTP.Modules.DependencyInjection.Infrastructure;
 
 namespace GenHTTP.Modules.DependencyInjection.Basics;
 
-public class HandlerIntegration<T> : IHandler where T: class, IDependentHandler
+internal class HandlerIntegration<T> : IHandler where T: class, IDependentHandler
 {
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
