@@ -49,11 +49,23 @@ public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>
     public ControllerBuilder Type<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>() where T : new()
         => Instance(new T());
 
+    public ControllerBuilder Type([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] Type type)
+    {
+        _Type = type;
+        return this;
+    }
+
     public ControllerBuilder Instance(object instance)
     {
         _Type = instance.GetType();
         _InstanceProvider = (_) => ValueTask.FromResult(instance);
 
+        return this;
+    }
+
+    public ControllerBuilder InstanceProvider(Func<IRequest, ValueTask<object>> provider)
+    {
+        _InstanceProvider = provider;
         return this;
     }
 

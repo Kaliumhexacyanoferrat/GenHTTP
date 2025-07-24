@@ -1,14 +1,17 @@
-﻿using GenHTTP.Api.Protocol;
-
+﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.DependencyInjection.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GenHTTP.Modules.DependencyInjection;
 
-public static class Contract
+public static class Integration
 {
     private const string ProviderVar = "__DI_SERVICE_PROVIDER";
 
     private const string ScopeVar = "__DI_SERVICE_SCOPE";
+
+    public static IServerHost AddDependencyInjection(this IServerHost host, IServiceProvider services) => host.Add(new InjectionConcernBuilder(services));
 
     internal static void Configure(this IRequest request, IServiceProvider provider, IServiceScope scope)
     {

@@ -1,9 +1,8 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using Microsoft.Extensions.DependencyInjection;
 
-namespace GenHTTP.Modules.DependencyInjection.Internal;
+namespace GenHTTP.Modules.DependencyInjection.Infrastructure;
 
 public class InjectionConcern : IConcern
 {

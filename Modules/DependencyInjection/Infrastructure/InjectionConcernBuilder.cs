@@ -1,6 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 
-namespace GenHTTP.Modules.DependencyInjection.Internal;
+namespace GenHTTP.Modules.DependencyInjection.Infrastructure;
 
 public class InjectionConcernBuilder : IConcernBuilder
 {

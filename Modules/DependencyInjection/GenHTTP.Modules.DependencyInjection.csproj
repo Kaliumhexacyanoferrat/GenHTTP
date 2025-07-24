@@ -13,7 +13,11 @@
 
         <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
 
+        <ProjectReference Include="..\Controllers\GenHTTP.Modules.Controllers.csproj" />
+
         <ProjectReference Include="..\Conversion\GenHTTP.Modules.Conversion.csproj" />
+
+        <ProjectReference Include="..\Functional\GenHTTP.Modules.Functional.csproj" />
 
         <ProjectReference Include="..\Layouting\GenHTTP.Modules.Layouting.csproj" />
 

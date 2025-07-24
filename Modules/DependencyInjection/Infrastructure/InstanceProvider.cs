@@ -1,12 +1,12 @@
 ﻿using GenHTTP.Api.Protocol;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace GenHTTP.Modules.DependencyInjection.Internal;
+namespace GenHTTP.Modules.DependencyInjection.Infrastructure;
 
 public static class InstanceProvider
 {
 
-    public static ValueTask<object> Provide<T>(IRequest request) where T : class
+    public static ValueTask<T> ProvideAsync<T>(IRequest request) where T : class
     {
         var scope = request.GetServiceScope();
 
@@ -18,7 +18,7 @@ public static class InstanceProvider
             throw new InvalidOperationException($"Unable to resolve or construct instance of type '{typeof(T)}'");
         }
 
-        return ValueTask.FromResult(instance);
+        return ValueTask.FromResult((T)instance);
     }
 
 }
