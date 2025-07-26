@@ -117,7 +117,7 @@ in C#. In 2024 the focus has shifted towards API development, dropping support f
 - Reference
   projects: [GenHTTP Gateway](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Gateway) | [MockH](https://github.com/Kaliumhexacyanoferrat/MockH)
 - Similar
-  projects: [EmbedIO](https://github.com/unosquare/embedio) | [NetCoreServer](https://github.com/chronoxor/NetCoreServer) | [Watson Webserver](https://github.com/jchristn/WatsonWebserver) | [SimpleW](https://github.com/stratdev3/SimpleW)
+  projects: [Wired.IO](https://github.com/MDA2AV/Wired.IO) | [EmbedIO](https://github.com/unosquare/embedio) | [NetCoreServer](https://github.com/chronoxor/NetCoreServer) | [Watson Webserver](https://github.com/jchristn/WatsonWebserver) | [SimpleW](https://github.com/stratdev3/SimpleW)
 
 ## 🙏 Thanks
 
