@@ -100,7 +100,7 @@ public class IntegrationTests
             {
                 await r.Server.DisposeAsync(); // nop
 
-                await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await r.Server.StartAsync());
+                await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () => await r.Server.StartAsync());
 
                 return r.Server;
             }));

@@ -50,7 +50,7 @@ public sealed class ContentTests
 
         using var response = await host.GetResponseAsync();
 
-        await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () =>
         {
             await response.GetOptionalContentAsync<MyType>();
         });
