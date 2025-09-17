@@ -63,7 +63,7 @@ public class MultiSegmentTests
     [TestMethod]
     public void TestSegmentOccupied()
     {
-        Assert.ThrowsException<InvalidOperationException>(() =>
+        Assert.ThrowsExactly<InvalidOperationException>(() =>
         {
             Layout.Create()
                   .Add("api", Redirect.To("https://example.com"))

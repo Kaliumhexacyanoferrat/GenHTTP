@@ -63,11 +63,11 @@ public class RangedStreamTests
         Assert.IsFalse(stream.CanRead);
         Assert.IsFalse(stream.CanSeek);
 
-        Assert.ThrowsException<NotSupportedException>(() => stream.Read([], 0, 1));
+        Assert.ThrowsExactly<NotSupportedException>(() => stream.Read([], 0, 1));
 
-        Assert.ThrowsException<NotSupportedException>(() => stream.Seek(0, SeekOrigin.Begin));
+        Assert.ThrowsExactly<NotSupportedException>(() => stream.Seek(0, SeekOrigin.Begin));
 
-        Assert.ThrowsException<NotSupportedException>(() => stream.SetLength(0));
+        Assert.ThrowsExactly<NotSupportedException>(() => stream.SetLength(0));
     }
 
     private static string GetRange(ulong start, ulong end, int offset, int count, int position = 0)

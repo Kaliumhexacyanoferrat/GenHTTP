@@ -1,7 +1,7 @@
 ﻿using System.Net;
+
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Functional;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
 
@@ -23,7 +23,7 @@ public class RequestPropertyTest
 
             Assert.IsFalse(request.Properties.TryGet<string>("my", out _));
 
-            Assert.ThrowsException<KeyNotFoundException>(() => request.Properties["my"]);
+            Assert.ThrowsExactly<KeyNotFoundException>(() => request.Properties["my"]);
 
             return true;
         });

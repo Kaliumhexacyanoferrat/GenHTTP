@@ -174,7 +174,7 @@ public sealed class MultiAuthenticationTests
     {
         var builder = MultiAuthentication.Create();
 
-        Assert.ThrowsException<BuilderMissingPropertyException>(() =>
+        Assert.ThrowsExactly<BuilderMissingPropertyException>(() =>
         {
             using var response = Execute(builder, engine).GetAwaiter().GetResult();
         });

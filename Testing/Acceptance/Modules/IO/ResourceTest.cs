@@ -151,6 +151,6 @@ public sealed class ResourceTest
     [TestMethod]
     public void TestNonExistentFile()
     {
-        Assert.ThrowsException<FileNotFoundException>(() => Resource.FromFile("blubb.txt").Build());
+        Assert.ThrowsExactly<FileNotFoundException>(() => Resource.FromFile("blubb.txt").Build());
     }
 }

@@ -27,7 +27,7 @@ public sealed class PooledDictionaryTests
     {
         using var dict = new PooledDictionary<string, string>();
 
-        Assert.ThrowsException<KeyNotFoundException>(() => dict["nope"]);
+        Assert.ThrowsExactly<KeyNotFoundException>(() => dict["nope"]);
     }
 
     [TestMethod]
@@ -82,7 +82,7 @@ public sealed class PooledDictionaryTests
     {
         using var dict = new PooledDictionary<string, string>();
 
-        Assert.ThrowsException<NotSupportedException>(() => dict.Remove(""));
+        Assert.ThrowsExactly<NotSupportedException>(() => dict.Remove(""));
     }
 
     [TestMethod]
@@ -90,6 +90,6 @@ public sealed class PooledDictionaryTests
     {
         using var dict = new PooledDictionary<string, string>();
 
-        Assert.ThrowsException<NotSupportedException>(() => dict.Remove(new KeyValuePair<string, string>("", "")));
+        Assert.ThrowsExactly<NotSupportedException>(() => dict.Remove(new KeyValuePair<string, string>("", "")));
     }
 }

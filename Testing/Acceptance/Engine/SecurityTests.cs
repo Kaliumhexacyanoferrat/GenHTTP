@@ -131,7 +131,7 @@ public sealed class SecurityTests
     {
         return RunSecure(async (_, sec) =>
         {
-            await Assert.ThrowsExceptionAsync<HttpRequestException>(async () =>
+            await Assert.ThrowsExactlyAsync<HttpRequestException>(async () =>
             {
                 using var client = TestHost.GetClient();
 
@@ -155,7 +155,7 @@ public sealed class SecurityTests
     {
         return RunSecure(async (_, sec) =>
         {
-            await Assert.ThrowsExceptionAsync<HttpRequestException>(async () =>
+            await Assert.ThrowsExactlyAsync<HttpRequestException>(async () =>
             {
                 using var client = TestHost.GetClient(ignoreSecurityErrors: false);
 

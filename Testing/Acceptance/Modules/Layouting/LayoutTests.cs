@@ -99,7 +99,7 @@ public sealed class LayoutTests
     {
         var content = Content.From(Resource.FromString("Hello World!"));
 
-        Assert.ThrowsException<InvalidOperationException>(() =>
+        Assert.ThrowsExactly<InvalidOperationException>(() =>
         {
             Layout.Create().Add("one", content).Add("one", content);
         });
