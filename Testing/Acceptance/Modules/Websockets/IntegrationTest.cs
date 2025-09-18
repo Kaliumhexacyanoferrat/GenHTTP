@@ -23,7 +23,7 @@ public sealed class IntegrationTest
                        .OnMessage((socket, msg) =>
                        {
                            length += msg.Length;
-                           socket.Send(msg);
+                           socket.SendAsync(msg);
                            socket.Close();
                        });
 
@@ -58,10 +58,10 @@ public sealed class IntegrationTest
                        {
                            Task.Run(async () =>
                            {
-                               await socket.SendPing([42]);
-                               await socket.SendPong([42]);
+                               await socket.SendPingAsync([42]);
+                               await socket.SendPongAsync([42]);
 
-                               await socket.Send([42]);
+                               await socket.SendAsync([42]);
 
                                Assert.IsTrue(socket.IsAvailable);
 

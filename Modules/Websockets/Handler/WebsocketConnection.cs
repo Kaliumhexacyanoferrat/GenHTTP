@@ -64,7 +64,7 @@ public sealed class WebsocketConnection : IWebSocketConnection, IWebsocketConnec
         OnClose = (onClose != null) ? () => onClose(this) : () => { };
         OnMessage = (onMessage != null) ? x => onMessage(this, x) : x => { };
         OnBinary = (onBinary != null) ? x => onBinary(this, x) : x => { };
-        OnPing = (onPing != null) ? x => onPing(this, x) : x => SendPong(x);
+        OnPing = (onPing != null) ? x => onPing(this, x) : x => SendPongAsync(x);
         OnPong = (onPong != null) ? x => onPong(this, x) : x => { };
         OnError = (onError != null) ? x => onError(this, x) : x => { };
     }
@@ -73,25 +73,21 @@ public sealed class WebsocketConnection : IWebSocketConnection, IWebsocketConnec
 
     #region Functionality
 
-    public Task Send(string message)
-    {
-        return Send(message, GetHandler().FrameText);
-    }
+    public Task Send(string message) => SendAsync(message);
 
-    public Task Send(byte[] message)
-    {
-        return Send(message, GetHandler().FrameBinary);
-    }
+    public Task Send(byte[] message) => SendAsync(message);
 
-    public Task SendPing(byte[] message)
-    {
-        return Send(message, GetHandler().FramePing);
-    }
+    public Task SendPing(byte[] message) => SendPingAsync(message);
 
-    public Task SendPong(byte[] message)
-    {
-        return Send(message, GetHandler().FramePong);
-    }
+    public Task SendPong(byte[] message) => SendPongAsync(message);
+
+    public Task SendAsync(string message) => Send(message, GetHandler().FrameText);
+
+    public Task SendAsync(byte[] message) => Send(message, GetHandler().FrameBinary);
+
+    public Task SendPingAsync(byte[] message) => Send(message, GetHandler().FramePing);
+
+    public Task SendPongAsync(byte[] message) => Send(message, GetHandler().FramePong);
 
     private Task Send<T>(T message, Func<T, byte[]> createFrame)
     {
@@ -109,6 +105,7 @@ public sealed class WebsocketConnection : IWebSocketConnection, IWebsocketConnec
         }
 
         var bytes = createFrame(message);
+        
         return SendBytes(bytes);
     }
 

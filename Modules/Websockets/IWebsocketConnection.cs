@@ -22,25 +22,25 @@ public interface IWebsocketConnection
     /// Sends a text message to the connected client.
     /// </summary>
     /// <param name="message">The message to be sent</param>
-    Task Send(string message);
+    Task SendAsync(string message);
 
     /// <summary>
     /// Sends a binary message to the connected client.
     /// </summary>
     /// <param name="message">The message to be sent</param>
-    Task Send(byte[] message);
+    Task SendAsync(byte[] message);
 
     /// <summary>
     /// Sends a ping message to the connected client.
     /// </summary>
     /// <param name="message">The message to be sent</param>
-    Task SendPing(byte[] message);
+    Task SendPingAsync(byte[] message);
 
     /// <summary>
     /// Sends a pong message to the connected client.
     /// </summary>
     /// <param name="message">The message to be sent</param>
-    Task SendPong(byte[] message);
+    Task SendPongAsync(byte[] message);
 
     /// <summary>
     /// Gracefully closes the connection to the client.
@@ -52,7 +52,7 @@ public interface IWebsocketConnection
     /// </summary>
     /// <param name="code">The code to be sent to the connected client</param>
     /// <remarks>
-    /// See Flex.WebSocketStatusCodes.
+    /// See <see cref="Fleck.WebSocketStatusCodes" />.
     /// </remarks>
     void Close(int code);
 

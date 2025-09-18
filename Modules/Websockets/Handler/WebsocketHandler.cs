@@ -10,19 +10,19 @@ public sealed class WebsocketHandler : IHandler
 
     #region Get-/Setters
 
-    public Action<IWebsocketConnection>? OnOpen { get; }
+    public Func<IWebsocketConnection, Task>? OnOpen { get; }
 
-    public Action<IWebsocketConnection>? OnClose { get; }
+    public Func<IWebsocketConnection, Task>? OnClose { get; }
 
-    public Action<IWebsocketConnection, string>? OnMessage { get; }
+    public Func<IWebsocketConnection, string, Task>? OnMessage { get; }
 
-    public Action<IWebsocketConnection, byte[]>? OnBinary { get; }
+    public Func<IWebsocketConnection, byte[], Task>? OnBinary { get; }
 
-    public Action<IWebsocketConnection, byte[]>? OnPing { get; }
+    public Func<IWebsocketConnection, byte[], Task>? OnPing { get; }
 
-    public Action<IWebsocketConnection, byte[]>? OnPong { get; }
+    public Func<IWebsocketConnection, byte[], Task>? OnPong { get; }
 
-    public Action<IWebsocketConnection, Exception>? OnError { get; }
+    public Func<IWebsocketConnection, Exception, Task>? OnError { get; }
 
     public List<string> SupportedProtocols { get; }
 
@@ -31,13 +31,13 @@ public sealed class WebsocketHandler : IHandler
     #region Initialization
 
     public WebsocketHandler(List<string> supportedProtocols,
-        Action<IWebsocketConnection>? onOpen,
-        Action<IWebsocketConnection>? onClose,
-        Action<IWebsocketConnection, string>? onMessage,
-        Action<IWebsocketConnection, byte[]>? onBinary,
-        Action<IWebsocketConnection, byte[]>? onPing,
-        Action<IWebsocketConnection, byte[]>? onPong,
-        Action<IWebsocketConnection, Exception>? onError)
+        Func<IWebsocketConnection, Task>? onOpen,
+        Func<IWebsocketConnection, Task>? onClose,
+        Func<IWebsocketConnection, string, Task>? onMessage,
+        Func<IWebsocketConnection, byte[], Task>? onBinary,
+        Func<IWebsocketConnection, byte[], Task>? onPing,
+        Func<IWebsocketConnection, byte[], Task>? onPong,
+        Func<IWebsocketConnection, Exception, Task>? onError)
     {
         SupportedProtocols = supportedProtocols;
 
