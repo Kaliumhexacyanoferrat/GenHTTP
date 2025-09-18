@@ -13,7 +13,7 @@ public class InitializerTest
         WS.Websocket.Create()
           .OnOpen(s => { })
           .OnClose(s => { })
-          .OnPing((s, b) => { s.SendPong(b); })
+          .OnPing((s, b) => { s.SendPongAsync(b); })
           .OnPong((s, b) => { })
           .OnMessage((s, x) => { })
           .OnBinary((s, x) => { })
