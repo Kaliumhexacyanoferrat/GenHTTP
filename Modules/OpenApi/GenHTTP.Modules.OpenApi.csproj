@@ -15,7 +15,7 @@
 
         <ProjectReference Include="..\Reflection\GenHTTP.Modules.Reflection.csproj" />
 
-        <PackageReference Include="NSwag.Core" Version="14.5.0" />
+        <PackageReference Include="NSwag.Core" Version="14.6.0" />
 
         <PackageReference Include="NSwag.Core.Yaml" Version="14.5.0" />
 
