@@ -1,6 +1,7 @@
 ﻿using GenHTTP.Testing.Acceptance.Utilities;
+
 using WS = GenHTTP.Modules.Websockets;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Websocket.Client;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Websockets;

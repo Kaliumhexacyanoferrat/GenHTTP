@@ -29,7 +29,7 @@ public static class WebsocketDispatcher
             }
             catch (Exception e)
             {
-                FleckLog.Error("Failed to run asynchronous event handler", e);
+                FleckLog.Error("Failed to run asynchronous event handler.", e);
             }
         });
     }
