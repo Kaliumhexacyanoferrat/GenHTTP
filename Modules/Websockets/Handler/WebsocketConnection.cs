@@ -47,26 +47,26 @@ public sealed class WebsocketConnection : IWebSocketConnection, IWebsocketConnec
     #region Initialization
 
     public WebsocketConnection(ISocket socket, IRequest request, List<string> supportedProtocols,
-        Action<IWebsocketConnection>? onOpen,
-        Action<IWebsocketConnection>? onClose,
-        Action<IWebsocketConnection, string>? onMessage,
-        Action<IWebsocketConnection, byte[]>? onBinary,
-        Action<IWebsocketConnection, byte[]>? onPing,
-        Action<IWebsocketConnection, byte[]>? onPong,
-        Action<IWebsocketConnection, Exception>? onError)
+        Func<IWebsocketConnection, Task>? onOpen,
+        Func<IWebsocketConnection, Task>? onClose,
+        Func<IWebsocketConnection, string, Task>? onMessage,
+        Func<IWebsocketConnection, byte[], Task>? onBinary,
+        Func<IWebsocketConnection, byte[], Task>? onPing,
+        Func<IWebsocketConnection, byte[], Task>? onPong,
+        Func<IWebsocketConnection, Exception, Task>? onError)
     {
         Socket = socket;
         Request = request;
 
         SupportedProtocols = supportedProtocols;
 
-        OnOpen = (onOpen != null) ? () => onOpen(this) : () => { };
-        OnClose = (onClose != null) ? () => onClose(this) : () => { };
-        OnMessage = (onMessage != null) ? x => onMessage(this, x) : x => { };
-        OnBinary = (onBinary != null) ? x => onBinary(this, x) : x => { };
-        OnPing = (onPing != null) ? x => onPing(this, x) : x => SendPongAsync(x);
-        OnPong = (onPong != null) ? x => onPong(this, x) : x => { };
-        OnError = (onError != null) ? x => onError(this, x) : x => { };
+        OnOpen = (onOpen != null) ? () => WebsocketDispatcher.Schedule(() => onOpen(this)) : () => { };
+        OnClose = (onClose != null) ? () => WebsocketDispatcher.Schedule(() => onClose(this)) : () => { };
+        OnMessage = (onMessage != null) ? x => WebsocketDispatcher.Schedule(() => onMessage(this, x)) : x => { };
+        OnBinary = (onBinary != null) ? x => WebsocketDispatcher.Schedule(() => onBinary(this, x)) : x => { };
+        OnPing = (onPing != null) ? x => WebsocketDispatcher.Schedule(() => onPing(this, x)) : x => WebsocketDispatcher.Schedule(() => SendPongAsync(x));
+        OnPong = (onPong != null) ? x => WebsocketDispatcher.Schedule(() => onPong(this, x)) : x => { };
+        OnError = (onError != null) ? x => WebsocketDispatcher.Schedule(() => onError(this, x)) : x => { };
     }
 
     #endregion
