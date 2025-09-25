@@ -2,8 +2,6 @@
 
 using WS = GenHTTP.Modules.Websockets;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using Websocket.Client;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Websockets;
@@ -20,10 +18,12 @@ public sealed class IntegrationTest
         var length = 0;
 
         var server = WS.Websocket.Create()
-                       .OnMessage((socket, msg) =>
+                       .OnMessage(async (socket, msg) =>
                        {
                            length += msg.Length;
-                           socket.Send(msg);
+
+                           await socket.SendAsync(msg);
+
                            socket.Close();
                        });
 
@@ -54,23 +54,20 @@ public sealed class IntegrationTest
         var waitEvent = new ManualResetEvent(false);
 
         var server = WS.Websocket.Create()
-                       .OnOpen((socket) =>
+                       .OnOpen(async (socket) =>
                        {
-                           Task.Run(async () =>
-                           {
-                               await socket.SendPing([42]);
-                               await socket.SendPong([42]);
+                           await socket.SendPingAsync([42]);
+                           await socket.SendPongAsync([42]);
 
-                               await socket.Send([42]);
+                           await socket.SendAsync([42]);
 
-                               Assert.IsTrue(socket.IsAvailable);
+                           Assert.IsTrue(socket.IsAvailable);
 
-                               Assert.IsTrue(socket.Request.Headers.Count > 0);
+                           Assert.IsTrue(socket.Request.Headers.Count > 0);
 
-                               socket.Close(42);
+                           socket.Close(42);
 
-                               waitEvent.Set();
-                           });
+                           waitEvent.Set();
                        });
 
         await using var host = await TestHost.RunAsync(server);

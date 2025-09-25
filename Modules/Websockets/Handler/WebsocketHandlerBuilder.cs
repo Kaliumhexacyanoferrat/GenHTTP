@@ -8,13 +8,13 @@ public class WebsocketHandlerBuilder : IHandlerBuilder<WebsocketHandlerBuilder>
 
     private readonly List<string> _SupportedProtocols = [];
 
-    private Action<IWebsocketConnection>? _OnOpen;
-    private Action<IWebsocketConnection>? _OnClose;
-    private Action<IWebsocketConnection, string>? _OnMessage;
-    private Action<IWebsocketConnection, byte[]>? _OnBinary;
-    private Action<IWebsocketConnection, byte[]>? _OnPing;
-    private Action<IWebsocketConnection, byte[]>? _OnPong;
-    private Action<IWebsocketConnection, Exception>? _OnError;
+    private Func<IWebsocketConnection, Task>? _OnOpen;
+    private Func<IWebsocketConnection, Task>? _OnClose;
+    private Func<IWebsocketConnection, string, Task>? _OnMessage;
+    private Func<IWebsocketConnection, byte[], Task>? _OnBinary;
+    private Func<IWebsocketConnection, byte[], Task>? _OnPing;
+    private Func<IWebsocketConnection, byte[], Task>? _OnPong;
+    private Func<IWebsocketConnection, Exception, Task>? _OnError;
 
     #region Functionality
 
@@ -38,7 +38,7 @@ public class WebsocketHandlerBuilder : IHandlerBuilder<WebsocketHandlerBuilder>
     /// Will be executed if a new websocket client connected.
     /// </summary>
     /// <param name="handler">The method to be executed</param>
-    public WebsocketHandlerBuilder OnOpen(Action<IWebsocketConnection> handler)
+    public WebsocketHandlerBuilder OnOpen(Func<IWebsocketConnection, Task> handler)
     {
         _OnOpen = handler;
         return this;
@@ -48,7 +48,7 @@ public class WebsocketHandlerBuilder : IHandlerBuilder<WebsocketHandlerBuilder>
     /// Will be executed if a websocket client disconnects.
     /// </summary>
     /// <param name="handler">The method to be executed</param>
-    public WebsocketHandlerBuilder OnClose(Action<IWebsocketConnection> handler)
+    public WebsocketHandlerBuilder OnClose(Func<IWebsocketConnection, Task> handler)
     {
         _OnClose = handler;
         return this;
@@ -58,7 +58,7 @@ public class WebsocketHandlerBuilder : IHandlerBuilder<WebsocketHandlerBuilder>
     /// Will be executed if a string message has been received from the client.
     /// </summary>
     /// <param name="handler">The method to be executed</param>
-    public WebsocketHandlerBuilder OnMessage(Action<IWebsocketConnection, string> handler)
+    public WebsocketHandlerBuilder OnMessage(Func<IWebsocketConnection, string, Task> handler)
     {
         _OnMessage = handler;
         return this;
@@ -68,7 +68,7 @@ public class WebsocketHandlerBuilder : IHandlerBuilder<WebsocketHandlerBuilder>
     /// Will be executed if a binary message has been received from the client.
     /// </summary>
     /// <param name="handler">The method to be executed</param>
-    public WebsocketHandlerBuilder OnBinary(Action<IWebsocketConnection, byte[]> handler)
+    public WebsocketHandlerBuilder OnBinary(Func<IWebsocketConnection, byte[], Task> handler)
     {
         _OnBinary = handler;
         return this;
@@ -78,7 +78,7 @@ public class WebsocketHandlerBuilder : IHandlerBuilder<WebsocketHandlerBuilder>
     /// Will be executed if the client sends a ping request.
     /// </summary>
     /// <param name="handler">The method to be executed</param>
-    public WebsocketHandlerBuilder OnPing(Action<IWebsocketConnection, byte[]> handler)
+    public WebsocketHandlerBuilder OnPing(Func<IWebsocketConnection, byte[], Task> handler)
     {
         _OnPing = handler;
         return this;
@@ -88,7 +88,7 @@ public class WebsocketHandlerBuilder : IHandlerBuilder<WebsocketHandlerBuilder>
     /// Will be executed if the client sends a pong request.
     /// </summary>
     /// <param name="handler">The method to be executed</param>
-    public WebsocketHandlerBuilder OnPong(Action<IWebsocketConnection, byte[]> handler)
+    public WebsocketHandlerBuilder OnPong(Func<IWebsocketConnection, byte[], Task> handler)
     {
         _OnPong = handler;
         return this;
@@ -98,7 +98,7 @@ public class WebsocketHandlerBuilder : IHandlerBuilder<WebsocketHandlerBuilder>
     /// Will be executed if there is some client connection error.
     /// </summary>
     /// <param name="handler">The method to be executed</param>
-    public WebsocketHandlerBuilder OnError(Action<IWebsocketConnection, Exception> handler)
+    public WebsocketHandlerBuilder OnError(Func<IWebsocketConnection, Exception, Task> handler)
     {
         _OnError = handler;
         return this;

@@ -47,51 +47,47 @@ public sealed class WebsocketConnection : IWebSocketConnection, IWebsocketConnec
     #region Initialization
 
     public WebsocketConnection(ISocket socket, IRequest request, List<string> supportedProtocols,
-        Action<IWebsocketConnection>? onOpen,
-        Action<IWebsocketConnection>? onClose,
-        Action<IWebsocketConnection, string>? onMessage,
-        Action<IWebsocketConnection, byte[]>? onBinary,
-        Action<IWebsocketConnection, byte[]>? onPing,
-        Action<IWebsocketConnection, byte[]>? onPong,
-        Action<IWebsocketConnection, Exception>? onError)
+        Func<IWebsocketConnection, Task>? onOpen,
+        Func<IWebsocketConnection, Task>? onClose,
+        Func<IWebsocketConnection, string, Task>? onMessage,
+        Func<IWebsocketConnection, byte[], Task>? onBinary,
+        Func<IWebsocketConnection, byte[], Task>? onPing,
+        Func<IWebsocketConnection, byte[], Task>? onPong,
+        Func<IWebsocketConnection, Exception, Task>? onError)
     {
         Socket = socket;
         Request = request;
 
         SupportedProtocols = supportedProtocols;
 
-        OnOpen = (onOpen != null) ? () => onOpen(this) : () => { };
-        OnClose = (onClose != null) ? () => onClose(this) : () => { };
-        OnMessage = (onMessage != null) ? x => onMessage(this, x) : x => { };
-        OnBinary = (onBinary != null) ? x => onBinary(this, x) : x => { };
-        OnPing = (onPing != null) ? x => onPing(this, x) : x => SendPong(x);
-        OnPong = (onPong != null) ? x => onPong(this, x) : x => { };
-        OnError = (onError != null) ? x => onError(this, x) : x => { };
+        OnOpen = (onOpen != null) ? () => WebsocketDispatcher.Schedule(() => onOpen(this)) : () => { };
+        OnClose = (onClose != null) ? () => WebsocketDispatcher.Schedule(() => onClose(this)) : () => { };
+        OnMessage = (onMessage != null) ? x => WebsocketDispatcher.Schedule(() => onMessage(this, x)) : x => { };
+        OnBinary = (onBinary != null) ? x => WebsocketDispatcher.Schedule(() => onBinary(this, x)) : x => { };
+        OnPing = (onPing != null) ? x => WebsocketDispatcher.Schedule(() => onPing(this, x)) : x => WebsocketDispatcher.Schedule(() => SendPongAsync(x));
+        OnPong = (onPong != null) ? x => WebsocketDispatcher.Schedule(() => onPong(this, x)) : x => { };
+        OnError = (onError != null) ? x => WebsocketDispatcher.Schedule(() => onError(this, x)) : x => { };
     }
 
     #endregion
 
     #region Functionality
 
-    public Task Send(string message)
-    {
-        return Send(message, GetHandler().FrameText);
-    }
+    public Task Send(string message) => SendAsync(message);
 
-    public Task Send(byte[] message)
-    {
-        return Send(message, GetHandler().FrameBinary);
-    }
+    public Task Send(byte[] message) => SendAsync(message);
 
-    public Task SendPing(byte[] message)
-    {
-        return Send(message, GetHandler().FramePing);
-    }
+    public Task SendPing(byte[] message) => SendPingAsync(message);
 
-    public Task SendPong(byte[] message)
-    {
-        return Send(message, GetHandler().FramePong);
-    }
+    public Task SendPong(byte[] message) => SendPongAsync(message);
+
+    public Task SendAsync(string message) => Send(message, GetHandler().FrameText);
+
+    public Task SendAsync(byte[] message) => Send(message, GetHandler().FrameBinary);
+
+    public Task SendPingAsync(byte[] message) => Send(message, GetHandler().FramePing);
+
+    public Task SendPongAsync(byte[] message) => Send(message, GetHandler().FramePong);
 
     private Task Send<T>(T message, Func<T, byte[]> createFrame)
     {
@@ -109,6 +105,7 @@ public sealed class WebsocketConnection : IWebSocketConnection, IWebsocketConnec
         }
 
         var bytes = createFrame(message);
+        
         return SendBytes(bytes);
     }
 
