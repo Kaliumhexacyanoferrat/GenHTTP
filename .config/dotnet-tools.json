@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "dotnet-sonarscanner": {
-      "version": "10.3.0",
+      "version": "10.4.1",
       "commands": [
         "dotnet-sonarscanner"
       ]
