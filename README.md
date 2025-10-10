@@ -123,3 +123,9 @@ in C#. In 2024 the focus has shifted towards API development, dropping support f
 
 - Powered by [.NET](https://github.com/dotnet/core)
 - Modules implemented with [NSwag](https://github.com/RicoSuter/NSwag) (Open API), [Fleck](https://github.com/statianzo/Fleck) (WebSockets)
+
+## 👥 Contributors
+
+<a href="https://github.com/Kaliumhexacyanoferrat/GenHTTP/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Kaliumhexacyanoferrat/GenHTTP" />
+</a>
