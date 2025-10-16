@@ -1,7 +1,6 @@
 ﻿using GenHTTP.Engine.Kestrel;
 using GenHTTP.Modules.Layouting;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Engine.Kestrel;
 

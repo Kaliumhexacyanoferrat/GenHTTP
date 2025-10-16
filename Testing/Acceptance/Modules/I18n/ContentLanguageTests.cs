@@ -3,7 +3,6 @@ using System.Net;
 using GenHTTP.Modules.I18n;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.I18n;
 

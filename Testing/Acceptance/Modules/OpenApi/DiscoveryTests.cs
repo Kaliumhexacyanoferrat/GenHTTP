@@ -5,9 +5,6 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.OpenApi;
 using GenHTTP.Modules.OpenApi.Discovery;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using OpenApiDocument = NSwag.OpenApiDocument;
 
 namespace GenHTTP.Testing.Acceptance.Modules.OpenApi;

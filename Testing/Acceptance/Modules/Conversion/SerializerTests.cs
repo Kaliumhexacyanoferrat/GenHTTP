@@ -4,8 +4,6 @@ using System.Text.Json;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Functional;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace GenHTTP.Testing.Acceptance.Modules.Conversion;
 
 [TestClass]

@@ -3,7 +3,6 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Conversion.Serializers.Forms;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Conversion;
 

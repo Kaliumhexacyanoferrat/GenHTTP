@@ -1,7 +1,6 @@
 ﻿using System.Net.Sockets;
 using System.Text;
 using GenHTTP.Modules.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
 

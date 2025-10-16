@@ -1,7 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Layouting;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
 
@@ -25,7 +24,7 @@ public sealed class DeveloperModeTests
 
         using var response = await runner.GetResponseAsync();
 
-        Assert.IsTrue((await response.GetContentAsync()).Contains("at GenHTTP"));
+        Assert.Contains("at GenHTTP", await response.GetContentAsync());
     }
 
     /// <summary>
@@ -42,7 +41,7 @@ public sealed class DeveloperModeTests
 
         using var response = await runner.GetResponseAsync();
 
-        Assert.IsFalse((await response.GetContentAsync()).Contains("at GenHTTP"));
+        Assert.DoesNotContain("at GenHTTP", await response.GetContentAsync());
     }
 
     private class ThrowingProvider : IHandler

@@ -2,8 +2,6 @@
 
 using GenHTTP.Modules.IO;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace GenHTTP.Testing.Acceptance.Modules.IO;
 
 [TestClass]
@@ -19,9 +17,9 @@ public sealed class ResourceTreeTests
 
         Assert.IsNotNull(await tree.TryGetResourceAsync("File.txt"));
 
-        Assert.AreEqual(1, (await tree.GetNodes()).Count);
+        Assert.HasCount(1, await tree.GetNodes());
 
-        Assert.AreEqual(5, (await tree.GetResources()).Count);
+        Assert.HasCount(5, await tree.GetResources());
     }
 
     [TestMethod]
@@ -29,7 +27,7 @@ public sealed class ResourceTreeTests
     {
         var tree = ResourceTree.FromAssembly(Assembly.GetExecutingAssembly()).Build();
 
-        Assert.AreEqual(1, (await tree.GetNodes()).Count);
+        Assert.HasCount(1, await tree.GetNodes());
     }
 
 }

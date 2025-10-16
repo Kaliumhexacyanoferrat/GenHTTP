@@ -7,8 +7,6 @@ using GenHTTP.Modules.DependencyInjection;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace GenHTTP.Testing.Acceptance.Modules.DependencyInjection;
 
 [TestClass]

@@ -4,7 +4,6 @@ using GenHTTP.Modules.ErrorHandling;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.ErrorHandling;
 

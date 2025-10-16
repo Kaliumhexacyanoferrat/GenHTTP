@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using GenHTTP.Modules.IO.Ranges;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.IO;
 

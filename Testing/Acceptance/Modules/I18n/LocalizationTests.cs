@@ -2,7 +2,6 @@
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.I18n;
 using GenHTTP.Modules.I18n.Provider;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Globalization;
 
 namespace GenHTTP.Testing.Acceptance.Modules.I18n;

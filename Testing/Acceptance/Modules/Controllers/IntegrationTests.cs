@@ -3,7 +3,6 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Testing.Acceptance.Utilities;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Controllers;
 

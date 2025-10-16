@@ -6,8 +6,6 @@ using GenHTTP.Modules.Reflection;
 
 using Microsoft.OpenApi;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace GenHTTP.Testing.Acceptance.Modules.OpenApi;
 
 [TestClass]

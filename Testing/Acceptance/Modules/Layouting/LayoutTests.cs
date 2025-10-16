@@ -2,7 +2,6 @@
 using GenHTTP.Modules.Authentication;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Layouting;
 

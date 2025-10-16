@@ -4,7 +4,6 @@ using GenHTTP.Modules.Authentication.Basic;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Injectors;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Authentication;
 

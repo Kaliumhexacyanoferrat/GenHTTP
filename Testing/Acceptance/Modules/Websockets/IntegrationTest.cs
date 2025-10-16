@@ -63,7 +63,7 @@ public sealed class IntegrationTest
 
                            Assert.IsTrue(socket.IsAvailable);
 
-                           Assert.IsTrue(socket.Request.Headers.Count > 0);
+                           Assert.IsNotEmpty(socket.Request.Headers);
 
                            socket.Close(42);
 

@@ -1,6 +1,5 @@
 ﻿using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Engine.Shared.Security;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 
 namespace GenHTTP.Testing.Acceptance.Engine;

@@ -7,8 +7,6 @@ using GenHTTP.Modules.Authentication.Basic;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Layouting.Provider;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace GenHTTP.Testing.Acceptance.Modules.Authentication;
 
 [TestClass]

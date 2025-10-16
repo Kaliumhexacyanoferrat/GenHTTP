@@ -1,8 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Layouting;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
 namespace GenHTTP.Testing.Acceptance.Engine;

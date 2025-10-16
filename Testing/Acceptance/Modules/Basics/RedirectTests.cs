@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.Layouting;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Basics;
 

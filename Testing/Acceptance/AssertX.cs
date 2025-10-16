@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance;
 
@@ -30,13 +29,9 @@ public static class AssertX
 
     public static void EndsWith(string searchFor, string? content) => Assert.IsTrue(content?.EndsWith(searchFor) ?? false);
 
-    public static void Single<T>(IEnumerable<T> collection) => Assert.IsTrue(collection.Count() == 1);
+    public static void Single<T>(IEnumerable<T> collection) => Assert.AreEqual(1, collection.Count());
 
     public static void Empty<T>(IEnumerable<T>? collection) => Assert.IsFalse(collection?.Any() ?? false);
-
-    public static void Contains<T>(T value, IEnumerable<T> collection) => Assert.IsTrue(collection.Contains(value));
-
-    public static void DoesNotContain<T>(T value, IEnumerable<T> collection) => Assert.IsFalse(collection.Contains(value));
 
     public static void IsNullOrEmpty(string? value) => Assert.IsTrue(string.IsNullOrEmpty(value));
 
@@ -79,4 +74,5 @@ public static class AssertX
             throw new AssertFailedException(builder.ToString());
         }
     }
+    
 }

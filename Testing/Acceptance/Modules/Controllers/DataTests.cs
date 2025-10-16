@@ -4,7 +4,6 @@ using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Reflection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Controllers;
 

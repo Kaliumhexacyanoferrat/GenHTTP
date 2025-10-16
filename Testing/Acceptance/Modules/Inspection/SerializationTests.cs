@@ -7,8 +7,6 @@ using GenHTTP.Modules.Conversion.Serializers.Json;
 using GenHTTP.Modules.Inspection;
 using GenHTTP.Modules.Layouting;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace GenHTTP.Testing.Acceptance.Modules.Inspection;
 
 [TestClass]

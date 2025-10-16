@@ -2,7 +2,6 @@
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Functional;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Functional;
 

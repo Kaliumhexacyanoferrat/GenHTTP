@@ -11,7 +11,6 @@ using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Webservices;
 using GenHTTP.Testing.Acceptance.Utilities;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 

@@ -4,7 +4,6 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.ReverseProxy;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Cookie = GenHTTP.Api.Protocol.Cookie;
 
 namespace GenHTTP.Testing.Acceptance.Modules.ReverseProxy;
@@ -391,7 +390,7 @@ public sealed class ReverseProxyTests
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             Assert.AreNotEqual(request.Client, request.LocalClient);
-            Assert.IsTrue(request.Forwardings.Count > 0);
+            Assert.IsNotEmpty(request.Forwardings);
 
             var response = _Response.Invoke(request);
 

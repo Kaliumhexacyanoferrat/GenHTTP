@@ -4,7 +4,6 @@ using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.OpenApi;
 using GenHTTP.Modules.Webservices;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.OpenApi;
 

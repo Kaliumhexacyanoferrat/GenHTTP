@@ -1,7 +1,5 @@
 ﻿using GenHTTP.Modules.DependencyInjection;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace GenHTTP.Testing.Acceptance.Modules.DependencyInjection;
 
 [TestClass]

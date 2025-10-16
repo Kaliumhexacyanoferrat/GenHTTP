@@ -1,7 +1,5 @@
 ﻿using GenHTTP.Engine.Shared.Types;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace GenHTTP.Testing.Acceptance.Engine;
 
 [TestClass]
@@ -35,15 +33,15 @@ public sealed class PooledDictionaryTests
     {
         using var dict = new PooledDictionary<string, string>();
 
-        Assert.AreEqual(0, dict.Keys.Count);
-        Assert.AreEqual(0, dict.Values.Count);
+        Assert.IsEmpty(dict.Keys);
+        Assert.IsEmpty(dict.Values);
 
         AssertX.Empty(dict);
 
         dict["one"] = "one";
 
-        Assert.AreEqual(1, dict.Keys.Count);
-        Assert.AreEqual(1, dict.Values.Count);
+        Assert.HasCount(1, dict.Keys);
+        Assert.HasCount(1, dict.Values);
 
         AssertX.Single(dict);
     }
@@ -69,7 +67,7 @@ public sealed class PooledDictionaryTests
             dict.Add(new KeyValuePair<int, int>(i, i));
         }
 
-        Assert.IsTrue(dict.Capacity > 25);
+        Assert.IsGreaterThan(25, dict.Capacity);
 
         for (var i = 0; i < 25; i++)
         {
@@ -92,4 +90,5 @@ public sealed class PooledDictionaryTests
 
         Assert.ThrowsExactly<NotSupportedException>(() => dict.Remove(new KeyValuePair<string, string>("", "")));
     }
+    
 }
