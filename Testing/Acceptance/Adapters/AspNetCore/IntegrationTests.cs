@@ -9,8 +9,6 @@ using Microsoft.AspNetCore.Hosting;
 
 using Microsoft.Extensions.Logging;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace GenHTTP.Testing.Acceptance.Adapters.AspNetCore;
 
 [TestClass]
@@ -131,10 +129,10 @@ public class IntegrationTests
 
         builder.Logging.ClearProviders();
 
-        builder.WebHost.ConfigureKestrel(options =>
+        builder.WebHost.ConfigureKestrel(o =>
         {
-            options.AllowSynchronousIO = true;
-            options.Listen(IPAddress.Any, port);
+            o.AllowSynchronousIO = true;
+            o.Listen(IPAddress.Any, port);
         });
 
         var app = builder.Build();

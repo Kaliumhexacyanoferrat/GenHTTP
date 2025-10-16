@@ -33,10 +33,10 @@
 
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
 
-        <PackageReference Include="Microsoft.OpenApi" Version="2.3.4" />
-        <PackageReference Include="Microsoft.OpenApi.YamlReader" Version="2.3.4" />
+        <PackageReference Include="Microsoft.OpenApi" Version="2.3.5" />
+        <PackageReference Include="Microsoft.OpenApi.YamlReader" Version="2.3.5" />
 
-        <PackageReference Include="MSTest" Version="3.11.0" />
+        <PackageReference Include="MSTest" Version="4.0.1" />
 
         <PackageReference Include="NSubstitute" Version="5.3.0" />
 

@@ -5,7 +5,6 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Authentication;
 using GenHTTP.Modules.Authentication.Multi;
 using GenHTTP.Modules.Functional;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;

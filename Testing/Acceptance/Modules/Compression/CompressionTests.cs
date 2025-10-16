@@ -7,7 +7,6 @@ using GenHTTP.Modules.Compression;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Testing.Acceptance.Utilities;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Compression;
 
@@ -64,7 +63,7 @@ public sealed class CompressionTests
 
         using var response = await runner.GetResponseAsync();
 
-        Assert.IsFalse(response.Content.Headers.ContentEncoding.Count != 0);
+        Assert.IsEmpty(response.Content.Headers.ContentEncoding);
     }
 
     /// <summary>
@@ -99,7 +98,7 @@ public sealed class CompressionTests
 
         using var response = await runner.GetResponseAsync("/uncompressed");
 
-        Assert.IsFalse(response.Content.Headers.ContentEncoding.Count != 0);
+        Assert.IsEmpty(response.Content.Headers.ContentEncoding);
     }
 
     [TestMethod]
@@ -136,8 +135,8 @@ public sealed class CompressionTests
 
         using var response = await runner.GetResponseAsync(request);
 
-        Assert.IsTrue(response.Headers.Vary.Contains("Host"));
-        Assert.IsTrue(response.Headers.Vary.Contains("Accept-Encoding"));
+        Assert.Contains("Host", response.Headers.Vary);
+        Assert.Contains("Accept-Encoding", response.Headers.Vary);
     }
 
     [TestMethod]

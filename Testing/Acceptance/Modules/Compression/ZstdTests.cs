@@ -3,8 +3,6 @@
 using GenHTTP.Modules.Compression.Providers;
 using GenHTTP.Modules.Functional;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace GenHTTP.Testing.Acceptance.Modules.Compression;
 
 [TestClass]

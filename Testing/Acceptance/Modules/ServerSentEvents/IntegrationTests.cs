@@ -2,7 +2,6 @@
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.ServerSentEvents;
 using GenHTTP.Testing.Acceptance.Utilities;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.ServerSentEvents;
 

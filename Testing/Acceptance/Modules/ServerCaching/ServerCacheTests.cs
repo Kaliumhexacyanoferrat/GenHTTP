@@ -6,8 +6,6 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.ServerCaching;
 using GenHTTP.Modules.ServerCaching.Provider;
 using GenHTTP.Testing.Acceptance.Utilities;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Cookie = GenHTTP.Api.Protocol.Cookie;
 
 namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching;
@@ -163,7 +161,7 @@ public class ServerCacheTests
         Assert.AreEqual("some-encoding", cached.GetContentHeader("Content-Encoding"));
 
         Assert.AreEqual(now.ToString(), cached.Content.Headers.LastModified.GetValueOrDefault().UtcDateTime.ToString());
-        Assert.IsTrue(cached.GetContentHeader("Expires") != null);
+        Assert.IsNotNull(cached.GetContentHeader("Expires"));
 
         Assert.AreEqual("0123456789", await cached.GetContentAsync());
     }

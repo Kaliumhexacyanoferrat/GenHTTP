@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using GenHTTP.Modules.Layouting;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
 
@@ -51,7 +50,7 @@ public sealed class BasicTests
         using var response = await runner.GetResponseAsync(request);
 
         await response.AssertStatusAsync(HttpStatusCode.NotFound);
-        Assert.IsTrue(response.Headers.Connection.Contains("Close"));
+        Assert.Contains("Close", response.Headers.Connection);
     }
 
     [TestMethod]
@@ -72,7 +71,7 @@ public sealed class BasicTests
 
         using var response = await runner.GetResponseAsync();
 
-        Assert.IsTrue(response.Headers.Connection.Contains("Keep-Alive"));
+        Assert.Contains("Keep-Alive", response.Headers.Connection);
     }
 
 }

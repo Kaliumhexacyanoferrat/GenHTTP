@@ -1,5 +1,4 @@
 ﻿using GenHTTP.Modules.DirectoryBrowsing.Provider;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.DirectoryBrowsing;
 

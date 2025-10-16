@@ -1,6 +1,5 @@
 ﻿using GenHTTP.Api.Content.Caching;
 using GenHTTP.Modules.Caching;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Caching;
 
@@ -19,7 +18,7 @@ public class CacheTests
 
             await cache.StoreAsync("k", "v", new CachedEntry("1", now, 42));
 
-            Assert.AreEqual(1, (await cache.GetEntriesAsync("k")).Length);
+            Assert.HasCount(1, await cache.GetEntriesAsync("k"));
 
             var hit = (await cache.GetEntryAsync("k", "v"))!;
 
@@ -34,7 +33,7 @@ public class CacheTests
     {
         foreach (var cache in GetCaches<CachedEntry>())
         {
-            Assert.AreEqual(0, (await cache.GetEntriesAsync("k")).Length);
+            Assert.IsEmpty(await cache.GetEntriesAsync("k"));
 
             Assert.IsNull(await cache.GetEntryAsync("k", "v"));
         }
@@ -60,7 +59,7 @@ public class CacheTests
 
             await cache.StoreAsync("k", "v", null);
 
-            Assert.AreEqual(0, (await cache.GetEntriesAsync("k")).Length);
+            Assert.IsEmpty(await cache.GetEntriesAsync("k"));
 
             Assert.IsNull(await cache.GetEntryAsync("k", "v"));
         }
@@ -75,7 +74,7 @@ public class CacheTests
 
             await cache.StoreAsync("k", "v", stream);
 
-            Assert.AreEqual(1, (await cache.GetEntriesAsync("k")).Length);
+            Assert.HasCount(1, await cache.GetEntriesAsync("k"));
 
             await using var resultStream = (await cache.GetEntryAsync("k", "v"))!;
 
@@ -95,7 +94,7 @@ public class CacheTests
 
             await cache.StoreAsync("k", "v", stream);
 
-            Assert.AreEqual(1, (await cache.GetEntriesAsync("k")).Length);
+            Assert.HasCount(1, await cache.GetEntriesAsync("k"));
         }
     }
 
@@ -109,7 +108,7 @@ public class CacheTests
                 1
             }));
 
-            Assert.AreEqual(1, (await cache.GetEntriesAsync("k")).Length);
+            Assert.HasCount(1, await cache.GetEntriesAsync("k"));
 
             await using var resultStream = (await cache.GetEntryAsync("k", "v"))!;
 
@@ -132,7 +131,7 @@ public class CacheTests
                 1
             }));
 
-            Assert.AreEqual(1, (await cache.GetEntriesAsync("k")).Length);
+            Assert.HasCount(1, await cache.GetEntriesAsync("k"));
         }
     }
 
@@ -141,7 +140,7 @@ public class CacheTests
     {
         foreach (var cache in GetCaches<Stream>())
         {
-            Assert.AreEqual(0, (await cache.GetEntriesAsync("k")).Length);
+            Assert.IsEmpty(await cache.GetEntriesAsync("k"));
 
             Assert.IsNull(await cache.GetEntryAsync("k", "v"));
         }
@@ -152,4 +151,5 @@ public class CacheTests
         Cache.Memory<T>().Build(),
         Cache.TemporaryFiles<T>().Build()
     ];
+    
 }

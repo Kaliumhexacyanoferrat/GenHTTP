@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using GenHTTP.Testing.Acceptance.Utilities;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.ErrorHandling;
 

@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.OpenApi;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.OpenApi;
 

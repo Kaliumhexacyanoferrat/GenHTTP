@@ -5,7 +5,6 @@ using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Protobuf;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Webservices;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ProtoBuf;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Protobuf;

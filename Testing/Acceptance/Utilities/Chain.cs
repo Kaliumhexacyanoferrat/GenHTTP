@@ -3,8 +3,6 @@
 using GenHTTP.Modules.ErrorHandling;
 using GenHTTP.Modules.ErrorHandling.Provider;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace GenHTTP.Testing.Acceptance.Utilities;
 
 internal static class Chain

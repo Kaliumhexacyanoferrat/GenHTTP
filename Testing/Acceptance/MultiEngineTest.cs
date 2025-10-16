@@ -1,7 +1,5 @@
 ﻿using System.Reflection;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace GenHTTP.Testing.Acceptance;
 
 /// <summary>

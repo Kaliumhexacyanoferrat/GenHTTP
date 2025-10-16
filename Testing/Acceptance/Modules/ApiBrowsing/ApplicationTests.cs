@@ -3,7 +3,6 @@ using GenHTTP.Modules.ApiBrowsing;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.OpenApi;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.ApiBrowsing;
 

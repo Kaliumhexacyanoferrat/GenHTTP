@@ -2,7 +2,6 @@
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO;
 using GenHTTP.Testing.Acceptance.Utilities;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.ClientCaching;
 

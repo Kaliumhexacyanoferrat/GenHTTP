@@ -3,7 +3,6 @@ using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Routing;
 using GenHTTP.Modules.DirectoryBrowsing;
 using GenHTTP.Modules.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.IO;
 
@@ -25,7 +24,7 @@ public sealed class VirtualTreeTests
         Assert.IsNotNull(node);
         Assert.IsNotNull(file);
 
-        Assert.IsTrue((node as IResourceNode)?.Parent == virt);
+        Assert.AreEqual(virt, (node as IResourceNode)?.Parent);
 
         Assert.IsNotNull(virt.Modified);
     }

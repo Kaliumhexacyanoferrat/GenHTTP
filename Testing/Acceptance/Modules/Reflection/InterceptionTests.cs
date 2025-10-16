@@ -6,8 +6,6 @@ using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Operations;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace GenHTTP.Testing.Acceptance.Modules.Reflection;
 
 [TestClass]

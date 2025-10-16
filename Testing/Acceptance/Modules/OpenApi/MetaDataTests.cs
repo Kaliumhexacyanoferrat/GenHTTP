@@ -3,8 +3,6 @@ using GenHTTP.Modules.Functional.Provider;
 using GenHTTP.Modules.OpenApi;
 using GenHTTP.Modules.OpenApi.Handler;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace GenHTTP.Testing.Acceptance.Modules.OpenApi;
 
 [TestClass]

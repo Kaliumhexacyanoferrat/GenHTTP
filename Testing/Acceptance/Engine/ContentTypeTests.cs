@@ -1,5 +1,4 @@
 ﻿using GenHTTP.Api.Protocol;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
 

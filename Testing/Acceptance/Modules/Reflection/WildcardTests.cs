@@ -3,8 +3,6 @@
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace GenHTTP.Testing.Acceptance.Modules.Reflection;
 
 [TestClass]
@@ -22,7 +20,7 @@ public class WildcardTests
         var app = Inline.Create()
                         .Get("/tenant/:tenantID/", (int tenantID) =>
                         {
-                             Assert.IsTrue(tenantID > 0);
+                             Assert.IsGreaterThan(0, tenantID);
                              return resources;
                         });
 

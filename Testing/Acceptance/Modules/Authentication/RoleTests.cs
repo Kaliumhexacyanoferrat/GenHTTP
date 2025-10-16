@@ -7,8 +7,6 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Authentication;
 using GenHTTP.Modules.Functional;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace GenHTTP.Testing.Acceptance.Modules.Authentication;
 
 [TestClass]
