@@ -1,1 +1,1 @@
-[assembly: Parallelize]
+[assembly: DoNotParallelize]
