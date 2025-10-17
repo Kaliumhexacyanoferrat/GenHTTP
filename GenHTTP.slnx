@@ -1,6 +1,7 @@
 ﻿<Solution>
   <Folder Name="/Adapters/">
     <Project Path="Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj" />
+    <Project Path="Adapters\WiredIO\GenHTTP.Adapters.WiredIO.csproj" Type="Classic C#" />
   </Folder>
   <Folder Name="/API/">
     <Project Path="API\GenHTTP.Api.csproj" />
@@ -9,6 +10,7 @@
     <Project Path="Engine\Internal\GenHTTP.Engine.Internal.csproj" />
     <Project Path="Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj" />
     <Project Path="Engine\Shared\GenHTTP.Engine.Shared.csproj" />
+    <Project Path="Engine\WiredIO\GenHTTP.Engine.WiredIO.csproj" Type="Classic C#" />
   </Folder>
   <Folder Name="/Modules/">
     <Project Path="Modules\ApiBrowsing\GenHTTP.Modules.ApiBrowsing.csproj" />

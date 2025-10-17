@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+
+        <TargetFramework>net9.0</TargetFramework>
+
+        <Description>Adapter to run GenHTTP handlers within an Wired.IO app.</Description>
+        <PackageTags>Wired.IO Adapter GenHTTP</PackageTags>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+
+        <PackageReference Include="Wired.IO" Version="9.5.0" />
+
+        <ProjectReference Include="..\..\API\GenHTTP.Api.csproj"/>
+
+        <ProjectReference Include="..\..\Engine\Shared\GenHTTP.Engine.Shared.csproj" />
+
+        <ProjectReference Include="..\..\Modules\ClientCaching\GenHTTP.Modules.ClientCaching.csproj" />
+
+        <ProjectReference Include="..\..\Modules\Compression\GenHTTP.Modules.Compression.csproj" />
+
+        <ProjectReference Include="..\..\Modules\IO\GenHTTP.Modules.IO.csproj"/>
+
+        <ProjectReference Include="..\..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj"/>
+
+    </ItemGroup>
+
+</Project>
