@@ -166,7 +166,7 @@ internal sealed class ClientHandler
             return ConnectionStatus.Upgraded;
         }
 
-        var active = await ResponseHandler.Handle(request, response, keepAlive, dataRemaining);
+        var active = await ResponseHandler.Handle(request, response, request.ProtocolType, keepAlive, dataRemaining);
 
         return (active && keepAlive) ? ConnectionStatus.KeepAlive : ConnectionStatus.Close;
     }
@@ -181,7 +181,7 @@ internal sealed class ClientHandler
                                                 .Content(new StringContent(message))
                                                 .Build();
 
-            await ResponseHandler.Handle(null, response, false, false);
+            await ResponseHandler.Handle(null, response, HttpProtocol.Http10, false, false);
         }
         catch
         {

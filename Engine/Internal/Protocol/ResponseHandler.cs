@@ -48,13 +48,13 @@ internal sealed class ResponseHandler
 
     #region Functionality
 
-    internal async ValueTask<bool> Handle(IRequest? request, IResponse response, bool keepAlive, bool dataRemaining)
+    internal async ValueTask<bool> Handle(IRequest? request, IResponse response, HttpProtocol version, bool keepAlive, bool dataRemaining)
     {
         try
         {
             await WriteStatus(request, response);
 
-            await WriteHeader(response, keepAlive);
+            await WriteHeader(response, version, keepAlive);
 
             await Write(NL);
 
@@ -99,7 +99,7 @@ internal sealed class ResponseHandler
         return Write("HTTP/", version, " ", NumberStringCache.Convert(response.Status.RawStatus), " ", response.Status.Phrase, NL);
     }
 
-    private async ValueTask WriteHeader(IResponse response, bool keepAlive)
+    private async ValueTask WriteHeader(IResponse response, HttpProtocol version, bool keepAlive)
     {
         if (response.Headers.TryGetValue(ServerHeader, out var server))
         {
@@ -112,7 +112,15 @@ internal sealed class ResponseHandler
 
         await WriteHeaderLine("Date", DateHeader.GetValue());
 
-        await WriteHeaderLine("Connection", keepAlive ? "Keep-Alive" : "Close");
+        if (version == HttpProtocol.Http10)
+        {
+            await WriteHeaderLine("Connection", keepAlive ? "Keep-Alive" : "Close");
+        }
+        else if (!keepAlive)
+        {
+            // HTTP/1.1 connections are persistent by default so we do not need to send a Keep-Alive header
+            await WriteHeaderLine("Connection", "Close");
+        }
 
         if (response.ContentType is not null)
         {
