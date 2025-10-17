@@ -65,13 +65,13 @@ public sealed class BasicTests
     }
 
     [TestMethod]
-    public async Task TestKeepalive()
+    public async Task TestNoKeepAliveHeaderOn11()
     {
         await using var runner = await TestHost.RunAsync(Layout.Create());
 
         using var response = await runner.GetResponseAsync();
 
-        Assert.Contains("Keep-Alive", response.Headers.Connection);
+        Assert.DoesNotContain("Keep-Alive", response.Headers.Connection);
     }
 
 }
