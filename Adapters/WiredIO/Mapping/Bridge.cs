@@ -5,12 +5,14 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
+using Wired.IO.Http11.Context;
+
 namespace GenHTTP.Adapters.WiredIO.Mapping;
 
 public static class Bridge
 {
 
-    public static async ValueTask MapAsync(HttpContext context, IHandler handler, IServer? server = null, IServerCompanion? companion = null, string? registeredPath = null)
+    public static async ValueTask MapAsync(Http11Context context, IHandler handler, IServer? server = null, IServerCompanion? companion = null, string? registeredPath = null)
     {
         var actualServer = server ?? new ImplicitServer(handler, companion);
 

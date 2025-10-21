@@ -2,7 +2,12 @@
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 using GenHTTP.Engine.Shared.Types;
+
+using Wired.IO.Http11.Context;
+
 using HttpProtocol = GenHTTP.Api.Protocol.HttpProtocol;
+
+using WiredRequest = Wired.IO.Http11.Request.IRequest;
 
 namespace GenHTTP.Adapters.WiredIO.Types;
 
@@ -70,18 +75,18 @@ public sealed class Request : IRequest
 
     public FlexibleContentType? ContentType => (Context.ContentType != null) ? new(Context.ContentType) : null;
 
-    private HttpRequest Context { get; }
+    private WiredRequest Context { get; }
 
     #endregion
 
     #region Initialization
 
-    public Request(IServer server, HttpContext context)
+    public Request(IServer server, Http11Context context)
     {
         Server = server;
         Context = context.Request;
 
-        ProtocolType = Context.Protocol switch
+        ProtocolType = Context.ConnectionType switch
         {
             "HTTP/1.0" => HttpProtocol.Http10,
             "HTTP/1.1" => HttpProtocol.Http11,

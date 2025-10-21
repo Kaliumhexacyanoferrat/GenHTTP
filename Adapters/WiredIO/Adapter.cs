@@ -35,6 +35,12 @@ public static class Adapter
     public static void Map(this WiredApp<Http11Context> app, string path, IHandler handler, IServerCompanion? companion = null)
         => app.Map(path + "/{*any}", async context => await Bridge.MapAsync(context, handler, companion: companion, registeredPath: path));
 
+    public static void BuildPipeline(this WiredApp<Http11Context> app, IHandlerBuilder handler, IServer server)
+        => app.BuildPipeline(handler, server);
+
+    public static void BuildPipeline(this WiredApp<Http11Context> app, IHandler handler, IServer server)
+        => app.BuildPipeline(new List<Func<Http11Context, Func<Http11Context, Task>, Task>>(), context => Bridge.MapAsync(context, handler, server));
+
     /// <summary>
     /// Enables default features on the given handler. This should be used on the
     /// outer-most handler only.

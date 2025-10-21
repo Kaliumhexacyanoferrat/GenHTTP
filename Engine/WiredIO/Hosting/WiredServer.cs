@@ -2,7 +2,7 @@
 using System.Net.Security;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
-
+using GenHTTP.Adapters.WiredIO;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Engine.Shared.Infrastructure;
@@ -73,7 +73,7 @@ internal sealed class WiredServer : IServer
 
         var app = builder.Build();
 
-        app.Run(); // todo: adapter goes here (app.BuildPipeline)
+        app.BuildPipeline(Handler, this);
 
         applicationHook?.Invoke(app);
 

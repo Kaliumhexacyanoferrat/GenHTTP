@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using GenHTTP.Api.Protocol;
+using Wired.IO.Http11.Context;
 
 namespace GenHTTP.Adapters.WiredIO.Types;
 
@@ -42,13 +43,13 @@ public sealed class Query : IRequestQuery
         }
     }
 
-    private HttpRequest Request { get; }
+    private Http11Context Request { get; }
 
     #endregion
 
     #region Initialization
 
-    public Query(HttpRequest request)
+    public Query(Http11Context request)
     {
         Request = request;
     }
