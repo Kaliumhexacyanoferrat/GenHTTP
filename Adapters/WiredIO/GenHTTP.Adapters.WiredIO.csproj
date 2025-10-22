@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFrameworks>net9.0</TargetFrameworks>
 
         <Description>Adapter to run GenHTTP handlers within an Wired.IO app.</Description>
         <PackageTags>Wired.IO Adapter GenHTTP</PackageTags>
