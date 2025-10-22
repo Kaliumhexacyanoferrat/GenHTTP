@@ -10,7 +10,6 @@
     <Project Path="Engine\Internal\GenHTTP.Engine.Internal.csproj" />
     <Project Path="Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj" />
     <Project Path="Engine\Shared\GenHTTP.Engine.Shared.csproj" />
-    <Project Path="Engine\WiredIO\GenHTTP.Engine.WiredIO.csproj" Type="Classic C#" />
   </Folder>
   <Folder Name="/Modules/">
     <Project Path="Modules\ApiBrowsing\GenHTTP.Modules.ApiBrowsing.csproj" />

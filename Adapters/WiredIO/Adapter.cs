@@ -7,39 +7,24 @@ using GenHTTP.Modules.Compression;
 using GenHTTP.Modules.ErrorHandling;
 using GenHTTP.Modules.IO;
 
-using Wired.IO.App;
-using Wired.IO.Http11.Context;
+using Wired.IO.Builder;
+using Wired.IO.Http11Express;
+using Wired.IO.Http11Express.Context;
 
 namespace GenHTTP.Adapters.WiredIO;
 
 public static class Adapter
 {
 
-    /// <summary>
-    /// Registers the given handler to respond to requests to the specified path.
-    /// </summary>
-    /// <param name="app">The application to add the mapping to</param>
-    /// <param name="path">The path to register the handler for</param>
-    /// <param name="handler">The handler to be registered</param>
-    /// <param name="companion">An object that will be informed about handled requests and any error</param>
-    public static void Map(this WiredApp<Http11Context> app, string path, IHandlerBuilder handler, IServerCompanion? companion = null)
-        => Map(app, path, handler.Build(), companion);
+    // ToDo: IBaseRequest and IBaseResponse do not feature basic access (such as headers), so we cannot be generic here
 
-    /// <summary>
-    /// Registers the given handler to respond to requests to the specified path.
-    /// </summary>
-    /// <param name="app">The application to add the mapping to</param>
-    /// <param name="path">The path to register the handler for</param>
-    /// <param name="handler">The handler to be registered</param>
-    /// <param name="companion">An object that will be informed about handled requests and any error</param>
-    public static void Map(this WiredApp<Http11Context> app, string path, IHandler handler, IServerCompanion? companion = null)
-        => app.Map(path + "/{*any}", async context => await Bridge.MapAsync(context, handler, companion: companion, registeredPath: path));
+    public static void Map(this Builder<WiredHttp11Express<Http11ExpressContext>, Http11ExpressContext> builder, string path, IHandlerBuilder handler, IServerCompanion? companion = null)
+        => Map(builder, path, handler.Build(), companion);
 
-    public static void BuildPipeline(this WiredApp<Http11Context> app, IHandlerBuilder handler, IServer server)
-        => app.BuildPipeline(handler, server);
-
-    public static void BuildPipeline(this WiredApp<Http11Context> app, IHandler handler, IServer server)
-        => app.BuildPipeline(new List<Func<Http11Context, Func<Http11Context, Task>, Task>>(), context => Bridge.MapAsync(context, handler, server));
+    public static void Map(this Builder<WiredHttp11Express<Http11ExpressContext>, Http11ExpressContext> builder, string path, IHandler handler, IServerCompanion? companion = null)
+    {
+        builder.UseMiddleware(scope => async (c, n) => await Bridge.MapAsync(c, n, handler, companion: companion, registeredPath: path));
+    }
 
     /// <summary>
     /// Enables default features on the given handler. This should be used on the

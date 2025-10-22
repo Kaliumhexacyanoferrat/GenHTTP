@@ -4,6 +4,8 @@ using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
+using Wired.IO.Http11Express.Request;
+
 namespace GenHTTP.Adapters.WiredIO.Types;
 
 public sealed class ClientConnection : IClientConnection
@@ -11,28 +13,26 @@ public sealed class ClientConnection : IClientConnection
 
     #region Get-/Setters
 
-    public IPAddress IPAddress => Info.RemoteIpAddress ?? throw new InvalidOperationException("Remote client IP address is not known");
+    public IPAddress IPAddress => throw new InvalidOperationException("Remote client IP address is not known");
 
     public ClientProtocol? Protocol { get; }
 
-    public string? Host => Request.Host.HasValue ? Request.Host.Value : null;
+    public string? Host => Request.Headers.GetValueOrDefault("Host");
 
-    public X509Certificate? Certificate => Info.ClientCertificate;
+    public X509Certificate? Certificate => null;
 
-    private ConnectionInfo Info { get; }
-
-    private HttpRequest Request { get; }
+    private IExpressRequest Request { get; }
 
     #endregion
 
     #region Initialization
 
-    public ClientConnection(ConnectionInfo info, HttpRequest request)
+    public ClientConnection(IExpressRequest request)
     {
-        Info = info;
         Request = request;
 
-        Protocol = (request.IsHttps) ? ClientProtocol.Https : ClientProtocol.Http;
+        // todo: wired does not expose this information
+        Protocol = ClientProtocol.Http;
     }
 
     #endregion

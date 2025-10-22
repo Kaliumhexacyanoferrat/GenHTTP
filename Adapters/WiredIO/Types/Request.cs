@@ -1,13 +1,10 @@
 ﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
+
 using GenHTTP.Engine.Shared.Types;
 
-using Wired.IO.Http11.Context;
-
-using HttpProtocol = GenHTTP.Api.Protocol.HttpProtocol;
-
-using WiredRequest = Wired.IO.Http11.Request.IRequest;
+using Wired.IO.Http11Express.Request;
 
 namespace GenHTTP.Adapters.WiredIO.Types;
 
@@ -23,8 +20,6 @@ public sealed class Request : IRequest
 
     private Headers? _Headers;
 
-    private readonly IEndPoint? _EndPoint;
-
     #region Get-/Setters
 
     public IRequestProperties Properties
@@ -34,7 +29,7 @@ public sealed class Request : IRequest
 
     public IServer Server { get; }
 
-    public IEndPoint EndPoint => _EndPoint ?? throw new InvalidOperationException("EndPoint is not available as it is managed by ASP.NET Core");
+    public IEndPoint EndPoint => throw new InvalidOperationException("EndPoint is not available as it is managed by WiredIO");
 
     public IClientConnection Client { get; }
 
@@ -56,65 +51,67 @@ public sealed class Request : IRequest
 
     public IRequestQuery Query
     {
-        get { return _Query ??= new Query(Context); }
+        get { return _Query ??= new Query(InnerRequest); }
     }
 
     public ICookieCollection Cookies
     {
-        get { return _Cookies ??= new Cookies(Context); }
+        get { return _Cookies ??= new Cookies(InnerRequest); }
     }
 
     public IForwardingCollection Forwardings => _Forwardings;
 
     public IHeaderCollection Headers
     {
-        get { return _Headers ??= new Headers(Context); }
+        get { return _Headers ??= new Headers(InnerRequest); }
     }
 
-    public Stream Content => Context.BodyReader.AsStream(true);
+    // todo: this is quite inefficient
+    public Stream Content => (InnerRequest.Content != null) ? new MemoryStream(InnerRequest.Content) : Stream.Null;
 
-    public FlexibleContentType? ContentType => (Context.ContentType != null) ? new(Context.ContentType) : null;
+    public FlexibleContentType? ContentType
+    {
+        get
+        {
+            if (InnerRequest.Headers.TryGetValue("Content-Type", out var contentType))
+            {
+                return FlexibleContentType.Parse(contentType);
+            }
 
-    private WiredRequest Context { get; }
+            return null;
+        }
+    }
+
+    private IExpressRequest InnerRequest { get; }
 
     #endregion
 
     #region Initialization
 
-    public Request(IServer server, Http11Context context)
+    public Request(IServer server, IExpressRequest request)
     {
         Server = server;
-        Context = context.Request;
+        InnerRequest = request;
 
-        ProtocolType = Context.ConnectionType switch
+        // todo: no API provided by wired
+        ProtocolType = HttpProtocol.Http11;
+
+        Method = FlexibleRequestMethod.Get(request.HttpMethod);
+        Target = new RoutingTarget(WebPath.FromString(request.Route));
+
+        if (request.Headers.TryGetValue("forwarded", out var entry))
         {
-            "HTTP/1.0" => HttpProtocol.Http10,
-            "HTTP/1.1" => HttpProtocol.Http11,
-            "HTTP/2" => HttpProtocol.Http2,
-            "HTTP/3" => HttpProtocol.Http3,
-            _ => HttpProtocol.Http11
-        };
-
-        Method = FlexibleRequestMethod.Get(Context.Method);
-        Target = new RoutingTarget(WebPath.FromString(Context.Path));
-
-        if (context.Request.Headers.TryGetValue("forwarded", out var forwardings))
-        {
-            foreach (var entry in forwardings)
-            {
-                if (entry != null) _Forwardings.Add(entry);
-            }
+            _Forwardings.Add(entry);
         }
         else
         {
             _Forwardings.TryAddLegacy(Headers);
         }
 
-        LocalClient = new ClientConnection(context.Connection, context.Request);
+        LocalClient = new ClientConnection(request);
 
-        Client = _Forwardings.DetermineClient(context.Connection.ClientCertificate) ?? LocalClient;
-
-        _EndPoint = Server.EndPoints.FirstOrDefault(e => e.Port == context.Connection.LocalPort);
+        // todo: potential client certificate is not exposed by wired
+        Client = _Forwardings.DetermineClient(null) ?? LocalClient;
     }
 
     #endregion

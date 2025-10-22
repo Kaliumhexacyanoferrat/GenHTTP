@@ -5,20 +5,22 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
-using Wired.IO.Http11.Context;
+using Wired.IO.Http11Express.Context;
+
+using WR = Wired.IO.Protocol.Response;
 
 namespace GenHTTP.Adapters.WiredIO.Mapping;
 
 public static class Bridge
 {
 
-    public static async ValueTask MapAsync(Http11Context context, IHandler handler, IServer? server = null, IServerCompanion? companion = null, string? registeredPath = null)
+    public static async Task MapAsync(Http11ExpressContext context, Func<Http11ExpressContext, Task> next, IHandler handler, IServerCompanion? companion = null, string? registeredPath = null)
     {
-        var actualServer = server ?? new ImplicitServer(handler, companion);
+        var server = new ImplicitServer(handler, companion);
 
         try
         {
-            using var request = new Request(actualServer, context);
+            using var request = new Request(server, context.Request);
 
             if (registeredPath != null)
             {
@@ -27,33 +29,34 @@ public static class Bridge
 
             using var response = await handler.HandleAsync(request);
 
-            if (response == null)
-            {
-                context.Response.StatusCode = 404;
-            }
-            else
+            if (response != null)
             {
                 await WriteAsync(response, context);
 
-                actualServer.Companion?.OnRequestHandled(request, response);
+                server.Companion?.OnRequestHandled(request, response);
+            }
+            else
+            {
+                await next(context);
             }
         }
         catch (Exception e)
         {
-            actualServer.Companion?.OnServerError(ServerErrorScope.ServerConnection, context.Connection.RemoteIpAddress, e);
+            // todo: cannot tell the IP of the client in wired
+            server.Companion?.OnServerError(ServerErrorScope.ServerConnection, null, e);
             throw;
         }
     }
 
-    private static async ValueTask WriteAsync(IResponse response, HttpContext context)
+    private static async ValueTask WriteAsync(IResponse response, Http11ExpressContext context)
     {
-        var target = context.Response;
+        var target = context.Respond();
 
-        target.StatusCode = response.Status.RawStatus;
+        target.Status((WR.ResponseStatus)response.Status.RawStatus);
 
         foreach (var header in response.Headers)
         {
-            target.Headers.Append(header.Key, header.Value);
+            target.Header(header.Key, header.Value);
         }
 
         if (response.Modified != null)
