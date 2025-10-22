@@ -1,5 +1,8 @@
 ﻿using System.Collections;
+
 using GenHTTP.Api.Protocol;
+
+using Wired.IO.Http11Express.Request;
 
 namespace GenHTTP.Adapters.WiredIO.Types;
 
@@ -14,9 +17,9 @@ public sealed class Headers : IHeaderCollection
 
     public bool TryGetValue(string key, out string value)
     {
-        if (Request.Headers.TryGetValue(key, out var strings))
+        if (Request.Headers.TryGetValue(key, out var found))
         {
-            value = strings.FirstOrDefault() ?? string.Empty;
+            value = found;
             return true;
         }
 
@@ -24,7 +27,7 @@ public sealed class Headers : IHeaderCollection
         return false;
     }
 
-    public string this[string key] => Request.Headers[key].FirstOrDefault() ?? string.Empty;
+    public string this[string key] => ContainsKey(key) ? Request.Headers[key] : string.Empty;
 
     public IEnumerable<string> Keys => Request.Headers.Keys;
 
@@ -34,21 +37,18 @@ public sealed class Headers : IHeaderCollection
         {
             foreach (var entry in Request.Headers)
             {
-                foreach (var value in entry.Value)
-                {
-                    if (value != null) yield return value;
-                }
+                yield return entry.Value;
             }
         }
     }
 
-    private HttpRequest Request { get; }
+    private IExpressRequest Request { get; }
 
     #endregion
 
     #region Initialization
 
-    public Headers(HttpRequest request)
+    public Headers(IExpressRequest request)
     {
         Request = request;
     }
@@ -61,13 +61,7 @@ public sealed class Headers : IHeaderCollection
     {
         foreach (var entry in Request.Headers)
         {
-            foreach (var stringEntry in entry.Value)
-            {
-                if (stringEntry != null)
-                {
-                    yield return new(entry.Key, stringEntry);
-                }
-            }
+            yield return new(entry.Key, entry.Value);
         }
     }
 

@@ -14,7 +14,7 @@ public sealed class Request : IRequest
 
     private Query? _Query;
 
-    private Cookies? _Cookies;
+    private ICookieCollection? _Cookies;
 
     private readonly ForwardingCollection _Forwardings = new();
 
@@ -56,7 +56,7 @@ public sealed class Request : IRequest
 
     public ICookieCollection Cookies
     {
-        get { return _Cookies ??= new Cookies(InnerRequest); }
+        get { return _Cookies ??= FetchCookies(InnerRequest); }
     }
 
     public IForwardingCollection Forwardings => _Forwardings;
@@ -112,6 +112,18 @@ public sealed class Request : IRequest
 
         // todo: potential client certificate is not exposed by wired
         Client = _Forwardings.DetermineClient(null) ?? LocalClient;
+    }
+
+    private CookieCollection FetchCookies(IExpressRequest request)
+    {
+        var cookies = new CookieCollection();
+
+        if (request.Headers.TryGetValue("Cookie", out var header))
+        {
+            cookies.Add(header);
+        }
+
+        return cookies;
     }
 
     #endregion

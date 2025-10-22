@@ -1,6 +1,8 @@
 ﻿using System.Collections;
+
 using GenHTTP.Api.Protocol;
-using Wired.IO.Http11.Context;
+
+using Wired.IO.Http11Express.Request;
 
 namespace GenHTTP.Adapters.WiredIO.Types;
 
@@ -9,15 +11,15 @@ public sealed class Query : IRequestQuery
 
     #region Get-/Setters
 
-    public int Count => Request.Query.Count;
+    public int Count => Request.QueryParameters?.Count ?? 0;
 
-    public bool ContainsKey(string key) => Request.Query.ContainsKey(key);
+    public bool ContainsKey(string key) => Request.QueryParameters?.ContainsKey(key) ?? false;
 
     public bool TryGetValue(string key, out string value)
     {
-        if (Request.Query.TryGetValue(key, out var stringValue))
+        if (Request.QueryParameters?.TryGetValue(key, out var stringValue) ?? false)
         {
-            value = stringValue.FirstOrDefault() ?? string.Empty;
+            value = stringValue;
             return true;
         }
 
@@ -25,31 +27,42 @@ public sealed class Query : IRequestQuery
         return false;
     }
 
-    public string this[string key] => Request.Query[key][0] ?? string.Empty;
+    public string this[string key]
+    {
+        get
+        {
+            if (Request.QueryParameters?.TryGetValue(key, out var stringValue) ?? false)
+            {
+                return stringValue;
+            }
 
-    public IEnumerable<string> Keys => Request.Query.Keys;
+            return string.Empty;
+        }
+    }
+
+    public IEnumerable<string> Keys => Request.QueryParameters?.Keys ?? Enumerable.Empty<string>();
 
     public IEnumerable<string> Values
     {
         get
         {
-            foreach (var entry in Request.Query)
+            if (Request.QueryParameters != null)
             {
-                foreach (var value in entry.Value)
+                foreach (var entry in Request.QueryParameters)
                 {
-                    if (value != null) yield return value;
+                    yield return entry.Value;
                 }
             }
         }
     }
 
-    private Http11Context Request { get; }
+    private IExpressRequest Request { get; }
 
     #endregion
 
     #region Initialization
 
-    public Query(Http11Context request)
+    public Query(IExpressRequest request)
     {
         Request = request;
     }
@@ -60,14 +73,11 @@ public sealed class Query : IRequestQuery
 
     public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
     {
-        foreach (var entry in Request.Query)
+        if (Request.QueryParameters != null)
         {
-            foreach (var stringEntry in entry.Value)
+            foreach (var entry in Request.QueryParameters)
             {
-                if (stringEntry != null)
-                {
-                    yield return new(entry.Key, stringEntry);
-                }
+                yield return new(entry.Key, entry.Value);
             }
         }
     }

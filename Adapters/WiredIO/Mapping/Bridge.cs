@@ -16,6 +16,13 @@ public static class Bridge
 
     public static async Task MapAsync(Http11ExpressContext context, Func<Http11ExpressContext, Task> next, IHandler handler, IServerCompanion? companion = null, string? registeredPath = null)
     {
+        if ((registeredPath != null) && !context.Request.Route.StartsWith(registeredPath))
+        {
+            await next(context);
+            return;
+        }
+
+        // todo: can we cache this somewhere?
         var server = new ImplicitServer(handler, companion);
 
         try
@@ -31,7 +38,7 @@ public static class Bridge
 
             if (response != null)
             {
-                await WriteAsync(response, context);
+                MapResponse(response, context);
 
                 server.Companion?.OnRequestHandled(request, response);
             }
@@ -48,7 +55,7 @@ public static class Bridge
         }
     }
 
-    private static async ValueTask WriteAsync(IResponse response, Http11ExpressContext context)
+    private static void MapResponse(IResponse response, Http11ExpressContext context)
     {
         var target = context.Respond();
 
@@ -61,44 +68,32 @@ public static class Bridge
 
         if (response.Modified != null)
         {
-            target.Headers.LastModified = response.Modified.Value.ToUniversalTime().ToString("r");
+            target.Header("Last-Modified", response.Modified.Value.ToUniversalTime().ToString("r"));
         }
 
         if (response.Expires != null)
         {
-            target.Headers.Expires = response.Expires.Value.ToUniversalTime().ToString("r");
+            target.Header("Expires", response.Expires.Value.ToUniversalTime().ToString("r"));
         }
 
         if (response.HasCookies)
         {
             foreach (var cookie in response.Cookies)
             {
-                if (cookie.Value.MaxAge != null)
-                {
-                    target.Cookies.Append(cookie.Key, cookie.Value.Value, new()
-                    {
-                        MaxAge = TimeSpan.FromSeconds(cookie.Value.MaxAge.Value)
-                    });
-                }
-                else
-                {
-                    target.Cookies.Append(cookie.Key, cookie.Value.Value);
-                }
+                target.Header("Set-Cookie", $"{cookie.Key}={cookie.Value.Value}");
             }
         }
 
         if (response.Content != null)
         {
-            target.ContentLength = (long?)response.ContentLength ?? (long?)response.Content.Length;
+            target.Content(new MappedContent(response));
 
-            target.ContentType = response.ContentType?.Charset != null ? $"{response.ContentType?.RawType}; charset={response.ContentType?.Charset}" : response.ContentType?.RawType;
+            target.Header("Content-Type", (response.ContentType?.Charset != null ? $"{response.ContentType?.RawType}; charset={response.ContentType?.Charset}" : response.ContentType?.RawType) ?? "application/octet-stream");
 
             if (response.ContentEncoding != null)
             {
-                target.Headers.ContentEncoding = response.ContentEncoding;
+                target.Header("Content-Encoding", response.ContentEncoding);
             }
-
-            await response.Content.WriteAsync(target.Body, 65 * 1024);
         }
     }
 
