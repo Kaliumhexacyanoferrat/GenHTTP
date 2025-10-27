@@ -51,17 +51,15 @@ jobs:
 
           if [[ "${{ matrix.qemu }}" == "true" ]]; then
             version="${{ matrix.dotnet }}"
-            base_version="${version%.*}"
+            base_version="${version%.*}.0"
 
             docker run --rm \
               --platform ${{ matrix.platform }} \
               -v $PWD:/src -w /src \
               mcr.microsoft.com/dotnet/sdk:$base_version \
-              bash -c "dotnet restore GenHTTP.slnx && dotnet build GenHTTP.slnx -c Release --runtime ${{ matrix.runtime }} && dotnet test GenHTTP.slnx -c Release --runtime ${{ matrix.runtime }} --no-build"
+              bash -c "dotnet test GenHTTP.slnx -c Release"
           else
-            dotnet restore GenHTTP.slnx
-            dotnet build GenHTTP.slnx -c Release --runtime ${{ matrix.runtime }}
-            dotnet test GenHTTP.slnx -c Release --runtime ${{ matrix.runtime }} --no-build
+            dotnet test GenHTTP.slnx -c Release
           fi
 
   windows:
@@ -86,6 +84,4 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "=== Building and Testing for win-x64 (.NET ${{ matrix.dotnet }}) ==="
-          dotnet restore GenHTTP.slnx
-          dotnet build GenHTTP.slnx -c Release --runtime win-x64
-          dotnet test GenHTTP.slnx -c Release --runtime win-x64 --no-build
+          dotnet test GenHTTP.slnx -c Release
