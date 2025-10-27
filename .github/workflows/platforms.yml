@@ -52,10 +52,13 @@ jobs:
           echo "=== Building and Testing for ${{ matrix.runtime }} (.NET ${{ matrix.dotnet }}) ==="
 
           if [[ "${{ matrix.qemu }}" == "true" ]]; then
+            version="${{ matrix.dotnet }}"
+            base_version="${version%.*}"
+
             docker run --rm \
               --platform ${{ matrix.platform }} \
               -v $PWD:/src -w /src \
-              mcr.microsoft.com/dotnet/sdk:${{ matrix.dotnet%.* }} \
+              mcr.microsoft.com/dotnet/sdk:$base_version \
               bash -c "dotnet restore && dotnet build -c Release --runtime ${{ matrix.runtime }} && dotnet test -c Release --runtime ${{ matrix.runtime }} --no-build"
           else
             dotnet restore
