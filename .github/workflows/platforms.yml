@@ -8,7 +8,6 @@ jobs:
 
   linux:
     name: Linux - ${{ matrix.arch.name }} - .NET ${{ matrix.dotnet }}
-    runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
@@ -26,7 +25,10 @@ jobs:
           - name: arm64
             runtime: linux-arm64
             platform: linux/arm64/v8
-            qemu: true
+            qemu: false   # ← changed to false to use native ARM64 runner
+
+    # Conditional runs-on depending on architecture
+    runs-on: ${{ matrix.arch.name == 'arm64' && 'ubuntu-22.04-arm64' || 'ubuntu-latest' }}
 
     steps:
       - name: Checkout source
@@ -58,7 +60,6 @@ jobs:
               bash -c "dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}.0"
           else
             dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}.0
-          fi
 
   windows:
     name: Windows – x64 - .NET ${{ matrix.dotnet }}
