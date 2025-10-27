@@ -1,4 +1,4 @@
-name: Verify Platform Support
+name: Verify
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
 jobs:
 
   linux:
-    name: Linux – ${{ matrix.arch.name }} (.NET ${{ matrix.dotnet }})
+    name: Linux - ${{ matrix.arch.name }} - .NET ${{ matrix.dotnet }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -61,7 +61,7 @@ jobs:
           fi
 
   windows:
-    name: Windows – x64 (.NET ${{ matrix.dotnet }})
+    name: Windows – x64 - .NET ${{ matrix.dotnet }}
     runs-on: windows-latest
 
     strategy:
