@@ -1,8 +1,8 @@
 name: Build, Test & Coverage
 
-on: 
-  push:
+on:
   pull_request:
+    branches: [ main ]
 
 jobs:
   build:
