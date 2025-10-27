@@ -58,12 +58,14 @@ jobs:
           IS_QEMU="${{ matrix.arch.qemu }}"
 
           if [ "$IS_QEMU" = "true" ]; then
-            docker run --rm --platform ${{ matrix.arch.platform }} \
-              -v "$PWD:/src" -w /src \
+            DOCKER_CMD="docker run --rm --platform ${{ matrix.arch.platform }} \
+              -v \"$PWD:/src\" -w /src \
               mcr.microsoft.com/dotnet/sdk:${{ matrix.dotnet }}.0 \
-              bash -c 'dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}.0'
+              bash -c \"dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}.0\""
+            eval $DOCKER_CMD
           else
             dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}.0
+          fi
 
   windows:
     name: Windows – x64 - .NET ${{ matrix.dotnet }}
