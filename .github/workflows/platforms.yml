@@ -22,11 +22,11 @@ jobs:
             platform: linux/amd64
             qemu: false
             runs-on: ubuntu-latest
-          - name: arm32
-            runtime: linux-arm
-            platform: linux/arm/v7
-            qemu: true
-            runs-on: ubuntu-latest
+          #- name: arm32
+          #  runtime: linux-arm
+          #  platform: linux/arm/v7
+          #  qemu: true
+          #  runs-on: ubuntu-latest
           - name: arm64
             runtime: linux-arm64
             platform: linux/arm64/v8
