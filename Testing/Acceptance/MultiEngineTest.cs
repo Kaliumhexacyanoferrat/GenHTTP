@@ -13,11 +13,25 @@ public class MultiEngineTestAttribute : Attribute, ITestDataSource
 
     public IEnumerable<object[]> GetData(MethodInfo methodInfo)
     {
-        return new List<object[]>
+        var engine = Environment.GetEnvironmentVariable("TEST_ENGINE");
+        
+        if (engine == null) {
+            return new List<object[]>
+            {
+                new object[] { TestEngine.Internal },
+                new object[] { TestEngine.Kestrel }
+            };
+        }
+
+        if (Enum.TryParse(engine, out TestEngine found))
         {
-            new object[] { TestEngine.Internal },
-            new object[] { TestEngine.Kestrel }
-        };
+            return new List<object[]>
+            {
+                new object[] { found }
+            };
+        }
+
+        throw new InvalidOperationException($"Engine '{engine}' is not supported");
     }
 
     public string GetDisplayName(MethodInfo methodInfo, object?[]? data)

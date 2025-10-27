@@ -9,6 +9,8 @@ jobs:
   linux:
     name: Linux - ${{ matrix.arch.name }} - .NET ${{ matrix.dotnet }}
     runs-on: ${{ matrix.arch.runs-on }}
+    env:
+      TEST_ENGINE: Internal
 
     strategy:
       fail-fast: false
@@ -62,11 +64,12 @@ jobs:
               bash -c 'dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}.0'
           else
             dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}.0
-          fi
 
   windows:
     name: Windows – x64 - .NET ${{ matrix.dotnet }}
     runs-on: windows-latest
+    env:
+      TEST_ENGINE: Internal
 
     strategy:
       fail-fast: false
