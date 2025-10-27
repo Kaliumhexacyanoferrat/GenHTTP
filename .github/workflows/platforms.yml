@@ -54,11 +54,10 @@ jobs:
           echo "=== Building and Testing for ${{ matrix.arch.runtime }} (.NET ${{ matrix.dotnet }}) ==="
 
           if [[ "${{ matrix.arch.qemu }}" == "true" ]]; then
-            docker run --rm \
-              --platform ${{ matrix.arch.platform }} \
-              -v $PWD:/src -w /src \
+            docker run --rm --platform ${{ matrix.arch.platform }} \
+              -v "$PWD:/src" -w /src \
               mcr.microsoft.com/dotnet/sdk:${{ matrix.dotnet }}.0 \
-              bash -c "dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}.0"
+              bash -c 'dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}.0'
           else
             dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}.0
 
