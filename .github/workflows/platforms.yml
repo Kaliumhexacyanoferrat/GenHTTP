@@ -86,3 +86,4 @@ jobs:
           dotnet restore
           dotnet build -c Release --runtime win-x64
           dotnet test -c Release --runtime win-x64 --no-build
+ 
