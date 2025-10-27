@@ -5,24 +5,25 @@ on:
     branches: [ main ]
 
 jobs:
+
   linux:
-    name: Linux – ${{ matrix.arch }} (.NET ${{ matrix.dotnet }})
+    name: Linux – ${{ matrix.arch.name }} (.NET ${{ matrix.dotnet }})
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
         dotnet: [8.0, 9.0]
-        include:
-          - arch: x64
+        arch:
+          - name: x64
             runtime: linux-x64
             platform: linux/amd64
             qemu: false
-          - arch: arm32
+          - name: arm32
             runtime: linux-arm
             platform: linux/arm/v7
             qemu: true
-          - arch: arm64
+          - name: arm64
             runtime: linux-arm64
             platform: linux/arm64/v8
             qemu: true
@@ -37,29 +38,26 @@ jobs:
           dotnet-version: ${{ matrix.dotnet }}
 
       - name: Setup QEMU
-        if: ${{ matrix.qemu }}
+        if: ${{ matrix.arch.qemu }}
         uses: docker/setup-qemu-action@v3
 
       - name: Setup Docker Buildx
-        if: ${{ matrix.qemu }}
+        if: ${{ matrix.arch.qemu }}
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and Test (${{ matrix.runtime }})
+      - name: Build and Test (${{ matrix.arch.runtime }})
         shell: bash
         run: |
-          echo "=== Building and Testing for ${{ matrix.runtime }} (.NET ${{ matrix.dotnet }}) ==="
+          echo "=== Building and Testing for ${{ matrix.arch.runtime }} (.NET ${{ matrix.dotnet }}) ==="
 
-          if [[ "${{ matrix.qemu }}" == "true" ]]; then
-            version="${{ matrix.dotnet }}"
-            base_version="${version%.*}.0"
-
+          if [[ "${{ matrix.arch.qemu }}" == "true" ]]; then
             docker run --rm \
-              --platform ${{ matrix.platform }} \
+              --platform ${{ matrix.arch.platform }} \
               -v $PWD:/src -w /src \
-              mcr.microsoft.com/dotnet/sdk:$base_version \
-              bash -c "dotnet test GenHTTP.slnx -c Release"
+              mcr.microsoft.com/dotnet/sdk:${{ matrix.dotnet }} \
+              bash -c "dotnet test Testing/Testing/GenHTTP.Testing.csproj -c Release -f net${{ matrix.dotnet }}"
           else
-            dotnet test GenHTTP.slnx -c Release
+            dotnet test Testing/Testing/GenHTTP.Testing.csproj -c Release -f net${{ matrix.dotnet }}
           fi
 
   windows:
@@ -84,4 +82,4 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "=== Building and Testing for win-x64 (.NET ${{ matrix.dotnet }}) ==="
-          dotnet test GenHTTP.slnx -c Release
+          dotnet test Testing/Testing/GenHTTP.Testing.csproj -c Release -f net${{ matrix.dotnet }}
