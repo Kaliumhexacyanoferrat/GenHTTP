@@ -55,9 +55,9 @@ jobs:
               --platform ${{ matrix.arch.platform }} \
               -v $PWD:/src -w /src \
               mcr.microsoft.com/dotnet/sdk:${{ matrix.dotnet }} \
-              bash -c "dotnet test Testing/Testing/GenHTTP.Testing.csproj -c Release -f net${{ matrix.dotnet }}"
+              bash -c "dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}"
           else
-            dotnet test Testing/Testing/GenHTTP.Testing.csproj -c Release -f net${{ matrix.dotnet }}
+            dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}
           fi
 
   windows:
@@ -82,4 +82,4 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "=== Building and Testing for win-x64 (.NET ${{ matrix.dotnet }}) ==="
-          dotnet test Testing/Testing/GenHTTP.Testing.csproj -c Release -f net${{ matrix.dotnet }}
+          dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}
