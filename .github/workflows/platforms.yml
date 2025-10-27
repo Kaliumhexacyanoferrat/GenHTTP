@@ -1,8 +1,6 @@
 name: Verify Platform Support
 
 on:
-  push:
-    branches: [ feature/multi-platform ]
   pull_request:
     branches: [ main ]
 
