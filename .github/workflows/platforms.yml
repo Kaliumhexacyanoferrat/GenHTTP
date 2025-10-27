@@ -8,6 +8,7 @@ jobs:
 
   linux:
     name: Linux - ${{ matrix.arch.name }} - .NET ${{ matrix.dotnet }}
+    runs-on: ${{ matrix.arch.runs-on }}
 
     strategy:
       fail-fast: false
@@ -18,17 +19,17 @@ jobs:
             runtime: linux-x64
             platform: linux/amd64
             qemu: false
+            runs-on: ubuntu-latest
           - name: arm32
             runtime: linux-arm
             platform: linux/arm/v7
             qemu: true
+            runs-on: ubuntu-latest
           - name: arm64
             runtime: linux-arm64
             platform: linux/arm64/v8
-            qemu: false   # ← changed to false to use native ARM64 runner
-
-    # Conditional runs-on depending on architecture
-    runs-on: ${{ matrix.arch.name == 'arm64' && 'ubuntu-22.04-arm64' || 'ubuntu-latest' }}
+            qemu: false
+            runs-on: ubuntu-22.04-arm64
 
     steps:
       - name: Checkout source
