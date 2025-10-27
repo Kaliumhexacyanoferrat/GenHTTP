@@ -1,0 +1,88 @@
+name: Verify Platform Support
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  linux:
+    name: Linux – ${{ matrix.arch }} (.NET ${{ matrix.dotnet-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        dotnet-version: [8.0.x, 9.0.x]
+        include:
+          - arch: x64
+            runtime: linux-x64
+            platform: linux/amd64
+            qemu: false
+          - arch: arm32
+            runtime: linux-arm
+            platform: linux/arm/v7
+            qemu: true
+          - arch: arm64
+            runtime: linux-arm64
+            platform: linux/arm64/v8
+            qemu: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Setup QEMU
+        if: ${{ matrix.qemu }}
+        uses: docker/setup-qemu-action@v3
+
+      - name: Setup Docker Buildx
+        if: ${{ matrix.qemu }}
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & Test (${{ matrix.runtime }})
+        shell: bash
+        run: |
+          echo "=== Building and Testing for ${{ matrix.runtime }} (.NET ${{ matrix.dotnet-version }}) ==="
+
+          if [[ "${{ matrix.qemu }}" == "true" ]]; then
+            docker run --rm \
+              --platform ${{ matrix.platform }} \
+              -v $PWD:/src -w /src \
+              mcr.microsoft.com/dotnet/sdk:${{ matrix.dotnet-version%.* }} \
+              bash -c "dotnet restore && dotnet build -c Release --runtime ${{ matrix.runtime }} && dotnet test -c Release --runtime ${{ matrix.runtime }} --no-build"
+          else
+            dotnet restore
+            dotnet build -c Release --runtime ${{ matrix.runtime }}
+            dotnet test -c Release --runtime ${{ matrix.runtime }} --no-build
+          fi
+
+  windows:
+    name: Windows – x64 (.NET ${{ matrix.dotnet-version }})
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        dotnet-version: [8.0.x, 9.0.x]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Build & Test (win-x64)
+        shell: pwsh
+        run: |
+          Write-Host "=== Building and Testing for win-x64 (.NET ${{ matrix.dotnet-version }}) ==="
+          dotnet restore
+          dotnet build -c Release --runtime win-x64
+          dotnet test -c Release --runtime win-x64 --no-build
