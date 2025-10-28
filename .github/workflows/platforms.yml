@@ -20,17 +20,10 @@ jobs:
           - name: x64
             runtime: linux-x64
             platform: linux/amd64
-            qemu: false
             runs-on: ubuntu-latest
-          #- name: arm32
-          #  runtime: linux-arm
-          #  platform: linux/arm/v7
-          #  qemu: true
-          #  runs-on: ubuntu-latest
           - name: arm64
             runtime: linux-arm64
             platform: linux/arm64/v8
-            qemu: false
             runs-on: ubuntu-22.04-arm
 
     steps:
@@ -42,30 +35,16 @@ jobs:
         with:
           dotnet-version: ${{ matrix.dotnet }}
 
-      - name: Setup QEMU
-        if: ${{ matrix.arch.qemu }}
-        uses: docker/setup-qemu-action@v3
-
-      - name: Setup Docker Buildx
-        if: ${{ matrix.arch.qemu }}
-        uses: docker/setup-buildx-action@v3
+      # ARM64 on .NET 8 does not support multiple target frameworks 
+      - name: Setup .NET SDK 9.0
+        if: matrix.arch.name == 'arm64' && matrix.dotnet == '8.0'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0
 
       - name: Build and Test (${{ matrix.arch.runtime }})
         shell: bash
-        run: |
-          echo "=== Building and Testing for ${{ matrix.arch.runtime }} (.NET ${{ matrix.dotnet }}) ==="
-
-          IS_QEMU="${{ matrix.arch.qemu }}"
-
-          if [ "$IS_QEMU" = "true" ]; then
-            DOCKER_CMD="docker run --rm --platform ${{ matrix.arch.platform }} \
-              -v \"$PWD:/src\" -w /src \
-              mcr.microsoft.com/dotnet/sdk:${{ matrix.dotnet }}.0 \
-              bash -c \"dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}.0\""
-            eval $DOCKER_CMD
-          else
-            dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}.0
-          fi
+        run: dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}.0
 
   windows:
     name: Windows – x64 - .NET ${{ matrix.dotnet }}
@@ -89,6 +68,4 @@ jobs:
 
       - name: Build and Test (win-x64)
         shell: pwsh
-        run: |
-          Write-Host "=== Building and Testing for win-x64 (.NET ${{ matrix.dotnet }}) ==="
-          dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}.0
+        run: dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}.0
