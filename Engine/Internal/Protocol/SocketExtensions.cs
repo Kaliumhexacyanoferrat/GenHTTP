@@ -7,4 +7,5 @@ internal static class SocketExtensions
 {
 
     public static IPAddress? GetAddress(this Socket socket) => (socket.RemoteEndPoint as IPEndPoint)?.Address;
+
 }

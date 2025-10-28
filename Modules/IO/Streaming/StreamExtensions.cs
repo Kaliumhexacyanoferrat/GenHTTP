@@ -1,15 +1,10 @@
 ﻿using System.Buffers;
-using System.Text;
 
 namespace GenHTTP.Modules.IO.Streaming;
 
 public static class StreamExtensions
 {
     private static readonly ArrayPool<byte> Pool = ArrayPool<byte>.Shared;
-
-    private static readonly Encoding Utf8 = Encoding.UTF8;
-
-    private static readonly Encoder Encoder = Utf8.GetEncoder();
 
     public static async ValueTask CopyPooledAsync(this Stream source, Stream target, uint bufferSize)
     {
@@ -36,42 +31,6 @@ public static class StreamExtensions
                 }
             }
             while (read > 0);
-        }
-        finally
-        {
-            Pool.Return(buffer);
-        }
-    }
-
-    public static async ValueTask WriteAsync(this string content, Stream target)
-    {
-        var bytes = Encoder.GetByteCount(content, false);
-
-        var buffer = Pool.Rent(bytes);
-
-        try
-        {
-            Encoder.GetBytes(content.AsSpan(), buffer.AsSpan(), true);
-
-            await target.WriteAsync(buffer.AsMemory(0, bytes));
-        }
-        finally
-        {
-            Pool.Return(buffer);
-        }
-    }
-
-    public static void Write(this string content, Stream target)
-    {
-        var length = Encoder.GetByteCount(content, false);
-
-        var buffer = Pool.Rent(length);
-
-        try
-        {
-            Encoder.GetBytes(content.AsSpan(), buffer.AsSpan(), true);
-
-            target.Write(buffer, 0, length);
         }
         finally
         {
@@ -130,4 +89,5 @@ public static class StreamExtensions
 
         return null;
     }
+
 }
