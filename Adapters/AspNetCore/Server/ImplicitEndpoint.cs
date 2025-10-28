@@ -1,5 +1,4 @@
 using System.Net;
-using System.Text.Json.Serialization;
 
 using GenHTTP.Api.Infrastructure;
 
