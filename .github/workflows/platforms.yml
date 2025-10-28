@@ -1,12 +1,16 @@
 name: 🖥️
 
 on:
-  pull_request:
-    branches: [ main ]
+  workflow_run:
+    workflows: ["🔎"] 
+    types:
+      - completed
 
 jobs:
 
   build-test:
+
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     name: ${{ matrix.os.name }} / .NET ${{ matrix.dotnet }} / ${{ matrix.arch }}
 
