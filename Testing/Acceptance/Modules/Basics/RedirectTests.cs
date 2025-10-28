@@ -83,4 +83,5 @@ public sealed class RedirectTests
 
         Assert.AreEqual("/me/to/", new Uri(response.GetHeader("Location")!).AbsolutePath);
     }
+    
 }
