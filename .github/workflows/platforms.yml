@@ -87,14 +87,14 @@ jobs:
           # macOS x64
           - os:
               name: 🍎
-              runs-on: macos-12
+              runs-on: macos-15-intel
             arch: x64
             runtime: osx-x64
             platform: macos/amd64
             dotnet: 8.0
           - os:
               name: 🍎
-              runs-on: macos-12
+              runs-on: macos-15-intel
             arch: x64
             runtime: osx-x64
             platform: macos/amd64
@@ -103,14 +103,14 @@ jobs:
           # macOS arm64
           - os:
               name: 🍎
-              runs-on: macos-14
+              runs-on: macos-15
             arch: arm64
             runtime: osx-arm64
             platform: macos/arm64
             dotnet: 8.0
           - os:
               name: 🍎
-              runs-on: macos-14
+              runs-on: macos-15
             arch: arm64
             runtime: osx-arm64
             platform: macos/arm64
