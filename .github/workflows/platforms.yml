@@ -1,4 +1,4 @@
-name: Platform
+name: ⚙️
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
 jobs:
 
   linux:
-    name: Linux - ${{ matrix.arch.name }} - .NET ${{ matrix.dotnet }}
+    name: 🐧 ${{ matrix.arch.name }} - .NET ${{ matrix.dotnet }}
     runs-on: ${{ matrix.arch.runs-on }}
     env:
       TEST_ENGINE: Internal
@@ -47,7 +47,7 @@ jobs:
         run: dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}.0
 
   windows:
-    name: Windows – x64 - .NET ${{ matrix.dotnet }}
+    name: 🪟 x64 - .NET ${{ matrix.dotnet }}
     runs-on: windows-latest
     env:
       TEST_ENGINE: Internal
