@@ -167,13 +167,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Setup .NET SDK ${{ matrix.dotnet }}
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ matrix.dotnet }}
-
-      - name: Setup .NET 9 (for ARM64 on .NET 8)
-        if: matrix.runtime == 'linux-arm64' && matrix.arch == 'arm64' && matrix.dotnet == '8.0'
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0
