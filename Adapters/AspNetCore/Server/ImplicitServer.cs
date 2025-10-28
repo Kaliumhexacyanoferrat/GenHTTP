@@ -3,6 +3,8 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
+using Microsoft.AspNetCore.Http;
+
 namespace GenHTTP.Adapters.AspNetCore.Server;
 
 public sealed class ImplicitServer : IServer
@@ -33,12 +35,12 @@ public sealed class ImplicitServer : IServer
 
     #region Initialization
 
-    public ImplicitServer(IHandler handler, IServerCompanion? companion)
+    public ImplicitServer(HttpContext context, IHandler handler, IServerCompanion? companion)
     {
         Handler = handler;
         Companion = companion;
 
-        EndPoints = new EmptyEndpoints();
+        EndPoints = new EndpointCollection(context);
 
         Running = true;
     }

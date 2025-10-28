@@ -12,29 +12,27 @@ namespace GenHTTP.Adapters.AspNetCore.Types;
 
 public sealed class Request : IRequest
 {
-    private RequestProperties? _Properties;
+    private RequestProperties? _properties;
 
-    private Query? _Query;
+    private Query? _query;
 
-    private Cookies? _Cookies;
+    private Cookies? _cookies;
 
-    private readonly ForwardingCollection _Forwardings = new();
+    private readonly ForwardingCollection _forwardings = new();
 
-    private Headers? _Headers;
-
-    private readonly IEndPoint? _EndPoint;
+    private Headers? _headers;
 
     #region Get-/Setters
 
     public IRequestProperties Properties
     {
-        get { return _Properties ??= new RequestProperties(); }
+        get { return _properties ??= new RequestProperties(); }
     }
 
     public IServer Server { get; }
 
-    public IEndPoint EndPoint => _EndPoint ?? throw new InvalidOperationException("EndPoint is not available as it is managed by ASP.NET Core");
-
+    public IEndPoint EndPoint { get; }
+    
     public IClientConnection Client { get; }
 
     public IClientConnection LocalClient { get; }
@@ -55,19 +53,19 @@ public sealed class Request : IRequest
 
     public IRequestQuery Query
     {
-        get { return _Query ??= new Query(Context); }
+        get { return _query ??= new Query(Context); }
     }
 
     public ICookieCollection Cookies
     {
-        get { return _Cookies ??= new Cookies(Context); }
+        get { return _cookies ??= new Cookies(Context); }
     }
 
-    public IForwardingCollection Forwardings => _Forwardings;
+    public IForwardingCollection Forwardings => _forwardings;
 
     public IHeaderCollection Headers
     {
-        get { return _Headers ??= new Headers(Context); }
+        get { return _headers ??= new Headers(Context); }
     }
 
     public Stream Content => Context.BodyReader.AsStream(true);
@@ -101,19 +99,19 @@ public sealed class Request : IRequest
         {
             foreach (var entry in forwardings)
             {
-                if (entry != null) _Forwardings.Add(entry);
+                if (entry != null) _forwardings.Add(entry);
             }
         }
         else
         {
-            _Forwardings.TryAddLegacy(Headers);
+            _forwardings.TryAddLegacy(Headers);
         }
 
         LocalClient = new ClientConnection(context.Connection, context.Request);
 
-        Client = _Forwardings.DetermineClient(context.Connection.ClientCertificate) ?? LocalClient;
+        Client = _forwardings.DetermineClient(context.Connection.ClientCertificate) ?? LocalClient;
 
-        _EndPoint = Server.EndPoints.FirstOrDefault(e => e.Port == context.Connection.LocalPort);
+        EndPoint = Server.EndPoints.First(e => e.Port == context.Connection.LocalPort);
     }
 
     #endregion
@@ -128,15 +126,15 @@ public sealed class Request : IRequest
 
     #region Lifecycle
 
-    private bool _Disposed;
+    private bool _disposed;
 
     public void Dispose()
     {
-        if (!_Disposed)
+        if (!_disposed)
         {
-            _Properties?.Dispose();
+            _properties?.Dispose();
 
-            _Disposed = true;
+            _disposed = true;
         }
     }
 
