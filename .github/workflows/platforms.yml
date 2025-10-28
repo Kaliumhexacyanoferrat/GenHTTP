@@ -5,57 +5,63 @@ on:
     branches: [ main ]
 
 jobs:
-
-  linux:
-    name: 🐧 / .NET ${{ matrix.dotnet }} / ${{ matrix.arch.name }}
-    runs-on: ${{ matrix.arch.runs-on }}
+  build-test:
+    name: ${{ matrix.os.name }} / .NET ${{ matrix.dotnet }} / ${{ matrix.arch }}
+    runs-on: ${{ matrix.os.runs-on }}
     env:
       TEST_ENGINE: Internal
 
     strategy:
       fail-fast: false
       matrix:
-        dotnet: [8.0, 9.0]
-        arch:
-          - name: x64
+        include:
+          # Linux x64
+          - os:
+              name: 🐧
+              runs-on: ubuntu-latest
+            arch: x64
             runtime: linux-x64
             platform: linux/amd64
-            runs-on: ubuntu-latest
-          - name: arm64
+            dotnet: 8.0
+          - os:
+              name: 🐧
+              runs-on: ubuntu-latest
+            arch: x64
+            runtime: linux-x64
+            platform: linux/amd64
+            dotnet: 9.0
+
+          # Linux arm64
+          - os:
+              name: 🐧
+              runs-on: ubuntu-22.04-arm
+            arch: arm64
             runtime: linux-arm64
             platform: linux/arm64/v8
-            runs-on: ubuntu-22.04-arm
+            dotnet: 8.0
+          - os:
+              name: 🐧
+              runs-on: ubuntu-22.04-arm
+            arch: arm64
+            runtime: linux-arm64
+            platform: linux/arm64/v8
+            dotnet: 9.0
 
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
-
-      - name: Setup .NET ${{ matrix.dotnet }}
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ matrix.dotnet }}
-
-      # ARM64 on .NET 8 does not support multiple target frameworks 
-      - name: Setup .NET 9
-        if: matrix.arch.name == 'arm64' && matrix.dotnet == '8.0'
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 9.0
-
-      - name: Build and Test (${{ matrix.arch.runtime }})
-        shell: bash
-        run: dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}.0
-
-  windows:
-    name: 🪟 / .NET ${{ matrix.dotnet }} / x64 
-    runs-on: windows-latest
-    env:
-      TEST_ENGINE: Internal
-
-    strategy:
-      fail-fast: false
-      matrix:
-        dotnet: [8.0, 9.0]
+          # Windows x64
+          - os:
+              name: 🪟
+              runs-on: windows-latest
+            arch: x64
+            runtime: win-x64
+            platform: windows/amd64
+            dotnet: 8.0
+          - os:
+              name: 🪟
+              runs-on: windows-latest
+            arch: x64
+            runtime: win-x64
+            platform: windows/amd64
+            dotnet: 9.0
 
     steps:
       - name: Checkout source
@@ -66,6 +72,13 @@ jobs:
         with:
           dotnet-version: ${{ matrix.dotnet }}
 
-      - name: Build and Test (win-x64)
-        shell: pwsh
+      # Workaround: ARM64 on .NET 8 doesn’t support multiple TFMs
+      - name: Setup .NET 9 (for ARM64 on .NET 8)
+        if: matrix.runtime == 'linux-arm64' && matrix.arch == 'arm64' && matrix.dotnet == '8.0'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0
+
+      - name: Build & Test (${{ matrix.runtime }})
+        shell: ${{ startsWith(matrix.os.runs-on, 'windows') && 'pwsh' || 'bash' }}
         run: dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}.0
