@@ -84,9 +84,7 @@ internal sealed class ResponseHandler
 
     private void WriteStatus(IRequest? request, IResponse response)
     {
-        Output.Write("HTTP/"u8);
-        Output.Write((request?.ProtocolType == HttpProtocol.Http11) ? "1.1"u8 : "1.0"u8);
-        Output.Write(" "u8);
+        Output.Write((request?.ProtocolType == HttpProtocol.Http11) ? "HTTP/1.1 "u8 : "HTTP/1.0 "u8);
         Output.Write(response.Status.RawStatus);
         Output.Write(" "u8);
 
@@ -236,3 +234,4 @@ internal sealed class ResponseHandler
     #endregion
 
 }
+
