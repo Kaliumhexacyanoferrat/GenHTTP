@@ -5,9 +5,13 @@ on:
     branches: [ main ]
 
 jobs:
+
   build-test:
+
     name: ${{ matrix.os.name }} / .NET ${{ matrix.dotnet }} / ${{ matrix.arch }}
+
     runs-on: ${{ matrix.os.runs-on }}
+
     env:
       TEST_ENGINE: Internal
 
@@ -15,6 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
+
           # Linux x64
           - os:
               name: 🐧
@@ -72,7 +77,6 @@ jobs:
         with:
           dotnet-version: ${{ matrix.dotnet }}
 
-      # Workaround: ARM64 on .NET 8 doesn’t support multiple TFMs
       - name: Setup .NET 9 (for ARM64 on .NET 8)
         if: matrix.runtime == 'linux-arm64' && matrix.arch == 'arm64' && matrix.dotnet == '8.0'
         uses: actions/setup-dotnet@v4
@@ -80,5 +84,4 @@ jobs:
           dotnet-version: 9.0
 
       - name: Build & Test (${{ matrix.runtime }})
-        shell: ${{ startsWith(matrix.os.runs-on, 'windows') && 'pwsh' || 'bash' }}
         run: dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}.0
