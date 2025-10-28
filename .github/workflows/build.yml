@@ -1,4 +1,4 @@
-name: CI
+name: Build
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
 jobs:
   build:
 
-    name: Build, Test & Coverage 
+    name: Test & Coverage 
 
     runs-on: ubuntu-latest
 

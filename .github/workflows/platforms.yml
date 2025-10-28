@@ -1,4 +1,4 @@
-name: Verify
+name: Platform
 
 on:
   pull_request:
@@ -30,13 +30,13 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Setup .NET SDK ${{ matrix.dotnet }}
+      - name: Setup .NET ${{ matrix.dotnet }}
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ matrix.dotnet }}
 
       # ARM64 on .NET 8 does not support multiple target frameworks 
-      - name: Setup .NET SDK 9.0
+      - name: Setup .NET 9
         if: matrix.arch.name == 'arm64' && matrix.dotnet == '8.0'
         uses: actions/setup-dotnet@v4
         with:
