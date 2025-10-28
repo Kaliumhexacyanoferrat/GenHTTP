@@ -68,6 +68,54 @@ jobs:
             platform: windows/amd64
             dotnet: 9.0
 
+          # Windows arm64
+          - os:
+              name: 🪟
+              runs-on: windows-latest
+            arch: arm64
+            runtime: win-arm64
+            platform: windows/arm64
+            dotnet: 8.0
+          - os:
+              name: 🪟
+              runs-on: windows-latest
+            arch: arm64
+            runtime: win-arm64
+            platform: windows/arm64
+            dotnet: 9.0
+
+          # macOS x64
+          - os:
+              name: 🍎
+              runs-on: macos-12
+            arch: x64
+            runtime: osx-x64
+            platform: macos/amd64
+            dotnet: 8.0
+          - os:
+              name: 🍎
+              runs-on: macos-12
+            arch: x64
+            runtime: osx-x64
+            platform: macos/amd64
+            dotnet: 9.0
+
+          # macOS arm64
+          - os:
+              name: 🍎
+              runs-on: macos-14
+            arch: arm64
+            runtime: osx-arm64
+            platform: macos/arm64
+            dotnet: 8.0
+          - os:
+              name: 🍎
+              runs-on: macos-14
+            arch: arm64
+            runtime: osx-arm64
+            platform: macos/arm64
+            dotnet: 9.0
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
