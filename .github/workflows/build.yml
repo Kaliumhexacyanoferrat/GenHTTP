@@ -53,7 +53,7 @@ jobs:
 
   verify:
 
-    name: ${{ matrix.os.name }} / .NET ${{ matrix.dotnet }} / ${{ matrix.arch }}
+    name: ${{ matrix.os.name }} ${{ matrix.arch }}
 
     needs: build
 
@@ -67,101 +67,47 @@ jobs:
       matrix:
         include:
 
-          # Linux x64
           - os:
               name: 🐧
               runs-on: ubuntu-latest
             arch: x64
             runtime: linux-x64
             platform: linux/amd64
-            dotnet: 8.0
-          - os:
-              name: 🐧
-              runs-on: ubuntu-latest
-            arch: x64
-            runtime: linux-x64
-            platform: linux/amd64
-            dotnet: 9.0
 
-          # Linux arm64
           - os:
               name: 🐧
               runs-on: ubuntu-22.04-arm
             arch: arm64
             runtime: linux-arm64
             platform: linux/arm64/v8
-            dotnet: 8.0
-          - os:
-              name: 🐧
-              runs-on: ubuntu-22.04-arm
-            arch: arm64
-            runtime: linux-arm64
-            platform: linux/arm64/v8
-            dotnet: 9.0
 
-          # Windows x64
           - os:
               name: 🪟
               runs-on: windows-latest
             arch: x64
             runtime: win-x64
             platform: windows/amd64
-            dotnet: 8.0
-          - os:
-              name: 🪟
-              runs-on: windows-latest
-            arch: x64
-            runtime: win-x64
-            platform: windows/amd64
-            dotnet: 9.0
 
-          # Windows arm64
           - os:
               name: 🪟
               runs-on: windows-latest
             arch: arm64
             runtime: win-arm64
             platform: windows/arm64
-            dotnet: 8.0
-          - os:
-              name: 🪟
-              runs-on: windows-latest
-            arch: arm64
-            runtime: win-arm64
-            platform: windows/arm64
-            dotnet: 9.0
 
-          # macOS x64
           - os:
               name: 🍎
               runs-on: macos-15-intel
             arch: x64
             runtime: osx-x64
             platform: macos/amd64
-            dotnet: 8.0
-          - os:
-              name: 🍎
-              runs-on: macos-15-intel
-            arch: x64
-            runtime: osx-x64
-            platform: macos/amd64
-            dotnet: 9.0
 
-          # macOS arm64
           - os:
               name: 🍎
               runs-on: macos-15
             arch: arm64
             runtime: osx-arm64
             platform: macos/arm64
-            dotnet: 8.0
-          - os:
-              name: 🍎
-              runs-on: macos-15
-            arch: arm64
-            runtime: osx-arm64
-            platform: macos/arm64
-            dotnet: 9.0
 
     steps:
       - name: Checkout source
@@ -173,4 +119,4 @@ jobs:
           dotnet-version: 9.0
 
       - name: Build & Test (${{ matrix.runtime }})
-        run: dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net${{ matrix.dotnet }}.0
+        run: dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release
