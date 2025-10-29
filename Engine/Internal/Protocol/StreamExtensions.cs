@@ -1,12 +1,14 @@
 ﻿using System.Runtime.CompilerServices;
 
+using GenHTTP.Engine.Internal.Utilities;
+
 namespace GenHTTP.Engine.Internal.Protocol;
 
 internal static class StreamExtensions
 {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void Write(this Stream stream, string value)
+    internal static void Write(this PoolBufferedStream stream, string value)
     {
         Span<byte> buffer = stackalloc byte[value.Length];
 
@@ -19,7 +21,7 @@ internal static class StreamExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void Write(this Stream stream, long number)
+    internal static void Write(this PoolBufferedStream stream, long number)
     {
         Span<byte> buffer = stackalloc byte[20];
 
@@ -34,7 +36,7 @@ internal static class StreamExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void Write(this Stream stream, ulong number)
+    internal static void Write(this PoolBufferedStream stream, ulong number)
     {
         Span<byte> buffer = stackalloc byte[20];
 
@@ -49,7 +51,7 @@ internal static class StreamExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void Write(this Stream stream, DateTime time)
+    internal static void Write(this PoolBufferedStream stream, DateTime time)
     {
         Span<char> charBuffer = stackalloc char[29]; // RFC1123 format is 29 chars
 

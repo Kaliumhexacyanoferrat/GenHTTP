@@ -7,6 +7,7 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Engine.Internal.Protocol.Parser;
+using GenHTTP.Engine.Internal.Utilities;
 using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Types;
 
@@ -38,7 +39,7 @@ internal sealed class ClientHandler
 
     internal X509Certificate? ClientCertificate { get; set; }
 
-    internal Stream Stream { get; }
+    internal PoolBufferedStream Stream { get; }
 
     private bool? KeepAlive { get; set; }
 
@@ -48,7 +49,7 @@ internal sealed class ClientHandler
 
     #region Initialization
 
-    internal ClientHandler(Socket socket, Stream stream, X509Certificate? clientCertificate, IServer server, IEndPoint endPoint, NetworkConfiguration config)
+    internal ClientHandler(Socket socket, PoolBufferedStream stream, X509Certificate? clientCertificate, IServer server, IEndPoint endPoint, NetworkConfiguration config)
     {
         Server = server;
         EndPoint = endPoint;

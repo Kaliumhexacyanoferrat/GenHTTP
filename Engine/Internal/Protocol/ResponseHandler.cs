@@ -3,6 +3,7 @@
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
+using GenHTTP.Engine.Internal.Utilities;
 using GenHTTP.Engine.Shared.Infrastructure;
 
 namespace GenHTTP.Engine.Internal.Protocol;
@@ -16,7 +17,7 @@ internal sealed class ResponseHandler
 
     private Socket Socket { get; }
 
-    private Stream Output { get; }
+    private PoolBufferedStream Output { get; }
 
     private NetworkConfiguration Configuration { get; }
 
@@ -24,7 +25,7 @@ internal sealed class ResponseHandler
 
     #region Initialization
 
-    internal ResponseHandler(IServer server, Socket socket, Stream output, NetworkConfiguration configuration)
+    internal ResponseHandler(IServer server, Socket socket, PoolBufferedStream output, NetworkConfiguration configuration)
     {
         Server = server;
         Socket = socket;

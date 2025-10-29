@@ -1,4 +1,6 @@
-﻿namespace GenHTTP.Engine.Internal.Protocol;
+﻿using GenHTTP.Engine.Internal.Utilities;
+
+namespace GenHTTP.Engine.Internal.Protocol;
 
 /// <summary>
 /// Implements chunked transfer encoding by letting the client
@@ -9,7 +11,7 @@
 /// soon as there is no known content length. To avoid this overhead,
 /// specify the length of your content whenever possible.
 /// </remarks>
-public sealed class ChunkedStream(Stream target) : Stream
+public sealed class ChunkedStream(PoolBufferedStream target) : Stream
 {
 
     #region Get-/Setters

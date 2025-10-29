@@ -1,4 +1,5 @@
 ﻿using System.Buffers;
+using System.Runtime.CompilerServices;
 
 namespace GenHTTP.Engine.Internal.Utilities;
 
@@ -116,6 +117,33 @@ public sealed class PoolBufferedStream : Stream
     public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
         await WriteAsync(buffer.AsMemory(offset, count - offset), cancellationToken);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void Write(ReadOnlySpan<byte> buffer)
+    {
+        var toWrite = buffer.Length;
+
+        if (toWrite <= Buffer.Length - Current)
+        {
+            buffer.CopyTo(Buffer.AsSpan(Current));
+            Current += toWrite;
+            return;
+        }
+
+        if (Current > 0)
+        {
+            WriteBuffer();
+        }
+
+        if (toWrite > Buffer.Length)
+        {
+            Stream.Write(buffer);
+            return;
+        }
+
+        buffer.CopyTo(Buffer);
+        Current = toWrite;
     }
 
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
