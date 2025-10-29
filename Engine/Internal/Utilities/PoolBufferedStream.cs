@@ -114,11 +114,6 @@ public sealed class PoolBufferedStream : Stream
         }
     }
 
-    public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-    {
-        await WriteAsync(buffer.AsMemory(offset, count - offset), cancellationToken);
-    }
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Write(ReadOnlySpan<byte> buffer)
     {
@@ -144,6 +139,11 @@ public sealed class PoolBufferedStream : Stream
 
         buffer.CopyTo(Buffer);
         Current = toWrite;
+    }
+
+    public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+    {
+        await WriteAsync(buffer.AsMemory(offset, count - offset), cancellationToken);
     }
 
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
