@@ -122,6 +122,7 @@ jobs:
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
+        if: matrix.os.runs-on != 'linux-arm32'
         with:
           dotnet-version: |
             8.0
