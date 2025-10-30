@@ -82,6 +82,13 @@ jobs:
             platform: linux/arm64/v8
 
           - os:
+              name: 🐧
+              runs-on: linux-arm32
+            arch: arm32
+            runtime: linux-arm
+            platform: linux/arm/v7
+
+          - os:
               name: 🪟
               runs-on: windows-latest
             arch: x64
