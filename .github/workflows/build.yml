@@ -1,0 +1,134 @@
+name: Build
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+
+  build:
+
+    name: Test & Coverage 
+
+    runs-on: ubuntu-latest
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      DOTNET_ROLL_FORWARD: Major
+
+    steps:
+    
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install msquic
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libmsquic
+        
+    - name: Download .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0
+        
+    - name: Restore tools
+      run: dotnet tool restore
+      
+    - name: Begin scan
+      if: env.SONAR_TOKEN != null && env.SONAR_TOKEN != ''
+      run: dotnet sonarscanner begin /k:"GenHTTP" /d:sonar.token="$SONAR_TOKEN" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/bin/**/*,**/obj/**/*,**/Playground/**/*,**/*.css,**/*.js,**/*.html" /o:"kaliumhexacyanoferrat" /k:"GenHTTP" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.branch.name="${GITHUB_REF##*/}" /d:sonar.dotnet.excludeTestProjects=true
+      
+    - name: Build project
+      run: dotnet build GenHTTP.slnx -c Release
+      
+    - name: Test project
+      run: dotnet test GenHTTP.slnx --no-build --collect:"XPlat Code Coverage" -c Release -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+      
+    - name: End scan
+      if: env.SONAR_TOKEN != null && env.SONAR_TOKEN != ''
+      run: dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+
+  verify:
+
+    name: ${{ matrix.os.name }} ${{ matrix.arch }}
+
+    needs: build
+
+    runs-on: ${{ matrix.os.runs-on }}
+
+    env:
+      TEST_ENGINE: Internal
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+
+          - os:
+              name: 🐧
+              runs-on: ubuntu-latest
+            arch: x64
+            runtime: linux-x64
+            platform: linux/amd64
+
+          - os:
+              name: 🐧
+              runs-on: linux-arm32
+            arch: arm32
+            runtime: linux-arm
+            platform: linux/arm/v7
+
+          - os:
+              name: 🐧
+              runs-on: ubuntu-22.04-arm
+            arch: arm64
+            runtime: linux-arm64
+            platform: linux/arm64/v8
+
+          - os:
+              name: 🪟
+              runs-on: windows-latest
+            arch: x64
+            runtime: win-x64
+            platform: windows/amd64
+
+          - os:
+              name: 🪟
+              runs-on: windows-latest
+            arch: arm64
+            runtime: win-arm64
+            platform: windows/arm64
+
+          - os:
+              name: 🍎
+              runs-on: macos-15-intel
+            arch: x64
+            runtime: osx-x64
+            platform: macos/amd64
+
+          - os:
+              name: 🍎
+              runs-on: macos-15
+            arch: arm64
+            runtime: osx-arm64
+            platform: macos/arm64
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        if: matrix.os.runs-on != 'linux-arm32'
+        with:
+          dotnet-version: |
+            8.0
+            9.0
+
+      - name: Build & Test (${{ matrix.runtime }})
+        run: dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release

@@ -96,11 +96,14 @@ public class IntegrationTests
         {
             app.Map("/server", Inline.Create().Get(async (IRequest r) =>
             {
-                await r.Server.DisposeAsync(); // nop
+                var server = r.Server;
+                
+                await server.DisposeAsync(); // nop
 
-                await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () => await r.Server.StartAsync());
-
-                return r.Server;
+                await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () => await server.StartAsync());
+                
+                Assert.IsTrue(server.Running);
+                Assert.IsFalse(server.Development);
             }));
         };
 
@@ -110,13 +113,7 @@ public class IntegrationTests
 
         using var response = await GetResponseAsync(client, "/server", port);
 
-        await response.AssertStatusAsync(HttpStatusCode.OK);
-
-        var content = await response.GetContentAsync();
-
-        AssertX.Contains("\"running\":true", content);
-        AssertX.Contains("\"development\":false", content);
-        AssertX.Contains("\"version\"", content);
+        await response.AssertStatusAsync(HttpStatusCode.NoContent);
     }
 
     #endregion

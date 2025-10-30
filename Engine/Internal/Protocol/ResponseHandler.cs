@@ -1,6 +1,4 @@
-﻿using System.Buffers;
-using System.Net.Sockets;
-using System.Text;
+﻿using System.Net.Sockets;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
@@ -12,13 +10,6 @@ namespace GenHTTP.Engine.Internal.Protocol;
 
 internal sealed class ResponseHandler
 {
-    private const string ServerHeader = "Server";
-
-    private const string NL = "\r\n";
-
-    private static readonly Encoding Ascii = Encoding.ASCII;
-
-    private static readonly ArrayPool<byte> Pool = ArrayPool<byte>.Shared;
 
     #region Get-/Setters
 
@@ -26,7 +17,7 @@ internal sealed class ResponseHandler
 
     private Socket Socket { get; }
 
-    private Stream OutputStream { get; }
+    private PoolBufferedStream Output { get; }
 
     private NetworkConfiguration Configuration { get; }
 
@@ -34,12 +25,12 @@ internal sealed class ResponseHandler
 
     #region Initialization
 
-    internal ResponseHandler(IServer server, Socket socket, Stream outputStream, NetworkConfiguration configuration)
+    internal ResponseHandler(IServer server, Socket socket, PoolBufferedStream output, NetworkConfiguration configuration)
     {
         Server = server;
         Socket = socket;
 
-        OutputStream = outputStream;
+        Output = output;
 
         Configuration = configuration;
     }
@@ -52,11 +43,11 @@ internal sealed class ResponseHandler
     {
         try
         {
-            await WriteStatus(request, response);
+            WriteStatus(request, response);
 
-            await WriteHeader(response, version, keepAlive);
+            WriteHeader(response, version, keepAlive);
 
-            await Write(NL);
+            Output.Write("\r\n"u8);
 
             if (ShouldSendBody(request, response))
             {
@@ -69,7 +60,7 @@ internal sealed class ResponseHandler
             // otherwise save flushes for improved performance when pipelining
             if (!dataRemaining && connected)
             {
-                await OutputStream.FlushAsync();
+                await Output.FlushAsync();
             }
 
             if (request != null)
@@ -92,84 +83,104 @@ internal sealed class ResponseHandler
         response.ContentType is not null || response.ContentEncoding is not null
     );
 
-    private ValueTask WriteStatus(IRequest? request, IResponse response)
+    private void WriteStatus(IRequest? request, IResponse response)
     {
-        var version = request?.ProtocolType == HttpProtocol.Http11 ? "1.1" : "1.0";
+        Output.Write((request?.ProtocolType == HttpProtocol.Http11) ? "HTTP/1.1 "u8 : "HTTP/1.0 "u8);
+        Output.Write(response.Status.RawStatus);
+        Output.Write(" "u8);
 
-        return Write("HTTP/", version, " ", NumberStringCache.Convert(response.Status.RawStatus), " ", response.Status.Phrase, NL);
+        Output.Write(response.Status.Phrase);
+
+        Output.Write("\r\n"u8);
     }
 
-    private async ValueTask WriteHeader(IResponse response, HttpProtocol version, bool keepAlive)
+    private void WriteHeader(IResponse response, HttpProtocol version, bool keepAlive)
     {
-        if (response.Headers.TryGetValue(ServerHeader, out var server))
+        if (response.Headers.TryGetValue("Server", out var server))
         {
-            await WriteHeaderLine(ServerHeader, server);
+            Output.Write("Server: "u8);
+            Output.Write(server);
+            Output.Write("\r\n"u8);
         }
         else
         {
-            await Write("Server: GenHTTP/", Server.Version, NL);
+            Output.Write("Server: "u8);
+            Output.Write(Server.Version);
+            Output.Write("\r\n"u8);
         }
 
-        await WriteHeaderLine("Date", DateHeader.GetValue());
+        Output.Write("Date: "u8);
+        Output.Write(DateHeader.GetValue());
+        Output.Write("\r\n"u8);
 
         if (version == HttpProtocol.Http10)
         {
-            await WriteHeaderLine("Connection", keepAlive ? "Keep-Alive" : "Close");
+            Output.Write(keepAlive ? "Connection: Keep-Alive\r\n"u8 : "Connection: Close\r\n"u8);
         }
         else if (!keepAlive)
         {
             // HTTP/1.1 connections are persistent by default so we do not need to send a Keep-Alive header
-            await WriteHeaderLine("Connection", "Close");
+            Output.Write("Connection: Close\r\n"u8);
         }
 
         if (response.ContentType is not null)
         {
+            Output.Write("Content-Type: "u8);
+            Output.Write(response.ContentType.RawType);
+
             if (response.ContentType.Charset is not null)
             {
-                await Write("Content-Type: ", response.ContentType.RawType, "; charset=", response.ContentType.Charset, NL);
+                Output.Write("; charset="u8);
+                Output.Write(response.ContentType.Charset);
             }
-            else
-            {
-                await WriteHeaderLine("Content-Type", response.ContentType.RawType);
-            }
+
+            Output.Write("\r\n"u8);
         }
 
         if (response.ContentEncoding is not null)
         {
-            await WriteHeaderLine("Content-Encoding", response.ContentEncoding!);
+            Output.Write("Content-Encoding: "u8);
+            Output.Write(response.ContentEncoding!);
+            Output.Write("\r\n"u8);
         }
 
         if (response.ContentLength is not null)
         {
-            await WriteHeaderLine("Content-Length", NumberStringCache.Convert(response.ContentLength.Value));
+            Output.Write("Content-Length: "u8);
+            Output.Write(response.ContentLength.Value);
+            Output.Write("\r\n"u8);
         }
         else
         {
-            if (response.Content is not null)
-            {
-                await WriteHeaderLine("Transfer-Encoding", "chunked");
-            }
-            else
-            {
-                await WriteHeaderLine("Content-Length", "0");
-            }
+            Output.Write(response.Content is not null ? "Transfer-Encoding: chunked\r\n"u8 : "Content-Length: 0\r\n"u8);
         }
 
         if (response.Modified is not null)
         {
-            await WriteHeaderLine("Last-Modified", (DateTime)response.Modified);
+            Output.Write("Last-Modified: "u8);
+            Output.Write(response.Modified.Value);
+            Output.Write("\r\n"u8);
         }
 
         if (response.Expires is not null)
         {
-            await WriteHeaderLine("Expires", (DateTime)response.Expires);
+            Output.Write("Expires: "u8);
+            Output.Write(response.Expires.Value);
+            Output.Write("\r\n"u8);
         }
+
+        var serverSpan = "Server".AsSpan();
 
         foreach (var header in response.Headers)
         {
-            if (!header.Key.Equals(ServerHeader, StringComparison.OrdinalIgnoreCase))
+            var keySpan = header.Key.AsSpan();
+
+            if (!keySpan.Equals(serverSpan, StringComparison.OrdinalIgnoreCase))
             {
-                await WriteHeaderLine(header.Key, header.Value);
+                Output.Write(header.Key);
+                Output.Write(": "u8);
+                Output.Write(header.Value);
+                Output.Write("\r\n"u8);
             }
         }
 
@@ -177,7 +188,7 @@ internal sealed class ResponseHandler
         {
             foreach (var cookie in response.Cookies)
             {
-                await WriteCookie(cookie.Value);
+                WriteCookie(cookie.Value);
             }
         }
     }
@@ -188,15 +199,15 @@ internal sealed class ResponseHandler
         {
             if (response.ContentLength is null)
             {
-                await using var chunked = new ChunkedStream(OutputStream);
+                await using var chunked = new ChunkedStream(Output);
 
                 await response.Content.WriteAsync(chunked, Configuration.TransferBufferSize);
 
-                await chunked.FinishAsync();
+                chunked.Finish();
             }
             else
             {
-                await response.Content.WriteAsync(OutputStream, Configuration.TransferBufferSize);
+                await response.Content.WriteAsync(Output, Configuration.TransferBufferSize);
             }
         }
     }
@@ -205,80 +216,23 @@ internal sealed class ResponseHandler
 
     #region Helpers
 
-    private ValueTask WriteHeaderLine(string key, string value) => Write(key, ": ", value, NL);
-
-    private ValueTask WriteHeaderLine(string key, DateTime value) => WriteHeaderLine(key, value.ToUniversalTime().ToString("r"));
-
-    private async ValueTask WriteCookie(Cookie cookie)
+    private void WriteCookie(Cookie cookie)
     {
-        await Write("Set-Cookie: ", cookie.Name, "=", cookie.Value);
+        Output.Write("Set-Cookie: "u8);
+        Output.Write(cookie.Name);
+        Output.Write("="u8);
+        Output.Write(cookie.Value);
 
         if (cookie.MaxAge is not null)
         {
-            await Write("; Max-Age=", NumberStringCache.Convert(cookie.MaxAge.Value));
+            Output.Write("; Max-Age="u8);
+            Output.Write(cookie.MaxAge.Value);
         }
 
-        await Write("; Path=/", NL);
-    }
-
-    /// <summary>
-    /// Writes the given parts to the output stream.
-    /// </summary>
-    /// <remarks>
-    /// Reduces the number of writes to the output stream by collecting
-    /// data to be written. Cannot use params keyword because it allocates
-    /// an array.
-    /// </remarks>
-    private async ValueTask Write(string part1, string? part2 = null, string? part3 = null,
-        string? part4 = null, string? part5 = null, string? part6 = null, string? part7 = null)
-    {
-        var length = part1.Length + (part2?.Length ?? 0) + (part3?.Length ?? 0) + (part4?.Length ?? 0)
-            + (part5?.Length ?? 0) + (part6?.Length ?? 0) + (part7?.Length ?? 0);
-
-        var buffer = Pool.Rent(length);
-
-        try
-        {
-            var index = Ascii.GetBytes(part1, 0, part1.Length, buffer, 0);
-
-            if (part2 is not null)
-            {
-                index += Ascii.GetBytes(part2, 0, part2.Length, buffer, index);
-            }
-
-            if (part3 is not null)
-            {
-                index += Ascii.GetBytes(part3, 0, part3.Length, buffer, index);
-            }
-
-            if (part4 is not null)
-            {
-                index += Ascii.GetBytes(part4, 0, part4.Length, buffer, index);
-            }
-
-            if (part5 is not null)
-            {
-                index += Ascii.GetBytes(part5, 0, part5.Length, buffer, index);
-            }
-
-            if (part6 is not null)
-            {
-                index += Ascii.GetBytes(part6, 0, part6.Length, buffer, index);
-            }
-
-            if (part7 is not null)
-            {
-                Ascii.GetBytes(part7, 0, part7.Length, buffer, index);
-            }
-
-            await OutputStream.WriteAsync(buffer.AsMemory(0, length));
-        }
-        finally
-        {
-            Pool.Return(buffer);
-        }
+        Output.Write("; Path=/\r\n"u8);
     }
 
     #endregion
 
 }
+

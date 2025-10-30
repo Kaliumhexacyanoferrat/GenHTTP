@@ -5,12 +5,14 @@ using Microsoft.AspNetCore.Builder;
 namespace GenHTTP.Testing.Acceptance.Engine.Kestrel;
 
 [TestClass]
-public class CustomizingTests
+public class CustomizingTests : KestrelBaseTest
 {
 
     [TestMethod]
     public async Task TestHooks()
     {
+        if (!CheckKestrel()) return;
+        
         var configHook = (WebApplicationBuilder b) => { };
 
         var appHook = (WebApplication a) => { };
