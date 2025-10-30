@@ -5,6 +5,7 @@ using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Internal.Protocol;
+using GenHTTP.Engine.Internal.Utilities;
 using GenHTTP.Engine.Shared.Infrastructure;
 
 namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
@@ -98,7 +99,7 @@ internal abstract class EndPoint : IEndPoint
 
     protected abstract ValueTask Accept(Socket client);
 
-    protected ValueTask Handle(Socket client, Stream inputStream, X509Certificate? clientCertificate = null)
+    protected ValueTask Handle(Socket client, PoolBufferedStream inputStream, X509Certificate? clientCertificate = null)
     {
         client.NoDelay = true;
 

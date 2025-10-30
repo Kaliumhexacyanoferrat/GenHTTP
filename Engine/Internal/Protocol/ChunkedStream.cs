@@ -1,4 +1,4 @@
-﻿using GenHTTP.Modules.IO.Streaming;
+﻿using GenHTTP.Engine.Internal.Utilities;
 
 namespace GenHTTP.Engine.Internal.Protocol;
 
@@ -11,18 +11,8 @@ namespace GenHTTP.Engine.Internal.Protocol;
 /// soon as there is no known content length. To avoid this overhead,
 /// specify the length of your content whenever possible.
 /// </remarks>
-public sealed class ChunkedStream : Stream
+public sealed class ChunkedStream(PoolBufferedStream target) : Stream
 {
-    private static readonly string NL = "\r\n";
-
-    #region Initialization
-
-    public ChunkedStream(Stream target)
-    {
-        Target = target;
-    }
-
-    #endregion
 
     #region Get-/Setters
 
@@ -36,7 +26,7 @@ public sealed class ChunkedStream : Stream
 
     public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
 
-    private Stream Target { get; }
+    private Stream Target { get; } = target;
 
     #endregion
 
@@ -59,7 +49,7 @@ public sealed class ChunkedStream : Stream
 
             Target.Write(buffer, offset, count);
 
-            NL.Write(Target);
+            Target.Write("\r\n"u8);
         }
     }
 
@@ -67,11 +57,11 @@ public sealed class ChunkedStream : Stream
     {
         if (count > 0)
         {
-            await WriteAsync(count);
+            Write(count);
 
             await Target.WriteAsync(buffer.AsMemory(offset, count), cancellationToken);
 
-            await WriteAsync(NL);
+            Target.Write("\r\n"u8);
         }
     }
 
@@ -79,17 +69,17 @@ public sealed class ChunkedStream : Stream
     {
         if (!buffer.IsEmpty)
         {
-            await WriteAsync(buffer.Length);
+            Write(buffer.Length);
 
             await Target.WriteAsync(buffer, cancellationToken);
 
-            await WriteAsync(NL);
+            Target.Write("\r\n"u8);
         }
     }
 
-    public async ValueTask FinishAsync()
+    public void Finish()
     {
-        await WriteAsync("0\r\n\r\n");
+        Target.Write("0\r\n\r\n"u8);
     }
 
     public override void Flush()
@@ -99,11 +89,22 @@ public sealed class ChunkedStream : Stream
 
     public override Task FlushAsync(CancellationToken cancellationToken) => Target.FlushAsync(cancellationToken);
 
-    private void Write(int value) => $"{value:X}\r\n".Write(Target);
+    private void Write(int value)
+    {
+        Span<byte> buffer = stackalloc byte[8 + 2];
 
-    private ValueTask WriteAsync(string text) => text.WriteAsync(Target);
+        if (value.TryFormat(buffer, out var written, "X"))
+        {
+            buffer[written++] = (byte)'\r';
+            buffer[written++] = (byte)'\n';
 
-    private ValueTask WriteAsync(int value) => $"{value:X}\r\n".WriteAsync(Target);
+            Target.Write(buffer[..written]);
+        }
+        else
+        {
+            throw new InvalidOperationException("Failed to format chunk size");
+        }
+    }
 
     #endregion
 
