@@ -10,7 +10,7 @@ the functionality rather than on messing around with configuration files or comp
 
 - Setup new webservices in a couple of minutes using [project templates](https://genhttp.org/documentation/content/templates/)
 - Supports [current standards](https://genhttp.org/features/) such as Open API, Websockets, Server Sent Events or JWT authentication
-- Embed web services into a new or already existing console, service, WPF, WinForms, WinUI, MAUI, Unity or Uno application
+- Embed web services into a new or already existing console, service, WPF, WinForms, WinUI, MAUI, Avalonia or Uno application
 - Projects are fully described in code - no configuration files needed, no magical behavior you need to learn
 - Optionally supports [Kestrel](https://genhttp.org/documentation/server/engines/) as an underlying HTTP engine (enables HTTP/2 and HTTP/3 via QUIC)
 - [Optimized](https://genhttp.org/features/) out of the box, small memory and storage [footprint](https://genhttp.org/features/#footprint)
