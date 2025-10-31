@@ -48,16 +48,11 @@ jobs:
           nuget pack GenHTTP.Core.Kestrel.nuspec -OutputDirectory ../artifacts
 
       - name: List gathered packages
-        run: dir artifacts  # Windows uses 'dir' instead of 'ls'
+        run: dir artifacts 
 
-      #- name: Publish packages to NuGet
-      #  env:
-      #    NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-      #  run: |
-      #    for pkg in artifacts/*.nupkg; do
-      #      echo "Publishing $pkg..."
-      #      dotnet nuget push "$pkg" \
-      #        --api-key "$NUGET_API_KEY" \
-      #        --source https://api.nuget.org/v3/index.json \
-      #        --skip-duplicate
-      #    done
+      - name: Publish packages to NuGet
+        working-directory: artifacts
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: dotnet nuget push *.nupkg --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+
