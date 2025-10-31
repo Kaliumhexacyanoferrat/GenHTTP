@@ -1,0 +1,60 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+
+  publish:
+
+    name: Build & Publish Packages
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+
+    steps:
+
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET 9 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build solution
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Pack regular packages
+        run: dotnet pack --configuration Release -p:ContinuousIntegrationBuild=true --no-build --output ./artifacts
+
+      - name: Build meta packages
+        working-directory: Packages
+        run: |
+          nuget pack GenHTTP.Core.nuspec -OutputDirectory ../artifacts
+          nuget pack GenHTTP.Core.Kestrel.nuspec -OutputDirectory ../artifacts
+
+      - name: List gathered packages
+        run: ls -l artifacts
+
+      #- name: Publish packages to NuGet
+      #  env:
+      #    NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      #  run: |
+      #    for pkg in artifacts/*.nupkg; do
+      #      echo "Publishing $pkg..."
+      #      dotnet nuget push "$pkg" \
+      #        --api-key "$NUGET_API_KEY" \
+      #        --source https://api.nuget.org/v3/index.json \
+      #        --skip-duplicate
+      #    don
