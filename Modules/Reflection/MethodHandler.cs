@@ -164,7 +164,7 @@ public sealed class MethodHandler : IHandler
         }
     }
 
-    private static async ValueTask<object?> UnwrapAsync(object? result)
+    public static async ValueTask<object?> UnwrapAsync(object? result)
     {
         if (result == null)
         {
