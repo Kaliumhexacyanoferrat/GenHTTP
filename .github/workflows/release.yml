@@ -12,13 +12,13 @@ jobs:
   publish:
 
     name: Build & Publish Packages
-    runs-on: ubuntu-latest
+
+    runs-on: windows-latest  
 
     environment:
       name: production
 
     steps:
-
       - name: Checkout source
         uses: actions/checkout@v4
         with:
@@ -40,7 +40,7 @@ jobs:
 
       - name: Pack regular packages
         run: dotnet pack --configuration Release -p:ContinuousIntegrationBuild=true --no-build --output ./artifacts
- 
+
       - name: Pack meta packages
         working-directory: Packages
         run: |
@@ -48,7 +48,7 @@ jobs:
           nuget pack GenHTTP.Core.Kestrel.nuspec -OutputDirectory ../artifacts
 
       - name: List gathered packages
-        run: ls -l artifacts
+        run: dir artifacts  # Windows uses 'dir' instead of 'ls'
 
       #- name: Publish packages to NuGet
       #  env:
@@ -60,5 +60,4 @@ jobs:
       #        --api-key "$NUGET_API_KEY" \
       #        --source https://api.nuget.org/v3/index.json \
       #        --skip-duplicate
-      #    don
-      #
+      #    done
