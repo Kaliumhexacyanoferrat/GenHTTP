@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+
+        <Description>Allows to provide tools for LLMs via the MCP.</Description>
+        <PackageTags>HTTP Webserver C# Module MCP LLM Tool</PackageTags>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+
+        <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
+
+        <ProjectReference Include="..\Reflection\GenHTTP.Modules.Reflection.csproj" />
+                
+        <ProjectReference Include="..\Websockets\GenHTTP.Modules.Websockets.csproj" />
+
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="NJsonSchema" Version="11.5.1" />
+    </ItemGroup>
+
+</Project>
