@@ -26,15 +26,11 @@ public sealed class ForwardingCollection : List<Forwarding>, IForwardingCollecti
 
     public void TryAddLegacy(IHeaderCollection headers)
     {
-        IPAddress? address = null;
         ClientProtocol? protocol = null;
 
         headers.TryGetValue(HeaderHost, out var host);
 
-        if (headers.TryGetValue(HeaderFor, out var stringAddress))
-        {
-            address = ParseAddress(stringAddress);
-        }
+        headers.TryGetValue(HeaderFor, out var address);
 
         if (headers.TryGetValue(HeaderProto, out var stringProtocol))
         {
@@ -53,7 +49,12 @@ public sealed class ForwardingCollection : List<Forwarding>, IForwardingCollecti
         {
             if (forwarding.For is not null)
             {
-                return new ClientConnection(forwarding.For, forwarding.Protocol, forwarding.Host, clientCertificate);
+                var address = ParseAddress(forwarding.For);
+
+                if (address != null)
+                {
+                    return new ClientConnection(address, forwarding.Protocol, forwarding.Host, clientCertificate);
+                }
             }
         }
 
@@ -66,10 +67,10 @@ public sealed class ForwardingCollection : List<Forwarding>, IForwardingCollecti
 
         foreach (var forwarding in forwardings)
         {
-            IPAddress? address = null;
             ClientProtocol? protocol = null;
 
             string? host = null;
+            string? address = null;
 
             var fields = forwarding.Split(';', StringSplitOptions.RemoveEmptyEntries);
 
@@ -84,7 +85,7 @@ public sealed class ForwardingCollection : List<Forwarding>, IForwardingCollecti
 
                     if (key == "for")
                     {
-                        address = ParseAddress(val);
+                        address = val;
                     }
                     else if (key == "host")
                     {

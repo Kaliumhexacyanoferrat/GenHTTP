@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Sockets;
 using System.Web;
 
 using GenHTTP.Api.Content;
@@ -248,32 +249,8 @@ public sealed class ReverseProxyProvider : IHandler
     private static string GetForwardings(IRequest request)
     {
         return string.Join(", ", request.Forwardings
-                                        .Union([
-                                            new Forwarding(request.LocalClient.IPAddress, request.LocalClient.Host, request.LocalClient.Protocol)
-                                        ])
-                                        .Select(GetForwarding));
-    }
-
-    private static string GetForwarding(Forwarding forwarding)
-    {
-        var result = new List<string>(2);
-
-        if (forwarding.For is not null)
-        {
-            result.Add($"for={forwarding.For}");
-        }
-
-        if (forwarding.Host is not null)
-        {
-            result.Add($"host={forwarding.Host}");
-        }
-
-        if (forwarding.Protocol is not null)
-        {
-            result.Add($"proto={forwarding.Protocol?.ToString() ?? "http"}");
-        }
-
-        return string.Join("; ", result);
+                                        .Union([ Forwarding.From(request.LocalClient) ])
+                                        .Select(f => f.Format()));
     }
 
     private static bool TryParseDate(string value, out DateTime parsedValue) => DateTime.TryParseExact(value, CultureInfo.InvariantCulture.DateTimeFormat.RFC1123Pattern, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces | DateTimeStyles.AssumeUniversal, out parsedValue);
