@@ -26,8 +26,8 @@ internal sealed class SecureEndPoint : EndPoint
 
     #region Initialization
 
-    internal SecureEndPoint(IServer server, IPAddress? address, ushort port, SecurityConfiguration options, NetworkConfiguration configuration)
-        : base(server, address, port, configuration)
+    internal SecureEndPoint(IServer server, IPAddress? address, ushort port, bool dualStack, SecurityConfiguration options, NetworkConfiguration configuration)
+        : base(server, address, port, dualStack, configuration)
     {
         Options = options;
 

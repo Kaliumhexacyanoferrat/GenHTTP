@@ -35,7 +35,8 @@ public interface IServerBuilder<out T> : IBuilder<IServer>
     /// </summary>
     /// <param name="address">The address to bind to (or null, if the server should listen to any IP)</param>
     /// <param name="port">The port to listen on</param>
-    T Bind(IPAddress? address, ushort port);
+    /// <param name="dualStack">If enabled, the endpoint will listen for incoming IPv4 and IPv6 connections. If disabled, the endpoint will listen only for connections matching the specificed IP address</param>
+    T Bind(IPAddress? address, ushort port, bool dualStack = true);
 
     /// <summary>
     /// Registers a secure endpoint the server will bind to on
@@ -47,7 +48,8 @@ public interface IServerBuilder<out T> : IBuilder<IServer>
     /// <param name="protocols">The SSL/TLS protocl versions which should be supported by the endpoint</param>
     /// <param name="certificateValidator">The validator to check the validity of client certificates with</param>
     /// <param name="enableQuic">If enabled, the server will host a HTTP/3 endpoint via QUIC</param>
-    T Bind(IPAddress? address, ushort port, X509Certificate2 certificate, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false);
+    /// <param name="dualStack">If enabled, the endpoint will listen for incoming IPv4 and IPv6 connections. If disabled, the endpoint will listen only for connections matching the specificed IP address</param>
+    T Bind(IPAddress? address, ushort port, X509Certificate2 certificate, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false, bool dualStack = true);
 
     /// <summary>
     /// Registers a secure endpoint the server will bind to on
@@ -59,7 +61,8 @@ public interface IServerBuilder<out T> : IBuilder<IServer>
     /// <param name="protocols">The SSL/TLS protocl versions which should be supported by the endpoint</param>
     /// <param name="certificateValidator">The validator to check the validity of client certificates with</param>
     /// <param name="enableQuic">If enabled, the server will host a HTTP/3 endpoint via QUIC</param>
-    T Bind(IPAddress? address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false);
+    /// <param name="dualStack">If enabled, the endpoint will listen for incoming IPv4 and IPv6 connections. If disabled, the endpoint will listen only for connections matching the specificed IP address</param>
+    T Bind(IPAddress? address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false, bool dualStack = true);
 
     #endregion
 

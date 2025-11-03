@@ -14,6 +14,11 @@ public interface IEndPoint : IDisposable
     IPAddress? Address { get; }
 
     /// <summary>
+    /// If enabled, the endpoint will listen for both IPv4 and IPv6 connections.
+    /// </summary>
+    bool DualStack { get; }
+
+    /// <summary>
     /// The port the endpoint is listening on.
     /// </summary>
     ushort Port { get; }

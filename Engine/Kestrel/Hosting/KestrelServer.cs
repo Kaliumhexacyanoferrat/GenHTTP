@@ -54,7 +54,7 @@ internal sealed class KestrelServer : IServer
 
         var endpoints = new KestrelEndpoints();
 
-        endpoints.AddRange(configuration.EndPoints.Select(e => new KestrelEndpoint(e.Address, e.Port, e.Security is not null)));
+        endpoints.AddRange(configuration.EndPoints.Select(e => new KestrelEndpoint(e.Address, e.Port, e.DualStack, e.Security is not null)));
 
         EndPoints = endpoints;
 
@@ -105,25 +105,23 @@ internal sealed class KestrelServer : IServer
             {
                 if (endpoint.Address != null)
                 {
-                    if (endpoint.Security != null)
+                    options.Listen(endpoint.Address, endpoint.Port, listenOptions =>
                     {
-                        options.Listen(endpoint.Address, endpoint.Port, listenOptions => Secure(listenOptions, endpoint, endpoint.Security));
-                    }
-                    else
-                    {
-                        options.Listen(endpoint.Address, endpoint.Port);
-                    }
+                        if (endpoint.Security is not null)
+                        {
+                            Secure(listenOptions, endpoint, endpoint.Security);
+                        }
+                    });
                 }
                 else
                 {
-                    if (endpoint.Security != null)
+                    options.ListenAnyIP(endpoint.Port, listenOptions =>
                     {
-                        options.ListenAnyIP(endpoint.Port, listenOptions => Secure(listenOptions, endpoint, endpoint.Security));
-                    }
-                    else
-                    {
-                        options.ListenAnyIP(endpoint.Port);
-                    }
+                        if (endpoint.Security is not null)
+                        {
+                            Secure(listenOptions, endpoint, endpoint.Security);
+                        }
+                    });
                 }
             }
         });
