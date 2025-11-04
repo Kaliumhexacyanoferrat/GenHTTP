@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Net;
+using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Adapters.AspNetCore;
@@ -103,9 +104,9 @@ internal sealed class KestrelServer : IServer
 
             foreach (var endpoint in Configuration.EndPoints)
             {
-                if (endpoint.Address != null)
+                if ((endpoint.Address == null) || endpoint.Address.Equals(IPAddress.Any) || endpoint.Address.Equals(IPAddress.IPv6Any))
                 {
-                    options.Listen(endpoint.Address, endpoint.Port, listenOptions =>
+                    options.ListenAnyIP(endpoint.Port, listenOptions =>
                     {
                         if (endpoint.Security is not null)
                         {
@@ -115,7 +116,7 @@ internal sealed class KestrelServer : IServer
                 }
                 else
                 {
-                    options.ListenAnyIP(endpoint.Port, listenOptions =>
+                    options.Listen(endpoint.Address, endpoint.Port, listenOptions =>
                     {
                         if (endpoint.Security is not null)
                         {
