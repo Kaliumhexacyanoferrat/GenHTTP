@@ -9,9 +9,9 @@
 
     <ItemGroup>
 
-        <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
+        <PackageReference Include="GenHTTP.Api" Version="9.8.0" />
 
-        <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
+        <PackageReference Include="GenHTTP.Modules.IO" Version="9.8.0" />
 
     </ItemGroup>
 
