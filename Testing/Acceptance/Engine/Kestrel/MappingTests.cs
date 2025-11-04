@@ -5,14 +5,14 @@ using GenHTTP.Modules.Functional;
 namespace GenHTTP.Testing.Acceptance.Engine.Kestrel;
 
 [TestClass]
-public class MappingTests : KestrelBaseTest
+public class MappingTests
 {
 
     [TestMethod]
     public async Task TestHeaders()
     {
-        if (!CheckKestrel()) return;
-        
+        if (!Engines.KestrelEnabled()) return;
+
         var app = Inline.Create().Get((IRequest request) =>
         {
             var count = request.Headers.Count;
@@ -39,8 +39,8 @@ public class MappingTests : KestrelBaseTest
     [TestMethod]
     public async Task TestQuery()
     {
-        if (!CheckKestrel()) return;
-        
+        if (!Engines.KestrelEnabled()) return;
+
         var app = Inline.Create().Get((IRequest request) =>
         {
             var count = request.Query.Count;
@@ -67,8 +67,8 @@ public class MappingTests : KestrelBaseTest
     [TestMethod]
     public async Task TestConnection()
     {
-        if (!CheckKestrel()) return;
-        
+        if (!Engines.KestrelEnabled()) return;
+
         var app = Inline.Create().Get((IRequest request) =>
         {
             Assert.IsNotNull(request.Client.Host);

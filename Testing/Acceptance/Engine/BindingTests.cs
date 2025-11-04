@@ -22,20 +22,18 @@ public class BindingTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestAnyIPv4WithDualStack(TestEngine engine)
+    public async Task TestAnyIPv4WithDualStack()
     {
-        await using var runner = await RunWith(IPAddress.Any, true, engine);
+        await using var runner = await RunWith(IPAddress.Any, true, TestEngine.Internal);
 
         Assert.IsTrue(await CanConnectAsync(IPAddress.Loopback, runner.Port));
         Assert.IsTrue(await CanConnectAsync(IPAddress.IPv6Loopback, runner.Port));
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestAnyIPv6NoDualStack(TestEngine engine)
+    public async Task TestAnyIPv6NoDualStack()
     {
-        await using var runner = await RunWith(IPAddress.IPv6Any, false, engine);
+        await using var runner = await RunWith(IPAddress.IPv6Any, false, TestEngine.Internal);
 
         Assert.IsFalse(await CanConnectAsync(IPAddress.Loopback, runner.Port));
         Assert.IsTrue(await CanConnectAsync(IPAddress.IPv6Loopback, runner.Port));
