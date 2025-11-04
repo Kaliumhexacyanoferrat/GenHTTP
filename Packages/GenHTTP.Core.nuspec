@@ -13,6 +13,7 @@
         <tags>HTTP Webserver Library C# Server REST API Embeddable Embedded Host</tags>
 
         <icon>images\icon.png</icon>
+        <readme>README.md</readme>
 
         <license type="expression">MIT</license>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -37,6 +38,7 @@
 
     <files>
         <file src="..\Resources\icon.png" target="images\"/>
+        <file src="GenHTTP.Core.md" target="README.md" />
     </files>
 
 </package>
