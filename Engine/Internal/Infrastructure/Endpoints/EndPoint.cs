@@ -52,7 +52,7 @@ internal abstract class EndPoint : IEndPoint
 
     public void Start()
     {
-        var address = Address ?? IPAddress.IPv6Any;
+        var address = DetermineBindingAddress(Address, DualStack);
 
         try
         {
@@ -61,11 +61,6 @@ internal abstract class EndPoint : IEndPoint
                 Socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
 
                 Socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, !DualStack);
-
-                if (address.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    address = address.MapToIPv6();
-                }
             }
             else
             {
@@ -119,6 +114,26 @@ internal abstract class EndPoint : IEndPoint
         client.NoDelay = true;
 
         return new ClientHandler(client, inputStream, clientCertificate, Server, this, Configuration).Run();
+    }
+
+    private static IPAddress DetermineBindingAddress(IPAddress? address, bool dualStack)
+    {
+        if (address == null)
+        {
+            return IPAddress.IPv6Any;
+        }
+
+        if (address.Equals(IPAddress.Any) && dualStack)
+        {
+            return IPAddress.IPv6Any;
+        }
+
+        if (dualStack && address.AddressFamily == AddressFamily.InterNetwork)
+        {
+            return address.MapToIPv6();
+        }
+
+        return address;
     }
 
     #endregion

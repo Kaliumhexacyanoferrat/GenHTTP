@@ -69,7 +69,7 @@ public class BindingTests
     {
         var runner = new TestHost(Layout.Create().Build(), engine: engine);
 
-        runner.Host.Bind(IPAddress.Any, (ushort)runner.Port, dualStack);
+        runner.Host.Bind(ip, (ushort)runner.Port, dualStack);
 
         await runner.StartAsync();
 
