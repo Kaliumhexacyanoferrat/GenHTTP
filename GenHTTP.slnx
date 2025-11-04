@@ -28,6 +28,7 @@
     <Project Path="Modules\IO\GenHTTP.Modules.IO.csproj" />
     <Project Path="Modules\Layouting\GenHTTP.Modules.Layouting.csproj" />
     <Project Path="Modules\LoadBalancing\GenHTTP.Modules.LoadBalancing.csproj" />
+    <Project Path="Modules\Mcp\GenHTTP.Modules.Mcp.csproj" Type="Classic C#" />
     <Project Path="Modules\OpenApi\GenHTTP.Modules.OpenApi.csproj" />
     <Project Path="Modules\Pages\GenHTTP.Modules.Pages.csproj" />
     <Project Path="Modules\Practices\GenHTTP.Modules.Practices.csproj" />
