@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Net;
+using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Adapters.AspNetCore;
@@ -54,7 +55,7 @@ internal sealed class KestrelServer : IServer
 
         var endpoints = new KestrelEndpoints();
 
-        endpoints.AddRange(configuration.EndPoints.Select(e => new KestrelEndpoint(e.Address, e.Port, e.Security is not null)));
+        endpoints.AddRange(configuration.EndPoints.Select(e => new KestrelEndpoint(e.Address, e.Port, e.DualStack, e.Security is not null)));
 
         EndPoints = endpoints;
 
@@ -103,27 +104,25 @@ internal sealed class KestrelServer : IServer
 
             foreach (var endpoint in Configuration.EndPoints)
             {
-                if (endpoint.Address != null)
+                if ((endpoint.Address == null) || (endpoint.DualStack && (endpoint.Address.Equals(IPAddress.Any) || endpoint.Address.Equals(IPAddress.IPv6Any))))
                 {
-                    if (endpoint.Security != null)
+                    options.ListenAnyIP(endpoint.Port, listenOptions =>
                     {
-                        options.Listen(endpoint.Address, endpoint.Port, listenOptions => Secure(listenOptions, endpoint, endpoint.Security));
-                    }
-                    else
-                    {
-                        options.Listen(endpoint.Address, endpoint.Port);
-                    }
+                        if (endpoint.Security is not null)
+                        {
+                            Secure(listenOptions, endpoint, endpoint.Security);
+                        }
+                    });
                 }
                 else
                 {
-                    if (endpoint.Security != null)
+                    options.Listen(endpoint.Address, endpoint.Port, listenOptions =>
                     {
-                        options.ListenAnyIP(endpoint.Port, listenOptions => Secure(listenOptions, endpoint, endpoint.Security));
-                    }
-                    else
-                    {
-                        options.ListenAnyIP(endpoint.Port);
-                    }
+                        if (endpoint.Security is not null)
+                        {
+                            Secure(listenOptions, endpoint, endpoint.Security);
+                        }
+                    });
                 }
             }
         });

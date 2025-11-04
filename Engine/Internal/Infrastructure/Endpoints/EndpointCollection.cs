@@ -28,10 +28,10 @@ internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPoi
     {
         if (configuration.Security is null)
         {
-            return new InsecureEndPoint(Server, configuration.Address, configuration.Port, NetworkConfiguration);
+            return new InsecureEndPoint(Server, configuration.Address, configuration.Port, configuration.DualStack, NetworkConfiguration);
         }
 
-        return new SecureEndPoint(Server, configuration.Address, configuration.Port, configuration.Security, NetworkConfiguration);
+        return new SecureEndPoint(Server, configuration.Address, configuration.Port, configuration.DualStack, configuration.Security, NetworkConfiguration);
     }
 
     internal void Start()

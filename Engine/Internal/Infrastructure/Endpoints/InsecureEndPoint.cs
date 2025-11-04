@@ -13,8 +13,8 @@ internal sealed class InsecureEndPoint : EndPoint
 
     #region Initialization
 
-    internal InsecureEndPoint(IServer server, IPAddress? address, ushort port, NetworkConfiguration configuration)
-        : base(server, address, port, configuration)
+    internal InsecureEndPoint(IServer server, IPAddress? address, ushort port, bool dualStack, NetworkConfiguration configuration)
+        : base(server, address, port, dualStack, configuration)
     {
 
     }

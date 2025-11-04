@@ -8,14 +8,14 @@ using GenHTTP.Modules.Functional;
 namespace GenHTTP.Testing.Acceptance.Engine.Kestrel;
 
 [TestClass]
-public class ProtocolTests : KestrelBaseTest
+public class ProtocolTests
 {
 
     [TestMethod]
     public async Task TestHttp2And3()
     {
-        if (!CheckKestrel()) return;
-        
+        if (!Engines.KestrelEnabled()) return;
+
         var logic = Inline.Create().Get((IRequest request) => request.ProtocolType);
 
         var client = GetClient();

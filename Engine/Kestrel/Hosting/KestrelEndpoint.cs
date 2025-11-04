@@ -10,6 +10,8 @@ public sealed class KestrelEndpoint : IEndPoint
 
     public IPAddress? Address { get; }
 
+    public bool DualStack { get; }
+
     public ushort Port { get; }
 
     public bool Secure { get; }
@@ -18,10 +20,11 @@ public sealed class KestrelEndpoint : IEndPoint
 
     #region Initialization
 
-    public KestrelEndpoint(IPAddress? address, ushort port, bool secure)
+    public KestrelEndpoint(IPAddress? address, ushort port, bool dualStack, bool secure)
     {
         Address = address;
         Port = port;
+        DualStack = dualStack;
         Secure = secure;
     }
 
