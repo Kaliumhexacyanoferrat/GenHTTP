@@ -5,9 +5,7 @@
         <id>GenHTTP.Core</id>
         <version>10.0.0</version>
 
-        <description>Basic dependencies for projects using the GenHTTP framework, including the engine itself
-        </description>
-        <copyright></copyright>
+        <description>Basic dependencies for projects using the GenHTTP framework, including the engine itself</description>
 
         <projectUrl>https://genhttp.org/</projectUrl>
 
@@ -16,7 +14,7 @@
 
         <icon>images\icon.png</icon>
 
-        <license type="file">LICENSE</license>
+        <license type="expression">MIT</license>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
 
         <dependencies>
@@ -39,7 +37,6 @@
 
     <files>
         <file src="..\Resources\icon.png" target="images\"/>
-        <file src="..\LICENSE" target="LICENSE"/>
     </files>
 
 </package>

@@ -15,19 +15,7 @@ the functionality rather than on messing around with configuration files or comp
 - Optionally supports [Kestrel](https://genhttp.org/documentation/server/engines/) as an underlying HTTP engine (enables HTTP/2 and HTTP/3 via QUIC)
 - [Optimized](https://genhttp.org/features/) out of the box, small memory and storage [footprint](https://genhttp.org/features/#footprint)
 - Grade A+ security level according to SSL Labs
-
-## 💻 Supported Platforms
-
-GenHTTP targets all .NET versions currently [supported by Microsoft](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core).
-Major versions are released once a year, following the .NET release cycle. 
-Additionally, our automated tests ensure full compatibility on the following platforms:
-
-| OS      | Architectures           |
-|---------|-------------------------|
-| Linux   | `x64`, `arm32`, `arm64` |
-| Windows | `x64`, `arm64`          |
-| macOS   | `x64`, `arm64`          |
-
+- 
 ## 📖 Getting Started
 
 This section shows how to create a new project from scratch using project templates and how to extend your existing
@@ -84,6 +72,18 @@ to [host your application](https://genhttp.org/documentation/hosting/) via Docke
 
 If you encounter issues implementing your application, feel free
 to [join our Discord community](https://discord.gg/GwtDyUpkpV) to get help.
+
+## 💻 Supported Platforms
+
+GenHTTP targets all .NET versions currently [supported by Microsoft](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core).
+Major versions are released once a year, following the .NET release cycle.
+Additionally, our automated tests ensure full compatibility on the following platforms:
+
+| OS      | Architectures           |
+|---------|-------------------------|
+| Linux   | `x64`, `arm32`, `arm64` |
+| Windows | `x64`, `arm64`          |
+| macOS   | `x64`, `arm64`          |
 
 ## ⚙️ Building the Server
 

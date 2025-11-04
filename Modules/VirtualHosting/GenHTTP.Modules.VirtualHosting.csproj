@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Allows to deliver different content depending on the requested domain.</Description>
-        <PackageTags>HTTP Webserver C# Module Virtual Hosts Hosting Domain</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Virtual Hosts Hosting Domain</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

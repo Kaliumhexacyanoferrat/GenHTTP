@@ -5,7 +5,7 @@ The GenHTTP project is happy about all contributions such as bug fixes, improvem
 ## Getting Started
 
 To add your contributions to the GenHTTP webserver, create a fork of this repository and add your changes there. As soon
-as your work has finished, create a pull request to allow a maintainer to review and merge your changes into the master
+as your work has finished, create a pull request to allow a maintainer to review and merge your changes into the `main`
 branch.
 
 If you need some inspiration for your first contribution, have a look at the issues labeled
@@ -20,7 +20,7 @@ For a pull request to be merged into master, the following general rules need to
 - There are no new issues reported by Sonar
 - Public API functions and types are documented
 - `IHandler` and `IConcern` instances can be created using an `IBuilder` instance
-- The changes have been documented via another MR on the [GenHTTP.Website](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Website), if applicable
+- The changes have been documented via another PR on the [GenHTTP.Website](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Website), if applicable
 - Architecture principles as described in the following section have not been violated
 
 ## Project Structure

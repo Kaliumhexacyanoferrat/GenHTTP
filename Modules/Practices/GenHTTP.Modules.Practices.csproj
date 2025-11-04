@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Best practices to configure a GenHTTP webserver instance for production</Description>
-        <PackageTags>HTTP Webserver C# Module Best Practices Configuration</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Best Practices Configuration</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

@@ -43,20 +43,20 @@
     <Project Path="Modules\Webservices\GenHTTP.Modules.Webservices.csproj" />
     <Project Path="Modules\Websockets\GenHTTP.Modules.Websockets.csproj" />
   </Folder>
+  <Folder Name="/Packages/">
+    <File Path="Packages\GenHTTP.Core.nuspec" />
+    <File Path="Packages\GenHTTP.Core.Kestrel.nuspec" />
+  </Folder>
   <Folder Name="/Playground/">
     <Project Path="Playground\GenHTTP.Playground.csproj" />
+  </Folder>
+  <Folder Name="/Resources/">
+    <File Path="Resources\icon.png" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="CONTRIBUTING.md" />
     <File Path="LICENSE" />
     <File Path="README.md" />
-  </Folder>
-  <Folder Name="/Solution Items/Packages/">
-    <File Path="Packages\GenHTTP.Core.Kestrel.nuspec" />
-    <File Path="Packages\GenHTTP.Core.nuspec" />
-  </Folder>
-  <Folder Name="/Solution Items/Resources/">
-    <File Path="Resources\icon.png" />
   </Folder>
   <Folder Name="/Testing/">
     <Project Path="Testing\Acceptance\GenHTTP.Testing.Acceptance.csproj" />

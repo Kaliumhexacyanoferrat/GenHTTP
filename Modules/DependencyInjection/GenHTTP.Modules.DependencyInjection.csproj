@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Enables dependency injection for all framework services.</Description>
-        <PackageTags>HTTP Webserver C# Module DI Dependency Injection</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module DI Dependency Injection</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

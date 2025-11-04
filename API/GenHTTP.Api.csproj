@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Public API of the GenHTTP webserver. This package is at least required to build a project that can be executed with the GenHTTP webserver.</Description>
-        <PackageTags>HTTP Embedded Webserver Website Server Library C# Standard API</PackageTags>
+        <PackageTags>GenHTTP HTTP Embedded Webserver Website Server Library C# Standard API</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

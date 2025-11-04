@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Provides testing support for GenHTTP projects</Description>
-        <PackageTags>HTTP Webserver C# Test Testing</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Test Testing</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Allows to render custom error pages</Description>
-        <PackageTags>HTTP Webserver C# Module Error Exception Handling</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Error Exception Handling</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

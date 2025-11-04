@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Allows to handle requests in a functional manner.</Description>
-        <PackageTags>HTTP Webserver C# Module Functional Inline Request Response</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Functional Inline Request Response</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

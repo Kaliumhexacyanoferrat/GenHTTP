@@ -2,10 +2,11 @@
 
     <PropertyGroup>
 
+        <Description>Allows to read and write responses in protobuf data format</Description>
         <Authors>Andreas Nägeli, Iulian Caluian</Authors>
 
-        <Description>Allows to read and write responses in protobuf data format</Description>
-        <PackageTags>HTTP Webserver C# Module Serialization Conversion Protobuf</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Serialization Conversion Protobuf</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

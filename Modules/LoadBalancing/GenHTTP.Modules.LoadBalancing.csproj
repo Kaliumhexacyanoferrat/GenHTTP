@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Allows to distribute load e.g. to reverse proxies.</Description>
-        <PackageTags>HTTP Webserver C# Module Load Balancer Balancing</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Load Balancer Balancing</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

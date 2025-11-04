@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Provides a simple graphical, recursive view on a folder and the files stored in this directory.</Description>
-        <PackageTags>HTTP Webserver C# Module Browsing Listing Files Folders Folder</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Browsing Listing Files Folders Folder</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

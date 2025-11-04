@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Lightweight web server written in pure C# with few dependencies to 3rd-party libraries.</Description>
-        <PackageTags>HTTP Embedded Webserver Server Library C# Standard Engine</PackageTags>
+        <PackageTags>GenHTTP HTTP Embedded Webserver Server Library C# Standard Engine</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

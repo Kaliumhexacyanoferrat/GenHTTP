@@ -24,4 +24,5 @@ public static class Content
     /// </summary>
     /// <param name="resource">The resource to be served</param>
     public static ContentProviderBuilder From(IResource resource) => new ContentProviderBuilder().Resource(resource);
+
 }

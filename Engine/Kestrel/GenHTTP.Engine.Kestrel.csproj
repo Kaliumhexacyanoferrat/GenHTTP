@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Web server engine based on Microsoft Kestrel that can be used to develop applications using the GenHTTP development framework</Description>
-        <PackageTags>HTTP Embedded Webserver Server Library C# Kestrel Engine</PackageTags>
+        <PackageTags>GenHTTP HTTP Embedded Webserver Server Library C# Kestrel Engine</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

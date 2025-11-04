@@ -201,6 +201,11 @@ public enum ContentType
     ApplicationProtobuf,
 
     /// <summary>
+    /// A PDF file.
+    /// </summary>
+    ApplicationPdf,
+
+    /// <summary>
     /// 3GPP video file container (.3gp).
     /// </summary>
     Video3Gpp,
@@ -400,6 +405,9 @@ public class FlexibleContentType
         },
         {
             ContentType.ApplicationProtobuf, "application/protobuf"
+        },
+        {
+            ContentType.ApplicationPdf, "application/pdf"
         },
         {
             ContentType.FontEmbeddedOpenTypeFont, "font/eot"

@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Adds authentication features to applications hosted on a GenHTTP webserver.</Description>
-        <PackageTags>HTTP Webserver C# Module Authentication Authorization Security Basic</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Authentication Authorization Security Basic</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

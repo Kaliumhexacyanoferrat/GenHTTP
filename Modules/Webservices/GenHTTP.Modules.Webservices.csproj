@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Module to add REST-based webservices to a GenHTTP project.</Description>
-        <PackageTags>HTTP Webserver C# Module Webservices Services REST JSON Framework</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Webservices Services REST JSON Framework</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 
