@@ -1,9 +1,12 @@
 ﻿using System.Net;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.ReverseProxy;
+
 using Cookie = GenHTTP.Api.Protocol.Cookie;
 
 namespace GenHTTP.Testing.Acceptance.Modules.ReverseProxy;
@@ -264,7 +267,6 @@ public sealed class ReverseProxyTests
 
         await response.AssertStatusAsync(HttpStatusCode.BadGateway);
     }
-
 
     [TestMethod]
     [MultiEngineTest]
