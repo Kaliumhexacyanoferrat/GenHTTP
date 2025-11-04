@@ -104,7 +104,7 @@ internal sealed class KestrelServer : IServer
 
             foreach (var endpoint in Configuration.EndPoints)
             {
-                if ((endpoint.Address == null) || endpoint.Address.Equals(IPAddress.Any) || endpoint.Address.Equals(IPAddress.IPv6Any))
+                if ((endpoint.Address == null) || (endpoint.DualStack && (endpoint.Address.Equals(IPAddress.Any) || endpoint.Address.Equals(IPAddress.IPv6Any))))
                 {
                     options.ListenAnyIP(endpoint.Port, listenOptions =>
                     {
