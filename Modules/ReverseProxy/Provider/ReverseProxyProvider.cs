@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Sockets;
 using System.Web;
 
 using GenHTTP.Api.Content;
@@ -260,7 +261,14 @@ public sealed class ReverseProxyProvider : IHandler
 
         if (forwarding.For is not null)
         {
-            result.Add($"for={forwarding.For}");
+            if (forwarding.For.AddressFamily == AddressFamily.InterNetworkV6)
+            {
+                result.Add($"for=[{forwarding.For}]");
+            }
+            else
+            {
+                result.Add($"for={forwarding.For}");
+            }
         }
 
         if (forwarding.Host is not null)
