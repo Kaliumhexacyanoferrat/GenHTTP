@@ -1,6 +1,7 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Api.Content;
+namespace GenHTTP.Modules.ErrorHandling;
 
 /// <summary>
 /// Can be used with the error handling module to generate custom

@@ -1,4 +1,4 @@
-﻿namespace GenHTTP.Api.Infrastructure;
+﻿namespace GenHTTP.Modules.Security;
 
 /// <summary>
 /// Specifies the strategy of the server to redirect

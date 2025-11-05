@@ -1,4 +1,4 @@
-﻿namespace GenHTTP.Api.Infrastructure;
+﻿namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
 
 /// <summary>
 /// Will be thrown, if the server cannot bind to the requested port for some reason.
@@ -11,4 +11,5 @@ public class BindingException : Exception
     {
 
     }
+
 }

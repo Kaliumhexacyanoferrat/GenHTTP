@@ -11,4 +11,5 @@ public interface IConcern : IHandler
     /// The actual handler the concern is added to.
     /// </summary>
     IHandler Content { get; }
+
 }
