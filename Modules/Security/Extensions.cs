@@ -14,7 +14,7 @@ public static class Extensions
     {
         if (secureUpgrade)
         {
-            host.SecureUpgrade(Api.Infrastructure.SecureUpgrade.Force);
+            host.SecureUpgrade(Security.SecureUpgrade.Force);
         }
 
         if (strictTransport)
@@ -32,7 +32,7 @@ public static class Extensions
 
     public static IServerHost SecureUpgrade(this IServerHost host, SecureUpgrade mode)
     {
-        if (mode != Api.Infrastructure.SecureUpgrade.None)
+        if (mode != Security.SecureUpgrade.None)
         {
             host.Add(new SecureUpgradeConcernBuilder().Mode(mode));
         }
