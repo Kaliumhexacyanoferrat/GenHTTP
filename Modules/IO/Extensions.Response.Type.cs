@@ -17,5 +17,4 @@ public static class ResponseTypeExtensions
     /// <param name="contentType">The content type of this response</param>
     public static IResponseBuilder Type(this IResponseBuilder builder, string contentType) => builder.Type(FlexibleContentType.Parse(contentType));
 
-
 }
