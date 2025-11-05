@@ -14,6 +14,11 @@ public interface IHandlerBuilder
 
 }
 
+/// <summary>
+/// Typed version of the handler builder. Should be used by all handler
+/// builder implementations to enable common features on all builders.
+/// </summary>
+/// <typeparam name="TBuilder">The type of builder, so that we can use the builder pattern</typeparam>
 public interface IHandlerBuilder<out TBuilder> : IHandlerBuilder where TBuilder : IHandlerBuilder<TBuilder>
 {
 
