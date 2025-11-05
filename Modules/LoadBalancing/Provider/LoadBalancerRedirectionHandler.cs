@@ -1,7 +1,7 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Basics;
+using GenHTTP.Modules.Redirects;
 
 namespace GenHTTP.Modules.LoadBalancing.Provider;
 

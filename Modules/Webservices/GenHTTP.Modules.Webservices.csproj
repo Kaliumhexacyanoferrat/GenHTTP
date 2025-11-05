@@ -16,7 +16,6 @@
         <ProjectReference Include="..\Layouting\GenHTTP.Modules.Layouting.csproj"/>
         <ProjectReference Include="..\Conversion\GenHTTP.Modules.Conversion.csproj"/>
         <ProjectReference Include="..\Reflection\GenHTTP.Modules.Reflection.csproj"/>
-        <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj"/>
 
     </ItemGroup>
 

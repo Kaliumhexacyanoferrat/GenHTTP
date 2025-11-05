@@ -1,8 +1,8 @@
 ﻿using System.Net;
 
-using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Redirects;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Layouting;
 

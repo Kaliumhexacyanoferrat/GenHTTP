@@ -1,7 +1,9 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Caching;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Basics;
+
+using GenHTTP.Modules.IO;
+
 using StreamContent = GenHTTP.Modules.IO.Streaming.StreamContent;
 
 namespace GenHTTP.Modules.ServerCaching.Provider;

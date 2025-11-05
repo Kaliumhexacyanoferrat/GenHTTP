@@ -1,7 +1,9 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Basics;
+
+using GenHTTP.Modules.Redirects;
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.Security.Providers;
 
@@ -57,8 +59,7 @@ public sealed class SecureUpgradeConcern : IConcern
                                 {
                                     var response = await Redirect.To(GetRedirectLocation(request, endpoints), true)
                                                                  .Build()
-                                                                 .HandleAsync(request)
-                                        ;
+                                                                 .HandleAsync(request);
 
                                     response?.Headers.Add("Vary", "Upgrade-Insecure-Requests");
 

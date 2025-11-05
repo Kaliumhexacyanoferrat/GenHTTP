@@ -12,7 +12,7 @@
 
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
 
-        <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj" />
+        <ProjectReference Include="..\Redirects\GenHTTP.Modules.Redirects.csproj" />
 
     </ItemGroup>
 

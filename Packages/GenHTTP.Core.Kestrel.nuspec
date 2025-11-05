@@ -27,7 +27,7 @@
                 <dependency id="GenHTTP.Engine.Kestrel" version="10.0.0"/>
 
                 <dependency id="GenHTTP.Modules.Practices" version="10.0.0"/>
-                <dependency id="GenHTTP.Modules.Basics" version="10.0.0"/>
+                <dependency id="GenHTTP.Modules.IO" version="10.0.0"/>
                 <dependency id="GenHTTP.Modules.Layouting" version="10.0.0"/>
 
             </group>

@@ -1,7 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Basics;
+
+using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Conversion.Serializers;
+
 using ProtoBuf;
 
 namespace GenHTTP.Modules.Protobuf.Providers;

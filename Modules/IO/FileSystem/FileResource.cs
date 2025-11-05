@@ -1,6 +1,6 @@
 ﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Basics;
+
 using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.IO.FileSystem;
