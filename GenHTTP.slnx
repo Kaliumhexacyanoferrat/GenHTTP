@@ -13,7 +13,7 @@
   <Folder Name="/Modules/">
     <Project Path="Modules\ApiBrowsing\GenHTTP.Modules.ApiBrowsing.csproj" />
     <Project Path="Modules\Authentication\GenHTTP.Modules.Authentication.csproj" />
-    <Project Path="Modules\Basics\GenHTTP.Modules.Basics.csproj" />
+    <Project Path="Modules\Redirects\GenHTTP.Modules.Redirects.csproj" />
     <Project Path="Modules\Caching\GenHTTP.Modules.Caching.csproj" />
     <Project Path="Modules\ClientCaching\GenHTTP.Modules.ClientCaching.csproj" />
     <Project Path="Modules\Compression\GenHTTP.Modules.Compression.csproj" />

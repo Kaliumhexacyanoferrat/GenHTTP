@@ -1,10 +1,12 @@
 ﻿using System.Net;
 using System.Text;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Basics;
-using GenHTTP.Modules.Functional;
+
 using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Functional;
+using GenHTTP.Modules.Redirects;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Functional;
 

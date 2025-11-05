@@ -2,9 +2,8 @@
 
     <PropertyGroup>
 
-        <Description>Allows to control client-side caching of content.</Description>
-        <PackageTags>GenHTTP HTTP Webserver C# Module Caching ETag Cache</PackageTags>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <Description>Provides redirect capabilities</Description>
+        <PackageTags>HTTP Webserver C# Module Redirect Redirection</PackageTags>
 
     </PropertyGroup>
 

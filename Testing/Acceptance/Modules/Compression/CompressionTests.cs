@@ -1,11 +1,13 @@
 ﻿using System.IO.Compression;
+
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Basics;
+
 using GenHTTP.Modules.Compression;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+
 using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Compression;

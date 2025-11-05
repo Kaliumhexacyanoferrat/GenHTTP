@@ -14,6 +14,8 @@
 
         <ProjectReference Include="..\ReverseProxy\GenHTTP.Modules.ReverseProxy.csproj" />
 
+        <ProjectReference Include="..\Redirects\GenHTTP.Modules.Redirects.csproj" />
+
     </ItemGroup>
 
 </Project>

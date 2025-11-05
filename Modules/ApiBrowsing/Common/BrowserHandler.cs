@@ -1,7 +1,8 @@
 ﻿using Cottle;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Basics;
+
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Pages;
 using GenHTTP.Modules.Pages.Rendering;

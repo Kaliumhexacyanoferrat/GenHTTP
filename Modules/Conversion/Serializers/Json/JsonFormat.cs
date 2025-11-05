@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Basics;
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.Conversion.Serializers.Json;
 

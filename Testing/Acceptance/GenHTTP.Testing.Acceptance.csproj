@@ -64,7 +64,6 @@
         <ProjectReference Include="..\..\Modules\ApiBrowsing\GenHTTP.Modules.ApiBrowsing.csproj" />
         <ProjectReference Include="..\..\Modules\I18n\GenHTTP.Modules.I18n.csproj" />
         <ProjectReference Include="..\..\Modules\Authentication\GenHTTP.Modules.Authentication.csproj" />
-        <ProjectReference Include="..\..\Modules\Basics\GenHTTP.Modules.Basics.csproj" />
         <ProjectReference Include="..\..\Modules\Caching\GenHTTP.Modules.Caching.csproj" />
         <ProjectReference Include="..\..\Modules\Compression\GenHTTP.Modules.Compression.csproj" />
         <ProjectReference Include="..\..\Modules\Controllers\GenHTTP.Modules.Controllers.csproj" />

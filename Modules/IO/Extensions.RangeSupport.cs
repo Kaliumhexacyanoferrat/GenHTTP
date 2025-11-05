@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Modules.IO;
 
-public static class Extensions
+public static class RangeSupportExtensions
 {
 
     /// <summary>

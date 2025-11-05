@@ -12,7 +12,6 @@
 
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj"/>
 
-        <ProjectReference Include="..\Basics\GenHTTP.Modules.Basics.csproj"/>
         <ProjectReference Include="..\Caching\GenHTTP.Modules.Caching.csproj"/>
         <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj"/>
 

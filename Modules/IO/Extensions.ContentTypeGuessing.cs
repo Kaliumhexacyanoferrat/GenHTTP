@@ -1,82 +1,28 @@
-﻿using GenHTTP.Api.Content.IO;
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Basics;
+namespace GenHTTP.Modules.IO;
 
-public static class CoreExtensions
+public static class ContentTypeGuessingExtensions
 {
 
-    #region Resource provider
-
-    [Obsolete("ToDo")]
-    public static async ValueTask<string> GetResourceAsStringAsync(this IResource resourceProvider)
+    public static ContentType? GuessContentType(this string fileName)
     {
-        await using var stream = await resourceProvider.GetContentAsync();
+        var extension = Path.GetExtension(fileName);
 
-        return await new StreamReader(stream).ReadToEndAsync();
-    }
-
-    #endregion
-
-    #region Request
-
-    public static bool HasType(this IRequest request, params RequestMethod[] methods)
-    {
-        foreach (var method in methods)
+        if (extension.Length > 1)
         {
-            if (request.Method == method)
+            extension = extension[1..].ToLower();
+
+            if (ContentTypes.TryGetValue(extension, out var value))
             {
-                return true;
+                return value;
             }
-        }
-
-        return false;
-    }
-
-    public static string? HostWithoutPort(this IRequest request)
-    {
-        var host = request.Host;
-
-        if (host is not null)
-        {
-            var pos = host.IndexOf(':');
-
-            return pos > 0 ? host[..pos] : host;
         }
 
         return null;
     }
 
-    #endregion
-
-    #region Response builder
-
-    /// <summary>
-    /// Specifies the content type of this response.
-    /// </summary>
-    /// <param name="contentType">The content type of this response</param>
-    public static IResponseBuilder Type(this IResponseBuilder builder, ContentType contentType) => builder.Type(FlexibleContentType.Get(contentType));
-
-    /// <summary>
-    /// Specifies the content type of this response.
-    /// </summary>
-    /// <param name="contentType">The content type of this response</param>
-    public static IResponseBuilder Type(this IResponseBuilder builder, string contentType) => builder.Type(FlexibleContentType.Parse(contentType));
-
-    /// <summary>
-    /// Applies the given modifications to the response.
-    /// </summary>
-    /// <param name="builder">The response to be modified</param>
-    /// <param name="modifications">The modifications to be applied</param>
-    public static IResponseBuilder Apply(this IResponseBuilder builder, Action<IResponseBuilder>? modifications)
-    {
-        modifications?.Invoke(builder);
-        return builder;
-    }
-
-    #endregion
-
-    #region Content types
+    #region Mapping
 
     private static readonly Dictionary<string, ContentType> ContentTypes = new()
     {
@@ -100,9 +46,6 @@ public static class CoreExtensions
         },
         {
             "config", ContentType.TextPlain
-        },
-        {
-            "pdf", ContentType.ApplicationPdf
         },
         // Fonts
         {
@@ -245,25 +188,14 @@ public static class CoreExtensions
         },
         {
             "xml", ContentType.TextXml
+        },
+        {
+            "yml", ContentType.TextYaml
+        },
+        {
+            "yaml", ContentType.TextYaml
         }
     };
-
-    public static ContentType? GuessContentType(this string fileName)
-    {
-        var extension = Path.GetExtension(fileName);
-
-        if (extension.Length > 1)
-        {
-            extension = extension[1..].ToLower();
-
-            if (ContentTypes.TryGetValue(extension, out var value))
-            {
-                return value;
-            }
-        }
-
-        return null;
-    }
 
     #endregion
 
