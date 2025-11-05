@@ -14,15 +14,18 @@
         <Version>10.0.0</Version>
 
         <Authors>Andreas Nägeli</Authors>
-        <Company/>
 
         <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
-        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageIcon>icon.png</PackageIcon>
 
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/Kaliumhexacyanoferrat/GenHTTP</RepositoryUrl>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <Deterministic>true</Deterministic>
 
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>CS1591,CS1587,CS1572,CS1573</NoWarn>
@@ -31,8 +34,7 @@
 
     <ItemGroup>
 
-        <None Include="$(SolutionDir)\LICENSE" Pack="true" PackagePath="\"/>
-        <None Include="$(SolutionDir)\Resources\icon.png" Pack="true" PackagePath="\"/>
+        <None Include="$(SolutionDir)\Resources\icon.png" Pack="true" PackagePath="\" />
 
     </ItemGroup>
 

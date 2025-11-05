@@ -2,10 +2,11 @@
 
     <PropertyGroup>
 
+        <Description>Allows to handle websocket connection to a GenHTTP server</Description>
         <Authors>Andreas Nägeli, Magnus Johnsson</Authors>
 
-        <Description>Allows to handle websocket connection to a GenHTTP server</Description>
-        <PackageTags>HTTP Webserver C# Module Websockets</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Websockets</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

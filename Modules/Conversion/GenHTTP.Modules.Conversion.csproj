@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Allows to read and write responses in additional data formats such as JSON or XML</Description>
-        <PackageTags>HTTP Webserver C# Module Serialization Conversion XML JSON</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Serialization Conversion XML JSON</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Adds an endpoint to your service that describes the API using the Open API format</Description>
-        <PackageTags>HTTP Webserver C# Module OpenAPI</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module OpenAPI</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

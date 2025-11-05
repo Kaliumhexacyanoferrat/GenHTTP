@@ -28,7 +28,7 @@ public sealed class ContentProviderBuilder : IHandlerBuilder<ContentProviderBuil
     {
         var resource = _ResourceProvider ?? throw new BuilderMissingPropertyException("resourceProvider");
 
-        return Concerns.Chain(_Concerns,  new ContentProvider( resource));
+        return Concerns.Chain(_Concerns,  new ContentProvider(resource));
     }
 
     #endregion

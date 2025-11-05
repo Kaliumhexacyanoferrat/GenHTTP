@@ -3,7 +3,9 @@
     <PropertyGroup>
 
         <Description>Allows to use controllers to handle incoming requests.</Description>
-        <PackageTags>HTTP Webserver C# Module Controller MVC</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Controller MVC</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+
     </PropertyGroup>
 
     <ItemGroup>

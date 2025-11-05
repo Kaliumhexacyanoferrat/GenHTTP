@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Provides IO resources such as files to requesting clients</Description>
-        <PackageTags>HTTP Webserver C# Module IO Files Resources</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module IO Files Resources</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

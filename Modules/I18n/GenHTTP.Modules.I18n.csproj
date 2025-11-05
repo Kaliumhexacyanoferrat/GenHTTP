@@ -2,10 +2,11 @@
 
 	<PropertyGroup>
 
-		<Authors>Andreas Nägeli, Martin Maťátko</Authors>
-
 		<Description>Allows to handle requests in a culture specific manner.</Description>
-		<PackageTags>HTTP Webserver C# Module i18n</PackageTags>
+        <Authors>Andreas Nägeli, Martin Maťátko</Authors>
+
+		<PackageTags>GenHTTP HTTP Webserver C# Module i18n</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
 	</PropertyGroup>
 

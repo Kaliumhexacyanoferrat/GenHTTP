@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Allows to control client-side caching of content.</Description>
-        <PackageTags>HTTP Webserver C# Module Caching ETag Cache</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Caching ETag Cache</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

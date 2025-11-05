@@ -3,7 +3,9 @@
     <PropertyGroup>
 
         <Description>Provides basic services such as redirects</Description>
-        <PackageTags>HTTP Webserver C# Module Basics Redirect Redirection</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Basics Redirect Redirection</PackageTags>
+
+        <!-- See https://github.com/Kaliumhexacyanoferrat/GenHTTP/issues/729 -->
 
     </PropertyGroup>
 

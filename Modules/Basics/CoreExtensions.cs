@@ -8,6 +8,7 @@ public static class CoreExtensions
 
     #region Resource provider
 
+    [Obsolete("ToDo")]
     public static async ValueTask<string> GetResourceAsStringAsync(this IResource resourceProvider)
     {
         await using var stream = await resourceProvider.GetContentAsync();
@@ -90,7 +91,7 @@ public static class CoreExtensions
         {
             "htm", ContentType.TextHtml
         },
-        // Text files
+        // Documents
         {
             "txt", ContentType.TextPlain
         },
@@ -99,6 +100,9 @@ public static class CoreExtensions
         },
         {
             "config", ContentType.TextPlain
+        },
+        {
+            "pdf", ContentType.ApplicationPdf
         },
         // Fonts
         {

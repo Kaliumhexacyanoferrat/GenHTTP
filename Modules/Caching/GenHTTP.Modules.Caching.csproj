@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>General purpose API to cache content independent from the storage backend.</Description>
-        <PackageTags>HTTP Webserver C# Module Caching Cache</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Caching Cache</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

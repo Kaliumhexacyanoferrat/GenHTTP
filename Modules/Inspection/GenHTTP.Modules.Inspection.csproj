@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Allows to inspect any request that is sent to the server</Description>
-        <PackageTags>HTTP Webserver C# Module Debugging Debug Inspection Inspector</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Debugging Debug Inspection Inspector</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

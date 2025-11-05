@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Allows to generate and serve HTML pages</Description>
-        <PackageTags>HTTP Webserver C# Module Page HTML Model Rendering</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Page HTML Model Rendering</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

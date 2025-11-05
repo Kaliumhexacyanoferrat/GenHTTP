@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Adapter to run GenHTTP handlers within an ASP.NET Core app.</Description>
-        <PackageTags>ASP.NET Core Adapter GenHTTP</PackageTags>
+        <PackageTags>GenHTTP ASP.NET Core Adapter GenHTTP</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Allows to serve content from a remote upstream server.</Description>
-        <PackageTags>HTTP Webserver C# Module Reverse Proxy Proxies</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Reverse Proxy Proxies</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

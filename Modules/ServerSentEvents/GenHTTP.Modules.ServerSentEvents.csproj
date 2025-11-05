@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Allows to push events to connected clients using the SSE protocol</Description>
-        <PackageTags>HTTP Webserver C# Module SSE Server Sent Events</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module SSE Server Sent Events</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Simple way to serve already built Single Page Applications.</Description>
-        <PackageTags>HTTP Webserver C# Module SPA Single Page Application Hosting Host</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module SPA Single Page Application Hosting Host</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

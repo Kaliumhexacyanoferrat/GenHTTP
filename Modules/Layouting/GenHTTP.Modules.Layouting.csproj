@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Allows to structure web applications into smaller chunks and segments</Description>
-        <PackageTags>HTTP Webserver C# Module Layouting Segments</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Layouting Segments</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

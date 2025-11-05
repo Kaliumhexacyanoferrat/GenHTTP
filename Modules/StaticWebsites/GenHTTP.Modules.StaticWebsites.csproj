@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Serves static web applications such as a compiled Hugo app.</Description>
-        <PackageTags>HTTP Webserver C# Module Hosting Host App Application Static Content Hugo</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Hosting Host App Application Static Content Hugo</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 

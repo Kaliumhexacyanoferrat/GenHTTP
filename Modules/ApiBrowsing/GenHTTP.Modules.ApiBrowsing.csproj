@@ -3,7 +3,8 @@
     <PropertyGroup>
 
         <Description>Serves API browsers such as Swagger UI.</Description>
-        <PackageTags>HTTP Webserver C# Module Swagger UI API Browser Browsing</PackageTags>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Swagger UI API Browser Browsing</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
     </PropertyGroup>
 
