@@ -14,10 +14,13 @@ namespace GenHTTP.Testing;
 /// </summary>
 public class TestHost : IAsyncDisposable
 {
+    
 #if NET8_0
     private static volatile int _nextPort = 20000;
-#else
+#elif NET9_0
     private static volatile int _nextPort = 30000;
+#else
+    private static volatile int _nextPort = 40000;
 #endif
 
     private static readonly HttpClient DefaultClient = GetClient();
