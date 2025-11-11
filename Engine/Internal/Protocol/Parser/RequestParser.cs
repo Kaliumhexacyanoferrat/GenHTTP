@@ -1,6 +1,4 @@
-﻿using GenHTTP.Api.Protocol;
-
-using GenHTTP.Engine.Internal.Protocol.Parser.Conversion;
+﻿using GenHTTP.Engine.Internal.Protocol.Parser.Conversion;
 using GenHTTP.Engine.Shared.Infrastructure;
 
 namespace GenHTTP.Engine.Internal.Protocol.Parser;

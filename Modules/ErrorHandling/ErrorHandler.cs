@@ -1,5 +1,4 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Modules.Conversion.Serializers;
+﻿using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.ErrorHandling.Provider;
 
 namespace GenHTTP.Modules.ErrorHandling;

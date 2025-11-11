@@ -1,7 +1,5 @@
 ﻿using System.Buffers;
 
-using GenHTTP.Api.Protocol;
-
 namespace GenHTTP.Engine.Internal.Protocol.Parser;
 
 internal sealed class RequestScanner
