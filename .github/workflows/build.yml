@@ -34,7 +34,7 @@ jobs:
     - name: Download .NET SDK
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0
+        dotnet-version: 10.0
         
     - name: Restore tools
       run: dotnet tool restore
@@ -129,6 +129,7 @@ jobs:
           dotnet-version: |
             8.0
             9.0
+            10.0
 
       - name: Build & Test (${{ matrix.runtime }})
         run: dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release

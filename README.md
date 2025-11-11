@@ -1,7 +1,7 @@
 # GenHTTP Webserver
 
 GenHTTP is a lightweight web server written in pure C# with a strong focus on developer experience. The main
-purpose of this project is to quickly create web services written in .NET 8 / 9, allowing developers to concentrate on
+purpose of this project is to quickly create web services written in .NET 8 / 9 / 10, allowing developers to concentrate on
 the functionality rather than on messing around with configuration files or complex concepts.
 
 [![View - Documentation](https://img.shields.io/badge/view-Documentation-AB54FF)](https://genhttp.org/documentation/) [![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Core.svg)](https://www.nuget.org/packages/GenHTTP.Core/) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GenHTTP&metric=coverage)](https://sonarcloud.io/dashboard?id=GenHTTP) [![Discord](https://discordapp.com/api/guilds/1177529388229734410/widget.png?style=shield)](https://discord.gg/GwtDyUpkpV)
@@ -87,7 +87,7 @@ Additionally, our automated tests ensure full compatibility on the following pla
 
 ## ⚙️ Building the Server
 
-To build the server from source, clone this repository and run the playground project launcher for .NET 9:
+To build the server from source, clone this repository and run the playground project launcher for .NET 10:
 
 ```sh
 git clone https://github.com/Kaliumhexacyanoferrat/GenHTTP.git
