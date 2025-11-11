@@ -15,5 +15,9 @@
         <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
 
     </ItemGroup>
+    
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="" />
+    </ItemGroup>
 
 </Project>

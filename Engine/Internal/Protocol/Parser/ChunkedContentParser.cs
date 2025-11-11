@@ -1,8 +1,5 @@
 ﻿using System.Buffers;
 using System.Globalization;
-
-using GenHTTP.Api.Protocol;
-
 using GenHTTP.Engine.Internal.Protocol.Parser.Conversion;
 using GenHTTP.Engine.Shared.Infrastructure;
 
