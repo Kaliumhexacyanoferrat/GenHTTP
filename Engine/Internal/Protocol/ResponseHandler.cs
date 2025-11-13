@@ -104,7 +104,7 @@ internal sealed class ResponseHandler
         }
         else
         {
-            Output.Write("Server: "u8);
+            Output.Write("Server: GenHTTP/"u8);
             Output.Write(Server.Version);
             Output.Write("\r\n"u8);
         }
