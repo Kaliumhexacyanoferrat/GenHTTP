@@ -22,6 +22,14 @@ See [the documentation](https://genhttp.org/documentation/content/concepts/respo
 
 The following handlers and concerns are provided by this module.
 
+### Handlers / Concerns
+
+Those entry points allow to quickly create concerns and handlers without
+the need of implementing interfaces and of providing builders.
+
+For documentation, see the [concern](https://genhttp.org/documentation/content/concerns/)
+and [handler](https://genhttp.org/documentation/content/handlers/) pages.
+
 ### Content
 
 Provides a single resource to a requesting client. In contrast to downloads,
