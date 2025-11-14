@@ -2,6 +2,7 @@ using System.Net;
 
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO;
+using GenHTTP.Testing.Acceptance.Utilities;
 
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
@@ -43,6 +44,12 @@ public class ImplicitHandlerTests
         await response.AssertStatusAsync(HttpStatusCode.OK);
         
         Assert.AreEqual("Hello World", await response.GetContentAsync());
+    }
+
+    [TestMethod]
+    public void TestConcernChaining()
+    {
+        Chain.Works(Handler.From(r => r.Respond().Content("Hello World").Type(ContentType.TextPlain).Build()));
     }
     
 }
