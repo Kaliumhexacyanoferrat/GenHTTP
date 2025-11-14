@@ -10,16 +10,32 @@ public sealed class WebPath(IReadOnlyList<WebPathPart> parts, bool trailingSlash
 
     public static WebPath FromString(string path)
     {
-        var split = path.Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+        var pathSpan = path.AsSpan();
+        
+        var parts = new List<WebPathPart>(4);
 
-        var parts = new List<WebPathPart>(split.Length);
-
-        foreach (var entry in split)
+        var start = 0;
+        var trailingSlash = false;
+        
+        for (var i = 0; i <= pathSpan.Length; i++)
         {
-            parts.Add(new WebPathPart(entry));
+            if (i != pathSpan.Length && pathSpan[i] != '/')
+                continue;
+
+            if (i > start)
+            {
+                parts.Add(new WebPathPart(pathSpan[start..i].ToString()));
+            }
+                
+            start = i + 1;
+                
+            if (i == pathSpan.Length - 1)
+            {
+                trailingSlash = true;
+            }
         }
 
-        return new WebPath(parts, path.EndsWith('/'));
+        return new WebPath(parts, trailingSlash);
     }
 
     #endregion
