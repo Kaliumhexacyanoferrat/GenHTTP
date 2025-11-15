@@ -5,14 +5,14 @@ namespace GenHTTP.Modules.Caching.FileSystem;
 public class FileSystemCacheBuilder<T> : IBuilder<FileSystemCache<T>>
 {
 
-    private TimeSpan _AccessExpiration = TimeSpan.FromMinutes(30);
-    private DirectoryInfo? _Directory;
+    private TimeSpan _accessExpiration = TimeSpan.FromMinutes(30);
+    private DirectoryInfo? _directory;
 
     #region Functionality
 
     public FileSystemCacheBuilder<T> Directory(DirectoryInfo directory)
     {
-        _Directory = directory;
+        _directory = directory;
         return this;
     }
 
@@ -28,20 +28,20 @@ public class FileSystemCacheBuilder<T> : IBuilder<FileSystemCache<T>>
     /// </remarks>
     public FileSystemCacheBuilder<T> AccessExpiration(TimeSpan expiration)
     {
-        _AccessExpiration = expiration;
+        _accessExpiration = expiration;
         return this;
     }
 
     public FileSystemCache<T> Build()
     {
-        var directory = _Directory ?? throw new BuilderMissingPropertyException("Directory");
+        var directory = _directory ?? throw new BuilderMissingPropertyException("Directory");
 
         if (!directory.Exists)
         {
             directory.Create();
         }
 
-        return new FileSystemCache<T>(directory, _AccessExpiration);
+        return new FileSystemCache<T>(directory, _accessExpiration);
     }
 
     #endregion

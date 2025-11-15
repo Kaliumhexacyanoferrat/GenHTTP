@@ -4,19 +4,19 @@ namespace GenHTTP.Modules.Caching.Memory;
 
 public sealed class MemoryCache<T> : ICache<T>
 {
-    private readonly Dictionary<string, Dictionary<string, T>> _Cache = new();
+    private readonly Dictionary<string, Dictionary<string, T>> _cache = new();
 
-    private readonly SemaphoreSlim _Sync = new(1);
+    private readonly SemaphoreSlim _sync = new(1);
 
     #region Functionality
 
     public ValueTask<T[]> GetEntriesAsync(string key)
     {
-        _Sync.Wait();
+        _sync.Wait();
 
         try
         {
-            if (_Cache.TryGetValue(key, out var entries))
+            if (_cache.TryGetValue(key, out var entries))
             {
                 return new ValueTask<T[]>(entries.Values.ToArray());
             }
@@ -25,17 +25,17 @@ public sealed class MemoryCache<T> : ICache<T>
         }
         finally
         {
-            _Sync.Release();
+            _sync.Release();
         }
     }
 
     public ValueTask<T?> GetEntryAsync(string key, string variation)
     {
-        _Sync.Wait();
+        _sync.Wait();
 
         try
         {
-            if (_Cache.TryGetValue(key, out var entries))
+            if (_cache.TryGetValue(key, out var entries))
             {
                 if (entries.TryGetValue(variation, out var value))
                 {
@@ -47,20 +47,20 @@ public sealed class MemoryCache<T> : ICache<T>
         }
         finally
         {
-            _Sync.Release();
+            _sync.Release();
         }
     }
 
     public ValueTask StoreAsync(string key, string variation, T? entry)
     {
-        _Sync.Wait();
+        _sync.Wait();
 
         try
         {
-            if (!_Cache.TryGetValue(key, out var value))
+            if (!_cache.TryGetValue(key, out var value))
             {
                 value = new Dictionary<string, T>();
-                _Cache[key] = value;
+                _cache[key] = value;
             }
 
             if (entry != null)
@@ -76,7 +76,7 @@ public sealed class MemoryCache<T> : ICache<T>
         }
         finally
         {
-            _Sync.Release();
+            _sync.Release();
         }
     }
 

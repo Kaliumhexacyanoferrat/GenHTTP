@@ -8,19 +8,19 @@ namespace GenHTTP.Modules.Inspection.Concern;
 
 public sealed class InspectionConcernBuilder : IConcernBuilder
 {
-    private SerializationRegistry? _Serialization;
+    private SerializationRegistry? _serialization;
 
     #region Functionality
 
     public InspectionConcernBuilder Serialization(SerializationRegistry registry)
     {
-        _Serialization = registry;
+        _serialization = registry;
         return this;
     }
 
     public IConcern Build(IHandler content)
     {
-        var serialization = _Serialization ?? Conv.Serialization.Empty()
+        var serialization = _serialization ?? Conv.Serialization.Empty()
                                                   .Default(ContentType.ApplicationYaml)
                                                   .Add(ContentType.ApplicationYaml, new YamlFormat())
                                                   .Build();

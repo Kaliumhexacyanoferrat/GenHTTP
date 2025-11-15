@@ -19,8 +19,8 @@ public static class Extensions
     /// so the URL provided needs to point to the correct definition to be consumed.
     /// Use relative paths to avoid issues with CORS, proxies etc.
     /// </remarks>
-    public static LayoutBuilder AddSwaggerUI(this LayoutBuilder layout, string segment = "swagger", string? url = null, string? title = null)
-        => AddBrowser(layout, ApiBrowser.SwaggerUI(), segment, url, title);
+    public static LayoutBuilder AddSwaggerUi(this LayoutBuilder layout, string segment = "swagger", string? url = null, string? title = null)
+        => AddBrowser(layout, ApiBrowser.SwaggerUi(), segment, url, title);
 
     /// <summary>
     /// Creates a Redoc application and registers it at the layout.

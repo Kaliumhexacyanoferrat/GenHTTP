@@ -8,11 +8,11 @@ public sealed class WebsocketConnection : IWebSocketConnection, IWebsocketConnec
 {
     private const int ReadSize = 1024 * 4;
 
-    private bool _Closing;
+    private bool _closing;
 
-    private bool _Closed;
+    private bool _closed;
 
-    private Task? _ReadingTask;
+    private Task? _readingTask;
 
     #region Get-/Setters
 
@@ -40,7 +40,7 @@ public sealed class WebsocketConnection : IWebSocketConnection, IWebsocketConnec
 
     public List<string> SupportedProtocols { get; }
 
-    public bool IsAvailable => !_Closing && !_Closed && Socket.Connected;
+    public bool IsAvailable => !_closing && !_closed && Socket.Connected;
 
     #endregion
 
@@ -121,7 +121,7 @@ public sealed class WebsocketConnection : IWebSocketConnection, IWebsocketConnec
         var handshake = Handler.CreateHandshake(subProtocol);
         SendBytes(handshake, OnOpen);
 
-        _ReadingTask = StartReading();
+        _readingTask = StartReading();
     }
 
     public void Close()
@@ -134,7 +134,7 @@ public sealed class WebsocketConnection : IWebSocketConnection, IWebsocketConnec
         if (!IsAvailable)
             return;
 
-        _Closing = true;
+        _closing = true;
 
         if (Handler == null)
         {
@@ -241,18 +241,18 @@ public sealed class WebsocketConnection : IWebSocketConnection, IWebsocketConnec
 
     private void CloseSocket()
     {
-        if (_ReadingTask != null)
+        if (_readingTask != null)
         {
-            _ReadingTask.Dispose();
-            _ReadingTask = null;
+            _readingTask.Dispose();
+            _readingTask = null;
         }
 
-        _Closing = true;
+        _closing = true;
         OnClose();
-        _Closed = true;
+        _closed = true;
         Socket.Close();
         Socket.Dispose();
-        _Closing = false;
+        _closing = false;
     }
 
     private IHandler GetHandler() => Handler ?? throw new InvalidOperationException("Handler expected but not set");

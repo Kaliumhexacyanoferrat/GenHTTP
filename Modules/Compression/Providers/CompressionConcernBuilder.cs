@@ -8,9 +8,9 @@ namespace GenHTTP.Modules.Compression.Providers;
 
 public sealed class CompressionConcernBuilder : IConcernBuilder
 {
-    private readonly List<ICompressionAlgorithm> _Algorithms = [];
+    private readonly List<ICompressionAlgorithm> _algorithms = [];
 
-    private CompressionLevel _Level = CompressionLevel.Fastest;
+    private CompressionLevel _level = CompressionLevel.Fastest;
 
     private ulong? _MinimumSize = 256;
 
@@ -20,13 +20,13 @@ public sealed class CompressionConcernBuilder : IConcernBuilder
 
     public CompressionConcernBuilder Add(ICompressionAlgorithm algorithm)
     {
-        _Algorithms.Add(algorithm);
+        _algorithms.Add(algorithm);
         return this;
     }
 
     public CompressionConcernBuilder Level(CompressionLevel level)
     {
-        _Level = level;
+        _level = level;
         return this;
     }
 
@@ -44,7 +44,7 @@ public sealed class CompressionConcernBuilder : IConcernBuilder
 
     public IConcern Build(IHandler content)
     {
-        var algorithms = _Algorithms.ToDictionary(a => a.Name);
+        var algorithms = _algorithms.ToDictionary(a => a.Name);
 
         return new CompressionConcern(content, algorithms, _Level, _MinimumSize);
     }

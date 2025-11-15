@@ -40,11 +40,11 @@ public sealed class CompressedResponseContent : IResponseContent, IDisposable
 
     #region IDisposable Support
 
-    private bool _Disposed;
+    private bool _disposed;
 
     private void Dispose(bool disposing)
     {
-        if (!_Disposed)
+        if (!_disposed)
         {
             if (disposing)
             {
@@ -54,7 +54,7 @@ public sealed class CompressedResponseContent : IResponseContent, IDisposable
                 }
             }
 
-            _Disposed = true;
+            _disposed = true;
         }
     }
 

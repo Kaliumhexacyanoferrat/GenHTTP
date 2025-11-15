@@ -38,7 +38,7 @@ public sealed class ConversionTests
     private class FieldData
     {
 
-        public int field;
+        public int Field;
     }
 
     private class PropertyData
@@ -65,14 +65,14 @@ public sealed class ConversionTests
 
     private class ConversionHandlerBuilder<T> : IHandlerBuilder
     {
-        private readonly ISerializationFormat _Format;
+        private readonly ISerializationFormat _format;
 
         public ConversionHandlerBuilder(ISerializationFormat format)
         {
-            _Format = format;
+            _format = format;
         }
 
-        public IHandler Build() => new ConversionHandler<T>(_Format);
+        public IHandler Build() => new ConversionHandler<T>(_format);
     }
 
     private class ConversionHandler<T> : IHandler

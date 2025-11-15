@@ -13,18 +13,18 @@ public class MainHandlerTests
 
     public class PreparationHandler : IHandler
     {
-        private bool _Prepared;
+        private bool _prepared;
 
         public ValueTask PrepareAsync()
         {
-            _Prepared = true;
+            _prepared = true;
             return new();
         }
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var response = request.Respond()
-                                  .Content(new StringContent(_Prepared ? "prepared" : "not prepared"))
+                                  .Content(new StringContent(_prepared ? "prepared" : "not prepared"))
                                   .Build();
 
             return new(response);

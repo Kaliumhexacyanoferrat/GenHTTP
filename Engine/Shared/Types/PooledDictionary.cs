@@ -7,18 +7,18 @@ public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOn
 {
     private static readonly ArrayPool<KeyValuePair<TKey, TValue>> Pool = ArrayPool<KeyValuePair<TKey, TValue>>.Shared;
 
-    private short _Enumerator = -1;
-    private ushort _Index;
+    private short _enumerator = -1;
+    private ushort _index;
 
-    private KeyValuePair<TKey, TValue>[]? _Entries;
+    private KeyValuePair<TKey, TValue>[]? _entries;
 
-    private readonly IEqualityComparer<TKey> _Comparer;
+    private readonly IEqualityComparer<TKey> _comparer;
 
     #region Get-/Setters
 
-    private KeyValuePair<TKey, TValue>[] Entries => _Entries ??= Pool.Rent(Capacity);
+    private KeyValuePair<TKey, TValue>[] Entries => _entries ??= Pool.Rent(Capacity);
 
-    private bool HasEntries => _Entries is not null;
+    private bool HasEntries => _entries is not null;
 
     public virtual TValue this[TKey key]
     {
@@ -26,9 +26,9 @@ public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOn
         {
             if (HasEntries)
             {
-                for (var i = 0; i < _Index; i++)
+                for (var i = 0; i < _index; i++)
                 {
-                    if (_Comparer.Equals(Entries[i].Key, key))
+                    if (_comparer.Equals(Entries[i].Key, key))
                     {
                         return Entries[i].Value;
                     }
@@ -41,9 +41,9 @@ public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOn
         {
             if (HasEntries)
             {
-                for (var i = 0; i < _Index; i++)
+                for (var i = 0; i < _index; i++)
                 {
-                    if (_Comparer.Equals(Entries[i].Key, key))
+                    if (_comparer.Equals(Entries[i].Key, key))
                     {
                         Entries[i] = new KeyValuePair<TKey, TValue>(key, value);
                         return;
@@ -59,11 +59,11 @@ public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOn
     {
         get
         {
-            var result = new List<TKey>(_Index);
+            var result = new List<TKey>(_index);
 
             if (HasEntries)
             {
-                for (var i = 0; i < _Index; i++)
+                for (var i = 0; i < _index; i++)
                 {
                     result.Add(Entries[i].Key);
                 }
@@ -77,11 +77,11 @@ public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOn
     {
         get
         {
-            var result = new List<TValue>(_Index);
+            var result = new List<TValue>(_index);
 
             if (HasEntries)
             {
-                for (var i = 0; i < _Index; i++)
+                for (var i = 0; i < _index; i++)
                 {
                     result.Add(Entries[i].Value);
                 }
@@ -91,7 +91,7 @@ public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOn
         }
     }
 
-    public int Count => _Index;
+    public int Count => _index;
 
     public bool IsReadOnly => false;
 
@@ -99,9 +99,9 @@ public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOn
 
     IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
 
-    public KeyValuePair<TKey, TValue> Current => Entries[_Enumerator];
+    public KeyValuePair<TKey, TValue> Current => Entries[_enumerator];
 
-    object IEnumerator.Current => Entries[_Enumerator];
+    object IEnumerator.Current => Entries[_enumerator];
 
     public int Capacity { get; private set; }
 
@@ -118,7 +118,7 @@ public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOn
     {
         Capacity = initialCapacity;
 
-        _Comparer = comparer;
+        _comparer = comparer;
     }
 
     #endregion
@@ -128,27 +128,27 @@ public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOn
     public virtual void Add(TKey key, TValue value)
     {
         CheckResize();
-        Entries[_Index++] = new KeyValuePair<TKey, TValue>(key, value);
+        Entries[_index++] = new KeyValuePair<TKey, TValue>(key, value);
     }
 
     public virtual void Add(KeyValuePair<TKey, TValue> item)
     {
         CheckResize();
-        Entries[_Index++] = item;
+        Entries[_index++] = item;
     }
 
     public void Clear()
     {
-        _Index = 0;
+        _index = 0;
     }
 
     public bool Contains(KeyValuePair<TKey, TValue> item)
     {
         if (HasEntries)
         {
-            for (var i = 0; i < _Index; i++)
+            for (var i = 0; i < _index; i++)
             {
-                if (_Comparer.Equals(Entries[i].Key, item.Key))
+                if (_comparer.Equals(Entries[i].Key, item.Key))
                 {
                     return true;
                 }
@@ -162,9 +162,9 @@ public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOn
     {
         if (HasEntries)
         {
-            for (var i = 0; i < _Index; i++)
+            for (var i = 0; i < _index; i++)
             {
-                if (_Comparer.Equals(Entries[i].Key, key))
+                if (_comparer.Equals(Entries[i].Key, key))
                 {
                     return true;
                 }
@@ -181,7 +181,7 @@ public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOn
 
     public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
     {
-        _Enumerator = -1;
+        _enumerator = -1;
         return this;
     }
 
@@ -208,18 +208,18 @@ public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOn
 
     public bool MoveNext()
     {
-        _Enumerator++;
-        return _Enumerator < _Index;
+        _enumerator++;
+        return _enumerator < _index;
     }
 
     public void Reset()
     {
-        _Enumerator = -1;
+        _enumerator = -1;
     }
 
     private void CheckResize()
     {
-        if (_Index >= Entries.Length)
+        if (_index >= Entries.Length)
         {
             var oldEntries = Entries;
 
@@ -234,9 +234,9 @@ public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOn
                     Capacity *= 2;
                 }
 
-                _Entries = Pool.Rent(Capacity);
+                _entries = Pool.Rent(Capacity);
 
-                for (var i = 0; i < _Index; i++)
+                for (var i = 0; i < _index; i++)
                 {
                     Entries[i] = oldEntries[i];
                 }
@@ -252,11 +252,11 @@ public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOn
 
     #region IDisposable Support
 
-    private bool _Disposed;
+    private bool _disposed;
 
     private void Dispose(bool disposing)
     {
-        if (!_Disposed)
+        if (!_disposed)
         {
             if (disposing)
             {
@@ -266,7 +266,7 @@ public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOn
                 }
             }
 
-            _Disposed = true;
+            _disposed = true;
         }
     }
 

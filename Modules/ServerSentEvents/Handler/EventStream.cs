@@ -46,7 +46,7 @@ public sealed class EventStream : IResponseContent
         }
         catch (Exception e)
         {
-            Request.Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, Request.Client.IPAddress, e);
+            Request.Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, Request.Client.IpAddress, e);
 
             await connection.RetryAsync(ErrorRetryTimeout);
         }

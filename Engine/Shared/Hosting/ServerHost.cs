@@ -10,7 +10,7 @@ namespace GenHTTP.Engine.Shared.Hosting;
 
 public sealed class ServerHost : IServerHost
 {
-    private readonly IServerBuilder _Builder;
+    private readonly IServerBuilder _builder;
 
     #region Get-/Setters
 
@@ -22,7 +22,7 @@ public sealed class ServerHost : IServerHost
 
     public ServerHost(IServerBuilder builder)
     {
-        _Builder = builder;
+        _builder = builder;
     }
 
     #endregion
@@ -31,83 +31,83 @@ public sealed class ServerHost : IServerHost
 
     public IServerHost Backlog(ushort backlog)
     {
-        _Builder.Backlog(backlog);
+        _builder.Backlog(backlog);
         return this;
     }
 
     public IServerHost Bind(IPAddress? address, ushort port, bool dualStack = true)
     {
-        _Builder.Bind(address, port, dualStack);
+        _builder.Bind(address, port, dualStack);
         return this;
     }
 
     public IServerHost Bind(IPAddress? address, ushort port, X509Certificate2 certificate, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false, bool dualStack = true)
     {
-        _Builder.Bind(address, port, certificate, protocols, certificateValidator, enableQuic, dualStack);
+        _builder.Bind(address, port, certificate, protocols, certificateValidator, enableQuic, dualStack);
         return this;
     }
 
     public IServerHost Bind(IPAddress? address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false, bool dualStack = true)
     {
-        _Builder.Bind(address, port, certificateProvider, protocols, certificateValidator, enableQuic, dualStack);
+        _builder.Bind(address, port, certificateProvider, protocols, certificateValidator, enableQuic, dualStack);
         return this;
     }
 
     public IServerHost Companion(IServerCompanion companion)
     {
-        _Builder.Companion(companion);
+        _builder.Companion(companion);
         return this;
     }
 
     public IServerHost Console()
     {
-        _Builder.Console();
+        _builder.Console();
         return this;
     }
 
     public IServerHost Development(bool developmentMode = true)
     {
-        _Builder.Development(developmentMode);
+        _builder.Development(developmentMode);
         return this;
     }
 
     public IServerHost Port(ushort port)
     {
-        _Builder.Port(port);
+        _builder.Port(port);
         return this;
     }
 
     public IServerHost RequestMemoryLimit(uint limit)
     {
-        _Builder.RequestMemoryLimit(limit);
+        _builder.RequestMemoryLimit(limit);
         return this;
     }
 
     public IServerHost RequestReadTimeout(TimeSpan timeout)
     {
-        _Builder.RequestReadTimeout(timeout);
+        _builder.RequestReadTimeout(timeout);
         return this;
     }
 
     public IServerHost Handler(IHandler handler)
     {
-        _Builder.Handler(handler);
+        _builder.Handler(handler);
         return this;
     }
 
     public IServerHost TransferBufferSize(uint bufferSize)
     {
-        _Builder.TransferBufferSize(bufferSize);
+        _builder.TransferBufferSize(bufferSize);
         return this;
     }
 
     public IServerHost Add(IConcernBuilder concern)
     {
-        _Builder.Add(concern);
+        _builder.Add(concern);
         return this;
     }
 
-    public IServer Build() => _Builder.Build();
+    public IServer Build() => _builder.Build();
 
     #endregion
 

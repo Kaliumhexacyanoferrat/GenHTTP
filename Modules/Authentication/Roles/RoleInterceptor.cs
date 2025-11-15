@@ -9,19 +9,19 @@ namespace GenHTTP.Modules.Authentication.Roles;
 
 public class RoleInterceptor : IOperationInterceptor
 {
-    private string[]? _Roles;
+    private string[]? _roles;
 
     public void Configure(object attribute)
     {
         if (attribute is RequireRoleAttribute roleAttribute)
         {
-            _Roles = roleAttribute.Roles;
+            _roles = roleAttribute.Roles;
         }
     }
 
     public ValueTask<InterceptionResult?> InterceptAsync(IRequest request, Operation operation, IReadOnlyDictionary<string, object?> arguments)
     {
-        if (_Roles?.Length > 0)
+        if (_roles?.Length > 0)
         {
             var user = request.GetUser<IUser>();
 
@@ -32,11 +32,11 @@ public class RoleInterceptor : IOperationInterceptor
 
             var userRoles = user.Roles;
 
-            var missing = new List<string>(_Roles.Length);
+            var missing = new List<string>(_roles.Length);
 
             if (userRoles != null)
             {
-                foreach (var role in _Roles)
+                foreach (var role in _roles)
                 {
                     if (!userRoles.Contains(role, StringComparer.OrdinalIgnoreCase))
                     {
@@ -46,7 +46,7 @@ public class RoleInterceptor : IOperationInterceptor
             }
             else
             {
-                missing.AddRange(_Roles);
+                missing.AddRange(_roles);
             }
 
             if (missing.Count > 0)

@@ -5,13 +5,13 @@ namespace GenHTTP.Testing.Acceptance.Utilities;
 
 public sealed class FunctionalHandler : IHandler
 {
-    private readonly Func<IRequest, IResponse?>? _ResponseProvider;
+    private readonly Func<IRequest, IResponse?>? _responseProvider;
 
     #region Initialization
 
     public FunctionalHandler(Func<IRequest, IResponse?>? responseProvider = null)
     {
-        _ResponseProvider = responseProvider;
+        _responseProvider = responseProvider;
     }
 
     #endregion
@@ -20,7 +20,7 @@ public sealed class FunctionalHandler : IHandler
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-    public ValueTask<IResponse?> HandleAsync(IRequest request) => new(_ResponseProvider?.Invoke(request));
+    public ValueTask<IResponse?> HandleAsync(IRequest request) => new(_responseProvider?.Invoke(request));
 
     #endregion
 

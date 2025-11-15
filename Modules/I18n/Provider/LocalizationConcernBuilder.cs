@@ -12,11 +12,11 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
 {
     #region Fields
 
-    private CultureInfo _DefaultCulture = CultureInfo.CurrentUICulture;
+    private CultureInfo _defaultCulture = CultureInfo.CurrentUICulture;
 
-    private readonly List<CultureSelectorAsyncDelegate> _CultureSelectors = [];
-    private CultureFilterAsyncDelegate _CultureFilter = (_, _) => ValueTask.FromResult(true);
-    private readonly List<AsyncOrSyncSetter> _CultureSetters = [];
+    private readonly List<CultureSelectorAsyncDelegate> _cultureSelectors = [];
+    private CultureFilterAsyncDelegate _cultureFilter = (_, _) => ValueTask.FromResult(true);
+    private readonly List<AsyncOrSyncSetter> _cultureSetters = [];
 
     #endregion
 
@@ -95,7 +95,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// <returns></returns>
     public LocalizationConcernBuilder FromRequest(CultureSelectorAsyncDelegate cultureSelector)
     {
-        _CultureSelectors.Add(cultureSelector);
+        _cultureSelectors.Add(cultureSelector);
         return this;
     }
 
@@ -145,7 +145,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// <returns></returns>
     public LocalizationConcernBuilder Supports(CultureFilterAsyncDelegate cultureFilter)
     {
-        _CultureFilter = cultureFilter;
+        _cultureFilter = cultureFilter;
         return this;
     }
 
@@ -157,12 +157,12 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// Sets the current culture and UI culture.
     /// </summary>
     /// <param name="currentCulture">Whether to set the current culture.</param>
-    /// <param name="currentUICulture">Whether to set the current UI culture.</param>
+    /// <param name="currentUiCulture">Whether to set the current UI culture.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException">Thrown when both flags are set to false.</exception>
-    public LocalizationConcernBuilder Setter(bool currentCulture = false, bool currentUICulture = true)
+    public LocalizationConcernBuilder Setter(bool currentCulture = false, bool currentUiCulture = true)
     {
-        if (!currentCulture && !currentUICulture)
+        if (!currentCulture && !currentUiCulture)
         {
             throw new ArgumentException("At least one of the flags must be set to true.", nameof(currentCulture));
         }
@@ -172,7 +172,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
         {
             Setter(culture => CultureInfo.CurrentCulture = culture);
         }
-        if (currentUICulture)
+        if (currentUiCulture)
         {
             Setter(culture => CultureInfo.CurrentUICulture = culture);
         }
@@ -202,7 +202,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// <returns></returns>
     public LocalizationConcernBuilder Setter(CultureSetterDelegate cultureSetter)
     {
-        _CultureSetters.Add(new(SyncSetter: cultureSetter));
+        _cultureSetters.Add(new(SyncSetter: cultureSetter));
         return this;
     }
 
@@ -213,7 +213,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// <returns></returns>
     public LocalizationConcernBuilder Setter(CultureSetterAsyncDelegate cultureSetter)
     {
-        _CultureSetters.Add(new (AsyncSetter: cultureSetter));
+        _cultureSetters.Add(new (AsyncSetter: cultureSetter));
         return this;
     }
 
@@ -228,7 +228,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// <returns></returns>
     public LocalizationConcernBuilder Default(CultureInfo culture)
     {
-        _DefaultCulture = culture;
+        _defaultCulture = culture;
         return this;
     }
 
@@ -236,22 +236,22 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
 
     public IConcern Build(IHandler content)
     {
-        if (_CultureSelectors.Count == 0)
+        if (_cultureSelectors.Count == 0)
         {
             FromHeader();
         }
 
-        if (_CultureSetters.Count == 0)
+        if (_cultureSetters.Count == 0)
         {
             Setter();
         }
 
         return new LocalizationConcern(
             content,
-            _DefaultCulture,
+            _defaultCulture,
             CultureSelector,
-            _CultureFilter,
-            [.. _CultureSetters]
+            _cultureFilter,
+            [.. _cultureSetters]
             );
     }
 
@@ -261,7 +261,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
 
     private async IAsyncEnumerable<CultureInfo> CultureSelector(IRequest request)
     {
-        foreach (var selector in _CultureSelectors)
+        foreach (var selector in _cultureSelectors)
         {
             var cultures = await selector(request);
             foreach (var culture in cultures)

@@ -13,7 +13,7 @@ public static class ApiBrowser
     /// Creates a handler that will provide a Swagger UI app.
     /// </summary>
     /// <returns>The newly created handler</returns>
-    public static BrowserHandlerBuilder SwaggerUI() => new("Swagger", "Swagger UI");
+    public static BrowserHandlerBuilder SwaggerUi() => new("Swagger", "Swagger UI");
 
     /// <summary>
     /// Creates a handler that will provide a Redoc app.

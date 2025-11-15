@@ -16,18 +16,18 @@ namespace GenHTTP.Modules.Reflection;
 public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
 {
 
-    private FlexibleContentType? _ContentType;
+    private FlexibleContentType? _contentType;
 
-    private List<Cookie>? _Cookies;
+    private List<Cookie>? _cookies;
 
-    private string? _Encoding;
+    private string? _encoding;
 
-    private DateTime? _Expires;
+    private DateTime? _expires;
 
-    private Dictionary<string, string>? _Headers;
+    private Dictionary<string, string>? _headers;
 
-    private DateTime? _Modified;
-    private FlexibleResponseStatus? _Status;
+    private DateTime? _modified;
+    private FlexibleResponseStatus? _status;
 
     #region Initialization
 
@@ -58,23 +58,23 @@ public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
     /// <inheritdoc />
     public Result<T> Status(ResponseStatus status)
     {
-        _Status = new FlexibleResponseStatus(status);
+        _status = new FlexibleResponseStatus(status);
         return this;
     }
 
     /// <inheritdoc />
     public Result<T> Status(int status, string reason)
     {
-        _Status = new FlexibleResponseStatus(status, reason);
+        _status = new FlexibleResponseStatus(status, reason);
         return this;
     }
 
     /// <inheritdoc />
     public Result<T> Header(string key, string value)
     {
-        _Headers ??= new Dictionary<string, string>();
+        _headers ??= new Dictionary<string, string>();
 
-        _Headers[key] = value;
+        _headers[key] = value;
 
         return this;
     }
@@ -82,21 +82,21 @@ public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
     /// <inheritdoc />
     public Result<T> Expires(DateTime expiryDate)
     {
-        _Expires = expiryDate;
+        _expires = expiryDate;
         return this;
     }
 
     /// <inheritdoc />
     public Result<T> Modified(DateTime modificationDate)
     {
-        _Modified = modificationDate;
+        _modified = modificationDate;
         return this;
     }
 
     /// <inheritdoc />
     public Result<T> Cookie(Cookie cookie)
     {
-        (_Cookies ??= []).Add(cookie);
+        (_cookies ??= []).Add(cookie);
 
         return this;
     }
@@ -104,60 +104,60 @@ public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
     /// <inheritdoc />
     public Result<T> Type(FlexibleContentType contentType)
     {
-        _ContentType = contentType;
+        _contentType = contentType;
         return this;
     }
 
     /// <inheritdoc />
     public Result<T> Encoding(string encoding)
     {
-        _Encoding = encoding;
+        _encoding = encoding;
         return this;
     }
 
     void IResultWrapper.Apply(IResponseBuilder builder)
     {
-        if (_Status != null)
+        if (_status != null)
         {
-            var value = _Status.Value;
+            var value = _status.Value;
 
             builder.Status(value.RawStatus, value.Phrase);
         }
 
-        if (_Headers != null)
+        if (_headers != null)
         {
-            foreach (var kv in _Headers)
+            foreach (var kv in _headers)
             {
                 builder.Header(kv.Key, kv.Value);
             }
         }
 
-        if (_Expires != null)
+        if (_expires != null)
         {
-            builder.Expires(_Expires.Value);
+            builder.Expires(_expires.Value);
         }
 
-        if (_Modified != null)
+        if (_modified != null)
         {
-            builder.Modified(_Modified.Value);
+            builder.Modified(_modified.Value);
         }
 
-        if (_Cookies != null)
+        if (_cookies != null)
         {
-            foreach (var cookie in _Cookies)
+            foreach (var cookie in _cookies)
             {
                 builder.Cookie(cookie);
             }
         }
 
-        if (_ContentType is not null)
+        if (_contentType is not null)
         {
-            builder.Type(_ContentType);
+            builder.Type(_contentType);
         }
 
-        if (_Encoding != null)
+        if (_encoding != null)
         {
-            builder.Encoding(_Encoding);
+            builder.Encoding(_encoding);
         }
     }
 

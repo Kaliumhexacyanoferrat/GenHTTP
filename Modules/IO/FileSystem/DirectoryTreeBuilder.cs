@@ -5,19 +5,19 @@ namespace GenHTTP.Modules.IO.FileSystem;
 
 public sealed class DirectoryTreeBuilder : IBuilder<IResourceTree>
 {
-    private DirectoryInfo? _Directory;
+    private DirectoryInfo? _directory;
 
     #region Functionality
 
     public DirectoryTreeBuilder Directory(DirectoryInfo directory)
     {
-        _Directory = directory;
+        _directory = directory;
         return this;
     }
 
     public IResourceTree Build()
     {
-        var directory = _Directory ?? throw new BuilderMissingPropertyException("directory");
+        var directory = _directory ?? throw new BuilderMissingPropertyException("directory");
 
         if (!directory.Exists)
         {

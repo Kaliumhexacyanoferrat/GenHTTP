@@ -89,11 +89,11 @@ internal abstract class EndPoint : IEndPoint
             {
                 Handle(await Socket.AcceptAsync());
             }
-            while (!_ShuttingDown);
+            while (!_shuttingDown);
         }
         catch (Exception e)
         {
-            if (!_ShuttingDown)
+            if (!_shuttingDown)
             {
                 Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, null, e);
             }
@@ -140,13 +140,13 @@ internal abstract class EndPoint : IEndPoint
 
     #region IDisposable Support
 
-    private bool _Disposed, _ShuttingDown;
+    private bool _disposed, _shuttingDown;
 
     protected virtual void Dispose(bool disposing)
     {
-        _ShuttingDown = true;
+        _shuttingDown = true;
 
-        if (!_Disposed)
+        if (!_disposed)
         {
             if (disposing)
             {
@@ -166,7 +166,7 @@ internal abstract class EndPoint : IEndPoint
                 }
             }
 
-            _Disposed = true;
+            _disposed = true;
         }
     }
 

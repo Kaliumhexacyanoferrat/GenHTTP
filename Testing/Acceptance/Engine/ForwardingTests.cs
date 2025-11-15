@@ -84,7 +84,7 @@ public sealed class ForwardingTests
 
     private string ToString(IClientConnection connection)
     {
-        return $"IPAddress = {connection.IPAddress}, Protocol = {connection.Protocol}, Host = {connection.Host}";
+        return $"IPAddress = {connection.IpAddress}, Protocol = {connection.Protocol}, Host = {connection.Host}";
     }
 
     private string ToString(Forwarding forwarding)

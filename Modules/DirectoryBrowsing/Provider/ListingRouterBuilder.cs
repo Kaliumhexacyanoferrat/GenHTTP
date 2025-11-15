@@ -6,15 +6,15 @@ namespace GenHTTP.Modules.DirectoryBrowsing.Provider;
 
 public sealed class ListingRouterBuilder : IHandlerBuilder<ListingRouterBuilder>
 {
-    private readonly List<IConcernBuilder> _Concerns = [];
+    private readonly List<IConcernBuilder> _concerns = [];
 
-    private IResourceTree? _Tree;
+    private IResourceTree? _tree;
 
     #region Functionality
 
     public ListingRouterBuilder Tree(IResourceTree tree)
     {
-        _Tree = tree;
+        _tree = tree;
         return this;
     }
 
@@ -22,15 +22,15 @@ public sealed class ListingRouterBuilder : IHandlerBuilder<ListingRouterBuilder>
 
     public ListingRouterBuilder Add(IConcernBuilder concern)
     {
-        _Concerns.Add(concern);
+        _concerns.Add(concern);
         return this;
     }
 
     public IHandler Build()
     {
-        var tree = _Tree ?? throw new BuilderMissingPropertyException("tree");
+        var tree = _tree ?? throw new BuilderMissingPropertyException("tree");
 
-        return Concerns.Chain(_Concerns,  new ListingRouter( tree));
+        return Concerns.Chain(_concerns,  new ListingRouter( tree));
     }
 
     #endregion

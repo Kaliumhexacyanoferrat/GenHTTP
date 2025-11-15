@@ -15,13 +15,14 @@ namespace GenHTTP.Engine.Internal.Protocol.Parser;
 /// </remarks>
 internal sealed class RequestParser
 {
-    private RequestBuilder? _Builder;
 
     #region Initialization
 
-    internal RequestParser(NetworkConfiguration configuration)
+    internal RequestParser(NetworkConfiguration configuration, Request request)
     {
         Configuration = configuration;
+        Request = request;
+
         Scanner = new RequestScanner();
     }
 
@@ -31,15 +32,15 @@ internal sealed class RequestParser
 
     private NetworkConfiguration Configuration { get; }
 
-    private RequestBuilder Request => _Builder ??= new RequestBuilder();
-
     private RequestScanner Scanner { get; }
+
+    private Request Request { get; }
 
     #endregion
 
     #region Functionality
 
-    internal async ValueTask<RequestBuilder?> TryParseAsync(RequestBuffer buffer)
+    internal async ValueTask<bool> TryParseAsync(RequestBuffer buffer)
     {
         if (!await Type(buffer))
         {
@@ -48,7 +49,7 @@ internal sealed class RequestParser
                 throw new ProtocolException("Unable to read HTTP verb from request line.");
             }
 
-            return null;
+            return false;
         }
 
         await Path(buffer);
@@ -59,10 +60,7 @@ internal sealed class RequestParser
 
         await Body(buffer);
 
-        var result = Request;
-        _Builder = null;
-
-        return result;
+        return true;
     }
 
     private async ValueTask<bool> Type(RequestBuffer buffer)
@@ -71,7 +69,7 @@ internal sealed class RequestParser
 
         if (await Scanner.Next(buffer, RequestToken.Word, true))
         {
-            Request.Type(MethodConverter.ToRequestMethod(Scanner.Value));
+            Request.SetMethod(MethodConverter.ToRequestMethod(Scanner.Value));
             return true;
         }
 
@@ -87,11 +85,11 @@ internal sealed class RequestParser
         // path
         if (token == RequestToken.Path)
         {
-            Request.Path(PathConverter.ToPath(Scanner.Value));
+            Request.SetPath(PathConverter.ToPath(Scanner.Value));
         }
         else if (token == RequestToken.PathWithQuery)
         {
-            Request.Path(PathConverter.ToPath(Scanner.Value));
+            Request.SetPath(PathConverter.ToPath(Scanner.Value));
 
             // query
             Scanner.Mode = ScannerMode.Words;
@@ -102,7 +100,7 @@ internal sealed class RequestParser
 
                 if (query != null)
                 {
-                    Request.Query(query);
+                    Request.SetQuery(query);
                 }
             }
         }
@@ -118,7 +116,7 @@ internal sealed class RequestParser
 
         if (await Scanner.Next(buffer, RequestToken.Word))
         {
-            Request.Protocol(ProtocolConverter.ToProtocol(Scanner.Value));
+            Request.SetProtocol(ProtocolConverter.ToProtocol(Scanner.Value));
         }
     }
 
@@ -134,7 +132,7 @@ internal sealed class RequestParser
 
             if (await Scanner.Next(buffer, RequestToken.Word))
             {
-                Request.Header(key, HeaderConverter.ToValue(Scanner.Value));
+                Request.SetHeader(key, HeaderConverter.ToValue(Scanner.Value));
             }
 
             Scanner.Mode = ScannerMode.HeaderKey;
@@ -151,7 +149,7 @@ internal sealed class RequestParser
                 {
                     var parser = new RequestContentParser(length, Configuration);
 
-                    Request.Content(await parser.GetBody(buffer));
+                    Request.SetContent(await parser.GetBody(buffer));
                 }
             }
             else
@@ -165,7 +163,7 @@ internal sealed class RequestParser
             {
                 var parser = new ChunkedContentParser(Configuration);
 
-                Request.Content(await parser.GetBody(buffer));
+                Request.SetContent(await parser.GetBody(buffer));
             }
         }
     }

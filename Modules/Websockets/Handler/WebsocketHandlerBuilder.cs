@@ -4,23 +4,23 @@ namespace GenHTTP.Modules.Websockets.Handler;
 
 public class WebsocketHandlerBuilder : IHandlerBuilder<WebsocketHandlerBuilder>
 {
-    private readonly List<IConcernBuilder> _Concerns = [];
+    private readonly List<IConcernBuilder> _concerns = [];
 
-    private readonly List<string> _SupportedProtocols = [];
+    private readonly List<string> _supportedProtocols = [];
 
-    private Func<IWebsocketConnection, Task>? _OnOpen;
-    private Func<IWebsocketConnection, Task>? _OnClose;
-    private Func<IWebsocketConnection, string, Task>? _OnMessage;
-    private Func<IWebsocketConnection, byte[], Task>? _OnBinary;
-    private Func<IWebsocketConnection, byte[], Task>? _OnPing;
-    private Func<IWebsocketConnection, byte[], Task>? _OnPong;
-    private Func<IWebsocketConnection, Exception, Task>? _OnError;
+    private Func<IWebsocketConnection, Task>? _onOpen;
+    private Func<IWebsocketConnection, Task>? _onClose;
+    private Func<IWebsocketConnection, string, Task>? _onMessage;
+    private Func<IWebsocketConnection, byte[], Task>? _onBinary;
+    private Func<IWebsocketConnection, byte[], Task>? _onPing;
+    private Func<IWebsocketConnection, byte[], Task>? _onPong;
+    private Func<IWebsocketConnection, Exception, Task>? _onError;
 
     #region Functionality
 
     public WebsocketHandlerBuilder Add(IConcernBuilder concern)
     {
-        _Concerns.Add(concern);
+        _concerns.Add(concern);
         return this;
     }
 
@@ -30,7 +30,7 @@ public class WebsocketHandlerBuilder : IHandlerBuilder<WebsocketHandlerBuilder>
     /// <param name="supportedProtocol">The name of the supported protocol</param>
     public WebsocketHandlerBuilder Protocol(string supportedProtocol)
     {
-        _SupportedProtocols.Add(supportedProtocol);
+        _supportedProtocols.Add(supportedProtocol);
         return this;
     }
 
@@ -40,7 +40,7 @@ public class WebsocketHandlerBuilder : IHandlerBuilder<WebsocketHandlerBuilder>
     /// <param name="handler">The method to be executed</param>
     public WebsocketHandlerBuilder OnOpen(Func<IWebsocketConnection, Task> handler)
     {
-        _OnOpen = handler;
+        _onOpen = handler;
         return this;
     }
 
@@ -50,7 +50,7 @@ public class WebsocketHandlerBuilder : IHandlerBuilder<WebsocketHandlerBuilder>
     /// <param name="handler">The method to be executed</param>
     public WebsocketHandlerBuilder OnClose(Func<IWebsocketConnection, Task> handler)
     {
-        _OnClose = handler;
+        _onClose = handler;
         return this;
     }
 
@@ -60,7 +60,7 @@ public class WebsocketHandlerBuilder : IHandlerBuilder<WebsocketHandlerBuilder>
     /// <param name="handler">The method to be executed</param>
     public WebsocketHandlerBuilder OnMessage(Func<IWebsocketConnection, string, Task> handler)
     {
-        _OnMessage = handler;
+        _onMessage = handler;
         return this;
     }
 
@@ -70,7 +70,7 @@ public class WebsocketHandlerBuilder : IHandlerBuilder<WebsocketHandlerBuilder>
     /// <param name="handler">The method to be executed</param>
     public WebsocketHandlerBuilder OnBinary(Func<IWebsocketConnection, byte[], Task> handler)
     {
-        _OnBinary = handler;
+        _onBinary = handler;
         return this;
     }
 
@@ -80,7 +80,7 @@ public class WebsocketHandlerBuilder : IHandlerBuilder<WebsocketHandlerBuilder>
     /// <param name="handler">The method to be executed</param>
     public WebsocketHandlerBuilder OnPing(Func<IWebsocketConnection, byte[], Task> handler)
     {
-        _OnPing = handler;
+        _onPing = handler;
         return this;
     }
 
@@ -90,7 +90,7 @@ public class WebsocketHandlerBuilder : IHandlerBuilder<WebsocketHandlerBuilder>
     /// <param name="handler">The method to be executed</param>
     public WebsocketHandlerBuilder OnPong(Func<IWebsocketConnection, byte[], Task> handler)
     {
-        _OnPong = handler;
+        _onPong = handler;
         return this;
     }
 
@@ -100,13 +100,13 @@ public class WebsocketHandlerBuilder : IHandlerBuilder<WebsocketHandlerBuilder>
     /// <param name="handler">The method to be executed</param>
     public WebsocketHandlerBuilder OnError(Func<IWebsocketConnection, Exception, Task> handler)
     {
-        _OnError = handler;
+        _onError = handler;
         return this;
     }
 
     public IHandler Build()
     {
-        return Concerns.Chain(_Concerns, new WebsocketHandler(_SupportedProtocols, _OnOpen, _OnClose, _OnMessage, _OnBinary, _OnPing, _OnPong, _OnError));
+        return Concerns.Chain(_concerns, new WebsocketHandler(_supportedProtocols, _onOpen, _onClose, _onMessage, _onBinary, _onPing, _onPong, _onError));
     }
 
     #endregion

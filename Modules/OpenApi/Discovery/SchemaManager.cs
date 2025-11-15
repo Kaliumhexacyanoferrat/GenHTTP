@@ -8,9 +8,9 @@ namespace GenHTTP.Modules.OpenApi.Discovery;
 
 public sealed class SchemaManager
 {
-    private readonly JsonSchemaGenerator _Generator;
+    private readonly JsonSchemaGenerator _generator;
 
-    private readonly OpenApiSchemaResolver _Resolver;
+    private readonly OpenApiSchemaResolver _resolver;
 
     internal SchemaManager(OpenApiDocument document)
     {
@@ -20,8 +20,8 @@ public sealed class SchemaManager
             AllowReferencesWithProperties = true
         };
 
-        _Generator = new JsonSchemaGenerator(settings);
-        _Resolver = new OpenApiSchemaResolver(document, settings);
+        _generator = new JsonSchemaGenerator(settings);
+        _resolver = new OpenApiSchemaResolver(document, settings);
     }
 
     /// <summary>
@@ -29,6 +29,6 @@ public sealed class SchemaManager
     /// </summary>
     /// <param name="type">The type to generate a schema for</param>
     /// <returns>The generated or retrieved JSON schema</returns>
-    public JsonSchema GetOrCreateSchema(Type type) => _Generator.GenerateWithReferenceAndNullability<JsonSchema>(type.ToContextualType(), false, _Resolver);
+    public JsonSchema GetOrCreateSchema(Type type) => _generator.GenerateWithReferenceAndNullability<JsonSchema>(type.ToContextualType(), false, _resolver);
 
 }

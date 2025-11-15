@@ -7,7 +7,7 @@ namespace GenHTTP.Modules.Authentication.Bearer;
 
 public sealed class BearerAuthenticationConcernBuilder : IConcernBuilder
 {
-    private readonly TokenValidationOptions _Options = new();
+    private readonly TokenValidationOptions _options = new();
 
     #region Functionality
 
@@ -23,7 +23,7 @@ public sealed class BearerAuthenticationConcernBuilder : IConcernBuilder
     /// </remarks>
     public BearerAuthenticationConcernBuilder Issuer(string issuer)
     {
-        _Options.Issuer = issuer;
+        _options.Issuer = issuer;
         return this;
     }
 
@@ -33,7 +33,7 @@ public sealed class BearerAuthenticationConcernBuilder : IConcernBuilder
     /// <param name="audience">The audience to check for</param>
     public BearerAuthenticationConcernBuilder Audience(string audience)
     {
-        _Options.Audience = audience;
+        _options.Audience = audience;
         return this;
     }
 
@@ -50,7 +50,7 @@ public sealed class BearerAuthenticationConcernBuilder : IConcernBuilder
     /// </remarks>
     public BearerAuthenticationConcernBuilder Validation(Func<JwtSecurityToken, Task> validator)
     {
-        _Options.CustomValidator = validator;
+        _options.CustomValidator = validator;
         return this;
     }
 
@@ -67,7 +67,7 @@ public sealed class BearerAuthenticationConcernBuilder : IConcernBuilder
     /// </remarks>
     public BearerAuthenticationConcernBuilder UserMapping(Func<IRequest, JwtSecurityToken, ValueTask<IUser?>> userMapping)
     {
-        _Options.UserMapping = userMapping;
+        _options.UserMapping = userMapping;
         return this;
     }
 
@@ -77,11 +77,11 @@ public sealed class BearerAuthenticationConcernBuilder : IConcernBuilder
     /// </summary>
     public BearerAuthenticationConcernBuilder AllowExpired()
     {
-        _Options.Lifetime = false;
+        _options.Lifetime = false;
         return this;
     }
 
-    public IConcern Build(IHandler content) => new BearerAuthenticationConcern(content, _Options);
+    public IConcern Build(IHandler content) => new BearerAuthenticationConcern(content, _options);
 
     #endregion
 

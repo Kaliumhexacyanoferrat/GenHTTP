@@ -10,7 +10,7 @@ public sealed class ConsoleCompanion : IServerCompanion
 
     public void OnRequestHandled(IRequest request, IResponse response)
     {
-        Console.WriteLine($"REQ - {request.Client.IPAddress} - {request.Method.RawMethod} {request.Target.Path} - {response.Status.RawStatus} - {response.ContentLength ?? 0}");
+        Console.WriteLine($"REQ - {request.Client.IpAddress} - {request.Method.RawMethod} {request.Target.Path} - {response.Status.RawStatus} - {response.ContentLength ?? 0}");
     }
 
     public void OnServerError(ServerErrorScope scope, IPAddress? client, Exception error)

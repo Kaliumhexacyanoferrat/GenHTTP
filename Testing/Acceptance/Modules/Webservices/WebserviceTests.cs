@@ -28,7 +28,7 @@ public sealed class WebserviceTests
     public sealed class TestEntity
     {
 
-        public int ID { get; set; }
+        public int Id { get; set; }
 
         public double? Nullable { get; set; }
 
@@ -245,7 +245,7 @@ public sealed class WebserviceTests
 
             Assert.IsNotNull(result);
 
-            Assert.AreEqual(1, result.ID);
+            Assert.AreEqual(1, result.Id);
             Assert.AreEqual(1234.56, result.Nullable);
         });
     }
@@ -272,7 +272,7 @@ public sealed class WebserviceTests
 
             Assert.IsNotNull(result);
 
-            Assert.AreEqual(1, result.ID);
+            Assert.AreEqual(1, result.Id);
             Assert.AreEqual(1234.56, result.Nullable);
         });
     }

@@ -17,7 +17,7 @@ public class ApplicationTests
         var app = Layout.Create()
                         .Add(Inline.Create().Get(() => 42))
                         .AddOpenApi()
-                        .AddSwaggerUI();
+                        .AddSwaggerUi();
 
         await using var host = await TestHost.RunAsync(app, engine: engine);
 

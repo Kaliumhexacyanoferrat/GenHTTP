@@ -8,13 +8,13 @@ namespace GenHTTP.Engine.Internal.Infrastructure;
 
 internal sealed class ThreadedServer : IServer
 {
-    private readonly EndPointCollection _EndPoints;
+    private readonly EndPointCollection _endPoints;
 
     #region Get-/Setters
 
     public string Version { get; }
 
-    public bool Running => !_Disposed;
+    public bool Running => !_disposed;
 
     public bool Development => Configuration.DevelopmentMode;
 
@@ -22,7 +22,7 @@ internal sealed class ThreadedServer : IServer
 
     public IServerCompanion? Companion { get; }
 
-    public IEndPointCollection EndPoints => _EndPoints;
+    public IEndPointCollection EndPoints => _endPoints;
 
     internal ServerConfiguration Configuration { get; }
 
@@ -39,7 +39,7 @@ internal sealed class ThreadedServer : IServer
 
         Handler = handler;
 
-        _EndPoints = new EndPointCollection(this, configuration.EndPoints, configuration.Network);
+        _endPoints = new EndPointCollection(this, configuration.EndPoints, configuration.Network);
     }
 
     private static async ValueTask PrepareHandlerAsync(IHandler handler, IServerCompanion? companion)
@@ -62,22 +62,22 @@ internal sealed class ThreadedServer : IServer
     {
         await PrepareHandlerAsync(Handler, Companion);
 
-        _EndPoints.Start();
+        _endPoints.Start();
     }
 
     #endregion
 
     #region IDisposable Support
 
-    private bool _Disposed;
+    private bool _disposed;
 
     public ValueTask DisposeAsync()
     {
-        if (!_Disposed)
+        if (!_disposed)
         {
-            _EndPoints.Dispose();
+            _endPoints.Dispose();
 
-            _Disposed = true;
+            _disposed = true;
         }
 
         return new();

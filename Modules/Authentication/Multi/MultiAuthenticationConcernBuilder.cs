@@ -14,7 +14,7 @@ public sealed class MultiAuthenticationConcernBuilder : IConcernBuilder
 {
     #region Fields
 
-    private readonly List<IConcernBuilder> _DelegatingConcernsBuilders = [];
+    private readonly List<IConcernBuilder> _delegatingConcernsBuilders = [];
 
     #endregion
 
@@ -24,7 +24,7 @@ public sealed class MultiAuthenticationConcernBuilder : IConcernBuilder
     {
         if (concernBuilder == null) return this;
 
-        _DelegatingConcernsBuilders.Add(concernBuilder);
+        _delegatingConcernsBuilders.Add(concernBuilder);
         return this;
     }
 
@@ -74,7 +74,7 @@ public sealed class MultiAuthenticationConcernBuilder : IConcernBuilder
     /// <returns></returns>
     public IConcern Build(IHandler content)
     {
-        var delegatingConcerns = _DelegatingConcernsBuilders.Select(x => x.Build(content)).ToArray();
+        var delegatingConcerns = _delegatingConcernsBuilders.Select(x => x.Build(content)).ToArray();
         if (delegatingConcerns.Length == 0) throw new BuilderMissingPropertyException("Concerns");
 
         return new MultiAuthenticationConcern(

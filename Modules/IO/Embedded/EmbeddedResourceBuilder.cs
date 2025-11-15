@@ -8,57 +8,57 @@ namespace GenHTTP.Modules.IO.Embedded;
 
 public sealed class EmbeddedResourceBuilder : IResourceBuilder<EmbeddedResourceBuilder>
 {
-    private Assembly? _Assembly;
+    private Assembly? _assembly;
 
-    private DateTime? _Modified;
+    private DateTime? _modified;
 
-    private string? _Path, _Name;
+    private string? _path, _name;
 
-    private FlexibleContentType? _Type;
+    private FlexibleContentType? _type;
 
     #region Functionality
 
     public EmbeddedResourceBuilder Assembly(Assembly assembly)
     {
-        _Assembly = assembly;
+        _assembly = assembly;
         return this;
     }
 
     public EmbeddedResourceBuilder Path(string name)
     {
-        _Path = name;
+        _path = name;
         return this;
     }
 
     public EmbeddedResourceBuilder Name(string name)
     {
-        _Name = name;
+        _name = name;
         return this;
     }
 
     public EmbeddedResourceBuilder Type(FlexibleContentType contentType)
     {
-        _Type = contentType;
+        _type = contentType;
         return this;
     }
 
     public EmbeddedResourceBuilder Modified(DateTime modified)
     {
-        _Modified = modified;
+        _modified = modified;
         return this;
     }
 
     public IResource Build()
     {
-        var path = _Path ?? throw new BuilderMissingPropertyException("path");
+        var path = _path ?? throw new BuilderMissingPropertyException("path");
 
-        var assembly = _Assembly ?? System.Reflection.Assembly.GetCallingAssembly();
+        var assembly = _assembly ?? System.Reflection.Assembly.GetCallingAssembly();
 
-        var modified = _Modified ?? assembly.GetModificationDate();
+        var modified = _modified ?? assembly.GetModificationDate();
 
-        var type = _Type ?? FlexibleContentType.Get(path.GuessContentType() ?? ContentType.ApplicationForceDownload);
+        var type = _type ?? FlexibleContentType.Get(path.GuessContentType() ?? ContentType.ApplicationForceDownload);
 
-        return new EmbeddedResource(assembly, path, _Name, type, modified);
+        return new EmbeddedResource(assembly, path, _name, type, modified);
     }
 
     #endregion

@@ -10,7 +10,7 @@ internal record ReturnDocument(OpenApiDocument Document, ulong Checksum);
 
 public sealed class OpenApiConcern : IConcern
 {
-    private ReturnDocument? _Cached;
+    private ReturnDocument? _cached;
 
     #region Get-/Setters
 
@@ -98,9 +98,9 @@ public sealed class OpenApiConcern : IConcern
 
     private async ValueTask<ReturnDocument> DiscoverAsync(IRequest request, ApiDiscoveryRegistry registry)
     {
-        if (EnableCaching && _Cached != null)
+        if (EnableCaching && _cached != null)
         {
-            return _Cached;
+            return _cached;
         }
 
         var document = new OpenApiDocument();
@@ -125,8 +125,8 @@ public sealed class OpenApiConcern : IConcern
 
         if (EnableCaching)
         {
-            _Cached = new (document, GetChecksum(document));
-            return _Cached;
+            _cached = new (document, GetChecksum(document));
+            return _cached;
         }
 
         return new (document, GetChecksum(document));

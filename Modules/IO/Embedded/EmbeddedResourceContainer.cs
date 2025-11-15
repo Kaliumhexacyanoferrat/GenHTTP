@@ -5,9 +5,9 @@ namespace GenHTTP.Modules.IO.Embedded;
 
 internal class EmbeddedResourceContainer : IResourceContainer
 {
-    private readonly Dictionary<string, IResourceNode> _Nodes = new();
+    private readonly Dictionary<string, IResourceNode> _nodes = new();
 
-    private readonly Dictionary<string, IResource> _Resources = new();
+    private readonly Dictionary<string, IResource> _resources = new();
 
     #region Initialization
 
@@ -31,19 +31,19 @@ internal class EmbeddedResourceContainer : IResourceContainer
                                        .Name(remainder)
                                        .Build();
 
-                    _Resources.Add(remainder, file);
+                    _resources.Add(remainder, file);
                 }
                 else
                 {
                     var childName = parts[0];
 
-                    if (!_Nodes.ContainsKey(childName))
+                    if (!_nodes.ContainsKey(childName))
                     {
                         var childPrefix = $"{prefix}.{childName}";
 
                         var node = new EmbeddedResourceNode(source, childPrefix, this, childName);
 
-                        _Nodes.Add(childName, node);
+                        _nodes.Add(childName, node);
                     }
                 }
             }
@@ -61,13 +61,13 @@ internal class EmbeddedResourceContainer : IResourceContainer
 
     #region Functionality
 
-    public ValueTask<IReadOnlyCollection<IResourceNode>> GetNodes() => new(_Nodes.Values);
+    public ValueTask<IReadOnlyCollection<IResourceNode>> GetNodes() => new(_nodes.Values);
 
-    public ValueTask<IReadOnlyCollection<IResource>> GetResources() => new(_Resources.Values);
+    public ValueTask<IReadOnlyCollection<IResource>> GetResources() => new(_resources.Values);
 
-    public ValueTask<IResourceNode?> TryGetNodeAsync(string name) => new(_Nodes.GetValueOrDefault(name));
+    public ValueTask<IResourceNode?> TryGetNodeAsync(string name) => new(_nodes.GetValueOrDefault(name));
 
-    public ValueTask<IResource?> TryGetResourceAsync(string name) => new(_Resources.GetValueOrDefault(name));
+    public ValueTask<IResource?> TryGetResourceAsync(string name) => new(_resources.GetValueOrDefault(name));
 
     #endregion
 

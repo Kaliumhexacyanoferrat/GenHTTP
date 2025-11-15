@@ -5,7 +5,7 @@ namespace GenHTTP.Modules.Pages.Rendering;
 
 public class TemplateRenderer
 {
-    private IDocument? _Document;
+    private IDocument? _document;
 
     public TemplateRenderer(ChangeTrackingResource template)
     {
@@ -21,13 +21,13 @@ public class TemplateRenderer
     /// <returns>The generated response</returns>
     public async ValueTask<string> RenderAsync(IReadOnlyDictionary<Value, Value> model)
     {
-        if (_Document == null || await Template.HasChanged())
+        if (_document == null || await Template.HasChanged())
         {
             using var reader = new StreamReader(await Template.GetContentAsync());
 
-            _Document = Document.CreateDefault(reader).DocumentOrThrow;
+            _document = Document.CreateDefault(reader).DocumentOrThrow;
         }
 
-        return _Document.Render(Context.CreateBuiltin(model));
+        return _document.Render(Context.CreateBuiltin(model));
     }
 }

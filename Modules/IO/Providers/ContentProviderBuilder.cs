@@ -6,29 +6,29 @@ namespace GenHTTP.Modules.IO.Providers;
 
 public sealed class ContentProviderBuilder : IHandlerBuilder<ContentProviderBuilder>
 {
-    private readonly List<IConcernBuilder> _Concerns = [];
+    private readonly List<IConcernBuilder> _concerns = [];
 
-    private IResource? _ResourceProvider;
+    private IResource? _resourceProvider;
 
     #region Functionality
 
     public ContentProviderBuilder Resource(IResource resource)
     {
-        _ResourceProvider = resource;
+        _resourceProvider = resource;
         return this;
     }
 
     public ContentProviderBuilder Add(IConcernBuilder concern)
     {
-        _Concerns.Add(concern);
+        _concerns.Add(concern);
         return this;
     }
 
     public IHandler Build()
     {
-        var resource = _ResourceProvider ?? throw new BuilderMissingPropertyException("resourceProvider");
+        var resource = _resourceProvider ?? throw new BuilderMissingPropertyException("resourceProvider");
 
-        return Concerns.Chain(_Concerns,  new ContentProvider(resource));
+        return Concerns.Chain(_concerns,  new ContentProvider(resource));
     }
 
     #endregion

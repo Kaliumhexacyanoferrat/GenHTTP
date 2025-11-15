@@ -5,7 +5,7 @@ namespace GenHTTP.Modules.ReverseProxy.Provider;
 
 internal sealed class ClientResponseContent(HttpResponseMessage message) : IResponseContent, IDisposable
 {
-    private bool _Disposed;
+    private bool _disposed;
 
     #region Get/Setters
 
@@ -45,14 +45,14 @@ internal sealed class ClientResponseContent(HttpResponseMessage message) : IResp
 
     private void Dispose(bool disposing)
     {
-        if (!_Disposed)
+        if (!_disposed)
         {
             if (disposing)
             {
                 Message.Dispose();
             }
 
-            _Disposed = true;
+            _disposed = true;
         }
     }
 

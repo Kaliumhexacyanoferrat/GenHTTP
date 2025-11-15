@@ -5,9 +5,9 @@ namespace GenHTTP.Modules.Security.Cors;
 
 public sealed class CorsPolicyBuilder : IConcernBuilder
 {
-    private readonly Dictionary<string, OriginPolicy?> _AdditionalPolicies = new(4);
+    private readonly Dictionary<string, OriginPolicy?> _additionalPolicies = new(4);
 
-    private OriginPolicy? _DefaultPolicy;
+    private OriginPolicy? _defaultPolicy;
 
     #region Functionality
 
@@ -18,7 +18,7 @@ public sealed class CorsPolicyBuilder : IConcernBuilder
     /// <returns></returns>
     public CorsPolicyBuilder Default(OriginPolicy? policy)
     {
-        _DefaultPolicy = policy;
+        _defaultPolicy = policy;
         return this;
     }
 
@@ -29,7 +29,7 @@ public sealed class CorsPolicyBuilder : IConcernBuilder
     /// <param name="policy">The policy to be applied (if not set, access will be denied)</param>
     public CorsPolicyBuilder Add(string origin, OriginPolicy? policy)
     {
-        _AdditionalPolicies[origin] = policy;
+        _additionalPolicies[origin] = policy;
         return this;
     }
 
@@ -45,7 +45,7 @@ public sealed class CorsPolicyBuilder : IConcernBuilder
     public CorsPolicyBuilder Add(string origin, List<FlexibleRequestMethod>? allowedMethods, List<string>? allowedHeaders,
         List<string>? exposedHeaders, bool allowCredentials, uint maxAge = 86400) => Add(origin, new OriginPolicy(allowedMethods, allowedHeaders, exposedHeaders, allowCredentials, maxAge));
 
-    public IConcern Build(IHandler content) => new CorsPolicyHandler(content, _DefaultPolicy, _AdditionalPolicies);
+    public IConcern Build(IHandler content) => new CorsPolicyHandler(content, _defaultPolicy, _additionalPolicies);
 
     #endregion
 

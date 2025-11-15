@@ -16,7 +16,7 @@ public class HandlerTests
     [MultiEngineTest]
     public async Task TestGetOnly(TestEngine engine)
     {
-        await using var host = await TestHost.RunAsync(GetApi().AddSwaggerUI(), engine: engine);
+        await using var host = await TestHost.RunAsync(GetApi().AddSwaggerUi(), engine: engine);
 
         var request = host.GetRequest("/swagger");
 
@@ -34,7 +34,7 @@ public class HandlerTests
     [MultiEngineTest]
     public async Task TestResourceAccess(TestEngine engine)
     {
-        await using var host = await TestHost.RunAsync(GetApi().AddSwaggerUI(), engine: engine);
+        await using var host = await TestHost.RunAsync(GetApi().AddSwaggerUi(), engine: engine);
 
         using var response = await host.GetResponseAsync("/swagger/static/swagger-ui.css");
 
@@ -45,7 +45,7 @@ public class HandlerTests
     [MultiEngineTest]
     public async Task TestNotFound(TestEngine engine)
     {
-        await using var host = await TestHost.RunAsync(GetApi().AddSwaggerUI(), engine: engine);
+        await using var host = await TestHost.RunAsync(GetApi().AddSwaggerUi(), engine: engine);
 
         using var response = await host.GetResponseAsync("/swagger/notfound");
 
@@ -56,7 +56,7 @@ public class HandlerTests
     [MultiEngineTest]
     public async Task TestCustomMeta(TestEngine engine)
     {
-        var api = GetApi().AddSwaggerUI("docs", "https://localhost:5001/swagger.json", "My API");
+        var api = GetApi().AddSwaggerUi("docs", "https://localhost:5001/swagger.json", "My API");
 
         await using var host = await TestHost.RunAsync(api, engine: engine);
 

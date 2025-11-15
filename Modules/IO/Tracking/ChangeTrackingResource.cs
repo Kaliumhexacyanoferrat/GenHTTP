@@ -5,7 +5,7 @@ namespace GenHTTP.Modules.IO.Tracking;
 
 public sealed class ChangeTrackingResource : IResource
 {
-    private ulong? _LastChecksum;
+    private ulong? _lastChecksum;
 
     #region Initialization
 
@@ -34,14 +34,14 @@ public sealed class ChangeTrackingResource : IResource
 
     public async ValueTask<Stream> GetContentAsync()
     {
-        _LastChecksum = await CalculateChecksumAsync();
+        _lastChecksum = await CalculateChecksumAsync();
 
         return await Source.GetContentAsync();
     }
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
-        _LastChecksum = await CalculateChecksumAsync();
+        _lastChecksum = await CalculateChecksumAsync();
 
         await Source.WriteAsync(target, bufferSize);
     }
@@ -53,7 +53,7 @@ public sealed class ChangeTrackingResource : IResource
     /// since <see cref="GetContentAsync()" /> has been called
     /// the last time.
     /// </summary>
-    public async ValueTask<bool> HasChanged() => await CalculateChecksumAsync() != _LastChecksum;
+    public async ValueTask<bool> HasChanged() => await CalculateChecksumAsync() != _lastChecksum;
 
     #endregion
 

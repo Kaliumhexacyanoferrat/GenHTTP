@@ -37,14 +37,14 @@ public class ConcernTests
 
     private class DynamicConcernBuilder : IConcernBuilder
     {
-        private readonly Action _Logic;
+        private readonly Action _logic;
 
         public DynamicConcernBuilder(Action logic)
         {
-            _Logic = logic;
+            _logic = logic;
         }
 
-        public IConcern Build(IHandler content) => new DynamicConcern(content, _Logic);
+        public IConcern Build(IHandler content) => new DynamicConcern(content, _logic);
 
     }
 

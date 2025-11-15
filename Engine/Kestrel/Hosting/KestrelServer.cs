@@ -152,17 +152,17 @@ internal sealed class KestrelServer : IServer
 
     #region Lifecycle
 
-    private bool _Disposed;
+    private bool _disposed;
 
     public async ValueTask DisposeAsync()
     {
-        if (!_Disposed)
+        if (!_disposed)
         {
             await Application.StopAsync();
 
             await Application.DisposeAsync();
 
-            _Disposed = true;
+            _disposed = true;
         }
     }
 

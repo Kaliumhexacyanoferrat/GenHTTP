@@ -7,11 +7,11 @@ namespace GenHTTP.Modules.OpenApi.Handler;
 
 public sealed class OpenApiConcernBuilder : IConcernBuilder
 {
-    private bool _Caching = true;
+    private bool _caching = true;
 
-    private Action<IRequest, OpenApiDocument>? _PostProcessor;
+    private Action<IRequest, OpenApiDocument>? _postProcessor;
 
-    private string? _Title, _Version;
+    private string? _title, _version;
 
     #region Initialization
 
@@ -36,7 +36,7 @@ public sealed class OpenApiConcernBuilder : IConcernBuilder
     /// <param name="title">The title of the API</param>
     public OpenApiConcernBuilder Title(string title)
     {
-        _Title = title;
+        _title = title;
         return this;
     }
 
@@ -46,7 +46,7 @@ public sealed class OpenApiConcernBuilder : IConcernBuilder
     /// <param name="version">The version of the API</param>
     public OpenApiConcernBuilder Version(string version)
     {
-        _Version = version;
+        _version = version;
         return this;
     }
 
@@ -57,7 +57,7 @@ public sealed class OpenApiConcernBuilder : IConcernBuilder
     /// <param name="enabled">Whether to use caching or not</param>
     public OpenApiConcernBuilder Caching(bool enabled)
     {
-        _Caching = enabled;
+        _caching = enabled;
         return this;
     }
 
@@ -68,25 +68,25 @@ public sealed class OpenApiConcernBuilder : IConcernBuilder
     /// <param name="action">The method to be invoked to adjust the generated document</param>
     public OpenApiConcernBuilder PostProcessor(Action<IRequest, OpenApiDocument> action)
     {
-        _PostProcessor = action;
+        _postProcessor = action;
         return this;
     }
 
-    public IConcern Build(IHandler content) => new OpenApiConcern(content, Discovery, _Caching, DoPostProcessing);
+    public IConcern Build(IHandler content) => new OpenApiConcern(content, Discovery, _caching, DoPostProcessing);
 
     private void DoPostProcessing(IRequest request, OpenApiDocument document)
     {
-        if (_Title != null)
+        if (_title != null)
         {
-            document.Info.Title = _Title;
+            document.Info.Title = _title;
         }
 
-        if (_Version != null)
+        if (_version != null)
         {
-            document.Info.Version = _Version;
+            document.Info.Version = _version;
         }
 
-        _PostProcessor?.Invoke(request, document);
+        _postProcessor?.Invoke(request, document);
     }
 
     #endregion

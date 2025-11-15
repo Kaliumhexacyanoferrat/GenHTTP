@@ -32,7 +32,7 @@ public sealed class Request : IRequest
     public IServer Server { get; }
 
     public IEndPoint EndPoint { get; }
-    
+
     public IClientConnection Client { get; }
 
     public IClientConnection LocalClient { get; }
@@ -118,7 +118,7 @@ public sealed class Request : IRequest
 
     #region Functionality
 
-    public IResponseBuilder Respond() => new ResponseBuilder().Status(ResponseStatus.Ok);
+    public IResponseBuilder Respond() => new ResponseBuilder(new ()).Status(ResponseStatus.Ok); // todo
 
     public UpgradeInfo Upgrade() => throw new NotSupportedException("Web sockets are not supported by the Kestrel server implementation");
 

@@ -7,9 +7,9 @@ namespace GenHTTP.Modules.Authentication.ApiKey;
 
 public sealed class ApiKeyConcernBuilder : IConcernBuilder
 {
-    private Func<IRequest, string, ValueTask<IUser?>>? _Authenticator;
+    private Func<IRequest, string, ValueTask<IUser?>>? _authenticator;
 
-    private Func<IRequest, string?>? _KeyExtractor = request => request.Headers.GetValueOrDefault("X-API-Key");
+    private Func<IRequest, string?>? _keyExtractor = request => request.Headers.GetValueOrDefault("X-API-Key");
 
     #region Functionality
 
@@ -20,7 +20,7 @@ public sealed class ApiKeyConcernBuilder : IConcernBuilder
     /// <param name="keyExtractor">The logic to be executed to fetch an API key from a request</param>
     public ApiKeyConcernBuilder Extractor(Func<IRequest, string?> keyExtractor)
     {
-        _KeyExtractor = keyExtractor;
+        _keyExtractor = keyExtractor;
         return this;
     }
 
@@ -31,7 +31,7 @@ public sealed class ApiKeyConcernBuilder : IConcernBuilder
     /// <param name="headerName">The name of the header to be read from the request</param>
     public ApiKeyConcernBuilder WithHeader(string headerName)
     {
-        _KeyExtractor = request => request.Headers.GetValueOrDefault(headerName);
+        _keyExtractor = request => request.Headers.GetValueOrDefault(headerName);
         return this;
     }
 
@@ -42,7 +42,7 @@ public sealed class ApiKeyConcernBuilder : IConcernBuilder
     /// <param name="headerName">The name of the query parameter to be read from the request</param>
     public ApiKeyConcernBuilder WithQueryParameter(string parameter)
     {
-        _KeyExtractor = request => request.Query.GetValueOrDefault(parameter);
+        _keyExtractor = request => request.Query.GetValueOrDefault(parameter);
         return this;
     }
 
@@ -53,7 +53,7 @@ public sealed class ApiKeyConcernBuilder : IConcernBuilder
     /// <param name="authenticator">The logic to be executed to authenticate a request</param>
     public ApiKeyConcernBuilder Authenticator(Func<IRequest, string, ValueTask<IUser?>> authenticator)
     {
-        _Authenticator = authenticator;
+        _authenticator = authenticator;
         return this;
     }
 
@@ -65,16 +65,16 @@ public sealed class ApiKeyConcernBuilder : IConcernBuilder
     {
         var keySet = new HashSet<string>(allowedKeys);
 
-        _Authenticator = (_, key) => keySet.Contains(key) ? new ValueTask<IUser?>(new ApiKeyUser(key)) : new ValueTask<IUser?>();
+        _authenticator = (_, key) => keySet.Contains(key) ? new ValueTask<IUser?>(new ApiKeyUser(key)) : new ValueTask<IUser?>();
 
         return this;
     }
 
     public IConcern Build(IHandler content)
     {
-        var keyExtractor = _KeyExtractor ?? throw new BuilderMissingPropertyException("KeyExtractor");
+        var keyExtractor = _keyExtractor ?? throw new BuilderMissingPropertyException("KeyExtractor");
 
-        var authenticator = _Authenticator ?? throw new BuilderMissingPropertyException("Authenticator");
+        var authenticator = _authenticator ?? throw new BuilderMissingPropertyException("Authenticator");
 
         return new ApiKeyConcern(content, keyExtractor, authenticator);
     }

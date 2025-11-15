@@ -5,9 +5,9 @@ namespace GenHTTP.Modules.IO.VirtualTrees;
 
 public sealed class VirtualTreeBuilder : IBuilder<IResourceTree>
 {
-    private readonly Dictionary<string, Func<IResourceContainer, IResourceNode>> _Nodes = new();
+    private readonly Dictionary<string, Func<IResourceContainer, IResourceNode>> _nodes = new();
 
-    private readonly Dictionary<string, IResource> _Resources = new();
+    private readonly Dictionary<string, IResource> _resources = new();
 
     #region Functionality
 
@@ -18,7 +18,7 @@ public sealed class VirtualTreeBuilder : IBuilder<IResourceTree>
     /// <param name="container">The container to be added</param>
     public VirtualTreeBuilder Add(string name, IResourceContainer container)
     {
-        _Nodes.Add(name, p => new VirtualNode(p, name, container));
+        _nodes.Add(name, p => new VirtualNode(p, name, container));
         return this;
     }
 
@@ -36,7 +36,7 @@ public sealed class VirtualTreeBuilder : IBuilder<IResourceTree>
     /// <param name="resource">The resource to be added</param>
     public VirtualTreeBuilder Add(string name, IResource resource)
     {
-        _Resources.Add(name, resource);
+        _resources.Add(name, resource);
         return this;
     }
 
@@ -47,11 +47,11 @@ public sealed class VirtualTreeBuilder : IBuilder<IResourceTree>
     /// <param name="resource">The resource to be added</param>
     public VirtualTreeBuilder Add(string name, IBuilder<IResource> resource)
     {
-        _Resources.Add(name, resource.Build());
+        _resources.Add(name, resource.Build());
         return this;
     }
 
-    public IResourceTree Build() => new VirtualTree(_Nodes, _Resources);
+    public IResourceTree Build() => new VirtualTree(_nodes, _resources);
 
     #endregion
 

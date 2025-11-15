@@ -10,45 +10,45 @@ namespace GenHTTP.Modules.ServerSentEvents.Handler;
 
 public sealed class EventSourceHandlerBuilder : IHandlerBuilder<EventSourceHandlerBuilder>
 {
-    private readonly List<IConcernBuilder> _Concerns = [];
+    private readonly List<IConcernBuilder> _concerns = [];
 
-    private FormatterBuilder _Formatters = Conv.Formatting.Default();
+    private FormatterBuilder _formatters = Conv.Formatting.Default();
 
-    private Func<IRequest, string?, ValueTask<bool>>? _Inspector;
+    private Func<IRequest, string?, ValueTask<bool>>? _inspector;
 
-    private Func<IEventConnection, ValueTask>? _Generator;
+    private Func<IEventConnection, ValueTask>? _generator;
 
     #region Functionality
 
     public EventSourceHandlerBuilder Inspector(Func<IRequest, string?, ValueTask<bool>> inspector)
     {
-        _Inspector = inspector;
+        _inspector = inspector;
         return this;
     }
 
     public EventSourceHandlerBuilder Generator(Func<IEventConnection, ValueTask> generator)
     {
-        _Generator = generator;
+        _generator = generator;
         return this;
     }
 
     public EventSourceHandlerBuilder Formatting(FormatterBuilder formatters)
     {
-        _Formatters = formatters;
+        _formatters = formatters;
         return this;
     }
 
     public EventSourceHandlerBuilder Add(IConcernBuilder concern)
     {
-        _Concerns.Add(concern);
+        _concerns.Add(concern);
         return this;
     }
 
     public IHandler Build()
     {
-        var generator = _Generator ?? throw new BuilderMissingPropertyException("Generator");
+        var generator = _generator ?? throw new BuilderMissingPropertyException("Generator");
 
-        return Concerns.Chain(_Concerns, new EventSourceHandler( _Inspector, generator, _Formatters.Build()));
+        return Concerns.Chain(_concerns, new EventSourceHandler( _inspector, generator, _formatters.Build()));
     }
 
     #endregion

@@ -5,4 +5,4 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Shared.Types;
 
-public record ClientConnection(IPAddress IPAddress, ClientProtocol? Protocol, string? Host, X509Certificate? Certificate) : IClientConnection;
+public record ClientConnection(IPAddress? IpAddress, ClientProtocol? Protocol, string? Host, X509Certificate? Certificate) : IClientConnection;

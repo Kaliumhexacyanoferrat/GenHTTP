@@ -5,29 +5,29 @@ namespace GenHTTP.Modules.LoadBalancing.Provider;
 
 public sealed class LoadBalancerRedirectionBuilder : IHandlerBuilder<LoadBalancerRedirectionBuilder>
 {
-    private readonly List<IConcernBuilder> _Concerns = [];
+    private readonly List<IConcernBuilder> _concerns = [];
 
-    private string? _Root;
+    private string? _root;
 
     #region Functionality
 
     public LoadBalancerRedirectionBuilder Add(IConcernBuilder concern)
     {
-        _Concerns.Add(concern);
+        _concerns.Add(concern);
         return this;
     }
 
     public LoadBalancerRedirectionBuilder Root(string node)
     {
-        _Root = node;
+        _root = node;
         return this;
     }
 
     public IHandler Build()
     {
-        var root = _Root ?? throw new BuilderMissingPropertyException("root");
+        var root = _root ?? throw new BuilderMissingPropertyException("root");
 
-        return Concerns.Chain(_Concerns,  new LoadBalancerRedirectionHandler( root));
+        return Concerns.Chain(_concerns,  new LoadBalancerRedirectionHandler( root));
     }
 
     #endregion

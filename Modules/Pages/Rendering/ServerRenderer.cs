@@ -8,7 +8,7 @@ public sealed class ServerRenderer
 {
     private static readonly IResource ServerTemplate = Resource.FromAssembly("ServerPage.html").Build();
 
-    private readonly TemplateRenderer _TemplateRender = Renderer.From(ServerTemplate);
+    private readonly TemplateRenderer _templateRender = Renderer.From(ServerTemplate);
 
     /// <summary>
     /// Renders a server-styled HTML page for the given title and content.
@@ -19,7 +19,7 @@ public sealed class ServerRenderer
     /// <remarks>
     /// This method will not escape the given title or content.
     /// </remarks>
-    public async ValueTask<string> RenderAsync(string title, string content) => await _TemplateRender.RenderAsync(new Dictionary<Value, Value>
+    public async ValueTask<string> RenderAsync(string title, string content) => await _templateRender.RenderAsync(new Dictionary<Value, Value>
     {
         ["title"] = title,
         ["content"] = content
