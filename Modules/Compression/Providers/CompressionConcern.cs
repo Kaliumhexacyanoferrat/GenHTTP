@@ -51,8 +51,8 @@ public sealed class CompressionConcern : IConcern
                     {
                         if (!string.IsNullOrEmpty(header))
                         {
-                            var supported = new HashSet<string>(header.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(a => a.Trim()));
-
+                            var supported = ParseSupported(header);
+                                
                             foreach (var algorithm in Algorithms.Values.OrderByDescending(a => (int)a.Priority))
                             {
                                 if (supported.Contains(algorithm.Name))
@@ -122,6 +122,35 @@ public sealed class CompressionConcern : IConcern
         }
 
         return false;
+    }
+
+    private static HashSet<string> ParseSupported(ReadOnlySpan<char> acceptHeader)
+    {
+        var result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        var start = 0;
+
+        while (start <= acceptHeader.Length)
+        {
+            var comma = acceptHeader[start..].IndexOf(',');
+            var end = comma >= 0 ? start + comma : acceptHeader.Length;
+
+            var part = acceptHeader.Slice(start, end - start).Trim();
+
+            if (!part.IsEmpty)
+            {
+                result.Add(part.ToString());
+            }
+
+            if (comma < 0)
+            {
+                break;
+            }
+
+            start = end + 1;
+        }
+
+        return result;
     }
 
     public ValueTask PrepareAsync() => Content.PrepareAsync();
