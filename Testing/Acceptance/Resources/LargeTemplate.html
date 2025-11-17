@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8"/>
+    <title>{{ content.title }}</title>
+</head>
+<body>
+
+<p>
+    This is a large template used to verify compression behavior.
+    The following placeholder content is intentionally repeated to exceed the
+    default compression threshold so that precompressed responses are served with
+    the appropriate <code>Content-Encoding</code> headers.
+</p>
+
+<div>
+    {{ content.content }}
+</div>
+
+<p>
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum id est sed
+    justo iaculis faucibus. Integer euismod, mi in maximus sagittis, lectus erat
+    rutrum arcu, sed vulputate augue eros a libero. Maecenas vitae tristique sem.
+    Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac
+    turpis egestas. Donec vel mauris interdum, vulputate eros sed, aliquet ante.
+    Etiam dictum dignissim lacus, sit amet bibendum augue bibendum a. Fusce
+    pellentesque ante in dictum gravida. Vestibulum ante ipsum primis in faucibus
+    orci luctus et ultrices posuere cubilia curae; Integer imperdiet sapien nec
+    dolor convallis, ac ultricies mi interdum. Donec blandit dignissim ligula,
+    vitae volutpat ipsum hendrerit at. Vivamus auctor nunc id justo fermentum, in
+    facilisis arcu pretium. Integer finibus mi sed velit euismod, nec placerat
+    quam congue.
+</p>
+
+</body>
+</html>
+

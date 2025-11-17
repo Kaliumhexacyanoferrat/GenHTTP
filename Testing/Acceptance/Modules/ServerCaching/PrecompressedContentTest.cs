@@ -20,7 +20,7 @@ public class PrecompressedContentTest
 
         await using var runner = await TestHost.RunAsync(content, false, engine: engine);
 
-        var request = runner.GetRequest("/Template.html");
+        var request = runner.GetRequest("/LargeTemplate.html");
 
         request.Headers.Add("Accept-Encoding", "br");
 

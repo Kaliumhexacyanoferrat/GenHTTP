@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -49,7 +50,8 @@ public sealed class ReverseProxyTests
     {
         await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
-            return r.Respond().Content("Hello World!").Build();
+            var responseContent = new string('A', 2048);
+            return r.Respond().Content(responseContent).Build();
         });
 
         var runner = setup.Runner;
@@ -274,7 +276,8 @@ public sealed class ReverseProxyTests
     {
         await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
-            return r.Respond().Content("Hello World!").Build();
+            var responseContent = new string('B', 2048);
+            return r.Respond().Content(responseContent).Build();
         });
 
         var runner = setup.Runner;

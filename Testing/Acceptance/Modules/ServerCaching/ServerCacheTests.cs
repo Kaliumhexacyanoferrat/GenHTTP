@@ -88,7 +88,7 @@ public class ServerCacheTests
     {
         var file = Path.GetTempFileName();
 
-        await FileUtil.WriteTextAsync(file, "This is some content!");
+        await FileUtil.WriteTextAsync(file, CreateLargeString());
 
         try
         {
@@ -118,7 +118,7 @@ public class ServerCacheTests
 
             await uncompressedResponse.AssertStatusAsync(HttpStatusCode.OK);
             AssertX.IsNullOrEmpty(uncompressedResponse.GetContentHeader("Content-Encoding"));
-            Assert.AreEqual("This is some content!", await uncompressedResponse.GetContentAsync());
+            Assert.AreEqual(CreateLargeString(), await uncompressedResponse.GetContentAsync());
         }
         finally
         {
@@ -425,6 +425,11 @@ public class ServerCacheTests
         using var __ = await runner.GetResponseAsync();
 
         Assert.AreEqual(2, i);
+    }
+
+    private static string CreateLargeString(int length = 512)
+    {
+        return new string('A', length);
     }
 
     private static ServerCacheHandlerBuilder[] GetBackends()
