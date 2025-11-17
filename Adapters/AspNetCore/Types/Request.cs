@@ -118,7 +118,7 @@ public sealed class Request : IRequest
 
     #region Functionality
 
-    public IResponseBuilder Respond() => new ResponseBuilder(new ()).Status(ResponseStatus.Ok); // todo
+    public IResponseBuilder Respond() => new ResponseBuilder(new ()); // todo
 
     public UpgradeInfo Upgrade() => throw new NotSupportedException("Web sockets are not supported by the Kestrel server implementation");
 

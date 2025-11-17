@@ -38,7 +38,8 @@ public sealed class ConversionTests
     private class FieldData
     {
 
-        public int Field;
+        public int field;
+
     }
 
     private class PropertyData

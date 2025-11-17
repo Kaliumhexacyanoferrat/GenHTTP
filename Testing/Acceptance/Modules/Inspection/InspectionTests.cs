@@ -22,7 +22,9 @@ public sealed class InspectionTests
 
         await inspected.AssertStatusAsync(HttpStatusCode.OK);
 
-        AssertX.Contains("/one/two", await inspected.GetContentAsync());
+        var content = await inspected.GetContentAsync();
+
+        AssertX.Contains("/one/two", content);
     }
 
     [TestMethod]

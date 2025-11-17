@@ -114,7 +114,7 @@ internal sealed class Request : IRequest
 
     #region Functionality
 
-    public IResponseBuilder Respond() => _responseBuilder.Status(ResponseStatus.Ok);
+    public IResponseBuilder Respond() => _responseBuilder;
 
     public UpgradeInfo Upgrade()
     {
@@ -193,7 +193,7 @@ internal sealed class Request : IRequest
     internal void SetQuery(RequestQuery query)
     {
         // todo: allocates
-        _query?.Dispose();
+        _query.Dispose();
 
         _query = query;
     }
