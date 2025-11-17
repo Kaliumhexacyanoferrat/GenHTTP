@@ -12,7 +12,7 @@ public sealed class CompressionConcernBuilder : IConcernBuilder
 
     private CompressionLevel _level = CompressionLevel.Fastest;
 
-    private ulong? _MinimumSize = 256;
+    private ulong? _minimumSize = 256;
 
     #region Functionality
 
@@ -38,7 +38,7 @@ public sealed class CompressionConcernBuilder : IConcernBuilder
     /// <returns>The builder instance for method chaining</returns>
     public CompressionConcernBuilder MinimumSize(ulong? minimumSize)
     {
-        _MinimumSize = minimumSize;
+        _minimumSize = minimumSize;
         return this;
     }
 
@@ -46,7 +46,7 @@ public sealed class CompressionConcernBuilder : IConcernBuilder
     {
         var algorithms = _algorithms.ToDictionary(a => a.Name);
 
-        return new CompressionConcern(content, algorithms, _Level, _MinimumSize);
+        return new CompressionConcern(content, algorithms, _level, _minimumSize);
     }
 
     #endregion

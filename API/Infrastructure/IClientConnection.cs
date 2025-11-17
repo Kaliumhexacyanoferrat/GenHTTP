@@ -13,7 +13,7 @@ public interface IClientConnection
     /// <summary>
     /// The IP address of the remotely connected client.
     /// </summary>
-    IPAddress? IpAddress { get; }
+    IPAddress? IPAddress { get; }
 
     /// <summary>
     /// The protocol used by the client to connect

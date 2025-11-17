@@ -11,7 +11,7 @@ public sealed class ClientConnection : IClientConnection
 
     #region Get-/Setters
 
-    public IPAddress IpAddress => Info.RemoteIpAddress ?? throw new InvalidOperationException("Remote client IP address is not known");
+    public IPAddress IPAddress => Info.RemoteIpAddress ?? throw new InvalidOperationException("Remote client IP address is not known");
 
     public ClientProtocol? Protocol { get; }
 

@@ -72,7 +72,7 @@ internal sealed class ResponseHandler
         }
         catch (Exception e)
         {
-            Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, request?.Client.IpAddress, e);
+            Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, request?.Client.IPAddress, e);
             return false;
         }
     }

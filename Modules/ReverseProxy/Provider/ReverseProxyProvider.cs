@@ -250,7 +250,7 @@ public sealed class ReverseProxyProvider : IHandler
     {
         return string.Join(", ", request.Forwardings
                                         .Union([
-                                            new Forwarding(request.LocalClient.IpAddress, request.LocalClient.Host, request.LocalClient.Protocol)
+                                            new Forwarding(request.LocalClient.IPAddress, request.LocalClient.Host, request.LocalClient.Protocol)
                                         ])
                                         .Select(GetForwarding));
     }

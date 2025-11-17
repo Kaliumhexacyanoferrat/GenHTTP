@@ -61,13 +61,13 @@ public sealed class InspectionConcern : IConcern
                 Client = new
                 {
                     Protocol = request.Client.Protocol,
-                    IPAddress = request.Client.IpAddress?.ToString(),
+                    IPAddress = request.Client.IPAddress?.ToString(),
                     Host = request.Client.Host
                 },
                 LocalClient = (request.Client != request.LocalClient) ? new
                 {
                     Protocol = request.LocalClient.Protocol,
-                    IPAddress = request.LocalClient.IpAddress?.ToString(),
+                    IPAddress = request.LocalClient.IPAddress?.ToString(),
                     Host = request.LocalClient.Host
                 } : null,
                 Request = new
