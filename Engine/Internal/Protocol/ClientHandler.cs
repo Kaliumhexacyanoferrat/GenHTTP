@@ -123,7 +123,7 @@ internal sealed class ClientHandler
             {
                 var firstRequest = true;
 
-                while (Server.Running && await parser.TryParseAsync(buffer))
+                while (Server.Running)
                 {
                     if (firstRequest)
                     {
@@ -132,6 +132,11 @@ internal sealed class ClientHandler
                     else
                     {
                         context.Reset();
+                    }
+
+                    if (!await parser.TryParseAsync(buffer))
+                    {
+                        break;
                     }
 
                     var status = await HandleRequest(context.Request, !buffer.ReadRequired);
