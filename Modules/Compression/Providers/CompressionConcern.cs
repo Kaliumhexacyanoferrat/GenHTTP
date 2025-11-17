@@ -20,17 +20,20 @@ public sealed class CompressionConcern : IConcern
 
     private CompressionLevel Level { get; }
 
+    private ulong? MinimumSize { get; }
+
     #endregion
 
     #region Initialization
 
     public CompressionConcern(IHandler content, IReadOnlyDictionary<string, ICompressionAlgorithm> algorithms,
-        CompressionLevel level)
+        CompressionLevel level, ulong? minimumSize)
     {
         Content = content;
 
         Algorithms = algorithms;
         Level = level;
+        MinimumSize = minimumSize;
     }
 
     #endregion
@@ -47,30 +50,40 @@ public sealed class CompressionConcern : IConcern
             {
                 if (response.Content is not null && ShouldCompress(request.Target.Path, response.ContentType?.KnownType))
                 {
-                    if (request.Headers.TryGetValue(AcceptEncoding, out var header))
+                    // Checking if content meets minimum size threshold for compression
+                    // If length is unknown/null, compress if suitable
+                    var contentLength = response.Content.Length;
+                    var shouldCompressBySize = MinimumSize is null || 
+                                               contentLength is null || 
+                                               contentLength >= MinimumSize;
+
+                    if (shouldCompressBySize)
                     {
-                        if (!string.IsNullOrEmpty(header))
+                        if (request.Headers.TryGetValue(AcceptEncoding, out var header))
                         {
-                            var supported = ParseSupported(header);
-                                
-                            foreach (var algorithm in Algorithms.Values.OrderByDescending(a => (int)a.Priority))
+                            if (!string.IsNullOrEmpty(header))
                             {
-                                if (supported.Contains(algorithm.Name))
+                                var supported = ParseSupported(header);
+                                    
+                                foreach (var algorithm in Algorithms.Values.OrderByDescending(a => (int)a.Priority))
                                 {
-                                    response.Content = algorithm.Compress(response.Content, Level);
-                                    response.ContentEncoding = algorithm.Name;
-                                    response.ContentLength = null;
-
-                                    if (response.Headers.TryGetValue(Vary, out var existing))
+                                    if (supported.Contains(algorithm.Name))
                                     {
-                                        response.Headers[Vary] = $"{existing}, {AcceptEncoding}";
-                                    }
-                                    else
-                                    {
-                                        response.Headers[Vary] = AcceptEncoding;
-                                    }
+                                        response.Content = algorithm.Compress(response.Content, Level);
+                                        response.ContentEncoding = algorithm.Name;
+                                        response.ContentLength = null;
 
-                                    break;
+                                        if (response.Headers.TryGetValue(Vary, out var existing))
+                                        {
+                                            response.Headers[Vary] = $"{existing}, {AcceptEncoding}";
+                                        }
+                                        else
+                                        {
+                                            response.Headers[Vary] = AcceptEncoding;
+                                        }
+
+                                        break;
+                                    }
                                 }
                             }
                         }
