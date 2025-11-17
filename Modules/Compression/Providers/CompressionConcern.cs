@@ -1,4 +1,5 @@
 ﻿using System.IO.Compression;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
@@ -44,47 +45,34 @@ public sealed class CompressionConcern : IConcern
     {
         var response = await Content.HandleAsync(request);
 
-        if (response is not null)
+        if (response?.Content != null && response.ContentEncoding == null)
         {
-            if (response.ContentEncoding is null)
+            if (ShouldCompressByType(request.Target.Path, response.ContentType?.KnownType) && ShouldCompressBySize(response))
             {
-                if (response.Content is not null && ShouldCompress(request.Target.Path, response.ContentType?.KnownType))
+                if (request.Headers.TryGetValue(AcceptEncoding, out var header))
                 {
-                    // Checking if content meets minimum size threshold for compression
-                    // If length is unknown/null, compress if suitable
-                    var contentLength = response.Content.Length;
-                    var shouldCompressBySize = MinimumSize is null || 
-                                               contentLength is null || 
-                                               contentLength >= MinimumSize;
-
-                    if (shouldCompressBySize)
+                    if (!string.IsNullOrEmpty(header))
                     {
-                        if (request.Headers.TryGetValue(AcceptEncoding, out var header))
+                        var supported = ParseSupported(header);
+
+                        foreach (var algorithm in Algorithms.Values.OrderByDescending(a => (int)a.Priority))
                         {
-                            if (!string.IsNullOrEmpty(header))
+                            if (supported.Contains(algorithm.Name))
                             {
-                                var supported = ParseSupported(header);
-                                    
-                                foreach (var algorithm in Algorithms.Values.OrderByDescending(a => (int)a.Priority))
+                                response.Content = algorithm.Compress(response.Content, Level);
+                                response.ContentEncoding = algorithm.Name;
+                                response.ContentLength = null;
+
+                                if (response.Headers.TryGetValue(Vary, out var existing))
                                 {
-                                    if (supported.Contains(algorithm.Name))
-                                    {
-                                        response.Content = algorithm.Compress(response.Content, Level);
-                                        response.ContentEncoding = algorithm.Name;
-                                        response.ContentLength = null;
-
-                                        if (response.Headers.TryGetValue(Vary, out var existing))
-                                        {
-                                            response.Headers[Vary] = $"{existing}, {AcceptEncoding}";
-                                        }
-                                        else
-                                        {
-                                            response.Headers[Vary] = AcceptEncoding;
-                                        }
-
-                                        break;
-                                    }
+                                    response.Headers[Vary] = $"{existing}, {AcceptEncoding}";
                                 }
+                                else
+                                {
+                                    response.Headers[Vary] = AcceptEncoding;
+                                }
+
+                                break;
                             }
                         }
                     }
@@ -95,7 +83,7 @@ public sealed class CompressionConcern : IConcern
         return response;
     }
 
-    private static bool ShouldCompress(WebPath path, ContentType? type)
+    private static bool ShouldCompressByType(WebPath path, ContentType? type)
     {
         if (type is not null)
         {
@@ -135,6 +123,13 @@ public sealed class CompressionConcern : IConcern
         }
 
         return false;
+    }
+
+    private bool ShouldCompressBySize(IResponse response)
+    {
+        var contentLength = response.Content?.Length;
+
+        return MinimumSize is null || contentLength is null || contentLength >= MinimumSize;
     }
 
     private static HashSet<string> ParseSupported(ReadOnlySpan<char> acceptHeader)

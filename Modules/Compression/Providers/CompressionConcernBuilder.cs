@@ -1,4 +1,5 @@
 ﻿using System.IO.Compression;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
@@ -11,7 +12,7 @@ public sealed class CompressionConcernBuilder : IConcernBuilder
 
     private CompressionLevel _Level = CompressionLevel.Fastest;
 
-    private ulong? _MinimumSize = 256; // Default: 256 bytes
+    private ulong? _MinimumSize = 256;
 
     #region Functionality
 

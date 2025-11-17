@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.IO.Compression;
+﻿using System.IO.Compression;
 
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
@@ -12,29 +11,13 @@ using GenHTTP.Modules.Layouting.Provider;
 
 using GenHTTP.Testing.Acceptance.Utilities;
 
+using Strings = GenHTTP.Modules.IO.Strings;
+
 namespace GenHTTP.Testing.Acceptance.Modules.Compression;
 
 [TestClass]
 public sealed class CompressionTests
 {
-    /// <summary>
-    /// Helper method to create large content that will be compressed (above default threshold of 256 bytes).
-    /// </summary>
-    private static LayoutBuilder CreateLargeContentHandler()
-    {
-        // Creating content larger than 256 bytes to ensure it gets compressed with default threshold
-        var largeContent = new string('A', 500);
-        return Layout.Create().Index(Content.From(Resource.FromString(largeContent).Type(ContentType.TextHtml)));
-    }
-
-    /// <summary>
-    /// Helper method to create a large string of specified size.
-    /// </summary>
-    private static string CreateLargeString(int sizeInBytes)
-    {
-        // Each 'A' character is 1 byte in UTF-8
-        return new string('A', sizeInBytes);
-    }
 
     /// <summary>
     /// As a developer, I expect responses to be compressed out of the box.
@@ -191,7 +174,7 @@ public sealed class CompressionTests
     public async Task TestCompressionThreshold_SmallContent_NotCompressed(TestEngine engine)
     {
         // Creating content smaller than the default threshold (256 bytes)
-        var smallContent = CreateLargeString(100); 
+        var smallContent = CreateLargeString(100);
 
         var handler = new FunctionalHandler(responseProvider: r =>
         {
@@ -220,7 +203,7 @@ public sealed class CompressionTests
     public async Task TestCompressionThreshold_LargeContent_Compressed(TestEngine engine)
     {
         // Creating content larger than the default threshold (256 bytes)
-        var largeContent = CreateLargeString(500); 
+        var largeContent = CreateLargeString(500);
 
         var handler = new FunctionalHandler(responseProvider: r =>
         {
@@ -250,7 +233,7 @@ public sealed class CompressionTests
     public async Task TestCompressionThreshold_ExactThreshold_Compressed(TestEngine engine)
     {
         // Creating content exactly at the default threshold (256 bytes)
-        var exactContent = CreateLargeString(256); 
+        var exactContent = CreateLargeString(256);
 
         var handler = new FunctionalHandler(responseProvider: r =>
         {
@@ -280,12 +263,12 @@ public sealed class CompressionTests
     public async Task TestCompressionThreshold_CustomThreshold(TestEngine engine)
     {
         // Creating content well below the threshold to ensure it's not compressed
-        var smallContent = CreateLargeString(100); 
+        var smallContent = CreateLargeString(100);
 
         var handler = Content.From(Resource.FromString(smallContent).Type(ContentType.TextHtml));
 
         var runner = new TestHost(handler.Build(), engine: engine);
-        
+
         // Set custom threshold to 500 bytes - content should NOT be compressed
         await runner.Host.Compression(CompressedContent.Default().MinimumSize(500)).StartAsync();
 
@@ -310,8 +293,8 @@ public sealed class CompressionTests
         // Creating a custom content provider that returns null for length
         var handler = new FunctionalHandler(responseProvider: r =>
         {
-            var resource = Resource.FromString("Small content").Build();
-            var wrappedContent = new UnknownLengthContent(new GenHTTP.Modules.IO.Strings.StringContent("Small content"));
+            var wrappedContent = new UnknownLengthContent(new Strings.StringContent("Small content"));
+
             return r.Respond()
                     .Content(wrappedContent)
                     .Type(ContentType.TextHtml)
@@ -338,7 +321,7 @@ public sealed class CompressionTests
     public async Task TestCompressionThreshold_MethodChaining(TestEngine engine)
     {
         // Verifying that the example usage pattern works: CompressedContent.Default().MinimumSize(512)
-        var smallContent = CreateLargeString(100); 
+        var smallContent = CreateLargeString(100);
 
         var handler = Content.From(Resource.FromString(smallContent).Type(ContentType.TextHtml));
 
@@ -380,7 +363,7 @@ public sealed class CompressionTests
         });
 
         var runner = new TestHost(handler.Wrap().Build(), engine: engine);
-        
+
         // Disable threshold by setting it to null
         await runner.Host.Compression(CompressedContent.Default().MinimumSize(null)).StartAsync();
 
@@ -408,11 +391,12 @@ public sealed class CompressionTests
             _wrapped = wrapped;
         }
 
-        public ulong? Length => null; 
+        public ulong? Length => null;
 
         public ValueTask<ulong?> CalculateChecksumAsync() => _wrapped.CalculateChecksumAsync();
 
         public ValueTask WriteAsync(Stream target, uint bufferSize) => _wrapped.WriteAsync(target, bufferSize);
+
     }
 
     private class CustomAlgorithm : ICompressionAlgorithm
@@ -423,6 +407,27 @@ public sealed class CompressionTests
         public Priority Priority => Priority.High;
 
         public IResponseContent Compress(IResponseContent content, CompressionLevel level) => content;
+
+    }
+
+
+    /// <summary>
+    /// Helper method to create large content that will be compressed (above default threshold of 256 bytes).
+    /// </summary>
+    private static LayoutBuilder CreateLargeContentHandler()
+    {
+        var content = Content.From(Resource.FromString(CreateLargeString(500)).Type(ContentType.TextHtml));
+
+        return Layout.Create()
+                     .Index(content);
+    }
+
+    /// <summary>
+    /// Helper method to create a large string of specified size.
+    /// </summary>
+    private static string CreateLargeString(int sizeInBytes)
+    {
+        return new string('A', sizeInBytes);
     }
 
 }

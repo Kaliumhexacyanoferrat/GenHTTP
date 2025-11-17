@@ -1,5 +1,4 @@
 ﻿using System.IO.Compression;
-using System.Linq;
 
 using GenHTTP.Modules.Compression.Providers;
 using GenHTTP.Modules.Functional;

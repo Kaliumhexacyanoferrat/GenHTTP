@@ -3,6 +3,8 @@
     <PropertyGroup>
 
         <Description>Allows to compress generated content using various algorithms.</Description>
+        <Authors>Andreas Nägeli, Wajahat Ahmad</Authors>
+
         <PackageTags>GenHTTP HTTP Webserver C# Module Compression Brotli Gzip</PackageTags>
         <PackageReadmeFile>README.md</PackageReadmeFile>
 
@@ -19,5 +21,5 @@
     <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="" />
     </ItemGroup>
-    
+
 </Project>
