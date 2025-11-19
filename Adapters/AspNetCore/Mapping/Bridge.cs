@@ -4,28 +4,35 @@ using GenHTTP.Adapters.AspNetCore.Types;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Engine.Internal.Protocol;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.ObjectPool;
 
 namespace GenHTTP.Adapters.AspNetCore.Mapping;
 
 public static class Bridge
 {
+    private static readonly DefaultObjectPool<ClientContext> ContextPool = new(new ClientContextPolicy(), 65536);
 
     public static async ValueTask MapAsync(HttpContext context, IHandler handler, IServer? server = null, IServerCompanion? companion = null, string? registeredPath = null)
     {
         var actualServer = server ?? new ImplicitServer(context, handler, companion);
 
+        var clientContext = ContextPool.Get();
+        
         try
         {
-            using var request = new Request(actualServer, context);
-
+            var request = clientContext.Request;
+            
+            request.Configure(actualServer, context);
+            
             if (registeredPath != null)
             {
-                AdvanceTo(request, registeredPath);
+                AdvanceTo(clientContext.Request, registeredPath);
             }
 
-            using var response = await handler.HandleAsync(request);
+            var response = await handler.HandleAsync(request);
 
             if (response == null)
             {
@@ -42,6 +49,10 @@ public static class Bridge
         {
             actualServer.Companion?.OnServerError(ServerErrorScope.ServerConnection, context.Connection.RemoteIpAddress, e);
             throw;
+        }
+        finally
+        {
+            ContextPool.Return(clientContext);
         }
     }
 

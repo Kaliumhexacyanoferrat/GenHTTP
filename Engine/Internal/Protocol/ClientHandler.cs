@@ -25,7 +25,7 @@ internal sealed class ClientHandler
 {
     private static readonly StreamPipeReaderOptions ReaderOptions = new(MemoryPool<byte>.Shared, leaveOpen: true, bufferSize: 65536);
 
-    private static readonly DefaultObjectPool<ClientContext> ContextPool = new(new ClientContextPolicy());
+    private static readonly DefaultObjectPool<ClientContext> ContextPool = new(new ClientContextPolicy(), 65536);
 
     #region Get-/Setter
 

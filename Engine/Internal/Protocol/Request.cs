@@ -196,7 +196,7 @@ internal sealed class Request : IRequest
 
     internal void SetPath(WebPath path)
     {
-        _target = new(path); // todo: allocates
+        _target = new(path);
     }
 
     internal void SetMethod(FlexibleRequestMethod method)
@@ -206,7 +206,6 @@ internal sealed class Request : IRequest
 
     internal void SetQuery(RequestQuery query)
     {
-        // todo: allocates
         _query.Dispose();
 
         _query = query;
