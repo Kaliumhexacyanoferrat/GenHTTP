@@ -37,10 +37,7 @@ public sealed class Request : IRequest
 
     #region Get-/Setters
 
-    public IRequestProperties Properties
-    {
-        get { return _properties ??= new RequestProperties(); }
-    }
+    public IRequestProperties Properties => _properties;
 
     public IServer Server => _server ?? throw new InvalidOperationException("Request is not initialized yet");
 
