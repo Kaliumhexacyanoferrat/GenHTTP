@@ -38,7 +38,7 @@ public sealed class InspectionConcern : IConcern
     {
         if (request.Query.ContainsKey("inspect"))
         {
-            using var content = await Content.HandleAsync(request);
+            var content = await Content.HandleAsync(request);
 
             var server = request.Server;
 

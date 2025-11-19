@@ -18,7 +18,7 @@ public class WildcardTests
         var resources = Resources.From(tree);
 
         var app = Inline.Create()
-                        .Get("/tenant/:tenantID/", (int tenantId) =>
+                        .Get("/tenant/:tenantId/", (int tenantId) =>
                         {
                              Assert.IsGreaterThan(0, tenantId);
                              return resources;

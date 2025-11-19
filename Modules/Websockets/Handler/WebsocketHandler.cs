@@ -67,7 +67,9 @@ public sealed class WebsocketHandler : IHandler
 
         var socket = new WrappedSocket(upgrade);
 
-        var connection = new WebsocketConnection(socket, request, SupportedProtocols, OnOpen, OnClose, OnMessage, OnBinary, OnPing, OnPong, OnError);
+        var clone = ClonedRequest.From(request);
+
+        var connection = new WebsocketConnection(socket, clone, SupportedProtocols, OnOpen, OnClose, OnMessage, OnBinary, OnPing, OnPong, OnError);
 
         connection.Start();
 

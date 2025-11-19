@@ -19,6 +19,8 @@ namespace GenHTTP.Engine.Internal.Protocol;
 internal sealed class Request : IRequest
 {
     private readonly ResponseBuilder _responseBuilder;
+    
+    private bool _freshResponse = true;
 
     private IServer? _server;
     private IEndPoint? _endPoint;
@@ -114,7 +116,19 @@ internal sealed class Request : IRequest
 
     #region Functionality
 
-    public IResponseBuilder Respond() => _responseBuilder;
+    public IResponseBuilder Respond()
+    {
+        if (!_freshResponse)
+        {
+            _responseBuilder.Reset();
+        }
+        else
+        {
+            _freshResponse = false;
+        }
+        
+        return _responseBuilder;
+    } 
 
     public UpgradeInfo Upgrade()
     {
@@ -209,6 +223,8 @@ internal sealed class Request : IRequest
 
         _content = null;
         _contentType = null;
+
+        _freshResponse = true;
     }
 
     #endregion

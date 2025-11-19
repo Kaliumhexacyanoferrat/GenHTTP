@@ -237,7 +237,7 @@ public sealed class WebserviceTests
     [MultiEngineTest]
     public async Task TestEntityAsXml(TestEngine engine)
     {
-        const string entity = "<TestEntity><ID>1</ID><Nullable>1234.56</Nullable></TestEntity>";
+        const string entity = "<TestEntity><Id>1</Id><Nullable>1234.56</Nullable></TestEntity>";
 
         await WithResponse(engine, "entity", HttpMethod.Post, entity, "text/xml", "text/xml", async r =>
         {

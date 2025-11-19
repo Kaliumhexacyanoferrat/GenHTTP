@@ -68,6 +68,11 @@ public sealed class ResponseBuilder(Response response) : IResponseBuilder
         response.Status = new FlexibleResponseStatus(status, reason);
         return this;
     }
+    
+    public void Reset()
+    {
+        response.Reset();
+    }
 
     public IResponse Build() => response;
 
