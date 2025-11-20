@@ -3,7 +3,7 @@ using GenHTTP.Engine.Shared.Types;
 
 namespace GenHTTP.Engine.Internal.Protocol;
 
-public sealed class RequestQuery : PooledDictionary<string, string>, IRequestQuery
+public sealed class RequestQuery : Dictionary<string, string>, IRequestQuery
 {
     private const int DefaultSize = 12;
 

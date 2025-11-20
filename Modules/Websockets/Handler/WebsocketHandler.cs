@@ -67,6 +67,8 @@ public sealed class WebsocketHandler : IHandler
 
         var socket = new WrappedSocket(upgrade);
 
+        // the server will re-use the request for a new client, so
+        // we need to freeze the values to allow access from the socket context
         var clone = ClonedRequest.From(request);
 
         var connection = new WebsocketConnection(socket, clone, SupportedProtocols, OnOpen, OnClose, OnMessage, OnBinary, OnPing, OnPong, OnError);

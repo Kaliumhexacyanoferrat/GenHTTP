@@ -19,7 +19,7 @@ namespace GenHTTP.Engine.Internal.Protocol;
 internal sealed class Request : IRequest
 {
     private readonly ResponseBuilder _responseBuilder;
-    
+
     private bool _freshResponse = true;
 
     private IServer? _server;
@@ -126,9 +126,9 @@ internal sealed class Request : IRequest
         {
             _freshResponse = false;
         }
-        
+
         return _responseBuilder;
-    } 
+    }
 
     public UpgradeInfo Upgrade()
     {
@@ -206,8 +206,6 @@ internal sealed class Request : IRequest
 
     internal void SetQuery(RequestQuery query)
     {
-        _query.Dispose();
-
         _query = query;
     }
 
@@ -236,14 +234,6 @@ internal sealed class Request : IRequest
     {
         if (!_disposed)
         {
-            Headers.Dispose();
-
-            _query.Dispose();
-
-            _cookies.Dispose();
-
-            _properties.Dispose();
-
             Content?.Dispose();
 
             _disposed = true;

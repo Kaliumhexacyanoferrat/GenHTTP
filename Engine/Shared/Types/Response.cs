@@ -98,10 +98,6 @@ public sealed class Response : IResponse
     {
         if (!_disposed)
         {
-            Headers.Dispose();
-
-            _cookies?.Dispose();
-
             ReleaseContent();
 
             _disposed = true;

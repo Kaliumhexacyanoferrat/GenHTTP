@@ -2,9 +2,9 @@
 
 namespace GenHTTP.Engine.Shared.Types;
 
-public sealed class CookieCollection : PooledDictionary<string, Cookie>, ICookieCollection
+public sealed class CookieCollection : Dictionary<string, Cookie>, ICookieCollection
 {
-    private const int DefaultSize = 6;
+    private const int DefaultSize = 4;
 
     public CookieCollection() : base(DefaultSize, StringComparer.InvariantCultureIgnoreCase)
     {

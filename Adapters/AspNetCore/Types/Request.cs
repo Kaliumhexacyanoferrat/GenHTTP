@@ -13,9 +13,9 @@ namespace GenHTTP.Adapters.AspNetCore.Types;
 public sealed class Request : IRequest
 {
     private readonly ResponseBuilder _responseBuilder;
-    
+
     private bool _freshResponse = true;
-    
+
     private IServer? _server;
     private IEndPoint? _endPoint;
 
@@ -24,16 +24,16 @@ public sealed class Request : IRequest
 
     private FlexibleRequestMethod? _method;
     private RoutingTarget? _target;
-    
-    private RequestProperties _properties = new();
 
-    private Cookies? _cookies;
+    private readonly RequestProperties _properties = new();
+
+    private readonly Cookies _cookies = new();
 
     private readonly ForwardingCollection _forwardings = new();
 
-    private Headers? _headers;
+    private readonly Headers _headers = new();
 
-    private Query _query = new();
+    private readonly Query _query = new();
 
     #region Get-/Setters
 
@@ -47,7 +47,7 @@ public sealed class Request : IRequest
 
     public IClientConnection LocalClient => _localClient ?? throw new InvalidOperationException("Request is not initialized yet");
 
-    public HttpProtocol ProtocolType { get; internal set; }
+    public HttpProtocol ProtocolType { get; private set; }
 
     public FlexibleRequestMethod Method => _method ?? throw new InvalidOperationException("Request is not initialized yet");
 
@@ -63,19 +63,13 @@ public sealed class Request : IRequest
 
     public IRequestQuery Query => _query;
 
-    public ICookieCollection Cookies
-    {
-        get { return _cookies ??= new Cookies(Context); }
-    }
+    public ICookieCollection Cookies => _cookies;
 
     public IForwardingCollection Forwardings => _forwardings;
 
-    public IHeaderCollection Headers
-    {
-        get { return _headers ??= new Headers(Context); }
-    }
+    public IHeaderCollection Headers => _headers;
 
-    public Stream Content => Context?.BodyReader.AsStream(true) ?? throw new InvalidOperationException("Request is not initialized yet");;
+    public Stream Content => Context?.BodyReader.AsStream(true) ?? throw new InvalidOperationException("Request is not initialized yet");
 
     public FlexibleContentType? ContentType => (Context?.ContentType != null) ? new(Context.ContentType) : null;
 
@@ -104,16 +98,18 @@ public sealed class Request : IRequest
         {
             _freshResponse = false;
         }
-        
+
         return _responseBuilder;
-    } 
+    }
 
     public UpgradeInfo Upgrade() => throw new NotSupportedException("Web sockets are not supported by the Kestrel server implementation");
 
     internal void Configure(IServer server, HttpContext context)
     {
+        var request = context.Request;
+
         _server = server;
-        Context = context.Request;
+        Context = request;
 
         ProtocolType = Context.Protocol switch
         {
@@ -127,8 +123,10 @@ public sealed class Request : IRequest
         _method = FlexibleRequestMethod.Get(Context.Method);
         _target = new RoutingTarget(WebPath.FromString(Context.Path));
 
-        _query.SetRequest(context.Request);
-        
+        _query.SetRequest(request);
+        _headers.SetRequest(request);
+        _cookies.SetRequest(request);
+
         if (context.Request.Headers.TryGetValue("forwarded", out var forwardings))
         {
             foreach (var entry in forwardings)
@@ -141,7 +139,7 @@ public sealed class Request : IRequest
             _forwardings.TryAddLegacy(Headers);
         }
 
-        _localClient = new ClientConnection(context.Connection, context.Request);
+        _localClient = new ClientConnection(context.Connection, request);
 
         _clientConnection = _forwardings.DetermineClient(context.Connection.ClientCertificate) ?? LocalClient;
 
@@ -150,29 +148,26 @@ public sealed class Request : IRequest
 
     internal void Reset()
     {
-        _properties.Clear();   
+        _properties.Clear();
         _forwardings.Clear();
-        
+        _cookies.Clear();
+
+        _query.SetRequest(null);
+        _headers.SetRequest(null);
+
         _localClient = null;
         _clientConnection = null;
         _target = null;
         _method = null;
     }
-    
+
     #endregion
 
     #region Lifecycle
 
-    private bool _disposed;
-
     public void Dispose()
     {
-        if (!_disposed)
-        {
-            _properties?.Dispose();
-
-            _disposed = true;
-        }
+        Reset();
     }
 
     #endregion

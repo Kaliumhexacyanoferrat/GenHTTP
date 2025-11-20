@@ -52,7 +52,7 @@ public sealed class Query : IRequestQuery
 
     #region Functionality
 
-    internal void SetRequest(HttpRequest request)
+    internal void SetRequest(HttpRequest? request)
     {
         Request = request;
     }
@@ -75,15 +75,6 @@ public sealed class Query : IRequestQuery
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    #endregion
-
-    #region Lifecycle
-
-    public void Dispose()
-    {
-
-    }
 
     #endregion
 

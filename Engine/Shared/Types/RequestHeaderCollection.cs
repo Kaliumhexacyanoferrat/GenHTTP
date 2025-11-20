@@ -2,9 +2,9 @@
 
 namespace GenHTTP.Engine.Shared.Types;
 
-public sealed class RequestHeaderCollection : PooledDictionary<string, string>, IHeaderCollection, IEditableHeaderCollection
+public sealed class RequestHeaderCollection : Dictionary<string, string>, IHeaderCollection, IEditableHeaderCollection
 {
-    private const int DefaultSize = 18;
+    private const int DefaultSize = 12;
 
     #region Initialization
 

@@ -5,9 +5,7 @@ namespace GenHTTP.Engine.Shared.Types;
 
 public sealed class RequestProperties : IRequestProperties
 {
-    private readonly PooledDictionary<string, object?> _data = new();
-
-    private bool _disposed;
+    private readonly Dictionary<string, object?> _data = new();
 
     #region Get-/Setters
 
@@ -59,28 +57,6 @@ public sealed class RequestProperties : IRequestProperties
     public void Clear()
     {
         _data.Clear();
-    }
-
-    #endregion
-
-    #region Disposal
-
-    private void Dispose(bool disposing)
-    {
-        if (!_disposed)
-        {
-            if (disposing)
-            {
-                _data?.Dispose();
-            }
-
-            _disposed = true;
-        }
-    }
-
-    public void Dispose()
-    {
-        Dispose(disposing: true);
     }
 
     #endregion
