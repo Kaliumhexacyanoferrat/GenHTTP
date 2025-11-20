@@ -1,5 +1,4 @@
 ﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Engine.Shared.Types;
 
 namespace GenHTTP.Engine.Internal.Protocol;
 

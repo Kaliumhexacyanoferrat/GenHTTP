@@ -42,7 +42,7 @@ internal sealed class Request : IRequest
 
     private readonly RequestProperties _properties = new();
 
-    private RequestQuery _query = new();
+    private readonly RequestQuery _query = new();
 
     private Stream? _content;
     private FlexibleContentType? _contentType;
