@@ -4,7 +4,7 @@ namespace GenHTTP.Engine.Shared.Types;
 
 public sealed class ResponseBuilder(Response response) : IResponseBuilder
 {
-    
+
     #region Functionality
 
     public IResponseBuilder Length(ulong length)
@@ -68,7 +68,7 @@ public sealed class ResponseBuilder(Response response) : IResponseBuilder
         response.Status = new FlexibleResponseStatus(status, reason);
         return this;
     }
-    
+
     public void Reset()
     {
         response.Reset();
