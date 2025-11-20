@@ -3,7 +3,7 @@
     <metadata>
 
         <id>GenHTTP.Core.Kestrel</id>
-        <version>10.1.0</version>
+        <version>10.2.0</version>
 
         <description>Basic dependencies for projects using the GenHTTP framework, combined with the Kestrel HTTP engine to serve requests</description>
 
@@ -22,13 +22,13 @@
 
             <group>
 
-                <dependency id="GenHTTP.Api" version="10.1.0"/>
+                <dependency id="GenHTTP.Api" version="10.2.0"/>
 
-                <dependency id="GenHTTP.Engine.Kestrel" version="10.1.0"/>
+                <dependency id="GenHTTP.Engine.Kestrel" version="10.2.0"/>
 
-                <dependency id="GenHTTP.Modules.Practices" version="10.1.0"/>
-                <dependency id="GenHTTP.Modules.IO" version="10.1.0"/>
-                <dependency id="GenHTTP.Modules.Layouting" version="10.1.0"/>
+                <dependency id="GenHTTP.Modules.Practices" version="10.2.0"/>
+                <dependency id="GenHTTP.Modules.IO" version="10.2.0"/>
+                <dependency id="GenHTTP.Modules.Layouting" version="10.2.0"/>
 
             </group>
 
