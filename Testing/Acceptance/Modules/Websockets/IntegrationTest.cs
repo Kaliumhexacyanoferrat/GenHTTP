@@ -63,8 +63,20 @@ public sealed class IntegrationTest
 
                            Assert.IsTrue(socket.IsAvailable);
 
-                           Assert.IsNotEmpty(socket.Request.Headers);
-
+                           var request = socket.Request;
+                           
+                           Assert.IsNotEmpty(request.Headers);
+                           
+                           Assert.IsEmpty(request.Cookies);
+                           
+                           Assert.IsEmpty(request.Forwardings);
+                           
+                           Assert.Contains("localhost", request.Host ?? string.Empty);
+                           
+                           Assert.Throws<NotSupportedException>(() => request.Upgrade());
+                           
+                           Assert.Throws<NotSupportedException>(() => request.Respond());
+                           
                            socket.Close(42);
 
                            waitEvent.Set();

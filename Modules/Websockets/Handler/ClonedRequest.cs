@@ -30,7 +30,7 @@ public class ClonedRequest : IRequest
 
     public string? Host => this["Host"];
 
-    public string? this[string additionalHeader] => throw new NotImplementedException();
+    public string? this[string additionalHeader] => Headers[additionalHeader];
 
     public IRequestQuery Query { get; }
 
@@ -112,11 +112,6 @@ internal class RequestQuery : Dictionary<string, string>, IRequestQuery
         }
     }
     
-    public void Dispose()
-    {
-        // nop
-    }
-    
 }
 
 internal class CookieCollection : Dictionary<string, Cookie>, ICookieCollection
@@ -128,11 +123,6 @@ internal class CookieCollection : Dictionary<string, Cookie>, ICookieCollection
         {
             Add(pair.Key, pair.Value);
         }
-    }
-    
-    public void Dispose()
-    {
-        // nop
     }
     
 }
@@ -149,11 +139,6 @@ internal class HeaderCollection : Dictionary<string, string>, IHeaderCollection
         }
     }
     
-    public void Dispose()
-    {
-        // nop
-    }
-    
 }
 
 internal class ForwardingCollection : List<Forwarding>, IForwardingCollection
@@ -165,11 +150,6 @@ internal class ForwardingCollection : List<Forwarding>, IForwardingCollection
         {
             Add(forwarding);
         }
-    }
-    
-    public void Dispose()
-    {
-        // nop
     }
     
 }
@@ -190,11 +170,6 @@ internal class RequestProperties : IRequestProperties
     }
 
     public void Clear(string key)
-    {
-        // nop
-    }
-    
-    public void Dispose()
     {
         // nop
     }
