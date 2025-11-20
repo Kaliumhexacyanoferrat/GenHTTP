@@ -6,5 +6,5 @@ var content = Content.From(Resource.FromString("Hello World!"));
 
 await Host.Create()
           .Handler(content)
-          .Defaults()
+          // .Defaults()
           .RunAsync(); // or StartAsync() for non-blocking

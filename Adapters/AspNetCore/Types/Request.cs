@@ -143,7 +143,16 @@ public sealed class Request : IRequest
 
         _clientConnection = _forwardings.DetermineClient(context.Connection.ClientCertificate) ?? LocalClient;
 
-        _endPoint = Server.EndPoints.First(e => e.Port == context.Connection.LocalPort);
+        for (var i = 0; i < Server.EndPoints.Count; i++)
+        {
+            var endpoint = Server.EndPoints[i];
+
+            if (endpoint.Port == context.Connection.LocalPort)
+            {
+                _endPoint = endpoint;
+                break;
+            }
+        }
     }
 
     internal void Reset()

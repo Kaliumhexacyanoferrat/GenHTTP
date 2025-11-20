@@ -96,12 +96,7 @@ internal sealed class RequestParser
 
             if (await Scanner.Next(buffer, RequestToken.Word, includeWhitespace: true))
             {
-                var query = QueryConverter.ToQuery(Scanner.Value);
-
-                if (query != null)
-                {
-                    Request.SetQuery(query);
-                }
+                QueryConverter.Emit(Request, Scanner.Value);
             }
         }
         else

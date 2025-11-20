@@ -204,9 +204,9 @@ internal sealed class Request : IRequest
         _method = method;
     }
 
-    internal void SetQuery(RequestQuery query)
+    internal void SetQuery(string key, string value)
     {
-        _query = query;
+        _query[key] = value;
     }
 
     internal void Reset()
