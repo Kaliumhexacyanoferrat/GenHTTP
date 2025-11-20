@@ -45,13 +45,13 @@ public sealed class CookieTests
     private class TestProvider : IHandler
     {
 
-        public ICookieCollection? Cookies { get; private set; }
+        public Dictionary<string, Cookie>? Cookies { get; private set; }
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            Cookies = request.Cookies;
+            Cookies = new(request.Cookies);
 
             return request.Respond()
                           .Cookie(new Cookie("TestCookie", "TestValue", 86400))
@@ -61,4 +61,5 @@ public sealed class CookieTests
 
         }
     }
+
 }
