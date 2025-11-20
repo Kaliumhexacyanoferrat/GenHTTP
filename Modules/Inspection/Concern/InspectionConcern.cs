@@ -38,7 +38,7 @@ public sealed class InspectionConcern : IConcern
     {
         if (request.Query.ContainsKey("inspect"))
         {
-            using var content = await Content.HandleAsync(request);
+            var content = await Content.HandleAsync(request);
 
             var server = request.Server;
 
@@ -61,13 +61,13 @@ public sealed class InspectionConcern : IConcern
                 Client = new
                 {
                     Protocol = request.Client.Protocol,
-                    IPAddress = request.Client.IPAddress.ToString(),
+                    IPAddress = request.Client.IPAddress?.ToString(),
                     Host = request.Client.Host
                 },
                 LocalClient = (request.Client != request.LocalClient) ? new
                 {
                     Protocol = request.LocalClient.Protocol,
-                    IPAddress = request.LocalClient.IPAddress.ToString(),
+                    IPAddress = request.LocalClient.IPAddress?.ToString(),
                     Host = request.LocalClient.Host
                 } : null,
                 Request = new

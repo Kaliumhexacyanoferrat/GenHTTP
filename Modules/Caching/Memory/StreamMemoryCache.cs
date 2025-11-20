@@ -4,13 +4,13 @@ namespace GenHTTP.Modules.Caching.Memory;
 
 public sealed class StreamMemoryCache : ICache<Stream>
 {
-    private readonly MemoryCache<byte[]> _Cache = new();
+    private readonly MemoryCache<byte[]> _cache = new();
 
     #region Functionality
 
     public async ValueTask<Stream[]> GetEntriesAsync(string key)
     {
-        var entries = await _Cache.GetEntriesAsync(key);
+        var entries = await _cache.GetEntriesAsync(key);
 
         var result = new List<Stream>(entries.Length);
 
@@ -24,7 +24,7 @@ public sealed class StreamMemoryCache : ICache<Stream>
 
     public async ValueTask<Stream?> GetEntryAsync(string key, string variation)
     {
-        var entry = await _Cache.GetEntryAsync(key, variation);
+        var entry = await _cache.GetEntryAsync(key, variation);
 
         return (entry != null) ? new MemoryStream(entry) : null;
     }
@@ -37,11 +37,11 @@ public sealed class StreamMemoryCache : ICache<Stream>
 
             await entry.CopyToAsync(memoryStream);
 
-            await _Cache.StoreAsync(key, variation, memoryStream.ToArray());
+            await _cache.StoreAsync(key, variation, memoryStream.ToArray());
         }
         else
         {
-            await _Cache.StoreAsync(key, variation, null);
+            await _cache.StoreAsync(key, variation, null);
         }
     }
 
@@ -51,7 +51,7 @@ public sealed class StreamMemoryCache : ICache<Stream>
 
         await asyncWriter(memoryStream);
 
-        await _Cache.StoreAsync(key, variation, memoryStream.ToArray());
+        await _cache.StoreAsync(key, variation, memoryStream.ToArray());
     }
 
     #endregion

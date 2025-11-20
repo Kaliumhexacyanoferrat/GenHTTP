@@ -2,9 +2,9 @@
 
 namespace GenHTTP.Engine.Shared.Types;
 
-public sealed class ResponseHeaderCollection : PooledDictionary<string, string>, IHeaderCollection, IEditableHeaderCollection
+public sealed class ResponseHeaderCollection : MultiEntryDictionary<string, string>, IHeaderCollection, IEditableHeaderCollection
 {
-    private const int DefaultSize = 18;
+    private const int DefaultSize = 12;
 
     private static readonly HashSet<string> ReservedHeaders = new(StringComparer.InvariantCultureIgnoreCase)
     {

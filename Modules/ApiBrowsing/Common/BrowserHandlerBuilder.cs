@@ -4,11 +4,11 @@ namespace GenHTTP.Modules.ApiBrowsing.Common;
 
 public class BrowserHandlerBuilder(string resourceRoot, string title) : IHandlerBuilder<BrowserHandlerBuilder>
 {
-    private readonly List<IConcernBuilder> _Concerns = [];
+    private readonly List<IConcernBuilder> _concerns = [];
 
-    private string? _Url;
+    private string? _url;
 
-    private string _Title = title;
+    private string _title = title;
 
     /// <summary>
     /// Sets the URL of the Open API definition to be consumed (defaults to "../openapi.json").
@@ -17,7 +17,7 @@ public class BrowserHandlerBuilder(string resourceRoot, string title) : IHandler
     /// <param name="url">The URL the application will fetch the Open API definition from</param>
     public BrowserHandlerBuilder Url(string url)
     {
-        _Url = url;
+        _url = url;
         return this;
     }
 
@@ -27,21 +27,21 @@ public class BrowserHandlerBuilder(string resourceRoot, string title) : IHandler
     /// <param name="title">The title of the application to be set</param>
     public BrowserHandlerBuilder Title(string title)
     {
-        _Title = title;
+        _title = title;
         return this;
     }
 
     public BrowserHandlerBuilder Add(IConcernBuilder concern)
     {
-        _Concerns.Add(concern);
+        _concerns.Add(concern);
         return this;
     }
 
     public IHandler Build()
     {
-        var meta = new BrowserMetaData(_Url, _Title);
+        var meta = new BrowserMetaData(_url, _title);
 
-        return Concerns.Chain(_Concerns, new BrowserHandler(resourceRoot, meta));
+        return Concerns.Chain(_concerns, new BrowserHandler(resourceRoot, meta));
     }
 
 }

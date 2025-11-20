@@ -4,7 +4,7 @@ namespace GenHTTP.Modules.OpenApi.Discovery;
 
 public sealed class ApiDiscoveryRegistryBuilder : IBuilder<ApiDiscoveryRegistry>
 {
-    private readonly List<IApiExplorer> _Explorers = [];
+    private readonly List<IApiExplorer> _explorers = [];
 
     #region Functionality
 
@@ -20,11 +20,11 @@ public sealed class ApiDiscoveryRegistryBuilder : IBuilder<ApiDiscoveryRegistry>
     /// <param name="explorer">The explorer to be added</param>
     public ApiDiscoveryRegistryBuilder Add(IApiExplorer explorer)
     {
-        _Explorers.Add(explorer);
+        _explorers.Add(explorer);
         return this;
     }
 
-    public ApiDiscoveryRegistry Build() => new(_Explorers);
+    public ApiDiscoveryRegistry Build() => new(_explorers);
 
     #endregion
 

@@ -7,21 +7,21 @@ public sealed class LoadBalancerBuilder : IHandlerBuilder<LoadBalancerBuilder>
 {
     private static readonly PriorityEvaluation DefaultPriority = _ => Priority.Medium;
 
-    private readonly List<IConcernBuilder> _Concerns = [];
+    private readonly List<IConcernBuilder> _concerns = [];
 
-    private readonly List<(IHandlerBuilder, PriorityEvaluation)> _Nodes = [];
+    private readonly List<(IHandlerBuilder, PriorityEvaluation)> _nodes = [];
 
     #region Functionality
 
     public LoadBalancerBuilder Add(IConcernBuilder concern)
     {
-        _Concerns.Add(concern);
+        _concerns.Add(concern);
         return this;
     }
 
     public LoadBalancerBuilder Add(IHandlerBuilder handler, PriorityEvaluation? priority = null)
     {
-        _Nodes.Add((handler, priority ?? DefaultPriority));
+        _nodes.Add((handler, priority ?? DefaultPriority));
         return this;
     }
 
@@ -31,7 +31,7 @@ public sealed class LoadBalancerBuilder : IHandlerBuilder<LoadBalancerBuilder>
 
     public IHandler Build()
     {
-        return Concerns.Chain(_Concerns,  new LoadBalancerHandler( _Nodes));
+        return Concerns.Chain(_concerns,  new LoadBalancerHandler( _nodes));
     }
 
     #endregion

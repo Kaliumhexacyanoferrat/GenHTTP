@@ -6,29 +6,29 @@ namespace GenHTTP.Modules.IO.FileSystem;
 
 public sealed class FileResourceBuilder : IResourceBuilder<FileResourceBuilder>
 {
-    private FileInfo? _File;
+    private FileInfo? _file;
 
-    private string? _Name;
+    private string? _name;
 
-    private FlexibleContentType? _Type;
+    private FlexibleContentType? _type;
 
     #region Functionality
 
     public FileResourceBuilder File(FileInfo file)
     {
-        _File = file;
+        _file = file;
         return this;
     }
 
     public FileResourceBuilder Name(string name)
     {
-        _Name = name;
+        _name = name;
         return this;
     }
 
     public FileResourceBuilder Type(FlexibleContentType contentType)
     {
-        _Type = contentType;
+        _type = contentType;
         return this;
     }
 
@@ -36,14 +36,14 @@ public sealed class FileResourceBuilder : IResourceBuilder<FileResourceBuilder>
 
     public IResource Build()
     {
-        var file = _File ?? throw new BuilderMissingPropertyException("file");
+        var file = _file ?? throw new BuilderMissingPropertyException("file");
 
         if (!file.Exists)
         {
             throw new FileNotFoundException("The given file does not exist", file.FullName);
         }
 
-        return new FileResource(file, _Name, _Type);
+        return new FileResource(file, _name, _type);
     }
 
     #endregion

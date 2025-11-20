@@ -10,7 +10,7 @@ namespace GenHTTP.Modules.Authentication.Bearer;
 
 #region Supporting data structures
 
-internal class OpenIDConfiguration
+internal class OpenIdConfiguration
 {
 
     [JsonPropertyName("jwks_uri")]
@@ -21,7 +21,7 @@ internal class OpenIDConfiguration
 
 internal sealed class BearerAuthenticationConcern : IConcern
 {
-    private ICollection<SecurityKey>? _IssuerKeys;
+    private ICollection<SecurityKey>? _issuerKeys;
 
     #region Get-/Setters
 
@@ -73,16 +73,16 @@ internal sealed class BearerAuthenticationConcern : IConcern
 
         var audience = ValidationOptions.Audience;
 
-        if (issuer != null && _IssuerKeys == null)
+        if (issuer != null && _issuerKeys == null)
         {
-            _IssuerKeys = await FetchSigningKeys(issuer);
+            _issuerKeys = await FetchSigningKeys(issuer);
         }
 
         var validationParameters = new TokenValidationParameters
         {
             ValidIssuer = issuer,
             ValidateIssuer = issuer != null,
-            IssuerSigningKeys = _IssuerKeys,
+            IssuerSigningKeys = _issuerKeys,
             ValidAudience = audience,
             ValidateAudience = audience != null,
             ValidateLifetime = ValidationOptions.Lifetime
@@ -132,7 +132,7 @@ internal sealed class BearerAuthenticationConcern : IConcern
 
             var configResponse = await httpClient.GetStringAsync(configUrl);
 
-            var config = JsonSerializer.Deserialize<OpenIDConfiguration>(configResponse)
+            var config = JsonSerializer.Deserialize<OpenIdConfiguration>(configResponse)
                 ?? throw new InvalidOperationException($"Unable to discover configuration via '{configUrl}'");
 
             var keyResponse = await httpClient.GetStringAsync(config.KeySetUrl);

@@ -20,7 +20,7 @@ namespace GenHTTP.Engine.Internal.Protocol;
 /// </remarks>
 internal sealed class RequestBuffer : IDisposable
 {
-    private ReadOnlySequence<byte>? _Data;
+    private ReadOnlySequence<byte>? _data;
 
     #region Initialization
 
@@ -40,9 +40,9 @@ internal sealed class RequestBuffer : IDisposable
 
     private CancellationTokenSource? Cancellation { get; set; }
 
-    internal ReadOnlySequence<byte> Data => _Data ?? new ReadOnlySequence<byte>();
+    internal ReadOnlySequence<byte> Data => _data ?? new ReadOnlySequence<byte>();
 
-    internal bool ReadRequired => _Data == null || _Data.Value.IsEmpty;
+    internal bool ReadRequired => _data == null || _data.Value.IsEmpty;
 
     internal bool Timeout { get; private set; }
 
@@ -60,7 +60,7 @@ internal sealed class RequestBuffer : IDisposable
             {
                 Cancellation.CancelAfter(Configuration.RequestReadTimeout);
 
-                _Data = (await Reader.ReadAsync(Cancellation.Token)).Buffer;
+                _data = (await Reader.ReadAsync(Cancellation.Token)).Buffer;
 
                 Cancellation.CancelAfter(int.MaxValue);
             }
@@ -80,19 +80,19 @@ internal sealed class RequestBuffer : IDisposable
 
     internal void Advance(long bytes)
     {
-        _Data = Data.Slice(bytes);
-        Reader.AdvanceTo(_Data.Value.Start);
+        _data = Data.Slice(bytes);
+        Reader.AdvanceTo(_data.Value.Start);
     }
 
     #endregion
 
     #region Disposing
 
-    private bool _DisposedValue;
+    private bool _disposedValue;
 
     public void Dispose()
     {
-        if (!_DisposedValue)
+        if (!_disposedValue)
         {
             if (Cancellation is not null)
             {
@@ -100,7 +100,7 @@ internal sealed class RequestBuffer : IDisposable
                 Cancellation = null;
             }
 
-            _DisposedValue = true;
+            _disposedValue = true;
         }
     }
 

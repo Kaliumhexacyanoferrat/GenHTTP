@@ -6,29 +6,29 @@ namespace GenHTTP.Modules.IO.Embedded;
 
 public sealed class EmbeddedResourceTreeBuilder : IBuilder<IResourceTree>
 {
-    private string? _Root;
+    private string? _root;
 
-    private Assembly? _Source;
+    private Assembly? _source;
 
     #region Functionality
 
     public EmbeddedResourceTreeBuilder Source(Assembly source)
     {
-        _Source = source;
+        _source = source;
         return this;
     }
 
     public EmbeddedResourceTreeBuilder Root(string root)
     {
-        _Root = root;
+        _root = root;
         return this;
     }
 
     public IResourceTree Build()
     {
-        var source = _Source ?? throw new BuilderMissingPropertyException("source");
+        var source = _source ?? throw new BuilderMissingPropertyException("source");
 
-        var root = _Root ?? throw new BuilderMissingPropertyException("root");
+        var root = _root ?? throw new BuilderMissingPropertyException("root");
 
         return new EmbeddedResourceTree(source, root);
     }

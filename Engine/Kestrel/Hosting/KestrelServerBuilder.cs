@@ -9,16 +9,16 @@ namespace GenHTTP.Engine.Kestrel.Hosting;
 
 public sealed class KestrelServerBuilder : ServerBuilder
 {
-    private readonly Action<WebApplicationBuilder>? _ConfigurationHook;
+    private readonly Action<WebApplicationBuilder>? _configurationHook;
 
-    private readonly Action<WebApplication>? _ApplicationHook;
+    private readonly Action<WebApplication>? _applicationHook;
 
     public KestrelServerBuilder(Action<WebApplicationBuilder>? configurationHook, Action<WebApplication>? applicationHook)
     {
-        _ConfigurationHook = configurationHook;
-        _ApplicationHook = applicationHook;
+        _configurationHook = configurationHook;
+        _applicationHook = applicationHook;
     }
 
-    protected override IServer Build(IServerCompanion? companion, ServerConfiguration config, IHandler handler) => new KestrelServer(companion, config, handler, _ConfigurationHook, _ApplicationHook);
+    protected override IServer Build(IServerCompanion? companion, ServerConfiguration config, IHandler handler) => new KestrelServer(companion, config, handler, _configurationHook, _applicationHook);
 
 }

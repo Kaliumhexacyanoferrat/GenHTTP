@@ -310,12 +310,12 @@ public sealed class ReverseProxyTests
 
     private class TestSetup : IAsyncDisposable
     {
-        private readonly TestHost _Target;
+        private readonly TestHost _target;
 
         private TestSetup(TestHost source, TestHost target)
         {
             Runner = source;
-            _Target = target;
+            _target = target;
         }
 
         public TestHost Runner { get; }
@@ -344,19 +344,19 @@ public sealed class ReverseProxyTests
 
         #region IDisposable Support
 
-        private bool _DisposedValue;
+        private bool _disposedValue;
 
         protected virtual async ValueTask DisposeAsync(bool disposing)
         {
-            if (!_DisposedValue)
+            if (!_disposedValue)
             {
                 if (disposing)
                 {
                     await Runner.DisposeAsync();
-                    await _Target.DisposeAsync();
+                    await _target.DisposeAsync();
                 }
 
-                _DisposedValue = true;
+                _disposedValue = true;
             }
         }
 
@@ -368,26 +368,26 @@ public sealed class ReverseProxyTests
 
     private class ProxiedRouter : IHandler
     {
-        private readonly Func<IRequest, IResponse?> _Response;
+        private readonly Func<IRequest, IResponse?> _response;
 
         public ProxiedRouter(Func<IRequest, IResponse?> response)
         {
-            _Response = response;
+            _response = response;
         }
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public ValueTask<IResponse?> HandleAsync(IRequest request) => new ProxiedProvider(_Response).HandleAsync(request);
+        public ValueTask<IResponse?> HandleAsync(IRequest request) => new ProxiedProvider(_response).HandleAsync(request);
 
     }
 
     private class ProxiedProvider : IHandler
     {
-        private readonly Func<IRequest, IResponse?> _Response;
+        private readonly Func<IRequest, IResponse?> _response;
 
         public ProxiedProvider(Func<IRequest, IResponse?> response)
         {
-            _Response = response;
+            _response = response;
         }
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
@@ -397,7 +397,7 @@ public sealed class ReverseProxyTests
             Assert.AreNotEqual(request.Client, request.LocalClient);
             Assert.IsNotEmpty(request.Forwardings);
 
-            var response = _Response.Invoke(request);
+            var response = _response.Invoke(request);
 
             if (response is not null)
             {

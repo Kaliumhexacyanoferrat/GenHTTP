@@ -9,13 +9,13 @@ public sealed class Query : IRequestQuery
 
     #region Get-/Setters
 
-    public int Count => Request.Query.Count;
+    public int Count => Request?.Query.Count ?? 0;
 
-    public bool ContainsKey(string key) => Request.Query.ContainsKey(key);
+    public bool ContainsKey(string key) => Request?.Query.ContainsKey(key) ?? false;
 
     public bool TryGetValue(string key, out string value)
     {
-        if (Request.Query.TryGetValue(key, out var stringValue))
+        if (Request?.Query.TryGetValue(key, out var stringValue) ?? false)
         {
             value = stringValue.FirstOrDefault() ?? string.Empty;
             return true;
@@ -25,63 +25,56 @@ public sealed class Query : IRequestQuery
         return false;
     }
 
-    public string this[string key] => Request.Query[key][0] ?? string.Empty;
+    public string this[string key] => Request?.Query[key][0] ?? string.Empty;
 
-    public IEnumerable<string> Keys => Request.Query.Keys;
+    public IEnumerable<string> Keys => Request?.Query.Keys ?? Enumerable.Empty<string>();
 
     public IEnumerable<string> Values
     {
         get
         {
-            foreach (var entry in Request.Query)
+            if (Request != null)
             {
-                foreach (var value in entry.Value)
+                foreach (var entry in Request.Query)
                 {
-                    if (value != null) yield return value;
+                    foreach (var value in entry.Value)
+                    {
+                        if (value != null) yield return value;
+                    }
                 }
             }
         }
     }
 
-    private HttpRequest Request { get; }
-
-    #endregion
-
-    #region Initialization
-
-    public Query(HttpRequest request)
-    {
-        Request = request;
-    }
+    private HttpRequest? Request { get; set; }
 
     #endregion
 
     #region Functionality
 
+    internal void SetRequest(HttpRequest? request)
+    {
+        Request = request;
+    }
+
     public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
     {
-        foreach (var entry in Request.Query)
+        if (Request != null)
         {
-            foreach (var stringEntry in entry.Value)
+            foreach (var entry in Request.Query)
             {
-                if (stringEntry != null)
+                foreach (var stringEntry in entry.Value)
                 {
-                    yield return new(entry.Key, stringEntry);
+                    if (stringEntry != null)
+                    {
+                        yield return new(entry.Key, stringEntry);
+                    }
                 }
             }
         }
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    #endregion
-
-    #region Lifecycle
-
-    public void Dispose()
-    {
-
-    }
 
     #endregion
 

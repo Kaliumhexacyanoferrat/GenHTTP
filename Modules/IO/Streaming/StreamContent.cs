@@ -4,9 +4,9 @@ namespace GenHTTP.Modules.IO.Streaming;
 
 public sealed class StreamContent : IResponseContent, IDisposable
 {
-    private readonly Func<ValueTask<ulong?>> _ChecksumProvider;
+    private readonly Func<ValueTask<ulong?>> _checksumProvider;
 
-    private readonly ulong? _KnownLengh;
+    private readonly ulong? _knownLengh;
 
     #region Initialization
 
@@ -14,8 +14,8 @@ public sealed class StreamContent : IResponseContent, IDisposable
     {
         Content = content;
 
-        _KnownLengh = knownLength;
-        _ChecksumProvider = checksumProvider;
+        _knownLengh = knownLength;
+        _checksumProvider = checksumProvider;
     }
 
     #endregion
@@ -28,9 +28,9 @@ public sealed class StreamContent : IResponseContent, IDisposable
     {
         get
         {
-            if (_KnownLengh != null)
+            if (_knownLengh != null)
             {
-                return _KnownLengh;
+                return _knownLengh;
             }
 
             if (Content.CanSeek)
@@ -46,7 +46,7 @@ public sealed class StreamContent : IResponseContent, IDisposable
 
     #region Functionality
 
-    public ValueTask<ulong?> CalculateChecksumAsync() => _ChecksumProvider();
+    public ValueTask<ulong?> CalculateChecksumAsync() => _checksumProvider();
 
     public ValueTask WriteAsync(Stream target, uint bufferSize) => Content.CopyPooledAsync(target, bufferSize);
 
@@ -54,18 +54,18 @@ public sealed class StreamContent : IResponseContent, IDisposable
 
     #region IDisposable Support
 
-    private bool _Disposed;
+    private bool _disposed;
 
     private void Dispose(bool disposing)
     {
-        if (!_Disposed)
+        if (!_disposed)
         {
             if (disposing)
             {
                 Content.Dispose();
             }
 
-            _Disposed = true;
+            _disposed = true;
         }
     }
 

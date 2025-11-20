@@ -6,43 +6,43 @@ namespace GenHTTP.Modules.IO.Strings;
 
 public sealed class StringResourceBuilder : IResourceBuilder<StringResourceBuilder>
 {
-    private string? _Content, _Name;
+    private string? _content, _name;
 
-    private FlexibleContentType? _ContentType;
+    private FlexibleContentType? _contentType;
 
-    private DateTime? _Modified;
+    private DateTime? _modified;
 
     #region Functionality
 
     public StringResourceBuilder Content(string content)
     {
-        _Content = content;
+        _content = content;
         return this;
     }
 
     public StringResourceBuilder Name(string name)
     {
-        _Name = name;
+        _name = name;
         return this;
     }
 
     public StringResourceBuilder Type(FlexibleContentType contentType)
     {
-        _ContentType = contentType;
+        _contentType = contentType;
         return this;
     }
 
     public StringResourceBuilder Modified(DateTime modified)
     {
-        _Modified = modified;
+        _modified = modified;
         return this;
     }
 
     public IResource Build()
     {
-        var content = _Content ?? throw new BuilderMissingPropertyException("content");
+        var content = _content ?? throw new BuilderMissingPropertyException("content");
 
-        return new StringResource(content, _Name, _ContentType, _Modified);
+        return new StringResource(content, _name, _contentType, _modified);
     }
 
     #endregion

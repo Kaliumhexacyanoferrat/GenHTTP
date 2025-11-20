@@ -6,23 +6,23 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider;
 
 public sealed class SinglePageBuilder : IHandlerBuilder<SinglePageBuilder>
 {
-    private readonly List<IConcernBuilder> _Concerns = [];
+    private readonly List<IConcernBuilder> _concerns = [];
 
-    private bool _ServerSideRouting;
+    private bool _serverSideRouting;
 
-    private IResourceTree? _Tree;
+    private IResourceTree? _tree;
 
     #region Functionality
 
     public SinglePageBuilder Add(IConcernBuilder concern)
     {
-        _Concerns.Add(concern);
+        _concerns.Add(concern);
         return this;
     }
 
     public SinglePageBuilder Tree(IResourceTree tree)
     {
-        _Tree = tree;
+        _tree = tree;
         return this;
     }
 
@@ -34,15 +34,15 @@ public sealed class SinglePageBuilder : IHandlerBuilder<SinglePageBuilder>
     /// </summary>
     public SinglePageBuilder ServerSideRouting()
     {
-        _ServerSideRouting = true;
+        _serverSideRouting = true;
         return this;
     }
 
     public IHandler Build()
     {
-        var tree = _Tree ?? throw new BuilderMissingPropertyException("tree");
+        var tree = _tree ?? throw new BuilderMissingPropertyException("tree");
 
-        return Concerns.Chain(_Concerns,  new SinglePageProvider( tree, _ServerSideRouting));
+        return Concerns.Chain(_concerns,  new SinglePageProvider( tree, _serverSideRouting));
     }
 
     #endregion

@@ -14,15 +14,15 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>, IRegistryBuilder<In
 {
     private static readonly HashSet<FlexibleRequestMethod> AllMethods = [..Enum.GetValues<RequestMethod>().Select(FlexibleRequestMethod.Get)];
 
-    private readonly List<IConcernBuilder> _Concerns = [];
+    private readonly List<IConcernBuilder> _concerns = [];
 
-    private readonly List<InlineFunction> _Functions = [];
+    private readonly List<InlineFunction> _functions = [];
 
-    private IBuilder<FormatterRegistry>? _Formatters;
+    private IBuilder<FormatterRegistry>? _formatters;
 
-    private IBuilder<InjectionRegistry>? _Injectors;
+    private IBuilder<InjectionRegistry>? _injectors;
 
-    private IBuilder<SerializationRegistry>? _Serializers;
+    private IBuilder<SerializationRegistry>? _serializers;
 
     #region Functionality
 
@@ -33,7 +33,7 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>, IRegistryBuilder<In
     /// <param name="registry">The registry to be used by the handler</param>
     public InlineBuilder Serializers(IBuilder<SerializationRegistry> registry)
     {
-        _Serializers = registry;
+        _serializers = registry;
         return this;
     }
 
@@ -43,7 +43,7 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>, IRegistryBuilder<In
     /// <param name="registry">The registry to be used by the handler</param>
     public InlineBuilder Injectors(IBuilder<InjectionRegistry> registry)
     {
-        _Injectors = registry;
+        _injectors = registry;
         return this;
     }
 
@@ -53,7 +53,7 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>, IRegistryBuilder<In
     /// <param name="registry">The registry to be used by the handler</param>
     public InlineBuilder Formatters(IBuilder<FormatterRegistry> registry)
     {
-        _Formatters = registry;
+        _formatters = registry;
         return this;
     }
 
@@ -153,28 +153,28 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>, IRegistryBuilder<In
 
         var config = new MethodConfiguration(requestMethods);
 
-        _Functions.Add(new InlineFunction(path, config, function));
+        _functions.Add(new InlineFunction(path, config, function));
 
         return this;
     }
 
     public InlineBuilder Add(IConcernBuilder concern)
     {
-        _Concerns.Add(concern);
+        _concerns.Add(concern);
         return this;
     }
 
     public IHandler Build()
     {
-        var serializers = (_Serializers ?? Serialization.Default()).Build();
+        var serializers = (_serializers ?? Serialization.Default()).Build();
 
-        var injectors = (_Injectors ?? Injection.Default()).Build();
+        var injectors = (_injectors ?? Injection.Default()).Build();
 
-        var formatters = (_Formatters ?? Formatting.Default()).Build();
+        var formatters = (_formatters ?? Formatting.Default()).Build();
 
         var extensions = new MethodRegistry(serializers, injectors, formatters);
 
-        return Concerns.Chain(_Concerns, new InlineHandler(_Functions, extensions));
+        return Concerns.Chain(_concerns, new InlineHandler(_functions, extensions));
     }
 
     #endregion

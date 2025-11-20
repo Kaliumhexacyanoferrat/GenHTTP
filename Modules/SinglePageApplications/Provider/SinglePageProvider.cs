@@ -13,7 +13,7 @@ public sealed class SinglePageProvider : IHandler
         "index.htm"
     };
 
-    private IHandler? _Index;
+    private IHandler? _index;
 
     #region Get-/Setters
 
@@ -73,7 +73,7 @@ public sealed class SinglePageProvider : IHandler
 
     private async ValueTask<IHandler?> GetIndex()
     {
-        if (_Index == null)
+        if (_index == null)
         {
             foreach (var index in IndexFiles)
             {
@@ -81,7 +81,7 @@ public sealed class SinglePageProvider : IHandler
 
                 if ((indexFile = await Tree.TryGetResourceAsync(index)) != null)
                 {
-                    _Index = Content.From(indexFile)
+                    _index = Content.From(indexFile)
                                     .Build();
 
                     break;
@@ -89,7 +89,7 @@ public sealed class SinglePageProvider : IHandler
             }
         }
 
-        return _Index;
+        return _index;
     }
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;

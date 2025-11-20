@@ -2,15 +2,13 @@
 using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
-
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Engine.Internal.Protocol.Parser;
 using GenHTTP.Engine.Internal.Utilities;
 using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Types;
-
+using Microsoft.Extensions.ObjectPool;
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
 namespace GenHTTP.Engine.Internal.Protocol;
@@ -26,6 +24,8 @@ namespace GenHTTP.Engine.Internal.Protocol;
 internal sealed class ClientHandler
 {
     private static readonly StreamPipeReaderOptions ReaderOptions = new(MemoryPool<byte>.Shared, leaveOpen: true, bufferSize: 65536);
+
+    private static readonly DefaultObjectPool<ClientContext> ContextPool = new(new ClientContextPolicy(), 65536);
 
     #region Get-/Setter
 
@@ -111,19 +111,35 @@ internal sealed class ClientHandler
 
     private async ValueTask<ConnectionStatus> HandlePipe(PipeReader reader)
     {
+        var context = ContextPool.Get();
+
         try
         {
             using var buffer = new RequestBuffer(reader, Configuration);
 
-            var parser = new RequestParser(Configuration);
+            var parser = new RequestParser(Configuration, context.Request);
 
             try
             {
-                RequestBuilder? request;
+                var firstRequest = true;
 
-                while (Server.Running && (request = await parser.TryParseAsync(buffer)) is not null)
+                while (Server.Running)
                 {
-                    var status = await HandleRequest(request, !buffer.ReadRequired);
+                    if (firstRequest)
+                    {
+                        firstRequest = false;
+                    }
+                    else
+                    {
+                        context.Reset();
+                    }
+
+                    if (!await parser.TryParseAsync(buffer))
+                    {
+                        break;
+                    }
+
+                    var status = await HandleRequest(context.Request, !buffer.ReadRequired);
 
                     if (status is ConnectionStatus.Close or ConnectionStatus.Upgraded)
                     {
@@ -146,21 +162,23 @@ internal sealed class ClientHandler
         }
         finally
         {
+            ContextPool.Return(context);
+
             await reader.CompleteAsync();
         }
 
         return ConnectionStatus.Close;
     }
 
-    private async ValueTask<ConnectionStatus> HandleRequest(RequestBuilder builder, bool dataRemaining)
+    private async ValueTask<ConnectionStatus> HandleRequest(Request request, bool dataRemaining)
     {
-        using var request = builder.Connection(Server, Connection, Stream, EndPoint, Connection.GetAddress(), ClientCertificate).Build();
+        request.SetConnection(Server, Connection, Stream, EndPoint, Connection.GetAddress(), ClientCertificate);
 
         KeepAlive ??= request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? request.ProtocolType == HttpProtocol.Http11;
 
         var keepAlive = KeepAlive.Value;
 
-        using var response = await Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
+        var response = await Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
 
         if (response.Upgraded)
         {
@@ -178,9 +196,9 @@ internal sealed class ClientHandler
         {
             var message = Server.Development ? e.ToString() : e.Message;
 
-            var response = new ResponseBuilder().Status(status)
-                                                .Content(new StringContent(message))
-                                                .Build();
+            using var response = new ResponseBuilder(new()).Status(status)
+                                                           .Content(new StringContent(message))
+                                                           .Build();
 
             await ResponseHandler.Handle(null, response, HttpProtocol.Http10, false, false);
         }

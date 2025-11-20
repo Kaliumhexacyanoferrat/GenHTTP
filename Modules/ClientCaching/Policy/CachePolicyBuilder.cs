@@ -6,9 +6,9 @@ namespace GenHTTP.Modules.ClientCaching.Policy;
 
 public sealed class CachePolicyBuilder : IConcernBuilder
 {
-    private TimeSpan? _Duration;
+    private TimeSpan? _duration;
 
-    private Func<IRequest, IResponse, bool>? _Predicate;
+    private Func<IRequest, IResponse, bool>? _predicate;
 
     #region Functionality
 
@@ -19,7 +19,7 @@ public sealed class CachePolicyBuilder : IConcernBuilder
     /// <param name="duration">The duration the content should be cached on the client</param>
     public CachePolicyBuilder Duration(TimeSpan duration)
     {
-        _Duration = duration;
+        _duration = duration;
         return this;
     }
 
@@ -37,15 +37,15 @@ public sealed class CachePolicyBuilder : IConcernBuilder
     /// <param name="predicate">The predicate to be evaluated to check, whether content should be cached</param>
     public CachePolicyBuilder Predicate(Func<IRequest, IResponse, bool> predicate)
     {
-        _Predicate = predicate;
+        _predicate = predicate;
         return this;
     }
 
     public IConcern Build(IHandler content)
     {
-        var duration = _Duration ?? throw new BuilderMissingPropertyException("Duration");
+        var duration = _duration ?? throw new BuilderMissingPropertyException("Duration");
 
-        return new CachePolicyConcern(content, duration, _Predicate);
+        return new CachePolicyConcern(content, duration, _predicate);
     }
 
     #endregion

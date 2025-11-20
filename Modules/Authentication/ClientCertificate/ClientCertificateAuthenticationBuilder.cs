@@ -8,7 +8,7 @@ namespace GenHTTP.Modules.Authentication.ClientCertificate;
 
 public sealed class ClientCertificateAuthenticationBuilder : IConcernBuilder
 {
-    private readonly ClientCertificateAuthenticationOptions _Options = new();
+    private readonly ClientCertificateAuthenticationOptions _options = new();
 
     /// <summary>
     /// Sets a delegate that will be invoked to check whether the client
@@ -18,7 +18,7 @@ public sealed class ClientCertificateAuthenticationBuilder : IConcernBuilder
     /// <param name="authorizer">The delegate to be invoked for authorization</param>
     public ClientCertificateAuthenticationBuilder Authorization(Func<IRequest, X509Certificate?, ValueTask<bool>> authorizer)
     {
-        _Options.Authorizer = authorizer;
+        _options.Authorizer = authorizer;
         return this;
     }
 
@@ -29,13 +29,13 @@ public sealed class ClientCertificateAuthenticationBuilder : IConcernBuilder
     /// <param name="userMapping">The delegate to determine the user</param>
     public ClientCertificateAuthenticationBuilder UserMapping(Func<IRequest, X509Certificate?, ValueTask<IUser?>> userMapping)
     {
-        _Options.UserMapping = userMapping;
+        _options.UserMapping = userMapping;
         return this;
     }
 
     public IConcern Build(IHandler content)
     {
-        return new ClientCertificateAuthenticationConcern(content, _Options);
+        return new ClientCertificateAuthenticationConcern(content, _options);
     }
 
 }

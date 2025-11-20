@@ -6,31 +6,31 @@ namespace GenHTTP.Modules.Authentication.Basic;
 
 public sealed class BasicAuthenticationKnownUsersBuilder : IConcernBuilder
 {
-    private readonly Dictionary<string, string> _Users = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, string> _users = new(StringComparer.OrdinalIgnoreCase);
 
-    private string? _Realm;
+    private string? _realm;
 
     #region Functionality
 
     public BasicAuthenticationKnownUsersBuilder Realm(string realm)
     {
-        _Realm = realm;
+        _realm = realm;
         return this;
     }
 
     public BasicAuthenticationKnownUsersBuilder Add(string user, string password)
     {
-        _Users.Add(user, password);
+        _users.Add(user, password);
         return this;
     }
 
     public IConcern Build(IHandler content)
     {
-        var realm = _Realm ?? throw new BuilderMissingPropertyException("Realm");
+        var realm = _realm ?? throw new BuilderMissingPropertyException("Realm");
 
         return new BasicAuthenticationConcern(content, realm, (user, password) =>
         {
-            if (_Users.TryGetValue(user, out var expected))
+            if (_users.TryGetValue(user, out var expected))
             {
                 if (password == expected)
                 {

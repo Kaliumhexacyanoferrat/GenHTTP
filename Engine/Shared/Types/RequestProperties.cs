@@ -5,9 +5,7 @@ namespace GenHTTP.Engine.Shared.Types;
 
 public sealed class RequestProperties : IRequestProperties
 {
-    private PooledDictionary<string, object?>? _Data;
-
-    private bool _Disposed;
+    private readonly Dictionary<string, object?> _data = new();
 
     #region Get-/Setters
 
@@ -17,7 +15,7 @@ public sealed class RequestProperties : IRequestProperties
         {
             object? result = null;
 
-            if (Data.TryGetValue(key, out var value))
+            if (_data.TryGetValue(key, out var value))
             {
                 result = value;
             }
@@ -29,10 +27,8 @@ public sealed class RequestProperties : IRequestProperties
 
             return result;
         }
-        set => Data[key] = value;
+        set => _data[key] = value;
     }
-
-    private PooledDictionary<string, object?> Data => _Data ??= new PooledDictionary<string, object?>();
 
     #endregion
 
@@ -40,7 +36,7 @@ public sealed class RequestProperties : IRequestProperties
 
     public bool TryGet<T>(string key, [MaybeNullWhen(returnValue: false)] out T entry)
     {
-        if (Data.TryGetValue(key, out var value))
+        if (_data.TryGetValue(key, out var value))
         {
             if (value is T result)
             {
@@ -55,30 +51,12 @@ public sealed class RequestProperties : IRequestProperties
 
     public void Clear(string key)
     {
-        Data[key] = null;
+        _data[key] = null;
     }
 
-    #endregion
-
-    #region Disposal
-
-    private void Dispose(bool disposing)
+    public void Clear()
     {
-        if (!_Disposed)
-        {
-            if (disposing)
-            {
-                _Data?.Dispose();
-            }
-
-            _Data = null;
-            _Disposed = true;
-        }
-    }
-
-    public void Dispose()
-    {
-        Dispose(disposing: true);
+        _data.Clear();
     }
 
     #endregion

@@ -10,7 +10,7 @@ namespace GenHTTP.Modules.Webservices.Provider;
 
 public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 {
-    private MethodCollection? _Methods;
+    private MethodCollection? _methods;
 
     #region Get-/Setters
 
@@ -41,7 +41,7 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 
     public async ValueTask<MethodCollection> GetMethodsAsync(IRequest request)
     {
-        if (_Methods != null) return _Methods;
+        if (_methods != null) return _methods;
 
         var found = new List<MethodHandler>();
 
@@ -61,7 +61,7 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 
         await result.PrepareAsync();
 
-        return _Methods = result;
+        return _methods = result;
     }
 
     #endregion

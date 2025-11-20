@@ -7,19 +7,19 @@ public sealed class StringContent : IResponseContent
 {
     private static readonly Encoding Utf8 = Encoding.UTF8;
 
-    private readonly ulong _Checksum;
+    private readonly ulong _checksum;
 
-    private readonly byte[] _Content;
+    private readonly byte[] _content;
 
     #region Initialization
 
     public StringContent(string content)
     {
-        _Content = Utf8.GetBytes(content);
+        _content = Utf8.GetBytes(content);
 
-        Length = (ulong)_Content.Length;
+        Length = (ulong)_content.Length;
 
-        _Checksum = (ulong)content.GetHashCode();
+        _checksum = (ulong)content.GetHashCode();
     }
 
     #endregion
@@ -32,11 +32,11 @@ public sealed class StringContent : IResponseContent
 
     #region Functionality
 
-    public ValueTask<ulong?> CalculateChecksumAsync() => new(_Checksum);
+    public ValueTask<ulong?> CalculateChecksumAsync() => new(_checksum);
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
-        await target.WriteAsync(_Content.AsMemory());
+        await target.WriteAsync(_content.AsMemory());
     }
 
     #endregion

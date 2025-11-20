@@ -28,5 +28,9 @@
     <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="" />
     </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.0" />
+    </ItemGroup>
     
 </Project>

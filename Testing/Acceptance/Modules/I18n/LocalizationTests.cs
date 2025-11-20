@@ -144,7 +144,7 @@ public sealed class LocalizationTests
         var localization = Localization
             .Create()
             .FromRequest(_ => [CultureInfo.CreateSpecificCulture("fr")])
-            .Setter(currentCulture: true, currentUICulture: false);
+            .Setter(currentCulture: true, currentUiCulture: false);
 
         await TestLocalization(engine, localization, _ =>
         {
@@ -173,7 +173,7 @@ public sealed class LocalizationTests
     {
         var localization = Localization
             .Create()
-            .FromQuery()            
+            .FromQuery()
             .FromCookie()
             .FromHeader()
             .FromRequest(_ => "de")
@@ -237,7 +237,7 @@ public sealed class LocalizationTests
         var handler = Inline
             .Create()
             .Add(localization)
-            .Get((IRequest request) => 
+            .Get((IRequest request) =>
             {
                 try
                 {

@@ -1,5 +1,4 @@
 ﻿using GenHTTP.Api.Protocol;
-
 using Cookie = GenHTTP.Api.Protocol.Cookie;
 
 namespace GenHTTP.Engine.Shared.Types;
@@ -8,24 +7,15 @@ public sealed class Response : IResponse
 {
     private static readonly FlexibleResponseStatus StatusOk = new(ResponseStatus.Ok);
 
-    private readonly ResponseHeaderCollection _Headers = new();
+    private readonly ResponseHeaderCollection _headers = new();
 
-    private CookieCollection? _Cookies;
+    private readonly CookieCollection _cookies = new();
 
     #region Initialization
 
     public Response()
     {
         Status = StatusOk;
-    }
-
-    #endregion
-
-    #region Functionality
-
-    public void SetCookie(Cookie cookie)
-    {
-        WriteableCookies[cookie.Name] = cookie;
     }
 
     #endregion
@@ -50,51 +40,80 @@ public sealed class Response : IResponse
 
     public ICookieCollection Cookies => WriteableCookies;
 
-    public bool HasCookies => _Cookies is not null && _Cookies.Count > 0;
+    public bool HasCookies => _cookies.Count > 0;
 
-    public IEditableHeaderCollection Headers => _Headers;
+    public IEditableHeaderCollection Headers => _headers;
 
     public string? this[string field]
     {
-        get => _Headers.GetValueOrDefault(field);
+        get => _headers.GetValueOrDefault(field);
         set
         {
             if (value is not null)
             {
-                _Headers[field] = value;
+                _headers[field] = value;
             }
             else
             {
-                _Headers.Remove(field);
+                _headers.Remove(field);
             }
         }
     }
 
-    internal CookieCollection WriteableCookies
+    internal CookieCollection WriteableCookies => _cookies;
+
+    #endregion
+
+    #region Functionality
+
+    public void SetCookie(Cookie cookie)
     {
-        get { return _Cookies ??= new CookieCollection(); }
+        WriteableCookies[cookie.Name] = cookie;
+    }
+
+    public void Reset()
+    {
+        Status = StatusOk;
+
+        _headers.Clear();
+        _cookies.Clear();
+
+        Expires = null;
+        Modified = null;
+
+        ReleaseContent();
+
+        ContentType = null;
+        ContentLength = null;
+        ContentEncoding = null;
     }
 
     #endregion
 
     #region IDisposable Support
 
-    private bool _Disposed;
+    private bool _disposed;
 
     public void Dispose()
     {
-        if (!_Disposed)
+        if (!_disposed)
         {
-            Headers.Dispose();
+            ReleaseContent();
 
-            _Cookies?.Dispose();
+            _disposed = true;
+        }
+    }
 
+    private void ReleaseContent()
+    {
+        if (Content != null)
+        {
             if (Content is IDisposable disposableContent)
             {
                 disposableContent.Dispose();
             }
 
-            _Disposed = true;
+            Content = null;
         }
     }
 

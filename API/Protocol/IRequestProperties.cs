@@ -6,7 +6,7 @@ namespace GenHTTP.Api.Protocol;
 /// Property bag to store additional data within the
 /// currently running request context.
 /// </summary>
-public interface IRequestProperties : IDisposable
+public interface IRequestProperties
 {
 
     /// <summary>
@@ -31,4 +31,5 @@ public interface IRequestProperties : IDisposable
     /// </summary>
     /// <param name="key">The entry to be removed</param>
     void Clear(string key);
+
 }

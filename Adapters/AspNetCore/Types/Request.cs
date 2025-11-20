@@ -12,36 +12,46 @@ namespace GenHTTP.Adapters.AspNetCore.Types;
 
 public sealed class Request : IRequest
 {
-    private RequestProperties? _properties;
+    private readonly ResponseBuilder _responseBuilder;
 
-    private Query? _query;
+    private bool _freshResponse = true;
 
-    private Cookies? _cookies;
+    private IServer? _server;
+    private IEndPoint? _endPoint;
+
+    private IClientConnection? _clientConnection;
+    private IClientConnection? _localClient;
+
+    private FlexibleRequestMethod? _method;
+    private RoutingTarget? _target;
+
+    private readonly RequestProperties _properties = new();
+
+    private readonly Cookies _cookies = new();
 
     private readonly ForwardingCollection _forwardings = new();
 
-    private Headers? _headers;
+    private readonly Headers _headers = new();
+
+    private readonly Query _query = new();
 
     #region Get-/Setters
 
-    public IRequestProperties Properties
-    {
-        get { return _properties ??= new RequestProperties(); }
-    }
+    public IRequestProperties Properties => _properties;
 
-    public IServer Server { get; }
+    public IServer Server => _server ?? throw new InvalidOperationException("Request is not initialized yet");
 
-    public IEndPoint EndPoint { get; }
-    
-    public IClientConnection Client { get; }
+    public IEndPoint EndPoint => _endPoint ?? throw new InvalidOperationException("Request is not initialized yet");
 
-    public IClientConnection LocalClient { get; }
+    public IClientConnection Client => _clientConnection ?? throw new InvalidOperationException("Request is not initialized yet");
 
-    public HttpProtocol ProtocolType { get; }
+    public IClientConnection LocalClient => _localClient ?? throw new InvalidOperationException("Request is not initialized yet");
 
-    public FlexibleRequestMethod Method { get; }
+    public HttpProtocol ProtocolType { get; private set; }
 
-    public RoutingTarget Target { get; }
+    public FlexibleRequestMethod Method => _method ?? throw new InvalidOperationException("Request is not initialized yet");
+
+    public RoutingTarget Target => _target ?? throw new InvalidOperationException("Request is not initialized yet");
 
     public string? UserAgent => this["User-Agent"];
 
@@ -51,37 +61,55 @@ public sealed class Request : IRequest
 
     public string? this[string additionalHeader] => Headers.GetValueOrDefault(additionalHeader);
 
-    public IRequestQuery Query
-    {
-        get { return _query ??= new Query(Context); }
-    }
+    public IRequestQuery Query => _query;
 
-    public ICookieCollection Cookies
-    {
-        get { return _cookies ??= new Cookies(Context); }
-    }
+    public ICookieCollection Cookies => _cookies;
 
     public IForwardingCollection Forwardings => _forwardings;
 
-    public IHeaderCollection Headers
-    {
-        get { return _headers ??= new Headers(Context); }
-    }
+    public IHeaderCollection Headers => _headers;
 
-    public Stream Content => Context.BodyReader.AsStream(true);
+    public Stream Content => Context?.BodyReader.AsStream(true) ?? throw new InvalidOperationException("Request is not initialized yet");
 
-    public FlexibleContentType? ContentType => (Context.ContentType != null) ? new(Context.ContentType) : null;
+    public FlexibleContentType? ContentType => (Context?.ContentType != null) ? new(Context.ContentType) : null;
 
-    private HttpRequest Context { get; }
+    private HttpRequest? Context { get; set; }
 
     #endregion
 
     #region Initialization
 
-    public Request(IServer server, HttpContext context)
+    public Request(ResponseBuilder responseBuilder)
     {
-        Server = server;
-        Context = context.Request;
+        _responseBuilder = responseBuilder;
+    }
+
+    #endregion
+
+    #region Functionality
+
+    public IResponseBuilder Respond()
+    {
+        if (!_freshResponse)
+        {
+            _responseBuilder.Reset();
+        }
+        else
+        {
+            _freshResponse = false;
+        }
+
+        return _responseBuilder;
+    }
+
+    public UpgradeInfo Upgrade() => throw new NotSupportedException("Web sockets are not supported by the Kestrel server implementation");
+
+    internal void Configure(IServer server, HttpContext context)
+    {
+        var request = context.Request;
+
+        _server = server;
+        Context = request;
 
         ProtocolType = Context.Protocol switch
         {
@@ -92,8 +120,12 @@ public sealed class Request : IRequest
             _ => HttpProtocol.Http11
         };
 
-        Method = FlexibleRequestMethod.Get(Context.Method);
-        Target = new RoutingTarget(WebPath.FromString(Context.Path));
+        _method = FlexibleRequestMethod.Get(Context.Method);
+        _target = new RoutingTarget(WebPath.FromString(Context.Path));
+
+        _query.SetRequest(request);
+        _headers.SetRequest(request);
+        _cookies.SetRequest(request);
 
         if (context.Request.Headers.TryGetValue("forwarded", out var forwardings))
         {
@@ -107,35 +139,44 @@ public sealed class Request : IRequest
             _forwardings.TryAddLegacy(Headers);
         }
 
-        LocalClient = new ClientConnection(context.Connection, context.Request);
+        _localClient = new ClientConnection(context.Connection, request);
 
-        Client = _forwardings.DetermineClient(context.Connection.ClientCertificate) ?? LocalClient;
+        _clientConnection = _forwardings.DetermineClient(context.Connection.ClientCertificate) ?? LocalClient;
 
-        EndPoint = Server.EndPoints.First(e => e.Port == context.Connection.LocalPort);
+        for (var i = 0; i < Server.EndPoints.Count; i++)
+        {
+            var endpoint = Server.EndPoints[i];
+
+            if (endpoint.Port == context.Connection.LocalPort)
+            {
+                _endPoint = endpoint;
+                break;
+            }
+        }
     }
 
-    #endregion
+    internal void Reset()
+    {
+        _properties.Clear();
+        _forwardings.Clear();
+        _cookies.Clear();
 
-    #region Functionality
+        _query.SetRequest(null);
+        _headers.SetRequest(null);
 
-    public IResponseBuilder Respond() => new ResponseBuilder().Status(ResponseStatus.Ok);
-
-    public UpgradeInfo Upgrade() => throw new NotSupportedException("Web sockets are not supported by the Kestrel server implementation");
+        _localClient = null;
+        _clientConnection = null;
+        _target = null;
+        _method = null;
+    }
 
     #endregion
 
     #region Lifecycle
 
-    private bool _disposed;
-
     public void Dispose()
     {
-        if (!_disposed)
-        {
-            _properties?.Dispose();
-
-            _disposed = true;
-        }
+        Reset();
     }
 
     #endregion

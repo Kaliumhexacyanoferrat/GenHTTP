@@ -14,35 +14,35 @@ namespace GenHTTP.Modules.Controllers.Provider;
 
 public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>, IRegistryBuilder<ControllerBuilder>
 {
-    private readonly List<IConcernBuilder> _Concerns = [];
+    private readonly List<IConcernBuilder> _concerns = [];
 
-    private Type? _Type;
+    private Type? _type;
 
-    private Func<IRequest, ValueTask<object>>? _InstanceProvider;
+    private Func<IRequest, ValueTask<object>>? _instanceProvider;
 
-    private IBuilder<FormatterRegistry>? _Formatters;
+    private IBuilder<FormatterRegistry>? _formatters;
 
-    private IBuilder<InjectionRegistry>? _Injection;
+    private IBuilder<InjectionRegistry>? _injection;
 
-    private IBuilder<SerializationRegistry>? _Serializers;
+    private IBuilder<SerializationRegistry>? _serializers;
 
     #region Functionality
 
     public ControllerBuilder Serializers(IBuilder<SerializationRegistry> registry)
     {
-        _Serializers = registry;
+        _serializers = registry;
         return this;
     }
 
     public ControllerBuilder Injectors(IBuilder<InjectionRegistry> registry)
     {
-        _Injection = registry;
+        _injection = registry;
         return this;
     }
 
     public ControllerBuilder Formatters(IBuilder<FormatterRegistry> registry)
     {
-        _Formatters = registry;
+        _formatters = registry;
         return this;
     }
 
@@ -51,45 +51,45 @@ public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>, IReg
 
     public ControllerBuilder Type([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] Type type)
     {
-        _Type = type;
+        _type = type;
         return this;
     }
 
     public ControllerBuilder Instance(object instance)
     {
-        _Type = instance.GetType();
-        _InstanceProvider = (_) => ValueTask.FromResult(instance);
+        _type = instance.GetType();
+        _instanceProvider = (_) => ValueTask.FromResult(instance);
 
         return this;
     }
 
     public ControllerBuilder InstanceProvider(Func<IRequest, ValueTask<object>> provider)
     {
-        _InstanceProvider = provider;
+        _instanceProvider = provider;
         return this;
     }
 
     public ControllerBuilder Add(IConcernBuilder concern)
     {
-        _Concerns.Add(concern);
+        _concerns.Add(concern);
         return this;
     }
 
     public IHandler Build()
     {
-        var serializers = (_Serializers ?? Serialization.Default()).Build();
+        var serializers = (_serializers ?? Serialization.Default()).Build();
 
-        var injectors = (_Injection ?? Injection.Default()).Build();
+        var injectors = (_injection ?? Injection.Default()).Build();
 
-        var formatters = (_Formatters ?? Formatting.Default()).Build();
+        var formatters = (_formatters ?? Formatting.Default()).Build();
 
-        var instanceProvider = _InstanceProvider ?? throw new BuilderMissingPropertyException("Instance provider has not been set");
+        var instanceProvider = _instanceProvider ?? throw new BuilderMissingPropertyException("Instance provider has not been set");
 
-        var type = _Type ?? throw new BuilderMissingPropertyException("Type has not been set");
+        var type = _type ?? throw new BuilderMissingPropertyException("Type has not been set");
 
         var extensions = new MethodRegistry(serializers, injectors, formatters);
 
-        return Concerns.Chain(_Concerns, new ControllerHandler(type, instanceProvider, extensions));
+        return Concerns.Chain(_concerns, new ControllerHandler(type, instanceProvider, extensions));
     }
 
     #endregion

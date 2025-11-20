@@ -8,7 +8,7 @@ public sealed class LoadBalancerHandler : IHandler
 
     #region Get-/Setters
 
-    private readonly List<(IHandler, PriorityEvaluation)> _Nodes;
+    private readonly List<(IHandler, PriorityEvaluation)> _nodes;
 
     private static readonly Random Random = new();
 
@@ -18,7 +18,7 @@ public sealed class LoadBalancerHandler : IHandler
 
     public LoadBalancerHandler(List<(IHandlerBuilder, PriorityEvaluation)> nodes)
     {
-        _Nodes = nodes.Select(n => (n.Item1.Build(), n.Item2)).ToList();
+        _nodes = nodes.Select(n => (n.Item1.Build(), n.Item2)).ToList();
     }
 
     #endregion
@@ -27,7 +27,7 @@ public sealed class LoadBalancerHandler : IHandler
 
     public async ValueTask PrepareAsync()
     {
-        foreach (var entry in _Nodes)
+        foreach (var entry in _nodes)
         {
             await entry.Item1.PrepareAsync();
         }
@@ -36,7 +36,7 @@ public sealed class LoadBalancerHandler : IHandler
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
         // get the handlers that share the highest priority
-        var priorityGroup = _Nodes.GroupBy(n => n.Item2(request))
+        var priorityGroup = _nodes.GroupBy(n => n.Item2(request))
                                   .MaxBy(n => n.Key)?
                                   .Select(n => n.Item1)
                                   .ToList();

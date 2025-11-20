@@ -11,7 +11,7 @@ public sealed class RoutingTarget
 {
     private static readonly List<WebPathPart> EmptyList = [];
 
-    private int _Index;
+    private int _index;
 
     #region Initialization
 
@@ -36,17 +36,17 @@ public sealed class RoutingTarget
     /// <summary>
     /// The segment to be currently handled by the responsible handler.
     /// </summary>
-    public WebPathPart? Current => _Index < Path.Parts.Count ? Path.Parts[_Index] : null;
+    public WebPathPart? Current => _index < Path.Parts.Count ? Path.Parts[_index] : null;
 
     /// <summary>
     /// Specifies, whether the end of the path has been reached.
     /// </summary>
-    public bool Ended => _Index >= Path.Parts.Count;
+    public bool Ended => _index >= Path.Parts.Count;
 
     /// <summary>
     /// Specifies, whether the last part of the path has been reached.
     /// </summary>
-    public bool Last => _Index == (Path.Parts.Count - 1);
+    public bool Last => _index == (Path.Parts.Count - 1);
 
     #endregion
 
@@ -63,7 +63,7 @@ public sealed class RoutingTarget
             throw new InvalidOperationException("Already at the end of the path");
         }
 
-        _Index++;
+        _index++;
     }
 
     /// <summary>
@@ -72,11 +72,11 @@ public sealed class RoutingTarget
     /// <returns>The remaining part of the path</returns>
     public WebPath GetRemaining()
     {
-        var remaining = Path.Parts.Count - _Index;
+        var remaining = Path.Parts.Count - _index;
 
         var resultList = remaining > 0 ? new List<WebPathPart>(remaining) : EmptyList;
 
-        for (var i = _Index; i < Path.Parts.Count; i++)
+        for (var i = _index; i < Path.Parts.Count; i++)
         {
             resultList.Add(Path.Parts[i]);
         }

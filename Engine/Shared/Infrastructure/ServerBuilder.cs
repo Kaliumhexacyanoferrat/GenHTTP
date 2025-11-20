@@ -13,29 +13,29 @@ namespace GenHTTP.Engine.Shared.Infrastructure;
 
 public abstract class ServerBuilder : IServerBuilder
 {
-    private readonly List<IConcernBuilder> _Concerns = [];
-    private readonly List<EndPointConfiguration> _EndPoints = [];
+    private readonly List<IConcernBuilder> _concerns = [];
+    private readonly List<EndPointConfiguration> _endPoints = [];
 
-    private ushort _Backlog = 1024;
+    private ushort _backlog = 1024;
 
-    private IServerCompanion? _Companion;
+    private IServerCompanion? _companion;
 
-    private bool _Development;
+    private bool _development;
 
-    private IHandler? _Handler;
+    private IHandler? _handler;
 
-    private ushort _Port = 8080;
+    private ushort _port = 8080;
 
-    private uint _RequestMemoryLimit = 1 * 1024 * 1024; // 1 MB
+    private uint _requestMemoryLimit = 1 * 1024 * 1024; // 1 MB
 
-    private TimeSpan _RequestReadTimeout = TimeSpan.FromSeconds(10);
-    private uint _TransferBufferSize = 65 * 1024; // 65 KB
+    private TimeSpan _requestReadTimeout = TimeSpan.FromSeconds(10);
+    private uint _transferBufferSize = 65 * 1024; // 65 KB
 
     #region Content
 
     public IServerBuilder Handler(IHandler handler)
     {
-        _Handler = handler;
+        _handler = handler;
         return this;
     }
 
@@ -45,7 +45,7 @@ public abstract class ServerBuilder : IServerBuilder
 
     public IServerBuilder Add(IConcernBuilder concern)
     {
-        _Concerns.Add(concern);
+        _concerns.Add(concern);
         return this;
     }
 
@@ -55,19 +55,19 @@ public abstract class ServerBuilder : IServerBuilder
 
     public IServerBuilder Console()
     {
-        _Companion = new ConsoleCompanion();
+        _companion = new ConsoleCompanion();
         return this;
     }
 
     public IServerBuilder Companion(IServerCompanion companion)
     {
-        _Companion = companion;
+        _companion = companion;
         return this;
     }
 
     public IServerBuilder Development(bool developmentMode = true)
     {
-        _Development = developmentMode;
+        _development = developmentMode;
         return this;
     }
 
@@ -82,13 +82,13 @@ public abstract class ServerBuilder : IServerBuilder
             throw new ArgumentOutOfRangeException(nameof(port));
         }
 
-        _Port = port;
+        _port = port;
         return this;
     }
 
     public IServerBuilder Bind(IPAddress? address, ushort port, bool dualStack = true)
     {
-        _EndPoints.Add(new EndPointConfiguration(address, port, dualStack, null, false));
+        _endPoints.Add(new EndPointConfiguration(address, port, dualStack, null, false));
         return this;
     }
 
@@ -96,7 +96,7 @@ public abstract class ServerBuilder : IServerBuilder
 
     public IServerBuilder Bind(IPAddress? address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false, bool dualStack = true)
     {
-        _EndPoints.Add(new EndPointConfiguration(address, port, dualStack, new SecurityConfiguration(certificateProvider, protocols, certificateValidator), enableQuic));
+        _endPoints.Add(new EndPointConfiguration(address, port, dualStack, new SecurityConfiguration(certificateProvider, protocols, certificateValidator), enableQuic));
         return this;
     }
 
@@ -106,25 +106,25 @@ public abstract class ServerBuilder : IServerBuilder
 
     public IServerBuilder Backlog(ushort backlog)
     {
-        _Backlog = backlog;
+        _backlog = backlog;
         return this;
     }
 
     public IServerBuilder RequestReadTimeout(TimeSpan timeout)
     {
-        _RequestReadTimeout = timeout;
+        _requestReadTimeout = timeout;
         return this;
     }
 
     public IServerBuilder RequestMemoryLimit(uint limit)
     {
-        _RequestMemoryLimit = limit;
+        _requestMemoryLimit = limit;
         return this;
     }
 
     public IServerBuilder TransferBufferSize(uint bufferSize)
     {
-        _TransferBufferSize = bufferSize;
+        _transferBufferSize = bufferSize;
         return this;
     }
 
@@ -134,30 +134,30 @@ public abstract class ServerBuilder : IServerBuilder
 
     public IServer Build()
     {
-        if (_Handler is null)
+        if (_handler is null)
         {
             throw new BuilderMissingPropertyException("Handler");
         }
 
-        var network = new NetworkConfiguration(_RequestReadTimeout, _RequestMemoryLimit, _TransferBufferSize, _Backlog);
+        var network = new NetworkConfiguration(_requestReadTimeout, _requestMemoryLimit, _transferBufferSize, _backlog);
 
-        var endpoints = new List<EndPointConfiguration>(_EndPoints);
+        var endpoints = new List<EndPointConfiguration>(_endPoints);
 
         if (endpoints.Count == 0)
         {
-            endpoints.Add(new EndPointConfiguration(null, _Port, true, null, false));
+            endpoints.Add(new EndPointConfiguration(null, _port, true, null, false));
         }
 
-        var config = new ServerConfiguration(_Development, endpoints, network);
+        var config = new ServerConfiguration(_development, endpoints, network);
 
         var concerns = new[]
         {
             ErrorHandler.Default()
-        }.Concat(_Concerns);
+        }.Concat(_concerns);
 
-        var handler = new CoreRouter(_Handler, concerns);
+        var handler = new CoreRouter(_handler, concerns);
 
-        return Build(_Companion, config, handler);
+        return Build(_companion, config, handler);
     }
 
     protected abstract IServer Build(IServerCompanion? companion, ServerConfiguration config, IHandler handler);

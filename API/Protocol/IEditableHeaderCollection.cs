@@ -1,3 +1,3 @@
 ﻿namespace GenHTTP.Api.Protocol;
 
-public interface IEditableHeaderCollection : IDictionary<string, string>, IDisposable;
+public interface IEditableHeaderCollection : IDictionary<string, string>;

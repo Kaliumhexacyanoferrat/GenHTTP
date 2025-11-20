@@ -4,9 +4,9 @@ namespace GenHTTP.Modules.Layouting.Provider;
 
 public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
 {
-    private readonly List<IConcernBuilder> _Concerns = [];
+    private readonly List<IConcernBuilder> _concerns = [];
 
-    private IHandlerBuilder? _Index;
+    private IHandlerBuilder? _index;
 
     #region Get-/Setters
 
@@ -32,7 +32,7 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
     /// <param name="handler">The handler used for the index of the layout</param>
     public LayoutBuilder Index(IHandlerBuilder handler)
     {
-        _Index = handler;
+        _index = handler;
         return this;
     }
 
@@ -95,7 +95,7 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
 
     public LayoutBuilder Add(IConcernBuilder concern)
     {
-        _Concerns.Add(concern);
+        _concerns.Add(concern);
         return this;
     }
 
@@ -118,7 +118,7 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
         var routed = RoutedHandlers.ToDictionary(kv => kv.Key, kv => kv.Value.Build());
         var root = RootHandlers.Select(h => h.Build()).ToList();
 
-        return Concerns.Chain(_Concerns, new LayoutRouter(routed, root, _Index?.Build()));
+        return Concerns.Chain(_concerns, new LayoutRouter(routed, root, _index?.Build()));
     }
 
     #endregion

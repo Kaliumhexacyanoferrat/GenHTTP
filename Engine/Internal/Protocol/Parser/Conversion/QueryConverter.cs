@@ -5,32 +5,26 @@ namespace GenHTTP.Engine.Internal.Protocol.Parser.Conversion;
 internal static class QueryConverter
 {
 
-    internal static RequestQuery? ToQuery(ReadOnlySequence<byte> value)
+    internal static void Emit(Request request, ReadOnlySequence<byte> value)
     {
         if (!value.IsEmpty)
         {
-            var query = new RequestQuery();
-
             var reader = new SequenceReader<byte>(value);
 
             while (reader.TryReadTo(out ReadOnlySequence<byte> segment, (byte)'&'))
             {
-                AppendSegment(query, segment);
+                EmitSegment(request, segment);
             }
 
             if (!reader.End)
             {
                 var remainder = reader.Sequence.Slice(reader.Position);
-                AppendSegment(query, remainder);
+                EmitSegment(request, remainder);
             }
-
-            return query;
         }
-
-        return null;
     }
 
-    private static void AppendSegment(RequestQuery query, ReadOnlySequence<byte> segment)
+    private static void EmitSegment(Request request, ReadOnlySequence<byte> segment)
     {
         if (!segment.IsEmpty)
         {
@@ -54,7 +48,8 @@ internal static class QueryConverter
                 name = ValueConverter.GetString(remainingName);
             }
 
-            query[Uri.UnescapeDataString(name)] = value != null ? Uri.UnescapeDataString(value) : string.Empty;
+            request.SetQuery(Uri.UnescapeDataString(name), value != null ? Uri.UnescapeDataString(value) : string.Empty);
         }
     }
+    
 }

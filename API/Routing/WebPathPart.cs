@@ -5,7 +5,7 @@
 /// </summary>
 public class WebPathPart
 {
-    private string? _Value;
+    private string? _value;
 
     #region Initialization
 
@@ -30,7 +30,7 @@ public class WebPathPart
     /// <summary>
     /// The decoded representation of the path (e.g. "some path").
     /// </summary>
-    public string Value => _Value ??= Original.Contains('%') ? Uri.UnescapeDataString(Original) : Original;
+    public string Value => _value ??= Original.Contains('%') ? Uri.UnescapeDataString(Original) : Original;
 
     #endregion
 

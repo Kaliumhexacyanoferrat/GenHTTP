@@ -8,11 +8,11 @@ namespace GenHTTP.Modules.ServerCaching.Provider;
 public class ServerCacheHandlerBuilder : IConcernBuilder
 {
 
-    private ICache<Stream>? _Data;
-    private bool _Invalidate = true;
-    private ICache<CachedResponse>? _Meta;
+    private ICache<Stream>? _data;
+    private bool _invalidate = true;
+    private ICache<CachedResponse>? _meta;
 
-    private Func<IRequest, IResponse, bool>? _Predicate;
+    private Func<IRequest, IResponse, bool>? _predicate;
 
     #region Functionality
 
@@ -24,7 +24,7 @@ public class ServerCacheHandlerBuilder : IConcernBuilder
     /// <param name="invalidate">false, if the cache should not be invalidated automatically</param>
     public ServerCacheHandlerBuilder Invalidate(bool invalidate)
     {
-        _Invalidate = invalidate;
+        _invalidate = invalidate;
         return this;
     }
 
@@ -35,7 +35,7 @@ public class ServerCacheHandlerBuilder : IConcernBuilder
     /// <param name="predicate">The predicate to evaluate before a response is cached</param>
     public ServerCacheHandlerBuilder Predicate(Func<IRequest, IResponse, bool> predicate)
     {
-        _Predicate = predicate;
+        _predicate = predicate;
         return this;
     }
 
@@ -43,13 +43,13 @@ public class ServerCacheHandlerBuilder : IConcernBuilder
 
     public ServerCacheHandlerBuilder MetaStore(ICache<CachedResponse> cache)
     {
-        _Meta = cache;
+        _meta = cache;
         return this;
     }
 
     public ServerCacheHandlerBuilder DataStore(ICache<Stream> cache)
     {
-        _Data = cache;
+        _data = cache;
         return this;
     }
 
@@ -57,11 +57,11 @@ public class ServerCacheHandlerBuilder : IConcernBuilder
 
     public IConcern Build(IHandler content)
     {
-        var meta = _Meta ?? throw new BuilderMissingPropertyException("MetaStore");
+        var meta = _meta ?? throw new BuilderMissingPropertyException("MetaStore");
 
-        var data = _Data ?? throw new BuilderMissingPropertyException("DataStore");
+        var data = _data ?? throw new BuilderMissingPropertyException("DataStore");
 
-        return new ServerCacheHandler(content, meta, data, _Predicate, _Invalidate);
+        return new ServerCacheHandler(content, meta, data, _predicate, _invalidate);
     }
 
     #endregion

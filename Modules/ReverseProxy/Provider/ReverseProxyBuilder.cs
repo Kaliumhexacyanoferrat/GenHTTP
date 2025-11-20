@@ -7,15 +7,15 @@ namespace GenHTTP.Modules.ReverseProxy.Provider;
 
 public sealed class ReverseProxyBuilder : IHandlerBuilder<ReverseProxyBuilder>
 {
-    private readonly List<IConcernBuilder> _Concerns = [];
+    private readonly List<IConcernBuilder> _concerns = [];
 
-    private TimeSpan _ConnectTimeout = TimeSpan.FromSeconds(10);
-    private TimeSpan _ReadTimeout = TimeSpan.FromSeconds(60);
+    private TimeSpan _connectTimeout = TimeSpan.FromSeconds(10);
+    private TimeSpan _readTimeout = TimeSpan.FromSeconds(60);
 
-    private string? _Upstream;
+    private string? _upstream;
 
-    private Action<SocketsHttpHandler>? _HandlerAdjustments;
-    private Action<HttpClient>? _ClientAdjustments;
+    private Action<SocketsHttpHandler>? _handlerAdjustments;
+    private Action<HttpClient>? _clientAdjustments;
 
     #region Functionality
 
@@ -25,11 +25,11 @@ public sealed class ReverseProxyBuilder : IHandlerBuilder<ReverseProxyBuilder>
     /// <param name="upstream">The URL of the server to pass requests to</param>
     public ReverseProxyBuilder Upstream(string upstream)
     {
-        _Upstream = upstream;
+        _upstream = upstream;
 
-        if (_Upstream.EndsWith('/'))
+        if (_upstream.EndsWith('/'))
         {
-            _Upstream = _Upstream[..^1];
+            _upstream = _upstream[..^1];
         }
 
         return this;
@@ -41,7 +41,7 @@ public sealed class ReverseProxyBuilder : IHandlerBuilder<ReverseProxyBuilder>
     /// <param name="connectTimeout">The connection timeout to be set</param>
     public ReverseProxyBuilder ConnectTimeout(TimeSpan connectTimeout)
     {
-        _ConnectTimeout = connectTimeout;
+        _connectTimeout = connectTimeout;
         return this;
     }
 
@@ -51,7 +51,7 @@ public sealed class ReverseProxyBuilder : IHandlerBuilder<ReverseProxyBuilder>
     /// <param name="readTimeout">The read timeout to be set</param>
     public ReverseProxyBuilder ReadTimeout(TimeSpan readTimeout)
     {
-        _ReadTimeout = readTimeout;
+        _readTimeout = readTimeout;
         return this;
     }
 
@@ -61,7 +61,7 @@ public sealed class ReverseProxyBuilder : IHandlerBuilder<ReverseProxyBuilder>
     /// <param name="adjustment">The callback to be invoked</param>
     public ReverseProxyBuilder AdjustHandler(Action<SocketsHttpHandler> adjustment)
     {
-        _HandlerAdjustments = adjustment;
+        _handlerAdjustments = adjustment;
         return this;
     }
 
@@ -71,19 +71,19 @@ public sealed class ReverseProxyBuilder : IHandlerBuilder<ReverseProxyBuilder>
     /// <param name="adjustment">The callback to be invoked</param>
     public ReverseProxyBuilder AdjustClient(Action<HttpClient> adjustment)
     {
-        _ClientAdjustments = adjustment;
+        _clientAdjustments = adjustment;
         return this;
     }
 
     public ReverseProxyBuilder Add(IConcernBuilder concern)
     {
-        _Concerns.Add(concern);
+        _concerns.Add(concern);
         return this;
     }
 
     public IHandler Build()
     {
-        if (_Upstream is null)
+        if (_upstream is null)
         {
             throw new BuilderMissingPropertyException("Upstream");
         }
@@ -92,19 +92,19 @@ public sealed class ReverseProxyBuilder : IHandlerBuilder<ReverseProxyBuilder>
         {
             AllowAutoRedirect = false,
             AutomaticDecompression = DecompressionMethods.None,
-            ConnectTimeout = _ConnectTimeout
+            ConnectTimeout = _connectTimeout
         };
 
-        _HandlerAdjustments?.Invoke(handler);
+        _handlerAdjustments?.Invoke(handler);
 
         var client = new HttpClient(handler)
         {
-            Timeout = _ReadTimeout
+            Timeout = _readTimeout
         };
 
-        _ClientAdjustments?.Invoke(client);
+        _clientAdjustments?.Invoke(client);
 
-        return Concerns.Chain(_Concerns, new ReverseProxyProvider(_Upstream, client));
+        return Concerns.Chain(_concerns, new ReverseProxyProvider(_upstream, client));
     }
 
     #endregion

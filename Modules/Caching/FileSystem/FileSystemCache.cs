@@ -13,7 +13,7 @@ public sealed class FileSystemCache<T> : ICache<T>
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
-    private readonly SemaphoreSlim _Sync = new(1);
+    private readonly SemaphoreSlim _sync = new(1);
 
     #region Initialization
 
@@ -43,7 +43,7 @@ public sealed class FileSystemCache<T> : ICache<T>
 
     public async ValueTask<T[]> GetEntriesAsync(string key)
     {
-        await _Sync.WaitAsync();
+        await _sync.WaitAsync();
 
         try
         {
@@ -65,13 +65,13 @@ public sealed class FileSystemCache<T> : ICache<T>
         }
         finally
         {
-            _Sync.Release();
+            _sync.Release();
         }
     }
 
     public async ValueTask<T?> GetEntryAsync(string key, string variation)
     {
-        await _Sync.WaitAsync();
+        await _sync.WaitAsync();
 
         try
         {
@@ -86,13 +86,13 @@ public sealed class FileSystemCache<T> : ICache<T>
         }
         finally
         {
-            _Sync.Release();
+            _sync.Release();
         }
     }
 
     public async ValueTask StoreAsync(string key, string variation, T? entry)
     {
-        await _Sync.WaitAsync();
+        await _sync.WaitAsync();
 
         try
         {
@@ -133,13 +133,13 @@ public sealed class FileSystemCache<T> : ICache<T>
         }
         finally
         {
-            _Sync.Release();
+            _sync.Release();
         }
     }
 
     public async ValueTask StoreDirectAsync(string key, string variation, Func<Stream, ValueTask> asyncWriter)
     {
-        await _Sync.WaitAsync();
+        await _sync.WaitAsync();
 
         try
         {
@@ -182,7 +182,7 @@ public sealed class FileSystemCache<T> : ICache<T>
         }
         finally
         {
-            _Sync.Release();
+            _sync.Release();
         }
     }
 

@@ -4,7 +4,7 @@ namespace GenHTTP.Modules.Conversion.Formatters;
 
 public sealed class FormatterBuilder : IBuilder<FormatterRegistry>
 {
-    private readonly List<IFormatter> _Registry = [];
+    private readonly List<IFormatter> _registry = [];
 
     #region Functionality
 
@@ -14,7 +14,7 @@ public sealed class FormatterBuilder : IBuilder<FormatterRegistry>
     /// <param name="formatter">The formatter to be added</param>
     public FormatterBuilder Add(IFormatter formatter)
     {
-        _Registry.Add(formatter);
+        _registry.Add(formatter);
         return this;
     }
 
@@ -24,7 +24,7 @@ public sealed class FormatterBuilder : IBuilder<FormatterRegistry>
     /// Builds the formatter registry based on the configuration.
     /// </summary>
     /// <returns>The newly created formatter registry</returns>
-    public FormatterRegistry Build() => new(_Registry);
+    public FormatterRegistry Build() => new(_registry);
 
     #endregion
 

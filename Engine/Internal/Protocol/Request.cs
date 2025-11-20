@@ -1,8 +1,15 @@
-﻿using System.Net.Sockets;
+﻿using System.Net;
+using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
+
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
+
+using GenHTTP.Engine.Internal.Utilities;
 using GenHTTP.Engine.Shared.Types;
+
+using CookieCollection = GenHTTP.Engine.Shared.Types.CookieCollection;
 
 namespace GenHTTP.Engine.Internal.Protocol;
 
@@ -11,90 +18,78 @@ namespace GenHTTP.Engine.Internal.Protocol;
 /// </summary>
 internal sealed class Request : IRequest
 {
-    private readonly Socket _Socket;
-    private readonly Stream _Stream;
+    private readonly ResponseBuilder _responseBuilder;
 
-    private FlexibleContentType? _ContentType;
-    private ICookieCollection? _Cookies;
+    private bool _freshResponse = true;
 
-    private IForwardingCollection? _Forwardings;
+    private IServer? _server;
+    private IEndPoint? _endPoint;
 
-    private RequestProperties? _Properties;
+    private IClientConnection? _clientConnection;
+    private IClientConnection? _localClient;
 
-    private IRequestQuery? _Query;
+    private Socket? _socket;
+    private Stream? _stream;
+
+    private FlexibleRequestMethod? _method;
+    private RoutingTarget? _target;
+
+    private readonly RequestHeaderCollection _headers = new();
+
+    private readonly CookieCollection _cookies = new();
+
+    private readonly ForwardingCollection _forwardings = new();
+
+    private readonly RequestProperties _properties = new();
+
+    private readonly RequestQuery _query = new();
+
+    private Stream? _content;
+    private FlexibleContentType? _contentType;
 
     #region Initialization
 
-    internal Request(IServer server, Socket socket, Stream stream, IEndPoint endPoint, IClientConnection client, IClientConnection localClient, HttpProtocol protocol, FlexibleRequestMethod method,
-        RoutingTarget target, IHeaderCollection headers, ICookieCollection? cookies, IForwardingCollection? forwardings,
-        IRequestQuery? query, Stream? content)
+    internal Request(ResponseBuilder responseBuilder)
     {
-        _Socket = socket;
-        _Stream = stream;
-
-        Client = client;
-        LocalClient = localClient;
-
-        Server = server;
-        EndPoint = endPoint;
-
-        ProtocolType = protocol;
-        Method = method;
-        Target = target;
-
-        _Cookies = cookies;
-        _Forwardings = forwardings;
-        _Query = query;
-
-        Headers = headers;
-
-        Content = content;
+        _responseBuilder = responseBuilder;
     }
-
-    #endregion
-
-    #region Functionality
-
-    public IResponseBuilder Respond() => new ResponseBuilder().Status(ResponseStatus.Ok);
-
-    public UpgradeInfo Upgrade() => new(_Socket, _Stream, new Response { Upgraded = true });
 
     #endregion
 
     #region Get-/Setters
 
-    public IServer Server { get; }
+    public IServer Server => _server ?? throw new InvalidOperationException("Request is not initialized yet");
 
-    public IEndPoint EndPoint { get; }
+    public IEndPoint EndPoint => _endPoint ?? throw new InvalidOperationException("Request is not initialized yet");
 
-    public IClientConnection Client { get; }
+    public IClientConnection Client => _clientConnection ?? throw new InvalidOperationException("Request is not initialized yet");
 
-    public IClientConnection LocalClient { get; }
+    public IClientConnection LocalClient => _localClient ?? throw new InvalidOperationException("Request is not initialized yet");
 
-    public HttpProtocol ProtocolType { get; }
+    public HttpProtocol ProtocolType { get; internal set; }
 
-    public FlexibleRequestMethod Method { get; }
+    public FlexibleRequestMethod Method => _method ?? throw new InvalidOperationException("Request is not initialized yet");
 
-    public RoutingTarget Target { get; }
+    public RoutingTarget Target => _target ?? throw new InvalidOperationException("Request is not initialized yet");
 
-    public IHeaderCollection Headers { get; }
+    public IHeaderCollection Headers => _headers;
 
-    public Stream? Content { get; }
+    public Stream? Content => _content;
 
     public FlexibleContentType? ContentType
     {
         get
         {
-            if (_ContentType is not null)
+            if (_contentType is not null)
             {
-                return _ContentType;
+                return _contentType;
             }
 
             var type = this["Content-Type"];
 
             if (type is not null)
             {
-                return _ContentType = new FlexibleContentType(type);
+                return _contentType = new FlexibleContentType(type);
             }
 
             return null;
@@ -109,47 +104,139 @@ internal sealed class Request : IRequest
 
     public string? this[string additionalHeader] => Headers.GetValueOrDefault(additionalHeader);
 
-    public ICookieCollection Cookies
+    public ICookieCollection Cookies => _cookies;
+
+    public IForwardingCollection Forwardings => _forwardings;
+
+    public IRequestQuery Query => _query;
+
+    public IRequestProperties Properties => _properties;
+
+    #endregion
+
+    #region Functionality
+
+    public IResponseBuilder Respond()
     {
-        get { return _Cookies ??= new CookieCollection(); }
+        if (!_freshResponse)
+        {
+            _responseBuilder.Reset();
+        }
+        else
+        {
+            _freshResponse = false;
+        }
+
+        return _responseBuilder;
     }
 
-    public IForwardingCollection Forwardings
+    public UpgradeInfo Upgrade()
     {
-        get { return _Forwardings ??= new ForwardingCollection(); }
+        if (_socket == null || _stream == null)
+        {
+            throw new InvalidOperationException("Request is not initialized yet");
+        }
+
+        return new(_socket, _stream, new Response { Upgraded = true });
     }
 
-    public IRequestQuery Query
+    #endregion
+
+    #region Parsing
+
+    internal void SetConnection(IServer server, Socket connection, PoolBufferedStream stream, IEndPoint endPoint, IPAddress? address, X509Certificate? clientCertificate)
     {
-        get { return _Query ??= new RequestQuery(); }
+        _server = server;
+        _socket = connection;
+        _stream = stream;
+        _endPoint = endPoint;
+
+        var protocol = _endPoint.Secure ? ClientProtocol.Https : ClientProtocol.Http;
+
+        if (!Headers.TryGetValue("Host", out var host))
+        {
+            throw new ProtocolException("Mandatory 'Host' header is missing from the request");
+        }
+
+        if (_forwardings.Count == 0)
+        {
+            _forwardings.TryAddLegacy(Headers);
+        }
+
+        _localClient = new ClientConnection(address, protocol, host, clientCertificate);
+
+        _clientConnection = _forwardings.DetermineClient(clientCertificate) ?? _localClient;
     }
 
-    public IRequestProperties Properties
+    internal void SetHeader(string key, string value)
     {
-        get { return _Properties ??= new RequestProperties(); }
+        if (string.Equals(key, "cookie", StringComparison.OrdinalIgnoreCase))
+        {
+            _cookies.Add(value);
+        }
+        else if (string.Equals(key, "forwarded", StringComparison.OrdinalIgnoreCase))
+        {
+            _forwardings.Add(value);
+        }
+        else
+        {
+            _headers[key] = value;
+        }
+    }
+
+    internal void SetContent(Stream content)
+    {
+        _content = content;
+    }
+
+    internal void SetProtocol(HttpProtocol protocol)
+    {
+        ProtocolType = protocol;
+    }
+
+    internal void SetPath(WebPath path)
+    {
+        _target = new(path);
+    }
+
+    internal void SetMethod(FlexibleRequestMethod method)
+    {
+        _method = method;
+    }
+
+    internal void SetQuery(string key, string value)
+    {
+        _query[key] = value;
+    }
+
+    internal void Reset()
+    {
+        _headers.Clear();
+        _forwardings.Clear();
+        _properties.Clear();
+        _query.Clear();
+
+        Content?.Dispose();
+
+        _content = null;
+        _contentType = null;
+
+        _freshResponse = true;
     }
 
     #endregion
 
     #region IDisposable Support
 
-    private bool _Disposed;
+    private bool _disposed;
 
     public void Dispose()
     {
-        if (!_Disposed)
+        if (!_disposed)
         {
-            Headers.Dispose();
-
-            _Query?.Dispose();
-
-            _Cookies?.Dispose();
-
-            _Properties?.Dispose();
-
             Content?.Dispose();
 
-            _Disposed = true;
+            _disposed = true;
         }
     }
 

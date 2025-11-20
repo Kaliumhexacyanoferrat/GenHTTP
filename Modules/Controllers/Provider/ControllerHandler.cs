@@ -13,7 +13,7 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 {
     private static readonly Regex HyphenMatcher = CreateHyphenMatcher();
 
-    private MethodCollection? _Methods;
+    private MethodCollection? _methods;
 
     #region Get-/Setters
 
@@ -44,7 +44,7 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 
     public async ValueTask<MethodCollection> GetMethodsAsync(IRequest request)
     {
-        if (_Methods != null) return _Methods;
+        if (_methods != null) return _methods;
 
         var found = new List<MethodHandler>();
 
@@ -64,7 +64,7 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 
         await result.PrepareAsync();
 
-        return _Methods = result;
+        return _methods = result;
     }
 
     private static Operation CreateOperation(IRequest request, MethodInfo method, List<string> arguments, MethodRegistry registry)

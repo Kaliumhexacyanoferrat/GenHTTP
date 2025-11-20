@@ -207,18 +207,18 @@ public class TestHost : IAsyncDisposable
 
     #region IDisposable Support
 
-    private bool _Disposed;
+    private bool _disposed;
 
     protected async virtual ValueTask DisposeAsync(bool disposing)
     {
-        if (!_Disposed)
+        if (!_disposed)
         {
             if (disposing)
             {
                 await Host.StopAsync();
             }
 
-            _Disposed = true;
+            _disposed = true;
         }
     }
 

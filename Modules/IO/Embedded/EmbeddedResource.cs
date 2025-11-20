@@ -7,7 +7,7 @@ namespace GenHTTP.Modules.IO.Embedded;
 
 public sealed class EmbeddedResource : IResource
 {
-    private ulong? _Checksum;
+    private ulong? _checksum;
 
     #region Initialization
 
@@ -52,14 +52,14 @@ public sealed class EmbeddedResource : IResource
 
     public async ValueTask<ulong> CalculateChecksumAsync()
     {
-        if (_Checksum is null)
+        if (_checksum is null)
         {
             await using var stream = TryGetStream();
 
-            _Checksum = await stream.CalculateChecksumAsync() ?? throw new InvalidOperationException("Unable to calculate checksum of assembly resource");
+            _checksum = await stream.CalculateChecksumAsync() ?? throw new InvalidOperationException("Unable to calculate checksum of assembly resource");
         }
 
-        return _Checksum.Value;
+        return _checksum.Value;
     }
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
