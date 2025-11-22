@@ -168,6 +168,8 @@ public sealed class Request : IRequest
         _clientConnection = null;
         _target = null;
         _method = null;
+
+        _freshResponse = true;
     }
 
     #endregion
