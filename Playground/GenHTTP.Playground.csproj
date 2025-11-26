@@ -27,6 +27,7 @@
         <ProjectReference Include="..\Modules\DirectoryBrowsing\GenHTTP.Modules.DirectoryBrowsing.csproj"/>
         <ProjectReference Include="..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj"/>
         <ProjectReference Include="..\Modules\Functional\GenHTTP.Modules.Functional.csproj"/>
+        <ProjectReference Include="..\Modules\GenHTTP.Modules.Straculo\GenHTTP.Modules.Straculo.csproj" />
         <ProjectReference Include="..\Modules\Inspection\GenHTTP.Modules.Inspection.csproj" />
         <ProjectReference Include="..\Modules\IO\GenHTTP.Modules.IO.csproj"/>
         <ProjectReference Include="..\Modules\Layouting\GenHTTP.Modules.Layouting.csproj"/>
