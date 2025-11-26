@@ -38,7 +38,7 @@ public class MyWebsocketService
         response.Headers.Add("Connection", "Upgrade");
         if (key is not null)
         {
-            response.Headers.Add("Sec-WebSocket-Accept", Handshake.CreateAcceptKey(key));
+            response.Headers.Add("Sec-WebSocket-Accept", Handshake.CreateAcceptKey2(key));
         }
 
         response.Content = myWebsocket;
