@@ -15,6 +15,7 @@ namespace GenHTTP.Modules.Reflection;
 /// </remarks>
 public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
 {
+    private ConnectionHandling? _connectionHandling;
 
     private FlexibleContentType? _contentType;
 
@@ -66,6 +67,13 @@ public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
     public Result<T> Status(int status, string reason)
     {
         _status = new FlexibleResponseStatus(status, reason);
+        return this;
+    }
+
+    /// <inheritdoc />
+    public Result<T> Connection(ConnectionHandling handling)
+    {
+        _connectionHandling = handling;
         return this;
     }
 
@@ -122,6 +130,11 @@ public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
             var value = _status.Value;
 
             builder.Status(value.RawStatus, value.Phrase);
+        }
+
+        if (_connectionHandling != null)
+        {
+            builder.Connection(_connectionHandling.Value);
         }
 
         if (_headers != null)

@@ -137,7 +137,7 @@ internal sealed class Request : IRequest
             throw new InvalidOperationException("Request is not initialized yet");
         }
 
-        return new(_socket, _stream, new Response { Upgraded = true });
+        return new(_socket, _stream, new Response { Connection = ConnectionHandling.UpgradeAndSurrender});
     }
 
     #endregion

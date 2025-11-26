@@ -41,8 +41,6 @@ internal sealed class ClientHandler
 
     internal PoolBufferedStream Stream { get; }
 
-    private bool? KeepAlive { get; set; }
-
     private ResponseHandler ResponseHandler { get; }
 
     #endregion
@@ -70,7 +68,7 @@ internal sealed class ClientHandler
 
     internal async ValueTask Run()
     {
-        var status = ConnectionStatus.Close;
+        var status = ConnectionHandling.Close;
 
         try
         {
@@ -82,7 +80,7 @@ internal sealed class ClientHandler
         }
         finally
         {
-            if (status != ConnectionStatus.Upgraded)
+            if (status != ConnectionHandling.UpgradeAndSurrender)
             {
                 try
                 {
@@ -109,7 +107,7 @@ internal sealed class ClientHandler
         }
     }
 
-    private async ValueTask<ConnectionStatus> HandlePipe(PipeReader reader)
+    private async ValueTask<ConnectionHandling> HandlePipe(PipeReader reader)
     {
         var context = ContextPool.Get();
 
@@ -141,7 +139,7 @@ internal sealed class ClientHandler
 
                     var status = await HandleRequest(context.Request, !buffer.ReadRequired);
 
-                    if (status is ConnectionStatus.Close or ConnectionStatus.Upgraded)
+                    if (status is ConnectionHandling.Close or ConnectionHandling.UpgradeAndSurrender)
                     {
                         return status;
                     }
@@ -167,27 +165,27 @@ internal sealed class ClientHandler
             await reader.CompleteAsync();
         }
 
-        return ConnectionStatus.Close;
+        return ConnectionHandling.Close;
     }
 
-    private async ValueTask<ConnectionStatus> HandleRequest(Request request, bool dataRemaining)
+    private async ValueTask<ConnectionHandling> HandleRequest(Request request, bool dataRemaining)
     {
         request.SetConnection(Server, Connection, Stream, EndPoint, Connection.GetAddress(), ClientCertificate);
 
-        KeepAlive ??= request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? request.ProtocolType == HttpProtocol.Http11;
-
-        var keepAlive = KeepAlive.Value;
+        var keepAliveRequested = request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? request.ProtocolType == HttpProtocol.Http11;
 
         var response = await Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
 
-        if (response.Upgraded)
+        if (response.Connection == ConnectionHandling.UpgradeAndSurrender)
         {
-            return ConnectionStatus.Upgraded;
+            return ConnectionHandling.UpgradeAndSurrender;
         }
 
-        var active = await ResponseHandler.Handle(request, response, request.ProtocolType, keepAlive, dataRemaining);
+        var closeRequested = response.Connection is ConnectionHandling.Close or ConnectionHandling.Upgrade;
 
-        return (active && keepAlive) ? ConnectionStatus.KeepAlive : ConnectionStatus.Close;
+        var active = await ResponseHandler.Handle(request, response, request.ProtocolType, keepAliveRequested && !closeRequested, dataRemaining);
+
+        return (active && keepAliveRequested && !closeRequested) ? ConnectionHandling.KeepAlive : ConnectionHandling.Close;
     }
 
     private async ValueTask SendError(Exception e, ResponseStatus status)

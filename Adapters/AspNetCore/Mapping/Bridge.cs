@@ -20,13 +20,13 @@ public static class Bridge
         var actualServer = server ?? new ImplicitServer(context, handler, companion);
 
         var clientContext = ContextPool.Get();
-        
+
         try
         {
             var request = clientContext.Request;
-            
+
             request.Configure(actualServer, context);
-            
+
             if (registeredPath != null)
             {
                 AdvanceTo(clientContext.Request, registeredPath);
@@ -61,6 +61,15 @@ public static class Bridge
         var target = context.Response;
 
         target.StatusCode = response.Status.RawStatus;
+
+        if (response.Connection == ConnectionHandling.Upgrade)
+        {
+            target.Headers.Append("Connection", "Upgrade");
+        }
+        else if (response.Connection == ConnectionHandling.Close)
+        {
+            target.Headers.Append("Connection", "Close");
+        }
 
         foreach (var header in response.Headers)
         {

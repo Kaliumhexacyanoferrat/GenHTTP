@@ -113,7 +113,11 @@ internal sealed class ResponseHandler
         Output.Write(DateHeader.GetValue());
         Output.Write("\r\n"u8);
 
-        if (version == HttpProtocol.Http10)
+        if (response.Connection == ConnectionHandling.Upgrade)
+        {
+            Output.Write("Connection: Upgrade\r\n"u8);
+        }
+        else if (version == HttpProtocol.Http10)
         {
             Output.Write(keepAlive ? "Connection: Keep-Alive\r\n"u8 : "Connection: Close\r\n"u8);
         }
