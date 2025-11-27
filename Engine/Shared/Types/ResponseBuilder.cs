@@ -69,7 +69,7 @@ public sealed class ResponseBuilder(Response response) : IResponseBuilder
         return this;
     }
 
-    public IResponseBuilder Connection(ConnectionHandling handling)
+    public IResponseBuilder Connection(Connection handling)
     {
         response.Connection = handling;
         return this;

@@ -80,7 +80,8 @@ internal sealed class ResponseHandler
     private static bool ShouldSendBody(IRequest? request, IResponse response) => (request == null || request.Method.KnownMethod != RequestMethod.Head) &&
     (
         response.ContentLength > 0 || response.Content?.Length > 0 ||
-        response.ContentType is not null || response.ContentEncoding is not null
+        response.ContentType is not null || response.ContentEncoding is not null ||
+        response.Connection == Connection.Upgrade
     );
 
     private void WriteStatus(IRequest? request, IResponse response)
@@ -113,7 +114,7 @@ internal sealed class ResponseHandler
         Output.Write(DateHeader.GetValue());
         Output.Write("\r\n"u8);
 
-        if (response.Connection == ConnectionHandling.Upgrade)
+        if (response.Connection == Connection.Upgrade)
         {
             Output.Write("Connection: Upgrade\r\n"u8);
         }
@@ -154,7 +155,7 @@ internal sealed class ResponseHandler
             Output.Write(response.ContentLength.Value);
             Output.Write("\r\n"u8);
         }
-        else
+        else if (response.Connection != Connection.Upgrade)
         {
             Output.Write(response.Content is not null ? "Transfer-Encoding: chunked\r\n"u8 : "Content-Length: 0\r\n"u8);
         }
@@ -201,7 +202,7 @@ internal sealed class ResponseHandler
     {
         if (response.Content is not null)
         {
-            if (response.Connection == ConnectionHandling.Upgrade)
+            if (response.Connection == Connection.Upgrade)
             {
                 // force the upgrade response to be sent to the client so
                 // that the client can start sending frames

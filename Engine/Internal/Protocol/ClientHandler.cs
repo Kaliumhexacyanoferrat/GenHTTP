@@ -68,7 +68,7 @@ internal sealed class ClientHandler
 
     internal async ValueTask Run()
     {
-        var status = ConnectionHandling.Close;
+        var status = Api.Protocol.Connection.Close;
 
         try
         {
@@ -80,7 +80,7 @@ internal sealed class ClientHandler
         }
         finally
         {
-            if (status != ConnectionHandling.UpgradeAndSurrender)
+            if (status != Api.Protocol.Connection.UpgradeAndSurrender)
             {
                 try
                 {
@@ -107,7 +107,7 @@ internal sealed class ClientHandler
         }
     }
 
-    private async ValueTask<ConnectionHandling> HandlePipe(PipeReader reader)
+    private async ValueTask<Connection> HandlePipe(PipeReader reader)
     {
         var context = ContextPool.Get();
 
@@ -139,7 +139,7 @@ internal sealed class ClientHandler
 
                     var status = await HandleRequest(context.Request, !buffer.ReadRequired);
 
-                    if (status is ConnectionHandling.Close or ConnectionHandling.UpgradeAndSurrender)
+                    if (status is Api.Protocol.Connection.Close or Api.Protocol.Connection.UpgradeAndSurrender)
                     {
                         return status;
                     }
@@ -165,10 +165,10 @@ internal sealed class ClientHandler
             await reader.CompleteAsync();
         }
 
-        return ConnectionHandling.Close;
+        return Api.Protocol.Connection.Close;
     }
 
-    private async ValueTask<ConnectionHandling> HandleRequest(Request request, bool dataRemaining)
+    private async ValueTask<Connection> HandleRequest(Request request, bool dataRemaining)
     {
         request.SetConnection(Server, Connection, Stream, EndPoint, Connection.GetAddress(), ClientCertificate);
 
@@ -176,16 +176,16 @@ internal sealed class ClientHandler
 
         var response = await Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
 
-        if (response.Connection == ConnectionHandling.UpgradeAndSurrender)
+        if (response.Connection == Api.Protocol.Connection.UpgradeAndSurrender)
         {
-            return ConnectionHandling.UpgradeAndSurrender;
+            return Api.Protocol.Connection.UpgradeAndSurrender;
         }
 
-        var closeRequested = response.Connection is ConnectionHandling.Close or ConnectionHandling.Upgrade;
+        var closeRequested = response.Connection is Api.Protocol.Connection.Close or Api.Protocol.Connection.Upgrade;
 
         var active = await ResponseHandler.Handle(request, response, request.ProtocolType, keepAliveRequested && !closeRequested, dataRemaining);
 
-        return (active && keepAliveRequested && !closeRequested) ? ConnectionHandling.KeepAlive : ConnectionHandling.Close;
+        return (active && keepAliveRequested && !closeRequested) ? Api.Protocol.Connection.KeepAlive : Api.Protocol.Connection.Close;
     }
 
     private async ValueTask SendError(Exception e, ResponseStatus status)

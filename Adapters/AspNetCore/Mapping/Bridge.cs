@@ -63,11 +63,11 @@ public static class Bridge
 
         target.StatusCode = response.Status.RawStatus;
 
-        if (response.Connection == ConnectionHandling.Upgrade)
+        if (response.Connection == Connection.Upgrade)
         {
             target.Headers.Append("Connection", "Upgrade");
         }
-        else if (response.Connection == ConnectionHandling.Close)
+        else if (response.Connection == Connection.Close)
         {
             target.Headers.Append("Connection", "Close");
         }
@@ -116,7 +116,7 @@ public static class Bridge
                 target.Headers.ContentEncoding = response.ContentEncoding;
             }
 
-            if (response.Connection == ConnectionHandling.Upgrade)
+            if (response.Connection == Connection.Upgrade)
             {
                 var bodyFeature = context.Features.Get<IHttpResponseBodyFeature>();
 

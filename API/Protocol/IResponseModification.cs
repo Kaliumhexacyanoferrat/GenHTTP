@@ -31,7 +31,7 @@ public interface IResponseModification<out TBuilder>
     /// Specifies how the server should treat the connection after this response has been sent.
     /// </summary>
     /// <param name="handling">The mode to be applied</param>
-    TBuilder Connection(ConnectionHandling handling);
+    TBuilder Connection(Connection handling);
 
     /// <summary>
     /// Sets the given header field on the response. Changing HTTP

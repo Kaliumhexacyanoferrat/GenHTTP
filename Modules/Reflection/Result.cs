@@ -15,7 +15,7 @@ namespace GenHTTP.Modules.Reflection;
 /// </remarks>
 public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
 {
-    private ConnectionHandling? _connectionHandling;
+    private Connection? _connectionHandling;
 
     private FlexibleContentType? _contentType;
 
@@ -71,7 +71,7 @@ public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
     }
 
     /// <inheritdoc />
-    public Result<T> Connection(ConnectionHandling handling)
+    public Result<T> Connection(Connection handling)
     {
         _connectionHandling = handling;
         return this;

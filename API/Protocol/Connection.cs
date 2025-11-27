@@ -1,6 +1,6 @@
 ﻿namespace GenHTTP.Api.Protocol;
 
-public enum ConnectionHandling
+public enum Connection
 {
 
     /// <summary>
@@ -14,8 +14,9 @@ public enum ConnectionHandling
     Close,
 
     /// <summary>
-    /// The server will instruct the client to upgrade to another protocol and close
-    /// the connection after the response content has been sent.
+    /// The server will instruct the client to upgrade to another protocol by sending
+    /// the configured response and will close the connection after the response content
+    /// has been sent.
     /// </summary>
     Upgrade,
 

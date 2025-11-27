@@ -16,7 +16,7 @@ public interface IResponse : IDisposable
     /// <summary>
     /// Hints the server how the connection should be handled.
     /// </summary>
-    ConnectionHandling Connection { get; set; }
+    Connection Connection { get; set; }
 
     /// <summary>
     /// Specifies whether the server should surrender the connection to the user code.
