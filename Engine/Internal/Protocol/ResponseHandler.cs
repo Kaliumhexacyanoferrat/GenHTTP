@@ -201,7 +201,15 @@ internal sealed class ResponseHandler
     {
         if (response.Content is not null)
         {
-            if (response.ContentLength is null)
+            if (response.Connection == ConnectionHandling.Upgrade)
+            {
+                // force the upgrade response to be sent to the client so
+                // that the client can start sending frames
+                await Output.FlushAsync();
+
+                await response.Content.WriteAsync(Output, Configuration.TransferBufferSize);
+            }
+            else if (response.ContentLength is null)
             {
                 await using var chunked = new ChunkedStream(Output);
 

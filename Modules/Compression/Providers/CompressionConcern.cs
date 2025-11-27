@@ -45,7 +45,7 @@ public sealed class CompressionConcern : IConcern
     {
         var response = await Content.HandleAsync(request);
 
-        if (response?.Content != null && response.ContentEncoding == null)
+        if (response?.Content != null && response.ContentEncoding == null && response.Connection != ConnectionHandling.Upgrade)
         {
             if (ShouldCompressByType(request.Target.Path, response.ContentType?.KnownType) && ShouldCompressBySize(response))
             {
