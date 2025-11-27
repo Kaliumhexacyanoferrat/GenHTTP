@@ -13,6 +13,15 @@ public interface IResponse : IDisposable
     /// </summary>
     FlexibleResponseStatus Status { get; set; }
 
+    /// <summary>
+    /// Hints the server how the connection should be handled.
+    /// </summary>
+    Connection Connection { get; set; }
+
+    /// <summary>
+    /// Specifies whether the server should surrender the connection to the user code.
+    /// </summary>
+    [Obsolete("Replaced by ConnectionHandling.Upgrade. This property will be removed in GenHTTP 11.")]
     public bool Upgraded { get; }
 
     #endregion

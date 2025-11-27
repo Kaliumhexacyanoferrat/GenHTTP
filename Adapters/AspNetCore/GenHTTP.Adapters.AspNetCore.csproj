@@ -6,6 +6,9 @@
         <PackageTags>GenHTTP ASP.NET Core Adapter GenHTTP</PackageTags>
         <PackageReadmeFile>README.md</PackageReadmeFile>
 
+        <!-- remove this line after Fleck has been removed -->
+        <NoWarn>CS1591,CS1587,CS1572,CS1573,CS0612,CS0618</NoWarn>
+
     </PropertyGroup>
 
     <ItemGroup>
@@ -32,5 +35,5 @@
     <ItemGroup>
       <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.0" />
     </ItemGroup>
-    
+
 </Project>

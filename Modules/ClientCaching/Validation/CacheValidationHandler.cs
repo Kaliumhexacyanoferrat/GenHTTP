@@ -32,9 +32,9 @@ public sealed class CacheValidationHandler : IConcern
     {
         var response = await Content.HandleAsync(request);
 
-        if (request.HasType(SupportedMethods))
+        if (response != null && request.HasType(SupportedMethods))
         {
-            if (response?.Content != null)
+            if ((response.Content != null) && (response.Connection != Connection.Upgrade))
             {
                 var eTag = await CalculateETag(response);
 

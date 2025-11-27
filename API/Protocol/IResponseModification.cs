@@ -28,6 +28,12 @@ public interface IResponseModification<out TBuilder>
     TBuilder Status(int status, string reason);
 
     /// <summary>
+    /// Specifies how the server should treat the connection after this response has been sent.
+    /// </summary>
+    /// <param name="handling">The mode to be applied</param>
+    TBuilder Connection(Connection handling);
+
+    /// <summary>
     /// Sets the given header field on the response. Changing HTTP
     /// protocol headers may cause incorrect behavior.
     /// </summary>
