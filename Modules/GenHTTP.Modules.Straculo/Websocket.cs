@@ -1,64 +1,31 @@
-using System.Buffers;
-using System.Text;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Straculo.Contents;
 using GenHTTP.Modules.Straculo.Protocol;
+using GenHTTP.Modules.Straculo.Provider;
 
 namespace GenHTTP.Modules.Straculo;
 
-public abstract class Websocket : IResponseContent
+public static class Websocket
 {
-    private readonly IRequest _request;
-
-    public Websocket(IRequest request)
-    {
-        _request = request;
-    }
-
-    public ulong? Length { get; }
-
-    public ValueTask<ulong?> CalculateChecksumAsync() => new((ulong)_request.GetHashCode());
-
-    public abstract ValueTask WriteAsync(Stream target, uint bufferSize);
+    public static WebsocketBuilder Create() => new();
     
-    protected async ValueTask<WebsocketFrame> ReadAsync(Stream target, Memory<byte> buffer, CancellationToken token = default)
+    public static MulticastWebsocketBuilder CreateMulticast() => new();
+    
+    public static IResponse CreateWebsocketResponse(IRequest request, WebsocketContent content)
     {
-        var receivedBytes = await target.ReadAsync(buffer, token);
+        var key = request.Headers.GetValueOrDefault("Sec-WebSocket-Key");
 
-        if (receivedBytes == 0)
+        if (key is null)
         {
-            return new WebsocketFrame()
-            {
-                Data = ReadOnlyMemory<byte>.Empty,
-                Type = FrameType.Close
-            };
+            throw new InvalidOperationException("Sec-WebSocket-Key not found");
         }
 
-        var decodedFrame = Frame.Decode(buffer, receivedBytes, out var frameType);
-        
-        return new WebsocketFrame
-        {
-            Data = decodedFrame,
-            Type = frameType
-        };
+        return request.Respond()
+            .Status(ResponseStatus.SwitchingProtocols)
+            .Connection(Connection.Upgrade)
+            .Header("Upgrade", "websocket")
+            .Header("Sec-WebSocket-Accept", Handshake.CreateAcceptKey(key))
+            .Content(content)
+            .Build();
     }
-
-    protected async ValueTask WriteAsync(
-        Stream target, 
-        ReadOnlyMemory<byte> payload, 
-        byte opcode = 0x01, 
-        CancellationToken token = default)
-    {
-        using var frameOwner = Frame.Build(payload, opcode: opcode);
-        var frameMemory = frameOwner.Memory;
-
-        // Send the frame to the WebSocket client
-        await target.WriteAsync(frameMemory, token);
-    }
-}
-
-public class WebsocketFrame
-{
-    public ReadOnlyMemory<byte> Data { get; init; }
-    
-    public FrameType Type { get; init; }
 }
