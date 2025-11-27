@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Protocol;
+
 using Cookie = GenHTTP.Api.Protocol.Cookie;
 
 namespace GenHTTP.Engine.Shared.Types;
@@ -16,6 +17,7 @@ public sealed class Response : IResponse
     public Response()
     {
         Status = StatusOk;
+        Connection = Api.Protocol.Connection.KeepAlive;
     }
 
     #endregion
@@ -23,6 +25,10 @@ public sealed class Response : IResponse
     #region Get-/Setters
 
     public FlexibleResponseStatus Status { get; set; }
+
+    public Connection Connection { get; set; }
+
+    public bool Upgraded => Connection == Connection.UpgradeAndSurrender;
 
     public DateTime? Expires { get; set; }
 
@@ -33,8 +39,6 @@ public sealed class Response : IResponse
     public string? ContentEncoding { get; set; }
 
     public ulong? ContentLength { get; set; }
-
-    public bool Upgraded { get; init; }
 
     public IResponseContent? Content { get; set; }
 
@@ -74,6 +78,7 @@ public sealed class Response : IResponse
     public void Reset()
     {
         Status = StatusOk;
+        Connection = Connection.KeepAlive;
 
         _headers.Clear();
         _cookies.Clear();

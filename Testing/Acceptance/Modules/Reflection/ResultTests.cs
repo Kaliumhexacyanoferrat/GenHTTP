@@ -1,7 +1,10 @@
 ﻿using System.Net;
+
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Reflection;
+
 using Cookie = GenHTTP.Api.Protocol.Cookie;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Reflection;
@@ -25,6 +28,7 @@ public sealed class ResultTests
         var result = new Result<MyPayload>(new MyPayload("Hello World!"))
                      .Status(ResponseStatus.Accepted)
                      .Status(202, "Accepted Custom")
+                     .Connection(Connection.Close)
                      .Type(new FlexibleContentType(ContentType.TextRichText))
                      .Modified(DateTime.UtcNow)
                      .Expires(DateTime.UtcNow)
@@ -42,6 +46,8 @@ public sealed class ResultTests
         await response.AssertStatusAsync(HttpStatusCode.Accepted);
 
         Assert.AreEqual("Value", response.GetHeader("X-Custom"));
+
+        Assert.AreEqual("close", response.GetHeader("Connection")?.ToLower());
     }
 
     [TestMethod]
