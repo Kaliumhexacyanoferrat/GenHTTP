@@ -212,6 +212,7 @@ internal sealed class Request : IRequest
     internal void Reset()
     {
         _headers.Clear();
+        _cookies.Clear();
         _forwardings.Clear();
         _properties.Clear();
         _query.Clear();
