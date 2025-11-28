@@ -2,6 +2,7 @@
 using System.Text;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Internal;
+using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Practices;
@@ -10,11 +11,17 @@ using GenHTTP.Modules.Straculo.Imperative;
 using GenHTTP.Modules.Straculo.Protocol;
 using GenHTTP.Modules.Straculo.Provider;
 using GenHTTP.Modules.Straculo.Reactive;
+using GenHTTP.Modules.Straculo.Utils;
 using GenHTTP.Modules.Webservices;
 
 var content = Content.From(Resource.FromString("Hello World!"));
 
+var functionalHandler = Inline
+    .Create()
+    .Get((IRequest request) => Websocket.CreateWebsocketResponse(request, new MyWebsocketContent()));
+
 var layoutBuilder = Layout.Create()
+    .Add("functional", functionalHandler)
     .AddService<MyWebsocketService>("websocket");
 
 var websocket = Websocket
@@ -22,22 +29,27 @@ var websocket = Websocket
     .Add(new MyWebsocketContent())
     .Build();
 
-var streams = new List<ReactiveWebsocketStream>();
+var websocketStreams = new List<WebsocketStream>();
 
 var reactiveWebsocket = Websocket
     .CreateReactive()
     .OnConnected((stream) => 
     {
-        streams.Add(stream);
+        websocketStreams.Add(stream);
         return ValueTask.CompletedTask;
     })
     .OnMessage(async (stream) =>
     {
         // Broadcast
-        foreach (var strm in streams)
+        foreach (var websocketStream in websocketStreams)
         {
-            await strm.WriteAsync("Hello World!");
+            await websocketStream.WriteAsync("Hello, World!");
         }
+    })
+    .OnClose((stream) =>
+    {
+        websocketStreams.Remove(stream);
+        return ValueTask.CompletedTask;
     })
     .Build();
 

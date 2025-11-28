@@ -1,16 +1,16 @@
 using System.Text;
 using GenHTTP.Modules.Straculo.Protocol;
 
-namespace GenHTTP.Modules.Straculo.Reactive;
+namespace GenHTTP.Modules.Straculo.Utils;
 
 /// <summary>
 /// Small wrapper to improve the API
 /// </summary>
-public class ReactiveWebsocketStream
+public class WebsocketStream
 {
     private readonly Stream _stream;
     
-    public ReactiveWebsocketStream(Stream stream)
+    public WebsocketStream(Stream stream)
     {
         _stream = stream;
     }

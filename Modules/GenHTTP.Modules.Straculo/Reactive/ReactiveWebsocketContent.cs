@@ -1,18 +1,19 @@
 using System.Buffers;
 using GenHTTP.Modules.Straculo.Imperative;
 using GenHTTP.Modules.Straculo.Protocol;
+using GenHTTP.Modules.Straculo.Utils;
 
 namespace GenHTTP.Modules.Straculo.Reactive;
 
 public class ReactiveWebsocketContent : WebsocketContent
 {
-    internal Func<ReactiveWebsocketStream, ValueTask>? OnConnected { get; set; }
-    internal Func<ReactiveWebsocketStream, ValueTask>? OnMessage { get; set; }
-    internal Func<ReactiveWebsocketStream, ValueTask>? OnBinary { get; set; }
-    internal Func<ReactiveWebsocketStream, ValueTask>? OnContinue { get; set; }
-    internal Func<ReactiveWebsocketStream, ValueTask>? OnPing { get; set; }
-    internal Func<ReactiveWebsocketStream, ValueTask>? OnPong { get; set; }
-    internal Func<ReactiveWebsocketStream, ValueTask>? OnClose { get; set; }
+    internal Func<WebsocketStream, ValueTask>? OnConnected { get; set; }
+    internal Func<WebsocketStream, ValueTask>? OnMessage { get; set; }
+    internal Func<WebsocketStream, ValueTask>? OnBinary { get; set; }
+    internal Func<WebsocketStream, ValueTask>? OnContinue { get; set; }
+    internal Func<WebsocketStream, ValueTask>? OnPing { get; set; }
+    internal Func<WebsocketStream, ValueTask>? OnPong { get; set; }
+    internal Func<WebsocketStream, ValueTask>? OnClose { get; set; }
     
     public override async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
@@ -21,7 +22,7 @@ public class ReactiveWebsocketContent : WebsocketContent
 
         try
         {
-            if (OnConnected != null) await OnConnected(new ReactiveWebsocketStream(target));
+            if (OnConnected != null) await OnConnected(new WebsocketStream(target));
             
             while (true)
             {
@@ -29,26 +30,26 @@ public class ReactiveWebsocketContent : WebsocketContent
 
                 if (frame.Type == FrameType.Close || frame.Data.IsEmpty)
                 {
-                    if (OnClose != null) await OnClose(new ReactiveWebsocketStream(target));
+                    if (OnClose != null) await OnClose(new WebsocketStream(target));
                     break;
                 }
                 
                 switch (frame.Type)
                 {
                     case FrameType.Text:
-                        if (OnMessage != null) await OnMessage(new ReactiveWebsocketStream(target));
+                        if (OnMessage != null) await OnMessage(new WebsocketStream(target));
                         continue;
                     case FrameType.Ping:
-                        if (OnPing != null) await OnPing(new ReactiveWebsocketStream(target));
+                        if (OnPing != null) await OnPing(new WebsocketStream(target));
                         continue;
                     case FrameType.Pong:
-                        if (OnPong != null) await OnPong(new ReactiveWebsocketStream(target));
+                        if (OnPong != null) await OnPong(new WebsocketStream(target));
                         continue;
                     case FrameType.Continue:
-                        if (OnContinue != null) await OnContinue(new ReactiveWebsocketStream(target));
+                        if (OnContinue != null) await OnContinue(new WebsocketStream(target));
                         continue;
                     case FrameType.Binary:
-                        if (OnBinary != null) await OnBinary(new ReactiveWebsocketStream(target));
+                        if (OnBinary != null) await OnBinary(new WebsocketStream(target));
                         continue;
                     default:
                         break;
