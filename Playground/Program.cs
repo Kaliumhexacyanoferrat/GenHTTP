@@ -31,18 +31,18 @@ var websocket = Websocket
 var websocketStreams = new List<WebsocketStream>();
 
 var reactiveWebsocket = Websocket
-    .CreateReactive(128)
+    .CreateReactive(rxBufferSize: 1024)
     .OnConnected((stream) => 
     {
         websocketStreams.Add(stream);
         return ValueTask.CompletedTask;
     })
-    .OnMessage(async (stream) =>
+    .OnMessage(async (stream, frame) =>
     {
         // Broadcast
         foreach (var websocketStream in websocketStreams)
         {
-            await websocketStream.WriteAsync("Hello, World!");
+            await websocketStream.WriteAsync(frame.Data);
         }
     })
     .OnClose((stream) =>
@@ -52,8 +52,8 @@ var reactiveWebsocket = Websocket
     })
     .OnError((stream, error) =>
     {
-        Console.WriteLine(error.Message);
-        Console.WriteLine(error.ErrorType);
+        Debug.WriteLine(error.Message);
+        Debug.WriteLine(error.ErrorType);
         
         return new ValueTask<bool>(false);
     })

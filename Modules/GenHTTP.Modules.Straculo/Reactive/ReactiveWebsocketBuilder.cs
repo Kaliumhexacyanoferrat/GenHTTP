@@ -22,19 +22,19 @@ public class ReactiveWebsocketBuilder : IHandlerBuilder<ReactiveWebsocketBuilder
         return this;
     }
     
-    public ReactiveWebsocketBuilder OnMessage(Func<WebsocketStream, ValueTask> onMessage)
+    public ReactiveWebsocketBuilder OnMessage(Func<WebsocketStream, WebsocketFrame, ValueTask> onMessage)
     {
         _reactiveWebsocketContent.OnMessage = onMessage;
         return this;
     }
     
-    public ReactiveWebsocketBuilder OnBinary(Func<WebsocketStream, ValueTask> onBinary)
+    public ReactiveWebsocketBuilder OnBinary(Func<WebsocketStream, WebsocketFrame, ValueTask> onBinary)
     {
         _reactiveWebsocketContent.OnBinary = onBinary;
         return this;
     }
     
-    public ReactiveWebsocketBuilder OnContinue(Func<WebsocketStream, ValueTask> onContinue)
+    public ReactiveWebsocketBuilder OnContinue(Func<WebsocketStream, WebsocketFrame, ValueTask> onContinue)
     {
         _reactiveWebsocketContent.OnContinue = onContinue;
         return this;

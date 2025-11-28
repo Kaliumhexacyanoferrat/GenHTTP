@@ -15,9 +15,9 @@ public class ReactiveWebsocketContent : WebsocketContent
     }
     
     internal Func<WebsocketStream, ValueTask>? OnConnected { get; set; }
-    internal Func<WebsocketStream, ValueTask>? OnMessage { get; set; }
-    internal Func<WebsocketStream, ValueTask>? OnBinary { get; set; }
-    internal Func<WebsocketStream, ValueTask>? OnContinue { get; set; }
+    internal Func<WebsocketStream, WebsocketFrame, ValueTask>? OnMessage { get; set; }
+    internal Func<WebsocketStream, WebsocketFrame, ValueTask>? OnBinary { get; set; }
+    internal Func<WebsocketStream, WebsocketFrame, ValueTask>? OnContinue { get; set; }
     internal Func<WebsocketStream, ValueTask>? OnPing { get; set; }
     internal Func<WebsocketStream, ValueTask>? OnPong { get; set; }
     internal Func<WebsocketStream, ValueTask>? OnClose { get; set; }
@@ -59,7 +59,7 @@ public class ReactiveWebsocketContent : WebsocketContent
                 switch (frame.Type)
                 {
                     case FrameType.Text:
-                        if (OnMessage != null) await OnMessage(new WebsocketStream(target));
+                        if (OnMessage != null) await OnMessage(new WebsocketStream(target), frame);
                         continue;
                     case FrameType.Ping:
                         if (OnPing != null) await OnPing(new WebsocketStream(target));
@@ -68,10 +68,10 @@ public class ReactiveWebsocketContent : WebsocketContent
                         if (OnPong != null) await OnPong(new WebsocketStream(target));
                         continue;
                     case FrameType.Continue:
-                        if (OnContinue != null) await OnContinue(new WebsocketStream(target));
+                        if (OnContinue != null) await OnContinue(new WebsocketStream(target), frame);
                         continue;
                     case FrameType.Binary:
-                        if (OnBinary != null) await OnBinary(new WebsocketStream(target));
+                        if (OnBinary != null) await OnBinary(new WebsocketStream(target), frame);
                         continue;
                     default:
                         break;

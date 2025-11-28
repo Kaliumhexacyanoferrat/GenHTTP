@@ -118,7 +118,7 @@ public class MyWebsocketContent : WebsocketContent
 
 ```cs
 var reactiveWebsocket = Websocket
-    .CreateReactive()
+    .CreateReactive(rxBufferSize: 1024)
     .OnConnected((stream) => 
     {
         //OnConnected logic
@@ -127,9 +127,9 @@ var reactiveWebsocket = Websocket
 
         return ValueTask.CompletedTask;
     })
-    .OnMessage(async (stream) =>
+    .OnMessage(async (stream, frame) =>
     {
-        stream.WriteAsync("Hello, World!");   
+        stream.WriteAsync(frame.Data);   
     })
     .OnClose((stream) =>
     {
@@ -166,18 +166,18 @@ There are also
 var websocketStreams = new List<WebsocketStream>();
 
 var reactiveWebsocket = Websocket
-    .CreateReactive()
+    .CreateReactive(rxBufferSize: 1024)
     .OnConnected((stream) => 
     {
         websocketStreams.Add(stream);
         return ValueTask.CompletedTask;
     })
-    .OnMessage(async (stream) =>
+    .OnMessage(async (stream, frame) =>
     {
         // Broadcast
         foreach (var websocketStream in websocketStreams)
         {
-            await websocketStream.WriteAsync("Hello, World!");
+            await websocketStream.WriteAsync(frame.Data);
         }
     })
     .OnClose((stream) =>

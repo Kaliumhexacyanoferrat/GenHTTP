@@ -4,5 +4,8 @@ public enum FrameErrorType
 {
     None,
     Incomplete,
-    InvalidOpCode
+    InvalidOpCode,
+    PayloadTooLarge,
+    InvalidControlFrame,
+    InvalidControlFrameLength
 }

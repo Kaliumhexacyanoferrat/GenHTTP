@@ -2,12 +2,12 @@ namespace GenHTTP.Modules.Straculo.Protocol;
 
 public enum FrameType
 {
-    Continue,
+    None,
     Text,
     Binary,
+    Continue,
     Close,
     Ping,
     Pong,
     Error,
-    None
 }
