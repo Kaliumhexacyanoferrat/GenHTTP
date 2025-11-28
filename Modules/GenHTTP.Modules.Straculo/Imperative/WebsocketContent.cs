@@ -1,7 +1,8 @@
+using System.Text;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Straculo.Protocol;
 
-namespace GenHTTP.Modules.Straculo.Contents;
+namespace GenHTTP.Modules.Straculo.Imperative;
 
 public abstract class WebsocketContent : IResponseContent
 {
@@ -25,13 +26,27 @@ public abstract class WebsocketContent : IResponseContent
         return new WebsocketFrame(decodedFrame, frameType);
     }
 
-    public static async ValueTask WriteAsync(
+    protected static async ValueTask WriteAsync(
         Stream target, 
         ReadOnlyMemory<byte> payload, 
         FrameType opcode = FrameType.Text,
         CancellationToken token = default)
     {
         using var frameOwner = Frame.Build(payload, opcode: (byte)opcode);
+        var frameMemory = frameOwner.Memory;
+
+        // Send the frame to the WebSocket client
+        await target.WriteAsync(frameMemory, token);
+        await target.FlushAsync(token);
+    }
+    
+    protected static async ValueTask WriteAsync(
+        Stream target, 
+        string payload, 
+        FrameType opcode = FrameType.Text,
+        CancellationToken token = default)
+    {
+        using var frameOwner = Frame.Build(Encoding.UTF8.GetBytes(payload), opcode: (byte)opcode);
         var frameMemory = frameOwner.Memory;
 
         // Send the frame to the WebSocket client

@@ -6,8 +6,10 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Practices;
 using GenHTTP.Modules.Straculo;
-using GenHTTP.Modules.Straculo.Contents;
+using GenHTTP.Modules.Straculo.Imperative;
 using GenHTTP.Modules.Straculo.Protocol;
+using GenHTTP.Modules.Straculo.Provider;
+using GenHTTP.Modules.Straculo.Reactive;
 using GenHTTP.Modules.Webservices;
 
 var content = Content.From(Resource.FromString("Hello World!"));
@@ -20,17 +22,28 @@ var websocket = Websocket
     .Add(new MyWebsocketContent())
     .Build();
 
-var multicastWebsocket = Websocket
-    .CreateMulticast()
+var streams = new List<ReactiveWebsocketStream>();
+
+var reactiveWebsocket = Websocket
+    .CreateReactive()
+    .OnConnected((stream) => 
+    {
+        streams.Add(stream);
+        return ValueTask.CompletedTask;
+    })
     .OnMessage(async (stream) =>
     {
-        await WebsocketContent.WriteAsync(stream, "Hello World!"u8.ToArray());
+        // Broadcast
+        foreach (var strm in streams)
+        {
+            await strm.WriteAsync("Hello World!");
+        }
     })
     .Build();
 
 await Host.Create()
           .Port(8080)
-          .Handler(layoutBuilder)
+          .Handler(reactiveWebsocket)
           .Defaults()
           .RunAsync(); // or StartAsync() for non-blocking
 

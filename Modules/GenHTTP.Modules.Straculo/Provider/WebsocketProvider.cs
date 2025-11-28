@@ -1,6 +1,6 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Straculo.Contents;
+using GenHTTP.Modules.Straculo.Imperative;
 using GenHTTP.Modules.Straculo.Protocol;
 
 namespace GenHTTP.Modules.Straculo.Provider;

@@ -1,7 +1,8 @@
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Straculo.Contents;
+using GenHTTP.Modules.Straculo.Imperative;
 using GenHTTP.Modules.Straculo.Protocol;
 using GenHTTP.Modules.Straculo.Provider;
+using GenHTTP.Modules.Straculo.Reactive;
 
 namespace GenHTTP.Modules.Straculo;
 
@@ -9,7 +10,7 @@ public static class Websocket
 {
     public static WebsocketBuilder Create() => new();
     
-    public static MulticastWebsocketBuilder CreateMulticast() => new();
+    public static ReactiveWebsocketBuilder CreateReactive() => new();
     
     public static IResponse CreateWebsocketResponse(IRequest request, WebsocketContent content)
     {

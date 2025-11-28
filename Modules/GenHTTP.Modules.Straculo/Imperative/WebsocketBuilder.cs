@@ -1,9 +1,7 @@
-using System.Buffers;
 using GenHTTP.Api.Content;
-using GenHTTP.Modules.Straculo.Contents;
-using GenHTTP.Modules.Straculo.Protocol;
+using GenHTTP.Modules.Straculo.Provider;
 
-namespace GenHTTP.Modules.Straculo.Provider;
+namespace GenHTTP.Modules.Straculo.Imperative;
 
 public class WebsocketBuilder : IHandlerBuilder<WebsocketBuilder>
 {
