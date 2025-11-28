@@ -5,14 +5,20 @@ namespace GenHTTP.Modules.Straculo.Protocol;
 
 public static partial class Frame
 {
-    public static ReadOnlyMemory<byte> Decode(Memory<byte> buffer, int length, out FrameType frameType)
+    private const string IncompleteFrame = "Incomplete frame";
+    
+    public static WebsocketFrame Decode(Memory<byte> buffer, int length)
+    //public static ReadOnlyMemory<byte> Decode(Memory<byte> buffer, int length, out FrameType frameType)
     {
+        FrameType frameType;
+        
         // Get a span of the input buffer for efficient memory operations.
         var span = buffer.Span;
 
         // Validate that the buffer contains at least the minimum frame size (2 bytes).
         if (length < 2)
-            throw new ArgumentException("Incomplete frame.", nameof(buffer));
+            return new WebsocketFrame(ReadOnlyMemory<byte>.Empty, Type: FrameType.Error, FrameError: new FrameError(IncompleteFrame, FrameErrorType.Incomplete));
+            //throw new ArgumentException("Incomplete frame.", nameof(buffer));
 
         // Extract the opcode from the first byte.
         // The opcode determines the type of frame (e.g., text, binary, close).
@@ -29,7 +35,7 @@ public static partial class Frame
             // If the payload length is less than 2, return an empty payload.
             if (opPayloadLength < 2)
             {
-                return ReadOnlyMemory<byte>.Empty;
+                return new WebsocketFrame(ReadOnlyMemory<byte>.Empty, frameType);
             }
 
             // Extract the close code (2 bytes, big-endian).
@@ -42,7 +48,8 @@ public static partial class Frame
 
             // Construct the close message and return it as a UTF-8 encoded memory block.
             var message = $"Close frame received. Code: {closeCode}, Reason: {reason ?? "None"}";
-            return Encoding.UTF8.GetBytes(message).AsMemory();
+            return new WebsocketFrame(Encoding.UTF8.GetBytes(message).AsMemory(), frameType);
+            //return Encoding.UTF8.GetBytes(message).AsMemory();
         }
 
         // Determine the frame type based on the opcode.
@@ -54,9 +61,14 @@ public static partial class Frame
             0x09 => FrameType.Ping,
             0x0A => FrameType.Pong,
 #pragma warning disable S3928
-            _ => throw new ArgumentOutOfRangeException(nameof(opcode)) // Invalid opcode.
+            _ => FrameType.None
 #pragma warning restore S3928
         };
+
+        if (frameType == FrameType.None)
+        {
+            return new WebsocketFrame(ReadOnlyMemory<byte>.Empty, Type: FrameType.Error, FrameError: new FrameError(IncompleteFrame, FrameErrorType.InvalidOpCode));
+        }
 
         // Determine if the frame is masked (MASK bit is set in the second byte).
         var isMasked = (span[1] & 0x80) != 0;
@@ -72,7 +84,7 @@ public static partial class Frame
         {
             case 126 when length < 4:
                 // If the length is 126 but there are not enough bytes for the extended length field, throw an error.
-                throw new ArgumentException("Incomplete frame.", nameof(buffer));
+                return new WebsocketFrame(ReadOnlyMemory<byte>.Empty, Type: FrameType.Error, FrameError: new FrameError(IncompleteFrame, FrameErrorType.Incomplete));
             case 126:
                 // Extract the 16-bit extended payload length (big-endian) and adjust the payload start index.
                 payloadLength = BinaryPrimitives.ReadUInt16BigEndian(span.Slice(2, 2));
@@ -80,7 +92,7 @@ public static partial class Frame
                 break;
             case 127 when length < 10:
                 // If the length is 127 but there are not enough bytes for the extended length field, throw an error.
-                throw new ArgumentException("Incomplete frame.", nameof(buffer));
+                return new WebsocketFrame(ReadOnlyMemory<byte>.Empty, Type: FrameType.Error, FrameError: new FrameError(IncompleteFrame, FrameErrorType.Incomplete));
             case 127:
                 // Extract the 64-bit extended payload length (big-endian) and adjust the payload start index.
                 payloadLength = (int)BinaryPrimitives.ReadUInt64BigEndian(span.Slice(2, 8));
@@ -90,7 +102,7 @@ public static partial class Frame
 
         // Validate that the buffer contains enough bytes for the payload (including masking key if applicable).
         if (length < payloadStart + payloadLength + (isMasked ? 4 : 0))
-            throw new ArgumentException("Incomplete frame.", nameof(buffer));
+            return new WebsocketFrame(ReadOnlyMemory<byte>.Empty, Type: FrameType.Error, FrameError: new FrameError(IncompleteFrame, FrameErrorType.Incomplete));
 
         // Extract the masking key if the frame is masked (4 bytes following the header).
         var maskKey = isMasked ? span.Slice(payloadStart, 4) : Span<byte>.Empty;
@@ -107,6 +119,7 @@ public static partial class Frame
         }
 
         // Return the payload as raw bytes in a new memory block.
-        return payloadSpan.ToArray();
+        return new WebsocketFrame(payloadSpan.ToArray(), frameType);
+        //return payloadSpan.ToArray();
     }
 }

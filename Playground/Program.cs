@@ -1,4 +1,5 @@
 ﻿using System.Buffers;
+using System.Diagnostics;
 using System.Text;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Internal;
@@ -9,8 +10,6 @@ using GenHTTP.Modules.Practices;
 using GenHTTP.Modules.Straculo;
 using GenHTTP.Modules.Straculo.Imperative;
 using GenHTTP.Modules.Straculo.Protocol;
-using GenHTTP.Modules.Straculo.Provider;
-using GenHTTP.Modules.Straculo.Reactive;
 using GenHTTP.Modules.Straculo.Utils;
 using GenHTTP.Modules.Webservices;
 
@@ -32,7 +31,7 @@ var websocket = Websocket
 var websocketStreams = new List<WebsocketStream>();
 
 var reactiveWebsocket = Websocket
-    .CreateReactive()
+    .CreateReactive(128)
     .OnConnected((stream) => 
     {
         websocketStreams.Add(stream);
@@ -50,6 +49,13 @@ var reactiveWebsocket = Websocket
     {
         websocketStreams.Remove(stream);
         return ValueTask.CompletedTask;
+    })
+    .OnError((stream, error) =>
+    {
+        Console.WriteLine(error.Message);
+        Console.WriteLine(error.ErrorType);
+        
+        return new ValueTask<bool>(false);
     })
     .Build();
 
@@ -69,6 +75,14 @@ public class MyWebsocketContent : WebsocketContent
         while (true)
         {
             var frame = await ReadAsync(target, buffer);
+
+            if (frame.Type == FrameType.Error)
+            {
+                // Deal with error
+                Debug.WriteLine(frame.FrameError!.Message);
+                Debug.WriteLine(frame.FrameError!.ErrorType);
+                continue;
+            }
             if (frame.Type == FrameType.Close || frame.Data.IsEmpty)
             {
                 break;

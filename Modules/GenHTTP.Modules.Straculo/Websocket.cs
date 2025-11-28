@@ -10,7 +10,7 @@ public static class Websocket
 {
     public static WebsocketBuilder Create() => new();
     
-    public static ReactiveWebsocketBuilder CreateReactive() => new();
+    public static ReactiveWebsocketBuilder CreateReactive(int rxBufferSize = 8192) => new(rxBufferSize);
     
     public static IResponse CreateWebsocketResponse(IRequest request, WebsocketContent content)
     {

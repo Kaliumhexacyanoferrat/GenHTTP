@@ -21,9 +21,7 @@ public abstract class WebsocketContent : IResponseContent
             return new WebsocketFrame(ReadOnlyMemory<byte>.Empty, FrameType.Close);
         }
 
-        var decodedFrame = Frame.Decode(buffer, receivedBytes, out var frameType);
-        
-        return new WebsocketFrame(decodedFrame, frameType);
+        return Frame.Decode(buffer, receivedBytes);
     }
 
     protected static async ValueTask WriteAsync(

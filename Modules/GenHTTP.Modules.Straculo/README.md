@@ -46,6 +46,15 @@ public class MyWebsocketContent : WebsocketContent
         while (true)
         {
             var frame = await ReadAsync(target, buffer);
+
+            if (frame.Type == FrameType.Error)
+            {
+                // Deal with error
+                Debug.WriteLine(frame.FrameError!.Message);
+                Debug.WriteLine(frame.FrameError!.ErrorType);
+                continue;
+            }
+
             if (frame.Type == FrameType.Close || frame.Data.IsEmpty)
             {
                 break;
@@ -84,6 +93,15 @@ public class MyWebsocketContent : WebsocketContent
         while (true)
         {
             var frame = await ReadAsync(target, buffer);
+
+            if (frame.Type == FrameType.Error)
+            {
+                // Deal with error
+                Debug.WriteLine(frame.FrameError!.Message);
+                Debug.WriteLine(frame.FrameError!.ErrorType);
+                continue;
+            }
+
             if (frame.Type == FrameType.Close || frame.Data.IsEmpty)
             {
                 break;
@@ -116,8 +134,16 @@ var reactiveWebsocket = Websocket
     .OnClose((stream) =>
     {
         //OnClose logic
-        
+
         return ValueTask.CompletedTask;
+    })
+    .OnError((stream, error) =>
+    {
+        Debug.WriteLine(error.Message);
+        Debug.WriteLine(error.ErrorType);
+        
+        // return true to force connection to close
+        return new ValueTask<bool>(false);
     })
     .Build();
 
@@ -158,6 +184,14 @@ var reactiveWebsocket = Websocket
     {
         websocketStreams.Remove(stream);
         return ValueTask.CompletedTask;
+    })
+    .OnError((stream, error) =>
+    {
+        Debug.WriteLine(error.Message);
+        Debug.WriteLine(error.ErrorType);
+        
+        // return true to force connection to close
+        return new ValueTask<bool>(false);
     })
     .Build();
 

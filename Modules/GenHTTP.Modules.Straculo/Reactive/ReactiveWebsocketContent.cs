@@ -7,6 +7,13 @@ namespace GenHTTP.Modules.Straculo.Reactive;
 
 public class ReactiveWebsocketContent : WebsocketContent
 {
+    private readonly int _rxBufferSize;
+    
+    public ReactiveWebsocketContent(int rxBufferSize)
+    {
+        _rxBufferSize =  rxBufferSize;
+    }
+    
     internal Func<WebsocketStream, ValueTask>? OnConnected { get; set; }
     internal Func<WebsocketStream, ValueTask>? OnMessage { get; set; }
     internal Func<WebsocketStream, ValueTask>? OnBinary { get; set; }
@@ -14,26 +21,41 @@ public class ReactiveWebsocketContent : WebsocketContent
     internal Func<WebsocketStream, ValueTask>? OnPing { get; set; }
     internal Func<WebsocketStream, ValueTask>? OnPong { get; set; }
     internal Func<WebsocketStream, ValueTask>? OnClose { get; set; }
+    internal Func<WebsocketStream, FrameError, ValueTask<bool>>? OnError { get; set; }
     
     public override async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
         var arrayPool = ArrayPool<byte>.Shared;
-        var buffer = arrayPool.Rent(8192);
+        var buffer = arrayPool.Rent(_rxBufferSize);
 
         try
         {
             if (OnConnected != null) await OnConnected(new WebsocketStream(target));
-            
+
             while (true)
             {
                 var frame = await ReadAsync(target, buffer);
+
+                if (frame.Type == FrameType.Error)
+                {
+                    if (OnError != null)
+                    {
+                        if (await OnError(new WebsocketStream(target), frame.FrameError!))
+                        {
+                            if (OnClose != null) await OnClose(new WebsocketStream(target));
+                            break;
+                        }
+                    }
+                    
+                    continue;
+                }
 
                 if (frame.Type == FrameType.Close || frame.Data.IsEmpty)
                 {
                     if (OnClose != null) await OnClose(new WebsocketStream(target));
                     break;
                 }
-                
+
                 switch (frame.Type)
                 {
                     case FrameType.Text:

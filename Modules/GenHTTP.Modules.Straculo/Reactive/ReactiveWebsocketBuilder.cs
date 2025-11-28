@@ -1,4 +1,5 @@
 using GenHTTP.Api.Content;
+using GenHTTP.Modules.Straculo.Protocol;
 using GenHTTP.Modules.Straculo.Provider;
 using GenHTTP.Modules.Straculo.Utils;
 
@@ -10,9 +11,9 @@ public class ReactiveWebsocketBuilder : IHandlerBuilder<ReactiveWebsocketBuilder
 
     private readonly ReactiveWebsocketContent _reactiveWebsocketContent;
 
-    public ReactiveWebsocketBuilder()
+    public ReactiveWebsocketBuilder(int rxBufferSize)
     {
-        _reactiveWebsocketContent = new ReactiveWebsocketContent();
+        _reactiveWebsocketContent = new ReactiveWebsocketContent(rxBufferSize);
     }
     
     public ReactiveWebsocketBuilder OnConnected(Func<WebsocketStream, ValueTask> onConnected)
@@ -54,6 +55,12 @@ public class ReactiveWebsocketBuilder : IHandlerBuilder<ReactiveWebsocketBuilder
     public ReactiveWebsocketBuilder OnClose(Func<WebsocketStream, ValueTask> onClose)
     {
         _reactiveWebsocketContent.OnClose = onClose;
+        return this;
+    }
+    
+    public ReactiveWebsocketBuilder OnError(Func<WebsocketStream, FrameError, ValueTask<bool>> onError)
+    {
+        _reactiveWebsocketContent.OnError = onError;
         return this;
     }
     

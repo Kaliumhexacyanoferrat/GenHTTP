@@ -7,5 +7,7 @@ public enum FrameType
     Binary,
     Close,
     Ping,
-    Pong
+    Pong,
+    Error,
+    None
 }
