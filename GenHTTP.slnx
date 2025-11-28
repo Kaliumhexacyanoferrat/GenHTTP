@@ -58,6 +58,7 @@
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="CONTRIBUTING.md" />
+    <File Path="Directory.Build.props" />
     <File Path="LICENSE" />
     <File Path="README.md" />
   </Folder>
