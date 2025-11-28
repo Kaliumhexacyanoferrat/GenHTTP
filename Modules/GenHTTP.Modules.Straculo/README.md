@@ -103,7 +103,10 @@ var reactiveWebsocket = Websocket
     .CreateReactive()
     .OnConnected((stream) => 
     {
-        websocketStreams.Add(stream);
+        //OnConnected logic
+        
+        stream.WriteAsync("Hello from the server."); 
+
         return ValueTask.CompletedTask;
     })
     .OnMessage(async (stream) =>
@@ -112,7 +115,8 @@ var reactiveWebsocket = Websocket
     })
     .OnClose((stream) =>
     {
-        websocketStreams.Remove(stream);
+        //OnClose logic
+        
         return ValueTask.CompletedTask;
     })
     .Build();
