@@ -43,6 +43,8 @@ public class MyWebsocketContent : WebsocketContent
         var arrayPool = ArrayPool<byte>.Shared;
         var buffer = arrayPool.Rent(8192);
 
+        await target.PingAsync();
+
         while (true)
         {
             var frame = await target.ReadAsync(buffer);
@@ -55,7 +57,12 @@ public class MyWebsocketContent : WebsocketContent
                 continue;
             }
 
-            if (frame.Type == FrameType.Close || frame.Data.IsEmpty)
+            if (frame.Type == FrameType.Pong)
+            {
+                continue;
+            }
+            
+            if (frame.Type == FrameType.Close)
             {
                 await target.CloseAsync();
                 break;
@@ -91,6 +98,8 @@ public class MyWebsocketContent : WebsocketContent
         var arrayPool = ArrayPool<byte>.Shared;
         var buffer = arrayPool.Rent(8192);
 
+        await target.PingAsync();
+
         while (true)
         {
             var frame = await target.ReadAsync(buffer);
@@ -103,7 +112,12 @@ public class MyWebsocketContent : WebsocketContent
                 continue;
             }
 
-            if (frame.Type == FrameType.Close || frame.Data.IsEmpty)
+            if (frame.Type == FrameType.Pong)
+            {
+                continue;
+            }
+            
+            if (frame.Type == FrameType.Close)
             {
                 await target.CloseAsync();
                 break;
@@ -125,10 +139,11 @@ var reactiveWebsocket = Websocket
     {
         //OnConnected logic
         
-        stream.WriteAsync("Hello from the server."); 
+        await stream.PingAsync();
 
         return ValueTask.CompletedTask;
     })
+    .OnPong(stream => ValueTask.CompletedTask)
     .OnMessage(async (stream, frame) =>
     {
         stream.WriteAsync(frame.Data);   

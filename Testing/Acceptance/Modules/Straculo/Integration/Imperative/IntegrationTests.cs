@@ -31,6 +31,8 @@ public sealed class IntegrationTests
             var arrayPool = ArrayPool<byte>.Shared;
             var buffer = arrayPool.Rent(8192);
 
+            await target.PingAsync();
+
             while (true)
             {
                 var frame = await target.ReadAsync(buffer);
@@ -38,12 +40,15 @@ public sealed class IntegrationTests
                 if (frame.Type == FrameType.Error)
                 {
                     // Deal with error
-                    Debug.WriteLine(frame.FrameError!.Message);
-                    Debug.WriteLine(frame.FrameError!.ErrorType);
                     continue;
                 }
 
-                if (frame.Type == FrameType.Close || frame.Data.IsEmpty)
+                if (frame.Type == FrameType.Pong)
+                {
+                    continue;
+                }
+            
+                if (frame.Type == FrameType.Close)
                 {
                     await target.CloseAsync();
                     break;
