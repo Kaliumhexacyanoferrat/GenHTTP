@@ -5,7 +5,7 @@ using GenHTTP.Modules.Straculo.Protocol;
 namespace GenHTTP.Testing.Acceptance.Modules.Straculo.Protocol;
 
 [TestClass]
-public class Frame_Decode_Tests
+public sealed class Frame_Decode_Tests
 {
     /*
        Decode_IncompleteHeader_ReturnsErrorIncomplete

@@ -52,7 +52,7 @@ public class ReactiveWebsocketBuilder : IHandlerBuilder<ReactiveWebsocketBuilder
         return this;
     }
     
-    public ReactiveWebsocketBuilder OnClose(Func<WebsocketStream, ValueTask> onClose)
+    public ReactiveWebsocketBuilder OnClose(Func<WebsocketStream, WebsocketFrame, ValueTask> onClose)
     {
         _reactiveWebsocketContent.OnClose = onClose;
         return this;

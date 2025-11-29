@@ -49,4 +49,14 @@ public class WebsocketStream
         await _inner.WriteAsync(frameMemory, token);
         await _inner.FlushAsync(token);
     }
+
+    public async ValueTask CloseAsync(string? reason = null, ushort statusCode = 1000, CancellationToken token = default)
+    {
+        using var frameOwner = Frame.EncodeClose(reason, statusCode);
+        var frameMemory = frameOwner.Memory;
+
+        // Send the frame to the WebSocket client
+        await _inner.WriteAsync(frameMemory, token);
+        await _inner.FlushAsync(token);
+    }
 }

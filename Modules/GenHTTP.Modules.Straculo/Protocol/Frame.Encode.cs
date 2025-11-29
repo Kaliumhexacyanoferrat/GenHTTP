@@ -1,5 +1,6 @@
 using System.Buffers;
 using System.Buffers.Binary;
+using System.Text;
 using GenHTTP.Modules.Straculo.Utils;
 
 namespace GenHTTP.Modules.Straculo.Protocol;
@@ -89,5 +90,42 @@ public partial class Frame
             arrayPool.Return(responseBuffer);
             throw;
         }
+    }
+    
+    public static IMemoryOwner<byte> EncodeClose(string? reason, ushort statusCode)
+    {
+        byte[] payload;
+
+        if (string.IsNullOrEmpty(reason))
+        {
+            // 2-byte payload with just the status code
+            payload = new byte[2];
+            BinaryPrimitives.WriteUInt16BigEndian(payload.AsSpan(), statusCode);
+        }
+        else
+        {
+            var reasonBytes = Encoding.UTF8.GetBytes(reason);
+            var payloadLength = 2 + reasonBytes.Length;
+
+            // RFC 6455: control frames MUST have payload length <= 125
+            if (payloadLength > 125)
+            {
+                // You could instead truncate the reason if you prefer
+                throw new ArgumentException(
+                    "Close reason too long (must fit in 125 bytes including the 2-byte status code).",
+                    nameof(reason));
+            }
+
+            payload = new byte[payloadLength];
+
+            // Status code (big endian)
+            BinaryPrimitives.WriteUInt16BigEndian(payload.AsSpan(0, 2), statusCode);
+
+            // Reason
+            reasonBytes.AsSpan().CopyTo(payload.AsSpan(2));
+        }
+
+        // Build a server-side Close frame (unmasked, FIN=1, opcode=0x08)
+        return Encode(payload, opcode: 0x08, fin: true);
     }
 }

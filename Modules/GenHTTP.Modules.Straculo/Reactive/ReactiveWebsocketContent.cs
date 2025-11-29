@@ -20,7 +20,7 @@ public class ReactiveWebsocketContent : WebsocketContent
     internal Func<WebsocketStream, WebsocketFrame, ValueTask>? OnContinue { get; set; }
     internal Func<WebsocketStream, ValueTask>? OnPing { get; set; }
     internal Func<WebsocketStream, ValueTask>? OnPong { get; set; }
-    internal Func<WebsocketStream, ValueTask>? OnClose { get; set; }
+    internal Func<WebsocketStream, WebsocketFrame, ValueTask>? OnClose { get; set; }
     internal Func<WebsocketStream, FrameError, ValueTask<bool>>? OnError { get; set; }
 
     protected override async ValueTask HandleAsync(WebsocketStream target)
@@ -42,7 +42,7 @@ public class ReactiveWebsocketContent : WebsocketContent
                     {
                         if (await OnError(target, frame.FrameError!))
                         {
-                            if (OnClose != null) await OnClose(target);
+                            if (OnClose != null) await OnClose(target, frame);
                             break;
                         }
                     }
@@ -52,7 +52,7 @@ public class ReactiveWebsocketContent : WebsocketContent
 
                 if (frame.Type == FrameType.Close || frame.Data.IsEmpty)
                 {
-                    if (OnClose != null) await OnClose(target);
+                    if (OnClose != null) await OnClose(target, frame);
                     break;
                 }
 

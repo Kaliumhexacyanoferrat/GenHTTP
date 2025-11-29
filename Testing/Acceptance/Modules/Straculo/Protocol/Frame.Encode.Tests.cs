@@ -5,10 +5,10 @@ using GenHTTP.Modules.Straculo.Protocol;
 namespace GenHTTP.Testing.Acceptance.Modules.Straculo.Protocol;
 
 [TestClass]
-public class Frame_Encode_Tests
+public sealed class Frame_Encode_Tests
 {
     /*
-     * Encode_TextFrame_SmallPayload_CorrectHeaderAndPayload
+       Encode_TextFrame_SmallPayload_CorrectHeaderAndPayload
        Verifies that small text frames (opcode=0x01, FIN=1) produce:
            Correct first byte (0x81)
            Correct 1-byte payload length

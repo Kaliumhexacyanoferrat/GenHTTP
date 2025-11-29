@@ -45,10 +45,10 @@ var reactiveWebsocket = Websocket
             await websocketStream.WriteAsync(frame.Data);
         }
     })
-    .OnClose((stream) =>
+    .OnClose(async (stream, frame) =>
     {
+        await stream.CloseAsync();
         websocketStreams.Remove(stream);
-        return ValueTask.CompletedTask;
     })
     .OnError((stream, error) =>
     {
@@ -85,6 +85,7 @@ public class MyWebsocketContent : WebsocketContent
             }
             if (frame.Type == FrameType.Close || frame.Data.IsEmpty)
             {
+                await target.CloseAsync();
                 break;
             }
             await target.WriteAsync(frame.Data, FrameType.Text, fin: true);
