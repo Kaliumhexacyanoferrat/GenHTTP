@@ -21,13 +21,6 @@ public static partial class Frame
        containing the payload, frame type, and FIN flag, leaving higher-level logic to handle message reassembly and continuation semantics.
      */
     
-    
-    /// <summary>
-    /// Refactored and improved from old Decode
-    /// </summary>
-    /// <param name="buffer"></param>
-    /// <param name="length"></param>
-    /// <returns></returns>
     public static WebsocketFrame Decode(Memory<byte> buffer, int length)
     {
         var span = buffer.Span;

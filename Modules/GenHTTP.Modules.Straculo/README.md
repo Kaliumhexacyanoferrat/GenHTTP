@@ -38,14 +38,14 @@ public class MyWebsocketService
 
 public class MyWebsocketContent : WebsocketContent
 {
-    public override async ValueTask WriteAsync(Stream target, uint bufferSize)
+    protected override async ValueTask HandleAsync(WebsocketStream target)
     {
         var arrayPool = ArrayPool<byte>.Shared;
         var buffer = arrayPool.Rent(8192);
 
         while (true)
         {
-            var frame = await ReadAsync(target, buffer);
+            var frame = await target.ReadAsync(buffer);
 
             if (frame.Type == FrameType.Error)
             {
@@ -59,7 +59,7 @@ public class MyWebsocketContent : WebsocketContent
             {
                 break;
             }
-            await WriteAsync(target, frame.Data, FrameType.Text);
+            await target.WriteAsync(frame.Data, FrameType.Text, fin: true);
         }
         // End
         arrayPool.Return(buffer);
@@ -85,14 +85,14 @@ await Host.Create()
 
 public class MyWebsocketContent : WebsocketContent
 {
-    public override async ValueTask WriteAsync(Stream target, uint bufferSize)
+    protected override async ValueTask HandleAsync(WebsocketStream target)
     {
         var arrayPool = ArrayPool<byte>.Shared;
         var buffer = arrayPool.Rent(8192);
 
         while (true)
         {
-            var frame = await ReadAsync(target, buffer);
+            var frame = await target.ReadAsync(buffer);
 
             if (frame.Type == FrameType.Error)
             {
@@ -106,7 +106,7 @@ public class MyWebsocketContent : WebsocketContent
             {
                 break;
             }
-            await WriteAsync(target, frame.Data, FrameType.Text);
+            await target.WriteAsync(frame.Data, FrameType.Text, fin: true);
         }
         // End
         arrayPool.Return(buffer);
@@ -211,5 +211,5 @@ For received frames check the FrameType for FrameType.Continue
 For sending frames, set the fin flag
 
 ```cs
-await WriteAsync(target, frame.Data, FrameType.Text, fin: false);
+await target.WriteAsync(frame.Data, FrameType.Text, fin: true);
 ```

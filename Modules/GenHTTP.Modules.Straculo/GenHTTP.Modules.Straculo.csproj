@@ -1,14 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+
+        <Description>Allows to handle websocket connection to a GenHTTP server</Description>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Straculo</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        
         <RootNamespace>GenHTTP.Modules.Straculo</RootNamespace>
+        
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="" />
     </ItemGroup>
 
 </Project>

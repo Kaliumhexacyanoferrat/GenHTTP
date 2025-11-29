@@ -61,6 +61,8 @@
 
         <ProjectReference Include="..\..\Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj" />
 
+        <ProjectReference Include="..\..\Modules\GenHTTP.Modules.Straculo\GenHTTP.Modules.Straculo.csproj" />
+
         <ProjectReference Include="..\Testing\GenHTTP.Testing.csproj" />
 
         <ProjectReference Include="..\..\Modules\ApiBrowsing\GenHTTP.Modules.ApiBrowsing.csproj" />

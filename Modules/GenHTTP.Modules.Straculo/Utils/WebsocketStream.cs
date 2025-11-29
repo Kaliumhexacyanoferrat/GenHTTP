@@ -8,16 +8,16 @@ namespace GenHTTP.Modules.Straculo.Utils;
 /// </summary>
 public class WebsocketStream
 {
-    private readonly Stream _stream;
+    private readonly Stream _inner;
     
-    public WebsocketStream(Stream stream)
+    public WebsocketStream(Stream inner)
     {
-        _stream = stream;
+        _inner = inner;
     }
     
     public async ValueTask<WebsocketFrame> ReadAsync(Memory<byte> buffer, CancellationToken token = default)
     {
-        var receivedBytes = await _stream.ReadAsync(buffer, token);
+        var receivedBytes = await _inner.ReadAsync(buffer, token);
 
         if (receivedBytes == 0)
         {
@@ -46,7 +46,7 @@ public class WebsocketStream
         var frameMemory = frameOwner.Memory;
 
         // Send the frame to the WebSocket client
-        await _stream.WriteAsync(frameMemory, token);
-        await _stream.FlushAsync(token);
+        await _inner.WriteAsync(frameMemory, token);
+        await _inner.FlushAsync(token);
     }
 }
