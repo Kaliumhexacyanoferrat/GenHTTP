@@ -7,7 +7,7 @@ public static partial class Frame
 {
     private const string IncompleteFrame = "Incomplete frame";
     
-    /* Websockets RFC 6455 Decode definition (LLM generated)
+    /* Websockets RFC 6455 Frame Decode definition (LLM generated)
      
        The decode algorithm reads a raw WebSocket frame from a buffer and converts it into a structured WebsocketFrame by interpreting 
        the bits according to RFC 6455. It begins by ensuring at least the minimum 2-byte header is present, then extracts the FIN bit and opcode, 

@@ -18,9 +18,10 @@ public class WebsocketStream
     public async ValueTask WriteAsync(
         ReadOnlyMemory<byte> payload, 
         FrameType opcode = FrameType.Text,
+        bool fin = true,
         CancellationToken token = default)
     {
-        using var frameOwner = Frame.Build(payload, opcode: (byte)opcode);
+        using var frameOwner = Frame.Encode(payload, opcode: (byte)opcode);
         var frameMemory = frameOwner.Memory;
 
         // Send the frame to the WebSocket client
@@ -31,9 +32,10 @@ public class WebsocketStream
     public async ValueTask WriteAsync(
         string payload, 
         FrameType opcode = FrameType.Text,
+        bool fin = true,
         CancellationToken token = default)
     {
-        using var frameOwner = Frame.Build(Encoding.UTF8.GetBytes(payload), opcode: (byte)opcode);
+        using var frameOwner = Frame.Encode(Encoding.UTF8.GetBytes(payload), opcode: (byte)opcode);
         var frameMemory = frameOwner.Memory;
 
         // Send the frame to the WebSocket client

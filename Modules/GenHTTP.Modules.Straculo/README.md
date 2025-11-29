@@ -201,3 +201,15 @@ await Host.Create()
           .Defaults()
           .RunAsync(); // or StartAsync() for non-blocking
 ```
+
+## Fragmented frames
+
+Fragmented frames are supported.
+
+For received frames check the FrameType for FrameType.Continue
+
+For sending frames, set the fin flag
+
+```cs
+await WriteAsync(target, frame.Data, FrameType.Text, fin: false);
+```

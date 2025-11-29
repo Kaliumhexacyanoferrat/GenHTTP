@@ -87,7 +87,7 @@ public class MyWebsocketContent : WebsocketContent
             {
                 break;
             }
-            await WriteAsync(target, frame.Data, FrameType.Text);
+            await WriteAsync(target, frame.Data, FrameType.Text, fin: false);
         }
         // End
         arrayPool.Return(buffer);
