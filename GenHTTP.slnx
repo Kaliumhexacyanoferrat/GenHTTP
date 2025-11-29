@@ -23,6 +23,7 @@
     <Project Path="Modules\DirectoryBrowsing\GenHTTP.Modules.DirectoryBrowsing.csproj" />
     <Project Path="Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj" />
     <Project Path="Modules\Functional\GenHTTP.Modules.Functional.csproj" />
+    <Project Path="Modules\GenHTTP.Modules.Straculo\GenHTTP.Modules.Straculo.csproj" />
     <Project Path="Modules\I18n\GenHTTP.Modules.I18n.csproj" />
     <Project Path="Modules\Inspection\GenHTTP.Modules.Inspection.csproj" />
     <Project Path="Modules\IO\GenHTTP.Modules.IO.csproj" />
