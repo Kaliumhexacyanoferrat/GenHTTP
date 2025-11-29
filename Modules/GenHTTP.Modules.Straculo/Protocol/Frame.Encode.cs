@@ -91,7 +91,12 @@ public partial class Frame
             throw;
         }
     }
+
+    public static IMemoryOwner<byte> EncodePing() => Encode(ReadOnlyMemory<byte>.Empty, opcode: 0x09, fin: true);
     
+    // Pong with payload, when responding to a Ping
+    public static IMemoryOwner<byte> EncodePong(ReadOnlyMemory<byte> payload) => Encode(payload, opcode: 0x0A, fin: true);
+
     public static IMemoryOwner<byte> EncodeClose(string? reason, ushort statusCode)
     {
         byte[] payload;

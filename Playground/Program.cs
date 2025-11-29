@@ -32,10 +32,15 @@ var websocketStreams = new List<WebsocketStream>();
 
 var reactiveWebsocket = Websocket
     .CreateReactive(rxBufferSize: 1024)
-    .OnConnected((stream) => 
+    .OnConnected(async (stream) =>
     {
+        await stream.PingAsync();
+        
         websocketStreams.Add(stream);
-        return ValueTask.CompletedTask;
+    })
+    .OnPong(async stream =>
+    {
+        await stream.WriteAsync("Pong received!");
     })
     .OnMessage(async (stream, frame) =>
     {

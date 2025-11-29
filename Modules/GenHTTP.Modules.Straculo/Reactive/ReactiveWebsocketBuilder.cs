@@ -40,7 +40,7 @@ public class ReactiveWebsocketBuilder : IHandlerBuilder<ReactiveWebsocketBuilder
         return this;
     }
     
-    public ReactiveWebsocketBuilder OnPing(Func<WebsocketStream, ValueTask> onPing)
+    public ReactiveWebsocketBuilder OnPing(Func<WebsocketStream, WebsocketFrame, ValueTask> onPing)
     {
         _reactiveWebsocketContent.OnPing = onPing;
         return this;

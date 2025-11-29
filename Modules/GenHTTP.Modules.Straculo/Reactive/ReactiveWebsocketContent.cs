@@ -18,7 +18,7 @@ public class ReactiveWebsocketContent : WebsocketContent
     internal Func<WebsocketStream, WebsocketFrame, ValueTask>? OnMessage { get; set; }
     internal Func<WebsocketStream, WebsocketFrame, ValueTask>? OnBinary { get; set; }
     internal Func<WebsocketStream, WebsocketFrame, ValueTask>? OnContinue { get; set; }
-    internal Func<WebsocketStream, ValueTask>? OnPing { get; set; }
+    internal Func<WebsocketStream, WebsocketFrame, ValueTask>? OnPing { get; set; }
     internal Func<WebsocketStream, ValueTask>? OnPong { get; set; }
     internal Func<WebsocketStream, WebsocketFrame, ValueTask>? OnClose { get; set; }
     internal Func<WebsocketStream, FrameError, ValueTask<bool>>? OnError { get; set; }
@@ -50,7 +50,7 @@ public class ReactiveWebsocketContent : WebsocketContent
                     continue;
                 }
 
-                if (frame.Type == FrameType.Close || frame.Data.IsEmpty)
+                if (frame.Type == FrameType.Close)
                 {
                     if (OnClose != null) await OnClose(target, frame);
                     break;
@@ -62,7 +62,7 @@ public class ReactiveWebsocketContent : WebsocketContent
                         if (OnMessage != null) await OnMessage(target, frame);
                         continue;
                     case FrameType.Ping:
-                        if (OnPing != null) await OnPing(target);
+                        if (OnPing != null) await OnPing(target, frame);
                         continue;
                     case FrameType.Pong:
                         if (OnPong != null) await OnPong(target);

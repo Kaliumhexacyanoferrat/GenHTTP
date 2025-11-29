@@ -50,6 +50,36 @@ public class WebsocketStream
         await _inner.FlushAsync(token);
     }
 
+    public async ValueTask PingAsync(CancellationToken token = default)
+    {
+        using var frameOwner = Frame.EncodePing();
+        var frameMemory = frameOwner.Memory;
+
+        // Send the frame to the WebSocket client
+        await _inner.WriteAsync(frameMemory, token);
+        await _inner.FlushAsync(token);
+    }
+
+    public async ValueTask PongAsync(ReadOnlyMemory<byte> payload, CancellationToken token = default)
+    {
+        using var frameOwner = Frame.EncodePong(payload);
+        var frameMemory = frameOwner.Memory;
+        
+        // Send the frame to the WebSocket client
+        await _inner.WriteAsync(frameMemory, token);
+        await _inner.FlushAsync(token);
+    }
+
+    public async ValueTask PongAsync(string payload, CancellationToken token = default)
+    {
+        await PongAsync(Encoding.UTF8.GetBytes(payload), token);
+    }
+
+    public async ValueTask PongAsync(CancellationToken token = default)
+    {
+        await PongAsync(ReadOnlyMemory<byte>.Empty, token);
+    }
+
     public async ValueTask CloseAsync(string? reason = null, ushort statusCode = 1000, CancellationToken token = default)
     {
         using var frameOwner = Frame.EncodeClose(reason, statusCode);
