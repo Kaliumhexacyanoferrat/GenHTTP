@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.Text;
 using GenHTTP.Modules.Straculo.Protocol;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Straculo.Protocol;
@@ -107,8 +108,10 @@ public class Frame_Decode_Tests
     [TestMethod]
     public void Decode_MaskedTextFrame_UnmasksPayloadCorrectly()
     {
+        const string payloadString = "Apple pie banana sugar";
+        
         // Build a masked text frame "Hi"
-        var payload = "Applie pie banana sugar"u8.ToArray();
+        var payload = Encoding.UTF8.GetBytes(payloadString);
         var maskKey = new byte[] { 0x01, 0x02, 0x03, 0x04 };
 
         var maskedPayload = new byte[payload.Length];
@@ -128,7 +131,7 @@ public class Frame_Decode_Tests
         Assert.AreEqual(FrameType.Text, result.Type);
         Assert.IsTrue(result.Fin);
         
-        Assert.AreEqual("Hi", result.DataAsString);
+        Assert.AreEqual(payloadString, result.DataAsString);
     }
     
     [TestMethod]
