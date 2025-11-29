@@ -6,7 +6,6 @@ namespace GenHTTP.Modules.Straculo.Protocol;
 public static class Handshake
 {
     /*
-     
       The WebSocket handshake is an HTTP-based negotiation that upgrades a normal HTTP connection into a persistent, 
       full-duplex WebSocket channel. The client begins by sending an HTTP GET request with headers such as Upgrade: websocket, 
       Connection: Upgrade, Sec-WebSocket-Version: 13, and a randomly generated Sec-WebSocket-Key. This key is crucial: the server 
@@ -15,18 +14,14 @@ public static class Handshake
       server responds with HTTP/1.1 101 Switching Protocols along with Upgrade: websocket and Connection: Upgrade. After this 101 response, 
       both sides stop speaking HTTP entirely and begin exchanging raw WebSocket frames over the same TCP connection, 
       establishing a stateful, bidirectional, message-oriented stream.
-      
      */
     
     public static string CreateAcceptKey(string key)
     {
-        // The WebSocket protocol requires a predefined GUID to be appended to the client's Sec-WebSocket-Key.
         const string magicString = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
         
-        // Concatenate the extracted WebSocket key with the magic string and compute its SHA-1 hash.
         var hash = SHA1.HashData(Encoding.UTF8.GetBytes(key + magicString));
-
-        // Convert the hash to a Base64 string, as required by the WebSocket protocol.
+        
         return Convert.ToBase64String(hash);
     }
 }

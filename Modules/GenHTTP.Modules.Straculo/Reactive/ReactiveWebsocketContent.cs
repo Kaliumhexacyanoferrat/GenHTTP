@@ -22,27 +22,27 @@ public class ReactiveWebsocketContent : WebsocketContent
     internal Func<WebsocketStream, ValueTask>? OnPong { get; set; }
     internal Func<WebsocketStream, ValueTask>? OnClose { get; set; }
     internal Func<WebsocketStream, FrameError, ValueTask<bool>>? OnError { get; set; }
-    
-    public override async ValueTask WriteAsync(Stream target, uint bufferSize)
+
+    protected override async ValueTask HandleAsync(WebsocketStream target)
     {
         var arrayPool = ArrayPool<byte>.Shared;
         var buffer = arrayPool.Rent(_rxBufferSize);
 
         try
         {
-            if (OnConnected != null) await OnConnected(new WebsocketStream(target));
+            if (OnConnected != null) await OnConnected(target);
 
             while (true)
             {
-                var frame = await ReadAsync(target, buffer);
+                var frame = await target.ReadAsync(buffer);
 
                 if (frame.Type == FrameType.Error)
                 {
                     if (OnError != null)
                     {
-                        if (await OnError(new WebsocketStream(target), frame.FrameError!))
+                        if (await OnError(target, frame.FrameError!))
                         {
-                            if (OnClose != null) await OnClose(new WebsocketStream(target));
+                            if (OnClose != null) await OnClose(target);
                             break;
                         }
                     }
@@ -52,26 +52,26 @@ public class ReactiveWebsocketContent : WebsocketContent
 
                 if (frame.Type == FrameType.Close || frame.Data.IsEmpty)
                 {
-                    if (OnClose != null) await OnClose(new WebsocketStream(target));
+                    if (OnClose != null) await OnClose(target);
                     break;
                 }
 
                 switch (frame.Type)
                 {
                     case FrameType.Text:
-                        if (OnMessage != null) await OnMessage(new WebsocketStream(target), frame);
+                        if (OnMessage != null) await OnMessage(target, frame);
                         continue;
                     case FrameType.Ping:
-                        if (OnPing != null) await OnPing(new WebsocketStream(target));
+                        if (OnPing != null) await OnPing(target);
                         continue;
                     case FrameType.Pong:
-                        if (OnPong != null) await OnPong(new WebsocketStream(target));
+                        if (OnPong != null) await OnPong(target);
                         continue;
                     case FrameType.Continue:
-                        if (OnContinue != null) await OnContinue(new WebsocketStream(target), frame);
+                        if (OnContinue != null) await OnContinue(target, frame);
                         continue;
                     case FrameType.Binary:
-                        if (OnBinary != null) await OnBinary(new WebsocketStream(target), frame);
+                        if (OnBinary != null) await OnBinary(target, frame);
                         continue;
                     default:
                         break;
