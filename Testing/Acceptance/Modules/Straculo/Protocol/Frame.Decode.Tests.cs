@@ -108,7 +108,7 @@ public class Frame_Decode_Tests
     public void Decode_MaskedTextFrame_UnmasksPayloadCorrectly()
     {
         // Build a masked text frame "Hi"
-        var payload = "Hi"u8.ToArray();
+        var payload = "Applie pie banana sugar"u8.ToArray();
         var maskKey = new byte[] { 0x01, 0x02, 0x03, 0x04 };
 
         var maskedPayload = new byte[payload.Length];
