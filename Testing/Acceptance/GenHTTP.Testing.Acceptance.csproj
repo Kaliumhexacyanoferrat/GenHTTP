@@ -4,6 +4,9 @@
 
         <IsPackable>false</IsPackable>
 
+        <!-- remove this line after Fleck has been removed -->
+        <NoWarn>CS1591,CS1587,CS1572,CS1573,CS0612,CS0618</NoWarn>
+        
     </PropertyGroup>
 
     <ItemGroup>
@@ -60,8 +63,6 @@
         <ProjectReference Include="..\..\Engine\Shared\GenHTTP.Engine.Shared.csproj" />
 
         <ProjectReference Include="..\..\Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj" />
-
-        <ProjectReference Include="..\..\Modules\GenHTTP.Modules.Straculo\GenHTTP.Modules.Straculo.csproj" />
 
         <ProjectReference Include="..\Testing\GenHTTP.Testing.csproj" />
 
