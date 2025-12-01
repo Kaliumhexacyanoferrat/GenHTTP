@@ -1,7 +1,6 @@
 using System.Buffers;
-using GenHTTP.Modules.Websockets.Imperative;
+using GenHTTP.Modules.Websockets;
 using GenHTTP.Modules.Websockets.Protocol;
-using GenHTTP.Modules.Websockets.Utils;
 using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Websockets.Integration.Imperative;
@@ -15,7 +14,7 @@ public sealed class IntegrationTests
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
             .CreateImperative()
-            .Add(new MyWebsocketContent());
+            .Handler(new MyHandler());
 
         Chain.Works(websocket);
         
@@ -23,19 +22,20 @@ public sealed class IntegrationTests
         
         await Client.Execute(host.Port);
     }
-    
-    public class MyWebsocketContent : WebsocketContent
+
+    public class MyHandler : IImperativeHandler
     {
-        protected override async ValueTask HandleAsync(WebsocketStream target)
+
+        public async ValueTask HandleAsync(IImperativeConnection connection)
         {
             var arrayPool = ArrayPool<byte>.Shared;
             var buffer = arrayPool.Rent(8192);
 
-            await target.PingAsync();
+            await connection.PingAsync();
 
             while (true)
             {
-                var frame = await target.ReadAsync(buffer);
+                var frame = await connection.ReadAsync(buffer);
 
                 if (frame.Type == FrameType.Error)
                 {
@@ -50,14 +50,17 @@ public sealed class IntegrationTests
             
                 if (frame.Type == FrameType.Close)
                 {
-                    await target.CloseAsync();
+                    await connection.CloseAsync();
                     break;
                 }
-                await target.WriteAsync(frame.Data, FrameType.Text, fin: true);
+                
+                await connection.WriteAsync(frame.Data, FrameType.Text, fin: true);
             }
+            
             // End
             arrayPool.Return(buffer);
         }
+        
     }
     
 }

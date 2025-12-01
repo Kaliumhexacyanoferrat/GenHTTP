@@ -1,80 +1,69 @@
 using System.Buffers;
+using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Websockets.Imperative;
 using GenHTTP.Modules.Websockets.Protocol;
+using GenHTTP.Modules.Websockets.Provider;
 using GenHTTP.Modules.Websockets.Utils;
 
 namespace GenHTTP.Modules.Websockets.Reactive;
 
-public class ReactiveWebsocketContent : WebsocketContent
+public class ReactiveWebsocketContent(IReactiveHandler handler, int rxBufferSize) : IResponseContent
 {
-    private readonly int _rxBufferSize;
-    
-    public ReactiveWebsocketContent(int rxBufferSize)
-    {
-        _rxBufferSize =  rxBufferSize;
-    }
-    
-    internal Func<WebsocketStream, ValueTask>? OnConnected { get; set; }
-    internal Func<WebsocketStream, WebsocketFrame, ValueTask>? OnMessage { get; set; }
-    internal Func<WebsocketStream, WebsocketFrame, ValueTask>? OnBinary { get; set; }
-    internal Func<WebsocketStream, WebsocketFrame, ValueTask>? OnContinue { get; set; }
-    internal Func<WebsocketStream, WebsocketFrame, ValueTask>? OnPing { get; set; }
-    internal Func<WebsocketStream, ValueTask>? OnPong { get; set; }
-    internal Func<WebsocketStream, WebsocketFrame, ValueTask>? OnClose { get; set; }
-    internal Func<WebsocketStream, FrameError, ValueTask<bool>>? OnError { get; set; }
 
-    protected override async ValueTask HandleAsync(WebsocketStream target)
+    public ulong? Length => null;
+
+    public ValueTask<ulong?> CalculateChecksumAsync() => ValueTask.FromResult<ulong?>(null);
+
+    public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
         var arrayPool = ArrayPool<byte>.Shared;
-        var buffer = arrayPool.Rent(_rxBufferSize);
+
+        var buffer = arrayPool.Rent(rxBufferSize);
+
+        var connection = new WebsocketConnection(target);
 
         try
         {
-            if (OnConnected != null) await OnConnected(target);
+            await handler.OnConnected(connection);
 
             while (true)
             {
-                var frame = await target.ReadAsync(buffer);
+                var frame = await connection.ReadAsync(buffer);
 
                 if (frame.Type == FrameType.Error)
                 {
-                    if (OnError != null)
+                    if (await handler.OnError(connection, frame.FrameError!))
                     {
-                        if (await OnError(target, frame.FrameError!))
-                        {
-                            if (OnClose != null) await OnClose(target, frame);
-                            break;
-                        }
+                        await handler.OnClose(connection, frame);
+                        break;
                     }
-                    
+
                     continue;
                 }
 
                 if (frame.Type == FrameType.Close)
                 {
-                    if (OnClose != null) await OnClose(target, frame);
+                    await handler.OnClose(connection, frame);
                     break;
                 }
 
                 switch (frame.Type)
                 {
                     case FrameType.Text:
-                        if (OnMessage != null) await OnMessage(target, frame);
+                        await handler.OnMessage(connection, frame);
                         continue;
                     case FrameType.Ping:
-                        if (OnPing != null) await OnPing(target, frame);
+                        await handler.OnPing(connection, frame);
                         continue;
                     case FrameType.Pong:
-                        if (OnPong != null) await OnPong(target);
+                        await handler.OnPong(connection, frame);
                         continue;
                     case FrameType.Continue:
-                        if (OnContinue != null) await OnContinue(target, frame);
+                        await handler.OnContinue(connection, frame);
                         continue;
                     case FrameType.Binary:
-                        if (OnBinary != null) await OnBinary(target, frame);
+                        await handler.OnBinary(connection, frame);
                         continue;
-                    default:
-                        break;
                 }
             }
         }
@@ -83,4 +72,5 @@ public class ReactiveWebsocketContent : WebsocketContent
             arrayPool.Return(buffer);
         }
     }
+
 }

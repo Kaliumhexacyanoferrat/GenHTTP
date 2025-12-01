@@ -14,7 +14,7 @@ public static class Websocket
     [Obsolete("The web socket implementation based on Fleck will be removed with GenHTTP 11.")]
     public static WebsocketHandlerBuilder Create() => new();
 
-    public static WebsocketBuilder CreateImperative() => new();
+    public static ImperativeWebsocketBuilder CreateImperative() => new();
 
     public static ReactiveWebsocketBuilder CreateReactive(int rxBufferSize = 8192) => new(rxBufferSize);
 

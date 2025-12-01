@@ -1,12 +1,13 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Websockets.Imperative;
+
 using GenHTTP.Modules.Websockets.Protocol;
 
 namespace GenHTTP.Modules.Websockets.Provider;
 
-public class WebsocketProvider(WebsocketContent websocketContent) : IHandler
+public class WebsocketHandler(IResponseContent content) : IHandler
 {
+    
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
@@ -19,9 +20,10 @@ public class WebsocketProvider(WebsocketContent websocketContent) : IHandler
             .Connection(Connection.Upgrade)
             .Header("Upgrade", "websocket")
             .Header("Sec-WebSocket-Accept", Handshake.CreateAcceptKey(key))
-            .Content(websocketContent)
+            .Content(content)
             .Build();
 
         return ValueTask.FromResult<IResponse?>(response);
     }
+    
 }
