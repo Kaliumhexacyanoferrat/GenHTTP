@@ -38,7 +38,7 @@
 
     <files>
         <file src="..\Resources\icon.png" target="images\"/>
-        <file src="GenHTTP.Core.md" target="README.md" />
+        <file src="GenHTTP.Core.Kestrel.md" target="README.md" />
     </files>
 
 </package>

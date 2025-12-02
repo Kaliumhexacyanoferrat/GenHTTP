@@ -12,7 +12,7 @@ public sealed class LayoutRouter : IHandler
 
     public IReadOnlyDictionary<string, IHandler> RoutedHandlers { get; }
 
-    public IReadOnlyList<IHandler> RootHandlers { get; }
+    public IHandler[] RootHandlers { get; }
 
     public IHandler? Index { get; }
 
@@ -23,7 +23,7 @@ public sealed class LayoutRouter : IHandler
     public LayoutRouter(Dictionary<string, IHandler> routedHandlers, List<IHandler> rootHandlers, IHandler? index)
     {
         RoutedHandlers = routedHandlers;
-        RootHandlers = rootHandlers;
+        RootHandlers = rootHandlers.ToArray();
         Index = index;
     }
 
@@ -31,7 +31,7 @@ public sealed class LayoutRouter : IHandler
 
     #region Functionality
 
-    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
         var current = request.Target.Current;
 
@@ -41,7 +41,7 @@ public sealed class LayoutRouter : IHandler
             {
                 request.Target.Advance();
 
-                return await handler.HandleAsync(request);
+                return handler.HandleAsync(request);
             }
         }
         else
@@ -49,28 +49,18 @@ public sealed class LayoutRouter : IHandler
             // force a trailing slash to prevent duplicate content
             if (!request.Target.Path.TrailingSlash)
             {
-                return await Redirect.To($"{request.Target.Path}/")
-                                     .Build()
-                                     .HandleAsync(request);
+                return Redirect.To($"{request.Target.Path}/")
+                               .Build()
+                               .HandleAsync(request);
             }
 
             if (Index is not null)
             {
-                return await Index.HandleAsync(request);
+                return Index.HandleAsync(request);
             }
         }
 
-        foreach (var handler in RootHandlers)
-        {
-            var result = await handler.HandleAsync(request);
-
-            if (result != null)
-            {
-                return result;
-            }
-        }
-
-        return null;
+        return InvokeRootHandlersAsync(request);
     }
 
     public async ValueTask PrepareAsync()
@@ -89,6 +79,21 @@ public sealed class LayoutRouter : IHandler
         {
             await handler.PrepareAsync();
         }
+    }
+
+    private async ValueTask<IResponse?> InvokeRootHandlersAsync(IRequest request)
+    {
+        foreach (var handler in RootHandlers)
+        {
+            var result = await handler.HandleAsync(request);
+
+            if (result != null)
+            {
+                return result;
+            }
+        }
+
+        return null;
     }
 
     #endregion
