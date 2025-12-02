@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Text;
 
@@ -8,7 +9,7 @@ public static class Client
 
     public static async ValueTask Execute(int port)
     {
-        using var client = new ClientWebSocket();
+        var client = new ClientWebSocket();
 
         await client.ConnectAsync(new Uri($"ws://localhost:{port}"), TimeoutToken());
 
@@ -48,6 +49,16 @@ public static class Client
 
         // Close connection
         await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "bye", TimeoutToken());
+
+        try
+        {
+            client.Dispose();
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e);
+            Console.WriteLine(e);
+        }
     }
 
     private static CancellationToken TimeoutToken(int ms = 2000) => new CancellationTokenSource(ms).Token;

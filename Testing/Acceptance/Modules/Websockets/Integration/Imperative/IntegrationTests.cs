@@ -58,6 +58,8 @@ public sealed class IntegrationTests
                 await connection.WriteAsync(frame.Data, FrameType.Text, fin: true);
             }
 
+            //await Task.Delay(1000);
+
             // End
             arrayPool.Return(buffer);
         }
