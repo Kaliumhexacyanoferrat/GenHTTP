@@ -13,12 +13,18 @@ public class WebsocketHandler(Func<IRequest, IResponseContent> contentFactory) :
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
+        Console.WriteLine("0: Enter IHandler");
+
         var key = request.Headers.GetValueOrDefault("Sec-WebSocket-Key")
                   ?? throw new InvalidOperationException("Sec-WebSocket-Key not found");
+
+        Console.WriteLine("0: Got Key");
 
         var frozenRequest = ClonedRequest.From(request);
 
         var content = contentFactory(frozenRequest);
+
+        Console.WriteLine("0: Obtained Content");
 
         var response = request.Respond()
             .Status(ResponseStatus.SwitchingProtocols)
@@ -27,6 +33,8 @@ public class WebsocketHandler(Func<IRequest, IResponseContent> contentFactory) :
             .Header("Sec-WebSocket-Accept", Handshake.CreateAcceptKey(key))
             .Content(content)
             .Build();
+
+        Console.WriteLine("0: Built Response");
 
         return ValueTask.FromResult<IResponse?>(response);
     }
