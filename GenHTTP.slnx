@@ -5,6 +5,9 @@
   <Folder Name="/API/">
     <Project Path="API\GenHTTP.Api.csproj" />
   </Folder>
+  <Folder Name="/Benchmarks/">
+    <Project Path="Benchmarks/GenHTTP.Benchmarks.csproj" />
+  </Folder>
   <Folder Name="/Engine/">
     <Project Path="Engine\Internal\GenHTTP.Engine.Internal.csproj" />
     <Project Path="Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj" />
