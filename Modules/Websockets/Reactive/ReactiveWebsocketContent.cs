@@ -26,7 +26,7 @@ public class ReactiveWebsocketContent(IReactiveHandler handler, IRequest request
         {
             await handler.OnConnected(connection);
 
-            while (true)
+            while (request.Server.Running)
             {
                 var frame = await connection.ReadAsync(buffer);
 
