@@ -38,7 +38,7 @@ public sealed class IntegrationTests
     public class ReactiveHandler : IReactiveHandler
     {
 
-        public async ValueTask OnConnected(IReactiveConnection connection) => await connection.PingAsync();
+        public ValueTask OnConnected(IReactiveConnection connection) => ValueTask.CompletedTask;
 
         public async ValueTask OnMessage(IReactiveConnection connection, WebsocketFrame message) => await connection.WriteAsync(message.Data);
 
