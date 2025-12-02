@@ -7,5 +7,7 @@ public enum FrameErrorType
     InvalidOpCode,
     PayloadTooLarge,
     InvalidControlFrame,
-    InvalidControlFrameLength
+    InvalidControlFrameLength,
+    Canceled,
+    IncompleteForever // PipeReader completed without a full frame
 }

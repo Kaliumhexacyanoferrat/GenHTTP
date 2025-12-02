@@ -30,14 +30,11 @@ public sealed class IntegrationTests
         {
             try
             {
-                var arrayPool = ArrayPool<byte>.Shared;
-                var buffer = arrayPool.Rent(8192);
-
                 // await connection.PingAsync();
-
+            
                 while (connection.Request.Server.Running)
                 {
-                    var frame = await connection.ReadAsync(buffer);
+                    var frame = await connection.ReadFrameAsync();
 
                     if (frame.Type == FrameType.Error)
                     {
@@ -59,9 +56,6 @@ public sealed class IntegrationTests
 
                     await connection.WriteAsync(frame.Data, FrameType.Text, fin: true);
                 }
-
-                // End
-                arrayPool.Return(buffer);
             }
             catch (Exception e)
             {
@@ -69,7 +63,5 @@ public sealed class IntegrationTests
                 throw;
             }
         }
-
     }
-
 }

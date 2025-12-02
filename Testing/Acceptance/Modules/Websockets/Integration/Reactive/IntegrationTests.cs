@@ -25,7 +25,8 @@ public sealed class IntegrationTests
                                        .OnClose(async (stream, frame) => await stream.CloseAsync())
                                        .OnError((stream, error) => new ValueTask<bool>(false));*/
 
-        var websocket = GenHTTP.Modules.Websockets.Websocket.CreateReactive(1024)
+        var websocket = GenHTTP.Modules.Websockets.Websocket.CreateReactive()
+                               .MaxFrameSize(1024)
                                .Handler(new ReactiveHandler());
 
         Chain.Works(websocket);

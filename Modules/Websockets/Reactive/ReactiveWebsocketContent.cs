@@ -1,5 +1,3 @@
-using System.Buffers;
-
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Websockets.Protocol;
@@ -16,61 +14,49 @@ public class ReactiveWebsocketContent(IReactiveHandler handler, IRequest request
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
-        var arrayPool = ArrayPool<byte>.Shared;
+        var connection = new WebsocketConnection(request, target, rxBufferSize);
+        
+        await handler.OnConnected(connection);
 
-        var buffer = arrayPool.Rent(rxBufferSize);
-
-        var connection = new WebsocketConnection(request, target);
-
-        try
+        while (request.Server.Running)
         {
-            await handler.OnConnected(connection);
+            var frame = await connection.ReadFrameAsync(); // Ensures a frame is read
 
-            while (request.Server.Running)
+            if (frame.Type == FrameType.Error)
             {
-                var frame = await connection.ReadAsync(buffer);
-
-                if (frame.Type == FrameType.Error)
-                {
-                    if (await handler.OnError(connection, frame.FrameError!))
-                    {
-                        await handler.OnClose(connection, frame);
-                        break;
-                    }
-
-                    continue;
-                }
-
-                if (frame.Type == FrameType.Close)
+                if (await handler.OnError(connection, frame.FrameError!))
                 {
                     await handler.OnClose(connection, frame);
                     break;
                 }
 
-                switch (frame.Type)
-                {
-                    case FrameType.Text:
-                        await handler.OnMessage(connection, frame);
-                        continue;
-                    case FrameType.Ping:
-                        await handler.OnPing(connection, frame);
-                        continue;
-                    case FrameType.Pong:
-                        await handler.OnPong(connection, frame);
-                        continue;
-                    case FrameType.Continue:
-                        await handler.OnContinue(connection, frame);
-                        continue;
-                    case FrameType.Binary:
-                        await handler.OnBinary(connection, frame);
-                        continue;
-                }
+                continue;
+            }
+
+            if (frame.Type == FrameType.Close)
+            {
+                await handler.OnClose(connection, frame);
+                break;
+            }
+
+            switch (frame.Type)
+            {
+                case FrameType.Text:
+                    await handler.OnMessage(connection, frame);
+                    continue;
+                case FrameType.Ping:
+                    await handler.OnPing(connection, frame);
+                    continue;
+                case FrameType.Pong:
+                    await handler.OnPong(connection, frame);
+                    continue;
+                case FrameType.Continue:
+                    await handler.OnContinue(connection, frame);
+                    continue;
+                case FrameType.Binary:
+                    await handler.OnBinary(connection, frame);
+                    continue;
             }
         }
-        finally
-        {
-            arrayPool.Return(buffer);
-        }
     }
-
 }

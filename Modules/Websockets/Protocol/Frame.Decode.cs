@@ -1,4 +1,6 @@
+using System.Buffers;
 using System.Buffers.Binary;
+using System.IO.Pipelines;
 using System.Text;
 
 namespace GenHTTP.Modules.Websockets.Protocol;
@@ -6,6 +8,10 @@ namespace GenHTTP.Modules.Websockets.Protocol;
 public static partial class Frame
 {
     private const string IncompleteFrame = "Incomplete frame";
+    private const string InvalidOpCode = "Invalid OpCode";
+    private const string InvalidControlFrame = "Invalid Control Frame";
+    private const string InvalidControlFrameLength = "Invalid Control Frame Length";
+    private const string PayloadTooLarge = "Payload is too large";
 
     /* Websockets RFC 6455 Frame Decode definition (LLM generated)
 
@@ -20,7 +26,243 @@ public static partial class Frame
        as-is, while Close frames are additionally parsed to extract the close code and UTF-8 reason. Finally, the method returns a WebsocketFrame
        containing the payload, frame type, and FIN flag, leaving higher-level logic to handle message reassembly and continuation semantics.
      */
+    
+    // TODO: Fix code duplications all across
+    public static WebsocketFrame Decode(
+        ref ReadResult result,
+        int rxMaxBufferSize,
+        out SequencePosition consumed,
+        out SequencePosition examined)
+    {
+        var buffer = result.Buffer;
+        var reader = new SequenceReader<byte>(buffer);
 
+        // Local tracking of what we actually want to report
+        var localConsumed = buffer.Start;
+        var localExamined = buffer.End;
+
+        // Helper to return an "incomplete" error frame
+        WebsocketFrame Incomplete()
+        {
+            // Don't consume anything, but we've examined everything we got
+            localConsumed = buffer.Start;
+            localExamined = buffer.End;
+
+            return new WebsocketFrame(
+                ReadOnlyMemory<byte>.Empty,
+                Type: FrameType.Error,
+                FrameError: new FrameError(IncompleteFrame, FrameErrorType.Incomplete));
+        }
+
+        // We need at least 2 bytes for b0 + b1
+        if (reader.Remaining < 2)
+        {
+            var frame = Incomplete();
+            consumed = localConsumed;
+            examined = localExamined;
+            return frame;
+        }
+
+        reader.TryRead(out byte b0);
+        reader.TryRead(out byte b1);
+
+        var fin = (b0 & 0b1000_0000) != 0;
+        var opcode = (byte)(b0 & 0x0F);
+
+        var frameType = opcode switch
+        {
+            0x00 => FrameType.Continue,
+            0x01 => FrameType.Text,
+            0x02 => FrameType.Binary,
+            0x08 => FrameType.Close,
+            0x09 => FrameType.Ping,
+            0x0A => FrameType.Pong,
+    #pragma warning disable S3928
+            _ => FrameType.None
+    #pragma warning restore S3928
+        };
+
+        if (frameType == FrameType.None)
+        {
+            // Invalid opcode: consume this byte pair and fail
+            localConsumed = reader.Position;
+            localExamined = reader.Position;
+
+            var invalid = new WebsocketFrame(
+                ReadOnlyMemory<byte>.Empty,
+                Type: FrameType.Error,
+                FrameError: new FrameError(InvalidOpCode, FrameErrorType.InvalidOpCode));
+
+            consumed = localConsumed;
+            examined = localExamined;
+            return invalid;
+        }
+
+        var isControlFrame = frameType is FrameType.Close or FrameType.Ping or FrameType.Pong;
+        var isMasked = (b1 & 0x80) != 0;
+        var payloadLen7 = (byte)(b1 & 0x7F);
+
+        // RFC: control frames MUST NOT be fragmented
+        if (isControlFrame && !fin)
+        {
+            localConsumed = reader.Position;
+            localExamined = reader.Position;
+
+            var err = new WebsocketFrame(
+                ReadOnlyMemory<byte>.Empty,
+                Type: FrameType.Error,
+                FrameError: new FrameError(InvalidControlFrame, FrameErrorType.InvalidControlFrame));
+
+            consumed = localConsumed;
+            examined = localExamined;
+            return err;
+        }
+
+        // RFC: control frames MUST have payload length <= 125
+        if (isControlFrame && payloadLen7 >= 126)
+        {
+            localConsumed = reader.Position;
+            localExamined = reader.Position;
+
+            var err = new WebsocketFrame(
+                ReadOnlyMemory<byte>.Empty,
+                Type: FrameType.Error,
+                FrameError: new FrameError(InvalidControlFrameLength, FrameErrorType.InvalidControlFrameLength));
+
+            consumed = localConsumed;
+            examined = localExamined;
+            return err;
+        }
+
+        long payloadLen64 = payloadLen7;
+
+        // Extended lengths
+        if (payloadLen7 == 126)
+        {
+            if (reader.Remaining < 2)
+            {
+                var frame = Incomplete();
+                consumed = localConsumed;
+                examined = localExamined;
+                return frame;
+            }
+
+            reader.TryReadBigEndian(out short len16);
+            payloadLen64 = len16;
+        }
+        else if (payloadLen7 == 127)
+        {
+            if (reader.Remaining < 8)
+            {
+                var frame = Incomplete();
+                consumed = localConsumed;
+                examined = localExamined;
+                return frame;
+            }
+
+            reader.TryReadBigEndian(out long len64);
+            payloadLen64 = len64;
+        }
+        
+        // Maximum possible header size
+        const int MaxFrameHeaderSize = 14;
+        var maxAllowedPayload = rxMaxBufferSize - MaxFrameHeaderSize;
+        
+        // Payload too large, larger than the pipe reader internal buffer
+        if (payloadLen64 > maxAllowedPayload)
+        {
+            localConsumed = reader.Position;
+            localExamined = reader.Position;
+
+            var err = new WebsocketFrame(
+                ReadOnlyMemory<byte>.Empty,
+                Type: FrameType.Error,
+                FrameError: new FrameError(PayloadTooLarge, FrameErrorType.PayloadTooLarge));
+
+            consumed = localConsumed;
+            examined = localExamined;
+            return err;
+        }
+        
+        // max payload shouldn't be more than 32 bit - max pipe reader buffer size?
+        var payloadLength = (int)payloadLen64;
+
+        // Mask key (if present)
+        Span<byte> maskKeySpan = stackalloc byte[4];
+        if (isMasked)
+        {
+            if (reader.Remaining < 4 || !reader.TryCopyTo(maskKeySpan))
+            {
+                var frame = Incomplete();
+                consumed = localConsumed;
+                examined = localExamined;
+                return frame;
+            }
+
+            reader.Advance(4);
+        }
+
+        // Now we need the full payload
+        if (reader.Remaining < payloadLength)
+        {
+            var frame = Incomplete();
+            consumed = localConsumed;
+            examined = localExamined;
+            return frame;
+        }
+
+        // Copy payload into our own buffer (don't mutate PipeReader's memory)
+        var payloadArray = new byte[payloadLength];
+        reader.TryCopyTo(payloadArray);
+        reader.Advance(payloadLength);
+        
+        if (isMasked)
+        {
+            for (int i = 0; i < payloadArray.Length; i++)
+            {
+                payloadArray[i] ^= maskKeySpan[i & 0b11];
+            }
+        }
+
+        ReadOnlyMemory<byte> payloadMem;
+
+        if (frameType == FrameType.Close)
+        {
+            if (payloadArray.Length >= 2)
+            {
+                var closeCode = BinaryPrimitives.ReadUInt16BigEndian(payloadArray.AsSpan(0, 2));
+                var reason = payloadArray.Length > 2
+                    ? Encoding.UTF8.GetString(payloadArray.AsSpan(2))
+                    : null;
+
+                var msg = $"Close frame received. Code: {closeCode}, Reason: {reason ?? "None"}";
+                payloadMem = Encoding.UTF8.GetBytes(msg).AsMemory();
+            }
+            else
+            {
+                payloadMem = ReadOnlyMemory<byte>.Empty;
+            }
+        }
+        else
+        {
+            payloadMem = payloadArray.AsMemory();
+        }
+
+        // Successfully parsed one full frame.
+        // Update the PipeReader with consumed + examined exactly up to this point.
+        localConsumed = reader.Position;
+        localExamined = reader.Position;
+
+        consumed = localConsumed;
+        examined = localExamined;
+
+        return new WebsocketFrame(
+            payloadMem,
+            frameType,
+            Fin: fin);
+    }
+
+    [Obsolete]
     public static WebsocketFrame Decode(Memory<byte> buffer, int length)
     {
         var span = buffer.Span;
@@ -59,7 +301,7 @@ public static partial class Frame
             return new WebsocketFrame(
                 ReadOnlyMemory<byte>.Empty,
                 Type: FrameType.Error,
-                FrameError: new FrameError(IncompleteFrame, FrameErrorType.InvalidOpCode));
+                FrameError: new FrameError(InvalidOpCode, FrameErrorType.InvalidOpCode));
         }
 
         var isControlFrame = frameType is FrameType.Close or FrameType.Ping or FrameType.Pong;
@@ -79,13 +321,13 @@ public static partial class Frame
                 return new WebsocketFrame(
                     ReadOnlyMemory<byte>.Empty,
                     Type: FrameType.Error,
-                    FrameError: new FrameError(IncompleteFrame, FrameErrorType.InvalidControlFrame));
+                    FrameError: new FrameError(InvalidControlFrame, FrameErrorType.InvalidControlFrame));
             // RFC 6455: control frames MUST have payload length <= 125
             case true when payloadLen7 >= 126:
                 return new WebsocketFrame(
                     ReadOnlyMemory<byte>.Empty,
                     Type: FrameType.Error,
-                    FrameError: new FrameError(IncompleteFrame, FrameErrorType.InvalidControlFrameLength));
+                    FrameError: new FrameError(InvalidControlFrameLength, FrameErrorType.InvalidControlFrameLength));
         }
 
         switch (payloadLen7)
@@ -117,7 +359,7 @@ public static partial class Frame
             return new WebsocketFrame(
                 ReadOnlyMemory<byte>.Empty,
                 Type: FrameType.Error,
-                FrameError: new FrameError(IncompleteFrame, FrameErrorType.PayloadTooLarge));
+                FrameError: new FrameError(PayloadTooLarge, FrameErrorType.PayloadTooLarge));
         }
 
         var payloadLength = (int)payloadLength64;

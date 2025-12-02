@@ -16,6 +16,6 @@ public static class Websocket
 
     public static ImperativeWebsocketBuilder CreateImperative() => new();
 
-    public static ReactiveWebsocketBuilder CreateReactive(int rxBufferSize = 8192) => new(rxBufferSize);
+    public static ReactiveWebsocketBuilder CreateReactive() => new();
 
 }

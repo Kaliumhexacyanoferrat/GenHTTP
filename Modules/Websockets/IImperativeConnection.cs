@@ -5,6 +5,6 @@ namespace GenHTTP.Modules.Websockets;
 public interface IImperativeConnection : ISocketConnection
 {
 
-    ValueTask<WebsocketFrame> ReadAsync(Memory<byte> buffer, CancellationToken token = default);
+    ValueTask<WebsocketFrame> ReadFrameAsync(CancellationToken token = default);
     
 }

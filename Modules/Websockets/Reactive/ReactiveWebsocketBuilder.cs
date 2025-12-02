@@ -9,14 +9,9 @@ public class ReactiveWebsocketBuilder : IHandlerBuilder<ReactiveWebsocketBuilder
 {
     private readonly List<IConcernBuilder> _concerns = [];
 
-    private readonly int _rxBufferSize;
+    private int _maxRxBufferSize = 8192;
 
     private IReactiveHandler? _handler;
-
-    public ReactiveWebsocketBuilder(int rxBufferSize)
-    {
-        _rxBufferSize = rxBufferSize;
-    }
 
     public ReactiveWebsocketBuilder Handler(IReactiveHandler handler)
     {
@@ -30,6 +25,12 @@ public class ReactiveWebsocketBuilder : IHandlerBuilder<ReactiveWebsocketBuilder
         return this;
     }
 
+    public ReactiveWebsocketBuilder MaxFrameSize(int maxRxBufferSize)
+    {
+        _maxRxBufferSize = maxRxBufferSize;
+        return this;
+    }
+
     public IHandler Build()
     {
         if (_handler == null)
@@ -37,7 +38,7 @@ public class ReactiveWebsocketBuilder : IHandlerBuilder<ReactiveWebsocketBuilder
             throw new BuilderMissingPropertyException("Handler");
         }
 
-        var contentFactory = (IRequest r) => new ReactiveWebsocketContent(_handler, r, _rxBufferSize);
+        var contentFactory = (IRequest r) => new ReactiveWebsocketContent(_handler, r, _maxRxBufferSize);
 
         return Concerns.Chain(_concerns, new WebsocketHandler(contentFactory));
     }
