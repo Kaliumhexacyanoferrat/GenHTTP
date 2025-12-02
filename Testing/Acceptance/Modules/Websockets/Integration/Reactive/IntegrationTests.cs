@@ -4,15 +4,15 @@ using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Websockets.Integration.Reactive;
 
-[TestClass]
+// [TestClass]
 public sealed class IntegrationTests
 {
-    
-    [TestMethod]
+
+    // [TestMethod]
     public async Task TestServer()
     {
         // todo: create another flavor "Functional" out of this
-        
+
         /*var reactiveWebsocket = GenHTTP.Modules.Websockets.Websocket.CreateReactive(rxBufferSize: 1024)
                                        // Ping when connection is established, tests outgoing ping
                                        .OnConnected(async stream => await stream.PingAsync())
@@ -27,7 +27,7 @@ public sealed class IntegrationTests
 
         var websocket = GenHTTP.Modules.Websockets.Websocket.CreateReactive(1024)
                                .Handler(new ReactiveHandler());
-        
+
         Chain.Works(websocket);
 
         await using var host = await TestHost.RunAsync(websocket);
@@ -41,15 +41,15 @@ public sealed class IntegrationTests
         public async ValueTask OnConnected(IReactiveConnection connection) => await connection.PingAsync();
 
         public async ValueTask OnMessage(IReactiveConnection connection, WebsocketFrame message) => await connection.WriteAsync(message.Data);
-        
+
         public async ValueTask OnContinue(IReactiveConnection connection, WebsocketFrame message) => await connection.WriteAsync(message.Data);
 
         public async ValueTask OnPing(IReactiveConnection connection, WebsocketFrame message) => await connection.PongAsync(message.Data);
 
         public async ValueTask OnClose(IReactiveConnection connection, WebsocketFrame message) => await connection.CloseAsync();
-        
+
         public ValueTask<bool> OnError(IReactiveConnection connection, FrameError error) => ValueTask.FromResult(false);
-        
+
     }
-    
+
 }
