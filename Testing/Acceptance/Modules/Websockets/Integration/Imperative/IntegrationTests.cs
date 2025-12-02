@@ -33,7 +33,7 @@ public sealed class IntegrationTests
                 var arrayPool = ArrayPool<byte>.Shared;
                 var buffer = arrayPool.Rent(8192);
 
-                await connection.PingAsync();
+                // await connection.PingAsync();
 
                 while (connection.Request.Server.Running)
                 {
