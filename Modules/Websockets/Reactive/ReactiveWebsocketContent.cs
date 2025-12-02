@@ -1,13 +1,13 @@
 using System.Buffers;
+
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Websockets.Imperative;
+
 using GenHTTP.Modules.Websockets.Protocol;
 using GenHTTP.Modules.Websockets.Provider;
-using GenHTTP.Modules.Websockets.Utils;
 
 namespace GenHTTP.Modules.Websockets.Reactive;
 
-public class ReactiveWebsocketContent(IReactiveHandler handler, int rxBufferSize) : IResponseContent
+public class ReactiveWebsocketContent(IReactiveHandler handler, IRequest request, int rxBufferSize) : IResponseContent
 {
 
     public ulong? Length => null;
@@ -20,7 +20,7 @@ public class ReactiveWebsocketContent(IReactiveHandler handler, int rxBufferSize
 
         var buffer = arrayPool.Rent(rxBufferSize);
 
-        var connection = new WebsocketConnection(target);
+        var connection = new WebsocketConnection(request, target);
 
         try
         {

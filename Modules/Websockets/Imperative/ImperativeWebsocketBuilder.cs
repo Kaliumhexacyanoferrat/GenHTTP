@@ -1,6 +1,6 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
-
+using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Websockets.Provider;
 
 namespace GenHTTP.Modules.Websockets.Imperative;
@@ -16,7 +16,7 @@ public class ImperativeWebsocketBuilder : IHandlerBuilder<ImperativeWebsocketBui
         _handler = handler;
         return this;
     }
-    
+
     public ImperativeWebsocketBuilder Add(IConcernBuilder concern)
     {
         _concerns.Add(concern);
@@ -30,9 +30,9 @@ public class ImperativeWebsocketBuilder : IHandlerBuilder<ImperativeWebsocketBui
             throw new BuilderMissingPropertyException("Handler");
         }
 
-        var content = new ImperativeWebsocketContent(_handler);
-        
-        return Concerns.Chain(_concerns, new WebsocketHandler(content));
+        var contentFactory = (IRequest r) => new ImperativeWebsocketContent(_handler, r);
+
+        return Concerns.Chain(_concerns, new WebsocketHandler(contentFactory));
     }
-    
+
 }

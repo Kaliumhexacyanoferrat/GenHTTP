@@ -5,12 +5,12 @@ namespace GenHTTP.Testing.Acceptance.Modules.Websockets.Integration;
 
 public static class Client
 {
-    
-    public static async ValueTask Execute(int Port)
+
+    public static async ValueTask Execute(int port)
     {
         using var client = new ClientWebSocket();
 
-        await client.ConnectAsync(new Uri($"ws://localhost:{Port}"), CancellationToken.None);
+        await client.ConnectAsync(new Uri($"ws://localhost:{port}"), CancellationToken.None);
 
         // Sending a Text message
         var bytes = "Hello, World!"u8.ToArray();
@@ -21,7 +21,7 @@ public static class Client
 
         Assert.AreEqual(WebSocketMessageType.Text, response.MessageType);
         Assert.AreEqual("Hello, World!", Encoding.UTF8.GetString(responseBuffer));
-        
+
         // Sending a fragmented Text message
         //
         // First frame
@@ -45,9 +45,9 @@ public static class Client
 
         Assert.AreEqual(WebSocketMessageType.Text, response.MessageType);
         Assert.AreEqual("This is the second segment", Encoding.UTF8.GetString(secondResponseBuffer));
-        
+
         // Close connection
         await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "bye", CancellationToken.None);
     }
-    
+
 }

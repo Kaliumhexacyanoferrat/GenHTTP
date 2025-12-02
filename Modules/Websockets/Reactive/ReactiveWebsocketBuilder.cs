@@ -1,5 +1,6 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Websockets.Provider;
 
 namespace GenHTTP.Modules.Websockets.Reactive;
@@ -36,9 +37,9 @@ public class ReactiveWebsocketBuilder : IHandlerBuilder<ReactiveWebsocketBuilder
             throw new BuilderMissingPropertyException("Handler");
         }
 
-        var content = new ReactiveWebsocketContent(_handler, _rxBufferSize);
-        
-        return Concerns.Chain(_concerns, new WebsocketHandler(content));
+        var contentFactory = (IRequest r) => new ReactiveWebsocketContent(_handler, r, _rxBufferSize);
+
+        return Concerns.Chain(_concerns, new WebsocketHandler(contentFactory));
     }
-    
+
 }
