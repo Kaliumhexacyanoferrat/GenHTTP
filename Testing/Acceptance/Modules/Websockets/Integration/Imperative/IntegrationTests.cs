@@ -28,38 +28,61 @@ public sealed class IntegrationTests
 
         public async ValueTask HandleAsync(IImperativeConnection connection)
         {
-            var arrayPool = ArrayPool<byte>.Shared;
-            var buffer = arrayPool.Rent(8192);
-
-            await connection.PingAsync();
-
-            while (connection.Request.Server.Running)
+            try
             {
-                var frame = await connection.ReadAsync(buffer);
+                Console.WriteLine("1: HandleAsync entered");
 
-                if (frame.Type == FrameType.Error)
+                var arrayPool = ArrayPool<byte>.Shared;
+                var buffer = arrayPool.Rent(8192);
+
+                Console.WriteLine("2: BeforePing");
+
+                await connection.PingAsync();
+
+                Console.WriteLine("3: AfterPing");
+
+                while (connection.Request.Server.Running)
                 {
-                    var error = frame.FrameError!;
-                    Console.WriteLine($"{error.ErrorType}: {error.Message}");
-                    continue;
+                    Console.WriteLine("4: BeforeRead");
+                    var frame = await connection.ReadAsync(buffer);
+                    Console.WriteLine("5: AfterRead");
+
+                    if (frame.Type == FrameType.Error)
+                    {
+                        var error = frame.FrameError!;
+                        Console.WriteLine($"{error.ErrorType}: {error.Message}");
+                        continue;
+                    }
+
+                    if (frame.Type == FrameType.Pong)
+                    {
+                        Console.WriteLine("6: ReceivedPong");
+                        continue;
+                    }
+
+                    if (frame.Type == FrameType.Close)
+                    {
+                        Console.WriteLine("7: ReceivedClose");
+                        await connection.CloseAsync();
+                        Console.WriteLine("8: AfterClose");
+                        break;
+                    }
+
+                    Console.WriteLine("9: BeforeWrite");
+                    await connection.WriteAsync(frame.Data, FrameType.Text, fin: true);
+                    Console.WriteLine("10: AfterWrite");
                 }
 
-                if (frame.Type == FrameType.Pong)
-                {
-                    continue;
-                }
+                Console.WriteLine("11: End");
 
-                if (frame.Type == FrameType.Close)
-                {
-                    await connection.CloseAsync();
-                    break;
-                }
-
-                await connection.WriteAsync(frame.Data, FrameType.Text, fin: true);
+                // End
+                arrayPool.Return(buffer);
             }
-
-            // End
-            arrayPool.Return(buffer);
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
     }
