@@ -6,21 +6,21 @@ namespace GenHTTP.Modules.Websockets.Protocol;
 public static partial class Frame
 {
     private const string IncompleteFrame = "Incomplete frame";
-    
+
     /* Websockets RFC 6455 Frame Decode definition (LLM generated)
-     
-       The decode algorithm reads a raw WebSocket frame from a buffer and converts it into a structured WebsocketFrame by interpreting 
-       the bits according to RFC 6455. It begins by ensuring at least the minimum 2-byte header is present, then extracts the FIN bit and opcode, 
-       which determine whether the frame is a complete message, a fragment, or a control frame such as Ping, Pong, or Close. It then checks the 
-       MASK bit and the 7-bit base payload length. If the length field indicates an extended payload (126 or 127), the algorithm reads the 
-       appropriate 16-bit or 64-bit length field and adjusts the header size accordingly. Control-frame rules are enforced: control frames must 
-       not be fragmented and must not use extended lengths. After determining the final payload length and verifying that the buffer contains 
-       enough bytes for the full header, mask key, and payload, the decoder extracts the optional 4-byte mask key and applies the unmasking XOR 
-       operation in place if masking is enabled. For normal data frames (Text, Binary, Continue), the raw unmasked payload bytes are returned 
-       as-is, while Close frames are additionally parsed to extract the close code and UTF-8 reason. Finally, the method returns a WebsocketFrame 
+
+       The decode algorithm reads a raw WebSocket frame from a buffer and converts it into a structured WebsocketFrame by interpreting
+       the bits according to RFC 6455. It begins by ensuring at least the minimum 2-byte header is present, then extracts the FIN bit and opcode,
+       which determine whether the frame is a complete message, a fragment, or a control frame such as Ping, Pong, or Close. It then checks the
+       MASK bit and the 7-bit base payload length. If the length field indicates an extended payload (126 or 127), the algorithm reads the
+       appropriate 16-bit or 64-bit length field and adjusts the header size accordingly. Control-frame rules are enforced: control frames must
+       not be fragmented and must not use extended lengths. After determining the final payload length and verifying that the buffer contains
+       enough bytes for the full header, mask key, and payload, the decoder extracts the optional 4-byte mask key and applies the unmasking XOR
+       operation in place if masking is enabled. For normal data frames (Text, Binary, Continue), the raw unmasked payload bytes are returned
+       as-is, while Close frames are additionally parsed to extract the close code and UTF-8 reason. Finally, the method returns a WebsocketFrame
        containing the payload, frame type, and FIN flag, leaving higher-level logic to handle message reassembly and continuation semantics.
      */
-    
+
     public static WebsocketFrame Decode(Memory<byte> buffer, int length)
     {
         var span = buffer.Span;
@@ -177,7 +177,6 @@ public static partial class Frame
         else
         {
             // For all other frames just return the raw payload
-            //payloadMemory = payloadSpan.ToArray();
             payloadMemory = buffer.Slice(payloadStart, payloadLength);
         }
 

@@ -8,6 +8,8 @@ namespace GenHTTP.Testing.Acceptance.Modules.Websockets.Integration.Reactive;
 public sealed class IntegrationTests
 {
 
+    public TestContext TestContext { get; set; }
+
     [TestMethod]
     public async Task TestServer()
     {
@@ -26,7 +28,7 @@ public sealed class IntegrationTests
                                        .OnError((stream, error) => new ValueTask<bool>(false));*/
 
         var websocket = GenHTTP.Modules.Websockets.Websocket.CreateReactive(1024)
-                               .Handler(new ReactiveHandler());
+                               .Handler(new ReactiveHandler(TestContext));
 
         Chain.Works(websocket);
 
@@ -35,7 +37,7 @@ public sealed class IntegrationTests
         await Client.Execute(host.Port);
     }
 
-    public class ReactiveHandler : IReactiveHandler
+    public class ReactiveHandler(TestContext context) : IReactiveHandler
     {
 
         public async ValueTask OnConnected(IReactiveConnection connection) => await connection.PingAsync();
@@ -48,7 +50,11 @@ public sealed class IntegrationTests
 
         public async ValueTask OnClose(IReactiveConnection connection, WebsocketFrame message) => await connection.CloseAsync();
 
-        public ValueTask<bool> OnError(IReactiveConnection connection, FrameError error) => ValueTask.FromResult(false);
+        public ValueTask<bool> OnError(IReactiveConnection connection, FrameError error)
+        {
+            context.WriteLine($"{error.ErrorType}: {error.Message}");
+            return ValueTask.FromResult(false);
+        }
 
     }
 

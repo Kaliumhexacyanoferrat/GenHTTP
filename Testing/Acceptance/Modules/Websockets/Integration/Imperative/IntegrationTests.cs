@@ -9,12 +9,14 @@ namespace GenHTTP.Testing.Acceptance.Modules.Websockets.Integration.Imperative;
 public sealed class IntegrationTests
 {
 
+    public TestContext TestContext { get; set; }
+
     [TestMethod]
     public async Task TestServer()
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
             .CreateImperative()
-            .Handler(new MyHandler());
+            .Handler(new MyHandler(TestContext));
 
         Chain.Works(websocket);
 
@@ -23,7 +25,7 @@ public sealed class IntegrationTests
         await Client.Execute(host.Port);
     }
 
-    public class MyHandler : IImperativeHandler
+    public class MyHandler(TestContext context) : IImperativeHandler
     {
 
         public async ValueTask HandleAsync(IImperativeConnection connection)
@@ -39,7 +41,8 @@ public sealed class IntegrationTests
 
                 if (frame.Type == FrameType.Error)
                 {
-                    // Deal with error
+                    var error = frame.FrameError!;
+                    context.WriteLine($"{error.ErrorType}: {error.Message}");
                     continue;
                 }
 
