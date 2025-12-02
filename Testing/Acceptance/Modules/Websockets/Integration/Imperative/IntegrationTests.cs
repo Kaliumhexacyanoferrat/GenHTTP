@@ -5,11 +5,11 @@ using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Websockets.Integration.Imperative;
 
-//[TestClass]
+[TestClass]
 public sealed class IntegrationTests
 {
 
-    //[TestMethod]
+    [TestMethod]
     public async Task TestServer()
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
