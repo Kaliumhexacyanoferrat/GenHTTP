@@ -10,14 +10,14 @@ public static class Client
     {
         using var client = new ClientWebSocket();
 
-        await client.ConnectAsync(new Uri($"ws://localhost:{port}"), CancellationToken.None);
+        await client.ConnectAsync(new Uri($"ws://localhost:{port}"), TimeoutToken());
 
         // Sending a Text message
         var bytes = "Hello, World!"u8.ToArray();
-        await client.SendAsync(bytes, WebSocketMessageType.Text, true, CancellationToken.None);
+        await client.SendAsync(bytes, WebSocketMessageType.Text, true, TimeoutToken());
 
         var responseBuffer = new byte[bytes.Length];
-        var response = await client.ReceiveAsync(new ArraySegment<byte>(responseBuffer), CancellationToken.None);
+        var response = await client.ReceiveAsync(new ArraySegment<byte>(responseBuffer), TimeoutToken());
 
         Assert.AreEqual(WebSocketMessageType.Text, response.MessageType);
         Assert.AreEqual("Hello, World!", Encoding.UTF8.GetString(responseBuffer));
@@ -29,8 +29,8 @@ public static class Client
         var firstFrame = "This is the first segment"u8.ToArray();
         var firstResponseBuffer = new byte[firstFrame.Length];
 
-        await client.SendAsync(firstFrame, WebSocketMessageType.Text, false, CancellationToken.None);
-        response = await client.ReceiveAsync(new ArraySegment<byte>(firstResponseBuffer), CancellationToken.None);
+        await client.SendAsync(firstFrame, WebSocketMessageType.Text, false, TimeoutToken());
+        response = await client.ReceiveAsync(new ArraySegment<byte>(firstResponseBuffer), TimeoutToken());
 
         Assert.AreEqual(WebSocketMessageType.Text, response.MessageType);
         Assert.AreEqual("This is the first segment", Encoding.UTF8.GetString(firstResponseBuffer));
@@ -40,14 +40,20 @@ public static class Client
         var secondFrame = "This is the second segment"u8.ToArray();
         var secondResponseBuffer = new byte[secondFrame.Length];
 
-        await client.SendAsync(secondFrame, WebSocketMessageType.Text, true, CancellationToken.None);
-        response = await client.ReceiveAsync(new ArraySegment<byte>(secondResponseBuffer), CancellationToken.None);
+        await client.SendAsync(secondFrame, WebSocketMessageType.Text, true, TimeoutToken());
+        response = await client.ReceiveAsync(new ArraySegment<byte>(secondResponseBuffer), TimeoutToken());
 
         Assert.AreEqual(WebSocketMessageType.Text, response.MessageType);
         Assert.AreEqual("This is the second segment", Encoding.UTF8.GetString(secondResponseBuffer));
 
         // Close connection
-        await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "bye", CancellationToken.None);
+        await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "bye", TimeoutToken());
+    }
+
+    private static CancellationToken TimeoutToken(int ms = 1000)
+    {
+        var cts = new CancellationTokenSource(ms);
+        return cts.Token;
     }
 
 }
