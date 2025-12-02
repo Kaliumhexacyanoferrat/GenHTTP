@@ -50,10 +50,6 @@ public static class Client
         await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "bye", TimeoutToken());
     }
 
-    private static CancellationToken TimeoutToken(int ms = 1000)
-    {
-        var cts = new CancellationTokenSource(ms);
-        return cts.Token;
-    }
+    private static CancellationToken TimeoutToken(int ms = 2000) => new CancellationTokenSource(ms).Token;
 
 }
