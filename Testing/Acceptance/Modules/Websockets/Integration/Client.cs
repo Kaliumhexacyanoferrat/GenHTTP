@@ -32,7 +32,7 @@ public static class Client
         var firstFrame = "This is the first segment"u8.ToArray();
         var firstResponseBuffer = new byte[firstFrame.Length];
 
-        await client.SendAsync(firstFrame, WebSocketMessageType.Text, true, token);
+        await client.SendAsync(firstFrame, WebSocketMessageType.Text, false, token);
         response = await client.ReceiveAsync(new ArraySegment<byte>(firstResponseBuffer), token);
 
         Assert.AreEqual(WebSocketMessageType.Text, response.MessageType);
