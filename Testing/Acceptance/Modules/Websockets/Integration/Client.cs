@@ -1,12 +1,76 @@
 using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Text;
+using Websocket.Client;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Websockets.Integration;
 
 public static class Client
 {
     public static async ValueTask Execute(int port)
+    {
+        var cts = new CancellationTokenSource(2000);
+        var token = cts.Token;
+
+        var url = new Uri($"ws://localhost:{port}");
+
+        using var client = new WebsocketClient(url);
+
+        // TCS to wait for incoming messages
+        Task<string> WaitForMessage()
+        {
+            var tcs = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            IDisposable? sub = null;
+            sub = client.MessageReceived.Subscribe(msg =>
+            {
+                tcs.TrySetResult(msg.Text!);
+                sub?.Dispose();
+            });
+
+            return tcs.Task;
+        }
+
+        await client.Start();
+
+        // -------------------------------
+        // Simple TEXT message
+        // -------------------------------
+        var msg = "Hello, World!";
+        await client.SendInstant(msg);
+
+        var response = await WaitForMessage();
+
+        Debug.Assert(response == msg);
+
+        // -------------------------------
+        // Fragmented text – note: 
+        // WebsocketClient does NOT support manual frame fragmentation.
+        // Each SendInstant is always a final (FIN=true) frame.
+        //
+        // So we simulate fragmentation by sending two messages,
+        // and expecting the server to echo both separately.
+        // -------------------------------
+
+        // First “fragment”
+        var first = "This is the first segment";
+        await client.SendInstant(first);
+        var firstResp = await WaitForMessage();
+        Debug.Assert(firstResp == first);
+
+        // Second “fragment”
+        var second = "This is the second segment";
+        await client.SendInstant(second);
+        var secondResp = await WaitForMessage();
+        Debug.Assert(secondResp == second);
+
+        // -------------------------------
+        // Close
+        // -------------------------------
+        await client.Stop(WebSocketCloseStatus.NormalClosure, "bye");
+    }
+    
+    public static async ValueTask Execute2(int port)
     {
         var cts = new CancellationTokenSource(2000);
         var token = cts.Token;
