@@ -34,6 +34,8 @@ public sealed class IntegrationTests
         await using var host = await TestHost.RunAsync(websocket);
 
         await Client.Execute(host.Port);
+
+        await Client.ExecuteFragmented("127.0.0.1", host.Port);
     }
 
     public class ReactiveHandler : IReactiveHandler
