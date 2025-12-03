@@ -19,7 +19,7 @@ public sealed class RawWebSocketClient : IAsyncDisposable
     {
         await _socket.ConnectAsync(new IPEndPoint(IPAddress.Parse(host), port));
 
-        // Build WebSocket handshake
+        // Handshake
         var keyBytes = new byte[16];
         RandomNumberGenerator.Fill(keyBytes);
         var secWebSocketKey = Convert.ToBase64String(keyBytes);
@@ -36,7 +36,7 @@ public sealed class RawWebSocketClient : IAsyncDisposable
         var requestBytes = Encoding.ASCII.GetBytes(request);
         await _socket.SendAsync(requestBytes, SocketFlags.None, token).ConfigureAwait(false);
 
-        // Read handshake response (simple: read until \r\n\r\n)
+        // Read handshake response
         var buffer = new byte[4096];
         var received = 0;
         while (true)
@@ -119,8 +119,7 @@ public sealed class RawWebSocketClient : IAsyncDisposable
     }
 
     /// <summary>
-    /// Low-level helper: send raw bytes split into TCP chunks.
-    /// This is what gives you "partial frames" on the server side.
+    /// Send raw bytes split into TCP chunks.
     /// </summary>
     public async Task SendRawInChunksAsync(byte[] data, int chunkSize, CancellationToken token = default)
     {
@@ -153,7 +152,7 @@ public sealed class RawWebSocketClient : IAsyncDisposable
     }
 
     /// <summary>
-    /// Send multiple complete WebSocket text frames in a *single* Socket.Send call.
+    /// Send multiple complete WebSocket text frames in a *single* Socket.Send call. ("Pipelining" :) )
     /// </summary>
     public async Task SendMultipleTextFramesSingleWriteAsync(
         CancellationToken token = default,

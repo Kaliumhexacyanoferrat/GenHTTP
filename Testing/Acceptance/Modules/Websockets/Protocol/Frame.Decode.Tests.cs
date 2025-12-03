@@ -43,27 +43,6 @@ public sealed class Frame_Decode_Tests
 
     private const int DefaultRxMaxBufferSize = 4096;
 
-    private static WebsocketFrame Decode(
-        byte[] frame,
-        int rxMaxBufferSize,
-        out SequencePosition consumed,
-        out SequencePosition examined)
-    {
-        var sequence = new ReadOnlySequence<byte>(frame);
-        var readResult = new ReadResult(sequence, isCanceled: false, isCompleted: false);
-
-        return Frame.Decode(ref readResult, rxMaxBufferSize, out consumed, out examined);
-    }
-
-    private static WebsocketFrame Decode(
-        byte[] frame,
-        out SequencePosition consumed,
-        out SequencePosition examined)
-        => Decode(frame, DefaultRxMaxBufferSize, out consumed, out examined);
-
-    private static WebsocketFrame Decode(byte[] frame)
-        => Decode(frame, DefaultRxMaxBufferSize, out _, out _);
-
     [TestMethod]
     public void Decode_IncompleteHeader_ReturnsErrorIncomplete()
     {
