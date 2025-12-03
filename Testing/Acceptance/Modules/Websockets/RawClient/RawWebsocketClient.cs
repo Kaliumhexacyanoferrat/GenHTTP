@@ -233,7 +233,7 @@ public sealed class RawWebSocketClient : IAsyncDisposable
 
         if (opcode != 0x1)
         {
-            // Text only for this helper; you can expand if needed
+            // Text only
             throw new NotSupportedException($"Unexpected opcode {opcode} in ReceiveTextFrameAsync.");
         }
 

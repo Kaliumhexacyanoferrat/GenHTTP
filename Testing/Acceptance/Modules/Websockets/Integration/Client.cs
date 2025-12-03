@@ -66,16 +66,16 @@ public static class Client
 
     public static async ValueTask ExecuteFragmented(string host, int port)
     {
-        using var cts = new CancellationTokenSource(200000);
+        using var cts = new CancellationTokenSource(5000);
         var token = cts.Token;
 
         await using var client = new RawWebSocketClient();
         await client.ConnectAsync(host, port, token);
 
-        // 1) Single WebSocket frame fragmented over TCP writes
+        // Single WebSocket frame fragmented over TCP writes
         await client.SendTextInTcpChunksAsync("Hello over multiple sends!", chunkSize: 3, token);
 
-        // 2) Multiple frames in a single TCP write
+        // Multiple frames in a single TCP write
         await client.SendMultipleTextFramesSingleWriteAsync(
             token,
             "First frame",
