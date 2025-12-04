@@ -14,6 +14,8 @@
 
         <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
 
+        <ProjectReference Include="..\Websockets\GenHTTP.Modules.Websockets.csproj" />
+
     </ItemGroup>
 
     <ItemGroup>
