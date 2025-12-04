@@ -19,16 +19,8 @@ public class WebsocketProxy : IHandler
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        // This logic is redundant here, should be moved to this method's caller
-        if (!request.Headers.ContainsKey("Upgrade") || request.Headers["Upgrade"] != "websocket")
-        {
-            throw new ProviderException(ResponseStatus.BadRequest, "Websocket upgrade request expected");
-        }
-
-        //var upgradeInfo = request.Upgrade();
-        //upgradeInfo.Socket.NoDelay = true;
-        
         // Frozen request
+        // TODO: Is this really necessary?
         var clone = ClonedRequest.From(request);
         
         var upstreamConnection = new RawWebsocketConnection(_upstreamUrl);
@@ -42,11 +34,6 @@ public class WebsocketProxy : IHandler
         {
             throw new InvalidOperationException("Failed to upgrade upstream.");
         }
-        
-        // Websocket connection with upstream is Ok, return this to establish websocket connection with downstream too
-        // Use IResponseContent?
-        
-        //return upgradeInfo.Response;
         
         var key = clone.Headers.GetValueOrDefault("Sec-WebSocket-Key")
                   ?? throw new InvalidOperationException("Sec-WebSocket-Key not found");

@@ -22,6 +22,8 @@ public class WebsocketTunnelContent : IResponseContent
 
     public async ValueTask WriteAsync(Stream downstreamStream, uint bufferSize)
     {
+        Console.WriteLine("Tunnel established!");
+        
         // Manage the tunnel lifetime and logic
 
         const int _rxMaxBufferSize = 4096 * 4;
