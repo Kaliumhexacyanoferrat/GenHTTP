@@ -83,6 +83,8 @@ public class RawWebsocketConnection : IAsyncDisposable
         }
 
         upgradeRequest += "\r\n";
+
+        Console.WriteLine($"Upgrade Request (Server -> Upstream): {upgradeRequest}");
         
         // Writes and flushes
         await Pipe.Output.WriteAsync(Encoding.UTF8.GetBytes(upgradeRequest), token);
@@ -116,6 +118,8 @@ public class RawWebsocketConnection : IAsyncDisposable
 
                     // Validate status line + headers
                     var headersText = Encoding.ASCII.GetString(headersSequence.ToArray());
+
+                    Console.WriteLine($"Received Handshake (Upstream -> Server): {headersText}");
                     
                     return headersText.StartsWith("HTTP/1.1 101", StringComparison.Ordinal);
                 }
