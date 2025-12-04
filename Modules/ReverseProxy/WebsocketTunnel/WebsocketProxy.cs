@@ -56,7 +56,7 @@ public class WebsocketProxy : IHandler
             .Connection(Connection.Upgrade)
             .Header("Upgrade", "websocket")
             .Header("Sec-WebSocket-Accept", CreateAcceptKey(key))
-            .Content(new WebsocketTunnelContent(upstreamConnection.Pipe!))
+            .Content(new WebsocketTunnelContent(upstreamConnection))
             .Build();
         
         return response;
@@ -69,15 +69,4 @@ public class WebsocketProxy : IHandler
         var hash = SHA1.HashData(Encoding.UTF8.GetBytes(key + magicString));
         return Convert.ToBase64String(hash);
     }
-
-    // Pure delegates
-    public static Func<Stream, Task> UpstreamHandler = async upstream =>
-    {
-        await Task.Delay(1);
-    };
-
-    public static Func<Stream, Task> DownstreamHandler = async stream =>
-    {
-        await Task.Delay(1);
-    };
 }
