@@ -8,14 +8,14 @@ using GenHTTP.Modules.Websockets.Protocol;
 var content = Content.From(Resource.FromString("Hello World!"));
 
 var reactiveWs =
-    Websocket.CreateReactive()
+    Websocket.Reactive()
         .MaxFrameSize(1024)
         .Handler(new ReactiveHandler())
         .Build();
 
 var imperativeWs = 
     Websocket
-        .CreateImperative()
+        .Imperative()
         .Handler(new MyHandler());
 
 await Host.Create()

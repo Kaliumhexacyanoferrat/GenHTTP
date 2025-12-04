@@ -11,21 +11,7 @@ public sealed class IntegrationTests
     [TestMethod]
     public async Task TestServerReactive()
     {
-        // todo: create another flavor "Functional" out of this
-
-        /*var reactiveWebsocket = GenHTTP.Modules.Websockets.Websocket.CreateReactive(rxBufferSize: 1024)
-                                       // Ping when connection is established, tests outgoing ping
-                                       .OnConnected(async stream => await stream.PingAsync())
-                                       // Test incoming pings, very rare, browsers do not ping
-                                       .OnPing(async (stream, frame) => await stream.PongAsync(frame.Data))
-                                       .OnPong(stream => ValueTask.CompletedTask)
-                                       .OnMessage(async (stream, frame) => await stream.WriteAsync(frame.Data))
-                                       // Also very rarely used feature
-                                       .OnContinue(async (stream, frame) => await stream.WriteAsync(frame.Data))
-                                       .OnClose(async (stream, frame) => await stream.CloseAsync())
-                                       .OnError((stream, error) => new ValueTask<bool>(false));*/
-
-        var websocket = GenHTTP.Modules.Websockets.Websocket.CreateReactive()
+        var websocket = GenHTTP.Modules.Websockets.Websocket.Reactive()
                                .MaxFrameSize(1024)
                                .Handler(new ReactiveHandler());
 
@@ -35,11 +21,11 @@ public sealed class IntegrationTests
 
         await Client.Execute(host.Port);
     }
-    
+
     [TestMethod]
     public async Task TestServerReactiveFragmented()
     {
-        var websocket = GenHTTP.Modules.Websockets.Websocket.CreateReactive()
+        var websocket = GenHTTP.Modules.Websockets.Websocket.Reactive()
             .MaxFrameSize(1024)
             .Handler(new ReactiveHandlerFragmented());
 
@@ -70,7 +56,7 @@ public sealed class IntegrationTests
         }
 
     }
-    
+
     public class ReactiveHandlerFragmented : IReactiveHandler
     {
 

@@ -13,7 +13,7 @@ public sealed class IntegrationTests
     public async Task TestServerImperative()
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
-            .CreateImperative()
+            .Imperative()
             .Handler(new MyHandler());
 
         Chain.Works(websocket);
@@ -27,7 +27,7 @@ public sealed class IntegrationTests
     public async Task TestServerImperativeFragmented()
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
-            .CreateImperative()
+            .Imperative()
             .Handler(new MyHandlerFragmented());
 
         Chain.Works(websocket);
