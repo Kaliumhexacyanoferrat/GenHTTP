@@ -57,6 +57,11 @@ public sealed class ReverseProxyProvider : IHandler
     {
         try
         {
+            // If request is an upgrade attempt, return a different HandleAsync
+
+            //var wsProxy = new WebsocketProxy();
+            //return await wsProxy.HandleAsync(request);
+            
             var req = ConfigureRequest(request);
 
             var resp = await Client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
