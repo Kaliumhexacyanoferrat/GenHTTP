@@ -28,13 +28,19 @@ public class WebsocketProxy : IHandler
         
         // Establish a websocket with upstream - use same key
         var upgradeCts = new CancellationTokenSource(5000);
-
-        // TODO: Replace route
-        if (!await upstreamConnection.TryUpgrade(clone.Headers, route: "/", token: upgradeCts.Token))
-        {
-            throw new InvalidOperationException("Failed to upgrade upstream.");
-        }
         
+        try
+        {
+            if (!await upstreamConnection.TryUpgrade(clone.Headers, token: upgradeCts.Token))
+            {
+                throw new InvalidOperationException("Failed to upgrade upstream.");
+            }
+        }
+        catch (Exception e)
+        {
+            throw new InvalidOperationException("Failed to upgrade upstream.", e);
+        }
+
         var key = clone.Headers.GetValueOrDefault("Sec-WebSocket-Key")
                   ?? throw new InvalidOperationException("Sec-WebSocket-Key not found");
         

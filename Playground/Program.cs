@@ -1,6 +1,7 @@
 ﻿using System.Net.WebSockets;
 using System.Text;
 using GenHTTP.Engine.Internal;
+//using GenHTTP.Engine.Kestrel;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Practices;
 using GenHTTP.Modules.ReverseProxy;
@@ -14,7 +15,8 @@ var proxyHost = Host.Create()
           .Port(8080)
           .Handler(Proxy
               .Create()
-              .Upstream("ws://localhost:5000/"))
+              .Upstream("wss://ws.postman-echo.com/raw"))
+              //.Upstream("ws://localhost:5000/"))
           .Defaults()
           .StartAsync(); // or StartAsync() for non-blocking
 //
@@ -55,7 +57,7 @@ await Task.Run(async () =>
     {
         var message = "Hello from the other side?"u8.ToArray();
 
-        Console.WriteLine($"[Downstream] - Sending: {message}]");
+        Console.WriteLine($"[Downstream] - Sending: {Encoding.UTF8.GetString(message)}");
         
         await client.SendAsync(
             message, 
