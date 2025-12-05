@@ -8,6 +8,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO;
+using GenHTTP.Modules.ReverseProxy.WebsocketTunnel;
 
 namespace GenHTTP.Modules.ReverseProxy.Provider;
 
@@ -57,6 +58,12 @@ public sealed class ReverseProxyProvider : IHandler
     {
         try
         {
+            if (request.Headers.ContainsKey("Upgrade") && request.Headers["Upgrade"] == "websocket")
+            {
+                var wsProxy = new WebsocketProxy(Upstream);
+                return await wsProxy.HandleAsync(request);
+            }
+            
             var req = ConfigureRequest(request);
 
             var resp = await Client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
