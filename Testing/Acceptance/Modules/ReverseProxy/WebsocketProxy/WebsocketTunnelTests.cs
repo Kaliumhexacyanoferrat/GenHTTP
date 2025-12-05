@@ -1,10 +1,9 @@
 using System.Net.WebSockets;
 using System.Text;
-using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.ReverseProxy;
 
-namespace GenHTTP.Testing.Acceptance.Modules.ReverseProxy;
+namespace GenHTTP.Testing.Acceptance.Modules.ReverseProxy.WebsocketProxy;
 
 [TestClass]
 public class WebsocketTunnelTests
