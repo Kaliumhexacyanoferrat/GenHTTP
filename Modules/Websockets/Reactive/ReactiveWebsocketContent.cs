@@ -14,6 +14,8 @@ public class ReactiveWebsocketContent(IReactiveHandler handler, IRequest request
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
+        await target.FlushAsync();
+        
         var connection = new WebsocketConnection(request, target, rxBufferSize);
         
         await handler.OnConnected(connection);

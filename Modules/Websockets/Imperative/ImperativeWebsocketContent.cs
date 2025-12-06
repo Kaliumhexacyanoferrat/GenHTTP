@@ -13,6 +13,8 @@ public sealed class ImperativeWebsocketContent(IImperativeHandler handler, IRequ
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
+        await target.FlushAsync();
+        
         var connection = new WebsocketConnection(request, target);
 
         await handler.HandleAsync(connection);
