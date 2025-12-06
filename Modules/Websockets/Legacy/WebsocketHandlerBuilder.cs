@@ -1,6 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 
-namespace GenHTTP.Modules.Websockets.Handler;
+namespace GenHTTP.Modules.Websockets.Legacy;
 
 public class WebsocketHandlerBuilder : IHandlerBuilder<WebsocketHandlerBuilder>
 {

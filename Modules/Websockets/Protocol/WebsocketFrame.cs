@@ -1,0 +1,12 @@
+using System.Text;
+
+namespace GenHTTP.Modules.Websockets.Protocol;
+
+public record WebsocketFrame(
+    ReadOnlyMemory<byte> Data,
+    FrameType Type = FrameType.Close,
+    bool Fin = false,
+    FrameError? FrameError = null)
+{
+    public string DataAsString => Encoding.UTF8.GetString(Data.Span);
+}

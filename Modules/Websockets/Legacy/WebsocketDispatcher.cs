@@ -1,6 +1,6 @@
 using Fleck;
 
-namespace GenHTTP.Modules.Websockets.Handler;
+namespace GenHTTP.Modules.Websockets.Legacy;
 
 /// <summary>
 /// Flecks uses synchronous callbacks for integration of user

@@ -1,9 +1,9 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
+using GenHTTP.Modules.Websockets.Utils;
 using IHandler = GenHTTP.Api.Content.IHandler;
 
-namespace GenHTTP.Modules.Websockets.Handler;
+namespace GenHTTP.Modules.Websockets.Legacy;
 
 public sealed class WebsocketHandler : IHandler
 {

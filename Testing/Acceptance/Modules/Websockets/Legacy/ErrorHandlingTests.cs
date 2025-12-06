@@ -1,10 +1,8 @@
 using System.Net;
-
 using Websocket.Client;
-
 using WS = GenHTTP.Modules.Websockets.Websocket;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Websockets;
+namespace GenHTTP.Testing.Acceptance.Modules.Websockets.Legacy;
 
 [TestClass]
 public sealed class ErrorHandlingTests
