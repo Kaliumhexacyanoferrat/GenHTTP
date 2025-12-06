@@ -24,7 +24,7 @@ public sealed class IntegrationTests
     }
     
     [TestMethod]
-    public async Task TestServerImperativeFragmented(TestEngine engine)
+    public async Task TestServerImperativeFragmented()
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
             .Imperative()
