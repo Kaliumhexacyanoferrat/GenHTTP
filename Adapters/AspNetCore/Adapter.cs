@@ -33,7 +33,19 @@ public static class Adapter
     /// <param name="handler">The handler to be registered</param>
     /// <param name="companion">An object that will be informed about handled requests and any error</param>
     public static void Map(this WebApplication app, string path, IHandler handler, IServerCompanion? companion = null)
-        => app.Map(path + "/{*any}", async context => await Bridge.MapAsync(context, handler, companion: companion, registeredPath: path));
+    {
+        app.Use(async (context, next) =>
+        {
+            if (context.Request.Path.StartsWithSegments(path, StringComparison.OrdinalIgnoreCase))
+            {
+                await Bridge.MapAsync(context, handler, companion: companion, registeredPath: path);
+            }
+            else
+            {
+                await next();
+            }
+        });
+    }
 
     /// <summary>
     /// Registers the given handler to respond to any request.
