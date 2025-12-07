@@ -6,7 +6,7 @@ using GenHTTP.Modules.Websockets.Protocol;
 
 namespace GenHTTP.Modules.Websockets.Provider;
 
-public class WebsocketConnection : IReactiveConnection, IImperativeConnection
+public class WebsocketConnection : IReactiveConnection, IImperativeConnection, IAsyncDisposable
 {
     private readonly Stream _stream;
     private readonly PipeReader _pipeReader;
@@ -20,7 +20,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection
         _pipeReader = PipeReader.Create(stream, 
             new StreamPipeReaderOptions(
                 MemoryPool<byte>.Shared, 
-                leaveOpen: false,
+                leaveOpen: true,
                 bufferSize: rxMaxBufferSize, 
                 minimumReadSize: Math.Min( rxMaxBufferSize / 4 , 1024 )));
     }
@@ -128,5 +128,10 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection
             // Any other frame (including other errors)
             return frame;
         }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await _pipeReader.CompleteAsync();
     }
 }

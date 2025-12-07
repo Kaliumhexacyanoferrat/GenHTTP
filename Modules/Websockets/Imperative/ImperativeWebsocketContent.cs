@@ -15,7 +15,7 @@ public sealed class ImperativeWebsocketContent(IImperativeHandler handler, IRequ
     {
         await target.FlushAsync();
         
-        var connection = new WebsocketConnection(request, target);
+        await using var connection = new WebsocketConnection(request, target);
 
         await handler.HandleAsync(connection);
     }
