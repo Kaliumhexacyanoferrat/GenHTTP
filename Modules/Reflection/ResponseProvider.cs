@@ -1,11 +1,8 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.IO.Streaming;
-
 using GenHTTP.Modules.Reflection.Operations;
-
 using StreamContent = GenHTTP.Modules.IO.Streaming.StreamContent;
 using ByteArrayContent = GenHTTP.Modules.IO.Streaming.ByteArrayContent;
 
@@ -56,7 +53,7 @@ public class ResponseProvider
         return operation.Result.Sink switch
         {
             OperationResultSink.Dynamic => await GetDynamicResponse(request, result, adjustments),
-            OperationResultSink.Stream => GetDownloadResponse(request, result, adjustments),
+            OperationResultSink.Binary => GetBinaryResponse(request, result, adjustments),
             OperationResultSink.Formatter => GetFormattedResponse(request, result, type, adjustments),
             OperationResultSink.Serializer => await GetSerializedResponse(request, result, adjustments),
             OperationResultSink.None => GetNoContent(request, adjustments),
@@ -95,21 +92,28 @@ public class ResponseProvider
         throw new ProviderException(ResponseStatus.InternalServerError, $"Unexpected return type '{result.GetType()}' to be processed by dynamic sink");
     }
 
-    private static IResponse GetDownloadResponse(IRequest request, object data, Action<IResponseBuilder>? adjustments)
+    private static IResponse GetBinaryResponse(IRequest request, object data, Action<IResponseBuilder>? adjustments)
     {
-        IResponseContent content = data switch
-        {
-            Stream stream => new StreamContent(stream, null, stream.CalculateChecksumAsync),
-            byte[] bytes => new ByteArrayContent(bytes),
-            ReadOnlyMemory<byte> memory => new MemoryContent(memory),
-            _ => throw new ProviderException(ResponseStatus.InternalServerError, $"Unexpected type '{data.GetType()}' for stream sink")
-        };
+        var response = request.Respond()
+                              .Type(ContentType.ApplicationForceDownload)
+                              .Adjust(adjustments);
 
-        return request.Respond()
-                      .Content(content)
-                      .Type(ContentType.ApplicationForceDownload)
-                      .Adjust(adjustments)
-                      .Build();
+        switch (data)
+        {
+            case Stream stream:
+                response.Content(stream);
+                break;
+            case byte[] bytes:
+                response.Content(bytes);
+                break;
+            case ReadOnlyMemory<byte> memory:
+                response.Content(memory);
+                break;
+            default:
+                throw new ProviderException(ResponseStatus.InternalServerError, $"Unexpected type '{data.GetType()}' for stream sink");
+        }
+
+        return response.Build();
     }
 
     private IResponse GetFormattedResponse(IRequest request, object result, Type type, Action<IResponseBuilder>? adjustments) => request.Respond()

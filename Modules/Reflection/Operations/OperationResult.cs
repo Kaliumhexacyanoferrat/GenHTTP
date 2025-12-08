@@ -28,9 +28,9 @@ public enum OperationResultSink
     Dynamic,
 
     /// <summary>
-    /// The value represents a stream that should directly be passed to the client.
+    /// The value represents binary data that should directly be passed to the client.
     /// </summary>
-    Stream,
+    Binary,
 
     /// <summary>
     /// The operation does not return any value, resulting in a HTTP 204 response.

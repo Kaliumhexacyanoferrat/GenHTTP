@@ -178,7 +178,7 @@ public sealed class MethodHandlerExplorer : IApiExplorer
         {
             result.Add("200", GetResponse(schemata, type, registry.Serialization.Formats.Select(s => s.Key.RawType).ToArray()));
         }
-        else if (sink == OperationResultSink.Stream)
+        else if (sink == OperationResultSink.Binary)
         {
             var response = new OpenApiResponse
             {
