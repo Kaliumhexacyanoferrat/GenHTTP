@@ -70,8 +70,8 @@ public class WebsocketTunnelTests
 
             // proxying server
             var proxy = Proxy.Create()
-                //.Upstream("http://localhost:" + upstreamServer.Port);
-                .Upstream("wss://ws.postman-echo.com/raw");
+                .Upstream("http://localhost:" + upstreamServer.Port);
+                //.Upstream("wss://ws.postman-echo.com/raw");
 
             var runner = new TestHost(Layout.Create().Build());
 
