@@ -22,12 +22,12 @@ public sealed class ChangeTrackingTests
 
             await using (var _ = await resource.GetContentAsync()) { }
 
-            Assert.IsFalse(await resource.HasChanged());
+            Assert.IsFalse(await resource.CheckChangedAsync());
 
             // modification timestamp is in seconds on unix, so we need another length
             await FileUtil.WriteTextAsync(file, "Three");
 
-            Assert.IsTrue(await resource.HasChanged());
+            Assert.IsTrue(await resource.CheckChangedAsync());
         }
         finally
         {
@@ -39,7 +39,7 @@ public sealed class ChangeTrackingTests
     }
 
     [TestMethod]
-    public async Task TestBuildWithTracking() => Assert.IsTrue(await Resource.FromAssembly("File.txt").BuildWithTracking().HasChanged());
+    public async Task TestBuildWithTracking() => Assert.IsTrue(await Resource.FromAssembly("File.txt").BuildWithTracking().CheckChangedAsync());
 
     [TestMethod]
     public void TestMetaInformation()
