@@ -117,6 +117,16 @@ public static class SignatureAnalyzer
             return new OperationResult(type, OperationResultSink.Stream);
         }
 
+        if (type == typeof(byte[]))
+        {
+            return new OperationResult(type, OperationResultSink.Stream);
+        }
+
+        if (type == typeof(ReadOnlyMemory<byte>))
+        {
+            return new OperationResult(type, OperationResultSink.Stream);
+        }
+
         if (registry.Formatting.CanHandle(type))
         {
             return new OperationResult(type, OperationResultSink.Formatter);
