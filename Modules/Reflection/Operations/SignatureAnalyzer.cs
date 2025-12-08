@@ -112,9 +112,9 @@ public static class SignatureAnalyzer
             return new OperationResult(type, OperationResultSink.Dynamic);
         }
 
-        if (typeof(Stream).IsAssignableFrom(type))
+        if (typeof(Stream).IsAssignableFrom(type) || type == typeof(byte[]) || type == typeof(ReadOnlyMemory<byte>))
         {
-            return new OperationResult(type, OperationResultSink.Stream);
+            return new OperationResult(type, OperationResultSink.Binary);
         }
 
         if (registry.Formatting.CanHandle(type))
