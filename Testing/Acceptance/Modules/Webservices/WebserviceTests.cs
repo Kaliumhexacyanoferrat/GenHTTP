@@ -58,6 +58,12 @@ public sealed class WebserviceTests
         [ResourceMethod(RequestMethod.Put, "stream")]
         public Stream Stream(Stream input) => new MemoryStream(Encoding.UTF8.GetBytes(input.Length.ToString()));
 
+        [ResourceMethod("bytes")]
+        public byte[] Bytes() => Encoding.UTF8.GetBytes("Hello Bytes");
+
+        [ResourceMethod("memory")]
+        public ReadOnlyMemory<byte> Memory() => Encoding.UTF8.GetBytes("Hello Memory");
+
         [ResourceMethod("requestResponse")]
         public ValueTask<IResponse?> RequestResponse(IRequest request) => request.Respond()
                                                                                  .Content("Hello World")
@@ -217,6 +223,28 @@ public sealed class WebserviceTests
     public async Task TestStream()
     {
         await WithResponse(TestEngine.Internal, "stream", HttpMethod.Put, "123456", null, null, async r => Assert.AreEqual("6", await r.GetContentAsync()));
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestByteArrayReturn(TestEngine engine)
+    {
+        await WithResponse(engine, "bytes", async r =>
+        {
+            await r.AssertStatusAsync(HttpStatusCode.OK);
+            Assert.AreEqual("Hello Bytes", await r.GetContentAsync());
+        });
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestReadOnlyMemoryReturn(TestEngine engine)
+    {
+        await WithResponse(engine, "memory", async r =>
+        {
+            await r.AssertStatusAsync(HttpStatusCode.OK);
+            Assert.AreEqual("Hello Memory", await r.GetContentAsync());
+        });
     }
 
     [TestMethod]
