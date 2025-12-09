@@ -1,8 +1,7 @@
 ﻿using Fleck;
-
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Modules.Websockets.Handler;
+namespace GenHTTP.Modules.Websockets.Legacy;
 
 internal static class Extensions
 {

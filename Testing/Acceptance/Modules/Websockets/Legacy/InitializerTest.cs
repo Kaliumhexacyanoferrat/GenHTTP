@@ -1,6 +1,6 @@
 using WS = GenHTTP.Modules.Websockets;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Websockets;
+namespace GenHTTP.Testing.Acceptance.Modules.Websockets.Legacy;
 
 [TestClass]
 public class InitializerTest

@@ -1,10 +1,8 @@
 ﻿using GenHTTP.Testing.Acceptance.Utilities;
-
+using Websocket.Client;
 using WS = GenHTTP.Modules.Websockets;
 
-using Websocket.Client;
-
-namespace GenHTTP.Testing.Acceptance.Modules.Websockets;
+namespace GenHTTP.Testing.Acceptance.Modules.Websockets.Legacy;
 
 [TestClass]
 public sealed class IntegrationTest

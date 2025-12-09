@@ -49,11 +49,20 @@ public sealed class ChangeTrackingResource : IResource
     public ValueTask<ulong> CalculateChecksumAsync() => Source.CalculateChecksumAsync();
 
     /// <summary>
+    /// Checks whether the content of the resource has changed
+    /// since <see cref="GetContentAsync()" /> or <see cref="WriteAsync(Stream, uint)"/>
+    /// has been called the last time.
+    /// </summary>
+    /// <returns>True if the content has changed, false otherwise</returns>
+    public async ValueTask<bool> CheckChangedAsync() => await CalculateChecksumAsync() != _lastChecksum;
+
+    /// <summary>
     /// True, if the content of the resource has changed
     /// since <see cref="GetContentAsync()" /> has been called
     /// the last time.
     /// </summary>
-    public async ValueTask<bool> HasChanged() => await CalculateChecksumAsync() != _lastChecksum;
+    [Obsolete("Use CheckChangedAsync() instead. This method will be removed in GenHTTP 11.")]
+    public ValueTask<bool> HasChanged() => CheckChangedAsync();
 
     #endregion
 

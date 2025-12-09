@@ -7,7 +7,6 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Internal.Protocol;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.ObjectPool;
 
 namespace GenHTTP.Adapters.AspNetCore.Mapping;
@@ -114,16 +113,6 @@ public static class Bridge
             if (response.ContentEncoding != null)
             {
                 target.Headers.ContentEncoding = response.ContentEncoding;
-            }
-
-            if (response.Connection == Connection.Upgrade)
-            {
-                var bodyFeature = context.Features.Get<IHttpResponseBodyFeature>();
-
-                if (bodyFeature != null)
-                {
-                    await bodyFeature.StartAsync();
-                }
             }
 
             await response.Content.WriteAsync(target.Body, 65 * 1024);
