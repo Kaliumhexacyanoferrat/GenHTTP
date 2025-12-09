@@ -7,7 +7,6 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Internal.Protocol;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.ObjectPool;
 
 namespace GenHTTP.Adapters.AspNetCore.Mapping;
