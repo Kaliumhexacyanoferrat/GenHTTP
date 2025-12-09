@@ -7,14 +7,15 @@ namespace GenHTTP.Modules.Compression.Providers;
 /// <summary>
 /// Wraps an existing request to provide decompressed content stream.
 /// </summary>
-internal sealed class DecompressedRequest : IRequest
+internal sealed class WrappedRequest : IRequest
 {
     private readonly IRequest _inner;
-    private readonly Stream? _decompressedContent;
+
+    private readonly Stream _decompressedContent;
 
     #region Initialization
 
-    public DecompressedRequest(IRequest inner, Stream? decompressedContent)
+    public WrappedRequest(IRequest inner, Stream decompressedContent)
     {
         _inner = inner;
         _decompressedContent = decompressedContent;
@@ -70,15 +71,13 @@ internal sealed class DecompressedRequest : IRequest
 
     public IResponseBuilder Respond() => _inner.Respond();
 
-#pragma warning disable CS0618 // Type or member is obsolete
     public UpgradeInfo Upgrade() => _inner.Upgrade();
-#pragma warning restore CS0618 // Type or member is obsolete
 
     public void Dispose()
     {
-        _decompressedContent?.Dispose();
-        _inner.Dispose();
+        _decompressedContent.Dispose();
     }
 
     #endregion
+
 }

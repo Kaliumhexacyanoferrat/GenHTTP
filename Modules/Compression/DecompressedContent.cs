@@ -1,4 +1,5 @@
 using GenHTTP.Api.Infrastructure;
+using GenHTTP.Modules.Compression.Algorithms;
 using GenHTTP.Modules.Compression.Providers;
 
 namespace GenHTTP.Modules.Compression;
@@ -8,6 +9,7 @@ namespace GenHTTP.Modules.Compression;
 /// </summary>
 public static class DecompressedContent
 {
+
     #region Builder
 
     /// <summary>
@@ -23,10 +25,9 @@ public static class DecompressedContent
     /// </summary>
     /// <returns>The newly created builder</returns>
     public static DecompressionConcernBuilder Default() => new DecompressionConcernBuilder()
-        .Add(new ZstdDecompression())
-        .Add(new BrotliDecompression())
-        .Add(new GzipDecompression())
-        .Add(new DeflateDecompression());
+        .Add(new ZstdAlgorithm())
+        .Add(new BrotliAlgorithm())
+        .Add(new GzipAlgorithm());
 
     #endregion
 
@@ -54,4 +55,5 @@ public static class DecompressedContent
     public static IServerHost Decompression(this IServerHost host) => host.Decompression(Default());
 
     #endregion
+
 }

@@ -2,17 +2,15 @@ using System.IO.Compression;
 using System.Net.Http.Headers;
 using System.Text;
 
+using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Compression;
-using GenHTTP.Modules.Compression.Providers;
 using GenHTTP.Modules.IO;
-using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Practices;
 
 using GenHTTP.Testing.Acceptance.Utilities;
-
-using ZstdSharp;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Compression;
 
@@ -49,16 +47,6 @@ public sealed class DecompressionTests
     public async Task TestZstdDecompression(TestEngine engine)
     {
         await TestDecompressionAsync(engine, "zstd", CompressZstd);
-    }
-
-    /// <summary>
-    /// As a developer, I expect incoming deflate-compressed requests to be automatically decompressed.
-    /// </summary>
-    [TestMethod]
-    [MultiEngineTest]
-    public async Task TestDeflateDecompression(TestEngine engine)
-    {
-        await TestDecompressionAsync(engine, "deflate", CompressDeflate);
     }
 
     /// <summary>
@@ -258,24 +246,17 @@ public sealed class DecompressionTests
         return output.ToArray();
     }
 
-    private static byte[] CompressDeflate(string content)
-    {
-        var bytes = Encoding.UTF8.GetBytes(content);
-        using var output = new MemoryStream();
-        using (var deflate = new DeflateStream(output, CompressionLevel.Fastest, leaveOpen: true))
-        {
-            deflate.Write(bytes, 0, bytes.Length);
-        }
-        return output.ToArray();
-    }
-
     #endregion
 
     #region Custom Algorithm
 
-    private class CustomDecompression : IDecompressionAlgorithm
+    private class CustomDecompression : ICompressionAlgorithm
     {
         public string Name => "custom";
+
+        public Priority Priority => Priority.Low;
+
+        public IResponseContent Compress(IResponseContent content, CompressionLevel level) => throw new NotImplementedException();
 
         public Stream Decompress(Stream content)
         {
@@ -284,7 +265,9 @@ public sealed class DecompressionTests
             var reversed = new string(reader.ReadToEnd().Reverse().ToArray());
             return new MemoryStream(Encoding.UTF8.GetBytes(reversed));
         }
+
     }
 
     #endregion
+
 }

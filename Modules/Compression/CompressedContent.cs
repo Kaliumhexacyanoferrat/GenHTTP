@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Modules.Compression.Algorithms;
 using GenHTTP.Modules.Compression.Providers;
 
 namespace GenHTTP.Modules.Compression;
@@ -20,8 +21,8 @@ public static class CompressedContent
     /// Zstandard, Brotli and Gzip compression.
     /// </summary>
     /// <returns>The newly created builder</returns>
-    public static CompressionConcernBuilder Default() => new CompressionConcernBuilder().Add(new ZstdCompression())
-                                                                                        .Add(new BrotliCompression())
+    public static CompressionConcernBuilder Default() => new CompressionConcernBuilder().Add(new ZstdAlgorithm())
+                                                                                        .Add(new BrotliAlgorithm())
                                                                                         .Add(new GzipAlgorithm());
 
     #endregion

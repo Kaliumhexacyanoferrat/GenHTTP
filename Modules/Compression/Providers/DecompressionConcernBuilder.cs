@@ -1,4 +1,5 @@
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Modules.Compression.Providers;
@@ -8,7 +9,7 @@ namespace GenHTTP.Modules.Compression.Providers;
 /// </summary>
 public sealed class DecompressionConcernBuilder : IConcernBuilder
 {
-    private readonly List<IDecompressionAlgorithm> _algorithms = [];
+    private readonly List<ICompressionAlgorithm> _algorithms = [];
 
     #region Functionality
 
@@ -17,14 +18,14 @@ public sealed class DecompressionConcernBuilder : IConcernBuilder
     /// </summary>
     /// <param name="algorithm">The algorithm builder to add</param>
     /// <returns>The builder instance for method chaining</returns>
-    public DecompressionConcernBuilder Add(IBuilder<IDecompressionAlgorithm> algorithm) => Add(algorithm.Build());
+    public DecompressionConcernBuilder Add(IBuilder<ICompressionAlgorithm> algorithm) => Add(algorithm.Build());
 
     /// <summary>
     /// Adds a decompression algorithm.
     /// </summary>
     /// <param name="algorithm">The algorithm to add</param>
     /// <returns>The builder instance for method chaining</returns>
-    public DecompressionConcernBuilder Add(IDecompressionAlgorithm algorithm)
+    public DecompressionConcernBuilder Add(ICompressionAlgorithm algorithm)
     {
         _algorithms.Add(algorithm);
         return this;
@@ -43,4 +44,5 @@ public sealed class DecompressionConcernBuilder : IConcernBuilder
     }
 
     #endregion
+
 }

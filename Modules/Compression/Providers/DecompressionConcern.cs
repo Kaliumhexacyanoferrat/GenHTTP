@@ -1,4 +1,5 @@
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Compression.Providers;
@@ -15,13 +16,13 @@ public sealed class DecompressionConcern : IConcern
 
     public IHandler Content { get; }
 
-    private IReadOnlyDictionary<string, IDecompressionAlgorithm> Algorithms { get; }
+    private IReadOnlyDictionary<string, ICompressionAlgorithm> Algorithms { get; }
 
     #endregion
 
     #region Initialization
 
-    public DecompressionConcern(IHandler content, IReadOnlyDictionary<string, IDecompressionAlgorithm> algorithms)
+    public DecompressionConcern(IHandler content, IReadOnlyDictionary<string, ICompressionAlgorithm> algorithms)
     {
         Content = content;
         Algorithms = algorithms;
@@ -31,30 +32,28 @@ public sealed class DecompressionConcern : IConcern
 
     #region Functionality
 
-    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        // Check if request has content and a Content-Encoding header
         if (request.Content != null && request.Headers.TryGetValue(ContentEncoding, out var encoding))
         {
             if (!string.IsNullOrEmpty(encoding))
             {
-                // Find matching decompression algorithm
                 if (Algorithms.TryGetValue(encoding, out var algorithm))
                 {
-                    // Wrap the request with decompressed content
-                    var decompressedStream = algorithm.Decompress(request.Content);
-                    var wrappedRequest = new DecompressedRequest(request, decompressedStream);
+                    using var decompressedContent = algorithm.Decompress(request.Content);
 
-                    return await Content.HandleAsync(wrappedRequest);
+                    using var wrappedRequest = new WrappedRequest(request, decompressedContent);
+
+                    return Content.HandleAsync(wrappedRequest);
                 }
             }
         }
 
-        // No decompression needed, pass through
-        return await Content.HandleAsync(request);
+        return Content.HandleAsync(request);
     }
 
     public ValueTask PrepareAsync() => Content.PrepareAsync();
 
     #endregion
+
 }
