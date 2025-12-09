@@ -22,7 +22,7 @@
         <!-- remove together with fleck -->
         <ProjectReference Include="..\..\Engine\Shared\GenHTTP.Engine.Shared.csproj" />
         
-	    <PackageReference Include="Fleck" Version="1.2.0" />
+	<PackageReference Include="Fleck" Version="1.2.0" />
 
     </ItemGroup>
 
