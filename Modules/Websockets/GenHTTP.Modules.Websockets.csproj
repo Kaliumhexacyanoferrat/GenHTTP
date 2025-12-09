@@ -3,7 +3,7 @@
     <PropertyGroup>
 
         <Description>Allows to handle websocket connection to a GenHTTP server</Description>
-        <Authors>Andreas Nägeli, Magnus Johnsson</Authors>
+        <Authors>Diogo Martins, Andreas Nägeli, Magnus Johnsson</Authors>
 
         <PackageTags>GenHTTP HTTP Webserver C# Module Websockets</PackageTags>
         <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -14,6 +14,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+
+        <PackageReference Include="System.IO.Pipelines" Version="10.0.0" />
 
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj"/>
 

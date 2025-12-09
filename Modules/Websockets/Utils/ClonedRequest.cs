@@ -3,7 +3,7 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
-namespace GenHTTP.Modules.Websockets.Handler;
+namespace GenHTTP.Modules.Websockets.Utils;
 
 public class ClonedRequest : IRequest
 {

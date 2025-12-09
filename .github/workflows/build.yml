@@ -136,4 +136,4 @@ jobs:
             10.0
 
       - name: Build & Test (${{ matrix.runtime }})
-        run: dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release
+        run: dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release --logger "console;verbosity=detailed"

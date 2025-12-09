@@ -116,16 +116,6 @@ public static class Bridge
                 target.Headers.ContentEncoding = response.ContentEncoding;
             }
 
-            if (response.Connection == Connection.Upgrade)
-            {
-                var bodyFeature = context.Features.Get<IHttpResponseBodyFeature>();
-
-                if (bodyFeature != null)
-                {
-                    await bodyFeature.StartAsync();
-                }
-            }
-
             await response.Content.WriteAsync(target.Body, 65 * 1024);
         }
     }
