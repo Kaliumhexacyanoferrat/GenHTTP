@@ -52,5 +52,4 @@ public class FunctionalHandler : IReactiveHandler
 
     public ValueTask<bool> OnError(IReactiveConnection connection, FrameError error) => _onError(connection, error);
 
-
 }

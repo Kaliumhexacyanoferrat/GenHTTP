@@ -1,6 +1,7 @@
 using System.Buffers;
 using System.IO.Pipelines;
 using System.Text;
+
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Websockets.Protocol;
 
@@ -11,26 +12,31 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
     private readonly Stream _stream;
     private readonly PipeReader _pipeReader;
     private readonly int _rxMaxBufferSize;
-    
+
+    #region Get-/Setters
+
+    public IRequest Request { get; }
+
+    #endregion
+
+    #region Initialization
+
     public WebsocketConnection(IRequest request, Stream stream, int rxMaxBufferSize = 8192)
     {
         Request = request;
         _stream = stream;
         _rxMaxBufferSize =  rxMaxBufferSize;
-        _pipeReader = PipeReader.Create(stream, 
+        _pipeReader = PipeReader.Create(stream,
             new StreamPipeReaderOptions(
-                MemoryPool<byte>.Shared, 
+                MemoryPool<byte>.Shared,
                 leaveOpen: true,
-                bufferSize: rxMaxBufferSize, 
+                bufferSize: rxMaxBufferSize,
                 minimumReadSize: Math.Min( rxMaxBufferSize / 4 , 1024 )));
     }
 
-    public IRequest Request { get; }
+    #endregion
 
-    public async ValueTask WriteAsync(string payload, FrameType opcode = FrameType.Text, bool fin = true, CancellationToken token = default)
-    {
-        await WriteAsync(Encoding.UTF8.GetBytes(payload), opcode, fin, token: token);
-    }
+    #region Functionality
 
     public async ValueTask WriteAsync(ReadOnlyMemory<byte> payload, FrameType opcode = FrameType.Text, bool fin = true, CancellationToken token = default)
     {
@@ -81,7 +87,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
         await _stream.WriteAsync(frameMemory, token);
         await _stream.FlushAsync(token);
     }
-    
+
     /// <summary>
     /// Wait for a frame to be acquired.
     /// </summary>
@@ -95,11 +101,11 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
             if (result.IsCanceled)
             {
                 return new WebsocketFrame(
-                    ReadOnlyMemory<byte>.Empty, 
-                    FrameType.Error, 
+                    ReadOnlyMemory<byte>.Empty,
+                    FrameType.Error,
                     FrameError: new FrameError("Read was canceled", FrameErrorType.Canceled));
             }
-            
+
             if (buffer.Length == 0 && result.IsCompleted) // Clean EOF: no more data, reader completed
             {
                 _pipeReader.AdvanceTo(buffer.Start, buffer.End);
@@ -117,11 +123,11 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                 if (result.IsCompleted)
                 {
                     return new WebsocketFrame(
-                        ReadOnlyMemory<byte>.Empty, 
-                        FrameType.Error, 
+                        ReadOnlyMemory<byte>.Empty,
+                        FrameType.Error,
                         FrameError: new FrameError("Unexpected end of stream while reading WebSocket frame.", FrameErrorType.IncompleteForever));
                 }
-                
+
                 continue;  // read more data
             }
 
@@ -134,4 +140,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
     {
         await _pipeReader.CompleteAsync();
     }
+
+    #endregion
+
 }
