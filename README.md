@@ -70,10 +70,15 @@ implement [webservices](https://genhttp.org/documentation/content/frameworks/web
 or [single page applications](https://genhttp.org/documentation/content/frameworks/single-page-applications/) and how
 to [host your application](https://genhttp.org/documentation/hosting/) via Docker.
 
+## 🤔  Support
+
 If you encounter issues implementing your application, feel free
 to [join our Discord community](https://discord.gg/GwtDyUpkpV) to get help.
 
-## 💻 Supported Platforms
+For commercial products and projects, GenHTTP provides additional support options
+[on request](https://genhttp.org/support/).
+
+## 💻 Platforms & Releases
 
 GenHTTP targets all .NET versions currently [supported by Microsoft](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core).
 Major versions are released once a year, following the .NET release cycle.
@@ -129,9 +134,9 @@ in C#. In 2024 the focus has shifted towards API development, dropping support f
 - Reference
   projects: [GenHTTP Gateway](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Gateway) | [MockH](https://github.com/Kaliumhexacyanoferrat/MockH)
 - Similar
-  projects: [Wired.IO](https://github.com/MDA2AV/Wired.IO) | [EmbedIO](https://github.com/unosquare/embedio) | [NetCoreServer](https://github.com/chronoxor/NetCoreServer) | [Watson Webserver](https://github.com/jchristn/WatsonWebserver) | [SimpleW](https://github.com/stratdev3/SimpleW)
+  projects: [Wired.IO](https://github.com/MDA2AV/Wired.IO) | [Unhinged](https://github.com/MDA2AV/unhinged) | [Sisk](https://www.sisk-framework.org/) | [EmbedIO](https://github.com/unosquare/embedio) | [NetCoreServer](https://github.com/chronoxor/NetCoreServer) | [Watson Webserver](https://github.com/jchristn/WatsonWebserver) | [SimpleW](https://github.com/stratdev3/SimpleW)
 
 ## 🙏 Thanks
 
 - Powered by [.NET](https://github.com/dotnet/core)
-- Modules implemented with [NSwag](https://github.com/RicoSuter/NSwag) (Open API), [Fleck](https://github.com/statianzo/Fleck) (WebSockets)
+- Modules implemented with [NSwag](https://github.com/RicoSuter/NSwag) | [Cottle](https://r3c.github.io/cottle/) | [Fleck](https://github.com/statianzo/Fleck)

@@ -21,7 +21,7 @@ public class TemplateRenderer
     /// <returns>The generated response</returns>
     public async ValueTask<string> RenderAsync(IReadOnlyDictionary<Value, Value> model)
     {
-        if (_document == null || await Template.HasChanged())
+        if (_document == null || await Template.CheckChangedAsync())
         {
             using var reader = new StreamReader(await Template.GetContentAsync());
 
