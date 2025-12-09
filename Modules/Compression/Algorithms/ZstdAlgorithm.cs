@@ -2,11 +2,12 @@
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Compression.Providers;
 using ZstdSharp;
 
-namespace GenHTTP.Modules.Compression.Providers;
+namespace GenHTTP.Modules.Compression.Algorithms;
 
-public sealed class ZstdCompression : ICompressionAlgorithm
+public sealed class ZstdAlgorithm : ICompressionAlgorithm
 {
 
     public string Name => "zstd";
@@ -28,4 +29,10 @@ public sealed class ZstdCompression : ICompressionAlgorithm
             _ => throw new InvalidOperationException($"Unable to map compression level {level}")
         };
     }
+
+    public Stream Decompress(Stream content)
+    {
+        return new DecompressionStream(content, leaveOpen: true);
+    }
+
 }

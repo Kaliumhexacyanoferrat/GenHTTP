@@ -1,5 +1,5 @@
 ﻿using System.IO.Compression;
-
+using GenHTTP.Modules.Compression.Algorithms;
 using GenHTTP.Modules.Compression.Providers;
 using GenHTTP.Modules.Functional;
 
@@ -17,7 +17,7 @@ public class ZstdTests
         foreach (var level in new[] { CompressionLevel.Fastest, CompressionLevel.Optimal, CompressionLevel.SmallestSize })
         {
             var compression = new CompressionConcernBuilder().Level(level)
-                                                             .Add(new ZstdCompression());
+                                                             .Add(new ZstdAlgorithm());
 
             var app = Inline.Create()
                             .Get(() => string.Concat(Enumerable.Repeat(Payload, 20)))

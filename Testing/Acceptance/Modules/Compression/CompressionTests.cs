@@ -408,8 +408,9 @@ public sealed class CompressionTests
 
         public IResponseContent Compress(IResponseContent content, CompressionLevel level) => content;
 
-    }
+        public Stream Decompress(Stream stream) => throw new NotImplementedException();
 
+    }
 
     /// <summary>
     /// Helper method to create large content that will be compressed (above default threshold of 256 bytes).

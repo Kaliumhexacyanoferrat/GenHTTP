@@ -2,10 +2,11 @@
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Compression.Providers;
 
-namespace GenHTTP.Modules.Compression.Providers;
+namespace GenHTTP.Modules.Compression.Algorithms;
 
-public sealed class BrotliCompression : ICompressionAlgorithm
+public sealed class BrotliAlgorithm : ICompressionAlgorithm
 {
 
     public string Name => "br";
@@ -16,4 +17,10 @@ public sealed class BrotliCompression : ICompressionAlgorithm
     {
         return new CompressedResponseContent(content, target => new BrotliStream(target, level, false));
     }
+
+    public Stream Decompress(Stream content)
+    {
+        return new BrotliStream(content, CompressionMode.Decompress, leaveOpen: true);
+    }
+
 }

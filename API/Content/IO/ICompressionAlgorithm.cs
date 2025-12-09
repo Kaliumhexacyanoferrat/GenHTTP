@@ -31,4 +31,12 @@ public interface ICompressionAlgorithm
     /// <param name="level">The compression level to be applied</param>
     /// <returns>A result representing the compressed content</returns>
     IResponseContent Compress(IResponseContent content, CompressionLevel level);
+
+    /// <summary>
+    /// Returns a stream that wraps the request content and decompresses on read.
+    /// </summary>
+    /// <param name="content">The compressed request content stream</param>
+    /// <returns>A stream that provides decompressed content</returns>
+    Stream Decompress(Stream content);
+
 }

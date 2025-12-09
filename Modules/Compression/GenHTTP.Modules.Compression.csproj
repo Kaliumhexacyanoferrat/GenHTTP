@@ -3,11 +3,14 @@
     <PropertyGroup>
 
         <Description>Allows to compress generated content using various algorithms.</Description>
-        <Authors>Andreas Nägeli, Wajahat Ahmad</Authors>
+        <Authors>Andreas Nägeli, Wajahat Ahmad, Tanzim Hossain Romel</Authors>
 
         <PackageTags>GenHTTP HTTP Webserver C# Module Compression Brotli Gzip</PackageTags>
         <PackageReadmeFile>README.md</PackageReadmeFile>
 
+        <!-- remove this line after Fleck has been removed -->
+        <NoWarn>CS1591,CS1587,CS1572,CS1573,CS0612,CS0618</NoWarn>
+        
     </PropertyGroup>
 
     <ItemGroup>

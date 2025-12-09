@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Net;
+﻿using System.Net;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;

@@ -15,6 +15,7 @@ public static class Extensions
     /// </summary>
     /// <param name="host">The host to be configured</param>
     /// <param name="compression">Whether responses sent by the server should automatically be compressed</param>
+    /// <param name="decompression">Whether incoming request content should automatically be decompressed</param>
     /// <param name="secureUpgrade">Whether the server should automatically upgrade insecure requests</param>
     /// <param name="strictTransport">Whether the server should send a strict transport policy</param>
     /// <param name="clientCaching">
@@ -25,6 +26,7 @@ public static class Extensions
     /// <param name="preventSniffing">Instructs clients not to guess the MIME type of the served content</param>
     public static IServerHost Defaults(this IServerHost host,
         bool compression = true,
+        bool decompression = false,
         bool secureUpgrade = true,
         bool strictTransport = true,
         bool clientCaching = true,
@@ -39,6 +41,11 @@ public static class Extensions
         if (compression)
         {
             host.Compression(CompressedContent.Default());
+        }
+
+        if (decompression)
+        {
+            host.Decompression(DecompressedContent.Default());
         }
 
         if (rangeSupport)
