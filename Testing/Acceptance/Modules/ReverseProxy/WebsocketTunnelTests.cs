@@ -1,6 +1,5 @@
 using System.Net.WebSockets;
 using System.Text;
-using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.ReverseProxy;
 

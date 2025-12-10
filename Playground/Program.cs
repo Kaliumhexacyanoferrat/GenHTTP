@@ -1,89 +1,46 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using System.Net.WebSockets;
+using System.Text;
+
 using GenHTTP.Engine.Internal;
-//using GenHTTP.Engine.Kestrel;
-using GenHTTP.Modules.IO;
-using GenHTTP.Modules.Layouting;
-using GenHTTP.Modules.Layouting.Provider;
 using GenHTTP.Modules.Practices;
-using GenHTTP.Modules.Websockets;
-using GenHTTP.Modules.Websockets.Protocol;
 
-var content = Content.From(Resource.FromString("Hello World!"));
+using GenHTTP.Modules.ReverseProxy;
 
-var reactiveWs =
-    Websocket.Reactive()
-        .MaxFrameSize(1024)
-        .Handler(new ReactiveHandler())
-        .Build();
+// Server
+//
+var proxyHost = Host.Create()
+          .Port(8080)
+          .Handler(Proxy
+              .Create()
+              .Upstream("wss://ws.postman-echo.com/raw"))
+          .Defaults()
+          .StartAsync(); // or StartAsync() for non-blocking
 
-var imperativeWs = 
-    Websocket
-        .Imperative()
-        .Handler(new MyHandler());
-
-await Host.Create()
-    .Port(8080)
-    .Handler(imperativeWs)
-    .Defaults()
-    .RunAsync(); // or StartAsync() for non-blocking
-    
-    
-public class ReactiveHandler : IReactiveHandler
+//
+// Downstream
+await Task.Run(async () =>
 {
-    public ValueTask OnConnected(IReactiveConnection connection) => ValueTask.CompletedTask;
+    var client = new ClientWebSocket();
 
-    public async ValueTask OnMessage(IReactiveConnection connection, WebsocketFrame message) => await connection.WriteAsync(message.Data);
+    await client.ConnectAsync(new Uri($"ws://localhost:{8080}"), CancellationToken.None);
 
-    public async ValueTask OnContinue(IReactiveConnection connection, WebsocketFrame message) => await connection.WriteAsync(message.Data);
-
-    public async ValueTask OnPing(IReactiveConnection connection, WebsocketFrame message) => await connection.PongAsync(message.Data);
-
-    public async ValueTask OnClose(IReactiveConnection connection, WebsocketFrame message) => await connection.CloseAsync();
-
-    public ValueTask<bool> OnError(IReactiveConnection connection, FrameError error)
+    while (true)
     {
-        Console.WriteLine($"{error.ErrorType}: {error.Message}");
-        return ValueTask.FromResult(false);
+        var message = "Hello from the other side?"u8.ToArray();
+
+        Console.WriteLine($"[Downstream] - Sending: {Encoding.UTF8.GetString(message)}");
+        
+        await client.SendAsync(
+            message, 
+            WebSocketMessageType.Text, 
+            true, 
+            CancellationToken.None);
+        
+        var responseBuffer = new byte[message.Length];
+        await client.ReceiveAsync(new ArraySegment<byte>(responseBuffer), CancellationToken.None);
+
+        Console.WriteLine($"[Downstream] - Received: {Encoding.UTF8.GetString(responseBuffer, 0, responseBuffer.Length)}");
+        
+        await Task.Delay(500);
     }
-}
-
-public class MyHandler : IImperativeHandler
-{
-
-    public async ValueTask HandleAsync(IImperativeConnection connection)
-    {
-        try
-        {
-            // await connection.PingAsync();
-            
-            while (connection.Request.Server.Running)
-            {
-                var frame = await connection.ReadFrameAsync();
-
-                if (frame.Type == FrameType.Error)
-                {
-                    var error = frame.FrameError!;
-                    Console.WriteLine($"{error.ErrorType}: {error.Message}");
-                    continue;
-                }
-
-                if (frame.Type == FrameType.Pong)
-                {
-                    continue;
-                }
-
-                if (frame.Type == FrameType.Close)
-                {
-                    await connection.CloseAsync();
-                    break;
-                }
-
-                await connection.WriteAsync(frame.Data, FrameType.Text, fin: true);
-            }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
-    }
+});

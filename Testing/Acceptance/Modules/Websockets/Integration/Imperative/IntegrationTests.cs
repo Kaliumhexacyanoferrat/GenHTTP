@@ -1,4 +1,3 @@
-using System.Buffers;
 using GenHTTP.Modules.Websockets;
 using GenHTTP.Modules.Websockets.Protocol;
 using GenHTTP.Testing.Acceptance.Utilities;
