@@ -18,7 +18,10 @@
         <PackageReference Include="System.IO.Pipelines" Version="10.0.0" />
 
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj"/>
-
+        
+        <!-- remove together with fleck -->
+        <ProjectReference Include="..\..\Engine\Shared\GenHTTP.Engine.Shared.csproj" />
+        
 	    <PackageReference Include="Fleck" Version="1.2.0" />
 
     </ItemGroup>

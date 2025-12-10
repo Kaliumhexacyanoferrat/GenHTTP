@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Shared.Types;
@@ -57,6 +58,14 @@ public sealed class RequestProperties : IRequestProperties
     public void Clear()
     {
         _data.Clear();
+    }
+
+    public void CloneTo(Dictionary<string, object?> target)
+    {
+        foreach (var pair in _data)
+        {
+            target.Add(pair.Key, pair.Value);
+        }
     }
 
     #endregion
