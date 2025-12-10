@@ -1,7 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
+
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
+
+using Shared = GenHTTP.Engine.Shared.Types;
 
 namespace GenHTTP.Modules.Websockets.Handler;
 
@@ -56,7 +59,7 @@ public class ClonedRequest : IRequest
         var cookies = new CookieCollection(request.Cookies);
         var headers = new HeaderCollection(request.Headers);
         var forwardings = new ForwardingCollection(request.Forwardings);
-        var properties = new RequestProperties();
+        var properties = new RequestProperties(request.Properties);
         
         return new ClonedRequest(request.Server, request.EndPoint, request.Client, request.LocalClient,
             request.ProtocolType, request.Method, request.Target, query, cookies, forwardings, headers, 
@@ -97,7 +100,6 @@ public class ClonedRequest : IRequest
     }
     
     #endregion
-    
 
 }
 
@@ -156,22 +158,42 @@ internal class ForwardingCollection : List<Forwarding>, IForwardingCollection
 
 internal class RequestProperties : IRequestProperties
 {
+    private readonly Dictionary<string, object?> _data;
+
+    internal RequestProperties(IRequestProperties source)
+    {
+        _data = [];
+            
+        if (source is Shared.RequestProperties cloneable)
+        {
+            cloneable.CloneTo(_data);
+        }
+    }
     
     public object this[string key]
     {
-        get => throw new KeyNotFoundException();
-        set => throw new NotSupportedException();
+        get => _data[key] ?? throw new KeyNotFoundException(key);
+        set => _data[key] = value;
     }
 
     public bool TryGet<T>(string key, [MaybeNullWhen(false)] out T entry)
     {
+        if (_data.TryGetValue(key, out var value))
+        {
+            if (value is T tValue)
+            {
+                entry = tValue;
+                return true;
+            }
+        }
+        
         entry = default;
         return false;
     }
 
     public void Clear(string key)
     {
-        // nop
+        _data.Remove(key);
     }
     
 }
