@@ -1,6 +1,6 @@
 using System.IO.Pipelines;
 
-namespace GenHTTP.Modules.ReverseProxy.Utils;
+namespace GenHTTP.Modules.ReverseProxy.Websocket;
 
 public class DuplexPipe(PipeReader input, PipeWriter output) : IDuplexPipe, IAsyncDisposable
 {

@@ -4,34 +4,30 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Websockets.Handler;
 
-namespace GenHTTP.Modules.ReverseProxy.WebsocketTunnel;
+namespace GenHTTP.Modules.ReverseProxy.Websocket;
 
 public class WebsocketProxy : IHandler
 {
-    private readonly string _upstreamUrl;
+    private readonly string _upstream;
     
-    public WebsocketProxy(string upstreamUrl)
+    public WebsocketProxy(string upstream)
     {
-        _upstreamUrl = upstreamUrl;
+        _upstream = upstream;
     }
     
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        // Frozen request
-        // TODO: Is this really necessary?
-        var clone = ClonedRequest.From(request);
+        var upstreamConnection = new RawWebsocketConnection(_upstream);
         
-        var upstreamConnection = new RawWebsocketConnection(_upstreamUrl);
         await upstreamConnection.InitializeStream();
         
-        // Establish a websocket with upstream - use same key
         var upgradeCts = new CancellationTokenSource(5000);
         
         try
         {
-            if (!await upstreamConnection.TryUpgrade(clone.Headers, token: upgradeCts.Token))
+            if (!await upstreamConnection.TryUpgrade(request.Headers, token: upgradeCts.Token))
             {
                 throw new InvalidOperationException("Failed to upgrade upstream.");
             }
@@ -41,25 +37,18 @@ public class WebsocketProxy : IHandler
             throw new InvalidOperationException("Failed to upgrade upstream.", e);
         }
 
-        var key = clone.Headers.GetValueOrDefault("Sec-WebSocket-Key")
+        var key = request.Headers.GetValueOrDefault("Sec-WebSocket-Key")
                   ?? throw new InvalidOperationException("Sec-WebSocket-Key not found");
         
         var response = request.Respond()
             .Status(ResponseStatus.SwitchingProtocols)
             .Connection(Connection.Upgrade)
             .Header("Upgrade", "websocket")
-            .Header("Sec-WebSocket-Accept", CreateAcceptKey(key))
+            .Header("Sec-WebSocket-Accept", Handshake.(key))
             .Content(new WebsocketTunnelContent(upstreamConnection))
             .Build();
         
         return response;
     }
     
-    // Adding this helper temporarily because Websocket changes are not yet merged
-    private static string CreateAcceptKey(string key)
-    {
-        const string magicString = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-        var hash = SHA1.HashData(Encoding.UTF8.GetBytes(key + magicString));
-        return Convert.ToBase64String(hash);
-    }
 }

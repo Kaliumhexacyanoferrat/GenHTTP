@@ -1,9 +1,8 @@
 using System.Buffers;
 using System.IO.Pipelines;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.ReverseProxy.Utils;
 
-namespace GenHTTP.Modules.ReverseProxy.WebsocketTunnel;
+namespace GenHTTP.Modules.ReverseProxy.Websocket;
 
 public class WebsocketTunnelContent : IResponseContent
 {

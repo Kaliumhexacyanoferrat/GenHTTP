@@ -3,9 +3,8 @@ using System.IO.Pipelines;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
-using GenHTTP.Modules.ReverseProxy.Utils;
 
-namespace GenHTTP.Modules.ReverseProxy.WebsocketTunnel;
+namespace GenHTTP.Modules.ReverseProxy.Websocket;
 
 public class RawWebsocketConnection : IAsyncDisposable
 {

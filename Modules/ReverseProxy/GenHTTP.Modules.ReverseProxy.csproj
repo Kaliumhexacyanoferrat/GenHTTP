@@ -5,6 +5,8 @@
         <Description>Allows to serve content from a remote upstream server.</Description>
         <PackageTags>GenHTTP HTTP Webserver C# Module Reverse Proxy Proxies</PackageTags>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        
+        <Authors>Andreas Nägeli, Diogo Martins</Authors>
 
     </PropertyGroup>
 
