@@ -1,12 +1,11 @@
-using System.Security.Cryptography;
-using System.Text;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Websockets.Handler;
+
+using GenHTTP.Modules.Websockets.Protocol;
 
 namespace GenHTTP.Modules.ReverseProxy.Websocket;
 
-public class WebsocketProxy : IHandler
+public sealed class WebsocketProxy : IHandler
 {
     private readonly string _upstream;
     
@@ -23,7 +22,7 @@ public class WebsocketProxy : IHandler
         
         await upstreamConnection.InitializeStream();
         
-        var upgradeCts = new CancellationTokenSource(5000);
+        using var upgradeCts = new CancellationTokenSource(5000);
         
         try
         {
@@ -38,13 +37,13 @@ public class WebsocketProxy : IHandler
         }
 
         var key = request.Headers.GetValueOrDefault("Sec-WebSocket-Key")
-                  ?? throw new InvalidOperationException("Sec-WebSocket-Key not found");
+                  ?? throw new ProviderException(ResponseStatus.BadRequest, "Sec-WebSocket-Key not found");
         
         var response = request.Respond()
             .Status(ResponseStatus.SwitchingProtocols)
             .Connection(Connection.Upgrade)
             .Header("Upgrade", "websocket")
-            .Header("Sec-WebSocket-Accept", Handshake.(key))
+            .Header("Sec-WebSocket-Accept", Handshake.CreateAcceptKey(key))
             .Content(new WebsocketTunnelContent(upstreamConnection))
             .Build();
         

@@ -1,10 +1,11 @@
 using System.Buffers;
 using System.IO.Pipelines;
+
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.ReverseProxy.Websocket;
 
-public class WebsocketTunnelContent : IResponseContent
+public sealed class WebsocketTunnelContent : IResponseContent
 {
     public ulong? Length => null!;
 
@@ -62,18 +63,10 @@ public class WebsocketTunnelContent : IResponseContent
     }
     
     // Pure delegates
-    private static readonly Func<PipeReader, PipeWriter, Task> UpstreamHandler = async (upstreamReader, downstreamWriter) =>
-    {
-        // Read from upstream and write to downstream
-        
-        await upstreamReader.CopyToAsync(downstreamWriter);
-        
-    };
+    private static readonly Func<PipeReader, PipeWriter, Task> UpstreamHandler = 
+        (upstreamReader, downstreamWriter) => upstreamReader.CopyToAsync(downstreamWriter);
 
-    private static readonly Func<PipeWriter, PipeReader, Task> DownstreamHandler = async (upstreamWriter, downstreamReader) =>
-    {
-        // Read from downstream and write to upstream
-        
-        await downstreamReader.CopyToAsync(upstreamWriter);
-    };
+    private static readonly Func<PipeWriter, PipeReader, Task> DownstreamHandler = 
+        (upstreamWriter, downstreamReader) =>downstreamReader.CopyToAsync(upstreamWriter);
+    
 }

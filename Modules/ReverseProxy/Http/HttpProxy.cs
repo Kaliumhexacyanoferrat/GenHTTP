@@ -12,7 +12,7 @@ using GenHTTP.Modules.ReverseProxy.Websocket;
 
 namespace GenHTTP.Modules.ReverseProxy.Http;
 
-public class HttpProxy : IHandler
+public sealed class HttpProxy : IHandler
 {   
     private static readonly HashSet<string> ReservedResponseHeaders = new(StringComparer.OrdinalIgnoreCase)
     {

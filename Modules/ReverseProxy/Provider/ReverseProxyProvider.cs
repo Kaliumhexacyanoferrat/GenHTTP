@@ -1,13 +1,6 @@
-﻿using System.Globalization;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Sockets;
-using System.Web;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.IO;
 using GenHTTP.Modules.ReverseProxy.Http;
 using GenHTTP.Modules.ReverseProxy.Websocket;
 
@@ -40,7 +33,7 @@ public sealed class ReverseProxyProvider : IHandler
     {
         try
         {
-            if (request.Headers.ContainsKey("Upgrade") && request.Headers["Upgrade"] == "websocket")
+            if (request.Headers.TryGetValue("Upgrade", out var upgradeHeader) && upgradeHeader == "websocket")
             {
                 return WebsocketProxy.HandleAsync(request);
             }

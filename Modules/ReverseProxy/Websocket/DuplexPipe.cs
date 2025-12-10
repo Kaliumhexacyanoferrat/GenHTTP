@@ -2,7 +2,7 @@ using System.IO.Pipelines;
 
 namespace GenHTTP.Modules.ReverseProxy.Websocket;
 
-public class DuplexPipe(PipeReader input, PipeWriter output) : IDuplexPipe, IAsyncDisposable
+public sealed class DuplexPipe(PipeReader input, PipeWriter output) : IDuplexPipe, IAsyncDisposable
 {
     public PipeReader Input { get; } = input;
     public PipeWriter Output { get; } = output;
@@ -12,4 +12,5 @@ public class DuplexPipe(PipeReader input, PipeWriter output) : IDuplexPipe, IAsy
         await Input.CompleteAsync();
         await Output.CompleteAsync();
     }
+    
 }
