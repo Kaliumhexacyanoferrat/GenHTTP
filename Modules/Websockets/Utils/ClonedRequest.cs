@@ -4,11 +4,9 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
-namespace GenHTTP.Modules.Websockets.Utils;
-
 using Shared = GenHTTP.Engine.Shared.Types;
 
-namespace GenHTTP.Modules.Websockets.Handler;
+namespace GenHTTP.Modules.Websockets.Utils;
 
 public class ClonedRequest : IRequest
 {
@@ -35,7 +33,7 @@ public class ClonedRequest : IRequest
 
     public string? Host => this["Host"];
 
-    public string? this[string additionalHeader] => Headers[additionalHeader];
+    public string? this[string additionalHeader] => Headers.GetValueOrDefault(additionalHeader);
 
     public IRequestQuery Query { get; }
 
