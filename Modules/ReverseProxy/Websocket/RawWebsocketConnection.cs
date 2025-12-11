@@ -18,6 +18,8 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
     private readonly int _rxMaxBufferSize;
     private readonly int _txMaxBufferSize;
 
+    private const string Crlf = "\r\n";
+
     public Stream? Stream { get; private set; }
 
     public DuplexPipe? Pipe { get; private set; }
@@ -67,24 +69,36 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
             throw new InvalidOperationException("Not initialized.");
         }
 
-        var upgradeRequest =
-            $"GET {_route} HTTP/1.1\r\n" +
-            $"Host: {_host}:{_port}\r\n";
+        var upgradeRequestSb = new StringBuilder();
+        upgradeRequestSb
+             // GET {_route} HTTP/1.1\r\n
+            .Append("GET ")
+            .Append(_route)
+            .Append(" HTTP/1.1")
+            .Append(Crlf)
+            // Host: {_host}:{_port}\r\n
+            .Append("Host: ")
+            .Append(_host)
+            .Append(':')
+            .Append(_port)
+            .Append(Crlf);
 
         foreach (var header in clientHeaders)
         {
             if (header.Key.Equals("Host", StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            upgradeRequest += $"{header.Key}: {header.Value}\r\n";
+            upgradeRequestSb
+                .Append(header.Key)
+                .Append(": ")
+                .Append(header.Value)
+                .Append(Crlf);
         }
 
-        upgradeRequest += "\r\n";
-
-        Console.WriteLine($"Upgrade Request (Server -> Upstream): {upgradeRequest}");
+        upgradeRequestSb.Append(Crlf);
 
         // Writes and flushes
-        await Pipe.Output.WriteAsync(Encoding.UTF8.GetBytes(upgradeRequest), token);
+        await Pipe.Output.WriteAsync(Encoding.UTF8.GetBytes(upgradeRequestSb.ToString()), token);
 
         // Read the handshake response until \r\n\r\n
         while (true)
@@ -115,8 +129,6 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
 
                     // Validate status line + headers
                     var headersText = Encoding.ASCII.GetString(headersSequence.ToArray());
-
-                    Console.WriteLine($"Received Handshake (Upstream -> Server): {headersText}");
 
                     return headersText.StartsWith("HTTP/1.1 101", StringComparison.Ordinal);
                 }
