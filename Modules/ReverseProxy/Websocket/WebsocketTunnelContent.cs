@@ -26,7 +26,7 @@ public sealed class WebsocketTunnelContent : IResponseContent
         
         Console.WriteLine("Tunnel established!");
         
-        // Manage the tunnel lifetime and logic
+        // TODO: Manage the tunnel lifetime and logic, inject the parameters..
 
         const int _rxMaxBufferSize = 4096 * 4;
         const int _txMaxBufferSize = 4096 * 4;

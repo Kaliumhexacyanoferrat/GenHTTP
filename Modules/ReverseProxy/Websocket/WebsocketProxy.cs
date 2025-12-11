@@ -2,6 +2,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Websockets.Protocol;
+using GenHTTP.Modules.Websockets.Provider;
 
 namespace GenHTTP.Modules.ReverseProxy.Websocket;
 
@@ -28,7 +29,10 @@ public sealed class WebsocketProxy : IHandler
         {
             if (!await upstreamConnection.TryUpgrade(request, token: upgradeCts.Token))
             {
-                throw new InvalidOperationException("Failed to upgrade upstream.");
+                return request
+                    .Respond()
+                    .Status(ResponseStatus.BadGateway)
+                    .Build();
             }
         }
         catch (Exception e)
@@ -36,18 +40,9 @@ public sealed class WebsocketProxy : IHandler
             throw new InvalidOperationException("Failed to upgrade upstream.", e);
         }
 
-        var key = request.Headers.GetValueOrDefault("Sec-WebSocket-Key")
-                  ?? throw new ProviderException(ResponseStatus.BadRequest, "Sec-WebSocket-Key not found");
+        var websocketHandler = new WebsocketHandler(_ => new WebsocketTunnelContent(upstreamConnection));
         
-        var response = request.Respond()
-            .Status(ResponseStatus.SwitchingProtocols)
-            .Connection(Connection.Upgrade)
-            .Header("Upgrade", "websocket")
-            .Header("Sec-WebSocket-Accept", Handshake.CreateAcceptKey(key))
-            .Content(new WebsocketTunnelContent(upstreamConnection))
-            .Build();
-        
-        return response;
+        return await websocketHandler.HandleAsync(request);
     }
     
 }
