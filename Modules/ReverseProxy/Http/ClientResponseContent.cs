@@ -1,7 +1,7 @@
 ﻿using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO.Streaming;
 
-namespace GenHTTP.Modules.ReverseProxy.Provider;
+namespace GenHTTP.Modules.ReverseProxy.Http;
 
 internal sealed class ClientResponseContent(HttpResponseMessage message) : IResponseContent, IDisposable
 {
