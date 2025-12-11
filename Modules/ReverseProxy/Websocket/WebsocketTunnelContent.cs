@@ -22,6 +22,8 @@ public sealed class WebsocketTunnelContent : IResponseContent
 
     public async ValueTask WriteAsync(Stream downstreamStream, uint bufferSize)
     {
+        await downstreamStream.FlushAsync();
+        
         Console.WriteLine("Tunnel established!");
         
         // Manage the tunnel lifetime and logic
