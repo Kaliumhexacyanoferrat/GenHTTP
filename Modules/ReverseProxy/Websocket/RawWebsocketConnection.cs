@@ -3,8 +3,24 @@ using System.IO.Pipelines;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.ReverseProxy.Websocket;
+
+/* TLDR:
+   RawWebsocketConnection is a small helper around a raw TCP Socket that knows how to connect to a ws:// or wss:// URL, 
+   wrap it in the right stream, and perform the HTTP upgrade handshake using System.IO.Pipelines. 
+   In the constructor it parses the URL into host, port, whether the port is default, whether the connection is 
+   secure (wss/https → SslStream), and the route (path without query params). InitializeStream connects the socket, 
+   builds a NetworkStream, optionally upgrades it to an SslStream for secure endpoints, and then creates a DuplexPipe (pipe reader/writer) 
+   over that stream with configurable RX/TX buffer sizes. TryUpgrade then builds a WebSocket upgrade GET request by 
+   hand (including a correct Host header that omits the port when it’s the default), writes it to the pipe, and loops reading 
+   from the input pipe until it finds the HTTP header terminator \r\n\r\n. Once it has the full response headers, it checks whether 
+   the status line starts with HTTP/1.1 101 to decide if the upgrade succeeded. The method uses the PipeReader contract correctly 
+   by always calling AdvanceTo in a finally block, and it throws if the connection closes before the full handshake arrives. Finally, 
+   DisposeAsync cleans up the pipe, the underlying stream, and the socket, so the class encapsulates the entire lifecycle of a 
+   single raw WebSocket client connection.
+ */
 
 public sealed class RawWebsocketConnection : IAsyncDisposable
 {
@@ -13,14 +29,15 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
     private readonly bool _secure; // wss - ws
     private readonly string _host;
     private readonly int _port;
-    private readonly string _route; // path, no query params
+    private readonly bool _isDefaultPort;
+    private readonly string _route;
 
     private readonly int _rxMaxBufferSize;
     private readonly int _txMaxBufferSize;
 
     private const string Crlf = "\r\n";
 
-    public Stream? Stream { get; private set; }
+    private Stream? _stream { get; set; }
 
     public DuplexPipe? Pipe { get; private set; }
 
@@ -28,7 +45,7 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
     {
         _rxMaxBufferSize = rxMaxBufferSize;
         _txMaxBufferSize = txMaxBufferSize;
-        (_host, _port, _secure, _route) = GetHostPortAndSecurity(url);
+        (_host, _port, _isDefaultPort, _secure, _route) = GetHostPortAndSecurity(url);
 
         _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         _socket.NoDelay = true;
@@ -38,22 +55,22 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
     {
         await _socket.ConnectAsync(_host, _port);
 
-        Stream = new NetworkStream(_socket, ownsSocket: true);
+        _stream = new NetworkStream(_socket, ownsSocket: true);
 
         if (_secure)
         {
-            var sslStream = new SslStream(Stream, false);
+            var sslStream = new SslStream(_stream, false);
             await sslStream.AuthenticateAsClientAsync(_host);
-            Stream = sslStream;
+            _stream = sslStream;
         }
 
-        Pipe = new DuplexPipe(PipeReader.Create(Stream,
+        Pipe = new DuplexPipe(PipeReader.Create(_stream,
                                                 new StreamPipeReaderOptions(
                                                     MemoryPool<byte>.Shared,
                                                     leaveOpen: true,
                                                     bufferSize: _rxMaxBufferSize,
                                                     minimumReadSize: Math.Min(_rxMaxBufferSize / 4, 1024))),
-                              PipeWriter.Create(Stream,
+                              PipeWriter.Create(_stream,
                                                 new StreamPipeWriterOptions(
                                                     MemoryPool<byte>.Shared,
                                                     leaveOpen: true,
@@ -61,7 +78,7 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
     }
 
     public async Task<bool> TryUpgrade(
-        IReadOnlyDictionary<string, string> clientHeaders,
+        IRequest request,
         CancellationToken token = default)
     {
         if (Pipe is null)
@@ -79,11 +96,11 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
             // Host: {_host}:{_port}\r\n
             .Append("Host: ")
             .Append(_host)
-            .Append(':')
-            .Append(_port)
-            .Append(Crlf);
+            .Append(':');
+        if (!_isDefaultPort) upgradeRequestSb.Append(_port);
+        upgradeRequestSb.Append(Crlf);
 
-        foreach (var header in clientHeaders)
+        foreach (var header in request.Headers)
         {
             if (header.Key.Equals("Host", StringComparison.OrdinalIgnoreCase))
                 continue;
@@ -101,7 +118,7 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
         await Pipe.Output.WriteAsync(Encoding.UTF8.GetBytes(upgradeRequestSb.ToString()), token);
 
         // Read the handshake response until \r\n\r\n
-        while (true)
+        while (request.Server.Running)
         {
             var result = await Pipe.Input.ReadAsync(token);
             var buffer = result.Buffer;
@@ -124,11 +141,10 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
                         "\r\n\r\n"u8,
                         advancePastDelimiter: true))
                 {
-                    consumed = sequenceReader.Position; // consumed up to here
-                    examined = consumed;
+                    examined = consumed = sequenceReader.Position; // consumed up to here
 
                     // Validate status line + headers
-                    var headersText = Encoding.ASCII.GetString(headersSequence.ToArray());
+                    var headersText = Encoding.UTF8.GetString(headersSequence.ToArray());
 
                     return headersText.StartsWith("HTTP/1.1 101", StringComparison.Ordinal);
                 }
@@ -142,21 +158,23 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
             }
             finally
             {
-                // TODO: Does it make sense to advance in case of exception?
                 Pipe.Input.AdvanceTo(consumed, examined);
             }
         }
+
+        // Server not running, aborted
+        return false;
     }
 
-    private static (string host, int port, bool secure, string route) GetHostPortAndSecurity(string url)
+    private static (string host, int port, bool isDefaultPort, bool secure, string route) GetHostPortAndSecurity(string url)
     {
         if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
             throw new ArgumentException($"Invalid URL: {url}", nameof(url));
 
-        bool secure = uri.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase) ||
-            uri.Scheme.Equals("wss", StringComparison.OrdinalIgnoreCase);
+        var secure = uri.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase) ||
+                     uri.Scheme.Equals("wss", StringComparison.OrdinalIgnoreCase);
 
-        int port = !uri.IsDefaultPort
+        var port = !uri.IsDefaultPort
             ? uri.Port
             : uri.Scheme.ToLowerInvariant() switch
             {
@@ -166,11 +184,10 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
                 "ws" => 80,
                 _ => 0
             };
+        
+        var route = string.IsNullOrEmpty(uri.PathAndQuery) ? "/" : uri.PathAndQuery;
 
-        // Extract only the path, ensure at least "/"
-        string route = string.IsNullOrEmpty(uri.AbsolutePath) ? "/" : uri.AbsolutePath;
-
-        return (uri.Host, port, secure, route);
+        return (uri.Host, port, uri.IsDefaultPort, secure, route);
     }
 
     public async ValueTask DisposeAsync()
@@ -178,8 +195,8 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
         if (Pipe is not null)
             await Pipe.DisposeAsync();
 
-        if (Stream is not null)
-            await Stream.DisposeAsync();
+        if (_stream is not null)
+            await _stream.DisposeAsync();
 
         _socket.Dispose();
     }

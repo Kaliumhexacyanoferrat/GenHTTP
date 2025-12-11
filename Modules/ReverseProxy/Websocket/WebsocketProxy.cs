@@ -26,7 +26,7 @@ public sealed class WebsocketProxy : IHandler
         
         try
         {
-            if (!await upstreamConnection.TryUpgrade(request.Headers, token: upgradeCts.Token))
+            if (!await upstreamConnection.TryUpgrade(request, token: upgradeCts.Token))
             {
                 throw new InvalidOperationException("Failed to upgrade upstream.");
             }
