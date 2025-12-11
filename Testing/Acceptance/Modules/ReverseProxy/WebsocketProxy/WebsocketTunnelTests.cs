@@ -1,5 +1,6 @@
 using System.Net.WebSockets;
 using System.Text;
+
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.ReverseProxy;
 
@@ -49,29 +50,27 @@ public class WebsocketTunnelTests
         {
             var upstreamServer = new TestHost(Layout.Create().Build(), false);
 
-            // TODO: This logic should be replaced with new websocket module when available
-            await upstreamServer.Host.Handler(GenHTTP.Modules.Websockets.Websocket.Create()
-                    .OnOpen(connection =>
+            await upstreamServer.Host.Handler(GenHTTP.Modules.Websockets.Websocket.Functional()
+                    .OnConnected(_ =>
                     {
                         Console.WriteLine("[Upstream] - Connected");
-                        return Task.CompletedTask;
+                        return ValueTask.CompletedTask;
                     })
                     .OnMessage(async (connection, message) =>
                     {
                         Console.WriteLine($"[Upstream] - Echoing: {message}");
-                        await connection.SendAsync(message);
+                        await connection.WriteAsync(message.Data);
                     })
-                    .OnClose(connection =>
+                    .OnClose((_, __) =>
                     {
                         Console.WriteLine("[Upstream] - Closed");
-                        return Task.CompletedTask;
+                        return ValueTask.CompletedTask;
                     }))
                     .StartAsync();
 
             // proxying server
             var proxy = Proxy.Create()
                 .Upstream("http://localhost:" + upstreamServer.Port);
-                //.Upstream("wss://ws.postman-echo.com/raw");
 
             var runner = new TestHost(Layout.Create().Build());
 

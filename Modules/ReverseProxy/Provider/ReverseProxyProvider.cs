@@ -8,13 +8,13 @@ namespace GenHTTP.Modules.ReverseProxy.Provider;
 
 public sealed class ReverseProxyProvider : IHandler
 {
-    
+
     #region Get-/Setters
 
     private HttpProxy HttpProxy { get; }
 
     private WebsocketProxy WebsocketProxy { get; }
-    
+
     #endregion
 
     #region Initialization
@@ -31,23 +31,12 @@ public sealed class ReverseProxyProvider : IHandler
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        try
+        if (request.Headers.TryGetValue("Upgrade", out var upgradeHeader) && upgradeHeader == "websocket")
         {
-            if (request.Headers.TryGetValue("Upgrade", out var upgradeHeader) && upgradeHeader == "websocket")
-            {
-                return WebsocketProxy.HandleAsync(request);
-            }
-            
-            return HttpProxy.HandleAsync(request);
+            return WebsocketProxy.HandleAsync(request);
         }
-        catch (OperationCanceledException e)
-        {
-            throw new ProviderException(ResponseStatus.GatewayTimeout, "The gateway did not respond in time.", e);
-        }
-        catch (HttpRequestException e)
-        {
-            throw new ProviderException(ResponseStatus.BadGateway, "Unable to retrieve a response from the gateway.", e);
-        }
+
+        return HttpProxy.HandleAsync(request);
     }
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;

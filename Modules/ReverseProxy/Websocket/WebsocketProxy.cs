@@ -1,39 +1,37 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Websockets.Protocol;
 using GenHTTP.Modules.Websockets.Provider;
 
 namespace GenHTTP.Modules.ReverseProxy.Websocket;
 
-public sealed class WebsocketProxy : IHandler
+public sealed class WebsocketProxy(string upstream) : IHandler
 {
-    private readonly string _upstream;
+    private const int ConnectionTimeout = 100_000; // same as HttpClient
     
-    public WebsocketProxy(string upstream)
-    {
-        _upstream = upstream;
-    }
-    
+    #region Functionality
+
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var upstreamConnection = new RawWebsocketConnection(_upstream);
-        
+        var upstreamConnection = new RawWebsocketConnection(upstream);
+
         await upstreamConnection.InitializeStream();
-        
-        using var upgradeCts = new CancellationTokenSource(5000);
-        
+
+        using var upgradeCts = new CancellationTokenSource(ConnectionTimeout);
+
         try
         {
-            if (!await upstreamConnection.TryUpgrade(request, token: upgradeCts.Token))
-            {
-                return request
-                    .Respond()
-                    .Status(ResponseStatus.BadGateway)
-                    .Build();
-            }
+            await upstreamConnection.TryUpgrade(request, token: upgradeCts.Token);
+        }
+        catch (ProviderException)
+        {
+            throw;
+        }
+        catch (TaskCanceledException)
+        {
+            throw new ProviderException(ResponseStatus.GatewayTimeout, "Connection to the upstream host timed out.");
         }
         catch (Exception e)
         {
@@ -41,8 +39,10 @@ public sealed class WebsocketProxy : IHandler
         }
 
         var websocketHandler = new WebsocketHandler(_ => new WebsocketTunnelContent(upstreamConnection));
-        
+
         return await websocketHandler.HandleAsync(request);
     }
+
+    #endregion
     
 }

@@ -3,6 +3,8 @@ using System.IO.Pipelines;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.ReverseProxy.Websocket;
@@ -21,7 +23,6 @@ namespace GenHTTP.Modules.ReverseProxy.Websocket;
    DisposeAsync cleans up the pipe, the underlying stream, and the socket, so the class encapsulates the entire lifecycle of a 
    single raw WebSocket client connection.
  */
-
 public sealed class RawWebsocketConnection : IAsyncDisposable
 {
     private readonly Socket _socket;
@@ -37,10 +38,16 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
 
     private const string Crlf = "\r\n";
 
-    private Stream? _stream { get; set; }
+    #region Get-/Setters
+    
+    private Stream? Stream { get; set; }
 
     public DuplexPipe? Pipe { get; private set; }
 
+    #endregion
+    
+    #region Initialization
+    
     public RawWebsocketConnection(string url, int rxMaxBufferSize = 4096 * 4, int txMaxBufferSize = 4096)
     {
         _rxMaxBufferSize = rxMaxBufferSize;
@@ -55,31 +62,33 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
     {
         await _socket.ConnectAsync(_host, _port);
 
-        _stream = new NetworkStream(_socket, ownsSocket: true);
+        Stream = new NetworkStream(_socket, ownsSocket: true);
 
         if (_secure)
         {
-            var sslStream = new SslStream(_stream, false);
+            var sslStream = new SslStream(Stream, false);
             await sslStream.AuthenticateAsClientAsync(_host);
-            _stream = sslStream;
+            Stream = sslStream;
         }
 
-        Pipe = new DuplexPipe(PipeReader.Create(_stream,
+        Pipe = new DuplexPipe(PipeReader.Create(Stream,
                                                 new StreamPipeReaderOptions(
                                                     MemoryPool<byte>.Shared,
                                                     leaveOpen: true,
                                                     bufferSize: _rxMaxBufferSize,
                                                     minimumReadSize: Math.Min(_rxMaxBufferSize / 4, 1024))),
-                              PipeWriter.Create(_stream,
+                              PipeWriter.Create(Stream,
                                                 new StreamPipeWriterOptions(
                                                     MemoryPool<byte>.Shared,
                                                     leaveOpen: true,
                                                     minimumBufferSize: _txMaxBufferSize)));
     }
+    
+    #endregion
+    
+    #region Functionality
 
-    public async Task<bool> TryUpgrade(
-        IRequest request,
-        CancellationToken token = default)
+    public async Task TryUpgrade(IRequest request, CancellationToken token = default)
     {
         if (Pipe is null)
         {
@@ -87,6 +96,7 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
         }
 
         var upgradeRequestSb = new StringBuilder();
+        
         upgradeRequestSb
              // GET {_route} HTTP/1.1\r\n
             .Append("GET ")
@@ -95,9 +105,14 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
             .Append(Crlf)
             // Host: {_host}:{_port}\r\n
             .Append("Host: ")
-            .Append(_host)
-            .Append(':');
-        if (!_isDefaultPort) upgradeRequestSb.Append(_port);
+            .Append(_host);
+        
+        if (!_isDefaultPort)
+        {
+            upgradeRequestSb.Append(':');
+            upgradeRequestSb.Append(_port);
+        }
+        
         upgradeRequestSb.Append(Crlf);
 
         foreach (var header in request.Headers)
@@ -125,34 +140,26 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
 
             if (result.IsCompleted && buffer.Length == 0)
             {
-                throw new InvalidOperationException(
-                    "Connection closed before full WebSocket handshake was received.");
+                throw new ProviderException(ResponseStatus.BadGateway, "Connection closed before full WebSocket handshake was received.");
             }
 
             var sequenceReader = new SequenceReader<byte>(buffer);
 
-            SequencePosition consumed = buffer.Start;
-            SequencePosition examined = buffer.End;
+            var consumed = buffer.Start;
+            var examined = buffer.End;
 
             try
             {
-                if (sequenceReader.TryReadTo(
-                        out ReadOnlySequence<byte> headersSequence,
-                        "\r\n\r\n"u8,
-                        advancePastDelimiter: true))
+                if (sequenceReader.TryReadTo(out ReadOnlySequence<byte> _, "\r\n\r\n"u8, advancePastDelimiter: true))
                 {
                     examined = consumed = sequenceReader.Position; // consumed up to here
-
-                    // Validate status line + headers
-                    var headersText = Encoding.UTF8.GetString(headersSequence.ToArray());
-
-                    return headersText.StartsWith("HTTP/1.1 101", StringComparison.Ordinal);
+                    return;
                 }
                 else
                 {
                     if (result.IsCompleted)
                     {
-                        throw new InvalidOperationException("Connection closed before full WebSocket handshake was received.");
+                        throw new ProviderException(ResponseStatus.BadGateway, "Connection closed before full WebSocket handshake was received.");
                     }
                 }
             }
@@ -161,9 +168,6 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
                 Pipe.Input.AdvanceTo(consumed, examined);
             }
         }
-
-        // Server not running, aborted
-        return false;
     }
 
     private static (string host, int port, bool isDefaultPort, bool secure, string route) GetHostPortAndSecurity(string url)
@@ -193,12 +197,18 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         if (Pipe is not null)
+        {
             await Pipe.DisposeAsync();
+        }
 
-        if (_stream is not null)
-            await _stream.DisposeAsync();
-
+        if (Stream is not null)
+        {
+            await Stream.DisposeAsync();
+        }
+        
         _socket.Dispose();
     }
+    
+    #endregion
     
 }
