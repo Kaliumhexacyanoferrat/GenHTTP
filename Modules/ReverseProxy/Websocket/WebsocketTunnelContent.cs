@@ -34,8 +34,6 @@ public sealed class WebsocketTunnelContent : IResponseContent
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
         await target.FlushAsync();
-        
-        // TODO: Manage the tunnel lifetime and logic, inject the parameters..
 
         const int rxMaxBufferSize = 4096 * 4;
         const int txMaxBufferSize = 4096 * 4;
