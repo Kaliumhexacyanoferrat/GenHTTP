@@ -7,7 +7,7 @@ namespace GenHTTP.Modules.ReverseProxy.Websocket;
 
 public sealed class WebsocketTunnelContent : IResponseContent
 {
-    private readonly IDuplexPipe _upstreamPipe;
+    private readonly DuplexPipe _upstreamPipe;
  
     private readonly RawWebsocketConnection _rawWebsocketConnection;
 
