@@ -55,6 +55,8 @@
                           OutputItemType="Analyzer"
                           ReferenceOutputAssembly="false" />
         
+        <Analyzer Include="$(NuGetPackageRoot)scriban\6.5.2\lib\netstandard2.0\Scriban.dll" />
+        
     </ItemGroup>
 
 </Project>
