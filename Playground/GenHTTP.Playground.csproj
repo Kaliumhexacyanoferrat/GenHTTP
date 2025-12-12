@@ -7,6 +7,9 @@
 
         <IsPackable>false</IsPackable>
 
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)\Generated</CompilerGeneratedFilesOutputPath>
+        
     </PropertyGroup>
 
     <ItemGroup>
@@ -47,6 +50,11 @@
         <ProjectReference Include="..\Modules\Websockets\GenHTTP.Modules.Websockets.csproj"/>
         <ProjectReference Include="..\Modules\I18n\GenHTTP.Modules.I18n.csproj" />
 
+        <ProjectReference Include="..\Modules\Functional.CodeGen\GenHTTP.Modules.Functional.CodeGen.csproj"
+                          PrivateAssets="all"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false" />
+        
     </ItemGroup>
 
 </Project>

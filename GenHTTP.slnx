@@ -11,6 +11,8 @@
     <Project Path="Engine\Shared\GenHTTP.Engine.Shared.csproj" />
   </Folder>
   <Folder Name="/Modules/">
+    <Project Path="Modules/CodeGen/GenHTTP.Modules.CodeGen.csproj" />
+    <Project Path="Modules/Functional.CodeGen/GenHTTP.Modules.Functional.CodeGen.csproj" />
     <Project Path="Modules\ApiBrowsing\GenHTTP.Modules.ApiBrowsing.csproj" />
     <Project Path="Modules\Authentication\GenHTTP.Modules.Authentication.csproj" />
     <Project Path="Modules\Redirects\GenHTTP.Modules.Redirects.csproj" />
