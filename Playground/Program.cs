@@ -1,9 +1,10 @@
 ﻿using GenHTTP.Engine.Internal;
 using GenHTTP.Modules.Functional;
-using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Practices;
 
-var content = Inline.Create().Get(() => "Hello World!");
+var content = Inline.Create()
+                    .Get(() => "Hello World!")
+                    .BuildAs("identifier");
 
 await Host.Create()
     .Handler(content)

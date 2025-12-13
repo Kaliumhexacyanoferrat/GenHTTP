@@ -5,12 +5,13 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Serializers;
+using GenHTTP.Modules.Functional.CodeGen;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Injectors;
 
 namespace GenHTTP.Modules.Functional.Provider;
 
-public class InlineBuilder : IHandlerBuilder<InlineBuilder>, IRegistryBuilder<InlineBuilder>
+public class InlineBuilder: IHandlerBuilder<InlineBuilder>, IRegistryBuilder<InlineBuilder>
 {
     private static readonly HashSet<FlexibleRequestMethod> AllMethods = [..Enum.GetValues<RequestMethod>().Select(FlexibleRequestMethod.Get)];
 
@@ -24,6 +25,8 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>, IRegistryBuilder<In
 
     private IBuilder<SerializationRegistry>? _serializers;
 
+    private string? _identifier;
+    
     #region Functionality
 
     /// <summary>
@@ -158,6 +161,12 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>, IRegistryBuilder<In
         return this;
     }
 
+    public InlineBuilder Identifier(string identifier)
+    {
+        _identifier = identifier;
+        return this;
+    }
+
     public InlineBuilder Add(IConcernBuilder concern)
     {
         _concerns.Add(concern);
@@ -174,7 +183,21 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>, IRegistryBuilder<In
 
         var extensions = new MethodRegistry(serializers, injectors, formatters);
 
+        if (_identifier != null)
+        {
+            if (HandlerRegistry.TryGet(_identifier, extensions, out var handler))
+            {
+                return Concerns.Chain(_concerns, handler);
+            }
+        }
+        
         return Concerns.Chain(_concerns, new InlineHandler(_functions, extensions));
+    }
+
+    public IHandler BuildAs(string identifier)
+    {
+        Identifier(identifier);
+        return Build();
     }
 
     #endregion

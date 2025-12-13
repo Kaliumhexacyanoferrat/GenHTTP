@@ -1,4 +1,5 @@
-﻿using GenHTTP.Modules.Functional.Provider;
+﻿using System.Runtime.CompilerServices;
+using GenHTTP.Modules.Functional.Provider;
 
 namespace GenHTTP.Modules.Functional;
 
@@ -10,4 +11,5 @@ public static class Inline
     /// which are executed to respond to incoming requests.
     /// </summary>
     public static InlineBuilder Create() => new();
+    
 }
