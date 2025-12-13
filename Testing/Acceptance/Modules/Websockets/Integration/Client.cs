@@ -9,7 +9,7 @@ public static class Client
 {
     public static async ValueTask Execute(int port)
     {
-        using var cts = new CancellationTokenSource(2000);
+        using var cts = new CancellationTokenSource(4000);
         var token = cts.Token;
 
         var client = new ClientWebSocket();
