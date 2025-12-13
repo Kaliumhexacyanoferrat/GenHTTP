@@ -1,12 +1,12 @@
 ﻿using System.Reflection;
+using System.Reflection.Metadata;
 using System.Runtime.ExceptionServices;
 using System.Text.RegularExpressions;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
-
 using GenHTTP.Modules.Conversion.Serializers.Forms;
+using GenHTTP.Modules.Reflection.Generation;
 using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Reflection;
@@ -22,6 +22,8 @@ namespace GenHTTP.Modules.Reflection;
 public sealed class MethodHandler : IHandler
 {
     private static readonly Dictionary<string, object?> NoArguments = [];
+
+    private Func<object, IRequest, MethodRegistry, ValueTask<IResponse?>>? _compiledDelegate;
 
     #region Get-/Setters
 
@@ -61,8 +63,22 @@ public sealed class MethodHandler : IHandler
 
     #region Functionality
 
+    public ValueTask PrepareAsync()
+    {
+        _compiledDelegate = OptimizedDelegate.Compile(Operation);
+
+        return ValueTask.CompletedTask;
+    }
+
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
+        if (_compiledDelegate != null)
+        {
+            var instance = await InstanceProvider(request);
+
+            return await _compiledDelegate!(instance, request, Registry);
+        }
+
         var arguments = await GetArguments(request);
 
         var interception = await InterceptAsync(request, arguments);
@@ -74,7 +90,7 @@ public sealed class MethodHandler : IHandler
 
         var result = await InvokeAsync(request, arguments.Values.ToArray());
 
-        return await ResponseProvider.GetResponseAsync(request, Operation, await UnwrapAsync(result), null);
+        return await ResponseProvider.GetResponseAsync(request, Operation, await UnwrapAsync(result));
     }
 
     private async ValueTask<IReadOnlyDictionary<string, object?>> GetArguments(IRequest request)
@@ -125,8 +141,6 @@ public sealed class MethodHandler : IHandler
 
         return NoArguments;
     }
-
-    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
     private async ValueTask<IResponse?> InterceptAsync(IRequest request, IReadOnlyDictionary<string, object?> arguments)
     {
