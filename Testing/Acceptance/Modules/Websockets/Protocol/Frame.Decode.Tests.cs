@@ -164,7 +164,7 @@ public sealed class Frame_Decode_Tests
 
         Assert.AreEqual(FrameType.Text, result.Type);
         Assert.IsTrue(result.Fin);
-        Assert.AreEqual(payloadString, result.DataAsString);
+        Assert.AreEqual(payloadString, result.DataAsString());
 
         // Full frame consumed
         Assert.AreEqual(sequence.End, consumed);
@@ -203,7 +203,7 @@ public sealed class Frame_Decode_Tests
         var result = Frame.Decode(ref readResult, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
         Assert.AreEqual(FrameType.Close, result.Type);
-        Assert.AreEqual("Close frame received. Code: 1000, Reason: Bye", result.DataAsString);
+        Assert.AreEqual("Close frame received. Code: 1000, Reason: Bye", result.DataAsString());
 
         Assert.AreEqual(sequence.End, consumed);
         Assert.AreEqual(sequence.End, examined);

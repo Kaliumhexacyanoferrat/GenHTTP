@@ -9,5 +9,6 @@ public enum FrameErrorType
     InvalidControlFrame,
     InvalidControlFrameLength,
     Canceled,
-    IncompleteForever // PipeReader completed without a full frame
+    IncompleteForever, // PipeReader completed without a full frame
+    UndefinedBehavior
 }

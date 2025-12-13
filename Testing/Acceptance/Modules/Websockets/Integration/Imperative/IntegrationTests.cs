@@ -47,6 +47,8 @@ public sealed class IntegrationTests
             
                 while (connection.Request.Server.Running)
                 {
+                    connection.Consume();
+                    
                     var frame = await connection.ReadFrameAsync();
 
                     if (frame.Type == FrameType.Error)
@@ -87,6 +89,8 @@ public sealed class IntegrationTests
             {
                 while (connection.Request.Server.Running)
                 {
+                    connection.Consume();
+                    
                     var frame = await connection.ReadFrameAsync();
 
                     if (frame.Type == FrameType.Error)

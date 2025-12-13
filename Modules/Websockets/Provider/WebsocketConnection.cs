@@ -13,6 +13,9 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
     private readonly PipeReader _pipeReader;
     private readonly int _rxMaxBufferSize;
 
+    private SequencePosition _consumed;
+    private SequencePosition _examined;
+
     #region Get-/Setters
 
     public IRequest Request { get; }
@@ -101,20 +104,18 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
             if (result.IsCanceled)
             {
                 return new WebsocketFrame(
-                    ReadOnlyMemory<byte>.Empty,
-                    FrameType.Error,
-                    FrameError: new FrameError("Read was canceled", FrameErrorType.Canceled));
+                    frameError: new FrameError(FrameError.ReadCanceled, FrameErrorType.Canceled));
             }
 
             if (buffer.Length == 0 && result.IsCompleted) // Clean EOF: no more data, reader completed
             {
-                _pipeReader.AdvanceTo(buffer.Start, buffer.End);
-                return new WebsocketFrame(ReadOnlyMemory<byte>.Empty, FrameType.Close);
+                _pipeReader.AdvanceTo(buffer.End, buffer.End);
+                return new WebsocketFrame(FrameType.Close);
             }
 
             var frame = Frame.Decode(ref result, _rxMaxBufferSize, out var consumed, out var examined);
-
-            _pipeReader.AdvanceTo(consumed, examined);
+            _consumed = consumed;
+            _examined = examined;
 
             // Need more data for a complete frame
             if (frame.Type == FrameType.Error &&
@@ -122,11 +123,19 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
             {
                 if (result.IsCompleted)
                 {
+                    // Advance the reader to the end, it is completed and there is no more data
+                    // The partial data of the request is therefore discarded
+                    
+                    // Dev note: Should we eventually still give the user the partial data received?
+                    _pipeReader.AdvanceTo(buffer.End, buffer.End);
+                    
                     return new WebsocketFrame(
-                        ReadOnlyMemory<byte>.Empty,
-                        FrameType.Error,
-                        FrameError: new FrameError("Unexpected end of stream while reading WebSocket frame.", FrameErrorType.IncompleteForever));
+                        frameError: new FrameError(FrameError.UnexpectedEndOfStream, FrameErrorType.IncompleteForever));
                 }
+                
+                // Advance examined portion to ensure the PipeReader reads new data in case of incomplete request.
+                // Consumed should remain at buffer start until Consume() is called to keep data valid
+                _pipeReader.AdvanceTo(result.Buffer.Start, examined);
 
                 continue;  // read more data
             }
@@ -135,6 +144,9 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
             return frame;
         }
     }
+
+    public void Consume() => _pipeReader.AdvanceTo(_consumed, _examined);
+    
 
     public async ValueTask DisposeAsync()
     {

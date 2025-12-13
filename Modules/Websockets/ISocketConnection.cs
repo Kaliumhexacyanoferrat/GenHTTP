@@ -46,6 +46,8 @@ public interface ISocketConnection
     /// <param name="token">A token which can be used to cancel the sending process</param>
     ValueTask PongAsync(CancellationToken token = default);
 
+    void Consume();
+
     /// <summary>
     /// Closes the web socket connection. After this method has been called,
     /// the connection can no longer be used to send frames.
