@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Reflection.Metadata;
 using System.Runtime.ExceptionServices;
 using System.Text.RegularExpressions;
 using GenHTTP.Api.Content;
@@ -23,7 +22,9 @@ public sealed class MethodHandler : IHandler
 {
     private static readonly Dictionary<string, object?> NoArguments = [];
 
-    private Func<object, IRequest, MethodRegistry, ValueTask<IResponse?>>? _compiledDelegate;
+    private Func<object, IRequest, MethodRegistry, ValueTask<IResponse?>>? _compiledMethod;
+
+    private Func<Delegate, IRequest, MethodRegistry, ValueTask<IResponse?>>? _compiledDelegate;
 
     #region Get-/Setters
 
@@ -65,20 +66,54 @@ public sealed class MethodHandler : IHandler
 
     public ValueTask PrepareAsync()
     {
-        _compiledDelegate = OptimizedDelegate.Compile(Operation);
+        if (OptimizedDelegate.Supported)
+        {
+            if (Operation.Delegate != null)
+            {
+                _compiledDelegate = OptimizedDelegate.Compile<Delegate>(Operation);
+            }
+            else
+            {
+                _compiledMethod = OptimizedDelegate.Compile<object>(Operation);
+            }
+        }
 
         return ValueTask.CompletedTask;
     }
 
-    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        if (_compiledDelegate != null)
+        if (OptimizedDelegate.Supported)
         {
-            var instance = await InstanceProvider(request);
+            if (Operation.Delegate != null)
+            {
+                return RunAsDelegate(request);
+            }
 
-            return await _compiledDelegate!(instance, request, Registry);
+            return RunAsMethod(request);
         }
 
+        return RunViaReflection(request);
+    }
+
+    private ValueTask<IResponse?> RunAsDelegate(IRequest request)
+    {
+        if (_compiledDelegate == null || Operation.Delegate == null) return default;
+
+        return _compiledDelegate(Operation.Delegate, request, Registry);
+    }
+
+    private async ValueTask<IResponse?> RunAsMethod(IRequest request)
+    {
+        if (_compiledMethod == null) return null;
+
+        var instance = await InstanceProvider(request);
+
+        return await _compiledMethod(instance, request, Registry);
+    }
+
+    private async ValueTask<IResponse?> RunViaReflection(IRequest request)
+    {
         var arguments = await GetArguments(request);
 
         var interception = await InterceptAsync(request, arguments);

@@ -25,10 +25,11 @@ public static partial class OperationBuilder
     /// </summary>
     /// <param name="definition">The path definition of the endpoint, e.g. "/users/:id"</param>
     /// <param name="method">The actual .NET method to be executed to retrieve a result</param>
+    /// <param name="del">If the method is defined by a delegate and not as an instance method, pass it here</param>
     /// <param name="registry">The customizable registry used to read and write data</param>
     /// <param name="forceTrailingSlash">If set to true, the operation requires the client to append a trailing slash to the path</param>
     /// <returns>The newly created operation</returns>
-    public static Operation Create(IRequest request, string? definition, MethodInfo method, MethodRegistry registry, bool forceTrailingSlash = false)
+    public static Operation Create(IRequest request, string? definition, MethodInfo method, Delegate? del, MethodRegistry registry, bool forceTrailingSlash = false)
     {
         var isWildcard = CheckWildcardRoute(method.ReturnType);
 
@@ -101,7 +102,7 @@ public static partial class OperationBuilder
 
         var interceptors = InterceptorAnalyzer.GetInterceptors(method);
 
-        return new Operation(method, path, result, arguments, interceptors);
+        return new Operation(method, del, path, result, arguments, interceptors);
     }
 
     private static bool CheckWildcardRoute(Type returnType)

@@ -73,14 +73,14 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 
         if (method.Name == "Index")
         {
-            return OperationBuilder.Create(request, pathArguments.Length > 0 ? $"/{pathArguments}/" : null, method, registry, true);
+            return OperationBuilder.Create(request, pathArguments.Length > 0 ? $"/{pathArguments}/" : null, method, null, registry, true);
         }
 
         var name = HypenCase(method.Name);
 
         var path = $"/{name}";
 
-        return OperationBuilder.Create(request, pathArguments.Length > 0 ? $"{path}/{pathArguments}/" : $"{path}/", method, registry, true);
+        return OperationBuilder.Create(request, pathArguments.Length > 0 ? $"{path}/{pathArguments}/" : $"{path}/", method, null, registry, true);
     }
 
     private static List<string> FindPathArguments(MethodInfo method)

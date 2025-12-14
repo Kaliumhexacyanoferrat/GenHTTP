@@ -1,10 +1,10 @@
 ﻿using GenHTTP.Engine.Internal;
-
+using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Practices;
 using GenHTTP.Modules.Webservices;
 
-var service = ServiceResource.From(new MyService());
+var service = Inline.Create().Get(() => "Hello World!");
 
 await Host.Create()
 <<<<<<< HEAD
@@ -21,7 +21,12 @@ public class MyService
 {
 
     [ResourceMethod]
-    public string Hello() => "Hello World!";
+    public MyData Hello() => new("Hello World!");
 
 }
+<<<<<<< HEAD
 >>>>>>> 9f59196e (Add support for compiled service methods)
+=======
+
+public record MyData(string Data);
+>>>>>>> 2e9361a1 (WIP)

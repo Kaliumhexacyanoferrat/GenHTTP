@@ -8,7 +8,9 @@ public static class OptimizedDelegate
 {
     private static readonly bool CompilationSupported = IsRuntimeCompilationSupported();
 
-    public static Func<object, IRequest, MethodRegistry, ValueTask<IResponse?>>? Compile(Operation operation)
+    public static bool Supported => CompilationSupported;
+    
+    public static Func<T, IRequest, MethodRegistry, ValueTask<IResponse?>>? Compile<T>(Operation operation)
     {
         if (!CompilationSupported) return null;
      
@@ -16,7 +18,7 @@ public static class OptimizedDelegate
         
         var code = CodeProvider.Generate(operation);
 
-        return DelegateProvider.Compile(code);
+        return DelegateProvider.Compile<T>(code);
     }
     
     private static bool IsRuntimeCompilationSupported()

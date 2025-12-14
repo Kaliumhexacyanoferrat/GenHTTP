@@ -44,7 +44,7 @@ public class InlineHandler : IHandler, IServiceMethodProvider
         {
             var method = function.Delegate.Method;
 
-            var operation = OperationBuilder.Create(request, function.Path, method, Registry);
+            var operation = OperationBuilder.Create(request, function.Path, method, function.Delegate, Registry);
 
             var target = function.Delegate.Target ?? throw new InvalidOperationException("Delegate target must not be null");
 

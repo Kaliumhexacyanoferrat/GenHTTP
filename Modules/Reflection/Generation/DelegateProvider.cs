@@ -10,7 +10,7 @@ namespace GenHTTP.Modules.Reflection.Generation;
 public static class DelegateProvider
 {
 
-    public static Func<object, IRequest, MethodRegistry, ValueTask<IResponse?>> Compile(string code)
+    public static Func<T, IRequest, MethodRegistry, ValueTask<IResponse?>> Compile<T>(string code)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(code);
 
@@ -42,8 +42,8 @@ public static class DelegateProvider
         var type = assembly.GetType("Invoker");
         var method = type!.GetMethod("Invoke")!;
 
-        return (Func<object, IRequest, MethodRegistry, ValueTask<IResponse?>>)Delegate.CreateDelegate(
-            typeof(Func<object, IRequest, MethodRegistry, ValueTask<IResponse?>>), method
+        return (Func<T, IRequest, MethodRegistry, ValueTask<IResponse?>>)Delegate.CreateDelegate(
+            typeof(Func<T, IRequest, MethodRegistry, ValueTask<IResponse?>>), method
         );
     }
     
