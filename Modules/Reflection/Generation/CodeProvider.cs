@@ -1,4 +1,5 @@
 using System.Text;
+
 using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Reflection.Generation;
@@ -36,11 +37,6 @@ public static class CodeProvider
 
         sb.AppendLine("    {");
 
-        if (operation.Delegate == null)
-        {
-            sb.AppendInstanceCreation(operation);
-        }
-
         sb.AppendInvocation(operation);
 
         sb.AppendResultConversion(operation, isAsync);
@@ -58,100 +54,5 @@ public static class CodeProvider
     {
         return operation.Result.Sink == OperationResultSink.Serializer;
     }
-
-    private static void AppendInstanceCreation(this StringBuilder sb, Operation operation)
-    {
-        // todo: what if we have null here? inline?
-        var typeName = operation.Method.DeclaringType!.Name;
-
-        sb.AppendLine($"        var typedInstance = ({typeName})instance;");
-        sb.AppendLine();
-    }
-
-    private static void AppendInvocation(this StringBuilder sb, Operation operation)
-    {
-        var arguments = string.Join(", ", operation.Arguments.Select(x => x.Key));
-        
-        if (operation.Delegate != null)
-        {
-            var type = (operation.Result.Sink == OperationResultSink.None) ? "Action" : "Func";
-            
-            var argumentTypes = new List<Type>(operation.Arguments.Select(x => x.Value.Type));
-
-            if (operation.Result.Sink != OperationResultSink.None)
-            {
-                argumentTypes.Add(operation.Result.Type);
-            }
-
-            var stringTypes = string.Join(", ", argumentTypes);
-            
-            sb.AppendLine($"        var typedLogic = ({type}<{stringTypes}>)logic;");
-            sb.AppendLine();
-            
-            sb.AppendLine($"        var result = typedLogic({arguments});");
-            
-            sb.AppendLine();
-        }
-        else
-        {
-            var methodName = operation.Method.Name;
-
-            sb.AppendLine($"        var result = typedInstance.{methodName}({arguments});");
-
-            sb.AppendLine();
-        }
-    }
-
-    private static void AppendResultConversion(this StringBuilder sb, Operation operation, bool isAsync)
-    {
-        switch (operation.Result.Sink)
-        {
-            case OperationResultSink.Formatter:
-                {
-                    sb.AppendFormattedResult(operation);
-                    break;
-                }
-            case OperationResultSink.Serializer:
-                {
-                    sb.AppendSerializedResult();
-                    break;
-                }
-            default: throw new NotSupportedException();
-        }
-
-        sb.AppendLine();
-
-        if (isAsync)
-        {
-            sb.AppendLine("        return response;");
-        }
-        else
-        {
-            sb.AppendLine("        return new(response);");
-        }
-    }
-
-    private static void AppendFormattedResult(this StringBuilder sb, Operation operation)
-    {
-        var type = operation.Result.Type;
-
-        if (type == typeof(string))
-        {
-            sb.AppendStringResult();
-        }
-        else
-        {
-            sb.AppendLine("        var response = request.Respond()");
-            sb.AppendLine("                              .Content(registry.Formatting.Write(result, result.GetType()) ?? string.Empty)");
-            sb.AppendLine("                              .Build();");
-        }
-    }
-
-    private static void AppendStringResult(this StringBuilder sb)
-    {
-        sb.AppendLine("        var response = request.Respond()");
-        sb.AppendLine("                              .Content(result)");
-        sb.AppendLine("                              .Build();");
-    }
-
+    
 }

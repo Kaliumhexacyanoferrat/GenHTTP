@@ -1,0 +1,38 @@
+using System.Text;
+using GenHTTP.Modules.Reflection.Operations;
+
+namespace GenHTTP.Modules.Reflection.Generation;
+
+public static class CodeProviderResultExtensions
+{
+    
+    public static void AppendResultConversion(this StringBuilder sb, Operation operation, bool isAsync)
+    {
+        switch (operation.Result.Sink)
+        {
+            case OperationResultSink.Formatter:
+                {
+                    sb.AppendFormattedResult(operation);
+                    break;
+                }
+            case OperationResultSink.Serializer:
+                {
+                    sb.AppendSerializedResult();
+                    break;
+                }
+            default: throw new NotSupportedException();
+        }
+
+        sb.AppendLine();
+
+        if (isAsync)
+        {
+            sb.AppendLine("        return response;");
+        }
+        else
+        {
+            sb.AppendLine("        return new(response);");
+        }
+    }
+    
+}
