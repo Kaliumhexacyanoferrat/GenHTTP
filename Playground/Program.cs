@@ -1,12 +1,23 @@
 ﻿using GenHTTP.Engine.Internal;
+
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
-using GenHTTP.Modules.Practices;
-using GenHTTP.Modules.Webservices;
+using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Reflection;
 
-var service = Inline.Create().Get(() => "Hello World!");
+var handler = Content.From(Resource.FromString("Hello World!"));
+
+var withCodeGen = Inline.Create().Get(() => "Hello World!").ExecutionMode(ExecutionMode.Auto);
+
+var withReflection = Inline.Create().Get(() => "Hello World!").ExecutionMode(ExecutionMode.Reflection);
+
+var app = Layout.Create()
+                .Add("handler", handler)
+                .Add("codegen", withCodeGen)
+                .Add("reflection", withReflection);
 
 await Host.Create()
+<<<<<<< HEAD
 <<<<<<< HEAD
           .Handler(content)
           .Defaults()
@@ -30,3 +41,7 @@ public class MyService
 
 public record MyData(string Data);
 >>>>>>> 2e9361a1 (WIP)
+=======
+          .Handler(app)
+          .RunAsync();
+>>>>>>> 5c3a20cf (Code gen improvements)

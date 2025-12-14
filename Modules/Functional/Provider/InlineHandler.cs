@@ -8,22 +8,28 @@ namespace GenHTTP.Modules.Functional.Provider;
 
 public class InlineHandler : IHandler, IServiceMethodProvider
 {
-    private MethodCollection? _methods;
-
+    
     #region Get-/Setters
 
     private List<InlineFunction> Functions { get; }
 
     private MethodRegistry Registry { get; }
+    
+    private ExecutionMode? ExecutionMode { get; }
 
+    public MethodCollectionFactory Methods { get; }
+    
     #endregion
 
     #region Initialization
 
-    public InlineHandler(List<InlineFunction> functions, MethodRegistry registry)
+    public InlineHandler(List<InlineFunction> functions, MethodRegistry registry, ExecutionMode? executionMode)
     {
         Functions = functions;
         Registry = registry;
+        ExecutionMode = executionMode;
+
+        Methods = new MethodCollectionFactory(GetMethodsAsync);
     }
 
     #endregion
@@ -32,19 +38,17 @@ public class InlineHandler : IHandler, IServiceMethodProvider
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-    public async ValueTask<IResponse?> HandleAsync(IRequest request) => await (await GetMethodsAsync(request)).HandleAsync(request);
+    public async ValueTask<IResponse?> HandleAsync(IRequest request) => await (await Methods.GetAsync(request)).HandleAsync(request);
 
-    public async ValueTask<MethodCollection> GetMethodsAsync(IRequest request)
+    private async Task<MethodCollection> GetMethodsAsync(IRequest request)
     {
-        if (_methods != null) return _methods;
-
         var found = new List<MethodHandler>();
 
         foreach (var function in Functions)
         {
             var method = function.Delegate.Method;
 
-            var operation = OperationBuilder.Create(request, function.Path, method, function.Delegate, Registry);
+            var operation = OperationBuilder.Create(request, function.Path, method, function.Delegate, ExecutionMode, Registry);
 
             var target = function.Delegate.Target ?? throw new InvalidOperationException("Delegate target must not be null");
 
@@ -57,7 +61,7 @@ public class InlineHandler : IHandler, IServiceMethodProvider
 
         await result.PrepareAsync();
 
-        return _methods = result;
+        return result;
     }
 
     #endregion

@@ -13,8 +13,6 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 {
     private static readonly Regex HyphenMatcher = CreateHyphenMatcher();
 
-    private MethodCollection? _methods;
-
     #region Get-/Setters
 
     private Type Type { get; }
@@ -23,15 +21,22 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 
     private MethodRegistry Registry { get; }
 
+    private ExecutionMode? ExecutionMode { get; }
+    
+    public MethodCollectionFactory Methods { get; }
+    
     #endregion
 
     #region Initialization
 
-    public ControllerHandler(Type type, Func<IRequest, ValueTask<object>> instanceProvider, MethodRegistry registry)
+    public ControllerHandler(Type type, Func<IRequest, ValueTask<object>> instanceProvider, ExecutionMode? executionMode, MethodRegistry registry)
     {
         Type = type;
         InstanceProvider = instanceProvider;
+        ExecutionMode = executionMode;
         Registry = registry;
+
+        Methods = new MethodCollectionFactory(GetMethodsAsync);
     }
 
     #endregion
@@ -40,22 +45,19 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-    public async ValueTask<IResponse?> HandleAsync(IRequest request) => await (await GetMethodsAsync(request)).HandleAsync(request);
+    public async ValueTask<IResponse?> HandleAsync(IRequest request) => await (await Methods.GetAsync(request)).HandleAsync(request);
 
-    public async ValueTask<MethodCollection> GetMethodsAsync(IRequest request)
+    private async Task<MethodCollection> GetMethodsAsync(IRequest request)
     {
-        if (_methods != null) return _methods;
-
         var found = new List<MethodHandler>();
-
-
+        
         foreach (var method in Type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
         {
             var annotation = method.GetCustomAttribute<ControllerActionAttribute>(true) ?? new MethodAttribute();
 
             var arguments = FindPathArguments(method);
 
-            var operation = CreateOperation(request, method, arguments, Registry);
+            var operation = CreateOperation(request, method, ExecutionMode, arguments, Registry);
 
             found.Add(new MethodHandler(operation, InstanceProvider, annotation, Registry));
         }
@@ -64,23 +66,23 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 
         await result.PrepareAsync();
 
-        return _methods = result;
+        return result;
     }
 
-    private static Operation CreateOperation(IRequest request, MethodInfo method, List<string> arguments, MethodRegistry registry)
+    private static Operation CreateOperation(IRequest request, MethodInfo method, ExecutionMode? executionMode, List<string> arguments, MethodRegistry registry)
     {
         var pathArguments = string.Join('/', arguments.Select(a => $":{a}"));
 
         if (method.Name == "Index")
         {
-            return OperationBuilder.Create(request, pathArguments.Length > 0 ? $"/{pathArguments}/" : null, method, null, registry, true);
+            return OperationBuilder.Create(request, pathArguments.Length > 0 ? $"/{pathArguments}/" : null, method, null, executionMode, registry, true);
         }
 
         var name = HypenCase(method.Name);
 
         var path = $"/{name}";
 
-        return OperationBuilder.Create(request, pathArguments.Length > 0 ? $"{path}/{pathArguments}/" : $"{path}/", method, null, registry, true);
+        return OperationBuilder.Create(request, pathArguments.Length > 0 ? $"{path}/{pathArguments}/" : $"{path}/", method, null, executionMode, registry, true);
     }
 
     private static List<string> FindPathArguments(MethodInfo method)

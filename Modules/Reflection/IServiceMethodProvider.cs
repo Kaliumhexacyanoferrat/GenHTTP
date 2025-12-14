@@ -11,8 +11,8 @@ public interface IServiceMethodProvider
 {
 
     /// <summary>
-    /// Retrieves the methods that are provided by this handler.
+    /// Allows to read or initialize a new method collection.
     /// </summary>
-    ValueTask<MethodCollection> GetMethodsAsync(IRequest request);
-
+    MethodCollectionFactory Methods { get; }
+    
 }

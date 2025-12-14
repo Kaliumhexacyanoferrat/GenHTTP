@@ -26,6 +26,8 @@ public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>, IReg
 
     private IBuilder<SerializationRegistry>? _serializers;
 
+    private ExecutionMode? _executionMode;
+    
     #region Functionality
 
     public ControllerBuilder Serializers(IBuilder<SerializationRegistry> registry)
@@ -69,6 +71,16 @@ public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>, IReg
         return this;
     }
 
+    /// <summary>
+    /// Sets the execution mode to be used to run functions.
+    /// </summary>
+    /// <param name="mode">The mode to be used for execution</param>
+    public ControllerBuilder ExecutionMode(ExecutionMode mode)
+    {
+        _executionMode = mode;
+        return this;
+    }
+    
     public ControllerBuilder Add(IConcernBuilder concern)
     {
         _concerns.Add(concern);
@@ -89,7 +101,7 @@ public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>, IReg
 
         var extensions = new MethodRegistry(serializers, injectors, formatters);
 
-        return Concerns.Chain(_concerns, new ControllerHandler(type, instanceProvider, extensions));
+        return Concerns.Chain(_concerns, new ControllerHandler(type, instanceProvider, _executionMode, extensions));
     }
 
     #endregion

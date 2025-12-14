@@ -66,7 +66,7 @@ public sealed class MethodHandler : IHandler
 
     public ValueTask PrepareAsync()
     {
-        if (OptimizedDelegate.Supported)
+        if (Operation.ExecutionMode == ExecutionMode.Auto && OptimizedDelegate.Supported)
         {
             if (Operation.Delegate != null)
             {
@@ -83,7 +83,7 @@ public sealed class MethodHandler : IHandler
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        if (OptimizedDelegate.Supported)
+        if (Operation.ExecutionMode == ExecutionMode.Auto && OptimizedDelegate.Supported)
         {
             if (Operation.Delegate != null)
             {

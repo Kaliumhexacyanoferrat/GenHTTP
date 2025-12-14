@@ -26,6 +26,8 @@ public sealed class ServiceResourceBuilder : IHandlerBuilder<ServiceResourceBuil
 
     private IBuilder<SerializationRegistry>? _serializers;
 
+    private ExecutionMode? _executionMode;
+    
     #region Functionality
 
     public ServiceResourceBuilder Type<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>() where T : new() => Instance(new T());
@@ -68,6 +70,16 @@ public sealed class ServiceResourceBuilder : IHandlerBuilder<ServiceResourceBuil
         return this;
     }
 
+    /// <summary>
+    /// Sets the execution mode to be used to run functions.
+    /// </summary>
+    /// <param name="mode">The mode to be used for execution</param>
+    public ServiceResourceBuilder ExecutionMode(ExecutionMode mode)
+    {
+        _executionMode = mode;
+        return this;
+    }
+    
     public ServiceResourceBuilder Add(IConcernBuilder concern)
     {
         _concerns.Add(concern);
@@ -88,7 +100,7 @@ public sealed class ServiceResourceBuilder : IHandlerBuilder<ServiceResourceBuil
 
         var extensions = new MethodRegistry(serializers, injectors, formatters);
 
-        return Concerns.Chain(_concerns,  new ServiceResourceRouter(type, instanceProvider, extensions));
+        return Concerns.Chain(_concerns,  new ServiceResourceRouter(type, instanceProvider, _executionMode, extensions));
     }
 
     #endregion

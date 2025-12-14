@@ -1,8 +1,6 @@
 ﻿using System.Reflection;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Operations;
 
@@ -10,7 +8,6 @@ namespace GenHTTP.Modules.Webservices.Provider;
 
 public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 {
-    private MethodCollection? _methods;
 
     #region Get-/Setters
 
@@ -20,15 +17,22 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 
     private MethodRegistry Registry { get; }
 
-     #endregion
+    private ExecutionMode? ExecutionMode { get; }
+
+    public MethodCollectionFactory Methods { get; }
+
+    #endregion
 
     #region Initialization
 
-    public ServiceResourceRouter(Type type, Func<IRequest, ValueTask<object>> instanceProvider, MethodRegistry registry)
+    public ServiceResourceRouter(Type type, Func<IRequest, ValueTask<object>> instanceProvider, ExecutionMode? mode, MethodRegistry registry)
     {
         Type = type;
         InstanceProvider = instanceProvider;
+        ExecutionMode = mode;
         Registry = registry;
+
+        Methods = new MethodCollectionFactory(GetMethodsAsync);
     }
 
     #endregion
@@ -37,12 +41,10 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-    public async ValueTask<IResponse?> HandleAsync(IRequest request) => await (await GetMethodsAsync(request)).HandleAsync(request);
+    public async ValueTask<IResponse?> HandleAsync(IRequest request) => await (await Methods.GetAsync(request)).HandleAsync(request);
 
-    public async ValueTask<MethodCollection> GetMethodsAsync(IRequest request)
+    private async Task<MethodCollection> GetMethodsAsync(IRequest request)
     {
-        if (_methods != null) return _methods;
-
         var found = new List<MethodHandler>();
 
         foreach (var method in Type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
@@ -51,7 +53,7 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 
             if (attribute is not null)
             {
-                var operation = OperationBuilder.Create(request, attribute.Path, method, null, Registry);
+                var operation = OperationBuilder.Create(request, attribute.Path, method, null, ExecutionMode, Registry);
 
                 found.Add(new MethodHandler(operation, InstanceProvider, attribute, Registry));
             }
@@ -61,7 +63,7 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 
         await result.PrepareAsync();
 
-        return _methods = result;
+        return result;
     }
 
     #endregion
