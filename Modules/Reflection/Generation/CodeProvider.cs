@@ -88,7 +88,7 @@ public static class CodeProvider
             sb.AppendLine($"        var typedLogic = ({type}<{stringTypes}>)logic;");
             sb.AppendLine();
             
-            sb.AppendLine("        var result = typedLogic(arguments);");
+            sb.AppendLine($"        var result = typedLogic({arguments});");
             
             sb.AppendLine();
         }
