@@ -1,6 +1,4 @@
-﻿using GenHTTP.Api.Protocol;
-
-namespace GenHTTP.Modules.Reflection;
+﻿namespace GenHTTP.Modules.Reflection;
 
 /// <summary>
 /// Implemented by handlers that use the <see cref="MethodCollection" /> handler

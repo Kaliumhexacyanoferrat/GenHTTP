@@ -29,17 +29,22 @@ public static class DelegateProvider
         );
 
         using var ms = new MemoryStream();
+        
         var result = compilation.Emit(ms);
 
         if (!result.Success)
         {
             var errors = string.Join(Environment.NewLine, result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error));
-            throw new Exception("Compilation failed: " + errors);
+            
+            throw new InvalidOperationException("Failed to compile handler:" + Environment.NewLine + Environment.NewLine + errors);
         }
 
         ms.Seek(0, SeekOrigin.Begin);
+        
         var assembly = Assembly.Load(ms.ToArray());
+        
         var type = assembly.GetType("Invoker");
+        
         var method = type!.GetMethod("Invoke")!;
 
         return (Func<T, IRequest, MethodRegistry, ValueTask<IResponse?>>)Delegate.CreateDelegate(

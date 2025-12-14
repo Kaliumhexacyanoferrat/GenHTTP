@@ -45,8 +45,6 @@ public static class CodeProvider
 
         sb.AppendLine("}");
 
-        var str = sb.ToString();
-
         return sb.ToString();
     }
 
