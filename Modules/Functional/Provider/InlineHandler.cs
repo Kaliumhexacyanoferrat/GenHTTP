@@ -6,9 +6,8 @@ using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Functional.Provider;
 
-public class InlineHandler : IHandler, IServiceMethodProvider
+public sealed class InlineHandler : IHandler, IServiceMethodProvider
 {
-    private MethodCollection? _methodCache;
 
     #region Get-/Setters
 
@@ -18,7 +17,7 @@ public class InlineHandler : IHandler, IServiceMethodProvider
 
     private ExecutionSettings ExecutionSettings { get; }
 
-    public MethodCollectionFactory Methods { get; }
+    public SynchronizedMethodCollection Methods { get; }
 
     #endregion
 
@@ -30,7 +29,7 @@ public class InlineHandler : IHandler, IServiceMethodProvider
         Registry = registry;
         ExecutionSettings = executionSettings;
 
-        Methods = new MethodCollectionFactory(GetMethodsAsync);
+        Methods = new SynchronizedMethodCollection(GetMethodsAsync);
     }
 
     #endregion
@@ -39,22 +38,7 @@ public class InlineHandler : IHandler, IServiceMethodProvider
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-    public ValueTask<IResponse?> HandleAsync(IRequest request)
-    {
-        if (_methodCache == null)
-        {
-            return HandleWithInitialization(request);
-        }
-
-        return _methodCache.HandleAsync(request);
-    }
-
-    private async ValueTask<IResponse?> HandleWithInitialization(IRequest request)
-    {
-        _methodCache = await Methods.GetAsync(request);
-
-        return await _methodCache.HandleAsync(request);
-    }
+    public ValueTask<IResponse?> HandleAsync(IRequest request) => Methods.HandleAsync(request);
 
     private async Task<MethodCollection> GetMethodsAsync(IRequest request)
     {

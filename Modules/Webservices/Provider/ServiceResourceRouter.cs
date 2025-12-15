@@ -10,7 +10,6 @@ namespace GenHTTP.Modules.Webservices.Provider;
 
 public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 {
-    private MethodCollection? _methodCache;
 
     #region Get-/Setters
 
@@ -22,7 +21,7 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 
     private ExecutionSettings ExecutionSettings { get; }
 
-    public MethodCollectionFactory Methods { get; }
+    public SynchronizedMethodCollection Methods { get; }
 
     #endregion
 
@@ -35,7 +34,7 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
         ExecutionSettings = executionSettings;
         Registry = registry;
 
-        Methods = new MethodCollectionFactory(GetMethodsAsync);
+        Methods = new SynchronizedMethodCollection(GetMethodsAsync);
     }
 
     #endregion
@@ -44,22 +43,7 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-    public ValueTask<IResponse?> HandleAsync(IRequest request)
-    {
-        if (_methodCache == null)
-        {
-            return HandleWithInitialization(request);
-        }
-
-        return _methodCache.HandleAsync(request);
-    }
-
-    private async ValueTask<IResponse?> HandleWithInitialization(IRequest request)
-    {
-        _methodCache = await Methods.GetAsync(request);
-
-        return await _methodCache.HandleAsync(request);
-    }
+    public ValueTask<IResponse?> HandleAsync(IRequest request) => Methods.HandleAsync(request);
 
     private async Task<MethodCollection> GetMethodsAsync(IRequest request)
     {

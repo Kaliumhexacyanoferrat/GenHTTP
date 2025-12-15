@@ -13,8 +13,6 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 {
     private static readonly Regex HyphenMatcher = CreateHyphenMatcher();
 
-    private MethodCollection? _methodCache;
-
     #region Get-/Setters
 
     private Type Type { get; }
@@ -25,7 +23,7 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 
     private ExecutionSettings ExecutionSettings { get; }
 
-    public MethodCollectionFactory Methods { get; }
+    public SynchronizedMethodCollection Methods { get; }
 
     #endregion
 
@@ -38,7 +36,7 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
         ExecutionSettings = executionSettings;
         Registry = registry;
 
-        Methods = new MethodCollectionFactory(GetMethodsAsync);
+        Methods = new SynchronizedMethodCollection(GetMethodsAsync);
     }
 
     #endregion
@@ -47,22 +45,7 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-    public ValueTask<IResponse?> HandleAsync(IRequest request)
-    {
-        if (_methodCache == null)
-        {
-            return HandleWithInitialization(request);
-        }
-
-        return _methodCache.HandleAsync(request);
-    }
-
-    private async ValueTask<IResponse?> HandleWithInitialization(IRequest request)
-    {
-        _methodCache = await Methods.GetAsync(request);
-
-        return await _methodCache.HandleAsync(request);
-    }
+    public ValueTask<IResponse?> HandleAsync(IRequest request) => Methods.HandleAsync(request);
 
     private async Task<MethodCollection> GetMethodsAsync(IRequest request)
     {
