@@ -8,26 +8,26 @@ namespace GenHTTP.Modules.Functional.Provider;
 
 public class InlineHandler : IHandler, IServiceMethodProvider
 {
-    
+
     #region Get-/Setters
 
     private List<InlineFunction> Functions { get; }
 
     private MethodRegistry Registry { get; }
-    
-    private ExecutionMode? ExecutionMode { get; }
+
+    private ExecutionSettings ExecutionSettings { get; }
 
     public MethodCollectionFactory Methods { get; }
-    
+
     #endregion
 
     #region Initialization
 
-    public InlineHandler(List<InlineFunction> functions, MethodRegistry registry, ExecutionMode? executionMode)
+    public InlineHandler(List<InlineFunction> functions, MethodRegistry registry, ExecutionSettings executionSettings)
     {
         Functions = functions;
         Registry = registry;
-        ExecutionMode = executionMode;
+        ExecutionSettings = executionSettings;
 
         Methods = new MethodCollectionFactory(GetMethodsAsync);
     }
@@ -48,7 +48,7 @@ public class InlineHandler : IHandler, IServiceMethodProvider
         {
             var method = function.Delegate.Method;
 
-            var operation = OperationBuilder.Create(request, function.Path, method, function.Delegate, ExecutionMode, Registry);
+            var operation = OperationBuilder.Create(request, function.Path, method, function.Delegate, ExecutionSettings, Registry);
 
             var target = function.Delegate.Target ?? throw new InvalidOperationException("Delegate target must not be null");
 

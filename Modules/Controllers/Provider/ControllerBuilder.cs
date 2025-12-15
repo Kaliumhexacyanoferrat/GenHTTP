@@ -12,7 +12,7 @@ using GenHTTP.Modules.Reflection.Injectors;
 
 namespace GenHTTP.Modules.Controllers.Provider;
 
-public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>, IRegistryBuilder<ControllerBuilder>
+public sealed class ControllerBuilder : IReflectionFrameworkBuilder<ControllerBuilder>
 {
     private readonly List<IConcernBuilder> _concerns = [];
 
@@ -27,7 +27,7 @@ public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>, IReg
     private IBuilder<SerializationRegistry>? _serializers;
 
     private ExecutionMode? _executionMode;
-    
+
     #region Functionality
 
     public ControllerBuilder Serializers(IBuilder<SerializationRegistry> registry)
@@ -80,7 +80,7 @@ public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>, IReg
         _executionMode = mode;
         return this;
     }
-    
+
     public ControllerBuilder Add(IConcernBuilder concern)
     {
         _concerns.Add(concern);
@@ -101,7 +101,9 @@ public sealed class ControllerBuilder : IHandlerBuilder<ControllerBuilder>, IReg
 
         var extensions = new MethodRegistry(serializers, injectors, formatters);
 
-        return Concerns.Chain(_concerns, new ControllerHandler(type, instanceProvider, _executionMode, extensions));
+        var executionSettings = new ExecutionSettings(_executionMode);
+
+        return Concerns.Chain(_concerns, new ControllerHandler(type, instanceProvider, executionSettings, extensions));
     }
 
     #endregion

@@ -11,17 +11,17 @@ public sealed class Operation
     /// The .NET method to be executed to retrieve a result.
     /// </summary>
     public MethodInfo Method { get; }
-    
+
     /// <summary>
     /// If available, the delegate to be executed at runtime
     /// to retrieve a result.
     /// </summary>
     public Delegate? Delegate { get; }
-    
+
     /// <summary>
     /// Specifies the way the method should be executed.
     /// </summary>
-    public ExecutionMode ExecutionMode { get; }
+    public ExecutionSettings ExecutionSettings { get; }
 
     /// <summary>
     /// Information about the endpoint provided by this operation.
@@ -47,11 +47,11 @@ public sealed class Operation
 
     #region Initialization
 
-    public Operation(MethodInfo method, Delegate? del, ExecutionMode executionMode, OperationPath path, OperationResult result, IReadOnlyDictionary<string, OperationArgument> arguments, IReadOnlyList<IOperationInterceptor> interceptors)
+    public Operation(MethodInfo method, Delegate? del, ExecutionSettings executionSettings, OperationPath path, OperationResult result, IReadOnlyDictionary<string, OperationArgument> arguments, IReadOnlyList<IOperationInterceptor> interceptors)
     {
         Method = method;
         Delegate = del;
-        ExecutionMode = executionMode;
+        ExecutionSettings = executionSettings;
         Path = path;
         Result = result;
         Arguments = arguments;

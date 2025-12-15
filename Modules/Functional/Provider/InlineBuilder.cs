@@ -10,7 +10,7 @@ using GenHTTP.Modules.Reflection.Injectors;
 
 namespace GenHTTP.Modules.Functional.Provider;
 
-public class InlineBuilder : IHandlerBuilder<InlineBuilder>, IRegistryBuilder<InlineBuilder>
+public class InlineBuilder : IReflectionFrameworkBuilder<InlineBuilder>
 {
     private static readonly HashSet<FlexibleRequestMethod> AllMethods = [..Enum.GetValues<RequestMethod>().Select(FlexibleRequestMethod.Get)];
 
@@ -25,7 +25,7 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>, IRegistryBuilder<In
     private IBuilder<SerializationRegistry>? _serializers;
 
     private ExecutionMode? _executionMode;
-    
+
     #region Functionality
 
     /// <summary>
@@ -58,7 +58,7 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>, IRegistryBuilder<In
         _formatters = registry;
         return this;
     }
-    
+
     /// <summary>
     /// Sets the execution mode to be used to run functions.
     /// </summary>
@@ -186,7 +186,9 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>, IRegistryBuilder<In
 
         var extensions = new MethodRegistry(serializers, injectors, formatters);
 
-        return Concerns.Chain(_concerns, new InlineHandler(_functions, extensions, _executionMode));
+        var executionSettings = new ExecutionSettings(_executionMode);
+
+        return Concerns.Chain(_concerns, new InlineHandler(_functions, extensions, executionSettings));
     }
 
     #endregion

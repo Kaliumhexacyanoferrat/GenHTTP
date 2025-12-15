@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
@@ -7,12 +6,13 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Serializers;
+
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Injectors;
 
 namespace GenHTTP.Modules.Webservices.Provider;
 
-public sealed class ServiceResourceBuilder : IHandlerBuilder<ServiceResourceBuilder>, IRegistryBuilder<ServiceResourceBuilder>
+public sealed class ServiceResourceBuilder : IReflectionFrameworkBuilder<ServiceResourceBuilder>
 {
     private readonly List<IConcernBuilder> _concerns = [];
 
@@ -27,7 +27,7 @@ public sealed class ServiceResourceBuilder : IHandlerBuilder<ServiceResourceBuil
     private IBuilder<SerializationRegistry>? _serializers;
 
     private ExecutionMode? _executionMode;
-    
+
     #region Functionality
 
     public ServiceResourceBuilder Type<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>() where T : new() => Instance(new T());
@@ -79,7 +79,7 @@ public sealed class ServiceResourceBuilder : IHandlerBuilder<ServiceResourceBuil
         _executionMode = mode;
         return this;
     }
-    
+
     public ServiceResourceBuilder Add(IConcernBuilder concern)
     {
         _concerns.Add(concern);
@@ -100,7 +100,9 @@ public sealed class ServiceResourceBuilder : IHandlerBuilder<ServiceResourceBuil
 
         var extensions = new MethodRegistry(serializers, injectors, formatters);
 
-        return Concerns.Chain(_concerns,  new ServiceResourceRouter(type, instanceProvider, _executionMode, extensions));
+        var executionSettings = new ExecutionSettings(_executionMode);
+
+        return Concerns.Chain(_concerns, new ServiceResourceRouter(type, instanceProvider, executionSettings, extensions));
     }
 
     #endregion

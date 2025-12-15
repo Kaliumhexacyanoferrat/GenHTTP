@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Operations;
 
@@ -17,7 +19,7 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 
     private MethodRegistry Registry { get; }
 
-    private ExecutionMode? ExecutionMode { get; }
+    private ExecutionSettings ExecutionSettings { get; }
 
     public MethodCollectionFactory Methods { get; }
 
@@ -25,11 +27,11 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 
     #region Initialization
 
-    public ServiceResourceRouter(Type type, Func<IRequest, ValueTask<object>> instanceProvider, ExecutionMode? mode, MethodRegistry registry)
+    public ServiceResourceRouter(Type type, Func<IRequest, ValueTask<object>> instanceProvider, ExecutionSettings executionSettings, MethodRegistry registry)
     {
         Type = type;
         InstanceProvider = instanceProvider;
-        ExecutionMode = mode;
+        ExecutionSettings = executionSettings;
         Registry = registry;
 
         Methods = new MethodCollectionFactory(GetMethodsAsync);
@@ -53,7 +55,7 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 
             if (attribute is not null)
             {
-                var operation = OperationBuilder.Create(request, attribute.Path, method, null, ExecutionMode, Registry);
+                var operation = OperationBuilder.Create(request, attribute.Path, method, null, ExecutionSettings, Registry);
 
                 found.Add(new MethodHandler(operation, InstanceProvider, attribute, Registry));
             }

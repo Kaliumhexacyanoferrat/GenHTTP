@@ -38,6 +38,8 @@ public sealed class MethodHandler : IHandler
 
     private ResponseProvider ResponseProvider { get; }
 
+    private bool UseCodeGeneration { get; }
+
     #endregion
 
     #region Initialization
@@ -58,6 +60,10 @@ public sealed class MethodHandler : IHandler
         Registry = registry;
 
         ResponseProvider = new(registry);
+
+        var effectiveMode = Operation.ExecutionSettings.Mode ?? ExecutionMode.Reflection;
+
+        UseCodeGeneration = OptimizedDelegate.Supported && effectiveMode == ExecutionMode.Auto;
     }
 
     #endregion
@@ -66,7 +72,7 @@ public sealed class MethodHandler : IHandler
 
     public ValueTask PrepareAsync()
     {
-        if (Operation.ExecutionMode == ExecutionMode.Auto && OptimizedDelegate.Supported)
+        if (UseCodeGeneration)
         {
             if (Operation.Delegate != null)
             {
@@ -83,7 +89,7 @@ public sealed class MethodHandler : IHandler
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        if (Operation.ExecutionMode == ExecutionMode.Auto && OptimizedDelegate.Supported)
+        if (UseCodeGeneration)
         {
             if (Operation.Delegate != null)
             {
