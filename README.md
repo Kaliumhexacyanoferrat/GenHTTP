@@ -73,7 +73,7 @@ to [host your application](https://genhttp.org/documentation/hosting/) via Docke
 ## 🤔  Support
 
 If you encounter issues implementing your application, feel free
-to [join our Discord community](https://discord.gg/GwtDyUpkpV) to get help.
+to [join our Discord community](https://discord.gg/PRkwKrnrB4) to get help.
 
 For commercial products and projects, GenHTTP provides additional support options
 [on request](https://genhttp.org/support/).
