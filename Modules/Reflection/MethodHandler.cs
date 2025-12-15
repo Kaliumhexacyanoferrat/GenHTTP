@@ -104,14 +104,16 @@ public sealed class MethodHandler : IHandler
 
     private ValueTask<IResponse?> RunAsDelegate(IRequest request)
     {
-        if (_compiledDelegate == null || Operation.Delegate == null) return default;
+        if (_compiledDelegate == null || Operation.Delegate == null)
+            throw new InvalidOperationException("Compiled delegate is not initialized");
 
         return _compiledDelegate(Operation.Delegate, request, Registry);
     }
 
     private async ValueTask<IResponse?> RunAsMethod(IRequest request)
     {
-        if (_compiledMethod == null) return null;
+        if (_compiledMethod == null)
+            throw new InvalidOperationException("Compiled method is not initialized");
 
         var instance = await InstanceProvider(request);
 
