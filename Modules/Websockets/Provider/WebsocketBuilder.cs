@@ -4,9 +4,11 @@ namespace GenHTTP.Modules.Websockets.Provider;
 
 public abstract class WebsocketBuilder<T> : IHandlerBuilder<T> where T : WebsocketBuilder<T>
 {
+    protected bool _handleContinuationFramesManually = false;
+    
     protected readonly List<IConcernBuilder> _concerns = [];
 
-    protected int _maxRxBufferSize = 8192;
+    protected int _maxRxBufferSize = 1024 * 16; // 16 KB
 
     public T MaxFrameSize(int maxRxBufferSize)
     {
@@ -17,6 +19,12 @@ public abstract class WebsocketBuilder<T> : IHandlerBuilder<T> where T : Websock
     public T Add(IConcernBuilder concern)
     {
         _concerns.Add(concern);
+        return (T)this;
+    }
+    
+    public T HandleContinuationFramesManually()
+    {
+        _handleContinuationFramesManually = true;
         return (T)this;
     }
 

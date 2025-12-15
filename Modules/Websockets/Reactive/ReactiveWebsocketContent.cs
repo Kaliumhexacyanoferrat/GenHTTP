@@ -5,7 +5,7 @@ using GenHTTP.Modules.Websockets.Provider;
 
 namespace GenHTTP.Modules.Websockets.Reactive;
 
-public class ReactiveWebsocketContent(IReactiveHandler handler, IRequest request, int rxBufferSize) : IResponseContent
+public class ReactiveWebsocketContent(IReactiveHandler handler, IRequest request, int rxBufferSize, bool handleContinuationFramesManually) : IResponseContent
 {
 
     public ulong? Length => null;
@@ -16,7 +16,7 @@ public class ReactiveWebsocketContent(IReactiveHandler handler, IRequest request
     {
         await target.FlushAsync();
         
-        await using var connection = new WebsocketConnection(request, target, rxBufferSize);
+        await using var connection = new WebsocketConnection(request, target, rxBufferSize, handleContinuationFramesManually);
         
         await handler.OnConnected(connection);
 

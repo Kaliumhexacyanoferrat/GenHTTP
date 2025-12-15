@@ -5,6 +5,7 @@ using GenHTTP.Modules.Websockets;
 using GenHTTP.Modules.Websockets.Protocol;
 
 var websocket = Websocket.Reactive()
+    //.HandleContinuationFramesManually()
     .Handler(new ChatHandler());
 
 await Host.Create()
@@ -32,6 +33,13 @@ class ChatHandler : IReactiveHandler
         {
             await client.WriteAsync($"[{clientNumber}]: " + message.DataAsString());
         }
+    }
+
+    public ValueTask OnContinue(IReactiveConnection connection, WebsocketFrame message)
+    {
+        Console.WriteLine(message.DataAsString());
+        
+        return ValueTask.CompletedTask;
     }
 
     public ValueTask OnClose(IReactiveConnection connection, WebsocketFrame message)

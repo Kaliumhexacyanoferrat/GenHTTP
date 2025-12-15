@@ -6,6 +6,7 @@ using System.Text;
 
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Websockets.Protocol;
+using GenHTTP.Modules.Websockets.Utils;
 
 namespace GenHTTP.Modules.Websockets.Provider;
 
@@ -13,7 +14,7 @@ namespace GenHTTP.Modules.Websockets.Provider;
 
 public class WebsocketConnection : IReactiveConnection, IImperativeConnection, IAsyncDisposable
 {
-    private bool _handleContinuationFramesAutomatically = false;
+    private readonly bool _handleContinuationFramesManually;
     
     private readonly Stream _stream;
     private readonly PipeReader _pipeReader;
@@ -31,7 +32,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
     #region Initialization
 
-    public WebsocketConnection(IRequest request, Stream stream, int rxMaxBufferSize = 8192)
+    public WebsocketConnection(IRequest request, Stream stream, int rxMaxBufferSize = 1024 * 16, bool handleContinuationFramesManually = true)
     {
         Request = request;
         _stream = stream;
@@ -42,6 +43,8 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                 leaveOpen: true,
                 bufferSize: rxMaxBufferSize,
                 minimumReadSize: Math.Min( rxMaxBufferSize / 4 , 1024 )));
+
+        _handleContinuationFramesManually = handleContinuationFramesManually;
     }
 
     #endregion
@@ -100,7 +103,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
     public ValueTask<WebsocketFrame> ReadFrameAsync(CancellationToken token = default)
     {
-        if (!_handleContinuationFramesAutomatically)
+        if (_handleContinuationFramesManually)
         {
             return ReadFirstSegmentFrameAsync(token);
         }
@@ -120,6 +123,8 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
         
         // Read a frame
         var frame = await ReadNextSegmentFrameAsync(isFirstFrame: true, token);
+
+        Console.WriteLine($"1Received: {Encoding.UTF8.GetString(frame.RawData!.Value.ToArray())}");
         
         // Hot Path, most frames will be single
         // If the frame is single, return it.
@@ -127,6 +132,8 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
         {
             return frame;
         }
+
+        Examine();
         
         // At this point if the received frame was Error or Control frame it would have already been returned as those have FIN=1
         // Meaning that we are at the presence of a Text or Binary frame
@@ -151,23 +158,28 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
             {
                 // It is possible to receive control frames in between segmented frames.
                 // One approach could be to store this frame and handle it after the segmented frame is deal with.
+                throw new NotImplementedException("Control frames between continuation frames not yet supported.");
             }
 
             // Given that the nextFrame is not a control frame, its type must match the initial frame's
-            if (frame.Type != nextFrame.Type)
-            {
-                return new WebsocketFrame(new FrameError("Invalid continuation frame", FrameErrorType.InvalidContinuationFrame));
-            }
+            //if (frame.Type != nextFrame.Type)
+            //{
+            //    return new WebsocketFrame(new FrameError("Invalid continuation frame", FrameErrorType.InvalidContinuationFrame));
+            //}
+
+            Console.WriteLine($"Received: {Encoding.UTF8.GetString(nextFrame.RawData!.Value.ToArray())}");
             
             frame.SegmentedRawData.Add(nextFrame.RawData);
             
             // If the received frame is FIN=1, merge all the SegmentedRawData into RawData
-            if (frame.Fin)
+            if (nextFrame.Fin)
             {
                 frame.RawData = SequenceUtils.ConcatSequences(frame.SegmentedRawData);
 
                 return frame;
             }
+            
+            Examine();
         }
 
         return new WebsocketFrame(new FrameError("Unable to receive or assemble the segmented frame.", FrameErrorType.UndefinedBehavior));
@@ -204,8 +216,9 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
         {
             var result = await _pipeReader.ReadAsync(token);
             
-            if(!isFirstFrame)
-                _currentSequence = result.Buffer.Slice(_examined);
+            _currentSequence = !isFirstFrame 
+                ? result.Buffer.Slice(_examined) 
+                : result.Buffer;
 
             if (result.IsCanceled)
             {
@@ -323,127 +336,4 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
     #endregion
 
-}
-
-public sealed class BufferSegment : ReadOnlySequenceSegment<byte>
-{
-    public BufferSegment(ReadOnlyMemory<byte> memory) => Memory = memory;
-
-    public BufferSegment Append(ReadOnlyMemory<byte> memory)
-    {
-        var next = new BufferSegment(memory)
-        {
-            RunningIndex = RunningIndex + Memory.Length
-        };
-        Next = next;
-        return next;
-    }
-}
-
-public static class SequenceUtils
-{
-    public static ReadOnlySequence<byte> ConcatSequences(List<ReadOnlySequence<byte>?>? sequences)
-    {
-        if (sequences is null || sequences.Count == 0)
-            return ReadOnlySequence<byte>.Empty;
-
-        BufferSegment? first = null;
-        BufferSegment? last  = null;
-
-        // for-loop is slightly faster than foreach on List<T>
-        for (var i = 0; i < sequences.Count; i++)
-        {
-            var seqNullable = sequences[i];
-            if (!seqNullable.HasValue)
-                continue;
-
-            var seq = seqNullable.Value;
-
-            foreach (var mem in seq)
-            {
-                if (mem.Length == 0)
-                    continue;
-
-                if (first is null)
-                {
-                    first = last = new BufferSegment(mem);
-                }
-                else
-                {
-                    last = last!.Append(mem);
-                }
-            }
-        }
-
-        return first is null
-            ? ReadOnlySequence<byte>.Empty
-            : new ReadOnlySequence<byte>(first, 0, last!, last!.Memory.Length);
-    }
-    
-    public static ReadOnlySequence<byte> ConcatSequences(ReadOnlySequence<byte>[] sequences)
-    {
-        BufferSegment? first = null;
-        BufferSegment? last = null;
-
-        foreach (var seq in sequences)
-        {
-            foreach (var mem in seq) // mem is ReadOnlyMemory<byte> for each segment
-            {
-                if (mem.Length == 0) continue;
-
-                if (first is null)
-                    first = last = new BufferSegment(mem);
-                else
-                    last = last!.Append(mem);
-            }
-        }
-
-        if (first is null)
-            return ReadOnlySequence<byte>.Empty;
-
-        return new ReadOnlySequence<byte>(first, 0, last!, last!.Memory.Length);
-    }
-    
-    // Hot path: concat only 2
-    public static ReadOnlySequence<byte> ConcatTwo(in ReadOnlySequence<byte> a, in ReadOnlySequence<byte> b)
-    {
-        if (a.IsEmpty) return b;
-        if (b.IsEmpty) return a;
-
-        // Fast path: both single-segment.
-        if (a.IsSingleSegment && b.IsSingleSegment)
-        {
-            var head = new BufferSegment(a.First);
-            var tail = head.Append(b.First);
-            return new ReadOnlySequence<byte>(head, 0, tail, tail.Memory.Length);
-        }
-
-        BufferSegment? headSeg = null;
-        BufferSegment? tailSeg = null;
-
-        AppendSequence(a, ref headSeg, ref tailSeg);
-        AppendSequence(b, ref headSeg, ref tailSeg);
-
-        if (headSeg is null) return ReadOnlySequence<byte>.Empty;
-
-        return new ReadOnlySequence<byte>(headSeg, 0, tailSeg!, tailSeg!.Memory.Length);
-    }
-
-    private static void AppendSequence(in ReadOnlySequence<byte> seq, ref BufferSegment? head, ref BufferSegment? tail)
-    {
-        // foreach over ReadOnlySequence<byte> uses the struct enumerator; no allocations.
-        foreach (var mem in seq)
-        {
-            if (mem.Length == 0) continue;
-
-            if (head is null)
-            {
-                head = tail = new BufferSegment(mem);
-            }
-            else
-            {
-                tail = tail!.Append(mem);
-            }
-        }
-    }
 }

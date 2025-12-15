@@ -5,18 +5,18 @@ namespace GenHTTP.Modules.Websockets.Protocol;
 
 public sealed class WebsocketFrame
 {
-    public bool IsSegmentedFrame { get; set; }
+    public bool IsSegmentedFrame { get; internal set; }
     
-    public List<ReadOnlySequence<byte>?>? SegmentedRawData { get; set; } // Can be useful to examine segments separately
+    public List<ReadOnlySequence<byte>?>? SegmentedRawData { get; internal set; } // Can be useful to examine segments separately
 
-    public ReadOnlySequence<byte>? RawData { get; set; } // Accessing does not allocate
+    public ReadOnlySequence<byte>? RawData { get; internal set; } // Accessing does not allocate
     
     public ReadOnlyMemory<byte> Data => RawData?.ToArray() ?? ReadOnlyMemory<byte>.Empty; // Allocates
     
     public string DataAsString() => Encoding.UTF8.GetString(Data.ToArray()); // Can allocate twice
     
     
-    public FrameType Type { get; }
+    public FrameType Type { get; internal set; }
     
     public bool Fin { get; }
     

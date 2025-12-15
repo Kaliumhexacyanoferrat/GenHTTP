@@ -27,7 +27,7 @@ public class ReactiveWebsocketBuilder : WebsocketBuilder<ReactiveWebsocketBuilde
             throw new BuilderMissingPropertyException("Handler");
         }
 
-        var contentFactory = (IRequest r) => new ReactiveWebsocketContent(_handler, r, _maxRxBufferSize);
+        var contentFactory = (IRequest r) => new ReactiveWebsocketContent(_handler, r, _maxRxBufferSize, _handleContinuationFramesManually);
 
         return Concerns.Chain(_concerns, new WebsocketHandler(contentFactory));
     }
