@@ -5,14 +5,23 @@ namespace GenHTTP.Modules.Websockets.Protocol;
 
 public sealed class WebsocketFrame
 {
-    public ReadOnlySequence<byte>? RawData { get; }
+    public bool IsSegmentedFrame { get; set; }
+    
+    public List<ReadOnlySequence<byte>?>? SegmentedRawData { get; set; } // Can be useful to examine segments separately
+
+    public ReadOnlySequence<byte>? RawData { get; set; } // Accessing does not allocate
+    
+    public ReadOnlyMemory<byte> Data => RawData?.ToArray() ?? ReadOnlyMemory<byte>.Empty; // Allocates
+    
+    public string DataAsString() => Encoding.UTF8.GetString(Data.ToArray()); // Can allocate twice
+    
+    
     public FrameType Type { get; }
+    
     public bool Fin { get; }
+    
     public FrameError? FrameError { get; }
     
-    public ReadOnlyMemory<byte> Data => RawData?.ToArray() ?? ReadOnlyMemory<byte>.Empty;
-
-    public string DataAsString() => Encoding.UTF8.GetString(Data.ToArray());
     
     public WebsocketFrame(
         ref ReadOnlySequence<byte> rawData, 
@@ -41,47 +50,5 @@ public sealed class WebsocketFrame
         Type = type;
         Fin = fin;
         FrameError = frameError;
-    }
-}
-
-public sealed class BufferSegment : ReadOnlySequenceSegment<byte>
-{
-    public BufferSegment(ReadOnlyMemory<byte> memory) => Memory = memory;
-
-    public BufferSegment Append(ReadOnlyMemory<byte> memory)
-    {
-        var next = new BufferSegment(memory)
-        {
-            RunningIndex = RunningIndex + Memory.Length
-        };
-        Next = next;
-        return next;
-    }
-}
-
-public static class SequenceUtils
-{
-    public static ReadOnlySequence<byte> ConcatSequences(params ReadOnlySequence<byte>[] sequences)
-    {
-        BufferSegment? first = null;
-        BufferSegment? last = null;
-
-        foreach (var seq in sequences)
-        {
-            foreach (var mem in seq) // mem is ReadOnlyMemory<byte> for each segment
-            {
-                if (mem.Length == 0) continue;
-
-                if (first is null)
-                    first = last = new BufferSegment(mem);
-                else
-                    last = last!.Append(mem);
-            }
-        }
-
-        if (first is null)
-            return ReadOnlySequence<byte>.Empty;
-
-        return new ReadOnlySequence<byte>(first, 0, last!, last!.Memory.Length);
     }
 }

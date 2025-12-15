@@ -54,8 +54,10 @@ public sealed class Frame_Decode_Tests
 
         var sequence = new ReadOnlySequence<byte>(frame);
         var readResult = new ReadResult(sequence, isCanceled: false, isCompleted: false);
+        
+        var seq = readResult.Buffer;
 
-        var result = Frame.Decode(ref readResult, DefaultRxMaxBufferSize, out var consumed, out var examined);
+        var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
         Assert.AreEqual(FrameType.Error, result.Type);
         Assert.IsNotNull(result.FrameError);
@@ -78,8 +80,10 @@ public sealed class Frame_Decode_Tests
 
         var sequence = new ReadOnlySequence<byte>(frame);
         var readResult = new ReadResult(sequence, isCanceled: false, isCompleted: false);
+        
+        var seq = readResult.Buffer;
 
-        var result = Frame.Decode(ref readResult, DefaultRxMaxBufferSize, out var consumed, out var examined);
+        var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
         Assert.AreEqual(FrameType.Error, result.Type);
         Assert.IsNotNull(result.FrameError);
@@ -102,8 +106,10 @@ public sealed class Frame_Decode_Tests
 
         var sequence = new ReadOnlySequence<byte>(frame);
         var readResult = new ReadResult(sequence, isCanceled: false, isCompleted: false);
+        
+        var seq = readResult.Buffer;
 
-        var result = Frame.Decode(ref readResult, DefaultRxMaxBufferSize, out var consumed, out var examined);
+        var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
         Assert.AreEqual(FrameType.Error, result.Type);
         Assert.IsNotNull(result.FrameError);
@@ -126,8 +132,10 @@ public sealed class Frame_Decode_Tests
 
         var sequence = new ReadOnlySequence<byte>(frame);
         var readResult = new ReadResult(sequence, isCanceled: false, isCompleted: false);
+        
+        var seq = readResult.Buffer;
 
-        var result = Frame.Decode(ref readResult, DefaultRxMaxBufferSize, out var consumed, out var examined);
+        var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
         Assert.AreEqual(FrameType.Error, result.Type);
         Assert.IsNotNull(result.FrameError);
@@ -159,8 +167,10 @@ public sealed class Frame_Decode_Tests
 
         var sequence = new ReadOnlySequence<byte>(frame);
         var readResult = new ReadResult(sequence, isCanceled: false, isCompleted: false);
+        
+        var seq = readResult.Buffer;
 
-        var result = Frame.Decode(ref readResult, DefaultRxMaxBufferSize, out var consumed, out var examined);
+        var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
         Assert.AreEqual(FrameType.Text, result.Type);
         Assert.IsTrue(result.Fin);
@@ -199,8 +209,10 @@ public sealed class Frame_Decode_Tests
 
         var sequence = new ReadOnlySequence<byte>(frame);
         var readResult = new ReadResult(sequence, isCanceled: false, isCompleted: false);
+        
+        var seq = readResult.Buffer;
 
-        var result = Frame.Decode(ref readResult, DefaultRxMaxBufferSize, out var consumed, out var examined);
+        var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
         Assert.AreEqual(FrameType.Close, result.Type);
         Assert.AreEqual("Close frame received. Code: 1000, Reason: Bye", result.DataAsString());
@@ -221,8 +233,10 @@ public sealed class Frame_Decode_Tests
 
         var sequence = new ReadOnlySequence<byte>(frame);
         var readResult = new ReadResult(sequence, isCanceled: false, isCompleted: false);
+        
+        var seq = readResult.Buffer;
 
-        var result = Frame.Decode(ref readResult, DefaultRxMaxBufferSize, out var consumed, out var examined);
+        var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
         Assert.AreEqual(FrameType.Close, result.Type);
         Assert.AreEqual(0, result.Data.Length);
@@ -251,8 +265,10 @@ public sealed class Frame_Decode_Tests
 
         var sequence = new ReadOnlySequence<byte>(frame);
         var readResult = new ReadResult(sequence, isCanceled: false, isCompleted: false);
+        
+        var seq = readResult.Buffer;
 
-        var result = Frame.Decode(ref readResult, DefaultRxMaxBufferSize, out var consumed, out var examined);
+        var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
         Assert.AreEqual(FrameType.Text, result.Type);
         Assert.AreEqual(126, result.Data.Length);
@@ -282,8 +298,10 @@ public sealed class Frame_Decode_Tests
         var readResult = new ReadResult(sequence, isCanceled: false, isCompleted: false);
 
         const int smallRxBufferSize = 1024; // Ensure maxAllowedPayload << 2^31
+        
+        var seq = readResult.Buffer;
 
-        var result = Frame.Decode(ref readResult, smallRxBufferSize, out var consumed, out var examined);
+        var result = Frame.Decode(ref seq, smallRxBufferSize, out var consumed, out var examined);
 
         Assert.AreEqual(FrameType.Error, result.Type);
         Assert.IsNotNull(result.FrameError);
@@ -305,8 +323,10 @@ public sealed class Frame_Decode_Tests
 
         var sequence = new ReadOnlySequence<byte>(frame);
         var readResult = new ReadResult(sequence, isCanceled: false, isCompleted: false);
+        
+        var seq = readResult.Buffer;
 
-        var result = Frame.Decode(ref readResult, DefaultRxMaxBufferSize, out var consumed, out var examined);
+        var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
         Assert.AreEqual(FrameType.Error, result.Type);
         Assert.IsNotNull(result.FrameError);

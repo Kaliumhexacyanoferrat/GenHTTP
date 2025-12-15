@@ -1,6 +1,5 @@
 using System.Buffers;
 using System.Buffers.Binary;
-using System.IO.Pipelines;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -30,26 +29,25 @@ public static partial class Frame
      */
     
     public static WebsocketFrame Decode(
-        ref ReadResult result,
+        ref ReadOnlySequence<byte> sequence,
         int rxMaxBufferSize,
         out SequencePosition consumed,
         out SequencePosition examined)
     {
-        var sequence = result.Buffer;
         var reader = new SequenceReader<byte>(sequence);
 
         consumed = sequence.Start;
         examined = sequence.End;
 
-        WebsocketFrame Incomplete(ref SequencePosition c, ref SequencePosition e)
+        WebsocketFrame Incomplete(ref SequencePosition c, ref SequencePosition e, ref ReadOnlySequence<byte> seq)
         {
-            c = sequence.Start;
-            e = sequence.End;
+            c = seq.Start;
+            e = seq.End;
             return new WebsocketFrame(new FrameError(IncompleteFrame, FrameErrorType.Incomplete));
         }
 
         if (reader.Remaining < 2)
-            return Incomplete(ref consumed, ref examined);
+            return Incomplete(ref consumed, ref examined, ref sequence);
 
         reader.TryRead(out byte b0);
         reader.TryRead(out byte b1);
@@ -98,7 +96,7 @@ public static partial class Frame
         if (payloadLen7 == 126)
         {
             if (reader.Remaining < 2)
-                return Incomplete(ref consumed, ref examined);
+                return Incomplete(ref consumed, ref examined, ref sequence);
 
             reader.TryReadBigEndian(out short len16);
             payloadLen64 = (ushort)len16;
@@ -106,7 +104,7 @@ public static partial class Frame
         else if (payloadLen7 == 127)
         {
             if (reader.Remaining < 8)
-                return Incomplete(ref consumed, ref examined);
+                return Incomplete(ref consumed, ref examined, ref sequence);
 
             reader.TryReadBigEndian(out long len64);
             payloadLen64 = len64;
@@ -128,13 +126,13 @@ public static partial class Frame
         if (isMasked)
         {
             if (reader.Remaining < 4 || !reader.TryCopyTo(maskKey))
-                return Incomplete(ref consumed, ref examined);
+                return Incomplete(ref consumed, ref examined, ref sequence);
 
             reader.Advance(4);
         }
 
         if (reader.Remaining < payloadLength)
-            return Incomplete(ref consumed, ref examined);
+            return Incomplete(ref consumed, ref examined, ref sequence);
 
         // Payload slice (zero-copy)
         var payloadStart = reader.Position;
