@@ -13,6 +13,7 @@ public sealed class IntegrationTests
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
             .Imperative()
+            .HandleContinuationFramesManually()
             .Handler(new MyHandler());
 
         Chain.Works(websocket);

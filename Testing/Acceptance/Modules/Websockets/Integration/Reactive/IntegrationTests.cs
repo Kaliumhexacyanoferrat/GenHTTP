@@ -13,6 +13,7 @@ public sealed class IntegrationTests
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Reactive()
                                .MaxFrameSize(1024)
+                               .HandleContinuationFramesManually()
                                .Handler(new ReactiveHandler());
 
         Chain.Works(websocket);

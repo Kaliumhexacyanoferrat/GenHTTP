@@ -7,7 +7,9 @@ namespace GenHTTP.Modules.Websockets.Functional;
 
 public class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebsocketBuilder>
 {
-    private readonly ReactiveWebsocketBuilder _builder = Websocket.Reactive();
+    private readonly ReactiveWebsocketBuilder _builder = _handleContinuationFramesManually
+        ? Websocket.Reactive()
+        : Websocket.Reactive().HandleContinuationFramesManually();
 
     private Func<IReactiveConnection, ValueTask> _onConnected = (_) => ValueTask.CompletedTask;
 
@@ -20,6 +22,8 @@ public class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebsocketBui
 
     private Func<IReactiveConnection, FrameError, ValueTask<bool>> _onError = (_, __) => ValueTask.FromResult(true);
 
+    private static bool _handleContinuationFramesManually;
+
     public FunctionalWebsocketBuilder Add(IConcernBuilder concern)
     {
         _builder.Add(concern);
@@ -29,6 +33,12 @@ public class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebsocketBui
     public FunctionalWebsocketBuilder MaxFrameSize(int maxRxBufferSize)
     {
         _builder.MaxFrameSize(maxRxBufferSize);
+        return this;
+    }
+    
+    public FunctionalWebsocketBuilder HandleContinuationFramesManually()
+    {
+        _handleContinuationFramesManually = true;
         return this;
     }
 
