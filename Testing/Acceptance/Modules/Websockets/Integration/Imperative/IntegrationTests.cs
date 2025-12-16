@@ -23,6 +23,23 @@ public sealed class IntegrationTests
         await Client.Execute(host.Port);
     }
     
+    // Automatic segmented handling
+    [TestMethod]
+    public async Task TestServerImperativeSegmented()
+    {
+        var websocket = GenHTTP.Modules.Websockets.Websocket
+            .Imperative()
+            .Handler(new MyHandler());
+
+        Chain.Works(websocket);
+
+        await using var host = await TestHost.RunAsync(websocket);
+
+        await Client.ExecuteSegmented(host.Port);
+    }
+    
+    // Automatic segmented handling
+    // Plus TCP fragmentation
     [TestMethod]
     public async Task TestServerImperativeFragmented()
     {

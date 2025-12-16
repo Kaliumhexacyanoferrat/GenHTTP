@@ -63,6 +63,57 @@ public static class Client
             Console.WriteLine(e);
         }
     }
+    
+    public static async ValueTask ExecuteSegmented(int port)
+    {
+        using var cts = new CancellationTokenSource(4000);
+        var token = cts.Token;
+
+        var client = new ClientWebSocket();
+
+        await client.ConnectAsync(new Uri($"ws://localhost:{port}"), token);
+
+        // Sending a Text message
+        var bytes = "Hello, World!"u8.ToArray();
+        await client.SendAsync(bytes, WebSocketMessageType.Text, true, token);
+
+        var responseBuffer = new byte[bytes.Length];
+        var response = await client.ReceiveAsync(new ArraySegment<byte>(responseBuffer), token);
+
+        Assert.AreEqual(WebSocketMessageType.Text, response.MessageType);
+        Assert.AreEqual("Hello, World!", Encoding.UTF8.GetString(responseBuffer));
+
+        // Sending a fragmented Text message
+        //
+        // First frame
+        //
+        var firstFrame = "First segment - "u8.ToArray();
+        await client.SendAsync(firstFrame, WebSocketMessageType.Text, false, token);
+        //
+        // Second frame
+        //
+        var secondFrame = "Second segment"u8.ToArray();
+        responseBuffer = new byte[firstFrame.Length + secondFrame.Length];
+
+        await client.SendAsync(secondFrame, WebSocketMessageType.Text, true, token);
+        response = await client.ReceiveAsync(new ArraySegment<byte>(responseBuffer), token);
+
+        Assert.AreEqual(WebSocketMessageType.Text, response.MessageType);
+        Assert.AreEqual("First segment - Second segment", Encoding.UTF8.GetString(responseBuffer));
+
+        // Close connection
+        await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "bye", token);
+
+        try
+        {
+            client.Dispose();
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e);
+            Console.WriteLine(e);
+        }
+    }
 
     public static async ValueTask ExecuteFragmented(string host, int port)
     {

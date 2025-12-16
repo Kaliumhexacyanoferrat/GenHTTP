@@ -22,7 +22,24 @@ public sealed class IntegrationTests
 
         await Client.Execute(host.Port);
     }
+    
+    // Automatic segmented handling
+    [TestMethod]
+    public async Task TestServerReactiveSegmented()
+    {
+        var websocket = GenHTTP.Modules.Websockets.Websocket.Reactive()
+            .MaxFrameSize(1024)
+            .Handler(new ReactiveHandler());
 
+        Chain.Works(websocket);
+
+        await using var host = await TestHost.RunAsync(websocket);
+
+        await Client.ExecuteSegmented(host.Port);
+    }
+
+    // Automatic segmented handling
+    // Plus TCP fragmentation
     [TestMethod]
     public async Task TestServerReactiveFragmented()
     {
