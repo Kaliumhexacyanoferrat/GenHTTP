@@ -25,6 +25,12 @@ class ChatHandler : IReactiveHandler
         return ValueTask.CompletedTask;
     }
 
+    public async ValueTask OnPing(IReactiveConnection connection, WebsocketFrame message)
+    {
+        Console.WriteLine($"Received Ping: {message.DataAsString()}");
+        await connection.PongAsync();
+    }
+
     public async ValueTask OnMessage(IReactiveConnection connection, WebsocketFrame message)
     {
         var clientNumber = Clients.IndexOf(connection);
