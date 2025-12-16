@@ -10,7 +10,7 @@ using GenHTTP.Modules.Websockets.Utils;
 
 namespace GenHTTP.Modules.Websockets.Provider;
 
-// TODO: Evaluate using ObjectPool for WebsocketFrames to avoid allocating new objects
+// TODO: Evaluate using ObjectPool for WebsocketFrames to avoid allocating new objects (not for this PR)
 
 public class WebsocketConnection : IReactiveConnection, IImperativeConnection, IAsyncDisposable
 {
@@ -23,7 +23,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
     private SequencePosition _examined;
     private ReadOnlySequence<byte> _currentSequence;
 
-    private Queue<WebsocketFrame> _queuedFrames;
+    private readonly Queue<WebsocketFrame> _queuedFrames;
     
     
     #region Get-/Setters
@@ -114,7 +114,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
         
         if (_handleContinuationFramesManually)
         {
-            return ReadFirstSegmentFrameAsync(token);
+            return ReadFrameSegmentAsync(isFirstFrame: true, token: token);
         }
         else
         {
@@ -131,9 +131,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
          */
         
         // Read a frame
-        var frame = await ReadNextSegmentFrameAsync(isFirstFrame: true, token);
-
-        Console.WriteLine($"1Received: {Encoding.UTF8.GetString(frame.RawData.ToArray())}");
+        var frame = await ReadFrameSegmentAsync(isFirstFrame: true, token);
         
         // Hot Path, most frames will be single
         // If the frame is single, return it.
@@ -141,7 +139,9 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
         {
             return frame;
         }
-
+        
+        // Examine here to advance the pipe reader examined position,
+        // if the frame was FIN=1, Consume() would have been called instead by the reactive loop/imperative logic
         Examine();
         
         // At this point if the received frame was Error or Control frame it would have already been returned as those have FIN=1
@@ -155,7 +155,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
         while (Request.Server.Running)
         {
             // Read the next frame
-            var nextFrame = await ReadNextSegmentFrameAsync(isFirstFrame: false, token);
+            var nextFrame = await ReadFrameSegmentAsync(isFirstFrame: false, token);
 
             if (IsErrorFrame(nextFrame))
             {
@@ -181,8 +181,6 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                 _queuedFrames.Enqueue(nextFrame);
                 continue;
             }
-
-            Console.WriteLine($"Received: {Encoding.UTF8.GetString(nextFrame.RawData.ToArray())}");
             
             frame.SegmentedRawData.Add(nextFrame.RawData);
             
@@ -199,33 +197,11 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
         return new WebsocketFrame(new FrameError("Unable to receive or assemble the segmented frame.", FrameErrorType.UndefinedBehavior));
     }
-    
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsErrorFrame(WebsocketFrame frame) => frame.Type == FrameType.Error; 
-
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsControlFrame(WebsocketFrame frame)
-    {
-        return frame.Type switch
-        {
-            FrameType.Text => false,
-            FrameType.None => false,
-            FrameType.Binary => false,
-            FrameType.Continue => false,
-            FrameType.Close => true,
-            FrameType.Ping => true,
-            FrameType.Pong => true,
-            FrameType.Error => false,
-            _ => throw new ArgumentOutOfRangeException($"Invalid WebsocketFrame Type {nameof(frame.Type)}")
-        };
-    }
 
     /// <summary>
     /// Slice the read data to not include the already examined bytes.
     /// </summary>
-    private async ValueTask<WebsocketFrame> ReadNextSegmentFrameAsync(bool isFirstFrame = false, CancellationToken token = default)
+    private async ValueTask<WebsocketFrame> ReadFrameSegmentAsync(bool isFirstFrame = true, CancellationToken token = default)
     {
         while (true)
         {
@@ -280,60 +256,6 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
     }
 
     /// <summary>
-    /// Wait for a frame to be acquired.
-    /// </summary> 
-    private async ValueTask<WebsocketFrame> ReadFirstSegmentFrameAsync(CancellationToken token = default)
-    {
-        while (true)
-        {
-            var result = await _pipeReader.ReadAsync(token);
-            _currentSequence = result.Buffer;
-
-            if (result.IsCanceled)
-            {
-                return new WebsocketFrame(
-                    frameError: new FrameError(FrameError.ReadCanceled, FrameErrorType.Canceled));
-            }
-
-            if (_currentSequence.Length == 0 && result.IsCompleted) // Clean EOF: no more data, reader completed
-            {
-                _pipeReader.AdvanceTo(_currentSequence.End, _currentSequence.End);
-                return new WebsocketFrame(FrameType.Close);
-            }
-
-            var frame = Frame.Decode(ref _currentSequence, _rxMaxBufferSize, out var consumed, out var examined);
-            _consumed = consumed;
-            _examined = examined;
-
-            // Need more data for a complete frame
-            if (frame.Type == FrameType.Error &&
-                frame.FrameError!.ErrorType == FrameErrorType.Incomplete)
-            {
-                if (result.IsCompleted)
-                {
-                    // Advance the reader to the end, it is completed and there is no more data
-                    // The partial data of the request is therefore discarded
-                    
-                    // Dev note: Should we eventually still give the user the partial data received?
-                    _pipeReader.AdvanceTo(_currentSequence.End, _currentSequence.End);
-                    
-                    return new WebsocketFrame(
-                        frameError: new FrameError(FrameError.UnexpectedEndOfStream, FrameErrorType.IncompleteForever));
-                }
-                
-                // Advance examined portion to ensure the PipeReader reads new data in case of incomplete request.
-                // Consumed should remain at buffer start until Consume() is called to keep data valid
-                Examine();
-
-                continue;  // read more data
-            }
-
-            // Any other frame (including other errors)
-            return frame;
-        }
-    }
-
-    /// <summary>
     /// Advances examined data, marks the pipe reader we are ready for more data.
     /// </summary>
     private void Examine() => _pipeReader.AdvanceTo(_currentSequence.Start, _examined);
@@ -343,6 +265,35 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
     /// </summary>
     public void Consume() => _pipeReader.AdvanceTo(_consumed, _examined);
     
+    #endregion
+    
+    #region Private Static Inline Helpers
+    
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsErrorFrame(WebsocketFrame frame) => frame.Type == FrameType.Error; 
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsControlFrame(WebsocketFrame frame)
+    {
+        return frame.Type switch
+        {
+            FrameType.Text => false,
+            FrameType.None => false,
+            FrameType.Binary => false,
+            FrameType.Continue => false,
+            FrameType.Close => true,
+            FrameType.Ping => true,
+            FrameType.Pong => true,
+            FrameType.Error => false,
+            _ => throw new ArgumentOutOfRangeException($"Invalid WebsocketFrame Type {nameof(frame.Type)}")
+        };
+    }
+    
+    #endregion
+    
+    #region Disposable Pattern
 
     public async ValueTask DisposeAsync()
     {
