@@ -22,6 +22,8 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
     private SequencePosition _consumed;
     private SequencePosition _examined;
     private ReadOnlySequence<byte> _currentSequence;
+
+    private Queue<WebsocketFrame> _queuedFrames;
     
     
     #region Get-/Setters
@@ -45,6 +47,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                 minimumReadSize: Math.Min( rxMaxBufferSize / 4 , 1024 )));
 
         _handleContinuationFramesManually = handleContinuationFramesManually;
+        _queuedFrames = new Queue<WebsocketFrame>();
     }
 
     #endregion
@@ -103,6 +106,12 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
     public ValueTask<WebsocketFrame> ReadFrameAsync(CancellationToken token = default)
     {
+        if (_queuedFrames.TryDequeue(out var frame))
+        {
+            // There are frames in the queue, likely do to control frames received amid a segmented frame.
+            return ValueTask.FromResult(frame);
+        }
+        
         if (_handleContinuationFramesManually)
         {
             return ReadFirstSegmentFrameAsync(token);
@@ -124,7 +133,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
         // Read a frame
         var frame = await ReadNextSegmentFrameAsync(isFirstFrame: true, token);
 
-        Console.WriteLine($"1Received: {Encoding.UTF8.GetString(frame.RawData!.Value.ToArray())}");
+        Console.WriteLine($"1Received: {Encoding.UTF8.GetString(frame.RawData.ToArray())}");
         
         // Hot Path, most frames will be single
         // If the frame is single, return it.
@@ -156,18 +165,24 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
             if (IsControlFrame(nextFrame))
             {
-                // It is possible to receive control frames in between segmented frames.
-                // One approach could be to store this frame and handle it after the segmented frame is deal with.
-                throw new NotImplementedException("Control frames between continuation frames not yet supported.");
+                if (nextFrame.Type == FrameType.Close)
+                {
+                    return nextFrame;
+                }
+                
+                // Ping/Pong, queue them
+                // We need to allocate here because when this frame is handled by the user,
+                // the pipe reader internal buffer is already consumed
+                
+                // Note: Another possibility is to immediately return the ping/pong and handle the rest of the continuation frame after
+                // but that raises a lot more complexity as we can't consume the pipe reader until the segmented frame is fully received
+                // and would complicate the overall logic, specially for the imperative to which the user would need to handle extra cases.
+                nextFrame.SetCachedData();
+                _queuedFrames.Enqueue(nextFrame);
+                continue;
             }
 
-            // Given that the nextFrame is not a control frame, its type must match the initial frame's
-            //if (frame.Type != nextFrame.Type)
-            //{
-            //    return new WebsocketFrame(new FrameError("Invalid continuation frame", FrameErrorType.InvalidContinuationFrame));
-            //}
-
-            Console.WriteLine($"Received: {Encoding.UTF8.GetString(nextFrame.RawData!.Value.ToArray())}");
+            Console.WriteLine($"Received: {Encoding.UTF8.GetString(nextFrame.RawData.ToArray())}");
             
             frame.SegmentedRawData.Add(nextFrame.RawData);
             
