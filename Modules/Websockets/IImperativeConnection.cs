@@ -16,5 +16,7 @@ public interface IImperativeConnection : ISocketConnection
     /// <param name="token">A token which can be used to cancel the operation</param>
     /// <returns>The next websocket frame to be handled</returns>
     ValueTask<WebsocketFrame> ReadFrameAsync(CancellationToken token = default);
+    
+    void Consume();
 
 }
