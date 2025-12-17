@@ -60,6 +60,7 @@ public static class CodeProviderInvocationExtensions
 
         foreach (var argument in operation.Arguments)
         {
+            // todo: for reference types the default is also null (e.g. for strings this might should be string.Empty)
             sb.Append($"            arg{i + 1} ?? default");
 
             var last = (i++ == operation.Arguments.Count - 1);

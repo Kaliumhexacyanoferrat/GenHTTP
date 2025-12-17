@@ -76,15 +76,18 @@ public static class CodeProviderArgumentExtensions
 
     private static void AppendQueryArgumentAssignment(this StringBuilder sb, OperationArgument argument, int index, string readFrom)
     {
+        var sourceName = $"{readFrom}Arg{index}";
+
+        // todo: high performance support for int.TryParse etc.
+
         if (argument.Type == typeof(string))
         {
-            sb.AppendLine($"            arg{index} = {readFrom}Arg{index};");
+            sb.AppendLine($"            arg{index} = {sourceName};");
         }
         else
         {
-            // todo: formatters
             // todo: try and bad format exception
-            sb.AppendLine($"            arg{index} = ({argument.Type})Convert.ChangeType({readFrom}Arg{index}, typeof({argument.Type}), CultureInfo.InvariantCulture);");
+            sb.AppendLine($"            arg{index} = ({argument.Type}?)registry.Formatting.Read({sourceName}, typeof({argument.Type}));");
         }
     }
 

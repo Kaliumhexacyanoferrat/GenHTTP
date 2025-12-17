@@ -2,6 +2,7 @@
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Functional;
+using GenHTTP.Modules.Reflection;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Reflection;
 
@@ -10,15 +11,16 @@ public class ErrorHandlingTests
 {
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestSerializationNotPossible(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestSerializationNotPossible(TestEngine engine, ExecutionMode mode)
     {
         var serialization = Serialization.Empty()
                                          .Default(ContentType.AudioMp4);
 
         var api = Inline.Create()
                         .Get(() => new HashSet<int>())
-                        .Serializers(serialization);
+                        .Serializers(serialization)
+                        .ExecutionMode(mode);
 
         await using var host = await TestHost.RunAsync(api, engine: engine);
 

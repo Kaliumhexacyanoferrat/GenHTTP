@@ -15,20 +15,21 @@ public static class Invoker
 {
     public static  ValueTask<IResponse?> Invoke(Delegate logic, IRequest request, MethodRegistry registry)
     {
-        System.Int32? arg1 = null;
+        System.String? arg1 = null;
 
-        if (request.Query.TryGetValue("i", out var queryArg1))
+        if (request.Query.TryGetValue("x", out var queryArg1))
         {
-            arg1 = (System.Int32)Convert.ChangeType(queryArg1, typeof(System.Int32), CultureInfo.InvariantCulture);
+            arg1 = queryArg1;
         }
-        var typedLogic = (Func<System.Int32, System.Int32>)logic;
+
+        var typedLogic = (Func<System.String, System.String>)logic;
 
         var result = typedLogic(
-            arg1 ?? default
+            arg1 ?? string.Empty
         );
 
         var response = request.Respond()
-                              .Content(registry.Formatting.Write(result, result.GetType()) ?? string.Empty)
+                              .Content(result)
                               .Build();
 
         return new(response);

@@ -3,13 +3,14 @@
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Practices;
 using GenHTTP.Modules.Reflection;
 
 var handler = Content.From(Resource.FromString("Hello World!"));
 
 var withCodeGen = Inline.Create().Get(() => "Hello World!").ExecutionMode(ExecutionMode.Auto);
 
-var withArgs = Inline.Create().Get((int i) => i + 1).ExecutionMode(ExecutionMode.Auto);
+var withArgs = Inline.Create().Get((string x) => x).ExecutionMode(ExecutionMode.Auto);
 
 var withReflection = Inline.Create().Get(() => "Hello World!").ExecutionMode(ExecutionMode.Reflection);
 
@@ -46,6 +47,8 @@ public record MyData(string Data);
 >>>>>>> 2e9361a1 (WIP)
 =======
           .Handler(app)
+          .Defaults()
+          .Development()
           .RunAsync();
 <<<<<<< HEAD
 >>>>>>> 5c3a20cf (Code gen improvements)
