@@ -55,9 +55,9 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 
             if (attribute is not null)
             {
-                var operation = OperationBuilder.Create(request, attribute.Path, method, null, ExecutionSettings, Registry);
+                var operation = OperationBuilder.Create(request, attribute.Path, method, null, ExecutionSettings, attribute, Registry);
 
-                found.Add(new MethodHandler(operation, InstanceProvider, attribute, Registry));
+                found.Add(new MethodHandler(operation, InstanceProvider, Registry));
             }
         }
 

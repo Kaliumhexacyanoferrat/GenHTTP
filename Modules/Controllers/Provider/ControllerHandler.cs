@@ -57,9 +57,9 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 
             var arguments = FindPathArguments(method);
 
-            var operation = CreateOperation(request, method, ExecutionSettings, arguments, Registry);
+            var operation = CreateOperation(request, method, ExecutionSettings, annotation, arguments, Registry);
 
-            found.Add(new MethodHandler(operation, InstanceProvider, annotation, Registry));
+            found.Add(new MethodHandler(operation, InstanceProvider, Registry));
         }
 
         var result = new MethodCollection(found);
@@ -69,20 +69,20 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
         return result;
     }
 
-    private static Operation CreateOperation(IRequest request, MethodInfo method, ExecutionSettings executionSettings, List<string> arguments, MethodRegistry registry)
+    private static Operation CreateOperation(IRequest request, MethodInfo method, ExecutionSettings executionSettings, IMethodConfiguration configuration, List<string> arguments, MethodRegistry registry)
     {
         var pathArguments = string.Join('/', arguments.Select(a => $":{a}"));
 
         if (method.Name == "Index")
         {
-            return OperationBuilder.Create(request, pathArguments.Length > 0 ? $"/{pathArguments}/" : null, method, null, executionSettings, registry, true);
+            return OperationBuilder.Create(request, pathArguments.Length > 0 ? $"/{pathArguments}/" : null, method, null, executionSettings, configuration, registry, true);
         }
 
         var name = HypenCase(method.Name);
 
         var path = $"/{name}";
 
-        return OperationBuilder.Create(request, pathArguments.Length > 0 ? $"{path}/{pathArguments}/" : $"{path}/", method, null, executionSettings, registry, true);
+        return OperationBuilder.Create(request, pathArguments.Length > 0 ? $"{path}/{pathArguments}/" : $"{path}/", method, null, executionSettings, configuration, registry, true);
     }
 
     private static List<string> FindPathArguments(MethodInfo method)

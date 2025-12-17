@@ -14,11 +14,15 @@ public static class CodeProvider
         var sb = new StringBuilder();
 
         sb.AppendLine("using System;");
+        sb.AppendLine("using System.Collections;");
+        sb.AppendLine("using System.Collections.Generic;");
+        sb.AppendLine("using System.Globalization;");
         sb.AppendLine("using System.Threading.Tasks;");
         sb.AppendLine();
         sb.AppendLine("using GenHTTP.Api.Protocol;");
         sb.AppendLine("using GenHTTP.Api.Content;");
         sb.AppendLine();
+        sb.AppendLine("using GenHTTP.Modules.Conversion.Serializers.Forms;");
         sb.AppendLine("using GenHTTP.Modules.Reflection;");
         sb.AppendLine("using GenHTTP.Modules.IO;");
         sb.AppendLine();
@@ -37,6 +41,8 @@ public static class CodeProvider
 
         sb.AppendLine("    {");
 
+        sb.AppendArguments(operation);
+
         sb.AppendInvocation(operation);
 
         sb.AppendResultConversion(operation, isAsync);
@@ -45,12 +51,14 @@ public static class CodeProvider
 
         sb.AppendLine("}");
 
-        return sb.ToString();
+        var code = sb.ToString();
+
+        return code;
     }
 
     private static bool CheckAsync(Operation operation)
     {
         return operation.Result.Sink == OperationResultSink.Serializer;
     }
-    
+
 }

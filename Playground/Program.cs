@@ -9,11 +9,14 @@ var handler = Content.From(Resource.FromString("Hello World!"));
 
 var withCodeGen = Inline.Create().Get(() => "Hello World!").ExecutionMode(ExecutionMode.Auto);
 
+var withArgs = Inline.Create().Get((int i) => i + 1).ExecutionMode(ExecutionMode.Auto);
+
 var withReflection = Inline.Create().Get(() => "Hello World!").ExecutionMode(ExecutionMode.Reflection);
 
 var app = Layout.Create()
                 .Add("handler", handler)
                 .Add("codegen", withCodeGen)
+                .Add("args", withArgs)
                 .Add("reflection", withReflection);
 
 await Host.Create()
@@ -44,4 +47,7 @@ public record MyData(string Data);
 =======
           .Handler(app)
           .RunAsync();
+<<<<<<< HEAD
 >>>>>>> 5c3a20cf (Code gen improvements)
+=======
+>>>>>>> 524a8632 (Add first argument handling)

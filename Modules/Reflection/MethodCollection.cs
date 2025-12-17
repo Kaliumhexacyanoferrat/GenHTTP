@@ -73,28 +73,32 @@ public sealed class MethodCollection : IHandler
 
         foreach (var method in Methods)
         {
+            var operation = method.Operation;
+
+            var configuration = operation.Configuration;
+
             if (method.Operation.Path.IsIndex && path == "/")
             {
-                if (method.Configuration.SupportedMethods.Contains(requestedMethod))
+                if (method.Operation.Configuration.SupportedMethods.Contains(requestedMethod))
                 {
                     result.Add(method);
                 }
                 else
                 {
-                    otherMethods.UnionWith(method.Configuration.SupportedMethods);
+                    otherMethods.UnionWith(configuration.SupportedMethods);
                 }
             }
             else
             {
                 if (method.Operation.Path.Matcher.IsMatch(path))
                 {
-                    if (method.Configuration.SupportedMethods.Contains(requestedMethod))
+                    if (configuration.SupportedMethods.Contains(requestedMethod))
                     {
                         result.Add(method);
                     }
                     else
                     {
-                        otherMethods.UnionWith(method.Configuration.SupportedMethods);
+                        otherMethods.UnionWith(configuration.SupportedMethods);
                     }
                 }
             }

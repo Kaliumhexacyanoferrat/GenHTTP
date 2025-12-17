@@ -1,9 +1,11 @@
 ﻿using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text.RegularExpressions;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
+
 using GenHTTP.Modules.Conversion.Serializers.Forms;
 using GenHTTP.Modules.Reflection.Generation;
 using GenHTTP.Modules.Reflection.Operations;
@@ -30,8 +32,6 @@ public sealed class MethodHandler : IHandler
 
     public Operation Operation { get; }
 
-    public IMethodConfiguration Configuration { get; }
-
     private Func<IRequest, ValueTask<object>> InstanceProvider { get; }
 
     public MethodRegistry Registry { get; }
@@ -49,11 +49,9 @@ public sealed class MethodHandler : IHandler
     /// </summary>
     /// <param name="operation">The operation to be executed and provided (use <see cref="OperationBuilder"/> to create an operation)</param>
     /// <param name="instanceProvider">A factory that will provide an instance to actually execute the operation on</param>
-    /// <param name="metaData">Additional, use-specified information about the operation</param>
     /// <param name="registry">The customized registry to be used to read and write data</param>
-    public MethodHandler(Operation operation, Func<IRequest, ValueTask<object>> instanceProvider, IMethodConfiguration metaData, MethodRegistry registry)
+    public MethodHandler(Operation operation, Func<IRequest, ValueTask<object>> instanceProvider, MethodRegistry registry)
     {
-        Configuration = metaData;
         InstanceProvider = instanceProvider;
 
         Operation = operation;

@@ -29,7 +29,7 @@ public static partial class OperationBuilder
     /// <param name="registry">The customizable registry used to read and write data</param>
     /// <param name="forceTrailingSlash">If set to true, the operation requires the client to append a trailing slash to the path</param>
     /// <returns>The newly created operation</returns>
-    public static Operation Create(IRequest request, string? definition, MethodInfo method, Delegate? del, ExecutionSettings executionSettings, MethodRegistry registry, bool forceTrailingSlash = false)
+    public static Operation Create(IRequest request, string? definition, MethodInfo method, Delegate? del, ExecutionSettings executionSettings, IMethodConfiguration configuration, MethodRegistry registry, bool forceTrailingSlash = false)
     {
         var isWildcard = CheckWildcardRoute(method.ReturnType);
 
@@ -102,7 +102,7 @@ public static partial class OperationBuilder
 
         var interceptors = InterceptorAnalyzer.GetInterceptors(method);
 
-        return new Operation(method, del, executionSettings, path, result, arguments, interceptors);
+        return new Operation(method, del, executionSettings, configuration, path, result, arguments, interceptors);
     }
 
     private static bool CheckWildcardRoute(Type returnType)

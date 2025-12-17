@@ -48,13 +48,13 @@ public sealed class InlineHandler : IHandler, IServiceMethodProvider
         {
             var method = function.Delegate.Method;
 
-            var operation = OperationBuilder.Create(request, function.Path, method, function.Delegate, ExecutionSettings, Registry);
+            var operation = OperationBuilder.Create(request, function.Path, method, function.Delegate, ExecutionSettings, function.Configuration, Registry);
 
             var target = function.Delegate.Target ?? throw new InvalidOperationException("Delegate target must not be null");
 
             var instanceProvider = (IRequest _) => ValueTask.FromResult(target);
 
-            found.Add(new MethodHandler(operation, instanceProvider, function.Configuration, Registry));
+            found.Add(new MethodHandler(operation, instanceProvider, Registry));
         }
 
         var result = new MethodCollection(found);
