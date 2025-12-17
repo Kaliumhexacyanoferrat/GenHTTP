@@ -22,7 +22,7 @@ public class ReactiveWebsocketContent(IReactiveHandler handler, IRequest request
 
         while (request.Server.Running)
         {
-            connection.Advance(); // Advance reader
+            connection.Advance(); // Advance reader, could be an Examine() or Consume()
             
             var frame = await connection.ReadFrameAsync(); // Ensures a frame is read
 

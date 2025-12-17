@@ -65,7 +65,7 @@ public sealed class IntegrationTests
             
                 while (connection.Request.Server.Running)
                 {
-                    connection.Consume();
+                    connection.Advance();
                     
                     var frame = await connection.ReadFrameAsync();
 

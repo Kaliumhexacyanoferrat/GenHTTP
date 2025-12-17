@@ -250,7 +250,6 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
     public void Consume()
     {
         _pipeReader.AdvanceTo(_consumed, _examined);
-        //_examined = default;
     }
 
     public void Advance()
