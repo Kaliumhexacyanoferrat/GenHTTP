@@ -17,6 +17,16 @@ public interface IImperativeConnection : ISocketConnection
     /// <returns>The next websocket frame to be handled</returns>
     ValueTask<WebsocketFrame> ReadFrameAsync(CancellationToken token = default);
     
+    /// <summary>
+    /// Advances consumed and examined data, memory portion is no longer guaranteed to be valid.
+    /// Should never be used if segmented frames are being handled automatically.
+    /// </summary>
     void Consume();
 
+    /// <summary>
+    /// Advances examined data, marks the pipe reader we are ready for more data.
+    /// </summary>
+    void Examine();
+
+    void Advance();
 }

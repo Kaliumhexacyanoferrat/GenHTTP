@@ -22,9 +22,11 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
     private SequencePosition _consumed;
     private SequencePosition _examined;
     private ReadOnlySequence<byte> _currentSequence;
-
-    private readonly Queue<WebsocketFrame> _queuedFrames;
     
+    private bool _skipFrameInit;
+    private bool _keepPipeReaderBufferValid;
+    
+    private WebsocketFrame _frame = null!;
     
     #region Get-/Setters
 
@@ -47,7 +49,6 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                 minimumReadSize: Math.Min( rxMaxBufferSize / 4 , 1024 )));
 
         _handleContinuationFramesManually = handleContinuationFramesManually;
-        _queuedFrames = new Queue<WebsocketFrame>();
     }
 
     #endregion
@@ -106,12 +107,6 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
     public ValueTask<WebsocketFrame> ReadFrameAsync(CancellationToken token = default)
     {
-        /*if (_queuedFrames.TryDequeue(out var frame))
-        {
-            // There are frames in the queue, likely do to control frames received amid a segmented frame.
-            return ValueTask.FromResult(frame);
-        }*/
-        
         if (_handleContinuationFramesManually)
         {
             return ReadFrameSegmentAsync(isFirstFrame: true, token: token);
@@ -124,34 +119,27 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
     private async ValueTask<WebsocketFrame> ReadSegmentedFrameAsync(CancellationToken token = default)
     {
-        /*
-         * Read the first frame
-         * If the frame is FIN=1 just return the frame.
-         * If the frame is not FIN=1 we are at a segmented case.
-         */
-        
-        // Read a frame
-        var frame = await ReadFrameSegmentAsync(isFirstFrame: true, token);
-        
-        // Hot Path, most frames will be single
-        // If the frame is single, return it.
-        if (frame.Fin)
+        if (!_skipFrameInit) // When picking up an ongoing segmented frame after being interrupted by a Ping/Pong
         {
-            return frame;
+            _frame = await ReadFrameSegmentAsync(isFirstFrame: true, token);
+            
+            if (_frame.Fin) // Hot Path
+            {
+                return _frame;
+            }
+            // Examine here to advance the pipe reader examined position,
+            // if the frame was FIN=1, Consume() would have been called instead by the reactive loop/imperative logic
+            Examine();
+            
+            _frame.IsSegmentedFrame = true;
+            _frame.SegmentedRawData = [_frame.RawData];
+        }
+        else
+        {
+            _skipFrameInit = false;
         }
         
-        // Examine here to advance the pipe reader examined position,
-        // if the frame was FIN=1, Consume() would have been called instead by the reactive loop/imperative logic
-        Examine();
-        
-        // At this point if the received frame was Error or Control frame it would have already been returned as those have FIN=1
-        // Meaning that we are at the presence of a Text or Binary frame
-        
-        // Cold path, read the rest of the continuation frames
-
-        frame.IsSegmentedFrame = true;
-        frame.SegmentedRawData = [ frame.RawData ];
-
+        // Cold path, segmented.
         while (Request.Server.Running)
         {
             // Read the next frame
@@ -169,35 +157,25 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                 {
                     return nextFrame;
                 }
-                
-                // Ping/Pong, queue them
-                // We need to allocate here because when this frame is handled by the user,
-                // the pipe reader internal buffer is already consumed
-                
-                // Note: Another possibility is to immediately return the ping/pong and handle the rest of the continuation frame after
-                // but that raises a lot more complexity as we can't consume the pipe reader until the segmented frame is fully received
-                // and would complicate the overall logic, specially for the imperative to which the user would need to handle extra cases.
-                nextFrame.SetCachedData();
-                _queuedFrames.Enqueue(nextFrame);
-                Examine();
-                continue;
-                
-                // This returned frame must signal that Examine must be called, not Consume, also we can't lose the frame
-                // data, must store it and continue it, meaning that the first part of this method should be skipped!
-                
-                // In the ReactiveWebsocketContent, it should call a method that lives on the WebsocketConnection which 
-                // is smart enough to know whether to examine or consume, also in the imperative case the user might 
-                // only call examine so we should be able to keep slicing the new data @ReadFrameSegmentAsync 
+
+                _keepPipeReaderBufferValid = true;
+                _skipFrameInit = true;
+                return nextFrame;
+            }
+
+            if (_frame.SegmentedRawData is null) // This SHOULD be impossible to happen
+            {
+                throw new ArgumentNullException(nameof(_frame.SegmentedRawData));
             }
             
-            frame.SegmentedRawData.Add(nextFrame.RawData);
+            _frame.SegmentedRawData.Add(nextFrame.RawData);
             
             // If the received frame is FIN=1, merge all the SegmentedRawData into RawData
             if (nextFrame.Fin)
             {
-                frame.RawData = SequenceUtils.ConcatSequences(frame.SegmentedRawData);
+                _frame.RawData = SequenceUtils.ConcatSequences(_frame.SegmentedRawData);
 
-                return frame;
+                return _frame;
             }
             
             Examine();
@@ -227,10 +205,11 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                 return new WebsocketFrame(FrameType.Close);
             }
             
+            //_currentSequence = result.Buffer.Slice(_examined);
             _currentSequence = !isFirstFrame 
                 ? result.Buffer.Slice(_examined) 
                 : result.Buffer;
-
+            
             var frame = Frame.Decode(ref _currentSequence, _rxMaxBufferSize, out var consumed, out var examined);
             _consumed = consumed;
             _examined = examined;
@@ -263,15 +242,28 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
         }
     }
 
-    /// <summary>
-    /// Advances examined data, marks the pipe reader we are ready for more data.
-    /// </summary>
-    private void Examine() => _pipeReader.AdvanceTo(_currentSequence.Start, _examined);
-    
-    /// <summary>
-    /// Advances consumed and examined data, memory portion is no longer guaranteed to be valid.
-    /// </summary>
-    public void Consume() => _pipeReader.AdvanceTo(_consumed, _examined);
+    public void Examine()
+    {
+        _pipeReader.AdvanceTo(_currentSequence.Start, _examined);
+    }
+
+    public void Consume()
+    {
+        _pipeReader.AdvanceTo(_consumed, _examined);
+        //_examined = default;
+    }
+
+    public void Advance()
+    {
+        if (_keepPipeReaderBufferValid)
+        {
+            Examine();
+            _keepPipeReaderBufferValid = false;
+            return;
+        }
+
+        Consume();
+    }
     
     #endregion
     
