@@ -63,5 +63,25 @@ public sealed class IntegrationTests
 
         await Client.ExecuteFragmented("127.0.0.1", host.Port);
     }
+    
+    // Automatic segmented handling
+    // Plus TCP fragmentation
+    // Plus segmented message
+    [TestMethod]
+    public async Task TestServerFunctionalFragmentedSegmented()
+    {
+        var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
+            .OnConnected(c => ValueTask.CompletedTask)
+            .OnMessage((c, m) => c.WriteAsync(m.Data))
+            .OnContinue((c, m) => c.WriteAsync(m.Data))
+            .OnPing((c, m) => c.PongAsync(m.Data))
+            .OnClose((c, m) => c.CloseAsync())
+            .OnError((c, e) => ValueTask.FromResult(false));
 
+        Chain.Works(websocket);
+
+        await using var host = await TestHost.RunAsync(websocket);
+
+        await Client.ExecuteFragmentedWithContinuationFrames("127.0.0.1", host.Port);
+    }
 }

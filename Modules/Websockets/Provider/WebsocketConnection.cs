@@ -189,6 +189,10 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
     /// </summary>
     private async ValueTask<WebsocketFrame> ReadFrameSegmentAsync(bool isFirstFrame = true, CancellationToken token = default)
     {
+        // Aux var to solve issue when TCP fragmentation meets frame segmentation,
+        // need to keep the original _examined to not slice further in case of TCP fragmentation
+        var innerExamined = _examined;
+        
         while (true)
         {
             var result = await _pipeReader.ReadAsync(token);
@@ -205,9 +209,8 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                 return new WebsocketFrame(FrameType.Close);
             }
             
-            //_currentSequence = result.Buffer.Slice(_examined);
             _currentSequence = !isFirstFrame 
-                ? result.Buffer.Slice(_examined) 
+                ? result.Buffer.Slice(innerExamined) 
                 : result.Buffer;
             
             var frame = Frame.Decode(ref _currentSequence, _rxMaxBufferSize, out var consumed, out var examined);
@@ -242,16 +245,16 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
         }
     }
 
-    public void Examine()
+    private void Examine()
     {
         _pipeReader.AdvanceTo(_currentSequence.Start, _examined);
     }
 
-    public void Consume()
+    private void Consume()
     {
         _pipeReader.AdvanceTo(_consumed, _examined);
     }
-
+    
     public void Advance()
     {
         if (_keepPipeReaderBufferValid)

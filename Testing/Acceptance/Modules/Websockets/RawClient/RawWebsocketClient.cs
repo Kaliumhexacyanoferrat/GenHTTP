@@ -277,6 +277,53 @@ public sealed class RawWebSocketClient : IAsyncDisposable
 
         return Encoding.UTF8.GetString(payload);
     }
+    
+    public Task SendTextAsContinuationFramesInTcpChunksAsync(
+        string text,
+        int wsFragmentPayloadSize,
+        int tcpChunkSize,
+        CancellationToken token = default)
+    {
+        if (wsFragmentPayloadSize <= 0) throw new ArgumentOutOfRangeException(nameof(wsFragmentPayloadSize));
+        if (tcpChunkSize <= 0) throw new ArgumentOutOfRangeException(nameof(tcpChunkSize));
+
+        var bytes = Encoding.UTF8.GetBytes(text);
+
+        // Build: TEXT(fin=0) + CONT(fin=0)* + CONT(fin=1)
+        // Then concatenate into one buffer so we can TCP-chunk it.
+        var frames = new List<byte[]>();
+        var offset = 0;
+        var fragIndex = 0;
+
+        while (offset < bytes.Length)
+        {
+            var take = Math.Min(wsFragmentPayloadSize, bytes.Length - offset);
+            var isFirst = fragIndex == 0;
+            var isFinal = (offset + take) == bytes.Length;
+
+            var opcode = isFirst ? (byte)0x1 /*Text*/ : (byte)0x0 /*Continuation*/;
+            var fin = isFinal;
+
+            var fragPayload = new ReadOnlySpan<byte>(bytes, offset, take);
+            frames.Add(BuildClientFrame(fragPayload, opcode, fin));
+
+            offset += take;
+            fragIndex++;
+        }
+
+        var total = 0;
+        foreach (var f in frames) total += f.Length;
+
+        var buffer = new byte[total];
+        var dst = 0;
+        foreach (var f in frames)
+        {
+            Buffer.BlockCopy(f, 0, buffer, dst, f.Length);
+            dst += f.Length;
+        }
+
+        return SendRawInChunksAsync(buffer, tcpChunkSize, token);
+    }
 
     public ValueTask DisposeAsync()
     {

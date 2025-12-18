@@ -144,4 +144,39 @@ public static class Client
         Assert.AreEqual("Second frame", echo3);
         Assert.AreEqual("Third frame", echo4);
     }
+    
+    public static async ValueTask ExecuteFragmentedWithContinuationFrames(string host, int port)
+    {
+        using var cts = new CancellationTokenSource(5000);
+        var token = cts.Token;
+
+        await using var client = new RawWebSocketClient();
+        await client.ConnectAsync(host, port, token);
+
+        // One logical message split across WebSocket continuation frames (and TCP-chunked)
+        await client.SendTextAsContinuationFramesInTcpChunksAsync(
+            "Hello split across continuation frames!",
+            wsFragmentPayloadSize: 4,
+            tcpChunkSize: 3,
+            token);
+
+        // Multiple complete frames in one TCP write
+        await client.SendMultipleTextFramesSingleWriteAsync(
+            token,
+            "First frame",
+            "Second frame",
+            "Third frame");
+
+        // Read echoes as MESSAGES (not single frames)
+        var echo1 = await client.ReceiveTextFrameAsync(token);
+        var echo2 = await client.ReceiveTextFrameAsync(token);
+        var echo3 = await client.ReceiveTextFrameAsync(token);
+        var echo4 = await client.ReceiveTextFrameAsync(token);
+
+        Assert.AreEqual("Hello split across continuation frames!", echo1);
+        Assert.AreEqual("First frame", echo2);
+        Assert.AreEqual("Second frame", echo3);
+        Assert.AreEqual("Third frame", echo4);
+    }
+
 }

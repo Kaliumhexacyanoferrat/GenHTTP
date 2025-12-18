@@ -53,6 +53,23 @@ public sealed class IntegrationTests
 
         await Client.ExecuteFragmented("127.0.0.1", host.Port);
     }
+    
+    // Automatic segmented handling
+    // Plus TCP fragmentation
+    // Plus segmented message
+    [TestMethod]
+    public async Task TestServerReactiveFragmentedSegmented()
+    {
+        var websocket = GenHTTP.Modules.Websockets.Websocket.Reactive()
+            .MaxFrameSize(1024)
+            .Handler(new ReactiveHandlerFragmented());
+
+        Chain.Works(websocket);
+
+        await using var host = await TestHost.RunAsync(websocket);
+
+        await Client.ExecuteFragmentedWithContinuationFrames("127.0.0.1", host.Port);
+    }
 
     public class ReactiveHandler : IReactiveHandler
     {
