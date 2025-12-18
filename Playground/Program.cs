@@ -54,4 +54,8 @@ class ChatHandler : IReactiveHandler
         return ValueTask.CompletedTask;
     }
 
+    public ValueTask<bool> OnError(IReactiveConnection connection, FrameError error)
+    {
+        return ValueTask.FromResult(false);
+    }
 }

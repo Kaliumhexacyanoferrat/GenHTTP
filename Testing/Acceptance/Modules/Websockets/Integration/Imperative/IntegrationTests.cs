@@ -70,6 +70,24 @@ public sealed class IntegrationTests
 
         await Client.ExecuteFragmentedWithContinuationFrames("127.0.0.1", host.Port);
     }
+    
+    // Automatic segmented handling
+    // Plus TCP fragmentation
+    // Plus segmented message
+    // No allocations
+    [TestMethod]
+    public async Task TestServerImperativeFragmentedSegmentedNoAllocations()
+    {
+        var websocket = GenHTTP.Modules.Websockets.Websocket
+            .Imperative()
+            .Handler(new MyHandlerFragmented());
+
+        Chain.Works(websocket);
+
+        await using var host = await TestHost.RunAsync(websocket);
+
+        await Client.ExecuteFragmentedWithContinuationFrames("127.0.0.1", host.Port);
+    }
 
     public class MyHandler : IImperativeHandler
     {
@@ -82,7 +100,7 @@ public sealed class IntegrationTests
             
                 while (connection.Request.Server.Running)
                 {
-                    connection.Advance();
+                    //connection.Advance();
                     
                     var frame = await connection.ReadFrameAsync();
 
@@ -124,7 +142,7 @@ public sealed class IntegrationTests
             {
                 while (connection.Request.Server.Running)
                 {
-                    connection.Advance();
+                    //connection.Advance();
                     
                     var frame = await connection.ReadFrameAsync();
 

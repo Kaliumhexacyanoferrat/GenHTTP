@@ -15,6 +15,7 @@ namespace GenHTTP.Modules.Websockets.Provider;
 public class WebsocketConnection : IReactiveConnection, IImperativeConnection, IAsyncDisposable
 {
     private readonly bool _handleContinuationFramesManually;
+    private readonly bool _allocateFrameData;
     
     private readonly Stream _stream;
     private readonly PipeReader _pipeReader;
@@ -36,7 +37,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
     #region Initialization
 
-    public WebsocketConnection(IRequest request, Stream stream, int rxMaxBufferSize = 1024 * 16, bool handleContinuationFramesManually = true)
+    public WebsocketConnection(IRequest request, Stream stream, int rxMaxBufferSize, bool handleContinuationFramesManually, bool allocateFrameData)
     {
         Request = request;
         _stream = stream;
@@ -49,6 +50,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                 minimumReadSize: Math.Min( rxMaxBufferSize / 4 , 1024 )));
 
         _handleContinuationFramesManually = handleContinuationFramesManually;
+        _allocateFrameData = allocateFrameData;
     }
 
     #endregion
@@ -107,6 +109,8 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
     public ValueTask<WebsocketFrame> ReadFrameAsync(CancellationToken token = default)
     {
+        Advance();
+        
         if (_handleContinuationFramesManually)
         {
             return ReadFrameSegmentAsync(isFirstFrame: true, token: token);
@@ -119,69 +123,81 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
     private async ValueTask<WebsocketFrame> ReadSegmentedFrameAsync(CancellationToken token = default)
     {
-        if (!_skipFrameInit) // When picking up an ongoing segmented frame after being interrupted by a Ping/Pong
+        try
         {
-            _frame = await ReadFrameSegmentAsync(isFirstFrame: true, token);
-            
-            if (_frame.Fin) // Hot Path
+            if (!_skipFrameInit) // When picking up an ongoing segmented frame after being interrupted by a Ping/Pong
             {
-                return _frame;
-            }
-            // Examine here to advance the pipe reader examined position,
-            // if the frame was FIN=1, Consume() would have been called instead by the reactive loop/imperative logic
-            Examine();
-            
-            _frame.IsSegmentedFrame = true;
-            _frame.SegmentedRawData = [_frame.RawData];
-        }
-        else
-        {
-            _skipFrameInit = false;
-        }
-        
-        // Cold path, segmented.
-        while (Request.Server.Running)
-        {
-            // Read the next frame
-            var nextFrame = await ReadFrameSegmentAsync(isFirstFrame: false, token);
+                _frame = await ReadFrameSegmentAsync(isFirstFrame: true, token);
 
-            if (IsErrorFrame(nextFrame))
-            {
-                // Return the error frame, disregard all the possible segment frames collected so far.
-                return nextFrame;
-            }
-
-            if (IsControlFrame(nextFrame))
-            {
-                if (nextFrame.Type == FrameType.Close)
+                if (_frame.Fin) // Hot Path
                 {
+                    return _frame;
+                }
+
+                // Examine here to advance the pipe reader examined position,
+                // if the frame was FIN=1, Consume() would have been called instead by the reactive loop/imperative logic
+                Examine();
+
+                _frame.IsSegmentedFrame = true;
+                _frame.SegmentedRawData = [_frame.RawData];
+            }
+            else
+            {
+                _skipFrameInit = false;
+            }
+
+            // Cold path, segmented.
+            while (Request.Server.Running)
+            {
+                // Read the next frame
+                var nextFrame = await ReadFrameSegmentAsync(isFirstFrame: false, token);
+
+                if (IsErrorFrame(nextFrame))
+                {
+                    // Return the error frame, disregard all the possible segment frames collected so far.
                     return nextFrame;
                 }
 
-                _keepPipeReaderBufferValid = true;
-                _skipFrameInit = true;
-                return nextFrame;
+                if (IsControlFrame(nextFrame))
+                {
+                    if (nextFrame.Type == FrameType.Close)
+                    {
+                        return nextFrame;
+                    }
+
+                    _keepPipeReaderBufferValid = true;
+                    _skipFrameInit = true;
+                    return nextFrame;
+                }
+
+                if (_frame.SegmentedRawData is null) // This SHOULD be impossible to happen
+                {
+                    throw new ArgumentNullException(nameof(_frame.SegmentedRawData));
+                }
+
+                _frame.SegmentedRawData.Add(nextFrame.RawData);
+
+                // If the received frame is FIN=1, merge all the SegmentedRawData into RawData
+                if (nextFrame.Fin)
+                {
+                    _frame.RawData = SequenceUtils.ConcatSequences(_frame.SegmentedRawData);
+
+                    return _frame;
+                }
+
+                Examine();
             }
 
-            if (_frame.SegmentedRawData is null) // This SHOULD be impossible to happen
-            {
-                throw new ArgumentNullException(nameof(_frame.SegmentedRawData));
-            }
-            
-            _frame.SegmentedRawData.Add(nextFrame.RawData);
-            
-            // If the received frame is FIN=1, merge all the SegmentedRawData into RawData
-            if (nextFrame.Fin)
-            {
-                _frame.RawData = SequenceUtils.ConcatSequences(_frame.SegmentedRawData);
-
-                return _frame;
-            }
-            
-            Examine();
+            return new WebsocketFrame(new FrameError("Unable to receive or assemble the segmented frame.",
+                FrameErrorType.UndefinedBehavior));
         }
-
-        return new WebsocketFrame(new FrameError("Unable to receive or assemble the segmented frame.", FrameErrorType.UndefinedBehavior));
+        finally
+        {
+            if (_allocateFrameData)
+            {
+                _frame.SetCachedData();
+            }
+        }
     }
 
     /// <summary>

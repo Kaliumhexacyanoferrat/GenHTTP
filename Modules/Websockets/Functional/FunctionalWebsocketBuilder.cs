@@ -37,6 +37,12 @@ public class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebsocketBui
         _builder.HandleContinuationFramesManually();
         return this;
     }
+    
+    public FunctionalWebsocketBuilder DoNotAllocateFrameData()
+    {
+        _builder.DoNotAllocateFrameData();
+        return this;
+    }
 
     /// <summary>
     /// Invoked when a new client has connected.
