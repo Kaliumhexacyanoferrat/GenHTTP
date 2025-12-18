@@ -32,19 +32,20 @@ public class ResultTypeTests
 
     #region Helpers
 
-    private async Task<TestHost> GetRunnerAsync(TestEngine engine) => await TestHost.RunAsync(Layout.Create().AddService<TestResource>("t", serializers: Serialization.Default(),
+    private async Task<TestHost> GetRunnerAsync(TestEngine engine, ExecutionMode mode) => await TestHost.RunAsync(Layout.Create().AddService<TestResource>("t", serializers: Serialization.Default(),
                                                                                                                       injectors: Injection.Default(),
-                                                                                                                      formatters: Formatting.Default()), engine: engine);
+                                                                                                                      formatters: Formatting.Default(),
+                                                                                                                      mode: mode), engine: engine);
 
     #endregion
 
     #region Tests
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task ControllerMayReturnTask(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task ControllerMayReturnTask(TestEngine engine, ExecutionMode mode)
     {
-        await using var runner = await GetRunnerAsync(engine);
+        await using var runner = await GetRunnerAsync(engine, mode);
 
         using var response = await runner.GetResponseAsync("/t/task");
 
@@ -52,10 +53,10 @@ public class ResultTypeTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task ControllerMayReturnValueTask(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task ControllerMayReturnValueTask(TestEngine engine, ExecutionMode mode)
     {
-        await using var runner = await GetRunnerAsync(engine);
+        await using var runner = await GetRunnerAsync(engine, mode);
 
         using var response = await runner.GetResponseAsync("/t/value-task");
 
@@ -63,10 +64,10 @@ public class ResultTypeTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task ControllerMayReturnGenericTask(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task ControllerMayReturnGenericTask(TestEngine engine, ExecutionMode mode)
     {
-        await using var runner = await GetRunnerAsync(engine);
+        await using var runner = await GetRunnerAsync(engine, mode);
 
         using var response = await runner.GetResponseAsync("/t/generic-task");
 
@@ -75,10 +76,10 @@ public class ResultTypeTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task ControllerMayReturnGenericValueTask(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task ControllerMayReturnGenericValueTask(TestEngine engine, ExecutionMode mode)
     {
-        await using var runner = await GetRunnerAsync(engine);
+        await using var runner = await GetRunnerAsync(engine, mode);
 
         using var response = await runner.GetResponseAsync("/t/generic-value-task");
 

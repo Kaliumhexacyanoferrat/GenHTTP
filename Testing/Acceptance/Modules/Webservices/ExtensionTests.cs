@@ -13,16 +13,16 @@ public sealed class ExtensionTests
     #region Tests
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestConfiguration(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestConfiguration(TestEngine engine, ExecutionMode mode)
     {
         var injectors = Injection.Default();
 
         var formats = Serialization.Default();
 
         var app = Layout.Create()
-                        .AddService<TestService>("by-type", injectors, formats)
-                        .AddService("by-instance", new TestService(), injectors, formats);
+                        .AddService<TestService>("by-type", injectors, formats, mode: mode)
+                        .AddService("by-instance", new TestService(), injectors, formats, mode: mode);
 
         await using var host = await TestHost.RunAsync(app, engine: engine);
 
