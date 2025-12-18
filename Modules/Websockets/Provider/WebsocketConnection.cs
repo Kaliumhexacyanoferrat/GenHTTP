@@ -293,15 +293,10 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
     {
         return frame.Type switch
         {
-            FrameType.Text => false,
-            FrameType.None => false,
-            FrameType.Binary => false,
-            FrameType.Continue => false,
             FrameType.Close => true,
             FrameType.Ping => true,
             FrameType.Pong => true,
-            FrameType.Error => false,
-            _ => throw new ArgumentOutOfRangeException($"Invalid WebsocketFrame Type {nameof(frame.Type)}")
+            _ => false
         };
     }
     
