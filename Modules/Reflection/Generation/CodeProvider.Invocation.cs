@@ -45,11 +45,17 @@ public static class CodeProviderInvocationExtensions
     {
         var methodName = operation.Method.Name;
 
-        var typeName = operation.Method.DeclaringType!.Name;
+        var typeName = CompilationUtil.GetQualifiedName(operation.Method.DeclaringType!);
 
         sb.AppendLine($"        var typedInstance = ({typeName})instance;");
         sb.AppendLine();
-        sb.AppendLine($"        var result = typedInstance.{methodName}(");
+
+        sb.Append("        ");
+        if (operation.Result.Sink != OperationResultSink.None)
+        {
+            sb.Append("var result = ");
+        }
+        sb.AppendLine($"typedInstance.{methodName}(");
         sb.AppendArgumentList(operation);
         sb.AppendLine($"        );");
     }

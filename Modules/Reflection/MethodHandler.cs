@@ -28,6 +28,8 @@ public sealed class MethodHandler : IHandler
 
     private Func<Delegate, IRequest, MethodRegistry, ValueTask<IResponse?>>? _compiledDelegate;
 
+    private Exception? _compilationError = null;
+
     #region Get-/Setters
 
     public Operation Operation { get; }
@@ -72,13 +74,21 @@ public sealed class MethodHandler : IHandler
     {
         if (UseCodeGeneration)
         {
-            if (Operation.Delegate != null)
+            try
             {
-                _compiledDelegate = OptimizedDelegate.Compile<Delegate>(Operation);
+                if (Operation.Delegate != null)
+                {
+                    _compiledDelegate = OptimizedDelegate.Compile<Delegate>(Operation);
+                }
+                else
+                {
+                    _compiledMethod = OptimizedDelegate.Compile<object>(Operation);
+                }
             }
-            else
+            catch (Exception e)
             {
-                _compiledMethod = OptimizedDelegate.Compile<object>(Operation);
+                // todo: log
+                _compilationError = e;
             }
         }
 
@@ -89,6 +99,12 @@ public sealed class MethodHandler : IHandler
     {
         if (UseCodeGeneration)
         {
+            if (_compilationError != null)
+            {
+                // todo: add fallback but allow fallback to be disabled for acceptance tests
+                throw _compilationError;
+            }
+
             if (Operation.Delegate != null)
             {
                 return RunAsDelegate(request);

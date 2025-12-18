@@ -5,7 +5,7 @@ namespace GenHTTP.Modules.Reflection.Generation;
 
 public static class CodeProviderResultExtensions
 {
-    
+
     public static void AppendResultConversion(this StringBuilder sb, Operation operation, bool isAsync)
     {
         switch (operation.Result.Sink)
@@ -18,6 +18,11 @@ public static class CodeProviderResultExtensions
             case OperationResultSink.Serializer:
                 {
                     sb.AppendSerializedResult();
+                    break;
+                }
+            case OperationResultSink.None:
+                {
+                    sb.AppendVoidResult();
                     break;
                 }
             default: throw new NotSupportedException();
@@ -34,5 +39,5 @@ public static class CodeProviderResultExtensions
             sb.AppendLine("        return new(response);");
         }
     }
-    
+
 }

@@ -58,14 +58,14 @@ public static class CodeProviderArgumentExtensions
         sb.AppendLine($"        {argument.Type}? arg{index} = null;");
         sb.AppendLine();
 
-        sb.AppendLine($"        if (request.Query.TryGetValue({CompilerSafety.GetString(argument.Name)}, out var queryArg{index}))");
+        sb.AppendLine($"        if (request.Query.TryGetValue({CompilationUtil.GetSafeString(argument.Name)}, out var queryArg{index}))");
         sb.AppendLine("        {");
         sb.AppendQueryArgumentAssignment(argument, index, "query");
         sb.AppendLine("        }");
 
         if (supportBodyArguments)
         {
-            sb.AppendLine($"        else if (bodyArgs?.TryGetValue({CompilerSafety.GetString(argument.Name)}, out var bodyArg{index})");
+            sb.AppendLine($"        else if (bodyArgs?.TryGetValue({CompilationUtil.GetSafeString(argument.Name)}, out var bodyArg{index})");
             sb.AppendLine("        {");
             sb.AppendQueryArgumentAssignment(argument, index, "body");
             sb.AppendLine("        }");
