@@ -134,10 +134,6 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                     return _frame;
                 }
 
-                // Examine here to advance the pipe reader examined position,
-                // if the frame was FIN=1, Consume() would have been called instead by the reactive loop/imperative logic
-                Examine();
-
                 _frame.IsSegmentedFrame = true;
                 _frame.SegmentedRawData = [_frame.RawData];
             }
@@ -149,6 +145,8 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
             // Cold path, segmented.
             while (Request.Server.Running)
             {
+                Examine();
+                
                 // Read the next frame
                 var nextFrame = await ReadFrameSegmentAsync(isFirstFrame: false, token);
 
@@ -184,8 +182,6 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
                     return _frame;
                 }
-
-                Examine();
             }
 
             return new WebsocketFrame(new FrameError("Unable to receive or assemble the segmented frame.",
