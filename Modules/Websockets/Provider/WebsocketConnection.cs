@@ -105,18 +105,16 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
         await _stream.FlushAsync(token);
     }
 
-    public ValueTask<WebsocketFrame> ReadFrameAsync(CancellationToken token = default)
+    public async ValueTask<IWebsocketFrame> ReadFrameAsync(CancellationToken token = default)
     {
         Advance();
 
         if (_handleContinuationFramesManually)
         {
-            return ReadFrameSegmentAsync(isFirstFrame: true, token: token);
+            return await ReadFrameSegmentAsync(isFirstFrame: true, token: token);
         }
-        else
-        {
-            return ReadSegmentedFrameAsync(token);
-        }
+
+        return await ReadSegmentedFrameAsync(token);
     }
 
     private async ValueTask<WebsocketFrame> ReadSegmentedFrameAsync(CancellationToken token = default)
@@ -132,8 +130,8 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                     return _frame;
                 }
 
-                _frame.IsSegmentedFrame = true;
-                _frame.SegmentedRawData = [_frame.RawData];
+                _frame.IsSegmented = true;
+                _frame.Segments = [_frame.Memory];
             }
             else
             {
@@ -166,17 +164,17 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                     return nextFrame;
                 }
 
-                if (_frame.SegmentedRawData is null) // This SHOULD be impossible to happen
+                if (_frame.Segments is null) // This SHOULD be impossible to happen
                 {
-                    throw new ArgumentNullException(nameof(_frame.SegmentedRawData));
+                    throw new ArgumentNullException(nameof(_frame.Segments));
                 }
 
-                _frame.SegmentedRawData.Add(nextFrame.RawData);
+                _frame.Segments.Add(nextFrame.Memory);
 
                 // If the received frame is FIN=1, merge all the SegmentedRawData into RawData
                 if (nextFrame.Fin)
                 {
-                    _frame.RawData = SequenceUtils.ConcatSequences(_frame.SegmentedRawData);
+                    _frame.Memory = SequenceUtils.ConcatSequences(_frame.Segments);
 
                     return _frame;
                 }
