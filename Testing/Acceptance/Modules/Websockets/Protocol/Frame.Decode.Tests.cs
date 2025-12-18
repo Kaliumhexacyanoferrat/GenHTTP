@@ -54,14 +54,12 @@ public sealed class Frame_Decode_Tests
 
         var sequence = new ReadOnlySequence<byte>(frame);
         var readResult = new ReadResult(sequence, isCanceled: false, isCompleted: false);
-        
+
         var seq = readResult.Buffer;
 
         var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
-        Assert.AreEqual(FrameType.Error, result.Type);
-        Assert.IsNotNull(result.FrameError);
-        Assert.AreEqual(FrameErrorType.Incomplete, result.FrameError!.ErrorType);
+        AssertError(result, FrameErrorType.Incomplete);
 
         // For incomplete: do not consume anything, examine everything
         Assert.AreEqual(sequence.Start, consumed);
@@ -80,14 +78,12 @@ public sealed class Frame_Decode_Tests
 
         var sequence = new ReadOnlySequence<byte>(frame);
         var readResult = new ReadResult(sequence, isCanceled: false, isCompleted: false);
-        
+
         var seq = readResult.Buffer;
 
         var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
-        Assert.AreEqual(FrameType.Error, result.Type);
-        Assert.IsNotNull(result.FrameError);
-        Assert.AreEqual(FrameErrorType.InvalidOpCode, result.FrameError!.ErrorType);
+        AssertError(result, FrameErrorType.InvalidOpCode);
 
         // We read the whole 2-byte header, so consumed/examined == End
         Assert.AreEqual(sequence.End, consumed);
@@ -106,14 +102,12 @@ public sealed class Frame_Decode_Tests
 
         var sequence = new ReadOnlySequence<byte>(frame);
         var readResult = new ReadResult(sequence, isCanceled: false, isCompleted: false);
-        
+
         var seq = readResult.Buffer;
 
         var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
-        Assert.AreEqual(FrameType.Error, result.Type);
-        Assert.IsNotNull(result.FrameError);
-        Assert.AreEqual(FrameErrorType.InvalidControlFrame, result.FrameError!.ErrorType);
+        AssertError(result, FrameErrorType.InvalidControlFrame);
 
         // Again we've consumed the 2-byte header
         Assert.AreEqual(sequence.End, consumed);
@@ -132,14 +126,12 @@ public sealed class Frame_Decode_Tests
 
         var sequence = new ReadOnlySequence<byte>(frame);
         var readResult = new ReadResult(sequence, isCanceled: false, isCompleted: false);
-        
+
         var seq = readResult.Buffer;
 
         var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
-        Assert.AreEqual(FrameType.Error, result.Type);
-        Assert.IsNotNull(result.FrameError);
-        Assert.AreEqual(FrameErrorType.InvalidControlFrameLength, result.FrameError!.ErrorType);
+        AssertError(result, FrameErrorType.InvalidControlFrameLength);
 
         Assert.AreEqual(sequence.End, consumed);
         Assert.AreEqual(sequence.End, examined);
@@ -167,7 +159,7 @@ public sealed class Frame_Decode_Tests
 
         var sequence = new ReadOnlySequence<byte>(frame);
         var readResult = new ReadResult(sequence, isCanceled: false, isCompleted: false);
-        
+
         var seq = readResult.Buffer;
 
         var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
@@ -209,7 +201,7 @@ public sealed class Frame_Decode_Tests
 
         var sequence = new ReadOnlySequence<byte>(frame);
         var readResult = new ReadResult(sequence, isCanceled: false, isCompleted: false);
-        
+
         var seq = readResult.Buffer;
 
         var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
@@ -233,7 +225,7 @@ public sealed class Frame_Decode_Tests
 
         var sequence = new ReadOnlySequence<byte>(frame);
         var readResult = new ReadResult(sequence, isCanceled: false, isCompleted: false);
-        
+
         var seq = readResult.Buffer;
 
         var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
@@ -265,7 +257,7 @@ public sealed class Frame_Decode_Tests
 
         var sequence = new ReadOnlySequence<byte>(frame);
         var readResult = new ReadResult(sequence, isCanceled: false, isCompleted: false);
-        
+
         var seq = readResult.Buffer;
 
         var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
@@ -298,14 +290,12 @@ public sealed class Frame_Decode_Tests
         var readResult = new ReadResult(sequence, isCanceled: false, isCompleted: false);
 
         const int smallRxBufferSize = 1024; // Ensure maxAllowedPayload << 2^31
-        
+
         var seq = readResult.Buffer;
 
         var result = Frame.Decode(ref seq, smallRxBufferSize, out var consumed, out var examined);
 
-        Assert.AreEqual(FrameType.Error, result.Type);
-        Assert.IsNotNull(result.FrameError);
-        Assert.AreEqual(FrameErrorType.PayloadTooLarge, result.FrameError!.ErrorType);
+        AssertError(result, FrameErrorType.PayloadTooLarge);
 
         Assert.AreEqual(sequence.End, consumed);
         Assert.AreEqual(sequence.End, examined);
@@ -323,17 +313,30 @@ public sealed class Frame_Decode_Tests
 
         var sequence = new ReadOnlySequence<byte>(frame);
         var readResult = new ReadResult(sequence, isCanceled: false, isCompleted: false);
-        
+
         var seq = readResult.Buffer;
 
         var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
-        Assert.AreEqual(FrameType.Error, result.Type);
-        Assert.IsNotNull(result.FrameError);
-        Assert.AreEqual(FrameErrorType.Incomplete, result.FrameError!.ErrorType);
+        AssertError(result, FrameErrorType.Incomplete);
 
         // Incomplete => nothing consumed, everything examined
         Assert.AreEqual(sequence.Start, consumed);
         Assert.AreEqual(sequence.End, examined);
     }
+
+    private static void AssertError(WebsocketFrame frame, FrameErrorType expected)
+    {
+        Assert.AreEqual(FrameType.Error, frame.Type);
+
+        if (frame.IsError(out var error))
+        {
+            Assert.AreEqual(expected, error.ErrorType);
+        }
+        else
+        {
+            Assert.Fail("Did not return an error frame");
+        }
+    }
+
 }

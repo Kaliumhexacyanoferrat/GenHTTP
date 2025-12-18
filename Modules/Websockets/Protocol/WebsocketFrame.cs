@@ -1,5 +1,7 @@
 using System.Buffers;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Websockets.Protocol;
 
@@ -9,6 +11,8 @@ namespace GenHTTP.Modules.Websockets.Protocol;
 public sealed class WebsocketFrame
 {
     private ReadOnlyMemory<byte>? _cachedData;
+
+    private readonly FrameError? _frameError = null;
 
     #region Get-/Setters
 
@@ -65,13 +69,6 @@ public sealed class WebsocketFrame
     /// </summary>
     public bool Fin { get; }
 
-    /// <summary>
-    /// If this frame resembles an error, this
-    /// property contains more information about
-    /// the issue.
-    /// </summary>
-    public FrameError? FrameError { get; private set; }
-
     #endregion
 
     #region Initialization
@@ -94,22 +91,29 @@ public sealed class WebsocketFrame
     {
         Type = type;
         Fin = fin;
-        FrameError = frameError;
+
+        _frameError = frameError;
     }
 
     #endregion
 
     #region Functionality
 
-    // For pooled object case
-    public void Clear()
+    /// <summary>
+    /// Checks, whether the frame represents an error.
+    /// </summary>
+    /// <param name="error">If this is an error frame, the actual error that happened</param>
+    /// <returns>true, if this is an error frame, false otherwise</returns>
+    public bool IsError([MaybeNullWhen(returnValue: false)] out FrameError error)
     {
-        IsSegmentedFrame = false;
-        SegmentedRawData?.Clear();
-        RawData = default;
-        _cachedData = null;
+        if ((Type == FrameType.Error) && (_frameError != null))
+        {
+            error = _frameError;
+            return true;
+        }
 
-        FrameError = null;
+        error = null;
+        return false;
     }
 
     /// <summary>

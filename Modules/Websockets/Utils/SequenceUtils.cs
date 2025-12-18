@@ -1,5 +1,4 @@
 using System.Buffers;
-using GenHTTP.Modules.Websockets.Provider;
 
 namespace GenHTTP.Modules.Websockets.Utils;
 

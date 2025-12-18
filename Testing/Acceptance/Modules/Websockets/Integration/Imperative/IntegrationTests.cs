@@ -22,7 +22,7 @@ public sealed class IntegrationTests
 
         await Client.Execute(host.Port);
     }
-    
+
     // Automatic segmented handling
     [TestMethod]
     public async Task TestServerImperativeSegmented()
@@ -37,7 +37,7 @@ public sealed class IntegrationTests
 
         await Client.ExecuteSegmented(host.Port);
     }
-    
+
     // Automatic segmented handling
     // Plus TCP fragmentation
     [TestMethod]
@@ -53,7 +53,7 @@ public sealed class IntegrationTests
 
         await Client.ExecuteFragmented("127.0.0.1", host.Port);
     }
-    
+
     // Automatic segmented handling
     // Plus TCP fragmentation
     // Plus segmented message
@@ -70,7 +70,7 @@ public sealed class IntegrationTests
 
         await Client.ExecuteFragmentedWithContinuationFrames("127.0.0.1", host.Port);
     }
-    
+
     // Automatic segmented handling
     // Plus TCP fragmentation
     // Plus segmented message
@@ -97,16 +97,15 @@ public sealed class IntegrationTests
             try
             {
                 await connection.PingAsync();
-            
+
                 while (connection.Request.Server.Running)
                 {
                     //connection.Advance();
-                    
+
                     var frame = await connection.ReadFrameAsync();
 
-                    if (frame.Type == FrameType.Error)
+                    if (frame.IsError(out var error))
                     {
-                        var error = frame.FrameError!;
                         Console.WriteLine($"{error.ErrorType}: {error.Message}");
                         continue;
                     }
@@ -132,7 +131,7 @@ public sealed class IntegrationTests
             }
         }
     }
-    
+
     public class MyHandlerFragmented : IImperativeHandler
     {
 
@@ -143,12 +142,11 @@ public sealed class IntegrationTests
                 while (connection.Request.Server.Running)
                 {
                     //connection.Advance();
-                    
+
                     var frame = await connection.ReadFrameAsync();
 
-                    if (frame.Type == FrameType.Error)
+                    if (frame.IsError(out var error))
                     {
-                        var error = frame.FrameError!;
                         Console.WriteLine($"{error.ErrorType}: {error.Message}");
                         continue;
                     }

@@ -10,25 +10,23 @@ using GenHTTP.Modules.Websockets.Utils;
 
 namespace GenHTTP.Modules.Websockets.Provider;
 
-// TODO: Evaluate using ObjectPool for WebsocketFrames to avoid allocating new objects (not for this PR)
-
 public class WebsocketConnection : IReactiveConnection, IImperativeConnection, IAsyncDisposable
 {
     private readonly bool _handleContinuationFramesManually;
     private readonly bool _allocateFrameData;
-    
+
     private readonly Stream _stream;
     private readonly PipeReader _pipeReader;
     private readonly int _rxMaxBufferSize;
     private SequencePosition _consumed;
     private SequencePosition _examined;
     private ReadOnlySequence<byte> _currentSequence;
-    
+
     private bool _skipFrameInit;
     private bool _keepPipeReaderBufferValid;
-    
+
     private WebsocketFrame _frame = null!;
-    
+
     #region Get-/Setters
 
     public IRequest Request { get; }
@@ -110,7 +108,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
     public ValueTask<WebsocketFrame> ReadFrameAsync(CancellationToken token = default)
     {
         Advance();
-        
+
         if (_handleContinuationFramesManually)
         {
             return ReadFrameSegmentAsync(isFirstFrame: true, token: token);
@@ -146,7 +144,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
             while (Request.Server.Running)
             {
                 Examine();
-                
+
                 // Read the next frame
                 var nextFrame = await ReadFrameSegmentAsync(isFirstFrame: false, token);
 
@@ -204,8 +202,8 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
         // Aux var to solve issue when TCP fragmentation meets frame segmentation,
         // need to keep the original _examined to not slice further in case of TCP fragmentation
         var innerExamined = _examined;
-        
-        while (true)
+
+        while (Request.Server.Running)
         {
             var result = await _pipeReader.ReadAsync(token);
 
@@ -220,18 +218,17 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                 _pipeReader.AdvanceTo(result.Buffer.End, result.Buffer.End);
                 return new WebsocketFrame(FrameType.Close);
             }
-            
-            _currentSequence = !isFirstFrame 
-                ? result.Buffer.Slice(innerExamined) 
+
+            _currentSequence = !isFirstFrame
+                ? result.Buffer.Slice(innerExamined)
                 : result.Buffer;
-            
+
             var frame = Frame.Decode(ref _currentSequence, _rxMaxBufferSize, out var consumed, out var examined);
             _consumed = consumed;
             _examined = examined;
 
             // Need more data for a complete frame
-            if (frame.Type == FrameType.Error &&
-                frame.FrameError!.ErrorType == FrameErrorType.Incomplete)
+            if (frame.IsError(out var error) && error.ErrorType == FrameErrorType.Incomplete)
             {
                 if (result.IsCompleted)
                 {
@@ -255,6 +252,8 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
             // Any other frame (including other errors)
             return frame;
         }
+
+        throw new InvalidOperationException("Server has been stopped");
     }
 
     private void Examine()
@@ -266,7 +265,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
     {
         _pipeReader.AdvanceTo(_consumed, _examined);
     }
-    
+
     private void Advance()
     {
         if (_keepPipeReaderBufferValid)
@@ -278,14 +277,14 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
         Consume();
     }
-    
+
     #endregion
-    
+
     #region Private Static Inline Helpers
-    
+
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsErrorFrame(WebsocketFrame frame) => frame.Type == FrameType.Error; 
+    private static bool IsErrorFrame(WebsocketFrame frame) => frame.Type == FrameType.Error;
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -299,15 +298,12 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
             _ => false
         };
     }
-    
+
     #endregion
-    
+
     #region Disposable Pattern
 
-    public async ValueTask DisposeAsync()
-    {
-        await _pipeReader.CompleteAsync();
-    }
+    public ValueTask DisposeAsync() => _pipeReader.CompleteAsync();
 
     #endregion
 
