@@ -267,7 +267,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
         _pipeReader.AdvanceTo(_consumed, _examined);
     }
     
-    public void Advance()
+    private void Advance()
     {
         if (_keepPipeReaderBufferValid)
         {
