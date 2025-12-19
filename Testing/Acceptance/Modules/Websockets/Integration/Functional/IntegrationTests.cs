@@ -1,3 +1,4 @@
+using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Serializers.Json;
 using GenHTTP.Modules.Websockets;
 
@@ -32,6 +33,7 @@ public sealed class IntegrationTests
     public async Task TestText()
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
+                               .Formatters(Formatting.Default().Build())
                                .OnMessage(async (c, m) =>
                                {
                                    var data = await m.ReadPayloadAsync<string>();
