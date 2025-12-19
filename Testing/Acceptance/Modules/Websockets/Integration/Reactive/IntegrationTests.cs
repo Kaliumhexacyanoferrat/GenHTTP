@@ -1,5 +1,7 @@
+using GenHTTP.Modules.Conversion.Serializers.Json;
 using GenHTTP.Modules.Websockets;
 using GenHTTP.Modules.Websockets.Protocol;
+
 using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Websockets.Integration.Reactive;
@@ -21,6 +23,19 @@ public sealed class IntegrationTests
         await using var host = await TestHost.RunAsync(websocket);
 
         await Client.Execute(host.Port);
+    }
+
+
+    [TestMethod]
+    public async Task TestSerialization()
+    {
+        var websocket = GenHTTP.Modules.Websockets.Websocket.Reactive()
+                               .Serialization(new JsonFormat())
+                               .Handler(new ReactiveHandlerSerialized());
+
+        await using var host = await TestHost.RunAsync(websocket);
+
+        await Client.ExecuteSerialized(host.Port);
     }
 
     // Automatic segmented handling
@@ -128,6 +143,17 @@ public sealed class IntegrationTests
         {
             Console.WriteLine($"{error.ErrorType}: {error.Message}");
             return ValueTask.FromResult(false);
+        }
+
+    }
+
+    public class ReactiveHandlerSerialized : IReactiveHandler
+    {
+
+        public async ValueTask OnMessage(IReactiveConnection connection, IWebsocketFrame message)
+        {
+            var thing = await message.ReadPayloadAsync<Client.SerializedThing>();
+            await connection.WritePayloadAsync(thing);
         }
 
     }

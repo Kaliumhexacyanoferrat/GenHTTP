@@ -100,8 +100,6 @@ public sealed class IntegrationTests
 
                 while (connection.Request.Server.Running)
                 {
-                    //connection.Advance();
-
                     var frame = await connection.ReadFrameAsync();
 
                     if (frame.IsError(out var error))
@@ -141,8 +139,6 @@ public sealed class IntegrationTests
             {
                 while (connection.Request.Server.Running)
                 {
-                    //connection.Advance();
-
                     var frame = await connection.ReadFrameAsync();
 
                     if (frame.IsError(out var error))
@@ -172,4 +168,5 @@ public sealed class IntegrationTests
             }
         }
     }
+
 }

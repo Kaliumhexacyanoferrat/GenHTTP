@@ -1,6 +1,7 @@
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Websockets.Protocol;
+using GenHTTP.Modules.Websockets.Provider;
 
 namespace GenHTTP.Modules.Websockets;
 
@@ -15,6 +16,11 @@ public interface ISocketConnection
     /// The request that initially caused the web socket connection.
     /// </summary>
     IRequest Request { get; }
+
+    /// <summary>
+    /// The settings the connection was initialized with.
+    /// </summary>
+    ConnectionSettings Settings { get; }
 
     /// <summary>
     /// Creates a web socket frame from the given payload and options

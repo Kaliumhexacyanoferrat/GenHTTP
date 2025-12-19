@@ -29,7 +29,7 @@ public class ReactiveWebsocketBuilder : WebsocketBuilder<ReactiveWebsocketBuilde
 
         return Concerns.Chain(_concerns, new WebsocketHandler(ContentFactory));
 
-        ReactiveWebsocketContent ContentFactory(IRequest r) => new (_handler, r, _maxRxBufferSize, _handleContinuationFramesManually, _allocateFrameData);
+        ReactiveWebsocketContent ContentFactory(IRequest r) => new(_handler, r, BuildSettings());
     }
 
 }

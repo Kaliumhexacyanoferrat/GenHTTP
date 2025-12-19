@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Content;
-
+using GenHTTP.Modules.Conversion.Formatters;
+using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Websockets.Protocol;
 using GenHTTP.Modules.Websockets.Reactive;
 
@@ -23,6 +24,18 @@ public class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebsocketBui
     public FunctionalWebsocketBuilder Add(IConcernBuilder concern)
     {
         _builder.Add(concern);
+        return this;
+    }
+
+    public FunctionalWebsocketBuilder Formatters(FormatterRegistry formatters)
+    {
+        _builder.Formatters(formatters);
+        return this;
+    }
+
+    public FunctionalWebsocketBuilder Serialization(ISerializationFormat format)
+    {
+        _builder.Serialization(format);
         return this;
     }
 

@@ -1,5 +1,10 @@
 ﻿using GenHTTP.Api.Content;
 
+using GenHTTP.Modules.Conversion;
+using GenHTTP.Modules.Conversion.Formatters;
+using GenHTTP.Modules.Conversion.Serializers;
+using GenHTTP.Modules.Conversion.Serializers.Json;
+
 namespace GenHTTP.Modules.Websockets.Provider;
 
 public abstract class WebsocketBuilder<T> : IHandlerBuilder<T> where T : WebsocketBuilder<T>
@@ -10,9 +15,33 @@ public abstract class WebsocketBuilder<T> : IHandlerBuilder<T> where T : Websock
 
     protected int _maxRxBufferSize = 1024 * 16; // 16 KB
 
+    protected FormatterRegistry _formatters = Formatting.Default().Build();
+
+    protected ISerializationFormat _serializationFormat = new JsonFormat();
+
     public T Add(IConcernBuilder concern)
     {
         _concerns.Add(concern);
+        return (T)this;
+    }
+
+    /// <summary>
+    /// Sets the formatting registry used to send and receive formatted data.
+    /// </summary>
+    /// <param name="formatters">The formatters to use for this socket</param>
+    public T Formatters(FormatterRegistry formatters)
+    {
+        _formatters = formatters;
+        return (T)this;
+    }
+
+    /// <summary>
+    /// Sets the serialization handler to send and receive structured data.
+    /// </summary>
+    /// <param name="format">The format to use for this socket</param>
+    public T Serialization(ISerializationFormat format)
+    {
+        _serializationFormat = format;
         return (T)this;
     }
 
@@ -52,6 +81,8 @@ public abstract class WebsocketBuilder<T> : IHandlerBuilder<T> where T : Websock
         _allocateFrameData = false;
         return (T)this;
     }
+
+    protected ConnectionSettings BuildSettings() => new(_formatters, _serializationFormat, _maxRxBufferSize, _handleContinuationFramesManually, _allocateFrameData);
 
     public abstract IHandler Build();
 

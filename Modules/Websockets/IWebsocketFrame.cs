@@ -35,6 +35,11 @@ public interface IWebsocketFrame
     IRawFrameData Raw { get; }
 
     /// <summary>
+    /// The connection the frame has been read from.
+    /// </summary>
+    ISocketConnection Connection { get; }
+
+    /// <summary>
     /// Checks, whether the frame represents an error.
     /// </summary>
     /// <param name="error">If this is an error frame, the actual error that happened</param>

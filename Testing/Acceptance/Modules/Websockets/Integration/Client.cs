@@ -63,7 +63,7 @@ public static class Client
             Console.WriteLine(e);
         }
     }
-    
+
     public static async ValueTask ExecuteSegmented(int port)
     {
         using var cts = new CancellationTokenSource(4000);
@@ -144,7 +144,7 @@ public static class Client
         Assert.AreEqual("Second frame", echo3);
         Assert.AreEqual("Third frame", echo4);
     }
-    
+
     public static async ValueTask ExecuteFragmentedWithContinuationFrames(string host, int port)
     {
         using var cts = new CancellationTokenSource(5000);
@@ -177,6 +177,48 @@ public static class Client
         Assert.AreEqual("First frame", echo2);
         Assert.AreEqual("Second frame", echo3);
         Assert.AreEqual("Third frame", echo4);
+    }
+
+    public static async ValueTask ExecuteSerialized(int port)
+    {
+        using var cts = new CancellationTokenSource(4000);
+        var token = cts.Token;
+
+        var client = new ClientWebSocket();
+
+        await client.ConnectAsync(new Uri($"ws://localhost:{port}"), token);
+
+        // Sending a serialized message
+        var serializedObject = "{\"message\":\"Hello World!\"}";
+
+        var bytes = Encoding.UTF8.GetBytes(serializedObject);
+        await client.SendAsync(bytes, WebSocketMessageType.Text, true, token);
+
+        var responseBuffer = new byte[bytes.Length];
+        var response = await client.ReceiveAsync(new ArraySegment<byte>(responseBuffer), token);
+
+        Assert.AreEqual(WebSocketMessageType.Text, response.MessageType);
+        Assert.AreEqual(serializedObject, Encoding.UTF8.GetString(responseBuffer));
+
+        // Close connection
+        await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "bye", token);
+
+        try
+        {
+            client.Dispose();
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e);
+            Console.WriteLine(e);
+        }
+    }
+
+    public class SerializedThing
+    {
+
+        public string? Message { get; set; }
+
     }
 
 }
