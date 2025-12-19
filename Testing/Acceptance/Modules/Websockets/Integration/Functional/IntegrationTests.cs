@@ -1,5 +1,6 @@
 using GenHTTP.Modules.Conversion.Serializers.Json;
 using GenHTTP.Modules.Websockets;
+
 using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Websockets.Integration.Functional;
@@ -28,14 +29,29 @@ public sealed class IntegrationTests
     }
 
     [TestMethod]
+    public async Task TestText()
+    {
+        var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
+                               .OnMessage(async (c, m) =>
+                               {
+                                   var data = await m.ReadPayloadAsync<string>();
+                                   await c.WritePayloadAsync(data);
+                               });
+
+        await using var host = await TestHost.RunAsync(websocket);
+
+        await Client.ExecuteSerialized(host.Port);
+    }
+
+    [TestMethod]
     public async Task TestSerialization()
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
                                .Serialization(new JsonFormat())
                                .OnMessage(async (c, m) =>
                                {
-                                   var thing = await m.DataAsAsync<Client.SerializedThing>();
-                                   await c.WriteAsync(thing);
+                                   var thing = await m.ReadPayloadAsync<Client.SerializedThing>();
+                                   await c.WritePayloadAsync(thing);
                                });
 
         await using var host = await TestHost.RunAsync(websocket);

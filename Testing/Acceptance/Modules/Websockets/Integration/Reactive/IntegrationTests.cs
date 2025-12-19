@@ -152,8 +152,8 @@ public sealed class IntegrationTests
 
         public async ValueTask OnMessage(IReactiveConnection connection, IWebsocketFrame message)
         {
-            var thing = await message.DataAsAsync<Client.SerializedThing>();
-            await connection.WriteAsync(thing);
+            var thing = await message.ReadPayloadAsync<Client.SerializedThing>();
+            await connection.WritePayloadAsync(thing);
         }
 
     }

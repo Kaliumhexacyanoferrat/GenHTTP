@@ -1,9 +1,10 @@
-using GenHTTP.Modules.Websockets.Protocol;
 using System.Buffers;
 using System.Buffers.Binary;
 using System.IO.Pipelines;
 using System.Text;
+
 using GenHTTP.Modules.Websockets;
+using GenHTTP.Modules.Websockets.Protocol;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Websockets.Protocol;
 
@@ -167,7 +168,7 @@ public sealed class Frame_Decode_Tests
 
         Assert.AreEqual(FrameType.Text, result.Type);
         Assert.IsTrue(result.Fin);
-        Assert.AreEqual(payloadString, result.DataAsString());
+        Assert.AreEqual(payloadString, result.ReadPayloadAsync<string>().Result);
 
         // Full frame consumed
         Assert.AreEqual(sequence.End, consumed);
@@ -208,7 +209,7 @@ public sealed class Frame_Decode_Tests
         var result = Frame.Decode(new MockConnection(), ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
         Assert.AreEqual(FrameType.Close, result.Type);
-        Assert.AreEqual("Close frame received. Code: 1000, Reason: Bye", result.DataAsString());
+        Assert.AreEqual("Close frame received. Code: 1000, Reason: Bye", result.ReadPayloadAsync<string>().Result);
 
         Assert.AreEqual(sequence.End, consumed);
         Assert.AreEqual(sequence.End, examined);
