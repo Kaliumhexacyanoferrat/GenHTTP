@@ -166,7 +166,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
                 if (_frame.Segments is null) // This SHOULD be impossible to happen
                 {
-                    throw new ArgumentNullException(nameof(_frame.Segments));
+                    throw new InvalidOperationException("Existing frame does not contain segments to append to");
                 }
 
                 _frame.Segments.Add(nextFrame.Memory);
@@ -180,8 +180,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                 }
             }
 
-            return new WebsocketFrame(new FrameError("Unable to receive or assemble the segmented frame.",
-                FrameErrorType.UndefinedBehavior));
+            return new WebsocketFrame(new FrameError("Unable to receive or assemble the segmented frame.", FrameErrorType.UndefinedBehavior));
         }
         finally
         {
