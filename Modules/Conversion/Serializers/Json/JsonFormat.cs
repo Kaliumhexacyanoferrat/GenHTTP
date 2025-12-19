@@ -33,6 +33,13 @@ public sealed class JsonFormat : ISerializationFormat
 
     #region Functionality
 
+    /// <summary>
+    /// Creates a copy of the default serializer settings that can be used
+    /// for further customization.
+    /// </summary>
+    /// <returns>The cloned JSON serializer options</returns>
+    public static JsonSerializerOptions GetDefaultOptions() => new(DefaultOptions);
+
     public ValueTask<object?> DeserializeAsync(Stream stream, Type type) => JsonSerializer.DeserializeAsync(stream, type, Options);
 
     public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)

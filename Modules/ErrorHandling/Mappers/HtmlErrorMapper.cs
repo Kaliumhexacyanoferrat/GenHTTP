@@ -1,10 +1,9 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Pages;
 
-namespace GenHTTP.Modules.ErrorHandling;
+namespace GenHTTP.Modules.ErrorHandling.Mappers;
 
 public class HtmlErrorMapper : IErrorMapper<Exception>
 {

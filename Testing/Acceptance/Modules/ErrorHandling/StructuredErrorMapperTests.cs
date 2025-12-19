@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.ErrorHandling;
+using GenHTTP.Modules.ErrorHandling.Mappers;
 using GenHTTP.Modules.Functional;
 
 namespace GenHTTP.Testing.Acceptance.Modules.ErrorHandling;

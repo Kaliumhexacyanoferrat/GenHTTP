@@ -1,12 +1,13 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Conversion.Serializers.Json;
+using GenHTTP.Modules.ErrorHandling.Provider;
+using GenHTTP.Modules.IO;
 
-namespace GenHTTP.Modules.ErrorHandling;
+namespace GenHTTP.Modules.ErrorHandling.Mappers;
 
 public sealed class StructuredErrorMapper : IErrorMapper<Exception>
 {
@@ -15,7 +16,17 @@ public sealed class StructuredErrorMapper : IErrorMapper<Exception>
 
     public StructuredErrorMapper(SerializationRegistry? registry)
     {
-        Registry = registry ?? Serialization.Default().Build();
+        Registry = registry ?? GetDefaultSerialization();
+    }
+
+    private static SerializationRegistry GetDefaultSerialization()
+    {
+        var options = JsonFormat.GetDefaultOptions();
+
+        // ensure error model can be serialized in AoT
+        options.TypeInfoResolverChain.Add(ErrorHandlingContext.Default);
+
+        return Serialization.Default(jsonOptions: options).Build();
     }
 
     #endregion
