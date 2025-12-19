@@ -1,10 +1,10 @@
 # GenHTTP Webserver
 
-GenHTTP is a lightweight web server written in pure C# with a strong focus on developer experience. The main
+GenHTTP is a lightweight, modular web server written in pure C# with a strong focus on developer experience. The main
 purpose of this project is to quickly create web services written in .NET 8 / 9 / 10, allowing developers to concentrate on
 the functionality rather than on messing around with configuration files or complex concepts.
 
-[![View - Documentation](https://img.shields.io/badge/view-Documentation-AB54FF)](https://genhttp.org/documentation/) [![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Core.svg)](https://www.nuget.org/packages/GenHTTP.Core/) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GenHTTP&metric=coverage)](https://sonarcloud.io/dashboard?id=GenHTTP) [![Discord](https://discordapp.com/api/guilds/1177529388229734410/widget.png?style=shield)](https://discord.gg/GwtDyUpkpV)
+[![View - Documentation](https://img.shields.io/badge/view-Documentation-AB54FF)](https://genhttp.org/documentation/) [![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Core.svg)](https://www.nuget.org/packages/GenHTTP.Core/) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GenHTTP&metric=coverage)](https://sonarcloud.io/dashboard?id=GenHTTP) [![Discord](https://discordapp.com/api/guilds/1177529388229734410/widget.png?style=shield)](https://discord.gg/PRkwKrnrB4)
 
 ## 🚀 Features
 
@@ -73,7 +73,7 @@ to [host your application](https://genhttp.org/documentation/hosting/) via Docke
 ## 🤔  Support
 
 If you encounter issues implementing your application, feel free
-to [join our Discord community](https://discord.gg/GwtDyUpkpV) to get help.
+to [join our Discord community](https://discord.gg/PRkwKrnrB4) to get help.
 
 For commercial products and projects, GenHTTP provides additional support options
 [on request](https://genhttp.org/support/).
@@ -134,7 +134,7 @@ in C#. In 2024 the focus has shifted towards API development, dropping support f
 - Reference
   projects: [GenHTTP Gateway](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Gateway) | [MockH](https://github.com/Kaliumhexacyanoferrat/MockH)
 - Similar
-  projects: [Wired.IO](https://github.com/MDA2AV/Wired.IO) | [Unhinged](https://github.com/MDA2AV/unhinged) | [Sisk](https://www.sisk-framework.org/) | [EmbedIO](https://github.com/unosquare/embedio) | [NetCoreServer](https://github.com/chronoxor/NetCoreServer) | [Watson Webserver](https://github.com/jchristn/WatsonWebserver) | [SimpleW](https://github.com/stratdev3/SimpleW)
+  projects: [Wired.IO](https://github.com/MDA2AV/Wired.IO) | [Unhinged](https://github.com/MDA2AV/unhinged) | [SimpleW](https://github.com/stratdev3/SimpleW) | [Sisk](https://www.sisk-framework.org/) |  [NetCoreServer](https://github.com/chronoxor/NetCoreServer) | [Watson Webserver](https://github.com/jchristn/WatsonWebserver) | [EmbedIO](https://github.com/unosquare/embedio)
 
 ## 🙏 Thanks
 
