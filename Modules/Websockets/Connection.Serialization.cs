@@ -1,4 +1,5 @@
-﻿using GenHTTP.Modules.Websockets.Protocol;
+﻿using GenHTTP.Modules.Conversion.Serializers;
+using GenHTTP.Modules.Websockets.Protocol;
 
 namespace GenHTTP.Modules.Websockets;
 
@@ -15,7 +16,7 @@ public static class ConnectionSerializationExtensions
     /// <typeparam name="T">The type of data to be sent</typeparam>
     /// <exception cref="InvalidOperationException">Thrown, if no serialization format was passed to the websocket handler builder</exception>
     /// <exception cref="ArgumentNullException">Thrown, if null has been passed as a payload</exception>
-    public static async ValueTask WriteAsync<T>(this ISocketConnection connection, T payload, FrameType opcode = FrameType.Text, CancellationToken token = default)
+    public static ValueTask WriteAsync<T>(this ISocketConnection connection, T payload, FrameType opcode = FrameType.Text, CancellationToken token = default)
     {
         if (payload == null)
         {
@@ -24,6 +25,11 @@ public static class ConnectionSerializationExtensions
 
         var format = connection.Settings.SerializationFormat ?? throw new InvalidOperationException("The websocket handler has not been initialized with a serializer");
 
+        return connection.WriteAsync(format, opcode, payload, token);
+    }
+
+    private static async ValueTask WriteAsync(this ISocketConnection connection, ISerializationFormat format, FrameType opcode, object payload, CancellationToken token)
+    {
         var buffer = await format.SerializeAsync(payload);
 
         await connection.WriteAsync(buffer, opcode, true, token);
