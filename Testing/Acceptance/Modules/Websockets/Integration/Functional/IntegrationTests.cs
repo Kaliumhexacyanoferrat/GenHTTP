@@ -1,3 +1,5 @@
+using GenHTTP.Modules.Conversion.Serializers.Json;
+using GenHTTP.Modules.Websockets;
 using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Websockets.Integration.Functional;
@@ -24,7 +26,23 @@ public sealed class IntegrationTests
 
         await Client.Execute(host.Port);
     }
-    
+
+    [TestMethod]
+    public async Task TestSerialization()
+    {
+        var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
+                               .Serialization(new JsonFormat())
+                               .OnMessage(async (c, m) =>
+                               {
+                                   var thing = await m.DataAsAsync<Client.SerializedThing>();
+                                   await c.WriteAsync(thing);
+                               });
+
+        await using var host = await TestHost.RunAsync(websocket);
+
+        await Client.ExecuteSerialized(host.Port);
+    }
+
     // Automatic segmented handling
     [TestMethod]
     public async Task TestServerFunctionalSegmented()
@@ -43,7 +61,7 @@ public sealed class IntegrationTests
 
         await Client.ExecuteSegmented(host.Port);
     }
-    
+
     // Automatic segmented handling
     // Plus TCP fragmentation
     [TestMethod]
@@ -63,7 +81,7 @@ public sealed class IntegrationTests
 
         await Client.ExecuteFragmented("127.0.0.1", host.Port);
     }
-    
+
     // Automatic segmented handling
     // Plus TCP fragmentation
     // Plus segmented message
@@ -84,7 +102,7 @@ public sealed class IntegrationTests
 
         await Client.ExecuteFragmentedWithContinuationFrames("127.0.0.1", host.Port);
     }
-    
+
     // Automatic segmented handling
     // Plus TCP fragmentation
     // Plus segmented message
@@ -106,4 +124,5 @@ public sealed class IntegrationTests
 
         await Client.ExecuteFragmentedWithContinuationFrames("127.0.0.1", host.Port);
     }
+
 }

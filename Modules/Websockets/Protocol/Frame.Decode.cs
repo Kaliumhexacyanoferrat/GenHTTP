@@ -29,6 +29,7 @@ public static partial class Frame
      */
 
     internal static WebsocketFrame Decode(
+        ISocketConnection connection,
         ref ReadOnlySequence<byte> sequence,
         int rxMaxBufferSize,
         out SequencePosition consumed,
@@ -43,7 +44,7 @@ public static partial class Frame
         {
             c = seq.Start;
             e = seq.End;
-            return new WebsocketFrame(new FrameError(IncompleteFrame, FrameErrorType.Incomplete));
+            return new WebsocketFrame(connection, new FrameError(IncompleteFrame, FrameErrorType.Incomplete));
         }
 
         if (reader.Remaining < 2)
@@ -70,7 +71,7 @@ public static partial class Frame
         {
             consumed = reader.Position;
             examined = reader.Position;
-            return new WebsocketFrame(new FrameError(InvalidOpCode, FrameErrorType.InvalidOpCode));
+            return new WebsocketFrame(connection, new FrameError(InvalidOpCode, FrameErrorType.InvalidOpCode));
         }
 
         var isControlFrame = frameType is FrameType.Close or FrameType.Ping or FrameType.Pong;
@@ -81,14 +82,14 @@ public static partial class Frame
         {
             consumed = reader.Position;
             examined = reader.Position;
-            return new WebsocketFrame(new FrameError(InvalidControlFrame, FrameErrorType.InvalidControlFrame));
+            return new WebsocketFrame(connection, new FrameError(InvalidControlFrame, FrameErrorType.InvalidControlFrame));
         }
 
         if (isControlFrame && payloadLen7 >= 126)
         {
             consumed = reader.Position;
             examined = reader.Position;
-            return new WebsocketFrame(new FrameError(InvalidControlFrameLength, FrameErrorType.InvalidControlFrameLength));
+            return new WebsocketFrame(connection, new FrameError(InvalidControlFrameLength, FrameErrorType.InvalidControlFrameLength));
         }
 
         long payloadLen64 = payloadLen7;
@@ -117,7 +118,7 @@ public static partial class Frame
         {
             consumed = reader.Position;
             examined = reader.Position;
-            return new WebsocketFrame(new FrameError(PayloadTooLarge, FrameErrorType.PayloadTooLarge));
+            return new WebsocketFrame(connection, new FrameError(PayloadTooLarge, FrameErrorType.PayloadTooLarge));
         }
 
         var payloadLength = (int)payloadLen64;
@@ -146,7 +147,7 @@ public static partial class Frame
             {
                 consumed = sequence.Start;
                 examined = sequence.End;
-                return new WebsocketFrame(new FrameError(NonWritablePipeSegment, FrameErrorType.UndefinedBehavior));
+                return new WebsocketFrame(connection, new FrameError(NonWritablePipeSegment, FrameErrorType.UndefinedBehavior));
             }
         }
 
@@ -180,19 +181,19 @@ public static partial class Frame
                 var msgBytes = Encoding.UTF8.GetBytes(msg); // alloc only for Close
 
                 var msgSeq = new ReadOnlySequence<byte>(msgBytes);
-                return new WebsocketFrame(ref msgSeq, frameType, fin: fin);
+                return new WebsocketFrame(connection, ref msgSeq, frameType, fin: fin);
             }
             else
             {
                 // empty close payload
                 var empty = ReadOnlySequence<byte>.Empty;
-                return new WebsocketFrame(ref empty, frameType, fin: fin);
+                return new WebsocketFrame(connection, ref empty, frameType, fin: fin);
             }
         }
         // -------------------------------------------------------
 
         // Normal frames: return raw payload slice (zero-copy)
-        return new WebsocketFrame(ref payloadSeq, frameType, fin: fin);
+        return new WebsocketFrame(connection, ref payloadSeq, frameType, fin: fin);
     }
 
     /// <summary>

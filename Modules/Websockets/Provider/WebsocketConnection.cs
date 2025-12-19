@@ -180,7 +180,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                 }
             }
 
-            return new WebsocketFrame(new FrameError("Unable to receive or assemble the segmented frame.", FrameErrorType.UndefinedBehavior));
+            return new WebsocketFrame(this, new FrameError("Unable to receive or assemble the segmented frame.", FrameErrorType.UndefinedBehavior));
         }
         finally
         {
@@ -206,21 +206,20 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
             if (result.IsCanceled)
             {
-                return new WebsocketFrame(
-                    frameError: new FrameError(FrameError.ReadCanceled, FrameErrorType.Canceled));
+                return new WebsocketFrame(this, frameError: new FrameError(FrameError.ReadCanceled, FrameErrorType.Canceled));
             }
 
             if (result.Buffer.Length == 0 && result.IsCompleted) // Clean EOF: no more data, reader completed
             {
                 _pipeReader.AdvanceTo(result.Buffer.End, result.Buffer.End);
-                return new WebsocketFrame(FrameType.Close);
+                return new WebsocketFrame(this, FrameType.Close);
             }
 
             _currentSequence = !isFirstFrame
                 ? result.Buffer.Slice(innerExamined)
                 : result.Buffer;
 
-            var frame = Frame.Decode(ref _currentSequence, Settings.RxBufferSize, out var consumed, out var examined);
+            var frame = Frame.Decode(this, ref _currentSequence, Settings.RxBufferSize, out var consumed, out var examined);
             _consumed = consumed;
             _examined = examined;
 
@@ -235,8 +234,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                     // Dev note: Should we eventually still give the user the partial data received?
                     _pipeReader.AdvanceTo(_currentSequence.End, _currentSequence.End);
 
-                    return new WebsocketFrame(
-                        frameError: new FrameError(FrameError.UnexpectedEndOfStream, FrameErrorType.IncompleteForever));
+                    return new WebsocketFrame(this, frameError: new FrameError(FrameError.UnexpectedEndOfStream, FrameErrorType.IncompleteForever));
                 }
 
                 // Advance examined portion to ensure the PipeReader reads new data in case of incomplete request.

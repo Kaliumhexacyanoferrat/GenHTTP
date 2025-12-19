@@ -88,6 +88,16 @@ public sealed class FormFormat : ISerializationFormat
         return new ValueTask<IResponseBuilder>(result);
     }
 
+    public ValueTask<ReadOnlyMemory<byte>> SerializeAsync(object data)
+    {
+        return ByteStreamSerialization.SerializeAsync(b =>
+        {
+            var content = new FormContent(data.GetType(), data, Formatters);
+
+            return content.WriteAsync(b, 8192);
+        });
+    }
+
     public static Dictionary<string, string>? GetContent(IRequest request)
     {
         if (request.Content is not null && request.ContentType is not null)

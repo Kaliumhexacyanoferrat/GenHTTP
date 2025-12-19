@@ -58,7 +58,7 @@ public sealed class Frame_Decode_Tests
 
         var seq = readResult.Buffer;
 
-        var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
+        var result = Frame.Decode(new MockConnection(), ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
         AssertError(result, FrameErrorType.Incomplete);
 
@@ -82,7 +82,7 @@ public sealed class Frame_Decode_Tests
 
         var seq = readResult.Buffer;
 
-        var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
+        var result = Frame.Decode(new MockConnection(), ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
         AssertError(result, FrameErrorType.InvalidOpCode);
 
@@ -106,7 +106,7 @@ public sealed class Frame_Decode_Tests
 
         var seq = readResult.Buffer;
 
-        var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
+        var result = Frame.Decode(new MockConnection(), ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
         AssertError(result, FrameErrorType.InvalidControlFrame);
 
@@ -130,7 +130,7 @@ public sealed class Frame_Decode_Tests
 
         var seq = readResult.Buffer;
 
-        var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
+        var result = Frame.Decode(new MockConnection(), ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
         AssertError(result, FrameErrorType.InvalidControlFrameLength);
 
@@ -163,7 +163,7 @@ public sealed class Frame_Decode_Tests
 
         var seq = readResult.Buffer;
 
-        var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
+        var result = Frame.Decode(new MockConnection(), ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
         Assert.AreEqual(FrameType.Text, result.Type);
         Assert.IsTrue(result.Fin);
@@ -205,7 +205,7 @@ public sealed class Frame_Decode_Tests
 
         var seq = readResult.Buffer;
 
-        var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
+        var result = Frame.Decode(new MockConnection(), ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
         Assert.AreEqual(FrameType.Close, result.Type);
         Assert.AreEqual("Close frame received. Code: 1000, Reason: Bye", result.DataAsString());
@@ -229,7 +229,7 @@ public sealed class Frame_Decode_Tests
 
         var seq = readResult.Buffer;
 
-        var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
+        var result = Frame.Decode(new MockConnection(), ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
         Assert.AreEqual(FrameType.Close, result.Type);
         Assert.AreEqual(0, result.Data.Length);
@@ -261,7 +261,7 @@ public sealed class Frame_Decode_Tests
 
         var seq = readResult.Buffer;
 
-        var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
+        var result = Frame.Decode(new MockConnection(), ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
         Assert.AreEqual(FrameType.Text, result.Type);
         Assert.AreEqual(126, result.Data.Length);
@@ -294,7 +294,7 @@ public sealed class Frame_Decode_Tests
 
         var seq = readResult.Buffer;
 
-        var result = Frame.Decode(ref seq, smallRxBufferSize, out var consumed, out var examined);
+        var result = Frame.Decode(new MockConnection(), ref seq, smallRxBufferSize, out var consumed, out var examined);
 
         AssertError(result, FrameErrorType.PayloadTooLarge);
 
@@ -317,7 +317,7 @@ public sealed class Frame_Decode_Tests
 
         var seq = readResult.Buffer;
 
-        var result = Frame.Decode(ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
+        var result = Frame.Decode(new MockConnection(), ref seq, DefaultRxMaxBufferSize, out var consumed, out var examined);
 
         AssertError(result, FrameErrorType.Incomplete);
 

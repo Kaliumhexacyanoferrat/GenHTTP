@@ -12,8 +12,7 @@ public sealed class SerializationRegistry
 
     #region Initialization
 
-    public SerializationRegistry(FlexibleContentType defaultType,
-        Dictionary<FlexibleContentType, ISerializationFormat> formats)
+    public SerializationRegistry(FlexibleContentType defaultType, Dictionary<FlexibleContentType, ISerializationFormat> formats)
     {
         Default = defaultType;
         Formats = formats;
@@ -31,6 +30,12 @@ public sealed class SerializationRegistry
 
     #region Functionality
 
+    /// <summary>
+    /// Analyzes the headers of the given request to determine the format
+    /// that should be used to attempt to deserialize the request content.
+    /// </summary>
+    /// <param name="request">The request to be analyzed</param>
+    /// <returns>A serialization format to deserialize the specified content type, or the default one (if any)</returns>
     public ISerializationFormat? GetDeserialization(IRequest request)
     {
         if (request.Headers.TryGetValue("Content-Type", out var requested))
@@ -41,6 +46,12 @@ public sealed class SerializationRegistry
         return GetFormat(Default);
     }
 
+    /// <summary>
+    /// Analyzes the given request to determine the format preference for serialized content
+    /// and attempts to provide a format that matches this preference.
+    /// </summary>
+    /// <param name="request">The request to be analyzed</param>
+    /// <returns>Either a format that can serialize into the requested format or the default format (if any)</returns>
     public ISerializationFormat? GetSerialization(IRequest request)
     {
         if (request.Headers.TryGetValue("Accept", out var accepted))
@@ -51,6 +62,12 @@ public sealed class SerializationRegistry
         return GetFormat(Default);
     }
 
+    /// <summary>
+    /// Attempts to provide a format that can be used to serialize and deserialize
+    /// the given content type.
+    /// </summary>
+    /// <param name="contentType">The content type to check for</param>
+    /// <returns>Either a format that can serialize into the requested format or the default format (if any)</returns>
     public ISerializationFormat? GetFormat(string? contentType)
     {
         if (contentType != null)

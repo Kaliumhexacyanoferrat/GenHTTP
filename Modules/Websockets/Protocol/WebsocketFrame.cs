@@ -10,9 +10,11 @@ internal sealed class WebsocketFrame : IWebsocketFrame, IRawFrameData
 {
     private ReadOnlyMemory<byte>? _cachedData;
 
-    private readonly FrameError? _frameError = null;
+    private readonly FrameError? _frameError;
 
     #region Get-/Setters
+
+    public ISocketConnection Connection { get; }
 
     public IRawFrameData Raw => this;
 
@@ -42,22 +44,25 @@ internal sealed class WebsocketFrame : IWebsocketFrame, IRawFrameData
 
     #region Initialization
 
-    internal WebsocketFrame(ref ReadOnlySequence<byte> rawData, FrameType type, bool fin = true)
+    internal WebsocketFrame(ISocketConnection connection, ref ReadOnlySequence<byte> rawData, FrameType type, bool fin = true)
     {
+        Connection = connection;
         Memory = rawData;
         Type = type;
         Fin = fin;
     }
 
-    internal WebsocketFrame(FrameType type, bool fin = true)
+    internal WebsocketFrame(ISocketConnection connection, FrameType type, bool fin = true)
     {
+        Connection = connection;
         Type = type;
         Fin = fin;
     }
 
     // Constructor overload for error frames
-    internal WebsocketFrame(FrameError frameError, FrameType type = FrameType.Error, bool fin = true)
+    internal WebsocketFrame(ISocketConnection connection, FrameError frameError, FrameType type = FrameType.Error, bool fin = true)
     {
+        Connection = connection;
         Type = type;
         Fin = fin;
 

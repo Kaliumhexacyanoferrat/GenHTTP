@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Conversion.Serializers;
@@ -31,4 +32,12 @@ public interface ISerializationFormat
     /// <param name="response">The object to be serialized</param>
     /// <returns>The response representing the serialized object</returns>
     ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response);
+
+    /// <summary>
+    /// Serializes the given payload into a memory buffer.
+    /// </summary>
+    /// <param name="data">The data to be processed</param>
+    /// <returns>The byte representation of the serialized data</returns>
+    ValueTask<ReadOnlyMemory<byte>> SerializeAsync(object data);
+
 }

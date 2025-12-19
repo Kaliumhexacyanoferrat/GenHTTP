@@ -24,4 +24,15 @@ public sealed class XmlFormat : ISerializationFormat
 
         return new ValueTask<IResponseBuilder>(result);
     }
+
+    public ValueTask<ReadOnlyMemory<byte>> SerializeAsync(object data)
+    {
+        return ByteStreamSerialization.SerializeAsync(b =>
+        {
+            var content = new XmlContent(data);
+
+            return content.WriteAsync(b, 8192);
+        });
+    }
+
 }
