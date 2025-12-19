@@ -1,12 +1,19 @@
-﻿using GenHTTP.Engine.Internal;
+﻿using System.Runtime.Serialization;
+using GenHTTP.Engine.Internal;
+using GenHTTP.Modules.Conversion;
+using GenHTTP.Modules.Conversion.Formatters;
+using GenHTTP.Modules.Conversion.Serializers.Yaml;
+using GenHTTP.Modules.Websockets;
 
-using GenHTTP.Modules.IO;
-using GenHTTP.Modules.Practices;
+// read and write complex objects as YAML instead of JSON
+var serialization = new YamlFormat();
 
-var content = Content.From(Resource.FromString("Hello World!"));
+// only support GUIDs as primitive types
+var formatters = Formatting.Empty()
+                           .Add(new GuidFormatter())
+                           .Build();
 
-await Host.Create()
-          .Handler(content)
-          .Defaults()
-          .Console()
-          .RunAsync(); // or StartAsync() for non-blocking
+var websocket = Websocket.Reactive()
+                         .Handler(new ChatHandler())
+                         .Serialization(serialization)
+                         .Formatters(formatters);
