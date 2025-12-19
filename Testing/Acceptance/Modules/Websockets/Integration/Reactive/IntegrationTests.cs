@@ -22,7 +22,7 @@ public sealed class IntegrationTests
 
         await Client.Execute(host.Port);
     }
-    
+
     // Automatic segmented handling
     [TestMethod]
     public async Task TestServerReactiveSegmented()
@@ -53,7 +53,7 @@ public sealed class IntegrationTests
 
         await Client.ExecuteFragmented("127.0.0.1", host.Port);
     }
-    
+
     // Automatic segmented handling
     // Plus TCP fragmentation
     // Plus segmented message
@@ -70,7 +70,7 @@ public sealed class IntegrationTests
 
         await Client.ExecuteFragmentedWithContinuationFrames("127.0.0.1", host.Port);
     }
-    
+
     // Automatic segmented handling
     // Plus TCP fragmentation
     // Plus segmented message
@@ -95,13 +95,13 @@ public sealed class IntegrationTests
 
         public async ValueTask OnConnected(IReactiveConnection connection) => await connection.PingAsync();
 
-        public async ValueTask OnMessage(IReactiveConnection connection, WebsocketFrame message) => await connection.WriteAsync(message.Data);
+        public async ValueTask OnMessage(IReactiveConnection connection, IWebsocketFrame message) => await connection.WriteAsync(message.Data);
 
-        public async ValueTask OnContinue(IReactiveConnection connection, WebsocketFrame message) => await connection.WriteAsync(message.Data);
+        public async ValueTask OnContinue(IReactiveConnection connection, IWebsocketFrame message) => await connection.WriteAsync(message.Data);
 
-        public async ValueTask OnPing(IReactiveConnection connection, WebsocketFrame message) => await connection.PongAsync(message.Data);
+        public async ValueTask OnPing(IReactiveConnection connection, IWebsocketFrame message) => await connection.PongAsync(message.Data);
 
-        public async ValueTask OnClose(IReactiveConnection connection, WebsocketFrame message) => await connection.CloseAsync();
+        public async ValueTask OnClose(IReactiveConnection connection, IWebsocketFrame message) => await connection.CloseAsync();
 
         public ValueTask<bool> OnError(IReactiveConnection connection, FrameError error)
         {
@@ -116,13 +116,13 @@ public sealed class IntegrationTests
 
         public ValueTask OnConnected(IReactiveConnection connection) => ValueTask.CompletedTask;
 
-        public async ValueTask OnMessage(IReactiveConnection connection, WebsocketFrame message) => await connection.WriteAsync(message.Data);
+        public async ValueTask OnMessage(IReactiveConnection connection, IWebsocketFrame message) => await connection.WriteAsync(message.Data);
 
-        public async ValueTask OnContinue(IReactiveConnection connection, WebsocketFrame message) => await connection.WriteAsync(message.Data);
+        public async ValueTask OnContinue(IReactiveConnection connection, IWebsocketFrame message) => await connection.WriteAsync(message.Data);
 
-        public async ValueTask OnPing(IReactiveConnection connection, WebsocketFrame message) => await connection.PongAsync(message.Data);
+        public async ValueTask OnPing(IReactiveConnection connection, IWebsocketFrame message) => await connection.PongAsync(message.Data);
 
-        public async ValueTask OnClose(IReactiveConnection connection, WebsocketFrame message) => await connection.CloseAsync();
+        public async ValueTask OnClose(IReactiveConnection connection, IWebsocketFrame message) => await connection.CloseAsync();
 
         public ValueTask<bool> OnError(IReactiveConnection connection, FrameError error)
         {

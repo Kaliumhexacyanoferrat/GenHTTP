@@ -1,14 +1,12 @@
 using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
-using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Websockets.Protocol;
 
 /// <summary>
 /// A single frame read from the websocket connection.
 /// </summary>
-public sealed class WebsocketFrame : IWebsocketFrame, IRawFrameData
+internal sealed class WebsocketFrame : IWebsocketFrame, IRawFrameData
 {
     private ReadOnlyMemory<byte>? _cachedData;
 
@@ -81,13 +79,6 @@ public sealed class WebsocketFrame : IWebsocketFrame, IRawFrameData
         error = null;
         return false;
     }
-
-    /// <summary>
-    /// Reads the data provided by the websocket frame
-    /// as a UTF-8 string.
-    /// </summary>
-    /// <returns>The UTF-8 encoded string data of the frame</returns>
-    public string DataAsString() => Encoding.UTF8.GetString(Data.ToArray()); // Can allocate twice
 
     // For very rare use cases when the frame scope is outside the pipe reader internal buffer valid span
     // e.g. Ping/Pong frames amid segmented frames

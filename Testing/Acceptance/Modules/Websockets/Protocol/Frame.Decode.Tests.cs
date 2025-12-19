@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Buffers.Binary;
 using System.IO.Pipelines;
 using System.Text;
+using GenHTTP.Modules.Websockets;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Websockets.Protocol;
 
@@ -325,7 +326,7 @@ public sealed class Frame_Decode_Tests
         Assert.AreEqual(sequence.End, examined);
     }
 
-    private static void AssertError(WebsocketFrame frame, FrameErrorType expected)
+    private static void AssertError(IWebsocketFrame frame, FrameErrorType expected)
     {
         Assert.AreEqual(FrameType.Error, frame.Type);
 

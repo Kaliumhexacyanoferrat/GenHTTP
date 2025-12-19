@@ -25,30 +25,30 @@ class ChatHandler : IReactiveHandler
         return ValueTask.CompletedTask;
     }
 
-    public async ValueTask OnPing(IReactiveConnection connection, WebsocketFrame message)
+    public async ValueTask OnPing(IReactiveConnection connection, IWebsocketFrame message)
     {
         Console.WriteLine($"Received Ping: {message.DataAsString()}");
         await connection.PongAsync();
     }
 
-    public async ValueTask OnMessage(IReactiveConnection connection, WebsocketFrame message)
+    public async ValueTask OnMessage(IReactiveConnection connection, IWebsocketFrame message)
     {
         var clientNumber = Clients.IndexOf(connection);
-        
+
         foreach (var client in Clients)
         {
             await client.WriteAsync($"[{clientNumber}]: " + message.DataAsString());
         }
     }
 
-    public ValueTask OnContinue(IReactiveConnection connection, WebsocketFrame message)
+    public ValueTask OnContinue(IReactiveConnection connection, IWebsocketFrame message)
     {
         Console.WriteLine(message.DataAsString());
-        
+
         return ValueTask.CompletedTask;
     }
 
-    public ValueTask OnClose(IReactiveConnection connection, WebsocketFrame message)
+    public ValueTask OnClose(IReactiveConnection connection, IWebsocketFrame message)
     {
         Clients.Remove(connection);
         return ValueTask.CompletedTask;

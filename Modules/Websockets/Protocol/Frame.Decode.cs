@@ -27,8 +27,8 @@ public static partial class Frame
        as-is, while Close frames are additionally parsed to extract the close code and UTF-8 reason. Finally, the method returns a WebsocketFrame
        containing the payload, frame type, and FIN flag, leaving higher-level logic to handle message reassembly and continuation semantics.
      */
-    
-    public static WebsocketFrame Decode(
+
+    internal static WebsocketFrame Decode(
         ref ReadOnlySequence<byte> sequence,
         int rxMaxBufferSize,
         out SequencePosition consumed,
@@ -154,7 +154,7 @@ public static partial class Frame
         reader.Advance(payloadLength);
         consumed = reader.Position;
         examined = reader.Position;
-        
+
         // Close frame
         if (frameType == FrameType.Close)
         {
@@ -194,7 +194,7 @@ public static partial class Frame
         // Normal frames: return raw payload slice (zero-copy)
         return new WebsocketFrame(ref payloadSeq, frameType, fin: fin);
     }
-    
+
     /// <summary>
     /// Brute force modifying the PipeReader's buffer, unmask the bytes.
     /// </summary>

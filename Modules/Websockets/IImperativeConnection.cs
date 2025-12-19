@@ -1,5 +1,3 @@
-using GenHTTP.Modules.Websockets.Protocol;
-
 namespace GenHTTP.Modules.Websockets;
 
 /// <summary>
