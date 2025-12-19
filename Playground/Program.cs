@@ -1,11 +1,61 @@
 ﻿using GenHTTP.Engine.Internal;
 
-using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Practices;
+using GenHTTP.Modules.Websockets;
+using GenHTTP.Modules.Websockets.Protocol;
 
-var content = Content.From(Resource.FromString("Hello World!"));
+var websocket = Websocket.Reactive()
+    //.HandleContinuationFramesManually()
+    .Handler(new ChatHandler());
 
 await Host.Create()
-    .Handler(content)
+    .Handler(websocket)
     .Defaults()
-    .RunAsync(); // or StartAsync() for non-blocking
+    .Development()
+    .Console()
+    .RunAsync();
+
+class ChatHandler : IReactiveHandler
+{
+    private static readonly List<IReactiveConnection> Clients = [];
+
+    public ValueTask OnConnected(IReactiveConnection connection)
+    {
+        Clients.Add(connection);
+        return ValueTask.CompletedTask;
+    }
+
+    public async ValueTask OnPing(IReactiveConnection connection, IWebsocketFrame message)
+    {
+        Console.WriteLine($"Received Ping: {message.DataAsString()}");
+        await connection.PongAsync();
+    }
+
+    public async ValueTask OnMessage(IReactiveConnection connection, IWebsocketFrame message)
+    {
+        var clientNumber = Clients.IndexOf(connection);
+
+        foreach (var client in Clients)
+        {
+            await client.WriteAsync($"[{clientNumber}]: " + message.DataAsString());
+        }
+    }
+
+    public ValueTask OnContinue(IReactiveConnection connection, IWebsocketFrame message)
+    {
+        Console.WriteLine(message.DataAsString());
+
+        return ValueTask.CompletedTask;
+    }
+
+    public ValueTask OnClose(IReactiveConnection connection, IWebsocketFrame message)
+    {
+        Clients.Remove(connection);
+        return ValueTask.CompletedTask;
+    }
+
+    public ValueTask<bool> OnError(IReactiveConnection connection, FrameError error)
+    {
+        return ValueTask.FromResult(false);
+    }
+}

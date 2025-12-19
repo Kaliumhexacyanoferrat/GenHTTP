@@ -1,5 +1,3 @@
-using GenHTTP.Modules.Websockets.Protocol;
-
 namespace GenHTTP.Modules.Websockets;
 
 /// <summary>
@@ -15,6 +13,6 @@ public interface IImperativeConnection : ISocketConnection
     /// </summary>
     /// <param name="token">A token which can be used to cancel the operation</param>
     /// <returns>The next websocket frame to be handled</returns>
-    ValueTask<WebsocketFrame> ReadFrameAsync(CancellationToken token = default);
+    ValueTask<IWebsocketFrame> ReadFrameAsync(CancellationToken token = default);
 
 }

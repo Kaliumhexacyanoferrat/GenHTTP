@@ -11,12 +11,12 @@ public class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebsocketBui
 
     private Func<IReactiveConnection, ValueTask> _onConnected = (_) => ValueTask.CompletedTask;
 
-    private Func<IReactiveConnection, WebsocketFrame, ValueTask> _onMessage = (_, __) => ValueTask.CompletedTask;
-    private Func<IReactiveConnection, WebsocketFrame, ValueTask> _onBinary = (_, __) => ValueTask.CompletedTask;
-    private Func<IReactiveConnection, WebsocketFrame, ValueTask> _onContinue = (_, __) => ValueTask.CompletedTask;
-    private Func<IReactiveConnection, WebsocketFrame, ValueTask> _onPing = (c, m) => c.PongAsync(m.Data);
-    private Func<IReactiveConnection, WebsocketFrame, ValueTask> _onPong = (_, __) => ValueTask.CompletedTask;
-    private Func<IReactiveConnection, WebsocketFrame, ValueTask> _onClose = (c, __) => c.CloseAsync();
+    private Func<IReactiveConnection, IWebsocketFrame, ValueTask> _onMessage = (_, __) => ValueTask.CompletedTask;
+    private Func<IReactiveConnection, IWebsocketFrame, ValueTask> _onBinary = (_, __) => ValueTask.CompletedTask;
+    private Func<IReactiveConnection, IWebsocketFrame, ValueTask> _onContinue = (_, __) => ValueTask.CompletedTask;
+    private Func<IReactiveConnection, IWebsocketFrame, ValueTask> _onPing = (c, m) => c.PongAsync(m.Data);
+    private Func<IReactiveConnection, IWebsocketFrame, ValueTask> _onPong = (_, __) => ValueTask.CompletedTask;
+    private Func<IReactiveConnection, IWebsocketFrame, ValueTask> _onClose = (c, __) => c.CloseAsync();
 
     private Func<IReactiveConnection, FrameError, ValueTask<bool>> _onError = (_, __) => ValueTask.FromResult(true);
 
@@ -29,6 +29,18 @@ public class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebsocketBui
     public FunctionalWebsocketBuilder MaxFrameSize(int maxRxBufferSize)
     {
         _builder.MaxFrameSize(maxRxBufferSize);
+        return this;
+    }
+
+    public FunctionalWebsocketBuilder HandleContinuationFramesManually()
+    {
+        _builder.HandleContinuationFramesManually();
+        return this;
+    }
+
+    public FunctionalWebsocketBuilder DoNotAllocateFrameData()
+    {
+        _builder.DoNotAllocateFrameData();
         return this;
     }
 
@@ -47,7 +59,7 @@ public class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebsocketBui
     /// </summary>
     /// <param name="connection">The connection to the client</param>
     /// <param name="message">The incoming message frame</param>
-    public FunctionalWebsocketBuilder OnMessage(Func<IReactiveConnection, WebsocketFrame, ValueTask> handler)
+    public FunctionalWebsocketBuilder OnMessage(Func<IReactiveConnection, IWebsocketFrame, ValueTask> handler)
     {
         _onMessage = handler;
         return this;
@@ -58,7 +70,7 @@ public class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebsocketBui
     /// </summary>
     /// <param name="connection">The connection to the client</param>
     /// <param name="message">The incoming binary message frame</param>
-    public FunctionalWebsocketBuilder OnBinary(Func<IReactiveConnection, WebsocketFrame, ValueTask> handler)
+    public FunctionalWebsocketBuilder OnBinary(Func<IReactiveConnection, IWebsocketFrame, ValueTask> handler)
     {
         _onBinary = handler;
         return this;
@@ -76,7 +88,7 @@ public class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebsocketBui
     /// messages until one finally has fin set to true. From those frames,
     /// you have to construct the overall message originally sent by the client.
     /// </remarks>
-    public FunctionalWebsocketBuilder OnContinue(Func<IReactiveConnection, WebsocketFrame, ValueTask> handler)
+    public FunctionalWebsocketBuilder OnContinue(Func<IReactiveConnection, IWebsocketFrame, ValueTask> handler)
     {
         _onContinue = handler;
         return this;
@@ -87,7 +99,7 @@ public class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebsocketBui
     /// </summary>
     /// <param name="connection">The connection to the client</param>
     /// <param name="message">The incoming ping frame</param>
-    public FunctionalWebsocketBuilder OnPing(Func<IReactiveConnection, WebsocketFrame, ValueTask> handler)
+    public FunctionalWebsocketBuilder OnPing(Func<IReactiveConnection, IWebsocketFrame, ValueTask> handler)
     {
         _onPing = handler;
         return this;
@@ -98,7 +110,7 @@ public class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebsocketBui
     /// </summary>
     /// <param name="connection">The connection to the client</param>
     /// <param name="message">The incoming pong frame</param>
-    public FunctionalWebsocketBuilder OnPong(Func<IReactiveConnection, WebsocketFrame, ValueTask> handler)
+    public FunctionalWebsocketBuilder OnPong(Func<IReactiveConnection, IWebsocketFrame, ValueTask> handler)
     {
         _onPong = handler;
         return this;
@@ -109,7 +121,7 @@ public class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebsocketBui
     /// </summary>
     /// <param name="connection">The connection to the client</param>
     /// <param name="message">The frame sent by the client</param>
-    public FunctionalWebsocketBuilder OnClose(Func<IReactiveConnection, WebsocketFrame, ValueTask> handler)
+    public FunctionalWebsocketBuilder OnClose(Func<IReactiveConnection, IWebsocketFrame, ValueTask> handler)
     {
         _onClose = handler;
         return this;

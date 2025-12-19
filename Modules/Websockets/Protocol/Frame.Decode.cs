@@ -1,6 +1,6 @@
 using System.Buffers;
 using System.Buffers.Binary;
-using System.IO.Pipelines;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace GenHTTP.Modules.Websockets.Protocol;
@@ -12,6 +12,7 @@ public static partial class Frame
     private const string InvalidControlFrame = "Invalid Control Frame";
     private const string InvalidControlFrameLength = "Invalid Control Frame Length";
     private const string PayloadTooLarge = "Payload is too large";
+    private const string NonWritablePipeSegment = "Pipe segment is not writable (cannot unmask in-place)";
 
     /* Websockets RFC 6455 Frame Decode definition (LLM generated)
 
@@ -27,38 +28,26 @@ public static partial class Frame
        containing the payload, frame type, and FIN flag, leaving higher-level logic to handle message reassembly and continuation semantics.
      */
 
-    public static WebsocketFrame Decode(
-        ref ReadResult result,
+    internal static WebsocketFrame Decode(
+        ref ReadOnlySequence<byte> sequence,
         int rxMaxBufferSize,
         out SequencePosition consumed,
         out SequencePosition examined)
     {
-        var buffer = result.Buffer;
-        var reader = new SequenceReader<byte>(buffer);
+        var reader = new SequenceReader<byte>(sequence);
 
-        // Local tracking of what we actually want to report
-        consumed = buffer.Start;
-        examined = buffer.End;
+        consumed = sequence.Start;
+        examined = sequence.End;
 
-        // Helper to return an "incomplete" error frame
-        WebsocketFrame Incomplete(ref SequencePosition consumed, ref SequencePosition examined)
+        WebsocketFrame Incomplete(ref SequencePosition c, ref SequencePosition e, ref ReadOnlySequence<byte> seq)
         {
-            // Don't consume anything, but we've examined everything we got
-            consumed = buffer.Start;
-            examined = buffer.End;
-
-            return new WebsocketFrame(
-                ReadOnlyMemory<byte>.Empty,
-                Type: FrameType.Error,
-                FrameError: new FrameError(IncompleteFrame, FrameErrorType.Incomplete));
+            c = seq.Start;
+            e = seq.End;
+            return new WebsocketFrame(new FrameError(IncompleteFrame, FrameErrorType.Incomplete));
         }
 
-        // We need at least 2 bytes for b0 + b1
         if (reader.Remaining < 2)
-        {
-            var frame = Incomplete(ref consumed, ref examined);
-            return frame;
-        }
+            return Incomplete(ref consumed, ref examined, ref sequence);
 
         reader.TryRead(out byte b0);
         reader.TryRead(out byte b1);
@@ -74,169 +63,166 @@ public static partial class Frame
             0x08 => FrameType.Close,
             0x09 => FrameType.Ping,
             0x0A => FrameType.Pong,
-#pragma warning disable S3928
-            _ => FrameType.None
-#pragma warning restore S3928
+            _    => FrameType.None
         };
 
         if (frameType == FrameType.None)
         {
-            // Invalid opcode: consume this byte pair and fail
             consumed = reader.Position;
             examined = reader.Position;
-
-            var invalid = new WebsocketFrame(
-                ReadOnlyMemory<byte>.Empty,
-                Type: FrameType.Error,
-                FrameError: new FrameError(InvalidOpCode, FrameErrorType.InvalidOpCode));
-
-            return invalid;
+            return new WebsocketFrame(new FrameError(InvalidOpCode, FrameErrorType.InvalidOpCode));
         }
 
         var isControlFrame = frameType is FrameType.Close or FrameType.Ping or FrameType.Pong;
         var isMasked = (b1 & 0x80) != 0;
         var payloadLen7 = (byte)(b1 & 0x7F);
 
-        // RFC: control frames MUST NOT be fragmented
         if (isControlFrame && !fin)
         {
             consumed = reader.Position;
             examined = reader.Position;
-
-            var err = new WebsocketFrame(
-                ReadOnlyMemory<byte>.Empty,
-                Type: FrameType.Error,
-                FrameError: new FrameError(InvalidControlFrame, FrameErrorType.InvalidControlFrame));
-
-            return err;
+            return new WebsocketFrame(new FrameError(InvalidControlFrame, FrameErrorType.InvalidControlFrame));
         }
 
-        // RFC: control frames MUST have payload length <= 125
         if (isControlFrame && payloadLen7 >= 126)
         {
             consumed = reader.Position;
             examined = reader.Position;
-
-            var err = new WebsocketFrame(
-                ReadOnlyMemory<byte>.Empty,
-                Type: FrameType.Error,
-                FrameError: new FrameError(InvalidControlFrameLength, FrameErrorType.InvalidControlFrameLength));
-
-            return err;
+            return new WebsocketFrame(new FrameError(InvalidControlFrameLength, FrameErrorType.InvalidControlFrameLength));
         }
 
         long payloadLen64 = payloadLen7;
 
-        // Extended lengths
         if (payloadLen7 == 126)
         {
             if (reader.Remaining < 2)
-            {
-                var frame = Incomplete(ref consumed, ref examined);
-                return frame;
-            }
+                return Incomplete(ref consumed, ref examined, ref sequence);
 
             reader.TryReadBigEndian(out short len16);
-            payloadLen64 = len16;
+            payloadLen64 = (ushort)len16;
         }
         else if (payloadLen7 == 127)
         {
             if (reader.Remaining < 8)
-            {
-                var frame = Incomplete(ref consumed, ref examined);
-                return frame;
-            }
+                return Incomplete(ref consumed, ref examined, ref sequence);
 
             reader.TryReadBigEndian(out long len64);
             payloadLen64 = len64;
         }
 
-        // Maximum possible header size
         const int MaxFrameHeaderSize = 14;
         var maxAllowedPayload = rxMaxBufferSize - MaxFrameHeaderSize;
 
-        // Payload too large, larger than the pipe reader internal buffer
-        if (payloadLen64 > maxAllowedPayload)
+        if (payloadLen64 < 0 || payloadLen64 > maxAllowedPayload || payloadLen64 > int.MaxValue)
         {
             consumed = reader.Position;
             examined = reader.Position;
-
-            var err = new WebsocketFrame(
-                ReadOnlyMemory<byte>.Empty,
-                Type: FrameType.Error,
-                FrameError: new FrameError(PayloadTooLarge, FrameErrorType.PayloadTooLarge));
-
-            return err;
+            return new WebsocketFrame(new FrameError(PayloadTooLarge, FrameErrorType.PayloadTooLarge));
         }
 
-        // max payload shouldn't be more than 32 bit - max pipe reader buffer size?
         var payloadLength = (int)payloadLen64;
 
-        // Mask key (if present)
-        Span<byte> maskKeySpan = stackalloc byte[4];
+        Span<byte> maskKey = stackalloc byte[4];
         if (isMasked)
         {
-            if (reader.Remaining < 4 || !reader.TryCopyTo(maskKeySpan))
-            {
-                var frame = Incomplete(ref consumed, ref examined);
-                return frame;
-            }
+            if (reader.Remaining < 4 || !reader.TryCopyTo(maskKey))
+                return Incomplete(ref consumed, ref examined, ref sequence);
 
             reader.Advance(4);
         }
 
-        // Now we need the full payload
         if (reader.Remaining < payloadLength)
+            return Incomplete(ref consumed, ref examined, ref sequence);
+
+        // Payload slice (zero-copy)
+        var payloadStart = reader.Position;
+        var payloadEnd = sequence.GetPosition(payloadLength, payloadStart);
+        var payloadSeq = sequence.Slice(payloadStart, payloadEnd);
+
+        // Unmask in-place
+        if (isMasked && payloadLength != 0)
         {
-            var frame = Incomplete(ref consumed, ref examined);
-            return frame;
+            if (!TryUnmaskInPlace(payloadSeq, maskKey))
+            {
+                consumed = sequence.Start;
+                examined = sequence.End;
+                return new WebsocketFrame(new FrameError(NonWritablePipeSegment, FrameErrorType.UndefinedBehavior));
+            }
         }
 
-        // Copy payload into our own buffer (don't mutate PipeReader's memory)
-        var payloadArray = new byte[payloadLength];
-        reader.TryCopyTo(payloadArray);
+        // Advance reader past payload for consumed/examined
         reader.Advance(payloadLength);
-
-        if (isMasked)
-        {
-            for (int i = 0; i < payloadArray.Length; i++)
-            {
-                payloadArray[i] ^= maskKeySpan[i & 0b11];
-            }
-        }
-
-        ReadOnlyMemory<byte> payloadMem;
-
-        if (frameType == FrameType.Close)
-        {
-            if (payloadArray.Length >= 2)
-            {
-                var closeCode = BinaryPrimitives.ReadUInt16BigEndian(payloadArray.AsSpan(0, 2));
-                var reason = payloadArray.Length > 2
-                    ? Encoding.UTF8.GetString(payloadArray.AsSpan(2))
-                    : null;
-
-                var msg = $"Close frame received. Code: {closeCode}, Reason: {reason ?? "None"}";
-                payloadMem = Encoding.UTF8.GetBytes(msg).AsMemory();
-            }
-            else
-            {
-                payloadMem = ReadOnlyMemory<byte>.Empty;
-            }
-        }
-        else
-        {
-            payloadMem = payloadArray.AsMemory();
-        }
-
-        // Successfully parsed one full frame.
-        // Update the PipeReader with consumed + examined exactly up to this point.
         consumed = reader.Position;
         examined = reader.Position;
 
-        return new WebsocketFrame(
-            payloadMem,
-            frameType,
-            Fin: fin);
+        // Close frame
+        if (frameType == FrameType.Close)
+        {
+            if (payloadLength >= 2)
+            {
+                // Read close code
+                Span<byte> codeBuf = stackalloc byte[2];
+                payloadSeq.Slice(0, 2).CopyTo(codeBuf);
+                var closeCode = BinaryPrimitives.ReadUInt16BigEndian(codeBuf);
+
+                // Read reason (allocates string, only for Close)
+                string? reason = null;
+                if (payloadLength > 2)
+                {
+                    // Unfortunately Encoding.GetString doesn't accept ReadOnlySequence,
+                    // so we must materialize reason bytes OR decode manually.
+                    // We'll keep it simple: materialize only the reason part.
+                    var reasonBytes = payloadSeq.Slice(2).ToArray(); // alloc only for Close
+                    reason = Encoding.UTF8.GetString(reasonBytes);
+                }
+
+                var msg = $"Close frame received. Code: {closeCode}, Reason: {reason ?? "None"}";
+                var msgBytes = Encoding.UTF8.GetBytes(msg); // alloc only for Close
+
+                var msgSeq = new ReadOnlySequence<byte>(msgBytes);
+                return new WebsocketFrame(ref msgSeq, frameType, fin: fin);
+            }
+            else
+            {
+                // empty close payload
+                var empty = ReadOnlySequence<byte>.Empty;
+                return new WebsocketFrame(ref empty, frameType, fin: fin);
+            }
+        }
+        // -------------------------------------------------------
+
+        // Normal frames: return raw payload slice (zero-copy)
+        return new WebsocketFrame(ref payloadSeq, frameType, fin: fin);
+    }
+
+    /// <summary>
+    /// Brute force modifying the PipeReader's buffer, unmask the bytes.
+    /// </summary>
+    private static bool TryUnmaskInPlace(in ReadOnlySequence<byte> payload, ReadOnlySpan<byte> maskKey)
+    {
+        var maskOffset = 0;
+
+        foreach (var mem in payload)
+        {
+            if (mem.Length == 0) continue;
+
+            // We need a writable backing store. Pipe segments are usually byte[].
+            if (!MemoryMarshal.TryGetArray(mem, out ArraySegment<byte> seg) ||
+                seg.Array is null)
+            {
+                return false;
+            }
+
+            var span = seg.Array.AsSpan(seg.Offset, seg.Count);
+
+            for (var i = 0; i < span.Length; i++)
+            {
+                span[i] ^= maskKey[(maskOffset + i) & 3];
+            }
+
+            maskOffset = (maskOffset + span.Length) & 3;
+        }
+
+        return true;
     }
 }

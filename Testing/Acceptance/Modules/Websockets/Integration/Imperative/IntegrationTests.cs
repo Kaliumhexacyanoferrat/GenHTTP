@@ -13,6 +13,7 @@ public sealed class IntegrationTests
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
             .Imperative()
+            .HandleContinuationFramesManually()
             .Handler(new MyHandler());
 
         Chain.Works(websocket);
@@ -21,7 +22,24 @@ public sealed class IntegrationTests
 
         await Client.Execute(host.Port);
     }
-    
+
+    // Automatic segmented handling
+    [TestMethod]
+    public async Task TestServerImperativeSegmented()
+    {
+        var websocket = GenHTTP.Modules.Websockets.Websocket
+            .Imperative()
+            .Handler(new MyHandler());
+
+        Chain.Works(websocket);
+
+        await using var host = await TestHost.RunAsync(websocket);
+
+        await Client.ExecuteSegmented(host.Port);
+    }
+
+    // Automatic segmented handling
+    // Plus TCP fragmentation
     [TestMethod]
     public async Task TestServerImperativeFragmented()
     {
@@ -36,6 +54,41 @@ public sealed class IntegrationTests
         await Client.ExecuteFragmented("127.0.0.1", host.Port);
     }
 
+    // Automatic segmented handling
+    // Plus TCP fragmentation
+    // Plus segmented message
+    [TestMethod]
+    public async Task TestServerImperativeFragmentedSegmented()
+    {
+        var websocket = GenHTTP.Modules.Websockets.Websocket
+            .Imperative()
+            .Handler(new MyHandlerFragmented());
+
+        Chain.Works(websocket);
+
+        await using var host = await TestHost.RunAsync(websocket);
+
+        await Client.ExecuteFragmentedWithContinuationFrames("127.0.0.1", host.Port);
+    }
+
+    // Automatic segmented handling
+    // Plus TCP fragmentation
+    // Plus segmented message
+    // No allocations
+    [TestMethod]
+    public async Task TestServerImperativeFragmentedSegmentedNoAllocations()
+    {
+        var websocket = GenHTTP.Modules.Websockets.Websocket
+            .Imperative()
+            .Handler(new MyHandlerFragmented());
+
+        Chain.Works(websocket);
+
+        await using var host = await TestHost.RunAsync(websocket);
+
+        await Client.ExecuteFragmentedWithContinuationFrames("127.0.0.1", host.Port);
+    }
+
     public class MyHandler : IImperativeHandler
     {
 
@@ -44,14 +97,15 @@ public sealed class IntegrationTests
             try
             {
                 await connection.PingAsync();
-            
+
                 while (connection.Request.Server.Running)
                 {
+                    //connection.Advance();
+
                     var frame = await connection.ReadFrameAsync();
 
-                    if (frame.Type == FrameType.Error)
+                    if (frame.IsError(out var error))
                     {
-                        var error = frame.FrameError!;
                         Console.WriteLine($"{error.ErrorType}: {error.Message}");
                         continue;
                     }
@@ -77,7 +131,7 @@ public sealed class IntegrationTests
             }
         }
     }
-    
+
     public class MyHandlerFragmented : IImperativeHandler
     {
 
@@ -87,11 +141,12 @@ public sealed class IntegrationTests
             {
                 while (connection.Request.Server.Running)
                 {
+                    //connection.Advance();
+
                     var frame = await connection.ReadFrameAsync();
 
-                    if (frame.Type == FrameType.Error)
+                    if (frame.IsError(out var error))
                     {
-                        var error = frame.FrameError!;
                         Console.WriteLine($"{error.ErrorType}: {error.Message}");
                         continue;
                     }
