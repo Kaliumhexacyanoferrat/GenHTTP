@@ -1,11 +1,10 @@
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Websockets.Protocol;
 using GenHTTP.Modules.Websockets.Provider;
 
 namespace GenHTTP.Modules.Websockets.Reactive;
 
-public class ReactiveWebsocketContent(IReactiveHandler handler, IRequest request, int rxBufferSize, bool handleContinuationFramesManually, bool allocateFrameData) : IResponseContent
+public class ReactiveWebsocketContent(IReactiveHandler handler, IRequest request, ConnectionSettings settings) : IResponseContent
 {
 
     public ulong? Length => null;
@@ -16,14 +15,12 @@ public class ReactiveWebsocketContent(IReactiveHandler handler, IRequest request
     {
         await target.FlushAsync();
 
-        await using var connection = new WebsocketConnection(request, target, rxBufferSize, handleContinuationFramesManually, allocateFrameData);
+        await using var connection = new WebsocketConnection(request, target, settings);
 
         await handler.OnConnected(connection);
 
         while (request.Server.Running)
         {
-            //connection.Advance(); // Advance reader, could be an Examine() or Consume()
-
             var frame = await connection.ReadFrameAsync(); // Ensures a frame is read
 
             if (frame.IsError(out var error))

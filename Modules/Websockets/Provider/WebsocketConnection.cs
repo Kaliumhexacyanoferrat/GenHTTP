@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Websockets.Protocol;
 using GenHTTP.Modules.Websockets.Utils;
 
@@ -12,14 +13,12 @@ namespace GenHTTP.Modules.Websockets.Provider;
 
 public class WebsocketConnection : IReactiveConnection, IImperativeConnection, IAsyncDisposable
 {
-    private readonly bool _handleContinuationFramesManually;
-    private readonly bool _allocateFrameData;
-
     private readonly Stream _stream;
     private readonly PipeReader _pipeReader;
-    private readonly int _rxMaxBufferSize;
+
     private SequencePosition _consumed;
     private SequencePosition _examined;
+
     private ReadOnlySequence<byte> _currentSequence;
 
     private bool _skipFrameInit;
@@ -31,24 +30,25 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
     public IRequest Request { get; }
 
+    public ConnectionSettings Settings { get; }
+
     #endregion
 
     #region Initialization
 
-    public WebsocketConnection(IRequest request, Stream stream, int rxMaxBufferSize, bool handleContinuationFramesManually, bool allocateFrameData)
+    public WebsocketConnection(IRequest request, Stream stream, ConnectionSettings settings)
     {
         Request = request;
+        Settings = settings;
+
         _stream = stream;
-        _rxMaxBufferSize =  rxMaxBufferSize;
+
         _pipeReader = PipeReader.Create(stream,
             new StreamPipeReaderOptions(
                 MemoryPool<byte>.Shared,
                 leaveOpen: true,
-                bufferSize: rxMaxBufferSize,
-                minimumReadSize: Math.Min( rxMaxBufferSize / 4 , 1024 )));
-
-        _handleContinuationFramesManually = handleContinuationFramesManually;
-        _allocateFrameData = allocateFrameData;
+                bufferSize: settings.RxBufferSize,
+                minimumReadSize: Math.Min( settings.RxBufferSize / 4 , 1024 )));
     }
 
     #endregion
@@ -109,7 +109,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
     {
         Advance();
 
-        if (_handleContinuationFramesManually)
+        if (Settings.HandleContinuationFramesManually)
         {
             return await ReadFrameSegmentAsync(isFirstFrame: true, token: token);
         }
@@ -184,7 +184,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
         }
         finally
         {
-            if (_allocateFrameData)
+            if (Settings.AllocateFrameData)
             {
                 _frame.SetCachedData();
             }
@@ -220,7 +220,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                 ? result.Buffer.Slice(innerExamined)
                 : result.Buffer;
 
-            var frame = Frame.Decode(ref _currentSequence, _rxMaxBufferSize, out var consumed, out var examined);
+            var frame = Frame.Decode(ref _currentSequence, Settings.RxBufferSize, out var consumed, out var examined);
             _consumed = consumed;
             _examined = examined;
 
