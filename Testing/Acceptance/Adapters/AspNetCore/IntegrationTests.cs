@@ -97,13 +97,22 @@ public class IntegrationTests
             app.Map("/server", Inline.Create().Get(async (IRequest r) =>
             {
                 var server = r.Server;
-                
+
                 await server.DisposeAsync(); // nop
 
                 await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () => await server.StartAsync());
-                
+
                 Assert.IsTrue(server.Running);
                 Assert.IsFalse(server.Development);
+
+                Assert.Contains(".NET", r.Server.Version);
+
+                Assert.IsNotNull(r.Server.Handler);
+
+                Assert.IsNotNull(r.EndPoint.Address);
+                Assert.IsFalse(r.EndPoint.Secure);
+
+                r.EndPoint.Dispose(); // nop
             }));
         };
 

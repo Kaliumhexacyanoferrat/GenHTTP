@@ -42,15 +42,6 @@ public class MethodAttribute : Attribute, IMethodConfiguration
         SupportedMethods = [..methods.Select(FlexibleRequestMethod.Get)];
     }
 
-    /// <summary>
-    /// Marks the method as a invokable function for the specified HTTP verbs.
-    /// </summary>
-    /// <param name="methods">The HTTP verbs supported by this method</param>
-    public MethodAttribute(params FlexibleRequestMethod[] methods)
-    {
-        SupportedMethods = [..methods];
-    }
-
     #endregion
 
 }

@@ -25,4 +25,21 @@ public sealed class ContentTypeTests
             FlexibleContentType.Parse("application/json");
         });
     }
+
+    [TestMethod]
+    public void TestOperators()
+    {
+        var simple = ContentType.TextCss;
+
+        var complex = FlexibleContentType.Parse("text/css;");
+
+        Assert.IsTrue(complex == simple);
+        Assert.IsTrue(complex != ContentType.TextPlain);
+
+        Assert.IsTrue(complex == "text/css");
+        Assert.IsTrue(complex != "text/plain");
+
+        Assert.AreEqual(complex, new FlexibleContentType("text/css", "utf-8"));
+    }
+
 }
