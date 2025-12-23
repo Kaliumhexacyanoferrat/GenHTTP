@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -7,6 +8,7 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Compression;
+using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Practices;
 
@@ -168,12 +170,7 @@ public sealed class DecompressionTests
 
         await runner.Host.Defaults(compression: false, decompression: true, secureUpgrade: false, strictTransport: false, clientCaching: false).StartAsync();
 
-        var compressedContent = CompressGzip(TestContent);
-
-        var request = runner.GetRequest(method: HttpMethod.Post);
-        request.Content = new ByteArrayContent(compressedContent);
-        request.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
-        request.Content.Headers.ContentEncoding.Add("gzip");
+        var request = GetRequestWithCompressedPayload(runner);
 
         using var response = await runner.GetResponseAsync(request);
 
@@ -181,7 +178,64 @@ public sealed class DecompressionTests
         Assert.AreEqual(TestContent, responseBody);
     }
 
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestRequestWrapping(TestEngine engine)
+    {
+        var app = Inline.Create()
+                        .Post((IRequest wrapped) =>
+                        {
+                            Assert.IsNotNull(wrapped.Properties);
+                            Assert.IsNotNull(wrapped.Server);
+                            Assert.IsNotNull(wrapped.Client);
+                            Assert.IsNotNull(wrapped.LocalClient);
+                            Assert.IsNotNull(wrapped.Target);
+                            Assert.IsNotNull(wrapped.Cookies);
+                            Assert.IsNotNull(wrapped.Forwardings);
+
+                            Assert.AreEqual(HttpProtocol.Http11, wrapped.ProtocolType);
+                            Assert.AreEqual(RequestMethod.Post, wrapped.Method.KnownMethod);
+
+                            Assert.AreEqual("https://google.com/", wrapped.Referer);
+                            Assert.AreEqual("server.local", wrapped.Host);
+                            Assert.AreEqual("test-client/1.0 (100% not compatible)", wrapped.UserAgent);
+
+                            Assert.AreEqual("1", wrapped.Query["x"]);
+                            Assert.AreEqual("test-client/1.0 (100% not compatible)", wrapped.Headers["User-Agent"]);
+
+                            return wrapped.Respond()
+                                          .Status(ResponseStatus.NoContent);
+                        });
+
+        await using var runner = new TestHost(app.Build(), defaults: false, engine: engine);
+
+        await runner.Host.Defaults(decompression: true).StartAsync();
+
+        var request = GetRequestWithCompressedPayload(runner, "/?x=1");
+
+        request.Headers.Add("Referer", "https://google.com");
+        request.Headers.Add("Host", "server.local");
+        request.Headers.Add("User-Agent", "test-client/1.0 (100% not compatible)");
+
+        using var response = await runner.GetResponseAsync(request);
+
+        await response.AssertStatusAsync(HttpStatusCode.NoContent);
+    }
+
     #region Helpers
+
+    private static HttpRequestMessage GetRequestWithCompressedPayload(TestHost runner, string? path = null)
+    {
+        var compressedContent = CompressGzip(TestContent);
+
+        var request = runner.GetRequest(path, HttpMethod.Post);
+
+        request.Content = new ByteArrayContent(compressedContent);
+        request.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+        request.Content.Headers.ContentEncoding.Add("gzip");
+
+        return request;
+    }
 
     private static async Task TestDecompressionAsync(TestEngine engine, string encoding, Func<string, byte[]> compressor)
     {
