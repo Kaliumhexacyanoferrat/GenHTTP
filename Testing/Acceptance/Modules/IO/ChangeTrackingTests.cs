@@ -1,4 +1,10 @@
-﻿using GenHTTP.Modules.IO;
+﻿using System.Net;
+
+using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.Functional;
+using GenHTTP.Modules.IO;
+
 using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Modules.IO;
@@ -53,4 +59,23 @@ public sealed class ChangeTrackingTests
         Assert.AreEqual(resource.Modified, tracked.Modified);
         Assert.AreEqual(resource.ContentType, tracked.ContentType);
     }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestContentExposure(TestEngine engine)
+    {
+        var resource = Resource.FromString("Inner").BuildWithTracking();
+
+        var app = Inline.Create()
+                                   .Get((IRequest r) => r.Respond().Content(resource).Build());
+
+        await using var runner = await TestHost.RunAsync(app);
+
+        using var response = await runner.GetResponseAsync();
+
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+
+        Assert.AreEqual("Inner", await response.GetContentAsync());
+    }
+
 }

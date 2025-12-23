@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Text;
+using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 
@@ -96,4 +97,20 @@ public sealed class DownloadTests
 
         Assert.AreEqual("attachment; filename=\"myfile.txt\"", response.GetContentHeader("Content-Disposition"));
     }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestTypeCanBeSet(TestEngine engine)
+    {
+        var download = Download.From(Resource.FromString("This;is;CSV"))
+                               .Type(ContentType.TextCsv)
+                               .Type(new(ContentType.TextCsv));
+
+        await using var runner = await TestHost.RunAsync(download, engine: engine);
+
+        using var response = await runner.GetResponseAsync();
+
+        Assert.AreEqual("text/csv", response.GetContentHeader("Content-Type"));
+    }
+
 }
