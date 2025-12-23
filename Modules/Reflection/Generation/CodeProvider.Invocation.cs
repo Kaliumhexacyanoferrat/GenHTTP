@@ -36,9 +36,7 @@ public static class CodeProviderInvocationExtensions
         sb.AppendLine($"        var typedLogic = ({type}<{stringTypes}>)logic;");
         sb.AppendLine();
 
-        sb.AppendLine("        var result = typedLogic(");
-        sb.AppendArgumentList(operation);
-        sb.AppendLine("        );");
+        sb.AppendInvocation(operation, "typedLogic");
     }
 
     public static void AppendMethodInvocation(this StringBuilder sb, Operation operation)
@@ -50,14 +48,29 @@ public static class CodeProviderInvocationExtensions
         sb.AppendLine($"        var typedInstance = ({typeName})instance;");
         sb.AppendLine();
 
-        sb.Append("        ");
-        if (operation.Result.Sink != OperationResultSink.None)
+        sb.AppendInvocation(operation, $"typedInstance.{methodName}");
+    }
+
+    private static void AppendInvocation(this StringBuilder sb, Operation operation, string invoker)
+    {
+        var resultType = operation.Method.ReturnType;
+
+        var isAsyncGeneric = resultType.IsAsyncGeneric();
+
+        var isVoid = (isAsyncGeneric) ? resultType.IsGenericallyVoid() : resultType.IsAsyncVoid() || resultType == typeof(void);
+
+        var isAsync = resultType.IsAsync();
+
+        sb.Append(isVoid ? "        " : "        var result = ");
+
+        if (isAsync)
         {
-            sb.Append("var result = ");
+            sb.Append("await ");
         }
-        sb.AppendLine($"typedInstance.{methodName}(");
+
+        sb.AppendLine($"{invoker}(");
         sb.AppendArgumentList(operation);
-        sb.AppendLine($"        );");
+        sb.AppendLine("        );");
     }
 
     private static void AppendArgumentList(this StringBuilder sb, Operation operation)

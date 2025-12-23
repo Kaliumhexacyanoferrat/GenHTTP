@@ -20,6 +20,11 @@ public static class CodeProviderResultExtensions
                     sb.AppendSerializedResult();
                     break;
                 }
+            case OperationResultSink.Binary:
+                {
+                    sb.AppendIOSupportedResult();
+                    break;
+                }
             case OperationResultSink.None:
                 {
                     sb.AppendVoidResult();

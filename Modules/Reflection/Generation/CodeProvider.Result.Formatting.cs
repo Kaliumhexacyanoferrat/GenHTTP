@@ -1,18 +1,19 @@
 using System.Text;
+
 using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Reflection.Generation;
 
 public static class CodeProviderResultFormattingExtensions
 {
-    
+
     public static void AppendFormattedResult(this StringBuilder sb, Operation operation)
     {
         var type = operation.Result.Type;
 
         if (type == typeof(string))
         {
-            sb.AppendStringResult();
+            sb.AppendIOSupportedResult();
         }
         else
         {
@@ -22,11 +23,4 @@ public static class CodeProviderResultFormattingExtensions
         }
     }
 
-    private static void AppendStringResult(this StringBuilder sb)
-    {
-        sb.AppendLine("        var response = request.Respond()");
-        sb.AppendLine("                              .Content(result)");
-        sb.AppendLine("                              .Build();");
-    }
-    
 }

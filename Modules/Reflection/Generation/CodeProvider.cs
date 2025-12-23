@@ -58,7 +58,13 @@ public static class CodeProvider
 
     private static bool CheckAsync(Operation operation)
     {
-        return operation.Result.Sink == OperationResultSink.Serializer;
+        if (operation.Result.Sink == OperationResultSink.Serializer)
+            return true;
+
+        if (operation.Method.ReturnType.IsAsync())
+            return true;
+
+        return false;
     }
 
 }
