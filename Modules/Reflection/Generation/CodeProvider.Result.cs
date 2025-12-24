@@ -25,6 +25,11 @@ public static class CodeProviderResultExtensions
                     sb.AppendIOSupportedResult();
                     break;
                 }
+            case OperationResultSink.Dynamic:
+                {
+                    sb.AppendDynamicResult(operation);
+                    break;
+                }
             case OperationResultSink.None:
                 {
                     sb.AppendVoidResult();

@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Reflection.Operations;
 
@@ -48,6 +49,26 @@ public static class CodeProviderArgumentExtensions
                     sb.AppendQueryArgument(argument, index, supportBodyArguments);
                     break;
                 }
+            case OperationArgumentSource.Streamed:
+                {
+                    sb.AppendStreamArgument(index);
+                    break;
+                }
+            case OperationArgumentSource.Content:
+                {
+                    sb.AppendContentArgument(argument, index);
+                    break;
+                }
+            case OperationArgumentSource.Injected:
+                {
+                    sb.AppendInjectedArgument(argument, index);
+                    break;
+                }
+            case OperationArgumentSource.Body:
+                {
+                    sb.AppendBodyArgument(argument, index);
+                    break;
+                }
             default:
                 throw new NotSupportedException();
         }
@@ -56,7 +77,7 @@ public static class CodeProviderArgumentExtensions
     private static void AppendQueryArgument(this StringBuilder sb, OperationArgument argument, int index, bool supportBodyArguments)
     {
         var safeType = CompilationUtil.GetQualifiedName(argument.Type);
-        
+
         sb.AppendLine($"        {safeType}? arg{index} = null;");
         sb.AppendLine();
 
@@ -67,7 +88,7 @@ public static class CodeProviderArgumentExtensions
 
         if (supportBodyArguments)
         {
-            sb.AppendLine($"        else if (bodyArgs?.TryGetValue({CompilationUtil.GetSafeString(argument.Name)}, out var bodyArg{index})");
+            sb.AppendLine($"        else if (bodyArgs?.TryGetValue({CompilationUtil.GetSafeString(argument.Name)}, out var bodyArg{index}) == true)");
             sb.AppendLine("        {");
             sb.AppendQueryArgumentAssignment(argument, index, "body");
             sb.AppendLine("        }");
@@ -95,5 +116,69 @@ public static class CodeProviderArgumentExtensions
         }
     }
 
+    private static void AppendStreamArgument(this StringBuilder sb, int index)
+    {
+        sb.AppendLine($"        var arg{index} = ArgumentProvider.GetStream(request);");
+        sb.AppendLine();
+    }
+
+    private static void AppendContentArgument(this StringBuilder sb, OperationArgument argument, int index)
+    {
+        var safeType = CompilationUtil.GetQualifiedName(argument.Type);
+
+        sb.AppendLine("        var deserializer = registry.Serialization.GetDeserialization(request) ?? throw new ProviderException(ResponseStatus.UnsupportedMediaType, \"Requested format is not supported\");");
+        sb.AppendLine();
+        sb.AppendLine("        var content = request.Content ?? throw new ProviderException(ResponseStatus.BadRequest, \"Request body expected\");");
+        sb.AppendLine();
+        sb.AppendLine("        try");
+        sb.AppendLine("        {");
+        sb.AppendLine($"            var arg{index} = await deserializer.DeserializeAsync(content, {safeType});");
+        sb.AppendLine("        }");
+        sb.AppendLine("        catch (Exception e)");
+        sb.AppendLine("        {");
+        sb.AppendLine("            throw new ProviderException(ResponseStatus.BadRequest, \"Failed to deserialize request body\", e)");
+        sb.AppendLine("        }");
+        sb.AppendLine();
+    }
+
+    private static void AppendInjectedArgument(this StringBuilder sb, OperationArgument argument, int index)
+    {
+        var safeType = CompilationUtil.GetQualifiedName(argument.Type);
+
+        // todo: optimizations
+
+        if (argument.Type == typeof(IRequest))
+        {
+            sb.AppendLine($"        var arg{index} = request;");
+        }
+        else if (argument.Type == typeof(IHandler))
+        {
+            sb.AppendLine($"        var arg{index} = handler;");
+        }
+        else
+        {
+            sb.AppendLine($"        {safeType}? arg{index} = null;");
+            sb.AppendLine();
+
+            sb.AppendLine("        foreach (var injector in registry.Injection)");
+            sb.AppendLine("        {");
+            sb.AppendLine($"            if (injector.Supports(request, typeof({safeType})))");
+            sb.AppendLine("            {");
+            sb.AppendLine($"                arg{index} = ({safeType})injector.GetValue(handler, request, typeof({safeType}));");
+            sb.AppendLine("            }");
+            sb.AppendLine("        }");
+        }
+    }
+
+    private static void AppendBodyArgument(this StringBuilder sb, OperationArgument argument, int index)
+    {
+        var safeType = CompilationUtil.GetQualifiedName(argument.Type);
+        var safeName = CompilationUtil.GetSafeString(argument.Name);
+        
+        // todo: reflection based
+        
+        sb.AppendLine($"        {safeType}? arg{index} = ({safeType}?)await ArgumentProvider.GetBodyArgumentAsync(request, {safeName}, typeof({safeType}), registry);");
+        sb.AppendLine();
+    }
 
 }

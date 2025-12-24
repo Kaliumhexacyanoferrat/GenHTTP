@@ -24,9 +24,9 @@ public sealed class MethodHandler : IHandler
 {
     private static readonly Dictionary<string, object?> NoArguments = [];
 
-    private Func<object, IRequest, MethodRegistry, ValueTask<IResponse?>>? _compiledMethod;
+    private Func<object, IRequest, IHandler, MethodRegistry, ValueTask<IResponse?>>? _compiledMethod;
 
-    private Func<Delegate, IRequest, MethodRegistry, ValueTask<IResponse?>>? _compiledDelegate;
+    private Func<Delegate, IRequest, IHandler, MethodRegistry, ValueTask<IResponse?>>? _compiledDelegate;
 
     private Exception? _compilationError = null;
 
@@ -121,7 +121,7 @@ public sealed class MethodHandler : IHandler
         if (_compiledDelegate == null || Operation.Delegate == null)
             throw new InvalidOperationException("Compiled delegate is not initialized");
 
-        return _compiledDelegate(Operation.Delegate, request, Registry);
+        return _compiledDelegate(Operation.Delegate, request, this, Registry);
     }
 
     private async ValueTask<IResponse?> RunAsMethod(IRequest request)
@@ -131,7 +131,7 @@ public sealed class MethodHandler : IHandler
 
         var instance = await InstanceProvider(request);
 
-        return await _compiledMethod(instance, request, Registry);
+        return await _compiledMethod(instance, request, this, Registry);
     }
 
     private async ValueTask<IResponse?> RunViaReflection(IRequest request)
@@ -183,7 +183,7 @@ public sealed class MethodHandler : IHandler
                         {
                             OperationArgumentSource.Injected => ArgumentProvider.GetInjectedArgument(request, this, arg, Registry),
                             OperationArgumentSource.Path => ArgumentProvider.GetPathArgument(arg, sourceParameters, Registry),
-                            OperationArgumentSource.Body => await ArgumentProvider.GetBodyArgumentAsync(request, arg, Registry),
+                            OperationArgumentSource.Body => await ArgumentProvider.GetBodyArgumentAsync(request, arg.Name, arg.Type, Registry),
                             OperationArgumentSource.Query => ArgumentProvider.GetQueryArgument(request, bodyArguments, arg, Registry),
                             OperationArgumentSource.Content => await ArgumentProvider.GetContentAsync(request, arg, Registry),
                             OperationArgumentSource.Streamed => ArgumentProvider.GetStream(request),

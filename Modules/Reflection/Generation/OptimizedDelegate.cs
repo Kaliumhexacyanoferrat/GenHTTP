@@ -1,3 +1,4 @@
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Reflection.Operations;
@@ -10,7 +11,7 @@ public static class OptimizedDelegate
 
     public static bool Supported => CompilationSupported;
     
-    public static Func<T, IRequest, MethodRegistry, ValueTask<IResponse?>>? Compile<T>(Operation operation)
+    public static Func<T, IRequest, IHandler, MethodRegistry, ValueTask<IResponse?>>? Compile<T>(Operation operation)
     {
         if (!CompilationSupported) return null;
      

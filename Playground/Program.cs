@@ -1,4 +1,5 @@
-﻿using GenHTTP.Engine.Internal;
+﻿using GenHTTP.Api.Protocol;
+using GenHTTP.Engine.Internal;
 
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
@@ -16,7 +17,7 @@ var withReflection = Inline.Create().Get(() => "Hello World!").ExecutionMode(Exe
 
 
 var test = Inline.Create()
-                 .Get((SomeClass.MyEnum input) => input)
+                 .Get(() => Content.From(Resource.FromString("Hello World!")))
                  .ExecutionMode(ExecutionMode.Auto);
 
 var app = Layout.Create()

@@ -1,5 +1,7 @@
 using System.Text;
 
+using GenHTTP.Api.Content;
+
 using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Reflection.Generation;
@@ -24,6 +26,7 @@ public static class CodeProvider
         sb.AppendLine();
         sb.AppendLine("using GenHTTP.Modules.Conversion.Serializers.Forms;");
         sb.AppendLine("using GenHTTP.Modules.Reflection;");
+        sb.AppendLine("using GenHTTP.Modules.Reflection.Operations;");
         sb.AppendLine("using GenHTTP.Modules.IO;");
         sb.AppendLine();
 
@@ -32,11 +35,11 @@ public static class CodeProvider
 
         if (operation.Delegate != null)
         {
-            sb.AppendLine($"    public static {(isAsync ? "async" : string.Empty)} ValueTask<IResponse?> Invoke(Delegate logic, IRequest request, MethodRegistry registry)");
+            sb.AppendLine($"    public static {(isAsync ? "async" : string.Empty)} ValueTask<IResponse?> Invoke(Delegate logic, IRequest request, IHandler handler, MethodRegistry registry)");
         }
         else
         {
-            sb.AppendLine($"    public static {(isAsync ? "async" : string.Empty)} ValueTask<IResponse?> Invoke(object instance, IRequest request, MethodRegistry registry)");
+            sb.AppendLine($"    public static {(isAsync ? "async" : string.Empty)} ValueTask<IResponse?> Invoke(object instance, IRequest request, IHandler handler, MethodRegistry registry)");
         }
 
         sb.AppendLine("    {");
@@ -63,6 +66,17 @@ public static class CodeProvider
 
         if (operation.Method.ReturnType.IsAsync())
             return true;
+
+        if (operation.Arguments.Any(a => a.Value.Source == OperationArgumentSource.Body || a.Value.Source == OperationArgumentSource.Content))
+            return true;
+
+        if (operation.Result.Sink == OperationResultSink.Dynamic)
+        {
+            var resultType = operation.Result.Type;
+
+            if (typeof(IHandler).IsAssignableFrom(resultType) || typeof(IHandlerBuilder).IsAssignableFrom(resultType))
+                return true;
+        }
 
         return false;
     }

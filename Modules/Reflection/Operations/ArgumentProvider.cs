@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion;
@@ -36,11 +37,11 @@ public static class ArgumentProvider
         return null;
     }
 
-    public static async ValueTask<object?> GetBodyArgumentAsync(IRequest request, OperationArgument argument, MethodRegistry registry)
+    public static async ValueTask<object?> GetBodyArgumentAsync(IRequest request, string name, Type type, MethodRegistry registry)
     {
         if (request.Content == null)
         {
-            throw new ProviderException(ResponseStatus.BadRequest, $"Argument '{argument.Name}' is expected to be read from the request body but the request does not contain any payload");
+            throw new ProviderException(ResponseStatus.BadRequest, $"Argument '{name}' is expected to be read from the request body but the request does not contain any payload");
         }
 
         object? result = null;
@@ -51,7 +52,7 @@ public static class ArgumentProvider
 
         if (!string.IsNullOrWhiteSpace(body))
         {
-            result = body.ConvertTo(argument.Type, registry.Formatting);
+            result = body.ConvertTo(type, registry.Formatting);
         }
 
         if (request.Content.CanSeek)
@@ -104,7 +105,8 @@ public static class ArgumentProvider
         }
     }
 
-    public static object? GetStream(IRequest request)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Stream GetStream(IRequest request)
     {
         if (request.Content == null)
         {
@@ -113,4 +115,5 @@ public static class ArgumentProvider
 
         return request.Content;
     }
+    
 }
