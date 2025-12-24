@@ -55,7 +55,9 @@ public static class CodeProviderArgumentExtensions
 
     private static void AppendQueryArgument(this StringBuilder sb, OperationArgument argument, int index, bool supportBodyArguments)
     {
-        sb.AppendLine($"        {argument.Type}? arg{index} = null;");
+        var safeType = CompilationUtil.GetQualifiedName(argument.Type);
+        
+        sb.AppendLine($"        {safeType}? arg{index} = null;");
         sb.AppendLine();
 
         sb.AppendLine($"        if (request.Query.TryGetValue({CompilationUtil.GetSafeString(argument.Name)}, out var queryArg{index}))");
@@ -78,6 +80,8 @@ public static class CodeProviderArgumentExtensions
     {
         var sourceName = $"{readFrom}Arg{index}";
 
+        var safeType = CompilationUtil.GetQualifiedName(argument.Type);
+
         // todo: high performance support for int.TryParse etc.
 
         if (argument.Type == typeof(string))
@@ -87,7 +91,7 @@ public static class CodeProviderArgumentExtensions
         else
         {
             // todo: try and bad format exception
-            sb.AppendLine($"            arg{index} = ({argument.Type}?)registry.Formatting.Read({sourceName}, typeof({argument.Type}));");
+            sb.AppendLine($"            arg{index} = ({safeType}?)registry.Formatting.Read({sourceName}, typeof({safeType}));");
         }
     }
 

@@ -31,7 +31,7 @@ public static class CodeProviderInvocationExtensions
             argumentTypes.Add(operation.Result.Type);
         }
 
-        var stringTypes = string.Join(", ", argumentTypes);
+        var stringTypes = string.Join(", ", argumentTypes.Select(CompilationUtil.GetQualifiedName));
 
         sb.AppendLine($"        var typedLogic = ({type}<{stringTypes}>)logic;");
         sb.AppendLine();

@@ -14,11 +14,17 @@ var withArgs = Inline.Create().Get((string x) => x).ExecutionMode(ExecutionMode.
 
 var withReflection = Inline.Create().Get(() => "Hello World!").ExecutionMode(ExecutionMode.Reflection);
 
+
+var test = Inline.Create()
+                 .Get((SomeClass.MyEnum input) => input)
+                 .ExecutionMode(ExecutionMode.Auto);
+
 var app = Layout.Create()
-                .Add("handler", handler)
-                .Add("codegen", withCodeGen)
-                .Add("args", withArgs)
-                .Add("reflection", withReflection);
+               // .Add("handler", handler)
+               // .Add("codegen", withCodeGen)
+               // .Add("args", withArgs)
+               // .Add("reflection", withReflection)
+                .Add("test", test);
 
 await Host.Create()
 <<<<<<< HEAD
@@ -51,6 +57,17 @@ public record MyData(string Data);
           .Development()
           .RunAsync();
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 5c3a20cf (Code gen improvements)
 =======
 >>>>>>> 524a8632 (Add first argument handling)
+=======
+
+public class SomeClass {
+public enum MyEnum
+{
+    A,
+    B
+}
+}
+>>>>>>> f34d114c (Add support for nested type names)
