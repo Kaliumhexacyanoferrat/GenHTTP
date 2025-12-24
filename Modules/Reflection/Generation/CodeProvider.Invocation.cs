@@ -33,7 +33,15 @@ public static class CodeProviderInvocationExtensions
 
         var stringTypes = string.Join(", ", argumentTypes.Select(CompilationUtil.GetQualifiedName));
 
-        sb.AppendLine($"        var typedLogic = ({type}<{stringTypes}>)logic;");
+        if (stringTypes.Any())
+        {
+            sb.AppendLine($"        var typedLogic = ({type}<{stringTypes}>)logic;");
+        }
+        else
+        {
+            sb.AppendLine($"        var typedLogic = ({type})logic;");
+        }
+        
         sb.AppendLine();
 
         sb.AppendInvocation(operation, "typedLogic");

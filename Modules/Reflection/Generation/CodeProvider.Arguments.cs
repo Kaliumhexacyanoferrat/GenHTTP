@@ -130,13 +130,15 @@ public static class CodeProviderArgumentExtensions
         sb.AppendLine();
         sb.AppendLine("        var content = request.Content ?? throw new ProviderException(ResponseStatus.BadRequest, \"Request body expected\");");
         sb.AppendLine();
+        sb.AppendLine($"        {safeType}? arg{index} = null;");
+        sb.AppendLine();
         sb.AppendLine("        try");
         sb.AppendLine("        {");
-        sb.AppendLine($"            var arg{index} = await deserializer.DeserializeAsync(content, {safeType});");
+        sb.AppendLine($"            arg{index} = ({safeType}?)await deserializer.DeserializeAsync(content, typeof({safeType}));");
         sb.AppendLine("        }");
         sb.AppendLine("        catch (Exception e)");
         sb.AppendLine("        {");
-        sb.AppendLine("            throw new ProviderException(ResponseStatus.BadRequest, \"Failed to deserialize request body\", e)");
+        sb.AppendLine("            throw new ProviderException(ResponseStatus.BadRequest, \"Failed to deserialize request body\", e);");
         sb.AppendLine("        }");
         sb.AppendLine();
     }
