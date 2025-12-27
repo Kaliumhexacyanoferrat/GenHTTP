@@ -31,7 +31,7 @@ public static class CodeProviderInvocationExtensions
             argumentTypes.Add(operation.Result.Type);
         }
 
-        var stringTypes = string.Join(", ", argumentTypes.Select(CompilationUtil.GetQualifiedName));
+        var stringTypes = string.Join(", ", argumentTypes.Select(a => CompilationUtil.GetQualifiedName(a, true)));
 
         if (stringTypes.Any())
         {
@@ -51,7 +51,7 @@ public static class CodeProviderInvocationExtensions
     {
         var methodName = operation.Method.Name;
 
-        var typeName = CompilationUtil.GetQualifiedName(operation.Method.DeclaringType!);
+        var typeName = CompilationUtil.GetQualifiedName(operation.Method.DeclaringType!, false);
 
         sb.AppendLine($"        var typedInstance = ({typeName})instance;");
         sb.AppendLine();

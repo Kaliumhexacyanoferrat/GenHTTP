@@ -84,7 +84,7 @@ public static class CodeProviderArgumentExtensions
 
     private static void AppendQueryArgument(this StringBuilder sb, OperationArgument argument, int index, bool supportBodyArguments)
     {
-        var safeType = CompilationUtil.GetQualifiedName(argument.Type);
+        var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
 
         sb.AppendLine($"        {safeType}? arg{index} = null;");
         sb.AppendLine();
@@ -107,7 +107,7 @@ public static class CodeProviderArgumentExtensions
     {
         var sourceName = $"{readFrom}Arg{index}";
 
-        var safeType = CompilationUtil.GetQualifiedName(argument.Type);
+        var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
 
         // todo: high performance support for int.TryParse etc.
 
@@ -130,7 +130,7 @@ public static class CodeProviderArgumentExtensions
 
     private static void AppendContentArgument(this StringBuilder sb, OperationArgument argument, int index)
     {
-        var safeType = CompilationUtil.GetQualifiedName(argument.Type);
+        var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
 
         sb.AppendLine("        var deserializer = registry.Serialization.GetDeserialization(request) ?? throw new ProviderException(ResponseStatus.UnsupportedMediaType, \"Requested format is not supported\");");
         sb.AppendLine();
@@ -151,7 +151,7 @@ public static class CodeProviderArgumentExtensions
 
     private static void AppendInjectedArgument(this StringBuilder sb, OperationArgument argument, int index)
     {
-        var safeType = CompilationUtil.GetQualifiedName(argument.Type);
+        var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
 
         // todo: optimizations
 
@@ -180,7 +180,7 @@ public static class CodeProviderArgumentExtensions
 
     private static void AppendBodyArgument(this StringBuilder sb, OperationArgument argument, int index)
     {
-        var safeType = CompilationUtil.GetQualifiedName(argument.Type);
+        var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
         var safeName = CompilationUtil.GetSafeString(argument.Name);
         
         // todo: reflection based
@@ -191,7 +191,8 @@ public static class CodeProviderArgumentExtensions
 
     private static void AppendPathArgument(this StringBuilder sb, OperationArgument argument, int index)
     {
-        var safeType = CompilationUtil.GetQualifiedName(argument.Type);
+        var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
+        
         var safeName = CompilationUtil.GetSafeString(argument.Name);
         
         // todo: reflection based

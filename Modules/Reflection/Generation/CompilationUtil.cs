@@ -23,10 +23,13 @@ public static class CompilationUtil
     public static string GetSafeString(string input)
         => SyntaxFactory.Literal(input).ToFullString();
     
-    public static string GetQualifiedName(Type type)
+    public static string GetQualifiedName(Type type, bool allowNullable)
     {
         if (BuiltInTypes.TryGetValue(type, out var keyword))
             return keyword;
+
+        if (Nullable.GetUnderlyingType(type) is Type underlyingType)
+            return $"{GetQualifiedName(underlyingType, false)}" + (allowNullable ? "?" : string.Empty);
 
         if (type.IsGenericType)
         {
@@ -36,11 +39,11 @@ public static class CompilationUtil
             var name = genericType.FullName!;
             name = name[..name.IndexOf('`')].Replace('+', '.');
 
-            return $"{name}<{string.Join(", ", args.Select(GetQualifiedName))}>";
+            return $"{name}<{string.Join(", ", args.Select(a => GetQualifiedName(a, allowNullable)))}>";
         }
 
         if (type.IsArray)
-            return $"{GetQualifiedName(type.GetElementType()!)}[]";
+            return $"{GetQualifiedName(type.GetElementType()!, allowNullable)}[]";
 
         return type.FullName!.Replace('+', '.');
     }
