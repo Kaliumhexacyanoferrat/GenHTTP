@@ -15,9 +15,17 @@ var withArgs = Inline.Create().Get((string x) => x).ExecutionMode(ExecutionMode.
 var withReflection = Inline.Create().Get(() => "Hello World!").ExecutionMode(ExecutionMode.Reflection);
 
 
-var test = Inline.Create()
-                 .Get((double d) => d)
-                 .ExecutionMode(ExecutionMode.Auto);
+var test = Inline.Create().Get(async () =>
+                                   {
+                                       var stream = new MemoryStream();
+
+                                       await stream.WriteAsync("42"u8.ToArray());
+
+                                       stream.Seek(0, SeekOrigin.Begin);
+
+                                       return stream;
+                                   })
+                                   .ExecutionMode(ExecutionMode.Auto);
 
 var app = Layout.Create()
                // .Add("handler", handler)

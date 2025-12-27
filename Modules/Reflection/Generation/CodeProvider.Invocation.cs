@@ -28,7 +28,7 @@ public static class CodeProviderInvocationExtensions
 
         if (operation.Result.Sink != OperationResultSink.None)
         {
-            argumentTypes.Add(operation.Result.Type);
+            argumentTypes.Add(operation.Method.ReturnType);
         }
 
         var stringTypes = string.Join(", ", argumentTypes.Select(a => CompilationUtil.GetQualifiedName(a, true)));
