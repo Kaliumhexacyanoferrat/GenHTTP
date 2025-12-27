@@ -4,6 +4,7 @@ using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.StaticWebsites;
 using GenHTTP.Modules.Webservices;
 
@@ -71,11 +72,11 @@ public sealed class HandlerResultTests
     #region Tests
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestRoot(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestRoot(TestEngine engine, ExecutionMode mode)
     {
         var app = Layout.Create()
-                        .AddService<RootService>("c");
+                        .AddService<RootService>("c", mode: mode);
 
         await using var host = await TestHost.RunAsync(app, engine: engine);
 
@@ -87,11 +88,11 @@ public sealed class HandlerResultTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestPathed(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestPathed(TestEngine engine, ExecutionMode mode)
     {
         var app = Layout.Create()
-                        .AddService<PathService>("c");
+                        .AddService<PathService>("c", mode: mode);
 
         await using var host = await TestHost.RunAsync(app, engine: engine);
 
@@ -103,11 +104,11 @@ public sealed class HandlerResultTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestPathedAsync(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestPathedAsync(TestEngine engine, ExecutionMode mode)
     {
         var app = Layout.Create()
-                        .AddService<PathAsyncService>("c");
+                        .AddService<PathAsyncService>("c", mode: mode);
 
         await using var host = await TestHost.RunAsync(app, engine: engine);
 

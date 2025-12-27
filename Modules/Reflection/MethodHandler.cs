@@ -7,6 +7,7 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
 
 using GenHTTP.Modules.Conversion.Serializers.Forms;
+using GenHTTP.Modules.Reflection.Generation;
 using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Reflection;
@@ -23,17 +24,23 @@ public sealed class MethodHandler : IHandler
 {
     private static readonly Dictionary<string, object?> NoArguments = [];
 
+    private Func<object, Operation, IRequest, IHandler, MethodRegistry, ValueTask<IResponse?>>? _compiledMethod;
+
+    private Func<Delegate, Operation, IRequest, IHandler, MethodRegistry, ValueTask<IResponse?>>? _compiledDelegate;
+
+    private Exception? _compilationError = null;
+
     #region Get-/Setters
 
     public Operation Operation { get; }
-
-    public IMethodConfiguration Configuration { get; }
 
     private Func<IRequest, ValueTask<object>> InstanceProvider { get; }
 
     public MethodRegistry Registry { get; }
 
     private ResponseProvider ResponseProvider { get; }
+
+    private bool UseCodeGeneration { get; }
 
     #endregion
 
@@ -44,24 +51,90 @@ public sealed class MethodHandler : IHandler
     /// </summary>
     /// <param name="operation">The operation to be executed and provided (use <see cref="OperationBuilder"/> to create an operation)</param>
     /// <param name="instanceProvider">A factory that will provide an instance to actually execute the operation on</param>
-    /// <param name="metaData">Additional, use-specified information about the operation</param>
     /// <param name="registry">The customized registry to be used to read and write data</param>
-    public MethodHandler(Operation operation, Func<IRequest, ValueTask<object>> instanceProvider, IMethodConfiguration metaData, MethodRegistry registry)
+    public MethodHandler(Operation operation, Func<IRequest, ValueTask<object>> instanceProvider, MethodRegistry registry)
     {
-        Configuration = metaData;
         InstanceProvider = instanceProvider;
 
         Operation = operation;
         Registry = registry;
 
         ResponseProvider = new(registry);
+
+        var effectiveMode = Operation.ExecutionSettings.Mode ?? ExecutionMode.Reflection;
+
+        UseCodeGeneration = OptimizedDelegate.Supported && effectiveMode == ExecutionMode.Auto;
     }
 
     #endregion
 
     #region Functionality
 
-    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    public ValueTask PrepareAsync()
+    {
+        if (UseCodeGeneration)
+        {
+            try
+            {
+                if (Operation.Delegate != null)
+                {
+                    _compiledDelegate = OptimizedDelegate.Compile<Delegate>(Operation);
+                }
+                else
+                {
+                    _compiledMethod = OptimizedDelegate.Compile<object>(Operation);
+                }
+            }
+            catch (Exception e)
+            {
+                // todo: log
+                _compilationError = e;
+            }
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
+    public ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
+        if (UseCodeGeneration)
+        {
+            if (_compilationError != null)
+            {
+                // todo: add fallback but allow fallback to be disabled for acceptance tests
+                throw _compilationError;
+            }
+
+            if (Operation.Delegate != null)
+            {
+                return RunAsDelegate(request);
+            }
+
+            return RunAsMethod(request);
+        }
+
+        return RunViaReflection(request);
+    }
+
+    private ValueTask<IResponse?> RunAsDelegate(IRequest request)
+    {
+        if (_compiledDelegate == null || Operation.Delegate == null)
+            throw new InvalidOperationException("Compiled delegate is not initialized");
+
+        return _compiledDelegate(Operation.Delegate, Operation, request, this, Registry);
+    }
+
+    private async ValueTask<IResponse?> RunAsMethod(IRequest request)
+    {
+        if (_compiledMethod == null)
+            throw new InvalidOperationException("Compiled method is not initialized");
+
+        var instance = await InstanceProvider(request);
+
+        return await _compiledMethod(instance, Operation, request, this, Registry);
+    }
+
+    private async ValueTask<IResponse?> RunViaReflection(IRequest request)
     {
         var arguments = await GetArguments(request);
 
@@ -74,23 +147,14 @@ public sealed class MethodHandler : IHandler
 
         var result = await InvokeAsync(request, arguments.Values.ToArray());
 
-        return await ResponseProvider.GetResponseAsync(request, Operation, await UnwrapAsync(result), null);
+        return await ResponseProvider.GetResponseAsync(request, Operation, await UnwrapAsync(result));
     }
 
     private async ValueTask<IReadOnlyDictionary<string, object?>> GetArguments(IRequest request)
     {
         var targetParameters = Operation.Method.GetParameters();
 
-        Match? sourceParameters = null;
-
-        if (!Operation.Path.IsIndex)
-        {
-            sourceParameters = Operation.Path.Matcher.Match(request.Target.GetRemaining().ToString());
-
-            var matchedPath = WebPath.FromString(sourceParameters.Value);
-
-            foreach (var _ in matchedPath.Parts) request.Target.Advance();
-        }
+        var pathArguments = ArgumentProvider.MatchPath(Operation, request);
 
         if (targetParameters.Length > 0)
         {
@@ -109,8 +173,8 @@ public sealed class MethodHandler : IHandler
                         targetArguments[arg.Name] = arg.Source switch
                         {
                             OperationArgumentSource.Injected => ArgumentProvider.GetInjectedArgument(request, this, arg, Registry),
-                            OperationArgumentSource.Path => ArgumentProvider.GetPathArgument(arg, sourceParameters, Registry),
-                            OperationArgumentSource.Body => await ArgumentProvider.GetBodyArgumentAsync(request, arg, Registry),
+                            OperationArgumentSource.Path => ArgumentProvider.GetPathArgument(arg.Name, arg.Type, pathArguments, Registry),
+                            OperationArgumentSource.Body => await ArgumentProvider.GetBodyArgumentAsync(request, arg.Name, arg.Type, Registry),
                             OperationArgumentSource.Query => ArgumentProvider.GetQueryArgument(request, bodyArguments, arg, Registry),
                             OperationArgumentSource.Content => await ArgumentProvider.GetContentAsync(request, arg, Registry),
                             OperationArgumentSource.Streamed => ArgumentProvider.GetStream(request),
@@ -125,8 +189,6 @@ public sealed class MethodHandler : IHandler
 
         return NoArguments;
     }
-
-    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
     private async ValueTask<IResponse?> InterceptAsync(IRequest request, IReadOnlyDictionary<string, object?> arguments)
     {

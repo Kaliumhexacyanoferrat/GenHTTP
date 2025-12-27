@@ -13,6 +13,22 @@ public sealed class Operation
     public MethodInfo Method { get; }
 
     /// <summary>
+    /// If available, the delegate to be executed at runtime
+    /// to retrieve a result.
+    /// </summary>
+    public Delegate? Delegate { get; }
+
+    /// <summary>
+    /// Specifies the way the method should be executed.
+    /// </summary>
+    public ExecutionSettings ExecutionSettings { get; }
+
+    /// <summary>
+    /// The configuration of this method.
+    /// </summary>
+    public IMethodConfiguration Configuration { get; }
+
+    /// <summary>
     /// Information about the endpoint provided by this operation.
     /// </summary>
     public OperationPath Path { get; }
@@ -36,9 +52,12 @@ public sealed class Operation
 
     #region Initialization
 
-    public Operation(MethodInfo method, OperationPath path, OperationResult result, IReadOnlyDictionary<string, OperationArgument> arguments, IReadOnlyList<IOperationInterceptor> interceptors)
+    public Operation(MethodInfo method, Delegate? del, ExecutionSettings executionSettings, IMethodConfiguration configuration, OperationPath path, OperationResult result, IReadOnlyDictionary<string, OperationArgument> arguments, IReadOnlyList<IOperationInterceptor> interceptors)
     {
         Method = method;
+        Delegate = del;
+        ExecutionSettings = executionSettings;
+        Configuration = configuration;
         Path = path;
         Result = result;
         Arguments = arguments;

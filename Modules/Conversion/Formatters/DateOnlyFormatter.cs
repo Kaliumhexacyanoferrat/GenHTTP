@@ -1,4 +1,6 @@
 ﻿using System.Text.RegularExpressions;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Conversion.Formatters;
 
@@ -21,11 +23,12 @@ public sealed partial class DateOnlyFormatter : IFormatter
             return new DateOnly(year, month, day);
         }
 
-        throw new ArgumentException($"Input does not match the requested format (yyyy-mm-dd): {value}");
+        throw new ProviderException(ResponseStatus.BadRequest, $"Input does not match the requested format (yyyy-mm-dd): {value}");
     }
 
     public string Write(object value, Type type) => ((DateOnly)value).ToString("yyyy-MM-dd");
 
     [GeneratedRegex(@"^([0-9]{4})\-([0-9]{2})\-([0-9]{2})$", RegexOptions.Compiled)]
     private static partial Regex CreateDateOnlyPattern();
+    
 }

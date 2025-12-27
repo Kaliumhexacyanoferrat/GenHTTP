@@ -3,6 +3,7 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Layouting.Provider;
+using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Injectors;
 using GenHTTP.Modules.Webservices.Provider;
 
@@ -23,8 +24,8 @@ public static class Extensions
     /// <param name="injectors">Optionally the injectors to be used by this service</param>
     /// <param name="serializers">Optionally the formats to be used by this service</param>
     /// <param name="formatters">Optionally the formatters to be used by this service</param>
-    public static LayoutBuilder AddService<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(this LayoutBuilder layout, string path, IBuilder<InjectionRegistry>? injectors = null, IBuilder<SerializationRegistry>? serializers = null, IBuilder<FormatterRegistry>? formatters = null) where T : new() =>
-        layout.Add(path, ServiceResource.From<T>().Configured(injectors, serializers, formatters));
+    public static LayoutBuilder AddService<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(this LayoutBuilder layout, string path, IBuilder<InjectionRegistry>? injectors = null, IBuilder<SerializationRegistry>? serializers = null, IBuilder<FormatterRegistry>? formatters = null, ExecutionMode? mode = null) where T : new() =>
+        layout.Add(path, ServiceResource.From<T>().Configured(injectors, serializers, formatters, mode));
 
     /// <summary>
     /// Adds the given webservice resource to the layout, accessible using
@@ -35,10 +36,10 @@ public static class Extensions
     /// <param name="injectors">Optionally the injectors to be used by this service</param>
     /// <param name="serializers">Optionally the formats to be used by this service</param>
     /// <param name="formatters">Optionally the formatters to be used by this service</param>
-    public static LayoutBuilder AddService(this LayoutBuilder layout, string path, object instance, IBuilder<InjectionRegistry>? injectors = null, IBuilder<SerializationRegistry>? serializers = null, IBuilder<FormatterRegistry>? formatters = null) =>
-        layout.Add(path, ServiceResource.From(instance).Configured(injectors, serializers, formatters));
+    public static LayoutBuilder AddService(this LayoutBuilder layout, string path, object instance, IBuilder<InjectionRegistry>? injectors = null, IBuilder<SerializationRegistry>? serializers = null, IBuilder<FormatterRegistry>? formatters = null, ExecutionMode? mode = null) =>
+        layout.Add(path, ServiceResource.From(instance).Configured(injectors, serializers, formatters, mode));
 
-    private static ServiceResourceBuilder Configured(this ServiceResourceBuilder builder, IBuilder<InjectionRegistry>? injectors = null, IBuilder<SerializationRegistry>? serializers = null, IBuilder<FormatterRegistry>? formatters = null)
+    private static ServiceResourceBuilder Configured(this ServiceResourceBuilder builder, IBuilder<InjectionRegistry>? injectors = null, IBuilder<SerializationRegistry>? serializers = null, IBuilder<FormatterRegistry>? formatters = null, ExecutionMode? mode = null)
     {
         if (injectors != null)
         {
@@ -55,6 +56,12 @@ public static class Extensions
             builder.Formatters(formatters);
         }
 
+        if (mode != null)
+        {
+            builder.ExecutionMode(mode.Value);
+        }
+
         return builder;
     }
+
 }

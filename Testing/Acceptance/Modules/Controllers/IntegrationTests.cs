@@ -1,7 +1,11 @@
 ﻿using System.Net;
+
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Reflection;
+
 using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Controllers;
@@ -23,11 +27,14 @@ public class IntegrationTests
     #endregion
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestInstance(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestInstance(TestEngine engine, ExecutionMode mode)
     {
+        var controller = Controller.From(new TestController())
+                                   .ExecutionMode(mode);
+
         var app = Layout.Create()
-                        .Add(Controller.From(new TestController()));
+                        .Add(controller);
 
         await using var host = await TestHost.RunAsync(app, engine: engine);
 

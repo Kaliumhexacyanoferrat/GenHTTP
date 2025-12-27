@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
+
 using GenHTTP.Modules.Functional;
+using GenHTTP.Modules.Reflection;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Functional;
 
@@ -9,11 +11,12 @@ public class MethodTest
 {
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestAnyMethod(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestAnyMethod(TestEngine engine, ExecutionMode mode)
     {
         var app = Inline.Create()
-                        .Any((List<int> data) => data.Count);
+                        .Any((List<int> data) => data.Count)
+                        .ExecutionMode(mode);
 
         await using var host = await TestHost.RunAsync(app, engine: engine);
 
@@ -36,11 +39,12 @@ public class MethodTest
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestDelete(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestDelete(TestEngine engine, ExecutionMode mode)
     {
         var app = Inline.Create()
-                        .Delete(() => { });
+                        .Delete(() => { })
+                        .ExecutionMode(mode);
 
         await using var host = await TestHost.RunAsync(app, engine: engine);
 
@@ -52,11 +56,12 @@ public class MethodTest
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestHead(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestHead(TestEngine engine, ExecutionMode mode)
     {
         var app = Inline.Create()
-                        .Head(() => "42");
+                        .Head(() => "42")
+                        .ExecutionMode(mode);
 
         await using var host = await TestHost.RunAsync(app, engine: engine);
 

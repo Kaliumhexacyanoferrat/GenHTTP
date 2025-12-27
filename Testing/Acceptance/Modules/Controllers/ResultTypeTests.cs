@@ -15,11 +15,12 @@ public sealed class ResultTypeTests
 
     #region Helpers
 
-    private static async Task<TestHost> GetRunnerAsync(TestEngine engine)
+    private static async Task<TestHost> GetRunnerAsync(TestEngine engine, ExecutionMode mode)
     {
         var controller = Controller.From<TestController>()
                                    .Serializers(Serialization.Default())
-                                   .Injectors(Injection.Default());
+                                   .Injectors(Injection.Default())
+                                   .ExecutionMode(mode);
 
         return await TestHost.RunAsync(Layout.Create().Add("t", controller), engine: engine);
     }
@@ -45,10 +46,10 @@ public sealed class ResultTypeTests
     #region Tests
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task ControllerMayReturnHandlerBuilder(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task ControllerMayReturnHandlerBuilder(TestEngine engine, ExecutionMode mode)
     {
-        await using var runner = await GetRunnerAsync(engine);
+        await using var runner = await GetRunnerAsync(engine, mode);
 
         using var response = await runner.GetResponseAsync("/t/handler-builder/");
 
@@ -57,10 +58,10 @@ public sealed class ResultTypeTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task ControllerMayReturnHandler(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task ControllerMayReturnHandler(TestEngine engine, ExecutionMode mode)
     {
-        await using var runner = await GetRunnerAsync(engine);
+        await using var runner = await GetRunnerAsync(engine, mode);
 
         using var response = await runner.GetResponseAsync("/t/handler/");
 
@@ -69,10 +70,10 @@ public sealed class ResultTypeTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task ControllerMayReturnResponseBuilder(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task ControllerMayReturnResponseBuilder(TestEngine engine, ExecutionMode mode)
     {
-        await using var runner = await GetRunnerAsync(engine);
+        await using var runner = await GetRunnerAsync(engine, mode);
 
         using var response = await runner.GetResponseAsync("/t/response-builder/");
 
@@ -81,10 +82,10 @@ public sealed class ResultTypeTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task ControllerMayReturnResponse(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task ControllerMayReturnResponse(TestEngine engine, ExecutionMode mode)
     {
-        await using var runner = await GetRunnerAsync(engine);
+        await using var runner = await GetRunnerAsync(engine, mode);
 
         using var response = await runner.GetResponseAsync("/t/response/");
 

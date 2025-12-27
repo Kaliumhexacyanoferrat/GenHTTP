@@ -22,8 +22,8 @@ public sealed class ResultTests
     #region Tests
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestResponseCanBeModified(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestResponseCanBeModified(TestEngine engine, ExecutionMode mode)
     {
         var result = new Result<MyPayload>(new MyPayload("Hello World!"))
                      .Status(ResponseStatus.Accepted)
@@ -37,7 +37,8 @@ public sealed class ResultTests
                      .Encoding("my-encoding");
 
         var inline = Inline.Create()
-                           .Get(() => result);
+                           .Get(() => result)
+                           .ExecutionMode(mode);
 
         await using var runner = await TestHost.RunAsync(inline, engine: engine);
 
@@ -51,13 +52,14 @@ public sealed class ResultTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestStreamsCanBeWrapped(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestStreamsCanBeWrapped(TestEngine engine, ExecutionMode mode)
     {
         var stream = new MemoryStream("Hello World!"u8.ToArray());
 
         var inline = Inline.Create()
-                           .Get(() => new Result<Stream>(stream).Status(ResponseStatus.Created));
+                           .Get(() => new Result<Stream>(stream).Status(ResponseStatus.Created))
+                           .ExecutionMode(mode);
 
         await using var runner = await TestHost.RunAsync(inline, engine: engine);
 

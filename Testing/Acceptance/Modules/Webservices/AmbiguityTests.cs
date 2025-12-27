@@ -2,6 +2,7 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Webservices;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Webservices;
@@ -13,11 +14,11 @@ public sealed class AmbiguityTests
     #region Tests
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestSpecificPreferred(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestSpecificPreferred(TestEngine engine, ExecutionMode mode)
     {
         var app = Layout.Create()
-                        .AddService<TestService>("c");
+                        .AddService<TestService>("c", mode: mode);
 
         await using var host = await TestHost.RunAsync(app, engine: engine);
 

@@ -2,6 +2,7 @@
 
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Reflection;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Reflection;
 
@@ -10,8 +11,8 @@ public class WildcardTests
 {
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestRouting(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestRouting(TestEngine engine, ExecutionMode mode)
     {
         var tree = ResourceTree.FromAssembly("Resources");
 
@@ -22,7 +23,8 @@ public class WildcardTests
                         {
                              Assert.IsGreaterThan(0, tenantId);
                              return resources;
-                        });
+                        })
+                        .ExecutionMode(mode);
 
         await using var host = await TestHost.RunAsync(app);
 

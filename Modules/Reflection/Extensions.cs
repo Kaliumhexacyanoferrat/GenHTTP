@@ -29,6 +29,10 @@ public static class Extensions
     /// <returns>The newly created expression</returns>
     public static string ToParameter(this string name) => $"(?<{name}>[^/]+)";
 
+    public static bool IsAsync(this Type resultType) => resultType.IsAsyncGeneric() || resultType.IsAsyncVoid();
+
+    public static bool IsAsyncVoid(this Type resultType) => resultType == typeof(ValueTask) || resultType == typeof(Task);
+
     public static bool IsAsyncGeneric(this Type resultType) => resultType.IsAssignableToGenericType(typeof(ValueTask<>)) || resultType.IsAssignableToGenericType(typeof(Task<>));
 
     public static bool IsGenericallyVoid(this Type type) => type.GenericTypeArguments.Length == 1 && type.GenericTypeArguments[0] == VoidTaskResult;

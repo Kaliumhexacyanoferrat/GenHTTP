@@ -4,6 +4,7 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Reflection;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Controllers;
 
@@ -18,10 +19,10 @@ public sealed class SeoTests
     /// by accepting upper case letters in action names.
     /// </summary>
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestActionCasingMatters(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestActionCasingMatters(TestEngine engine, ExecutionMode mode)
     {
-        await using var runner = await GetRunnerAsync(engine);
+        await using var runner = await GetRunnerAsync(engine, mode);
 
         using var response = await runner.GetResponseAsync("/t/Action/");
 
@@ -32,7 +33,7 @@ public sealed class SeoTests
 
     #region Helpers
 
-    private async Task<TestHost> GetRunnerAsync(TestEngine engine) => await TestHost.RunAsync(Layout.Create().AddController<TestController>("t"), engine: engine);
+    private async Task<TestHost> GetRunnerAsync(TestEngine engine, ExecutionMode mode) => await TestHost.RunAsync(Layout.Create().AddController<TestController>("t", mode: mode), engine: engine);
 
     #endregion
 
