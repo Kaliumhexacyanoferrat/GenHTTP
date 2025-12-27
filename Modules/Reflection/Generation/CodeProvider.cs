@@ -35,11 +35,11 @@ public static class CodeProvider
 
         if (operation.Delegate != null)
         {
-            sb.AppendLine($"    public static {(isAsync ? "async" : string.Empty)} ValueTask<IResponse?> Invoke(Delegate logic, IRequest request, IHandler handler, MethodRegistry registry)");
+            sb.AppendLine($"    public static {(isAsync ? "async" : string.Empty)} ValueTask<IResponse?> Invoke(Delegate logic, Operation operation, IRequest request, IHandler handler, MethodRegistry registry)");
         }
         else
         {
-            sb.AppendLine($"    public static {(isAsync ? "async" : string.Empty)} ValueTask<IResponse?> Invoke(object instance, IRequest request, IHandler handler, MethodRegistry registry)");
+            sb.AppendLine($"    public static {(isAsync ? "async" : string.Empty)} ValueTask<IResponse?> Invoke(object instance, Operation operation, IRequest request, IHandler handler, MethodRegistry registry)");
         }
 
         sb.AppendLine("    {");

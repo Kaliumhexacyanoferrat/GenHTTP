@@ -1,5 +1,4 @@
-﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Engine.Internal;
+﻿using GenHTTP.Engine.Internal;
 
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
@@ -17,7 +16,7 @@ var withReflection = Inline.Create().Get(() => "Hello World!").ExecutionMode(Exe
 
 
 var test = Inline.Create()
-                 .Get(() => Content.From(Resource.FromString("Hello World!")))
+                 .Get("/:i", (int i) => i + 1)
                  .ExecutionMode(ExecutionMode.Auto);
 
 var app = Layout.Create()
@@ -28,47 +27,7 @@ var app = Layout.Create()
                 .Add("test", test);
 
 await Host.Create()
-<<<<<<< HEAD
-<<<<<<< HEAD
-          .Handler(content)
+          .Handler(app)
           .Defaults()
           .Console()
           .RunAsync(); // or StartAsync() for non-blocking
-=======
-    .Handler(service)
-    .Defaults()
-    .RunAsync(); // or StartAsync() for non-blocking
-
-public class MyService
-{
-
-    [ResourceMethod]
-    public MyData Hello() => new("Hello World!");
-
-}
-<<<<<<< HEAD
->>>>>>> 9f59196e (Add support for compiled service methods)
-=======
-
-public record MyData(string Data);
->>>>>>> 2e9361a1 (WIP)
-=======
-          .Handler(app)
-          .Defaults()
-          .Development()
-          .RunAsync();
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 5c3a20cf (Code gen improvements)
-=======
->>>>>>> 524a8632 (Add first argument handling)
-=======
-
-public class SomeClass {
-public enum MyEnum
-{
-    A,
-    B
-}
-}
->>>>>>> f34d114c (Add support for nested type names)

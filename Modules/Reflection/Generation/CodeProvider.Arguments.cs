@@ -12,6 +12,9 @@ public static class CodeProviderArgumentExtensions
     {
         if (operation.Arguments.Count > 0)
         {
+            sb.AppendLine("        var pathArgs = ArgumentProvider.MatchPath(operation, request);");
+            sb.AppendLine();
+            
             var hasQueryArgs = operation.Arguments.Any(a => a.Value.Source == OperationArgumentSource.Query);
 
             var mayHasBody = operation.Configuration.SupportedMethods.Any(m => m != RequestMethod.Get && m != RequestMethod.Head);
@@ -44,6 +47,11 @@ public static class CodeProviderArgumentExtensions
     {
         switch (argument.Source)
         {
+            case OperationArgumentSource.Path:
+                {
+                    sb.AppendPathArgument(argument, index);
+                    break;
+                }
             case OperationArgumentSource.Query:
                 {
                     sb.AppendQueryArgument(argument, index, supportBodyArguments);
@@ -93,8 +101,6 @@ public static class CodeProviderArgumentExtensions
             sb.AppendQueryArgumentAssignment(argument, index, "body");
             sb.AppendLine("        }");
         }
-
-        // todo body args
     }
 
     private static void AppendQueryArgumentAssignment(this StringBuilder sb, OperationArgument argument, int index, string readFrom)
@@ -180,6 +186,17 @@ public static class CodeProviderArgumentExtensions
         // todo: reflection based
         
         sb.AppendLine($"        {safeType}? arg{index} = ({safeType}?)await ArgumentProvider.GetBodyArgumentAsync(request, {safeName}, typeof({safeType}), registry);");
+        sb.AppendLine();
+    }
+
+    private static void AppendPathArgument(this StringBuilder sb, OperationArgument argument, int index)
+    {
+        var safeType = CompilationUtil.GetQualifiedName(argument.Type);
+        var safeName = CompilationUtil.GetSafeString(argument.Name);
+        
+        // todo: reflection based
+        
+        sb.AppendLine($"        {safeType}? arg{index} = ({safeType}?)ArgumentProvider.GetPathArgument({safeName}, typeof({safeType}), pathArgs, registry);");
         sb.AppendLine();
     }
 

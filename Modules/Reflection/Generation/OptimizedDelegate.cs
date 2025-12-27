@@ -11,7 +11,7 @@ public static class OptimizedDelegate
 
     public static bool Supported => CompilationSupported;
     
-    public static Func<T, IRequest, IHandler, MethodRegistry, ValueTask<IResponse?>>? Compile<T>(Operation operation)
+    public static Func<T, Operation, IRequest, IHandler, MethodRegistry, ValueTask<IResponse?>>? Compile<T>(Operation operation)
     {
         if (!CompilationSupported) return null;
      

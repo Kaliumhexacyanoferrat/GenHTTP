@@ -24,9 +24,9 @@ public sealed class MethodHandler : IHandler
 {
     private static readonly Dictionary<string, object?> NoArguments = [];
 
-    private Func<object, IRequest, IHandler, MethodRegistry, ValueTask<IResponse?>>? _compiledMethod;
+    private Func<object, Operation, IRequest, IHandler, MethodRegistry, ValueTask<IResponse?>>? _compiledMethod;
 
-    private Func<Delegate, IRequest, IHandler, MethodRegistry, ValueTask<IResponse?>>? _compiledDelegate;
+    private Func<Delegate, Operation, IRequest, IHandler, MethodRegistry, ValueTask<IResponse?>>? _compiledDelegate;
 
     private Exception? _compilationError = null;
 
@@ -121,7 +121,7 @@ public sealed class MethodHandler : IHandler
         if (_compiledDelegate == null || Operation.Delegate == null)
             throw new InvalidOperationException("Compiled delegate is not initialized");
 
-        return _compiledDelegate(Operation.Delegate, request, this, Registry);
+        return _compiledDelegate(Operation.Delegate, Operation, request, this, Registry);
     }
 
     private async ValueTask<IResponse?> RunAsMethod(IRequest request)
@@ -131,7 +131,7 @@ public sealed class MethodHandler : IHandler
 
         var instance = await InstanceProvider(request);
 
-        return await _compiledMethod(instance, request, this, Registry);
+        return await _compiledMethod(instance, Operation, request, this, Registry);
     }
 
     private async ValueTask<IResponse?> RunViaReflection(IRequest request)
@@ -154,16 +154,7 @@ public sealed class MethodHandler : IHandler
     {
         var targetParameters = Operation.Method.GetParameters();
 
-        Match? sourceParameters = null;
-
-        if (!Operation.Path.IsIndex)
-        {
-            sourceParameters = Operation.Path.Matcher.Match(request.Target.GetRemaining().ToString());
-
-            var matchedPath = WebPath.FromString(sourceParameters.Value);
-
-            foreach (var _ in matchedPath.Parts) request.Target.Advance();
-        }
+        var pathArguments = ArgumentProvider.MatchPath(Operation, request);
 
         if (targetParameters.Length > 0)
         {
@@ -182,7 +173,7 @@ public sealed class MethodHandler : IHandler
                         targetArguments[arg.Name] = arg.Source switch
                         {
                             OperationArgumentSource.Injected => ArgumentProvider.GetInjectedArgument(request, this, arg, Registry),
-                            OperationArgumentSource.Path => ArgumentProvider.GetPathArgument(arg, sourceParameters, Registry),
+                            OperationArgumentSource.Path => ArgumentProvider.GetPathArgument(arg.Name, arg.Type, pathArguments, Registry),
                             OperationArgumentSource.Body => await ArgumentProvider.GetBodyArgumentAsync(request, arg.Name, arg.Type, Registry),
                             OperationArgumentSource.Query => ArgumentProvider.GetQueryArgument(request, bodyArguments, arg, Registry),
                             OperationArgumentSource.Content => await ArgumentProvider.GetContentAsync(request, arg, Registry),

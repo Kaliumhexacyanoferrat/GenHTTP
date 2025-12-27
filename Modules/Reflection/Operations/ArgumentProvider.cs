@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Routing;
 using GenHTTP.Modules.Conversion;
 
 namespace GenHTTP.Modules.Reflection.Operations;
@@ -22,15 +23,31 @@ public static class ArgumentProvider
         return null;
     }
 
-    public static object? GetPathArgument(OperationArgument argument, Match? matchedPath, MethodRegistry registry)
+    public static Match? MatchPath(Operation operation, IRequest request)
+    {
+        Match? pathArguments = null;
+        
+        if (!operation.Path.IsIndex)
+        {
+            pathArguments = operation.Path.Matcher.Match(request.Target.GetRemaining().ToString());
+
+            var matchedPath = WebPath.FromString(pathArguments.Value);
+
+            foreach (var _ in matchedPath.Parts) request.Target.Advance();
+        }
+
+        return pathArguments;
+    }
+
+    public static object? GetPathArgument(string name, Type type, Match? matchedPath, MethodRegistry registry)
     {
         if (matchedPath != null)
         {
-            var sourceArgument = matchedPath.Groups[argument.Name];
+            var sourceArgument = matchedPath.Groups[name];
 
             if (sourceArgument.Success)
             {
-                return sourceArgument.Value.ConvertTo(argument.Type, registry.Formatting);
+                return sourceArgument.Value.ConvertTo(type, registry.Formatting);
             }
         }
 
