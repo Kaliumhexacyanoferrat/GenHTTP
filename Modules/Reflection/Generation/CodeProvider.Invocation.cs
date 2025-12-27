@@ -87,8 +87,14 @@ public static class CodeProviderInvocationExtensions
 
         foreach (var argument in operation.Arguments)
         {
-            // todo: for reference types the default is also null (e.g. for strings this might should be string.Empty)
-            sb.Append($"            arg{i + 1} ?? default");
+            sb.Append($"            arg{i + 1}");
+            
+            var defaultIsNull = !argument.Value.Type.IsValueType || Nullable.GetUnderlyingType(argument.Value.Type) != null;
+            
+            if (!defaultIsNull)
+            {
+                sb.Append(" ?? default");
+            }
 
             var last = (i++ == operation.Arguments.Count - 1);
 

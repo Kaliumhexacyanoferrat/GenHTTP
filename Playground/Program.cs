@@ -16,7 +16,7 @@ var withReflection = Inline.Create().Get(() => "Hello World!").ExecutionMode(Exe
 
 
 var test = Inline.Create()
-                 .Get((int? i) => (i ?? 0) + 1)
+                 .Get((double d) => d)
                  .ExecutionMode(ExecutionMode.Auto);
 
 var app = Layout.Create()

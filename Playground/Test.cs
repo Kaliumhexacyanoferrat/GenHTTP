@@ -18,14 +18,17 @@ public static class Invoker
     {
         var pathArgs = ArgumentProvider.MatchPath(operation, request);
 
-        int? arg1 = null;
+        double? arg1 = null;
 
-        if (request.Query.TryGetValue("i", out var queryArg1))
+        if (request.Query.TryGetValue("d", out var queryArg1))
         {
-            arg1 = (int?)registry.Formatting.Read(queryArg1, typeof(int));
+            if (!string.IsNullOrEmpty(queryArg1))
+            {
+                arg1 = (double?)registry.Formatting.Read(queryArg1, typeof(double));
+            }
         }
 
-        var typedLogic = (Func<int?, int>)logic;
+        var typedLogic = (Func<double, double>)logic;
 
         var result = typedLogic(
             arg1 ?? default
