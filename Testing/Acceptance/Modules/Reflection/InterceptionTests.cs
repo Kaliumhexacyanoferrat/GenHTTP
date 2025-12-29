@@ -63,7 +63,7 @@ public class InterceptionTests
     [MultiEngineFrameworkTest]
     public async Task TestInterception(TestEngine engine, ExecutionMode mode)
     {
-        var app = Inline.Create().Get([My("intercept")] () => 42).ExecutionMode(mode);
+        var app = Inline.Create().Get([My("intercept")] (int? q) => 42).ExecutionMode(mode);
 
         await using var host = await TestHost.RunAsync(app);
 

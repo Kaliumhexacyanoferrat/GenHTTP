@@ -1,5 +1,5 @@
-﻿using GenHTTP.Engine.Internal;
-
+﻿using GenHTTP.Api.Protocol;
+using GenHTTP.Engine.Internal;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
@@ -15,23 +15,15 @@ var withArgs = Inline.Create().Get((string x) => x).ExecutionMode(ExecutionMode.
 var withReflection = Inline.Create().Get(() => "Hello World!").ExecutionMode(ExecutionMode.Reflection);
 
 
-var test = Inline.Create().Get(async () =>
-                                   {
-                                       var stream = new MemoryStream();
-
-                                       await stream.WriteAsync("42"u8.ToArray());
-
-                                       stream.Seek(0, SeekOrigin.Begin);
-
-                                       return stream;
-                                   })
-                                   .ExecutionMode(ExecutionMode.Auto);
+var test = Inline.Create()
+                 .Get((int? query) => new Result<int?>(query).Type(FlexibleContentType.Get(ContentType.TextHtml)))
+                 .ExecutionMode(ExecutionMode.Auto);
 
 var app = Layout.Create()
-               // .Add("handler", handler)
-               // .Add("codegen", withCodeGen)
-               // .Add("args", withArgs)
-               // .Add("reflection", withReflection)
+                // .Add("handler", handler)
+                // .Add("codegen", withCodeGen)
+                // .Add("args", withArgs)
+                // .Add("reflection", withReflection)
                 .Add("test", test);
 
 await Host.Create()

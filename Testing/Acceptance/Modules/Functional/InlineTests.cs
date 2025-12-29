@@ -219,7 +219,7 @@ public sealed class InlineTests
 
     public record MyClass(string String, int Int, double Double);
 
-    private enum EnumData { One, Two }
+    public enum EnumData { One, Two }
 
     #endregion
 

@@ -13,13 +13,15 @@ public static class CodeProviderResultFormattingExtensions
 
         if (type == typeof(string))
         {
-            sb.AppendIOSupportedResult();
+            sb.AppendIOSupportedResult(operation);
         }
         else
         {
             sb.AppendLine("        var response = request.Respond()");
             sb.AppendLine("                              .Content(registry.Formatting.Write(result, result.GetType()) ?? string.Empty)");
+            sb.AppendResultModifications(operation, "                              ");
             sb.AppendLine("                              .Build();");
+            sb.AppendLine();
         }
     }
 

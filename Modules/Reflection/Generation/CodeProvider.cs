@@ -35,16 +35,18 @@ public static class CodeProvider
 
         if (operation.Delegate != null)
         {
-            sb.AppendLine($"    public static {(isAsync ? "async" : string.Empty)} ValueTask<IResponse?> Invoke(Delegate logic, Operation operation, IRequest request, IHandler handler, MethodRegistry registry)");
+            sb.AppendLine($"    public static {(isAsync ? "async" : string.Empty)} ValueTask<IResponse?> Invoke(Delegate logic, Operation operation, IRequest request, IHandler handler, MethodRegistry registry, RequestInterception interception)");
         }
         else
         {
-            sb.AppendLine($"    public static {(isAsync ? "async" : string.Empty)} ValueTask<IResponse?> Invoke(object instance, Operation operation, IRequest request, IHandler handler, MethodRegistry registry)");
+            sb.AppendLine($"    public static {(isAsync ? "async" : string.Empty)} ValueTask<IResponse?> Invoke(object instance, Operation operation, IRequest request, IHandler handler, MethodRegistry registry, RequestInterception interception)");
         }
 
         sb.AppendLine("    {");
 
         sb.AppendArguments(operation);
+        
+        sb.AppendInterception(operation);
 
         sb.AppendInvocation(operation);
 
@@ -77,6 +79,9 @@ public static class CodeProvider
             if (typeof(IHandler).IsAssignableFrom(resultType) || typeof(IHandlerBuilder).IsAssignableFrom(resultType))
                 return true;
         }
+
+        if (operation.Interceptors.Count > 0)
+            return true;
 
         return false;
     }

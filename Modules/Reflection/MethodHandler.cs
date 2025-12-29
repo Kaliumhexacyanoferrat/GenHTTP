@@ -1,16 +1,16 @@
 ﻿using System.Reflection;
 using System.Runtime.ExceptionServices;
-using System.Text.RegularExpressions;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
 
 using GenHTTP.Modules.Conversion.Serializers.Forms;
 using GenHTTP.Modules.Reflection.Generation;
 using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Reflection;
+
+public delegate ValueTask<IResponse?> RequestInterception(IRequest request, IReadOnlyDictionary<string, object?> arguments);
 
 /// <summary>
 /// Allows to invoke a function on a service oriented resource.
@@ -24,9 +24,9 @@ public sealed class MethodHandler : IHandler
 {
     private static readonly Dictionary<string, object?> NoArguments = [];
 
-    private Func<object, Operation, IRequest, IHandler, MethodRegistry, ValueTask<IResponse?>>? _compiledMethod;
+    private Func<object, Operation, IRequest, IHandler, MethodRegistry, RequestInterception, ValueTask<IResponse?>>? _compiledMethod;
 
-    private Func<Delegate, Operation, IRequest, IHandler, MethodRegistry, ValueTask<IResponse?>>? _compiledDelegate;
+    private Func<Delegate, Operation, IRequest, IHandler, MethodRegistry, RequestInterception, ValueTask<IResponse?>>? _compiledDelegate;
 
     private Exception? _compilationError = null;
 
@@ -121,7 +121,7 @@ public sealed class MethodHandler : IHandler
         if (_compiledDelegate == null || Operation.Delegate == null)
             throw new InvalidOperationException("Compiled delegate is not initialized");
 
-        return _compiledDelegate(Operation.Delegate, Operation, request, this, Registry);
+        return _compiledDelegate(Operation.Delegate, Operation, request, this, Registry, InterceptAsync);
     }
 
     private async ValueTask<IResponse?> RunAsMethod(IRequest request)
@@ -131,7 +131,7 @@ public sealed class MethodHandler : IHandler
 
         var instance = await InstanceProvider(request);
 
-        return await _compiledMethod(instance, Operation, request, this, Registry);
+        return await _compiledMethod(instance, Operation, request, this, Registry, InterceptAsync);
     }
 
     private async ValueTask<IResponse?> RunViaReflection(IRequest request)

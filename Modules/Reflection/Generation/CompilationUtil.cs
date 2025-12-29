@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis.CSharp;
+﻿using GenHTTP.Modules.Reflection.Operations;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace GenHTTP.Modules.Reflection.Generation;
 
@@ -46,6 +47,24 @@ public static class CompilationUtil
             return $"{GetQualifiedName(type.GetElementType()!, allowNullable)}[]";
 
         return type.FullName!.Replace('+', '.');
+    }
+    
+    public static bool CanHoldNull(Type type)
+    {
+        if (type == typeof(void))
+            return false;
+
+        if (!type.IsValueType)
+            return true;
+
+        return Nullable.GetUnderlyingType(type) != null;
+    }
+
+    public static bool HasWrappedResult(Operation operation)
+    {
+        var returnType = operation.Method.ReturnType;
+        
+        return typeof(IResultWrapper).IsAssignableFrom(returnType);
     }
 
 }

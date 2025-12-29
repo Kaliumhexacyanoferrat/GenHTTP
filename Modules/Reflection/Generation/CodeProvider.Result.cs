@@ -8,6 +8,8 @@ public static class CodeProviderResultExtensions
 
     public static void AppendResultConversion(this StringBuilder sb, Operation operation, bool isAsync)
     {
+        sb.AppendNullReturn(operation, isAsync);
+
         switch (operation.Result.Sink)
         {
             case OperationResultSink.Formatter:
@@ -17,12 +19,12 @@ public static class CodeProviderResultExtensions
                 }
             case OperationResultSink.Serializer:
                 {
-                    sb.AppendSerializedResult();
+                    sb.AppendSerializedResult(operation);
                     break;
                 }
             case OperationResultSink.Binary:
                 {
-                    sb.AppendIOSupportedResult();
+                    sb.AppendIOSupportedResult(operation);
                     break;
                 }
             case OperationResultSink.Dynamic:
@@ -37,9 +39,7 @@ public static class CodeProviderResultExtensions
                 }
             default: throw new NotSupportedException();
         }
-
-        sb.AppendLine();
-
+        
         if (isAsync)
         {
             sb.AppendLine("        return response;");
@@ -47,6 +47,35 @@ public static class CodeProviderResultExtensions
         else
         {
             sb.AppendLine("        return new(response);");
+        }
+    }
+
+    private static void AppendNullReturn(this StringBuilder sb, Operation operation, bool isAsync)
+    {
+        if (CompilationUtil.CanHoldNull(operation.Result.Type))
+        {
+            sb.AppendLine("        if (result == null)");
+            sb.AppendLine("        {");
+            sb.AppendLine("            var noContent = request.Respond().Status(ResponseStatus.NoContent);");
+            sb.AppendLine();
+            
+            if (CompilationUtil.HasWrappedResult(operation))
+            {
+                sb.AppendLine("        wrapped.Apply(noContent);");
+                sb.AppendLine();
+            }
+            
+            if (isAsync)
+            {
+                sb.AppendLine("            return noContent.Build();");
+            }
+            else
+            {
+                sb.AppendLine("            return new(noContent.Build());");
+            }
+            
+            sb.AppendLine("        }");
+            sb.AppendLine();
         }
     }
 

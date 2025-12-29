@@ -11,10 +11,10 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace GenHTTP.Modules.Reflection.Generation;
 
-public static class DelegateProvider
+internal static class DelegateProvider
 {
 
-    public static Func<T, Operation, IRequest, IHandler, MethodRegistry, ValueTask<IResponse?>> Compile<T>(string code)
+    internal static Func<T, Operation, IRequest, IHandler, MethodRegistry, RequestInterception, ValueTask<IResponse?>> Compile<T>(string code)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(code);
 
@@ -56,8 +56,8 @@ public static class DelegateProvider
         // warm up the JIT
         RuntimeHelpers.PrepareMethod(method.MethodHandle);
 
-        return (Func<T, Operation, IRequest, IHandler, MethodRegistry, ValueTask<IResponse?>>)Delegate.CreateDelegate(
-            typeof(Func<T, Operation, IRequest, IHandler, MethodRegistry, ValueTask<IResponse?>>), method
+        return (Func<T, Operation, IRequest, IHandler, MethodRegistry, RequestInterception, ValueTask<IResponse?>>)Delegate.CreateDelegate(
+            typeof(Func<T, Operation, IRequest, IHandler, MethodRegistry, RequestInterception, ValueTask<IResponse?>>), method
         );
     }
 

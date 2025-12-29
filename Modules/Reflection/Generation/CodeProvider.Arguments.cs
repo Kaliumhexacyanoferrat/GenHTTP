@@ -114,7 +114,6 @@ public static class CodeProviderArgumentExtensions
         var sourceName = $"{readFrom}Arg{index}";
 
         var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
-        var safeTypeNullable = CompilationUtil.GetQualifiedName(argument.Type, true);
 
         // todo: high performance support for int.TryParse etc.
 
@@ -125,7 +124,7 @@ public static class CodeProviderArgumentExtensions
         else
         {
             // todo: try and bad format exception
-            sb.AppendLine($"                arg{index} = ({safeType}?)registry.Formatting.Read({sourceName}, typeof({safeTypeNullable}));");
+            sb.AppendLine($"                arg{index} = ({safeType}?)registry.Formatting.Read({sourceName}, typeof({safeType}));");
         }
     }
 

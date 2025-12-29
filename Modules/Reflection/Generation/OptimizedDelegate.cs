@@ -5,13 +5,13 @@ using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Reflection.Generation;
 
-public static class OptimizedDelegate
+internal static class OptimizedDelegate
 {
     private static readonly bool CompilationSupported = IsRuntimeCompilationSupported();
 
-    public static bool Supported => CompilationSupported;
+    internal static bool Supported => CompilationSupported;
     
-    public static Func<T, Operation, IRequest, IHandler, MethodRegistry, ValueTask<IResponse?>>? Compile<T>(Operation operation)
+    internal static Func<T, Operation, IRequest, IHandler, MethodRegistry, RequestInterception, ValueTask<IResponse?>>? Compile<T>(Operation operation)
     {
         if (!CompilationSupported) return null;
      

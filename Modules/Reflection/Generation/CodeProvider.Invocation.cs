@@ -69,7 +69,24 @@ public static class CodeProviderInvocationExtensions
 
         var isAsync = resultType.IsAsync();
 
-        sb.Append(isVoid ? "        " : "        var result = ");
+        var wrapped = CompilationUtil.HasWrappedResult(operation);
+
+        if (isVoid)
+        {
+            sb.Append("        ");
+        }
+        else
+        {
+            if (wrapped)
+            {
+                sb.Append("        var wrapped = ");
+            }
+            else
+            {
+                sb.Append("        var result = ");
+            }
+        }
+
 
         if (isAsync)
         {
@@ -79,6 +96,12 @@ public static class CodeProviderInvocationExtensions
         sb.AppendLine($"{invoker}(");
         sb.AppendArgumentList(operation);
         sb.AppendLine("        );");
+
+        if (wrapped)
+        {
+            sb.AppendLine();
+            sb.AppendLine($"        var result = wrapped.Payload;");
+        }
     }
 
     private static void AppendArgumentList(this StringBuilder sb, Operation operation)
