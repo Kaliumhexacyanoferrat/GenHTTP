@@ -1,10 +1,13 @@
 ﻿using System.Reflection;
 using System.Runtime.ExceptionServices;
-
+using Cottle;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Conversion.Serializers.Forms;
+using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Pages;
+using GenHTTP.Modules.Pages.Rendering;
 using GenHTTP.Modules.Reflection.Generation;
 using GenHTTP.Modules.Reflection.Operations;
 
@@ -23,12 +26,14 @@ public delegate ValueTask<IResponse?> RequestInterception(IRequest request, IRea
 public sealed class MethodHandler : IHandler
 {
     private static readonly Dictionary<string, object?> NoArguments = [];
+    
+    private static readonly TemplateRenderer ErrorRenderer = Renderer.From(Resource.FromAssembly("CodeGenerationError.html").Build());
 
     private Func<object, Operation, IRequest, IHandler, MethodRegistry, RequestInterception, ValueTask<IResponse?>>? _compiledMethod;
 
     private Func<Delegate, Operation, IRequest, IHandler, MethodRegistry, RequestInterception, ValueTask<IResponse?>>? _compiledDelegate;
 
-    private Exception? _compilationError = null;
+    private CodeGenerationException? _compilationError = null;
 
     #region Get-/Setters
 
@@ -100,7 +105,7 @@ public sealed class MethodHandler : IHandler
         {
             if (_compilationError != null)
             {
-                throw _compilationError;
+                return RenderCompilationErrorAsync(request, _compilationError);
             }
 
             if (Operation.Delegate != null)
@@ -252,6 +257,20 @@ public sealed class MethodHandler : IHandler
         }
 
         return result;
+    }
+
+    private static async ValueTask<IResponse?> RenderCompilationErrorAsync(IRequest request, CodeGenerationException error)
+    {
+        var template = new Dictionary<Value, Value>
+        {
+            ["exception"] = error.InnerException?.ToString() ?? string.Empty,
+            ["code"] = error.Code ?? string.Empty
+        };
+        
+        var content = await ErrorRenderer.RenderAsync(template);
+
+        return request.GetPage(content)
+                      .Build();
     }
 
     #endregion

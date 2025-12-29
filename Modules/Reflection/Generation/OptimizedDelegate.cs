@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
@@ -31,6 +33,11 @@ internal static class OptimizedDelegate
     
     private static bool IsRuntimeCompilationSupported()
     {
+        if (RuntimeInformation.ProcessArchitecture is Architecture.Arm or Architecture.Arm64)
+        {
+            return false;
+        }
+        
         var roslynType = Type.GetType("Microsoft.CodeAnalysis.CSharp.CSharpCompilation, Microsoft.CodeAnalysis.CSharp");
         
         if (roslynType == null)
