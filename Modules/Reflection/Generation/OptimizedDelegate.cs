@@ -14,12 +14,19 @@ internal static class OptimizedDelegate
     internal static Func<T, Operation, IRequest, IHandler, MethodRegistry, RequestInterception, ValueTask<IResponse?>>? Compile<T>(Operation operation)
     {
         if (!CompilationSupported) return null;
-     
-        // todo: constraints when we cannot compile (e.g. non-public types)
-        
-        var code = CodeProvider.Generate(operation);
 
-        return DelegateProvider.Compile<T>(code);
+        String? code = null;
+
+        try
+        {
+            code = CodeProvider.Generate(operation);
+
+            return DelegateProvider.Compile<T>(code);
+        }
+        catch (Exception e)
+        {
+            throw new CodeGenerationException(code, e);
+        }
     }
     
     private static bool IsRuntimeCompilationSupported()

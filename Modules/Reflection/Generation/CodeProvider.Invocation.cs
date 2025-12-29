@@ -22,11 +22,11 @@ public static class CodeProviderInvocationExtensions
 
     public static void AppendDelegateInvocation(this StringBuilder sb, Operation operation)
     {
-        var type = (operation.Result.Sink == OperationResultSink.None) ? "Action" : "Func";
+        var type = (operation.Result.Type == typeof(void)) ? "Action" : "Func";
 
         var argumentTypes = new List<Type>(operation.Arguments.Select(x => x.Value.Type));
 
-        if (operation.Result.Sink != OperationResultSink.None)
+        if (operation.Result.Type != typeof(void))
         {
             argumentTypes.Add(operation.Method.ReturnType);
         }

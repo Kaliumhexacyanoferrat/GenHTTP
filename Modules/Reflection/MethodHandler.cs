@@ -85,9 +85,8 @@ public sealed class MethodHandler : IHandler
                     _compiledMethod = OptimizedDelegate.Compile<object>(Operation);
                 }
             }
-            catch (Exception e)
+            catch (CodeGenerationException e)
             {
-                // todo: log
                 _compilationError = e;
             }
         }
@@ -101,7 +100,6 @@ public sealed class MethodHandler : IHandler
         {
             if (_compilationError != null)
             {
-                // todo: add fallback but allow fallback to be disabled for acceptance tests
                 throw _compilationError;
             }
 

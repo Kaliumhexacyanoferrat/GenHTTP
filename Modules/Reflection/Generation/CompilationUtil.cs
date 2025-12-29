@@ -54,9 +54,15 @@ public static class CompilationUtil
         if (type == typeof(void))
             return false;
 
+        if (type.IsAsyncVoid())
+            return false;
+
+        if (type.IsGenericallyVoid())
+            return false;
+        
         if (!type.IsValueType)
             return true;
-
+        
         return Nullable.GetUnderlyingType(type) != null;
     }
 

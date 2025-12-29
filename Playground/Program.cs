@@ -1,5 +1,4 @@
-﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Engine.Internal;
+﻿using GenHTTP.Engine.Internal;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
@@ -16,7 +15,7 @@ var withReflection = Inline.Create().Get(() => "Hello World!").ExecutionMode(Exe
 
 
 var test = Inline.Create()
-                 .Get((int? query) => new Result<int?>(query).Type(FlexibleContentType.Get(ContentType.TextHtml)))
+                 .Get(() => Task.CompletedTask)
                  .ExecutionMode(ExecutionMode.Auto);
 
 var app = Layout.Create()
