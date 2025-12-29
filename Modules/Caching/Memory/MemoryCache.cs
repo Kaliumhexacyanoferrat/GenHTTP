@@ -1,82 +1,65 @@
-﻿using GenHTTP.Api.Content.Caching;
+﻿using AsyncKeyedLock;
+using GenHTTP.Api.Content.Caching;
+using System.Collections.Concurrent;
 
 namespace GenHTTP.Modules.Caching.Memory;
 
 public sealed class MemoryCache<T> : ICache<T>
 {
-    private readonly Dictionary<string, Dictionary<string, T>> _cache = new();
-
-    private readonly SemaphoreSlim _sync = new(1);
+    private readonly ConcurrentDictionary<string, Dictionary<string, T>> _cache = new();
+    private readonly AsyncKeyedLocker<string> _sync = new();
 
     #region Functionality
 
-    public ValueTask<T[]> GetEntriesAsync(string key)
+    public async ValueTask<T[]> GetEntriesAsync(string key)
     {
-        _sync.Wait();
-
-        try
+        if (_cache.TryGetValue(key, out var entries))
         {
-            if (_cache.TryGetValue(key, out var entries))
-            {
-                return new ValueTask<T[]>(entries.Values.ToArray());
-            }
+            return [.. entries.Values];
+        }
 
-            return new ValueTask<T[]>([]);
-        }
-        finally
+        using var _ = await _sync.LockAsync(key).ConfigureAwait(false);
+
+        if (_cache.TryGetValue(key, out entries))
         {
-            _sync.Release();
+            return [.. entries.Values];
         }
+
+        return [];
     }
 
-    public ValueTask<T?> GetEntryAsync(string key, string variation)
+    public async ValueTask<T?> GetEntryAsync(string key, string variation)
     {
-        _sync.Wait();
+        using var _ = await _sync.LockAsync(key).ConfigureAwait(false);
 
-        try
+        if (_cache.TryGetValue(key, out var entries))
         {
-            if (_cache.TryGetValue(key, out var entries))
+            if (entries.TryGetValue(variation, out var value))
             {
-                if (entries.TryGetValue(variation, out var value))
-                {
-                    return new ValueTask<T?>(value);
-                }
+                return value;
             }
+        }
 
-            return new ValueTask<T?>();
-        }
-        finally
-        {
-            _sync.Release();
-        }
+        return default;
     }
 
-    public ValueTask StoreAsync(string key, string variation, T? entry)
+    public async ValueTask StoreAsync(string key, string variation, T? entry)
     {
-        _sync.Wait();
+        using var _ = await _sync.LockAsync(key).ConfigureAwait(false);
 
-        try
+        if (!_cache.TryGetValue(key, out var value))
         {
-            if (!_cache.TryGetValue(key, out var value))
-            {
-                value = new Dictionary<string, T>();
-                _cache[key] = value;
-            }
-
-            if (entry != null)
-            {
-                value[variation] = entry;
-            }
-            else
-            {
-                value.Remove(variation);
-            }
-
-            return new ValueTask();
+            value = [];
+            _cache[key] = value;
         }
-        finally
+
+        if (entry != null)
         {
-            _sync.Release();
+            value[variation] = entry;
+        }
+        else
+        {
+            value.Remove(variation);
         }
     }
 
