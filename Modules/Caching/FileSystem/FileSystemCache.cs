@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using AsyncKeyedLock;
 using GenHTTP.Api.Content.Caching;
 
 namespace GenHTTP.Modules.Caching.FileSystem;
@@ -13,7 +14,7 @@ public sealed class FileSystemCache<T> : ICache<T>
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
-    private readonly SemaphoreSlim _sync = new(1);
+    private readonly AsyncKeyedLocker<string> _sync = new();
 
     #region Initialization
 
@@ -43,146 +44,113 @@ public sealed class FileSystemCache<T> : ICache<T>
 
     public async ValueTask<T[]> GetEntriesAsync(string key)
     {
-        await _sync.WaitAsync();
+        using var _ = await _sync.LockAsync(key);
+        var result = new List<T>();
 
-        try
+        var index = await GetIndex(key);
+
+        foreach (var entry in index.Entries)
         {
-            var result = new List<T>();
+            var value = await GetValue(key, entry.Value);
 
-            var index = await GetIndex(key);
-
-            foreach (var entry in index.Entries)
+            if (value != null)
             {
-                var value = await GetValue(key, entry.Value);
-
-                if (value != null)
-                {
-                    result.Add(value);
-                }
+                result.Add(value);
             }
+        }
 
-            return result.ToArray();
-        }
-        finally
-        {
-            _sync.Release();
-        }
+        return result.ToArray();
     }
 
     public async ValueTask<T?> GetEntryAsync(string key, string variation)
     {
-        await _sync.WaitAsync();
+        using var _ = await _sync.LockAsync(key);
+        var index = await GetIndex(key);
 
-        try
+        if (index.Entries.TryGetValue(variation, out var fileName))
         {
-            var index = await GetIndex(key);
-
-            if (index.Entries.TryGetValue(variation, out var fileName))
-            {
-                return await GetValue(key, fileName);
-            }
-
-            return default;
+            return await GetValue(key, fileName);
         }
-        finally
-        {
-            _sync.Release();
-        }
+
+        return default;
     }
 
     public async ValueTask StoreAsync(string key, string variation, T? entry)
     {
-        await _sync.WaitAsync();
+        using var _ = await _sync.LockAsync(key);
+        var index = await GetIndex(key);
 
-        try
+        EnsureDirectory(key);
+
+        if (index.Entries.TryGetValue(variation, out var fileName))
         {
-            var index = await GetIndex(key);
+            index.Expiration.Add(fileName, DateTime.UtcNow);
 
-            EnsureDirectory(key);
-
-            if (index.Entries.TryGetValue(variation, out var fileName))
+            if (entry == null)
             {
-                index.Expiration.Add(fileName, DateTime.UtcNow);
-
-                if (entry == null)
-                {
-                    index.Entries.Remove(variation);
-                }
-                else
-                {
-                    fileName = Guid.NewGuid().ToString();
-
-                    index.Entries[variation] = fileName;
-
-                    await StoreValue(key, fileName, entry);
-                }
-
-                await StoreIndex(key, index);
+                index.Entries.Remove(variation);
             }
-            else if (entry != null)
+            else
             {
-                var newFile = Guid.NewGuid().ToString();
+                fileName = Guid.NewGuid().ToString();
 
-                index.Entries.Add(variation, newFile);
+                index.Entries[variation] = fileName;
 
-                await StoreValue(key, newFile, entry);
-
-                await StoreIndex(key, index);
+                await StoreValue(key, fileName, entry);
             }
 
+            await StoreIndex(key, index);
         }
-        finally
+        else if (entry != null)
         {
-            _sync.Release();
+            var newFile = Guid.NewGuid().ToString();
+
+            index.Entries.Add(variation, newFile);
+
+            await StoreValue(key, newFile, entry);
+
+            await StoreIndex(key, index);
         }
     }
 
     public async ValueTask StoreDirectAsync(string key, string variation, Func<Stream, ValueTask> asyncWriter)
     {
-        await _sync.WaitAsync();
+        using var _ = await _sync.LockAsync(key);
+        var index = await GetIndex(key);
 
-        try
+        EnsureDirectory(key);
+
+        if (index.Entries.TryGetValue(variation, out var fileName))
         {
-            var index = await GetIndex(key);
+            index.Expiration.Add(fileName, DateTime.UtcNow);
 
-            EnsureDirectory(key);
+            fileName = Guid.NewGuid().ToString();
 
-            if (index.Entries.TryGetValue(variation, out var fileName))
+            index.Entries[variation] = fileName;
+
+            var file = new FileInfo(Path.Combine(Directory.FullName, key, fileName));
+
+            await using (var streamWriter = new StreamWriter(file.FullName, false))
             {
-                index.Expiration.Add(fileName, DateTime.UtcNow);
-
-                fileName = Guid.NewGuid().ToString();
-
-                index.Entries[variation] = fileName;
-
-                var file = new FileInfo(Path.Combine(Directory.FullName, key, fileName));
-
-                await using (var streamWriter = new StreamWriter(file.FullName, false))
-                {
-                    await asyncWriter(streamWriter.BaseStream);
-                }
-
-                await StoreIndex(key, index);
+                await asyncWriter(streamWriter.BaseStream);
             }
-            else
-            {
-                var newFile = Guid.NewGuid().ToString();
 
-                index.Entries.Add(variation, newFile);
-
-                var file = new FileInfo(Path.Combine(Directory.FullName, key, newFile));
-
-                await using (var stream = file.OpenWrite())
-                {
-                    await asyncWriter(stream);
-                }
-
-                await StoreIndex(key, index);
-            }
+            await StoreIndex(key, index);
         }
-        finally
+        else
         {
-            _sync.Release();
+            var newFile = Guid.NewGuid().ToString();
+
+            index.Entries.Add(variation, newFile);
+
+            var file = new FileInfo(Path.Combine(Directory.FullName, key, newFile));
+
+            await using (var stream = file.OpenWrite())
+            {
+                await asyncWriter(stream);
+            }
+
+            await StoreIndex(key, index);
         }
     }
 
