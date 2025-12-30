@@ -10,7 +10,7 @@ using GenHTTP.Modules.Reflection.Injectors;
 
 namespace GenHTTP.Modules.Functional.Provider;
 
-public class InlineBuilder : IHandlerBuilder<InlineBuilder>, IRegistryBuilder<InlineBuilder>
+public class InlineBuilder : IReflectionFrameworkBuilder<InlineBuilder>
 {
     private static readonly HashSet<FlexibleRequestMethod> AllMethods = [..Enum.GetValues<RequestMethod>().Select(FlexibleRequestMethod.Get)];
 
@@ -23,6 +23,8 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>, IRegistryBuilder<In
     private IBuilder<InjectionRegistry>? _injectors;
 
     private IBuilder<SerializationRegistry>? _serializers;
+
+    private ExecutionMode? _executionMode;
 
     #region Functionality
 
@@ -54,6 +56,16 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>, IRegistryBuilder<In
     public InlineBuilder Formatters(IBuilder<FormatterRegistry> registry)
     {
         _formatters = registry;
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the execution mode to be used to run functions.
+    /// </summary>
+    /// <param name="mode">The mode to be used for execution</param>
+    public InlineBuilder ExecutionMode(ExecutionMode mode)
+    {
+        _executionMode = mode;
         return this;
     }
 
@@ -174,7 +186,9 @@ public class InlineBuilder : IHandlerBuilder<InlineBuilder>, IRegistryBuilder<In
 
         var extensions = new MethodRegistry(serializers, injectors, formatters);
 
-        return Concerns.Chain(_concerns, new InlineHandler(_functions, extensions));
+        var executionSettings = new ExecutionSettings(_executionMode);
+
+        return Concerns.Chain(_concerns, new InlineHandler(_functions, extensions, executionSettings));
     }
 
     #endregion

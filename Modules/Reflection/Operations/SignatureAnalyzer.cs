@@ -133,7 +133,7 @@ public static class SignatureAnalyzer
         {
             return type.IsGenericallyVoid() ? null : type.GenericTypeArguments[0];
         }
-        if (type == typeof(ValueTask) || type == typeof(Task))
+        if (type.IsAsync())
         {
             return null;
         }
@@ -145,4 +145,5 @@ public static class SignatureAnalyzer
 
         return type;
     }
+
 }

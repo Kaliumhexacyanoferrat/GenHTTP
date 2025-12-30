@@ -123,7 +123,7 @@ public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
         return this;
     }
 
-    void IResultWrapper.Apply(IResponseBuilder builder)
+    public void Apply(IResponseBuilder builder)
     {
         if (_status != null)
         {
