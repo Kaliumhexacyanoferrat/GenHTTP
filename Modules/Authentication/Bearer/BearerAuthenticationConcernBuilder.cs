@@ -2,6 +2,7 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
 using GenHTTP.Api.Protocol;
+using Microsoft.IdentityModel.Tokens;
 
 namespace GenHTTP.Modules.Authentication.Bearer;
 
@@ -51,6 +52,18 @@ public sealed class BearerAuthenticationConcernBuilder : IConcernBuilder
     public BearerAuthenticationConcernBuilder Validation(Func<JwtSecurityToken, Task> validator)
     {
         _options.CustomValidator = validator;
+        return this;
+    }
+     
+    /// <summary>
+    /// Adds a custom logic to fetch the signing keys. By default, the keys will be
+    /// downloaded from the URL returned by the .well-known information returned by
+    /// the issuer.
+    /// </summary>
+    /// <param name="keyResolver">The logic used to resolve the signing keys for a given incoming token</param>
+    public BearerAuthenticationConcernBuilder KeyResolver(Func<JwtSecurityToken, ValueTask<ICollection<SecurityKey>>> keyResolver)
+    {
+        _options.CustomKeyResolver = keyResolver;
         return this;
     }
 

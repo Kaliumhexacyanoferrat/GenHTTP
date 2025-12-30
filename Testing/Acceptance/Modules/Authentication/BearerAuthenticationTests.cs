@@ -40,6 +40,20 @@ public sealed class BearerAuthenticationTests
 
         await response.AssertStatusAsync(HttpStatusCode.Forbidden);
     }
+    
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestCustomKeyResolver(TestEngine engine)
+    {
+        var auth = BearerAuthentication.Create()
+                                       .Issuer("https://facebook.com")
+                                       .KeyResolver(_ => throw new ProviderException(ResponseStatus.Forbidden, "Nah"))
+                                       .AllowExpired();
+
+        using var response = await Execute(auth, engine, ValidToken);
+
+        await response.AssertStatusAsync(HttpStatusCode.Forbidden);
+    }
 
     [TestMethod]
     [MultiEngineTest]

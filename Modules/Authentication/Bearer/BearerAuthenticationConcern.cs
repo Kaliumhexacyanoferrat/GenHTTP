@@ -1,8 +1,10 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 
@@ -75,7 +77,16 @@ internal sealed class BearerAuthenticationConcern : IConcern
 
         if (issuer != null && _issuerKeys == null)
         {
-            _issuerKeys = await FetchSigningKeys(issuer);
+            if (ValidationOptions.CustomKeyResolver != null)
+            {
+                var unvalidatedToken = tokenHandler.ReadJwtToken(tokenString);
+                
+                _issuerKeys = await ValidationOptions.CustomKeyResolver(unvalidatedToken);
+            }
+            else
+            {
+                _issuerKeys = await FetchSigningKeysAsync(issuer);
+            }
         }
 
         var validationParameters = new TokenValidationParameters
@@ -122,7 +133,7 @@ internal sealed class BearerAuthenticationConcern : IConcern
         }
     }
 
-    private static async Task<ICollection<SecurityKey>> FetchSigningKeys(string issuer)
+    private static async ValueTask<ICollection<SecurityKey>> FetchSigningKeysAsync(string issuer)
     {
         try
         {
