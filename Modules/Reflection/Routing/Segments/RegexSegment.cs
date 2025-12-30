@@ -44,7 +44,7 @@ internal partial class RegexSegment : IRoutingSegment
         ProvidedArguments = providedArguments.ToArray();
     }
 
-    public (bool matched, int offsetBy) TryMatch(RoutingTarget target, int offset, Action<string, string> pathParamCallback)
+    public (bool matched, int offsetBy) TryMatch(RoutingTarget target, int offset, ref PathArgumentSink argumentSink)
     {
         var part = target.Next(offset);
 
@@ -64,7 +64,7 @@ internal partial class RegexSegment : IRoutingSegment
             
         for (var i = 1; i < groups.Count; i++)
         {
-            pathParamCallback(groups[i].Name, groups[i].Value);
+            argumentSink.Add(groups[i].Name, groups[i].Value);
         }
             
         return (true, 1);

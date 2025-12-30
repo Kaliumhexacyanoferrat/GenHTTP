@@ -60,7 +60,7 @@ public sealed class RoutingTarget
     {
         if (Ended)
         {
-            throw new IndexOutOfRangeException("Already at the end of the path");
+            throw new InvalidOperationException("Already at the end of the path");
         }
 
         _index++;
@@ -78,7 +78,7 @@ public sealed class RoutingTarget
 
         if (newIndex > Path.Parts.Count)
         {
-            throw new IndexOutOfRangeException($"Cannot advance {byOffset} segments from position {_index} with {Path.Parts.Count} segments in total");
+            throw new InvalidOperationException($"Cannot advance {byOffset} segments from position {_index} with {Path.Parts.Count} segments in total");
         }
         
         _index = newIndex;

@@ -7,6 +7,6 @@ public interface IRoutingSegment
     
     string[] ProvidedArguments { get; }
 
-    (bool matched, int offsetBy) TryMatch(RoutingTarget target, int offset, Action<string, string> pathParamCallback);
+    (bool matched, int offsetBy) TryMatch(RoutingTarget target, int offset, ref PathArgumentSink argumentSink);
     
 }

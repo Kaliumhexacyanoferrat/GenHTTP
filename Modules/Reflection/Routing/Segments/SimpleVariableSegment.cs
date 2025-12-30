@@ -15,7 +15,7 @@ internal class SimpleVariableSegment(string variableName) : IRoutingSegment
 
     public string[] ProvidedArguments { get; } = [variableName];
     
-    public (bool matched, int offsetBy) TryMatch(RoutingTarget target, int offset, Action<string, string> pathParamCallback)
+    public (bool matched, int offsetBy) TryMatch(RoutingTarget target, int offset, ref PathArgumentSink argumentSink)
     {
         var part = target.Next(offset);
 
@@ -24,7 +24,7 @@ internal class SimpleVariableSegment(string variableName) : IRoutingSegment
             return (false, 0);
         }
 
-        pathParamCallback(variableName, part.Value);
+        argumentSink.Add(variableName, part.Value);
         return (true, 1);
     }
     

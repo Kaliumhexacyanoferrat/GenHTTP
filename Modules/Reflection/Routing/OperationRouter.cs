@@ -8,8 +8,8 @@ internal static class OperationRouter
     internal static RoutingMatch? TryMatch(RoutingTarget target, OperationRoute route)
     {
         var segments = route.Segments;
-
-        Dictionary<string, string>? pathArguments = null;
+        
+        var sink = new PathArgumentSink();
 
         var offset = 0;
 
@@ -17,7 +17,7 @@ internal static class OperationRouter
         {
             var current = segments[i];
 
-            var (matched, offsetBy) = current.TryMatch(target, i, (key, value) => (pathArguments ??= []).Add(key, value));
+            var (matched, offsetBy) = current.TryMatch(target, i, ref sink);
 
             if (!matched)
             {
@@ -27,7 +27,7 @@ internal static class OperationRouter
             offset += offsetBy;
         }
 
-        return new(offset, pathArguments);
+        return new(offset, sink.Arguments);
     }
-
+    
 }

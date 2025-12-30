@@ -1,8 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Reflection.Routing;
 
 namespace GenHTTP.Modules.Reflection;
@@ -30,20 +28,20 @@ public sealed class MethodCollection : IHandler
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
         var foundOthers = false;
-        
+
         (MethodHandler, RoutingMatch)? directMatch = null;
         (MethodHandler, RoutingMatch)? wildcardMatch = null;
 
         var requestTarget = request.Target;
-        
+
         for (var i = 0; i < Methods.Count; i++)
         {
             var method = Methods[i];
 
             var operation = method.Operation;
-            
+
             var route = operation.Route;
-            
+
             var match = OperationRouter.TryMatch(requestTarget, route);
 
             if (match != null)
@@ -53,7 +51,7 @@ public sealed class MethodCollection : IHandler
                     foundOthers = true;
                     continue;
                 }
-                
+
                 if (route.IsWildcard)
                 {
                     wildcardMatch = (method, match);
@@ -96,11 +94,8 @@ public sealed class MethodCollection : IHandler
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ValueTask<IResponse?> RegisterMatchAndExecute(IRequest request, (MethodHandler, RoutingMatch) match)
-    {
-        request.Properties[MethodHandler.MatchProperty] = match.Item2;
-        return match.Item1.HandleAsync(request);
-    }
+    private static ValueTask<IResponse?> RegisterMatchAndExecute(IRequest request, (MethodHandler, RoutingMatch) match)
+        => match.Item1.HandleAsync(request, match.Item2);
 
     #endregion
 

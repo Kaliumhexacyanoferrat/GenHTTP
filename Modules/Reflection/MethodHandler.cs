@@ -38,7 +38,9 @@ public sealed class MethodHandler : IHandler
 
     private Func<Delegate, Operation, IRequest, IHandler, MethodRegistry, RoutingMatch, RequestInterception, ValueTask<IResponse?>>? _compiledDelegate;
 
-    private CodeGenerationException? _compilationError = null;
+    private CodeGenerationException? _compilationError;
+
+    private readonly RequestInterception _interceptor;
 
     #region Get-/Setters
 
@@ -74,6 +76,8 @@ public sealed class MethodHandler : IHandler
         var effectiveMode = Operation.ExecutionSettings.Mode ?? ExecutionMode.Reflection;
 
         UseCodeGeneration = OptimizedDelegate.Supported && effectiveMode == ExecutionMode.Auto;
+        
+        _interceptor = InterceptAsync;
     }
 
     #endregion
@@ -111,11 +115,14 @@ public sealed class MethodHandler : IHandler
             throw new InvalidOperationException("Unable to fetch routing match from request context");
         }
 
-        var actualMatch = match!;
+        return HandleAsync(request, match!);
+    }
 
-        if (actualMatch.Offset > 0)
+    public ValueTask<IResponse?> HandleAsync(IRequest request, RoutingMatch match)
+    {
+        if (match.Offset > 0)
         {
-            request.Target.Advance(actualMatch.Offset);
+            request.Target.Advance(match.Offset);
         }
         
         if (UseCodeGeneration)
@@ -125,10 +132,10 @@ public sealed class MethodHandler : IHandler
                 return RenderCompilationErrorAsync(request, _compilationError);
             }
 
-            return Operation.Delegate != null ? RunAsDelegate(request, actualMatch) : RunAsMethod(request, actualMatch);
+            return Operation.Delegate != null ? RunAsDelegate(request, match) : RunAsMethod(request, match);
         }
 
-        return RunViaReflection(request, actualMatch);
+        return RunViaReflection(request, match);
     }
 
     private ValueTask<IResponse?> RunAsDelegate(IRequest request, RoutingMatch match)
@@ -136,7 +143,7 @@ public sealed class MethodHandler : IHandler
         if (_compiledDelegate == null || Operation.Delegate == null)
             throw new InvalidOperationException("Compiled delegate is not initialized");
 
-        return _compiledDelegate(Operation.Delegate, Operation, request, this, Registry, match, InterceptAsync);
+        return _compiledDelegate(Operation.Delegate, Operation, request, this, Registry, match, _interceptor);
     }
 
     private async ValueTask<IResponse?> RunAsMethod(IRequest request, RoutingMatch match)
@@ -146,7 +153,7 @@ public sealed class MethodHandler : IHandler
 
         var instance = await InstanceProvider(request);
 
-        return await _compiledMethod(instance, Operation, request, this, Registry, match, InterceptAsync);
+        return await _compiledMethod(instance, Operation, request, this, Registry, match, _interceptor);
     }
 
     private async ValueTask<IResponse?> RunViaReflection(IRequest request, RoutingMatch match)

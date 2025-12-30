@@ -7,7 +7,7 @@ public class ClosingSegment(bool forceTrailingSlash, bool wildcard) : IRoutingSe
 
     public string[] ProvidedArguments { get; } = [];
 
-    public (bool matched, int offsetBy) TryMatch(RoutingTarget target, int offset, Action<string, string> pathParamCallback)
+    public (bool matched, int offsetBy) TryMatch(RoutingTarget target, int offset, ref PathArgumentSink argumentSink)
     {
         var ended = target.Next(offset) is null;
 

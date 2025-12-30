@@ -11,7 +11,7 @@ internal class StringSegment(string segment) : IRoutingSegment
     
     public string[] ProvidedArguments { get; } = [];
 
-    public (bool matched, int offsetBy) TryMatch(RoutingTarget target, int offset, Action<string, string> pathParamCallback)
+    public (bool matched, int offsetBy) TryMatch(RoutingTarget target, int offset, ref PathArgumentSink argumentSink)
         => (target.Next(offset)?.Value == segment, 1);
 
 }
