@@ -90,7 +90,7 @@ public static class CodeProviderArgumentExtensions
         sb.AppendLine("        {");
         sb.AppendLine($"            if (!string.IsNullOrEmpty(queryArg{index}))");
         sb.AppendLine("            {");
-        sb.AppendQueryArgumentAssignment(argument, index, "query");
+        sb.AppendArgumentAssignment(argument, index, "query");
         sb.AppendLine("            }");
         sb.AppendLine("        }");
 
@@ -100,46 +100,10 @@ public static class CodeProviderArgumentExtensions
             sb.AppendLine("        {");
             sb.AppendLine($"            if (!string.IsNullOrEmpty(bodyArg{index}))");
             sb.AppendLine("            {");
-            sb.AppendQueryArgumentAssignment(argument, index, "body");
+            sb.AppendArgumentAssignment(argument, index, "body");
             sb.AppendLine("            }");
             sb.AppendLine("        }");
         }
-    }
-
-    private static void AppendQueryArgumentAssignment(this StringBuilder sb, OperationArgument argument, int index, string readFrom)
-    {
-        var sourceName = $"{readFrom}Arg{index}";
-
-        var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
-
-        if (argument.Type == typeof(string))
-        {
-            sb.AppendLine($"                arg{index} = {sourceName};");
-        }
-        else if (argument.Type.IsPrimitive && argument.Type != typeof(bool))
-        {
-            sb.AppendTryParse(argument, $"{safeType}.TryParse({sourceName}, out var {sourceName}Typed)", sourceName, index);
-        }
-        else if (argument.Type.IsEnum)
-        {
-            sb.AppendTryParse(argument, $"Enum.TryParse({sourceName}, out {safeType} {sourceName}Typed)", sourceName, index);
-        }
-        else
-        {
-            sb.AppendLine($"                arg{index} = ({safeType}?)registry.Formatting.Read({sourceName}, typeof({safeType}));");
-        }
-    }
-
-    private static void AppendTryParse(this StringBuilder sb, OperationArgument argument, string condition, string sourceName, int index)
-    {
-        sb.AppendLine($"                if ({condition})");
-        sb.AppendLine("                {");
-        sb.AppendLine($"                    arg{index} = {sourceName}Typed;");
-        sb.AppendLine("                }");
-        sb.AppendLine("                else");
-        sb.AppendLine("                {");
-        sb.AppendLine($"                    throw new ProviderException(ResponseStatus.BadRequest, \"Invalid format for input parameter '{argument.Name}'\");");
-        sb.AppendLine("                }");
     }
     
     private static void AppendStreamArgument(this StringBuilder sb, int index)
@@ -209,10 +173,52 @@ public static class CodeProviderArgumentExtensions
     {
         var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
         
-        var safeName = CompilationUtil.GetSafeString(argument.Name);
-        
-        sb.AppendLine($"        {safeType}? arg{index} = ({safeType}?)ArgumentProvider.GetPathArgument({safeName}, typeof({safeType}), routingMatch, registry);");
+        sb.AppendLine($"        {safeType}? arg{index} = null;");
         sb.AppendLine();
+
+        sb.AppendLine($"        if (routingMatch.PathArguments?.TryGetValue({CompilationUtil.GetSafeString(argument.Name)}, out var pathArg{index}) ?? false)");
+        sb.AppendLine("        {");
+        sb.AppendLine($"            if (!string.IsNullOrEmpty(pathArg{index}))");
+        sb.AppendLine("            {");
+        sb.AppendArgumentAssignment(argument, index, "path");
+        sb.AppendLine("            }");
+        sb.AppendLine("        }");
     }
 
+    private static void AppendArgumentAssignment(this StringBuilder sb, OperationArgument argument, int index, string readFrom)
+    {
+        var sourceName = $"{readFrom}Arg{index}";
+
+        var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
+
+        if (argument.Type == typeof(string))
+        {
+            sb.AppendLine($"                arg{index} = {sourceName};");
+        }
+        else if (argument.Type.IsPrimitive && argument.Type != typeof(bool))
+        {
+            sb.AppendTryParse(argument, $"{safeType}.TryParse({sourceName}, out var {sourceName}Typed)", sourceName, index);
+        }
+        else if (argument.Type.IsEnum)
+        {
+            sb.AppendTryParse(argument, $"Enum.TryParse({sourceName}, out {safeType} {sourceName}Typed)", sourceName, index);
+        }
+        else
+        {
+            sb.AppendLine($"                arg{index} = ({safeType}?)registry.Formatting.Read({sourceName}, typeof({safeType}));");
+        }
+    }
+
+    private static void AppendTryParse(this StringBuilder sb, OperationArgument argument, string condition, string sourceName, int index)
+    {
+        sb.AppendLine($"                if ({condition})");
+        sb.AppendLine("                {");
+        sb.AppendLine($"                    arg{index} = {sourceName}Typed;");
+        sb.AppendLine("                }");
+        sb.AppendLine("                else");
+        sb.AppendLine("                {");
+        sb.AppendLine($"                    throw new ProviderException(ResponseStatus.BadRequest, \"Invalid format for input parameter '{argument.Name}'\");");
+        sb.AppendLine("                }");
+    }
+    
 }

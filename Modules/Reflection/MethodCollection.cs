@@ -44,37 +44,39 @@ public sealed class MethodCollection : IHandler
 
             var match = OperationRouter.TryMatch(requestTarget, route);
 
-            if (match != null)
+            if (match == null)
             {
-                if (!operation.Configuration.SupportedMethods.Contains(request.Method))
-                {
-                    foundOthers = true;
-                    continue;
-                }
+                continue;
+            }
 
-                if (route.IsWildcard)
-                {
-                    wildcardMatch = (method, match);
-                }
-                else if (directMatch != null)
-                {
-                    throw new ProviderException(ResponseStatus.BadRequest, $"There are multiple methods matching '{requestTarget.Path}'");
-                }
-                else
-                {
-                    directMatch = (method, match);
-                }
+            if (!operation.Configuration.SupportedMethods.Contains(request.Method))
+            {
+                foundOthers = true;
+                continue;
+            }
+
+            if (route.IsWildcard)
+            {
+                wildcardMatch = (method, match);
+            }
+            else if (directMatch != null)
+            {
+                throw new ProviderException(ResponseStatus.BadRequest, $"There are multiple methods matching '{requestTarget.Path}'");
+            }
+            else
+            {
+                directMatch = (method, match);
             }
         }
 
         if (directMatch != null)
         {
-            return RegisterMatchAndExecute(request, directMatch.Value);
+            return Execute(request, directMatch.Value);
         }
 
         if (wildcardMatch != null)
         {
-            return RegisterMatchAndExecute(request, wildcardMatch.Value);
+            return Execute(request, wildcardMatch.Value);
         }
 
         if (foundOthers)
@@ -94,7 +96,7 @@ public sealed class MethodCollection : IHandler
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static ValueTask<IResponse?> RegisterMatchAndExecute(IRequest request, (MethodHandler, RoutingMatch) match)
+    private static ValueTask<IResponse?> Execute(IRequest request, (MethodHandler, RoutingMatch) match)
         => match.Item1.HandleAsync(request, match.Item2);
 
     #endregion
