@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Modules.Reflection.Operations;
+
 using Microsoft.CodeAnalysis.CSharp;
 
 namespace GenHTTP.Modules.Reflection.Generation;
@@ -21,10 +22,10 @@ public static class CompilationUtil
         { typeof(char), "char" }
     };
 
-    public static string GetSafeString(string input)
+    internal static string GetSafeString(string input)
         => SyntaxFactory.Literal(input).ToFullString();
     
-    public static string GetQualifiedName(Type type, bool allowNullable)
+    internal static string GetQualifiedName(Type type, bool allowNullable)
     {
         if (BuiltInTypes.TryGetValue(type, out var keyword))
             return keyword;
@@ -49,7 +50,7 @@ public static class CompilationUtil
         return type.FullName!.Replace('+', '.');
     }
     
-    public static bool CanHoldNull(Type type)
+    internal static bool CanHoldNull(Type type)
     {
         if (type == typeof(void))
             return false;
@@ -66,7 +67,7 @@ public static class CompilationUtil
         return Nullable.GetUnderlyingType(type) != null;
     }
 
-    public static bool HasWrappedResult(Operation operation)
+    internal static bool HasWrappedResult(Operation operation)
     {
         var returnType = operation.Method.ReturnType;
         

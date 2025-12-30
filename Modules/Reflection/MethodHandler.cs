@@ -28,8 +28,6 @@ public delegate ValueTask<IResponse?> RequestInterception(IRequest request, IRea
 /// </remarks>
 public sealed class MethodHandler : IHandler
 {
-    internal const string MatchProperty = "__ROUTING_MATCH";
-    
     private static readonly Dictionary<string, object?> NoArguments = [];
     
     private static readonly TemplateRenderer ErrorRenderer = Renderer.From(Resource.FromAssembly("CodeGenerationError.html").Build());
@@ -108,15 +106,7 @@ public sealed class MethodHandler : IHandler
         return ValueTask.CompletedTask;
     }
 
-    public ValueTask<IResponse?> HandleAsync(IRequest request)
-    {
-        if (!request.Properties.TryGet(MatchProperty, out RoutingMatch? match))
-        {
-            throw new InvalidOperationException("Unable to fetch routing match from request context");
-        }
-
-        return HandleAsync(request, match!);
-    }
+    public ValueTask<IResponse?> HandleAsync(IRequest request) => HandleAsync(request, new(0, null));
 
     public ValueTask<IResponse?> HandleAsync(IRequest request, RoutingMatch match)
     {

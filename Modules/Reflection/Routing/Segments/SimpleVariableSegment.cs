@@ -10,7 +10,7 @@ namespace GenHTTP.Modules.Reflection.Routing.Segments;
 /// This implementation allows a simple path variable (which is the common use case)
 /// without the need of creating a regex for parsing.
 /// </remarks>
-internal class SimpleVariableSegment(string variableName) : IRoutingSegment
+internal sealed class SimpleVariableSegment(string variableName) : IRoutingSegment
 {
 
     public string[] ProvidedArguments { get; } = [variableName];

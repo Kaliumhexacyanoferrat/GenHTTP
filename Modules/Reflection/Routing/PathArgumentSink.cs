@@ -1,5 +1,9 @@
 namespace GenHTTP.Modules.Reflection.Routing;
 
+/// <summary>
+/// Passed as ref struct to routing segments to allow them
+/// to add path argument values during matching.
+/// </summary>
 public struct PathArgumentSink
 {
     

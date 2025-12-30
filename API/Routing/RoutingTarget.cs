@@ -102,6 +102,12 @@ public sealed class RoutingTarget
         return new WebPath(resultList, Path.TrailingSlash);
     }
 
+    /// <summary>
+    /// Peeks at the next segment identified by the offset index,
+    /// beginning from the current position.
+    /// </summary>
+    /// <param name="offset">The offset to be applied</param>
+    /// <returns>The segment at the given position or null, if there are no more segments</returns>
     public WebPathPart? Next(int offset)
     {
         var index = _index + offset;

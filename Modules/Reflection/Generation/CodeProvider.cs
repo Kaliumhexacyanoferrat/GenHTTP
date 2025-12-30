@@ -9,6 +9,13 @@ namespace GenHTTP.Modules.Reflection.Generation;
 public static class CodeProvider
 {
 
+    /// <summary>
+    /// Generates code that fetches the arguments expected by the operation
+    /// from the incoming request, executes it and maps the result into
+    /// a HTTP response.
+    /// </summary>
+    /// <param name="operation">The operation to generate code for</param>
+    /// <returns>The source code to be compiled to execute the operation</returns>
     public static string Generate(Operation operation)
     {
         var isAsync = CheckAsync(operation);

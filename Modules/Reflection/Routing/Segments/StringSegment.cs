@@ -6,7 +6,7 @@ namespace GenHTTP.Modules.Reflection.Routing.Segments;
 /// Matches a single segment within a requested path, such as "/segment/".
 /// </summary>
 /// <param name="segment">The segment to match</param>
-internal class StringSegment(string segment) : IRoutingSegment
+internal sealed class StringSegment(string segment) : IRoutingSegment
 {
     
     public string[] ProvidedArguments { get; } = [];

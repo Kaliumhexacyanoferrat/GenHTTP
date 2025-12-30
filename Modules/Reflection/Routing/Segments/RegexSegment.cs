@@ -5,7 +5,11 @@ using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Reflection.Routing.Segments;
 
-internal partial class RegexSegment : IRoutingSegment
+/// <summary>
+/// Checks for multiple variables in one segment or advanced
+/// regex variable definitions.
+/// </summary>
+internal sealed partial class RegexSegment : IRoutingSegment
 {
     private static readonly Regex VarPattern = CreateVarPattern();
 

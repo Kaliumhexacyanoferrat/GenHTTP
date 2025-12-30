@@ -1,6 +1,6 @@
 namespace GenHTTP.Modules.Reflection.Routing;
 
-public class OperationRoute(string name, IReadOnlyList<IRoutingSegment> segments, bool isWildcard)
+public sealed class OperationRoute(string name, IReadOnlyList<IRoutingSegment> segments, bool isWildcard)
 {
 
     /// <summary>

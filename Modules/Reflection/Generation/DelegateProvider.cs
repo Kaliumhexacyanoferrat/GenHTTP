@@ -14,6 +14,13 @@ namespace GenHTTP.Modules.Reflection.Generation;
 internal static class DelegateProvider
 {
 
+    /// <summary>
+    /// Compiles the given source code into an invocable delegate.
+    /// </summary>
+    /// <param name="code">The source code to be compiled</param>
+    /// <typeparam name="T">Either object for a webservice instance or a delegate for functional invocations</typeparam>
+    /// <returns>The compiled delegate</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the compilation failed for some reason</exception>
     internal static Func<T, Operation, IRequest, IHandler, MethodRegistry, RoutingMatch, RequestInterception, ValueTask<IResponse?>> Compile<T>(string code)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(code);
