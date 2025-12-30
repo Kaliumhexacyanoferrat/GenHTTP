@@ -19,7 +19,7 @@ public static class OpenApiExtensions
 
     public static OpenApiPathItem GetPathItem(OpenApiDocument document, List<string> path, Operation operation)
     {
-        var stringPath = BuildPath(operation.Path.Name, path, operation.Path.IsWildcard);
+        var stringPath = BuildPath(operation.Route.Name, path, operation.Route.IsWildcard);
 
         if (document.Paths.TryGetValue(stringPath, out var existing))
         {

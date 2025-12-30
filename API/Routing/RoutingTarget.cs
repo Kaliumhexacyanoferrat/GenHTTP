@@ -36,7 +36,7 @@ public sealed class RoutingTarget
     /// <summary>
     /// The segment to be currently handled by the responsible handler.
     /// </summary>
-    public WebPathPart? Current => _index < Path.Parts.Count ? Path.Parts[_index] : null;
+    public WebPathPart? Current => Next(0);
 
     /// <summary>
     /// Specifies, whether the end of the path has been reached.
@@ -65,6 +65,24 @@ public sealed class RoutingTarget
 
         _index++;
     }
+    
+    /// <summary>
+    /// Acknowledges the number of segments passed as a parameter.
+    /// </summary>
+    /// <param name="byOffset">The number of segments to advance by</param>
+    public void Advance(int byOffset)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(byOffset);
+
+        var newIndex = _index + byOffset;
+
+        if (newIndex > Path.Parts.Count)
+        {
+            throw new InvalidOperationException($"Cannot advance {byOffset} segments from position {_index} with {Path.Parts.Count} segments in total");
+        }
+        
+        _index = newIndex;
+    }
 
     /// <summary>
     /// Retrieves the part of the path that still needs to be routed.
@@ -82,6 +100,19 @@ public sealed class RoutingTarget
         }
 
         return new WebPath(resultList, Path.TrailingSlash);
+    }
+
+    /// <summary>
+    /// Peeks at the next segment identified by the offset index,
+    /// beginning from the current position.
+    /// </summary>
+    /// <param name="offset">The offset to be applied</param>
+    /// <returns>The segment at the given position or null, if there are no more segments</returns>
+    public WebPathPart? Next(int offset)
+    {
+        var index = _index + offset;
+
+        return index < Path.Parts.Count ? Path.Parts[index] : null;
     }
 
     #endregion

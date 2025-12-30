@@ -1,5 +1,7 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Runtime.CompilerServices;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Reflection.Routing;
 
 namespace GenHTTP.Modules.Reflection;
 
@@ -25,33 +27,61 @@ public sealed class MethodCollection : IHandler
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var methods = FindProviders(request.Target.GetRemaining().ToString(), request.Method, out var others);
+        var foundOthers = false;
 
-        if (methods.Count == 1)
-        {
-            return methods[0].HandleAsync(request);
-        }
-        if (methods.Count > 1)
-        {
-            // if there is only one non-wildcard, use this one
-            var nonWildcards = methods.Where(m => !m.Operation.Path.IsWildcard).ToList();
+        (MethodHandler, RoutingMatch)? directMatch = null;
+        (MethodHandler, RoutingMatch)? wildcardMatch = null;
 
-            if (nonWildcards.Count == 1)
+        var requestTarget = request.Target;
+
+        for (var i = 0; i < Methods.Count; i++)
+        {
+            var method = Methods[i];
+
+            var operation = method.Operation;
+
+            var route = operation.Route;
+
+            var match = OperationRouter.TryMatch(requestTarget, route);
+
+            if (match == null)
             {
-                return nonWildcards[0].HandleAsync(request);
+                continue;
             }
 
-            throw new ProviderException(ResponseStatus.BadRequest, $"There are multiple methods matching '{request.Target.Path}'");
+            if (!operation.Configuration.SupportedMethods.Contains(request.Method))
+            {
+                foundOthers = true;
+                continue;
+            }
+
+            if (route.IsWildcard)
+            {
+                wildcardMatch = (method, match);
+            }
+            else if (directMatch != null)
+            {
+                throw new ProviderException(ResponseStatus.BadRequest, $"There are multiple methods matching '{requestTarget.Path}'");
+            }
+            else
+            {
+                directMatch = (method, match);
+            }
         }
 
-        if (others.Count > 0)
+        if (directMatch != null)
         {
-            throw new ProviderException(ResponseStatus.MethodNotAllowed, "There is no method of a matching request type", AddAllowHeader);
+            return Execute(request, directMatch.Value);
+        }
 
-            void AddAllowHeader(IResponseBuilder b)
-            {
-                b.Header("Allow", string.Join(", ", others.Select(o => o.RawMethod.ToUpper())));
-            }
+        if (wildcardMatch != null)
+        {
+            return Execute(request, wildcardMatch.Value);
+        }
+
+        if (foundOthers)
+        {
+            throw new ProviderException(ResponseStatus.MethodNotAllowed, "There is no method of a matching request type");
         }
 
         return new ValueTask<IResponse?>();
@@ -65,43 +95,9 @@ public sealed class MethodCollection : IHandler
         }
     }
 
-    private List<MethodHandler> FindProviders(string path, FlexibleRequestMethod requestedMethod, out HashSet<FlexibleRequestMethod> otherMethods)
-    {
-        otherMethods = [];
-
-        var result = new List<MethodHandler>(2);
-
-        foreach (var method in Methods)
-        {
-            if (method.Operation.Path.IsIndex && path == "/")
-            {
-                if (method.Configuration.SupportedMethods.Contains(requestedMethod))
-                {
-                    result.Add(method);
-                }
-                else
-                {
-                    otherMethods.UnionWith(method.Configuration.SupportedMethods);
-                }
-            }
-            else
-            {
-                if (method.Operation.Path.Matcher.IsMatch(path))
-                {
-                    if (method.Configuration.SupportedMethods.Contains(requestedMethod))
-                    {
-                        result.Add(method);
-                    }
-                    else
-                    {
-                        otherMethods.UnionWith(method.Configuration.SupportedMethods);
-                    }
-                }
-            }
-        }
-
-        return result;
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static ValueTask<IResponse?> Execute(IRequest request, (MethodHandler, RoutingMatch) match)
+        => match.Item1.HandleAsync(request, match.Item2);
 
     #endregion
 

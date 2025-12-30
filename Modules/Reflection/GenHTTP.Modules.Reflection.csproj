@@ -16,11 +16,21 @@
 
         <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
         <ProjectReference Include="..\Conversion\GenHTTP.Modules.Conversion.csproj" />
+        <ProjectReference Include="..\Pages\GenHTTP.Modules.Pages.csproj" />
 
     </ItemGroup>
 
     <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Resources\CodeGenerationError.html" />
+      <EmbeddedResource Include="Resources\CodeGenerationError.html" />
     </ItemGroup>
 
 </Project>

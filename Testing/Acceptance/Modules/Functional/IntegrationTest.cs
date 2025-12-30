@@ -1,7 +1,9 @@
 ﻿using System.Net;
+
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Functional;
+using GenHTTP.Modules.Reflection;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Functional;
 
@@ -10,15 +12,16 @@ public class IntegrationTest
 {
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestFormatters(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestFormatters(TestEngine engine, ExecutionMode mode)
     {
         var formatting = Formatting.Empty()
                                    .Add<BoolFormatter>();
 
         var api = Inline.Create()
                         .Any("get-bool", (bool value) => value)
-                        .Formatters(formatting);
+                        .Formatters(formatting)
+                        .ExecutionMode(mode);
 
         await using var host = await TestHost.RunAsync(api, engine: engine);
 

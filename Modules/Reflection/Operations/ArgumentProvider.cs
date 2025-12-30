@@ -1,7 +1,10 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Runtime.CompilerServices;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Conversion;
+using GenHTTP.Modules.Reflection.Routing;
 
 namespace GenHTTP.Modules.Reflection.Operations;
 
@@ -21,26 +24,21 @@ public static class ArgumentProvider
         return null;
     }
 
-    public static object? GetPathArgument(OperationArgument argument, Match? matchedPath, MethodRegistry registry)
+    public static object? GetPathArgument(string name, Type type, RoutingMatch match, MethodRegistry registry)
     {
-        if (matchedPath != null)
+        if (match.PathArguments?.TryGetValue(name, out var pathArgument) ?? false)
         {
-            var sourceArgument = matchedPath.Groups[argument.Name];
-
-            if (sourceArgument.Success)
-            {
-                return sourceArgument.Value.ConvertTo(argument.Type, registry.Formatting);
-            }
+            return pathArgument.ConvertTo(type, registry.Formatting);
         }
 
         return null;
     }
 
-    public static async ValueTask<object?> GetBodyArgumentAsync(IRequest request, OperationArgument argument, MethodRegistry registry)
+    public static async ValueTask<object?> GetBodyArgumentAsync(IRequest request, string name, Type type, MethodRegistry registry)
     {
         if (request.Content == null)
         {
-            throw new ProviderException(ResponseStatus.BadRequest, $"Argument '{argument.Name}' is expected to be read from the request body but the request does not contain any payload");
+            throw new ProviderException(ResponseStatus.BadRequest, $"Argument '{name}' is expected to be read from the request body but the request does not contain any payload");
         }
 
         object? result = null;
@@ -51,7 +49,7 @@ public static class ArgumentProvider
 
         if (!string.IsNullOrWhiteSpace(body))
         {
-            result = body.ConvertTo(argument.Type, registry.Formatting);
+            result = body.ConvertTo(type, registry.Formatting);
         }
 
         if (request.Content.CanSeek)
@@ -104,7 +102,8 @@ public static class ArgumentProvider
         }
     }
 
-    public static object? GetStream(IRequest request)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Stream GetStream(IRequest request)
     {
         if (request.Content == null)
         {
@@ -113,4 +112,5 @@ public static class ArgumentProvider
 
         return request.Content;
     }
+
 }

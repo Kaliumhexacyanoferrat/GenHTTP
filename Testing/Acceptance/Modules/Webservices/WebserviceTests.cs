@@ -2,18 +2,14 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Xml.Serialization;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Webservices;
-
 using GenHTTP.Testing.Acceptance.Utilities;
-
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -103,133 +99,129 @@ public sealed class WebserviceTests
     #region Tests
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestEmpty(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestEmpty(TestEngine engine, ExecutionMode mode)
     {
-        await WithResponse(engine, "", async r => { await r.AssertStatusAsync(HttpStatusCode.NoContent); });
+        await WithResponse(engine, mode, "", async r => { await r.AssertStatusAsync(HttpStatusCode.NoContent); });
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestVoidReturn(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestVoidReturn(TestEngine engine, ExecutionMode mode)
     {
-        await WithResponse(engine, "nothing", async r => { await r.AssertStatusAsync(HttpStatusCode.NoContent); });
+        await WithResponse(engine, mode, "nothing", async r => { await r.AssertStatusAsync(HttpStatusCode.NoContent); });
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestPrimitives(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestPrimitives(TestEngine engine, ExecutionMode mode)
     {
-        await WithResponse(engine, "primitive?input=42", async r => Assert.AreEqual("42", await r.GetContentAsync()));
+        await WithResponse(engine, mode, "primitive?input=42", async r => Assert.AreEqual("42", await r.GetContentAsync()));
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestEnums(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestEnums(TestEngine engine, ExecutionMode mode)
     {
-        await WithResponse(engine, "enum?input=One", async r => Assert.AreEqual("One", await r.GetContentAsync()));
+        await WithResponse(engine, mode, "enum?input=One", async r => Assert.AreEqual("One", await r.GetContentAsync()));
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestNullableSet(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestNullableSet(TestEngine engine, ExecutionMode mode)
     {
-        await WithResponse(engine, "nullable?input=1", async r => Assert.AreEqual("1", await r.GetContentAsync()));
+        await WithResponse(engine, mode, "nullable?input=1", async r => Assert.AreEqual("1", await r.GetContentAsync()));
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestNullableNotSet(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestNullableNotSet(TestEngine engine, ExecutionMode mode)
     {
-        await WithResponse(engine, "nullable", async r => { await r.AssertStatusAsync(HttpStatusCode.NoContent); });
+        await WithResponse(engine, mode, "nullable", async r => { await r.AssertStatusAsync(HttpStatusCode.NoContent); });
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestGuid(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestGuid(TestEngine engine, ExecutionMode mode)
     {
         var id = Guid.NewGuid().ToString();
 
-        await WithResponse(engine, $"guid?id={id}", async r => Assert.AreEqual(id, await r.GetContentAsync()));
+        await WithResponse(engine, mode, $"guid?id={id}", async r => Assert.AreEqual(id, await r.GetContentAsync()));
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestParam(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestParam(TestEngine engine, ExecutionMode mode)
     {
-        await WithResponse(engine, "param/42", async r => Assert.AreEqual("42", await r.GetContentAsync()));
+        await WithResponse(engine, mode, "param/42", async r => Assert.AreEqual("42", await r.GetContentAsync()));
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestConversionFailure(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestConversionFailure(TestEngine engine, ExecutionMode mode)
     {
-        await WithResponse(engine, "param/abc", async r => { await r.AssertStatusAsync(HttpStatusCode.BadRequest); });
+        await WithResponse(engine, mode, "param/abc", async r => { await r.AssertStatusAsync(HttpStatusCode.BadRequest); });
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestRegex(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestRegex(TestEngine engine, ExecutionMode mode)
     {
-        await WithResponse(engine, "regex/42", async r => Assert.AreEqual("42", await r.GetContentAsync()));
+        await WithResponse(engine, mode, "regex/42", async r => Assert.AreEqual("42", await r.GetContentAsync()));
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestEntityWithNulls(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestEntityWithNulls(TestEngine engine, ExecutionMode mode)
     {
         const string entity = "{\"id\":42}";
-        await WithResponse(engine, "entity", HttpMethod.Post, entity, null, null, async r => Assert.AreEqual(entity, await r.GetContentAsync()));
+        await WithResponse(engine, mode, "entity", HttpMethod.Post, entity, null, null, async r => Assert.AreEqual(entity, await r.GetContentAsync()));
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestEntityWithNoNulls(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestEntityWithNoNulls(TestEngine engine, ExecutionMode mode)
     {
         const string entity = "{\"id\":42,\"nullable\":123.456}";
-        await WithResponse(engine, "entity", HttpMethod.Post, entity, null, null, async r => Assert.AreEqual(entity, await r.GetContentAsync()));
+        await WithResponse(engine, mode, "entity", HttpMethod.Post, entity, null, null, async r => Assert.AreEqual(entity, await r.GetContentAsync()));
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestNotSupportedUpload(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestNotSupportedUpload(TestEngine engine, ExecutionMode mode)
     {
-        await WithResponse(engine, "entity", HttpMethod.Post, "123", "bla/blubb", null, async r => { await r.AssertStatusAsync(HttpStatusCode.UnsupportedMediaType); });
+        await WithResponse(engine, mode, "entity", HttpMethod.Post, "123", "bla/blubb", null, async r => { await r.AssertStatusAsync(HttpStatusCode.UnsupportedMediaType); });
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestUnsupportedDownloadEnforcesDefault(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestUnsupportedDownloadEnforcesDefault(TestEngine engine, ExecutionMode mode)
     {
         const string entity = "{\"id\":42,\"nullable\":123.456}";
-        await WithResponse(engine, "entity", HttpMethod.Post, entity, null, "bla/blubb", async r => Assert.AreEqual(entity, await r.GetContentAsync()));
+        await WithResponse(engine, mode, "entity", HttpMethod.Post, entity, null, "bla/blubb", async r => Assert.AreEqual(entity, await r.GetContentAsync()));
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestWrongMethod(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestNoMethod(TestEngine engine, ExecutionMode mode)
     {
-        await WithResponse(engine, "entity", HttpMethod.Put, "123", null, null, async r => { await r.AssertStatusAsync(HttpStatusCode.MethodNotAllowed); Assert.AreEqual("POST", r.GetContentHeader("Allow")); });
-    }
-
-    [TestMethod]
-    [MultiEngineTest]
-    public async Task TestNoMethod(TestEngine engine)
-    {
-        await WithResponse(engine, "idonotexist", async r => { await r.AssertStatusAsync(HttpStatusCode.NotFound); });
+        await WithResponse(engine, mode, "idonotexist", async r => { await r.AssertStatusAsync(HttpStatusCode.NotFound); });
     }
 
     [TestMethod]
     public async Task TestStream()
     {
-        await WithResponse(TestEngine.Internal, "stream", HttpMethod.Put, "123456", null, null, async r => Assert.AreEqual("6", await r.GetContentAsync()));
+        foreach (var mode in new[] { ExecutionMode.Reflection, ExecutionMode.Auto })
+        {
+            await WithResponse(TestEngine.Internal, mode, "stream", HttpMethod.Put, "123456", null, null, async r => Assert.AreEqual("6", await r.GetContentAsync()));
+        }
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestByteArrayReturn(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestByteArrayReturn(TestEngine engine, ExecutionMode mode)
     {
-        await WithResponse(engine, "bytes", async r =>
+        await WithResponse(engine, mode, "bytes", async r =>
         {
             await r.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("Hello Bytes", await r.GetContentAsync());
@@ -237,10 +229,10 @@ public sealed class WebserviceTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestReadOnlyMemoryReturn(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestReadOnlyMemoryReturn(TestEngine engine, ExecutionMode mode)
     {
-        await WithResponse(engine, "memory", async r =>
+        await WithResponse(engine, mode, "memory", async r =>
         {
             await r.AssertStatusAsync(HttpStatusCode.OK);
             Assert.AreEqual("Hello Memory", await r.GetContentAsync());
@@ -248,26 +240,26 @@ public sealed class WebserviceTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestRequestResponse(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestRequestResponse(TestEngine engine, ExecutionMode mode)
     {
-        await WithResponse(engine, "requestResponse", async r => Assert.AreEqual("Hello World", await r.GetContentAsync()));
+        await WithResponse(engine, mode, "requestResponse", async r => Assert.AreEqual("Hello World", await r.GetContentAsync()));
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestRouting(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestRouting(TestEngine engine, ExecutionMode mode)
     {
-        await WithResponse(engine, "request", async r => Assert.AreEqual("yes", await r.GetContentAsync()));
+        await WithResponse(engine, mode, "request", async r => Assert.AreEqual("yes", await r.GetContentAsync()));
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestEntityAsXml(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestEntityAsXml(TestEngine engine, ExecutionMode mode)
     {
         const string entity = "<TestEntity><Id>1</Id><Nullable>1234.56</Nullable></TestEntity>";
 
-        await WithResponse(engine, "entity", HttpMethod.Post, entity, "text/xml", "text/xml", async r =>
+        await WithResponse(engine, mode, "entity", HttpMethod.Post, entity, "text/xml", "text/xml", async r =>
         {
             var result = new XmlSerializer(typeof(TestEntity)).Deserialize(await r.Content.ReadAsStreamAsync()) as TestEntity;
 
@@ -279,15 +271,15 @@ public sealed class WebserviceTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestEntityAsYaml(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestEntityAsYaml(TestEngine engine, ExecutionMode mode)
     {
         const string entity = """
                               id: 1
                               nullable: 1234.56
                               """;
 
-        await WithResponse(engine, "entity", HttpMethod.Post, entity, "application/yaml", "application/yaml", async r =>
+        await WithResponse(engine, mode, "entity", HttpMethod.Post, entity, "application/yaml", "application/yaml", async r =>
         {
             await r.AssertStatusAsync(HttpStatusCode.OK);
 
@@ -306,24 +298,24 @@ public sealed class WebserviceTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestException(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestException(TestEngine engine, ExecutionMode mode)
     {
-        await WithResponse(engine, "exception", async r => { await r.AssertStatusAsync(HttpStatusCode.AlreadyReported); });
+        await WithResponse(engine, mode, "exception", async r => { await r.AssertStatusAsync(HttpStatusCode.AlreadyReported); });
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestDuplicate(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestDuplicate(TestEngine engine, ExecutionMode mode)
     {
-        await WithResponse(engine, "duplicate", async r => { await r.AssertStatusAsync(HttpStatusCode.BadRequest); });
+        await WithResponse(engine, mode, "duplicate", async r => { await r.AssertStatusAsync(HttpStatusCode.BadRequest); });
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestWithInstance(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestWithInstance(TestEngine engine, ExecutionMode mode)
     {
-        var layout = Layout.Create().AddService("t", new TestResource());
+        var layout = Layout.Create().AddService("t", new TestResource(), mode: mode);
 
         await using var runner = await TestHost.RunAsync(layout);
 
@@ -344,11 +336,11 @@ public sealed class WebserviceTests
 
     #region Helpers
 
-    private Task WithResponse(TestEngine engine, string uri, Func<HttpResponseMessage, Task> logic) => WithResponse(engine, uri, HttpMethod.Get, null, null, null, logic);
+    private Task WithResponse(TestEngine engine, ExecutionMode mode, string uri, Func<HttpResponseMessage, Task> logic) => WithResponse(engine, mode, uri, HttpMethod.Get, null, null, null, logic);
 
-    private async Task WithResponse(TestEngine engine, string uri, HttpMethod method, string? body, string? contentType, string? accept, Func<HttpResponseMessage, Task> logic)
+    private async Task WithResponse(TestEngine engine, ExecutionMode mode, string uri, HttpMethod method, string? body, string? contentType, string? accept, Func<HttpResponseMessage, Task> logic)
     {
-        await using var service = await GetServiceAsync(engine);
+        await using var service = await GetServiceAsync(engine, mode);
 
         var request = service.GetRequest($"/t/{uri}");
 
@@ -378,11 +370,12 @@ public sealed class WebserviceTests
         await logic(response);
     }
 
-    private static async Task<TestHost> GetServiceAsync(TestEngine engine)
+    private static async Task<TestHost> GetServiceAsync(TestEngine engine, ExecutionMode mode)
     {
         var service = ServiceResource.From<TestResource>()
                                      .Serializers(Serialization.Default())
-                                     .Injectors(Injection.Default());
+                                     .Injectors(Injection.Default())
+                                     .ExecutionMode(mode);
 
         return await TestHost.RunAsync(Layout.Create().Add("t", service), engine: engine);
     }

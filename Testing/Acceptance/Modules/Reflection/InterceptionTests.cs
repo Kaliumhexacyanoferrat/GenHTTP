@@ -60,9 +60,10 @@ public class InterceptionTests
     #region Tests
 
     [TestMethod]
-    public async Task TestInterception()
+    [MultiEngineFrameworkTest]
+    public async Task TestInterception(TestEngine engine, ExecutionMode mode)
     {
-        var app = Inline.Create().Get([My("intercept")] () => 42);
+        var app = Inline.Create().Get([My("intercept")] (int? q) => 42).ExecutionMode(mode);
 
         await using var host = await TestHost.RunAsync(app);
 
@@ -74,9 +75,10 @@ public class InterceptionTests
     }
 
     [TestMethod]
-    public async Task TestPassThrough()
+    [MultiEngineFrameworkTest]
+    public async Task TestPassThrough(TestEngine engine, ExecutionMode mode)
     {
-        var app = Inline.Create().Get([My("pass")] () => 42);
+        var app = Inline.Create().Get([My("pass")] () => 42).ExecutionMode(mode);
 
         await using var host = await TestHost.RunAsync(app);
 
@@ -88,9 +90,10 @@ public class InterceptionTests
     }
 
     [TestMethod]
-    public async Task TestException()
+    [MultiEngineFrameworkTest]
+    public async Task TestException(TestEngine engine, ExecutionMode mode)
     {
-        var app = Inline.Create().Get([My("throw")] () => 42);
+        var app = Inline.Create().Get([My("throw")] () => 42).ExecutionMode(mode);
 
         await using var host = await TestHost.RunAsync(app);
 

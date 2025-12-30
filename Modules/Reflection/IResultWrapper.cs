@@ -6,7 +6,7 @@ namespace GenHTTP.Modules.Reflection;
 /// Allows the framework to unwrap <see cref="Result{T}" />
 /// instances.
 /// </summary>
-internal interface IResultWrapper
+public interface IResultWrapper
 {
 
     /// <summary>

@@ -2,6 +2,7 @@
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Operations;
+
 using NJsonSchema;
 using NSwag;
 
@@ -31,9 +32,9 @@ public sealed class MethodHandlerExplorer : IApiExplorer
 
             var pathItem = OpenApiExtensions.GetPathItem(document, path, methodHandler.Operation);
 
-            foreach (var method in methodHandler.Configuration.SupportedMethods)
+            foreach (var method in methodHandler.Operation.Configuration.SupportedMethods)
             {
-                if (method == RequestMethod.Head && methodHandler.Configuration.SupportedMethods.Count > 1)
+                if (method == RequestMethod.Head && methodHandler.Operation.Configuration.SupportedMethods.Count > 1)
                 {
                     continue;
                 }
@@ -101,7 +102,7 @@ public sealed class MethodHandlerExplorer : IApiExplorer
                     }
                 }
 
-                if (methodHandler.Operation.Path.IsWildcard)
+                if (methodHandler.Operation.Route.IsWildcard)
                 {
                     var param = new OpenApiParameter
                     {

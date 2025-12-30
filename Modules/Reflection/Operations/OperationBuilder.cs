@@ -1,21 +1,18 @@
 ﻿using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Reflection.Routing;
+using GenHTTP.Modules.Reflection.Routing.Segments;
 
 namespace GenHTTP.Modules.Reflection.Operations;
 
-public static partial class OperationBuilder
+public static class OperationBuilder
 {
-    private static readonly Regex VarPattern = CreateVarPattern();
+    private static readonly OperationRoute IndexRoute = new("/", [new ClosingSegment(false, false)], false);
 
-    private static readonly Regex RegexPattern = CreateRegexPattern();
-
-    private static readonly Regex EmptyWildcardRoute = CreateEmptyWildcardRoute();
-
-    private static readonly Regex EmptyRoute = CreateEmptyRoute();
+    private static readonly OperationRoute WildcardIndexRoute = new("/", [new ClosingSegment(false, true)], true);
 
     #region Functionality
 
@@ -25,74 +22,61 @@ public static partial class OperationBuilder
     /// </summary>
     /// <param name="definition">The path definition of the endpoint, e.g. "/users/:id"</param>
     /// <param name="method">The actual .NET method to be executed to retrieve a result</param>
+    /// <param name="del">If the method is defined by a delegate and not as an instance method, pass it here</param>
     /// <param name="registry">The customizable registry used to read and write data</param>
     /// <param name="forceTrailingSlash">If set to true, the operation requires the client to append a trailing slash to the path</param>
     /// <returns>The newly created operation</returns>
-    public static Operation Create(IRequest request, string? definition, MethodInfo method, MethodRegistry registry, bool forceTrailingSlash = false)
+    public static Operation Create(IRequest request, string? definition, MethodInfo method, Delegate? del, ExecutionSettings executionSettings, IMethodConfiguration configuration, MethodRegistry registry, bool forceTrailingSlash = false)
     {
         var isWildcard = CheckWildcardRoute(method.ReturnType);
 
-        OperationPath path;
-
-        var pathArguments = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        OperationRoute route;
 
         if (string.IsNullOrWhiteSpace(definition))
         {
-            if (isWildcard)
-            {
-                path = new OperationPath("/", EmptyWildcardRoute, true, true);
-            }
-            else
-            {
-                path = new OperationPath("/", EmptyRoute, true, false);
-            }
+            route = isWildcard ? WildcardIndexRoute : IndexRoute;
         }
         else
         {
             var normalized = Normalize(definition);
 
-            var matchBuilder = new StringBuilder(normalized);
-            var nameBuilder = new StringBuilder(WithPrefix(normalized));
+            var parts = normalized.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
-            // convert parameters of the format ":var" into appropriate groups
-            foreach (Match match in VarPattern.Matches(definition))
+            var segments = new List<IRoutingSegment>(parts.Length + 1);
+
+            foreach (var part in parts)
             {
-                var name = match.Groups[1].Value;
+                var colonCount = part.Count(c => c == ':');
 
-                matchBuilder.Replace(match.Value, name.ToParameter());
-                nameBuilder.Replace(match.Value, "{" + name + "}");
-
-                pathArguments.Add(name);
+                if (part.StartsWith(':') && IsValidVariable(part.AsSpan()[1..]) && colonCount == 1)
+                {
+                    segments.Add(new SimpleVariableSegment(part[1..]));
+                }
+                else if (part.Contains("?<") || colonCount > 0)
+                {
+                    segments.Add(new RegexSegment(part));
+                }
+                else
+                {
+                    segments.Add(new StringSegment(part));
+                }
             }
 
-            // convert advanced regex params as well
-            foreach (Match match in RegexPattern.Matches(definition))
+            segments.Add(new ClosingSegment(forceTrailingSlash || definition.EndsWith('/'), isWildcard));
+
+            var displayName = GetDisplayName(definition, forceTrailingSlash);
+
+            route = new OperationRoute(displayName, segments, isWildcard);
+        }
+        
+        var pathArguments = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var segment in route.Segments)
+        {
+            foreach (var pathArg in segment.ProvidedArguments)
             {
-                var name = match.Groups[1].Value;
-
-                nameBuilder.Replace(match.Value, "{" + name + "}");
-
-                pathArguments.Add(name);
+                pathArguments.Add(pathArg);
             }
-
-            if (forceTrailingSlash || definition.EndsWith('/'))
-            {
-                matchBuilder.Append('/');
-                nameBuilder.Append('/');
-            }
-            else
-            {
-                matchBuilder.Append("(/|)");
-            }
-
-            if (!isWildcard)
-            {
-                matchBuilder.Append('$');
-            }
-
-            var matcher = new Regex($"^/{matchBuilder}", RegexOptions.Compiled);
-
-            path = new OperationPath(nameBuilder.ToString(), matcher, false, isWildcard);
         }
 
         var arguments = SignatureAnalyzer.GetArguments(request, method, pathArguments, registry);
@@ -101,7 +85,7 @@ public static partial class OperationBuilder
 
         var interceptors = InterceptorAnalyzer.GetInterceptors(method);
 
-        return new Operation(method, path, result, arguments, interceptors);
+        return new Operation(method, del, executionSettings, configuration, route, result, arguments, interceptors);
     }
 
     private static bool CheckWildcardRoute(Type returnType)
@@ -124,6 +108,39 @@ public static partial class OperationBuilder
 
     private static bool IsHandlerType(Type returnType) => typeof(IHandlerBuilder).IsAssignableFrom(returnType) || typeof(IHandler).IsAssignableFrom(returnType);
 
+    private static string GetDisplayName(string definition, bool forceTrailingSlash)
+    {
+        var nameBuilder = new StringBuilder(Normalize(definition));
+
+        ReplaceMatches(nameBuilder, definition, ":([A-Za-z0-9]+)"); // :var
+
+        ReplaceMatches(nameBuilder, definition, @"\(\?\<([a-z]+)\>([^)]+)\)"); // (?<ean13>[0-9]{12,13})
+
+        if (forceTrailingSlash || definition.EndsWith('/'))
+        {
+            nameBuilder.Append('/');
+        }
+
+        if (nameBuilder.Length > 1)
+        {
+            nameBuilder.Insert(0, '/');
+        }
+
+        return nameBuilder.ToString();
+    }
+
+    private static void ReplaceMatches(StringBuilder sb, string definition, string regex)
+    {
+        var pattern = new Regex(regex);
+
+        var matches = pattern.Matches(definition);
+
+        foreach (Match match in matches)
+        {
+            sb.Replace(match.Value, $"{{{match.Groups[1].Value}}}");
+        }
+    }
+
     private static string Normalize(string definition)
     {
         int trimStart = 0, trimEnd = 0;
@@ -144,34 +161,18 @@ public static partial class OperationBuilder
         return definition.Substring(trimStart, definition.Length - trimStart - trimEnd);
     }
 
-    private static string WithPrefix(string path)
+    private static bool IsValidVariable(ReadOnlySpan<char> value)
     {
-        if (path.Length > 0)
+        foreach (var c in value)
         {
-            if (path[0] != '/')
+            if (c is (< 'A' or > 'Z') and (< 'a' or > 'z') and (< '0' or > '9')) 
             {
-                return $"{path}";
+                return false;
             }
         }
 
-        return path;
+        return true;
     }
-
-    #endregion
-
-    #region Regular Expressions
-
-    [GeneratedRegex(@"\:([a-z]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
-    private static partial Regex CreateVarPattern();
-
-    [GeneratedRegex(@"\(\?\<([a-z]+)\>([^)]+)\)", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
-    private static partial Regex CreateRegexPattern();
-
-    [GeneratedRegex("^.*", RegexOptions.Compiled)]
-    private static partial Regex CreateEmptyWildcardRoute();
-
-    [GeneratedRegex("^(/|)$", RegexOptions.Compiled)]
-    private static partial Regex CreateEmptyRoute();
 
     #endregion
 

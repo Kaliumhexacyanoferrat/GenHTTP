@@ -1,10 +1,13 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Reflection;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Controllers;
 
@@ -14,7 +17,7 @@ public sealed class ActionTests
 
     #region Helpers
 
-    private async Task<TestHost> GetRunnerAsync(TestEngine engine) => await TestHost.RunAsync(Layout.Create().AddController<TestController>("t"), engine: engine);
+    private async Task<TestHost> GetRunnerAsync(TestEngine engine, ExecutionMode mode) => await TestHost.RunAsync(Layout.Create().AddController<TestController>("t", mode: mode), engine: engine);
 
     #endregion
 
@@ -53,10 +56,10 @@ public sealed class ActionTests
     #region Tests
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestIndex(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestIndex(TestEngine engine, ExecutionMode mode)
     {
-        await using var runner = await GetRunnerAsync(engine);
+        await using var runner = await GetRunnerAsync(engine, mode);
 
         using var response = await runner.GetResponseAsync("/t/");
 
@@ -65,10 +68,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestAction(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestAction(TestEngine engine, ExecutionMode mode)
     {
-        await using var runner = await GetRunnerAsync(engine);
+        await using var runner = await GetRunnerAsync(engine, mode);
 
         using var response = await runner.GetResponseAsync("/t/action/");
 
@@ -77,10 +80,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestActionWithQuery(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestActionWithQuery(TestEngine engine, ExecutionMode mode)
     {
-        await using var runner = await GetRunnerAsync(engine);
+        await using var runner = await GetRunnerAsync(engine, mode);
 
         using var response = await runner.GetResponseAsync("/t/action/?query=0815");
 
@@ -89,10 +92,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestActionWithQueryFromBody(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestActionWithQueryFromBody(TestEngine engine, ExecutionMode mode)
     {
-        await using var runner = await GetRunnerAsync(engine);
+        await using var runner = await GetRunnerAsync(engine, mode);
 
         var dict = new Dictionary<string, string>
         {
@@ -113,10 +116,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestActionWithBody(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestActionWithBody(TestEngine engine, ExecutionMode mode)
     {
-        await using var runner = await GetRunnerAsync(engine);
+        await using var runner = await GetRunnerAsync(engine, mode);
 
         var request = runner.GetRequest("/t/action/");
 
@@ -132,10 +135,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestActionWithParameter(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestActionWithParameter(TestEngine engine, ExecutionMode mode)
     {
-        await using var runner = await GetRunnerAsync(engine);
+        await using var runner = await GetRunnerAsync(engine, mode);
 
         using var response = await runner.GetResponseAsync("/t/simple-action/4711/");
 
@@ -144,10 +147,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestActionWithBadParameter(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestActionWithBadParameter(TestEngine engine, ExecutionMode mode)
     {
-        await using var runner = await GetRunnerAsync(engine);
+        await using var runner = await GetRunnerAsync(engine, mode);
 
         using var response = await runner.GetResponseAsync("/t/simple-action/string/");
 
@@ -155,10 +158,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestActionWithMixedParameters(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestActionWithMixedParameters(TestEngine engine, ExecutionMode mode)
     {
-        await using var runner = await GetRunnerAsync(engine);
+        await using var runner = await GetRunnerAsync(engine, mode);
 
         using var response = await runner.GetResponseAsync("/t/complex-action/1/2/?three=3");
 
@@ -167,10 +170,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestActionWithNoResult(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestActionWithNoResult(TestEngine engine, ExecutionMode mode)
     {
-        await using var runner = await GetRunnerAsync(engine);
+        await using var runner = await GetRunnerAsync(engine, mode);
 
         using var response = await runner.GetResponseAsync("/t/void/");
 
@@ -178,10 +181,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestNonExistingAction(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestNonExistingAction(TestEngine engine, ExecutionMode mode)
     {
-        await using var runner = await GetRunnerAsync(engine);
+        await using var runner = await GetRunnerAsync(engine, mode);
 
         using var response = await runner.GetResponseAsync("/t/nope/");
 
@@ -189,10 +192,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestHypenCasing(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestHypenCasing(TestEngine engine, ExecutionMode mode)
     {
-        await using var runner = await GetRunnerAsync(engine);
+        await using var runner = await GetRunnerAsync(engine, mode);
 
         using var response = await runner.GetResponseAsync("/t/hypen-casing-99/");
 
@@ -201,10 +204,10 @@ public sealed class ActionTests
     }
 
     [TestMethod]
-    [MultiEngineTest]
-    public async Task TestIndexController(TestEngine engine)
+    [MultiEngineFrameworkTest]
+    public async Task TestIndexController(TestEngine engine, ExecutionMode mode)
     {
-        await using var runner = await TestHost.RunAsync(Layout.Create().IndexController<TestController>(), engine: engine);
+        await using var runner = await TestHost.RunAsync(Layout.Create().IndexController<TestController>(mode: mode), engine: engine);
 
         using var response = await runner.GetResponseAsync("/simple-action/4711/");
 
