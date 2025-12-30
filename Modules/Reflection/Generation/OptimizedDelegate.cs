@@ -4,6 +4,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Reflection.Operations;
+using GenHTTP.Modules.Reflection.Routing;
 
 namespace GenHTTP.Modules.Reflection.Generation;
 
@@ -13,7 +14,7 @@ internal static class OptimizedDelegate
 
     internal static bool Supported => CompilationSupported;
     
-    internal static Func<T, Operation, IRequest, IHandler, MethodRegistry, RequestInterception, ValueTask<IResponse?>>? Compile<T>(Operation operation)
+    internal static Func<T, Operation, IRequest, IHandler, MethodRegistry, RoutingMatch, RequestInterception, ValueTask<IResponse?>>? Compile<T>(Operation operation)
     {
         if (!CompilationSupported) return null;
 

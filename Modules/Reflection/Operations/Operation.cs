@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using GenHTTP.Modules.Reflection.Routing;
 
 namespace GenHTTP.Modules.Reflection.Operations;
 
@@ -31,7 +32,7 @@ public sealed class Operation
     /// <summary>
     /// Information about the endpoint provided by this operation.
     /// </summary>
-    public OperationPath Path { get; }
+    public OperationRoute Route { get; }
 
     /// <summary>
     /// The arguments expected by this operation.
@@ -52,13 +53,13 @@ public sealed class Operation
 
     #region Initialization
 
-    public Operation(MethodInfo method, Delegate? del, ExecutionSettings executionSettings, IMethodConfiguration configuration, OperationPath path, OperationResult result, IReadOnlyDictionary<string, OperationArgument> arguments, IReadOnlyList<IOperationInterceptor> interceptors)
+    public Operation(MethodInfo method, Delegate? del, ExecutionSettings executionSettings, IMethodConfiguration configuration, OperationRoute route, OperationResult result, IReadOnlyDictionary<string, OperationArgument> arguments, IReadOnlyList<IOperationInterceptor> interceptors)
     {
         Method = method;
         Delegate = del;
         ExecutionSettings = executionSettings;
         Configuration = configuration;
-        Path = path;
+        Route = route;
         Result = result;
         Arguments = arguments;
         Interceptors = interceptors;

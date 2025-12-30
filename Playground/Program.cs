@@ -3,7 +3,6 @@ using GenHTTP.Engine.Internal;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
-using GenHTTP.Modules.Practices;
 using GenHTTP.Modules.Reflection;
 
 var handler = Handler.From((IRequest request) =>

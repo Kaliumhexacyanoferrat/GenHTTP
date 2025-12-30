@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
 using System.Runtime.ExceptionServices;
+
 using Cottle;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
@@ -10,6 +12,7 @@ using GenHTTP.Modules.Pages;
 using GenHTTP.Modules.Pages.Rendering;
 using GenHTTP.Modules.Reflection.Generation;
 using GenHTTP.Modules.Reflection.Operations;
+using GenHTTP.Modules.Reflection.Routing;
 
 namespace GenHTTP.Modules.Reflection;
 
@@ -25,13 +28,15 @@ public delegate ValueTask<IResponse?> RequestInterception(IRequest request, IRea
 /// </remarks>
 public sealed class MethodHandler : IHandler
 {
+    internal const string MatchProperty = "__ROUTING_MATCH";
+    
     private static readonly Dictionary<string, object?> NoArguments = [];
     
     private static readonly TemplateRenderer ErrorRenderer = Renderer.From(Resource.FromAssembly("CodeGenerationError.html").Build());
 
-    private Func<object, Operation, IRequest, IHandler, MethodRegistry, RequestInterception, ValueTask<IResponse?>>? _compiledMethod;
+    private Func<object, Operation, IRequest, IHandler, MethodRegistry, RoutingMatch, RequestInterception, ValueTask<IResponse?>>? _compiledMethod;
 
-    private Func<Delegate, Operation, IRequest, IHandler, MethodRegistry, RequestInterception, ValueTask<IResponse?>>? _compiledDelegate;
+    private Func<Delegate, Operation, IRequest, IHandler, MethodRegistry, RoutingMatch, RequestInterception, ValueTask<IResponse?>>? _compiledDelegate;
 
     private CodeGenerationException? _compilationError = null;
 
@@ -101,6 +106,18 @@ public sealed class MethodHandler : IHandler
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
+        if (request.Properties.TryGet(MatchProperty, out RoutingMatch? match))
+        {
+            throw new InvalidOperationException("Unable to fetch routing match from request context");
+        }
+
+        var actualMatch = match!;
+
+        if (actualMatch.Offset > 0)
+        {
+            request.Target.Advance(actualMatch.Offset);
+        }
+        
         if (UseCodeGeneration)
         {
             if (_compilationError != null)
@@ -108,38 +125,33 @@ public sealed class MethodHandler : IHandler
                 return RenderCompilationErrorAsync(request, _compilationError);
             }
 
-            if (Operation.Delegate != null)
-            {
-                return RunAsDelegate(request);
-            }
-
-            return RunAsMethod(request);
+            return Operation.Delegate != null ? RunAsDelegate(request, actualMatch) : RunAsMethod(request, actualMatch);
         }
 
-        return RunViaReflection(request);
+        return RunViaReflection(request, actualMatch);
     }
 
-    private ValueTask<IResponse?> RunAsDelegate(IRequest request)
+    private ValueTask<IResponse?> RunAsDelegate(IRequest request, RoutingMatch match)
     {
         if (_compiledDelegate == null || Operation.Delegate == null)
             throw new InvalidOperationException("Compiled delegate is not initialized");
 
-        return _compiledDelegate(Operation.Delegate, Operation, request, this, Registry, InterceptAsync);
+        return _compiledDelegate(Operation.Delegate, Operation, request, this, Registry, match, InterceptAsync);
     }
 
-    private async ValueTask<IResponse?> RunAsMethod(IRequest request)
+    private async ValueTask<IResponse?> RunAsMethod(IRequest request, RoutingMatch match)
     {
         if (_compiledMethod == null)
             throw new InvalidOperationException("Compiled method is not initialized");
 
         var instance = await InstanceProvider(request);
 
-        return await _compiledMethod(instance, Operation, request, this, Registry, InterceptAsync);
+        return await _compiledMethod(instance, Operation, request, this, Registry, match, InterceptAsync);
     }
 
-    private async ValueTask<IResponse?> RunViaReflection(IRequest request)
+    private async ValueTask<IResponse?> RunViaReflection(IRequest request, RoutingMatch match)
     {
-        var arguments = await GetArguments(request);
+        var arguments = await GetArguments(request, match);
 
         var interception = await InterceptAsync(request, arguments);
 
@@ -153,11 +165,9 @@ public sealed class MethodHandler : IHandler
         return await ResponseProvider.GetResponseAsync(request, Operation, await UnwrapAsync(result));
     }
 
-    private async ValueTask<IReadOnlyDictionary<string, object?>> GetArguments(IRequest request)
+    private async ValueTask<IReadOnlyDictionary<string, object?>> GetArguments(IRequest request, RoutingMatch match)
     {
         var targetParameters = Operation.Method.GetParameters();
-
-        var pathArguments = ArgumentProvider.MatchPath(Operation, request);
 
         if (targetParameters.Length > 0)
         {
@@ -176,7 +186,7 @@ public sealed class MethodHandler : IHandler
                         targetArguments[arg.Name] = arg.Source switch
                         {
                             OperationArgumentSource.Injected => ArgumentProvider.GetInjectedArgument(request, this, arg, Registry),
-                            OperationArgumentSource.Path => ArgumentProvider.GetPathArgument(arg.Name, arg.Type, pathArguments, Registry),
+                            OperationArgumentSource.Path => ArgumentProvider.GetPathArgument(arg.Name, arg.Type, match, Registry),
                             OperationArgumentSource.Body => await ArgumentProvider.GetBodyArgumentAsync(request, arg.Name, arg.Type, Registry),
                             OperationArgumentSource.Query => ArgumentProvider.GetQueryArgument(request, bodyArguments, arg, Registry),
                             OperationArgumentSource.Content => await ArgumentProvider.GetContentAsync(request, arg, Registry),

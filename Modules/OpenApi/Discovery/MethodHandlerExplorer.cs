@@ -2,6 +2,7 @@
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Operations;
+
 using NJsonSchema;
 using NSwag;
 
@@ -101,7 +102,7 @@ public sealed class MethodHandlerExplorer : IApiExplorer
                     }
                 }
 
-                if (methodHandler.Operation.Path.IsWildcard)
+                if (methodHandler.Operation.Route.IsWildcard)
                 {
                     var param = new OpenApiParameter
                     {

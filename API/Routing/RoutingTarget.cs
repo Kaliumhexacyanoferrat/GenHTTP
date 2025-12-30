@@ -36,7 +36,7 @@ public sealed class RoutingTarget
     /// <summary>
     /// The segment to be currently handled by the responsible handler.
     /// </summary>
-    public WebPathPart? Current => _index < Path.Parts.Count ? Path.Parts[_index] : null;
+    public WebPathPart? Current => Next(0);
 
     /// <summary>
     /// Specifies, whether the end of the path has been reached.
@@ -60,10 +60,28 @@ public sealed class RoutingTarget
     {
         if (Ended)
         {
-            throw new InvalidOperationException("Already at the end of the path");
+            throw new IndexOutOfRangeException("Already at the end of the path");
         }
 
         _index++;
+    }
+    
+    /// <summary>
+    /// Acknowledges the number of segments passed as a parameter.
+    /// </summary>
+    /// <param name="byOffset">The number of segments to advance by</param>
+    public void Advance(int byOffset)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(byOffset);
+
+        var newIndex = _index + byOffset;
+
+        if (newIndex >= Path.Parts.Count)
+        {
+            throw new IndexOutOfRangeException($"Cannot advance {byOffset} segments from position {_index} with {Path.Parts.Count} segments in total");
+        }
+        
+        _index = newIndex;
     }
 
     /// <summary>
@@ -82,6 +100,13 @@ public sealed class RoutingTarget
         }
 
         return new WebPath(resultList, Path.TrailingSlash);
+    }
+
+    public WebPathPart? Next(int offset)
+    {
+        var index = _index + offset;
+
+        return index < Path.Parts.Count ? Path.Parts[index] : null;
     }
 
     #endregion

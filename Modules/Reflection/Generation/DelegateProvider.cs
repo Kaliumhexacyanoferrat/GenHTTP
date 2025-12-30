@@ -5,7 +5,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Reflection.Operations;
-
+using GenHTTP.Modules.Reflection.Routing;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -14,7 +14,7 @@ namespace GenHTTP.Modules.Reflection.Generation;
 internal static class DelegateProvider
 {
 
-    internal static Func<T, Operation, IRequest, IHandler, MethodRegistry, RequestInterception, ValueTask<IResponse?>> Compile<T>(string code)
+    internal static Func<T, Operation, IRequest, IHandler, MethodRegistry, RoutingMatch, RequestInterception, ValueTask<IResponse?>> Compile<T>(string code)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(code);
 
@@ -56,8 +56,8 @@ internal static class DelegateProvider
         // warm up the JIT
         RuntimeHelpers.PrepareMethod(method.MethodHandle);
 
-        return (Func<T, Operation, IRequest, IHandler, MethodRegistry, RequestInterception, ValueTask<IResponse?>>)Delegate.CreateDelegate(
-            typeof(Func<T, Operation, IRequest, IHandler, MethodRegistry, RequestInterception, ValueTask<IResponse?>>), method
+        return (Func<T, Operation, IRequest, IHandler, MethodRegistry, RoutingMatch, RequestInterception, ValueTask<IResponse?>>)Delegate.CreateDelegate(
+            typeof(Func<T, Operation, IRequest, IHandler, MethodRegistry, RoutingMatch, RequestInterception, ValueTask<IResponse?>>), method
         );
     }
 
