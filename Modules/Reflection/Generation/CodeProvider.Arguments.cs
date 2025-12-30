@@ -115,19 +115,36 @@ public static class CodeProviderArgumentExtensions
 
         var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
 
-        // todo: high performance support for int.TryParse etc.
-
         if (argument.Type == typeof(string))
         {
             sb.AppendLine($"                arg{index} = {sourceName};");
         }
+        else if (argument.Type.IsPrimitive && argument.Type != typeof(bool))
+        {
+            sb.AppendTryParse(argument, $"{safeType}.TryParse({sourceName}, out var {sourceName}Typed)", sourceName, index);
+        }
+        else if (argument.Type.IsEnum)
+        {
+            sb.AppendTryParse(argument, $"Enum.TryParse({sourceName}, out {safeType} {sourceName}Typed)", sourceName, index);
+        }
         else
         {
-            // todo: try and bad format exception
             sb.AppendLine($"                arg{index} = ({safeType}?)registry.Formatting.Read({sourceName}, typeof({safeType}));");
         }
     }
 
+    private static void AppendTryParse(this StringBuilder sb, OperationArgument argument, string condition, string sourceName, int index)
+    {
+        sb.AppendLine($"                if ({condition})");
+        sb.AppendLine("                {");
+        sb.AppendLine($"                    arg{index} = {sourceName}Typed;");
+        sb.AppendLine("                }");
+        sb.AppendLine("                else");
+        sb.AppendLine("                {");
+        sb.AppendLine($"                    throw new ProviderException(ResponseStatus.BadRequest, \"Invalid format for input parameter '{argument.Name}'\");");
+        sb.AppendLine("                }");
+    }
+    
     private static void AppendStreamArgument(this StringBuilder sb, int index)
     {
         sb.AppendLine($"        var arg{index} = ArgumentProvider.GetStream(request);");
@@ -159,8 +176,6 @@ public static class CodeProviderArgumentExtensions
     {
         var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
 
-        // todo: optimizations
-
         if (argument.Type == typeof(IRequest))
         {
             sb.AppendLine($"        var arg{index} = request;");
@@ -189,8 +204,6 @@ public static class CodeProviderArgumentExtensions
         var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
         var safeName = CompilationUtil.GetSafeString(argument.Name);
         
-        // todo: reflection based
-        
         sb.AppendLine($"        {safeType}? arg{index} = ({safeType}?)await ArgumentProvider.GetBodyArgumentAsync(request, {safeName}, typeof({safeType}), registry);");
         sb.AppendLine();
     }
@@ -200,8 +213,6 @@ public static class CodeProviderArgumentExtensions
         var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
         
         var safeName = CompilationUtil.GetSafeString(argument.Name);
-        
-        // todo: reflection based
         
         sb.AppendLine($"        {safeType}? arg{index} = ({safeType}?)ArgumentProvider.GetPathArgument({safeName}, typeof({safeType}), pathArgs, registry);");
         sb.AppendLine();

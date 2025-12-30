@@ -1,17 +1,26 @@
-﻿using GenHTTP.Engine.Internal;
+﻿using GenHTTP.Api.Protocol;
+using GenHTTP.Engine.Internal;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Practices;
 using GenHTTP.Modules.Reflection;
 
-var handler = Content.From(Resource.FromString("Hello World!"));
+var handler = Handler.From((IRequest request) =>
+{
+    var i = int.Parse(request.Target.Current?.Value ?? throw new InvalidOperationException());
 
-var withCodeGen = Inline.Create().Get(() => "Hello World!").ExecutionMode(ExecutionMode.Auto);
+    var j = int.Parse(request.Query["j"]);
 
-var withArgs = Inline.Create().Get((string x) => x).ExecutionMode(ExecutionMode.Auto);
+    return request.Respond()
+                  .Content((i + j).ToString())
+                  .Type(ContentType.TextPlain)
+                  .Build();
+});
 
-var withReflection = Inline.Create().Get(() => "Hello World!").ExecutionMode(ExecutionMode.Reflection);
+var withCodeGen = Inline.Create().Get(":i", (int i, int j) => i + j).ExecutionMode(ExecutionMode.Auto);
+
+var withReflection = Inline.Create().Get(":i", (int i, int j) => i + j).ExecutionMode(ExecutionMode.Reflection);
 
 
 var test = Inline.Create()
@@ -19,14 +28,10 @@ var test = Inline.Create()
                  .ExecutionMode(ExecutionMode.Auto);
 
 var app = Layout.Create()
-                // .Add("handler", handler)
-                // .Add("codegen", withCodeGen)
-                // .Add("args", withArgs)
-                // .Add("reflection", withReflection)
-                .Add("test", test);
+                 .Add("handler", handler)
+                 .Add("codegen", withCodeGen)
+                 .Add("reflection", withReflection);
 
 await Host.Create()
           .Handler(app)
-          .Defaults()
-          .Console()
           .RunAsync(); // or StartAsync() for non-blocking

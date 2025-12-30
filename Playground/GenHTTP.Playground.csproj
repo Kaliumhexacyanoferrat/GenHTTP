@@ -46,6 +46,7 @@
         <ProjectReference Include="..\Modules\Webservices\GenHTTP.Modules.Webservices.csproj"/>
         <ProjectReference Include="..\Modules\Websockets\GenHTTP.Modules.Websockets.csproj"/>
         <ProjectReference Include="..\Modules\I18n\GenHTTP.Modules.I18n.csproj" />
+        <ProjectReference Include="..\Testing\Acceptance\GenHTTP.Testing.Acceptance.csproj" />
 
     </ItemGroup>
 
