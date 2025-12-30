@@ -21,15 +21,15 @@ var withCodeGen = Inline.Create().Get(":i", (int i, int j) => i + j).ExecutionMo
 
 var withReflection = Inline.Create().Get(":i", (int i, int j) => i + j).ExecutionMode(ExecutionMode.Reflection);
 
-
 var test = Inline.Create()
-                 .Get(() => Task.CompletedTask)
+                 .Get(() => 42)
                  .ExecutionMode(ExecutionMode.Auto);
 
 var app = Layout.Create()
                  .Add("handler", handler)
                  .Add("codegen", withCodeGen)
-                 .Add("reflection", withReflection);
+                 .Add("reflection", withReflection)
+                 .Add("test", test);
 
 await Host.Create()
           .Handler(app)

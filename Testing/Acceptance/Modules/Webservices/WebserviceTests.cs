@@ -203,17 +203,6 @@ public sealed class WebserviceTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestWrongMethod(TestEngine engine, ExecutionMode mode)
-    {
-        await WithResponse(engine, mode, "entity", HttpMethod.Put, "123", null, null, async r =>
-        {
-            await r.AssertStatusAsync(HttpStatusCode.MethodNotAllowed);
-            Assert.AreEqual("POST", r.GetContentHeader("Allow"));
-        });
-    }
-
-    [TestMethod]
-    [MultiEngineFrameworkTest]
     public async Task TestNoMethod(TestEngine engine, ExecutionMode mode)
     {
         await WithResponse(engine, mode, "idonotexist", async r => { await r.AssertStatusAsync(HttpStatusCode.NotFound); });

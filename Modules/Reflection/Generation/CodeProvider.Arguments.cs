@@ -12,9 +12,6 @@ public static class CodeProviderArgumentExtensions
     {
         if (operation.Arguments.Count > 0)
         {
-            sb.AppendLine("        var pathArgs = ArgumentProvider.MatchPath(operation, request);");
-            sb.AppendLine();
-            
             var hasQueryArgs = operation.Arguments.Any(a => a.Value.Source == OperationArgumentSource.Query);
 
             var mayHasBody = operation.Configuration.SupportedMethods.Any(m => m != RequestMethod.Get && m != RequestMethod.Head);
@@ -214,7 +211,7 @@ public static class CodeProviderArgumentExtensions
         
         var safeName = CompilationUtil.GetSafeString(argument.Name);
         
-        sb.AppendLine($"        {safeType}? arg{index} = ({safeType}?)ArgumentProvider.GetPathArgument({safeName}, typeof({safeType}), pathArgs, registry);");
+        sb.AppendLine($"        {safeType}? arg{index} = ({safeType}?)ArgumentProvider.GetPathArgument({safeName}, typeof({safeType}), routingMatch, registry);");
         sb.AppendLine();
     }
 

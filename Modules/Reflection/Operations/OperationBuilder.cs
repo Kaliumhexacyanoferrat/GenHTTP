@@ -10,9 +10,9 @@ namespace GenHTTP.Modules.Reflection.Operations;
 
 public static class OperationBuilder
 {
-    private static readonly OperationRoute IndexRoute = new("/", [new ClosingSegment(true, false)], false);
+    private static readonly OperationRoute IndexRoute = new("/", [new ClosingSegment(false, false)], false);
 
-    private static readonly OperationRoute WildcardIndexRoute = new("/", [new ClosingSegment(true, true)], true);
+    private static readonly OperationRoute WildcardIndexRoute = new("/", [new ClosingSegment(false, true)], true);
 
     #region Functionality
 
@@ -31,8 +31,6 @@ public static class OperationBuilder
         var isWildcard = CheckWildcardRoute(method.ReturnType);
 
         OperationRoute route;
-
-        var pathArguments = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         if (string.IsNullOrWhiteSpace(definition))
         {
@@ -54,7 +52,7 @@ public static class OperationBuilder
                 {
                     segments.Add(new SimpleVariableSegment(part[1..]));
                 }
-                if (part.Contains("?<") || colonCount > 0)
+                else if (part.Contains("?<") || colonCount > 0)
                 {
                     segments.Add(new RegexSegment(part));
                 }
@@ -69,6 +67,16 @@ public static class OperationBuilder
             var displayName = GetDisplayName(definition, forceTrailingSlash);
 
             route = new OperationRoute(displayName, segments, isWildcard);
+        }
+        
+        var pathArguments = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var segment in route.Segments)
+        {
+            foreach (var pathArg in segment.ProvidedArguments)
+            {
+                pathArguments.Add(pathArg);
+            }
         }
 
         var arguments = SignatureAnalyzer.GetArguments(request, method, pathArguments, registry);
@@ -102,7 +110,7 @@ public static class OperationBuilder
 
     private static string GetDisplayName(string definition, bool forceTrailingSlash)
     {
-        var nameBuilder = new StringBuilder(WithPrefix(definition));
+        var nameBuilder = new StringBuilder(Normalize(definition));
 
         ReplaceMatches(nameBuilder, definition, ":([A-Za-z0-9]+)"); // :var
 
@@ -111,6 +119,11 @@ public static class OperationBuilder
         if (forceTrailingSlash || definition.EndsWith('/'))
         {
             nameBuilder.Append('/');
+        }
+
+        if (nameBuilder.Length > 1)
+        {
+            nameBuilder.Insert(0, '/');
         }
 
         return nameBuilder.ToString();
@@ -146,19 +159,6 @@ public static class OperationBuilder
         }
 
         return definition.Substring(trimStart, definition.Length - trimStart - trimEnd);
-    }
-
-    private static string WithPrefix(string path)
-    {
-        if (path.Length > 0)
-        {
-            if (path[0] != '/')
-            {
-                return $"{path}";
-            }
-        }
-
-        return path;
     }
 
     private static bool IsValidVariable(ReadOnlySpan<char> value)

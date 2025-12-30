@@ -27,6 +27,7 @@ public static class CodeProvider
         sb.AppendLine("using GenHTTP.Modules.Conversion.Serializers.Forms;");
         sb.AppendLine("using GenHTTP.Modules.Reflection;");
         sb.AppendLine("using GenHTTP.Modules.Reflection.Operations;");
+        sb.AppendLine("using GenHTTP.Modules.Reflection.Routing;");
         sb.AppendLine("using GenHTTP.Modules.IO;");
         sb.AppendLine();
 
@@ -35,11 +36,11 @@ public static class CodeProvider
 
         if (operation.Delegate != null)
         {
-            sb.AppendLine($"    public static {(isAsync ? "async" : string.Empty)} ValueTask<IResponse?> Invoke(Delegate logic, Operation operation, IRequest request, IHandler handler, MethodRegistry registry, RequestInterception interception)");
+            sb.AppendLine($"    public static {(isAsync ? "async" : string.Empty)} ValueTask<IResponse?> Invoke(Delegate logic, Operation operation, IRequest request, IHandler handler, MethodRegistry registry, RoutingMatch routingMatch, RequestInterception interception)");
         }
         else
         {
-            sb.AppendLine($"    public static {(isAsync ? "async" : string.Empty)} ValueTask<IResponse?> Invoke(object instance, Operation operation, IRequest request, IHandler handler, MethodRegistry registry, RequestInterception interception)");
+            sb.AppendLine($"    public static {(isAsync ? "async" : string.Empty)} ValueTask<IResponse?> Invoke(object instance, Operation operation, IRequest request, IHandler handler, MethodRegistry registry, RoutingMatch routingMatch, RequestInterception interception)");
         }
 
         sb.AppendLine("    {");

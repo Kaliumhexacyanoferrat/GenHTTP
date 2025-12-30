@@ -29,7 +29,7 @@ public sealed class MethodCollection : IHandler
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        bool foundOthers = false;
+        var foundOthers = false;
         
         (MethodHandler, RoutingMatch)? directMatch = null;
         (MethodHandler, RoutingMatch)? wildcardMatch = null;

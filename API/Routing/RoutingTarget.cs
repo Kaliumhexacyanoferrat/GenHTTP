@@ -76,7 +76,7 @@ public sealed class RoutingTarget
 
         var newIndex = _index + byOffset;
 
-        if (newIndex >= Path.Parts.Count)
+        if (newIndex > Path.Parts.Count)
         {
             throw new IndexOutOfRangeException($"Cannot advance {byOffset} segments from position {_index} with {Path.Parts.Count} segments in total");
         }

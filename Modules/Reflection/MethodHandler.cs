@@ -106,7 +106,7 @@ public sealed class MethodHandler : IHandler
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        if (request.Properties.TryGet(MatchProperty, out RoutingMatch? match))
+        if (!request.Properties.TryGet(MatchProperty, out RoutingMatch? match))
         {
             throw new InvalidOperationException("Unable to fetch routing match from request context");
         }
