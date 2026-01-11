@@ -4,22 +4,22 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace GenHTTP.Modules.DependencyInjection.Infrastructure;
 
-public static class InstanceProvider
+internal static class HandlerResolver
 {
 
-    public static ValueTask<T> ProvideAsync<T>(IRequest request) where T : class
+    internal static T Obtain<T>(IRequest request)
     {
         var scope = request.GetServiceScope();
 
         var instance = scope.ServiceProvider.GetService(typeof(T))
             ?? ActivatorUtilities.CreateInstance<T>(scope.ServiceProvider);
 
-        if (instance == null)
+        if (instance is T typed)
         {
-            throw new InvalidOperationException($"Unable to resolve or construct instance of type '{typeof(T)}'");
+            return typed;
         }
 
-        return ValueTask.FromResult((T)instance);
+        throw new InvalidOperationException($"Unable to retrieve handler of type '{typeof(T)}' from service scope.");
     }
 
 }
