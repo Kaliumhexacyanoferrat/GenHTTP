@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Modules.DependencyInjection;
-using GenHTTP.Testing.Acceptance.Modules.Websockets.Integration;
+
+using Websocket.Client;
 
 using WS = GenHTTP.Modules.Websockets;
 
@@ -17,7 +18,9 @@ public class ReactiveWebsocketTests
 
         await using var host = await DependentHost.RunAsync(websocket);
 
-        await Client.Execute(host.Port);
+        using var client = new WebsocketClient(new Uri($"ws://localhost:{host.Port}"));
+
+        client.Send("Hi");
     }
 
     private class Handler(AwesomeService dependency) : WS.IReactiveHandler

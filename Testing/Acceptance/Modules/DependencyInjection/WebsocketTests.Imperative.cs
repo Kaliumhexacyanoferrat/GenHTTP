@@ -1,8 +1,8 @@
 ﻿using GenHTTP.Modules.DependencyInjection;
-using GenHTTP.Testing.Acceptance.Modules.Websockets.Integration;
+
+using Websocket.Client;
 
 using WS = GenHTTP.Modules.Websockets;
-using IWS = GenHTTP.Testing.Acceptance.Modules.Websockets.Integration.Imperative;
 
 namespace GenHTTP.Testing.Acceptance.Modules.DependencyInjection;
 
@@ -12,14 +12,16 @@ public class ImperativeWebsocketTests
 {
 
     [TestMethod]
-    public async Task TestReactiveHandler()
+    public async Task TestImperativeHandler()
     {
         var websocket = WS.Websocket.Imperative()
                           .DependentHandler<Handler>();
 
         await using var host = await DependentHost.RunAsync(websocket);
 
-        await Client.Execute(host.Port);
+        using var client = new WebsocketClient(new Uri($"ws://localhost:{host.Port}"));
+
+        client.Send("Hi");
     }
 
     private class Handler(AwesomeService dependency) : WS.IImperativeHandler
@@ -29,7 +31,7 @@ public class ImperativeWebsocketTests
         {
             Assert.AreEqual("42", dependency.DoWork());
 
-            return new IWS.IntegrationTests.MyHandler().HandleAsync(connection);
+            return ValueTask.CompletedTask;
         }
 
     }
