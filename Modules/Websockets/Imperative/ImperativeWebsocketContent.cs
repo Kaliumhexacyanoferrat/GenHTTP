@@ -4,7 +4,7 @@ using GenHTTP.Modules.Websockets.Provider;
 
 namespace GenHTTP.Modules.Websockets.Imperative;
 
-public sealed class ImperativeWebsocketContent(Func<IRequest, IImperativeHandler> handlerFactory, IRequest request, ConnectionSettings settings) : IResponseContent
+public sealed class ImperativeWebsocketContent(IImperativeHandler handler, IRequest request, ConnectionSettings settings) : IResponseContent
 {
 
     public ulong? Length => null;
@@ -17,7 +17,7 @@ public sealed class ImperativeWebsocketContent(Func<IRequest, IImperativeHandler
 
         await using var connection = new WebsocketConnection(request, target, settings);
 
-        await handlerFactory(request).HandleAsync(connection);
+        await handler.HandleAsync(connection);
     }
 
 }

@@ -1,5 +1,7 @@
 ﻿using GenHTTP.Api.Protocol;
 
+using Microsoft.Extensions.DependencyInjection;
+
 namespace GenHTTP.Modules.DependencyInjection.Infrastructure;
 
 internal static class HandlerResolver
@@ -9,9 +11,10 @@ internal static class HandlerResolver
     {
         var scope = request.GetServiceScope();
 
-        var resolved = scope.ServiceProvider.GetService(typeof(T));
+        var instance = scope.ServiceProvider.GetService(typeof(T))
+            ?? ActivatorUtilities.CreateInstance<T>(scope.ServiceProvider);
 
-        if (resolved is T typed)
+        if (instance is T typed)
         {
             return typed;
         }

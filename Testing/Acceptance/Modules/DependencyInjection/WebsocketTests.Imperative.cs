@@ -21,7 +21,7 @@ public class ImperativeWebsocketTests
 
         using var client = new WebsocketClient(new Uri($"ws://localhost:{host.Port}"));
 
-        client.Send("Hi");
+        await client.StartOrFail();
     }
 
     private class Handler(AwesomeService dependency) : WS.IImperativeHandler

@@ -20,20 +20,17 @@ public class ReactiveWebsocketTests
 
         using var client = new WebsocketClient(new Uri($"ws://localhost:{host.Port}"));
 
-        client.Send("Hi");
+        await client.StartOrFail();
     }
 
     private class Handler(AwesomeService dependency) : WS.IReactiveHandler
     {
 
-        public async ValueTask OnConnected(WS.IReactiveConnection connection)
+        public ValueTask OnConnected(WS.IReactiveConnection connection)
         {
             Assert.AreEqual("42", dependency.DoWork());
-
-            await connection.PingAsync();
+            return ValueTask.CompletedTask;
         }
-
-        public async ValueTask OnMessage(WS.IReactiveConnection connection, WS.IWebsocketFrame message) => await connection.WriteAsync(message.Data);
 
     }
 

@@ -41,7 +41,7 @@ public class ImperativeWebsocketBuilder : WebsocketBuilder<ImperativeWebsocketBu
             throw new BuilderMissingPropertyException("HandlerFactory");
         }
 
-        var contentFactory = (IRequest r) => new ImperativeWebsocketContent(_handlerFactory, r, BuildSettings());
+        var contentFactory = (IRequest r) => new ImperativeWebsocketContent(_handlerFactory(r), r, BuildSettings());
 
         return Concerns.Chain(_concerns, new WebsocketHandler(contentFactory));
     }

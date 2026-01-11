@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Protocol;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GenHTTP.Modules.DependencyInjection.Infrastructure;
