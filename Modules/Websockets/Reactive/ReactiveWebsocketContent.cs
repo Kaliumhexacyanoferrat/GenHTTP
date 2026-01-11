@@ -1,10 +1,11 @@
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Websockets.Protocol;
 using GenHTTP.Modules.Websockets.Provider;
 
 namespace GenHTTP.Modules.Websockets.Reactive;
 
-public class ReactiveWebsocketContent(IReactiveHandler handler, IRequest request, ConnectionSettings settings) : IResponseContent
+public class ReactiveWebsocketContent(Func<IRequest, IReactiveHandler> handlerFactory, IRequest request, ConnectionSettings settings) : IResponseContent
 {
 
     public ulong? Length => null;
@@ -16,6 +17,8 @@ public class ReactiveWebsocketContent(IReactiveHandler handler, IRequest request
         await target.FlushAsync();
 
         await using var connection = new WebsocketConnection(request, target, settings);
+
+        var handler = handlerFactory(request);
 
         await handler.OnConnected(connection);
 
