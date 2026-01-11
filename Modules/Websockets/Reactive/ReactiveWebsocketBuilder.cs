@@ -8,28 +8,42 @@ namespace GenHTTP.Modules.Websockets.Reactive;
 
 public class ReactiveWebsocketBuilder : WebsocketBuilder<ReactiveWebsocketBuilder>
 {
-    private IReactiveHandler? _handler;
+    private Func<IRequest, IReactiveHandler>? _handlerFactory;
 
     /// <summary>
     /// Sets the handler to react to incoming message frames.
     /// </summary>
     /// <param name="handler">The handler to react to incoming message frames.</param>
     public ReactiveWebsocketBuilder Handler(IReactiveHandler handler)
+        => Handler((_) => handler);
+
+    /// <summary>
+    /// Sets the handler to react to incoming message frames (created per connection).
+    /// </summary>
+    /// <typeparam name="T">The type of handler to be used</typeparam>
+    public ReactiveWebsocketBuilder Handler<T>() where T : IReactiveHandler, new()
+        => Handler((_) => new T());
+
+    /// <summary>
+    /// Sets the handler factory to react to incoming message frames.
+    /// </summary>
+    /// <param name="handler">The handler factory to react to incoming message frames.</param>
+    public ReactiveWebsocketBuilder Handler(Func<IRequest, IReactiveHandler> handlerFactory)
     {
-        _handler = handler;
+        _handlerFactory = handlerFactory;
         return this;
     }
 
     public override IHandler Build()
     {
-        if (_handler == null)
+        if (_handlerFactory == null)
         {
-            throw new BuilderMissingPropertyException("Handler");
+            throw new BuilderMissingPropertyException("HandlerFactory");
         }
 
         return Concerns.Chain(_concerns, new WebsocketHandler(ContentFactory));
 
-        ReactiveWebsocketContent ContentFactory(IRequest r) => new(_handler, r, BuildSettings());
+        ReactiveWebsocketContent ContentFactory(IRequest r) => new(_handlerFactory(r), r, BuildSettings());
     }
 
 }
