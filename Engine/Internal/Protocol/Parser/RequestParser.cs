@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Internal.Protocol.Parser.Conversion;
 using GenHTTP.Engine.Shared.Infrastructure;
 
@@ -144,14 +145,14 @@ internal sealed class RequestParser
 
         if (contentLength != null && transferEncoding != null)
         {
-            throw new ProtocolException("Both 'Content-Lenght' and 'Transfer-Encoding' have been specified");
+            throw new ProtocolException("Both 'Content-Length' and 'Transfer-Encoding' have been specified");
         }
 
         if (contentLength != null)
         {
             if (headers.ContainsMultiple("Content-Length"))
             {
-                throw new ProtocolException("Multiple 'Content-Lenght' headers specified.");
+                throw new ProtocolException("Multiple 'Content-Length' headers specified.");
             }
 
             if (long.TryParse(contentLength, NumberStyles.None, CultureInfo.InvariantCulture, out var length))
@@ -162,14 +163,10 @@ internal sealed class RequestParser
 
                     Request.SetContent(await parser.GetBody(buffer));
                 }
-                else if (length < 0)
-                {
-                    throw new ProtocolException("Content-Length header must be a non-negative number.");
-                }
             }
             else
             {
-                throw new ProtocolException("Content-Length header is expected to be a numeric value");
+                throw new ProtocolException("Unable to parse the given 'Content-Length' header");
             }
         }
         else if (transferEncoding != null)

@@ -180,7 +180,7 @@ internal sealed class Request : IRequest
         }
         else
         {
-            _headers[key] = value;
+            _headers.Add(key, value);
         }
     }
 
