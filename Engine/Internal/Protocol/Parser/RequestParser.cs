@@ -150,7 +150,7 @@ internal sealed class RequestParser
 
         if (contentLength != null)
         {
-            if (headers.ContainsMultiple("Content-Length"))
+            if (Request.ContainsMultipleHeaders("Content-Length"))
             {
                 throw new ProtocolException("Multiple 'Content-Length' headers specified.");
             }
@@ -171,7 +171,7 @@ internal sealed class RequestParser
         }
         else if (transferEncoding != null)
         {
-            if (headers.ContainsMultiple("Transfer-Encoding"))
+            if (Request.ContainsMultipleHeaders("Transfer-Encoding"))
             {
                 throw new ProtocolException("Multiple 'Transfer-Encoding' headers specified.");
             }
