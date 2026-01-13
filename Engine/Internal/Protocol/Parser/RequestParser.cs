@@ -154,7 +154,7 @@ internal sealed class RequestParser
                 throw new ProtocolException("Multiple 'Content-Lenght' headers specified.");
             }
 
-            if (!long.TryParse(contentLength, NumberStyles.None, CultureInfo.InvariantCulture, out var length))
+            if (long.TryParse(contentLength, NumberStyles.None, CultureInfo.InvariantCulture, out var length))
             {
                 if (length > 0)
                 {
@@ -162,11 +162,7 @@ internal sealed class RequestParser
 
                     Request.SetContent(await parser.GetBody(buffer));
                 }
-                else if (length == 0)
-                {
-                    Request.SetContent(Stream.Null);
-                }
-                else
+                else if (length < 0)
                 {
                     throw new ProtocolException("Content-Length header must be a non-negative number.");
                 }
