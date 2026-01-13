@@ -3,4 +3,9 @@
 /// <summary>
 /// The headers of an <see cref="IRequest" /> or <see cref="IResponse" />.
 /// </summary>
-public interface IHeaderCollection : IReadOnlyDictionary<string, string>;
+public interface IHeaderCollection : IReadOnlyDictionary<string, string>
+{
+
+    bool ContainsMultiple(string key);
+
+}

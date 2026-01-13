@@ -182,6 +182,26 @@ public class MultiEntryDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IRe
 
     IEnumerator IEnumerable.GetEnumerator() => _entries.GetEnumerator();
 
+    public bool ContainsMultiple(TKey key)
+    {
+        var found = false;
+
+        for (var i = 0; i < _entries.Count; i++)
+        {
+            if (_comparer.Equals(_entries[i].Key, key))
+            {
+                if (found)
+                {
+                    return true;
+                }
+
+                found = true;
+            }
+        }
+
+        return false;
+    }
+
     #endregion
 
 }

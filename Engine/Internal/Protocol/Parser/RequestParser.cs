@@ -1,4 +1,5 @@
-﻿using GenHTTP.Engine.Internal.Protocol.Parser.Conversion;
+﻿using System.Globalization;
+using GenHTTP.Engine.Internal.Protocol.Parser.Conversion;
 using GenHTTP.Engine.Shared.Infrastructure;
 
 namespace GenHTTP.Engine.Internal.Protocol.Parser;
@@ -136,9 +137,24 @@ internal sealed class RequestParser
 
     private async ValueTask Body(RequestBuffer buffer)
     {
-        if (Request.Headers.TryGetValue("Content-Length", out var bodyLength))
+        var headers = Request.Headers;
+
+        var contentLength = headers.GetValueOrDefault("Content-Length");
+        var transferEncoding = headers.GetValueOrDefault("Transfer-Encoding");
+
+        if (contentLength != null && transferEncoding != null)
         {
-            if (long.TryParse(bodyLength, out var length))
+            throw new ProtocolException("Both 'Content-Lenght' and 'Transfer-Encoding' have been specified");
+        }
+
+        if (contentLength != null)
+        {
+            if (headers.ContainsMultiple("Content-Length"))
+            {
+                throw new ProtocolException("Multiple 'Content-Lenght' headers specified.");
+            }
+
+            if (!long.TryParse(contentLength, NumberStyles.None, CultureInfo.InvariantCulture, out var length))
             {
                 if (length > 0)
                 {
@@ -146,19 +162,36 @@ internal sealed class RequestParser
 
                     Request.SetContent(await parser.GetBody(buffer));
                 }
+                else if (length == 0)
+                {
+                    Request.SetContent(Stream.Null);
+                }
+                else
+                {
+                    throw new ProtocolException("Content-Length header must be a non-negative number.");
+                }
             }
             else
             {
                 throw new ProtocolException("Content-Length header is expected to be a numeric value");
             }
         }
-        else if (Request.Headers.TryGetValue("Transfer-Encoding", out var mode))
+        else if (transferEncoding != null)
         {
-            if (mode == "chunked")
+            if (headers.ContainsMultiple("Transfer-Encoding"))
+            {
+                throw new ProtocolException("Multiple 'Transfer-Encoding' headers specified.");
+            }
+
+            if (string.Compare(transferEncoding, "chunked", StringComparison.OrdinalIgnoreCase) == 0)
             {
                 var parser = new ChunkedContentParser(Configuration);
 
                 Request.SetContent(await parser.GetBody(buffer));
+            }
+            else
+            {
+                throw new ProtocolException("Only transfer encoding mode 'chunked' is allowed by this endpoint");
             }
         }
     }

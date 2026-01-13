@@ -46,6 +46,23 @@ public sealed class Headers : IHeaderCollection
         }
     }
 
+    public bool ContainsMultiple(string key)
+    {
+        if (Request == null) return false;
+
+        if (!Request.Headers.TryGetValue(key, out var values))
+        {
+            return false;
+        }
+
+        if (values.Count > 0)
+        {
+            return values.Count > 1 || values.First()!.Contains(',');
+        }
+
+        return false;
+    }
+
     private HttpRequest? Request { get; set; }
 
     #endregion

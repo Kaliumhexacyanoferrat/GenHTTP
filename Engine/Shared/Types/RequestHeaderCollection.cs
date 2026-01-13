@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Engine.Shared.Types;
 
-public sealed class RequestHeaderCollection : Dictionary<string, string>, IHeaderCollection, IEditableHeaderCollection
+public sealed class RequestHeaderCollection : MultiEntryDictionary<string, string>, IHeaderCollection, IEditableHeaderCollection
 {
     private const int DefaultSize = 12;
 
