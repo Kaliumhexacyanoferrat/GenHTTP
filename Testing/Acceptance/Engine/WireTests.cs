@@ -68,7 +68,7 @@ public class WireTests : WireTest
     [TestMethod]
     public async Task TestContentLengthNotNumeric()
     {
-        await TestAsync("GET / HTTP/1.0\r\nContent-Length: ABC\r\n", "Content-Length header is expected to be a numeric value");
+        await TestAsync("GET / HTTP/1.0\r\nContent-Length: ABC\r\n", "Unable to parse the given 'Content-Length' header");
     }
 
     [TestMethod]
