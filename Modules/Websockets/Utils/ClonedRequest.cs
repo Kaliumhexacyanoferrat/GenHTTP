@@ -10,9 +10,9 @@ namespace GenHTTP.Modules.Websockets.Utils;
 
 public class ClonedRequest : IRequest
 {
-    
+
     #region Get-/Setters
-    
+
     public IServer Server { get; }
 
     public IEndPoint EndPoint { get; }
@@ -46,11 +46,11 @@ public class ClonedRequest : IRequest
     public Stream? Content => null;
 
     public FlexibleContentType? ContentType { get; }
-    
+
     public IRequestProperties Properties { get; }
-    
+
     #endregion
-    
+
     #region Initialization
 
     public static ClonedRequest From(IRequest request)
@@ -60,9 +60,9 @@ public class ClonedRequest : IRequest
         var headers = new HeaderCollection(request.Headers);
         var forwardings = new ForwardingCollection(request.Forwardings);
         var properties = new RequestProperties(request.Properties);
-        
+
         return new ClonedRequest(request.Server, request.EndPoint, request.Client, request.LocalClient,
-            request.ProtocolType, request.Method, request.Target, query, cookies, forwardings, headers, 
+            request.ProtocolType, request.Method, request.Target, query, cookies, forwardings, headers,
             request.ContentType, properties);
     }
 
@@ -85,20 +85,20 @@ public class ClonedRequest : IRequest
         Headers = headers;
         ContentType = contentType;
     }
-    
+
     #endregion
 
     #region Functionality
-    
+
     public IResponseBuilder Respond() => throw new NotSupportedException();
 
     public UpgradeInfo Upgrade() => throw new NotSupportedException();
-    
+
     public void Dispose()
     {
         // nop
     }
-    
+
     #endregion
 
 }
@@ -113,12 +113,12 @@ internal class RequestQuery : Dictionary<string, string>, IRequestQuery
             Add(pair.Key, pair.Value);
         }
     }
-    
+
 }
 
 internal class CookieCollection : Dictionary<string, Cookie>, ICookieCollection
 {
-    
+
     internal CookieCollection(ICookieCollection cookies)
     {
         foreach (var pair in cookies)
@@ -126,26 +126,26 @@ internal class CookieCollection : Dictionary<string, Cookie>, ICookieCollection
             Add(pair.Key, pair.Value);
         }
     }
-    
+
 }
 
 
-internal class HeaderCollection : Dictionary<string, string>, IHeaderCollection
+internal class HeaderCollection : Shared.MultiEntryDictionary<string, string>, IHeaderCollection
 {
-    
-    internal HeaderCollection(IHeaderCollection header)
+
+    internal HeaderCollection(IHeaderCollection header) : base(header.Count, StringComparer.InvariantCultureIgnoreCase)
     {
         foreach (var pair in header)
         {
-            Add(pair.Key, pair.Value);
+            base.Add(pair.Key, pair.Value);
         }
     }
-    
+
 }
 
 internal class ForwardingCollection : List<Forwarding>, IForwardingCollection
 {
-    
+
     internal ForwardingCollection(IForwardingCollection forwardings)
     {
         foreach (var forwarding in forwardings)
@@ -153,7 +153,7 @@ internal class ForwardingCollection : List<Forwarding>, IForwardingCollection
             Add(forwarding);
         }
     }
-    
+
 }
 
 internal class RequestProperties : IRequestProperties
@@ -163,13 +163,13 @@ internal class RequestProperties : IRequestProperties
     internal RequestProperties(IRequestProperties source)
     {
         _data = [];
-            
+
         if (source is Shared.RequestProperties cloneable)
         {
             cloneable.CloneTo(_data);
         }
     }
-    
+
     public object this[string key]
     {
         get => _data[key] ?? throw new KeyNotFoundException(key);
@@ -186,7 +186,7 @@ internal class RequestProperties : IRequestProperties
                 return true;
             }
         }
-        
+
         entry = default;
         return false;
     }
@@ -195,5 +195,5 @@ internal class RequestProperties : IRequestProperties
     {
         _data.Remove(key);
     }
-    
+
 }

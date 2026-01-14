@@ -6,9 +6,8 @@ using GenHTTP.Modules.Layouting;
 namespace GenHTTP.Testing.Acceptance.Engine;
 
 [TestClass]
-public sealed class WireTests
+public class WireTests : WireTest
 {
-    private const string NL = "\r\n";
 
     #region Tests
 
@@ -69,7 +68,7 @@ public sealed class WireTests
     [TestMethod]
     public async Task TestContentLengthNotNumeric()
     {
-        await TestAsync("GET / HTTP/1.0\r\nContent-Length: ABC\r\n", "Content-Length header is expected to be a numeric value");
+        await TestAsync("GET / HTTP/1.0\r\nContent-Length: ABC\r\n", "Unable to parse the given 'Content-Length' header");
     }
 
     [TestMethod]
@@ -129,43 +128,6 @@ public sealed class WireTests
 
         AssertX.Contains("400 Bad Request", result);
         AssertX.Contains("HTTP protocol version expected", result);
-    }
-
-    #endregion
-
-    #region Helpers
-
-    private static async ValueTask TestAsync(string request, string assertion)
-    {
-        await using var host = await TestHost.RunAsync(Layout.Create());
-
-        var result = await SendAsync(host, w =>
-        {
-            w.Write(request);
-            w.Write(NL);
-        });
-
-        AssertX.Contains(assertion, result);
-    }
-
-    private static async ValueTask<string> SendAsync(TestHost host, Action<StreamWriter> sender)
-    {
-        using var client = new TcpClient("127.0.0.1", host.Port)
-        {
-            ReceiveTimeout = 1000
-        };
-
-        var stream = client.GetStream();
-
-        await using var writer = new StreamWriter(stream, leaveOpen: true);
-
-        sender(writer);
-
-        await writer.FlushAsync();
-
-        using var reader = new StreamReader(stream, leaveOpen: true);
-
-        return await reader.ReadToEndAsync();
     }
 
     #endregion

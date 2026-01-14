@@ -140,6 +140,8 @@ internal sealed class Request : IRequest
         return new(_socket, _stream, new Response { Connection = Connection.UpgradeAndSurrender});
     }
 
+    public bool ContainsMultipleHeaders(string key) => _headers.ContainsMultiple(key);
+    
     #endregion
 
     #region Parsing
@@ -180,7 +182,7 @@ internal sealed class Request : IRequest
         }
         else
         {
-            _headers[key] = value;
+            _headers.Add(key, value);
         }
     }
 
