@@ -87,25 +87,15 @@ public static class CodeProviderArgumentExtensions
         sb.AppendLine();
 
         sb.AppendLine($"        if (request.Query.TryGetValue({CompilationUtil.GetSafeString(argument.Name)}, out var queryArg{index}))");
-        sb.AppendLine("        {");
-        sb.AppendLine($"            if (!string.IsNullOrEmpty(queryArg{index}))");
-        sb.AppendLine("            {");
         sb.AppendArgumentAssignment(argument, index, "query");
-        sb.AppendLine("            }");
-        sb.AppendLine("        }");
 
         if (supportBodyArguments)
         {
             sb.AppendLine($"        else if (bodyArgs?.TryGetValue({CompilationUtil.GetSafeString(argument.Name)}, out var bodyArg{index}) == true)");
-            sb.AppendLine("        {");
-            sb.AppendLine($"            if (!string.IsNullOrEmpty(bodyArg{index}))");
-            sb.AppendLine("            {");
             sb.AppendArgumentAssignment(argument, index, "body");
-            sb.AppendLine("            }");
-            sb.AppendLine("        }");
         }
     }
-    
+
     private static void AppendStreamArgument(this StringBuilder sb, int index)
     {
         sb.AppendLine($"        var arg{index} = ArgumentProvider.GetStream(request);");
@@ -164,7 +154,7 @@ public static class CodeProviderArgumentExtensions
     {
         var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
         var safeName = CompilationUtil.GetSafeString(argument.Name);
-        
+
         sb.AppendLine($"        {safeType}? arg{index} = ({safeType}?)await ArgumentProvider.GetBodyArgumentAsync(request, {safeName}, typeof({safeType}), registry);");
         sb.AppendLine();
     }
@@ -172,21 +162,20 @@ public static class CodeProviderArgumentExtensions
     private static void AppendPathArgument(this StringBuilder sb, OperationArgument argument, int index)
     {
         var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
-        
+
         sb.AppendLine($"        {safeType}? arg{index} = null;");
         sb.AppendLine();
 
         sb.AppendLine($"        if (routingMatch.PathArguments?.TryGetValue({CompilationUtil.GetSafeString(argument.Name)}, out var pathArg{index}) ?? false)");
-        sb.AppendLine("        {");
-        sb.AppendLine($"            if (!string.IsNullOrEmpty(pathArg{index}))");
-        sb.AppendLine("            {");
         sb.AppendArgumentAssignment(argument, index, "path");
-        sb.AppendLine("            }");
-        sb.AppendLine("        }");
     }
 
     private static void AppendArgumentAssignment(this StringBuilder sb, OperationArgument argument, int index, string readFrom)
     {
+        sb.AppendLine("        {");
+        sb.AppendLine($"            if (!string.IsNullOrEmpty({readFrom}Arg{index}))");
+        sb.AppendLine("            {");
+
         var sourceName = $"{readFrom}Arg{index}";
 
         var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
@@ -207,6 +196,9 @@ public static class CodeProviderArgumentExtensions
         {
             sb.AppendLine($"                arg{index} = ({safeType}?)registry.Formatting.Read({sourceName}, typeof({safeType}));");
         }
+
+        sb.AppendLine("            }");
+        sb.AppendLine("        }");
     }
 
     private static void AppendTryParse(this StringBuilder sb, OperationArgument argument, string condition, string sourceName, int index)
@@ -220,5 +212,5 @@ public static class CodeProviderArgumentExtensions
         sb.AppendLine($"                    throw new ProviderException(ResponseStatus.BadRequest, \"Invalid format for input parameter '{argument.Name}'\");");
         sb.AppendLine("                }");
     }
-    
+
 }
