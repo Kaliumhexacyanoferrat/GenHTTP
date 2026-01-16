@@ -62,6 +62,8 @@ internal sealed class RequestParser
 
         await Body(buffer);
 
+        RequestSecurity.Validate(Request);
+
         return true;
     }
 
