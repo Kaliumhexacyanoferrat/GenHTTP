@@ -85,12 +85,16 @@ internal sealed class ChunkedContentParser
         {
             var hexString = ValueConverter.GetString(lengthInHex);
 
-            var length = long.Parse(hexString, NumberStyles.HexNumber);
+            if (long.TryParse(hexString, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var length))
+            {
+                buffer.Advance(lengthInHex.Length + 2);
 
-            buffer.Advance(lengthInHex.Length + 2);
+                return length;
+            }
 
-            return length;
+            throw new ProtocolException("Invalid chunk size format");
         }
+
         throw new ProtocolException("Chunk size expected");
     }
 
