@@ -21,7 +21,7 @@
 
         <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.1" />
 
-        <PackageReference Include="System.IO.Pipelines" Version="10.0.1" />
+        <PackageReference Include="System.IO.Pipelines" Version="10.0.2" />
 
     </ItemGroup>
 
