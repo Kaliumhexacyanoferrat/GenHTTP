@@ -14,6 +14,16 @@ internal static class RequestSecurity
         {
             throw new ProtocolException("Multiple 'Host' headers specified");
         }
+
+        var target = request.Target.Path.Parts;
+
+        for (var i = 0; i < target.Count; i++)
+        {
+            if (target[i].Value == "." || target[i].Value == "..")
+            {
+                throw new ProtocolException("Segments '.' or '..' are now allowed in path");
+            }
+        }
     }
 
 }
