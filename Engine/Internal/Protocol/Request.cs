@@ -141,7 +141,7 @@ internal sealed class Request : IRequest
     }
 
     public bool ContainsMultipleHeaders(string key) => _headers.ContainsMultiple(key);
-    
+
     #endregion
 
     #region Parsing
@@ -155,17 +155,12 @@ internal sealed class Request : IRequest
 
         var protocol = _endPoint.Secure ? ClientProtocol.Https : ClientProtocol.Http;
 
-        if (!Headers.TryGetValue("Host", out var host))
-        {
-            throw new ProtocolException("Mandatory 'Host' header is missing from the request");
-        }
-
         if (_forwardings.Count == 0)
         {
             _forwardings.TryAddLegacy(Headers);
         }
 
-        _localClient = new ClientConnection(address, protocol, host, clientCertificate);
+        _localClient = new ClientConnection(address, protocol, Headers["Host"], clientCertificate);
 
         _clientConnection = _forwardings.DetermineClient(clientCertificate) ?? _localClient;
     }
