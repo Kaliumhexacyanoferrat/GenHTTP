@@ -58,20 +58,7 @@ public sealed class FileResource : IResource
 
     public ValueTask<Stream> GetContentAsync() => new(File.OpenRead());
 
-    public ValueTask<ulong> CalculateChecksumAsync()
-    {
-        unchecked
-        {
-            ulong hash = 17;
-
-            var length = Length;
-
-            hash = hash * 23 + (ulong)Modified.GetHashCode();
-            hash = hash * 23 + (length ?? 0);
-
-            return new ValueTask<ulong>(hash);
-        }
-    }
+    public ValueTask<ulong> CalculateChecksumAsync() => new(Checksum.Calculate(this));
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {

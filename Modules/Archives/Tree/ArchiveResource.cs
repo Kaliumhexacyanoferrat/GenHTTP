@@ -7,7 +7,7 @@ using SharpCompress.Common;
 
 namespace GenHTTP.Modules.Archives.Tree;
 
-public class ArchiveResource : IResource
+internal sealed class ArchiveResource : IResource
 {
     private readonly IResource _archive;
 
@@ -23,7 +23,7 @@ public class ArchiveResource : IResource
 
     public ulong? Length { get; }
 
-    public ArchiveResource(IResource archive, IEntry entry, string name, Func<Stream, string, ValueTask<ArchiveHandle>> handleFactory)
+    internal ArchiveResource(IResource archive, IEntry entry, string name, Func<Stream, string, ValueTask<ArchiveHandle>> handleFactory)
     {
         _archive = archive;
         _handleFactory = handleFactory;
@@ -47,7 +47,7 @@ public class ArchiveResource : IResource
         }
     }
 
-    public ValueTask<ulong> CalculateChecksumAsync() => throw new NotImplementedException();
+    public ValueTask<ulong> CalculateChecksumAsync() => new(Checksum.Calculate(this));
 
     public async ValueTask<Stream> GetContentAsync()
     {

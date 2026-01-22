@@ -24,7 +24,7 @@ public sealed class ArchiveNode(string? nodeName, IResourceContainer? parent) : 
 
     public ValueTask<IReadOnlyCollection<IResource>> GetResources() => ValueTask.FromResult<IReadOnlyCollection<IResource>>(_resources.Values);
 
-    public ArchiveNode GetOrCreate(string child)
+    internal ArchiveNode GetOrCreate(string child)
     {
         if (_children.TryGetValue(child, out var found))
         {
@@ -38,21 +38,12 @@ public sealed class ArchiveNode(string? nodeName, IResourceContainer? parent) : 
         return created;
     }
 
-    public ArchiveResource AddFile(string name, IEntry entry, IResource archive, Func<Stream, string, ValueTask<ArchiveHandle>> handleFactory)
+    internal void AddFile(string name, IEntry entry, IResource archive, Func<Stream, string, ValueTask<ArchiveHandle>> handleFactory)
     {
-        if (_resources.TryGetValue(name, out var found))
-        {
-            return found;
-        }
-
-        var created = new ArchiveResource(archive, entry, name, handleFactory);
-
-        _resources.Add(name, created);
-
-        return created;
+        _resources.Add(name, new ArchiveResource(archive, entry, name, handleFactory));
     }
 
-    public void Adapt(IEntry entry)
+    internal void Adapt(IEntry entry)
     {
         Modified = entry.LastModifiedTime;
     }
