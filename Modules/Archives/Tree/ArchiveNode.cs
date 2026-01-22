@@ -10,11 +10,17 @@ public sealed class ArchiveNode(string? nodeName, IResourceContainer? parent) : 
 
     private readonly Dictionary<string, ArchiveResource> _resources = new(StringComparer.OrdinalIgnoreCase);
 
+    #region Get-/Setters
+
     public string Name => nodeName ?? throw new InvalidOperationException("Root node does not have a name");
 
     public IResourceContainer Parent => parent ?? throw new InvalidOperationException("Root node does not have a parent node");
 
     public DateTime? Modified { get; private set; }
+
+    #endregion
+
+    #region Functionality
 
     public ValueTask<IResourceNode?> TryGetNodeAsync(string name) => _children.TryGetValue(name, out var node) ? new(node) : ValueTask.FromResult<IResourceNode?>(null);
 
@@ -47,5 +53,7 @@ public sealed class ArchiveNode(string? nodeName, IResourceContainer? parent) : 
     {
         Modified = entry.LastModifiedTime;
     }
+
+    #endregion
 
 }

@@ -79,11 +79,6 @@ public class FunctionalTests
         await file.CalculateChecksumAsync();
 
         Assert.AreEqual((ulong)1, file.Length);
-
-        await Assert.ThrowsExactlyAsync<NotSupportedException>(async () =>
-        {
-            await file.WriteAsync(new MemoryStream(), 4096);
-        });
     }
 
     #endregion

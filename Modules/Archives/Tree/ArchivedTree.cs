@@ -8,6 +8,11 @@ using SharpCompress.Readers;
 
 namespace GenHTTP.Modules.Archives.Tree;
 
+/// <summary>
+/// A tree implementation that expands the given archive into a fully
+/// browsable tree instance.
+/// </summary>
+/// <param name="source">The resource granting access to the archive</param>
 public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
 {
     private readonly SemaphoreSlim _updateLock = new(1, 1);

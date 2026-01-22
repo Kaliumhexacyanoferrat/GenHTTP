@@ -3,6 +3,8 @@
 internal sealed class ArchiveEntryStream(ArchiveHandle handle) : Stream
 {
 
+    #region Get-/Setters
+
     public override bool CanRead => handle.Content.CanRead;
 
     public override bool CanSeek => handle.Content.CanSeek;
@@ -16,6 +18,10 @@ internal sealed class ArchiveEntryStream(ArchiveHandle handle) : Stream
         get => handle.Content.Position;
         set => handle.Content.Position = value;
     }
+
+    #endregion
+
+    #region Functionality
 
     public override void Flush() => handle.Content.Flush();
 
@@ -37,5 +43,7 @@ internal sealed class ArchiveEntryStream(ArchiveHandle handle) : Stream
 
         base.Dispose(disposing);
     }
+
+    #endregion
 
 }

@@ -15,6 +15,8 @@ internal sealed class ArchiveResource : IResource
 
     private readonly string _key;
 
+    #region Get-/Setters
+
     public string? Name { get; }
 
     public DateTime? Modified { get; }
@@ -22,6 +24,10 @@ internal sealed class ArchiveResource : IResource
     public FlexibleContentType? ContentType { get; }
 
     public ulong? Length { get; }
+
+    #endregion
+
+    #region Initialization
 
     internal ArchiveResource(IResource archive, IEntry entry, string name, Func<Stream, string, ValueTask<ArchiveHandle>> handleFactory)
     {
@@ -47,6 +53,10 @@ internal sealed class ArchiveResource : IResource
         }
     }
 
+    #endregion
+
+    #region Functionality
+
     public ValueTask<ulong> CalculateChecksumAsync() => new(Checksum.Calculate(this));
 
     public async ValueTask<Stream> GetContentAsync()
@@ -58,6 +68,13 @@ internal sealed class ArchiveResource : IResource
         return new ArchiveEntryStream(handle);
     }
 
-    public ValueTask WriteAsync(Stream target, uint bufferSize) => throw new NotSupportedException("Writing to archived resources is not supported");
+    public async ValueTask WriteAsync(Stream target, uint bufferSize)
+    {
+        var content = await GetContentAsync();
+
+        await content.CopyToAsync(target, (int)bufferSize);
+    }
+
+    #endregion
 
 }

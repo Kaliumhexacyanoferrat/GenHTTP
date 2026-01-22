@@ -21,6 +21,7 @@ public class ArchiveEntryStreamTests
         Assert.IsTrue(stream.CanWrite);
         Assert.IsTrue(stream.CanSeek);
 
+        Assert.AreEqual(0, stream.Position);
         Assert.AreEqual(11, stream.Length);
 
         stream.Seek(0, SeekOrigin.End);
