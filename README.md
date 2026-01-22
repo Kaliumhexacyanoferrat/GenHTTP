@@ -139,4 +139,4 @@ in C#. In 2024 the focus has shifted towards API development, dropping support f
 ## 🙏 Thanks
 
 - Powered by [.NET](https://github.com/dotnet/core)
-- Modules implemented with [NSwag](https://github.com/RicoSuter/NSwag) | [Cottle](https://r3c.github.io/cottle/) | [Fleck](https://github.com/statianzo/Fleck)
+- Modules implemented with [NSwag](https://github.com/RicoSuter/NSwag) | [Cottle](https://r3c.github.io/cottle/) | [SharpCompress](https://github.com/adamhathcock/sharpcompress) | [Fleck](https://github.com/statianzo/Fleck)
