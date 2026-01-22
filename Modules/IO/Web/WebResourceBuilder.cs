@@ -60,12 +60,12 @@ public class WebResourceBuilder : IResourceBuilder<WebResourceBuilder>
 
         if (!source.IsAbsoluteUri)
         {
-            throw new ArgumentException("Only absolute URIs are supported", nameof(source));
+            throw new InvalidOperationException("Only absolute URIs are supported");
         }
 
         if (source.Scheme != Uri.UriSchemeHttp && source.Scheme != Uri.UriSchemeHttps)
         {
-            throw new ArgumentException("Only HTTP/HTTPS sources are supported", nameof(source));
+            throw new InvalidOperationException("Only HTTP/HTTPS sources are supported");
         }
 
         return new WebResource(source, _fixedName, _fixedModificationDate, _fixedType);
