@@ -26,6 +26,12 @@
         <EmbeddedResource Include="Resources\Error.html" />
         <EmbeddedResource Include="Resources\LargeTemplate.html" />
         <EmbeddedResource Include="Resources\OtherFile.txt" />
+        <None Remove="Resources\Archives\Archive.7z" />
+        <EmbeddedResource Include="Resources\Archives\Archive.7z" />
+        <None Remove="Resources\Archives\Archive.tar" />
+        <EmbeddedResource Include="Resources\Archives\Archive.tar" />
+        <None Remove="Resources\Archives\Archive.zip" />
+        <EmbeddedResource Include="Resources\Archives\Archive.zip" />
     </ItemGroup>
 
     <ItemGroup>
@@ -65,6 +71,8 @@
         <ProjectReference Include="..\..\Engine\Shared\GenHTTP.Engine.Shared.csproj" />
 
         <ProjectReference Include="..\..\Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj" />
+
+        <ProjectReference Include="..\..\Modules\Archives\GenHTTP.Modules.Archives.csproj" />
 
         <ProjectReference Include="..\Testing\GenHTTP.Testing.csproj" />
 

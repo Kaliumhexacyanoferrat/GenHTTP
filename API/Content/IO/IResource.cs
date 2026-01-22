@@ -8,7 +8,7 @@ namespace GenHTTP.Api.Content.IO;
 /// file system).
 /// </summary>
 /// <remarks>
-/// As resources may change (e.g. if an user changes the file that
+/// As resources may change (e.g. if a user changes the file that
 /// is provided as a resource), content providers must not
 /// cache the results of a method call.
 /// </remarks>
