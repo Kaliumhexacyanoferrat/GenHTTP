@@ -2,6 +2,7 @@
 
 using GenHTTP.Modules.IO.Tracking;
 
+using SharpCompress.Archives;
 using SharpCompress.Common;
 using SharpCompress.Readers;
 
@@ -69,6 +70,44 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
     {
         await using var input = await source.GetContentAsync();
 
+        if (input.CanSeek)
+        {
+            try
+            {
+                return await LoadWithArchiveFactory(input);
+            }
+            catch
+            {
+                input.Position = 0;
+            }
+        }
+
+        return await LoadWithReaderFactory(input);
+    }
+
+    private ValueTask<ArchiveNode> LoadWithArchiveFactory(Stream input)
+    {
+        using var archive = ArchiveFactory.Open(input);
+
+        var root = new ArchiveNode(null, null);
+
+        foreach (var entry in archive.Entries)
+        {
+            if (entry.IsDirectory)
+            {
+                AddDirectory(root, entry);
+            }
+            else
+            {
+                AddFile(root, entry, GetArchiveHandle);
+            }
+        }
+
+        return new(root);
+    }
+
+    private async ValueTask<ArchiveNode> LoadWithReaderFactory(Stream input)
+    {
         using var reader = ReaderFactory.Open(input);
 
         var root = new ArchiveNode(null, null);
@@ -81,7 +120,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
             }
             else
             {
-                AddFile(root, reader.Entry);
+                AddFile(root, reader.Entry, GetReaderHandle);
             }
         }
 
@@ -105,7 +144,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
         }
     }
 
-    private void AddFile(ArchiveNode root, IEntry entry)
+    private void AddFile(ArchiveNode root, IEntry entry, Func<Stream, string, ValueTask<ArchiveHandle>> handleFactory)
     {
         if (entry.Key != null)
         {
@@ -118,8 +157,42 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
                 node = node.GetOrCreate(parts[i]);
             }
 
-            node.AddFile(parts.Last(), entry, source);
+            node.AddFile(parts.Last(), entry, source, handleFactory);
         }
+    }
+
+    private static async ValueTask<ArchiveHandle> GetArchiveHandle(Stream input, string key)
+    {
+        var archive = ArchiveFactory.Open(input);
+
+        var entry = archive.Entries.FirstOrDefault(e => e.Key == key);
+
+        if (entry != null)
+        {
+            return new(archive, await entry.OpenEntryStreamAsync());
+        }
+
+        archive.Dispose();
+
+        throw new InvalidOperationException($"Unable to find resource '{key}' in archive");
+    }
+
+    private static async ValueTask<ArchiveHandle> GetReaderHandle(Stream input, string key)
+    {
+        var reader = ReaderFactory.Open(input);
+
+        while (await reader.MoveToNextEntryAsync())
+        {
+            if (reader.Entry.Key == key)
+            {
+                return new(reader, await reader.OpenEntryStreamAsync());
+            }
+        }
+
+        reader.Dispose();
+
+        throw new InvalidOperationException($"Unable to find resource '{key}' in archive");
+
     }
 
     private async ValueTask<bool> CheckUpdateNeededAsync() => _root == null || await source.CheckChangedAsync();

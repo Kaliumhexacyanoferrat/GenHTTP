@@ -20,9 +20,9 @@ public sealed class ArchiveNode(string? nodeName, IResourceContainer? parent) : 
 
     public ValueTask<IReadOnlyCollection<IResourceNode>> GetNodes() => ValueTask.FromResult<IReadOnlyCollection<IResourceNode>>(_children.Values);
 
-    public ValueTask<IResource?> TryGetResourceAsync(string name) => throw new NotImplementedException();
+    public ValueTask<IResource?> TryGetResourceAsync(string name) => _resources.TryGetValue(name, out var resource) ? new(resource) : ValueTask.FromResult<IResource?>(null);
 
-    public ValueTask<IReadOnlyCollection<IResource>> GetResources() => throw new NotImplementedException();
+    public ValueTask<IReadOnlyCollection<IResource>> GetResources() => ValueTask.FromResult<IReadOnlyCollection<IResource>>(_resources.Values);
 
     public ArchiveNode GetOrCreate(string child)
     {
@@ -38,14 +38,14 @@ public sealed class ArchiveNode(string? nodeName, IResourceContainer? parent) : 
         return created;
     }
 
-    public ArchiveResource AddFile(string name, IEntry entry, IResource archive)
+    public ArchiveResource AddFile(string name, IEntry entry, IResource archive, Func<Stream, string, ValueTask<ArchiveHandle>> handleFactory)
     {
         if (_resources.TryGetValue(name, out var found))
         {
             return found;
         }
 
-        var created = new ArchiveResource(archive, entry, name);
+        var created = new ArchiveResource(archive, entry, name, handleFactory);
 
         _resources.Add(name, created);
 

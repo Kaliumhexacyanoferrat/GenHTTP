@@ -1,5 +1,4 @@
-﻿using System.Net.Sockets;
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Layouting;
 
