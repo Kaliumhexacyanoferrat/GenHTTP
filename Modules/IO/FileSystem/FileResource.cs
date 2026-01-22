@@ -60,13 +60,6 @@ public sealed class FileResource : IResource
 
     public ValueTask<ulong> CalculateChecksumAsync() => new(Checksum.Calculate(this));
 
-    public async ValueTask WriteAsync(Stream target, uint bufferSize)
-    {
-        await using var content = File.OpenRead();
-
-        await content.CopyPooledAsync(target, bufferSize);
-    }
-
     #endregion
 
 }

@@ -36,7 +36,7 @@ public interface IResource
     /// <remarks>
     /// This field will not be used to control the HTTP flow, but
     /// just as meta information (e.g. to be rendered by the
-    /// directory listing handler). For optimzed data transfer,
+    /// directory listing handler). For optimized data transfer,
     /// the stream provided by this resource should be seekable
     /// and return a sane length.
     /// </remarks>
@@ -59,5 +59,11 @@ public interface IResource
     /// </summary>
     /// <param name="target">The stream to write to</param>
     /// <param name="bufferSize">The buffer size to be used for the operation</param>
-    ValueTask WriteAsync(Stream target, uint bufferSize);
+    async ValueTask WriteAsync(Stream target, uint bufferSize)
+    {
+        await using var content = await GetContentAsync();
+
+        await content.CopyToAsync(target, (int)bufferSize);
+    }
+
 }

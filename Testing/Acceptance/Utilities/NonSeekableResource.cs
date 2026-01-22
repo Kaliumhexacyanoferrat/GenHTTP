@@ -18,6 +18,4 @@ public class NonSeekableResource(IResource source) : IResource
 
     public async ValueTask<Stream> GetContentAsync() => new NonSeekableStream(await source.GetContentAsync());
 
-    public ValueTask WriteAsync(Stream target, uint bufferSize) => throw new NotSupportedException();
-
 }
