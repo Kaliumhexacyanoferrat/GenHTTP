@@ -65,7 +65,7 @@ public class WebResource : IResource
 
     public async ValueTask<Stream> GetContentAsync()
     {
-        var response = await _client.GetAsync(Source);
+        var response = await _client.GetAsync(Source, HttpCompletionOption.ResponseHeadersRead);
 
         try
         {

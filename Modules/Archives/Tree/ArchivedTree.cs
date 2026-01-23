@@ -94,6 +94,13 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
     {
         using var archive = ArchiveFactory.Open(input);
 
+        // archive factory does not automatically handle .tar.gz, reader factory does
+        if (archive.Type == ArchiveType.GZip && archive.Entries.Count() == 1)
+        {
+            input.Position = 0;
+            return LoadWithReaderFactory(input);
+        }
+        
         var root = new ArchiveNode(null, null);
 
         foreach (var entry in archive.Entries)
@@ -136,6 +143,8 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
     {
         if (entry.Key != null)
         {
+            if (entry.Key == "./") return;
+            
             var parts = GetParts(entry);
 
             var current = root;
@@ -202,6 +211,16 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
 
     private async ValueTask<bool> CheckUpdateNeededAsync() => _root == null || await source.CheckChangedAsync();
 
-    private static string[] GetParts(IEntry entry) => entry.Key!.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+    private static string[] GetParts(IEntry entry)
+    {
+        var key = entry.Key!;
+
+        if (key.StartsWith('.'))
+        {
+            key = key[1..];
+        }
+        
+        return key.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+    }
 
 }
