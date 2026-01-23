@@ -17,7 +17,7 @@ public class FunctionalTests
     [TestMethod]
     public async Task TestFormats()
     {
-        foreach (var format in new[] { "zip", "tar", "7z" })
+        foreach (var format in new[] { "zip", "tar.gz", "7z" })
         {
             var file = Resource.FromAssembly($"Archive.{format}");
 
