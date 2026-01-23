@@ -31,7 +31,7 @@ public class WebResourceTests
     
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestBuilder(TestEngine engine)
+    public async Task TestOverwrites(TestEngine engine)
     {
         var port = TestHost.NextPort();
 
@@ -53,6 +53,24 @@ public class WebResourceTests
         Assert.AreEqual("attachment; filename=\"Test.txt\"", response.GetContentHeader("Content-Disposition"));
     }
 
+    [TestMethod]
+    public void TestBuilderDoesRequireHttp()
+    {
+        Assert.ThrowsExactly<InvalidOperationException>(() => Resource.FromWeb("file:///test.txt").Build());
+    }
+    
+    [TestMethod]
+    public void TestBuilderDoesRequireAbsolute()
+    {
+        Assert.ThrowsExactly<ArgumentException>(() => Resource.FromWeb("./test.txt").Build());
+    }
+    
+    [TestMethod]
+    public void TestBuilderDoesRequireUri()
+    {
+        Assert.ThrowsExactly<ArgumentException>(() => Resource.FromWeb("http://").Build());
+    }
+    
     private async Task<HttpResponseMessage> RunAsync(IHandlerBuilder source, IHandlerBuilder target, TestEngine engine, int port)
     {
         var app = Layout.Create()
