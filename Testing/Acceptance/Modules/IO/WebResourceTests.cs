@@ -1,4 +1,6 @@
 ﻿using System.Net;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 
@@ -13,12 +15,49 @@ public class WebResourceTests
     public async Task TestLifecycle(TestEngine engine)
     {
         var port = TestHost.NextPort();
-
+        
         var resource = Resource.FromWeb($"http://localhost:{port}/source");
 
+        var source = Content.From(Resource.FromString("Hello World"));
+
+        var target = Content.From(resource);
+
+        using var response = await RunAsync(source, target, engine, port);
+
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+
+        Assert.AreEqual("Hello World", await response.GetContentAsync());
+    }
+    
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestBuilder(TestEngine engine)
+    {
+        var port = TestHost.NextPort();
+
+        var resource = Resource.FromWeb(new Uri($"http://localhost:{port}/source"))
+                               .Modified(new DateTime(2005, 12, 3, 12, 0, 0, DateTimeKind.Utc))
+                               .Type(new(ContentType.ApplicationJson))
+                               .Name("Test.txt");
+
+        var source = Content.From(Resource.FromString("Hello World"));
+
+        var target = Download.From(resource);
+
+        using var response = await RunAsync(source, target, engine, port);
+
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+
+        Assert.AreEqual("Sat, 03 Dec 2005 12:00:00 GMT", response.GetContentHeader("Last-Modified"));
+        Assert.AreEqual("application/json", response.GetContentHeader("Content-Type"));
+        Assert.AreEqual("attachment; filename=\"Test.txt\"", response.GetContentHeader("Content-Disposition"));
+    }
+
+    private async Task<HttpResponseMessage> RunAsync(IHandlerBuilder source, IHandlerBuilder target, TestEngine engine, int port)
+    {
         var app = Layout.Create()
-                        .Add("source", Content.From(Resource.FromString("Hello World")))
-                        .Add("target", Content.From(resource));
+                        .Add("source", source)
+                        .Add("target", target);
 
         var runner = new TestHost(app.Build(), engine: engine);
 
@@ -28,11 +67,7 @@ public class WebResourceTests
 
         using var client = new HttpClient();
 
-        using var response = await client.GetAsync($"http://localhost:{port}/target");
-
-        await response.AssertStatusAsync(HttpStatusCode.OK);
-
-        Assert.AreEqual("Hello World", await response.GetContentAsync());
+        return await client.GetAsync($"http://localhost:{port}/target");
     }
-
+    
 }

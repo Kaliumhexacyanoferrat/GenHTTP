@@ -70,7 +70,7 @@ public class FunctionalTests
     [TestMethod]
     public async Task TestResourceImplementation()
     {
-        var source = Resource.FromAssembly("Archive.tar").Build();
+        var source = Resource.FromAssembly("Archive.tar.gz").Build();
 
         var tree = ArchiveTree.From(source).Build();
 
