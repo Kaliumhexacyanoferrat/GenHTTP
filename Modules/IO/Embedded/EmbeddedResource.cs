@@ -62,13 +62,6 @@ public sealed class EmbeddedResource : IResource
         return _checksum.Value;
     }
 
-    public async ValueTask WriteAsync(Stream target, uint bufferSize)
-    {
-        await using var content = TryGetStream();
-
-        await content.CopyPooledAsync(target, bufferSize);
-    }
-
     private Stream TryGetStream() => Source.GetManifestResourceStream(QualifiedName) ?? throw new InvalidOperationException($"Unable to resolve resource '{QualifiedName}' in assembly '{Source}'");
 
     #endregion

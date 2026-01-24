@@ -48,6 +48,13 @@ public sealed class DownloadProvider : IHandler
                               .Content(Resource)
                               .Type(ContentType);
 
+        var modified = Resource.Modified;
+
+        if (modified != null)
+        {
+            response.Modified(modified.Value);
+        }
+
         var fileName = FileName ?? Resource.Name;
 
         if (fileName is not null)

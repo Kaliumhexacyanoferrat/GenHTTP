@@ -2,7 +2,7 @@
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO;
-
+using GenHTTP.Modules.IO.Streaming;
 using SharpCompress.Common;
 
 namespace GenHTTP.Modules.Archives.Tree;
@@ -11,7 +11,7 @@ internal sealed class ArchiveResource : IResource
 {
     private readonly IResource _archive;
 
-    private readonly Func<Stream, string, ValueTask<ArchiveHandle>> _handleFactory;
+    private readonly Func<Stream, string, ValueTask<StreamWithDependency>> _streamFactory;
 
     private readonly string _key;
 
@@ -29,10 +29,10 @@ internal sealed class ArchiveResource : IResource
 
     #region Initialization
 
-    internal ArchiveResource(IResource archive, IEntry entry, string name, Func<Stream, string, ValueTask<ArchiveHandle>> handleFactory)
+    internal ArchiveResource(IResource archive, IEntry entry, string name, Func<Stream, string, ValueTask<StreamWithDependency>> streamFactory)
     {
         _archive = archive;
-        _handleFactory = handleFactory;
+        _streamFactory = streamFactory;
 
         _key = entry.Key ?? throw new InvalidOperationException("Entry key has to be set");
 
@@ -63,16 +63,7 @@ internal sealed class ArchiveResource : IResource
     {
         var input = await _archive.GetContentAsync();
 
-        var handle = await _handleFactory(input, _key);
-
-        return new ArchiveEntryStream(handle);
-    }
-
-    public async ValueTask WriteAsync(Stream target, uint bufferSize)
-    {
-        var content = await GetContentAsync();
-
-        await content.CopyToAsync(target, (int)bufferSize);
+        return await _streamFactory(input, _key);
     }
 
     #endregion

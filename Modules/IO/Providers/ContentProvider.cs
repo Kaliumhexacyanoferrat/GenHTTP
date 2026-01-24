@@ -33,10 +33,19 @@ public sealed class ContentProvider : IHandler
 
     #region Functionality
 
-    public ValueTask<IResponse?> HandleAsync(IRequest request) => request.Respond()
-                                                                         .Content(Content)
-                                                                         .Type(ContentType)
-                                                                         .BuildTask();
+    public ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
+        var response = request.Respond()
+                              .Content(Content)
+                              .Type(ContentType);
+
+        if (Resource.Modified != null)
+        {
+            response.Modified(Resource.Modified.Value);
+        }
+        
+        return new(response.Build());
+    } 
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 

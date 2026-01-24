@@ -6,7 +6,7 @@ namespace GenHTTP.Api.Content.IO;
 /// <summary>
 /// When implemented by builders providing resource instances,
 /// this interface allows to configure common properties of
-/// resources in an unified way.
+/// resources in a unified way.
 /// </summary>
 public interface IResourceBuilder<out T> : IBuilder<IResource> where T : IResourceBuilder<T>
 {

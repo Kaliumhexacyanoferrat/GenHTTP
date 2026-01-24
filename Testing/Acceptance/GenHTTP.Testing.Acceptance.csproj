@@ -29,9 +29,10 @@
         <None Remove="Resources\Archives\Archive.7z" />
         <EmbeddedResource Include="Resources\Archives\Archive.7z" />
         <None Remove="Resources\Archives\Archive.tar" />
-        <EmbeddedResource Include="Resources\Archives\Archive.tar" />
         <None Remove="Resources\Archives\Archive.zip" />
         <EmbeddedResource Include="Resources\Archives\Archive.zip" />
+        <None Remove="Resources\Archives\Archive.tar.gz" />
+        <EmbeddedResource Include="Resources\Archives\Archive.tar.gz" />
     </ItemGroup>
 
     <ItemGroup>

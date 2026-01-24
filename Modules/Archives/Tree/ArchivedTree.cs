@@ -1,5 +1,5 @@
 ﻿using GenHTTP.Api.Content.IO;
-
+using GenHTTP.Modules.IO.Streaming;
 using GenHTTP.Modules.IO.Tracking;
 
 using SharpCompress.Archives;
@@ -94,6 +94,13 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
     {
         using var archive = ArchiveFactory.Open(input);
 
+        // archive factory does not automatically handle .tar.gz, reader factory does
+        if (archive.Type == ArchiveType.GZip && archive.Entries.Count() == 1)
+        {
+            input.Position = 0;
+            return LoadWithReaderFactory(input);
+        }
+        
         var root = new ArchiveNode(null, null);
 
         foreach (var entry in archive.Entries)
@@ -104,7 +111,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
             }
             else
             {
-                AddFile(root, entry, GetArchiveHandle);
+                AddFile(root, entry, GetArchiveStream);
             }
         }
 
@@ -125,7 +132,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
             }
             else
             {
-                AddFile(root, reader.Entry, GetReaderHandle);
+                AddFile(root, reader.Entry, GetReaderStream);
             }
         }
 
@@ -136,6 +143,8 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
     {
         if (entry.Key != null)
         {
+            if (entry.Key == "./") return;
+            
             var parts = GetParts(entry);
 
             var current = root;
@@ -149,7 +158,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
         }
     }
 
-    private void AddFile(ArchiveNode root, IEntry entry, Func<Stream, string, ValueTask<ArchiveHandle>> handleFactory)
+    private void AddFile(ArchiveNode root, IEntry entry, Func<Stream, string, ValueTask<StreamWithDependency>> streamFactory)
     {
         if (entry.Key != null)
         {
@@ -162,11 +171,11 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
                 node = node.GetOrCreate(parts[i]);
             }
 
-            node.AddFile(parts.Last(), entry, source, handleFactory);
+            node.AddFile(parts.Last(), entry, source, streamFactory);
         }
     }
 
-    private static async ValueTask<ArchiveHandle> GetArchiveHandle(Stream input, string key)
+    private static async ValueTask<StreamWithDependency> GetArchiveStream(Stream input, string key)
     {
         var archive = ArchiveFactory.Open(input);
 
@@ -174,7 +183,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
 
         if (entry != null)
         {
-            return new(archive, await entry.OpenEntryStreamAsync());
+            return new(await entry.OpenEntryStreamAsync(), archive);
         }
 
         archive.Dispose();
@@ -182,7 +191,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
         throw new InvalidOperationException($"Unable to find resource '{key}' in archive");
     }
 
-    private static async ValueTask<ArchiveHandle> GetReaderHandle(Stream input, string key)
+    private static async ValueTask<StreamWithDependency> GetReaderStream(Stream input, string key)
     {
         var reader = ReaderFactory.Open(input);
 
@@ -190,7 +199,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
         {
             if (reader.Entry.Key == key)
             {
-                return new(reader, await reader.OpenEntryStreamAsync());
+                return new StreamWithDependency(await reader.OpenEntryStreamAsync(), reader);
             }
         }
 
@@ -202,6 +211,16 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
 
     private async ValueTask<bool> CheckUpdateNeededAsync() => _root == null || await source.CheckChangedAsync();
 
-    private static string[] GetParts(IEntry entry) => entry.Key!.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+    private static string[] GetParts(IEntry entry)
+    {
+        var key = entry.Key!;
+
+        if (key.StartsWith('.'))
+        {
+            key = key[1..];
+        }
+        
+        return key.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+    }
 
 }

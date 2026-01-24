@@ -1,7 +1,9 @@
 ﻿using System.Reflection;
+
 using GenHTTP.Modules.IO.Embedded;
 using GenHTTP.Modules.IO.FileSystem;
 using GenHTTP.Modules.IO.Strings;
+using GenHTTP.Modules.IO.Web;
 
 namespace GenHTTP.Modules.IO;
 
@@ -44,4 +46,17 @@ public static class Resource
     /// </summary>
     /// <param name="file">The file to be provided</param>
     public static FileResourceBuilder FromFile(FileInfo file) => new FileResourceBuilder().File(file);
+
+    /// <summary>
+    /// Creates a resource to be fetched from the given URL.
+    /// </summary>
+    /// <param name="source">The URI to fetch the resource from</param>
+    public static WebResourceBuilder FromWeb(string source) => new WebResourceBuilder().Source(source);
+
+    /// <summary>
+    /// Creates a resource to be fetched from the given URL.
+    /// </summary>
+    /// <param name="source">The URI to fetch the resource from</param>
+    public static WebResourceBuilder FromWeb(Uri source) => new WebResourceBuilder().Source(source);
+
 }

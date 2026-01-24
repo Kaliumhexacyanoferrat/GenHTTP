@@ -17,7 +17,7 @@ public class FunctionalTests
     [TestMethod]
     public async Task TestFormats()
     {
-        foreach (var format in new[] { "zip", "tar", "7z" })
+        foreach (var format in new[] { "zip", "tar.gz", "7z" })
         {
             var file = Resource.FromAssembly($"Archive.{format}");
 
@@ -70,7 +70,7 @@ public class FunctionalTests
     [TestMethod]
     public async Task TestResourceImplementation()
     {
-        var source = Resource.FromAssembly("Archive.tar").Build();
+        var source = Resource.FromAssembly("Archive.tar.gz").Build();
 
         var tree = ArchiveTree.From(source).Build();
 

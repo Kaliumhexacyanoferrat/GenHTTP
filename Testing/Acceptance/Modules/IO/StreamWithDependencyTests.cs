@@ -1,11 +1,11 @@
 ﻿using System.Text;
 
-using GenHTTP.Modules.Archives.Tree;
+using GenHTTP.Modules.IO.Streaming;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Archives;
+namespace GenHTTP.Testing.Acceptance.Modules.IO;
 
 [TestClass]
-public class ArchiveEntryStreamTests
+public class StreamWithDependencyTests
 {
 
     [TestMethod]
@@ -13,7 +13,7 @@ public class ArchiveEntryStreamTests
     {
         using var source = new MemoryStream("Hello World "u8.ToArray());
 
-        using var stream = new ArchiveEntryStream(new(source, source));
+        using var stream = new StreamWithDependency(source, source);
 
         stream.SetLength(11);
 

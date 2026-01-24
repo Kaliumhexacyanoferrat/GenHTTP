@@ -1,8 +1,6 @@
 ﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.IO.Streaming;
-
 namespace GenHTTP.Modules.IO.FileSystem;
 
 public sealed class FileResource : IResource
@@ -59,13 +57,6 @@ public sealed class FileResource : IResource
     public ValueTask<Stream> GetContentAsync() => new(File.OpenRead());
 
     public ValueTask<ulong> CalculateChecksumAsync() => new(Checksum.Calculate(this));
-
-    public async ValueTask WriteAsync(Stream target, uint bufferSize)
-    {
-        await using var content = File.OpenRead();
-
-        await content.CopyPooledAsync(target, bufferSize);
-    }
 
     #endregion
 
