@@ -14,7 +14,7 @@
         
         <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
 
-        <PackageReference Include="SharpCompress" Version="0.44.1" />
+        <PackageReference Include="SharpCompress" Version="0.44.3" />
 
     </ItemGroup>
 
