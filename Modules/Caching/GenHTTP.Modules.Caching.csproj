@@ -12,7 +12,7 @@
 
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
 
-        <PackageReference Include="AsyncKeyedLock" Version="8.0.0" />
+        <PackageReference Include="AsyncKeyedLock" Version="8.0.1" />
 
         <PackageReference Include="System.Text.Json" Version="10.0.2" />
 
