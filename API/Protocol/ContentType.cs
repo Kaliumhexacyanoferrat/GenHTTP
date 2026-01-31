@@ -336,7 +336,7 @@ public class FlexibleContentType
 {
     private static readonly ConcurrentDictionary<string, FlexibleContentType> RawCache = new(StringComparer.InvariantCultureIgnoreCase);
 
-    private static readonly Dictionary<ContentType, FlexibleContentType> KnownCache = new();
+    private static readonly ConcurrentDictionary<ContentType, FlexibleContentType> KnownCache = new();
 
     #region Get-/Setters
 
