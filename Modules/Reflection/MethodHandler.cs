@@ -244,7 +244,16 @@ public sealed class MethodHandler : IHandler
         }
 
         var type = result.GetType();
+        
+        if (type == typeof(ValueTask) || type == typeof(Task))
+        {
+            dynamic task = result;
 
+            await task;
+
+            return null;
+        }
+        
         if (type.IsAsyncGeneric())
         {
             dynamic task = result;
@@ -253,14 +262,6 @@ public sealed class MethodHandler : IHandler
 
             return type.IsGenericallyVoid() ? null : task.Result;
 
-        }
-        if (type == typeof(ValueTask) || type == typeof(Task))
-        {
-            dynamic task = result;
-
-            await task;
-
-            return null;
         }
 
         return result;
