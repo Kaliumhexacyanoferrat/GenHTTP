@@ -102,8 +102,6 @@ public sealed class Request : IRequest
         return _responseBuilder;
     }
 
-    public UpgradeInfo Upgrade() => throw new NotSupportedException("Web sockets are not supported by the Kestrel server implementation");
-
     internal void Configure(IServer server, HttpContext context)
     {
         var request = context.Request;

@@ -80,29 +80,26 @@ internal sealed class ClientHandler
         }
         finally
         {
-            if (status != Api.Protocol.Connection.UpgradeAndSurrender)
+            try
             {
-                try
-                {
-                    await Stream.DisposeAsync();
-                }
-                catch (Exception e)
-                {
-                    Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, Connection.GetAddress(), e);
-                }
+                await Stream.DisposeAsync();
+            }
+            catch (Exception e)
+            {
+                Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, Connection.GetAddress(), e);
+            }
 
-                try
-                {
-                    Connection.Shutdown(SocketShutdown.Both);
-                    await Connection.DisconnectAsync(false);
-                    Connection.Close();
+            try
+            {
+                Connection.Shutdown(SocketShutdown.Both);
+                await Connection.DisconnectAsync(false);
+                Connection.Close();
 
-                    Connection.Dispose();
-                }
-                catch (Exception e)
-                {
-                    Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, Connection.GetAddress(), e);
-                }
+                Connection.Dispose();
+            }
+            catch (Exception e)
+            {
+                Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, Connection.GetAddress(), e);
             }
         }
     }
@@ -139,7 +136,7 @@ internal sealed class ClientHandler
 
                     var status = await HandleRequest(context.Request, !buffer.ReadRequired);
 
-                    if (status is Api.Protocol.Connection.Close or Api.Protocol.Connection.UpgradeAndSurrender)
+                    if (status is Api.Protocol.Connection.Close)
                     {
                         return status;
                     }
@@ -170,16 +167,11 @@ internal sealed class ClientHandler
 
     private async ValueTask<Connection> HandleRequest(Request request, bool dataRemaining)
     {
-        request.SetConnection(Server, Connection, Stream, EndPoint, Connection.GetAddress(), ClientCertificate);
+        request.SetConnection(Server, EndPoint, Connection.GetAddress(), ClientCertificate);
 
         var keepAliveRequested = request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? request.ProtocolType == HttpProtocol.Http11;
 
         var response = await Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
-
-        if (response.Connection == Api.Protocol.Connection.UpgradeAndSurrender)
-        {
-            return Api.Protocol.Connection.UpgradeAndSurrender;
-        }
 
         var closeRequested = response.Connection is Api.Protocol.Connection.Close or Api.Protocol.Connection.Upgrade;
 
