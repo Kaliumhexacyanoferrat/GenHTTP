@@ -2,13 +2,17 @@
 using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
+
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Engine.Internal.Protocol.Parser;
 using GenHTTP.Engine.Internal.Utilities;
 using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Types;
+
 using Microsoft.Extensions.ObjectPool;
+
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
 namespace GenHTTP.Engine.Internal.Protocol;
@@ -68,11 +72,9 @@ internal sealed class ClientHandler
 
     internal async ValueTask Run()
     {
-        var status = Api.Protocol.Connection.Close;
-
         try
         {
-            status = await HandlePipe(PipeReader.Create(Stream, ReaderOptions)).ConfigureAwait(false);
+            await HandlePipe(PipeReader.Create(Stream, ReaderOptions)).ConfigureAwait(false);
         }
         catch (Exception e)
         {
@@ -104,7 +106,7 @@ internal sealed class ClientHandler
         }
     }
 
-    private async ValueTask<Connection> HandlePipe(PipeReader reader)
+    private async ValueTask HandlePipe(PipeReader reader)
     {
         var context = ContextPool.Get();
 
@@ -138,7 +140,7 @@ internal sealed class ClientHandler
 
                     if (status is Api.Protocol.Connection.Close)
                     {
-                        return status;
+                        return;
                     }
                 }
             }
@@ -161,8 +163,6 @@ internal sealed class ClientHandler
 
             await reader.CompleteAsync();
         }
-
-        return Api.Protocol.Connection.Close;
     }
 
     private async ValueTask<Connection> HandleRequest(Request request, bool dataRemaining)
