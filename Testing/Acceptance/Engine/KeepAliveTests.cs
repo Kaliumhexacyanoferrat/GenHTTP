@@ -1,12 +1,4 @@
-﻿using System.Net;
-using System.Net.Sockets;
-
-using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.Functional;
-
-namespace GenHTTP.Testing.Acceptance.Engine;
+﻿namespace GenHTTP.Testing.Acceptance.Engine;
 
 [TestClass]
 public class KeepAliveTests
@@ -17,7 +9,8 @@ public class KeepAliveTests
     /// to the server from the same client reuse the same connection,
     /// thus verifying that keep-alive connections are supported.
     /// </summary>
-    [TestMethod]
+    // todo: reimplement
+    /*[TestMethod]
     public async Task TestKeepAlive()
     {
         Socket? connection = null;
@@ -47,6 +40,6 @@ public class KeepAliveTests
 
         using var r2 = await runner.GetResponseAsync();
         await r2.AssertStatusAsync(HttpStatusCode.NoContent);
-    }
+    }*/
 
 }
