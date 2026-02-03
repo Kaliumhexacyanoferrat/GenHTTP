@@ -13,6 +13,8 @@
 
         <ProjectReference Include="..\API\GenHTTP.Api.csproj"/>
 
+        <ProjectReference Include="..\Engine\GenHTTP.Engine.Rocket\GenHTTP.Engine.Rocket.csproj" />
+
         <ProjectReference Include="..\Engine\Internal\GenHTTP.Engine.Internal.csproj"/>
         <ProjectReference Include="..\Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj"/>
 

@@ -6,6 +6,7 @@
     <Project Path="API\GenHTTP.Api.csproj" />
   </Folder>
   <Folder Name="/Engine/">
+    <Project Path="Engine\GenHTTP.Engine.Rocket\GenHTTP.Engine.Rocket.csproj" />
     <Project Path="Engine\Internal\GenHTTP.Engine.Internal.csproj" />
     <Project Path="Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj" />
     <Project Path="Engine\Shared\GenHTTP.Engine.Shared.csproj" />

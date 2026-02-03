@@ -1,17 +1,20 @@
-﻿using GenHTTP.Engine.Internal;
-using GenHTTP.Modules.Archives;
-using GenHTTP.Modules.DirectoryBrowsing;
+﻿using GenHTTP.Engine.Rocket;
 using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Practices;
+using URocket.Engine.Configs;
 
-var archive = Resource.FromWeb("https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.102/dotnet-sdk-10.0.102-linux-x64.tar.gz");
+var resource = Resource.FromString("Hello World!");
+var content = Content.From(resource);
+var app = Layout.Create()
+    .Add("route", content);
 
-var tree = ArchiveTree.From(archive);
-
-var listing = Listing.From(tree);
-
-await Host.Create()
-          .Handler(listing)
-          .Defaults()
-          .Console()
-          .RunAsync();
+await Host.Create(new EngineOptions
+    {
+        Port = 8080,
+        ReactorCount = 12
+    })
+      .Handler(app)
+      .Defaults()
+      .Console()
+      .RunAsync();
