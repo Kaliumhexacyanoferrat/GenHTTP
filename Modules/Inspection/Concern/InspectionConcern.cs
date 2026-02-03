@@ -88,7 +88,6 @@ public sealed class InspectionConcern : IConcern
                 },
                 Response = (content != null) ? new {
                     Status = content.Status.RawStatus,
-                    Upgraded = content.Upgraded,
                     Expires = content.Expires,
                     Modified = content.Modified,
                     Headers = content.Headers,
