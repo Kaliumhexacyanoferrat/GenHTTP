@@ -1,51 +1,11 @@
-﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Engine.Internal;
-using GenHTTP.Modules.Controllers;
-using GenHTTP.Modules.Layouting;
-using GenHTTP.Modules.Practices;
-using GenHTTP.Playground;
-using Microsoft.EntityFrameworkCore;
+﻿using GenHTTP.Engine.Internal;
 
-var app = Layout.Create()
-                .AddController<TestController>("test");
+using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Practices;
+
+var content = Content.From(Resource.FromString("Hello World!"));
 
 await Host.Create()
-          .Handler(app)
-          .Development()
+          .Handler(content)
           .Defaults()
-          .Console()
-          .RunAsync();
-
-public class TestController
-{
-
-    [ControllerAction(RequestMethod.Get)]
-    public async Task<LoginResponse> Login()
-    {
-        try
-        {
-            await using var context = new TestDbContext();
-
-            /*await context.Database.EnsureCreatedAsync();
-            
-            context.Items.Add(new Item()
-            {
-                Text = "Dummy"
-            });
-
-            await context.SaveChangesAsync();*/
-
-            var item = await context.Items.FirstOrDefaultAsync();
-
-            return new LoginResponse(item?.Text ?? string.Empty);
-        }
-        catch (Exception e)
-        {
-            var em = e.Message;
-            throw;
-        }
-    } 
-    
-}
-
-public record LoginResponse(string Message);
+          .RunAsync(); // or StartAsync() for non-blocking
