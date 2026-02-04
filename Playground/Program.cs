@@ -1,17 +1,51 @@
-﻿using GenHTTP.Engine.Internal;
-using GenHTTP.Modules.Archives;
-using GenHTTP.Modules.DirectoryBrowsing;
-using GenHTTP.Modules.IO;
+﻿using GenHTTP.Api.Protocol;
+using GenHTTP.Engine.Internal;
+using GenHTTP.Modules.Controllers;
+using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Practices;
+using GenHTTP.Playground;
+using Microsoft.EntityFrameworkCore;
 
-var archive = Resource.FromWeb("https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.102/dotnet-sdk-10.0.102-linux-x64.tar.gz");
-
-var tree = ArchiveTree.From(archive);
-
-var listing = Listing.From(tree);
+var app = Layout.Create()
+                .AddController<TestController>("test");
 
 await Host.Create()
-          .Handler(listing)
+          .Handler(app)
+          .Development()
           .Defaults()
           .Console()
           .RunAsync();
+
+public class TestController
+{
+
+    [ControllerAction(RequestMethod.Get)]
+    public async Task<LoginResponse> Login()
+    {
+        try
+        {
+            await using var context = new TestDbContext();
+
+            /*await context.Database.EnsureCreatedAsync();
+            
+            context.Items.Add(new Item()
+            {
+                Text = "Dummy"
+            });
+
+            await context.SaveChangesAsync();*/
+
+            var item = await context.Items.FirstOrDefaultAsync();
+
+            return new LoginResponse(item?.Text ?? string.Empty);
+        }
+        catch (Exception e)
+        {
+            var em = e.Message;
+            throw;
+        }
+    } 
+    
+}
+
+public record LoginResponse(string Message);
