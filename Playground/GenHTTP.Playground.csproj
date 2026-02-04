@@ -49,5 +49,5 @@
         <ProjectReference Include="..\Testing\Acceptance\GenHTTP.Testing.Acceptance.csproj" />
 
     </ItemGroup>
-
+    
 </Project>
