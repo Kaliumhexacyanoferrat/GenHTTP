@@ -9,9 +9,9 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <ImplicitUsings>enable</ImplicitUsings>
 
-        <AssemblyVersion>10.4.1.0</AssemblyVersion>
-        <FileVersion>10.4.1.0</FileVersion>
-        <Version>10.4.1</Version>
+        <AssemblyVersion>10.4.2.0</AssemblyVersion>
+        <FileVersion>10.4.2.0</FileVersion>
+        <Version>10.4.2</Version>
 
         <Authors>Andreas Nägeli</Authors>
 
