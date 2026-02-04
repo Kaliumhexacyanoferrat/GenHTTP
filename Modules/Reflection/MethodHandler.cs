@@ -244,27 +244,17 @@ public sealed class MethodHandler : IHandler
         }
 
         var type = result.GetType();
-        
-        if (type == typeof(ValueTask) || type == typeof(Task))
+
+        if (!type.IsAsync())
         {
-            dynamic task = result;
-
-            await task;
-
-            return null;
-        }
-        
-        if (type.IsAsyncGeneric())
-        {
-            dynamic task = result;
-
-            await task;
-
-            return type.IsGenericallyVoid() ? null : task.Result;
-
+            return result;
         }
 
-        return result;
+        await (result as dynamic);
+            
+        var resultProperty = result.GetType().GetProperty("Result");
+
+        return resultProperty?.GetValue(result);
     }
 
     private static async ValueTask<IResponse?> RenderCompilationErrorAsync(IRequest request, CodeGenerationException error)
