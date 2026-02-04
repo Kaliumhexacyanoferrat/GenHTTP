@@ -1,6 +1,5 @@
 ﻿using GenHTTP.Modules.Websockets.Functional;
 using GenHTTP.Modules.Websockets.Imperative;
-using GenHTTP.Modules.Websockets.Legacy;
 using GenHTTP.Modules.Websockets.Reactive;
 
 namespace GenHTTP.Modules.Websockets;
@@ -12,13 +11,6 @@ namespace GenHTTP.Modules.Websockets;
 /// </summary>
 public static class Websocket
 {
-
-    /// <summary>
-    /// Creates a new builder to configure a websocket handler
-    /// that will process incoming websocket requests.
-    /// </summary>
-    [Obsolete("The web socket implementation based on Fleck will be removed with GenHTTP 11.")]
-    public static WebsocketHandlerBuilder Create() => new();
 
     /// <summary>
     /// Creates a web socket that allows you to read

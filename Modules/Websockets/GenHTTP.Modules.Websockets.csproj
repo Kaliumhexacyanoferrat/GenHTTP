@@ -8,26 +8,22 @@
         <PackageTags>GenHTTP HTTP Webserver C# Module Websockets</PackageTags>
         <PackageReadmeFile>README.md</PackageReadmeFile>
 
-        <!-- remove this line after Fleck has been removed -->
-        <NoWarn>CS1591,CS1587,CS1572,CS1573,CS0612,CS0618</NoWarn>
-
     </PropertyGroup>
 
     <ItemGroup>
 
-        <PackageReference Include="System.IO.Pipelines" Version="10.0.2" />
+        <PackageReference Include="System.IO.Pipelines" Version="10.0.2"/>
 
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj"/>
-        
-        <!-- remove together with fleck -->
-        <ProjectReference Include="..\..\Engine\Shared\GenHTTP.Engine.Shared.csproj" />
-        
-	<PackageReference Include="Fleck" Version="1.2.0" />
+
+        <ProjectReference Include="..\Conversion\GenHTTP.Modules.Conversion.csproj" />
 
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="README.md" Pack="true" PackagePath="" />
+        
+        <None Include="README.md" Pack="true" PackagePath=""/>
+        
     </ItemGroup>
 
 </Project>

@@ -2,13 +2,17 @@
 using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
+
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Engine.Internal.Protocol.Parser;
 using GenHTTP.Engine.Internal.Utilities;
 using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Types;
+
 using Microsoft.Extensions.ObjectPool;
+
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
 namespace GenHTTP.Engine.Internal.Protocol;
@@ -68,11 +72,9 @@ internal sealed class ClientHandler
 
     internal async ValueTask Run()
     {
-        var status = Api.Protocol.Connection.Close;
-
         try
         {
-            status = await HandlePipe(PipeReader.Create(Stream, ReaderOptions)).ConfigureAwait(false);
+            await HandlePipe(PipeReader.Create(Stream, ReaderOptions)).ConfigureAwait(false);
         }
         catch (Exception e)
         {
@@ -80,34 +82,31 @@ internal sealed class ClientHandler
         }
         finally
         {
-            if (status != Api.Protocol.Connection.UpgradeAndSurrender)
+            try
             {
-                try
-                {
-                    await Stream.DisposeAsync();
-                }
-                catch (Exception e)
-                {
-                    Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, Connection.GetAddress(), e);
-                }
+                await Stream.DisposeAsync();
+            }
+            catch (Exception e)
+            {
+                Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, Connection.GetAddress(), e);
+            }
 
-                try
-                {
-                    Connection.Shutdown(SocketShutdown.Both);
-                    await Connection.DisconnectAsync(false);
-                    Connection.Close();
+            try
+            {
+                Connection.Shutdown(SocketShutdown.Both);
+                await Connection.DisconnectAsync(false);
+                Connection.Close();
 
-                    Connection.Dispose();
-                }
-                catch (Exception e)
-                {
-                    Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, Connection.GetAddress(), e);
-                }
+                Connection.Dispose();
+            }
+            catch (Exception e)
+            {
+                Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, Connection.GetAddress(), e);
             }
         }
     }
 
-    private async ValueTask<Connection> HandlePipe(PipeReader reader)
+    private async ValueTask HandlePipe(PipeReader reader)
     {
         var context = ContextPool.Get();
 
@@ -139,9 +138,9 @@ internal sealed class ClientHandler
 
                     var status = await HandleRequest(context.Request, !buffer.ReadRequired);
 
-                    if (status is Api.Protocol.Connection.Close or Api.Protocol.Connection.UpgradeAndSurrender)
+                    if (status is Api.Protocol.Connection.Close)
                     {
-                        return status;
+                        return;
                     }
                 }
             }
@@ -164,22 +163,15 @@ internal sealed class ClientHandler
 
             await reader.CompleteAsync();
         }
-
-        return Api.Protocol.Connection.Close;
     }
 
     private async ValueTask<Connection> HandleRequest(Request request, bool dataRemaining)
     {
-        request.SetConnection(Server, Connection, Stream, EndPoint, Connection.GetAddress(), ClientCertificate);
+        request.SetConnection(Server, EndPoint, Connection.GetAddress(), ClientCertificate);
 
         var keepAliveRequested = request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? request.ProtocolType == HttpProtocol.Http11;
 
         var response = await Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
-
-        if (response.Connection == Api.Protocol.Connection.UpgradeAndSurrender)
-        {
-            return Api.Protocol.Connection.UpgradeAndSurrender;
-        }
 
         var closeRequested = response.Connection is Api.Protocol.Connection.Close or Api.Protocol.Connection.Upgrade;
 

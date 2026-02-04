@@ -1,12 +1,9 @@
 ﻿using System.Net;
-using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Routing;
-
-using GenHTTP.Engine.Internal.Utilities;
 using GenHTTP.Engine.Shared.Types;
 
 using CookieCollection = GenHTTP.Engine.Shared.Types.CookieCollection;
@@ -27,9 +24,6 @@ internal sealed class Request : IRequest
 
     private IClientConnection? _clientConnection;
     private IClientConnection? _localClient;
-
-    private Socket? _socket;
-    private Stream? _stream;
 
     private FlexibleRequestMethod? _method;
     private RoutingTarget? _target;
@@ -130,27 +124,15 @@ internal sealed class Request : IRequest
         return _responseBuilder;
     }
 
-    public UpgradeInfo Upgrade()
-    {
-        if (_socket == null || _stream == null)
-        {
-            throw new InvalidOperationException("Request is not initialized yet");
-        }
-
-        return new(_socket, _stream, new Response { Connection = Connection.UpgradeAndSurrender});
-    }
-
     public bool ContainsMultipleHeaders(string key) => _headers.ContainsMultiple(key);
 
     #endregion
 
     #region Parsing
 
-    internal void SetConnection(IServer server, Socket connection, PoolBufferedStream stream, IEndPoint endPoint, IPAddress? address, X509Certificate? clientCertificate)
+    internal void SetConnection(IServer server, IEndPoint endPoint, IPAddress? address, X509Certificate? clientCertificate)
     {
         _server = server;
-        _socket = connection;
-        _stream = stream;
         _endPoint = endPoint;
 
         var protocol = _endPoint.Secure ? ClientProtocol.Https : ClientProtocol.Http;

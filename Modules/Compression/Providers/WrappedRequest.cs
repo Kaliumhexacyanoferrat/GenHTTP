@@ -71,8 +71,6 @@ internal sealed class WrappedRequest : IRequest
 
     public IResponseBuilder Respond() => _inner.Respond();
 
-    public UpgradeInfo Upgrade() => _inner.Upgrade();
-
     public void Dispose()
     {
         _decompressedContent.Dispose();
