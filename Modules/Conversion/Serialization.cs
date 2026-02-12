@@ -21,11 +21,14 @@ public static class Serialization
     /// </summary>
     public static SerializationBuilder Default(JsonSerializerOptions? jsonOptions = null)
     {
+        var xmlFormat = new XmlFormat();
+
         return new SerializationBuilder().Default(ContentType.ApplicationJson)
                                          .Add(ContentType.ApplicationJson, new JsonFormat(jsonOptions))
                                          .Add(ContentType.ApplicationYaml, new YamlFormat())
                                          .Add(ContentType.ApplicationWwwFormUrlEncoded, new FormFormat())
-                                         .Add(ContentType.TextXml, new XmlFormat());
+                                         .Add(ContentType.ApplicationXml, xmlFormat)
+                                         .Add(ContentType.TextXml, xmlFormat);
     }
 
     /// <summary>

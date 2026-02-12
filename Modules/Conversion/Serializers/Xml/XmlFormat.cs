@@ -1,7 +1,5 @@
 ﻿using System.Xml.Serialization;
-
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.Conversion.Serializers.Xml;
@@ -20,7 +18,7 @@ public sealed class XmlFormat : ISerializationFormat
     {
         var result = request.Respond()
                             .Content(new XmlContent(response))
-                            .Type(ContentType.TextXml);
+                            .Type(ContentType.ApplicationXml);
 
         return new ValueTask<IResponseBuilder>(result);
     }

@@ -211,7 +211,10 @@ public sealed class WebserviceTests
     [TestMethod]
     public async Task TestStream()
     {
-        foreach (var mode in new[] { ExecutionMode.Reflection, ExecutionMode.Auto })
+        foreach (var mode in new[]
+                 {
+                     ExecutionMode.Reflection, ExecutionMode.Auto
+                 })
         {
             await WithResponse(TestEngine.Internal, mode, "stream", HttpMethod.Put, "123456", null, null, async r => Assert.AreEqual("6", await r.GetContentAsync()));
         }
@@ -259,15 +262,18 @@ public sealed class WebserviceTests
     {
         const string entity = "<TestEntity><Id>1</Id><Nullable>1234.56</Nullable></TestEntity>";
 
-        await WithResponse(engine, mode, "entity", HttpMethod.Post, entity, "text/xml", "text/xml", async r =>
+        foreach (var requestType in new[] { "text/xml", "application/xml" })
         {
-            var result = new XmlSerializer(typeof(TestEntity)).Deserialize(await r.Content.ReadAsStreamAsync()) as TestEntity;
+            await WithResponse(engine, mode, "entity", HttpMethod.Post, entity, requestType, "application/xml", async r =>
+            {
+                var result = new XmlSerializer(typeof(TestEntity)).Deserialize(await r.Content.ReadAsStreamAsync()) as TestEntity;
 
-            Assert.IsNotNull(result);
+                Assert.IsNotNull(result);
 
-            Assert.AreEqual(1, result.Id);
-            Assert.AreEqual(1234.56, result.Nullable);
-        });
+                Assert.AreEqual(1, result.Id);
+                Assert.AreEqual(1234.56, result.Nullable);
+            });
+        }
     }
 
     [TestMethod]

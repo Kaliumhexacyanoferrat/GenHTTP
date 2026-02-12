@@ -11,7 +11,7 @@ public enum ContentType
 {
 
     /// <summary>
-    /// A html page.
+    /// A HTML page.
     /// </summary>
     TextHtml,
 
@@ -39,6 +39,11 @@ public enum ContentType
     /// A YAML file.
     /// </summary>
     ApplicationYaml,
+
+    /// <summary>
+    /// An XML file.
+    /// </summary>
+    ApplicationXml,
 
     /// <summary>
     /// A PNG image.
@@ -471,6 +476,9 @@ public class FlexibleContentType
         },
         {
             ContentType.TextXml, "text/xml"
+        },
+        {
+            ContentType.ApplicationXml, "application/xml"
         },
         {
             ContentType.TextEventStream, "text/event-stream"
