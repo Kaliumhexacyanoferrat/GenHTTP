@@ -28,8 +28,6 @@ public sealed class Response : IResponse
 
     public Connection Connection { get; set; }
 
-    public bool Upgraded => Connection == Connection.UpgradeAndSurrender;
-
     public DateTime? Expires { get; set; }
 
     public DateTime? Modified { get; set; }

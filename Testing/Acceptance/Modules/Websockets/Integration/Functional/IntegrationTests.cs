@@ -19,8 +19,8 @@ public sealed class IntegrationTests
                                .OnMessage((c, m) => c.WriteAsync(m.Data))
                                .OnContinue((c, m) => c.WriteAsync(m.Data))
                                .OnPing((c, m) => c.PongAsync(m.Data))
-                               .OnClose((c, m) => c.CloseAsync())
-                               .OnError((c, e) => ValueTask.FromResult(false));
+                               .OnClose((c, _) => c.CloseAsync())
+                               .OnError((_, _) => ValueTask.FromResult(false));
 
         Chain.Works(websocket);
 
@@ -70,8 +70,8 @@ public sealed class IntegrationTests
             .OnMessage((c, m) => c.WriteAsync(m.Data))
             .OnContinue((c, m) => c.WriteAsync(m.Data))
             .OnPing((c, m) => c.PongAsync(m.Data))
-            .OnClose((c, m) => c.CloseAsync())
-            .OnError((c, e) => ValueTask.FromResult(false));
+            .OnClose((c, _) => c.CloseAsync())
+            .OnError((_, _) => ValueTask.FromResult(false));
 
         Chain.Works(websocket);
 
@@ -86,12 +86,12 @@ public sealed class IntegrationTests
     public async Task TestServerFunctionalFragmented()
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
-            .OnConnected(c => ValueTask.CompletedTask)
+            .OnConnected(_ => ValueTask.CompletedTask)
             .OnMessage((c, m) => c.WriteAsync(m.Data))
             .OnContinue((c, m) => c.WriteAsync(m.Data))
             .OnPing((c, m) => c.PongAsync(m.Data))
-            .OnClose((c, m) => c.CloseAsync())
-            .OnError((c, e) => ValueTask.FromResult(false));
+            .OnClose((c, _) => c.CloseAsync())
+            .OnError((_, _) => ValueTask.FromResult(false));
 
         Chain.Works(websocket);
 
@@ -107,12 +107,12 @@ public sealed class IntegrationTests
     public async Task TestServerFunctionalFragmentedSegmented()
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
-            .OnConnected(c => ValueTask.CompletedTask)
+            .OnConnected(_ => ValueTask.CompletedTask)
             .OnMessage((c, m) => c.WriteAsync(m.Data))
             .OnContinue((c, m) => c.WriteAsync(m.Data))
             .OnPing((c, m) => c.PongAsync(m.Data))
-            .OnClose((c, m) => c.CloseAsync())
-            .OnError((c, e) => ValueTask.FromResult(false));
+            .OnClose((c, _) => c.CloseAsync())
+            .OnError((_, _) => ValueTask.FromResult(false));
 
         Chain.Works(websocket);
 
@@ -129,12 +129,12 @@ public sealed class IntegrationTests
     public async Task TestServerFunctionalFragmentedSegmentedNoAllocations()
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
-            .OnConnected(c => ValueTask.CompletedTask)
+            .OnConnected(_ => ValueTask.CompletedTask)
             .OnMessage((c, m) => c.WriteAsync(m.Data))
             .OnContinue((c, m) => c.WriteAsync(m.Data))
             .OnPing((c, m) => c.PongAsync(m.Data))
-            .OnClose((c, m) => c.CloseAsync())
-            .OnError((c, e) => ValueTask.FromResult(false));
+            .OnClose((c, _) => c.CloseAsync())
+            .OnError((_, _) => ValueTask.FromResult(false));
 
         Chain.Works(websocket);
 
