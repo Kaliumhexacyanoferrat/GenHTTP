@@ -45,7 +45,7 @@ public sealed class ArchiveNode(string? nodeName, IResourceContainer? parent) : 
         return created;
     }
 
-    internal void AddFile(string name, IEntry entry, IResource archive, Func<Stream, string, ValueTask<StreamWithDependency>> streamFactory)
+    internal void AddFile(string name, IEntry entry, IResource archive, Func<Stream, string, StreamWithDependency> streamFactory)
     {
         _resources.Add(name, new ArchiveResource(archive, entry, name, streamFactory));
     }
