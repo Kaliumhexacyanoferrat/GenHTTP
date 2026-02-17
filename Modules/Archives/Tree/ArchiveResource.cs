@@ -11,7 +11,7 @@ internal sealed class ArchiveResource : IResource
 {
     private readonly IResource _archive;
 
-    private readonly Func<Stream, string, ValueTask<StreamWithDependency>> _streamFactory;
+    private readonly Func<Stream, string, StreamWithDependency> _streamFactory;
 
     private readonly string _key;
 
@@ -29,7 +29,7 @@ internal sealed class ArchiveResource : IResource
 
     #region Initialization
 
-    internal ArchiveResource(IResource archive, IEntry entry, string name, Func<Stream, string, ValueTask<StreamWithDependency>> streamFactory)
+    internal ArchiveResource(IResource archive, IEntry entry, string name, Func<Stream, string, StreamWithDependency> streamFactory)
     {
         _archive = archive;
         _streamFactory = streamFactory;
@@ -63,7 +63,7 @@ internal sealed class ArchiveResource : IResource
     {
         var input = await _archive.GetContentAsync();
 
-        return await _streamFactory(input, _key);
+        return _streamFactory(input, _key);
     }
 
     #endregion
