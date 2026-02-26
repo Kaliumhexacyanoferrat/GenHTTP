@@ -6,7 +6,7 @@ the functionality rather than on messing around with configuration files or comp
 
 [![View - Documentation](https://img.shields.io/badge/view-Documentation-AB54FF)](https://genhttp.org/documentation/) [![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Core.svg)](https://www.nuget.org/packages/GenHTTP.Core/) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GenHTTP&metric=coverage)](https://sonarcloud.io/dashboard?id=GenHTTP) [![Discord](https://discordapp.com/api/guilds/1177529388229734410/widget.png?style=shield)](https://discord.gg/PRkwKrnrB4)
 
-## 🚀 Features
+## Features
 
 - Setup new webservices in a couple of minutes using [project templates](https://genhttp.org/documentation/content/templates/)
 - Supports [current standards](https://genhttp.org/features/) such as Open API, Websockets, Server Sent Events or JWT authentication
@@ -71,7 +71,7 @@ implement [webservices](https://genhttp.org/documentation/content/frameworks/web
 or [single page applications](https://genhttp.org/documentation/content/frameworks/single-page-applications/) and how
 to [host your application](https://genhttp.org/documentation/hosting/) via Docker.
 
-## 🤔  Support
+## Support
 
 If you encounter issues implementing your application, feel free
 to [join our Discord community](https://discord.gg/PRkwKrnrB4) to get help.
@@ -79,7 +79,7 @@ to [join our Discord community](https://discord.gg/PRkwKrnrB4) to get help.
 For commercial products and projects, GenHTTP provides additional support options
 [on request](https://genhttp.org/support/).
 
-## 💻 Platforms & Releases
+## Platforms & Releases
 
 GenHTTP targets all .NET versions currently [supported by Microsoft](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core).
 Major versions are released once a year, following the .NET release cycle.
@@ -91,7 +91,7 @@ Additionally, our automated tests ensure full compatibility on the following pla
 | Windows | `x64`, `arm64`          |
 | macOS   | `x64`, `arm64`          |
 
-## ⚙️ Building the Server
+## Building the Server
 
 To build the server from source, clone this repository and run the playground project launcher for .NET 10:
 
@@ -103,7 +103,7 @@ dotnet run
 
 This will build the playground project launcher with all the server dependencies and launch the server process on port 8080. You can access the playground in the browser via http://localhost:8080.
 
-## 🙌 Contributing
+## Contributing
 
 Writing a general purpose web application server is a tremendous task, so any contribution is very welcome. Besides
 extending the server core, you might want to
@@ -120,7 +120,7 @@ If you would like to contribute, please also have a look at
 the [contribution guidelines](https://github.com/Kaliumhexacyanoferrat/GenHTTP/blob/master/CONTRIBUTING.md) and
 the [good first issues](https://github.com/Kaliumhexacyanoferrat/GenHTTP/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
 
-## 🏺 History
+## History
 
 The web server was originally developed in 2008 to run on a netbook with an Intel Atom processor. Both IIS and Apache
 failed to render dynamic pages on such a slow CPU back then. The original project description can still be found
@@ -128,7 +128,7 @@ on [archive.org](https://web.archive.org/web/20100706192130/http://gene.homeip.n
 code has been moved to GitHub with the goal to rework the project to be able to run dockerized web applications written
 in C#. In 2024 the focus has shifted towards API development, dropping support for generating graphical web applications.
 
-## 📌 Links
+## Links
 
 - Related to
   GenHTTP: [Templates](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Templates) | [Website](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Website)
@@ -137,7 +137,7 @@ in C#. In 2024 the focus has shifted towards API development, dropping support f
 - Similar
   projects: [Wired.IO](https://github.com/MDA2AV/Wired.IO) | [Unhinged](https://github.com/MDA2AV/unhinged) | [SimpleW](https://github.com/stratdev3/SimpleW) | [Sisk](https://www.sisk-framework.org/) |  [NetCoreServer](https://github.com/chronoxor/NetCoreServer) | [Watson Webserver](https://github.com/jchristn/WatsonWebserver) | [EmbedIO](https://github.com/unosquare/embedio)
 
-## 🙏 Thanks
+## Thanks
 
 - Powered by [.NET](https://github.com/dotnet/core)
 - Modules implemented with [NSwag](https://github.com/RicoSuter/NSwag) | [Cottle](https://r3c.github.io/cottle/) | [SharpCompress](https://github.com/adamhathcock/sharpcompress) | [Fleck](https://github.com/statianzo/Fleck)
