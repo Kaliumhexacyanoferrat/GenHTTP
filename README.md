@@ -15,9 +15,9 @@ the functionality rather than on messing around with configuration files or comp
 - Optionally supports [Kestrel](https://genhttp.org/documentation/server/engines/) as an underlying HTTP engine (enables HTTP/2 and HTTP/3 via QUIC)
 - [Optimized](https://genhttp.org/features/) out of the box, small memory and storage [footprint](https://genhttp.org/features/#footprint)
 - Grade A+ security level according to SSL Labs, hardened against typical attack vectors
-- Achieves 81% in [Http11Probe](https://github.com/MDA2AV/Http11Probe) compliance checks
+- Achieves 81% in [Http11Probe](https://mda2av.github.io/Http11Probe/probe-results/) compliance checks
   
-## 📖 Getting Started
+## Getting Started
 
 This section shows how to create a new project from scratch using project templates and how to extend your existing
 application by embedding the GenHTTP engine.
