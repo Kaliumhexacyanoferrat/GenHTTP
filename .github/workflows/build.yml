@@ -5,10 +5,12 @@ on:
     branches:
       - main
       - 'release/*'
+      - 'feature/genhttp-next'
   push:
     branches:
       - main
-      - 'release/*'
+      - 'release/*'      
+      - 'feature/genhttp-next'
 
 jobs:
 
