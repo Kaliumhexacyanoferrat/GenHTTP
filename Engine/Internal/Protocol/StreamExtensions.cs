@@ -1,74 +1,77 @@
-﻿using System.Runtime.CompilerServices;
-
-using GenHTTP.Engine.Internal.Utilities;
+﻿using System.Buffers;
+using System.Runtime.CompilerServices;
 
 namespace GenHTTP.Engine.Internal.Protocol;
 
-internal static class StreamExtensions
+internal static class BufferWriterExtensions
 {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void Write(this PoolBufferedStream stream, string value)
+    internal static void Write(this IBufferWriter<byte> writer, string value)
     {
-        Span<byte> buffer = stackalloc byte[value.Length];
+        Span<byte> span = writer.GetSpan(value.Length);
 
         for (var i = 0; i < value.Length; i++)
         {
-            buffer[i] = (byte)value[i];
+            span[i] = (byte)value[i];
         }
 
-        stream.Write(buffer);
+        writer.Advance(value.Length);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void Write(this PoolBufferedStream stream, long number)
+    internal static void Write(this IBufferWriter<byte> writer, long number)
     {
         Span<byte> buffer = stackalloc byte[20];
 
         if (number.TryFormat(buffer, out var written))
         {
-            stream.Write(buffer[..written]);
+            var span = writer.GetSpan(written);
+            buffer[..written].CopyTo(span);
+            writer.Advance(written);
         }
         else
         {
-            throw new InvalidOperationException("Unable to write number to stream");
+            throw new InvalidOperationException("Unable to write number to buffer");
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void Write(this PoolBufferedStream stream, ulong number)
+    internal static void Write(this IBufferWriter<byte> writer, ulong number)
     {
         Span<byte> buffer = stackalloc byte[20];
 
         if (number.TryFormat(buffer, out var written))
         {
-            stream.Write(buffer[..written]);
+            var span = writer.GetSpan(written);
+            buffer[..written].CopyTo(span);
+            writer.Advance(written);
         }
         else
         {
-            throw new InvalidOperationException("Unable to write number to stream");
+            throw new InvalidOperationException("Unable to write number to buffer");
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void Write(this PoolBufferedStream stream, DateTime time)
+    internal static void Write(this IBufferWriter<byte> writer, DateTime time)
     {
         Span<char> charBuffer = stackalloc char[29]; // RFC1123 format is 29 chars
 
         if (time.ToUniversalTime().TryFormat(charBuffer, out var written, "r"))
         {
-            Span<byte> byteBuffer = stackalloc byte[written];
+            var span = writer.GetSpan(written);
 
             for (var i = 0; i < written; i++)
             {
-                byteBuffer[i] = (byte)charBuffer[i];
+                span[i] = (byte)charBuffer[i];
             }
 
-            stream.Write(byteBuffer);
+            writer.Advance(written);
         }
         else
         {
-            throw new InvalidOperationException("Unable to write date time to stream");
+            throw new InvalidOperationException("Unable to write date time to buffer");
         }
     }
 

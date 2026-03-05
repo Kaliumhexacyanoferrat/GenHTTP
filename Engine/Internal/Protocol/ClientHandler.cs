@@ -63,7 +63,7 @@ internal sealed class ClientHandler
         Stream = stream;
         Writer = PipeWriter.Create(stream);
 
-        ResponseHandler = new ResponseHandler(Server, socket, Writer, Configuration);
+        ResponseHandler = new ResponseHandler(Server, socket, Writer, stream, Configuration);
     }
 
     #endregion
@@ -116,7 +116,7 @@ internal sealed class ClientHandler
 
             while ((consumed = await RequestParser.TryParseAsync(reader, context.Request)) != null)
             {
-                var status = await HandleRequest(context.Request, true); // todo: data remaining?
+                var status = await HandleRequest(context.Request, false); // todo: data remaining?
 
                 if (status is Api.Protocol.Connection.Close)
                 {
@@ -129,13 +129,13 @@ internal sealed class ClientHandler
         catch (ProtocolException pe)
         {
             // client did something wrong
-            await SendError(pe, 400);
+            SendError(pe, 400);
             throw;
         }
         catch (Exception e)
         {
             // we did something wrong
-            await SendError(e, 500);
+            SendError(e, 500);
             throw;
         }
         finally
@@ -156,19 +156,20 @@ internal sealed class ClientHandler
 
         var closeRequested = false; // response.Connection is Api.Protocol.Connection.Close or Api.Protocol.Connection.Upgrade;
 
-        var active = await ResponseHandler.Handle(request, response, HttpProtocol.Http11, keepAliveRequested && !closeRequested);
+        var active = ResponseHandler.Handle(request, response, HttpProtocol.Http11, keepAliveRequested && !closeRequested);
 
         // flush if the client waits for this response
         // otherwise save flushes for improved performance when pipelining
         if (!dataRemaining && active)
         {
-            await Stream.FlushAsync();
+            await Writer.FlushAsync();
+            // await Stream.FlushAsync();
         }
 
         return (active && keepAliveRequested && !closeRequested) ? Api.Protocol.Connection.KeepAlive : Api.Protocol.Connection.Close;
     }
 
-    private async ValueTask SendError(Exception e, int status)
+    private void SendError(Exception e, int status)
     {
         try
         {
@@ -182,7 +183,7 @@ internal sealed class ClientHandler
                                                 .Content(new StringContent(message))
                                                 .Build();
 
-            await ResponseHandler.Handle(null, response, HttpProtocol.Http10, false);
+            ResponseHandler.Handle(null, response, HttpProtocol.Http10, false);
         }
         catch
         {

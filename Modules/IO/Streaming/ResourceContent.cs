@@ -31,30 +31,10 @@ public sealed class ResourceContent : IResponseContent
 
     public ValueTask WriteAsync(Stream target, uint bufferSize) => Resource.WriteAsync(target, bufferSize);
 
-    public async ValueTask WriteAsync(IResponseSink sink)
+    public ValueTask WriteAsync(IResponseSink sink)
     {
-        // todo: rework IResource infrastructure
-
-        var writer = sink.Writer;
-
-        var buffer = ArrayPool<byte>.Shared.Rent(4096);
-
-        try
-        {
-            using var source = await Resource.GetContentAsync();
-
-            int read;
-
-            while ((read = source.Read(buffer, 0, buffer.Length)) > 0)
-            {
-                writer.Write(buffer.AsSpan().Slice(0, read));
-            }
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(buffer);
-        }
-
+        Resource.Write(sink.Writer);
+        return ValueTask.CompletedTask;
     }
 
     #endregion

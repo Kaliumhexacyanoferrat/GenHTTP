@@ -14,6 +14,8 @@ public sealed class ContentProvider : IHandler
     private readonly ReadOnlyMemory<byte> _contentTypeName = "Content-Type"u8.ToArray();
     private readonly ReadOnlyMemory<byte> _contentTypeValue = "text/plain"u8.ToArray();
 
+    private readonly ReadOnlyMemory<byte> _contentLengthName = "Content-Length"u8.ToArray();
+
     #region Get-/Setters
 
     public IResource Resource { get; }
@@ -31,6 +33,7 @@ public sealed class ContentProvider : IHandler
         Resource = resourceProvider;
 
         Content = new ResourceContent(Resource);
+
        // ContentType = Resource.ContentType ?? FlexibleContentType.Get(Resource.Name?.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload);
     }
 
