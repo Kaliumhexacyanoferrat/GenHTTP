@@ -1,15 +1,14 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Conversion;
-using GenHTTP.Modules.Conversion.Serializers;
-using GenHTTP.Modules.Conversion.Serializers.Json;
 using GenHTTP.Modules.ErrorHandling.Provider;
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.ErrorHandling.Mappers;
 
-public sealed class StructuredErrorMapper : IErrorMapper<Exception>
+// todo
+
+/*public sealed class StructuredErrorMapper : IErrorMapper<Exception>
 {
 
     #region Initialization
@@ -88,4 +87,4 @@ public sealed class StructuredErrorMapper : IErrorMapper<Exception>
 
     #endregion
 
-}
+}*/

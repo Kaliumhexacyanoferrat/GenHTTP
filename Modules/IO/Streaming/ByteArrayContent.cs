@@ -2,6 +2,7 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.IO.Streaming;
 
+/*
 /// <summary>
 /// Response content backed by a byte array.
 /// </summary>
@@ -56,3 +57,4 @@ public sealed class ByteArrayContent : IResponseContent
 
     #endregion
 }
+*/

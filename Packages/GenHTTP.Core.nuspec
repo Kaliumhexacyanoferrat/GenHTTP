@@ -26,7 +26,8 @@
 
                 <dependency id="GenHTTP.Engine.Internal" version="11.0.0"/>
 
-                <dependency id="GenHTTP.Modules.Practices" version="11.0.0"/>
+                <!--<dependency id="GenHTTP.Modules.Practices" version="11.0.0"/>-->
+
                 <dependency id="GenHTTP.Modules.IO" version="11.0.0"/>
                 <dependency id="GenHTTP.Modules.Layouting" version="11.0.0"/>
 

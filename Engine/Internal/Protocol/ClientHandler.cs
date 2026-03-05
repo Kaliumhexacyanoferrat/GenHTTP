@@ -2,17 +2,14 @@
 using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
-
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Engine.Internal.Protocol.Parser;
+using GenHTTP.Engine.Internal.Context;
+using GenHTTP.Engine.Internal.Parser;
 using GenHTTP.Engine.Internal.Utilities;
 using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Types;
-
 using Microsoft.Extensions.ObjectPool;
-
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
 namespace GenHTTP.Engine.Internal.Protocol;
@@ -45,6 +42,8 @@ internal sealed class ClientHandler
 
     internal PoolBufferedStream Stream { get; }
 
+    internal PipeWriter Writer { get; }
+
     private ResponseHandler ResponseHandler { get; }
 
     #endregion
@@ -62,8 +61,9 @@ internal sealed class ClientHandler
         Configuration = config;
 
         Stream = stream;
+        Writer = PipeWriter.Create(stream);
 
-        ResponseHandler = new ResponseHandler(Server, socket, Stream, Configuration);
+        ResponseHandler = new ResponseHandler(Server, socket, Writer, Configuration);
     }
 
     #endregion
@@ -112,50 +112,31 @@ internal sealed class ClientHandler
 
         try
         {
-            using var buffer = new RequestBuffer(reader, Configuration);
+            SequencePosition? consumed;
 
-            var parser = new RequestParser(Configuration, context.Request);
-
-            try
+            while ((consumed = await RequestParser.TryParseAsync(reader, context.Request)) != null)
             {
-                var firstRequest = true;
+                var status = await HandleRequest(context.Request, true); // todo: data remaining?
 
-                while (Server.Running)
+                if (status is Api.Protocol.Connection.Close)
                 {
-                    if (firstRequest)
-                    {
-                        firstRequest = false;
-                    }
-                    else
-                    {
-                        context.Reset();
-                    }
-
-                    if (!await parser.TryParseAsync(buffer))
-                    {
-                        break;
-                    }
-
-                    var status = await HandleRequest(context.Request, !buffer.ReadRequired);
-
-                    if (status is Api.Protocol.Connection.Close)
-                    {
-                        return;
-                    }
+                    return;
                 }
+
+                reader.AdvanceTo(consumed.Value);
             }
-            catch (ProtocolException pe)
-            {
-                // client did something wrong
-                await SendError(pe, ResponseStatus.BadRequest);
-                throw;
-            }
-            catch (Exception e)
-            {
-                // we did something wrong
-                await SendError(e, ResponseStatus.InternalServerError);
-                throw;
-            }
+        }
+        catch (ProtocolException pe)
+        {
+            // client did something wrong
+            await SendError(pe, 400);
+            throw;
+        }
+        catch (Exception e)
+        {
+            // we did something wrong
+            await SendError(e, 500);
+            throw;
         }
         finally
         {
@@ -167,30 +148,41 @@ internal sealed class ClientHandler
 
     private async ValueTask<Connection> HandleRequest(Request request, bool dataRemaining)
     {
-        request.SetConnection(Server, EndPoint, Connection.GetAddress(), ClientCertificate);
+        // request.SetConnection(Server, EndPoint, Connection.GetAddress(), ClientCertificate);
 
-        var keepAliveRequested = request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? request.ProtocolType == HttpProtocol.Http11;
+        var keepAliveRequested = true; // request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? request.ProtocolType == HttpProtocol.Http11;
 
         var response = await Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
 
-        var closeRequested = response.Connection is Api.Protocol.Connection.Close or Api.Protocol.Connection.Upgrade;
+        var closeRequested = false; // response.Connection is Api.Protocol.Connection.Close or Api.Protocol.Connection.Upgrade;
 
-        var active = await ResponseHandler.Handle(request, response, request.ProtocolType, keepAliveRequested && !closeRequested, dataRemaining);
+        var active = await ResponseHandler.Handle(request, response, HttpProtocol.Http11, keepAliveRequested && !closeRequested);
+
+        // flush if the client waits for this response
+        // otherwise save flushes for improved performance when pipelining
+        if (!dataRemaining && active)
+        {
+            await Stream.FlushAsync();
+        }
 
         return (active && keepAliveRequested && !closeRequested) ? Api.Protocol.Connection.KeepAlive : Api.Protocol.Connection.Close;
     }
 
-    private async ValueTask SendError(Exception e, ResponseStatus status)
+    private async ValueTask SendError(Exception e, int status)
     {
         try
         {
             var message = Server.Development ? e.ToString() : e.Message;
 
-            using var response = new ResponseBuilder(new()).Status(status)
-                                                           .Content(new StringContent(message))
-                                                           .Build();
+            // todo status code mapping
 
-            await ResponseHandler.Handle(null, response, HttpProtocol.Http10, false, false);
+
+            var response = new ResponseBuilder().Raw()
+                                                .Status(status, status == 500 ? "Internal Server Error"u8.ToArray() : "Bad Request"u8.ToArray())
+                                                .Content(new StringContent(message))
+                                                .Build();
+
+            await ResponseHandler.Handle(null, response, HttpProtocol.Http10, false);
         }
         catch
         {

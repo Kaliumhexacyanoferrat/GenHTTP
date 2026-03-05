@@ -4,6 +4,7 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.IO.Providers;
 
+/*
 public sealed class ResourceHandler : IHandler
 {
 
@@ -46,3 +47,4 @@ public sealed class ResourceHandler : IHandler
     #endregion
 
 }
+*/

@@ -5,6 +5,9 @@ using GenHTTP.Modules.Pages;
 
 namespace GenHTTP.Modules.ErrorHandling.Mappers;
 
+// todo
+
+/*
 public class HtmlErrorMapper : IErrorMapper<Exception>
 {
 
@@ -42,3 +45,4 @@ public class HtmlErrorMapper : IErrorMapper<Exception>
                       .Build();
     }
 }
+*/

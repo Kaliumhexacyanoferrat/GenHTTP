@@ -4,6 +4,7 @@ using GenHTTP.Modules.IO.Providers;
 
 namespace GenHTTP.Modules.IO;
 
+/*
 /// <summary>
 /// Generates a file download response for a given resource.
 /// </summary>
@@ -22,3 +23,4 @@ public static class Download
     /// <param name="resource">The resource to be provided</param>
     public static DownloadProviderBuilder From(IResource resource) => new DownloadProviderBuilder().Resource(resource);
 }
+*/

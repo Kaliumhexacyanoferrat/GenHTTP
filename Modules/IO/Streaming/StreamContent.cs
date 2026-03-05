@@ -2,6 +2,7 @@
 
 namespace GenHTTP.Modules.IO.Streaming;
 
+/*
 public sealed class StreamContent : IResponseContent, IDisposable
 {
     private readonly ChecksumProvider _checksumProvider;
@@ -78,3 +79,4 @@ public sealed class StreamContent : IResponseContent, IDisposable
     #endregion
 
 }
+*/

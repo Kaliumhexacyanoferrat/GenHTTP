@@ -4,6 +4,7 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.IO.Ranges;
 
+/*
 public partial class RangeSupportConcern : IConcern
 {
     private static readonly Regex Pattern = CreatePattern();
@@ -134,7 +135,7 @@ public partial class RangeSupportConcern : IConcern
 
         return request.Respond()
                       .Status(ResponseStatus.RequestedRangeNotSatisfiable)
-                      .Header("Content-Range", $"bytes */{totalLength}")
+                      .Header("Content-Range", $"bytes /{totalLength}") // todo: add * back before the slash :)
                       .Content(content)
                       .Build();
     }
@@ -142,3 +143,4 @@ public partial class RangeSupportConcern : IConcern
     #endregion
 
 }
+*/

@@ -2,6 +2,7 @@
 
 namespace GenHTTP.Modules.IO;
 
+/*
 public static class RangeSupportExtensions
 {
 
@@ -17,3 +18,4 @@ public static class RangeSupportExtensions
     }
 
 }
+*/

@@ -5,6 +5,9 @@ namespace GenHTTP.Modules.IO;
 public static class RequestExtensions
 {
 
+    // todo
+
+    /*
     public static bool HasType(this IRequest request, params RequestMethod[] methods)
     {
         foreach (var method in methods)
@@ -31,5 +34,6 @@ public static class RequestExtensions
 
         return null;
     }
+    */
 
 }

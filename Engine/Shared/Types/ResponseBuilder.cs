@@ -1,87 +1,24 @@
 ﻿using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Protocol.Raw;
 
 namespace GenHTTP.Engine.Shared.Types;
 
-public sealed class ResponseBuilder(Response response) : IResponseBuilder
+public class ResponseBuilder : IResponseBuilder
 {
+    private readonly Response _response;
 
-    #region Functionality
+    private readonly RawResponseBuilder _raw;
 
-    public IResponseBuilder Length(ulong length)
+    public ResponseBuilder()
     {
-        response.ContentLength = length;
-        return this;
+        _response = new(this);
+        _raw = new(_response, this);
     }
 
-    public IResponseBuilder Content(IResponseContent content)
-    {
-        response.Content = content;
-        response.ContentLength = content.Length;
+    public IRawResponseBuilder Raw() => _raw;
 
-        return this;
-    }
+    public IResponse Build() => _response;
 
-    public IResponseBuilder Type(FlexibleContentType contentType)
-    {
-        response.ContentType = contentType;
-        return this;
-    }
-
-    public IResponseBuilder Cookie(Cookie cookie)
-    {
-        response.WriteableCookies[cookie.Name] = cookie;
-        return this;
-    }
-
-    public IResponseBuilder Header(string key, string value)
-    {
-        response.Headers.Add(key, value);
-        return this;
-    }
-
-    public IResponseBuilder Encoding(string encoding)
-    {
-        response.ContentEncoding = encoding;
-        return this;
-    }
-
-    public IResponseBuilder Expires(DateTime expiryDate)
-    {
-        response.Expires = expiryDate;
-        return this;
-    }
-
-    public IResponseBuilder Modified(DateTime modificationDate)
-    {
-        response.Modified = modificationDate;
-        return this;
-    }
-
-    public IResponseBuilder Status(ResponseStatus status)
-    {
-        response.Status = new FlexibleResponseStatus(status);
-        return this;
-    }
-
-    public IResponseBuilder Status(int status, string reason)
-    {
-        response.Status = new FlexibleResponseStatus(status, reason);
-        return this;
-    }
-
-    public IResponseBuilder Connection(Connection handling)
-    {
-        response.Connection = handling;
-        return this;
-    }
-
-    public void Reset()
-    {
-        response.Reset();
-    }
-
-    public IResponse Build() => response;
-
-    #endregion
+    public void Reset() => _response.Reset();
 
 }

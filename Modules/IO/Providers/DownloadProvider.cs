@@ -4,6 +4,7 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.IO.Providers;
 
+/*
 public sealed class DownloadProvider : IHandler
 {
 
@@ -74,3 +75,4 @@ public sealed class DownloadProvider : IHandler
     #endregion
 
 }
+*/

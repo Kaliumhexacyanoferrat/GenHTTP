@@ -1,9 +1,9 @@
-﻿using System.Net.Sockets;
+﻿using System.Buffers;
+using System.Net.Sockets;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Engine.Internal.Utilities;
 using GenHTTP.Engine.Shared.Infrastructure;
 
 namespace GenHTTP.Engine.Internal.Protocol;
@@ -17,7 +17,7 @@ internal sealed class ResponseHandler
 
     private Socket Socket { get; }
 
-    private PoolBufferedStream Output { get; }
+    private IBufferWriter<byte> Output { get; }
 
     private NetworkConfiguration Configuration { get; }
 
@@ -25,7 +25,7 @@ internal sealed class ResponseHandler
 
     #region Initialization
 
-    internal ResponseHandler(IServer server, Socket socket, PoolBufferedStream output, NetworkConfiguration configuration)
+    internal ResponseHandler(IServer server, Socket socket, IBufferWriter<byte> output, NetworkConfiguration configuration)
     {
         Server = server;
         Socket = socket;
@@ -39,7 +39,7 @@ internal sealed class ResponseHandler
 
     #region Functionality
 
-    internal async ValueTask<bool> Handle(IRequest? request, IResponse response, HttpProtocol version, bool keepAlive, bool dataRemaining)
+    internal async ValueTask<bool> Handle(IRequest? request, IResponse response, HttpProtocol version, bool keepAlive)
     {
         try
         {
@@ -55,13 +55,6 @@ internal sealed class ResponseHandler
             }
 
             var connected = Socket.Connected;
-
-            // flush if the client waits for this response
-            // otherwise save flushes for improved performance when pipelining
-            if (!dataRemaining && connected)
-            {
-                await Output.FlushAsync();
-            }
 
             if (request != null)
             {
