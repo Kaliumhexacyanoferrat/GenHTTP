@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Buffers;
+using System.Text;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
@@ -45,6 +46,11 @@ public sealed class StringResource : IResource
     public ValueTask<ulong> CalculateChecksumAsync() => new(Checksum);
 
     public ValueTask WriteAsync(Stream target, uint bufferSize) => target.WriteAsync(Content.AsMemory());
+
+    public void Write(IBufferWriter<byte> writer)
+    {
+        writer.Write(Content.AsSpan());
+    }
 
     #endregion
 

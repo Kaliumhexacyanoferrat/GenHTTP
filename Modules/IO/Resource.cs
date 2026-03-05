@@ -51,12 +51,12 @@ public static class Resource
     /// Creates a resource to be fetched from the given URL.
     /// </summary>
     /// <param name="source">The URI to fetch the resource from</param>
-    public static WebResourceBuilder FromWeb(string source) => new WebResourceBuilder().Source(source);
+    // public static WebResourceBuilder FromWeb(string source) => new WebResourceBuilder().Source(source);
 
     /// <summary>
     /// Creates a resource to be fetched from the given URL.
     /// </summary>
     /// <param name="source">The URI to fetch the resource from</param>
-    public static WebResourceBuilder FromWeb(Uri source) => new WebResourceBuilder().Source(source);
+    // public static WebResourceBuilder FromWeb(Uri source) => new WebResourceBuilder().Source(source);
 
 }
