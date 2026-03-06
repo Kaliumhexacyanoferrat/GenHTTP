@@ -1,6 +1,7 @@
 ﻿using System.Buffers;
 using System.IO.Pipelines;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
@@ -9,6 +10,10 @@ using GenHTTP.Engine.Internal.Parser;
 using GenHTTP.Engine.Internal.Utilities;
 using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Types;
+using Glyph11;
+using Glyph11.Parser.FlexibleParser;
+using Glyph11.Protocol;
+using Glyph11.Validation;
 using Microsoft.Extensions.ObjectPool;
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
@@ -24,7 +29,8 @@ namespace GenHTTP.Engine.Internal.Protocol;
 /// </remarks>
 internal sealed class ClientHandler
 {
-    private static readonly StreamPipeReaderOptions ReaderOptions = new(MemoryPool<byte>.Shared, leaveOpen: true, bufferSize: 65536);
+    private static readonly StreamPipeReaderOptions ReaderOptions =
+        new(MemoryPool<byte>.Shared, leaveOpen: true, bufferSize: 65536);
 
     private static readonly DefaultObjectPool<ClientContext> ContextPool = new(new ClientContextPolicy(), 65536);
 
@@ -40,7 +46,7 @@ internal sealed class ClientHandler
 
     internal X509Certificate? ClientCertificate { get; set; }
 
-    internal PoolBufferedStream Stream { get; }
+    internal Stream Stream { get; }
 
     internal PipeWriter Writer { get; }
 
@@ -50,7 +56,8 @@ internal sealed class ClientHandler
 
     #region Initialization
 
-    internal ClientHandler(Socket socket, PoolBufferedStream stream, X509Certificate? clientCertificate, IServer server, IEndPoint endPoint, NetworkConfiguration config)
+    internal ClientHandler(Socket socket, Stream stream, X509Certificate? clientCertificate, IServer server,
+        IEndPoint endPoint, NetworkConfiguration config)
     {
         Server = server;
         EndPoint = endPoint;
@@ -109,21 +116,38 @@ internal sealed class ClientHandler
     private async ValueTask HandlePipe(PipeReader reader)
     {
         var context = ContextPool.Get();
-
+        
         try
         {
-            SequencePosition? consumed;
-
-            while ((consumed = await RequestParser.TryParseAsync(reader, context.Request)) != null)
+            var request = context.Request;
+            
+            var into = request.Source;
+            
+            while (true)
             {
-                var status = await HandleRequest(context.Request, false); // todo: data remaining?
+                var result = await reader.ReadAsync();
+                
+                var buffer = result.Buffer;
 
-                if (status is Api.Protocol.Connection.Close)
+                while (TryParseRequest(ref buffer, into))
                 {
-                    return;
+                    request.Apply();
+                    
+                    var status = await HandleRequest(context.Request);
+                    
+                    if (status is Api.Protocol.Connection.Close)
+                    {
+                        return;
+                    }
+                    
+                    request.Reset();
                 }
 
-                reader.AdvanceTo(consumed.Value);
+                await Writer.FlushAsync();
+
+                reader.AdvanceTo(buffer.Start, buffer.End);
+
+                if (result.IsCompleted) break;
             }
         }
         catch (ProtocolException pe)
@@ -145,8 +169,20 @@ internal sealed class ClientHandler
             await reader.CompleteAsync();
         }
     }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool TryParseRequest(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
+    {
+        if (!FlexibleParser.TryExtractFullHeader(ref buffer, into, out var bytesRead))
+        {
+            return false;
+        }
 
-    private async ValueTask<Connection> HandleRequest(Request request, bool dataRemaining)
+        buffer = buffer.Slice(bytesRead);
+        return true;
+    }
+
+    private async ValueTask<Connection> HandleRequest(Request request)
     {
         // request.SetConnection(Server, EndPoint, Connection.GetAddress(), ClientCertificate);
 
@@ -158,15 +194,9 @@ internal sealed class ClientHandler
 
         var active = ResponseHandler.Handle(request, response, HttpProtocol.Http11, keepAliveRequested && !closeRequested);
 
-        // flush if the client waits for this response
-        // otherwise save flushes for improved performance when pipelining
-        if (!dataRemaining && active)
-        {
-            await Writer.FlushAsync();
-            // await Stream.FlushAsync();
-        }
-
-        return (active && keepAliveRequested && !closeRequested) ? Api.Protocol.Connection.KeepAlive : Api.Protocol.Connection.Close;
+        return (active && keepAliveRequested && !closeRequested)
+            ? Api.Protocol.Connection.KeepAlive
+            : Api.Protocol.Connection.Close;
     }
 
     private void SendError(Exception e, int status)
@@ -179,9 +209,9 @@ internal sealed class ClientHandler
 
 
             var response = new ResponseBuilder().Raw()
-                                                .Status(status, status == 500 ? "Internal Server Error"u8.ToArray() : "Bad Request"u8.ToArray())
-                                                .Content(new StringContent(message))
-                                                .Build();
+                .Status(status, status == 500 ? "Internal Server Error"u8.ToArray() : "Bad Request"u8.ToArray())
+                .Content(new StringContent(message))
+                .Build();
 
             ResponseHandler.Handle(null, response, HttpProtocol.Http10, false);
         }
@@ -192,5 +222,5 @@ internal sealed class ClientHandler
     }
 
     #endregion
-
+    
 }

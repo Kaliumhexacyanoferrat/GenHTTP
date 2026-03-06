@@ -29,7 +29,7 @@ internal sealed class ResponseHandler : IResponseSink
 
     #region Initialization
 
-    internal ResponseHandler(IServer server, Socket socket, IBufferWriter<byte> writer, PoolBufferedStream stream, NetworkConfiguration configuration)
+    internal ResponseHandler(IServer server, Socket socket, IBufferWriter<byte> writer, Stream stream, NetworkConfiguration configuration)
     {
         Server = server;
         Socket = socket;

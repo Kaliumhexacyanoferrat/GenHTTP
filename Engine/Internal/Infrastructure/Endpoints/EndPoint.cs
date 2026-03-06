@@ -109,7 +109,7 @@ internal abstract class EndPoint : IEndPoint
 
     protected abstract ValueTask Accept(Socket client);
 
-    protected ValueTask Handle(Socket client, PoolBufferedStream inputStream, X509Certificate? clientCertificate = null)
+    protected ValueTask Handle(Socket client, Stream inputStream, X509Certificate? clientCertificate = null)
     {
         client.NoDelay = true;
 

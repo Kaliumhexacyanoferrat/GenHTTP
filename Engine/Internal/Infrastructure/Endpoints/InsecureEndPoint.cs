@@ -29,7 +29,7 @@ internal sealed class InsecureEndPoint : EndPoint
 
     #region Functionality
 
-    protected override ValueTask Accept(Socket client) => Handle(client, new PoolBufferedStream(new NetworkStream(client), Configuration.TransferBufferSize));
+    protected override ValueTask Accept(Socket client) => Handle(client, new NetworkStream(client));
 
     #endregion
 
