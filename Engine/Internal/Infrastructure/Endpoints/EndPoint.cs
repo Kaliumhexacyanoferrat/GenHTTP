@@ -120,9 +120,9 @@ internal abstract class EndPoint : IEndPoint
 
         try
         {
-           context.Handler.Apply(client, inputStream, reader, context.Request, clientCertificate, Server, this, Configuration);
+           context.Apply(client, inputStream, reader, clientCertificate, Server, this, Configuration);
 
-           await context.Handler.Run();
+           await context.ClientHandler.Run();
         }
         finally
         {

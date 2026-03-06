@@ -5,7 +5,14 @@ namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
 
 public sealed class SocketPipeReader : IAsyncDisposable
 {
-    private const int MinimumBufferSize = 65536;
+    private const int MaxOsReceiveSize = 65_536;
+
+    private static readonly PipeOptions PipeOptions = new(
+        minimumSegmentSize: MaxOsReceiveSize,
+        pauseWriterThreshold: MaxOsReceiveSize * 2,
+        resumeWriterThreshold: MaxOsReceiveSize,
+        useSynchronizationContext: false
+    );
 
     private readonly Socket _socket;
     private readonly Pipe _pipe;
@@ -14,22 +21,22 @@ public sealed class SocketPipeReader : IAsyncDisposable
 
     public PipeReader Reader => _pipe.Reader;
 
-    public SocketPipeReader(Socket socket, PipeOptions? options = null)
+    public SocketPipeReader(Socket socket)
     {
         _socket = socket ?? throw new ArgumentNullException(nameof(socket));
-        _pipe = new Pipe(options ?? PipeOptions.Default);
+        _pipe = new Pipe(PipeOptions);
         _fillTask = FillPipeAsync(_cts.Token);
     }
 
     private async Task FillPipeAsync(CancellationToken ct)
     {
-        PipeWriter writer = _pipe.Writer;
+        var writer = _pipe.Writer;
 
         try
         {
             while (!ct.IsCancellationRequested)
             {
-                var memory = writer.GetMemory(MinimumBufferSize);
+                var memory = writer.GetMemory(MaxOsReceiveSize);
 
                 var bytesRead = await _socket
                     .ReceiveAsync(memory, SocketFlags.None, ct)
@@ -66,7 +73,7 @@ public sealed class SocketPipeReader : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        _cts.Cancel();
+        await _cts.CancelAsync();
 
         try
         {

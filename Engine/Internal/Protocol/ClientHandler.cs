@@ -2,19 +2,16 @@
 using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
+
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Internal.Context;
-using GenHTTP.Engine.Internal.Parser;
-using GenHTTP.Engine.Internal.Utilities;
-using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Types;
+
 using Glyph11;
 using Glyph11.Parser.FlexibleParser;
 using Glyph11.Protocol;
-using Glyph11.Validation;
-using Microsoft.Extensions.ObjectPool;
+
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
 namespace GenHTTP.Engine.Internal.Protocol;
@@ -27,116 +24,50 @@ namespace GenHTTP.Engine.Internal.Protocol;
 /// Implements keep alive and maintains the connection state (e.g. by
 /// closing it after the last request has been handled).
 /// </remarks>
-internal sealed class ClientHandler
+internal sealed class ClientHandler(ClientContext context)
 {
     private static readonly TimeSpan InitialReadTimeout = TimeSpan.FromSeconds(10);
 
     private static readonly TimeSpan KeepAliveTimeout = TimeSpan.FromSeconds(60);
 
-    private IServer? _server;
-
-    private IEndPoint? _endPoint;
-
-    private NetworkConfiguration? _networkConfiguration;
-
-    private Socket? _connection;
-
-    private X509Certificate? _clientCertificate;
-
-    private Stream? _stream;
-
-    private PipeReader? _reader;
-    
-    private PipeWriter? _writer;
-
-    private Request? _request;
-
-    private ResponseHandler? _responseHandler;
-    
-    #region Get-/Setter
-
-    internal IServer Server => _server ?? throw new InvalidOperationException("Handler has not been initialized");
-
-    internal IEndPoint EndPoint => _endPoint ?? throw new InvalidOperationException("Handler has not been initialized");
-
-    internal NetworkConfiguration Configuration => _networkConfiguration ?? throw new InvalidOperationException("Handler has not been initialized");
-
-    internal Socket Connection => _connection ?? throw new InvalidOperationException("Handler has not been initialized");
-
-    internal X509Certificate? ClientCertificate => _clientCertificate;
-
-    internal Stream Stream => _stream ?? throw new InvalidOperationException("Handler has not been initialized");
-
-    internal PipeWriter Writer => _writer ?? throw new InvalidOperationException("Handler has not been initialized");
-    
-    internal PipeReader Reader => _reader ?? throw new InvalidOperationException("Handler has not been initialized");
-
-    private Request Request => _request ?? throw new InvalidOperationException("Handler has not been initialized");
-    
-    private ResponseHandler ResponseHandler => _responseHandler ?? throw new InvalidOperationException("Handler has not been initialized");
-
-    #endregion
-
-    #region Initialization
-
-    internal void Apply(Socket socket, Stream stream, PipeReader reader, Request request, X509Certificate? clientCertificate, IServer server, IEndPoint endPoint, NetworkConfiguration config)
-    {
-        _server = server;
-        _endPoint = endPoint;
-
-        _connection = socket;
-        _clientCertificate = clientCertificate;
-
-        _networkConfiguration = config;
-
-        _stream = stream;
-
-        _reader = reader;
-        _writer = PipeWriter.Create(stream);
-
-        _request = request;
-
-        _responseHandler = new ResponseHandler(Server, socket, Writer, stream, Configuration);
-    }
-
-    #endregion
-
     #region Functionality
 
     internal async ValueTask Run()
     {
+        var connection = context.Connection;
+        
         try
         {
-            await HandlePipe(Reader).ConfigureAwait(false);
+            await HandlePipe(context.Reader).ConfigureAwait(false);
         }
         catch (Exception e)
         {
-            Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, Connection.GetAddress(), e);
+            context.Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, connection.GetAddress(), e);
         }
         finally
         {
             try
             {
-                await Stream.DisposeAsync();
+                await context.Stream.DisposeAsync();
             }
             catch (Exception e)
             {
-                Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, Connection.GetAddress(), e);
+                context.Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, connection.GetAddress(), e);
             }
 
             try
             {
-                Connection.Shutdown(SocketShutdown.Both);
+                connection.Shutdown(SocketShutdown.Both);
                 
-                await Connection.DisconnectAsync(false);
+                await connection.DisconnectAsync(false);
                 
-                Connection.Close();
+                connection.Close();
 
-                Connection.Dispose();
+                connection.Dispose();
             }
             catch (Exception e)
             {
-                Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, Connection.GetAddress(), e);
+                context.Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, connection.GetAddress(), e);
             }
         }
     }
@@ -145,7 +76,7 @@ internal sealed class ClientHandler
     {
         var cts = new CancellationTokenSource(InitialReadTimeout);
 
-        var request = Request;
+        var request = context.Request;
         var into = request.Source;
 
         try
@@ -185,7 +116,7 @@ internal sealed class ClientHandler
 
                 if (!handledRequest) break;
 
-                await Writer.FlushAsync();
+                await context.Writer.FlushAsync();
 
                 reader.AdvanceTo(buffer.Start, buffer.End);
 
@@ -240,25 +171,21 @@ internal sealed class ClientHandler
             keepAliveRequested =
                 true; // request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? request.ProtocolType == HttpProtocol.Http11;
 
-        var response = await Server.Handler.HandleAsync(request) ??
+        var response = await context.Server.Handler.HandleAsync(request) ??
                        throw new InvalidOperationException("The root request handler did not return a response");
 
-        var closeRequested =
-            false; // response.Connection is Api.Protocol.Connection.Close or Api.Protocol.Connection.Upgrade;
+        var closeRequested = false; // response.Connection is Api.Protocol.Connection.Close or Api.Protocol.Connection.Upgrade;
 
-        var active =
-            ResponseHandler.Handle(request, response, HttpProtocol.Http11, keepAliveRequested && !closeRequested);
+        var active = context.ResponseHandler.Handle(request, response, HttpProtocol.Http11, keepAliveRequested && !closeRequested);
 
-        return (active && keepAliveRequested && !closeRequested)
-            ? Api.Protocol.Connection.KeepAlive
-            : Api.Protocol.Connection.Close;
+        return (active && keepAliveRequested && !closeRequested) ? Connection.KeepAlive : Connection.Close;
     }
 
     private void SendError(Exception e, int status)
     {
         try
         {
-            var message = Server.Development ? e.ToString() : e.Message;
+            var message = context.Server.Development ? e.ToString() : e.Message;
 
             // todo status code mapping
 
@@ -267,7 +194,7 @@ internal sealed class ClientHandler
                 .Content(new StringContent(message))
                 .Build();
 
-            ResponseHandler.Handle(null, response, HttpProtocol.Http10, false);
+            context.ResponseHandler.Handle(null, response, HttpProtocol.Http10, false);
         }
         catch
         {

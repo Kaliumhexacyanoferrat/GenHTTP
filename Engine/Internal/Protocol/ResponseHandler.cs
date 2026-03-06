@@ -4,44 +4,21 @@ using System.Net.Sockets;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Protocol.Raw;
-
+using GenHTTP.Engine.Internal.Context;
 using GenHTTP.Engine.Internal.Utilities;
 using GenHTTP.Engine.Shared.Infrastructure;
 
 namespace GenHTTP.Engine.Internal.Protocol;
 
-internal sealed class ResponseHandler : IResponseSink
+internal sealed class ResponseHandler(ClientContext context) : IResponseSink
 {
 
-    #region Get-/Setters
+    // todo: have a separate sink
 
-    private IServer Server { get; }
+    public IBufferWriter<byte> Writer => context.Writer;
 
-    private Socket Socket { get; }
-
-    private NetworkConfiguration Configuration { get; }
-
-    public IBufferWriter<byte> Writer { get; }
-
-    public Stream Stream { get; }
-
-    #endregion
-
-    #region Initialization
-
-    internal ResponseHandler(IServer server, Socket socket, IBufferWriter<byte> writer, Stream stream, NetworkConfiguration configuration)
-    {
-        Server = server;
-        Socket = socket;
-
-        Writer = writer;
-        Stream = stream;
-
-        Configuration = configuration;
-    }
-
-    #endregion
-
+    public Stream Stream => context.Stream;
+    
     #region Functionality
 
     internal bool Handle(IRequest? request, IResponse response, HttpProtocol version, bool keepAlive)
@@ -54,18 +31,18 @@ internal sealed class ResponseHandler : IResponseSink
 
             WriteHeader(raw, version, keepAlive);
 
-            Writer.Write("\r\n"u8);
+            context.Writer.Write("\r\n"u8);
 
             if (ShouldSendBody(request, response))
             {
                 WriteBody(raw);
             }
 
-            var connected = Socket.Connected;
+            var connected = context.Connection.Connected;
 
             if (request != null)
             {
-                Server.Companion?.OnRequestHandled(request, response);
+                context.Server.Companion?.OnRequestHandled(request, response);
             }
 
             return connected;
@@ -88,12 +65,14 @@ internal sealed class ResponseHandler : IResponseSink
 
     private void WriteStatus(IRequest? request, IRawResponse response)
     {
-        Writer.Write("HTTP/1.1 "u8);
-        Writer.Write(response.StatusCode);
-        Writer.Write(" "u8);
-        Writer.Write(response.StatusPhrase.Span);
+        var writer = context.Writer;
+        
+        writer.Write("HTTP/1.1 "u8);
+        writer.Write(response.StatusCode);
+        writer.Write(" "u8);
+        writer.Write(response.StatusPhrase.Span);
 
-        Writer.Write("\r\n"u8);
+        writer.Write("\r\n"u8);
 
         // todo
         // Output.Write((request?.ProtocolType == HttpProtocol.Http11) ? "HTTP/1.1 "u8 : "HTTP/1.0 "u8);
@@ -101,6 +80,8 @@ internal sealed class ResponseHandler : IResponseSink
 
     private void WriteHeader(IRawResponse response, HttpProtocol version, bool keepAlive)
     {
+        var writer = context.Writer;
+        
         /*if (response.Headers.TryGetValue("Server", out var server))
         {
             Output.Write("Server: "u8);
@@ -109,14 +90,14 @@ internal sealed class ResponseHandler : IResponseSink
         }
         else
         {*/
-            Writer.Write("Server: GenHTTP/"u8);
-            Writer.Write(Server.Version);
-            Writer.Write("\r\n"u8);
+        writer.Write("Server: GenHTTP/"u8);
+        writer.Write(context.Server.Version);
+        writer.Write("\r\n"u8);
         //}
 
-        Writer.Write("Date: "u8);
-        Writer.Write(DateHeader.GetValue());
-        Writer.Write("\r\n"u8);
+        writer.Write("Date: "u8);
+        writer.Write(DateHeader.GetValue());
+        writer.Write("\r\n"u8);
 
         var content = response.Content;
 
@@ -126,9 +107,9 @@ internal sealed class ResponseHandler : IResponseSink
 
             if (length != null)
             {
-                Writer.Write("Content-Length: "u8);
-                Writer.Write(length.Value);
-                Writer.Write("\r\n"u8);
+                writer.Write("Content-Length: "u8);
+                writer.Write(length.Value);
+                writer.Write("\r\n"u8);
             }
         }
 
@@ -198,10 +179,10 @@ internal sealed class ResponseHandler : IResponseSink
         {
             var header = headers[i];
 
-            Writer.Write(header.Key.Span);
-            Writer.Write(": "u8);
-            Writer.Write(header.Value.Span);
-            Writer.Write("\r\n"u8);
+            writer.Write(header.Key.Span);
+            writer.Write(": "u8);
+            writer.Write(header.Value.Span);
+            writer.Write("\r\n"u8);
         }
 
         /*if (response.HasCookies)
@@ -237,7 +218,7 @@ internal sealed class ResponseHandler : IResponseSink
 
     #region Helpers
 
-    private void WriteCookie(Cookie cookie)
+    /*private void WriteCookie(Cookie cookie)
     {
         Writer.Write("Set-Cookie: "u8);
         Writer.Write(cookie.Name);
@@ -251,7 +232,7 @@ internal sealed class ResponseHandler : IResponseSink
         }
 
         Writer.Write("; Path=/\r\n"u8);
-    }
+    }*/
 
     #endregion
 
