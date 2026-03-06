@@ -5,8 +5,6 @@ using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Engine.Internal.Context;
-using GenHTTP.Engine.Internal.Protocol;
-using GenHTTP.Engine.Internal.Utilities;
 using GenHTTP.Engine.Shared.Infrastructure;
 using Microsoft.Extensions.ObjectPool;
 

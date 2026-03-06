@@ -1,5 +1,4 @@
-﻿using System.IO.Pipelines;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 
 using GenHTTP.Api.Infrastructure;

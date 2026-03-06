@@ -104,7 +104,7 @@ internal sealed class ClientHandler(ClientContext context)
 
                     var status = await HandleRequest(request);
 
-                    if (status is Api.Protocol.Connection.Close)
+                    if (status is Connection.Close)
                     {
                         return;
                     }
