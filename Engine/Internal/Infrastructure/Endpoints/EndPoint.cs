@@ -1,17 +1,20 @@
-﻿using System.Net;
+﻿using System.IO.Pipelines;
+using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Infrastructure;
-
+using GenHTTP.Engine.Internal.Context;
 using GenHTTP.Engine.Internal.Protocol;
 using GenHTTP.Engine.Internal.Utilities;
 using GenHTTP.Engine.Shared.Infrastructure;
+using Microsoft.Extensions.ObjectPool;
 
 namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
 
 internal abstract class EndPoint : IEndPoint
 {
+    private static readonly DefaultObjectPool<ClientContext> ContextPool = new(new ClientContextPolicy(), 65536);
 
     #region Get-/Setters
 
@@ -109,11 +112,22 @@ internal abstract class EndPoint : IEndPoint
 
     protected abstract ValueTask Accept(Socket client);
 
-    protected ValueTask Handle(Socket client, Stream inputStream, X509Certificate? clientCertificate = null)
+    protected async ValueTask Handle(Socket client, Stream inputStream, PipeReader reader, X509Certificate? clientCertificate = null)
     {
         client.NoDelay = true;
+        
+        var context = ContextPool.Get();
 
-        return new ClientHandler(client, inputStream, clientCertificate, Server, this, Configuration).Run();
+        try
+        {
+           context.Handler.Apply(client, inputStream, reader, context.Request, clientCertificate, Server, this, Configuration);
+
+           await context.Handler.Run();
+        }
+        finally
+        {
+            ContextPool.Return(context);
+        }
     }
 
     private static IPAddress DetermineBindingAddress(IPAddress? address, bool dualStack)
@@ -135,7 +149,7 @@ internal abstract class EndPoint : IEndPoint
 
         return address;
     }
-
+    
     #endregion
 
     #region IDisposable Support

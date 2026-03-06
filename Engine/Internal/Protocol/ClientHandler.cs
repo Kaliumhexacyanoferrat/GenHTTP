@@ -29,48 +29,74 @@ namespace GenHTTP.Engine.Internal.Protocol;
 /// </remarks>
 internal sealed class ClientHandler
 {
-    private static readonly StreamPipeReaderOptions ReaderOptions =
-        new(MemoryPool<byte>.Shared, leaveOpen: true, bufferSize: 65536);
+    private static readonly TimeSpan InitialReadTimeout = TimeSpan.FromSeconds(10);
 
-    private static readonly DefaultObjectPool<ClientContext> ContextPool = new(new ClientContextPolicy(), 65536);
+    private static readonly TimeSpan KeepAliveTimeout = TimeSpan.FromSeconds(60);
 
+    private IServer? _server;
+
+    private IEndPoint? _endPoint;
+
+    private NetworkConfiguration? _networkConfiguration;
+
+    private Socket? _connection;
+
+    private X509Certificate? _clientCertificate;
+
+    private Stream? _stream;
+
+    private PipeReader? _reader;
+    
+    private PipeWriter? _writer;
+
+    private Request? _request;
+
+    private ResponseHandler? _responseHandler;
+    
     #region Get-/Setter
 
-    internal IServer Server { get; }
+    internal IServer Server => _server ?? throw new InvalidOperationException("Handler has not been initialized");
 
-    internal IEndPoint EndPoint { get; }
+    internal IEndPoint EndPoint => _endPoint ?? throw new InvalidOperationException("Handler has not been initialized");
 
-    internal NetworkConfiguration Configuration { get; }
+    internal NetworkConfiguration Configuration => _networkConfiguration ?? throw new InvalidOperationException("Handler has not been initialized");
 
-    internal Socket Connection { get; }
+    internal Socket Connection => _connection ?? throw new InvalidOperationException("Handler has not been initialized");
 
-    internal X509Certificate? ClientCertificate { get; set; }
+    internal X509Certificate? ClientCertificate => _clientCertificate;
 
-    internal Stream Stream { get; }
+    internal Stream Stream => _stream ?? throw new InvalidOperationException("Handler has not been initialized");
 
-    internal PipeWriter Writer { get; }
+    internal PipeWriter Writer => _writer ?? throw new InvalidOperationException("Handler has not been initialized");
+    
+    internal PipeReader Reader => _reader ?? throw new InvalidOperationException("Handler has not been initialized");
 
-    private ResponseHandler ResponseHandler { get; }
+    private Request Request => _request ?? throw new InvalidOperationException("Handler has not been initialized");
+    
+    private ResponseHandler ResponseHandler => _responseHandler ?? throw new InvalidOperationException("Handler has not been initialized");
 
     #endregion
 
     #region Initialization
 
-    internal ClientHandler(Socket socket, Stream stream, X509Certificate? clientCertificate, IServer server,
-        IEndPoint endPoint, NetworkConfiguration config)
+    internal void Apply(Socket socket, Stream stream, PipeReader reader, Request request, X509Certificate? clientCertificate, IServer server, IEndPoint endPoint, NetworkConfiguration config)
     {
-        Server = server;
-        EndPoint = endPoint;
+        _server = server;
+        _endPoint = endPoint;
 
-        Connection = socket;
-        ClientCertificate = clientCertificate;
+        _connection = socket;
+        _clientCertificate = clientCertificate;
 
-        Configuration = config;
+        _networkConfiguration = config;
 
-        Stream = stream;
-        Writer = PipeWriter.Create(stream);
+        _stream = stream;
 
-        ResponseHandler = new ResponseHandler(Server, socket, Writer, stream, Configuration);
+        _reader = reader;
+        _writer = PipeWriter.Create(stream);
+
+        _request = request;
+
+        _responseHandler = new ResponseHandler(Server, socket, Writer, stream, Configuration);
     }
 
     #endregion
@@ -81,7 +107,7 @@ internal sealed class ClientHandler
     {
         try
         {
-            await HandlePipe(PipeReader.Create(Stream, ReaderOptions)).ConfigureAwait(false);
+            await HandlePipe(Reader).ConfigureAwait(false);
         }
         catch (Exception e)
         {
@@ -101,7 +127,9 @@ internal sealed class ClientHandler
             try
             {
                 Connection.Shutdown(SocketShutdown.Both);
+                
                 await Connection.DisconnectAsync(false);
+                
                 Connection.Close();
 
                 Connection.Dispose();
@@ -115,42 +143,64 @@ internal sealed class ClientHandler
 
     private async ValueTask HandlePipe(PipeReader reader)
     {
-        var context = ContextPool.Get();
-        
+        var cts = new CancellationTokenSource(InitialReadTimeout);
+
+        var request = Request;
+        var into = request.Source;
+
         try
         {
-            var request = context.Request;
-            
-            var into = request.Source;
-            
             while (true)
             {
-                var result = await reader.ReadAsync();
-                
+                ReadResult result;
+
+                try
+                {
+                    result = await reader.ReadAsync(cts.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
+
                 var buffer = result.Buffer;
+
+                var handledRequest = false;
 
                 while (TryParseRequest(ref buffer, into))
                 {
                     request.Apply();
-                    
-                    var status = await HandleRequest(context.Request);
-                    
+
+                    var status = await HandleRequest(request);
+
                     if (status is Api.Protocol.Connection.Close)
                     {
                         return;
                     }
-                    
+
                     request.Reset();
+                    
+                    handledRequest = true;
                 }
+
+                if (!handledRequest) break;
 
                 await Writer.FlushAsync();
 
                 reader.AdvanceTo(buffer.Start, buffer.End);
 
                 if (result.IsCompleted) break;
+
+                if (!cts.TryReset())
+                {
+                    cts.Dispose();
+                    cts = new CancellationTokenSource();
+                }
+
+                cts.CancelAfter(KeepAliveTimeout);
             }
         }
-        catch (ProtocolException pe)
+        catch (HttpParseException pe)
         {
             // client did something wrong
             SendError(pe, 400);
@@ -164,12 +214,12 @@ internal sealed class ClientHandler
         }
         finally
         {
-            ContextPool.Return(context);
+            cts.Dispose();
 
             await reader.CompleteAsync();
         }
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool TryParseRequest(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
     {
@@ -186,13 +236,18 @@ internal sealed class ClientHandler
     {
         // request.SetConnection(Server, EndPoint, Connection.GetAddress(), ClientCertificate);
 
-        var keepAliveRequested = true; // request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? request.ProtocolType == HttpProtocol.Http11;
+        var
+            keepAliveRequested =
+                true; // request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? request.ProtocolType == HttpProtocol.Http11;
 
-        var response = await Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
+        var response = await Server.Handler.HandleAsync(request) ??
+                       throw new InvalidOperationException("The root request handler did not return a response");
 
-        var closeRequested = false; // response.Connection is Api.Protocol.Connection.Close or Api.Protocol.Connection.Upgrade;
+        var closeRequested =
+            false; // response.Connection is Api.Protocol.Connection.Close or Api.Protocol.Connection.Upgrade;
 
-        var active = ResponseHandler.Handle(request, response, HttpProtocol.Http11, keepAliveRequested && !closeRequested);
+        var active =
+            ResponseHandler.Handle(request, response, HttpProtocol.Http11, keepAliveRequested && !closeRequested);
 
         return (active && keepAliveRequested && !closeRequested)
             ? Api.Protocol.Connection.KeepAlive
@@ -206,7 +261,6 @@ internal sealed class ClientHandler
             var message = Server.Development ? e.ToString() : e.Message;
 
             // todo status code mapping
-
 
             var response = new ResponseBuilder().Raw()
                 .Status(status, status == 500 ? "Internal Server Error"u8.ToArray() : "Bad Request"u8.ToArray())

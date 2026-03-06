@@ -1,8 +1,9 @@
-﻿using GenHTTP.Engine.Shared.Types;
+﻿using GenHTTP.Engine.Internal.Protocol;
+using GenHTTP.Engine.Shared.Types;
 
 namespace GenHTTP.Engine.Internal.Context;
 
-public record ClientContext(Request Request)
+internal record ClientContext(ClientHandler Handler, Request Request)
 {
 
     public void Reset() => Request.Reset();
