@@ -30,6 +30,8 @@ internal sealed class ClientHandler(ClientContext context)
 
     private static readonly TimeSpan KeepAliveTimeout = TimeSpan.FromSeconds(60);
 
+    private CancellationTokenSource _cts = new();
+    
     #region Functionality
 
     internal async ValueTask Run()
@@ -74,8 +76,8 @@ internal sealed class ClientHandler(ClientContext context)
 
     private async ValueTask HandlePipe(PipeReader reader)
     {
-        var cts = new CancellationTokenSource(InitialReadTimeout);
-
+        ResetCts(InitialReadTimeout);
+        
         var request = context.Request;
         var into = request.Source;
 
@@ -87,7 +89,7 @@ internal sealed class ClientHandler(ClientContext context)
 
                 try
                 {
-                    result = await reader.ReadAsync(cts.Token);
+                    result = await reader.ReadAsync(_cts.Token);
                 }
                 catch (OperationCanceledException)
                 {
@@ -122,13 +124,7 @@ internal sealed class ClientHandler(ClientContext context)
 
                 if (result.IsCompleted) break;
 
-                if (!cts.TryReset())
-                {
-                    cts.Dispose();
-                    cts = new CancellationTokenSource();
-                }
-
-                cts.CancelAfter(KeepAliveTimeout);
+                ResetCts(KeepAliveTimeout);
             }
         }
         catch (HttpParseException pe)
@@ -145,8 +141,6 @@ internal sealed class ClientHandler(ClientContext context)
         }
         finally
         {
-            cts.Dispose();
-
             await reader.CompleteAsync();
         }
     }
@@ -199,6 +193,17 @@ internal sealed class ClientHandler(ClientContext context)
         {
             /* no recovery here */
         }
+    }
+
+    private void ResetCts(TimeSpan timeout)
+    {
+        if (!_cts.TryReset())
+        {
+            _cts.Dispose();
+            _cts = new CancellationTokenSource();
+        }
+
+        _cts.CancelAfter(timeout);
     }
 
     #endregion
