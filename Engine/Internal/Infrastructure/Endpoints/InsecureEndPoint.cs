@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System.Buffers;
+using System.IO.Pipelines;
+using System.Net;
 using System.Net.Sockets;
 
 using GenHTTP.Api.Infrastructure;
@@ -9,6 +11,7 @@ namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
 
 internal sealed class InsecureEndPoint : EndPoint
 {
+    private static readonly StreamPipeReaderOptions ReaderOptions = new(MemoryPool<byte>.Shared, leaveOpen: true, bufferSize: 65536);
 
     #region Initialization
 
@@ -28,11 +31,9 @@ internal sealed class InsecureEndPoint : EndPoint
 
     #region Functionality
 
-    protected override async ValueTask Accept(Socket client)
+    protected override ValueTask Accept(Socket client)
     {
-        await using var socketReader = new SocketPipeReader(client);
-        
-        await Handle(client, new NetworkStream(client), socketReader.Reader);
+        return Handle(client, new NetworkStream(client));
     }
 
     #endregion

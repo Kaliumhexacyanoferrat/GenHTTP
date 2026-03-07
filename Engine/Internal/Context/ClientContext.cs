@@ -1,7 +1,10 @@
-﻿using System.IO.Pipelines;
+﻿using System.Buffers;
+using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
+
 using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Engine.Internal.Protocol;
 using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Types;
@@ -10,6 +13,8 @@ namespace GenHTTP.Engine.Internal.Context;
 
 internal sealed class ClientContext
 {
+    private static readonly StreamPipeWriterOptions WriterOptions = new(MemoryPool<byte>.Shared, leaveOpen: true, minimumBufferSize: 512);
+    
     private IServer? _server;
 
     private IEndPoint? _endPoint;
@@ -73,9 +78,25 @@ internal sealed class ClientContext
         _stream = stream;
 
         _reader = reader;
-        _writer = PipeWriter.Create(stream);
+        _writer = PipeWriter.Create(stream, WriterOptions);
     }
     
-    public void Reset() => Request.Reset();
+    public void Reset()
+    {
+        _server = null;
+        _endPoint = null;
+
+        _connection = null;
+        _clientCertificate = null;
+
+        _networkConfiguration = null;
+
+        _stream = null;
+
+        _reader = null;
+        _writer = null;
+        
+        Request.Reset();
+    } 
 
 }

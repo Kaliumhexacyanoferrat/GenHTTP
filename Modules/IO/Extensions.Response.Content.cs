@@ -1,10 +1,5 @@
 ﻿namespace GenHTTP.Modules.IO;
 
-using GenHTTP.Api.Content.IO;
-using Api.Protocol;
-
-using Streaming;
-
 // using StreamContent = GenHTTP.Modules.IO.Streaming.StreamContent;
 
 public static class ResponseContentExtensions

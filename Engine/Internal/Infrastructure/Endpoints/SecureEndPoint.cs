@@ -1,6 +1,4 @@
-﻿using System.Buffers;
-using System.IO.Pipelines;
-using System.Net;
+﻿using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
@@ -14,8 +12,7 @@ namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
 
 internal sealed class SecureEndPoint : EndPoint
 {
-    private static readonly StreamPipeReaderOptions ReaderOptions = new(MemoryPool<byte>.Shared, leaveOpen: true, bufferSize: 65536);
-
+    
     #region Get-/Setters
 
     internal SecurityConfiguration Options { get; }
@@ -56,7 +53,7 @@ internal sealed class SecureEndPoint : EndPoint
 
         if (stream is not null)
         {
-            await Handle(client, stream, PipeReader.Create(stream, ReaderOptions), stream.RemoteCertificate);
+            await Handle(client, stream, stream.RemoteCertificate);
         }
         else
         {

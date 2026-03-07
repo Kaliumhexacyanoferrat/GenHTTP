@@ -57,6 +57,7 @@ public sealed class Request : IRequest
 
     public void Reset()
     {
+        _raw.Source.Clear();
         _response.Reset();
         _resetRequired = true;
     }

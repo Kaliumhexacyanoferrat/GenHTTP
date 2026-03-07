@@ -1,6 +1,4 @@
-﻿using GenHTTP.Api.Protocol;
-
-namespace GenHTTP.Modules.IO;
+﻿namespace GenHTTP.Modules.IO;
 
 public static class ResponseTypeExtensions
 {

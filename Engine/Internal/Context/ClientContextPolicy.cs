@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Engine.Internal.Context;
 
-internal class ClientContextPolicy : PooledObjectPolicy<ClientContext>
+internal sealed class ClientContextPolicy : PooledObjectPolicy<ClientContext>
 {
 
     public override ClientContext Create() => new();

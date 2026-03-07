@@ -1,10 +1,4 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.ErrorHandling.Provider;
-using GenHTTP.Modules.IO;
-
-namespace GenHTTP.Modules.ErrorHandling.Mappers;
+﻿namespace GenHTTP.Modules.ErrorHandling.Mappers;
 
 // todo
 

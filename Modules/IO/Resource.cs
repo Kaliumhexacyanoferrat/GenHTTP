@@ -3,7 +3,6 @@
 using GenHTTP.Modules.IO.Embedded;
 using GenHTTP.Modules.IO.FileSystem;
 using GenHTTP.Modules.IO.Strings;
-using GenHTTP.Modules.IO.Web;
 
 namespace GenHTTP.Modules.IO;
 

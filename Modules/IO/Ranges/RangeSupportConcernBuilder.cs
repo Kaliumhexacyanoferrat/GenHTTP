@@ -1,6 +1,4 @@
-﻿using GenHTTP.Api.Content;
-
-namespace GenHTTP.Modules.IO.Ranges;
+﻿namespace GenHTTP.Modules.IO.Ranges;
 
 /*
 public class RangeSupportConcernBuilder : IConcernBuilder

@@ -1,6 +1,4 @@
-﻿using GenHTTP.Api.Protocol;
-
-namespace GenHTTP.Modules.IO.Streaming;
+﻿namespace GenHTTP.Modules.IO.Streaming;
 
 /*
 public sealed class StreamContent : IResponseContent, IDisposable

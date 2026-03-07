@@ -1,8 +1,4 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.IO;
-using GenHTTP.Api.Infrastructure;
-
-namespace GenHTTP.Modules.IO.Providers;
+﻿namespace GenHTTP.Modules.IO.Providers;
 
 /*
 public sealed class ResourceHandlerBuilder : IHandlerBuilder<ResourceHandlerBuilder>

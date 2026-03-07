@@ -171,13 +171,12 @@ internal sealed class ClientHandler(ClientContext context)
             keepAliveRequested =
                 true; // request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? request.ProtocolType == HttpProtocol.Http11;
 
-        var response = await context.Server.Handler.HandleAsync(request) ??
-                       throw new InvalidOperationException("The root request handler did not return a response");
+        var response = await context.Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
 
         var closeRequested = false; // response.Connection is Api.Protocol.Connection.Close or Api.Protocol.Connection.Upgrade;
 
         var active = context.ResponseHandler.Handle(request, response, HttpProtocol.Http11, keepAliveRequested && !closeRequested);
-
+        
         return (active && keepAliveRequested && !closeRequested) ? Connection.KeepAlive : Connection.Close;
     }
 

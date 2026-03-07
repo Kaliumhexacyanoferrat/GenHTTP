@@ -3,8 +3,6 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.IO;
-
 namespace GenHTTP.Modules.Redirects.Provider;
 
 public sealed partial class RedirectProvider : IHandler
