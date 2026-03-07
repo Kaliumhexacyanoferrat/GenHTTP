@@ -115,13 +115,13 @@ internal sealed class ClientHandler(ClientContext context)
                     
                     handledRequest = true;
                 }
-
-                if (!handledRequest) break;
-
-                await context.Writer.FlushAsync();
-
+                
                 reader.AdvanceTo(buffer.Start, buffer.End);
 
+                if (!handledRequest) break;
+                
+                await context.Writer.FlushAsync();
+                
                 if (result.IsCompleted) break;
 
                 ResetCts(KeepAliveTimeout);
