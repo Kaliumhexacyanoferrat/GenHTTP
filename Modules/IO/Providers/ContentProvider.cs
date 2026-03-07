@@ -8,6 +8,13 @@ namespace GenHTTP.Modules.IO.Providers;
 
 public sealed class ContentProvider : IHandler
 {
+    // todo
+    private readonly ReadOnlyMemory<byte> _phrase = "OK"u8.ToArray();
+
+    private readonly ReadOnlyMemory<byte> _contentTypeName = "Content-Type"u8.ToArray();
+    private readonly ReadOnlyMemory<byte> _contentTypeValue = "text/plain"u8.ToArray();
+
+    private readonly ReadOnlyMemory<byte> _contentLengthName = "Content-Length"u8.ToArray();
 
     #region Get-/Setters
 
@@ -15,7 +22,7 @@ public sealed class ContentProvider : IHandler
 
     private IResponseContent Content { get; }
 
-    private FlexibleContentType ContentType { get; }
+    // private FlexibleContentType ContentType { get; }
 
     #endregion
 
@@ -26,7 +33,8 @@ public sealed class ContentProvider : IHandler
         Resource = resourceProvider;
 
         Content = new ResourceContent(Resource);
-        ContentType = Resource.ContentType ?? FlexibleContentType.Get(Resource.Name?.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload);
+
+       // ContentType = Resource.ContentType ?? FlexibleContentType.Get(Resource.Name?.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload);
     }
 
     #endregion
@@ -36,16 +44,18 @@ public sealed class ContentProvider : IHandler
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
         var response = request.Respond()
+                              .Raw()
+                              .Status(200, _phrase)
                               .Content(Content)
-                              .Type(ContentType);
+                              .Header(_contentTypeName, _contentTypeValue);
 
-        if (Resource.Modified != null)
+        /*if (Resource.Modified != null)
         {
             response.Modified(Resource.Modified.Value);
-        }
-        
+        }/*/
+
         return new(response.Build());
-    } 
+    }
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 

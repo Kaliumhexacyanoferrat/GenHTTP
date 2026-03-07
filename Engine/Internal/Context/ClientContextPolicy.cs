@@ -1,8 +1,8 @@
-using Microsoft.Extensions.ObjectPool;
+﻿using Microsoft.Extensions.ObjectPool;
 
-namespace GenHTTP.Engine.Internal.Protocol;
+namespace GenHTTP.Engine.Internal.Context;
 
-internal class ClientContextPolicy : PooledObjectPolicy<ClientContext>
+internal sealed class ClientContextPolicy : PooledObjectPolicy<ClientContext>
 {
 
     public override ClientContext Create() => new();
@@ -10,7 +10,8 @@ internal class ClientContextPolicy : PooledObjectPolicy<ClientContext>
     public override bool Return(ClientContext obj)
     {
         obj.Reset();
+        
         return true;
     }
-    
+
 }

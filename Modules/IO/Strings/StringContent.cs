@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Buffers;
+using System.Text;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.IO.Strings;
@@ -32,11 +33,17 @@ public sealed class StringContent : IResponseContent
 
     #region Functionality
 
-    public ValueTask<ulong?> CalculateChecksumAsync() => new(_checksum);
+    /*public ValueTask<ulong?> CalculateChecksumAsync() => new(_checksum);
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
         await target.WriteAsync(_content.AsMemory());
+    }*/
+
+    public ValueTask WriteAsync(IResponseSink sink)
+    {
+        sink.Writer.Write(_content.AsSpan());
+        return ValueTask.CompletedTask;
     }
 
     #endregion

@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Buffers;
+using System.Reflection;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO.Streaming;
@@ -49,6 +50,11 @@ public sealed class EmbeddedResource : IResource
     #region Functionality
 
     public ValueTask<Stream> GetContentAsync() => new(TryGetStream());
+
+    public void Write(IBufferWriter<byte> writer)
+    {
+        throw new NotImplementedException();
+    }
 
     public async ValueTask<ulong> CalculateChecksumAsync()
     {

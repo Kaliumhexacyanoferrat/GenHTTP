@@ -1,120 +1,116 @@
-﻿using System.Net.Sockets;
+﻿using System.Buffers;
 
-using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Protocol.Raw;
 
-using GenHTTP.Engine.Internal.Utilities;
-using GenHTTP.Engine.Shared.Infrastructure;
+using GenHTTP.Engine.Internal.Context;
 
 namespace GenHTTP.Engine.Internal.Protocol;
 
-internal sealed class ResponseHandler
+internal sealed class ResponseHandler(ClientContext context) : IResponseSink
 {
 
-    #region Get-/Setters
+    // todo: have a separate sink
 
-    private IServer Server { get; }
+    public IBufferWriter<byte> Writer => context.Writer;
 
-    private Socket Socket { get; }
-
-    private PoolBufferedStream Output { get; }
-
-    private NetworkConfiguration Configuration { get; }
-
-    #endregion
-
-    #region Initialization
-
-    internal ResponseHandler(IServer server, Socket socket, PoolBufferedStream output, NetworkConfiguration configuration)
-    {
-        Server = server;
-        Socket = socket;
-
-        Output = output;
-
-        Configuration = configuration;
-    }
-
-    #endregion
-
+    public Stream Stream => context.Stream;
+    
     #region Functionality
 
-    internal async ValueTask<bool> Handle(IRequest? request, IResponse response, HttpProtocol version, bool keepAlive, bool dataRemaining)
+    internal bool Handle(IRequest? request, IResponse response, HttpProtocol version, bool keepAlive)
     {
         try
         {
-            WriteStatus(request, response);
+            var raw = response.Raw;
 
-            WriteHeader(response, version, keepAlive);
+            WriteStatus(request, raw);
 
-            Output.Write("\r\n"u8);
+            WriteHeader(raw, version, keepAlive);
+
+            context.Writer.Write("\r\n"u8);
 
             if (ShouldSendBody(request, response))
             {
-                await WriteBody(response);
+                WriteBody(raw);
             }
 
-            var connected = Socket.Connected;
-
-            // flush if the client waits for this response
-            // otherwise save flushes for improved performance when pipelining
-            if (!dataRemaining && connected)
-            {
-                await Output.FlushAsync();
-            }
+            var connected = context.Connection.Connected;
 
             if (request != null)
             {
-                Server.Companion?.OnRequestHandled(request, response);
+                context.Server.Companion?.OnRequestHandled(request, response);
             }
 
             return connected;
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, request?.Client.IPAddress, e);
+            // todo
+            // Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, request?.Client.IPAddress, e);
             return false;
         }
     }
 
-    private static bool ShouldSendBody(IRequest? request, IResponse response) => (request == null || request.Method.KnownMethod != RequestMethod.Head) &&
+    private static bool ShouldSendBody(IRequest? request, IResponse response) => true; // todo
+    /*(request == null || request.Method.KnownMethod != RequestMethod.Head) &&
     (
         response.ContentLength > 0 || response.Content?.Length > 0 ||
         response.ContentType is not null || response.ContentEncoding is not null ||
         response.Connection == Connection.Upgrade
-    );
+    );*/
 
-    private void WriteStatus(IRequest? request, IResponse response)
+    private void WriteStatus(IRequest? request, IRawResponse response)
     {
-        Output.Write((request?.ProtocolType == HttpProtocol.Http11) ? "HTTP/1.1 "u8 : "HTTP/1.0 "u8);
-        Output.Write(response.Status.RawStatus);
-        Output.Write(" "u8);
+        var writer = context.Writer;
+        
+        writer.Write("HTTP/1.1 "u8);
+        writer.Write(response.StatusCode);
+        writer.Write(" "u8);
+        writer.Write(response.StatusPhrase.Span);
 
-        Output.Write(response.Status.Phrase);
+        writer.Write("\r\n"u8);
 
-        Output.Write("\r\n"u8);
+        // todo
+        // Output.Write((request?.ProtocolType == HttpProtocol.Http11) ? "HTTP/1.1 "u8 : "HTTP/1.0 "u8);
     }
 
-    private void WriteHeader(IResponse response, HttpProtocol version, bool keepAlive)
+    private void WriteHeader(IRawResponse response, HttpProtocol version, bool keepAlive)
     {
-        if (response.Headers.TryGetValue("Server", out var server))
+        var writer = context.Writer;
+        
+        /*if (response.Headers.TryGetValue("Server", out var server))
         {
             Output.Write("Server: "u8);
             Output.Write(server);
             Output.Write("\r\n"u8);
         }
         else
+        {*/
+        writer.Write("Server: GenHTTP/"u8);
+        writer.Write(context.Server.Version);
+        writer.Write("\r\n"u8);
+        //}
+
+        writer.Write("Date: "u8);
+        writer.Write(DateHeader.GetValue());
+        writer.Write("\r\n"u8);
+
+        var content = response.Content;
+
+        if (content != null)
         {
-            Output.Write("Server: GenHTTP/"u8);
-            Output.Write(Server.Version);
-            Output.Write("\r\n"u8);
+            var length = content.Length;
+
+            if (length != null)
+            {
+                writer.Write("Content-Length: "u8);
+                writer.Write(length.Value);
+                writer.Write("\r\n"u8);
+            }
         }
 
-        Output.Write("Date: "u8);
-        Output.Write(DateHeader.GetValue());
-        Output.Write("\r\n"u8);
-
-        if (response.Connection == Connection.Upgrade)
+        /*if (response.Connection == Connection.Upgrade)
         {
             Output.Write("Connection: Upgrade\r\n"u8);
         }
@@ -126,9 +122,9 @@ internal sealed class ResponseHandler
         {
             // HTTP/1.1 connections are persistent by default so we do not need to send a Keep-Alive header
             Output.Write("Connection: Close\r\n"u8);
-        }
+        }*/
 
-        if (response.ContentType is not null)
+        /*if (response.ContentType is not null)
         {
             Output.Write("Content-Type: "u8);
             Output.Write(response.ContentType.RawType);
@@ -172,37 +168,35 @@ internal sealed class ResponseHandler
             Output.Write("Expires: "u8);
             Output.Write(response.Expires.Value);
             Output.Write("\r\n"u8);
-        }
+        }*/
 
-        var serverSpan = "Server".AsSpan();
+        var headers = response.Headers;
 
-        foreach (var header in response.Headers)
+        for (var i = 0; i < headers.Count; i++)
         {
-            var keySpan = header.Key.AsSpan();
+            var header = headers[i];
 
-            if (!keySpan.Equals(serverSpan, StringComparison.OrdinalIgnoreCase))
-            {
-                Output.Write(header.Key);
-                Output.Write(": "u8);
-                Output.Write(header.Value);
-                Output.Write("\r\n"u8);
-            }
+            writer.Write(header.Key.Span);
+            writer.Write(": "u8);
+            writer.Write(header.Value.Span);
+            writer.Write("\r\n"u8);
         }
 
-        if (response.HasCookies)
+        /*if (response.HasCookies)
         {
             foreach (var cookie in response.Cookies)
             {
                 WriteCookie(cookie.Value);
             }
-        }
+        }*/
     }
 
-    private async ValueTask WriteBody(IResponse response)
+    private void WriteBody(IRawResponse response)
     {
         if (response.Content is not null)
         {
-            if (response.ContentLength is null && (response.Connection != Connection.Upgrade))
+            response.Content.WriteAsync(this);
+            /*if (response.ContentLength is null && (response.Connection != Connection.Upgrade))
             {
                 await using var chunked = new ChunkedStream(Output);
 
@@ -213,7 +207,7 @@ internal sealed class ResponseHandler
             else
             {
                 await response.Content.WriteAsync(Output, Configuration.TransferBufferSize);
-            }
+            }*/
         }
     }
 
@@ -221,21 +215,21 @@ internal sealed class ResponseHandler
 
     #region Helpers
 
-    private void WriteCookie(Cookie cookie)
+    /*private void WriteCookie(Cookie cookie)
     {
-        Output.Write("Set-Cookie: "u8);
-        Output.Write(cookie.Name);
-        Output.Write("="u8);
-        Output.Write(cookie.Value);
+        Writer.Write("Set-Cookie: "u8);
+        Writer.Write(cookie.Name);
+        Writer.Write("="u8);
+        Writer.Write(cookie.Value);
 
         if (cookie.MaxAge is not null)
         {
-            Output.Write("; Max-Age="u8);
-            Output.Write(cookie.MaxAge.Value);
+            Writer.Write("; Max-Age="u8);
+            Writer.Write(cookie.MaxAge.Value);
         }
 
-        Output.Write("; Path=/\r\n"u8);
-    }
+        Writer.Write("; Path=/\r\n"u8);
+    }*/
 
     #endregion
 

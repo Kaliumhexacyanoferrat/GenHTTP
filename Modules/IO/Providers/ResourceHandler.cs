@@ -1,9 +1,6 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.IO;
-using GenHTTP.Api.Protocol;
+﻿namespace GenHTTP.Modules.IO.Providers;
 
-namespace GenHTTP.Modules.IO.Providers;
-
+/*
 public sealed class ResourceHandler : IHandler
 {
 
@@ -46,3 +43,4 @@ public sealed class ResourceHandler : IHandler
     #endregion
 
 }
+*/

@@ -1,7 +1,6 @@
-using GenHTTP.Api.Protocol;
-
 namespace GenHTTP.Modules.IO.Streaming;
 
+/*
 /// <summary>
 /// Response content backed by a ReadOnlyMemory of bytes.
 /// </summary>
@@ -56,3 +55,4 @@ public sealed class MemoryContent : IResponseContent
 
     #endregion
 }
+*/

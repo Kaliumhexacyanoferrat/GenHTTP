@@ -1,9 +1,6 @@
-﻿using GenHTTP.Api.Content.IO;
-using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Protocol;
+﻿namespace GenHTTP.Modules.IO.Web;
 
-namespace GenHTTP.Modules.IO.Web;
-
+/*
 public class WebResourceBuilder : IResourceBuilder<WebResourceBuilder>
 {
     private Uri? _source;
@@ -74,3 +71,4 @@ public class WebResourceBuilder : IResourceBuilder<WebResourceBuilder>
     #endregion
 
 }
+*/
