@@ -1,33 +1,42 @@
 ﻿using System.Buffers;
+using System.Runtime.CompilerServices;
 
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Protocol.Raw;
 
 using GenHTTP.Engine.Internal.Context;
+using GenHTTP.Engine.Internal.Protocol.Sinks;
 
 namespace GenHTTP.Engine.Internal.Protocol;
 
 internal sealed class ResponseHandler : IResponseSink
 {
     private static readonly ReadOnlyMemory<byte> ServerHeaderName = "Server"u8.ToArray();
-        
+
+    private readonly RegularSink _regularSink;
+
+    private readonly ChunkedSink _chunkedSink;
+
     // todo: have a separate sink
 
     public IBufferWriter<byte> Writer => Context.Writer;
 
     public Stream Stream => Context.Stream;
-    
+
     private ClientContext Context { get; }
-    
+
     #region Initialization
 
     internal ResponseHandler(ClientContext context)
     {
         Context = context;
+
+        _regularSink = new(Context);
+        _chunkedSink = new(Context);
     }
-    
+
     #endregion
-    
+
     #region Functionality
 
     internal async ValueTask<bool> HandleAsync(IRequest? request, IResponse response, HttpProtocol version, bool keepAlive)
@@ -75,7 +84,7 @@ internal sealed class ResponseHandler : IResponseSink
     private void WriteStatus(IRequest? request, IRawResponse response)
     {
         var writer = Context.Writer;
-        
+
         writer.Write("HTTP/1.1 "u8);
         writer.Write(response.StatusCode);
         writer.Write(" "u8);
@@ -90,14 +99,14 @@ internal sealed class ResponseHandler : IResponseSink
     private void WriteHeader(IRawResponse response, HttpProtocol version, bool keepAlive)
     {
         var context = Context;
-        
+
         var writer = context.Writer;
 
         if (!response.Headers.ContainsKey(ServerHeaderName))
         {
             writer.Write(ServerHeader.GetValue(context).Span);
         }
-        
+
         writer.Write(DateHeader.GetValue().Span);
 
         var content = response.Content;
@@ -112,6 +121,14 @@ internal sealed class ResponseHandler : IResponseSink
                 writer.Write(length.Value);
                 writer.Write("\r\n"u8);
             }
+            else
+            {
+                writer.Write("Transfer-Encoding: chunked\r\n"u8);
+            }
+        }
+        else
+        {
+            writer.Write("Content-Length: 0\r\n"u8);
         }
 
         /*if (response.Connection == Connection.Upgrade)
@@ -195,31 +212,36 @@ internal sealed class ResponseHandler : IResponseSink
         }*/
     }
 
-    private static void WriteServer(IRawResponse response)
-    {
-        
-    }
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ValueTask WriteBodyAsync(IRawResponse response)
     {
-        if (response.Content is not null)
+        var content = response.Content;
+
+        if (content is null)
         {
-            return response.Content.WriteAsync(this);
-            /*if (response.ContentLength is null && (response.Connection != Connection.Upgrade))
-            {
-                await using var chunked = new ChunkedStream(Output);
-
-                await response.Content.WriteAsync(chunked, Configuration.TransferBufferSize);
-
-                chunked.Finish();
-            }
-            else
-            {
-                await response.Content.WriteAsync(Output, Configuration.TransferBufferSize);
-            }*/
+            return ValueTask.CompletedTask;
         }
 
-        return ValueTask.CompletedTask;
+        var length = content.Length;
+
+        if (length is null) // todo: && (response.Connection != Connection.Upgrade)
+        {
+            return WriteChunked(content);
+        }
+
+        _regularSink.Apply();
+
+        return content.WriteAsync(_regularSink);
+
+    }
+
+    private async ValueTask WriteChunked(IResponseContent content)
+    {
+        _chunkedSink.Apply();
+
+        await content.WriteAsync(_chunkedSink);
+
+        _chunkedSink.Finish();
     }
 
     #endregion

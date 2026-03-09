@@ -95,6 +95,14 @@ internal sealed class ClientHandler(ClientContext context)
                 {
                     return;
                 }
+                catch (IOException e) when (e.InnerException is SocketException { SocketErrorCode: SocketError.ConnectionReset or SocketError.ConnectionAborted })
+                {
+                    return;
+                }
+                catch (IOException e) when (e.Message.Contains("Broken pipe", StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
 
                 var buffer = result.Buffer;
 
@@ -161,9 +169,7 @@ internal sealed class ClientHandler(ClientContext context)
     {
         // request.SetConnection(Server, EndPoint, Connection.GetAddress(), ClientCertificate);
 
-        var
-            keepAliveRequested =
-                true; // request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? request.ProtocolType == HttpProtocol.Http11;
+        var keepAliveRequested = true; // request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? request.ProtocolType == HttpProtocol.Http11;
 
         var response = await context.Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
 

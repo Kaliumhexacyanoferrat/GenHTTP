@@ -9,7 +9,7 @@ public sealed class JsonResult
     public string? Message { get; set; }
 }
 
-public sealed class JsonHandler : IHandler
+public sealed class FixedJsonHandler : IHandler
 {
     private static readonly ReadOnlyMemory<byte> OkPhrase = "OK"u8.ToArray();
     private static readonly ReadOnlyMemory<byte> ContentTypeName = "Content-Type"u8.ToArray();
