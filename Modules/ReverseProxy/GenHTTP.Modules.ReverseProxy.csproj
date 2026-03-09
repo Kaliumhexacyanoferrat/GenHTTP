@@ -18,8 +18,6 @@
 
         <ProjectReference Include="..\Websockets\GenHTTP.Modules.Websockets.csproj" />
 
-        <PackageReference Include="System.IO.Pipelines" Version="10.0.2" />
-
     </ItemGroup>
 
     <ItemGroup>
