@@ -9,6 +9,7 @@ namespace GenHTTP.Engine.Internal.Protocol;
 
 internal sealed class ResponseHandler : IResponseSink
 {
+    private static readonly ReadOnlyMemory<byte> ServerHeaderName = "Server"u8.ToArray();
         
     // todo: have a separate sink
 
@@ -91,18 +92,12 @@ internal sealed class ResponseHandler : IResponseSink
         var context = Context;
         
         var writer = context.Writer;
-        
-        /*if (response.Headers.TryGetValue("Server", out var server))
-        {
-            Output.Write("Server: "u8);
-            Output.Write(server);
-            Output.Write("\r\n"u8);
-        }
-        else
-        {*/
-        writer.Write(ServerHeader.GetValue(context).Span);
-        //}
 
+        if (!response.Headers.ContainsKey(ServerHeaderName))
+        {
+            writer.Write(ServerHeader.GetValue(context).Span);
+        }
+        
         writer.Write(DateHeader.GetValue().Span);
 
         var content = response.Content;
