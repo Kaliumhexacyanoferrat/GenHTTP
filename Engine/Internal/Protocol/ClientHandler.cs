@@ -130,13 +130,13 @@ internal sealed class ClientHandler(ClientContext context)
         catch (HttpParseException pe)
         {
             // client did something wrong
-            SendError(pe, 400);
+            await SendErrorAsync(pe, 400);
             throw;
         }
         catch (Exception e)
         {
             // we did something wrong
-            SendError(e, 500);
+            await SendErrorAsync(e, 500);
             throw;
         }
         finally
@@ -169,12 +169,12 @@ internal sealed class ClientHandler(ClientContext context)
 
         var closeRequested = false; // response.Connection is Api.Protocol.Connection.Close or Api.Protocol.Connection.Upgrade;
 
-        var active = context.ResponseHandler.Handle(request, response, HttpProtocol.Http11, keepAliveRequested && !closeRequested);
+        var active = await context.ResponseHandler.HandleAsync(request, response, HttpProtocol.Http11, keepAliveRequested && !closeRequested);
         
         return (active && keepAliveRequested && !closeRequested) ? Connection.KeepAlive : Connection.Close;
     }
 
-    private void SendError(Exception e, int status)
+    private ValueTask<bool> SendErrorAsync(Exception e, int status)
     {
         try
         {
@@ -187,11 +187,12 @@ internal sealed class ClientHandler(ClientContext context)
                 .Content(new StringContent(message))
                 .Build();
 
-            context.ResponseHandler.Handle(null, response, HttpProtocol.Http10, false);
+            return context.ResponseHandler.HandleAsync(null, response, HttpProtocol.Http10, false);
         }
         catch
         {
             /* no recovery here */
+            return ValueTask.FromResult(false);
         }
     }
 

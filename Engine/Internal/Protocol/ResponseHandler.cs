@@ -18,7 +18,7 @@ internal sealed class ResponseHandler(ClientContext context) : IResponseSink
     
     #region Functionality
 
-    internal bool Handle(IRequest? request, IResponse response, HttpProtocol version, bool keepAlive)
+    internal async ValueTask<bool> HandleAsync(IRequest? request, IResponse response, HttpProtocol version, bool keepAlive)
     {
         try
         {
@@ -32,7 +32,7 @@ internal sealed class ResponseHandler(ClientContext context) : IResponseSink
 
             if (ShouldSendBody(request, response))
             {
-                WriteBody(raw);
+                await WriteBodyAsync(raw);
             }
 
             var connected = context.Connection.Connected;
@@ -191,11 +191,11 @@ internal sealed class ResponseHandler(ClientContext context) : IResponseSink
         }*/
     }
 
-    private void WriteBody(IRawResponse response)
+    private ValueTask WriteBodyAsync(IRawResponse response)
     {
         if (response.Content is not null)
         {
-            response.Content.WriteAsync(this);
+            return response.Content.WriteAsync(this);
             /*if (response.ContentLength is null && (response.Connection != Connection.Upgrade))
             {
                 await using var chunked = new ChunkedStream(Output);
@@ -209,6 +209,8 @@ internal sealed class ResponseHandler(ClientContext context) : IResponseSink
                 await response.Content.WriteAsync(Output, Configuration.TransferBufferSize);
             }*/
         }
+
+        return ValueTask.CompletedTask;
     }
 
     #endregion
