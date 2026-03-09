@@ -6,13 +6,9 @@ namespace GenHTTP.Engine.Shared.Types;
 public class RawResponseBuilder(Response response, ResponseBuilder builder) : IRawResponseBuilder
 {
 
-    public IRawResponseBuilder Status(int code, ReadOnlyMemory<byte> phrase)
+    public IRawResponseBuilder Status(ResponseStatus code)
     {
-        var src = response.Source;
-
-        src.StatusCode = code;
-        src.StatusPhrase = phrase;
-
+        response.Source.Status = code;
         return this;
     }
 

@@ -5,7 +5,7 @@ namespace GenHTTP.Api.Protocol.Raw;
 public interface IRawResponseBuilder : IBuilder<IResponse>
 {
 
-    IRawResponseBuilder Status(int code, ReadOnlyMemory<byte> phrase);
+    IRawResponseBuilder Status(ResponseStatus code);
 
     IRawResponseBuilder Header(ReadOnlyMemory<byte> name, ReadOnlyMemory<byte> value);
 

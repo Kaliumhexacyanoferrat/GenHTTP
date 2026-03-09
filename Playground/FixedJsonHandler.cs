@@ -26,9 +26,9 @@ public sealed class FixedJsonHandler : IHandler
 
         var response = request.Respond()
                               .Raw()
+                              .Status(ResponseStatus.Ok)
                               .Content(new FixedLengthJsonContent(result))
                               .Header(ContentTypeName, ContentTypeValue)
-                              .Status(200, OkPhrase)
                               .Build();
 
         return new(response);

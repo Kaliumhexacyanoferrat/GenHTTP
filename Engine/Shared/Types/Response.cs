@@ -1,5 +1,6 @@
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Protocol.Raw;
+using GenHTTP.Engine.Shared.Types.Raw;
 
 namespace GenHTTP.Engine.Shared.Types;
 

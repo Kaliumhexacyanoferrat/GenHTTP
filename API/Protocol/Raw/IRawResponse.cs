@@ -3,9 +3,7 @@ namespace GenHTTP.Api.Protocol.Raw;
 public interface IRawResponse
 {
 
-    int StatusCode { get; }
-
-    ReadOnlyMemory<byte> StatusPhrase { get; }
+    ResponseStatus Status { get; }
 
     IRawKeyValueList Headers { get; }
 

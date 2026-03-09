@@ -138,13 +138,13 @@ internal sealed class ClientHandler(ClientContext context)
         catch (HttpParseException pe)
         {
             // client did something wrong
-            await SendErrorAsync(pe, 400);
+            await SendErrorAsync(pe, ResponseStatus.BadRequest);
             throw;
         }
         catch (Exception e)
         {
             // we did something wrong
-            await SendErrorAsync(e, 500);
+            await SendErrorAsync(e, ResponseStatus.InternalServerError);
             throw;
         }
         finally
@@ -180,7 +180,7 @@ internal sealed class ClientHandler(ClientContext context)
         return (active && keepAliveRequested && !closeRequested) ? Connection.KeepAlive : Connection.Close;
     }
 
-    private ValueTask<bool> SendErrorAsync(Exception e, int status)
+    private ValueTask<bool> SendErrorAsync(Exception e, ResponseStatus status)
     {
         try
         {
@@ -189,7 +189,7 @@ internal sealed class ClientHandler(ClientContext context)
             // todo status code mapping
 
             var response = new ResponseBuilder().Raw()
-                .Status(status, status == 500 ? "Internal Server Error"u8.ToArray() : "Bad Request"u8.ToArray())
+                .Status(status)
                 .Content(new StringContent(message))
                 .Build();
 

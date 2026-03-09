@@ -1,17 +1,13 @@
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Protocol.Raw;
 
-namespace GenHTTP.Engine.Shared.Types;
+namespace GenHTTP.Engine.Shared.Types.Raw;
 
 public class RawResponse : IRawResponse
 {
-    private static readonly ReadOnlyMemory<byte> NoContent = "No Content"u8.ToArray();
-
     private readonly EditableKeyValueList _headers = new();
 
-    public int StatusCode { get; set; }
-
-    public ReadOnlyMemory<byte> StatusPhrase { get; set; }
+    public ResponseStatus Status { get; set; }
 
     public EditableKeyValueList EditableHeaders  => _headers;
 
@@ -21,8 +17,7 @@ public class RawResponse : IRawResponse
 
     public void Reset()
     {
-        StatusCode = 204;
-        StatusPhrase = NoContent;
+        Status = ResponseStatus.NoContent;
 
         Content = null;
 

@@ -5,7 +5,6 @@ namespace GenHTTP.Playground;
 
 public sealed class ChunkedJsonHandler : IHandler
 {
-    private static readonly ReadOnlyMemory<byte> OkPhrase = "OK"u8.ToArray();
     private static readonly ReadOnlyMemory<byte> ContentTypeName = "Content-Type"u8.ToArray();
     private static readonly ReadOnlyMemory<byte> ContentTypeValue = "application/json; charset=utf-8"u8.ToArray();
     
@@ -20,9 +19,9 @@ public sealed class ChunkedJsonHandler : IHandler
 
         var response = request.Respond()
                               .Raw()
+                              .Status(ResponseStatus.Ok)
                               .Content(new ChunkedJsonContent(result))
                               .Header(ContentTypeName, ContentTypeValue)
-                              .Status(200, OkPhrase)
                               .Build();
 
         return new(response);

@@ -5,8 +5,8 @@ using GenHTTP.Playground;
 
 var app = Layout.Create()
                 .Add("plaintext", Content.From(Resource.FromString("Hello World!")))
-                .Add("json", new FixedJsonHandler())
-                .Add("jsonc", new ChunkedJsonHandler());
+                .Add("jsonf", new FixedJsonHandler())
+                .Add("json", new ChunkedJsonHandler());
 
 await Host.Create()
           .Handler(app)

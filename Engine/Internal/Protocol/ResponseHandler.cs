@@ -45,25 +45,25 @@ internal sealed class ResponseHandler : IResponseSink
         {
             var raw = response.Raw;
 
-            WriteStatus(request, raw);
+            var writer = Context.Writer;
+            
+            writer.Write(StatusLine.Get(raw.Status).Span);
 
             WriteHeader(raw, version, keepAlive);
 
-            Context.Writer.Write("\r\n"u8);
+            writer.Write("\r\n"u8);
 
             if (ShouldSendBody(request, response))
             {
                 await WriteBodyAsync(raw);
             }
 
-            var connected = Context.Connection.Connected;
-
             if (request != null)
             {
                 Context.Server.Companion?.OnRequestHandled(request, response);
             }
 
-            return connected;
+            return Context.Connection.Connected;
         }
         catch (Exception)
         {
@@ -80,21 +80,6 @@ internal sealed class ResponseHandler : IResponseSink
         response.ContentType is not null || response.ContentEncoding is not null ||
         response.Connection == Connection.Upgrade
     );*/
-
-    private void WriteStatus(IRequest? request, IRawResponse response)
-    {
-        var writer = Context.Writer;
-
-        writer.Write("HTTP/1.1 "u8);
-        writer.Write(response.StatusCode);
-        writer.Write(" "u8);
-        writer.Write(response.StatusPhrase.Span);
-
-        writer.Write("\r\n"u8);
-
-        // todo
-        // Output.Write((request?.ProtocolType == HttpProtocol.Http11) ? "HTTP/1.1 "u8 : "HTTP/1.0 "u8);
-    }
 
     private void WriteHeader(IRawResponse response, HttpProtocol version, bool keepAlive)
     {
