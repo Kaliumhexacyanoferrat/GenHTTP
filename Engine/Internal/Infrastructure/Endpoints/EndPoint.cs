@@ -126,7 +126,7 @@ internal abstract class EndPoint : IEndPoint
         {
             context.Apply(client, inputStream, reader, clientCertificate, Server, this, Configuration);
 
-            await context.ClientHandler.Run();
+            await context.ClientHandler.RunAsync();
         }
         finally
         {

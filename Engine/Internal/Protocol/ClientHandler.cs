@@ -34,13 +34,13 @@ internal sealed class ClientHandler(ClientContext context)
     
     #region Functionality
 
-    internal async ValueTask Run()
+    internal async ValueTask RunAsync()
     {
         var connection = context.Connection;
         
         try
         {
-            await HandlePipe(context.Reader).ConfigureAwait(false);
+            await HandlePipeAsync(context.Reader).ConfigureAwait(false);
         }
         catch (Exception e)
         {
@@ -74,7 +74,7 @@ internal sealed class ClientHandler(ClientContext context)
         }
     }
 
-    private async ValueTask HandlePipe(PipeReader reader)
+    private async ValueTask HandlePipeAsync(PipeReader reader)
     {
         ResetCts(InitialReadTimeout);
         
@@ -104,7 +104,7 @@ internal sealed class ClientHandler(ClientContext context)
                 {
                     request.Apply();
 
-                    var status = await HandleRequest(request);
+                    var status = await HandleRequestAsync(request);
 
                     if (status is Connection.Close)
                     {
@@ -157,7 +157,7 @@ internal sealed class ClientHandler(ClientContext context)
         return true;
     }
 
-    private async ValueTask<Connection> HandleRequest(Request request)
+    private async ValueTask<Connection> HandleRequestAsync(Request request)
     {
         // request.SetConnection(Server, EndPoint, Connection.GetAddress(), ClientCertificate);
 

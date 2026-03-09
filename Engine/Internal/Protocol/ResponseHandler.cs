@@ -7,14 +7,25 @@ using GenHTTP.Engine.Internal.Context;
 
 namespace GenHTTP.Engine.Internal.Protocol;
 
-internal sealed class ResponseHandler(ClientContext context) : IResponseSink
+internal sealed class ResponseHandler : IResponseSink
 {
-
+        
     // todo: have a separate sink
 
-    public IBufferWriter<byte> Writer => context.Writer;
+    public IBufferWriter<byte> Writer => Context.Writer;
 
-    public Stream Stream => context.Stream;
+    public Stream Stream => Context.Stream;
+    
+    private ClientContext Context { get; }
+    
+    #region Initialization
+
+    internal ResponseHandler(ClientContext context)
+    {
+        Context = context;
+    }
+    
+    #endregion
     
     #region Functionality
 
@@ -28,18 +39,18 @@ internal sealed class ResponseHandler(ClientContext context) : IResponseSink
 
             WriteHeader(raw, version, keepAlive);
 
-            context.Writer.Write("\r\n"u8);
+            Context.Writer.Write("\r\n"u8);
 
             if (ShouldSendBody(request, response))
             {
                 await WriteBodyAsync(raw);
             }
 
-            var connected = context.Connection.Connected;
+            var connected = Context.Connection.Connected;
 
             if (request != null)
             {
-                context.Server.Companion?.OnRequestHandled(request, response);
+                Context.Server.Companion?.OnRequestHandled(request, response);
             }
 
             return connected;
@@ -62,7 +73,7 @@ internal sealed class ResponseHandler(ClientContext context) : IResponseSink
 
     private void WriteStatus(IRequest? request, IRawResponse response)
     {
-        var writer = context.Writer;
+        var writer = Context.Writer;
         
         writer.Write("HTTP/1.1 "u8);
         writer.Write(response.StatusCode);
@@ -77,6 +88,8 @@ internal sealed class ResponseHandler(ClientContext context) : IResponseSink
 
     private void WriteHeader(IRawResponse response, HttpProtocol version, bool keepAlive)
     {
+        var context = Context;
+        
         var writer = context.Writer;
         
         /*if (response.Headers.TryGetValue("Server", out var server))
@@ -87,14 +100,10 @@ internal sealed class ResponseHandler(ClientContext context) : IResponseSink
         }
         else
         {*/
-        writer.Write("Server: GenHTTP/"u8);
-        writer.Write(context.Server.Version);
-        writer.Write("\r\n"u8);
+        writer.Write(ServerHeader.GetValue(context).Span);
         //}
 
-        writer.Write("Date: "u8);
-        writer.Write(DateHeader.GetValue());
-        writer.Write("\r\n"u8);
+        writer.Write(DateHeader.GetValue().Span);
 
         var content = response.Content;
 
@@ -189,6 +198,11 @@ internal sealed class ResponseHandler(ClientContext context) : IResponseSink
                 WriteCookie(cookie.Value);
             }
         }*/
+    }
+
+    private static void WriteServer(IRawResponse response)
+    {
+        
     }
 
     private ValueTask WriteBodyAsync(IRawResponse response)
