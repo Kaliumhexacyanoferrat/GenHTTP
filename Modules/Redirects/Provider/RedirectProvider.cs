@@ -3,8 +3,6 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.IO;
-
 namespace GenHTTP.Modules.Redirects.Provider;
 
 public sealed partial class RedirectProvider : IHandler
@@ -38,17 +36,20 @@ public sealed partial class RedirectProvider : IHandler
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var resolved = ResolveRoute(request, Target);
+        // todo
+        throw new NotImplementedException();
+
+        /*var resolved = ResolveRoute(request, Target);
 
         var response = request.Respond()
                               .Header("Location", resolved);
 
         var status = MapStatus(request, Temporary);
 
-        return new ValueTask<IResponse?>(response.Status(status).Build());
+        return new ValueTask<IResponse?>(response.Status(status).Build());*/
     }
 
-    private static string ResolveRoute(IRequest request, string route)
+    /*private static string ResolveRoute(IRequest request, string route)
     {
         if (ProtocolMatcher.IsMatch(route))
         {
@@ -58,16 +59,16 @@ public sealed partial class RedirectProvider : IHandler
         var protocol = request.EndPoint.Secure ? "https://" : "http://";
 
         return $"{protocol}{request.Host}{route}";
-    }
+    }*/
 
-    private static ResponseStatus MapStatus(IRequest request, bool temporary)
+    /*private static ResponseStatus MapStatus(IRequest request, bool temporary)
     {
         if (request.HasType(RequestMethod.Get, RequestMethod.Head))
         {
             return temporary ? ResponseStatus.TemporaryRedirect : ResponseStatus.MovedPermanently;
         }
         return temporary ? ResponseStatus.SeeOther : ResponseStatus.PermanentRedirect;
-    }
+    }*/
 
     #endregion
 

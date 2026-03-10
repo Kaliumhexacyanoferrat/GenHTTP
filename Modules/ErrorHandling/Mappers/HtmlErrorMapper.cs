@@ -1,10 +1,8 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.IO;
-using GenHTTP.Modules.Pages;
+﻿namespace GenHTTP.Modules.ErrorHandling.Mappers;
 
-namespace GenHTTP.Modules.ErrorHandling.Mappers;
+// todo
 
+/*
 public class HtmlErrorMapper : IErrorMapper<Exception>
 {
 
@@ -42,3 +40,4 @@ public class HtmlErrorMapper : IErrorMapper<Exception>
                       .Build();
     }
 }
+*/

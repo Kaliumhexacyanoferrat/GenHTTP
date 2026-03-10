@@ -1,4 +1,5 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using System.Buffers;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Content.IO;
 
@@ -65,5 +66,7 @@ public interface IResource
 
         await content.CopyToAsync(target, (int)bufferSize);
     }
+
+    void Write(IBufferWriter<byte> writer);
 
 }

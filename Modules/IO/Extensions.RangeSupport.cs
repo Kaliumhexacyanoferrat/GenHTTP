@@ -1,7 +1,6 @@
-﻿using GenHTTP.Api.Infrastructure;
+﻿namespace GenHTTP.Modules.IO;
 
-namespace GenHTTP.Modules.IO;
-
+/*
 public static class RangeSupportExtensions
 {
 
@@ -17,3 +16,4 @@ public static class RangeSupportExtensions
     }
 
 }
+*/
