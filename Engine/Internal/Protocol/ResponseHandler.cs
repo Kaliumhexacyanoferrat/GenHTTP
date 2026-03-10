@@ -47,7 +47,7 @@ internal sealed class ResponseHandler : IResponseSink
 
             var writer = Context.Writer;
             
-            writer.Write(StatusLine.Get(raw.Status).Span);
+            writer.Write(StatusLine.Get(raw.Status));
 
             WriteHeader(raw, version, keepAlive);
 
