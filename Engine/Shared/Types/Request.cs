@@ -1,4 +1,6 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using System.Text;
+
+using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Protocol.Raw;
 
 using GenHTTP.Engine.Shared.Utilities;
@@ -9,6 +11,8 @@ namespace GenHTTP.Engine.Shared.Types;
 
 public sealed class Request : IRequest
 {
+    private static readonly ReadOnlyMemory<byte> HostHeader = "Host"u8.ToArray();
+
     private readonly RawRequest _raw = new();
 
     private readonly ResponseBuilder _response = new();
@@ -18,6 +22,8 @@ public sealed class Request : IRequest
     private RequestMethod? _method;
 
     public IRawRequest Raw => _raw;
+
+    public string Host => GetHeader(HostHeader) ?? throw new InvalidOperationException("Request is missing mandatory host header");
 
     public IRequestBody? Body { get; }
 
@@ -59,8 +65,11 @@ public sealed class Request : IRequest
     {
         _raw.Source.Clear();
         _response.Reset();
+
         _resetRequired = true;
     }
+
+    public string? GetHeader(string header) => GetHeader(header.GetMemory());
 
     public IResponseBuilder Respond()
     {
@@ -74,6 +83,18 @@ public sealed class Request : IRequest
         }
 
         return _response;
+    }
+
+    public string? GetHeader(ReadOnlyMemory<byte> header)
+    {
+        var value = _raw.Header.Headers.GetEntry(header);
+
+        if (value != null)
+        {
+            return value.Value.GetString();
+        }
+
+        return null;
     }
 
 }

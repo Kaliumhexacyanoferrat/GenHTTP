@@ -9,7 +9,11 @@ public interface IRequest
 
     RequestMethod Method { get; }
 
+    string Host { get; }
+
     IRequestBody? Body { get; }
+
+    string? GetHeader(string header);
 
     IResponseBuilder Respond();
 

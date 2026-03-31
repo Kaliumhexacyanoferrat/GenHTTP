@@ -1,11 +1,10 @@
-﻿namespace GenHTTP.Modules.IO;
+﻿using GenHTTP.Api.Protocol;
+
+namespace GenHTTP.Modules.IO;
 
 public static class RequestExtensions
 {
 
-    // todo
-
-    /*
     public static bool HasType(this IRequest request, params RequestMethod[] methods)
     {
         foreach (var method in methods)
@@ -19,7 +18,9 @@ public static class RequestExtensions
         return false;
     }
 
-    public static string? HostWithoutPort(this IRequest request)
+    // todo
+
+    /*public static string? HostWithoutPort(this IRequest request)
     {
         var host = request.Host;
 

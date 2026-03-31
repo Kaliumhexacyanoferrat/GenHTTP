@@ -15,6 +15,18 @@ public class ResponseBuilder : IResponseBuilder
         _raw = new(_response, this);
     }
 
+    public IResponseBuilder Status(ResponseStatus status)
+    {
+        _raw.Status(status);
+        return this;
+    }
+
+    public IResponseBuilder Header(string name, string value)
+    {
+        _raw.Header(name.GetMemory(), value.GetMemory());
+        return this;
+    }
+
     public IRawResponseBuilder Raw() => _raw;
 
     public IResponse Build() => _response;

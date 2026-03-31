@@ -1,17 +1,18 @@
-﻿using System.Text.RegularExpressions;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.Redirects.Provider;
 
-public sealed partial class RedirectProvider : IHandler
+public sealed class RedirectProvider : IHandler
 {
-    private static readonly Regex ProtocolMatcher = CreateProtocolMatcher();
 
     #region Get-/Setters
 
-    public string Target { get; }
+    public Uri Target { get; }
+
+    private string StringTarget { get; }
 
     public bool Temporary { get; }
 
@@ -19,14 +20,13 @@ public sealed partial class RedirectProvider : IHandler
 
     #region Initialization
 
-    public RedirectProvider(string location, bool temporary)
+    public RedirectProvider(Uri location, bool temporary)
     {
         Target = location;
+        StringTarget = location.ToString();
+
         Temporary = temporary;
     }
-
-    [GeneratedRegex("^[a-z_-]+://", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
-    private static partial Regex CreateProtocolMatcher();
 
     #endregion
 
@@ -36,39 +36,37 @@ public sealed partial class RedirectProvider : IHandler
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        // todo
-        throw new NotImplementedException();
-
-        /*var resolved = ResolveRoute(request, Target);
-
-        var response = request.Respond()
-                              .Header("Location", resolved);
+        var resolved = ResolveRoute(request);
 
         var status = MapStatus(request, Temporary);
 
-        return new ValueTask<IResponse?>(response.Status(status).Build());*/
+        var response = request.Respond()
+                              .Header("Location", resolved)
+                              .Status(status);
+
+        return new ValueTask<IResponse?>(response.Build());
     }
 
-    /*private static string ResolveRoute(IRequest request, string route)
+    private string ResolveRoute(IRequest request)
     {
-        if (ProtocolMatcher.IsMatch(route))
+        if (Target.IsAbsoluteUri)
         {
-            return route;
+            return StringTarget;
         }
 
-        var protocol = request.EndPoint.Secure ? "https://" : "http://";
+        // todo: var protocol = request.EndPoint.Secure ? "https://" : "http://";
 
-        return $"{protocol}{request.Host}{route}";
-    }*/
+        return $"http://{request.Host}{StringTarget}";
+    }
 
-    /*private static ResponseStatus MapStatus(IRequest request, bool temporary)
+    private static ResponseStatus MapStatus(IRequest request, bool temporary)
     {
         if (request.HasType(RequestMethod.Get, RequestMethod.Head))
         {
             return temporary ? ResponseStatus.TemporaryRedirect : ResponseStatus.MovedPermanently;
         }
         return temporary ? ResponseStatus.SeeOther : ResponseStatus.PermanentRedirect;
-    }*/
+    }
 
     #endregion
 
