@@ -141,3 +141,7 @@ in C#. In 2024 the focus has shifted towards API development, dropping support f
 
 - Powered by [.NET](https://github.com/dotnet/core)
 - Modules implemented with [NSwag](https://github.com/RicoSuter/NSwag) | [Cottle](https://r3c.github.io/cottle/) | [SharpCompress](https://github.com/adamhathcock/sharpcompress) | [Fleck](https://github.com/statianzo/Fleck)
+
+### Supported by
+
+[![JetBrains logo.](https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg)](https://jb.gg/OpenSource)
