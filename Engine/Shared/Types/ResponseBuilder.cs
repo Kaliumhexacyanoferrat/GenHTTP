@@ -1,87 +1,37 @@
 ﻿using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Protocol.Raw;
+using GenHTTP.Engine.Shared.Types.Raw;
 
 namespace GenHTTP.Engine.Shared.Types;
 
-public sealed class ResponseBuilder(Response response) : IResponseBuilder
+public class ResponseBuilder : IResponseBuilder
 {
+    private readonly Response _response;
 
-    #region Functionality
+    private readonly RawResponseBuilder _raw;
 
-    public IResponseBuilder Length(ulong length)
+    public ResponseBuilder()
     {
-        response.ContentLength = length;
-        return this;
-    }
-
-    public IResponseBuilder Content(IResponseContent content)
-    {
-        response.Content = content;
-        response.ContentLength = content.Length;
-
-        return this;
-    }
-
-    public IResponseBuilder Type(FlexibleContentType contentType)
-    {
-        response.ContentType = contentType;
-        return this;
-    }
-
-    public IResponseBuilder Cookie(Cookie cookie)
-    {
-        response.WriteableCookies[cookie.Name] = cookie;
-        return this;
-    }
-
-    public IResponseBuilder Header(string key, string value)
-    {
-        response.Headers.Add(key, value);
-        return this;
-    }
-
-    public IResponseBuilder Encoding(string encoding)
-    {
-        response.ContentEncoding = encoding;
-        return this;
-    }
-
-    public IResponseBuilder Expires(DateTime expiryDate)
-    {
-        response.Expires = expiryDate;
-        return this;
-    }
-
-    public IResponseBuilder Modified(DateTime modificationDate)
-    {
-        response.Modified = modificationDate;
-        return this;
+        _response = new(this);
+        _raw = new(_response, this);
     }
 
     public IResponseBuilder Status(ResponseStatus status)
     {
-        response.Status = new FlexibleResponseStatus(status);
+        _raw.Status(status);
         return this;
     }
 
-    public IResponseBuilder Status(int status, string reason)
+    public IResponseBuilder Header(string name, string value)
     {
-        response.Status = new FlexibleResponseStatus(status, reason);
+        _raw.Header(name.GetMemory(), value.GetMemory());
         return this;
     }
 
-    public IResponseBuilder Connection(Connection handling)
-    {
-        response.Connection = handling;
-        return this;
-    }
+    public IRawResponseBuilder Raw() => _raw;
 
-    public void Reset()
-    {
-        response.Reset();
-    }
+    public IResponse Build() => _response;
 
-    public IResponse Build() => response;
-
-    #endregion
+    public void Reset() => _response.Reset();
 
 }

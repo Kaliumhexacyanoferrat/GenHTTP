@@ -2,6 +2,8 @@
 
 namespace GenHTTP.Api.Protocol;
 
+// todo: re-visit
+
 #region Known Types
 
 /// <summary>

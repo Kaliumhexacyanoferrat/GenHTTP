@@ -1,17 +1,16 @@
 ﻿using System.Buffers;
 using System.IO.Pipelines;
 using System.Net.Sockets;
-using System.Security.Cryptography.X509Certificates;
+using System.Runtime.CompilerServices;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Engine.Internal.Protocol.Parser;
-using GenHTTP.Engine.Internal.Utilities;
-using GenHTTP.Engine.Shared.Infrastructure;
+using GenHTTP.Engine.Internal.Context;
 using GenHTTP.Engine.Shared.Types;
 
-using Microsoft.Extensions.ObjectPool;
+using Glyph11;
+using Glyph11.Parser.FlexibleParser;
+using Glyph11.Protocol;
 
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
@@ -25,179 +24,195 @@ namespace GenHTTP.Engine.Internal.Protocol;
 /// Implements keep alive and maintains the connection state (e.g. by
 /// closing it after the last request has been handled).
 /// </remarks>
-internal sealed class ClientHandler
+internal sealed class ClientHandler(ClientContext context)
 {
-    private static readonly StreamPipeReaderOptions ReaderOptions = new(MemoryPool<byte>.Shared, leaveOpen: true, bufferSize: 65536);
+    private static readonly TimeSpan InitialReadTimeout = TimeSpan.FromSeconds(10);
 
-    private static readonly DefaultObjectPool<ClientContext> ContextPool = new(new ClientContextPolicy(), 65536);
+    private static readonly TimeSpan KeepAliveTimeout = TimeSpan.FromSeconds(60);
 
-    #region Get-/Setter
-
-    internal IServer Server { get; }
-
-    internal IEndPoint EndPoint { get; }
-
-    internal NetworkConfiguration Configuration { get; }
-
-    internal Socket Connection { get; }
-
-    internal X509Certificate? ClientCertificate { get; set; }
-
-    internal PoolBufferedStream Stream { get; }
-
-    private ResponseHandler ResponseHandler { get; }
-
-    #endregion
-
-    #region Initialization
-
-    internal ClientHandler(Socket socket, PoolBufferedStream stream, X509Certificate? clientCertificate, IServer server, IEndPoint endPoint, NetworkConfiguration config)
-    {
-        Server = server;
-        EndPoint = endPoint;
-
-        Connection = socket;
-        ClientCertificate = clientCertificate;
-
-        Configuration = config;
-
-        Stream = stream;
-
-        ResponseHandler = new ResponseHandler(Server, socket, Stream, Configuration);
-    }
-
-    #endregion
-
+    private CancellationTokenSource _cts = new();
+    
     #region Functionality
 
-    internal async ValueTask Run()
+    internal async ValueTask RunAsync()
     {
+        var connection = context.Connection;
+        
         try
         {
-            await HandlePipe(PipeReader.Create(Stream, ReaderOptions)).ConfigureAwait(false);
+            await HandlePipeAsync(context.Reader).ConfigureAwait(false);
         }
         catch (Exception e)
         {
-            Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, Connection.GetAddress(), e);
+            context.Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, connection.GetAddress(), e);
         }
         finally
         {
             try
             {
-                await Stream.DisposeAsync();
+                await context.Stream.DisposeAsync();
             }
             catch (Exception e)
             {
-                Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, Connection.GetAddress(), e);
+                context.Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, connection.GetAddress(), e);
             }
 
             try
             {
-                Connection.Shutdown(SocketShutdown.Both);
-                await Connection.DisconnectAsync(false);
-                Connection.Close();
+                connection.Shutdown(SocketShutdown.Both);
+                
+                await connection.DisconnectAsync(false);
+                
+                connection.Close();
 
-                Connection.Dispose();
+                connection.Dispose();
             }
             catch (Exception e)
             {
-                Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, Connection.GetAddress(), e);
+                context.Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, connection.GetAddress(), e);
             }
         }
     }
 
-    private async ValueTask HandlePipe(PipeReader reader)
+    private async ValueTask HandlePipeAsync(PipeReader reader)
     {
-        var context = ContextPool.Get();
+        ResetCts(InitialReadTimeout);
+        
+        var request = context.Request;
+        var into = request.Source;
 
         try
         {
-            using var buffer = new RequestBuffer(reader, Configuration);
-
-            var parser = new RequestParser(Configuration, context.Request);
-
-            try
+            while (true)
             {
-                var firstRequest = true;
+                ReadResult result;
 
-                while (Server.Running)
+                try
                 {
-                    if (firstRequest)
-                    {
-                        firstRequest = false;
-                    }
-                    else
-                    {
-                        context.Reset();
-                    }
+                    result = await reader.ReadAsync(_cts.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
+                catch (IOException e) when (e.InnerException is SocketException { SocketErrorCode: SocketError.ConnectionReset or SocketError.ConnectionAborted })
+                {
+                    return;
+                }
+                catch (IOException e) when (e.Message.Contains("Broken pipe", StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
 
-                    if (!await parser.TryParseAsync(buffer))
-                    {
-                        break;
-                    }
+                var buffer = result.Buffer;
 
-                    var status = await HandleRequest(context.Request, !buffer.ReadRequired);
+                var handledRequest = false;
 
-                    if (status is Api.Protocol.Connection.Close)
+                while (TryParseRequest(ref buffer, into))
+                {
+                    request.Apply();
+
+                    var status = await HandleRequestAsync(request);
+
+                    if (status is Connection.Close)
                     {
                         return;
                     }
+
+                    request.Reset();
+                    
+                    handledRequest = true;
                 }
+                
+                reader.AdvanceTo(buffer.Start, buffer.End);
+
+                if (!handledRequest) break;
+                
+                await context.Writer.FlushAsync();
+                
+                if (result.IsCompleted) break;
+
+                ResetCts(KeepAliveTimeout);
             }
-            catch (ProtocolException pe)
-            {
-                // client did something wrong
-                await SendError(pe, ResponseStatus.BadRequest);
-                throw;
-            }
-            catch (Exception e)
-            {
-                // we did something wrong
-                await SendError(e, ResponseStatus.InternalServerError);
-                throw;
-            }
+        }
+        catch (HttpParseException pe)
+        {
+            // client did something wrong
+            await SendErrorAsync(pe, ResponseStatus.BadRequest);
+            throw;
+        }
+        catch (Exception e)
+        {
+            // we did something wrong
+            await SendErrorAsync(e, ResponseStatus.InternalServerError);
+            throw;
         }
         finally
         {
-            ContextPool.Return(context);
-
             await reader.CompleteAsync();
         }
     }
 
-    private async ValueTask<Connection> HandleRequest(Request request, bool dataRemaining)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool TryParseRequest(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
     {
-        request.SetConnection(Server, EndPoint, Connection.GetAddress(), ClientCertificate);
+        if (!FlexibleParser.TryExtractFullHeader(ref buffer, into, out var bytesRead))
+        {
+            return false;
+        }
 
-        var keepAliveRequested = request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? request.ProtocolType == HttpProtocol.Http11;
-
-        var response = await Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
-
-        var closeRequested = response.Connection is Api.Protocol.Connection.Close or Api.Protocol.Connection.Upgrade;
-
-        var active = await ResponseHandler.Handle(request, response, request.ProtocolType, keepAliveRequested && !closeRequested, dataRemaining);
-
-        return (active && keepAliveRequested && !closeRequested) ? Api.Protocol.Connection.KeepAlive : Api.Protocol.Connection.Close;
+        buffer = buffer.Slice(bytesRead);
+        return true;
     }
 
-    private async ValueTask SendError(Exception e, ResponseStatus status)
+    private async ValueTask<Connection> HandleRequestAsync(Request request)
+    {
+        // request.SetConnection(Server, EndPoint, Connection.GetAddress(), ClientCertificate);
+
+        var keepAliveRequested = true; // request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? request.ProtocolType == HttpProtocol.Http11;
+
+        var response = await context.Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
+
+        var closeRequested = false; // response.Connection is Api.Protocol.Connection.Close or Api.Protocol.Connection.Upgrade;
+
+        var active = await context.ResponseHandler.HandleAsync(request, response, HttpProtocol.Http11, keepAliveRequested && !closeRequested);
+        
+        return (active && keepAliveRequested && !closeRequested) ? Connection.KeepAlive : Connection.Close;
+    }
+
+    private ValueTask<bool> SendErrorAsync(Exception e, ResponseStatus status)
     {
         try
         {
-            var message = Server.Development ? e.ToString() : e.Message;
+            var message = context.Server.Development ? e.ToString() : e.Message;
 
-            using var response = new ResponseBuilder(new()).Status(status)
-                                                           .Content(new StringContent(message))
-                                                           .Build();
+            // todo status code mapping
 
-            await ResponseHandler.Handle(null, response, HttpProtocol.Http10, false, false);
+            var response = new ResponseBuilder().Raw()
+                .Status(status)
+                .Content(new StringContent(message))
+                .Build();
+
+            return context.ResponseHandler.HandleAsync(null, response, HttpProtocol.Http10, false);
         }
         catch
         {
             /* no recovery here */
+            return ValueTask.FromResult(false);
         }
     }
 
-    #endregion
+    private void ResetCts(TimeSpan timeout)
+    {
+        if (!_cts.TryReset())
+        {
+            _cts.Dispose();
+            _cts = new CancellationTokenSource();
+        }
 
+        _cts.CancelAfter(timeout);
+    }
+
+    #endregion
+    
 }
