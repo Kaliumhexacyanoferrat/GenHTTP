@@ -65,6 +65,7 @@ public sealed class RedirectProvider : IHandler
         {
             return temporary ? ResponseStatus.TemporaryRedirect : ResponseStatus.MovedPermanently;
         }
+
         return temporary ? ResponseStatus.SeeOther : ResponseStatus.PermanentRedirect;
     }
 

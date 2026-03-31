@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using GenHTTP.Api.Protocol.Raw;
 
-namespace GenHTTP.Engine.Shared.Types;
+namespace GenHTTP.Engine.Shared.Types.Raw;
 
 public sealed class RawRequestTarget : IRawRequestTarget
 {

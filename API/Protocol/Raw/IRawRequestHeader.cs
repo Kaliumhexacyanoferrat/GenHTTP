@@ -7,11 +7,11 @@ public interface IRawRequestHeader
 
     ReadOnlyMemory<byte> Path { get; }
 
+    ReadOnlyMemory<byte> Version { get; }
+
     IRawRequestTarget Target { get; }
 
     IRawKeyValueList Query { get; }
-
-    ReadOnlyMemory<byte> Version { get; }
 
     IRawKeyValueList Headers { get; }
 

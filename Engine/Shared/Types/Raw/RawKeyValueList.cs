@@ -1,9 +1,9 @@
 ﻿using GenHTTP.Api.Protocol.Raw;
-using Glyph11.Protocol;
+using Glyph = Glyph11.Protocol;
 
-namespace GenHTTP.Engine.Shared.Types;
+namespace GenHTTP.Engine.Shared.Types.Raw;
 
-public sealed class RawKeyValueList(KeyValueList source) : IRawKeyValueList
+public sealed class RawKeyValueList(Glyph.KeyValueList source) : IRawKeyValueList
 {
 
     public int Count => source.Count;

@@ -1,6 +1,6 @@
 ﻿using GenHTTP.Api.Protocol.Raw;
 
-namespace GenHTTP.Engine.Shared.Types;
+namespace GenHTTP.Engine.Shared.Types.Raw;
 
 public class RawRequestHeader : IRawRequestHeader
 {

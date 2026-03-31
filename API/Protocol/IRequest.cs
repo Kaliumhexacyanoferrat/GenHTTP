@@ -7,13 +7,15 @@ public interface IRequest
 
     IRawRequest Raw { get; }
 
-    RequestMethod Method { get; }
+    IKeyValueList Headers { get; }
 
-    string Host { get; }
+    IKeyValueList Query { get; }
 
     IRequestBody? Body { get; }
 
-    string? GetHeader(string header);
+    RequestMethod Method { get; }
+
+    string Host { get; }
 
     IResponseBuilder Respond();
 

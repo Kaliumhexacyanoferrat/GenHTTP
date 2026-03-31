@@ -1,7 +1,7 @@
 ﻿using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Protocol.Raw;
 
-namespace GenHTTP.Engine.Shared.Types;
+namespace GenHTTP.Engine.Shared.Types.Raw;
 
 public class RawResponseBuilder(Response response, ResponseBuilder builder) : IRawResponseBuilder
 {

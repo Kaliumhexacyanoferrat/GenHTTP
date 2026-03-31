@@ -2,7 +2,7 @@
 
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Protocol.Raw;
-
+using GenHTTP.Engine.Shared.Types.Raw;
 using GenHTTP.Engine.Shared.Utilities;
 
 using Glyph11.Protocol;
@@ -17,13 +17,19 @@ public sealed class Request : IRequest
 
     private readonly ResponseBuilder _response = new();
 
+    private readonly IKeyValueList _header;
+
+    private readonly IKeyValueList _query;
+
     private bool _resetRequired = true;
 
     private RequestMethod? _method;
 
     public IRawRequest Raw => _raw;
 
-    public string Host => GetHeader(HostHeader) ?? throw new InvalidOperationException("Request is missing mandatory host header");
+    public IKeyValueList Headers => _header;
+
+    public IKeyValueList Query => _query;
 
     public IRequestBody? Body { get; }
 
@@ -56,6 +62,14 @@ public sealed class Request : IRequest
         }
     }
 
+    public string Host => _header.GetValue(HostHeader) ?? throw new InvalidOperationException("Request is missing mandatory host header");
+
+    public Request()
+    {
+        _header = new KeyValueList(_raw.Header.Headers);
+        _query = new KeyValueList(_raw.Header.Query);
+    }
+
     public void Apply()
     {
         _raw.Apply();
@@ -69,8 +83,6 @@ public sealed class Request : IRequest
         _resetRequired = true;
     }
 
-    public string? GetHeader(string header) => GetHeader(header.GetMemory());
-
     public IResponseBuilder Respond()
     {
         if (!_resetRequired)
@@ -83,18 +95,6 @@ public sealed class Request : IRequest
         }
 
         return _response;
-    }
-
-    public string? GetHeader(ReadOnlyMemory<byte> header)
-    {
-        var value = _raw.Header.Headers.GetEntry(header);
-
-        if (value != null)
-        {
-            return value.Value.GetString();
-        }
-
-        return null;
     }
 
 }
