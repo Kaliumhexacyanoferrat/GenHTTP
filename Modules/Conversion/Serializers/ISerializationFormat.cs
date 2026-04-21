@@ -38,6 +38,6 @@ public interface ISerializationFormat
     /// </summary>
     /// <param name="data">The data to be processed</param>
     /// <returns>The byte representation of the serialized data</returns>
-    ValueTask<ReadOnlyMemory<byte>> SerializeAsync(object data);
+    ValueTask<ReadOnlyMemory<byte>> SerializeAsync(object data); // todo: why? performance?
 
 }

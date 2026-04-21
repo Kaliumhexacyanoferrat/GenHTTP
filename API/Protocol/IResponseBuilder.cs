@@ -10,6 +10,8 @@ public interface IResponseBuilder : IBuilder<IResponse>
 
     IResponseBuilder Header(string name, string value);
 
+    IResponseBuilder Content(IResponseContent content);
+
     IRawResponseBuilder Raw();
 
 }

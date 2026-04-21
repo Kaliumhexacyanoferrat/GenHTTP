@@ -1,4 +1,5 @@
-﻿using GenHTTP.Modules.ErrorHandling.Mappers;
+﻿using GenHTTP.Modules.Conversion.Serializers;
+using GenHTTP.Modules.ErrorHandling.Mappers;
 using GenHTTP.Modules.ErrorHandling.Provider;
 
 namespace GenHTTP.Modules.ErrorHandling;
@@ -24,14 +25,14 @@ public static class ErrorHandler
     /// </summary>
     /// <param name="serialization">The serialization configuration to be used</param>
     /// <returns>A structured error handler</returns>
-    // public static ErrorSentryBuilder<Exception> Structured(SerializationBuilder? serialization = null) => From(new StructuredErrorMapper(serialization?.Build()));
+    public static ErrorSentryBuilder<Exception> Structured(SerializationBuilder? serialization = null) => From(new StructuredErrorMapper(serialization?.Build()));
 
     /// <summary>
     /// An error handler which will render exceptions into
     /// HTML using the current template and IErrorRenderer.
     /// </summary>
     /// <returns>An HTML error handler</returns>
-    // public static ErrorSentryBuilder<Exception> Html() => From(new HtmlErrorMapper());
+    public static ErrorSentryBuilder<Exception> Html() => From(new HtmlErrorMapper());
 
     /// <summary>
     /// Creates an error handling concern which will use

@@ -1,8 +1,15 @@
-﻿namespace GenHTTP.Modules.ErrorHandling.Mappers;
+﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
 
-// todo
+using GenHTTP.Modules.Conversion;
+using GenHTTP.Modules.Conversion.Serializers;
+using GenHTTP.Modules.Conversion.Serializers.Json;
+using GenHTTP.Modules.ErrorHandling.Provider;
+using GenHTTP.Modules.IO;
 
-/*public sealed class StructuredErrorMapper : IErrorMapper<Exception>
+namespace GenHTTP.Modules.ErrorHandling.Mappers;
+
+public sealed class StructuredErrorMapper : IErrorMapper<Exception>
 {
 
     #region Initialization
@@ -42,7 +49,7 @@
     {
         string? stackTrace = null;
 
-        if (request.Server.Development)
+        if (true) // todo: request.Server.Development)
         {
             stackTrace = error.StackTrace;
         }
@@ -81,4 +88,4 @@
 
     #endregion
 
-}*/
+}

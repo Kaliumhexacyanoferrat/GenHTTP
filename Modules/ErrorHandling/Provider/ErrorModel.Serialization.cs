@@ -1,7 +1,11 @@
-﻿namespace GenHTTP.Modules.ErrorHandling.Provider;
+﻿using System.Text.Json.Serialization;
 
-/*[JsonSerializable(typeof(StructuredErrorMapper.ErrorModel))]
+using GenHTTP.Modules.ErrorHandling.Mappers;
+
+namespace GenHTTP.Modules.ErrorHandling.Provider;
+
+[JsonSerializable(typeof(StructuredErrorMapper.ErrorModel))]
 public partial class ErrorHandlingContext : JsonSerializerContext
 {
 
-}*/
+}

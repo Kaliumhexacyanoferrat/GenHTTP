@@ -1,10 +1,12 @@
 ﻿using System.Xml.Serialization;
+
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Conversion.Serializers.Xml;
 
 public sealed class XmlContent : IResponseContent
 {
+    private static readonly ReadOnlyMemory<byte> ContentType = "application/xml"u8.ToArray();
 
     #region Initialization
 
@@ -19,6 +21,8 @@ public sealed class XmlContent : IResponseContent
 
     public ulong? Length => null;
 
+    public ReadOnlyMemory<byte> Type => ContentType;
+
     private object Data { get; }
 
     #endregion
@@ -27,9 +31,12 @@ public sealed class XmlContent : IResponseContent
 
     public ValueTask<ulong?> CalculateChecksumAsync() => new((ulong)Data.GetHashCode());
 
-    public ValueTask WriteAsync(Stream target, uint bufferSize)
+    public ValueTask WriteAsync(IResponseSink sink)
     {
+        var target = sink.Stream;
+
         var serializer = new XmlSerializer(Data.GetType());
+
         serializer.Serialize(target, Data);
 
         return new ValueTask();
