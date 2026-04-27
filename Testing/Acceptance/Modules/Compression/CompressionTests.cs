@@ -35,7 +35,7 @@ public sealed class CompressionTests
 
         Assert.AreEqual("zstd", response.Content.Headers.ContentEncoding.First());
     }
-
+    
     /// <summary>
     /// As a browser, I expect only supported compression algorithms to be used
     /// to generate my response.
@@ -377,6 +377,20 @@ public sealed class CompressionTests
         Assert.AreEqual("zstd", response.Content.Headers.ContentEncoding.First());
 
         await runner.DisposeAsync();
+    }
+    
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestWeights(TestEngine engine)
+    {
+        await using var runner = await TestHost.RunAsync(CreateLargeContentHandler().Build(), engine: engine);
+
+        var request = runner.GetRequest();
+        request.Headers.Add("Accept-Encoding", "br;q=1, gzip;q=0.8");
+
+        using var response = await runner.GetResponseAsync(request);
+
+        Assert.AreEqual("br", response.Content.Headers.ContentEncoding.First());
     }
 
     /// <summary>

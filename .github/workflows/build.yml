@@ -26,7 +26,7 @@ jobs:
     steps:
     
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
 
@@ -36,7 +36,7 @@ jobs:
         sudo apt-get install -y libmsquic
         
     - name: Download .NET SDK
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 10.0
         
@@ -110,24 +110,33 @@ jobs:
 
           - os:
               name: 🍎
-              runs-on: macos-15-intel
+              runs-on: macos-26-intel
             arch: x64
             runtime: osx-x64
             platform: macos/amd64
 
           - os:
               name: 🍎
-              runs-on: macos-15
+              runs-on: macos-26
             arch: arm64
             runtime: osx-arm64
             platform: macos/arm64
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+
+      - name: Harden macOS x64 environment
+
+        if: matrix.os.runs-on == 'macos-26-intel'
+        run: |
+          sudo rm -rf /opt/homebrew || true
+          export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+          export DYLD_LIBRARY_PATH=""
+          export DYLD_FALLBACK_LIBRARY_PATH=""
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         if: matrix.os.runs-on != 'linux-arm32'
         with:
           dotnet-version: |
