@@ -1,4 +1,5 @@
-﻿using System.IO.Compression;
+﻿using System.Buffers;
+using System.IO.Compression;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
@@ -132,30 +133,38 @@ public sealed class CompressionConcern : IConcern
         return MinimumSize is null || contentLength is null || contentLength >= MinimumSize;
     }
 
+    private static readonly SearchValues<char> Delimiters = SearchValues.Create([',', ';']);
+
     private static HashSet<string> ParseSupported(ReadOnlySpan<char> acceptHeader)
     {
         var result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        var start = 0;
-
-        while (start <= acceptHeader.Length)
+        while (!acceptHeader.IsEmpty)
         {
-            var comma = acceptHeader[start..].IndexOf(',');
-            var end = comma >= 0 ? start + comma : acceptHeader.Length;
+            var delimIdx = acceptHeader.IndexOfAny(Delimiters);
 
-            var part = acceptHeader.Slice(start, end - start).Trim();
-
-            if (!part.IsEmpty)
+            ReadOnlySpan<char> token;
+            if (delimIdx < 0)
             {
-                result.Add(part.ToString());
+                token = acceptHeader.Trim();
+                acceptHeader = default;
+            }
+            else if (acceptHeader[delimIdx] == ',')
+            {
+                token = acceptHeader[..delimIdx].Trim();
+                acceptHeader = acceptHeader[(delimIdx + 1)..];
+            }
+            else
+            {
+                token = acceptHeader[..delimIdx].TrimEnd();
+                var commaIdx = acceptHeader[delimIdx..].IndexOf(',');
+                acceptHeader = commaIdx >= 0
+                    ? acceptHeader[(delimIdx + commaIdx + 1)..]
+                    : default;
             }
 
-            if (comma < 0)
-            {
-                break;
-            }
-
-            start = end + 1;
+            if (!token.IsEmpty)
+                result.Add(token.ToString());
         }
 
         return result;
