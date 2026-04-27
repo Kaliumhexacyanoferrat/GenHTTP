@@ -132,39 +132,37 @@ public sealed class CompressionConcern : IConcern
 
         return MinimumSize is null || contentLength is null || contentLength >= MinimumSize;
     }
-
-    private static readonly SearchValues<char> Delimiters = SearchValues.Create([',', ';']);
-
+    
     private static HashSet<string> ParseSupported(ReadOnlySpan<char> acceptHeader)
     {
         var result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        while (!acceptHeader.IsEmpty)
+        var start = 0;
+
+        while (start <= acceptHeader.Length)
         {
-            var delimIdx = acceptHeader.IndexOfAny(Delimiters);
+            var comma = acceptHeader[start..].IndexOf(',');
+            var end = comma >= 0 ? start + comma : acceptHeader.Length;
 
-            ReadOnlySpan<char> token;
-            if (delimIdx < 0)
+            var part = acceptHeader.Slice(start, end - start).Trim();
+
+            var semicolon = part.IndexOf(';');
+            if (semicolon >= 0)
             {
-                token = acceptHeader.Trim();
-                acceptHeader = default;
-            }
-            else if (acceptHeader[delimIdx] == ',')
-            {
-                token = acceptHeader[..delimIdx].Trim();
-                acceptHeader = acceptHeader[(delimIdx + 1)..];
-            }
-            else
-            {
-                token = acceptHeader[..delimIdx].TrimEnd();
-                var commaIdx = acceptHeader[delimIdx..].IndexOf(',');
-                acceptHeader = commaIdx >= 0
-                    ? acceptHeader[(delimIdx + commaIdx + 1)..]
-                    : default;
+                part = part[..semicolon].TrimEnd();
             }
 
-            if (!token.IsEmpty)
-                result.Add(token.ToString());
+            if (!part.IsEmpty)
+            {
+                result.Add(part.ToString());
+            }
+
+            if (comma < 0)
+            {
+                break;
+            }
+
+            start = end + 1;
         }
 
         return result;
