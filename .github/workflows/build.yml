@@ -126,6 +126,15 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
+      - name: Harden macOS x64 environment
+
+        if: matrix.os.runs-on == 'macos-26-intel'
+        run: |
+          sudo rm -rf /opt/homebrew || true
+          export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+          export DYLD_LIBRARY_PATH=""
+          export DYLD_FALLBACK_LIBRARY_PATH=""
+
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         if: matrix.os.runs-on != 'linux-arm32'
