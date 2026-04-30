@@ -38,7 +38,7 @@ public sealed class BrowserHandler: IHandler
 
     #region Functionality
 
-    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+    public ValueTask PrepareAsync() => StaticResources.PrepareAsync();
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
