@@ -28,7 +28,7 @@ public partial class RangeSupportConcern : IConcern
 
     #region Functionality
 
-    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+    public ValueTask PrepareAsync() => Content.PrepareAsync();
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
