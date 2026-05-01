@@ -29,13 +29,13 @@ internal class InjectionConcern : IConcern
 
     public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-    public ValueTask<IResponse?> HandleAsync(IRequest request)
+    public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
         using var scope = Services.CreateScope();
 
         request.Configure(Services, scope);
 
-        return Content.HandleAsync(request);
+        return await Content.HandleAsync(request);
     }
 
     #endregion
