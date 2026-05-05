@@ -19,6 +19,8 @@ public sealed class ResourceContent : IResponseContent
 
     public ulong? Length => Resource.Length;
 
+    public ReadOnlyMemory<byte> Type { get; }
+
     private IResource Resource { get; }
 
     #endregion
@@ -28,6 +30,12 @@ public sealed class ResourceContent : IResponseContent
     public async ValueTask<ulong?> CalculateChecksumAsync() => await Resource.CalculateChecksumAsync();
 
     public ValueTask WriteAsync(Stream target, uint bufferSize) => Resource.WriteAsync(target, bufferSize);
+
+    public ValueTask WriteAsync(IResponseSink sink)
+    {
+        Resource.Write(sink.Writer);
+        return ValueTask.CompletedTask;
+    }
 
     #endregion
 

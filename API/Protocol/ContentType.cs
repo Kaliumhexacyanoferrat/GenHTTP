@@ -1,691 +1,228 @@
-﻿using System.Collections.Concurrent;
+﻿using System.Text;
+using GenHTTP.Api.Util;
 
 namespace GenHTTP.Api.Protocol;
 
-#region Known Types
-
-/// <summary>
-/// The content type of the response.
-/// </summary>
-public enum ContentType
+public readonly struct ContentType : IEquatable<ContentType>
 {
+    private readonly ReadOnlyMemory<byte> _value;
 
-    /// <summary>
-    /// A html page.
-    /// </summary>
-    TextHtml,
-
-    /// <summary>
-    /// A stylesheet.
-    /// </summary>
-    TextCss,
-
-    /// <summary>
-    /// A human readable YAML file.
-    /// </summary>
-    TextYaml,
-
-    /// <summary>
-    /// A JavaScript source file.
-    /// </summary>
-    ApplicationJavaScript,
-
-    /// <summary>
-    /// A JSON file.
-    /// </summary>
-    ApplicationJson,
-
-    /// <summary>
-    /// A YAML file.
-    /// </summary>
-    ApplicationYaml,
-
-    /// <summary>
-    /// A PNG image.
-    /// </summary>
-    ImagePng,
-
-    /// <summary>
-    /// A BMP image.
-    /// </summary>
-    ImageBmp,
-
-    /// <summary>
-    /// A JPG image.
-    /// </summary>
-    ImageJpg,
-
-    /// <summary>
-    /// A GIF image.
-    /// </summary>
-    ImageGif,
-
-    /// <summary>
-    /// A download.
-    /// </summary>
-    ApplicationForceDownload,
-
-    /// <summary>
-    /// Anything else - data.
-    /// </summary>
-    ApplicationOctetStream,
-
-    /// <summary>
-    /// A MP4 audio file.
-    /// </summary>
-    AudioMp4,
-
-    /// <summary>
-    /// A OGG audio file.
-    /// </summary>
-    AudioOgg,
-
-    /// <summary>
-    /// A MPEG audio file.
-    /// </summary>
-    AudioMpeg,
-
-    /// <summary>
-    /// A TIFF image.
-    /// </summary>
-    ImageTiff,
-
-    /// <summary>
-    /// A CSV file.
-    /// </summary>
-    TextCsv,
-
-    /// <summary>
-    /// A RTF file.
-    /// </summary>
-    TextRichText,
-
-    /// <summary>
-    /// Plain text.
-    /// </summary>
-    TextPlain,
-
-    /// <summary>
-    /// A XML file.
-    /// </summary>
-    TextXml,
-
-    /// <summary>
-    /// A JavaScript file.
-    /// </summary>
-    TextJavaScript,
-
-    /// <summary>
-    /// A SSE stream.
-    /// </summary>
-    TextEventStream,
-
-    /// <summary>
-    /// A uncompressed audio file.
-    /// </summary>
-    AudioWav,
-
-    /// <summary>
-    /// Word processing document (e.g. docx).
-    /// </summary>
-    ApplicationOfficeDocumentWordProcessing,
-
-    /// <summary>
-    /// A presentation (e.g. pptx).
-    /// </summary>
-    ApplicationOfficeDocumentPresentation,
-
-    /// <summary>
-    /// A slideshow (e.g. .ppsx).
-    /// </summary>
-    ApplicationOfficeDocumentSlideshow,
-
-    /// <summary>
-    /// A sheet (e.g. .xlsx).
-    /// </summary>
-    ApplicationOfficeDocumentSheet,
-
-    /// <summary>
-    /// An icon.
-    /// </summary>
-    ImageIcon,
-
-    /// <summary>
-    /// Microsoft, embedded otf.
-    /// </summary>
-    FontEmbeddedOpenTypeFont,
-
-    /// <summary>
-    /// True type font (.ttf)
-    /// </summary>
-    FontTrueTypeFont,
-
-    /// <summary>
-    /// Woff font (.woff)
-    /// </summary>
-    FontWoff,
-
-    /// <summary>
-    /// Woff 2 font (.woff2)
-    /// </summary>
-    FontWoff2,
-
-    /// <summary>
-    /// Open type fonf (.otf)
-    /// </summary>
-    FontOpenTypeFont,
-
-    /// <summary>
-    /// Scalable Vector Graphics (.svg)
-    /// </summary>
-    ImageScalableVectorGraphics,
-
-    /// <summary>
-    /// Scalable Vector Graphics (.svg)
-    /// </summary>
-    ImageScalableVectorGraphicsXml,
-
-    /// <summary>
-    /// Scalable Vector Graphics (compressed, .svgz)
-    /// </summary>
-    ImageScalableVectorGraphicsCompressed,
-
-    /// <summary>
-    /// Url encoded form data.
-    /// </summary>
-    ApplicationWwwFormUrlEncoded,
-
-    /// <summary>
-    /// A Protobuf message.
-    /// </summary>
-    ApplicationProtobuf,
-
-    /// <summary>
-    /// A PDF file.
-    /// </summary>
-    ApplicationPdf,
-
-    /// <summary>
-    /// 3GPP video file container (.3gp).
-    /// </summary>
-    Video3Gpp,
-
-    /// <summary>
-    /// 3GPP2 video files (.3g2).
-    /// </summary>
-    Video3Gpp2,
-
-    /// <summary>
-    /// AV1 video file (.av1).
-    /// </summary>
-    VideoAV1,
-
-    /// <summary>
-    /// A MPEG4 Part 10 (H.264) video file (.avc).
-    /// </summary>
-    VideoAvc,
-
-    /// <summary>
-    /// Digital video file (.dv).
-    /// </summary>
-    VideoDV,
-
-    /// <summary>
-    /// A H.261 video file.
-    /// </summary>
-    VideoH261,
-
-    /// <summary>
-    /// A H.263 video file.
-    /// </summary>
-    VideoH263,
-
-    /// <summary>
-    /// A H.264 encoded video file.
-    /// </summary>
-    VideoH264,
-
-    /// <summary>
-    /// A H.265 video file.
-    /// </summary>
-    VideoH265,
-
-    /// <summary>
-    /// A H.266 video file.
-    /// </summary>
-    VideoH266,
-
-    /// <summary>
-    /// A Matroska video file (.mkv).
-    /// </summary>
-    VideoMatroska,
-
-    /// <summary>
-    /// A 3D Matroska video file (.mk3d).
-    /// </summary>
-    VideoMatroska3D,
-
-    /// <summary>
-    /// A Motion JPEG 2000 video file (.mj2).
-    /// </summary>
-    VideoMJ2,
-
-    /// <summary>
-    /// A MP4 video file (.mp4).
-    /// </summary>
-    VideoMP4,
-
-    /// <summary>
-    /// A MPEG video file.
-    /// </summary>
-    VideoMpeg,
-
-    /// <summary>
-    /// A MPEG-4 video file.
-    /// </summary>
-    VideoMpeg4Generic,
-
-    /// <summary>
-    /// A MPEG-2 elementary stream video (.mpv).
-    /// </summary>
-    VideoMpv,
-
-    /// <summary>
-    /// An Apple quick time video file (.mov or .hdmov).
-    /// </summary>
-    VideoQuicktime,
-
-    /// <summary>
-    /// A raw video file.
-    /// </summary>
-    VideoRaw,
-
-    /// <summary>
-    /// A SMPTE 421M video file (.vc1).
-    /// </summary>
-    VideoVC1,
-
-    /// <summary>
-    /// A SMPTE VC-2 video file.
-    /// </summary>
-    VideoVC2,
-
-    /// <summary>
-    /// A VP8 encoded video file (.webm).
-    /// </summary>
-    VideoVP8,
-
-    /// <summary>
-    /// A VP9 encoded video file (.webm).
-    /// </summary>
-    VideoVP9,
-
-    /// <summary>
-    /// A WebM video file (.webm).
-    /// </summary>
-    VideoWebM
-
-}
-
-#endregion
-
-/// <summary>
-/// The type of content which is sent to or received from a client.
-/// </summary>
-public class FlexibleContentType
-{
-    private static readonly ConcurrentDictionary<string, FlexibleContentType> RawCache = new(StringComparer.InvariantCultureIgnoreCase);
-
-    private static readonly ConcurrentDictionary<ContentType, FlexibleContentType> KnownCache = new();
-
-    #region Get-/Setters
-
-    /// <summary>
-    /// The known, enumerated type, if any.
-    /// </summary>
-    public ContentType? KnownType { get; }
-
-    /// <summary>
-    /// The raw type.
-    /// </summary>
-    public string RawType { get; }
-
-    /// <summary>
-    /// The charset of the content, if any.
-    /// </summary>
-    public string? Charset { get; }
+    private readonly int _hashCode;
+
+    public ContentType(string type) : this(Encoding.ASCII.GetBytes(type)) { }
+
+    public ContentType(ReadOnlyMemory<byte> value)
+    {
+        _value = value;
+        _hashCode = HashingUtil.Hash(value);
+    }
+
+    public ReadOnlyMemory<byte> Value => _value;
+
+    #region Known Types
+
+    /// <summary>A html page.</summary>
+    public static readonly ContentType TextHtml = new("text/html"u8.ToArray());
+
+    /// <summary>A stylesheet.</summary>
+    public static readonly ContentType TextCss = new("text/css"u8.ToArray());
+
+    /// <summary>A human readable YAML file.</summary>
+    public static readonly ContentType TextYaml = new("text/yaml"u8.ToArray());
+
+    /// <summary>A JavaScript source file.</summary>
+    public static readonly ContentType ApplicationJavaScript = new("application/javascript"u8.ToArray());
+
+    /// <summary>A JSON file.</summary>
+    public static readonly ContentType ApplicationJson = new("application/json"u8.ToArray());
+
+    /// <summary>A YAML file.</summary>
+    public static readonly ContentType ApplicationYaml = new("application/yaml"u8.ToArray());
+
+    /// <summary>A PNG image.</summary>
+    public static readonly ContentType ImagePng = new("image/png"u8.ToArray());
+
+    /// <summary>A BMP image.</summary>
+    public static readonly ContentType ImageBmp = new("image/bmp"u8.ToArray());
+
+    /// <summary>A JPG image.</summary>
+    public static readonly ContentType ImageJpg = new("image/jpg"u8.ToArray());
+
+    /// <summary>A GIF image.</summary>
+    public static readonly ContentType ImageGif = new("image/gif"u8.ToArray());
+
+    /// <summary>A download.</summary>
+    public static readonly ContentType ApplicationForceDownload = new("application/force-download"u8.ToArray());
+
+    /// <summary>Anything else - data.</summary>
+    public static readonly ContentType ApplicationOctetStream = new("application/octet-stream"u8.ToArray());
+
+    /// <summary>A MP4 audio file.</summary>
+    public static readonly ContentType AudioMp4 = new("audio/mp4"u8.ToArray());
+
+    /// <summary>A OGG audio file.</summary>
+    public static readonly ContentType AudioOgg = new("audio/ogg"u8.ToArray());
+
+    /// <summary>A MPEG audio file.</summary>
+    public static readonly ContentType AudioMpeg = new("audio/mpeg"u8.ToArray());
+
+    /// <summary>A TIFF image.</summary>
+    public static readonly ContentType ImageTiff = new("image/tiff"u8.ToArray());
+
+    /// <summary>A CSV file.</summary>
+    public static readonly ContentType TextCsv = new("text/csv"u8.ToArray());
+
+    /// <summary>A RTF file.</summary>
+    public static readonly ContentType TextRichText = new("text/richtext"u8.ToArray());
+
+    /// <summary>Plain text.</summary>
+    public static readonly ContentType TextPlain = new("text/plain"u8.ToArray());
+
+    /// <summary>A XML file.</summary>
+    public static readonly ContentType TextXml = new("text/xml"u8.ToArray());
+
+    /// <summary>A JavaScript file.</summary>
+    public static readonly ContentType TextJavaScript = new("text/javascript"u8.ToArray());
+
+    /// <summary>A SSE stream.</summary>
+    public static readonly ContentType TextEventStream = new("text/event-stream"u8.ToArray());
+
+    /// <summary>A uncompressed audio file.</summary>
+    public static readonly ContentType AudioWav = new("audio/wav"u8.ToArray());
+
+    /// <summary>Word processing document (e.g. docx).</summary>
+    public static readonly ContentType ApplicationOfficeDocumentWordProcessing = new("application/vnd.openxmlformats-officedocument.wordprocessingml.document"u8.ToArray());
+
+    /// <summary>A presentation (e.g. pptx).</summary>
+    public static readonly ContentType ApplicationOfficeDocumentPresentation = new("application/vnd.openxmlformats-officedocument.presentationml.presentation"u8.ToArray());
+
+    /// <summary>A slideshow (e.g. .ppsx).</summary>
+    public static readonly ContentType ApplicationOfficeDocumentSlideshow = new("application/vnd.openxmlformats-officedocument.presentationml.slideshow"u8.ToArray());
+
+    /// <summary>A sheet (e.g. .xlsx).</summary>
+    public static readonly ContentType ApplicationOfficeDocumentSheet = new("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"u8.ToArray());
+
+    /// <summary>An icon.</summary>
+    public static readonly ContentType ImageIcon = new("image/x-icon"u8.ToArray());
+
+    /// <summary>Microsoft embedded OTF.</summary>
+    public static readonly ContentType FontEmbeddedOpenTypeFont = new("font/eot"u8.ToArray());
+
+    /// <summary>True type font.</summary>
+    public static readonly ContentType FontTrueTypeFont = new("font/ttf"u8.ToArray());
+
+    /// <summary>Woff font.</summary>
+    public static readonly ContentType FontWoff = new("font/woff"u8.ToArray());
+
+    /// <summary>Woff2 font.</summary>
+    public static readonly ContentType FontWoff2 = new("font/woff2"u8.ToArray());
+
+    /// <summary>Open type font.</summary>
+    public static readonly ContentType FontOpenTypeFont = new("font/otf"u8.ToArray());
+
+    /// <summary>SVG.</summary>
+    public static readonly ContentType ImageScalableVectorGraphics = new("image/svg"u8.ToArray());
+
+    /// <summary>SVG XML.</summary>
+    public static readonly ContentType ImageScalableVectorGraphicsXml = new("image/svg+xml"u8.ToArray());
+
+    /// <summary>Compressed SVG.</summary>
+    public static readonly ContentType ImageScalableVectorGraphicsCompressed = new("image/svgz"u8.ToArray());
+
+    /// <summary>Form encoded.</summary>
+    public static readonly ContentType ApplicationWwwFormUrlEncoded = new("application/x-www-form-urlencoded"u8.ToArray());
+
+    /// <summary>Protobuf.</summary>
+    public static readonly ContentType ApplicationProtobuf = new("application/protobuf"u8.ToArray());
+
+    /// <summary>PDF.</summary>
+    public static readonly ContentType ApplicationPdf = new("application/pdf"u8.ToArray());
+
+    /// <summary>3GPP video.</summary>
+    public static readonly ContentType Video3Gpp = new("video/3gpp"u8.ToArray());
+
+    /// <summary>3GPP2 video.</summary>
+    public static readonly ContentType Video3Gpp2 = new("video/3gpp2"u8.ToArray());
+
+    /// <summary>AV1 video.</summary>
+    public static readonly ContentType VideoAV1 = new("video/av1"u8.ToArray());
+
+    /// <summary>AVC video.</summary>
+    public static readonly ContentType VideoAvc = new("video/av"u8.ToArray());
+
+    /// <summary>DV video.</summary>
+    public static readonly ContentType VideoDV = new("video/dv"u8.ToArray());
+
+    /// <summary>H261 video.</summary>
+    public static readonly ContentType VideoH261 = new("video/H261"u8.ToArray());
+
+    /// <summary>H263 video.</summary>
+    public static readonly ContentType VideoH263 = new("video/H263"u8.ToArray());
+
+    /// <summary>H264 video.</summary>
+    public static readonly ContentType VideoH264 = new("video/H264"u8.ToArray());
+
+    /// <summary>H265 video.</summary>
+    public static readonly ContentType VideoH265 = new("video/H265"u8.ToArray());
+
+    /// <summary>H266 video.</summary>
+    public static readonly ContentType VideoH266 = new("video/H266"u8.ToArray());
+
+    /// <summary>Matroska.</summary>
+    public static readonly ContentType VideoMatroska = new("video/matroska"u8.ToArray());
+
+    /// <summary>Matroska 3D.</summary>
+    public static readonly ContentType VideoMatroska3D = new("video/matroska-3d"u8.ToArray());
+
+    /// <summary>MJ2.</summary>
+    public static readonly ContentType VideoMJ2 = new("video/mj2"u8.ToArray());
+
+    /// <summary>MP4 video.</summary>
+    public static readonly ContentType VideoMP4 = new("video/mp4"u8.ToArray());
+
+    /// <summary>MPEG video.</summary>
+    public static readonly ContentType VideoMpeg = new("video/mpeg"u8.ToArray());
+
+    /// <summary>MPEG4 generic.</summary>
+    public static readonly ContentType VideoMpeg4Generic = new("video/mpeg4-generic"u8.ToArray());
+
+    /// <summary>MPV.</summary>
+    public static readonly ContentType VideoMpv = new("video/MPV"u8.ToArray());
+
+    /// <summary>Quicktime.</summary>
+    public static readonly ContentType VideoQuicktime = new("video/quicktime"u8.ToArray());
+
+    /// <summary>Raw video.</summary>
+    public static readonly ContentType VideoRaw = new("video/raw"u8.ToArray());
+
+    /// <summary>VC1.</summary>
+    public static readonly ContentType VideoVC1 = new("video/vc1"u8.ToArray());
+
+    /// <summary>VC2.</summary>
+    public static readonly ContentType VideoVC2 = new("video/vc2"u8.ToArray());
+
+    /// <summary>VP8.</summary>
+    public static readonly ContentType VideoVP8 = new("video/VP8"u8.ToArray());
+
+    /// <summary>VP9.</summary>
+    public static readonly ContentType VideoVP9 = new("video/VP9"u8.ToArray());
+
+    /// <summary>WebM.</summary>
+    public static readonly ContentType VideoWebM = new("video/webm"u8.ToArray());
 
     #endregion
 
-    #region Mapping
+    #region Equality and Hashing
+    
+    public bool Equals(ContentType other)
+        => _value.Span.SequenceEqual(other._value.Span);
 
-    private static readonly Dictionary<ContentType, string> Mapping = new()
-    {
-        {
-            ContentType.AudioMp4, "audio/mp4"
-        },
-        {
-            ContentType.AudioOgg, "audio/ogg"
-        },
-        {
-            ContentType.AudioMpeg, "audio/mpeg"
-        },
-        {
-            ContentType.AudioWav, "audio/wav"
-        },
-        {
-            ContentType.ApplicationJavaScript, "application/javascript"
-        },
-        {
-            ContentType.ApplicationOfficeDocumentWordProcessing, "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        },
-        {
-            ContentType.ApplicationOfficeDocumentPresentation, "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-        },
-        {
-            ContentType.ApplicationOfficeDocumentSlideshow, "application/vnd.openxmlformats-officedocument.presentationml.slideshow"
-        },
-        {
-            ContentType.ApplicationOfficeDocumentSheet, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        },
-        {
-            ContentType.ApplicationForceDownload, "application/force-download"
-        },
-        {
-            ContentType.ApplicationOctetStream, "application/octet-stream"
-        },
-        {
-            ContentType.ApplicationJson, "application/json"
-        },
-        {
-            ContentType.ApplicationYaml, "application/yaml"
-        },
-        {
-            ContentType.ApplicationWwwFormUrlEncoded, "application/x-www-form-urlencoded"
-        },
-        {
-            ContentType.ApplicationProtobuf, "application/protobuf"
-        },
-        {
-            ContentType.ApplicationPdf, "application/pdf"
-        },
-        {
-            ContentType.FontEmbeddedOpenTypeFont, "font/eot"
-        },
-        {
-            ContentType.FontOpenTypeFont, "font/otf"
-        },
-        {
-            ContentType.FontTrueTypeFont, "font/ttf"
-        },
-        {
-            ContentType.FontWoff, "font/woff"
-        },
-        {
-            ContentType.FontWoff2, "font/woff2"
-        },
-        {
-            ContentType.ImageIcon, "image/x-icon"
-        },
-        {
-            ContentType.ImageGif, "image/gif"
-        },
-        {
-            ContentType.ImageJpg, "image/jpg"
-        },
-        {
-            ContentType.ImagePng, "image/png"
-        },
-        {
-            ContentType.ImageTiff, "image/tiff"
-        },
-        {
-            ContentType.ImageBmp, "image/bmp"
-        },
-        {
-            ContentType.ImageScalableVectorGraphics, "image/svg"
-        },
-        {
-            ContentType.ImageScalableVectorGraphicsXml, "image/svg+xml"
-        },
-        {
-            ContentType.ImageScalableVectorGraphicsCompressed, "image/svgz"
-        },
-        {
-            ContentType.TextHtml, "text/html"
-        },
-        {
-            ContentType.TextCss, "text/css"
-        },
-        {
-            ContentType.TextCsv, "text/csv"
-        },
-        {
-            ContentType.TextRichText, "text/richtext"
-        },
-        {
-            ContentType.TextPlain, "text/plain"
-        },
-        {
-            ContentType.TextJavaScript, "text/javascript"
-        },
-        {
-            ContentType.TextXml, "text/xml"
-        },
-        {
-            ContentType.TextEventStream, "text/event-stream"
-        },
-        {
-            ContentType.TextYaml, "text/yaml"
-        },
-        {
-            ContentType.Video3Gpp, "video/3gpp"
-        },
-        {
-            ContentType.Video3Gpp2, "video/3gpp2"
-        },
-        {
-            ContentType.VideoAV1, "video/av1"
-        },
-        {
-            ContentType.VideoAvc, "video/av"
-        },
-        {
-            ContentType.VideoDV, "video/dv"
-        },
-        {
-            ContentType.VideoH261, "video/H261"
-        },
-        {
-            ContentType.VideoH263, "video/H263"
-        },
-        {
-            ContentType.VideoH264, "video/H264"
-        },
-        {
-            ContentType.VideoH265, "video/H265"
-        },
-        {
-            ContentType.VideoH266, "video/H266"
-        },
-        {
-            ContentType.VideoMatroska, "video/matroska"
-        },
-        {
-            ContentType.VideoMatroska3D, "video/matroska-3d"
-        },
-        {
-            ContentType.VideoMJ2, "video/mj2"
-        },
-        {
-            ContentType.VideoMP4, "video/mp4"
-        },
-        {
-            ContentType.VideoMpeg, "video/mpeg"
-        },
-        {
-            ContentType.VideoMpeg4Generic, "video/mpeg4-generic"
-        },
-        {
-            ContentType.VideoMpv, "video/MPV"
-        },
-        {
-            ContentType.VideoQuicktime, "video/quicktime"
-        },
-        {
-            ContentType.VideoRaw, "video/raw"
-        },
-        {
-            ContentType.VideoVC1, "video/vc1"
-        },
-        {
-            ContentType.VideoVC2, "video/vc2"
-        },
-        {
-            ContentType.VideoVP8, "video/VP8"
-        },
-        {
-            ContentType.VideoVP9, "video/VP9"
-        },
-        {
-            ContentType.VideoWebM, "video/webm"
-        }
-    };
+    public override bool Equals(object? obj)
+        => obj is ContentType other && Equals(other);
 
-    private static readonly Dictionary<string, ContentType> MappingReverse = Mapping.ToDictionary(x => x.Value, x => x.Key);
-
-    #endregion
-
-    #region Initialization
-
-    /// <summary>
-    /// Create a new content type from the given string.
-    /// </summary>
-    /// <param name="rawType">The string representation of the content type</param>
-    /// <param name="charset">The charset of the content, if known</param>
-    public FlexibleContentType(string rawType, string? charset = null)
-    {
-        RawType = rawType;
-        Charset = charset;
-
-        if (MappingReverse.TryGetValue(rawType, out var knownType))
-        {
-            KnownType = knownType;
-        }
-        else
-        {
-            KnownType = null;
-        }
-    }
-
-    /// <summary>
-    /// Create a new content type from the given known type.
-    /// </summary>
-    /// <param name="type">The known type</param>
-    /// <param name="charset">The charset of the content, if known</param>
-    public FlexibleContentType(ContentType type, string? charset = null)
-    {
-        KnownType = type;
-        RawType = Mapping[type];
-
-        Charset = charset;
-    }
-
-    #endregion
-
-    #region Functionality
-
-    /// <summary>
-    /// Fetches a cached instance for the given content type.
-    /// </summary>
-    /// <param name="rawType">The raw string to be resolved</param>
-    /// <returns>The content type instance to be used</returns>
-    public static FlexibleContentType Get(string rawType, string? charset = null)
-    {
-        if (charset is not null)
-        {
-            return new FlexibleContentType(rawType, charset);
-        }
-
-        if (RawCache.TryGetValue(rawType, out var found))
-        {
-            return found;
-        }
-
-        var type = new FlexibleContentType(rawType);
-
-        RawCache[rawType] = type;
-
-        return type;
-    }
-
-    /// <summary>
-    /// Fetches a cached instance for the given content type.
-    /// </summary>
-    /// <param name="knownType">The known type to be resolved</param>
-    /// <returns>The content type instance to be used</returns>
-    public static FlexibleContentType Get(ContentType knownType, string? charset = null)
-    {
-        if (charset is not null)
-        {
-            return new FlexibleContentType(knownType, charset);
-        }
-
-        if (KnownCache.TryGetValue(knownType, out var found))
-        {
-            return found;
-        }
-
-        var type = new FlexibleContentType(knownType);
-
-        KnownCache[knownType] = type;
-
-        return type;
-    }
-
-    /// <summary>
-    /// Parses the given header value into a content type structure.
-    /// </summary>
-    /// <param name="header">The header to be parsed</param>
-    /// <returns>The parsed content type</returns>
-    public static FlexibleContentType Parse(string header)
-    {
-        var span = header.AsSpan();
-
-        var index = span.IndexOf(';');
-
-        if (index > 0)
-        {
-            var contentType = span[..index].Trim().ToString();
-
-            var charsetIndex = span.IndexOf('=');
-
-            if (charsetIndex > 0)
-            {
-                return Get(contentType, span[(charsetIndex + 1)..].Trim().ToString());
-            }
-
-            return Get(contentType);
-        }
-        return Get(header);
-    }
-
-    #endregion
-
-    #region Convenience
-
-    public static bool operator ==(FlexibleContentType type, ContentType knownType) => type.KnownType == knownType;
-
-    public static bool operator !=(FlexibleContentType type, ContentType knownType) => type.KnownType != knownType;
-
-    public static bool operator ==(FlexibleContentType type, string rawType) => type.RawType == rawType;
-
-    public static bool operator !=(FlexibleContentType type, string rawType) => type.RawType != rawType;
-
-    public override bool Equals(object? obj) => obj is FlexibleContentType type && RawType == type.RawType;
-
-    public override int GetHashCode() => RawType.GetHashCode();
+    public override int GetHashCode() => _hashCode;
 
     #endregion
 
 }
+

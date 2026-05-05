@@ -1,4 +1,5 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using System.Buffers;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Content.IO;
 
@@ -28,7 +29,7 @@ public interface IResource
     /// <summary>
     /// The content type of this resource, if known.
     /// </summary>
-    FlexibleContentType? ContentType { get; }
+    ContentType? ContentType { get; }
 
     /// <summary>
     /// The number of bytes provided by this resource.
@@ -65,5 +66,7 @@ public interface IResource
 
         await content.CopyToAsync(target, (int)bufferSize);
     }
+
+    void Write(IBufferWriter<byte> writer);
 
 }

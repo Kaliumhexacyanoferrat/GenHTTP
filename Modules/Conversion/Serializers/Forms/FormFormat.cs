@@ -1,11 +1,9 @@
 ﻿using System.Reflection;
-using System.Text;
 using System.Web;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Conversion.Formatters;
 
 namespace GenHTTP.Modules.Conversion.Serializers.Forms;
@@ -82,8 +80,7 @@ public sealed class FormFormat : ISerializationFormat
     public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)
     {
         var result = request.Respond()
-                            .Content(new FormContent(response.GetType(), response, Formatters))
-                            .Type(ContentType.ApplicationWwwFormUrlEncoded);
+                            .Content(new FormContent(response.GetType(), response, Formatters));
 
         return new ValueTask<IResponseBuilder>(result);
     }
@@ -94,11 +91,11 @@ public sealed class FormFormat : ISerializationFormat
         {
             var content = new FormContent(data.GetType(), data, Formatters);
 
-            return content.WriteAsync(b, 8192);
+            return content.WriteAsync(b);
         });
     }
 
-    public static Dictionary<string, string>? GetContent(IRequest request)
+    /*public static Dictionary<string, string>? GetContent(IRequest request)
     {
         if (request.Content is not null && request.ContentType is not null)
         {
@@ -146,7 +143,7 @@ public sealed class FormFormat : ISerializationFormat
         }
 
         return content;
-    }
+    }*/
 
     #endregion
 

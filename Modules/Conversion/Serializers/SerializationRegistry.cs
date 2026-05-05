@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Protocol.Raw;
 
 namespace GenHTTP.Modules.Conversion.Serializers;
 
@@ -9,10 +10,13 @@ namespace GenHTTP.Modules.Conversion.Serializers;
 /// </summary>
 public sealed class SerializationRegistry
 {
+    private static readonly ReadOnlyMemory<byte> ContentTypeHeader = "Content-Type"u8.ToArray();
+    
+    private static readonly ReadOnlyMemory<byte> AcceptHeader = "Accept"u8.ToArray();
 
     #region Initialization
 
-    public SerializationRegistry(FlexibleContentType defaultType, Dictionary<FlexibleContentType, ISerializationFormat> formats)
+    public SerializationRegistry(ContentType defaultType, Dictionary<ContentType, ISerializationFormat> formats)
     {
         Default = defaultType;
         Formats = formats;
@@ -22,9 +26,9 @@ public sealed class SerializationRegistry
 
     #region Get-/Setters
 
-    private FlexibleContentType Default { get; }
+    private ContentType Default { get; }
 
-    public IReadOnlyDictionary<FlexibleContentType, ISerializationFormat> Formats { get; }
+    public IReadOnlyDictionary<ContentType, ISerializationFormat> Formats { get; }
 
     #endregion
 
@@ -38,9 +42,11 @@ public sealed class SerializationRegistry
     /// <returns>A serialization format to deserialize the specified content type, or the default one (if any)</returns>
     public ISerializationFormat? GetDeserialization(IRequest request)
     {
-        if (request.Headers.TryGetValue("Content-Type", out var requested))
+        var contentType = request.Raw.Header.Headers.GetEntry(ContentTypeHeader);
+        
+        if (contentType != null)
         {
-            return GetFormat(FlexibleContentType.Parse(requested));
+            return GetFormat(new ContentType(contentType.Value));
         }
 
         return GetFormat(Default);
@@ -54,9 +60,11 @@ public sealed class SerializationRegistry
     /// <returns>Either a format that can serialize into the requested format or the default format (if any)</returns>
     public ISerializationFormat? GetSerialization(IRequest request)
     {
-        if (request.Headers.TryGetValue("Accept", out var accepted))
+        var accepted = request.Raw.Header.Headers.GetEntry(AcceptHeader);
+        
+        if (accepted != null)
         {
-            return GetFormat(FlexibleContentType.Parse(accepted)) ?? GetFormat(Default);
+            return GetFormat(new ContentType(accepted.Value)) ?? GetFormat(Default);
         }
 
         return GetFormat(Default);
@@ -72,13 +80,13 @@ public sealed class SerializationRegistry
     {
         if (contentType != null)
         {
-            return GetFormat(FlexibleContentType.Parse(contentType));
+            return GetFormat(new ContentType(contentType));
         }
 
         return GetFormat(Default);
     }
 
-    private ISerializationFormat? GetFormat(FlexibleContentType contentType) => Formats.GetValueOrDefault(contentType);
+    private ISerializationFormat? GetFormat(ContentType contentType) => Formats.GetValueOrDefault(contentType);
 
     #endregion
 

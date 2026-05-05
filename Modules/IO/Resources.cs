@@ -1,9 +1,6 @@
-﻿using GenHTTP.Api.Content.IO;
-using GenHTTP.Api.Infrastructure;
-using GenHTTP.Modules.IO.Providers;
+﻿namespace GenHTTP.Modules.IO;
 
-namespace GenHTTP.Modules.IO;
-
+/*
 /// <summary>
 /// Provides a folder structure (provided by a resource tree) to
 /// requesting clients.
@@ -29,3 +26,4 @@ public static class Resources
     /// <param name="tree">The resource tree to read resourced from</param>
     public static ResourceHandlerBuilder From(IResourceTree tree) => new ResourceHandlerBuilder().Tree(tree);
 }
+*/

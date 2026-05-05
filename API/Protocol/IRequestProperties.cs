@@ -2,6 +2,8 @@
 
 namespace GenHTTP.Api.Protocol;
 
+// todo: re-visit
+
 /// <summary>
 /// Property bag to store additional data within the
 /// currently running request context.

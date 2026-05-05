@@ -14,6 +14,10 @@
 
         <ProjectReference Include="..\..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj" />
 
+        <PackageReference Include="Glyph11" Version="0.3.1" />
+
+        <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.3" />
+
     </ItemGroup>
 
     <ItemGroup>

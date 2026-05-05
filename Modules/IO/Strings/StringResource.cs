@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Buffers;
+using System.Text;
+
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
@@ -10,13 +12,13 @@ public sealed class StringResource : IResource
 
     #region Initialization
 
-    public StringResource(string content, string? name, FlexibleContentType? contentType, DateTime? modified)
+    public StringResource(string content, string? name, ContentType? contentType, DateTime? modified)
     {
         Content = Utf8.GetBytes(content);
         Checksum = (ulong)content.GetHashCode();
 
         Name = name;
-        ContentType = contentType ?? FlexibleContentType.Get(Api.Protocol.ContentType.TextPlain);
+        ContentType = contentType ?? Api.Protocol.ContentType.TextPlain;
         Modified = modified;
     }
 
@@ -30,7 +32,7 @@ public sealed class StringResource : IResource
 
     public DateTime? Modified { get; }
 
-    public FlexibleContentType? ContentType { get; }
+    public ContentType? ContentType { get; }
 
     public ulong? Length => (ulong)Content.Length;
 
@@ -45,6 +47,11 @@ public sealed class StringResource : IResource
     public ValueTask<ulong> CalculateChecksumAsync() => new(Checksum);
 
     public ValueTask WriteAsync(Stream target, uint bufferSize) => target.WriteAsync(Content.AsMemory());
+
+    public void Write(IBufferWriter<byte> writer)
+    {
+        writer.Write(Content.AsSpan());
+    }
 
     #endregion
 

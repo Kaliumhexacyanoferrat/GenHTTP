@@ -1,9 +1,6 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.IO;
-using GenHTTP.Api.Infrastructure;
+﻿namespace GenHTTP.Modules.IO.Providers;
 
-namespace GenHTTP.Modules.IO.Providers;
-
+/*
 public sealed class ResourceHandlerBuilder : IHandlerBuilder<ResourceHandlerBuilder>
 {
     private readonly List<IConcernBuilder> _concerns = [];
@@ -36,3 +33,4 @@ public sealed class ResourceHandlerBuilder : IHandlerBuilder<ResourceHandlerBuil
     #endregion
 
 }
+*/

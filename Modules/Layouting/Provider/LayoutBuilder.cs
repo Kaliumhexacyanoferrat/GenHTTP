@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Util;
 
 namespace GenHTTP.Modules.Layouting.Provider;
 
@@ -10,7 +11,7 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
 
     #region Get-/Setters
 
-    internal Dictionary<string, IHandlerBuilder> RoutedHandlers { get; } = [];
+    internal Dictionary<int, IHandlerBuilder> RoutedHandlers { get; } = [];
 
     internal List<IHandlerBuilder> RootHandlers { get; } = [];
 
@@ -57,7 +58,7 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
             return this.Add(name.Split('/', StringSplitOptions.RemoveEmptyEntries), handler);
         }
 
-        if (!RoutedHandlers.TryAdd(name, handler))
+        if (!RoutedHandlers.TryAdd(name.Hash(), handler))
         {
             throw new InvalidOperationException($"A segment with the name '{name}' has already been added to the layout");
         }
@@ -118,7 +119,7 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
         var routed = RoutedHandlers.ToDictionary(kv => kv.Key, kv => kv.Value.Build());
         var root = RootHandlers.Select(h => h.Build()).ToList();
 
-        return Concerns.Chain(_concerns, new LayoutRouter(routed, root, _index?.Build()));
+        return Concerns.Chain(_concerns, new LayoutHandler(routed, root, _index?.Build()));
     }
 
     #endregion

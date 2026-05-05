@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Buffers;
+using System.Reflection;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO.Streaming;
@@ -11,7 +12,7 @@ public sealed class EmbeddedResource : IResource
 
     #region Initialization
 
-    public EmbeddedResource(Assembly source, string path, string? name, FlexibleContentType? contentType, DateTime? modified)
+    public EmbeddedResource(Assembly source, string path, string? name, ContentType? contentType, DateTime? modified)
     {
         var fqn = source.GetManifestResourceNames()
                         .FirstOrDefault(n => n == path || n.EndsWith($".{path}"));
@@ -40,7 +41,7 @@ public sealed class EmbeddedResource : IResource
 
     public DateTime? Modified { get; }
 
-    public FlexibleContentType? ContentType { get; }
+    public ContentType? ContentType { get; }
 
     public ulong? Length { get; }
 
@@ -49,6 +50,11 @@ public sealed class EmbeddedResource : IResource
     #region Functionality
 
     public ValueTask<Stream> GetContentAsync() => new(TryGetStream());
+
+    public void Write(IBufferWriter<byte> writer)
+    {
+        throw new NotImplementedException();
+    }
 
     public async ValueTask<ulong> CalculateChecksumAsync()
     {

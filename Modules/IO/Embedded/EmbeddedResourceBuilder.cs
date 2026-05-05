@@ -14,7 +14,7 @@ public sealed class EmbeddedResourceBuilder : IResourceBuilder<EmbeddedResourceB
 
     private string? _path, _name;
 
-    private FlexibleContentType? _type;
+    private ContentType? _type;
 
     #region Functionality
 
@@ -36,7 +36,7 @@ public sealed class EmbeddedResourceBuilder : IResourceBuilder<EmbeddedResourceB
         return this;
     }
 
-    public EmbeddedResourceBuilder Type(FlexibleContentType contentType)
+    public EmbeddedResourceBuilder Type(ContentType contentType)
     {
         _type = contentType;
         return this;
@@ -56,7 +56,7 @@ public sealed class EmbeddedResourceBuilder : IResourceBuilder<EmbeddedResourceB
 
         var modified = _modified ?? assembly.GetModificationDate();
 
-        var type = _type ?? FlexibleContentType.Get(path.GuessContentType() ?? ContentType.ApplicationForceDownload);
+        var type = _type ?? path.GuessContentType() ?? ContentType.ApplicationForceDownload;
 
         return new EmbeddedResource(assembly, path, _name, type, modified);
     }

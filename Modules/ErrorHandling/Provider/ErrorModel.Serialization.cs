@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+
 using GenHTTP.Modules.ErrorHandling.Mappers;
 
 namespace GenHTTP.Modules.ErrorHandling.Provider;

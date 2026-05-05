@@ -18,7 +18,9 @@ public static class RequestExtensions
         return false;
     }
 
-    public static string? HostWithoutPort(this IRequest request)
+    // todo
+
+    /*public static string? HostWithoutPort(this IRequest request)
     {
         var host = request.Host;
 
@@ -31,5 +33,6 @@ public static class RequestExtensions
 
         return null;
     }
+    */
 
 }

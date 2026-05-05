@@ -49,7 +49,7 @@ public sealed class StructuredErrorMapper : IErrorMapper<Exception>
     {
         string? stackTrace = null;
 
-        if (request.Server.Development)
+        if (true) // todo: request.Server.Development)
         {
             stackTrace = error.StackTrace;
         }

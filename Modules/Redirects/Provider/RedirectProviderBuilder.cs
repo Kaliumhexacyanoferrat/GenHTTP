@@ -37,7 +37,12 @@ public sealed class RedirectProviderBuilder : IHandlerBuilder<RedirectProviderBu
             throw new BuilderMissingPropertyException("Location");
         }
 
-        return Concerns.Chain(_concerns, new RedirectProvider(_location, _temporary));
+        if (Uri.TryCreate(_location, UriKind.RelativeOrAbsolute, out var parsed))
+        {
+            return Concerns.Chain(_concerns, new RedirectProvider(parsed, _temporary));
+        }
+
+        throw new InvalidOperationException("The given location is not a valid URI");
     }
 
     #endregion

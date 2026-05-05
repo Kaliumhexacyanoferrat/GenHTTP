@@ -34,8 +34,7 @@ public sealed class YamlFormat : ISerializationFormat
     public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)
     {
         var result = request.Respond()
-                            .Content(new YamlContent(response))
-                            .Type(ContentType.ApplicationYaml);
+                            .Content(new YamlContent(response));
 
         return new ValueTask<IResponseBuilder>(result);
     }

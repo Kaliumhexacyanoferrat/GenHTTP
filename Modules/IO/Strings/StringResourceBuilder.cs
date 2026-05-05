@@ -8,7 +8,7 @@ public sealed class StringResourceBuilder : IResourceBuilder<StringResourceBuild
 {
     private string? _content, _name;
 
-    private FlexibleContentType? _contentType;
+    private ContentType? _contentType;
 
     private DateTime? _modified;
 
@@ -26,7 +26,7 @@ public sealed class StringResourceBuilder : IResourceBuilder<StringResourceBuild
         return this;
     }
 
-    public StringResourceBuilder Type(FlexibleContentType contentType)
+    public StringResourceBuilder Type(ContentType contentType)
     {
         _contentType = contentType;
         return this;
