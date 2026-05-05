@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Protocol.Raw;
 
 namespace GenHTTP.Modules.Conversion.Serializers;
 
@@ -9,6 +10,7 @@ namespace GenHTTP.Modules.Conversion.Serializers;
 /// </summary>
 public sealed class SerializationRegistry
 {
+    private static readonly ReadOnlyMemory<byte> ContentTypeHeader = "Content-Type"u8.ToArray();
 
     #region Initialization
 
@@ -38,6 +40,8 @@ public sealed class SerializationRegistry
     /// <returns>A serialization format to deserialize the specified content type, or the default one (if any)</returns>
     public ISerializationFormat? GetDeserialization(IRequest request)
     {
+        request.Raw.Header.Headers.GetEntry(ContentTypeHeader);
+        
         if (request.Headers.TryGetValue("Content-Type", out var requested))
         {
             return GetFormat(FlexibleContentType.Parse(requested));

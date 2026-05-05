@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Protocol.Raw;
+
 using GenHTTP.Engine.Shared.Types.Raw;
 
 namespace GenHTTP.Engine.Shared.Types;
@@ -25,6 +26,12 @@ public class ResponseBuilder : IResponseBuilder
     public IResponseBuilder Header(string name, string value)
     {
         _raw.Header(name.GetMemory(), value.GetMemory());
+        return this;
+    }
+
+    public IResponseBuilder Content(IResponseContent content)
+    {
+        _raw.Content(content);
         return this;
     }
 

@@ -19,6 +19,8 @@ public sealed class ResourceContent : IResponseContent
 
     public ulong? Length => Resource.Length;
 
+    public ReadOnlyMemory<byte> Type { get; }
+
     private IResource Resource { get; }
 
     #endregion

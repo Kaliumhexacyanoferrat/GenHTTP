@@ -5,7 +5,6 @@ using System.Web;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Conversion.Formatters;
 
 namespace GenHTTP.Modules.Conversion.Serializers.Forms;
@@ -82,8 +81,7 @@ public sealed class FormFormat : ISerializationFormat
     public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)
     {
         var result = request.Respond()
-                            .Content(new FormContent(response.GetType(), response, Formatters))
-                            .Type(ContentType.ApplicationWwwFormUrlEncoded);
+                            .Content(new FormContent(response.GetType(), response, Formatters));
 
         return new ValueTask<IResponseBuilder>(result);
     }
