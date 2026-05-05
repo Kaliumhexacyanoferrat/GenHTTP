@@ -63,14 +63,9 @@ public interface IResponseModification<out TBuilder>
     TBuilder Cookie(Cookie cookie);
 
     /// <summary>
-    /// Specifies the content type of this response.
-    /// </summary>
-    /// <param name="contentType">The content type of this response</param>
-    TBuilder Type(FlexibleContentType contentType);
-
-    /// <summary>
     /// Sets the encoding of the content.
     /// </summary>
     /// <param name="encoding">The encoding of the content</param>
     TBuilder Encoding(string encoding);
+    
 }

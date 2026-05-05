@@ -1,23 +1,20 @@
 ﻿using System.Text;
+using GenHTTP.Api.Util;
 
 namespace GenHTTP.Api.Protocol;
 
-/// <summary>
-/// The type of request or response.
-/// </summary>
-public readonly struct ContentType
+public readonly struct ContentType : IEquatable<ContentType>
 {
-
     private readonly ReadOnlyMemory<byte> _value;
 
-    public ContentType(string type) : this(Encoding.ASCII.GetBytes(type))
-    {
+    private readonly int _hashCode;
 
-    }
+    public ContentType(string type) : this(Encoding.ASCII.GetBytes(type)) { }
 
     public ContentType(ReadOnlyMemory<byte> value)
     {
         _value = value;
+        _hashCode = HashingUtil.Hash(value);
     }
 
     public ReadOnlyMemory<byte> Value => _value;
@@ -212,6 +209,18 @@ public readonly struct ContentType
 
     /// <summary>WebM.</summary>
     public static readonly ContentType VideoWebM = new("video/webm"u8.ToArray());
+
+    #endregion
+
+    #region Equality and Hashing
+    
+    public bool Equals(ContentType other)
+        => _value.Span.SequenceEqual(other._value.Span);
+
+    public override bool Equals(object? obj)
+        => obj is ContentType other && Equals(other);
+
+    public override int GetHashCode() => _hashCode;
 
     #endregion
 

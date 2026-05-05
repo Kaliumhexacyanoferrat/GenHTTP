@@ -29,7 +29,7 @@ public interface IResource
     /// <summary>
     /// The content type of this resource, if known.
     /// </summary>
-    FlexibleContentType? ContentType { get; }
+    ContentType? ContentType { get; }
 
     /// <summary>
     /// The number of bytes provided by this resource.

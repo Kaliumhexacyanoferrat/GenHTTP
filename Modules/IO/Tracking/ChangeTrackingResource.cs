@@ -25,7 +25,7 @@ public sealed class ChangeTrackingResource : IResource
 
     public DateTime? Modified => Source.Modified;
 
-    public FlexibleContentType? ContentType => Source.ContentType;
+    public ContentType? ContentType => Source.ContentType;
 
     public ulong? Length => Source.Length;
 

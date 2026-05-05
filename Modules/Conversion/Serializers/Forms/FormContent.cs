@@ -40,11 +40,11 @@ public sealed class FormContent : IResponseContent
     #region Functionality
 
     public ValueTask<ulong?> CalculateChecksumAsync() => new((ulong)Data.GetHashCode());
+
+    public ValueTask WriteAsync(IResponseSink sink) => WriteAsync(sink.Stream);
     
-    public async ValueTask WriteAsync(IResponseSink sink)
+    public async ValueTask WriteAsync(Stream target)
     {
-        var target = sink.Stream;
-        
         await using var writer = new StreamWriter(target, Encoding.UTF8, 4096, true);
 
         var query = HttpUtility.ParseQueryString(string.Empty);
@@ -65,6 +65,8 @@ public sealed class FormContent : IResponseContent
 
         await writer.WriteAsync(replaced);
     }
+    
+    
 
     private void SetValue(NameValueCollection query, string field, object? value, Type type)
     {

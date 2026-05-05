@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Text;
 using System.Web;
 
 using GenHTTP.Api.Content;
@@ -92,11 +91,11 @@ public sealed class FormFormat : ISerializationFormat
         {
             var content = new FormContent(data.GetType(), data, Formatters);
 
-            return content.WriteAsync(b, 8192);
+            return content.WriteAsync(b);
         });
     }
 
-    public static Dictionary<string, string>? GetContent(IRequest request)
+    /*public static Dictionary<string, string>? GetContent(IRequest request)
     {
         if (request.Content is not null && request.ContentType is not null)
         {
@@ -144,7 +143,7 @@ public sealed class FormFormat : ISerializationFormat
         }
 
         return content;
-    }
+    }*/
 
     #endregion
 

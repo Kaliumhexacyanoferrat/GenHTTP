@@ -1,11 +1,11 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace GenHTTP.Modules.Layouting.Provider;
+namespace GenHTTP.Api.Util;
 
 // todo: where to put this?
 
-public static class RawUtils
+public static class HashingUtil
 {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

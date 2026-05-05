@@ -12,7 +12,7 @@ public sealed class EmbeddedResource : IResource
 
     #region Initialization
 
-    public EmbeddedResource(Assembly source, string path, string? name, FlexibleContentType? contentType, DateTime? modified)
+    public EmbeddedResource(Assembly source, string path, string? name, ContentType? contentType, DateTime? modified)
     {
         var fqn = source.GetManifestResourceNames()
                         .FirstOrDefault(n => n == path || n.EndsWith($".{path}"));
@@ -41,7 +41,7 @@ public sealed class EmbeddedResource : IResource
 
     public DateTime? Modified { get; }
 
-    public FlexibleContentType? ContentType { get; }
+    public ContentType? ContentType { get; }
 
     public ulong? Length { get; }
 
