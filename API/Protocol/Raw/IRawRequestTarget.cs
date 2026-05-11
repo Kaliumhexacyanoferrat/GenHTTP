@@ -3,7 +3,7 @@
 public interface IRawRequestTarget
 {
 
-    ReadOnlyMemory<byte>? Current { get; }
+    PathSegment? Current { get; }
 
     void Advance(int segments = 1);
 

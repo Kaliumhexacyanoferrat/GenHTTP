@@ -1,5 +1,5 @@
 ﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Util;
+using GenHTTP.Api.Protocol.Raw;
 
 namespace GenHTTP.Modules.Layouting.Provider;
 
@@ -11,7 +11,7 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
 
     #region Get-/Setters
 
-    internal Dictionary<int, IHandlerBuilder> RoutedHandlers { get; } = [];
+    internal Dictionary<PathSegment, IHandlerBuilder> RoutedHandlers { get; } = [];
 
     internal List<IHandlerBuilder> RootHandlers { get; } = [];
 
@@ -58,7 +58,7 @@ public sealed class LayoutBuilder : IHandlerBuilder<LayoutBuilder>
             return this.Add(name.Split('/', StringSplitOptions.RemoveEmptyEntries), handler);
         }
 
-        if (!RoutedHandlers.TryAdd(name.Hash(), handler))
+        if (!RoutedHandlers.TryAdd(new PathSegment(name), handler))
         {
             throw new InvalidOperationException($"A segment with the name '{name}' has already been added to the layout");
         }

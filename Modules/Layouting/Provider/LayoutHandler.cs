@@ -2,7 +2,7 @@
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Util;
+using GenHTTP.Api.Protocol.Raw;
 
 namespace GenHTTP.Modules.Layouting.Provider;
 
@@ -11,7 +11,7 @@ public sealed class LayoutHandler : IHandler
 
     #region Get-/Setters
 
-    public FrozenDictionary<int, IHandler> RoutedHandlers { get; }
+    public FrozenDictionary<PathSegment, IHandler> RoutedHandlers { get; }
 
     public IHandler[] RootHandlers { get; }
 
@@ -21,7 +21,7 @@ public sealed class LayoutHandler : IHandler
 
     #region Initialization
 
-    public LayoutHandler(Dictionary<int, IHandler> routedHandlers, List<IHandler> rootHandlers, IHandler? index)
+    public LayoutHandler(Dictionary<PathSegment, IHandler> routedHandlers, List<IHandler> rootHandlers, IHandler? index)
     {
         RoutedHandlers = routedHandlers.ToFrozenDictionary();
         RootHandlers = rootHandlers.ToArray();
@@ -58,7 +58,7 @@ public sealed class LayoutHandler : IHandler
 
         if (target.Current is not null)
         {
-            var hash = target.Current.Value.Hash();
+            var hash = target.Current.Value;
 
             if (RoutedHandlers.TryGetValue(hash, out var handler))
             {

@@ -9,7 +9,7 @@ public sealed class RawRequestTarget : IRawRequestTarget
 
     private int _offset;
 
-    public ReadOnlyMemory<byte>? Current { get; private set; }
+    public PathSegment? Current { get; private set; }
 
     public void Apply(ReadOnlyMemory<byte> path)
     {
@@ -59,12 +59,12 @@ public sealed class RawRequestTarget : IRawRequestTarget
         if (idx < 0)
         {
             _offset = length;
-            Current = _path.Slice(start, length - start);
+            Current = new(_path.Slice(start, length - start));
         }
         else
         {
             _offset += idx;
-            Current = _path.Slice(start, idx);
+            Current = new (_path.Slice(start, idx));
         }
     }
 

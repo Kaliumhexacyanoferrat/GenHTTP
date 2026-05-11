@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using GenHTTP.Api.Util;
 
 namespace GenHTTP.Api.Protocol;
 
@@ -14,7 +13,11 @@ public readonly struct ContentType : IEquatable<ContentType>
     public ContentType(ReadOnlyMemory<byte> value)
     {
         _value = value;
-        _hashCode = HashingUtil.Hash(value);
+
+        var hash = new HashCode();
+        hash.AddBytes(value.Span);
+
+        _hashCode = hash.ToHashCode();
     }
 
     public ReadOnlyMemory<byte> Value => _value;
@@ -213,7 +216,7 @@ public readonly struct ContentType : IEquatable<ContentType>
     #endregion
 
     #region Equality and Hashing
-    
+
     public bool Equals(ContentType other)
         => _value.Span.SequenceEqual(other._value.Span);
 
@@ -225,4 +228,3 @@ public readonly struct ContentType : IEquatable<ContentType>
     #endregion
 
 }
-
