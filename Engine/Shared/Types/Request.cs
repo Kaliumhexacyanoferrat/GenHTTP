@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Protocol.Raw;
 using GenHTTP.Engine.Shared.Types.Raw;
 using GenHTTP.Engine.Shared.Utilities;

@@ -1,13 +1,16 @@
-﻿namespace GenHTTP.Modules.IO.Web;
+﻿using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol;
 
-/*
+namespace GenHTTP.Modules.IO.Web;
+
 public class WebResourceBuilder : IResourceBuilder<WebResourceBuilder>
 {
     private Uri? _source;
 
     private string? _fixedName;
 
-    private FlexibleContentType? _fixedType;
+    private ContentType? _fixedType;
 
     private DateTime? _fixedModificationDate;
 
@@ -39,7 +42,7 @@ public class WebResourceBuilder : IResourceBuilder<WebResourceBuilder>
         return this;
     }
 
-    public WebResourceBuilder Type(FlexibleContentType contentType)
+    public WebResourceBuilder Type(ContentType contentType)
     {
         _fixedType = contentType;
         return this;
@@ -71,4 +74,3 @@ public class WebResourceBuilder : IResourceBuilder<WebResourceBuilder>
     #endregion
 
 }
-*/

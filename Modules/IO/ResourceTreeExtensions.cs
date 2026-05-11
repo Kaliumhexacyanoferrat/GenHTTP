@@ -1,6 +1,5 @@
 ﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol.Raw;
-using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.IO;
 

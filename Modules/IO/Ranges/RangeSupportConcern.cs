@@ -1,6 +1,12 @@
-﻿namespace GenHTTP.Modules.IO.Ranges;
+﻿using System.Text.RegularExpressions;
 
-/*
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.IO.Streaming;
+
+namespace GenHTTP.Modules.IO.Ranges;
+
 public partial class RangeSupportConcern : IConcern
 {
     private static readonly Regex Pattern = CreatePattern();
@@ -29,7 +35,9 @@ public partial class RangeSupportConcern : IConcern
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        if (request.Method == RequestMethod.Get || request.Method == RequestMethod.Head)
+        // todo
+
+        /*if (request.Method == RequestMethod.Get || request.Method == RequestMethod.Head)
         {
             var response = await Content.HandleAsync(request);
 
@@ -78,10 +86,13 @@ public partial class RangeSupportConcern : IConcern
             }
 
             return response;
-        }
+        }        */
+
+
         return await Content.HandleAsync(request);
     }
 
+    /*
     private static IResponse GetRangeFromStart(IRequest request, IResponse response, ulong length, ulong start)
     {
         if (start > length)
@@ -122,21 +133,19 @@ public partial class RangeSupportConcern : IConcern
         response.ContentLength = actualEnd - actualStart + 1;
 
         return response;
-    }
+    }*/
 
     private static IResponse NotSatisfiable(IRequest request, ulong totalLength)
     {
-        var content = Resource.FromString($"Requested length cannot be satisfied (available = {totalLength} bytes)")
-                              .Build();
+        var content = Resource.FromString($"Requested length cannot be satisfied (available = {totalLength} bytes)").Build();
 
         return request.Respond()
                       .Status(ResponseStatus.RequestedRangeNotSatisfiable)
                       .Header("Content-Range", $"bytes /{totalLength}") // todo: add * back before the slash :)
-                      .Content(content)
+                      .Content(new ResourceContent(content, ContentType.TextPlain))
                       .Build();
     }
 
     #endregion
 
 }
-*/

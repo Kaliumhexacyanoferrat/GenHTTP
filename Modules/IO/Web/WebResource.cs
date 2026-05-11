@@ -1,13 +1,17 @@
-﻿namespace GenHTTP.Modules.IO.Web;
+﻿using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Protocol;
 
-/*
+using GenHTTP.Modules.IO.Streaming;
+
+namespace GenHTTP.Modules.IO.Web;
+
 public class WebResource : IResource
 {
     private readonly HttpClient _client = new();
 
     private DateTime? _actualModificationDate;
 
-    private FlexibleContentType? _actualContentType;
+    private ContentType? _actualContentType;
 
     private ulong? _actualContentLength;
 
@@ -19,7 +23,7 @@ public class WebResource : IResource
 
     public DateTime? Modified => field ?? _actualModificationDate;
 
-    public FlexibleContentType? ContentType => field ?? _actualContentType;
+    public ContentType? ContentType => field ?? _actualContentType;
 
     public ulong? Length => _actualContentLength;
 
@@ -27,7 +31,7 @@ public class WebResource : IResource
 
     #region Initialization
 
-    public WebResource(Uri source, string? name, DateTime? modified, FlexibleContentType? contentType)
+    public WebResource(Uri source, string? name, DateTime? modified, ContentType? contentType)
     {
         Source = source;
 
@@ -80,6 +84,13 @@ public class WebResource : IResource
         return new StreamWithDependency(content, response);
     }
 
+    public async ValueTask WriteAsync(IResponseSink sink)
+    {
+        await using var stream = await GetContentAsync();
+
+        await stream.CopyPooledAsync(sink.Stream, 8192);
+    }
+
     private void UpdateFields(HttpResponseMessage response)
     {
         var contentHeaders = response.Content.Headers;
@@ -95,7 +106,7 @@ public class WebResource : IResource
 
         if (contentHeaders.ContentType != null)
         {
-            _actualContentType = FlexibleContentType.Parse(contentHeaders.ContentType.ToString());
+            _actualContentType = new (contentHeaders.ContentType.ToString());
         }
         else
         {
@@ -115,4 +126,3 @@ public class WebResource : IResource
     #endregion
 
 }
-*/

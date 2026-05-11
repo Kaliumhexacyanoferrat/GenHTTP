@@ -48,9 +48,10 @@ public sealed class StringResource : IResource
 
     public ValueTask WriteAsync(Stream target, uint bufferSize) => target.WriteAsync(Content.AsMemory());
 
-    public void Write(IBufferWriter<byte> writer)
+    public ValueTask WriteAsync(IResponseSink sink)
     {
-        writer.Write(Content.AsSpan());
+        sink.Writer.Write(Content);
+        return default;
     }
 
     #endregion

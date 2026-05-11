@@ -1,6 +1,9 @@
-﻿namespace GenHTTP.Modules.IO;
+﻿using GenHTTP.Api.Content;
 
-/*
+using GenHTTP.Modules.IO.Ranges;
+
+namespace GenHTTP.Modules.IO;
+
 public static class RangeSupport
 {
 
@@ -20,4 +23,3 @@ public static class RangeSupport
     #endregion
 
 }
-*/

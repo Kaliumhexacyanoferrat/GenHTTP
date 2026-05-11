@@ -1,7 +1,7 @@
-﻿using System.Buffers;
-
-using GenHTTP.Api.Content.IO;
+﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.IO.FileSystem;
 
@@ -58,12 +58,9 @@ public sealed class FileResource : IResource
 
     public ValueTask<Stream> GetContentAsync() => new(File.OpenRead());
 
-    public void Write(IBufferWriter<byte> writer)
-    {
-        throw new NotImplementedException();
-    }
-
     public ValueTask<ulong> CalculateChecksumAsync() => new(Checksum.Calculate(this));
+
+    public ValueTask WriteAsync(IResponseSink sink) => File.OpenRead().WriteAsync(sink.Writer);
 
     #endregion
 

@@ -1,7 +1,8 @@
-﻿using System.Buffers;
-using System.Reflection;
+﻿using System.Reflection;
+
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.IO.Embedded;
@@ -51,11 +52,6 @@ public sealed class EmbeddedResource : IResource
 
     public ValueTask<Stream> GetContentAsync() => new(TryGetStream());
 
-    public void Write(IBufferWriter<byte> writer)
-    {
-        throw new NotImplementedException();
-    }
-
     public async ValueTask<ulong> CalculateChecksumAsync()
     {
         if (_checksum is null)
@@ -67,6 +63,8 @@ public sealed class EmbeddedResource : IResource
 
         return _checksum.Value;
     }
+
+    public ValueTask WriteAsync(IResponseSink sink) => TryGetStream().WriteAsync(sink.Writer);
 
     private Stream TryGetStream() => Source.GetManifestResourceStream(QualifiedName) ?? throw new InvalidOperationException($"Unable to resolve resource '{QualifiedName}' in assembly '{Source}'");
 

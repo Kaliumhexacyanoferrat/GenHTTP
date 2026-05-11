@@ -1,5 +1,4 @@
-﻿using System.Buffers;
-using GenHTTP.Api.Content.IO;
+﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.IO.Tracking;
@@ -47,9 +46,11 @@ public sealed class ChangeTrackingResource : IResource
         await Source.WriteAsync(target, bufferSize);
     }
 
-    public void Write(IBufferWriter<byte> writer)
+    public async ValueTask WriteAsync(IResponseSink sink)
     {
-        throw new NotImplementedException();
+        _lastChecksum = await CalculateChecksumAsync();
+
+        await Source.WriteAsync(sink);
     }
 
     public ValueTask<ulong> CalculateChecksumAsync() => Source.CalculateChecksumAsync();

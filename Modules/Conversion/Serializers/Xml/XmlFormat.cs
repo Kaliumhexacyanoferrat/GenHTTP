@@ -2,8 +2,6 @@
 
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.IO;
-
 namespace GenHTTP.Modules.Conversion.Serializers.Xml;
 
 public sealed class XmlFormat : ISerializationFormat

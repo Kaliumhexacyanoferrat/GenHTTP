@@ -1,6 +1,9 @@
+using System.Buffers;
+
+using GenHTTP.Api.Protocol;
+
 namespace GenHTTP.Modules.IO.Streaming;
 
-/*
 /// <summary>
 /// Response content backed by a ReadOnlyMemory of bytes.
 /// </summary>
@@ -12,11 +15,12 @@ public sealed class MemoryContent : IResponseContent
 
     #region Initialization
 
-    public MemoryContent(ReadOnlyMemory<byte> content, Func<ValueTask<ulong?>>? checksumProvider)
+    public MemoryContent(ReadOnlyMemory<byte> content, ContentType contentType, Func<ValueTask<ulong?>>? checksumProvider)
     {
         _content = content;
 
         Length = (ulong)_content.Length;
+        Type = contentType;
 
         _checksumProvider = new ChecksumProvider(checksumProvider ?? (() => new(CalculateChecksum(content.Span))));
     }
@@ -27,6 +31,8 @@ public sealed class MemoryContent : IResponseContent
 
     public ulong? Length { get; }
 
+    public ContentType Type { get; }
+
     #endregion
 
     #region Functionality
@@ -36,6 +42,12 @@ public sealed class MemoryContent : IResponseContent
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
         await target.WriteAsync(_content);
+    }
+
+    public ValueTask WriteAsync(IResponseSink sink)
+    {
+        sink.Writer.Write(_content.Span);
+        return default;
     }
 
     private static ulong CalculateChecksum(ReadOnlySpan<byte> content)
@@ -55,4 +67,3 @@ public sealed class MemoryContent : IResponseContent
 
     #endregion
 }
-*/

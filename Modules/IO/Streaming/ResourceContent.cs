@@ -32,11 +32,7 @@ public sealed class ResourceContent : IResponseContent
 
     public ValueTask WriteAsync(Stream target, uint bufferSize) => Resource.WriteAsync(target, bufferSize);
 
-    public ValueTask WriteAsync(IResponseSink sink)
-    {
-        Resource.Write(sink.Writer);
-        return ValueTask.CompletedTask;
-    }
+    public ValueTask WriteAsync(IResponseSink sink) => Resource.WriteAsync(sink);
 
     #endregion
 

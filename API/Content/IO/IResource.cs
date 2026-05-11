@@ -1,5 +1,4 @@
-﻿using System.Buffers;
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Content.IO;
 
@@ -60,13 +59,13 @@ public interface IResource
     /// </summary>
     /// <param name="target">The stream to write to</param>
     /// <param name="bufferSize">The buffer size to be used for the operation</param>
-    async ValueTask WriteAsync(Stream target, uint bufferSize)
+    async ValueTask WriteAsync(Stream target, uint bufferSize) // ToDo: Remove?
     {
         await using var content = await GetContentAsync();
 
         await content.CopyToAsync(target, (int)bufferSize);
     }
 
-    void Write(IBufferWriter<byte> writer);
+    ValueTask WriteAsync(IResponseSink sink);
 
 }
