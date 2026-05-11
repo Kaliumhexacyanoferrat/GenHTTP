@@ -6,7 +6,6 @@ namespace GenHTTP.Modules.Conversion.Serializers.Xml;
 
 public sealed class XmlContent : IResponseContent
 {
-    private static readonly ReadOnlyMemory<byte> ContentType = "application/xml"u8.ToArray();
 
     #region Initialization
 
@@ -21,7 +20,7 @@ public sealed class XmlContent : IResponseContent
 
     public ulong? Length => null;
 
-    public ReadOnlyMemory<byte> Type => ContentType;
+    public ContentType Type => ContentType.TextXml;
 
     private object Data { get; }
 

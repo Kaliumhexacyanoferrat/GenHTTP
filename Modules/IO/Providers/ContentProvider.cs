@@ -8,9 +8,6 @@ namespace GenHTTP.Modules.IO.Providers;
 
 public sealed class ContentProvider : IHandler
 {
-    private readonly ReadOnlyMemory<byte> _contentTypeName = "Content-Type"u8.ToArray();
-    private readonly ReadOnlyMemory<byte> _contentTypeValue = "text/plain"u8.ToArray();
-
 
     #region Get-/Setters
 
@@ -18,19 +15,17 @@ public sealed class ContentProvider : IHandler
 
     private IResponseContent Content { get; }
 
-    // private FlexibleContentType ContentType { get; }
-
     #endregion
 
     #region Initialization
 
-    public ContentProvider(IResource resourceProvider)
+    public ContentProvider(IResource resource)
     {
-        Resource = resourceProvider;
+        Resource = resource;
 
-        Content = new ResourceContent(Resource);
+        var contentType = Resource.Name?.GuessContentType() ?? ContentType.ApplicationForceDownload;
 
-       // ContentType = Resource.ContentType ?? FlexibleContentType.Get(Resource.Name?.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload);
+        Content = new ResourceContent(Resource, contentType);
     }
 
     #endregion
@@ -42,8 +37,7 @@ public sealed class ContentProvider : IHandler
         var response = request.Respond()
                               .Raw()
                               .Status(ResponseStatus.Ok)
-                              .Content(Content)
-                              .Header(_contentTypeName, _contentTypeValue);
+                              .Content(Content);
 
         /*if (Resource.Modified != null)
         {

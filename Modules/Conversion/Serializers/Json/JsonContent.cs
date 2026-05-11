@@ -6,7 +6,6 @@ namespace GenHTTP.Modules.Conversion.Serializers.Json;
 
 public sealed class JsonContent : IResponseContent
 {
-    private static readonly ReadOnlyMemory<byte> ContentType = "application/json"u8.ToArray();
 
     #region Initialization
 
@@ -22,7 +21,7 @@ public sealed class JsonContent : IResponseContent
 
     public ulong? Length => null;
 
-    public ReadOnlyMemory<byte> Type => ContentType;
+    public ContentType Type => ContentType.ApplicationJson;
 
     private object Data { get; }
 
@@ -42,12 +41,12 @@ public sealed class JsonContent : IResponseContent
     public ValueTask WriteAsync(IResponseSink sink)
     {
         using var writer = new Utf8JsonWriter(sink.Writer);
-        
+
         JsonSerializer.Serialize(writer, Data, Options);
-        
+
         return default;
     }
-    
+
     #endregion
 
 }

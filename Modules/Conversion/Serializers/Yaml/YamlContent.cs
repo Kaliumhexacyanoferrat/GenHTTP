@@ -10,8 +10,6 @@ namespace GenHTTP.Modules.Conversion.Serializers.Yaml;
 
 public sealed class YamlContent : IResponseContent
 {
-    private static readonly ReadOnlyMemory<byte> ContentType = "application/yaml"u8.ToArray();
-    
     private static readonly ISerializer Serializer = new SerializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
 
     private static readonly Encoding Encoding = Encoding.UTF8;
@@ -20,7 +18,7 @@ public sealed class YamlContent : IResponseContent
 
     public ulong? Length => null;
 
-    public ReadOnlyMemory<byte> Type => ContentType;
+    public ContentType Type => ContentType.ApplicationYaml;
 
     public object Data { get; }
 
@@ -47,7 +45,7 @@ public sealed class YamlContent : IResponseContent
         sink.Writer.Write(Encoding.GetBytes(Serializer.Serialize(Data))); // ToDo: custom IEmitter
         return default;
     }
-    
+
     #endregion
 
 }

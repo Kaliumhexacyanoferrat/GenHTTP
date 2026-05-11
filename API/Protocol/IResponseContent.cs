@@ -5,7 +5,7 @@ public interface IResponseContent
 
     ulong? Length { get; }
 
-    ReadOnlyMemory<byte> Type { get; }
+    ContentType Type { get; }
 
     ValueTask WriteAsync(IResponseSink sink);
 

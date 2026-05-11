@@ -8,17 +8,13 @@ public sealed class StringContent : IResponseContent
 {
     private static readonly Encoding Utf8 = Encoding.UTF8;
 
-    private static readonly ReadOnlyMemory<byte> DefaultContentType = "text/plain"u8.ToArray();
-
     private readonly ulong _checksum;
 
     private readonly byte[] _content;
-    
-    private readonly ReadOnlyMemory<byte> _contentType;
 
     #region Initialization
 
-    public StringContent(string content, ReadOnlyMemory<byte>? contentType = null)
+    public StringContent(string content, ContentType? contentType = null)
     {
         _content = Utf8.GetBytes(content);
 
@@ -26,7 +22,7 @@ public sealed class StringContent : IResponseContent
 
         _checksum = (ulong)content.GetHashCode();
 
-        _contentType = contentType ?? DefaultContentType;
+        Type = contentType ?? ContentType.TextPlain;
     }
 
     #endregion
@@ -35,7 +31,7 @@ public sealed class StringContent : IResponseContent
 
     public ulong? Length { get; }
 
-    public ReadOnlyMemory<byte> Type => _contentType;
+    public ContentType Type { get; }
 
     #endregion
 

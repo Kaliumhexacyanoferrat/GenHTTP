@@ -8,9 +8,10 @@ public sealed class ResourceContent : IResponseContent
 
     #region Initialization
 
-    public ResourceContent(IResource resource)
+    public ResourceContent(IResource resource, ContentType contentType)
     {
         Resource = resource;
+        Type = contentType;
     }
 
     #endregion
@@ -19,7 +20,7 @@ public sealed class ResourceContent : IResponseContent
 
     public ulong? Length => Resource.Length;
 
-    public ReadOnlyMemory<byte> Type { get; }
+    public ContentType Type { get; }
 
     private IResource Resource { get; }
 

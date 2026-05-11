@@ -9,7 +9,6 @@ namespace GenHTTP.Modules.Conversion.Serializers.Forms;
 
 public sealed class FormContent : IResponseContent
 {
-    private static readonly ReadOnlyMemory<byte> ContentType = "application/x-www-form-urlencoded"u8.ToArray();
 
     #region Initialization
 
@@ -27,7 +26,7 @@ public sealed class FormContent : IResponseContent
 
     public ulong? Length => null;
 
-    public ReadOnlyMemory<byte> Type => ContentType;
+    public ContentType Type => ContentType.ApplicationWwwFormUrlEncoded;
 
     private Type DataType { get; }
 
@@ -42,7 +41,7 @@ public sealed class FormContent : IResponseContent
     public ValueTask<ulong?> CalculateChecksumAsync() => new((ulong)Data.GetHashCode());
 
     public ValueTask WriteAsync(IResponseSink sink) => WriteAsync(sink.Stream);
-    
+
     public async ValueTask WriteAsync(Stream target)
     {
         await using var writer = new StreamWriter(target, Encoding.UTF8, 4096, true);
@@ -65,8 +64,8 @@ public sealed class FormContent : IResponseContent
 
         await writer.WriteAsync(replaced);
     }
-    
-    
+
+
 
     private void SetValue(NameValueCollection query, string field, object? value, Type type)
     {
@@ -80,7 +79,7 @@ public sealed class FormContent : IResponseContent
             }
         }
     }
-    
+
     #endregion
 
 }
