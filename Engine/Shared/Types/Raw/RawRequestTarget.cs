@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+
 using GenHTTP.Api.Protocol.Raw;
 
 namespace GenHTTP.Engine.Shared.Types.Raw;
@@ -10,6 +11,26 @@ public sealed class RawRequestTarget : IRawRequestTarget
     private int _offset;
 
     public PathSegment? Current { get; private set; }
+
+    public bool IsLast
+    {
+        get
+        {
+            if (Current == null)
+            {
+                return false;
+            }
+
+            var span = _path.Span;
+            var length = span.Length;
+            var i = _offset;
+
+            while (i < length && span[i] == (byte)'/')
+                i++;
+
+            return i >= length;
+        }
+    }
 
     public void Apply(ReadOnlyMemory<byte> path)
     {

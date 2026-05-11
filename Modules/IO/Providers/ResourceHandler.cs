@@ -1,6 +1,11 @@
-﻿namespace GenHTTP.Modules.IO.Providers;
+﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Protocol;
 
-/*
+using GenHTTP.Modules.IO.Streaming;
+
+namespace GenHTTP.Modules.IO.Providers;
+
 public sealed class ResourceHandler : IHandler
 {
 
@@ -25,15 +30,14 @@ public sealed class ResourceHandler : IHandler
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var (_, resource) = await Tree.Find(request.Target);
+        var (_, resource) = await Tree.Find(request.Raw.Header.Target);
 
         if (resource is not null)
         {
-            var type = resource.ContentType ?? FlexibleContentType.Get(resource.Name?.GuessContentType() ?? ContentType.ApplicationForceDownload);
+            var contentType = resource.ContentType ?? resource.Name?.GuessContentType() ?? ContentType.ApplicationForceDownload;
 
             return request.Respond()
-                          .Content(resource)
-                          .Type(type)
+                          .Content(new ResourceContent(resource, contentType))
                           .Build();
         }
 
@@ -43,4 +47,3 @@ public sealed class ResourceHandler : IHandler
     #endregion
 
 }
-*/
