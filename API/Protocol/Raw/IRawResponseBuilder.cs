@@ -7,10 +7,12 @@ public interface IRawResponseBuilder : IBuilder<IResponse>
 
     IRawResponseBuilder Status(ResponseStatus code);
 
+    IRawResponseBuilder Connection(Connection mode);
+
     IRawResponseBuilder Header(ReadOnlyMemory<byte> name, ReadOnlyMemory<byte> value);
 
     IRawResponseBuilder Content(IResponseContent? content);
 
-    IResponseBuilder Unraw();
+    IResponseBuilder ToHighLevel();
 
 }

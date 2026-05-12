@@ -23,6 +23,12 @@ public class ResponseBuilder : IResponseBuilder
         return this;
     }
 
+    public IResponseBuilder Connection(Connection mode)
+    {
+        _raw.Connection(mode);
+        return this;
+    }
+
     public IResponseBuilder Header(string name, string value)
     {
         _raw.Header(name.GetMemory(), value.GetMemory());
@@ -35,7 +41,7 @@ public class ResponseBuilder : IResponseBuilder
         return this;
     }
 
-    public IRawResponseBuilder Raw() => _raw;
+    public IRawResponseBuilder ToLowLevel() => _raw;
 
     public IResponse Build() => _response;
 

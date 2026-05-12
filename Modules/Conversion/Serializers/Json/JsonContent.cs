@@ -21,7 +21,7 @@ public sealed class JsonContent : IResponseContent
 
     public ulong? Length => null;
 
-    public ContentType Type => ContentType.ApplicationJson;
+    public ContentType? Type => ContentType.ApplicationJson;
 
     private object Data { get; }
 

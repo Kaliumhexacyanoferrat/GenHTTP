@@ -20,7 +20,7 @@ public sealed class XmlContent : IResponseContent
 
     public ulong? Length => null;
 
-    public ContentType Type => ContentType.TextXml;
+    public ContentType? Type => ContentType.TextXml;
 
     private object Data { get; }
 

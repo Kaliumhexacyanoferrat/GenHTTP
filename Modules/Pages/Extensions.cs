@@ -19,10 +19,10 @@ public static class Extensions
     /// <param name="content">The HTML page to be served</param>
     /// <returns>The HTML page response</returns>
     public static IResponseBuilder GetPage(this IRequest request, string content) => request.Respond()
-                                                                                            .Raw()
+                                                                                            .ToLowLevel()
                                                                                             .Content(new StringContent(content))
                                                                                             .Header(KnownHeaders.ContentType, HtmlContentType)
-                                                                                            .Unraw();
+                                                                                            .ToHighLevel();
 
     /// <summary>
     /// Escapes the given string so it can safely be used in HTML.

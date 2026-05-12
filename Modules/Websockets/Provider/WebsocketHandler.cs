@@ -1,5 +1,6 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Protocol.Raw;
 
 using GenHTTP.Modules.Websockets.Protocol;
 
@@ -7,39 +8,52 @@ namespace GenHTTP.Modules.Websockets.Provider;
 
 public class WebsocketHandler(Func<IRequest, IResponseContent> contentFactory) : IHandler
 {
+    private static readonly ReadOnlyMemory<byte> KeyHeader = "Sec-WebSocket-Key"u8.ToArray();
+
+    private static readonly ReadOnlyMemory<byte> VersionHeader = "Sec-WebSocket-Version"u8.ToArray();
+
+    private static readonly ReadOnlyMemory<byte> AcceptHeader = "Sec-WebSocket-Accept"u8.ToArray();
+
+    private static readonly ReadOnlyMemory<byte> UpgradeHeaderName = "Upgrade"u8.ToArray();
+
+    private static readonly ReadOnlyMemory<byte> UpgradeHeaderValue = "websocket"u8.ToArray();
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
         var key = ValidateRequest(request);
-        
+
         var content = contentFactory(request);
 
         var response = request.Respond()
-            .Status(ResponseStatus.SwitchingProtocols)
-            .Connection(Connection.Upgrade)
-            .Header("Upgrade", "websocket")
-            .Header("Sec-WebSocket-Accept", Handshake.CreateAcceptKey(key))
-            .Content(content)
-            .Build();
+                              .ToLowLevel()
+                              .Status(ResponseStatus.SwitchingProtocols)
+                              .Connection(Connection.Upgrade)
+                              .Header(UpgradeHeaderName, UpgradeHeaderValue)
+                              .Header(AcceptHeader, Handshake.CreateAcceptKey(key))
+                              .Content(content)
+                              .Build();
 
         return ValueTask.FromResult<IResponse?>(response);
     }
 
-    private static string ValidateRequest(IRequest request)
+    private static ReadOnlyMemory<byte> ValidateRequest(IRequest request)
     {
-        if (request.Method.KnownMethod != RequestMethod.Get)
+        var headers = request.Raw.Header.Headers;
+
+        if (request.Method != RequestMethod.Get)
         {
             throw new ProviderException(ResponseStatus.MethodNotAllowed, "Websocket connections can only be initiated via GET");
         }
-        
-        var key = request.Headers.GetValueOrDefault("Sec-WebSocket-Key")
+
+        var key = headers.GetEntry(KeyHeader)
             ?? throw new ProviderException(ResponseStatus.BadRequest, "Client did not initiate websocket handshake. Header Sec-WebSocket-Key is missing from the request.");
 
-        var version = request.Headers.GetValueOrDefault("Sec-WebSocket-Version");
+        var version = headers.GetEntry(VersionHeader)
+            ?? throw new ProviderException(ResponseStatus.BadGateway, "Client does not specify the requested websocket version.");
 
-        if (!int.TryParse(version, out var versionInt) || versionInt != 13)
+        if (!int.TryParse(version.Span, out var versionInt) || versionInt != 13)
         {
             throw new ProviderException(ResponseStatus.UpgradeRequired, "Only version 13 is supported by this websocket server.", (b) => b.Header("Sec-WebSocket-Version", "13"));
         }

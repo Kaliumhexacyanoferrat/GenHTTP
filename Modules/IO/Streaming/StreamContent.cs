@@ -26,7 +26,7 @@ public sealed class StreamContent : IResponseContent, IDisposable
 
     private Stream Content { get; }
 
-    public ContentType Type { get; }
+    public ContentType? Type { get; }
 
     public ulong? Length
     {

@@ -20,7 +20,7 @@ public sealed class ResourceContent : IResponseContent
 
     public ulong? Length => Resource.Length;
 
-    public ContentType Type { get; }
+    public ContentType? Type { get; }
 
     private IResource Resource { get; }
 

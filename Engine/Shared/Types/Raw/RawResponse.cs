@@ -9,6 +9,8 @@ public class RawResponse : IRawResponse
 
     public ResponseStatus Status { get; set; }
 
+    public Connection Mode { get; set; }
+
     public EditableKeyValueList EditableHeaders  => _headers;
 
     public IRawKeyValueList Headers => _headers;
@@ -18,6 +20,7 @@ public class RawResponse : IRawResponse
     public void Reset()
     {
         Status = ResponseStatus.NoContent;
+        Mode = Connection.KeepAlive;
 
         Content = null;
 

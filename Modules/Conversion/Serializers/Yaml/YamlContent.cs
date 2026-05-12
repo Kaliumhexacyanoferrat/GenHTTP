@@ -18,7 +18,7 @@ public sealed class YamlContent : IResponseContent
 
     public ulong? Length => null;
 
-    public ContentType Type => ContentType.ApplicationYaml;
+    public ContentType? Type => ContentType.ApplicationYaml;
 
     public object Data { get; }
 

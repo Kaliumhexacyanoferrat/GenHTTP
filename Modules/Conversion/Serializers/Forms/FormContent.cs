@@ -26,7 +26,7 @@ public sealed class FormContent : IResponseContent
 
     public ulong? Length => null;
 
-    public ContentType Type => ContentType.ApplicationWwwFormUrlEncoded;
+    public ContentType? Type => ContentType.ApplicationWwwFormUrlEncoded;
 
     private Type DataType { get; }
 

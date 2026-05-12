@@ -8,10 +8,12 @@ public interface IResponseBuilder : IBuilder<IResponse>
 
     IResponseBuilder Status(ResponseStatus status);
 
+    IResponseBuilder Connection(Connection mode);
+
     IResponseBuilder Header(string name, string value);
 
     IResponseBuilder Content(IResponseContent content);
 
-    IRawResponseBuilder Raw();
+    IRawResponseBuilder ToLowLevel();
 
 }

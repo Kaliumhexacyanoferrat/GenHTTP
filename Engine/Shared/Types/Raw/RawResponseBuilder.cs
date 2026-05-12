@@ -12,6 +12,11 @@ public class RawResponseBuilder(Response response, ResponseBuilder builder) : IR
         return this;
     }
 
+    public IRawResponseBuilder Connection(Connection mode)
+    {
+        response.Source.Mode = mode;
+        return this;
+    }
 
     public IRawResponseBuilder Header(ReadOnlyMemory<byte> name, ReadOnlyMemory<byte> value)
     {
@@ -25,7 +30,7 @@ public class RawResponseBuilder(Response response, ResponseBuilder builder) : IR
         return this;
     }
 
-    public IResponseBuilder Unraw() => builder;
+    public IResponseBuilder ToHighLevel() => builder;
 
     public IResponse Build() => response;
 

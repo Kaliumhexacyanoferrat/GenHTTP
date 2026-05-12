@@ -46,7 +46,7 @@ internal sealed class ResponseHandler : IResponseSink
             var raw = response.Raw;
 
             var writer = Context.Writer;
-            
+
             writer.Write(StatusLine.Get(raw.Status));
 
             WriteHeader(raw, version, keepAlive);
@@ -73,19 +73,35 @@ internal sealed class ResponseHandler : IResponseSink
         }
     }
 
-    private static bool ShouldSendBody(IRequest? request, IResponse response) => true; // todo
-    /*(request == null || request.Method.KnownMethod != RequestMethod.Head) &&
-    (
-        response.ContentLength > 0 || response.Content?.Length > 0 ||
-        response.ContentType is not null || response.ContentEncoding is not null ||
-        response.Connection == Connection.Upgrade
-    );*/
+    private static bool ShouldSendBody(IRequest? request, IResponse response)
+    {
+        if (request == null)
+        {
+            return true;
+        }
+
+        if (request.Method == RequestMethod.Head)
+        {
+            return false;
+        }
+
+        var content = response.Raw.Content;
+
+        if (content != null)
+        {
+            return (content.Length ?? 1) > 0;
+        }
+
+        return false;
+    }
 
     private void WriteHeader(IRawResponse response, HttpProtocol version, bool keepAlive)
     {
         var context = Context;
 
         var writer = context.Writer;
+
+        var isUpgrade = response.Mode == Connection.Upgrade;
 
         if (!response.Headers.ContainsKey(ServerHeaderName))
         {
@@ -94,10 +110,33 @@ internal sealed class ResponseHandler : IResponseSink
 
         writer.Write(DateHeader.GetValue().Span);
 
+        if (isUpgrade)
+        {
+            writer.Write("Connection: Upgrade\r\n"u8);
+        }
+        else if (version == HttpProtocol.Http10)
+        {
+            writer.Write(keepAlive ? "Connection: Keep-Alive\r\n"u8 : "Connection: Close\r\n"u8);
+        }
+        else if (!keepAlive)
+        {
+            // HTTP/1.1 connections are persistent by default so we do not need to send a Keep-Alive header
+            writer.Write("Connection: Close\r\n"u8);
+        }
+
         var content = response.Content;
 
         if (content != null)
         {
+            var type = content.Type;
+
+            if (type != null)
+            {
+                writer.Write("Content-Type: "u8);
+                writer.Write(type.Value.Value.Span);
+                writer.Write("\r\n"u8);
+            }
+
             var length = content.Length;
 
             if (length != null)
@@ -106,7 +145,7 @@ internal sealed class ResponseHandler : IResponseSink
                 writer.Write(length.Value);
                 writer.Write("\r\n"u8);
             }
-            else
+            else if (!isUpgrade)
             {
                 writer.Write("Transfer-Encoding: chunked\r\n"u8);
             }
@@ -116,50 +155,13 @@ internal sealed class ResponseHandler : IResponseSink
             writer.Write("Content-Length: 0\r\n"u8);
         }
 
-        /*if (response.Connection == Connection.Upgrade)
-        {
-            Output.Write("Connection: Upgrade\r\n"u8);
-        }
-        else if (version == HttpProtocol.Http10)
-        {
-            Output.Write(keepAlive ? "Connection: Keep-Alive\r\n"u8 : "Connection: Close\r\n"u8);
-        }
-        else if (!keepAlive)
-        {
-            // HTTP/1.1 connections are persistent by default so we do not need to send a Keep-Alive header
-            Output.Write("Connection: Close\r\n"u8);
-        }*/
-
-        /*if (response.ContentType is not null)
-        {
-            Output.Write("Content-Type: "u8);
-            Output.Write(response.ContentType.RawType);
-
-            if (response.ContentType.Charset is not null)
-            {
-                Output.Write("; charset="u8);
-                Output.Write(response.ContentType.Charset);
-            }
-
-            Output.Write("\r\n"u8);
-        }
+        /*
 
         if (response.ContentEncoding is not null)
         {
             Output.Write("Content-Encoding: "u8);
             Output.Write(response.ContentEncoding!);
             Output.Write("\r\n"u8);
-        }
-
-        if (response.ContentLength is not null)
-        {
-            Output.Write("Content-Length: "u8);
-            Output.Write(response.ContentLength.Value);
-            Output.Write("\r\n"u8);
-        }
-        else if (response.Connection != Connection.Upgrade)
-        {
-            Output.Write(response.Content is not null ? "Transfer-Encoding: chunked\r\n"u8 : "Content-Length: 0\r\n"u8);
         }
 
         if (response.Modified is not null)

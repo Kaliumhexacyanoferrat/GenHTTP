@@ -10,6 +10,10 @@ public class ReactiveWebsocketContent(IReactiveHandler handler, IRequest request
 
     public ulong? Length => null;
 
+    public ContentType? Type => null;
+
+    public ValueTask WriteAsync(IResponseSink sink) => WriteAsync(sink.Stream, 0); // todo: buffer writer support
+
     public ValueTask<ulong?> CalculateChecksumAsync() => ValueTask.FromResult<ulong?>(null);
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
@@ -20,7 +24,7 @@ public class ReactiveWebsocketContent(IReactiveHandler handler, IRequest request
 
         await handler.OnConnected(connection);
 
-        while (request.Server.Running)
+        while (true) // todo: (request.Server.Running)
         {
             var frame = await connection.ReadFrameAsync(); // Ensures a frame is read
 
@@ -61,4 +65,5 @@ public class ReactiveWebsocketContent(IReactiveHandler handler, IRequest request
             }
         }
     }
+
 }

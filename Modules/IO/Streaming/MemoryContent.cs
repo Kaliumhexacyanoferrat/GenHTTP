@@ -31,7 +31,7 @@ public sealed class MemoryContent : IResponseContent
 
     public ulong? Length { get; }
 
-    public ContentType Type { get; }
+    public ContentType? Type { get; }
 
     #endregion
 

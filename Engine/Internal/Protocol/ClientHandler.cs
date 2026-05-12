@@ -31,13 +31,13 @@ internal sealed class ClientHandler(ClientContext context)
     private static readonly TimeSpan KeepAliveTimeout = TimeSpan.FromSeconds(60);
 
     private CancellationTokenSource _cts = new();
-    
+
     #region Functionality
 
     internal async ValueTask RunAsync()
     {
         var connection = context.Connection;
-        
+
         try
         {
             await HandlePipeAsync(context.Reader).ConfigureAwait(false);
@@ -60,9 +60,9 @@ internal sealed class ClientHandler(ClientContext context)
             try
             {
                 connection.Shutdown(SocketShutdown.Both);
-                
+
                 await connection.DisconnectAsync(false);
-                
+
                 connection.Close();
 
                 connection.Dispose();
@@ -77,7 +77,7 @@ internal sealed class ClientHandler(ClientContext context)
     private async ValueTask HandlePipeAsync(PipeReader reader)
     {
         ResetCts(InitialReadTimeout);
-        
+
         var request = context.Request;
         var into = request.Source;
 
@@ -120,16 +120,16 @@ internal sealed class ClientHandler(ClientContext context)
                     }
 
                     request.Reset();
-                    
+
                     handledRequest = true;
                 }
-                
+
                 reader.AdvanceTo(buffer.Start, buffer.End);
 
                 if (!handledRequest) break;
-                
+
                 await context.Writer.FlushAsync();
-                
+
                 if (result.IsCompleted) break;
 
                 ResetCts(KeepAliveTimeout);
@@ -173,10 +173,12 @@ internal sealed class ClientHandler(ClientContext context)
 
         var response = await context.Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
 
-        var closeRequested = false; // response.Connection is Api.Protocol.Connection.Close or Api.Protocol.Connection.Upgrade;
+        var rawResponse = response.Raw;
+
+        var closeRequested = rawResponse.Mode is Connection.Close or Connection.Upgrade;
 
         var active = await context.ResponseHandler.HandleAsync(request, response, HttpProtocol.Http11, keepAliveRequested && !closeRequested);
-        
+
         return (active && keepAliveRequested && !closeRequested) ? Connection.KeepAlive : Connection.Close;
     }
 
@@ -188,7 +190,7 @@ internal sealed class ClientHandler(ClientContext context)
 
             // todo status code mapping
 
-            var response = new ResponseBuilder().Raw()
+            var response = new ResponseBuilder().ToLowLevel()
                 .Status(status)
                 .Content(new StringContent(message))
                 .Build();
@@ -214,5 +216,5 @@ internal sealed class ClientHandler(ClientContext context)
     }
 
     #endregion
-    
+
 }

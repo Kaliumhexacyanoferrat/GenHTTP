@@ -42,7 +42,8 @@
     <Project Path="Modules\StaticWebsites\GenHTTP.Modules.StaticWebsites.csproj" />
     <Project Path="Modules\VirtualHosting\GenHTTP.Modules.VirtualHosting.csproj" />
     <Project Path="Modules\Webservices\GenHTTP.Modules.Webservices.csproj" />
-    <Project Path="Modules\Websockets\GenHTTP.Modules.Websockets.csproj" />-->
+    -->
+    <Project Path="Modules\Websockets\GenHTTP.Modules.Websockets.csproj" />
   </Folder>
   <Folder Name="/Packages/">
     <File Path="Packages\GenHTTP.Core.nuspec" />
