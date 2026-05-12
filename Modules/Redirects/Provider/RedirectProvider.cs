@@ -54,9 +54,9 @@ public sealed class RedirectProvider : IHandler
             return StringTarget;
         }
 
-        // todo: var protocol = request.EndPoint.Secure ? "https://" : "http://";
+        var protocol = request.EndPoint.Secure ? "https://" : "http://";
 
-        return $"http://{request.Host}{StringTarget}";
+        return $"{protocol}{request.Host}{StringTarget}";
     }
 
     private static ResponseStatus MapStatus(IRequest request, bool temporary)

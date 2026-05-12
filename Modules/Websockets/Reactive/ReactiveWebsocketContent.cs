@@ -24,7 +24,7 @@ public class ReactiveWebsocketContent(IReactiveHandler handler, IRequest request
 
         await handler.OnConnected(connection);
 
-        while (true) // todo: (request.Server.Running)
+        while (request.Server.Running)
         {
             var frame = await connection.ReadFrameAsync(); // Ensures a frame is read
 

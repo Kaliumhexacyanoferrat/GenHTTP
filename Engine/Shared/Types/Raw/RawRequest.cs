@@ -1,4 +1,6 @@
-﻿using GenHTTP.Api.Protocol.Raw;
+﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol.Raw;
+
 using Glyph11.Protocol;
 
 namespace GenHTTP.Engine.Shared.Types.Raw;
@@ -10,6 +12,16 @@ public sealed class RawRequest : IRawRequest
     private readonly RawRequestHeader _header;
 
     private IRawRequestHeader? _retainedHeader;
+
+    private IServer? _server;
+
+    private IEndPoint? _endPoint;
+
+    #region Get-/Setters
+
+    public IServer Server => _server ?? throw new InvalidOperationException("Server property has not been initialized");
+
+    public IEndPoint EndPoint => _endPoint ?? throw new InvalidOperationException("EndPoint property has not been initialized");
 
     public IRawRequestHeader Header
     {
@@ -29,6 +41,10 @@ public sealed class RawRequest : IRawRequest
         }
     }
 
+    #endregion
+
+    #region Initialization
+
     internal BinaryRequest Source { get; }
 
     public RawRequest()
@@ -37,6 +53,10 @@ public sealed class RawRequest : IRawRequest
 
         _header = new(this);
     }
+
+    #endregion
+
+    #region Functionality
 
     public IRawRequestBody? GetBody(HeaderAccess headerAccess)
     {
@@ -56,12 +76,17 @@ public sealed class RawRequest : IRawRequest
         return null;
     }
 
-    public void Apply()
+    public void Apply(IServer server, IEndPoint endPoint)
     {
+        _server = server;
+        _endPoint = endPoint;
+
         _header.Apply();
 
         _bodyObtained = false;
         _retainedHeader = null;
     }
-    
+
+    #endregion
+
 }

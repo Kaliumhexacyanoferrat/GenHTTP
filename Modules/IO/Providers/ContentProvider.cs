@@ -23,7 +23,7 @@ public sealed class ContentProvider : IHandler
     {
         Resource = resource;
 
-        var contentType = Resource.Name?.GuessContentType() ?? ContentType.ApplicationForceDownload;
+        var contentType = resource.ContentType ?? resource.Name?.GuessContentType() ?? ContentType.ApplicationForceDownload;
 
         Content = new ResourceContent(Resource, contentType);
     }

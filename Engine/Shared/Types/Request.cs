@@ -1,4 +1,5 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Protocol.Raw;
 using GenHTTP.Engine.Shared.Types.Raw;
 using GenHTTP.Engine.Shared.Utilities;
@@ -22,6 +23,10 @@ public sealed class Request : IRequest
     private bool _resetRequired = true;
 
     private RequestMethod? _method;
+
+    public IServer Server => _raw.Server;
+
+    public IEndPoint EndPoint => _raw.EndPoint;
 
     public IRawRequest Raw => _raw;
 
@@ -68,9 +73,9 @@ public sealed class Request : IRequest
         _query = new KeyValueList(_raw.Header.Query);
     }
 
-    public void Apply()
+    public void Apply(IServer server, IEndPoint endPoint)
     {
-        _raw.Apply();
+        _raw.Apply(server, endPoint);
     }
 
     public void Reset()

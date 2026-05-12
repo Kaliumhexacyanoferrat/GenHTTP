@@ -1,9 +1,14 @@
-﻿using GenHTTP.Api.Protocol.Raw;
+﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol.Raw;
 
 namespace GenHTTP.Api.Protocol;
 
 public interface IRequest
 {
+
+    IServer Server { get; }
+
+    IEndPoint EndPoint { get; }
 
     IRawRequest Raw { get; }
 

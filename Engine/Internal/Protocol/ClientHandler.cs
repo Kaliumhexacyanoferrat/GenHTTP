@@ -110,7 +110,7 @@ internal sealed class ClientHandler(ClientContext context)
 
                 while (TryParseRequest(ref buffer, into))
                 {
-                    request.Apply();
+                    request.Apply(context.Server, context.EndPoint);
 
                     var status = await HandleRequestAsync(request);
 

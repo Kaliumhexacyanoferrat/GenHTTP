@@ -139,7 +139,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
             }
 
             // Cold path, segmented.
-            while (true) // todo: Request.Server.Running)
+            while (Request.Server.Running)
             {
                 Examine();
 
@@ -180,7 +180,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                 }
             }
 
-            // todo: return new WebsocketFrame(this, new FrameError("Unable to receive or assemble the segmented frame.", FrameErrorType.UndefinedBehavior));
+            return new WebsocketFrame(this, new FrameError("Unable to receive or assemble the segmented frame.", FrameErrorType.UndefinedBehavior));
         }
         finally
         {
@@ -200,7 +200,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
         // need to keep the original _examined to not slice further in case of TCP fragmentation
         var innerExamined = _examined;
 
-        while (true) // todo: (Request.Server.Running)
+        while (Request.Server.Running)
         {
             var result = await _pipeReader.ReadAsync(token);
 
@@ -248,7 +248,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
             return frame;
         }
 
-        // todo: throw new InvalidOperationException("Server has been stopped");
+        throw new InvalidOperationException("Server has been stopped");
     }
 
     private void Examine()
