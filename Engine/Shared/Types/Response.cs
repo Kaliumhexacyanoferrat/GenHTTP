@@ -10,6 +10,8 @@ public class Response(IResponseBuilder builder) : IResponse
 
     public IRawResponse Raw => _raw;
 
+    public IResponseContent? Content => _raw.Content;
+
     public IResponseBuilder Rebuild() => builder;
 
     public RawResponse Source => _raw;

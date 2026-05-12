@@ -1,18 +1,23 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Globalization;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using System.Globalization;
 
 namespace GenHTTP.Modules.I18n.Provider;
 
 public sealed class LocalizationConcern : IConcern
 {
+
     #region Get-/Setters
 
     public IHandler Content { get; }
 
     private readonly CultureInfo _defaultCulture;
+
     private readonly CultureSelectorCombinedAsyncDelegate _cultureSelector;
+
     private readonly CultureFilterAsyncDelegate _cultureFilter;
+
     private readonly AsyncOrSyncSetter[] _cultureSetters;
 
     #endregion
@@ -64,7 +69,9 @@ public sealed class LocalizationConcern : IConcern
 
             if (!string.IsNullOrEmpty(tag))
             {
-                response.Headers.TryAdd("Content-Language", tag);
+                return response.Rebuild()
+                               .Header("Content-Language", tag)
+                               .Build();
             }
         }
 
@@ -80,6 +87,7 @@ public sealed class LocalizationConcern : IConcern
                 return candidate;
             }
         }
+        
         return null;
     }
 

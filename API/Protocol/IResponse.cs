@@ -7,6 +7,8 @@ public interface IResponse
 
     IRawResponse Raw { get; }
 
+    IResponseContent? Content { get; }
+
     IResponseBuilder Rebuild();
 
 }
