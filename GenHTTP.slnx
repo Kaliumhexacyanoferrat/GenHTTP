@@ -37,9 +37,9 @@
         <Project Path="Modules\ReverseProxy\GenHTTP.Modules.ReverseProxy.csproj" />
         <Project Path="Modules\Security\GenHTTP.Modules.Security.csproj" />
         <Project Path="Modules\ServerCaching\GenHTTP.Modules.ServerCaching.csproj" />
-        <Project Path="Modules\ServerSentEvents\GenHTTP.Modules.ServerSentEvents.csproj" />
         <Project Path="Modules\Webservices\GenHTTP.Modules.Webservices.csproj" />
         -->
+        <Project Path="Modules\ServerSentEvents\GenHTTP.Modules.ServerSentEvents.csproj" />
         <Project Path="Modules\SinglePageApplications\GenHTTP.Modules.SinglePageApplications.csproj" />
         <Project Path="Modules\VirtualHosting\GenHTTP.Modules.VirtualHosting.csproj"/>
         <Project Path="Modules\StaticWebsites\GenHTTP.Modules.StaticWebsites.csproj"/>

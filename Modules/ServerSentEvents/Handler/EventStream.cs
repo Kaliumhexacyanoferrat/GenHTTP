@@ -1,5 +1,5 @@
-﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Conversion.Formatters;
 
 namespace GenHTTP.Modules.ServerSentEvents.Handler;
@@ -11,6 +11,8 @@ public sealed class EventStream : IResponseContent
     #region Get-/Setters
 
     public ulong? Length => null;
+
+    public ContentType? Type => ContentType.TextEventStream;
 
     private IRequest Request { get; }
 
@@ -44,12 +46,14 @@ public sealed class EventStream : IResponseContent
         {
             await Generator(connection);
         }
-        catch (Exception e)
+        catch // (Exception e)
         {
-            Request.Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, Request.Client.IPAddress, e);
+            // todo: Request.Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, Request.Client.IPAddress, e);
 
             await connection.RetryAsync(ErrorRetryTimeout);
         }
     }
+
+    public ValueTask WriteAsync(IResponseSink sink) => WriteAsync(sink.Stream, 0);
 
 }
