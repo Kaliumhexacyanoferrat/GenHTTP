@@ -8,7 +8,7 @@ namespace GenHTTP.Modules.Compression.Providers;
 /// Concern that automatically decompresses incoming request content
 /// based on the Content-Encoding header.
 /// </summary>
-public sealed class DecompressionConcern : IConcern
+/*public sealed class DecompressionConcern : IConcern
 {
     private const string ContentEncoding = "Content-Encoding";
 
@@ -57,3 +57,4 @@ public sealed class DecompressionConcern : IConcern
     #endregion
 
 }
+*/

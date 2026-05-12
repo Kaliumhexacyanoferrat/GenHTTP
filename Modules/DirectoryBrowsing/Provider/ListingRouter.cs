@@ -28,7 +28,7 @@ public sealed class ListingRouter : IHandler
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var (node, resource) = await Tree.Find(request.Target);
+        var (node, resource) = await Tree.Find(request.Raw.Header.Target);
 
         if (resource is not null)
         {

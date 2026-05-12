@@ -7,7 +7,7 @@ namespace GenHTTP.Modules.Compression.Providers;
 /// <summary>
 /// Wraps an existing request to provide decompressed content stream.
 /// </summary>
-internal sealed class WrappedRequest : IRequest
+/*internal sealed class WrappedRequest : IRequest
 {
     private readonly IRequest _inner;
 
@@ -79,3 +79,4 @@ internal sealed class WrappedRequest : IRequest
     #endregion
 
 }
+*/

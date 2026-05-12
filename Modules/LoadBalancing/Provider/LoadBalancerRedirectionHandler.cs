@@ -1,4 +1,6 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Text;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Redirects;
@@ -25,9 +27,16 @@ public sealed class LoadBalancerRedirectionHandler : IHandler
 
     #region Functionality
 
-    public ValueTask<IResponse?> HandleAsync(IRequest request) => Redirect.To(Root + request.Target.Current, true)
-                                                                          .Build()
-                                                                          .HandleAsync(request);
+    public ValueTask<IResponse?> HandleAsync(IRequest request)
+    {
+        var current = request.Raw.Header.Target.Current;
+
+        var appendix = (current != null) ? Encoding.ASCII.GetString(current.Value.Encoded.Span) : string.Empty;
+
+        return Redirect.To(Root + appendix, true)
+                       .Build()
+                       .HandleAsync(request);
+    }
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 

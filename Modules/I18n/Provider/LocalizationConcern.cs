@@ -87,7 +87,7 @@ public sealed class LocalizationConcern : IConcern
                 return candidate;
             }
         }
-        
+
         return null;
     }
 

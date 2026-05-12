@@ -28,6 +28,8 @@ public sealed class FormContent : IResponseContent
 
     public ContentType? Type => ContentType.ApplicationWwwFormUrlEncoded;
 
+    public ReadOnlyMemory<byte>? Encoding => null;
+
     private Type DataType { get; }
 
     private object Data { get; }
@@ -44,7 +46,7 @@ public sealed class FormContent : IResponseContent
 
     public async ValueTask WriteAsync(Stream target)
     {
-        await using var writer = new StreamWriter(target, Encoding.UTF8, 4096, true);
+        await using var writer = new StreamWriter(target, System.Text.Encoding.UTF8, 4096, true);
 
         var query = HttpUtility.ParseQueryString(string.Empty);
 

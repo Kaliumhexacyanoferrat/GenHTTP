@@ -23,6 +23,8 @@ public sealed class JsonContent : IResponseContent
 
     public ContentType? Type => ContentType.ApplicationJson;
 
+    public ReadOnlyMemory<byte>? Encoding => null;
+
     private object Data { get; }
 
     private JsonSerializerOptions Options { get; }

@@ -1,5 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
-
+using System.Text;
 using GenHTTP.Api.Protocol.Raw;
 
 namespace GenHTTP.Engine.Shared.Types.Raw;
@@ -96,6 +96,18 @@ public sealed class RawRequestTarget : IRawRequestTarget
             _offset += idx;
             Current = new (_path.Slice(start, idx));
         }
+    }
+
+    public string AsString(bool decode = true)
+    {
+        var stringPath = Encoding.ASCII.GetString(_path.Span);
+
+        if (decode && stringPath.Contains('%'))
+        {
+            return Uri.UnescapeDataString(stringPath);
+        }
+
+        return stringPath;
     }
 
 }

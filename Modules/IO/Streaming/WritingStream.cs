@@ -1,10 +1,10 @@
 using System.Buffers;
 
-namespace GenHTTP.Engine.Internal.Protocol.Sinks;
+namespace GenHTTP.Modules.IO.Streaming;
 
 // todo: add reading support via PipeReader
 
-public sealed class ContextStream(IBufferWriter<byte> writer) : Stream
+public sealed class WritingStream(IBufferWriter<byte> writer) : Stream
 {
 
     public override bool CanRead => false;

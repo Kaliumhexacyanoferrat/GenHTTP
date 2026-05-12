@@ -15,7 +15,7 @@ public interface ICompressionAlgorithm
     /// The name of the algorithm as specified by the client in the
     /// "Accept-Encoding" HTTP header.
     /// </summary>
-    string Name { get; }
+    AlgorithmName Name { get; }
 
     /// <summary>
     /// The priority of the algorithm. The algorithm with the highest

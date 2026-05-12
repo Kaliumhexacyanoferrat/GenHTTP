@@ -24,6 +24,8 @@ public sealed class ResourceContent : IResponseContent
 
     private IResource Resource { get; }
 
+    public ReadOnlyMemory<byte>? Encoding => null;
+
     #endregion
 
     #region Functionality

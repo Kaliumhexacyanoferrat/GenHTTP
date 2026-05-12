@@ -33,6 +33,8 @@ public sealed class ByteArrayContent : IResponseContent
 
     public ContentType? Type { get; }
 
+    public ReadOnlyMemory<byte>? Encoding => null;
+
     #endregion
 
     #region Functionality

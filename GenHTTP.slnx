@@ -11,26 +11,26 @@
         <Project Path="Engine\Shared\GenHTTP.Engine.Shared.csproj"/>
     </Folder>
     <Folder Name="/Modules/">
-        <!--<Project Path="Modules/Archives/GenHTTP.Modules.Archives.csproj" />
+        <Project Path="Modules/Archives/GenHTTP.Modules.Archives.csproj" />
+        <!--
         <Project Path="Modules\ApiBrowsing\GenHTTP.Modules.ApiBrowsing.csproj" />
         <Project Path="Modules\Authentication\GenHTTP.Modules.Authentication.csproj" />-->
         <Project Path="Modules\Redirects\GenHTTP.Modules.Redirects.csproj"/>
         <Project Path="Modules\Caching\GenHTTP.Modules.Caching.csproj"/>
         <Project Path="Modules\Conversion\GenHTTP.Modules.Conversion.csproj"/>
-        <!--<Project Path="Modules\ClientCaching\GenHTTP.Modules.ClientCaching.csproj" />
         <Project Path="Modules\Compression\GenHTTP.Modules.Compression.csproj" />
+        <!--<Project Path="Modules\ClientCaching\GenHTTP.Modules.ClientCaching.csproj" />
         <Project Path="Modules\Controllers\GenHTTP.Modules.Controllers.csproj" />
-        <Project Path="Modules\DependencyInjection\GenHTTP.Modules.DependencyInjection.csproj" />
-        <Project Path="Modules\DirectoryBrowsing\GenHTTP.Modules.DirectoryBrowsing.csproj" />-->
+        <Project Path="Modules\DependencyInjection\GenHTTP.Modules.DependencyInjection.csproj" />-->
+        <Project Path="Modules\DirectoryBrowsing\GenHTTP.Modules.DirectoryBrowsing.csproj" />
         <Project Path="Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj"/>
         <!--<Project Path="Modules\Functional\GenHTTP.Modules.Functional.csproj" />-->
         <Project Path="Modules\I18n\GenHTTP.Modules.I18n.csproj" />
-        <!--
-        <Project Path="Modules\Inspection\GenHTTP.Modules.Inspection.csproj" />-->
+        <Project Path="Modules\Inspection\GenHTTP.Modules.Inspection.csproj" />
         <Project Path="Modules\IO\GenHTTP.Modules.IO.csproj"/>
         <Project Path="Modules\Layouting\GenHTTP.Modules.Layouting.csproj"/>
-        <!--<Project Path="Modules\LoadBalancing\GenHTTP.Modules.LoadBalancing.csproj" />
-        <Project Path="Modules\OpenApi\GenHTTP.Modules.OpenApi.csproj" />-->
+        <Project Path="Modules\LoadBalancing\GenHTTP.Modules.LoadBalancing.csproj" />
+        <!--<Project Path="Modules\OpenApi\GenHTTP.Modules.OpenApi.csproj" />-->
         <Project Path="Modules\Pages\GenHTTP.Modules.Pages.csproj"/>
         <!--<Project Path="Modules\Practices\GenHTTP.Modules.Practices.csproj" />
         <Project Path="Modules\Protobuf\GenHTTP.Modules.Protobuf.csproj" />

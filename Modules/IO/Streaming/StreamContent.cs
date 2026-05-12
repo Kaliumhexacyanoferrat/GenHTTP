@@ -46,6 +46,8 @@ public sealed class StreamContent : IResponseContent, IDisposable
         }
     }
 
+    public ReadOnlyMemory<byte>? Encoding => null;
+
     #endregion
 
     #region Functionality

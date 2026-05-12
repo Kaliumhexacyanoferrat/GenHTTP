@@ -11,6 +11,8 @@ public sealed class ImperativeWebsocketContent(IImperativeHandler handler, IRequ
 
     public ContentType? Type => null;
 
+    public ReadOnlyMemory<byte>? Encoding => null;
+
     public ValueTask<ulong?> CalculateChecksumAsync() => ValueTask.FromResult<ulong?>(null);
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)

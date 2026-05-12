@@ -7,6 +7,8 @@ public interface IResponseContent
 
     ContentType? Type { get; }
 
+    ReadOnlyMemory<byte>? Encoding { get; }
+
     ValueTask WriteAsync(IResponseSink sink);
 
 }

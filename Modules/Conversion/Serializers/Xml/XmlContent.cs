@@ -22,6 +22,8 @@ public sealed class XmlContent : IResponseContent
 
     public ContentType? Type => ContentType.TextXml;
 
+    public ReadOnlyMemory<byte>? Encoding => null;
+
     private object Data { get; }
 
     #endregion

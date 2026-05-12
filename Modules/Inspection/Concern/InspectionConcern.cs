@@ -11,6 +11,7 @@ namespace GenHTTP.Modules.Inspection.Concern;
 
 public sealed class InspectionConcern : IConcern
 {
+    private static readonly ReadOnlyMemory<byte> InspectInstruction = "inspect"u8.ToArray();
 
     #region Get-/Setters
 
@@ -36,7 +37,7 @@ public sealed class InspectionConcern : IConcern
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        if (request.Query.ContainsKey("inspect"))
+        if (request.Raw.Header.Query.ContainsKey(InspectInstruction))
         {
             var content = await Content.HandleAsync(request);
 
@@ -58,7 +59,8 @@ public sealed class InspectionConcern : IConcern
                         RequestSource = e == request.EndPoint
                     })
                 },
-                Client = new
+                // todo
+                /*Client = new
                 {
                     Protocol = request.Client.Protocol,
                     IPAddress = request.Client.IPAddress?.ToString(),
@@ -69,8 +71,8 @@ public sealed class InspectionConcern : IConcern
                     Protocol = request.LocalClient.Protocol,
                     IPAddress = request.LocalClient.IPAddress?.ToString(),
                     Host = request.LocalClient.Host
-                } : null,
-                Request = new
+                } : null,*/
+                /*Request = new
                 {
                     ProtocolType = request.ProtocolType,
                     Method = request.Method.RawMethod,
@@ -85,8 +87,8 @@ public sealed class InspectionConcern : IConcern
                     } : null,
                     Forwardings = request.Forwardings,
                     Properties = request.Properties
-                },
-                Response = (content != null) ? new {
+                },*/
+                /*Response = (content != null) ? new {
                     Status = content.Status.RawStatus,
                     Expires = content.Expires,
                     Modified = content.Modified,
@@ -99,7 +101,7 @@ public sealed class InspectionConcern : IConcern
                         Length = content.Content?.Length,
                         Encoding = content.ContentEncoding
                     }
-                } : null
+                } : null*/
             };
 
             var format = Serialization.GetSerialization(request);
@@ -112,15 +114,7 @@ public sealed class InspectionConcern : IConcern
                               .Build();
             }
 
-            var serializedModel = await format.SerializeAsync(request, model);
-
-            if (format is YamlFormat)
-            {
-                // quirk: browsers do not display application/yaml
-                serializedModel.Type(ContentType.TextYaml);
-            }
-
-            return serializedModel.Build();
+            return (await format.SerializeAsync(request, model)).Build();
         }
 
         return await Content.HandleAsync(request);

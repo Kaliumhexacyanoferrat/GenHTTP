@@ -14,6 +14,8 @@ public sealed class EventStream : IResponseContent
 
     public ContentType? Type => ContentType.TextEventStream;
 
+    public ReadOnlyMemory<byte>? Encoding => null;
+
     private IRequest Request { get; }
 
     private string? LastEventId { get; }
