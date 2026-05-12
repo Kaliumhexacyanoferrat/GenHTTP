@@ -32,6 +32,15 @@ public sealed class RawRequestTarget : IRawRequestTarget
         }
     }
 
+    public bool HasTrailingSlash
+    {
+        get
+        {
+            var span = _path.Span;
+            return span.Length > 0 && span[^1] == (byte)'/';
+        }
+    }
+
     public void Apply(ReadOnlyMemory<byte> path)
     {
         _path = path;

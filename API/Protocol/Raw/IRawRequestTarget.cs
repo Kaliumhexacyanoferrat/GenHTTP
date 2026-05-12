@@ -7,6 +7,8 @@ public interface IRawRequestTarget
 
     bool IsLast { get; }
 
+    bool HasTrailingSlash { get; }
+
     void Advance(int segments = 1);
 
 }

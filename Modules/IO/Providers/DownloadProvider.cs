@@ -14,7 +14,7 @@ public sealed class DownloadProvider : IHandler
 
     public string? FileName { get; }
 
-    private ContentType ContentType { get; }
+    private ContentType? ContentType { get; }
 
     #endregion
 
@@ -26,7 +26,7 @@ public sealed class DownloadProvider : IHandler
 
         FileName = fileName ?? Resource.Name;
 
-        ContentType = contentType ?? Resource.ContentType ?? FileName?.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload;
+        ContentType = contentType;
     }
 
     #endregion

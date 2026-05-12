@@ -8,10 +8,10 @@ public sealed class ResourceContent : IResponseContent
 
     #region Initialization
 
-    public ResourceContent(IResource resource, ContentType contentType)
+    public ResourceContent(IResource resource, ContentType? contentType = null)
     {
         Resource = resource;
-        Type = contentType;
+        Type = contentType ?? resource.GuessContentType();
     }
 
     #endregion

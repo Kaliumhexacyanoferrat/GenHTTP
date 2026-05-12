@@ -22,10 +22,7 @@ public sealed class ContentProvider : IHandler
     public ContentProvider(IResource resource)
     {
         Resource = resource;
-
-        var contentType = resource.ContentType ?? resource.Name?.GuessContentType() ?? ContentType.ApplicationForceDownload;
-
-        Content = new ResourceContent(Resource, contentType);
+        Content = new ResourceContent(Resource);
     }
 
     #endregion

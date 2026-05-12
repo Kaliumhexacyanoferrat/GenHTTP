@@ -34,10 +34,8 @@ public sealed class ResourceHandler : IHandler
 
         if (resource is not null)
         {
-            var contentType = resource.ContentType ?? resource.Name?.GuessContentType() ?? ContentType.ApplicationForceDownload;
-
             return request.Respond()
-                          .Content(new ResourceContent(resource, contentType))
+                          .Content(new ResourceContent(resource))
                           .Build();
         }
 
