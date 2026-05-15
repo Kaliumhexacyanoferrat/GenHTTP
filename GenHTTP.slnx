@@ -32,8 +32,8 @@
         <Project Path="Modules\LoadBalancing\GenHTTP.Modules.LoadBalancing.csproj" />
         <!--<Project Path="Modules\OpenApi\GenHTTP.Modules.OpenApi.csproj" />-->
         <Project Path="Modules\Pages\GenHTTP.Modules.Pages.csproj"/>
-        <!--<Project Path="Modules\Practices\GenHTTP.Modules.Practices.csproj" />
         <Project Path="Modules\Protobuf\GenHTTP.Modules.Protobuf.csproj" />
+        <!--<Project Path="Modules\Practices\GenHTTP.Modules.Practices.csproj" />
         <Project Path="Modules\Reflection\GenHTTP.Modules.Reflection.csproj" />
         <Project Path="Modules\ReverseProxy\GenHTTP.Modules.ReverseProxy.csproj" />
         <Project Path="Modules\Security\GenHTTP.Modules.Security.csproj" />
