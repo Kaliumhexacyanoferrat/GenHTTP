@@ -1,4 +1,5 @@
-﻿using GenHTTP.Api.Protocol.Raw;
+﻿using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Protocol.Raw;
 
 namespace GenHTTP.Engine.Shared.Types.Raw;
 
@@ -10,7 +11,7 @@ public class RawRequestHeader : IRawRequestHeader
 
     private readonly RawRequestTarget _target;
 
-    public ReadOnlyMemory<byte> Method => _request.Source.Method;
+    public RequestMethod Method { get; private set; }
 
     public ReadOnlyMemory<byte> Path => _request.Source.Path;
 
@@ -35,6 +36,8 @@ public class RawRequestHeader : IRawRequestHeader
     public void Apply()
     {
         _target.Apply(Path);
+
+        Method = new(_request.Source.Method);
     }
 
 }

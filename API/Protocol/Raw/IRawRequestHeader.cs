@@ -3,7 +3,7 @@
 public interface IRawRequestHeader
 {
 
-    ReadOnlyMemory<byte> Method { get; }
+    RequestMethod Method { get; }
 
     ReadOnlyMemory<byte> Path { get; }
 

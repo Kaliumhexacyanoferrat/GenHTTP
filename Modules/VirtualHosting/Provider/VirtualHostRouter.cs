@@ -4,11 +4,12 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Api.Protocol.Raw;
 
+using GenHTTP.Modules.IO;
+
 namespace GenHTTP.Modules.VirtualHosting.Provider;
 
 public sealed class VirtualHostRouter : IHandler
 {
-    private static readonly ReadOnlyMemory<byte> HostHeader = "Host"u8.ToArray();
 
     #region Get-/Setters
 
@@ -47,7 +48,7 @@ public sealed class VirtualHostRouter : IHandler
 
     private IHandler? GetHandler(IRequest request)
     {
-        var host = GetHostWithoutPort(request);
+        var host = request.GetHostWithoutPort();
 
         // try to find a regular route
         if (host is not null)
@@ -60,21 +61,6 @@ public sealed class VirtualHostRouter : IHandler
 
         // route by default
         return DefaultRoute;
-    }
-
-    private static ReadOnlyMemory<byte>? GetHostWithoutPort(IRequest request)
-    {
-        var host = request.Raw.Header.Headers.GetEntry(HostHeader);
-
-        if (host == null)
-        {
-            return null;
-        }
-
-        var hostSpan = host.Value.Span;
-        var colonIndex = hostSpan.IndexOf((byte)':');
-
-        return colonIndex >= 0 ? host.Value[..colonIndex] : host.Value;
     }
 
     #endregion

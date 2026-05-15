@@ -225,6 +225,16 @@ public readonly struct ContentType : IEquatable<ContentType>
 
     public override int GetHashCode() => _hashCode;
 
+    public static bool operator ==(ContentType left, ContentType right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(ContentType left, ContentType right)
+    {
+        return !(left == right);
+    }
+
     #endregion
 
 }
