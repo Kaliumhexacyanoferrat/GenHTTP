@@ -35,7 +35,7 @@ public class ResponseBuilder : IResponseBuilder
         return this;
     }
 
-    public IResponseBuilder Content(IResponseContent content)
+    public IResponseBuilder Content(IResponseContent? content)
     {
         _raw.Content(content);
         return this;

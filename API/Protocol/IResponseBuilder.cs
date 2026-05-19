@@ -12,7 +12,7 @@ public interface IResponseBuilder : IBuilder<IResponse>
 
     IResponseBuilder Header(string name, string value);
 
-    IResponseBuilder Content(IResponseContent content);
+    IResponseBuilder Content(IResponseContent? content);
 
     IRawResponseBuilder ToLowLevel();
 

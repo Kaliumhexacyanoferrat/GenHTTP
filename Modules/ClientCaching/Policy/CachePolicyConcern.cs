@@ -7,6 +7,7 @@ namespace GenHTTP.Modules.ClientCaching.Policy;
 
 public sealed class CachePolicyConcern : IConcern
 {
+    private static readonly ReadOnlyMemory<byte> ExpiresHeader = "Expires"u8.ToArray();
 
     #region Get-/Setters
 
@@ -38,11 +39,18 @@ public sealed class CachePolicyConcern : IConcern
 
         if (response != null)
         {
-            if (request.HasType(RequestMethod.Get) && response.Status.KnownStatus == ResponseStatus.Ok)
+            if (request.HasType(RequestMethod.Get) && response.Raw.Status == ResponseStatus.Ok)
             {
                 if (Predicate == null || Predicate(request, response))
                 {
-                    response.Expires = DateTime.UtcNow.Add(Duration);
+                    var value = DateTime.UtcNow.Add(Duration);
+
+                    var buffer = new byte[29];
+                    value.TryFormat(buffer, out _, "R");
+
+                    response.Rebuild()
+                            .ToLowLevel()
+                            .Header(ExpiresHeader, buffer);
                 }
             }
         }
