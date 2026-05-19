@@ -235,6 +235,8 @@ public readonly struct ContentType : IEquatable<ContentType>
         return !(left == right);
     }
 
+    public override string ToString() => Encoding.ASCII.GetString(Value.Span);
+
     #endregion
 
 }
