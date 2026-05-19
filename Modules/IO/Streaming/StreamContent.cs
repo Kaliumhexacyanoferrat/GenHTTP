@@ -10,10 +10,11 @@ public sealed class StreamContent : IResponseContent, IDisposable
 
     #region Initialization
 
-    public StreamContent(Stream content, ContentType contentType, ulong? knownLength, Func<ValueTask<ulong?>>? checksumProvider)
+    public StreamContent(Stream content, ContentType contentType, ulong? knownLength, ReadOnlyMemory<byte>? encoding, Func<ValueTask<ulong?>>? checksumProvider)
     {
         Content = content;
         Type = contentType;
+        Encoding = encoding;
 
         _knownLength = knownLength;
 
@@ -46,7 +47,7 @@ public sealed class StreamContent : IResponseContent, IDisposable
         }
     }
 
-    public ReadOnlyMemory<byte>? Encoding => null;
+    public ReadOnlyMemory<byte>? Encoding { get; }
 
     #endregion
 

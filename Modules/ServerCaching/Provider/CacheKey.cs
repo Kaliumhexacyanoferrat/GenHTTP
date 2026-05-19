@@ -9,20 +9,21 @@ public static class CacheKey
     {
         unchecked
         {
+            var header = request.Raw.Header;
+
             ulong hash = 17;
 
-            hash = hash * 23 + (ulong)request.Target.Path.ToString().GetHashCode();
+            hash = hash * 23 + (ulong)header.Target.AsString(false).GetHashCode();
 
-            foreach (var arg in request.Query)
+            for (var i = 0; i < header.Query.Count; i++)
             {
-                hash = hash * 23 + (ulong)arg.Key.GetHashCode();
+                var arg = header.Query[i];
+
+                hash = hash * 23 + (ulong)arg.Key.GetHashCode(); // todo: this is unstable accross restarts
                 hash = hash * 23 + (ulong)arg.Value.GetHashCode();
             }
 
-            if (request.Host != null)
-            {
-                hash = hash * 23 + (ulong)request.Host.GetHashCode();
-            }
+            hash = hash * 23 + (ulong)request.Host.GetHashCode();
 
             return hash.ToString();
         }
@@ -46,4 +47,5 @@ public static class CacheKey
             return hash.ToString();
         }
     }
+
 }

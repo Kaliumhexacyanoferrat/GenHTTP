@@ -35,9 +35,9 @@
         <Project Path="Modules\Protobuf\GenHTTP.Modules.Protobuf.csproj" />
         <!--<Project Path="Modules\Practices\GenHTTP.Modules.Practices.csproj" />
         <Project Path="Modules\Reflection\GenHTTP.Modules.Reflection.csproj" />
-        <Project Path="Modules\ServerCaching\GenHTTP.Modules.ServerCaching.csproj" />
         <Project Path="Modules\Webservices\GenHTTP.Modules.Webservices.csproj" />
         -->
+        <Project Path="Modules\ServerCaching\GenHTTP.Modules.ServerCaching.csproj" />
         <Project Path="Modules\ReverseProxy\GenHTTP.Modules.ReverseProxy.csproj" />
         <Project Path="Modules\Security\GenHTTP.Modules.Security.csproj" />
         <Project Path="Modules\ServerSentEvents\GenHTTP.Modules.ServerSentEvents.csproj" />
