@@ -26,6 +26,15 @@ public class RawResponseBuilder(Response response, ResponseBuilder builder) : IR
 
     public IRawResponseBuilder Content(IResponseContent? content)
     {
+        if (content != null)
+        {
+            // todo?
+            if (response.Source.Status == ResponseStatus.NoContent)
+            {
+                response.Source.Status = ResponseStatus.Ok;
+            }
+        }
+
         response.Source.Content = content;
         return this;
     }

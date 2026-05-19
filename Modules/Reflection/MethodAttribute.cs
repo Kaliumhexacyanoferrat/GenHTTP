@@ -33,9 +33,9 @@ public class MethodAttribute : Attribute, IMethodConfiguration
     /// Marks the method as a invokable function for the specified HTTP verbs.
     /// </summary>
     /// <param name="methods">The HTTP verbs supported by this method</param>
-    public MethodAttribute(params RequestMethod[] methods)
+    public MethodAttribute(params Method[] methods)
     {
-        SupportedMethods = methods.ToHashSet();
+        SupportedMethods = methods.Select(m => new RequestMethod(m.ToString().ToUpper())).ToHashSet();
     }
 
     #endregion

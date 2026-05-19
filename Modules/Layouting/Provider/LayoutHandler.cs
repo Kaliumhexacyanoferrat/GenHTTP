@@ -58,9 +58,7 @@ public sealed class LayoutHandler : IHandler
 
         if (target.Current is not null)
         {
-            var hash = target.Current.Value;
-
-            if (RoutedHandlers.TryGetValue(hash, out var handler))
+            if (RoutedHandlers.TryGetValue(target.Current.Value, out var handler))
             {
                 target.Advance();
 

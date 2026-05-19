@@ -7,6 +7,5 @@ var app = Layout.Create()
 
 await Host.Create()
           .Handler(app)
-          // .Defaults()
           .Console()
           .RunAsync();

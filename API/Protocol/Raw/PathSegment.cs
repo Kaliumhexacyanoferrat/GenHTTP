@@ -1,8 +1,10 @@
 ﻿using System.Buffers;
+using System.Diagnostics;
 using System.Text;
 
 namespace GenHTTP.Api.Protocol.Raw;
 
+[DebuggerDisplay("{DebuggerValue,nq}")]
 public readonly struct PathSegment : IEquatable<PathSegment>
 {
 
@@ -87,6 +89,12 @@ public readonly struct PathSegment : IEquatable<PathSegment>
     public static bool operator ==(PathSegment left, PathSegment right) => left.Equals(right);
 
     public static bool operator !=(PathSegment left, PathSegment right) => !left.Equals(right);
+
+    #endregion
+
+    #region Debugging support
+
+    private string DebuggerValue => Encoding.ASCII.GetString(Encoded.Span);
 
     #endregion
 

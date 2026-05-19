@@ -63,8 +63,8 @@
         <File Path="LICENSE" />
         <File Path="README.md" />
     </Folder>
-    <!--<Folder Name="/Testing/">
-      <Project Path="Testing\Acceptance\GenHTTP.Testing.Acceptance.csproj" />
+    <Folder Name="/Testing/">
+        <!--<Project Path="Testing\Acceptance\GenHTTP.Testing.Acceptance.csproj" />-->
       <Project Path="Testing\Testing\GenHTTP.Testing.csproj" />
-    </Folder>-->
+    </Folder>
 </Solution>

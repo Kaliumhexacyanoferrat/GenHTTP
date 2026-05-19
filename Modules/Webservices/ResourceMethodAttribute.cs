@@ -1,6 +1,4 @@
-﻿using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.Reflection;
+﻿using GenHTTP.Modules.Reflection;
 
 namespace GenHTTP.Modules.Webservices;
 
@@ -23,7 +21,7 @@ public class ResourceMethodAttribute : MethodAttribute
     /// </summary>
     /// <param name="requestMethod">The HTTP verb used to invoke the method</param>
     /// <param name="path">The path the method should be available at</param>
-    public ResourceMethodAttribute(RequestMethod requestMethod, string? path = null) : base(requestMethod)
+    public ResourceMethodAttribute(Method requestMethod, string? path = null) : base(requestMethod)
     {
         Path = path;
     }
@@ -32,12 +30,12 @@ public class ResourceMethodAttribute : MethodAttribute
     /// Configures the method to be invoked via GET at the given path.
     /// </summary>
     /// <param name="path">The path the method should be available at</param>
-    public ResourceMethodAttribute(string path) : this(RequestMethod.Get, path)
+    public ResourceMethodAttribute(string path) : this(Method.Get, path)
     {
 
     }
 
-    public ResourceMethodAttribute() : this(RequestMethod.Get, null)
+    public ResourceMethodAttribute() : this(Method.Get, null)
     {
 
     }

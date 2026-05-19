@@ -11,18 +11,34 @@ public class RawResponse : IRawResponse
 
     public Connection Mode { get; set; }
 
-    public EditableKeyValueList EditableHeaders  => _headers;
+    public EditableKeyValueList EditableHeaders => _headers;
 
     public IRawKeyValueList Headers => _headers;
 
     public IResponseContent? Content { get; set; }
 
-    public void Reset()
+    public RawResponse()
     {
         Status = ResponseStatus.NoContent;
         Mode = Connection.KeepAlive;
+    }
 
-        Content = null;
+    public void Reset()
+    {
+        if (Status != ResponseStatus.NoContent)
+        {
+            Status = ResponseStatus.NoContent;
+        }
+
+        if (Mode != Connection.KeepAlive)
+        {
+            Mode = Connection.KeepAlive;
+        }
+
+        if (Content != null)
+        {
+            Content = null;
+        }
 
         _headers.Clear();
     }

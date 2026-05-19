@@ -37,7 +37,10 @@ public class RawRequestHeader : IRawRequestHeader
     {
         _target.Apply(Path);
 
-        Method = new(_request.Source.Method);
+        // todo: bug in Glyph11?
+        Span<byte> trimBy = [10];
+
+        Method = new(_request.Source.Method.TrimStart(trimBy));
     }
 
 }
