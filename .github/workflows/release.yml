@@ -45,7 +45,7 @@ jobs:
         working-directory: Packages
         run: |
           nuget pack GenHTTP.Core.nuspec -OutputDirectory ../artifacts
-          nuget pack GenHTTP.Core.Kestrel.nuspec -OutputDirectory ../artifacts
+          # nuget pack GenHTTP.Core.Kestrel.nuspec -OutputDirectory ../artifacts
 
       - name: List gathered packages
         run: dir artifacts 

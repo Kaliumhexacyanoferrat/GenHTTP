@@ -1,5 +1,7 @@
 ﻿namespace GenHTTP.Api.Protocol;
 
+// todo: re-visit
+
 /// <summary>
 /// Represents a cookie that can be send to or received from a client.
 /// </summary>

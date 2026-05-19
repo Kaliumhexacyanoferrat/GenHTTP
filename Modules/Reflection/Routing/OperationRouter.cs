@@ -1,4 +1,4 @@
-using GenHTTP.Api.Routing;
+using GenHTTP.Api.Protocol.Raw;
 
 namespace GenHTTP.Modules.Reflection.Routing;
 
@@ -11,10 +11,10 @@ internal static class OperationRouter
     /// <param name="target">The requested path</param>
     /// <param name="route">The route to check for</param>
     /// <returns>A match if the route is capable of handling the incoming request</returns>
-    internal static RoutingMatch? TryMatch(RoutingTarget target, OperationRoute route)
+    internal static RoutingMatch? TryMatch(IRawRequestTarget target, OperationRoute route)
     {
         var segments = route.Segments;
-        
+
         var sink = new PathArgumentSink();
 
         var offset = 0;
@@ -29,11 +29,11 @@ internal static class OperationRouter
             {
                 return null;
             }
-            
+
             offset += offsetBy;
         }
 
         return new(offset, sink.Arguments);
     }
-    
+
 }

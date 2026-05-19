@@ -28,7 +28,7 @@ public interface IResource
     /// <summary>
     /// The content type of this resource, if known.
     /// </summary>
-    FlexibleContentType? ContentType { get; }
+    ContentType? ContentType { get; }
 
     /// <summary>
     /// The number of bytes provided by this resource.
@@ -59,11 +59,13 @@ public interface IResource
     /// </summary>
     /// <param name="target">The stream to write to</param>
     /// <param name="bufferSize">The buffer size to be used for the operation</param>
-    async ValueTask WriteAsync(Stream target, uint bufferSize)
+    async ValueTask WriteAsync(Stream target, uint bufferSize) // ToDo: Remove?
     {
         await using var content = await GetContentAsync();
 
         await content.CopyToAsync(target, (int)bufferSize);
     }
+
+    ValueTask WriteAsync(IResponseSink sink);
 
 }

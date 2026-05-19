@@ -3,8 +3,6 @@ using System.Text.Json.Serialization;
 
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.IO;
-
 namespace GenHTTP.Modules.Conversion.Serializers.Json;
 
 public sealed class JsonFormat : ISerializationFormat
@@ -45,8 +43,7 @@ public sealed class JsonFormat : ISerializationFormat
     public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)
     {
         var result = request.Respond()
-                            .Content(new JsonContent(response, Options))
-                            .Type(ContentType.ApplicationJson);
+                            .Content(new JsonContent(response, Options));
 
         return new ValueTask<IResponseBuilder>(result);
     }

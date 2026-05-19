@@ -1,5 +1,8 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Collections.Frozen;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Protocol.Raw;
 
 using GenHTTP.Modules.IO;
 
@@ -10,7 +13,7 @@ public sealed class VirtualHostRouter : IHandler
 
     #region Get-/Setters
 
-    private Dictionary<string, IHandler> Hosts { get; }
+    private FrozenDictionary<PathSegment, IHandler> Hosts { get; }
 
     private IHandler? DefaultRoute { get; }
 
@@ -18,9 +21,9 @@ public sealed class VirtualHostRouter : IHandler
 
     #region Initialization
 
-    public VirtualHostRouter(Dictionary<string, IHandlerBuilder> hosts, IHandlerBuilder? defaultRoute)
+    public VirtualHostRouter(Dictionary<PathSegment, IHandlerBuilder> hosts, IHandlerBuilder? defaultRoute)
     {
-        Hosts = hosts.ToDictionary(kv => kv.Key, kv => kv.Value.Build());
+        Hosts = hosts.ToFrozenDictionary(kv => kv.Key, kv => kv.Value.Build());
         DefaultRoute = defaultRoute?.Build();
     }
 
@@ -45,12 +48,12 @@ public sealed class VirtualHostRouter : IHandler
 
     private IHandler? GetHandler(IRequest request)
     {
-        var host = request.HostWithoutPort();
+        var host = request.GetHostWithoutPort();
 
         // try to find a regular route
         if (host is not null)
         {
-            if (Hosts.TryGetValue(host, out var handler))
+            if (Hosts.TryGetValue(new(host.Value), out var handler))
             {
                 return handler;
             }

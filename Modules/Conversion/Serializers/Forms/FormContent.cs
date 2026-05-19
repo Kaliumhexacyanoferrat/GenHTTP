@@ -14,7 +14,7 @@ public sealed class FormContent : IResponseContent
 
     public FormContent(Type type, object data, FormatterRegistry formatters)
     {
-        Type = type;
+        DataType = type;
         Data = data;
 
         Formatters = formatters;
@@ -26,7 +26,11 @@ public sealed class FormContent : IResponseContent
 
     public ulong? Length => null;
 
-    private Type Type { get; }
+    public ContentType? Type => ContentType.ApplicationWwwFormUrlEncoded;
+
+    public ReadOnlyMemory<byte>? Encoding => null;
+
+    private Type DataType { get; }
 
     private object Data { get; }
 
@@ -38,18 +42,20 @@ public sealed class FormContent : IResponseContent
 
     public ValueTask<ulong?> CalculateChecksumAsync() => new((ulong)Data.GetHashCode());
 
-    public async ValueTask WriteAsync(Stream target, uint bufferSize)
+    public ValueTask WriteAsync(IResponseSink sink) => WriteAsync(sink.Stream);
+
+    public async ValueTask WriteAsync(Stream target)
     {
-        await using var writer = new StreamWriter(target, Encoding.UTF8, (int)bufferSize, true);
+        await using var writer = new StreamWriter(target, System.Text.Encoding.UTF8, 4096, true);
 
         var query = HttpUtility.ParseQueryString(string.Empty);
 
-        foreach (var property in Type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+        foreach (var property in DataType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
             SetValue(query, property.Name, property.GetValue(Data), property.PropertyType);
         }
 
-        foreach (var field in Type.GetFields(BindingFlags.Public | BindingFlags.Instance))
+        foreach (var field in DataType.GetFields(BindingFlags.Public | BindingFlags.Instance))
         {
             SetValue(query, field.Name, field.GetValue(Data), field.FieldType);
         }
@@ -60,6 +66,8 @@ public sealed class FormContent : IResponseContent
 
         await writer.WriteAsync(replaced);
     }
+
+
 
     private void SetValue(NameValueCollection query, string field, object? value, Type type)
     {

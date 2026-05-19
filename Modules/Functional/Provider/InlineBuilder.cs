@@ -12,7 +12,17 @@ namespace GenHTTP.Modules.Functional.Provider;
 
 public class InlineBuilder : IReflectionFrameworkBuilder<InlineBuilder>
 {
-    private static readonly HashSet<FlexibleRequestMethod> AllMethods = [..Enum.GetValues<RequestMethod>().Select(FlexibleRequestMethod.Get)];
+    private static readonly HashSet<RequestMethod> AllMethods = [
+        RequestMethod.Connect,
+        RequestMethod.Delete,
+        RequestMethod.Get,
+        RequestMethod.Head,
+        RequestMethod.Options,
+        RequestMethod.Patch,
+        RequestMethod.Post,
+        RequestMethod.Put,
+        RequestMethod.Trace
+    ];
 
     private readonly List<IConcernBuilder> _concerns = [];
 
@@ -86,62 +96,62 @@ public class InlineBuilder : IReflectionFrameworkBuilder<InlineBuilder>
     /// Adds a route for a GET request to the root of the handler.
     /// </summary>
     /// <param name="function">The logic to be executed</param>
-    public InlineBuilder Get(Delegate function) => On(function, [FlexibleRequestMethod.Get(RequestMethod.Get)]);
+    public InlineBuilder Get(Delegate function) => On(function, [RequestMethod.Get]);
 
     /// <summary>
     /// Adds a route for a GET request to the specified path.
     /// </summary>
     /// <param name="path">The path of the request to handle (e.g. "/my-method")</param>
     /// <param name="function">The logic to be executed</param>
-    public InlineBuilder Get(string path, Delegate function) => On(function, [FlexibleRequestMethod.Get(RequestMethod.Get)], path);
+    public InlineBuilder Get(string path, Delegate function) => On(function, [RequestMethod.Get], path);
 
     /// <summary>
     /// Adds a route for a HEAD request to the root of the handler.
     /// </summary>
     /// <param name="function">The logic to be executed</param>
-    public InlineBuilder Head(Delegate function) => On(function, [FlexibleRequestMethod.Get(RequestMethod.Head)]);
+    public InlineBuilder Head(Delegate function) => On(function, [RequestMethod.Head]);
 
     /// <summary>
     /// Adds a route for a HEAD request to the specified path.
     /// </summary>
     /// <param name="path">The path of the request to handle (e.g. "/my-method")</param>
-    public InlineBuilder Head(string path, Delegate function) => On(function, [FlexibleRequestMethod.Get(RequestMethod.Head)], path);
+    public InlineBuilder Head(string path, Delegate function) => On(function, [RequestMethod.Head], path);
 
     /// <summary>
     /// Adds a route for a POST request to the root of the handler.
     /// </summary>
     /// <param name="function">The logic to be executed</param>
-    public InlineBuilder Post(Delegate function) => On(function, [FlexibleRequestMethod.Get(RequestMethod.Post)]);
+    public InlineBuilder Post(Delegate function) => On(function, [RequestMethod.Post]);
 
     /// <summary>
     /// Adds a route for a POST request to the specified path.
     /// </summary>
     /// <param name="path">The path of the request to handle (e.g. "/my-method")</param>
-    public InlineBuilder Post(string path, Delegate function) => On(function, [FlexibleRequestMethod.Get(RequestMethod.Post)], path);
+    public InlineBuilder Post(string path, Delegate function) => On(function, [RequestMethod.Post], path);
 
     /// <summary>
     /// Adds a route for a PUT request to the root of the handler.
     /// </summary>
     /// <param name="function">The logic to be executed</param>
-    public InlineBuilder Put(Delegate function) => On(function, [FlexibleRequestMethod.Get(RequestMethod.Put)]);
+    public InlineBuilder Put(Delegate function) => On(function, [RequestMethod.Put]);
 
     /// <summary>
     /// Adds a route for a PUT request to the specified path.
     /// </summary>
     /// <param name="path">The path of the request to handle (e.g. "/my-method")</param>
-    public InlineBuilder Put(string path, Delegate function) => On(function, [FlexibleRequestMethod.Get(RequestMethod.Put)], path);
+    public InlineBuilder Put(string path, Delegate function) => On(function, [RequestMethod.Put], path);
 
     /// <summary>
     /// Adds a route for a DELETE request to the root of the handler.
     /// </summary>
     /// <param name="function">The logic to be executed</param>
-    public InlineBuilder Delete(Delegate function) => On(function, [FlexibleRequestMethod.Get(RequestMethod.Delete)]);
+    public InlineBuilder Delete(Delegate function) => On(function, [RequestMethod.Delete]);
 
     /// <summary>
     /// Adds a route for a DELETE request to the specified path.
     /// </summary>
     /// <param name="path">The path of the request to handle (e.g. "/my-method")</param>
-    public InlineBuilder Delete(string path, Delegate function) => On(function, [FlexibleRequestMethod.Get(RequestMethod.Delete)], path);
+    public InlineBuilder Delete(string path, Delegate function) => On(function, [RequestMethod.Delete], path);
 
     /// <summary>
     /// Executes the given function for the specified path and method.
@@ -149,13 +159,13 @@ public class InlineBuilder : IReflectionFrameworkBuilder<InlineBuilder>
     /// <param name="function">The logic to be executed</param>
     /// <param name="methods">The HTTP verbs to respond to</param>
     /// <param name="path">The path which needs to be specified by the client to call this logic</param>
-    public InlineBuilder On(Delegate function, HashSet<FlexibleRequestMethod>? methods = null, string? path = null)
+    public InlineBuilder On(Delegate function, HashSet<RequestMethod>? methods = null, string? path = null)
     {
         var requestMethods = methods ?? [];
 
-        if (requestMethods.Count == 1 && requestMethods.Contains(FlexibleRequestMethod.Get(RequestMethod.Get)))
+        if (requestMethods.Count == 1 && requestMethods.Contains(RequestMethod.Get))
         {
-            requestMethods.Add(FlexibleRequestMethod.Get(RequestMethod.Head));
+            requestMethods.Add(RequestMethod.Head);
         }
 
         if (path?.StartsWith('/') == true)

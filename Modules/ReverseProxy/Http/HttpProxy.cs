@@ -1,11 +1,12 @@
-using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Sockets;
+using System.Text;
 using System.Web;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Protocol.Raw;
 
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.ReverseProxy.Websocket;
@@ -13,7 +14,11 @@ using GenHTTP.Modules.ReverseProxy.Websocket;
 namespace GenHTTP.Modules.ReverseProxy.Http;
 
 public sealed class HttpProxy : IHandler
-{   
+{
+    private static readonly ReadOnlyMemory<byte> UpgradeHeader = "Upgrade"u8.ToArray();
+
+    private static readonly ReadOnlyMemory<byte> WebsocketValue = "websocket"u8.ToArray();
+
     private static readonly HashSet<string> ReservedResponseHeaders = new(StringComparer.OrdinalIgnoreCase)
     {
         "Server",
@@ -41,7 +46,7 @@ public sealed class HttpProxy : IHandler
     private HttpClient Client { get; }
 
     #endregion
-    
+
     #region Initialization
 
     public HttpProxy(string upstream, HttpClient client)
@@ -58,12 +63,14 @@ public sealed class HttpProxy : IHandler
     {
         try
         {
-            if (request.Headers.ContainsKey("Upgrade") && request.Headers["Upgrade"] == "websocket")
+            var upgradeHeader = request.Raw.Header.Headers.GetEntry(UpgradeHeader);
+
+            if (upgradeHeader != null && upgradeHeader.Value.Span.SequenceEqual(WebsocketValue.Span))
             {
                 var wsProxy = new WebsocketProxy(Upstream);
                 return await wsProxy.HandleAsync(request);
             }
-            
+
             var req = ConfigureRequest(request);
 
             var resp = await Client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
@@ -82,56 +89,74 @@ public sealed class HttpProxy : IHandler
 
     private HttpRequestMessage ConfigureRequest(IRequest request)
     {
-        var req = new HttpRequestMessage(new HttpMethod(request.Method.RawMethod), GetRequestUri(request));
+        var raw = request.Raw;
 
-        if (request.Content is not null && CanSendBody(request))
-        {
-            req.Content = new StreamContent(request.Content);
-        }
+        var headers = raw.Header.Headers;
 
-        foreach (var header in request.Headers)
+        var req = new HttpRequestMessage(new HttpMethod(request.Method.Value.ToString()), GetRequestUri(request));
+
+        for (var i = 0; i < headers.Count; i++)
         {
-            if (!ReservedRequestHeaders.Contains(header.Key))
+            var header = headers[i];
+
+            var key = Encoding.ASCII.GetString(header.Key.Span);
+            var value = Encoding.ASCII.GetString(header.Value.Span);
+
+            if (!ReservedRequestHeaders.Contains(key))
             {
-                if (header.Key.StartsWith("Content-"))
+                if (key.StartsWith("Content-"))
                 {
-                    req.Content?.Headers.Add(header.Key, header.Value);
+                    req.Content?.Headers.Add(key, value);
                 }
                 else
                 {
-                    req.Headers.Add(header.Key, header.Value);
+                    req.Headers.Add(key, value);
                 }
             }
         }
 
-        req.Headers.Add("Forwarded", GetForwardings(request));
+        // todo: req.Headers.Add("Forwarded", GetForwardings(request));
 
-        if (request.Cookies.Count > 0)
+        /* todo: if (request.Cookies.Count > 0)
         {
             var cookieHeader = request.Cookies.Select(c => $"{c.Value.Name}={c.Value.Value}");
 
             req.Headers.Add("Cookie", string.Join("; ", cookieHeader));
+        }*/
+
+        var content = raw.GetBody(HeaderAccess.Retain);
+
+        if (content is not null && CanSendBody(request))
+        {
+            req.Content = new RequestBody(content);
         }
 
         return req;
     }
 
-    private string GetRequestUri(IRequest request) => Upstream + request.Target.GetRemaining().ToString(true) + GetQueryString(request);
+    private string GetRequestUri(IRequest request) => Upstream + request.Raw.Header.Target.AsString(decode: false, remainingOnly: true) + GetQueryString(request);
 
     private static string GetQueryString(IRequest request)
     {
-        if (request.Query.Count > 0)
-        {
-            var query = HttpUtility.ParseQueryString(string.Empty);
+        var query = request.Raw.Header.Query;
 
-            foreach (var kv in request.Query)
+        if (query.Count > 0)
+        {
+            var queryBuilder = HttpUtility.ParseQueryString(string.Empty);
+
+            for (var i = 0; i < query.Count; i++)
             {
-                query[kv.Key] = kv.Value;
+                var arg = query[i];
+
+                var key = Encoding.ASCII.GetString(arg.Key.Span);
+                var value= Encoding.ASCII.GetString(arg.Value.Span);
+
+                queryBuilder[key] = value;
             }
 
-            return "?" + query.ToString()?
-                              .Replace("+", "%20")
-                              .Replace("%2b", "+");
+            return "?" + queryBuilder.ToString()?
+                                     .Replace("+", "%20")
+                                     .Replace("%2b", "+");
         }
 
         return string.Empty;
@@ -141,7 +166,7 @@ public sealed class HttpProxy : IHandler
     {
         var builder = request.Respond();
 
-        builder.Status((int)response.StatusCode, response.ReasonPhrase ?? "No Reason");
+        builder.Status((ResponseStatus)response.StatusCode); // todo: rework status model
 
         SetHeaders(builder, request, response.Headers);
 
@@ -149,26 +174,9 @@ public sealed class HttpProxy : IHandler
 
         SetHeaders(builder, request, contentHeaders);
 
-        if (contentHeaders.ContentEncoding.Count > 0)
+        if (HasBody(response))
         {
-            builder.Encoding(contentHeaders.ContentEncoding.First());
-        }
-
-        ulong? knownLength = contentHeaders.ContentLength > 0 ? (ulong)contentHeaders.ContentLength : null;
-
-        if (HasBody(request, response))
-        {
-            builder.Content(new ClientResponseContent(response))
-                   .Type(contentHeaders.ContentType?.ToString() ?? "application/octet-stream");
-        }
-        else
-        {
-            if (request.HasType(RequestMethod.Head) && (knownLength != null))
-            {
-                builder.Length(knownLength.Value);
-            }
-
-            response.Dispose();
+            builder.Content(new ClientResponseContent(response));
         }
 
         return builder;
@@ -188,20 +196,6 @@ public sealed class HttpProxy : IHandler
                     {
                         builder.Header(key, RewriteLocation(value, request));
                     }
-                    else if (key == "Expires")
-                    {
-                        if (TryParseDate(value, out var expires))
-                        {
-                            builder.Expires(expires);
-                        }
-                    }
-                    else if (key == "Last-Modified")
-                    {
-                        if (TryParseDate(value, out var modified))
-                        {
-                            builder.Modified(modified);
-                        }
-                    }
                     else if (key == "Set-Cookie")
                     {
                         foreach (var cookie in values)
@@ -220,19 +214,19 @@ public sealed class HttpProxy : IHandler
 
     private static bool CanSendBody(IRequest request) => !request.HasType(RequestMethod.Get, RequestMethod.Head, RequestMethod.Options);
 
-    private static bool HasBody(IRequest request, HttpResponseMessage response)
+    private static bool HasBody(HttpResponseMessage response)
     {
-        return !request.HasType(RequestMethod.Head)
-            && response.Content.Headers.ContentType is not null
-            && response.StatusCode != HttpStatusCode.NoContent;
+        return response.Content.Headers.ContentType is not null && response.StatusCode != HttpStatusCode.NoContent;
     }
 
     private string RewriteLocation(string location, IRequest request)
     {
         if (location.StartsWith(Upstream))
         {
-            var path = request.Target.Path.ToString();
-            var scoped = request.Target.GetRemaining().ToString();
+            var target = request.Raw.Header.Target;
+
+            var path = target.AsString(decode: false);
+            var scoped = target.AsString(decode: false, remainingOnly: true);
 
             string relativePath;
 
@@ -253,14 +247,14 @@ public sealed class HttpProxy : IHandler
         return location;
     }
 
-    private static string GetForwardings(IRequest request)
+    /*private static string GetForwardings(IRequest request)
     {
         return string.Join(", ", request.Forwardings
                                         .Union([
                                             new Forwarding(request.LocalClient.IPAddress, request.LocalClient.Host, request.LocalClient.Protocol)
                                         ])
                                         .Select(GetForwarding));
-    }
+    }*/
 
     private static string GetForwarding(Forwarding forwarding)
     {
@@ -290,8 +284,6 @@ public sealed class HttpProxy : IHandler
 
         return string.Join("; ", result);
     }
-
-    private static bool TryParseDate(string value, out DateTime parsedValue) => DateTime.TryParseExact(value, CultureInfo.InvariantCulture.DateTimeFormat.RFC1123Pattern, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces | DateTimeStyles.AssumeUniversal, out parsedValue);
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 

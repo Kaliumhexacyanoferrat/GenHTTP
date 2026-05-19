@@ -23,16 +23,13 @@
         <ProjectReference Include="..\..\Modules\Compression\GenHTTP.Modules.Compression.csproj" />
 
         <ProjectReference Include="..\..\Modules\IO\GenHTTP.Modules.IO.csproj"/>
+
         <ProjectReference Include="..\..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj"/>
 
     </ItemGroup>
 
     <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.2" />
     </ItemGroup>
 
 </Project>

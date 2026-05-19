@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Protocol.Raw;
 using GenHTTP.Modules.IO.Streaming;
 
 using SharpCompress.Common;
@@ -7,9 +8,9 @@ namespace GenHTTP.Modules.Archives.Tree;
 
 public sealed class ArchiveNode(string? nodeName, IResourceContainer? parent) : IResourceNode
 {
-    private readonly Dictionary<string, ArchiveNode> _children = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<PathSegment, ArchiveNode> _children = new();
 
-    private readonly Dictionary<string, ArchiveResource> _resources = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<PathSegment, ArchiveResource> _resources = new();
 
     #region Get-/Setters
 
@@ -23,31 +24,31 @@ public sealed class ArchiveNode(string? nodeName, IResourceContainer? parent) : 
 
     #region Functionality
 
-    public ValueTask<IResourceNode?> TryGetNodeAsync(string name) => _children.TryGetValue(name, out var node) ? new(node) : ValueTask.FromResult<IResourceNode?>(null);
+    public ValueTask<IResourceNode?> TryGetNodeAsync(PathSegment segment) => _children.TryGetValue(segment, out var node) ? new(node) : ValueTask.FromResult<IResourceNode?>(null);
 
     public ValueTask<IReadOnlyCollection<IResourceNode>> GetNodes() => ValueTask.FromResult<IReadOnlyCollection<IResourceNode>>(_children.Values);
 
-    public ValueTask<IResource?> TryGetResourceAsync(string name) => _resources.TryGetValue(name, out var resource) ? new(resource) : ValueTask.FromResult<IResource?>(null);
+    public ValueTask<IResource?> TryGetResourceAsync(PathSegment segment) => _resources.TryGetValue(segment, out var resource) ? new(resource) : ValueTask.FromResult<IResource?>(null);
 
     public ValueTask<IReadOnlyCollection<IResource>> GetResources() => ValueTask.FromResult<IReadOnlyCollection<IResource>>(_resources.Values);
 
     internal ArchiveNode GetOrCreate(string child)
     {
-        if (_children.TryGetValue(child, out var found))
+        if (_children.TryGetValue(new(child), out var found))
         {
             return found;
         }
 
         var created = new ArchiveNode(child, this);
 
-        _children.Add(child, created);
+        _children.Add(new(child), created);
 
         return created;
     }
 
     internal void AddFile(string name, IEntry entry, IResource archive, Func<Stream, string, ValueTask<StreamWithDependency>> streamFactory)
     {
-        _resources.Add(name, new ArchiveResource(archive, entry, name, streamFactory));
+        _resources.Add(new(name), new ArchiveResource(archive, entry, name, streamFactory));
     }
 
     internal void Adapt(IEntry entry)

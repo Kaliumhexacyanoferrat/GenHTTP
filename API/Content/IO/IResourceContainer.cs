@@ -1,4 +1,6 @@
-﻿namespace GenHTTP.Api.Content.IO;
+﻿using GenHTTP.Api.Protocol.Raw;
+
+namespace GenHTTP.Api.Content.IO;
 
 /// <summary>
 /// Provides a single hierarchy level in a structure
@@ -15,9 +17,9 @@ public interface IResourceContainer
     /// <summary>
     /// Tries to fetch the child node with the given name.
     /// </summary>
-    /// <param name="name">The name of the node to be fetched</param>
+    /// <param name="segment">The name of the node to be fetched</param>
     /// <returns>The node fetched from the container, if the node could be found</returns>
-    ValueTask<IResourceNode?> TryGetNodeAsync(string name);
+    ValueTask<IResourceNode?> TryGetNodeAsync(PathSegment segment);
 
     /// <summary>
     /// Returns the child nodes provided by this container.
@@ -28,14 +30,14 @@ public interface IResourceContainer
     /// <summary>
     /// Tries to fetch the resource with the given name.
     /// </summary>
-    /// <param name="name">The name of the resource to be fetched</param>
-    /// <param name="resource"></param>
+    /// <param name="segment">The name of the resource to be fetched</param>
     /// <returns>The resource fetched from the container, if the resource could be found</returns>
-    ValueTask<IResource?> TryGetResourceAsync(string name);
+    ValueTask<IResource?> TryGetResourceAsync(PathSegment segment);
 
     /// <summary>
     /// Returns the resources provided by this container.
     /// </summary>
     /// <returns>The resources provided by this container</returns>
     ValueTask<IReadOnlyCollection<IResource>> GetResources();
+
 }

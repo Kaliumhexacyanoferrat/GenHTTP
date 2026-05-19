@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
+
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.IO.Embedded;
@@ -11,7 +13,7 @@ public sealed class EmbeddedResource : IResource
 
     #region Initialization
 
-    public EmbeddedResource(Assembly source, string path, string? name, FlexibleContentType? contentType, DateTime? modified)
+    public EmbeddedResource(Assembly source, string path, string? name, ContentType? contentType, DateTime? modified)
     {
         var fqn = source.GetManifestResourceNames()
                         .FirstOrDefault(n => n == path || n.EndsWith($".{path}"));
@@ -40,7 +42,7 @@ public sealed class EmbeddedResource : IResource
 
     public DateTime? Modified { get; }
 
-    public FlexibleContentType? ContentType { get; }
+    public ContentType? ContentType { get; }
 
     public ulong? Length { get; }
 
@@ -61,6 +63,8 @@ public sealed class EmbeddedResource : IResource
 
         return _checksum.Value;
     }
+
+    public ValueTask WriteAsync(IResponseSink sink) => TryGetStream().WriteAsync(sink.Writer);
 
     private Stream TryGetStream() => Source.GetManifestResourceStream(QualifiedName) ?? throw new InvalidOperationException($"Unable to resolve resource '{QualifiedName}' in assembly '{Source}'");
 

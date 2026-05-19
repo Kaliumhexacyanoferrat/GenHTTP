@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Buffers;
+using System.Text;
 
 using GenHTTP.Api.Protocol;
 
@@ -11,11 +12,15 @@ public sealed class YamlContent : IResponseContent
 {
     private static readonly ISerializer Serializer = new SerializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
 
-    private static readonly Encoding Encoding = Encoding.UTF8;
+    private static readonly Encoding TextEncoding = System.Text.Encoding.UTF8;
 
     #region Get-/Setters
 
     public ulong? Length => null;
+
+    public ContentType? Type => ContentType.ApplicationYaml;
+
+    public ReadOnlyMemory<byte>? Encoding => null;
 
     public object Data { get; }
 
@@ -35,7 +40,13 @@ public sealed class YamlContent : IResponseContent
     public ValueTask<ulong?> CalculateChecksumAsync() => new((ulong)Data.GetHashCode());
 
     public ValueTask WriteAsync(Stream target, uint bufferSize)
-         => target.WriteAsync(Encoding.GetBytes(Serializer.Serialize(Data)));
+         => target.WriteAsync(TextEncoding.GetBytes(Serializer.Serialize(Data)));
+
+    public ValueTask WriteAsync(IResponseSink sink)
+    {
+        sink.Writer.Write(TextEncoding.GetBytes(Serializer.Serialize(Data))); // ToDo: custom IEmitter
+        return default;
+    }
 
     #endregion
 

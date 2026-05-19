@@ -24,7 +24,7 @@ public sealed class ChangeTrackingResource : IResource
 
     public DateTime? Modified => Source.Modified;
 
-    public FlexibleContentType? ContentType => Source.ContentType;
+    public ContentType? ContentType => Source.ContentType;
 
     public ulong? Length => Source.Length;
 
@@ -44,6 +44,13 @@ public sealed class ChangeTrackingResource : IResource
         _lastChecksum = await CalculateChecksumAsync();
 
         await Source.WriteAsync(target, bufferSize);
+    }
+
+    public async ValueTask WriteAsync(IResponseSink sink)
+    {
+        _lastChecksum = await CalculateChecksumAsync();
+
+        await Source.WriteAsync(sink);
     }
 
     public ValueTask<ulong> CalculateChecksumAsync() => Source.CalculateChecksumAsync();

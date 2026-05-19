@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Protocol.Raw;
 using GenHTTP.Modules.IO.Streaming;
 using GenHTTP.Modules.IO.Tracking;
 
@@ -21,7 +22,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
 
     public DateTime? Modified => source.Modified;
 
-    public async ValueTask<IResourceNode?> TryGetNodeAsync(string name)
+    public async ValueTask<IResourceNode?> TryGetNodeAsync(PathSegment name)
     {
         await EnsureRoot();
 
@@ -35,11 +36,11 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
         return await _root!.GetNodes();
     }
 
-    public async ValueTask<IResource?> TryGetResourceAsync(string name)
+    public async ValueTask<IResource?> TryGetResourceAsync(PathSegment segment)
     {
         await EnsureRoot();
 
-        return await _root!.TryGetResourceAsync(name);
+        return await _root!.TryGetResourceAsync(segment);
     }
 
     public async ValueTask<IReadOnlyCollection<IResource>> GetResources()
@@ -92,7 +93,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
 
     private ValueTask<ArchiveNode> LoadWithArchiveFactory(Stream input)
     {
-        using var archive = ArchiveFactory.Open(input);
+        using var archive = ArchiveFactory.OpenArchive(input);
 
         // archive factory does not automatically handle .tar.gz, reader factory does
         if (archive.Type == ArchiveType.GZip && archive.Entries.Count() == 1)
@@ -100,7 +101,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
             input.Position = 0;
             return LoadWithReaderFactory(input);
         }
-        
+
         var root = new ArchiveNode(null, null);
 
         foreach (var entry in archive.Entries)
@@ -118,13 +119,13 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
         return new(root);
     }
 
-    private async ValueTask<ArchiveNode> LoadWithReaderFactory(Stream input)
+    private ValueTask<ArchiveNode> LoadWithReaderFactory(Stream input)
     {
-        using var reader = ReaderFactory.Open(input);
+        using var reader = ReaderFactory.OpenReader(input);
 
         var root = new ArchiveNode(null, null);
 
-        while (await reader.MoveToNextEntryAsync())
+        while (reader.MoveToNextEntry())
         {
             if (reader.Entry.IsDirectory)
             {
@@ -136,7 +137,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
             }
         }
 
-        return root;
+        return new(root);
     }
 
     private static void AddDirectory(ArchiveNode root, IEntry entry)
@@ -144,7 +145,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
         if (entry.Key != null)
         {
             if (entry.Key == "./") return;
-            
+
             var parts = GetParts(entry);
 
             var current = root;
@@ -177,7 +178,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
 
     private static async ValueTask<StreamWithDependency> GetArchiveStream(Stream input, string key)
     {
-        var archive = ArchiveFactory.Open(input);
+        var archive = ArchiveFactory.OpenArchive(input);
 
         var entry = archive.Entries.FirstOrDefault(e => e.Key == key);
 
@@ -191,15 +192,15 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
         throw new InvalidOperationException($"Unable to find resource '{key}' in archive");
     }
 
-    private static async ValueTask<StreamWithDependency> GetReaderStream(Stream input, string key)
+    private static ValueTask<StreamWithDependency> GetReaderStream(Stream input, string key)
     {
-        var reader = ReaderFactory.Open(input);
+        var reader = ReaderFactory.OpenReader(input);
 
-        while (await reader.MoveToNextEntryAsync())
+        while (reader.MoveToNextEntry())
         {
             if (reader.Entry.Key == key)
             {
-                return new StreamWithDependency(await reader.OpenEntryStreamAsync(), reader);
+                return new(new StreamWithDependency(reader.OpenEntryStream(), reader));
             }
         }
 
@@ -219,7 +220,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
         {
             key = key[1..];
         }
-        
+
         return key.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries);
     }
 

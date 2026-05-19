@@ -16,7 +16,7 @@ public static class ErrorHandler
     /// structured responses.
     /// </remarks>
     /// <returns>The default error handler</returns>
-    public static ErrorSentryBuilder<Exception> Default() => Structured();
+    public static ErrorSentryBuilder<Exception> Default() => From(new TextErrorMapper()); // todo: back to structured
 
     /// <summary>
     /// Ans error handler which will render exceptions into
@@ -43,4 +43,5 @@ public static class ErrorHandler
     /// <param name="mapper">The mapper to use for exception mapping</param>
     /// <returns>The newly generated concern</returns>
     public static ErrorSentryBuilder<T> From<T>(IErrorMapper<T> mapper) where T : Exception => new(mapper);
+
 }

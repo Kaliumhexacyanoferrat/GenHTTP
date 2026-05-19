@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol.Raw;
 
 using GenHTTP.Modules.Layouting.Provider;
 
@@ -48,7 +49,9 @@ public static class MultiSegmentSupport
 
         foreach (var section in segments)
         {
-            if (current.RoutedHandlers.TryGetValue(section, out var existing))
+            var pathSegment = new PathSegment(section);
+
+            if (current.RoutedHandlers.TryGetValue(pathSegment, out var existing))
             {
                 if (existing is LayoutBuilder existingLayout)
                 {

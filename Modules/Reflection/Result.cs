@@ -17,18 +17,11 @@ public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
 {
     private Connection? _connectionHandling;
 
-    private FlexibleContentType? _contentType;
-
     private List<Cookie>? _cookies;
-
-    private string? _encoding;
-
-    private DateTime? _expires;
 
     private Dictionary<string, string>? _headers;
 
-    private DateTime? _modified;
-    private FlexibleResponseStatus? _status;
+    private ResponseStatus? _status;
 
     #region Initialization
 
@@ -56,28 +49,18 @@ public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
 
     #region Functionality
 
-    /// <inheritdoc />
     public Result<T> Status(ResponseStatus status)
     {
-        _status = new FlexibleResponseStatus(status);
+        _status = status;
         return this;
     }
 
-    /// <inheritdoc />
-    public Result<T> Status(int status, string reason)
-    {
-        _status = new FlexibleResponseStatus(status, reason);
-        return this;
-    }
-
-    /// <inheritdoc />
     public Result<T> Connection(Connection handling)
     {
         _connectionHandling = handling;
         return this;
     }
 
-    /// <inheritdoc />
     public Result<T> Header(string key, string value)
     {
         _headers ??= new Dictionary<string, string>();
@@ -87,21 +70,6 @@ public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
         return this;
     }
 
-    /// <inheritdoc />
-    public Result<T> Expires(DateTime expiryDate)
-    {
-        _expires = expiryDate;
-        return this;
-    }
-
-    /// <inheritdoc />
-    public Result<T> Modified(DateTime modificationDate)
-    {
-        _modified = modificationDate;
-        return this;
-    }
-
-    /// <inheritdoc />
     public Result<T> Cookie(Cookie cookie)
     {
         (_cookies ??= []).Add(cookie);
@@ -109,27 +77,11 @@ public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
         return this;
     }
 
-    /// <inheritdoc />
-    public Result<T> Type(FlexibleContentType contentType)
-    {
-        _contentType = contentType;
-        return this;
-    }
-
-    /// <inheritdoc />
-    public Result<T> Encoding(string encoding)
-    {
-        _encoding = encoding;
-        return this;
-    }
-
     public void Apply(IResponseBuilder builder)
     {
         if (_status != null)
         {
-            var value = _status.Value;
-
-            builder.Status(value.RawStatus, value.Phrase);
+            builder.Status(_status.Value);
         }
 
         if (_connectionHandling != null)
@@ -145,33 +97,13 @@ public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
             }
         }
 
-        if (_expires != null)
-        {
-            builder.Expires(_expires.Value);
-        }
-
-        if (_modified != null)
-        {
-            builder.Modified(_modified.Value);
-        }
-
-        if (_cookies != null)
+        /*if (_cookies != null)
         {
             foreach (var cookie in _cookies)
             {
                 builder.Cookie(cookie);
             }
-        }
-
-        if (_contentType is not null)
-        {
-            builder.Type(_contentType);
-        }
-
-        if (_encoding != null)
-        {
-            builder.Encoding(_encoding);
-        }
+        }*/
     }
 
     #endregion

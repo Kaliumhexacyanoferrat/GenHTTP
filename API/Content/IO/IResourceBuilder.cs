@@ -21,21 +21,12 @@ public interface IResourceBuilder<out T> : IBuilder<IResource> where T : IResour
     /// Sets the content type of the resource.
     /// </summary>
     /// <param name="contentType">The content type of the resource</param>
-    T Type(FlexibleContentType contentType);
+    T Type(ContentType contentType);
 
     /// <summary>
     /// Sets the modification date and time of the resource.
     /// </summary>
     /// <param name="modified">The modification date and time of the resource</param>
     T Modified(DateTime modified);
-}
-
-public static class IResourceMetaDataBuilderExtensions
-{
-
-    /// <summary>
-    /// Sets the content type of the resource.
-    /// </summary>
-    /// <param name="contentType">The content type of the resource</param>
-    public static T Type<T>(this IResourceBuilder<T> builder, ContentType contentType) where T : IResourceBuilder<T> => builder.Type(FlexibleContentType.Get(contentType));
+    
 }

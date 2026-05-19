@@ -1,7 +1,6 @@
-﻿using GenHTTP.Api.Protocol;
+﻿namespace GenHTTP.Modules.IO.Ranges;
 
-namespace GenHTTP.Modules.IO.Ranges;
-
+/*
 public class RangedContent : IResponseContent
 {
 
@@ -54,3 +53,4 @@ public class RangedContent : IResponseContent
     #endregion
 
 }
+*/

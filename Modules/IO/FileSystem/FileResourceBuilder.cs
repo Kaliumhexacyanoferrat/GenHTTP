@@ -10,7 +10,7 @@ public sealed class FileResourceBuilder : IResourceBuilder<FileResourceBuilder>
 
     private string? _name;
 
-    private FlexibleContentType? _type;
+    private ContentType? _type;
 
     #region Functionality
 
@@ -26,7 +26,7 @@ public sealed class FileResourceBuilder : IResourceBuilder<FileResourceBuilder>
         return this;
     }
 
-    public FileResourceBuilder Type(FlexibleContentType contentType)
+    public FileResourceBuilder Type(ContentType contentType)
     {
         _type = contentType;
         return this;

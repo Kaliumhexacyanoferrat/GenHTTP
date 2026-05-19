@@ -20,4 +20,5 @@ internal static class Extensions
         return DateTime.UtcNow;
 #pragma warning restore IL3000
     }
+
 }

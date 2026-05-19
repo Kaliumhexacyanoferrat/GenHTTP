@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Pages;
 
@@ -10,7 +11,7 @@ public class HtmlErrorMapper : IErrorMapper<Exception>
 
     public async ValueTask<IResponse?> Map(IRequest request, IHandler handler, Exception error)
     {
-        var developmentMode = request.Server.Development;
+        var developmentMode = true; // todo: request.Server.Development;
 
         if (error is ProviderException e)
         {
@@ -41,4 +42,5 @@ public class HtmlErrorMapper : IErrorMapper<Exception>
                       .Status(ResponseStatus.NotFound)
                       .Build();
     }
+
 }

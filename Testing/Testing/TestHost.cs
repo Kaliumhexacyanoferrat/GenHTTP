@@ -14,7 +14,7 @@ namespace GenHTTP.Testing;
 /// </summary>
 public class TestHost : IAsyncDisposable
 {
-    
+
 #if NET8_0
     private static volatile int _nextPort = 20000;
 #elif NET9_0
@@ -58,7 +58,7 @@ public class TestHost : IAsyncDisposable
     {
         Port = NextPort();
 
-        Host = (engine == TestEngine.Internal) ? Engine.Internal.Host.Create() : Engine.Kestrel.Host.Create();
+        Host = (engine == TestEngine.Internal) ? Engine.Internal.Host.Create() : throw new NotSupportedException(); // todo: Engine.Kestrel.Host.Create();
 
         Host.Handler(handler);
         Host.Port((ushort)Port);

@@ -21,7 +21,7 @@ internal sealed class ArchiveResource : IResource
 
     public DateTime? Modified { get; }
 
-    public FlexibleContentType? ContentType { get; }
+    public ContentType? ContentType { get; }
 
     public ulong? Length { get; }
 
@@ -49,7 +49,7 @@ internal sealed class ArchiveResource : IResource
 
         if (guessed != null)
         {
-            ContentType = new(guessed.Value);
+            ContentType = guessed.Value;
         }
     }
 
@@ -64,6 +64,13 @@ internal sealed class ArchiveResource : IResource
         var input = await _archive.GetContentAsync();
 
         return await _streamFactory(input, _key);
+    }
+
+    public async ValueTask WriteAsync(IResponseSink sink)
+    {
+        await using var stream = await GetContentAsync();
+
+        await stream.WriteAsync(sink.Writer);
     }
 
     #endregion

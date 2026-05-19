@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Reflection.Operations;
 
@@ -58,22 +59,22 @@ public sealed class MethodHandlerExplorer : IApiExplorer
 
                     if (arg.Value.Source == OperationArgumentSource.Body)
                     {
-                        if (method.KnownMethod != RequestMethod.Get)
+                        if (method != RequestMethod.Get)
                         {
                             operation.RequestBody = GetRequestBody(schemata, typeof(string), "text/plain");
                         }
                     }
                     else if (arg.Value.Source == OperationArgumentSource.Content)
                     {
-                        if (method.KnownMethod != RequestMethod.Get)
+                        if (method != RequestMethod.Get)
                         {
-                            var supportedTypes = methodHandler.Registry.Serialization.Formats.Select(s => s.Key.RawType).ToArray();
+                            var supportedTypes = methodHandler.Registry.Serialization.Formats.Select(s => s.Key.ToString()).ToArray();
                             operation.RequestBody = GetRequestBody(schemata, arg.Value.Type, supportedTypes);
                         }
                     }
                     else if (arg.Value.Source == OperationArgumentSource.Streamed)
                     {
-                        if (method.KnownMethod != RequestMethod.Get)
+                        if (method != RequestMethod.Get)
                         {
                             var body = new OpenApiRequestBody();
 
@@ -121,7 +122,7 @@ public sealed class MethodHandlerExplorer : IApiExplorer
                     operation.Responses.Add(key, value);
                 }
 
-                pathItem.Add(method.RawMethod, operation);
+                pathItem.Add(method.ToString(), operation);
             }
         }
 
@@ -177,7 +178,7 @@ public sealed class MethodHandlerExplorer : IApiExplorer
         }
         else if (sink == OperationResultSink.Serializer)
         {
-            result.Add("200", GetResponse(schemata, type, registry.Serialization.Formats.Select(s => s.Key.RawType).ToArray()));
+            result.Add("200", GetResponse(schemata, type, registry.Serialization.Formats.Select(s => s.Key.ToString()).ToArray()));
         }
         else if (sink == OperationResultSink.Binary)
         {

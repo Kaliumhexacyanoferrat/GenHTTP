@@ -1,14 +1,13 @@
 ﻿namespace GenHTTP.Modules.IO;
 
-using GenHTTP.Api.Content.IO;
-using Api.Protocol;
-
-using Streaming;
-
-using StreamContent = GenHTTP.Modules.IO.Streaming.StreamContent;
+// using StreamContent = GenHTTP.Modules.IO.Streaming.StreamContent;
 
 public static class ResponseContentExtensions
 {
+
+    // todo
+
+    /*
     private static readonly FlexibleContentType TextPlainType = new(ContentType.TextPlain, "UTF-8");
 
     /// <summary>
@@ -48,5 +47,6 @@ public static class ResponseContentExtensions
     /// <param name="data">The data to be sent</param>
     /// <param name="checksumProvider">The logic to efficiently calculate checksums</param>
     public static IResponseBuilder Content(this IResponseBuilder builder, ReadOnlyMemory<byte> data, Func<ValueTask<ulong?>>? checksumProvider = null) => builder.Content(new MemoryContent(data, checksumProvider));
+    */
 
 }

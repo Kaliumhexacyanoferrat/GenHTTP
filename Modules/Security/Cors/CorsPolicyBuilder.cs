@@ -42,7 +42,7 @@ public sealed class CorsPolicyBuilder : IConcernBuilder
     /// <param name="exposedHeaders">The headers that will be accessible by the client (any, if not given)</param>
     /// <param name="allowCredentials">Whether the client is allowed to read credentials from the request</param>
     /// <param name="maxAge">The duration in seconds this policy is valid for</param>
-    public CorsPolicyBuilder Add(string origin, List<FlexibleRequestMethod>? allowedMethods, List<string>? allowedHeaders,
+    public CorsPolicyBuilder Add(string origin, List<RequestMethod>? allowedMethods, List<string>? allowedHeaders,
         List<string>? exposedHeaders, bool allowCredentials, uint maxAge = 86400) => Add(origin, new OriginPolicy(allowedMethods, allowedHeaders, exposedHeaders, allowCredentials, maxAge));
 
     public IConcern Build(IHandler content) => new CorsPolicyHandler(content, _defaultPolicy, _additionalPolicies);

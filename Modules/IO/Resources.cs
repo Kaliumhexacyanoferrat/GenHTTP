@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Modules.IO.Providers;
 
 namespace GenHTTP.Modules.IO;
@@ -28,4 +29,5 @@ public static class Resources
     /// </summary>
     /// <param name="tree">The resource tree to read resourced from</param>
     public static ResourceHandlerBuilder From(IResourceTree tree) => new ResourceHandlerBuilder().Tree(tree);
+
 }

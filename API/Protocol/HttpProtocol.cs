@@ -1,5 +1,7 @@
 ﻿namespace GenHTTP.Api.Protocol;
 
+// todo: re-visit
+
 /// <summary>
 /// The protocol version of a request.
 /// </summary>
