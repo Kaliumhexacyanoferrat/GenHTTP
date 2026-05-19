@@ -64,6 +64,8 @@ public readonly struct RequestMethod : IEquatable<RequestMethod>
         return !(left == right);
     }
 
+    public override string ToString() => Encoding.ASCII.GetString(Value.Span);
+
     #endregion
 
 }

@@ -11,6 +11,6 @@ public interface IRawRequestTarget
 
     void Advance(int segments = 1);
 
-    string AsString(bool decode = true);
+    string AsString(bool decode = true, bool remainingOnly = false);
 
 }

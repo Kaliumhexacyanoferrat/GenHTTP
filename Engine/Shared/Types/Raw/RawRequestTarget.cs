@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
+
 using GenHTTP.Api.Protocol.Raw;
 
 namespace GenHTTP.Engine.Shared.Types.Raw;
@@ -9,6 +10,7 @@ public sealed class RawRequestTarget : IRawRequestTarget
     private ReadOnlyMemory<byte> _path = ReadOnlyMemory<byte>.Empty;
 
     private int _offset;
+    private int _segmentStart;
 
     public PathSegment? Current { get; private set; }
 
@@ -46,6 +48,7 @@ public sealed class RawRequestTarget : IRawRequestTarget
         _path = path;
 
         _offset = 0;
+        _segmentStart = 0;
         Current = null;
 
         MoveNext();
@@ -83,6 +86,7 @@ public sealed class RawRequestTarget : IRawRequestTarget
         }
 
         var start = _offset;
+        _segmentStart = start;
 
         var idx = span[_offset..].IndexOf((byte)'/');
 
@@ -94,13 +98,29 @@ public sealed class RawRequestTarget : IRawRequestTarget
         else
         {
             _offset += idx;
-            Current = new (_path.Slice(start, idx));
+            Current = new(_path.Slice(start, idx));
         }
     }
 
-    public string AsString(bool decode = true)
+    public string AsString(bool decode = true, bool remainingOnly = false)
     {
-        var stringPath = Encoding.ASCII.GetString(_path.Span);
+        ReadOnlyMemory<byte> slice;
+
+        if (remainingOnly)
+        {
+            if (Current == null)
+            {
+                return string.Empty;
+            }
+
+            slice = _path[_segmentStart..];
+        }
+        else
+        {
+            slice = _path;
+        }
+
+        var stringPath = Encoding.ASCII.GetString(slice.Span);
 
         if (decode && stringPath.Contains('%'))
         {

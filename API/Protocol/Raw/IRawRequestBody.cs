@@ -12,4 +12,6 @@ public interface IRawRequestBody
     /// </remarks>
     ValueTask<ReadOnlyMemory<byte>?> TryReadAsync();
 
+    // todo: have a length here? pattern similar to to the response body
+
 }
