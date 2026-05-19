@@ -12,9 +12,8 @@
     </Folder>
     <Folder Name="/Modules/">
         <Project Path="Modules/Archives/GenHTTP.Modules.Archives.csproj" />
-        <!--
-        <Project Path="Modules\ApiBrowsing\GenHTTP.Modules.ApiBrowsing.csproj" />
-        <Project Path="Modules\Authentication\GenHTTP.Modules.Authentication.csproj" />-->
+        <Project Path="Modules\Authentication\GenHTTP.Modules.Authentication.csproj" />
+        <!--        <Project Path="Modules\ApiBrowsing\GenHTTP.Modules.ApiBrowsing.csproj" />-->
         <Project Path="Modules\Redirects\GenHTTP.Modules.Redirects.csproj" />
         <Project Path="Modules\Caching\GenHTTP.Modules.Caching.csproj" />
         <Project Path="Modules\Conversion\GenHTTP.Modules.Conversion.csproj" />
@@ -34,9 +33,8 @@
         <Project Path="Modules\Pages\GenHTTP.Modules.Pages.csproj" />
         <Project Path="Modules\Protobuf\GenHTTP.Modules.Protobuf.csproj" />
         <!--<Project Path="Modules\Practices\GenHTTP.Modules.Practices.csproj" />
+        <Project Path="Modules\Webservices\GenHTTP.Modules.Webservices.csproj" />        -->
         <Project Path="Modules\Reflection\GenHTTP.Modules.Reflection.csproj" />
-        <Project Path="Modules\Webservices\GenHTTP.Modules.Webservices.csproj" />
-        -->
         <Project Path="Modules\ServerCaching\GenHTTP.Modules.ServerCaching.csproj" />
         <Project Path="Modules\ReverseProxy\GenHTTP.Modules.ReverseProxy.csproj" />
         <Project Path="Modules\Security\GenHTTP.Modules.Security.csproj" />

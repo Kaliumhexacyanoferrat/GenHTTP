@@ -11,6 +11,8 @@ public interface IRawRequestTarget
 
     void Advance(int segments = 1);
 
+    ReadOnlyMemory<byte>? Next(int offset);
+
     string AsString(bool decode = true, bool remainingOnly = false);
 
 }

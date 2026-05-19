@@ -15,7 +15,7 @@ public class MethodAttribute : Attribute, IMethodConfiguration
     /// <summary>
     /// The HTTP verbs which are supported by this method.
     /// </summary>
-    public HashSet<FlexibleRequestMethod> SupportedMethods { get; }
+    public HashSet<RequestMethod> SupportedMethods { get; }
 
     #endregion
 
@@ -26,11 +26,7 @@ public class MethodAttribute : Attribute, IMethodConfiguration
     /// </summary>
     public MethodAttribute()
     {
-        SupportedMethods =
-        [
-            FlexibleRequestMethod.Get(RequestMethod.Get),
-            FlexibleRequestMethod.Get(RequestMethod.Head)
-        ];
+        SupportedMethods = [RequestMethod.Get, RequestMethod.Head];
     }
 
     /// <summary>
@@ -39,7 +35,7 @@ public class MethodAttribute : Attribute, IMethodConfiguration
     /// <param name="methods">The HTTP verbs supported by this method</param>
     public MethodAttribute(params RequestMethod[] methods)
     {
-        SupportedMethods = [..methods.Select(FlexibleRequestMethod.Get)];
+        SupportedMethods = methods.ToHashSet();
     }
 
     #endregion

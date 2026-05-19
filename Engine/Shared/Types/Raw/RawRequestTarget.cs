@@ -54,6 +54,38 @@ public sealed class RawRequestTarget : IRawRequestTarget
         MoveNext();
     }
 
+    public ReadOnlyMemory<byte>? Next(int offset)
+    {
+        var span = _path.Span;
+        var length = span.Length;
+        var i = _offset;
+
+        for (var skip = 0; skip <= offset; skip++)
+        {
+            while (i < length && span[i] == (byte)'/')
+            {
+                i++;
+            }
+
+            if (i >= length)
+            {
+                return null;
+            }
+
+            var start = i;
+            var idx = span[i..].IndexOf((byte)'/');
+
+            if (skip == offset)
+            {
+                return idx < 0 ? _path.Slice(start, length - start) : _path.Slice(start, idx);
+            }
+
+            i += idx < 0 ? (length - start) : idx;
+        }
+
+        return null;
+    }
+
     public void Advance(int segments = 1)
     {
         while (segments-- > 0 && Current != null)

@@ -1,15 +1,20 @@
 ﻿using System.Reflection;
+using System.Text;
 using System.Web;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Protocol.Raw;
 
 using GenHTTP.Modules.Conversion.Formatters;
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.Conversion.Serializers.Forms;
 
 public sealed class FormFormat : ISerializationFormat
 {
+    private static readonly ReadOnlyMemory<byte> ContentTypeHeader = "Content-Type"u8.ToArray();
+
     private static readonly Type[] EmptyConstructor = [];
 
     private static readonly object[] EmptyArgs = [];
@@ -95,13 +100,15 @@ public sealed class FormFormat : ISerializationFormat
         });
     }
 
-    /*public static Dictionary<string, string>? GetContent(IRequest request)
+    public static async ValueTask<Dictionary<string, string>?> GetContentAsync(IRequest request)
     {
-        if (request.Content is not null && request.ContentType is not null)
+        var contentType = request.Raw.Header.Headers.GetEntry(ContentTypeHeader);
+
+        if (contentType is not null)
         {
-            if (request.ContentType == ContentType.ApplicationWwwFormUrlEncoded)
+            if (new ContentType(contentType.Value) == ContentType.ApplicationWwwFormUrlEncoded) // todo: ugly API
             {
-                var content = GetRequestContent(request);
+                var content = await GetRequestContentAsync(request); // todo: make this memory based?
 
                 var query = HttpUtility.ParseQueryString(content);
 
@@ -124,26 +131,19 @@ public sealed class FormFormat : ISerializationFormat
         return null;
     }
 
-    private static string GetRequestContent(IRequest request)
+    private static async ValueTask<string> GetRequestContentAsync(IRequest request)
     {
-        var requestContent = request.Content;
+        var requestContent = request.Raw.GetBody(HeaderAccess.Retain);
 
         if (requestContent is null)
         {
             throw new InvalidOperationException("Request content has to be set");
         }
 
-        using var reader = new StreamReader(requestContent, Encoding.UTF8, true, 4096, true);
+        var buffer = await requestContent.ReadToEndAsync();
 
-        var content = reader.ReadToEnd();
-
-        if (request.Content?.CanSeek ?? false)
-        {
-            request.Content?.Seek(0, SeekOrigin.Begin);
-        }
-
-        return content;
-    }*/
+        return Encoding.UTF8.GetString(buffer.Span);
+    }
 
     #endregion
 

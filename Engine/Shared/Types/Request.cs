@@ -26,6 +26,8 @@ public sealed class Request : IRequest
 
     public IEndPoint EndPoint => _raw.EndPoint;
 
+    public IRequestProperties Properties => _raw.Properties;
+
     public IRawRequest Raw => _raw;
 
     public IKeyValueList Headers => _header;

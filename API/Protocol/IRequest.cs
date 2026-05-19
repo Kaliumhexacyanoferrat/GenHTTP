@@ -10,6 +10,8 @@ public interface IRequest
 
     IEndPoint EndPoint { get; }
 
+    IRequestProperties Properties { get; }
+
     IRawRequest Raw { get; }
 
     IKeyValueList Headers { get; }

@@ -10,6 +10,8 @@ public interface IRawRequest
 
     IEndPoint EndPoint { get; }
 
+    IRequestProperties Properties { get; }
+
     IRawRequestHeader Header { get;}
 
     IRawRequestBody? GetBody(HeaderAccess headerAccess);

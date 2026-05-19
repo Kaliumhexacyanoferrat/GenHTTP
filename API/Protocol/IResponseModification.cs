@@ -23,13 +23,6 @@ public interface IResponseModification<out TBuilder>
     TBuilder Status(ResponseStatus status);
 
     /// <summary>
-    /// Specifies the HTTP status code of the response.
-    /// </summary>
-    /// <param name="status">The status code of the response</param>
-    /// <param name="reason">The reason phrase of the response (such as "Not Found" for 404)</param>
-    TBuilder Status(int status, string reason);
-
-    /// <summary>
     /// Specifies how the server should treat the connection after this response has been sent.
     /// </summary>
     /// <param name="handling">The mode to be applied</param>
@@ -44,28 +37,9 @@ public interface IResponseModification<out TBuilder>
     TBuilder Header(string key, string value);
 
     /// <summary>
-    /// Sets the expiration date of the response.
-    /// </summary>
-    /// <param name="expiryDate">The expiration date of the response</param>
-    TBuilder Expires(DateTime expiryDate);
-
-    /// <summary>
-    /// Sets the point in time when the requested resource has been
-    /// modified last.
-    /// </summary>
-    /// <param name="modificationDate">The point in time when the requested resource has been modified last</param>
-    TBuilder Modified(DateTime modificationDate);
-
-    /// <summary>
     /// Adds the given cookie to the response.
     /// </summary>
     /// <param name="cookie">The cookie to be added</param>
     TBuilder Cookie(Cookie cookie);
 
-    /// <summary>
-    /// Sets the encoding of the content.
-    /// </summary>
-    /// <param name="encoding">The encoding of the content</param>
-    TBuilder Encoding(string encoding);
-    
 }
