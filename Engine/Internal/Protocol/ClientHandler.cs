@@ -173,9 +173,7 @@ internal sealed class ClientHandler(ClientContext context)
 
         var response = await context.Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
 
-        var rawResponse = response.Raw;
-
-        var closeRequested = rawResponse.Mode is Connection.Close or Connection.Upgrade;
+        var closeRequested = response.Mode is Connection.Close or Connection.Upgrade;
 
         var active = await context.ResponseHandler.HandleAsync(request, response, HttpProtocol.Http11, keepAliveRequested && !closeRequested);
 
@@ -190,7 +188,7 @@ internal sealed class ClientHandler(ClientContext context)
 
             // todo status code mapping
 
-            var response = new ResponseBuilder().ToLowLevel()
+            var response = new ResponseBuilder()
                 .Status(status)
                 .Content(new StringContent(message))
                 .Build();

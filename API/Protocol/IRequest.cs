@@ -1,5 +1,4 @@
 ﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Protocol.Raw;
 
 namespace GenHTTP.Api.Protocol;
 
@@ -12,18 +11,18 @@ public interface IRequest
 
     IRequestProperties Properties { get; }
 
-    IRawRequest Raw { get; }
+    IRequestHeader Header { get;}
 
-    IKeyValueList Headers { get; }
-
-    IKeyValueList Query { get; }
-
-    IRequestBody? Body { get; }
-
-    RequestMethod Method { get; }
-
-    string Host { get; }
+    IRequestBody? GetBody(HeaderAccess headerAccess);
 
     IResponseBuilder Respond();
+    
+    // todo: wrap body (e.g. content decoding)
 
+}
+
+public enum HeaderAccess
+{
+    Retain,
+    Release
 }

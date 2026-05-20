@@ -6,8 +6,6 @@ using System.Web;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
-
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.ReverseProxy.Websocket;
 
@@ -63,7 +61,7 @@ public sealed class HttpProxy : IHandler
     {
         try
         {
-            var upgradeHeader = request.Raw.Header.Headers.GetEntry(UpgradeHeader);
+            var upgradeHeader = request.Header.Headers.GetEntry(UpgradeHeader);
 
             if (upgradeHeader != null && upgradeHeader.Value.Span.SequenceEqual(WebsocketValue.Span))
             {
@@ -89,11 +87,9 @@ public sealed class HttpProxy : IHandler
 
     private HttpRequestMessage ConfigureRequest(IRequest request)
     {
-        var raw = request.Raw;
+        var headers = request.Header.Headers;
 
-        var headers = raw.Header.Headers;
-
-        var req = new HttpRequestMessage(new HttpMethod(request.Method.Value.ToString()), GetRequestUri(request));
+        var req = new HttpRequestMessage(new HttpMethod(request.Header.Method.Value.ToString()), GetRequestUri(request));
 
         for (var i = 0; i < headers.Count; i++)
         {
@@ -124,7 +120,7 @@ public sealed class HttpProxy : IHandler
             req.Headers.Add("Cookie", string.Join("; ", cookieHeader));
         }*/
 
-        var content = raw.GetBody(HeaderAccess.Retain);
+        var content = request.GetBody(HeaderAccess.Retain);
 
         if (content is not null && CanSendBody(request))
         {
@@ -134,11 +130,11 @@ public sealed class HttpProxy : IHandler
         return req;
     }
 
-    private string GetRequestUri(IRequest request) => Upstream + request.Raw.Header.Target.AsString(decode: false, remainingOnly: true) + GetQueryString(request);
+    private string GetRequestUri(IRequest request) => Upstream + request.Header.Target.AsString(decode: false, remainingOnly: true) + GetQueryString(request);
 
     private static string GetQueryString(IRequest request)
     {
-        var query = request.Raw.Header.Query;
+        var query = request.Header.Query;
 
         if (query.Count > 0)
         {
@@ -223,7 +219,7 @@ public sealed class HttpProxy : IHandler
     {
         if (location.StartsWith(Upstream))
         {
-            var target = request.Raw.Header.Target;
+            var target = request.Header.Target;
 
             var path = target.AsString(decode: false);
             var scoped = target.AsString(decode: false, remainingOnly: true);
@@ -241,7 +237,9 @@ public sealed class HttpProxy : IHandler
 
             var protocol = request.EndPoint.Secure ? "https://" : "http://";
 
-            return location.Replace(Upstream, protocol + request.Host + relativePath);
+            var host = request.Header.Headers.GetEntry("Host");
+            
+            return location.Replace(Upstream, protocol + host + relativePath);
         }
 
         return location;

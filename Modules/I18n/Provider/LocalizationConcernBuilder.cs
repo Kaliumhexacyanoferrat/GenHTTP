@@ -43,7 +43,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// <param name="queryName">The name of the query parameter to extract the language from.</param>
     /// <returns></returns>
     public LocalizationConcernBuilder FromQuery(string queryName = "lang")
-        => FromRequest(request => request.Query.GetValue(queryName));
+        => FromRequest(request => request.Header.Query.GetEntry(queryName));
 
     /// <summary>
     /// Extracts the language from a header.
@@ -51,7 +51,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// <param name="headerName">The name of the header to extract the language from.</param>
     /// <returns></returns>
     public LocalizationConcernBuilder FromHeader(string headerName = "Accept-Language")
-   => FromRequest(request => request.Headers.GetValue(headerName));
+   => FromRequest(request => request.Header.Headers.GetEntry(headerName));
 
     /// <summary>
     /// Extracts the language from a custom selector.

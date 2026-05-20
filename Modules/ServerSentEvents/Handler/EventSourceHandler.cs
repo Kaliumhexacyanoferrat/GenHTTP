@@ -7,7 +7,6 @@ namespace GenHTTP.Modules.ServerSentEvents.Handler;
 
 public sealed class EventSourceHandler : IHandler
 {
-    private static readonly ReadOnlyMemory<byte> LastEventIdHeader = "Last-Event-ID"u8.ToArray();
 
     #region Get-/Setters
 
@@ -36,12 +35,12 @@ public sealed class EventSourceHandler : IHandler
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        if (request.Method != RequestMethod.Get)
+        if (request.Header.Method != RequestMethod.Get)
         {
             throw new ProviderException(ResponseStatus.MethodNotAllowed, "Server Sent Events require a GET request to establish a connection", b => b.Header("Allow", "GET"));
         }
 
-        var lastId = request.Headers.GetValue(LastEventIdHeader);
+        var lastId = request.Header.Headers.GetEntry("Last-Event-ID");
 
         if ((Inspector != null) && !await Inspector(request, lastId))
         {

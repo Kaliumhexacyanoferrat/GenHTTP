@@ -1,5 +1,5 @@
 ﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol.Raw;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.VirtualHosting.Provider;
 

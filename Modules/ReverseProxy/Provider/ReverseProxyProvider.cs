@@ -1,6 +1,5 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
 
 using GenHTTP.Modules.ReverseProxy.Http;
 using GenHTTP.Modules.ReverseProxy.Websocket;
@@ -35,7 +34,7 @@ public sealed class ReverseProxyProvider : IHandler
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var upgradeHeader = request.Raw.Header.Headers.GetEntry(UpgradeHeader);
+        var upgradeHeader = request.Header.Headers.GetEntry(UpgradeHeader);
 
         if (upgradeHeader != null && upgradeHeader.Value.Span.SequenceEqual(WebsocketValue.Span))
         {

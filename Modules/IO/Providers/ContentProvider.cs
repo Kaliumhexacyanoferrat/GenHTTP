@@ -32,7 +32,6 @@ public sealed class ContentProvider : IHandler
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
         var response = request.Respond()
-                              .ToLowLevel()
                               .Status(ResponseStatus.Ok)
                               .Content(Content);
 

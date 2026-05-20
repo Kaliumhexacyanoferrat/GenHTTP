@@ -1,9 +1,5 @@
 ﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
-
-using GenHTTP.Engine.Shared.Types.Raw;
-
 using Glyph11.Protocol;
 
 namespace GenHTTP.Engine.Shared.Types;
@@ -12,50 +8,101 @@ public sealed class Request : IRequest
 {
     private static readonly ReadOnlyMemory<byte> HostHeader = "Host"u8.ToArray();
 
-    private readonly RawRequest _raw = new();
+    private bool _bodyObtained;
+    
+    private IRequestHeader? _retainedHeader;
 
+    private IServer? _server;
+
+    private IEndPoint? _endPoint;
+
+    private readonly RequestHeader _header;
+
+    private readonly RequestProperties _properties;
+    
     private readonly ResponseBuilder _response = new();
-
-    private readonly IKeyValueList _header;
-
-    private readonly IKeyValueList _query;
 
     private bool _resetRequired = true;
 
-    public IServer Server => _raw.Server;
+    #region Get-/Setters
 
-    public IEndPoint EndPoint => _raw.EndPoint;
+    public BinaryRequest Source { get; }
+    
+    public IServer Server => _server ?? throw new InvalidOperationException("Server property has not been initialized");
 
-    public IRequestProperties Properties => _raw.Properties;
+    public IEndPoint EndPoint => _endPoint ?? throw new InvalidOperationException("EndPoint property has not been initialized");
 
-    public IRawRequest Raw => _raw;
+    public IRequestProperties Properties => _properties;
 
-    public IKeyValueList Headers => _header;
+    public IRequestHeader Header
+    {
+        get
+        {
+            if (!_bodyObtained)
+            {
+                return _header;
+            }
 
-    public IKeyValueList Query => _query;
+            if (_retainedHeader == null)
+            {
+                throw new InvalidOperationException("Header information can no longer be accessed");
+            }
 
-    public IRequestBody? Body { get; }
+            return _retainedHeader;
+        }
+    }
 
-    public BinaryRequest Source => _raw.Source;
+    #endregion
 
-    public RequestMethod Method => _raw.Header.Method;
-
-    public string Host => _header.GetValue(HostHeader) ?? throw new InvalidOperationException("Request is missing mandatory host header");
+    #region Initialization
 
     public Request()
     {
-        _header = new KeyValueList(_raw.Header.Headers);
-        _query = new KeyValueList(_raw.Header.Query);
+        Source = new();
+        
+        _header = new(this);
+        _properties = new RequestProperties();
+    }
+
+    #endregion
+    
+    #region Functionality
+    
+    public IRequestBody? GetBody(HeaderAccess headerAccess)
+    {
+        if (_bodyObtained)
+        {
+            throw new InvalidOperationException("Request body can only be fetched once.");
+        }
+
+        if (headerAccess == HeaderAccess.Retain)
+        {
+            _retainedHeader = new RetainedRequestHeader(_header);
+        }
+
+        _bodyObtained = true;
+
+        // todo
+        return null;
     }
 
     public void Apply(IServer server, IEndPoint endPoint)
     {
-        _raw.Apply(server, endPoint);
-    }
+        _server = server;
+        _endPoint = endPoint;
 
+        _header.Apply();
+
+        _properties.Clear();
+
+        _bodyObtained = false;
+        _retainedHeader = null;
+    }
+    
     public void Reset()
     {
-        _raw.Source.Clear();
+        Source.Clear();
+        
         _response.Reset();
 
         _resetRequired = true;
@@ -74,5 +121,7 @@ public sealed class Request : IRequest
 
         return _response;
     }
+    
+    #endregion
 
 }

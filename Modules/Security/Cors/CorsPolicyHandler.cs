@@ -2,8 +2,6 @@
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
-
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.Security.Cors;
@@ -58,7 +56,7 @@ public sealed class CorsPolicyHandler : IConcern
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var (origin, policy) = GetPolicy(request.Raw);
+        var (origin, policy) = GetPolicy(request);
 
         IResponse? response;
 
@@ -83,7 +81,7 @@ public sealed class CorsPolicyHandler : IConcern
 
     private static void ConfigureResponse(IResponse response, ReadOnlyMemory<byte> origin, OriginPolicy policy)
     {
-        var builder = response.Rebuild().ToLowLevel();
+        var builder = response.Rebuild();
 
         builder.Header(AcaOrigin, origin);
 
@@ -121,7 +119,7 @@ public sealed class CorsPolicyHandler : IConcern
         }
     }
 
-    private (ReadOnlyMemory<byte> origin, OriginPolicy? policy) GetPolicy(IRawRequest request)
+    private (ReadOnlyMemory<byte> origin, OriginPolicy? policy) GetPolicy(IRequest request)
     {
         var origin = request.Header.Headers.GetEntry(OriginHeader);
 

@@ -37,7 +37,7 @@ public sealed class BasicAuthenticationConcern : IConcern
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var authHeader = request.Headers.GetValue("Authorization");
+        var authHeader = request.Header.Headers.GetEntry("Authorization");
 
         if (authHeader == null)
         {

@@ -37,7 +37,7 @@ public sealed class InspectionConcern : IConcern
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        if (request.Raw.Header.Query.ContainsKey(InspectInstruction))
+        if (request.Header.Query.ContainsKey(InspectInstruction))
         {
             var content = await Content.HandleAsync(request);
 

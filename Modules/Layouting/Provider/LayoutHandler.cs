@@ -2,7 +2,6 @@
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
 
 namespace GenHTTP.Modules.Layouting.Provider;
 
@@ -54,7 +53,7 @@ public sealed class LayoutHandler : IHandler
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var target = request.Raw.Header.Target;
+        var target = request.Header.Target;
 
         if (target.Current is not null)
         {

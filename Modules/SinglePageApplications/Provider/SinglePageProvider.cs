@@ -1,8 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
-
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.SinglePageApplications.Provider;
@@ -43,7 +41,7 @@ public sealed class SinglePageProvider : IHandler
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        if (request.Raw.Header.Target.Current == null)
+        if (request.Header.Target.Current == null)
         {
             var index = await GetIndex();
 

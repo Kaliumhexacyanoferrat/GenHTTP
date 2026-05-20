@@ -1,5 +1,5 @@
 ﻿using GenHTTP.Api.Content.IO;
-using GenHTTP.Api.Protocol.Raw;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.IO;
 
@@ -13,7 +13,7 @@ public static class ResourceTreeExtensions
     /// <param name="node">The node used to resolve the target</param>
     /// <param name="target">The target to be resolved</param>
     /// <returns>A tuple of the node and resource resolved from the container (or both null, if they could not be resolved)</returns>
-    public static async ValueTask<(IResourceContainer? node, IResource? resource)> Find(this IResourceContainer node, IRawRequestTarget target)
+    public static async ValueTask<(IResourceContainer? node, IResource? resource)> Find(this IResourceContainer node, IRequestTarget target)
     {
         var current = target.Current;
 

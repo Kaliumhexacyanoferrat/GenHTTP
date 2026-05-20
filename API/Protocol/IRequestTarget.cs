@@ -1,6 +1,6 @@
-﻿namespace GenHTTP.Api.Protocol.Raw;
+﻿namespace GenHTTP.Api.Protocol;
 
-public interface IRawRequestTarget
+public interface IRequestTarget
 {
 
     PathSegment? Current { get; }

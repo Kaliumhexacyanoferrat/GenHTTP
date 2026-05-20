@@ -32,7 +32,7 @@ public class SnifferPreventionConcern : IConcern
 
         if (content != null)
         {
-            content.Rebuild().ToLowLevel().Header(ContentTypeOptions, NoSniffValue);
+            content.Rebuild().Header(ContentTypeOptions, NoSniffValue);
         }
 
         return content;

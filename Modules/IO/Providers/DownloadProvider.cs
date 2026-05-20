@@ -35,7 +35,7 @@ public sealed class DownloadProvider : IHandler
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        if (request.Raw.Header.Target.Current == null)
+        if (request.Header.Target.Current == null)
         {
             return default;
         }

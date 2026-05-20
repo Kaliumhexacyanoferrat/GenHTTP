@@ -1,4 +1,4 @@
-using GenHTTP.Api.Protocol.Raw;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Reflection.Routing.Segments;
 
@@ -13,7 +13,7 @@ public sealed class ClosingSegment(bool forceTrailingSlash, bool wildcard) : IRo
 
     public string[] ProvidedArguments { get; } = [];
 
-    public (bool matched, int offsetBy) TryMatch(IRawRequestTarget target, int offset, ref PathArgumentSink argumentSink)
+    public (bool matched, int offsetBy) TryMatch(IRequestTarget target, int offset, ref PathArgumentSink argumentSink)
     {
         var ended = target.Next(offset) is null;
 

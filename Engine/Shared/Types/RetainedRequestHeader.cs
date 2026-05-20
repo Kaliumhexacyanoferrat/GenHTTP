@@ -1,31 +1,30 @@
 ﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
 
-namespace GenHTTP.Engine.Shared.Types.Raw;
+namespace GenHTTP.Engine.Shared.Types;
 
-public class RetainedRequestHeader : IRawRequestHeader
+public class RetainedRequestHeader : IRequestHeader
 {
 
     public RequestMethod Method { get; }
 
     public ReadOnlyMemory<byte> Path { get; }
 
-    public IRawRequestTarget Target { get; }
+    public IRequestTarget Target { get; }
 
-    public IRawKeyValueList Query { get; }
+    public IKeyValueList Query { get; }
 
     public ReadOnlyMemory<byte> Version { get; }
 
-    public IRawKeyValueList Headers { get; }
+    public IKeyValueList Headers { get; }
 
-    internal RetainedRequestHeader(RawRequestHeader source)
+    internal RetainedRequestHeader(RequestHeader source)
     {
         Path = source.Path.ToArray();
         Version = source.Version.ToArray();
 
         Method = new(source.Method.Value.ToArray());
 
-        var target = new RawRequestTarget();
+        var target = new RequestTarget();
 
         target.Apply(Path);
 

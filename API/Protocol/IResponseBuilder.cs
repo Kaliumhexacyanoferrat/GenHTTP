@@ -1,19 +1,18 @@
 ﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Protocol.Raw;
 
 namespace GenHTTP.Api.Protocol;
 
 public interface IResponseBuilder : IBuilder<IResponse>
 {
 
-    IResponseBuilder Status(ResponseStatus status);
+    IResponseBuilder Status(ResponseStatus code);
 
     IResponseBuilder Connection(Connection mode);
 
+    IResponseBuilder Header(ReadOnlyMemory<byte> name, ReadOnlyMemory<byte> value);
+    
     IResponseBuilder Header(string name, string value);
 
     IResponseBuilder Content(IResponseContent? content);
-
-    IRawResponseBuilder ToLowLevel();
 
 }

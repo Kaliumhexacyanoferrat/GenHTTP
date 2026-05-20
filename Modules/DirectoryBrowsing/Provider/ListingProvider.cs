@@ -28,7 +28,7 @@ public sealed class ListingProvider : IHandler
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var target = request.Raw.Header.Target;
+        var target = request.Header.Target;
 
         var model = new ListingModel(Container, !target.IsLast);
 

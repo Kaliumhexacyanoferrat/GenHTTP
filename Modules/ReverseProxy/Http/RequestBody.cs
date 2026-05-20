@@ -1,9 +1,9 @@
 ﻿using System.Net;
-using GenHTTP.Api.Protocol.Raw;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.ReverseProxy.Http;
 
-public sealed class RequestBody(IRawRequestBody body) : HttpContent
+public sealed class RequestBody(IRequestBody body) : HttpContent
 {
 
     protected override async Task SerializeToStreamAsync(Stream stream, TransportContext? context)

@@ -1,7 +1,6 @@
 using System.Text;
 using System.Text.RegularExpressions;
-
-using GenHTTP.Api.Protocol.Raw;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Reflection.Routing.Segments;
 
@@ -48,7 +47,7 @@ internal sealed partial class RegexSegment : IRoutingSegment
         ProvidedArguments = providedArguments.ToArray();
     }
 
-    public (bool matched, int offsetBy) TryMatch(IRawRequestTarget target, int offset, ref PathArgumentSink argumentSink)
+    public (bool matched, int offsetBy) TryMatch(IRequestTarget target, int offset, ref PathArgumentSink argumentSink)
     {
         var part = target.Next(offset);
 

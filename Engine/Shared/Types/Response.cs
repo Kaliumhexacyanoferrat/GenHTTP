@@ -1,21 +1,51 @@
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
-using GenHTTP.Engine.Shared.Types.Raw;
 
 namespace GenHTTP.Engine.Shared.Types;
 
-public class Response(IResponseBuilder builder) : IResponse
+public class Response : IResponse
 {
-    private readonly RawResponse _raw = new();
+    private readonly EditableKeyValueList _headers = new();
 
-    public IRawResponse Raw => _raw;
+    private readonly IResponseBuilder _builder;
+    
+    public ResponseStatus Status { get; set; }
 
-    public IResponseContent? Content => _raw.Content;
+    public Connection Mode { get; set; }
+    
+    public IResponseContent? Content { get; set; }
 
-    public IResponseBuilder Rebuild() => builder;
+    public IKeyValueList Headers => _headers;
 
-    public RawResponse Source => _raw;
+    public EditableKeyValueList EditableHeaders => _headers;
+    
+    public Response(IResponseBuilder builder)
+    {
+        Status = ResponseStatus.NoContent;
+        Mode = Connection.KeepAlive;
+        
+        _builder = builder;
+    }
+    
+    public IResponseBuilder Rebuild() => _builder;
+    
+    public void Reset()
+    {
+        if (Status != ResponseStatus.NoContent)
+        {
+            Status = ResponseStatus.NoContent;
+        }
 
-    public void Reset() => _raw.Reset();
+        if (Mode != Connection.KeepAlive)
+        {
+            Mode = Connection.KeepAlive;
+        }
 
+        if (Content != null)
+        {
+            Content = null;
+        }
+
+        _headers.Clear();
+    }
+    
 }

@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
 
 namespace GenHTTP.Modules.Security.Providers;
 
@@ -41,11 +40,11 @@ public sealed class StrictTransportConcern : IConcern
         {
             if (request.EndPoint.Secure)
             {
-                var existing = response.Raw.Headers.GetEntry(StrictTransportHeader);
+                var existing = response.Headers.GetEntry(StrictTransportHeader);
 
                 if (existing == null)
                 {
-                    response.Rebuild().ToLowLevel().Header(StrictTransportHeader, HeaderValue);
+                    response.Rebuild().Header(StrictTransportHeader, HeaderValue);
                 }
             }
         }

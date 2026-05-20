@@ -1,5 +1,4 @@
 ﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
 
 namespace GenHTTP.Modules.Conversion.Serializers;
 
@@ -42,7 +41,7 @@ public sealed class SerializationRegistry
     /// <returns>A serialization format to deserialize the specified content type, or the default one (if any)</returns>
     public ISerializationFormat? GetDeserialization(IRequest request)
     {
-        var contentType = request.Raw.Header.Headers.GetEntry(ContentTypeHeader);
+        var contentType = request.Header.Headers.GetEntry(ContentTypeHeader);
         
         if (contentType != null)
         {
@@ -60,7 +59,7 @@ public sealed class SerializationRegistry
     /// <returns>Either a format that can serialize into the requested format or the default format (if any)</returns>
     public ISerializationFormat? GetSerialization(IRequest request)
     {
-        var accepted = request.Raw.Header.Headers.GetEntry(AcceptHeader);
+        var accepted = request.Header.Headers.GetEntry(AcceptHeader);
         
         if (accepted != null)
         {

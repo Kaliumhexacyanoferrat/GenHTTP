@@ -4,12 +4,13 @@ namespace GenHTTP.Modules.ServerCaching.Provider;
 
 public static class CacheKey
 {
+    private static readonly ReadOnlyMemory<byte> HostHeader = "Host"u8.ToArray();
 
     public static string GetKey(this IRequest request)
     {
         unchecked
         {
-            var header = request.Raw.Header;
+            var header = request.Header;
 
             ulong hash = 17;
 
@@ -23,7 +24,12 @@ public static class CacheKey
                 hash = hash * 23 + (ulong)arg.Value.GetHashCode();
             }
 
-            hash = hash * 23 + (ulong)request.Host.GetHashCode();
+            var host = request.Header.Headers.GetEntry(HostHeader);
+
+            if (host != null)
+            {
+                hash = hash * 23 + (ulong)host.GetHashCode();
+            }
 
             return hash.ToString();
         }

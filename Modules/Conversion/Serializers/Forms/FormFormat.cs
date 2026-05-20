@@ -4,8 +4,6 @@ using System.Web;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
-
 using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.IO;
 
@@ -102,7 +100,7 @@ public sealed class FormFormat : ISerializationFormat
 
     public static async ValueTask<Dictionary<string, string>?> GetContentAsync(IRequest request)
     {
-        var contentType = request.Raw.Header.Headers.GetEntry(ContentTypeHeader);
+        var contentType = request.Header.Headers.GetEntry(ContentTypeHeader);
 
         if (contentType is not null)
         {
@@ -133,7 +131,7 @@ public sealed class FormFormat : ISerializationFormat
 
     private static async ValueTask<string> GetRequestContentAsync(IRequest request)
     {
-        var requestContent = request.Raw.GetBody(HeaderAccess.Retain);
+        var requestContent = request.GetBody(HeaderAccess.Retain);
 
         if (requestContent is null)
         {

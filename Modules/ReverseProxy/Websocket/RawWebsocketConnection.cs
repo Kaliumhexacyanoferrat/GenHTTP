@@ -117,7 +117,7 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
 
         upgradeRequestSb.Append(Crlf);
 
-        var headers = request.Raw.Header.Headers;
+        var headers = request.Header.Headers;
 
         for (var i = 0; i < headers.Count; i++)
         {

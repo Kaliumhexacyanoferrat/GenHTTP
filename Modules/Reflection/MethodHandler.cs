@@ -112,7 +112,7 @@ public sealed class MethodHandler : IHandler
     {
         if (match.Offset > 0)
         {
-            request.Raw.Header.Target.Advance(match.Offset);
+            request.Header.Target.Advance(match.Offset);
         }
 
         if (UseCodeGeneration)

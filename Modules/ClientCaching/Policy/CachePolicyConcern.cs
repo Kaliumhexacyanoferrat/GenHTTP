@@ -39,7 +39,7 @@ public sealed class CachePolicyConcern : IConcern
 
         if (response != null)
         {
-            if (request.HasType(RequestMethod.Get) && response.Raw.Status == ResponseStatus.Ok)
+            if (request.HasType(RequestMethod.Get) && response.Status == ResponseStatus.Ok)
             {
                 if (Predicate == null || Predicate(request, response))
                 {
@@ -49,7 +49,6 @@ public sealed class CachePolicyConcern : IConcern
                     value.TryFormat(buffer, out _, "R");
 
                     response.Rebuild()
-                            .ToLowLevel()
                             .Header(ExpiresHeader, buffer);
                 }
             }

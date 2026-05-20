@@ -2,7 +2,6 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
 using GenHTTP.Modules.Redirects;
 using GenHTTP.Modules.IO;
 
@@ -57,9 +56,9 @@ public sealed class SecureUpgradeConcern : IConcern
                     }
                     if (Mode == SecureUpgrade.Allow)
                     {
-                        if (request.Method == RequestMethod.Get)
+                        if (request.Header.Method == RequestMethod.Get)
                         {
-                            var flag = request.Raw.Header.Headers.GetEntry(UpgradeInsecureRequestsHeader);
+                            var flag = request.Header.Headers.GetEntry(UpgradeInsecureRequestsHeader);
 
                             if (flag?.Span.SequenceEqual(YesValue.Span) == true)
                             {
@@ -67,7 +66,7 @@ public sealed class SecureUpgradeConcern : IConcern
                                                              .Build()
                                                              .HandleAsync(request);
 
-                                response?.Rebuild().ToLowLevel().Header(VaryHeader, UpgradeInsecureRequestsHeader);
+                                response?.Rebuild().Header(VaryHeader, UpgradeInsecureRequestsHeader);
 
                                 return response;
                             }
@@ -90,7 +89,7 @@ public sealed class SecureUpgradeConcern : IConcern
 
         var hostString = (host != null) ? Encoding.ASCII.GetString(host.Value.Span) : string.Empty;
 
-        var pathString = Encoding.ASCII.GetString(request.Raw.Header.Path.Span);
+        var pathString = Encoding.ASCII.GetString(request.Header.Path.Span);
 
         return $"https://{hostString}{port}{pathString}";
     }

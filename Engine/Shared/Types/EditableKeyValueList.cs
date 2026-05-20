@@ -1,8 +1,8 @@
-﻿using GenHTTP.Api.Protocol.Raw;
+﻿using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Engine.Shared.Types.Raw;
+namespace GenHTTP.Engine.Shared.Types;
 
-public class EditableKeyValueList : IRawKeyValueList
+public class EditableKeyValueList : IKeyValueList
 {
     private readonly List<KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>> _store = new();
 

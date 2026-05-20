@@ -25,10 +25,8 @@ public class TextErrorMapper : IErrorMapper<Exception>
     private IResponse GetStringResponse(IRequest request, string text, ResponseStatus status)
     {
         return request.Respond()
-                      .ToLowLevel()
                       .Status(status)
                       .Content(new StringContent(text))
-                      .ToHighLevel()
                       .Build();
     }
 

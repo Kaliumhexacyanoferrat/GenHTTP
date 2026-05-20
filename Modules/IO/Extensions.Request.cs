@@ -1,5 +1,4 @@
 ﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
 
 namespace GenHTTP.Modules.IO;
 
@@ -11,7 +10,7 @@ public static class RequestExtensions
     {
         foreach (var method in methods)
         {
-            if (request.Method == method)
+            if (request.Header.Method == method)
             {
                 return true;
             }
@@ -22,7 +21,7 @@ public static class RequestExtensions
 
     public static ReadOnlyMemory<byte>? GetHostWithoutPort(this IRequest request)
     {
-        var host = request.Raw.Header.Headers.GetEntry(HostHeader);
+        var host = request.Header.Headers.GetEntry(HostHeader);
 
         if (host == null)
         {

@@ -34,7 +34,7 @@ public sealed class MethodCollection : IHandler
         (MethodHandler, RoutingMatch)? directMatch = null;
         (MethodHandler, RoutingMatch)? wildcardMatch = null;
 
-        var requestTarget = request.Raw.Header.Target;
+        var requestTarget = request.Header.Target;
 
         for (var i = 0; i < Methods.Count; i++)
         {
@@ -51,7 +51,7 @@ public sealed class MethodCollection : IHandler
                 continue;
             }
 
-            if (!operation.Configuration.SupportedMethods.Contains(request.Method))
+            if (!operation.Configuration.SupportedMethods.Contains(request.Header.Method))
             {
                 foundOthers = true;
                 continue;

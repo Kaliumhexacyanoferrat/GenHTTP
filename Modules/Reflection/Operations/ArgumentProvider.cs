@@ -3,8 +3,6 @@ using System.Text;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
-
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Reflection.Routing;
@@ -39,7 +37,7 @@ public static class ArgumentProvider
 
     public static async ValueTask<object?> GetBodyArgumentAsync(IRequest request, string name, Type type, MethodRegistry registry)
     {
-        var content = request.Raw.GetBody(HeaderAccess.Retain);
+        var content = request.GetBody(HeaderAccess.Retain);
 
         if (content == null)
         {
@@ -62,7 +60,7 @@ public static class ArgumentProvider
 
     public static object? GetQueryArgument(IRequest request, Dictionary<string, string>? formArguments, OperationArgument argument, MethodRegistry registry)
     {
-        var queryValue = request.Query.GetValue(argument.Name); // todo: string based
+        var queryValue = request.Header.Query.GetEntry(argument.Name); // todo: string based
 
         if (queryValue is not null)
         {
@@ -89,7 +87,7 @@ public static class ArgumentProvider
             throw new ProviderException(ResponseStatus.UnsupportedMediaType, "Requested format is not supported");
         }
 
-        var content = request.Raw.GetBody(HeaderAccess.Retain);
+        var content = request.GetBody(HeaderAccess.Retain);
 
         if (content is null)
         {
@@ -109,7 +107,7 @@ public static class ArgumentProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Stream GetStream(IRequest request)
     {
-        var content = request.Raw.GetBody(HeaderAccess.Retain);
+        var content = request.GetBody(HeaderAccess.Retain);
 
         if (content == null)
         {

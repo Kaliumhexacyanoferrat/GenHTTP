@@ -1,4 +1,4 @@
-﻿namespace GenHTTP.Api.Protocol.Raw;
+﻿namespace GenHTTP.Api.Protocol;
 
 public static class KnownHeaders
 {

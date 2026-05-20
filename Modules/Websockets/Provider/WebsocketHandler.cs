@@ -1,6 +1,5 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
 
 using GenHTTP.Modules.Websockets.Protocol;
 
@@ -27,7 +26,6 @@ public class WebsocketHandler(Func<IRequest, IResponseContent> contentFactory) :
         var content = contentFactory(request);
 
         var response = request.Respond()
-                              .ToLowLevel()
                               .Status(ResponseStatus.SwitchingProtocols)
                               .Connection(Connection.Upgrade)
                               .Header(UpgradeHeaderName, UpgradeHeaderValue)
@@ -40,9 +38,9 @@ public class WebsocketHandler(Func<IRequest, IResponseContent> contentFactory) :
 
     private static ReadOnlyMemory<byte> ValidateRequest(IRequest request)
     {
-        var headers = request.Raw.Header.Headers;
+        var headers = request.Header.Headers;
 
-        if (request.Method != RequestMethod.Get)
+        if (request.Header.Method != RequestMethod.Get)
         {
             throw new ProviderException(ResponseStatus.MethodNotAllowed, "Websocket connections can only be initiated via GET");
         }

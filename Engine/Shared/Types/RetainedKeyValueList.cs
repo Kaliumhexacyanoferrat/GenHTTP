@@ -1,14 +1,14 @@
-﻿using GenHTTP.Api.Protocol.Raw;
+﻿using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Engine.Shared.Types.Raw;
+namespace GenHTTP.Engine.Shared.Types;
 
-public class RetainedKeyValueList : IRawKeyValueList
+public class RetainedKeyValueList : IKeyValueList
 {
     private readonly List<KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>> _items;
 
     public int Count => _items.Count;
 
-    public RetainedKeyValueList(IRawKeyValueList source)
+    public RetainedKeyValueList(IKeyValueList source)
     {
         _items = new(source.Count);
 

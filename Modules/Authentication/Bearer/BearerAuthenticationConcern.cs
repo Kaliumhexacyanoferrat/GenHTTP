@@ -52,7 +52,7 @@ internal sealed class BearerAuthenticationConcern : IConcern
     {
         IdentityModelEventSource.LogCompleteSecurityArtifact = true;
 
-        var authHeader = request.Headers.GetValue("Authorization");
+        var authHeader = request.Header.Headers.GetEntry("Authorization");
 
         if (authHeader == null)
         {

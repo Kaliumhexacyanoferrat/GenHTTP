@@ -1,8 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
-
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.IO.Streaming;
 
@@ -36,7 +34,7 @@ public sealed class StaticWebsiteHandler : IHandler
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var target = request.Raw.Header.Target;
+        var target = request.Header.Target;
 
         if (target.HasTrailingSlash)
         {

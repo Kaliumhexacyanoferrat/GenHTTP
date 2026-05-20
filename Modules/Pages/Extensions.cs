@@ -1,8 +1,6 @@
 ﻿using System.Web;
 
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
-
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
 namespace GenHTTP.Modules.Pages;
@@ -19,10 +17,8 @@ public static class Extensions
     /// <param name="content">The HTML page to be served</param>
     /// <returns>The HTML page response</returns>
     public static IResponseBuilder GetPage(this IRequest request, string content) => request.Respond()
-                                                                                            .ToLowLevel()
                                                                                             .Content(new StringContent(content))
-                                                                                            .Header(KnownHeaders.ContentType, HtmlContentType)
-                                                                                            .ToHighLevel();
+                                                                                            .Header(KnownHeaders.ContentType, HtmlContentType);
 
     /// <summary>
     /// Escapes the given string so it can safely be used in HTML.

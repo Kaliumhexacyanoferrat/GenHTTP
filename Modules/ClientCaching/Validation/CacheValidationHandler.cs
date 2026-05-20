@@ -1,7 +1,5 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
-
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.ClientCaching.Validation;
@@ -37,13 +35,13 @@ public sealed class CacheValidationHandler : IConcern
 
         if (response != null && request.HasType(SupportedMethods))
         {
-            if ((response.Content != null) && (response.Raw.Mode != Connection.Upgrade))
+            if ((response.Content != null) && (response.Mode != Connection.Upgrade))
             {
                 var eTag = await CalculateETag(response);
 
-                var cached = request.Raw.Header.Headers.GetEntry(IfNoneMatchHeader);
+                var cached = request.Header.Headers.GetEntry(IfNoneMatchHeader);
 
-                var builder = response.Rebuild().ToLowLevel();
+                var builder = response.Rebuild();
 
                 if (cached is not null && eTag is not null)
                 {
@@ -68,7 +66,7 @@ public sealed class CacheValidationHandler : IConcern
 
     private static ValueTask<ReadOnlyMemory<byte>?> CalculateETag(IResponse response)
     {
-        var eTag = response.Raw.Headers.GetEntry(EtagHeader);
+        var eTag = response.Headers.GetEntry(EtagHeader);
 
         if (eTag != null)
         {

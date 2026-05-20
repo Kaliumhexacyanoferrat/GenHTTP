@@ -1,7 +1,5 @@
-﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
-
-using GenHTTP.Engine.Shared.Types.Raw;
+﻿using System.Text;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Shared.Types;
 
@@ -9,39 +7,46 @@ public class ResponseBuilder : IResponseBuilder
 {
     private readonly Response _response;
 
-    private readonly RawResponseBuilder _raw;
-
     public ResponseBuilder()
     {
         _response = new(this);
-        _raw = new(_response, this);
     }
 
     public IResponseBuilder Status(ResponseStatus status)
     {
-        _raw.Status(status);
+        _response.Status = status;
         return this;
     }
 
     public IResponseBuilder Connection(Connection mode)
     {
-        _raw.Connection(mode);
+        _response.Mode = mode;
         return this;
     }
 
-    public IResponseBuilder Header(string name, string value)
+    public IResponseBuilder Header(ReadOnlyMemory<byte> name, ReadOnlyMemory<byte> value)
     {
-        _raw.Header(name.GetMemory(), value.GetMemory());
+        _response.EditableHeaders.Add(name, value);
         return this;
     }
-
+    
+    public IResponseBuilder Header(string name, string value)
+        => Header(Encoding.ASCII.GetBytes(name), Encoding.ASCII.GetBytes(value));
+    
     public IResponseBuilder Content(IResponseContent? content)
     {
-        _raw.Content(content);
+        if (content != null)
+        {
+            // todo?
+            if (_response.Status == ResponseStatus.NoContent)
+            {
+                _response.Status = ResponseStatus.Ok;
+            }
+        }
+
+        _response.Content = content;
         return this;
     }
-
-    public IRawResponseBuilder ToLowLevel() => _raw;
 
     public IResponse Build() => _response;
 

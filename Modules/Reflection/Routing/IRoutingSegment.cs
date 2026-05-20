@@ -1,4 +1,4 @@
-using GenHTTP.Api.Protocol.Raw;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Reflection.Routing;
 
@@ -23,6 +23,6 @@ public interface IRoutingSegment
     /// <param name="offset">The offset from the current routing position to be applied</param>
     /// <param name="argumentSink">The sink to write argument values to</param>
     /// <returns>Whether the segment matched and what offset to be applied for this segment</returns>
-    (bool matched, int offsetBy) TryMatch(IRawRequestTarget target, int offset, ref PathArgumentSink argumentSink);
+    (bool matched, int offsetBy) TryMatch(IRequestTarget target, int offset, ref PathArgumentSink argumentSink);
 
 }

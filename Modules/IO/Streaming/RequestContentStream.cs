@@ -1,10 +1,10 @@
-﻿using GenHTTP.Api.Protocol.Raw;
+﻿using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.IO.Streaming;
 
 // todo: eliminate this class?
 
-public class RequestContentStream(IRawRequestBody body) : Stream
+public class RequestContentStream(IRequestBody body) : Stream
 {
     private ReadOnlyMemory<byte> _remaining = ReadOnlyMemory<byte>.Empty;
 

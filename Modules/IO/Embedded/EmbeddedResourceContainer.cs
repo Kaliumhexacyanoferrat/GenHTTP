@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 
 using GenHTTP.Api.Content.IO;
-using GenHTTP.Api.Protocol.Raw;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.IO.Embedded;
 

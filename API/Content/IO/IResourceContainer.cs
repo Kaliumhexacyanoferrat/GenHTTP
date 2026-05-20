@@ -1,4 +1,4 @@
-﻿using GenHTTP.Api.Protocol.Raw;
+﻿using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Content.IO;
 

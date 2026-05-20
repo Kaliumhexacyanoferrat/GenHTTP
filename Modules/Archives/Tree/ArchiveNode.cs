@@ -1,5 +1,5 @@
 ﻿using GenHTTP.Api.Content.IO;
-using GenHTTP.Api.Protocol.Raw;
+using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO.Streaming;
 
 using SharpCompress.Common;

@@ -53,11 +53,9 @@ public sealed class OpenApiConcern : IConcern
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        if (request.Method == RequestMethod.Get || request.Method == RequestMethod.Head)
+        if (request.Header.Method == RequestMethod.Get || request.Header.Method == RequestMethod.Head)
         {
-            var raw = request.Raw;
-
-            var path = raw.Header.Target.Current;
+            var path = request.Header.Target.Current;
 
             if (path != null)
             {
@@ -67,7 +65,7 @@ public sealed class OpenApiConcern : IConcern
                 {
                     IResponse response;
 
-                    var accept = request.Headers.GetValue("Accept");
+                    var accept = request.Header.Headers.GetEntry("Accept");
 
                     if (accept != null)
                     {
@@ -123,13 +121,15 @@ public sealed class OpenApiConcern : IConcern
 
         document.SchemaType = SchemaType.OpenApi3;
 
-        var path = request.Raw.Header.Target.AsString(decode: false);
+        var path = request.Header.Target.AsString(decode: false);
 
-        if (request.Host != null)
+        var host = request.Header.Headers.GetEntry("Host");
+
+        if (host != null)
         {
             document.Servers.Add(new OpenApiServer
             {
-                Url = (request.EndPoint.Secure ? "https://" : "http://") + request.Host + path[..path.LastIndexOf('/')]
+                Url = (request.EndPoint.Secure ? "https://" : "http://") + host + path[..path.LastIndexOf('/')]
             });
         }
 

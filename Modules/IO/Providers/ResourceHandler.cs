@@ -30,7 +30,7 @@ public sealed class ResourceHandler : IHandler
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var (_, resource) = await Tree.Find(request.Raw.Header.Target);
+        var (_, resource) = await Tree.Find(request.Header.Target);
 
         if (resource is not null)
         {

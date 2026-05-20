@@ -1,13 +1,17 @@
 ﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
+using Glyph = Glyph11.Protocol;
 
 namespace GenHTTP.Engine.Shared.Types;
 
-public sealed class KeyValueList(IRawKeyValueList source) : IKeyValueList
+public sealed class KeyValueList(Glyph.KeyValueList source) : IKeyValueList
 {
 
-    public string? GetValue(string key) => source.GetEntry(key.GetMemory())?.GetString();
+    public int Count => source.Count;
+
+    public KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>> this[int index] => source[index];
+
+    public string? GetValue(string key) => this.GetEntry(key.GetMemory())?.GetString();
 
     public string? GetValue(ReadOnlyMemory<byte> key) => GetValue(key.GetString());
-
+    
 }

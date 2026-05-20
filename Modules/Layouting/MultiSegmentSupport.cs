@@ -1,6 +1,5 @@
 ﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol.Raw;
-
+using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Layouting.Provider;
 
 namespace GenHTTP.Modules.Layouting;

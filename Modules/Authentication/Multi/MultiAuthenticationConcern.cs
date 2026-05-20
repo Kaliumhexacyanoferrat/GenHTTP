@@ -5,6 +5,7 @@ namespace GenHTTP.Modules.Authentication.Multi;
 
 public sealed class MultiAuthenticationConcern : IConcern
 {
+    
     #region Get-/Setters
 
     public IHandler Content { get; }
@@ -74,7 +75,7 @@ public sealed class MultiAuthenticationConcern : IConcern
             return Response;
         }
 
-        public ResponseStatus? Status => Exception?.Status ?? Response?.Raw.Status;
+        public ResponseStatus? Status => Exception?.Status ?? Response?.Status;
 
     }
 

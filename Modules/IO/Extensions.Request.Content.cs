@@ -1,6 +1,5 @@
 ﻿using System.Buffers;
-
-using GenHTTP.Api.Protocol.Raw;
+using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.IO;
@@ -8,7 +7,7 @@ namespace GenHTTP.Modules.IO;
 public static class RequestContentExtensions
 {
 
-    public static async ValueTask<ReadOnlyMemory<byte>> ReadToEndAsync(this IRawRequestBody body)
+    public static async ValueTask<ReadOnlyMemory<byte>> ReadToEndAsync(this IRequestBody body)
     {
         var first = await body.TryReadAsync();
 
@@ -38,6 +37,6 @@ public static class RequestContentExtensions
         return buffer.WrittenMemory;
     }
 
-    public static RequestContentStream AsStream(this IRawRequestBody body) => new RequestContentStream(body);
+    public static RequestContentStream AsStream(this IRequestBody body) => new RequestContentStream(body);
 
 }

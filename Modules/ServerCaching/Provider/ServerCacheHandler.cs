@@ -69,7 +69,7 @@ public sealed class ServerCacheHandler : IConcern
                 response = await Content.HandleAsync(request);
             }
 
-            var status = response?.Raw.Status;
+            var status = response?.Status;
 
             if (response != null && (status == ResponseStatus.Ok || status == ResponseStatus.NoContent))
             {
@@ -110,7 +110,7 @@ public sealed class ServerCacheHandler : IConcern
             {
                 foreach (var header in variant.Variations)
                 {
-                    var actual = request.Headers.GetValue(header.Key);
+                    var actual = request.Header.Headers.GetEntry(header.Key);
 
                     if (actual != null)
                     {
@@ -177,15 +177,13 @@ public sealed class ServerCacheHandler : IConcern
     {
         var headers = new Dictionary<string, string>();
 
-        var rawResponse = response.Raw;
-
-        var rawResponseHeaders = rawResponse.Headers;
+        var responseHeaders = response.Headers;
 
         string? vary = null;
 
-        for (var i = 0; i < rawResponseHeaders.Count; i++)
+        for (var i = 0; i < responseHeaders.Count; i++)
         {
-            var header = rawResponseHeaders[i];
+            var header = responseHeaders[i];
 
             var key = Encoding.ASCII.GetString(header.Key.Span);
             var value = Encoding.ASCII.GetString(header.Value.Span);
@@ -208,7 +206,7 @@ public sealed class ServerCacheHandler : IConcern
 
             foreach (var entry in vary.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             {
-                var value = request.Headers.GetValue(entry);
+                var value = request.Header.Headers.GetEntry(entry);
 
                 if (value != null)
                 {
@@ -219,13 +217,11 @@ public sealed class ServerCacheHandler : IConcern
 
         var (checksum, contentLength, contentType, contentEncoding) = await ExtractContentValues(response);
 
-        return new CachedResponse((int)rawResponse.Status, variations, headers, cookies, contentType, contentEncoding, contentLength, checksum);
+        return new CachedResponse((int)response.Status, variations, headers, cookies, contentType, contentEncoding, contentLength, checksum);
     }
 
     private static async ValueTask<bool> HasChanged(IResponse current, CachedResponse cached)
     {
-        var raw = current.Raw;
-
         var (checksum, contentLength, contentType, contentEncoding) = await ExtractContentValues(current);
 
         return cached.ContentChecksum != checksum
@@ -256,7 +252,7 @@ public sealed class ServerCacheHandler : IConcern
 
     private static bool HeadersChanged(IResponse current, CachedResponse cached)
     {
-        var headers = current.Raw.Headers;
+        var headers = current.Headers;
 
         for (var i = 0; i < headers.Count; i++)
         {

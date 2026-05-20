@@ -2,8 +2,6 @@
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
-
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.VirtualHosting.Provider;

@@ -4,15 +4,14 @@ public interface IRequestBody
 {
 
     /// <summary>
-    /// Provides the body of the request as a stream.
+    /// Fetches the next chunk of data from the underlying connection.
     /// </summary>
-    /// <returns>The stream created to access the body</returns>
-    Stream AsStream();
+    /// <returns>The next chunk of data read from the underlying connection or null, if no more data is left to be read</returns>
+    /// <remarks>
+    /// Transparently handles content length boundaries and chunked encoding.
+    /// </remarks>
+    ValueTask<ReadOnlyMemory<byte>?> TryReadAsync();
 
-    /// <summary>
-    /// Reads the whole request body into a byte array.
-    /// </summary>
-    /// <returns>The byte array read from the request body</returns>
-    byte[] AsArray();
+    // todo: have a length here? pattern similar to to the response body
 
 }

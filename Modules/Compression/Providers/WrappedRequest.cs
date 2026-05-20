@@ -1,6 +1,5 @@
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Compression.Providers;
 

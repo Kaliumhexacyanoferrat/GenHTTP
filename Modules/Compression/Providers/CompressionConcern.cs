@@ -3,7 +3,6 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
 
 namespace GenHTTP.Modules.Compression.Providers;
 
@@ -73,17 +72,13 @@ public sealed class CompressionConcern : IConcern
             return null;
         }
 
-        var rawResponse = response.Raw;
-
-        var rawRequest = request.Raw;
-
         var content = response.Content;
 
-        if (content != null && content.Encoding == null && rawResponse.Mode != Connection.Upgrade)
+        if (content != null && content.Encoding == null && response.Mode != Connection.Upgrade)
         {
-            if (ShouldCompressByType(request.Raw.Header.Target, content.Type) && ShouldCompressBySize(response))
+            if (ShouldCompressByType(request.Header.Target, content.Type) && ShouldCompressBySize(response))
             {
-                var header = rawRequest.Header.Headers.GetEntry(AcceptEncoding);
+                var header = request.Header.Headers.GetEntry(AcceptEncoding);
 
                 if (header != null)
                 {
@@ -101,7 +96,7 @@ public sealed class CompressionConcern : IConcern
 
                             builder.Content(algorithm.Compress(content, Level));
 
-                            var vary = rawResponse.Headers.GetEntry(Vary);
+                            var vary = response.Headers.GetEntry(Vary);
 
                             if (vary != null)
                             {
@@ -118,11 +113,11 @@ public sealed class CompressionConcern : IConcern
 
                                 AcceptEncoding.Span.CopyTo(span[offset..]);
 
-                                builder.ToLowLevel().Header(Vary, combined);
+                                builder.Header(Vary, combined);
                             }
                             else
                             {
-                                builder.ToLowLevel().Header(Vary, AcceptEncoding);
+                                builder.Header(Vary, AcceptEncoding);
                             }
 
                             return builder.Build();
@@ -135,7 +130,7 @@ public sealed class CompressionConcern : IConcern
         return response;
     }
 
-    private static bool ShouldCompressByType(IRawRequestTarget path, ContentType? type)
+    private static bool ShouldCompressByType(IRequestTarget path, ContentType? type)
     {
         if (type is not null)
         {

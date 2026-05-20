@@ -48,7 +48,7 @@ public sealed class BrowserHandler: IHandler
             throw new ProviderException(ResponseStatus.MethodNotAllowed, "Only GET requests are allowed by this handler", b => b.Header("Allow", "GET"));
         }
 
-        var target = request.Raw.Header.Target;
+        var target = request.Header.Target;
 
         var current = target.Current;
 

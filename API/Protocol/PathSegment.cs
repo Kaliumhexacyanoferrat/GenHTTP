@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Text;
 
-namespace GenHTTP.Api.Protocol.Raw;
+namespace GenHTTP.Api.Protocol;
 
 [DebuggerDisplay("{DebuggerValue,nq}")]
 public readonly struct PathSegment : IEquatable<PathSegment>

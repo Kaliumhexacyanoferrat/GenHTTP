@@ -1,6 +1,5 @@
 using System.Text;
-
-using GenHTTP.Api.Protocol.Raw;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Reflection.Routing.Segments;
 
@@ -14,7 +13,7 @@ internal sealed class StringSegment(string segment) : IRoutingSegment
 
     public string[] ProvidedArguments { get; } = [];
 
-    public (bool matched, int offsetBy) TryMatch(IRawRequestTarget target, int offset, ref PathArgumentSink argumentSink)
+    public (bool matched, int offsetBy) TryMatch(IRequestTarget target, int offset, ref PathArgumentSink argumentSink)
     {
         var next = target.Next(offset);
 

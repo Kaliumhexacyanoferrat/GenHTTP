@@ -29,7 +29,7 @@ public sealed class LoadBalancerRedirectionHandler : IHandler
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var current = request.Raw.Header.Target.Current;
+        var current = request.Header.Target.Current;
 
         var appendix = (current != null) ? Encoding.ASCII.GetString(current.Value.Encoded.Span) : string.Empty;
 

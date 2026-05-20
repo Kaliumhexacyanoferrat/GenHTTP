@@ -2,8 +2,6 @@
 using System.Runtime.CompilerServices;
 
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Protocol.Raw;
-
 using GenHTTP.Engine.Internal.Context;
 using GenHTTP.Engine.Internal.Protocol.Sinks;
 
@@ -43,19 +41,17 @@ internal sealed class ResponseHandler : IResponseSink
     {
         try
         {
-            var raw = response.Raw;
-
             var writer = Context.Writer;
 
-            writer.Write(StatusLine.Get(raw.Status));
+            writer.Write(StatusLine.Get(response.Status));
 
-            WriteHeader(raw, version, keepAlive);
+            WriteHeader(response, version, keepAlive);
 
             writer.Write("\r\n"u8);
 
             if (ShouldSendBody(request, response))
             {
-                await WriteBodyAsync(raw);
+                await WriteBodyAsync(response);
             }
 
             if (request != null)
@@ -80,12 +76,12 @@ internal sealed class ResponseHandler : IResponseSink
             return true;
         }
 
-        if (request.Method == RequestMethod.Head)
+        if (request.Header.Method == RequestMethod.Head)
         {
             return false;
         }
 
-        var content = response.Raw.Content;
+        var content = response.Content;
 
         if (content != null)
         {
@@ -95,7 +91,7 @@ internal sealed class ResponseHandler : IResponseSink
         return false;
     }
 
-    private void WriteHeader(IRawResponse response, HttpProtocol version, bool keepAlive)
+    private void WriteHeader(IResponse response, HttpProtocol version, bool keepAlive)
     {
         var context = Context;
 
@@ -200,7 +196,7 @@ internal sealed class ResponseHandler : IResponseSink
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ValueTask WriteBodyAsync(IRawResponse response)
+    private ValueTask WriteBodyAsync(IResponse response)
     {
         var content = response.Content;
 
