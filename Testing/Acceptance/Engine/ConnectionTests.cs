@@ -4,7 +4,7 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
-
+using GenHTTP.Modules.IO.Streaming;
 using Resource = GenHTTP.Modules.IO.Resource;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
@@ -23,7 +23,7 @@ public sealed class ConnectionTests
                                 var resource = Resource.FromString("Hello World").Build();
 
                                 return r.Respond()
-                                        .Content(resource)
+                                        .Content(new ResourceContent(resource))
                                         .Connection(Connection.Close)
                                         .Build();
                             });
@@ -79,6 +79,12 @@ public sealed class ConnectionTests
     {
 
         public ulong? Length => null;
+
+        public ContentType? Type => null;
+
+        public ReadOnlyMemory<byte>? Encoding  => null;
+
+        public ValueTask WriteAsync(IResponseSink sink) => WriteAsync(sink.Stream, 0);
 
         public ValueTask<ulong?> CalculateChecksumAsync() => new();
 

@@ -13,7 +13,7 @@ public class WireTests : WireTest
     [TestMethod]
     public async Task TestLowerCaseRequests()
     {
-        var app = Inline.Create().Get((IRequest r) => r.Headers["x-my-header"]);
+        var app = Inline.Create().Get((IRequest r) => r.Header.Headers.GetEntry("x-my-header"));
 
         await using var host = await TestHost.RunAsync(app);
 
@@ -31,7 +31,7 @@ public class WireTests : WireTest
     [TestMethod]
     public async Task TestWhitespaceRequest()
     {
-        var app = Inline.Create().Get("/some-path/", (IRequest r) => r.Headers["X-My-Header"]);
+        var app = Inline.Create().Get("/some-path/", (IRequest r) => r.Header.Headers.GetEntry("X-My-Header"));
 
         await using var host = await TestHost.RunAsync(app);
 

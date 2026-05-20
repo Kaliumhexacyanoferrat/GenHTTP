@@ -48,10 +48,10 @@ public sealed class WebserviceTests
         [ResourceMethod("guid")]
         public Guid Guid(Guid id) => id;
 
-        [ResourceMethod(RequestMethod.Post, "entity")]
+        [ResourceMethod(Method.Post, "entity")]
         public TestEntity Entity(TestEntity entity) => entity;
 
-        [ResourceMethod(RequestMethod.Put, "stream")]
+        [ResourceMethod(Method.Put, "stream")]
         public Stream Stream(Stream input) => new MemoryStream(Encoding.UTF8.GetBytes(input.Length.ToString()));
 
         [ResourceMethod("bytes")]
@@ -62,8 +62,7 @@ public sealed class WebserviceTests
 
         [ResourceMethod("requestResponse")]
         public ValueTask<IResponse?> RequestResponse(IRequest request) => request.Respond()
-                                                                                 .Content("Hello World")
-                                                                                 .Type(ContentType.TextPlain)
+                                                                                 .Content(new GenHTTP.Modules.IO.Strings.StringContent("Hello World"))
                                                                                  .BuildTask();
 
         [ResourceMethod("exception")]

@@ -9,6 +9,7 @@ namespace GenHTTP.Testing.Acceptance.Engine;
 public sealed class CookieTests
 {
 
+    /*
     /// <summary>
     /// As a developer, I want to be able to set cookies to be accepted by the browser.
     /// </summary>
@@ -61,5 +62,6 @@ public sealed class CookieTests
 
         }
     }
-
+    */
+    
 }

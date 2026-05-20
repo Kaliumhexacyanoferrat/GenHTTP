@@ -1,8 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.IO;
-
 namespace GenHTTP.Testing.Acceptance.Engine;
 
 [TestClass]
@@ -89,26 +87,25 @@ public sealed class ProtocolTests
 
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
-        public ValueTask<IResponse?> HandleAsync(IRequest request)
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            int read;
-
             var total = 0;
 
-            if (request.Content != null)
-            {
-                var buffer = new byte[4096];
+            var body = request.GetBody(HeaderAccess.Release);
 
-                while ((read = request.Content.Read(buffer, 0, buffer.Length)) > 0)
+            if (body != null)
+            {
+                ReadOnlyMemory<byte>? chunk;
+
+                while ((chunk = await body.TryReadAsync()) != null)
                 {
-                    total += read;
+                    total += chunk.Value.Length;
                 }
             }
 
             return request.Respond()
-                          .Content(total.ToString())
-                          .Type(ContentType.TextPlain)
-                          .BuildTask();
+                          .Content(new GenHTTP.Modules.IO.Strings.StringContent(total.ToString()))
+                          .Build();
         }
 
     }
