@@ -10,11 +10,15 @@ public class RequestHeader : IRequestHeader
 
     private readonly RequestTarget _target;
 
+    private HttpProtocol _protocol;
+
     public RequestMethod Method { get; private set; }
 
     public ReadOnlyMemory<byte> Path => _request.Source.Path;
 
     public IRequestTarget Target => _target;
+
+    public HttpProtocol Protocol => _protocol;
 
     public ReadOnlyMemory<byte> Version => _request.Source.Version;
 
@@ -35,6 +39,8 @@ public class RequestHeader : IRequestHeader
     public void Apply()
     {
         _target.Apply(Path);
+
+        _protocol = new(_request.Source.Version);
 
         // todo: bug in Glyph11?
         Span<byte> trimBy = [10];

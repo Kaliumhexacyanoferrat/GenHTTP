@@ -5,6 +5,8 @@ namespace GenHTTP.Engine.Shared.Types;
 public class RetainedRequestHeader : IRequestHeader
 {
 
+    public HttpProtocol Protocol { get; }
+
     public RequestMethod Method { get; }
 
     public ReadOnlyMemory<byte> Path { get; }
@@ -13,15 +15,13 @@ public class RetainedRequestHeader : IRequestHeader
 
     public IKeyValueList Query { get; }
 
-    public ReadOnlyMemory<byte> Version { get; }
-
     public IKeyValueList Headers { get; }
 
     internal RetainedRequestHeader(RequestHeader source)
     {
         Path = source.Path.ToArray();
-        Version = source.Version.ToArray();
 
+        Protocol = new(source.Version.ToArray());
         Method = new(source.Method.Value.ToArray());
 
         var target = new RequestTarget();

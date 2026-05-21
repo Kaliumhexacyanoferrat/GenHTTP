@@ -3,11 +3,11 @@
 public interface IRequestHeader
 {
 
+    HttpProtocol Protocol { get; }
+
     RequestMethod Method { get; }
 
     ReadOnlyMemory<byte> Path { get; }
-
-    ReadOnlyMemory<byte> Version { get; }
 
     IRequestTarget Target { get; }
 

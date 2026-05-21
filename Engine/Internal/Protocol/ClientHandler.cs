@@ -30,6 +30,10 @@ internal sealed class ClientHandler(ClientContext context)
 
     private static readonly TimeSpan KeepAliveTimeout = TimeSpan.FromSeconds(60);
 
+    private static readonly ReadOnlyMemory<byte> ConnectionHeader = "Connection"u8.ToArray();
+
+    private static readonly ReadOnlyMemory<byte> KeepAliveValue = "Keep-Alive"u8.ToArray();
+
     private CancellationTokenSource _cts = new();
 
     #region Functionality
@@ -116,6 +120,7 @@ internal sealed class ClientHandler(ClientContext context)
 
                     if (status is Connection.Close)
                     {
+                        await context.Writer.FlushAsync();
                         return;
                     }
 
@@ -169,7 +174,11 @@ internal sealed class ClientHandler(ClientContext context)
     {
         // request.SetConnection(Server, EndPoint, Connection.GetAddress(), ClientCertificate);
 
-        var keepAliveRequested = true; // request["Connection"]?.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase) ?? request.ProtocolType == HttpProtocol.Http11;
+        var header = request.Header;
+
+        var connectionHeader = header.Headers.GetEntry(ConnectionHeader);
+
+        var keepAliveRequested = connectionHeader?.Span.SequenceEqual(KeepAliveValue.Span) ?? (header.Protocol == HttpProtocol.Http11);
 
         var response = await context.Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
 

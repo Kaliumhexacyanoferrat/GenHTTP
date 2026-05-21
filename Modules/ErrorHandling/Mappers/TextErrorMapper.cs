@@ -17,7 +17,7 @@ public class TextErrorMapper : IErrorMapper<Exception>
 
     public ValueTask<IResponse?> GetNotFound(IRequest request, IHandler handler)
     {
-        var response = GetStringResponse(request, "Not Found", ResponseStatus.BadRequest);
+        var response = GetStringResponse(request, "Not Found", ResponseStatus.NotFound);
 
         return new(response);
     }
