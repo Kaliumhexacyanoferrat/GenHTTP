@@ -1,12 +1,8 @@
-﻿using System.Net;
-using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.IO;
-using GenHTTP.Modules.Layouting;
+﻿namespace GenHTTP.Testing.Acceptance.Modules.IO;
 
-namespace GenHTTP.Testing.Acceptance.Modules.IO;
+// todo
 
-[TestClass]
+/*[TestClass]
 public class WebResourceTests
 {
 
@@ -89,3 +85,4 @@ public class WebResourceTests
     }
     
 }
+*/

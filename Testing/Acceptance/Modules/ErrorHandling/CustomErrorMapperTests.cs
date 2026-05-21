@@ -1,8 +1,8 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.ErrorHandling;
 using GenHTTP.Modules.Functional;
-using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.ErrorHandling;
@@ -18,14 +18,14 @@ public sealed class CustomErrorMapperTests
         public ValueTask<IResponse?> GetNotFound(IRequest request, IHandler handler) => new(
             request.Respond()
                    .Status(ResponseStatus.NotFound)
-                   .Content(Resource.FromString("404").Build())
+                   .Content(new GenHTTP.Modules.IO.Strings.StringContent("404"))
                    .Build()
         );
 
         public ValueTask<IResponse?> Map(IRequest request, IHandler handler, Exception error) => new(
             request.Respond()
                    .Status(ResponseStatus.NotFound)
-                   .Content(Resource.FromString($"{error.Message.Length}").Build())
+                   .Content(new GenHTTP.Modules.IO.Strings.StringContent($"{error.Message.Length}"))
                    .Build()
         );
     }

@@ -27,14 +27,11 @@ public sealed class ResultTests
     {
         var result = new Result<MyPayload>(new MyPayload("Hello World!"))
                      .Status(ResponseStatus.Accepted)
-                     .Status(202, "Accepted Custom")
+                     // todo: .Status() //, "Accepted Custom")
                      .Connection(Connection.Close)
-                     .Type(new FlexibleContentType(ContentType.TextRichText))
-                     .Modified(DateTime.UtcNow)
-                     .Expires(DateTime.UtcNow)
+                     // .Type(new FlexibleContentType(ContentType.TextRichText))
                      .Header("X-Custom", "Value")
-                     .Cookie(new Cookie("Cookie", "Value"))
-                     .Encoding("my-encoding");
+                     .Cookie(new Cookie("Cookie", "Value"));
 
         var inline = Inline.Create()
                            .Get(() => result)

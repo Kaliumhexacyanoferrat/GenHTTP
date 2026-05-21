@@ -3,7 +3,7 @@ using GenHTTP.Api.Content.Authentication;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Authentication;
-using GenHTTP.Modules.IO;
+using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Authentication;
 
@@ -17,7 +17,7 @@ public class UserReturningHandler : IHandler
         var content = request.GetUser<IUser>()?.DisplayName ?? throw new ProviderException(ResponseStatus.BadRequest, "No user!");
 
         return request.Respond()
-                      .Content(content)
+                      .Content(new StringContent(content))
                       .BuildTask();
     }
 

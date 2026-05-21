@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Functional;
 
 namespace GenHTTP.Testing.Acceptance.Engine;

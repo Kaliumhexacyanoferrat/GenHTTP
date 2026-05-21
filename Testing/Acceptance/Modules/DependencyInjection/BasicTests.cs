@@ -5,7 +5,7 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.DependencyInjection;
 using GenHTTP.Modules.Functional;
-using GenHTTP.Modules.IO;
+using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
 namespace GenHTTP.Testing.Acceptance.Modules.DependencyInjection;
 
@@ -24,7 +24,7 @@ public class BasicTests
 
             if (response != null)
             {
-                response.Headers.Add("X-Custom", service.DoWork());
+                response.Rebuild().Header("X-Custom", service.DoWork());
             }
 
             return response;
@@ -37,7 +37,7 @@ public class BasicTests
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var response = request.Respond()
-                          .Content(service.DoWork())
+                          .Content(new StringContent(service.DoWork()))
                           .Build();
 
             return ValueTask.FromResult<IResponse?>(response);

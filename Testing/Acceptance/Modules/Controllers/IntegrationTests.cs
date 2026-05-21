@@ -1,7 +1,4 @@
 ﻿using System.Net;
-
-using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Reflection;
@@ -19,7 +16,7 @@ public class IntegrationTests
     public class TestController
     {
 
-        [ControllerAction(RequestMethod.Get)]
+        [ControllerAction(Method.Get)]
         public string DoWork() => "Work done";
 
     }

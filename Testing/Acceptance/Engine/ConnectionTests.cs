@@ -3,7 +3,6 @@
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Functional;
-using GenHTTP.Modules.IO;
 using GenHTTP.Modules.IO.Streaming;
 using Resource = GenHTTP.Modules.IO.Resource;
 

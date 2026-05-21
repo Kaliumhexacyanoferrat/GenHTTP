@@ -1,9 +1,4 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.IO;
-
-namespace GenHTTP.Testing.Acceptance.Engine;
+﻿namespace GenHTTP.Testing.Acceptance.Engine;
 
 [TestClass]
 public sealed class CookieTests

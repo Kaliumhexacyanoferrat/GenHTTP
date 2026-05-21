@@ -6,6 +6,7 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Compression;
 using GenHTTP.Modules.IO;
+using GenHTTP.Modules.IO.Streaming;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Layouting.Provider;
 
@@ -128,8 +129,7 @@ public sealed class CompressionTests
         {
             return r.Respond()
                     .Header("Vary", "Host")
-                    .Content(Resource.FromString(CreateLargeString(500)).Build())
-                    .Type(ContentType.TextHtml)
+                    .Content(new ResourceContent(Resource.FromString(CreateLargeString(500)).Type(ContentType.TextHtml).Build()))
                     .Build();
         });
 
@@ -151,8 +151,7 @@ public sealed class CompressionTests
         var handler = new FunctionalHandler(responseProvider: r =>
         {
             return r.Respond()
-                    .Content(Resource.FromString(CreateLargeString(500)).Build())
-                    .Type("application/json; charset=utf-8")
+                    .Content(new ResourceContent(Resource.FromString(CreateLargeString(500)).Type(new("application/json; charset=utf-8")).Build()))
                     .Build();
         });
 
@@ -179,8 +178,7 @@ public sealed class CompressionTests
         var handler = new FunctionalHandler(responseProvider: r =>
         {
             return r.Respond()
-                    .Content(Resource.FromString(smallContent).Build())
-                    .Type(ContentType.TextHtml)
+                    .Content(new ResourceContent(Resource.FromString(smallContent).Type(ContentType.TextHtml).Build()))
                     .Build();
         });
 
@@ -208,8 +206,7 @@ public sealed class CompressionTests
         var handler = new FunctionalHandler(responseProvider: r =>
         {
             return r.Respond()
-                    .Content(Resource.FromString(largeContent).Build())
-                    .Type(ContentType.TextHtml)
+                    .Content(new ResourceContent(Resource.FromString(largeContent).Type(ContentType.TextHtml).Build()))
                     .Build();
         });
 
@@ -238,8 +235,7 @@ public sealed class CompressionTests
         var handler = new FunctionalHandler(responseProvider: r =>
         {
             return r.Respond()
-                    .Content(Resource.FromString(exactContent).Build())
-                    .Type(ContentType.TextHtml)
+                    .Content(new ResourceContent(Resource.FromString(exactContent).Type(ContentType.TextHtml).Build()))
                     .Build();
         });
 
@@ -297,7 +293,6 @@ public sealed class CompressionTests
 
             return r.Respond()
                     .Content(wrappedContent)
-                    .Type(ContentType.TextHtml)
                     .Build();
         });
 
@@ -357,8 +352,7 @@ public sealed class CompressionTests
         var handler = new FunctionalHandler(responseProvider: r =>
         {
             return r.Respond()
-                    .Content(Resource.FromString(smallContent).Build())
-                    .Type(ContentType.TextHtml)
+                    .Content(new ResourceContent(Resource.FromString(smallContent).Type(ContentType.TextHtml).Build()))
                     .Build();
         });
 
@@ -393,16 +387,22 @@ public sealed class CompressionTests
 
         public ulong? Length => null;
 
-        public ValueTask<ulong?> CalculateChecksumAsync() => _wrapped.CalculateChecksumAsync();
+        public ContentType? Type => ContentType.TextHtml;
 
-        public ValueTask WriteAsync(Stream target, uint bufferSize) => _wrapped.WriteAsync(target, bufferSize);
+        public ReadOnlyMemory<byte>? Encoding => null;
+
+        public ValueTask WriteAsync(IResponseSink sink) => _wrapped.WriteAsync(sink);
+
+        // todo: public ValueTask<ulong?> CalculateChecksumAsync() => _wrapped.CalculateChecksumAsync();
+
+        // todo: public ValueTask WriteAsync(Stream target, uint bufferSize) => _wrapped.WriteAsync(target, bufferSize);
 
     }
 
     private class CustomAlgorithm : ICompressionAlgorithm
     {
 
-        public string Name => "custom";
+        public AlgorithmName Name => new("custom");
 
         public Priority Priority => Priority.High;
 

@@ -3,6 +3,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Conversion.Serializers.Forms;
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Conversion;
 
@@ -90,7 +91,9 @@ public sealed class ConversionTests
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var obj = await Format.DeserializeAsync(request.Content!, typeof(T));
+            var body = request.GetBody(HeaderAccess.Retain);
+            
+            var obj = await Format.DeserializeAsync(body!.AsStream(), typeof(T));
 
             return (await Format.SerializeAsync(request, obj!)).Build();
         }

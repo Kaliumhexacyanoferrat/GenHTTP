@@ -43,7 +43,7 @@ public sealed class ProtobufTests
             return entity;
         }
 
-        [ResourceMethod(RequestMethod.Post)]
+        [ResourceMethod(Method.Post)]
         public TestEntity PostEntity(TestEntity entity) => entity;
     }
 

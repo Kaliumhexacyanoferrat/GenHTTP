@@ -1,6 +1,4 @@
-﻿using GenHTTP.Engine.Shared.Types;
-
-namespace GenHTTP.Testing.Acceptance.Engine;
+﻿namespace GenHTTP.Testing.Acceptance.Engine;
 
 [TestClass]
 public sealed class MultiEntryDictionaryTests

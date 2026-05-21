@@ -17,7 +17,7 @@ public class ArgumentTests
     public async Task TestInjectionCausesNoArgument(TestEngine engine)
     {
         var api = Inline.Create()
-                        .Get((IRequest request) => request.Host);
+                        .Get((IRequest request) => request.Header.Headers.GetEntry("Host"));
 
         var (_, op) = await Extensions.GetOperationAsync(engine, api);
 

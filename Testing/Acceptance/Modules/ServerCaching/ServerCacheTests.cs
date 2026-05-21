@@ -7,7 +7,6 @@ using GenHTTP.Modules.IO.Streaming;
 using GenHTTP.Modules.ServerCaching;
 using GenHTTP.Modules.ServerCaching.Provider;
 using GenHTTP.Testing.Acceptance.Utilities;
-using Cookie = GenHTTP.Api.Protocol.Cookie;
 
 namespace GenHTTP.Testing.Acceptance.Modules.ServerCaching;
 

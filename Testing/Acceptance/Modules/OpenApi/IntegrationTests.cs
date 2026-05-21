@@ -1,5 +1,4 @@
-﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Controllers;
+﻿using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.OpenApi;
@@ -96,14 +95,14 @@ public class IntegrationTests
     public class MyController
     {
 
-        [ControllerAction(RequestMethod.Get)]
+        [ControllerAction(GenHTTP.Modules.Reflection.Method.Get)]
         public int Method() => 42;
     }
 
     public class MultipleMethodsController
     {
 
-        [ControllerAction(RequestMethod.Get, RequestMethod.Options)]
+        [ControllerAction(GenHTTP.Modules.Reflection.Method.Get, GenHTTP.Modules.Reflection.Method.Options)]
         public int Method() => 42;
     }
 
