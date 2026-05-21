@@ -15,12 +15,12 @@ public sealed class ByteArrayContent : IResponseContent
 
     #region Initialization
 
-    public ByteArrayContent(byte[] content, ContentType contentType, Func<ValueTask<ulong?>>? checksumProvider)
+    public ByteArrayContent(byte[] content, ContentType? contentType, Func<ValueTask<ulong?>>? checksumProvider)
     {
         _content = content;
 
         Length = (ulong)_content.Length;
-        Type = contentType;
+        Type = contentType ?? ContentType.ApplicationOctetStream;
 
         _checksumProvider = new ChecksumProvider(checksumProvider ?? (() => new(CalculateChecksum(content))));
     }

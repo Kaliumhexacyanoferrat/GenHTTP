@@ -1,6 +1,5 @@
 ﻿using System.Collections.Specialized;
 using System.Reflection;
-using System.Text;
 using System.Web;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion.Formatters;

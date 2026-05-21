@@ -10,10 +10,10 @@ public sealed class StreamContent : IResponseContent, IDisposable
 
     #region Initialization
 
-    public StreamContent(Stream content, ContentType contentType, ulong? knownLength, ReadOnlyMemory<byte>? encoding, Func<ValueTask<ulong?>>? checksumProvider)
+    public StreamContent(Stream content, ContentType? contentType, ulong? knownLength, ReadOnlyMemory<byte>? encoding, Func<ValueTask<ulong?>>? checksumProvider)
     {
         Content = content;
-        Type = contentType;
+        Type = contentType ?? ContentType.ApplicationOctetStream;
         Encoding = encoding;
 
         _knownLength = knownLength;

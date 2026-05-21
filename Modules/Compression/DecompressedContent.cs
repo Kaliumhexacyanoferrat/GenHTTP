@@ -1,7 +1,3 @@
-using GenHTTP.Api.Infrastructure;
-using GenHTTP.Modules.Compression.Algorithms;
-using GenHTTP.Modules.Compression.Providers;
-
 namespace GenHTTP.Modules.Compression;
 
 /// <summary>

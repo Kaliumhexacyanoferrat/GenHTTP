@@ -34,6 +34,21 @@ public static class Extensions
 
         return null;
     }
+    
+    public static bool ContainsKey(this IKeyValueList list, ReadOnlyMemory<byte> key)
+    {
+        var keySpan = key.Span;
 
+        for (var i = 0; i < list.Count; i++)
+        {
+            if (list[i].Key.Span.SequenceEqual(keySpan))
+                return true;
+        }
+
+        return false;
+    }
+    
+    public static bool ContainsKey(this IKeyValueList list, string key)
+        => list.ContainsKey(Encoding.ASCII.GetBytes(key));
 
 }

@@ -1,5 +1,4 @@
 ﻿using System.Net.Http.Headers;
-using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Protobuf;

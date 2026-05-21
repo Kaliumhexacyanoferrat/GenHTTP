@@ -1,5 +1,8 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Text;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
 
@@ -90,7 +93,7 @@ public sealed class ParserTests
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
         public ValueTask<IResponse?> HandleAsync(IRequest request) => request.Respond()
-                                                                             .Content(request.Target.Path.ToString())
+                                                                             .Content(request.Header.Target.AsString())
                                                                              .BuildTask();
     }
 
@@ -101,8 +104,24 @@ public sealed class ParserTests
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
+            // todo: make this logic block reusable
+            
+            var entries = new List<string>();
+            
+            for (var i = 0; i < request.Header.Query.Count; i++)
+            {
+                var entry = request.Header.Query[i];
+
+                var key = Encoding.ASCII.GetString(entry.Key.Span);
+                var value = Encoding.ASCII.GetString(entry.Value.Span);
+                
+                entries.Add($"{key}={value}");
+            }
+            
+            var result = string.Join('|', entries);
+            
             return request.Respond()
-                          .Content(string.Join('|', request.Query.Select(kv => kv.Key + "=" + kv.Value)))
+                          .Content(result)
                           .BuildTask();
         }
     }

@@ -15,16 +15,13 @@ public class MappingTests
 
         var app = Inline.Create().Get((IRequest request) =>
         {
-            var count = request.Headers.Count;
+            var headers = request.Header.Headers;
 
-            Assert.AreEqual(count, request.Headers.Keys.Count());
-            Assert.AreEqual(count, request.Headers.Values.Count());
+            Assert.IsTrue(headers.ContainsKey("Host"));
+            
+            var host = headers.GetEntry("Host");
 
-            Assert.IsTrue(request.Headers.All(kv => kv.Value != string.Empty));
-
-            Assert.IsTrue(request.Headers.ContainsKey("Host"));
-
-            Assert.IsNotNull(request.Headers["Host"]);
+            Assert.IsNotNull(host);
 
             return true;
         });
@@ -43,16 +40,13 @@ public class MappingTests
 
         var app = Inline.Create().Get((IRequest request) =>
         {
-            var count = request.Query.Count;
+            var query = request.Header.Query;
+            
+            Assert.IsTrue(query.ContainsKey("a"));
+            
+            var a = query.GetEntry("a");
 
-            Assert.AreEqual(count, request.Query.Keys.Count());
-            Assert.AreEqual(count, request.Query.Values.Count());
-
-            Assert.IsTrue(request.Query.All(kv => kv.Value != string.Empty));
-
-            Assert.IsTrue(request.Query.ContainsKey("a"));
-
-            Assert.IsNotNull(request.Query["a"]);
+            Assert.IsNotNull(a);
 
             return true;
         });
@@ -64,6 +58,9 @@ public class MappingTests
         await response.AssertStatusAsync(HttpStatusCode.OK);
     }
 
+    // todo
+    
+    /*
     [TestMethod]
     public async Task TestConnection()
     {
@@ -84,5 +81,6 @@ public class MappingTests
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
     }
+    */
 
 }

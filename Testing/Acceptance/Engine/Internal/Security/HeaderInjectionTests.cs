@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Functional;
 
 namespace GenHTTP.Testing.Acceptance.Engine.Internal.Security;
@@ -34,7 +35,7 @@ public class HeaderInjectionTests : WireTest
     private async Task TestInjection(string[] request)
     {
         var app = Inline.Create()
-                        .Get((IRequest r) => r.Headers.ContainsKey("Injected") ? "Yes" : "No");
+                        .Get((IRequest r) => r.Header.Headers.ContainsKey("Injected") ? "Yes" : "No");
 
         await TestAsync(request, "No");
     }

@@ -1,6 +1,8 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
+using GenHTTP.Modules.IO;
+
 namespace GenHTTP.Testing.Acceptance.Engine;
 
 [TestClass]
@@ -72,9 +74,11 @@ public sealed class ProtocolTests
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            if (request.Content is not null)
+            var body = request.GetBody(HeaderAccess.Retain);
+            
+            if (body is not null)
             {
-                using var reader = new StreamReader(request.Content);
+                using var reader = new StreamReader(body.AsStream());
                 Value = reader.ReadToEnd();
             }
 

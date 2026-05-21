@@ -11,7 +11,7 @@ public sealed class MethodTests
     [MultiEngineTest]
     public async Task TestCustomMethods(TestEngine engine)
     {
-        var result = Inline.Create().On(() => "Hmm, Beer", [FlexibleRequestMethod.Get("BREW")]);
+        var result = Inline.Create().On(() => "Hmm, Beer", [new("BREW")]);
 
         await using var host = await TestHost.RunAsync(result, engine: engine);
 

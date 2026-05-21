@@ -15,12 +15,12 @@ public sealed class MemoryContent : IResponseContent
 
     #region Initialization
 
-    public MemoryContent(ReadOnlyMemory<byte> content, ContentType contentType, Func<ValueTask<ulong?>>? checksumProvider)
+    public MemoryContent(ReadOnlyMemory<byte> content, ContentType? contentType, Func<ValueTask<ulong?>>? checksumProvider)
     {
         _content = content;
 
         Length = (ulong)_content.Length;
-        Type = contentType;
+        Type = contentType ?? ContentType.ApplicationOctetStream;
 
         _checksumProvider = new ChecksumProvider(checksumProvider ?? (() => new(CalculateChecksum(content.Span))));
     }
