@@ -2,12 +2,14 @@
 using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Internal.Context;
 using GenHTTP.Engine.Shared.Types;
 using Glyph11;
-using Glyph11.Parser.FlexibleParser;
+using Glyph11.Parser;
+using Glyph11.Parser.Hardened;
 using Glyph11.Protocol;
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
@@ -31,6 +33,8 @@ internal sealed class ClientHandler(ClientContext context)
 
     private static readonly ReadOnlyMemory<byte> KeepAliveValue = "Keep-Alive"u8.ToArray();
 
+    private static readonly ParserLimits Limits = ParserLimits.Default;
+    
     private CancellationTokenSource _cts = new();
 
     #region Functionality
@@ -167,7 +171,7 @@ internal sealed class ClientHandler(ClientContext context)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool TryParseRequest(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
     {
-        if (!FlexibleParser.TryExtractFullHeader(ref buffer, into, out var bytesRead))
+        if (!HardenedParser.TryExtractFullHeader(ref buffer, into, Limits, out var bytesRead))
         {
             return false;
         }
@@ -182,6 +186,11 @@ internal sealed class ClientHandler(ClientContext context)
 
         var header = request.Header;
 
+        if (!header.Headers.ContainsKey(KnownHeaders.Host))
+        {
+            throw new ProviderException(ResponseStatus.BadRequest, "Host header is missing from the request");
+        }
+
         var connectionHeader = header.Headers.GetEntry(ConnectionHeader);
 
         var keepAliveRequested = connectionHeader?.Span.SequenceEqual(KeepAliveValue.Span) ?? (header.Protocol == HttpProtocol.Http11);
@@ -195,25 +204,25 @@ internal sealed class ClientHandler(ClientContext context)
         return (active && keepAliveRequested && !closeRequested) ? Connection.KeepAlive : Connection.Close;
     }
 
-    private ValueTask<bool> SendErrorAsync(Exception e, ResponseStatus status)
+    private async ValueTask SendErrorAsync(Exception e, ResponseStatus status)
     {
         try
         {
             var message = context.Server.Development ? e.ToString() : e.Message;
 
-            // todo status code mapping
-
             var response = new ResponseBuilder()
                            .Status(status)
+                           .Connection(Connection.Close)
                            .Content(new StringContent(message))
                            .Build();
 
-            return context.ResponseHandler.HandleAsync(null, response, HttpProtocol.Http10, false);
+            await context.ResponseHandler.HandleAsync(null, response, HttpProtocol.Http10, false);
+            
+            await context.Writer.FlushAsync();
         }
         catch
         {
             /* no recovery here */
-            return ValueTask.FromResult(false);
         }
     }
 

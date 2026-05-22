@@ -2,6 +2,8 @@
 
 public static class KnownHeaders
 {
+    
+    public static readonly ReadOnlyMemory<byte> Host = "Host"u8.ToArray();
 
     public static readonly ReadOnlyMemory<byte> ContentType = "Content-Type"u8.ToArray();
 

@@ -87,12 +87,10 @@ public sealed class ConnectionTests
 
         public ValueTask<ulong?> CalculateChecksumAsync() => new();
 
-        public ValueTask WriteAsync(Stream target, uint bufferSize)
+        public async ValueTask WriteAsync(Stream target, uint bufferSize)
         {
-            target.Write("Hello World"u8);
-            target.Flush();
-
-            return ValueTask.CompletedTask;
+            await target.WriteAsync("Hello World"u8.ToArray());
+            await target.FlushAsync();
         }
 
     }

@@ -90,7 +90,7 @@ public sealed class Request : IRequest
             return null;
         }
 
-        // todo were are always retaining as response handler was accessing header informartion, revisit this
+        // todo were are always retaining as response handler was accessing header information, revisit this
         _retainedHeader = new RetainedRequestHeader(_header);
 
         _body = new RequestBody(this, Reader);
