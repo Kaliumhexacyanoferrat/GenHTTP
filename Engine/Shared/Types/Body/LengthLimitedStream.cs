@@ -1,8 +1,14 @@
-﻿namespace GenHTTP.Engine.Shared.Types.Body;
+﻿using System.Buffers;
+using System.IO.Pipelines;
 
-public class LengthLimitedStream(Stream source, long length) : Stream
+namespace GenHTTP.Engine.Shared.Types.Body;
+
+public class LengthLimitedStream : Stream, IDrainableStream
 {
-    private long _position = 0;
+    private readonly PipeReader _reader;
+    
+    private readonly long _contentLength;
+    private long _bytesRemaining;
 
     public override bool CanRead => true;
 
@@ -10,26 +16,64 @@ public class LengthLimitedStream(Stream source, long length) : Stream
 
     public override bool CanSeek => false;
 
-    public override long Length => (long)length;
+    public override long Length => _contentLength;
 
     public override long Position
     {
-        get => _position;
+        get => _contentLength - _bytesRemaining;
         set => throw new NotSupportedException("Seeking the body stream is not supported");
+    }
+    
+    public LengthLimitedStream(PipeReader reader, long contentLength)
+    {
+        _reader = reader;
+        _contentLength = contentLength;
+        _bytesRemaining = contentLength;
+    }
+    
+    public override async ValueTask<int> ReadAsync(Memory<byte> destination, CancellationToken cancellationToken = default)
+    {
+        if (_bytesRemaining <= 0)
+        {
+            return 0;
+        }
+
+        var result = await _reader.ReadAsync(cancellationToken);
+        var buffer = result.Buffer;
+
+        var toRead = (int)Math.Min(Math.Min(destination.Length, _bytesRemaining), buffer.Length);
+
+        if (toRead == 0)
+        {
+            _reader.AdvanceTo(buffer.Start, buffer.End);
+            return 0;
+        }
+
+        buffer.Slice(0, toRead).CopyTo(destination.Span);
+        
+        _reader.AdvanceTo(buffer.GetPosition(toRead), buffer.End);
+
+        _bytesRemaining -= toRead;
+        return toRead;
+    }
+
+    public async ValueTask DrainAsync(CancellationToken cancellationToken = default)
+    {
+        while (_bytesRemaining > 0)
+        {
+            var result = await _reader.ReadAsync(cancellationToken);
+            var buffer = result.Buffer;
+
+            var toSkip = Math.Min(_bytesRemaining, buffer.Length);
+            _reader.AdvanceTo(buffer.GetPosition(toSkip), buffer.End);
+            _bytesRemaining -= toSkip;
+
+            if (result.IsCompleted) break;
+        }
     }
 
     public override int Read(byte[] buffer, int offset, int count)
-    {
-        var maxAvailable = (length - _position);
-
-        var toRead = (count > maxAvailable) ? count : (int)maxAvailable;
-
-        var actuallyRead = source.Read(buffer, offset, toRead);
-
-        _position += actuallyRead;
-
-        return actuallyRead;
-    }
+        => ReadAsync(buffer.AsMemory(offset, count)).AsTask().GetAwaiter().GetResult();
 
     public override void Flush()
         => throw new NotSupportedException("Flushing the body stream is not supported");

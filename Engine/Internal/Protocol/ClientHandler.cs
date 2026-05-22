@@ -114,16 +114,18 @@ internal sealed class ClientHandler(ClientContext context)
 
                 while (TryParseRequest(ref buffer, into))
                 {
-                    request.Apply(context.Server, context.EndPoint, context.Stream);
+                    request.Apply(context.Server, context.EndPoint, reader);
 
                     var status = await HandleRequestAsync(request);
-
+                    
                     if (status is Connection.Close)
                     {
                         await context.Writer.FlushAsync();
                         return;
                     }
 
+                    await request.DrainAsync();
+                    
                     request.Reset();
 
                     handledRequest = true;

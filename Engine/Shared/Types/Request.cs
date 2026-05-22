@@ -1,4 +1,5 @@
-﻿using GenHTTP.Api.Infrastructure;
+﻿using System.IO.Pipelines;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using Glyph11.Protocol;
@@ -13,12 +14,14 @@ public sealed class Request : IRequest
 
     private IEndPoint? _endPoint;
 
+    private PipeReader? _reader;
+    
     private readonly RequestHeader _header;
 
     private readonly RequestProperties _properties;
 
     private readonly ResponseBuilder _response = new();
-
+    
     private RequestBody? _body;
 
     private bool _resetRequired = true;
@@ -27,7 +30,7 @@ public sealed class Request : IRequest
 
     public BinaryRequest Source { get; }
 
-    public Stream Stream { get; private set; }
+    public PipeReader Reader => _reader ?? throw new InvalidOperationException("Reader property has not been initialized");
 
     public IServer Server => _server ?? throw new InvalidOperationException("Server property has not been initialized");
 
@@ -60,7 +63,6 @@ public sealed class Request : IRequest
     public Request()
     {
         Source = new();
-        Stream = Stream.Null;
 
         _header = new(this);
         _properties = new RequestProperties();
@@ -77,20 +79,27 @@ public sealed class Request : IRequest
             throw new InvalidOperationException("Request body can only be fetched once.");
         }
 
+        var headers = Header.Headers;
+
+        if (!headers.ContainsKey(KnownHeaders.ContentLength) && !headers.ContainsKey(KnownHeaders.TransferEncoding))
+        {
+            // todo: is this enough?
+            return null;
+        }
+
         if (headerAccess == HeaderAccess.Retain)
         {
             _retainedHeader = new RetainedRequestHeader(_header);
         }
 
-        return _body = new RequestBody(this, Stream);
+        return _body = new RequestBody(this, Reader);
     }
 
-    public void Apply(IServer server, IEndPoint endPoint, Stream stream)
+    public void Apply(IServer server, IEndPoint endPoint, PipeReader reader)
     {
-        Stream = stream;
-
         _server = server;
         _endPoint = endPoint;
+        _reader = reader;
 
         _header.Apply();
 
@@ -107,6 +116,17 @@ public sealed class Request : IRequest
         _response.Reset();
 
         _resetRequired = true;
+        
+    }
+
+    public ValueTask DrainAsync()
+    {
+        if (_body != null)
+        {
+            return _body.DrainAsync();
+        }
+
+        return default;
     }
 
     public IResponseBuilder Respond()

@@ -1,4 +1,6 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.IO.Pipelines;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Engine.Shared.Types.Body;
@@ -7,7 +9,9 @@ namespace GenHTTP.Engine.Shared.Types;
 
 public class RequestBody : IRequestBody
 {
-    private Stream _source;
+    private readonly PipeReader _reader;
+
+    private Stream? _stream;
 
     #region Get-/Setters
 
@@ -21,9 +25,9 @@ public class RequestBody : IRequestBody
 
     #region Initialization
 
-    public RequestBody(IRequest request, Stream source)
+    public RequestBody(IRequest request, PipeReader reader)
     {
-        _source = source;
+        _reader = reader;
 
         // request headers might be released so we need to persist the values here
         var headers = request.Header.Headers;
@@ -55,14 +59,29 @@ public class RequestBody : IRequestBody
 
     public Stream AsStream()
     {
+        if (_stream != null)
+        {
+            return _stream;
+        }
+        
         if (Length != null)
         {
-            return new LengthLimitedStream(_source, (long)Length.Value);
+            return _stream = new LengthLimitedStream(_reader, (long)Length.Value);
         }
 
         throw new NotImplementedException("Chunked encoding is not implemented yet");
     }
 
+    public ValueTask DrainAsync()
+    {
+        if (_stream is IDrainableStream drainable)
+        {
+            return drainable.DrainAsync();
+        }
+        
+        return default;
+    }
+    
     #endregion
 
 }
