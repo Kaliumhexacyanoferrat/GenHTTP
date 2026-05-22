@@ -34,9 +34,9 @@ public class RequestBody : IRequestBody
 
         var contentType = headers.GetEntry(KnownHeaders.ContentType);
 
-        Type = (contentType != null) ? new(contentType.Value) : null;
+        Type = (contentType != null) ? new(contentType.Value.ToArray()) : null;
 
-        Encoding = headers.GetEntry(KnownHeaders.ContentEncoding);
+        Encoding = headers.GetEntry(KnownHeaders.ContentEncoding)?.ToArray();
 
         var contentLength = headers.GetEntry(KnownHeaders.ContentLength);
 

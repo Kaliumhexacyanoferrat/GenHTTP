@@ -2,16 +2,13 @@
 using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
-
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Internal.Context;
 using GenHTTP.Engine.Shared.Types;
-
 using Glyph11;
 using Glyph11.Parser.FlexibleParser;
 using Glyph11.Protocol;
-
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
 namespace GenHTTP.Engine.Internal.Protocol;
@@ -85,61 +82,69 @@ internal sealed class ClientHandler(ClientContext context)
         var request = context.Request;
         var into = request.Source;
 
+        ReadResult readResult = default;
+        var dataRemaining = false;
+
         try
         {
-            while (true)
+            while (context.Server.Running)
             {
-                ReadResult result;
-
-                try
+                if (!dataRemaining)
                 {
-                    result = await reader.ReadAsync(_cts.Token);
-                }
-                catch (OperationCanceledException)
-                {
-                    return;
-                }
-                catch (IOException e) when (e.InnerException is SocketException { SocketErrorCode: SocketError.ConnectionReset or SocketError.ConnectionAborted })
-                {
-                    return;
-                }
-                catch (IOException e) when (e.Message.Contains("Broken pipe", StringComparison.OrdinalIgnoreCase))
-                {
-                    return;
-                }
-
-                var buffer = result.Buffer;
-
-                var handledRequest = false;
-
-                while (TryParseRequest(ref buffer, into))
-                {
-                    request.Apply(context.Server, context.EndPoint, reader);
-
-                    var status = await HandleRequestAsync(request);
-                    
-                    if (status is Connection.Close)
+                    try
                     {
-                        await context.Writer.FlushAsync();
+                        readResult = await reader.ReadAsync(_cts.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
                         return;
                     }
-
-                    await request.DrainAsync();
-                    
-                    request.Reset();
-
-                    handledRequest = true;
+                    catch (IOException e) when (e.InnerException is SocketException { SocketErrorCode: SocketError.ConnectionReset or SocketError.ConnectionAborted })
+                    {
+                        return;
+                    }
+                    catch (IOException e) when (e.Message.Contains("Broken pipe", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return;
+                    }
                 }
 
-                reader.AdvanceTo(buffer.Start, buffer.End);
+                dataRemaining = false;
 
-                if (!handledRequest) break;
+                var buffer = readResult.Buffer;
 
-                await context.Writer.FlushAsync();
+                if (!TryParseRequest(ref buffer, into))
+                {
+                    reader.AdvanceTo(buffer.Start, buffer.End);
+                    break;
+                }
 
-                if (result.IsCompleted) break;
+                request.Apply(context.Server, context.EndPoint, reader, buffer.Start);
 
-                ResetCts(KeepAliveTimeout);
+                var status = await HandleRequestAsync(request);
+
+                if (status is Connection.Close)
+                {
+                    await context.Writer.FlushAsync();
+                    return;
+                }
+
+                await request.DrainAsync();
+
+                request.Reset();
+
+                if (readResult.IsCompleted) break;
+
+                if (reader.TryRead(out var next))
+                {
+                    readResult = next;
+                    dataRemaining = true;
+                }
+                else
+                {
+                    await context.Writer.FlushAsync();
+                    ResetCts(KeepAliveTimeout);
+                }
             }
         }
         catch (HttpParseException pe)
@@ -200,9 +205,9 @@ internal sealed class ClientHandler(ClientContext context)
             // todo status code mapping
 
             var response = new ResponseBuilder()
-                .Status(status)
-                .Content(new StringContent(message))
-                .Build();
+                           .Status(status)
+                           .Content(new StringContent(message))
+                           .Build();
 
             return context.ResponseHandler.HandleAsync(null, response, HttpProtocol.Http10, false);
         }

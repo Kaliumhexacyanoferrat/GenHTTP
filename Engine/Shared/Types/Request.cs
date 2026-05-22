@@ -8,6 +8,8 @@ namespace GenHTTP.Engine.Shared.Types;
 
 public sealed class Request : IRequest
 {
+    private SequencePosition _bodyStart;
+    
     private IRequestHeader? _retainedHeader;
 
     private IServer? _server;
@@ -84,6 +86,7 @@ public sealed class Request : IRequest
         if (!headers.ContainsKey(KnownHeaders.ContentLength) && !headers.ContainsKey(KnownHeaders.TransferEncoding))
         {
             // todo: is this enough?
+            Reader.AdvanceTo(_bodyStart); 
             return null;
         }
 
@@ -92,10 +95,14 @@ public sealed class Request : IRequest
             _retainedHeader = new RetainedRequestHeader(_header);
         }
 
-        return _body = new RequestBody(this, Reader);
+        _body = new RequestBody(this, Reader);
+        
+        Reader.AdvanceTo(_bodyStart); 
+        
+        return _body;
     }
 
-    public void Apply(IServer server, IEndPoint endPoint, PipeReader reader)
+    public void Apply(IServer server, IEndPoint endPoint, PipeReader reader, SequencePosition bodyStart)
     {
         _server = server;
         _endPoint = endPoint;
@@ -106,6 +113,7 @@ public sealed class Request : IRequest
         _properties.Clear();
 
         _body = null;
+        _bodyStart = bodyStart;
         _retainedHeader = null;
     }
 
@@ -121,6 +129,13 @@ public sealed class Request : IRequest
 
     public ValueTask DrainAsync()
     {
+        if (_body != null)
+        {
+            return _body.DrainAsync();
+        }
+
+        GetBody(HeaderAccess.Release);
+        
         if (_body != null)
         {
             return _body.DrainAsync();
