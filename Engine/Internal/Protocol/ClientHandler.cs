@@ -173,7 +173,7 @@ internal sealed class ClientHandler(ClientContext context)
             return false;
         }
 
-        buffer = buffer.Slice(bytesRead);
+        buffer = buffer.Slice(bytesRead + 1);
         return true;
     }
 

@@ -42,10 +42,7 @@ public class RequestHeader : IRequestHeader
 
         _protocol = new(_request.Source.Version);
 
-        // todo: bug in Glyph11?
-        Span<byte> trimBy = [10];
-
-        Method = new(_request.Source.Method.TrimStart(trimBy));
+        Method = new(_request.Source.Method);
     }
 
 }
