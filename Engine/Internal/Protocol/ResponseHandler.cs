@@ -1,6 +1,5 @@
 ﻿using System.Buffers;
 using System.Runtime.CompilerServices;
-
 using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Internal.Context;
 using GenHTTP.Engine.Internal.Protocol.Sinks;
@@ -10,6 +9,8 @@ namespace GenHTTP.Engine.Internal.Protocol;
 internal sealed class ResponseHandler : IResponseSink
 {
     private static readonly ReadOnlyMemory<byte> ServerHeaderName = "Server"u8.ToArray();
+
+    private static readonly ReadOnlyMemory<byte> DateHeaderName = "Date"u8.ToArray();
 
     private readonly RegularSink _regularSink;
 
@@ -104,7 +105,10 @@ internal sealed class ResponseHandler : IResponseSink
             writer.Write(ServerHeader.GetValue(context).Span);
         }
 
-        writer.Write(DateHeader.GetValue().Span);
+        if (!response.Headers.ContainsKey(DateHeaderName))
+        {
+            writer.Write(DateHeader.GetValue().Span);
+        }
 
         if (isUpgrade)
         {

@@ -1,15 +1,12 @@
 ﻿using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+
 using Glyph11.Protocol;
 
 namespace GenHTTP.Engine.Shared.Types;
 
 public sealed class Request : IRequest
 {
-    private static readonly ReadOnlyMemory<byte> HostHeader = "Host"u8.ToArray();
-
-    private bool _bodyObtained;
-    
     private IRequestHeader? _retainedHeader;
 
     private IServer? _server;
@@ -19,15 +16,19 @@ public sealed class Request : IRequest
     private readonly RequestHeader _header;
 
     private readonly RequestProperties _properties;
-    
+
     private readonly ResponseBuilder _response = new();
+
+    private RequestBody? _body;
 
     private bool _resetRequired = true;
 
     #region Get-/Setters
 
     public BinaryRequest Source { get; }
-    
+
+    public Stream Stream { get; private set; }
+
     public IServer Server => _server ?? throw new InvalidOperationException("Server property has not been initialized");
 
     public IEndPoint EndPoint => _endPoint ?? throw new InvalidOperationException("EndPoint property has not been initialized");
@@ -38,7 +39,7 @@ public sealed class Request : IRequest
     {
         get
         {
-            if (!_bodyObtained)
+            if (_body == null)
             {
                 return _header;
             }
@@ -59,18 +60,19 @@ public sealed class Request : IRequest
     public Request()
     {
         Source = new();
-        
+        Stream = Stream.Null;
+
         _header = new(this);
         _properties = new RequestProperties();
     }
 
     #endregion
-    
+
     #region Functionality
-    
+
     public IRequestBody? GetBody(HeaderAccess headerAccess)
     {
-        if (_bodyObtained)
+        if (_body != null)
         {
             throw new InvalidOperationException("Request body can only be fetched once.");
         }
@@ -80,14 +82,13 @@ public sealed class Request : IRequest
             _retainedHeader = new RetainedRequestHeader(_header);
         }
 
-        _bodyObtained = true;
-
-        // todo
-        return null;
+        return _body = new RequestBody(this, Stream);
     }
 
-    public void Apply(IServer server, IEndPoint endPoint)
+    public void Apply(IServer server, IEndPoint endPoint, Stream stream)
     {
+        Stream = stream;
+
         _server = server;
         _endPoint = endPoint;
 
@@ -95,14 +96,14 @@ public sealed class Request : IRequest
 
         _properties.Clear();
 
-        _bodyObtained = false;
+        _body = null;
         _retainedHeader = null;
     }
-    
+
     public void Reset()
     {
         Source.Clear();
-        
+
         _response.Reset();
 
         _resetRequired = true;
@@ -121,7 +122,7 @@ public sealed class Request : IRequest
 
         return _response;
     }
-    
+
     #endregion
 
 }

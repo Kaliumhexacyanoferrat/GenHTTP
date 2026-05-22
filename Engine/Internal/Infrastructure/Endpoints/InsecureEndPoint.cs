@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 
 using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol;
 
 using GenHTTP.Engine.Shared.Infrastructure;
 
@@ -11,7 +12,6 @@ namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
 
 internal sealed class InsecureEndPoint : EndPoint
 {
-    private static readonly StreamPipeReaderOptions ReaderOptions = new(MemoryPool<byte>.Shared, leaveOpen: true, bufferSize: 65536);
 
     #region Initialization
 

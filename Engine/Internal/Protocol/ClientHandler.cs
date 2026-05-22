@@ -114,7 +114,7 @@ internal sealed class ClientHandler(ClientContext context)
 
                 while (TryParseRequest(ref buffer, into))
                 {
-                    request.Apply(context.Server, context.EndPoint);
+                    request.Apply(context.Server, context.EndPoint, context.Stream);
 
                     var status = await HandleRequestAsync(request);
 

@@ -1,6 +1,5 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
@@ -75,7 +74,7 @@ public sealed class ProtocolTests
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             var body = request.GetBody(HeaderAccess.Retain);
-            
+
             if (body is not null)
             {
                 using var reader = new StreamReader(body.AsStream());
@@ -99,11 +98,15 @@ public sealed class ProtocolTests
 
             if (body != null)
             {
-                ReadOnlyMemory<byte>? chunk;
+                var stream = body.AsStream();
 
-                while ((chunk = await body.TryReadAsync()) != null)
+                var read = 0;
+
+                var buffer = new byte[4096];
+
+                while ((read = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
                 {
-                    total += chunk.Value.Length;
+                    total += read;
                 }
             }
 

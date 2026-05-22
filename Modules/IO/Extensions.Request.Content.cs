@@ -9,34 +9,28 @@ public static class RequestContentExtensions
 
     public static async ValueTask<ReadOnlyMemory<byte>> ReadToEndAsync(this IRequestBody body)
     {
-        var first = await body.TryReadAsync();
+        var input = body.AsStream();
 
-        if (first is null)
+        var buffer = new ArrayBufferWriter<byte>();
+
+        var pool = ArrayPool<byte>.Shared;
+        var pooledBuffer = pool.Rent(8192);
+
+        try
         {
-            return ReadOnlyMemory<byte>.Empty;
+            int read;
+
+            while ((read = await input.ReadAsync(pooledBuffer.AsMemory())) > 0)
+            {
+                buffer.Write(pooledBuffer.AsSpan(0, read));
+            }
+        }
+        finally
+        {
+            pool.Return(pooledBuffer);
         }
 
-        var second = await body.TryReadAsync();
-
-        if (second is null)
-        {
-            return first.Value;
-        }
-
-        var buffer = new ArrayBufferWriter<byte>(first.Value.Length * 2);
-        buffer.Write(first.Value.Span);
-        buffer.Write(second.Value.Span);
-
-        ReadOnlyMemory<byte>? chunk;
-
-        while ((chunk = await body.TryReadAsync()) is not null)
-        {
-            buffer.Write(chunk.Value.Span);
-        }
-
-        return buffer.WrittenMemory;
+        return buffer.WrittenMemory.ToArray();
     }
-
-    public static RequestContentStream AsStream(this IRequestBody body) => new RequestContentStream(body);
 
 }
