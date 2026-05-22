@@ -115,8 +115,7 @@ internal sealed class ClientHandler(ClientContext context)
 
                 if (!TryParseRequest(ref buffer, into))
                 {
-                    reader.AdvanceTo(buffer.Start, buffer.End);
-                    break;
+                    continue;
                 }
 
                 request.Apply(context.Server, context.EndPoint, reader, buffer.Start);

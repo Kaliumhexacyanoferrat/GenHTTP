@@ -90,14 +90,12 @@ public sealed class Request : IRequest
             return null;
         }
 
-        if (headerAccess == HeaderAccess.Retain)
-        {
-            _retainedHeader = new RetainedRequestHeader(_header);
-        }
+        // todo were are always retaining as response handler was accessing header informartion, revisit this
+        _retainedHeader = new RetainedRequestHeader(_header);
 
         _body = new RequestBody(this, Reader);
-        
-        Reader.AdvanceTo(_bodyStart); 
+
+        Reader.AdvanceTo(_bodyStart);
         
         return _body;
     }

@@ -53,8 +53,8 @@ public class LengthLimitedStream : Stream, IDrainableStream
         }
 
         buffer.Slice(0, toRead).CopyTo(destination.Span);
-        
-        _reader.AdvanceTo(buffer.GetPosition(toRead), buffer.End);
+
+        _reader.AdvanceTo(buffer.GetPosition(toRead));
 
         _bytesRemaining -= toRead;
         return toRead;
