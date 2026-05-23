@@ -45,7 +45,7 @@ public sealed class SerializationRegistry
 
         if (contentType != null)
         {
-            return GetFormat(GetContentType(contentType.Value));
+            return GetFormat(new ContentType(contentType.Value.WithoutOptions()));
         }
 
         return GetFormat(Default);
@@ -86,26 +86,6 @@ public sealed class SerializationRegistry
     }
 
     private ISerializationFormat? GetFormat(ContentType contentType) => Formats.GetValueOrDefault(contentType);
-
-    private static ContentType GetContentType(ReadOnlyMemory<byte> value)
-    {
-        var span = value.Span;
-        var idx = span.IndexOf((byte)';');
-
-        if (idx < 0)
-        {
-            return new(value);
-        }
-
-        var trimmed = span[..idx];
-
-        while (!trimmed.IsEmpty && trimmed[^1] == (byte)' ')
-        {
-            trimmed = trimmed[..^1];
-        }
-
-        return new(trimmed.ToArray());
-    }
 
     #endregion
 

@@ -134,7 +134,9 @@ public sealed class CompressionConcern : IConcern
     {
         if (type is not null)
         {
-            if (CompressibleTypes.Contains(type.Value))
+            var withoutOptions = type.Value.Value.WithoutOptions();
+            
+            if (CompressibleTypes.Contains(new(withoutOptions)))
             {
                 return true;
             }

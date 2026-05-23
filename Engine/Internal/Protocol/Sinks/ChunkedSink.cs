@@ -14,7 +14,7 @@ internal sealed class ChunkedSink(ClientContext context) : IResponseSink
 
     public IBufferWriter<byte> Writer => _writer;
 
-    public Stream Stream => _stream ??= new WritingStream(context.Writer, context.Stream);
+    public Stream Stream => _stream ??= new WritingStream(_writer, context.Writer, context.Stream);
 
     public void Apply()
     {

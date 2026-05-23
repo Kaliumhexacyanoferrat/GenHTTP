@@ -149,34 +149,20 @@ internal sealed class ResponseHandler : IResponseSink
             {
                 writer.Write("Transfer-Encoding: chunked\r\n"u8);
             }
+            
+            var encoding = content.Encoding;
+
+            if (encoding != null)
+            {
+                writer.Write("Content-Encoding: "u8);
+                writer.Write(encoding.Value.Span);
+                writer.Write("\r\n"u8);
+            }
         }
         else
         {
             writer.Write("Content-Length: 0\r\n"u8);
         }
-
-        /*
-
-        if (response.ContentEncoding is not null)
-        {
-            Output.Write("Content-Encoding: "u8);
-            Output.Write(response.ContentEncoding!);
-            Output.Write("\r\n"u8);
-        }
-
-        if (response.Modified is not null)
-        {
-            Output.Write("Last-Modified: "u8);
-            Output.Write(response.Modified.Value);
-            Output.Write("\r\n"u8);
-        }
-
-        if (response.Expires is not null)
-        {
-            Output.Write("Expires: "u8);
-            Output.Write(response.Expires.Value);
-            Output.Write("\r\n"u8);
-        }*/
 
         var headers = response.Headers;
 

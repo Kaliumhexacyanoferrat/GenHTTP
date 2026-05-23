@@ -5,6 +5,7 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Compression;
+using GenHTTP.Modules.Compression.Providers;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.IO.Streaming;
 using GenHTTP.Modules.Layouting;
@@ -79,7 +80,7 @@ public sealed class CompressionTests
     [MultiEngineTest]
     public async Task TestCustomCompression(TestEngine engine)
     {
-        await using var runner = new TestHost(CreateLargeContentHandler().Build(), engine: engine);
+        await using var runner = new TestHost(CreateLargeContentHandler().Build(), defaults: false, engine: engine);
 
         await runner.Host.Compression(CompressedContent.Default().Add(new CustomAlgorithm()).Level(CompressionLevel.Optimal)).StartAsync();
 
@@ -406,7 +407,8 @@ public sealed class CompressionTests
 
         public Priority Priority => Priority.High;
 
-        public IResponseContent Compress(IResponseContent content, CompressionLevel level) => content;
+        public IResponseContent Compress(IResponseContent content, CompressionLevel level) 
+            => new CompressedResponseContent(content, target => target, Name);
 
         public Stream Decompress(Stream stream) => throw new NotImplementedException();
 

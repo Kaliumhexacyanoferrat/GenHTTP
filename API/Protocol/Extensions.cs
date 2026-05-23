@@ -21,8 +21,8 @@ public static class Extensions
 
         return null;
     }
-    
-    
+
+
     public static string? GetEntry(this IKeyValueList list, string key)
     {
         var entry = list.GetEntry(Encoding.ASCII.GetBytes(key));
@@ -34,7 +34,7 @@ public static class Extensions
 
         return null;
     }
-    
+
     public static bool ContainsKey(this IKeyValueList list, ReadOnlyMemory<byte> key)
     {
         var keySpan = key.Span;
@@ -47,8 +47,28 @@ public static class Extensions
 
         return false;
     }
-    
+
     public static bool ContainsKey(this IKeyValueList list, string key)
         => list.ContainsKey(Encoding.ASCII.GetBytes(key));
+
+    public static ReadOnlyMemory<byte> WithoutOptions(this ReadOnlyMemory<byte> value)
+    {
+        var span = value.Span;
+        var idx = span.IndexOf((byte)';');
+
+        if (idx < 0)
+        {
+            return value;
+        }
+
+        var trimmed = span[..idx];
+
+        while (!trimmed.IsEmpty && trimmed[^1] == (byte)' ')
+        {
+            trimmed = trimmed[..^1];
+        }
+
+        return trimmed.ToArray();
+    }
 
 }
