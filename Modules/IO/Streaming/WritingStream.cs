@@ -1,13 +1,11 @@
-using System.Buffers;
+using System.IO.Pipelines;
 
 namespace GenHTTP.Modules.IO.Streaming;
 
-// todo: add reading support via PipeReader
-
-public sealed class WritingStream(IBufferWriter<byte> writer) : Stream
+public sealed class WritingStream(PipeWriter writer, Stream readingStream) : Stream
 {
 
-    public override bool CanRead => false;
+    public override bool CanRead => true;
 
     public override bool CanSeek => false;
 
@@ -21,7 +19,11 @@ public sealed class WritingStream(IBufferWriter<byte> writer) : Stream
         set => throw new NotSupportedException();
     }
 
-    public override void Flush() { }
+    public override void Flush()
+        => FlushAsync().GetAwaiter().GetResult();
+
+    public override async Task FlushAsync(CancellationToken cancellationToken)
+        => await writer.FlushAsync(cancellationToken);
 
     public override void Write(ReadOnlySpan<byte> buffer)
     {
@@ -32,7 +34,14 @@ public sealed class WritingStream(IBufferWriter<byte> writer) : Stream
 
     public override void Write(byte[] buffer, int offset, int count) => Write(buffer.AsSpan(offset, count));
 
-    public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+    public override int Read(byte[] buffer, int offset, int count)
+        => readingStream.Read(buffer, offset, count);
+
+    public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = new CancellationToken())
+        => readingStream.ReadAsync(buffer, cancellationToken);
+
+    public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        => readingStream.ReadAsync(buffer, offset, count, cancellationToken);
 
     public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
 

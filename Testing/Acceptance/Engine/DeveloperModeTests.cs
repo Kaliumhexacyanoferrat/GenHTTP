@@ -52,4 +52,5 @@ public sealed class DeveloperModeTests
         public ValueTask<IResponse?> HandleAsync(IRequest request) => throw new InvalidOperationException("Nope!");
 
     }
+    
 }

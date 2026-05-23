@@ -211,7 +211,7 @@ internal sealed class ResponseHandler : IResponseSink
 
         var length = content.Length;
 
-        if (length is null) // todo: && (response.Connection != Connection.Upgrade)
+        if (length is null && response.Mode != Connection.Upgrade)
         {
             return WriteChunked(content);
         }

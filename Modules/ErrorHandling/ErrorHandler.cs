@@ -16,7 +16,7 @@ public static class ErrorHandler
     /// structured responses.
     /// </remarks>
     /// <returns>The default error handler</returns>
-    public static ErrorSentryBuilder<Exception> Default() => From(new TextErrorMapper()); // todo: back to structured
+    public static ErrorSentryBuilder<Exception> Default() => Structured();
 
     /// <summary>
     /// Ans error handler which will render exceptions into

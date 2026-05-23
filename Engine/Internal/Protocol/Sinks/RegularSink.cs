@@ -11,7 +11,7 @@ internal sealed class RegularSink(ClientContext context) : IResponseSink
 
     public IBufferWriter<byte> Writer => context.Writer;
 
-    public Stream Stream => _stream ??= new WritingStream(Writer);
+    public Stream Stream => _stream ??= new WritingStream(context.Writer, context.Stream);
 
     public void Apply()
     {

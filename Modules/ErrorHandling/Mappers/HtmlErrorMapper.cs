@@ -11,7 +11,7 @@ public class HtmlErrorMapper : IErrorMapper<Exception>
 
     public async ValueTask<IResponse?> Map(IRequest request, IHandler handler, Exception error)
     {
-        var developmentMode = true; // todo: request.Server.Development;
+        var developmentMode = request.Server.Development;
 
         if (error is ProviderException e)
         {
