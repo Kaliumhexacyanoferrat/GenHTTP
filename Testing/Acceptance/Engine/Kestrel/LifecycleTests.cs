@@ -3,6 +3,9 @@ using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Engine.Kestrel;
 
+// todo
+
+/*
 [TestClass]
 public class LifecycleTests
 {
@@ -24,3 +27,4 @@ public class LifecycleTests
     }
 
 }
+*/

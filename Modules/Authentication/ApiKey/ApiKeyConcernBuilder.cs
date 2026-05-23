@@ -42,7 +42,7 @@ public sealed class ApiKeyConcernBuilder : IConcernBuilder
     /// <param name="headerName">The name of the query parameter to be read from the request</param>
     public ApiKeyConcernBuilder WithQueryParameter(string parameter)
     {
-        _keyExtractor = request => request.Header.Headers.GetEntry(parameter);
+        _keyExtractor = request => request.Header.Query.GetEntry(parameter);
         return this;
     }
 

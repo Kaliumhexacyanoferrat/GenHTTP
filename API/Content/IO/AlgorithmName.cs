@@ -1,9 +1,8 @@
 ﻿using System.Text;
-using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Content.IO;
 
-public class AlgorithmName
+public readonly struct AlgorithmName : IEquatable<AlgorithmName>
 {
 
     public readonly ReadOnlyMemory<byte> Value;
@@ -24,9 +23,9 @@ public class AlgorithmName
 
     #region Equality
 
-    public bool Equals(PathSegment other) => Value.Span.SequenceEqual(other.Encoded.Span);
+    public bool Equals(AlgorithmName other) => Value.Span.SequenceEqual(other.Value.Span);
 
-    public override bool Equals(object? obj) => obj is PathSegment other && Equals(other);
+    public override bool Equals(object? obj) => obj is AlgorithmName other && Equals(other);
 
     public override int GetHashCode()
     {
@@ -39,6 +38,8 @@ public class AlgorithmName
 
     public static bool operator !=(AlgorithmName left, AlgorithmName right) => !left.Equals(right);
 
+    public override string ToString() => Encoding.ASCII.GetString(Value.Span);
+    
     #endregion
 
 }
