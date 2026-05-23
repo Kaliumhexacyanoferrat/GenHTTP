@@ -45,7 +45,7 @@ public sealed class SerializationRegistry
 
         if (contentType != null)
         {
-            return GetFormat(new ContentType(ExtractMediaType(contentType.Value)));
+            return GetFormat(GetContentType(contentType.Value));
         }
 
         return GetFormat(Default);
@@ -87,18 +87,16 @@ public sealed class SerializationRegistry
 
     private ISerializationFormat? GetFormat(ContentType contentType) => Formats.GetValueOrDefault(contentType);
 
-    // Strips content-type parameters (e.g. "; charset=utf-8") to get the bare media type for lookup.
-    private static ReadOnlyMemory<byte> ExtractMediaType(ReadOnlyMemory<byte> value)
+    private static ContentType GetContentType(ReadOnlyMemory<byte> value)
     {
         var span = value.Span;
         var idx = span.IndexOf((byte)';');
 
         if (idx < 0)
         {
-            return value;
+            return new(value);
         }
 
-        // Trim trailing ASCII whitespace from the media-type portion
         var trimmed = span[..idx];
 
         while (!trimmed.IsEmpty && trimmed[^1] == (byte)' ')
@@ -106,7 +104,7 @@ public sealed class SerializationRegistry
             trimmed = trimmed[..^1];
         }
 
-        return trimmed.ToArray();
+        return new(trimmed.ToArray());
     }
 
     #endregion

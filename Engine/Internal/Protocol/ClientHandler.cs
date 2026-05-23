@@ -119,6 +119,7 @@ internal sealed class ClientHandler(ClientContext context)
 
                 if (!TryParseRequest(ref buffer, into))
                 {
+                    reader.AdvanceTo(readResult.Buffer.Start, readResult.Buffer.End);
                     continue;
                 }
 
@@ -138,15 +139,13 @@ internal sealed class ClientHandler(ClientContext context)
 
                 if (readResult.IsCompleted) break;
 
+                await context.Writer.FlushAsync();
+                ResetCts(KeepAliveTimeout);
+
                 if (reader.TryRead(out var next))
                 {
                     readResult = next;
                     dataRemaining = true;
-                }
-                else
-                {
-                    await context.Writer.FlushAsync();
-                    ResetCts(KeepAliveTimeout);
                 }
             }
         }

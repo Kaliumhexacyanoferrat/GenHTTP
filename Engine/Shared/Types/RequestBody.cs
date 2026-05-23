@@ -87,6 +87,11 @@ public class RequestBody : IRequestBody
 
     public ValueTask DrainAsync()
     {
+        if (_stream == null)
+        {
+            AsStream();
+        }
+        
         if (_stream is IDrainableStream drainable)
         {
             return drainable.DrainAsync();

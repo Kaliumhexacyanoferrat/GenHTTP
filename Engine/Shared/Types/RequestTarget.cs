@@ -55,11 +55,21 @@ public sealed class RequestTarget : IRequestTarget
 
     public ReadOnlyMemory<byte>? Next(int offset)
     {
+        if (Current == null)
+        {
+            return null;
+        }
+
+        if (offset == 0)
+        {
+            return Current.Value.Encoded;
+        }
+
         var span = _path.Span;
         var length = span.Length;
         var i = _offset;
 
-        for (var skip = 0; skip <= offset; skip++)
+        for (var skip = 1; skip <= offset; skip++)
         {
             while (i < length && span[i] == (byte)'/')
             {
