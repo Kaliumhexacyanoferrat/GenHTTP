@@ -6,7 +6,7 @@ using GenHTTP.Engine.Internal.Protocol.Sinks;
 
 namespace GenHTTP.Engine.Internal.Protocol;
 
-internal sealed class ResponseHandler : IResponseSink
+internal sealed class ResponseHandler
 {
     private static readonly ReadOnlyMemory<byte> ServerHeaderName = "Server"u8.ToArray();
 
@@ -15,12 +15,6 @@ internal sealed class ResponseHandler : IResponseSink
     private readonly RegularSink _regularSink;
 
     private readonly ChunkedSink _chunkedSink;
-
-    // todo: have a separate sink
-
-    public IBufferWriter<byte> Writer => Context.Writer;
-
-    public Stream Stream => Context.Stream;
 
     private ClientContext Context { get; }
 
