@@ -9,7 +9,11 @@ namespace GenHTTP.Engine.Shared.Types;
 
 public class RequestBody : IRequestBody
 {
+    private static readonly ReadOnlyMemory<byte> ChunkedValue = "chunked"u8.ToArray();
+    
     private readonly PipeReader _reader;
+
+    private readonly bool _isChunked;
 
     private Stream? _stream;
 
@@ -51,6 +55,10 @@ public class RequestBody : IRequestBody
                 throw new ProviderException(ResponseStatus.BadRequest, "Content-Length header has an invalid value");
             }
         }
+
+        var transferEncoding = headers.GetEntry(KnownHeaders.TransferEncoding);
+
+        _isChunked = transferEncoding != null && transferEncoding.Value.Span.SequenceEqual(ChunkedValue.Span);
     }
 
     #endregion
@@ -63,13 +71,18 @@ public class RequestBody : IRequestBody
         {
             return _stream;
         }
-        
+
         if (Length != null)
         {
             return _stream = new LengthLimitedStream(_reader, (long)Length.Value);
         }
 
-        throw new NotImplementedException("Chunked encoding is not implemented yet");
+        if (_isChunked)
+        {
+            return _stream = new ChunkedBodyStream(_reader);
+        }
+
+        throw new InvalidOperationException("Request body has neither Content-Length nor Transfer-Encoding: chunked");
     }
 
     public ValueTask DrainAsync()
@@ -78,10 +91,10 @@ public class RequestBody : IRequestBody
         {
             return drainable.DrainAsync();
         }
-        
+
         return default;
     }
-    
+
     #endregion
 
 }
