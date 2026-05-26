@@ -2,6 +2,7 @@
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Redirects;
 
 namespace GenHTTP.Modules.Layouting.Provider;
 
@@ -33,8 +34,6 @@ public sealed class LayoutHandler : IHandler
 
     public async ValueTask PrepareAsync()
     {
-        // todo: parallelize?
-
         foreach (var routed in RoutedHandlers.Values)
         {
             await routed.PrepareAsync();
@@ -64,9 +63,20 @@ public sealed class LayoutHandler : IHandler
                 return handler.HandleAsync(request);
             }
         }
-        else if (Index is not null)
+        else 
         {
-            return Index.HandleAsync(request);
+            // force a trailing slash to prevent duplicate content
+            if (!target.HasTrailingSlash)
+            {
+                return Redirect.To($"{target.AsString(false)}/")
+                               .Build()
+                               .HandleAsync(request);
+            }
+
+            if (Index is not null)
+            {
+                return Index.HandleAsync(request);
+            }
         }
 
         return InvokeRootHandlersAsync(request);

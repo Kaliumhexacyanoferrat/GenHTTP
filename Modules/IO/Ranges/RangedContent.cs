@@ -37,7 +37,7 @@ public class RangedContent : IResponseContent
 
     #region Functionality
 
-    /*public async ValueTask<ulong?> CalculateChecksumAsync()
+    public async ValueTask<ulong?> CalculateChecksumAsync()
     {
         var checksum = await Source.CalculateChecksumAsync();
 
@@ -51,7 +51,7 @@ public class RangedContent : IResponseContent
         }
 
         return checksum;
-    }*/
+    }
 
     public ValueTask WriteAsync(IResponseSink sink) => Source.WriteAsync(new RangedSink(new RangedStream(sink.Stream, Start, End)));
 

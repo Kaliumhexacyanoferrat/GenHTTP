@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Text;
+using System.Web;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
@@ -151,7 +152,7 @@ public sealed class ReverseProxyTests
     {
         await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
-            return r.Respond().Content(r.Header.Target.AsString()).Build();
+            return r.Respond().Content(r.Header.Target.AsString(false)).Build();
         });
 
         var runner = setup.Runner;
@@ -212,7 +213,7 @@ public sealed class ReverseProxyTests
                 var entry = r.Header.Query[i];
 
                 var key = Encoding.ASCII.GetString(entry.Key.Span);
-                var value = Encoding.ASCII.GetString(entry.Value.Span);
+                var value = HttpUtility.UrlDecode(Encoding.ASCII.GetString(entry.Value.Span));
                 
                 entries.Add($"{key}={value}");
             }
@@ -225,7 +226,7 @@ public sealed class ReverseProxyTests
         var runner = setup.Runner;
 
         using var r = await runner.GetResponseAsync("/?key=%20%3C+");
-        Assert.AreEqual("key= <+", await r.GetContentAsync());
+        Assert.AreEqual("key= < ", await r.GetContentAsync());
     }
 
     [TestMethod]

@@ -88,8 +88,8 @@ public sealed class HttpProxy : IHandler
     private HttpRequestMessage ConfigureRequest(IRequest request)
     {
         var headers = request.Header.Headers;
-
-        var req = new HttpRequestMessage(new HttpMethod(request.Header.Method.Value.ToString()), GetRequestUri(request));
+        
+        var req = new HttpRequestMessage(new HttpMethod(request.Header.Method.ToString()), GetRequestUri(request));
 
         for (var i = 0; i < headers.Count; i++)
         {
@@ -130,7 +130,17 @@ public sealed class HttpProxy : IHandler
         return req;
     }
 
-    private string GetRequestUri(IRequest request) => Upstream + request.Header.Target.AsString(decode: false, remainingOnly: true) + GetQueryString(request);
+    private string GetRequestUri(IRequest request)
+    {
+        var remaining = request.Header.Target.AsString(decode: false, remainingOnly: true);
+
+        if (!string.IsNullOrEmpty(remaining) && !remaining.StartsWith('/'))
+        {
+            remaining = '/' + remaining;
+        }
+        
+        return Upstream + remaining + GetQueryString(request);
+    } 
 
     private static string GetQueryString(IRequest request)
     {
@@ -145,7 +155,7 @@ public sealed class HttpProxy : IHandler
                 var arg = query[i];
 
                 var key = Encoding.ASCII.GetString(arg.Key.Span);
-                var value= Encoding.ASCII.GetString(arg.Value.Span);
+                var value= HttpUtility.UrlDecode(Encoding.ASCII.GetString(arg.Value.Span));
 
                 queryBuilder[key] = value;
             }
@@ -226,7 +236,7 @@ public sealed class HttpProxy : IHandler
 
             string relativePath;
 
-            if (scoped != "/")
+            if (scoped != "/" && !string.IsNullOrEmpty(scoped))
             {
                 relativePath = path[..^scoped.Length];
             }

@@ -39,12 +39,7 @@ public sealed class StringContent : IResponseContent
 
     #region Functionality
 
-    /*public ValueTask<ulong?> CalculateChecksumAsync() => new(_checksum);
-
-    public async ValueTask WriteAsync(Stream target, uint bufferSize)
-    {
-        await target.WriteAsync(_content.AsMemory());
-    }*/
+    public ValueTask<ulong?> CalculateChecksumAsync() => new(_checksum);
 
     public ValueTask WriteAsync(IResponseSink sink)
     {

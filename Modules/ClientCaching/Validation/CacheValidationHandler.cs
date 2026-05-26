@@ -64,18 +64,18 @@ public sealed class CacheValidationHandler : IConcern
 
     public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-    private static ValueTask<ReadOnlyMemory<byte>?> CalculateETag(IResponse response)
+    private static async ValueTask<ReadOnlyMemory<byte>?> CalculateETag(IResponse response)
     {
         var eTag = response.Headers.GetEntry(EtagHeader);
 
         if (eTag != null)
         {
-            return new(eTag);
+            return eTag;
         }
 
         if (response.Content is not null)
         {
-            ulong? checksum = 0; // todo: await response.Content.CalculateChecksumAsync();
+            ulong? checksum = await response.Content.CalculateChecksumAsync();
 
             if (checksum is not null)
             {
@@ -91,7 +91,7 @@ public sealed class CacheValidationHandler : IConcern
             }
         }
 
-        return default;
+        return null;
     }
 
     #endregion

@@ -152,7 +152,7 @@ internal sealed class ClientHandler(ClientContext context)
         catch (HttpParseException pe)
         {
             // client did something wrong
-            await SendErrorAsync(pe, ResponseStatus.BadRequest);
+            await SendErrorAsync(pe, (ResponseStatus)pe.StatusCode);
             throw;
         }
         catch (Exception e)

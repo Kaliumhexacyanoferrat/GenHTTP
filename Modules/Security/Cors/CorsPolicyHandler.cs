@@ -113,7 +113,7 @@ public sealed class CorsPolicyHandler : IConcern
 
         builder.Header(AcMaxAge, ageBuffer);
 
-        if (origin.Span.SequenceEqual(AllowAny.Span))
+        if (!origin.Span.SequenceEqual(AllowAny.Span))
         {
             builder.Header(VaryHeader, OriginHeader);
         }

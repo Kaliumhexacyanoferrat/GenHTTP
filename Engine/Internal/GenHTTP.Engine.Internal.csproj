@@ -20,7 +20,7 @@
 
         <!--<PackageReference Include="System.IO.Pipelines" Version="10.0.2" />-->
 
-        <PackageReference Include="Glyph11" Version="0.3.2" />
+        <PackageReference Include="Glyph11" Version="0.3.3" />
         
     </ItemGroup>
 

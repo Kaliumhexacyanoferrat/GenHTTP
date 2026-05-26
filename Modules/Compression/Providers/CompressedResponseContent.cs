@@ -33,14 +33,7 @@ public sealed class CompressedResponseContent : IResponseContent, IDisposable
 
     #region Functionality
 
-    /*public async ValueTask WriteAsync(Stream target, uint bufferSize)
-    {
-        await using var compressed = Generator(target);
-
-        await OriginalContent.WriteAsync(compressed, bufferSize);
-    }*/
-
-    // public ValueTask<ulong?> CalculateChecksumAsync() => OriginalContent.CalculateChecksumAsync();
+    public ValueTask<ulong?> CalculateChecksumAsync() => OriginalContent.CalculateChecksumAsync();
 
     public async ValueTask WriteAsync(IResponseSink sink)
     {

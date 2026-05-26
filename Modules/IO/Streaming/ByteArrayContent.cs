@@ -41,12 +41,6 @@ public sealed class ByteArrayContent : IResponseContent
 
     public ValueTask<ulong?> CalculateChecksumAsync() => _checksumProvider.Compute();
 
-    public async ValueTask WriteAsync(Stream target, uint bufferSize)
-    {
-        await target.WriteAsync(_content.AsMemory());
-    }
-
-
     public ValueTask WriteAsync(IResponseSink sink)
     {
         sink.Writer.Write(_content);

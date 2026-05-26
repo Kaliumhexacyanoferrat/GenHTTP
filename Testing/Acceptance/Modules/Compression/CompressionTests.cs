@@ -394,9 +394,7 @@ public sealed class CompressionTests
 
         public ValueTask WriteAsync(IResponseSink sink) => _wrapped.WriteAsync(sink);
 
-        // todo: public ValueTask<ulong?> CalculateChecksumAsync() => _wrapped.CalculateChecksumAsync();
-
-        // todo: public ValueTask WriteAsync(Stream target, uint bufferSize) => _wrapped.WriteAsync(target, bufferSize);
+       public ValueTask<ulong?> CalculateChecksumAsync() => _wrapped.CalculateChecksumAsync();
 
     }
 

@@ -162,7 +162,7 @@ public sealed class RequestTarget : IRequestTarget
         }
 
         var stringPath = Encoding.ASCII.GetString(slice.Span);
-
+        
         if (decode && stringPath.Contains('%'))
         {
             return Uri.UnescapeDataString(stringPath);

@@ -9,6 +9,8 @@ public interface IResponseContent
 
     ReadOnlyMemory<byte>? Encoding { get; }
 
+    ValueTask<ulong?> CalculateChecksumAsync();
+
     ValueTask WriteAsync(IResponseSink sink);
 
 }

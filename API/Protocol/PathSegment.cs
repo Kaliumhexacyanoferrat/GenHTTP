@@ -75,26 +75,44 @@ public readonly struct PathSegment : IEquatable<PathSegment>
 
     #region Equality
 
-    public bool Equals(PathSegment other) => Encoded.Span.SequenceEqual(other.Encoded.Span);
+    public bool Equals(PathSegment other)
+    {
+        var a = Encoded.Span;
+        var b = other.Encoded.Span;
+
+        if (a.Length != b.Length) return false;
+
+        for (int i = 0; i < a.Length; i++)
+        {
+            var ca = a[i];
+            var cb = b[i];
+
+            if (ca == cb) continue;
+
+            if ((ca | 0x20) != (cb | 0x20)) return false;
+            if ((uint)((ca | 0x20) - 'a') > 'z' - 'a') return false;
+        }
+
+        return true;
+    }
 
     public override bool Equals(object? obj) => obj is PathSegment other && Equals(other);
 
     public override int GetHashCode()
     {
         var hash = new HashCode();
-        hash.AddBytes(Encoded.Span);
+
+        foreach (var b in Encoded.Span)
+        {
+            hash.Add((uint)((b | 0x20) - 'a') <= 'z' - 'a' ? (byte)(b | 0x20) : b);
+        }
+
         return hash.ToHashCode();
     }
 
     public static bool operator ==(PathSegment left, PathSegment right) => left.Equals(right);
 
     public static bool operator !=(PathSegment left, PathSegment right) => !left.Equals(right);
-
-    #endregion
-
-    #region Debugging support
-
-    private string DebuggerValue => Encoding.ASCII.GetString(Encoded.Span);
 
     #endregion
 

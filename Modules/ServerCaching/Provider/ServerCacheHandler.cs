@@ -232,19 +232,19 @@ public sealed class ServerCacheHandler : IConcern
         // todo:   || current.Cookies.Count != cached.Cookies?.Count || current.Cookies.Except(cached.Cookies).Any();
     }
 
-    private static ValueTask<(ulong?, ulong?, string?, string?)> ExtractContentValues(IResponse response)
+    private static async ValueTask<(ulong?, ulong?, string?, string?)> ExtractContentValues(IResponse response)
     {
         var content = response.Content;
 
         if (content != null)
         {
-            ulong? checksum = 0;
+            var checksum = await content.CalculateChecksumAsync();
 
             var contentLength = content.Length;
             var contentType = (content.Type != null) ? Encoding.ASCII.GetString(content.Type.Value.Value.Span) : null;
             var contentEncoding = (content.Encoding != null) ? Encoding.ASCII.GetString(content.Encoding.Value.Span) : null;
 
-            return new((checksum, contentLength, contentType, contentEncoding));
+            return (checksum, contentLength, contentType, contentEncoding);
         }
 
         return default;

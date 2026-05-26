@@ -12,13 +12,13 @@ internal record ReturnDocument(OpenApiDocument Document, ulong Checksum);
 
 public sealed class OpenApiConcern : IConcern
 {
-    private static readonly ReadOnlyMemory<byte> OpenApiPath = "openapi"u8.ToArray();
+    private static readonly PathSegment OpenApiPath = new("openapi");
 
-    private static readonly ReadOnlyMemory<byte> OpenApiJsonPath = "openapi.json"u8.ToArray();
+    private static readonly PathSegment OpenApiJsonPath = new("openapi.json");
 
-    private static readonly ReadOnlyMemory<byte> OpenApiYamlPath = "openapi.yaml"u8.ToArray();
+    private static readonly PathSegment OpenApiYamlPath = new("openapi.yaml");
 
-    private static readonly ReadOnlyMemory<byte> OpenApiYmlPath = "openapi.yml"u8.ToArray();
+    private static readonly PathSegment OpenApiYmlPath = new("openapi.yml");
 
     private ReturnDocument? _cached;
 
@@ -59,9 +59,7 @@ public sealed class OpenApiConcern : IConcern
 
             if (path != null)
             {
-                var pathSpan = path.Value.Encoded.Span;
-
-                if (pathSpan.SequenceEqual(OpenApiPath.Span))
+                if (path == OpenApiPath)
                 {
                     IResponse response;
 
@@ -85,11 +83,11 @@ public sealed class OpenApiConcern : IConcern
 
                     return response;
                 }
-                if (pathSpan.SequenceEqual(OpenApiJsonPath.Span))
+                if (path == OpenApiJsonPath)
                 {
                     return await GetDocumentAsync(request, OpenApiFormat.Json);
                 }
-                if (pathSpan.SequenceEqual(OpenApiYamlPath.Span) || pathSpan.SequenceEqual(OpenApiYamlPath.Span))
+                if (path == OpenApiYamlPath || path == OpenApiYmlPath)
                 {
                     return await GetDocumentAsync(request, OpenApiFormat.Yaml);
                 }

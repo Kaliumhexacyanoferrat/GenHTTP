@@ -1,8 +1,6 @@
 ﻿using System.Buffers;
 using System.Text;
-
 using GenHTTP.Api.Protocol;
-
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -40,7 +38,7 @@ public sealed class YamlContent : IResponseContent
     public ValueTask<ulong?> CalculateChecksumAsync() => new((ulong)Data.GetHashCode());
 
     public ValueTask WriteAsync(Stream target, uint bufferSize)
-         => target.WriteAsync(TextEncoding.GetBytes(Serializer.Serialize(Data)));
+        => target.WriteAsync(TextEncoding.GetBytes(Serializer.Serialize(Data)));
 
     public ValueTask WriteAsync(IResponseSink sink)
     {

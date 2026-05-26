@@ -1,4 +1,5 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Text;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion.Serializers;
 using Strings = GenHTTP.Modules.IO.Strings;
@@ -35,10 +36,12 @@ public sealed class InspectionConcern : IConcern
     {
         if (request.Header.Query.ContainsKey(InspectInstruction))
         {
-            var content = await Content.HandleAsync(request);
+            var response = await Content.HandleAsync(request);
 
             var server = request.Server;
 
+            var header = request.Header;
+            
             var model = new
             {
                 Server = new
@@ -68,36 +71,22 @@ public sealed class InspectionConcern : IConcern
                     IPAddress = request.LocalClient.IPAddress?.ToString(),
                     Host = request.LocalClient.Host
                 } : null,*/
-                /*Request = new
+                Request = new
                 {
-                    ProtocolType = request.ProtocolType,
-                    Method = request.Method.RawMethod,
-                    Path = request.Target.Path.ToString(),
-                    Headers = request.Headers,
-                    Query = request.Query,
-                    Cookies = request.Cookies,
-                    Content = (request.Content != null) ? new
+                    Protocol = GetString(header.Protocol.Value),
+                    Method = GetString(header.Method.Value),
+                    Path = GetString(header.Path),
+                    Target = new
                     {
-                        Type = request.ContentType,
-                        Body = request.Content.ToString()
-                    } : null,
-                    Forwardings = request.Forwardings,
-                    Properties = request.Properties
-                },*/
-                /*Response = (content != null) ? new {
-                    Status = content.Status.RawStatus,
-                    Expires = content.Expires,
-                    Modified = content.Modified,
-                    Headers = content.Headers,
-                    Cookies = content.Cookies,
-                    Content = new
-                    {
-                        Type = content.ContentType?.RawType,
-                        Body = content.Content?.ToString(),
-                        Length = content.Content?.Length,
-                        Encoding = content.ContentEncoding
-                    }
-                } : null*/
+                        Current = GetString(header.Target.Current?.Encoded),
+                        TrailingSlash = header.Target.HasTrailingSlash,
+                        Last = header.Target.IsLast
+                    },
+                    // todo: content
+                },
+                Response = (response != null) ? new {
+                    // todo
+                } : null
             };
 
             var format = Serialization.GetSerialization(request);
@@ -115,6 +104,9 @@ public sealed class InspectionConcern : IConcern
 
         return await Content.HandleAsync(request);
     }
+
+    private static string GetString(ReadOnlyMemory<byte>? value)
+        => (value != null) ? Encoding.ASCII.GetString(value.Value.Span) : string.Empty;
 
     #endregion
 
