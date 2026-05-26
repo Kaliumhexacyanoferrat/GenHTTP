@@ -1,5 +1,4 @@
-﻿using System.Buffers;
-using System.IO.Compression;
+﻿using System.IO.Compression;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
@@ -161,8 +160,6 @@ public sealed class CompressionConcern : IConcern
         return MinimumSize is null || contentLength is null || contentLength >= MinimumSize;
     }
     
-    private static readonly SearchValues<char> Delimiters = SearchValues.Create([',', ';']);
-
     private static HashSet<AlgorithmName> ParseSupported(ReadOnlySpan<byte> acceptHeader)
     {
         var result = new HashSet<AlgorithmName>();
@@ -173,7 +170,12 @@ public sealed class CompressionConcern : IConcern
             var comma = acceptHeader[start..].IndexOf((byte)',');
             var end = comma >= 0 ? start + comma : acceptHeader.Length;
 
-            var part = TrimAscii(acceptHeader.Slice(start, end - start));
+            var token = acceptHeader.Slice(start, end - start);
+
+            var semicolon = token.IndexOf((byte)';');
+            var nameSpan = semicolon >= 0 ? token[..semicolon] : token;
+
+            var part = TrimAscii(nameSpan);
 
             if (!part.IsEmpty)
             {

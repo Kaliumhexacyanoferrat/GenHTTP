@@ -264,11 +264,7 @@ public sealed class MethodHandler : IHandler
 
         }
 
-        await (result as dynamic);
-            
-        var resultProperty = result.GetType().GetProperty("Result");
-
-        return resultProperty?.GetValue(result);
+        return result;
     }
 
     private static async ValueTask<IResponse?> RenderCompilationErrorAsync(IRequest request, CodeGenerationException error)

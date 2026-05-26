@@ -198,11 +198,11 @@ public sealed class HttpProxy : IHandler
 
                 if (value is not null)
                 {
-                    if (key == "Location")
+                    if (key.Equals("Location", StringComparison.OrdinalIgnoreCase))
                     {
                         builder.Header(key, RewriteLocation(value, request));
                     }
-                    else if (key == "Set-Cookie")
+                    else if (key.Equals("Set-Cookie", StringComparison.OrdinalIgnoreCase))
                     {
                         foreach (var cookie in values)
                         {
@@ -248,7 +248,7 @@ public sealed class HttpProxy : IHandler
             var protocol = request.EndPoint.Secure ? "https://" : "http://";
 
             var host = request.Header.Headers.GetEntry("Host");
-            
+
             return location.Replace(Upstream, protocol + host + relativePath);
         }
 
