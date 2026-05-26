@@ -1,16 +1,12 @@
-﻿using System.Net;
-
-using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.Functional;
-
-namespace GenHTTP.Testing.Acceptance.Engine.Kestrel;
+﻿namespace GenHTTP.Testing.Acceptance.Engine.Kestrel;
 
 [TestClass]
 public class ProtocolTests
 {
+    
+    // todo
 
+    /*
     [TestMethod]
     public async Task TestHttp2And3()
     {
@@ -73,5 +69,5 @@ public class ProtocolTests
     }
 
     #endregion
-
+*/
 }

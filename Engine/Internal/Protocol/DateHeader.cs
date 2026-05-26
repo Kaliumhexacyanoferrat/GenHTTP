@@ -1,4 +1,6 @@
-﻿namespace GenHTTP.Engine.Internal.Protocol;
+﻿using System.Runtime.CompilerServices;
+
+namespace GenHTTP.Engine.Internal.Protocol;
 
 /// <summary>
 /// Caches the value of the date header for one second
@@ -6,27 +8,28 @@
 /// </summary>
 public static class DateHeader
 {
-    private static string _value = string.Empty;
+    private static readonly byte[] Buffer = new byte[6 + 29 + 2]; // "Date: " + RFC1123 + "\r\n"
+    
+    private static readonly ReadOnlyMemory<byte> Value = Buffer;
 
-    private static byte _second = 61;
+    private static int _second = 61;
 
-    #region Functionality
-
-    public static string GetValue()
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ReadOnlyMemory<byte> GetValue()
     {
         var now = DateTime.UtcNow;
-
         var second = now.Second;
 
-        if (second != _second)
-        {
-            _second = (byte)second;
-            _value = now.ToString("r");
-        }
+        if (second == _second) return Value;
 
-        return _value;
+        _second = second;
+        
+        "Date: "u8.CopyTo(Buffer);
+        
+        now.TryFormat(Buffer.AsSpan(6), out _, "r");
+        
+        "\r\n"u8.CopyTo(Buffer.AsSpan(35));
+
+        return Value;
     }
-
-    #endregion
-
 }

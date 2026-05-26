@@ -1,0 +1,18 @@
+﻿namespace GenHTTP.Api.Protocol;
+
+public interface IRequestHeader
+{
+
+    HttpProtocol Protocol { get; }
+
+    RequestMethod Method { get; }
+
+    ReadOnlyMemory<byte> Path { get; }
+
+    IRequestTarget Target { get; }
+
+    IKeyValueList Query { get; }
+
+    IKeyValueList Headers { get; }
+
+}

@@ -1,13 +1,9 @@
-using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.IO;
-using GenHTTP.Api.Infrastructure;
-
 namespace GenHTTP.Modules.Compression.Providers;
 
 /// <summary>
 /// Builder for configuring automatic request content decompression.
 /// </summary>
-public sealed class DecompressionConcernBuilder : IConcernBuilder
+/*public sealed class DecompressionConcernBuilder : IConcernBuilder
 {
     private readonly List<ICompressionAlgorithm> _algorithms = [];
 
@@ -46,3 +42,4 @@ public sealed class DecompressionConcernBuilder : IConcernBuilder
     #endregion
 
 }
+*/

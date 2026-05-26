@@ -1,7 +1,6 @@
 using System.Text;
 using System.Text.RegularExpressions;
-
-using GenHTTP.Api.Routing;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Reflection.Routing.Segments;
 
@@ -48,7 +47,7 @@ internal sealed partial class RegexSegment : IRoutingSegment
         ProvidedArguments = providedArguments.ToArray();
     }
 
-    public (bool matched, int offsetBy) TryMatch(RoutingTarget target, int offset, ref PathArgumentSink argumentSink)
+    public (bool matched, int offsetBy) TryMatch(IRequestTarget target, int offset, ref PathArgumentSink argumentSink)
     {
         var part = target.Next(offset);
 
@@ -57,7 +56,9 @@ internal sealed partial class RegexSegment : IRoutingSegment
             return (false, 0);
         }
 
-        var match = _matcher.Match(part.Value);
+        var stringPart = Encoding.ASCII.GetString(part.Value.Span);
+
+        var match = _matcher.Match(stringPart);
 
         if (!match.Success)
         {
@@ -65,12 +66,12 @@ internal sealed partial class RegexSegment : IRoutingSegment
         }
 
         var groups = match.Groups;
-            
+
         for (var i = 1; i < groups.Count; i++)
         {
             argumentSink.Add(groups[i].Name, groups[i].Value);
         }
-            
+
         return (true, 1);
     }
 

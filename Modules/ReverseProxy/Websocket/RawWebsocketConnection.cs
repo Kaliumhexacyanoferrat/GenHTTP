@@ -10,17 +10,17 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Modules.ReverseProxy.Websocket;
 
 /* TLDR:
-   RawWebsocketConnection is a small helper around a raw TCP Socket that knows how to connect to a ws:// or wss:// URL, 
-   wrap it in the right stream, and perform the HTTP upgrade handshake using System.IO.Pipelines. 
-   In the constructor it parses the URL into host, port, whether the port is default, whether the connection is 
-   secure (wss/https → SslStream), and the route (path without query params). InitializeStream connects the socket, 
-   builds a NetworkStream, optionally upgrades it to an SslStream for secure endpoints, and then creates a DuplexPipe (pipe reader/writer) 
-   over that stream with configurable RX/TX buffer sizes. TryUpgrade then builds a WebSocket upgrade GET request by 
-   hand (including a correct Host header that omits the port when it’s the default), writes it to the pipe, and loops reading 
-   from the input pipe until it finds the HTTP header terminator \r\n\r\n. Once it has the full response headers, it checks whether 
-   the status line starts with HTTP/1.1 101 to decide if the upgrade succeeded. The method uses the PipeReader contract correctly 
-   by always calling AdvanceTo in a finally block, and it throws if the connection closes before the full handshake arrives. Finally, 
-   DisposeAsync cleans up the pipe, the underlying stream, and the socket, so the class encapsulates the entire lifecycle of a 
+   RawWebsocketConnection is a small helper around a raw TCP Socket that knows how to connect to a ws:// or wss:// URL,
+   wrap it in the right stream, and perform the HTTP upgrade handshake using System.IO.Pipelines.
+   In the constructor it parses the URL into host, port, whether the port is default, whether the connection is
+   secure (wss/https → SslStream), and the route (path without query params). InitializeStream connects the socket,
+   builds a NetworkStream, optionally upgrades it to an SslStream for secure endpoints, and then creates a DuplexPipe (pipe reader/writer)
+   over that stream with configurable RX/TX buffer sizes. TryUpgrade then builds a WebSocket upgrade GET request by
+   hand (including a correct Host header that omits the port when it’s the default), writes it to the pipe, and loops reading
+   from the input pipe until it finds the HTTP header terminator \r\n\r\n. Once it has the full response headers, it checks whether
+   the status line starts with HTTP/1.1 101 to decide if the upgrade succeeded. The method uses the PipeReader contract correctly
+   by always calling AdvanceTo in a finally block, and it throws if the connection closes before the full handshake arrives. Finally,
+   DisposeAsync cleans up the pipe, the underlying stream, and the socket, so the class encapsulates the entire lifecycle of a
    single raw WebSocket client connection.
  */
 public sealed class RawWebsocketConnection : IAsyncDisposable
@@ -39,15 +39,15 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
     private const string Crlf = "\r\n";
 
     #region Get-/Setters
-    
+
     private Stream? Stream { get; set; }
 
     public DuplexPipe? Pipe { get; private set; }
 
     #endregion
-    
+
     #region Initialization
-    
+
     public RawWebsocketConnection(string url, int rxMaxBufferSize = 4096 * 4, int txMaxBufferSize = 4096)
     {
         _rxMaxBufferSize = rxMaxBufferSize;
@@ -83,9 +83,9 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
                                                     leaveOpen: true,
                                                     minimumBufferSize: _txMaxBufferSize)));
     }
-    
+
     #endregion
-    
+
     #region Functionality
 
     public async Task TryUpgrade(IRequest request, CancellationToken token = default)
@@ -95,8 +95,10 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
             throw new InvalidOperationException("Not initialized.");
         }
 
+        // todo: make this more effient with readonly memory instead of a string?
+
         var upgradeRequestSb = new StringBuilder();
-        
+
         upgradeRequestSb
              // GET {_route} HTTP/1.1\r\n
             .Append("GET ")
@@ -106,24 +108,31 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
             // Host: {_host}:{_port}\r\n
             .Append("Host: ")
             .Append(_host);
-        
+
         if (!_isDefaultPort)
         {
             upgradeRequestSb.Append(':');
             upgradeRequestSb.Append(_port);
         }
-        
+
         upgradeRequestSb.Append(Crlf);
 
-        foreach (var header in request.Headers)
+        var headers = request.Header.Headers;
+
+        for (var i = 0; i < headers.Count; i++)
         {
-            if (header.Key.Equals("Host", StringComparison.OrdinalIgnoreCase))
+            var header = headers[i];
+
+            var key = Encoding.ASCII.GetString(header.Key.Span);
+            var value = Encoding.ASCII.GetString(header.Value.Span);
+
+            if (key.Equals("Host", StringComparison.OrdinalIgnoreCase))
                 continue;
 
             upgradeRequestSb
-                .Append(header.Key)
+                .Append(key)
                 .Append(": ")
-                .Append(header.Value)
+                .Append(value)
                 .Append(Crlf);
         }
 
@@ -188,7 +197,7 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
                 "ws" => 80,
                 _ => 0
             };
-        
+
         var route = string.IsNullOrEmpty(uri.PathAndQuery) ? "/" : uri.PathAndQuery;
 
         return (uri.Host, port, uri.IsDefaultPort, secure, route);
@@ -205,10 +214,10 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
         {
             await Stream.DisposeAsync();
         }
-        
+
         _socket.Dispose();
     }
-    
+
     #endregion
-    
+
 }

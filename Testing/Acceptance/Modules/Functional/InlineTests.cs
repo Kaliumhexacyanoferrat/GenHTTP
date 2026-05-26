@@ -3,8 +3,6 @@ using System.Text;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Redirects;
 using GenHTTP.Modules.Reflection;
@@ -122,7 +120,7 @@ public sealed class InlineTests
         {
             return request.Respond()
                           .Status(ResponseStatus.Ok)
-                          .Content("42");
+                          .Content(new GenHTTP.Modules.IO.Strings.StringContent("42"));
         }).ExecutionMode(mode), engine: engine);
 
         using var response = await host.GetResponseAsync();

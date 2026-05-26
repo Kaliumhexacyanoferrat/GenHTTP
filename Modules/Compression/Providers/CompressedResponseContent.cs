@@ -1,4 +1,5 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Compression.Providers;
 
@@ -7,10 +8,11 @@ public sealed class CompressedResponseContent : IResponseContent, IDisposable
 
     #region Initialization
 
-    public CompressedResponseContent(IResponseContent originalContent, Func<Stream, Stream> generator)
+    public CompressedResponseContent(IResponseContent originalContent, Func<Stream, Stream> generator, AlgorithmName algorithmName)
     {
         OriginalContent = originalContent;
         Generator = generator;
+        Encoding = algorithmName.Value;
     }
 
     #endregion
@@ -18,6 +20,10 @@ public sealed class CompressedResponseContent : IResponseContent, IDisposable
     #region Get-/Setters
 
     public ulong? Length => null;
+
+    public ContentType? Type => OriginalContent.Type;
+
+    public ReadOnlyMemory<byte>? Encoding { get; }
 
     private IResponseContent OriginalContent { get; }
 
@@ -27,14 +33,14 @@ public sealed class CompressedResponseContent : IResponseContent, IDisposable
 
     #region Functionality
 
-    public async ValueTask WriteAsync(Stream target, uint bufferSize)
-    {
-        await using var compressed = Generator(target);
-
-        await OriginalContent.WriteAsync(compressed, bufferSize);
-    }
-
     public ValueTask<ulong?> CalculateChecksumAsync() => OriginalContent.CalculateChecksumAsync();
+
+    public async ValueTask WriteAsync(IResponseSink sink)
+    {
+        await using var compressingSink = new CompressingSink(sink, Generator);
+
+        await OriginalContent.WriteAsync(compressingSink);
+    }
 
     #endregion
 

@@ -95,7 +95,7 @@ public sealed class ApiKeyAuthenticationTests
     public async Task TestCustomExtractor(TestEngine engine)
     {
         var auth = ApiKeyAuthentication.Create()
-                                       .Extractor(r => r.UserAgent)
+                                       .Extractor(r => r.Header.Headers.GetEntry("User-Agent"))
                                        .Keys("123");
 
         await using var runner = await GetRunnerWithAuthAsync(auth, engine);

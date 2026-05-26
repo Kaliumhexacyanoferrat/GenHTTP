@@ -31,16 +31,16 @@ public sealed class EventSourceHandler : IHandler
 
     #region Functionality
 
-    public ValueTask PrepareAsync() => new();
+    public ValueTask PrepareAsync() => default;
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        if (request.Method.KnownMethod != RequestMethod.Get)
+        if (request.Header.Method != RequestMethod.Get)
         {
             throw new ProviderException(ResponseStatus.MethodNotAllowed, "Server Sent Events require a GET request to establish a connection", b => b.Header("Allow", "GET"));
         }
 
-        request.Headers.TryGetValue("Last-Event-ID", out var lastId);
+        var lastId = request.Header.Headers.GetEntry("Last-Event-ID");
 
         if ((Inspector != null) && !await Inspector(request, lastId))
         {
@@ -52,7 +52,6 @@ public sealed class EventSourceHandler : IHandler
         var content = new EventStream(request, lastId, Generator, Formatters);
 
         return request.Respond()
-                      .Type(FlexibleContentType.Get(ContentType.TextEventStream))
                       .Status(ResponseStatus.Ok)
                       .Content(content)
                       .Build();

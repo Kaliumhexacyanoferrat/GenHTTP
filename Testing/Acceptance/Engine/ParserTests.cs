@@ -1,5 +1,8 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Text;
+using System.Web;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
@@ -80,7 +83,7 @@ public sealed class ParserTests
 
         using var respose = await runner.GetResponseAsync("/?path=/Some+Folder/With%20Subfolders/");
 
-        Assert.AreEqual("path=/Some+Folder/With Subfolders/", await respose.GetContentAsync());
+        Assert.AreEqual("path=/Some Folder/With Subfolders/", await respose.GetContentAsync());
     }
 
     #region Supporting data structures
@@ -91,7 +94,7 @@ public sealed class ParserTests
         public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
         public ValueTask<IResponse?> HandleAsync(IRequest request) => request.Respond()
-                                                                             .Content(request.Target.Path.ToString())
+                                                                             .Content(request.Header.Target.AsString())
                                                                              .BuildTask();
     }
 
@@ -102,8 +105,24 @@ public sealed class ParserTests
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
+            // todo: make this logic block reusable
+            
+            var entries = new List<string>();
+            
+            for (var i = 0; i < request.Header.Query.Count; i++)
+            {
+                var entry = request.Header.Query[i];
+
+                var key = HttpUtility.UrlDecode(Encoding.ASCII.GetString(entry.Key.Span));
+                var value = HttpUtility.UrlDecode(Encoding.ASCII.GetString(entry.Value.Span));
+                
+                entries.Add($"{key}={value}");
+            }
+            
+            var result = string.Join('|', entries);
+            
             return request.Respond()
-                          .Content(string.Join('|', request.Query.Select(kv => kv.Key + "=" + kv.Value)))
+                          .Content(result)
                           .BuildTask();
         }
     }

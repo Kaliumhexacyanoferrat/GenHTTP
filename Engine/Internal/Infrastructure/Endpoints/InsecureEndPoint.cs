@@ -2,8 +2,6 @@
 using System.Net.Sockets;
 
 using GenHTTP.Api.Infrastructure;
-
-using GenHTTP.Engine.Internal.Utilities;
 using GenHTTP.Engine.Shared.Infrastructure;
 
 namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
@@ -29,7 +27,10 @@ internal sealed class InsecureEndPoint : EndPoint
 
     #region Functionality
 
-    protected override ValueTask Accept(Socket client) => Handle(client, new PoolBufferedStream(new NetworkStream(client), Configuration.TransferBufferSize));
+    protected override ValueTask Accept(Socket client)
+    {
+        return Handle(client, new NetworkStream(client));
+    }
 
     #endregion
 

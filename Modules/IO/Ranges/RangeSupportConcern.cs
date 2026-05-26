@@ -1,12 +1,19 @@
 ﻿using System.Text.RegularExpressions;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.IO.Ranges;
 
 public partial class RangeSupportConcern : IConcern
 {
     private static readonly Regex Pattern = CreatePattern();
+    
+    private static readonly ReadOnlyMemory<byte> AcceptRangesHeader = "Accept-Ranges"u8.ToArray();
+    
+    private static readonly ReadOnlyMemory<byte> BytesValue = "bytes"u8.ToArray();
 
     #region Get-/Setters
 
@@ -32,7 +39,9 @@ public partial class RangeSupportConcern : IConcern
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        if (request.Method == RequestMethod.Get || request.Method == RequestMethod.Head)
+        var header = request.Header;
+        
+        if (header.Method == RequestMethod.Get || header.Method == RequestMethod.Head)
         {
             var response = await Content.HandleAsync(request);
 
@@ -40,40 +49,47 @@ public partial class RangeSupportConcern : IConcern
             {
                 if (response.Status == ResponseStatus.Ok)
                 {
-                    var length = response.ContentLength;
+                    var content = response.Content;
 
-                    if (length != null)
+                    if (content != null)
                     {
-                        response["Accept-Ranges"] = "bytes";
+                        var length = content.Length;
 
-                        if (request.Headers.TryGetValue("Range", out var requested))
+                        if (length != null)
                         {
-                            var match = Pattern.Match(requested);
+                            response.Rebuild().Header(AcceptRangesHeader, BytesValue);
 
-                            if (match.Success)
+                            var requested = header.Headers.GetEntry("Range");
+                            
+                            if (requested != null)
                             {
-                                var startString = match.Groups[1].Value;
-                                var endString = match.Groups[2].Value;
+                                var match = Pattern.Match(requested);
 
-                                var start = string.IsNullOrEmpty(startString) ? null : (ulong?)ulong.Parse(startString);
-                                var end = string.IsNullOrEmpty(endString) ? null : (ulong?)ulong.Parse(endString);
-
-                                if (start != null || end != null)
+                                if (match.Success)
                                 {
-                                    if (end == null)
+                                    var startString = match.Groups[1].Value;
+                                    var endString = match.Groups[2].Value;
+
+                                    var start = string.IsNullOrEmpty(startString) ? null : (ulong?)ulong.Parse(startString);
+                                    var end = string.IsNullOrEmpty(endString) ? null : (ulong?)ulong.Parse(endString);
+
+                                    if (start != null || end != null)
                                     {
-                                        return GetRangeFromStart(request, response, length.Value, start!.Value);
+                                        if (end == null)
+                                        {
+                                            return GetRangeFromStart(request, response, length.Value, start!.Value);
+                                        }
+                                        if (start == null)
+                                        {
+                                            return GetRangeFromEnd(request, response, length.Value, end.Value);
+                                        }
+                                        return GetFullRange(request, response, length.Value, start.Value, end.Value);
                                     }
-                                    if (start == null)
-                                    {
-                                        return GetRangeFromEnd(request, response, length.Value, end.Value);
-                                    }
-                                    return GetFullRange(request, response, length.Value, start.Value, end.Value);
                                 }
-                            }
-                            else
-                            {
-                                return NotSatisfiable(request, length.Value);
+                                else
+                                {
+                                    return NotSatisfiable(request, length.Value);
+                                }
                             }
                         }
                     }
@@ -81,7 +97,9 @@ public partial class RangeSupportConcern : IConcern
             }
 
             return response;
-        }
+        }       
+
+
         return await Content.HandleAsync(request);
     }
 
@@ -117,25 +135,22 @@ public partial class RangeSupportConcern : IConcern
 
     private static IResponse GetRange(IResponse response, ulong actualStart, ulong actualEnd, ulong totalLength)
     {
-        response.Status = new FlexibleResponseStatus(ResponseStatus.PartialContent);
-
-        response["Content-Range"] = $"bytes {actualStart}-{actualEnd}/{totalLength}";
-
-        response.Content = new RangedContent(response.Content!, actualStart, actualEnd);
-        response.ContentLength = actualEnd - actualStart + 1;
+        response.Rebuild()
+                .Status(ResponseStatus.PartialContent)
+                .Header("Content-Range", $"bytes {actualStart}-{actualEnd}/{totalLength}")
+                .Content(new RangedContent(response.Content!, actualStart, actualEnd));
 
         return response;
     }
 
     private static IResponse NotSatisfiable(IRequest request, ulong totalLength)
     {
-        var content = Resource.FromString($"Requested length cannot be satisfied (available = {totalLength} bytes)")
-                              .Build();
+        var content = Resource.FromString($"Requested length cannot be satisfied (available = {totalLength} bytes)").Build();
 
         return request.Respond()
                       .Status(ResponseStatus.RequestedRangeNotSatisfiable)
                       .Header("Content-Range", $"bytes */{totalLength}")
-                      .Content(content)
+                      .Content(new ResourceContent(content, ContentType.TextPlain))
                       .Build();
     }
 

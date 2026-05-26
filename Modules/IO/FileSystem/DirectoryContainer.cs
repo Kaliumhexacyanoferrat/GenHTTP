@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.IO.FileSystem;
 
@@ -48,9 +49,9 @@ internal class DirectoryContainer : IResourceContainer
         return new ValueTask<IReadOnlyCollection<IResource>>(result);
     }
 
-    public ValueTask<IResourceNode?> TryGetNodeAsync(string name)
+    public ValueTask<IResourceNode?> TryGetNodeAsync(PathSegment segment)
     {
-        var path = Path.Combine(Directory.FullName, name);
+        var path = Path.Combine(Directory.FullName, segment.Decode());
 
         var directory = new DirectoryInfo(path);
 
@@ -62,9 +63,9 @@ internal class DirectoryContainer : IResourceContainer
         return new ValueTask<IResourceNode?>();
     }
 
-    public ValueTask<IResource?> TryGetResourceAsync(string name)
+    public ValueTask<IResource?> TryGetResourceAsync(PathSegment segment)
     {
-        var path = Path.Combine(Directory.FullName, name);
+        var path = Path.Combine(Directory.FullName, segment.Decode());
 
         var file = new FileInfo(path);
 

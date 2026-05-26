@@ -1,9 +1,13 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.IO;
 
 public static class ContentTypeGuessingExtensions
 {
+
+    public static ContentType GuessContentType(this IResource resource)
+        => resource.ContentType ?? resource.Name?.GuessContentType() ?? ContentType.ApplicationForceDownload;
 
     public static ContentType? GuessContentType(this string fileName)
     {

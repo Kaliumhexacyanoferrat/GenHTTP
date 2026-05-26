@@ -5,6 +5,7 @@ namespace GenHTTP.Modules.Authentication.Multi;
 
 public sealed class MultiAuthenticationConcern : IConcern
 {
+    
     #region Get-/Setters
 
     public IHandler Content { get; }
@@ -28,9 +29,11 @@ public sealed class MultiAuthenticationConcern : IConcern
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
         ResponseOrException? lastResponse = null;
+
         foreach (var concern in _delegatingConcerns)
         {
-            lastResponse?.Dispose();
+            // todo: this seems broken
+            // lastResponse?.Dispose();
 
             try
             {
@@ -59,8 +62,9 @@ public sealed class MultiAuthenticationConcern : IConcern
 
     #region Helper structure
 
-    private sealed record ResponseOrException(IResponse? Response = null, ProviderException? Exception = null) : IDisposable
-    { 
+    private sealed record ResponseOrException(IResponse? Response = null, ProviderException? Exception = null)
+    {
+
         public IResponse? Get()
         {
             if (Exception != null)
@@ -71,13 +75,10 @@ public sealed class MultiAuthenticationConcern : IConcern
             return Response;
         }
 
-        public void Dispose()
-        {
-            Response?.Dispose();
-        }
+        public ResponseStatus? Status => Exception?.Status ?? Response?.Status;
 
-        public ResponseStatus? Status => Exception?.Status ?? Response?.Status.KnownStatus;
     }
 
     #endregion
+
 }

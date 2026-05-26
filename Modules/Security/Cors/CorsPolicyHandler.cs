@@ -1,13 +1,32 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
+﻿using System.Text;
 
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.Security.Cors;
 
 public sealed class CorsPolicyHandler : IConcern
 {
-    public const string AllowAny = "*";
+    private static readonly ReadOnlyMemory<byte> OriginHeader = "Origin"u8.ToArray();
+
+    private static readonly ReadOnlyMemory<byte> AcaOrigin = "Access-Control-Allow-Origin"u8.ToArray();
+
+    private static readonly ReadOnlyMemory<byte> AcaMethods = "Access-Control-Allow-Methods"u8.ToArray();
+
+    private static readonly ReadOnlyMemory<byte> AcaHeaders = "Access-Control-Allow-Headers"u8.ToArray();
+
+    private static readonly ReadOnlyMemory<byte> AcExposeHeaders = "Access-Control-Expose-Headers"u8.ToArray();
+
+    private static readonly ReadOnlyMemory<byte> AcaCredentials = "Access-Control-Allow-Credentials"u8.ToArray();
+
+    private static readonly ReadOnlyMemory<byte> AcMaxAge = "Access-Control-Max-Age"u8.ToArray();
+
+    private static readonly ReadOnlyMemory<byte> TrueValue = "true"u8.ToArray();
+
+    private static readonly ReadOnlyMemory<byte> VaryHeader = "Vary"u8.ToArray();
+
+    public static readonly ReadOnlyMemory<byte> AllowAny = "*"u8.ToArray();
 
     #region Get-/Setters
 
@@ -60,58 +79,123 @@ public sealed class CorsPolicyHandler : IConcern
         return response;
     }
 
-    private static void ConfigureResponse(IResponse response, string origin, OriginPolicy policy)
+    private static void ConfigureResponse(IResponse response, ReadOnlyMemory<byte> origin, OriginPolicy policy)
     {
-        response.Headers["Access-Control-Allow-Origin"] = origin;
+        var builder = response.Rebuild();
+
+        builder.Header(AcaOrigin, origin);
 
         if (HasValue(policy.AllowedMethods))
         {
-            response.Headers["Access-Control-Allow-Methods"] = GetListOrWildcard(policy.AllowedMethods);
+            builder.Header(AcaMethods, GetListOrWildcard(policy.AllowedMethods));
         }
 
         if (HasValue(policy.AllowedHeaders))
         {
-            response.Headers["Access-Control-Allow-Headers"] = GetListOrWildcard(policy.AllowedHeaders);
+            builder.Header(AcaHeaders, GetListOrWildcard(policy.AllowedHeaders));
         }
 
         if (HasValue(policy.ExposedHeaders))
         {
-            response.Headers["Access-Control-Expose-Headers"] = GetListOrWildcard(policy.ExposedHeaders);
+            builder.Header(AcExposeHeaders, GetListOrWildcard(policy.ExposedHeaders));
         }
 
         if (policy.AllowCredentials)
         {
-            response.Headers["Access-Control-Allow-Credentials"] = "true";
+            builder.Header(AcaCredentials, TrueValue);
         }
 
-        response.Headers["Access-Control-Max-Age"] = policy.MaxAge.ToString();
+        Span<byte> age = stackalloc byte[20];
 
-        if (origin != AllowAny)
+        policy.MaxAge.TryFormat(age, out var written);
+
+        var ageBuffer = age[..written].ToArray();
+
+        builder.Header(AcMaxAge, ageBuffer);
+
+        if (!origin.Span.SequenceEqual(AllowAny.Span))
         {
-            response.Headers["Vary"] = "Origin";
+            builder.Header(VaryHeader, OriginHeader);
         }
     }
 
-    private (string origin, OriginPolicy? policy) GetPolicy(IRequest request)
+    private (ReadOnlyMemory<byte> origin, OriginPolicy? policy) GetPolicy(IRequest request)
     {
-        var origin = request["Origin"];
+        var origin = request.Header.Headers.GetEntry(OriginHeader);
 
         if (origin is not null)
         {
-            if (AdditionalPolicies.TryGetValue(origin, out var policy))
+            var originString = Encoding.ASCII.GetString(origin.Value.Span);
+
+            if (AdditionalPolicies.TryGetValue(originString, out var policy))
             {
-                return (origin, policy);
+                return (origin.Value, policy);
             }
         }
 
         return (origin ?? AllowAny, DefaultPolicy);
     }
 
-    private static string GetListOrWildcard(List<string>? values)
-        => values is not null ? string.Join(", ", values) : AllowAny;
+    private static ReadOnlyMemory<byte> GetListOrWildcard(List<string>? values)
+    {
+        if (values is null) return AllowAny;
 
-    private static string GetListOrWildcard(List<FlexibleRequestMethod>? values)
-        => values is not null ? string.Join(", ", values.Select(v => v.RawMethod.ToUpper())) : AllowAny;
+        var totalLength = 0;
+
+        for (var i = 0; i < values.Count; i++)
+        {
+            totalLength += values[i].Length;
+            if (i < values.Count - 1) totalLength += 2; // ", "
+        }
+
+        var buffer = new byte[totalLength];
+        var pos = 0;
+
+        for (var i = 0; i < values.Count; i++)
+        {
+            pos += Encoding.ASCII.GetBytes(values[i], buffer.AsSpan(pos));
+
+            if (i < values.Count - 1)
+            {
+                buffer[pos++] = (byte)',';
+                buffer[pos++] = (byte)' ';
+            }
+        }
+
+        return buffer;
+    }
+
+    private static ReadOnlyMemory<byte> GetListOrWildcard(List<RequestMethod>? values)
+    {
+        if (values is null) return AllowAny;
+
+        var totalLength = 0;
+
+        for (var i = 0; i < values.Count; i++)
+        {
+            totalLength += values[i].Value.Length;
+            if (i < values.Count - 1) totalLength += 2; // ", "
+        }
+
+        var buffer = new byte[totalLength];
+        var pos = 0;
+
+        for (var i = 0; i < values.Count; i++)
+        {
+            var span = values[i].Value.Span;
+            span.CopyTo(buffer.AsSpan(pos));
+
+            pos += span.Length;
+
+            if (i < values.Count - 1)
+            {
+                buffer[pos++] = (byte)',';
+                buffer[pos++] = (byte)' ';
+            }
+        }
+
+        return buffer;
+    }
 
     private static bool HasValue<T>(List<T>? list) => list is null || list.Count > 0;
 

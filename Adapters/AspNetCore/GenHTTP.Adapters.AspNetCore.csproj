@@ -8,9 +8,6 @@
 
         <Authors>Andreas Nägeli, Tanzim Hossain Romel</Authors>
 
-        <!-- remove this line after Fleck has been removed -->
-        <NoWarn>CS1591,CS1587,CS1572,CS1573,CS0612,CS0618</NoWarn>
-
     </PropertyGroup>
 
     <ItemGroup>
@@ -26,16 +23,13 @@
         <ProjectReference Include="..\..\Modules\Compression\GenHTTP.Modules.Compression.csproj" />
 
         <ProjectReference Include="..\..\Modules\IO\GenHTTP.Modules.IO.csproj"/>
+
         <ProjectReference Include="..\..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj"/>
 
     </ItemGroup>
 
     <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.7" />
     </ItemGroup>
 
 </Project>

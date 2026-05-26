@@ -6,6 +6,7 @@ using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Reflection;
+using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Controllers;
 
@@ -36,9 +37,9 @@ public sealed class ResultTypeTests
 
         public IHandler Handler(IHandler parent) => Content.From(Resource.FromString("Handler")).Build();
 
-        public IResponseBuilder ResponseBuilder(IRequest request) => request.Respond().Content("ResponseBuilder");
+        public IResponseBuilder ResponseBuilder(IRequest request) => request.Respond().Content(new StringContent("ResponseBuilder"));
 
-        public IResponse Response(IRequest request) => request.Respond().Content("Response").Build();
+        public IResponse Response(IRequest request) => request.Respond().Content(new StringContent("Response")).Build();
     }
 
     #endregion

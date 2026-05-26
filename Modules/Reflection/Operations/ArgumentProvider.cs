@@ -1,9 +1,10 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Text;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Conversion;
+using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Reflection.Routing;
 
 namespace GenHTTP.Modules.Reflection.Operations;
@@ -36,25 +37,22 @@ public static class ArgumentProvider
 
     public static async ValueTask<object?> GetBodyArgumentAsync(IRequest request, string name, Type type, MethodRegistry registry)
     {
-        if (request.Content == null)
+        var content = request.GetBody(HeaderAccess.Retain);
+
+        if (content == null)
         {
             throw new ProviderException(ResponseStatus.BadRequest, $"Argument '{name}' is expected to be read from the request body but the request does not contain any payload");
         }
 
         object? result = null;
 
-        using var reader = new StreamReader(request.Content, leaveOpen: true);
+        var buffer = await content.ReadToEndAsync();
 
-        var body = await reader.ReadToEndAsync();
+        var body = Encoding.UTF8.GetString(buffer.Span);
 
         if (!string.IsNullOrWhiteSpace(body))
         {
             result = body.ConvertTo(type, registry.Formatting);
-        }
-
-        if (request.Content.CanSeek)
-        {
-            request.Content.Seek(0, SeekOrigin.Begin);
         }
 
         return result;
@@ -62,7 +60,9 @@ public static class ArgumentProvider
 
     public static object? GetQueryArgument(IRequest request, Dictionary<string, string>? formArguments, OperationArgument argument, MethodRegistry registry)
     {
-        if (request.Query.TryGetValue(argument.Name, out var queryValue))
+        var queryValue = request.Header.Query.GetEntry(argument.Name); // todo: string based
+
+        if (queryValue is not null)
         {
             return queryValue.ConvertTo(argument.Type, registry.Formatting);
         }
@@ -87,14 +87,16 @@ public static class ArgumentProvider
             throw new ProviderException(ResponseStatus.UnsupportedMediaType, "Requested format is not supported");
         }
 
-        if (request.Content is null)
+        var content = request.GetBody(HeaderAccess.Retain);
+
+        if (content is null)
         {
             throw new ProviderException(ResponseStatus.BadRequest, "Request body expected");
         }
 
         try
         {
-            return await deserializer.DeserializeAsync(request.Content, argument.Type);
+            return await deserializer.DeserializeAsync(content.AsStream(), argument.Type);
         }
         catch (Exception e)
         {
@@ -105,12 +107,14 @@ public static class ArgumentProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Stream GetStream(IRequest request)
     {
-        if (request.Content == null)
+        var content = request.GetBody(HeaderAccess.Retain);
+
+        if (content == null)
         {
             throw new ProviderException(ResponseStatus.BadRequest, "Request body expected");
         }
 
-        return request.Content;
+        return content.AsStream();
     }
 
 }

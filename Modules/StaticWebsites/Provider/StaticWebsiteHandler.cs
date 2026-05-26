@@ -2,12 +2,13 @@
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO;
+using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.StaticWebsites.Provider;
 
 public sealed class StaticWebsiteHandler : IHandler
 {
-    private static readonly string[] IndexFiles = ["index.html", "index.htm"];
+    private static readonly PathSegment[] IndexFiles = [ new("index.html"), new("index.htm") ];
 
     #region Get-/Setters
 
@@ -33,34 +34,35 @@ public sealed class StaticWebsiteHandler : IHandler
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        if (request.Target.Path.TrailingSlash)
+        var target = request.Header.Target;
+
+        if (target.HasTrailingSlash)
         {
-            var (node, _) = await Tree.Find(request.Target);
+            var (node, _) = await Tree.Find(target);
 
             if (node != null)
             {
                 foreach (var indexFile in IndexFiles)
                 {
-                    IResource? file;
+                    var file = await node.TryGetResourceAsync(indexFile);
 
-                    if ((file = await node.TryGetResourceAsync(indexFile)) != null)
+                    if (file != null)
                     {
-                        return await Content.From(file)
-                                            .Build()
-                                            .HandleAsync(request);
+                        return request.Respond()
+                                      .Status(ResponseStatus.Ok)
+                                      .Content(new ResourceContent(file))
+                                      .Build();
                     }
                 }
             }
 
             return null;
         }
+
         return await Resources.HandleAsync(request);
     }
 
-    public async ValueTask PrepareAsync()
-    {
-        await Resources.PrepareAsync();
-    }
+    public ValueTask PrepareAsync() => Resources.PrepareAsync();
 
     #endregion
 

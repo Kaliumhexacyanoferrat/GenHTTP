@@ -9,7 +9,7 @@ public sealed class ApiKeyConcernBuilder : IConcernBuilder
 {
     private Func<IRequest, string, ValueTask<IUser?>>? _authenticator;
 
-    private Func<IRequest, string?>? _keyExtractor = request => request.Headers.GetValueOrDefault("X-API-Key");
+    private Func<IRequest, string?>? _keyExtractor = request => request.Header.Headers.GetEntry("X-API-Key");
 
     #region Functionality
 
@@ -31,7 +31,7 @@ public sealed class ApiKeyConcernBuilder : IConcernBuilder
     /// <param name="headerName">The name of the header to be read from the request</param>
     public ApiKeyConcernBuilder WithHeader(string headerName)
     {
-        _keyExtractor = request => request.Headers.GetValueOrDefault(headerName);
+        _keyExtractor = request => request.Header.Headers.GetEntry(headerName);
         return this;
     }
 
@@ -42,7 +42,7 @@ public sealed class ApiKeyConcernBuilder : IConcernBuilder
     /// <param name="headerName">The name of the query parameter to be read from the request</param>
     public ApiKeyConcernBuilder WithQueryParameter(string parameter)
     {
-        _keyExtractor = request => request.Query.GetValueOrDefault(parameter);
+        _keyExtractor = request => request.Header.Query.GetEntry(parameter);
         return this;
     }
 

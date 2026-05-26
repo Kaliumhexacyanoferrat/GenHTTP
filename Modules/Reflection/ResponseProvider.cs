@@ -1,8 +1,12 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.IO;
+using GenHTTP.Modules.IO.Streaming;
 using GenHTTP.Modules.Reflection.Operations;
+
+using ByteArrayContent = GenHTTP.Modules.IO.Streaming.ByteArrayContent;
+using StreamContent = GenHTTP.Modules.IO.Streaming.StreamContent;
+using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
 namespace GenHTTP.Modules.Reflection;
 
@@ -93,19 +97,18 @@ public class ResponseProvider
     private static IResponse GetBinaryResponse(IRequest request, object data, Action<IResponseBuilder>? adjustments)
     {
         var response = request.Respond()
-                              .Type(ContentType.ApplicationForceDownload)
                               .Adjust(adjustments);
 
         switch (data)
         {
             case Stream stream:
-                response.Content(stream);
+                response.Content(new StreamContent(stream, ContentType.ApplicationForceDownload, null, null, null));
                 break;
             case byte[] bytes:
-                response.Content(bytes);
+                response.Content(new ByteArrayContent(bytes, ContentType.ApplicationForceDownload, null));
                 break;
             case ReadOnlyMemory<byte> memory:
-                response.Content(memory);
+                response.Content(new MemoryContent(memory, ContentType.ApplicationForceDownload, null));
                 break;
             default:
                 throw new ProviderException(ResponseStatus.InternalServerError, $"Unexpected type '{data.GetType()}' for stream sink");
@@ -115,7 +118,7 @@ public class ResponseProvider
     }
 
     private IResponse GetFormattedResponse(IRequest request, object result, Type type, Action<IResponseBuilder>? adjustments) => request.Respond()
-                                                                                                                                        .Content(Registry.Formatting.Write(result, type) ?? string.Empty)
+                                                                                                                                        .Content(new StringContent(Registry.Formatting.Write(result, type) ?? string.Empty))
                                                                                                                                         .Adjust(adjustments)
                                                                                                                                         .Build();
 

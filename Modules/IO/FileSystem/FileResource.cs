@@ -1,6 +1,8 @@
 ﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
+using GenHTTP.Modules.IO.Streaming;
+
 namespace GenHTTP.Modules.IO.FileSystem;
 
 public sealed class FileResource : IResource
@@ -8,7 +10,7 @@ public sealed class FileResource : IResource
 
     #region Initialization
 
-    public FileResource(FileInfo file, string? name, FlexibleContentType? contentType)
+    public FileResource(FileInfo file, string? name, ContentType? contentType)
     {
         if (!file.Exists)
         {
@@ -19,7 +21,7 @@ public sealed class FileResource : IResource
 
         Name = name ?? file.Name;
 
-        ContentType = contentType ?? FlexibleContentType.Get(Name.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload);
+        ContentType = contentType ?? Name.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload;
     }
 
     #endregion
@@ -39,7 +41,7 @@ public sealed class FileResource : IResource
         }
     }
 
-    public FlexibleContentType? ContentType { get; }
+    public ContentType? ContentType { get; }
 
     public ulong? Length
     {
@@ -57,6 +59,13 @@ public sealed class FileResource : IResource
     public ValueTask<Stream> GetContentAsync() => new(File.OpenRead());
 
     public ValueTask<ulong> CalculateChecksumAsync() => new(Checksum.Calculate(this));
+
+    public async ValueTask WriteAsync(IResponseSink sink)
+    {
+        await using var stream = File.OpenRead();
+         
+        await stream.WriteAsync(sink.Writer);
+    } 
 
     #endregion
 

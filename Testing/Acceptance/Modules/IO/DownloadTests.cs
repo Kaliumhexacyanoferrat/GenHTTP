@@ -103,8 +103,7 @@ public sealed class DownloadTests
     public async Task TestTypeCanBeSet(TestEngine engine)
     {
         var download = Download.From(Resource.FromString("This;is;CSV"))
-                               .Type(ContentType.TextCsv)
-                               .Type(new(ContentType.TextCsv));
+                               .Type(ContentType.TextCsv);
 
         await using var runner = await TestHost.RunAsync(download, engine: engine);
 

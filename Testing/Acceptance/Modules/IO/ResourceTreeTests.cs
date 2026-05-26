@@ -13,9 +13,9 @@ public sealed class ResourceTreeTests
     {
         var tree = ResourceTree.FromAssembly("Resources").Build();
 
-        Assert.IsNotNull(await tree.TryGetNodeAsync("Subdirectory"));
+        Assert.IsNotNull(await tree.TryGetNodeAsync(new("Subdirectory")));
 
-        Assert.IsNotNull(await tree.TryGetResourceAsync("File.txt"));
+        Assert.IsNotNull(await tree.TryGetResourceAsync(new("File.txt")));
 
         Assert.HasCount(2, await tree.GetNodes());
 

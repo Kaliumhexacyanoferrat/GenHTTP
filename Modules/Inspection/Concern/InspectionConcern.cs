@@ -1,16 +1,14 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Text;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Conversion.Serializers;
-using GenHTTP.Modules.Conversion.Serializers.Yaml;
-
 using Strings = GenHTTP.Modules.IO.Strings;
 
 namespace GenHTTP.Modules.Inspection.Concern;
 
 public sealed class InspectionConcern : IConcern
 {
+    private static readonly ReadOnlyMemory<byte> InspectInstruction = "inspect"u8.ToArray();
 
     #region Get-/Setters
 
@@ -36,12 +34,14 @@ public sealed class InspectionConcern : IConcern
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        if (request.Query.ContainsKey("inspect"))
+        if (request.Header.Query.ContainsKey(InspectInstruction))
         {
-            var content = await Content.HandleAsync(request);
+            var response = await Content.HandleAsync(request);
 
             var server = request.Server;
 
+            var header = request.Header;
+            
             var model = new
             {
                 Server = new
@@ -58,7 +58,8 @@ public sealed class InspectionConcern : IConcern
                         RequestSource = e == request.EndPoint
                     })
                 },
-                Client = new
+                // todo
+                /*Client = new
                 {
                     Protocol = request.Client.Protocol,
                     IPAddress = request.Client.IPAddress?.ToString(),
@@ -69,37 +70,22 @@ public sealed class InspectionConcern : IConcern
                     Protocol = request.LocalClient.Protocol,
                     IPAddress = request.LocalClient.IPAddress?.ToString(),
                     Host = request.LocalClient.Host
-                } : null,
+                } : null,*/
                 Request = new
                 {
-                    ProtocolType = request.ProtocolType,
-                    Method = request.Method.RawMethod,
-                    Path = request.Target.Path.ToString(),
-                    Headers = request.Headers,
-                    Query = request.Query,
-                    Cookies = request.Cookies,
-                    Content = (request.Content != null) ? new
+                    Protocol = GetString(header.Protocol.Value),
+                    Method = GetString(header.Method.Value),
+                    Path = GetString(header.Path),
+                    Target = new
                     {
-                        Type = request.ContentType,
-                        Body = request.Content.ToString()
-                    } : null,
-                    Forwardings = request.Forwardings,
-                    Properties = request.Properties
+                        Current = GetString(header.Target.Current?.Encoded),
+                        TrailingSlash = header.Target.HasTrailingSlash,
+                        Last = header.Target.IsLast
+                    },
+                    // todo: content
                 },
-                Response = (content != null) ? new {
-                    Status = content.Status.RawStatus,
-                    Upgraded = content.Upgraded,
-                    Expires = content.Expires,
-                    Modified = content.Modified,
-                    Headers = content.Headers,
-                    Cookies = content.Cookies,
-                    Content = new
-                    {
-                        Type = content.ContentType?.RawType,
-                        Body = content.Content?.ToString(),
-                        Length = content.Content?.Length,
-                        Encoding = content.ContentEncoding
-                    }
+                Response = (response != null) ? new {
+                    // todo
                 } : null
             };
 
@@ -113,19 +99,14 @@ public sealed class InspectionConcern : IConcern
                               .Build();
             }
 
-            var serializedModel = await format.SerializeAsync(request, model);
-
-            if (format is YamlFormat)
-            {
-                // quirk: browsers do not display application/yaml
-                serializedModel.Type(ContentType.TextYaml);
-            }
-
-            return serializedModel.Build();
+            return (await format.SerializeAsync(request, model)).Build();
         }
 
         return await Content.HandleAsync(request);
     }
+
+    private static string GetString(ReadOnlyMemory<byte>? value)
+        => (value != null) ? Encoding.ASCII.GetString(value.Value.Span) : string.Empty;
 
     #endregion
 

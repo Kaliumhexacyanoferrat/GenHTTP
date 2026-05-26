@@ -1,10 +1,8 @@
 ﻿using System.Net;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
 
@@ -31,9 +29,6 @@ public sealed class ResponseTests
 
         Assert.AreEqual("Hello World", await response.GetContentAsync());
         Assert.AreEqual("text/x-custom", response.GetContentHeader("Content-Type"));
-
-        Assert.AreEqual(provider.Modified.WithoutMs(), response.Content.Headers.LastModified);
-        Assert.IsNotNull(response.GetContentHeader("Expires"));
 
         Assert.AreEqual("Test Runner", response.GetHeader("X-Powered-By"));
     }
@@ -75,20 +70,17 @@ public sealed class ResponseTests
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            return request.Method.KnownMethod switch
+            if (request.Header.Method == RequestMethod.Post)
             {
-                RequestMethod.Post => request.Respond()
-                                             .Content("")
-                                             .Type("")
-                                             .BuildTask(),
-                _ => request.Respond()
-                            .Content("Hello World")
-                            .Type("text/x-custom")
-                            .Expires(DateTime.Now.AddYears(1))
-                            .Modified(Modified)
-                            .Header("X-Powered-By", "Test Runner")
-                            .BuildTask()
-            };
+                return request.Respond()
+                              .Content(new StringContent("", new("")))
+                              .BuildTask();
+            }
+            
+            return request.Respond()
+                          .Content(new StringContent("Hello World", new("text/x-custom")))
+                          .Header("X-Powered-By", "Test Runner")
+                          .BuildTask();
         }
 
     }

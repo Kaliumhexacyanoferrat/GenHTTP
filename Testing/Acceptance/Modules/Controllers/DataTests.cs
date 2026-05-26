@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Layouting;
@@ -31,7 +30,7 @@ public sealed class DataTests
     public class TestController
     {
 
-        [ControllerAction(RequestMethod.Post)]
+        [ControllerAction(Method.Post)]
         public DateOnly Date(DateOnly date) => date;
     }
 

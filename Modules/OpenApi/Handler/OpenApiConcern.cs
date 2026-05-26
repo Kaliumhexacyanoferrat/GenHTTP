@@ -1,6 +1,8 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.OpenApi.Discovery;
+
 using NJsonSchema;
 using NSwag;
 
@@ -10,6 +12,14 @@ internal record ReturnDocument(OpenApiDocument Document, ulong Checksum);
 
 public sealed class OpenApiConcern : IConcern
 {
+    private static readonly PathSegment OpenApiPath = new("openapi");
+
+    private static readonly PathSegment OpenApiJsonPath = new("openapi.json");
+
+    private static readonly PathSegment OpenApiYamlPath = new("openapi.yaml");
+
+    private static readonly PathSegment OpenApiYmlPath = new("openapi.yml");
+
     private ReturnDocument? _cached;
 
     #region Get-/Setters
@@ -43,39 +53,44 @@ public sealed class OpenApiConcern : IConcern
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var path = request.Target.Current?.Original;
-
-        if (request.Method == RequestMethod.Get || request.Method == RequestMethod.Head)
+        if (request.Header.Method == RequestMethod.Get || request.Header.Method == RequestMethod.Head)
         {
-            if (string.Compare(path, "openapi", StringComparison.OrdinalIgnoreCase) == 0)
-            {
-                IResponse response;
+            var path = request.Header.Target.Current;
 
-                if (request.Headers.TryGetValue("Accept", out var accept))
+            if (path != null)
+            {
+                if (path == OpenApiPath)
                 {
-                    response = accept.ToLowerInvariant() switch
+                    IResponse response;
+
+                    var accept = request.Header.Headers.GetEntry("Accept");
+
+                    if (accept != null)
                     {
-                        "application/json" or "application/application/vnd.oai.openapi+json" => await GetDocumentAsync(request, OpenApiFormat.Json),
-                        "application/yaml" or "application/application/vnd.oai.openapi+yaml" => await GetDocumentAsync(request, OpenApiFormat.Yaml),
-                        _ => throw new ProviderException(ResponseStatus.BadRequest, $"Generating API specifications of format '{accept}' is not supported")
-                    };
+                        response = accept.ToLowerInvariant() switch
+                        {
+                            "application/json" or "application/application/vnd.oai.openapi+json" => await GetDocumentAsync(request, OpenApiFormat.Json),
+                            "application/yaml" or "application/application/vnd.oai.openapi+yaml" => await GetDocumentAsync(request, OpenApiFormat.Yaml),
+                            _ => throw new ProviderException(ResponseStatus.BadRequest, $"Generating API specifications of format '{accept}' is not supported")
+                        };
+                    }
+                    else
+                    {
+                        response = await GetDocumentAsync(request, OpenApiFormat.Json);
+                    }
+
+                    response.Rebuild().Header("Vary", "Accept");
+
+                    return response;
                 }
-                else
+                if (path == OpenApiJsonPath)
                 {
-                    response = await GetDocumentAsync(request, OpenApiFormat.Json);
+                    return await GetDocumentAsync(request, OpenApiFormat.Json);
                 }
-
-                response.Headers.Add("Vary", "Accept");
-
-                return response;
-            }
-            if (string.Compare(path, "openapi.json", StringComparison.OrdinalIgnoreCase) == 0)
-            {
-                return await GetDocumentAsync(request, OpenApiFormat.Json);
-            }
-            if (string.Compare(path, "openapi.yaml", StringComparison.OrdinalIgnoreCase) == 0 || string.Compare(path, "openapi.yml", StringComparison.OrdinalIgnoreCase) == 0)
-            {
-                return await GetDocumentAsync(request, OpenApiFormat.Yaml);
+                if (path == OpenApiYamlPath || path == OpenApiYmlPath)
+                {
+                    return await GetDocumentAsync(request, OpenApiFormat.Yaml);
+                }
             }
         }
 
@@ -86,13 +101,8 @@ public sealed class OpenApiConcern : IConcern
     {
         var document = await DiscoverAsync(request, Discovery);
 
-        var content = new OpenApiContent(document, format);
-
-        var contentType = format == OpenApiFormat.Json ? FlexibleContentType.Get(ContentType.ApplicationJson) : FlexibleContentType.Get(ContentType.ApplicationYaml);
-
         return request.Respond()
-                      .Content(content)
-                      .Type(contentType)
+                      .Content(new OpenApiContent(document, format))
                       .Build();
     }
 
@@ -109,13 +119,15 @@ public sealed class OpenApiConcern : IConcern
 
         document.SchemaType = SchemaType.OpenApi3;
 
-        var path = request.Target.Path.ToString();
+        var path = request.Header.Target.AsString(decode: false);
 
-        if (request.Host != null)
+        var host = request.Header.Headers.GetEntry("Host");
+
+        if (host != null)
         {
             document.Servers.Add(new OpenApiServer
             {
-                Url = (request.EndPoint.Secure ? "https://" : "http://") + request.Host + path[..path.LastIndexOf('/')]
+                Url = (request.EndPoint.Secure ? "https://" : "http://") + host + path[..path.LastIndexOf('/')]
             });
         }
 
@@ -125,11 +137,11 @@ public sealed class OpenApiConcern : IConcern
 
         if (EnableCaching)
         {
-            _cached = new (document, GetChecksum(document));
+            _cached = new(document, GetChecksum(document));
             return _cached;
         }
 
-        return new (document, GetChecksum(document));
+        return new(document, GetChecksum(document));
     }
 
     private static ulong GetChecksum(OpenApiDocument document) => (ulong)document.ToJson().GetHashCode();

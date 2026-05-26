@@ -6,9 +6,6 @@
         <PackageTags>GenHTTP Engine</PackageTags>
         <PackageReadmeFile>README.md</PackageReadmeFile>
 
-        <!-- remove this line after Fleck has been removed -->
-        <NoWarn>CS1591,CS1587,CS1572,CS1573,CS0612,CS0618</NoWarn>
-
     </PropertyGroup>
 
     <ItemGroup>
@@ -16,6 +13,10 @@
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
 
         <ProjectReference Include="..\..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj" />
+
+        <PackageReference Include="Glyph11" Version="0.3.3" />
+
+        <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.8" />
 
     </ItemGroup>
 

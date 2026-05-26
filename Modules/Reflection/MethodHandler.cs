@@ -29,7 +29,7 @@ public delegate ValueTask<IResponse?> RequestInterception(IRequest request, IRea
 public sealed class MethodHandler : IHandler
 {
     private static readonly Dictionary<string, object?> NoArguments = [];
-    
+
     private static readonly TemplateRenderer ErrorRenderer = Renderer.From(Resource.FromAssembly("CodeGenerationError.html").Build());
 
     private Func<object, Operation, IRequest, IHandler, MethodRegistry, RoutingMatch, RequestInterception, ValueTask<IResponse?>>? _compiledMethod;
@@ -74,7 +74,7 @@ public sealed class MethodHandler : IHandler
         var effectiveMode = Operation.ExecutionSettings.Mode ?? ExecutionMode.Reflection;
 
         UseCodeGeneration = OptimizedDelegate.Supported && effectiveMode == ExecutionMode.Auto;
-        
+
         _interceptor = InterceptAsync;
     }
 
@@ -112,9 +112,9 @@ public sealed class MethodHandler : IHandler
     {
         if (match.Offset > 0)
         {
-            request.Target.Advance(match.Offset);
+            request.Header.Target.Advance(match.Offset);
         }
-        
+
         if (UseCodeGeneration)
         {
             if (_compilationError != null)
@@ -170,7 +170,7 @@ public sealed class MethodHandler : IHandler
         {
             var targetArguments = new Dictionary<string, object?>(targetParameters.Length);
 
-            var bodyArguments = FormFormat.GetContent(request);
+            var bodyArguments = await FormFormat.GetContentAsync(request);
 
             for (var i = 0; i < targetParameters.Length; i++)
             {
@@ -245,16 +245,26 @@ public sealed class MethodHandler : IHandler
 
         var type = result.GetType();
 
-        if (!type.IsAsync())
+        if (type == typeof(ValueTask) || type == typeof(Task))
         {
-            return result;
+            dynamic task = result;
+
+            await task;
+
+            return null;
         }
 
-        await (result as dynamic);
-            
-        var resultProperty = result.GetType().GetProperty("Result");
+        if (type.IsAsyncGeneric())
+        {
+            dynamic task = result;
 
-        return resultProperty?.GetValue(result);
+            await task;
+
+            return type.IsGenericallyVoid() ? null : task.Result;
+
+        }
+
+        return result;
     }
 
     private static async ValueTask<IResponse?> RenderCompilationErrorAsync(IRequest request, CodeGenerationException error)
@@ -264,7 +274,7 @@ public sealed class MethodHandler : IHandler
             ["exception"] = error.InnerException?.ToString() ?? string.Empty,
             ["code"] = error.Code ?? string.Empty
         };
-        
+
         var content = await ErrorRenderer.RenderAsync(template);
 
         return request.GetPage(content)

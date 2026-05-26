@@ -1,13 +1,10 @@
-using GenHTTP.Api.Infrastructure;
-using GenHTTP.Modules.Compression.Algorithms;
-using GenHTTP.Modules.Compression.Providers;
-
 namespace GenHTTP.Modules.Compression;
 
 /// <summary>
 /// Provides automatic decompression of incoming request content.
 /// </summary>
-public static class DecompressedContent
+// todo
+/*public static class DecompressedContent
 {
 
     #region Builder
@@ -57,3 +54,4 @@ public static class DecompressedContent
     #endregion
 
 }
+*/

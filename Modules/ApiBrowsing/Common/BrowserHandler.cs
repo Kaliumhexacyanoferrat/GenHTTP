@@ -11,6 +11,7 @@ namespace GenHTTP.Modules.ApiBrowsing.Common;
 
 public sealed class BrowserHandler: IHandler
 {
+    private static readonly ReadOnlyMemory<byte> StaticSegment = "static"u8.ToArray();
 
     #region Get-/Setters
 
@@ -47,7 +48,11 @@ public sealed class BrowserHandler: IHandler
             throw new ProviderException(ResponseStatus.MethodNotAllowed, "Only GET requests are allowed by this handler", b => b.Header("Allow", "GET"));
         }
 
-        if (request.Target.Ended)
+        var target = request.Header.Target;
+
+        var current = target.Current;
+
+        if (current == null)
         {
             var config = new Dictionary<Value, Value>
             {
@@ -61,9 +66,9 @@ public sealed class BrowserHandler: IHandler
                           .Build();
         }
 
-        if (request.Target.Current?.Value == "static")
+        if (current.Value.Encoded.Span.SequenceEqual(StaticSegment.Span))
         {
-            request.Target.Advance();
+            target.Advance();
             return await StaticResources.HandleAsync(request);
         }
 

@@ -30,7 +30,7 @@ public sealed class ResourceHandlerBuilder : IHandlerBuilder<ResourceHandlerBuil
     {
         var tree = _tree ?? throw new BuilderMissingPropertyException("tree");
 
-        return Concerns.Chain(_concerns,  new ResourceHandler( tree));
+        return Concerns.Chain(_concerns, new ResourceHandler( tree));
     }
 
     #endregion

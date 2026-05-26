@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
@@ -44,7 +43,7 @@ public sealed class SeoTests
 
         public IHandlerBuilder Action() => Content.From(Resource.FromString("Action"));
 
-        [ControllerAction(RequestMethod.Delete)]
+        [ControllerAction(Method.Delete)]
         public IHandlerBuilder Action([FromPath] int id) => Content.From(Resource.FromString(id.ToString()));
     }
 

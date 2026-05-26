@@ -1,24 +1,45 @@
-﻿using System.Buffers;
-using System.IO.Compression;
+﻿using System.IO.Compression;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
 
 namespace GenHTTP.Modules.Compression.Providers;
 
 public sealed class CompressionConcern : IConcern
 {
-    private const string AcceptEncoding = "Accept-Encoding";
+    private static readonly ReadOnlyMemory<byte> AcceptEncoding = "Accept-Encoding"u8.ToArray();
 
-    private const string Vary = "Vary";
+    private static readonly ReadOnlyMemory<byte> Vary = "Vary"u8.ToArray();
+
+    private static readonly HashSet<ContentType> CompressibleTypes =
+    [
+        ContentType.ApplicationJavaScript,
+        ContentType.ApplicationJson,
+        ContentType.AudioWav,
+        ContentType.TextCss,
+        ContentType.TextCsv,
+        ContentType.TextHtml,
+        ContentType.TextPlain,
+        ContentType.TextRichText,
+        ContentType.FontWoff2,
+        ContentType.FontWoff,
+        ContentType.FontTrueTypeFont,
+        ContentType.FontOpenTypeFont,
+        ContentType.FontEmbeddedOpenTypeFont,
+        ContentType.ImageScalableVectorGraphics,
+        ContentType.ImageScalableVectorGraphicsXml,
+        ContentType.ImageBmp,
+        ContentType.TextXml,
+        ContentType.TextJavaScript,
+        ContentType.ApplicationYaml
+    ];
 
     #region Get-/Setters
 
     public IHandler Content { get; }
 
-    private IReadOnlyDictionary<string, ICompressionAlgorithm> Algorithms { get; }
+    private IReadOnlyDictionary<AlgorithmName, ICompressionAlgorithm> Algorithms { get; }
 
     private CompressionLevel Level { get; }
 
@@ -28,7 +49,7 @@ public sealed class CompressionConcern : IConcern
 
     #region Initialization
 
-    public CompressionConcern(IHandler content, IReadOnlyDictionary<string, ICompressionAlgorithm> algorithms,
+    public CompressionConcern(IHandler content, IReadOnlyDictionary<AlgorithmName, ICompressionAlgorithm> algorithms,
         CompressionLevel level, ulong? minimumSize)
     {
         Content = content;
@@ -46,35 +67,60 @@ public sealed class CompressionConcern : IConcern
     {
         var response = await Content.HandleAsync(request);
 
-        if (response?.Content != null && response.ContentEncoding == null && response.Connection != Connection.Upgrade)
+        if (response == null)
         {
-            if (ShouldCompressByType(request.Target.Path, response.ContentType?.KnownType) && ShouldCompressBySize(response))
+            return null;
+        }
+
+        var content = response.Content;
+
+        if (content != null && content.Encoding == null && response.Mode != Connection.Upgrade)
+        {
+            if (ShouldCompressByType(request.Header.Target, content.Type) && ShouldCompressBySize(response))
             {
-                if (request.Headers.TryGetValue(AcceptEncoding, out var header))
+                var header = request.Header.Headers.GetEntry(AcceptEncoding);
+
+                if (header != null)
                 {
-                    if (!string.IsNullOrEmpty(header))
+                    // todo: remove hash set
+
+                    var supported = ParseSupported(header.Value.Span);
+
+                    // todo: linq, not pre-sorted
+
+                    foreach (var algorithm in Algorithms.Values.OrderByDescending(a => (int)a.Priority))
                     {
-                        var supported = ParseSupported(header);
-
-                        foreach (var algorithm in Algorithms.Values.OrderByDescending(a => (int)a.Priority))
+                        if (supported.Contains(algorithm.Name))
                         {
-                            if (supported.Contains(algorithm.Name))
+                            var builder = response.Rebuild();
+
+                            builder.Content(algorithm.Compress(content, Level));
+
+                            var vary = response.Headers.GetEntry(Vary);
+
+                            if (vary != null)
                             {
-                                response.Content = algorithm.Compress(response.Content, Level);
-                                response.ContentEncoding = algorithm.Name;
-                                response.ContentLength = null;
+                                var combined = new byte[vary.Value.Length + AcceptEncoding.Length + 2];
 
-                                if (response.Headers.TryGetValue(Vary, out var existing))
-                                {
-                                    response.Headers[Vary] = $"{existing}, {AcceptEncoding}";
-                                }
-                                else
-                                {
-                                    response.Headers[Vary] = AcceptEncoding;
-                                }
+                                var span = combined.AsSpan();
+                                var offset = 0;
 
-                                break;
+                                vary.Value.Span.CopyTo(span);
+                                offset += vary.Value.Length;
+
+                                span[offset++] = (byte)',';
+                                span[offset++] = (byte)' ';
+
+                                AcceptEncoding.Span.CopyTo(span[offset..]);
+
+                                builder.Header(Vary, combined);
                             }
+                            else
+                            {
+                                builder.Header(Vary, AcceptEncoding);
+                            }
+
+                            return builder.Build();
                         }
                     }
                 }
@@ -84,44 +130,25 @@ public sealed class CompressionConcern : IConcern
         return response;
     }
 
-    private static bool ShouldCompressByType(WebPath path, ContentType? type)
+    private static bool ShouldCompressByType(IRequestTarget path, ContentType? type)
     {
         if (type is not null)
         {
-            switch (type)
+            var withoutOptions = type.Value.Value.WithoutOptions();
+            
+            if (CompressibleTypes.Contains(new(withoutOptions)))
             {
-                case ContentType.ApplicationJavaScript:
-                case ContentType.ApplicationJson:
-                case ContentType.AudioWav:
-                case ContentType.TextCss:
-                case ContentType.TextCsv:
-                case ContentType.TextHtml:
-                case ContentType.TextPlain:
-                case ContentType.TextRichText:
-                case ContentType.FontWoff2:
-                case ContentType.FontWoff:
-                case ContentType.FontTrueTypeFont:
-                case ContentType.FontOpenTypeFont:
-                case ContentType.FontEmbeddedOpenTypeFont:
-                case ContentType.ImageScalableVectorGraphics:
-                case ContentType.ImageScalableVectorGraphicsXml:
-                case ContentType.ImageBmp:
-                case ContentType.TextXml:
-                case ContentType.TextJavaScript:
-                case ContentType.ApplicationYaml:
-                    {
-                        return true;
-                    }
+                return true;
             }
         }
 
-        if (path.File is not null)
+        /* todo: if (path.File is not null)
         {
             switch (Path.GetExtension(path.File))
             {
                 case ".rrd": return true;
             }
-        }
+        }*/
 
         return false;
     }
@@ -133,41 +160,51 @@ public sealed class CompressionConcern : IConcern
         return MinimumSize is null || contentLength is null || contentLength >= MinimumSize;
     }
     
-    private static readonly SearchValues<char> Delimiters = SearchValues.Create([',', ';']);
-
-    private static HashSet<string> ParseSupported(ReadOnlySpan<char> acceptHeader)
+    private static HashSet<AlgorithmName> ParseSupported(ReadOnlySpan<byte> acceptHeader)
     {
-        var result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var result = new HashSet<AlgorithmName>();
+        var start = 0;
 
-        while (!acceptHeader.IsEmpty)
+        while (start < acceptHeader.Length)
         {
-            var delimIdx = acceptHeader.IndexOfAny(Delimiters);
+            var comma = acceptHeader[start..].IndexOf((byte)',');
+            var end = comma >= 0 ? start + comma : acceptHeader.Length;
 
-            ReadOnlySpan<char> token;
-            if (delimIdx < 0)
+            var token = acceptHeader.Slice(start, end - start);
+
+            var semicolon = token.IndexOf((byte)';');
+            var nameSpan = semicolon >= 0 ? token[..semicolon] : token;
+
+            var part = TrimAscii(nameSpan);
+
+            if (!part.IsEmpty)
             {
-                token = acceptHeader.Trim();
-                acceptHeader = default;
-            }
-            else if (acceptHeader[delimIdx] == ',')
-            {
-                token = acceptHeader[..delimIdx].Trim();
-                acceptHeader = acceptHeader[(delimIdx + 1)..];
-            }
-            else
-            {
-                token = acceptHeader[..delimIdx].TrimEnd();
-                var commaIdx = acceptHeader[delimIdx..].IndexOf(',');
-                acceptHeader = commaIdx >= 0
-                    ? acceptHeader[(delimIdx + commaIdx + 1)..]
-                    : default;
+                result.Add(new(part.ToArray()));
             }
 
-            if (!token.IsEmpty)
-                result.Add(token.ToString());
+            start = end + 1;
         }
 
         return result;
+    }
+
+    private static ReadOnlySpan<byte> TrimAscii(ReadOnlySpan<byte> span)
+    {
+        var start = 0;
+        var end = span.Length - 1;
+
+        while (start <= end && IsAsciiWhiteSpace(span[start]))
+            start++;
+
+        while (end >= start && IsAsciiWhiteSpace(span[end]))
+            end--;
+
+        return span.Slice(start, end - start + 1);
+    }
+
+    private static bool IsAsciiWhiteSpace(byte b)
+    {
+        return b == (byte)' ' || b == (byte)'\t';
     }
 
     public ValueTask PrepareAsync() => Content.PrepareAsync();

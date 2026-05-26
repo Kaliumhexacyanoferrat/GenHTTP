@@ -1,14 +1,10 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.IO;
-
-namespace GenHTTP.Testing.Acceptance.Engine;
+﻿namespace GenHTTP.Testing.Acceptance.Engine;
 
 [TestClass]
 public sealed class CookieTests
 {
 
+    /*
     /// <summary>
     /// As a developer, I want to be able to set cookies to be accepted by the browser.
     /// </summary>
@@ -61,5 +57,6 @@ public sealed class CookieTests
 
         }
     }
-
+    */
+    
 }

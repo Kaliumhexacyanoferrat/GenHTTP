@@ -1,6 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Reflection.Routing;
 
 namespace GenHTTP.Modules.Reflection;
@@ -32,7 +34,7 @@ public sealed class MethodCollection : IHandler
         (MethodHandler, RoutingMatch)? directMatch = null;
         (MethodHandler, RoutingMatch)? wildcardMatch = null;
 
-        var requestTarget = request.Target;
+        var requestTarget = request.Header.Target;
 
         for (var i = 0; i < Methods.Count; i++)
         {
@@ -49,7 +51,7 @@ public sealed class MethodCollection : IHandler
                 continue;
             }
 
-            if (!operation.Configuration.SupportedMethods.Contains(request.Method))
+            if (!operation.Configuration.SupportedMethods.Contains(request.Header.Method))
             {
                 foundOthers = true;
                 continue;
@@ -61,7 +63,7 @@ public sealed class MethodCollection : IHandler
             }
             else if (directMatch != null)
             {
-                throw new ProviderException(ResponseStatus.BadRequest, $"There are multiple methods matching '{requestTarget.Path}'");
+                throw new ProviderException(ResponseStatus.BadRequest, $"There are multiple methods matching '{requestTarget.AsString(decode: false)}'");
             }
             else
             {

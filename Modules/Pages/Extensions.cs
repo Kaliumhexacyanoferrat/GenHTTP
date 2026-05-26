@@ -1,4 +1,5 @@
 ﻿using System.Web;
+
 using GenHTTP.Api.Protocol;
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
@@ -6,7 +7,7 @@ namespace GenHTTP.Modules.Pages;
 
 public static class Extensions
 {
-    private static readonly FlexibleContentType ContentType = new(Api.Protocol.ContentType.TextHtml, "utf-8");
+    private static readonly ReadOnlyMemory<byte> HtmlContentType = "text/html; charset=\"utf-8\""u8.ToArray();
 
     /// <summary>
     /// Creates a response that can be returned by a handler to serve
@@ -17,7 +18,7 @@ public static class Extensions
     /// <returns>The HTML page response</returns>
     public static IResponseBuilder GetPage(this IRequest request, string content) => request.Respond()
                                                                                             .Content(new StringContent(content))
-                                                                                            .Type(ContentType);
+                                                                                            .Header(KnownHeaders.ContentType, HtmlContentType);
 
     /// <summary>
     /// Escapes the given string so it can safely be used in HTML.
@@ -25,4 +26,5 @@ public static class Extensions
     /// <param name="content">The content to be escaped</param>
     /// <returns>The escaped version of the string</returns>
     public static string Escaped(this string content) => HttpUtility.HtmlEncode(content);
+
 }

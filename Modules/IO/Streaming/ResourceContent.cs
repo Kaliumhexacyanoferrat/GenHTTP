@@ -8,9 +8,10 @@ public sealed class ResourceContent : IResponseContent
 
     #region Initialization
 
-    public ResourceContent(IResource resource)
+    public ResourceContent(IResource resource, ContentType? contentType = null)
     {
         Resource = resource;
+        Type = contentType ?? resource.GuessContentType();
     }
 
     #endregion
@@ -19,7 +20,11 @@ public sealed class ResourceContent : IResponseContent
 
     public ulong? Length => Resource.Length;
 
+    public ContentType? Type { get; }
+
     private IResource Resource { get; }
+
+    public ReadOnlyMemory<byte>? Encoding => null;
 
     #endregion
 
@@ -28,6 +33,8 @@ public sealed class ResourceContent : IResponseContent
     public async ValueTask<ulong?> CalculateChecksumAsync() => await Resource.CalculateChecksumAsync();
 
     public ValueTask WriteAsync(Stream target, uint bufferSize) => Resource.WriteAsync(target, bufferSize);
+
+    public ValueTask WriteAsync(IResponseSink sink) => Resource.WriteAsync(sink);
 
     #endregion
 

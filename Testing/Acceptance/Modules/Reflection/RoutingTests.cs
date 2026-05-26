@@ -1,4 +1,7 @@
-using GenHTTP.Api.Routing;
+using System.Text;
+using GenHTTP.Api.Protocol;
+
+using GenHTTP.Engine.Shared.Types;
 
 using GenHTTP.Modules.Reflection.Routing;
 using GenHTTP.Modules.Reflection.Routing.Segments;
@@ -14,7 +17,7 @@ public class RoutingTests
     {
         var route = CreateRoute(false, new StringSegment("segment"), new ClosingSegment(false, false));
 
-        var target = new RoutingTarget(WebPath.FromString("/segment"));
+        var target = CreateTarget("/segment");
         
         var match = OperationRouter.TryMatch(target, route);
         
@@ -29,7 +32,7 @@ public class RoutingTests
     {
         var route = CreateRoute(false, new StringSegment("segment"), new ClosingSegment(false, false));
 
-        var target = new RoutingTarget(WebPath.FromString("/segment/"));
+        var target = CreateTarget("/segment/");
         
         var match = OperationRouter.TryMatch(target, route);
         
@@ -44,7 +47,7 @@ public class RoutingTests
     {
         var route = CreateRoute(false, new StringSegment("segment"), new ClosingSegment(true, false));
 
-        var target = new RoutingTarget(WebPath.FromString("/segment"));
+        var target = CreateTarget("/segment");
         
         var match = OperationRouter.TryMatch(target, route);
         
@@ -56,7 +59,7 @@ public class RoutingTests
     {
         var route = CreateRoute(false, new StringSegment("segment"), new ClosingSegment(false, false));
 
-        var target = new RoutingTarget(WebPath.FromString("/segment/another"));
+        var target = CreateTarget("/segment/another");
         
         var match = OperationRouter.TryMatch(target, route);
         
@@ -68,7 +71,7 @@ public class RoutingTests
     {
         var route = CreateRoute(true, new StringSegment("segment"), new ClosingSegment(false, true));
 
-        var target = new RoutingTarget(WebPath.FromString("/segment/another"));
+        var target = CreateTarget("/segment/another");
         
         var match = OperationRouter.TryMatch(target, route);
         
@@ -83,7 +86,7 @@ public class RoutingTests
     {
         var route = CreateRoute(false, new SimpleVariableSegment("var"));
 
-        var target = new RoutingTarget(WebPath.FromString("/99/"));
+        var target = CreateTarget("/99/");
         
         var match = OperationRouter.TryMatch(target, route);
         
@@ -102,7 +105,7 @@ public class RoutingTests
     {
         var route = CreateRoute(false, new RegexSegment("(?<one>[0-9]{2})-(?<two>[0-9]{2})-:three"));
 
-        var target = new RoutingTarget(WebPath.FromString("/99-88-77"));
+        var target = CreateTarget("/99-88-77");
         
         var match = OperationRouter.TryMatch(target, route);
         
@@ -120,4 +123,12 @@ public class RoutingTests
 
     private static OperationRoute CreateRoute(bool wildcard, params IRoutingSegment[] segments) => new("name", segments, wildcard);
 
+    private static IRequestTarget CreateTarget(string path)
+    {
+        var target = new RequestTarget();
+        target.Apply(Encoding.ASCII.GetBytes(path));
+        
+        return target;
+    }
+    
 }

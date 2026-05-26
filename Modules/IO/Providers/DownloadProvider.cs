@@ -1,6 +1,7 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.IO.Providers;
 
@@ -13,19 +14,19 @@ public sealed class DownloadProvider : IHandler
 
     public string? FileName { get; }
 
-    private FlexibleContentType ContentType { get; }
+    private ContentType? ContentType { get; }
 
     #endregion
 
     #region Initialization
 
-    public DownloadProvider(IResource resourceProvider, string? fileName, FlexibleContentType? contentType)
+    public DownloadProvider(IResource resourceProvider, string? fileName, ContentType? contentType)
     {
         Resource = resourceProvider;
 
         FileName = fileName ?? Resource.Name;
 
-        ContentType = contentType ?? Resource.ContentType ?? FlexibleContentType.Get(FileName?.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload);
+        ContentType = contentType;
     }
 
     #endregion
@@ -34,9 +35,11 @@ public sealed class DownloadProvider : IHandler
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        if (!request.Target.Ended)
+        var target = request.Header.Target;
+        
+        if (target.Current != null)
         {
-            return new ValueTask<IResponse?>();
+            return default;
         }
 
         if (!request.HasType(RequestMethod.Get, RequestMethod.Head))
@@ -45,15 +48,14 @@ public sealed class DownloadProvider : IHandler
         }
 
         var response = request.Respond()
-                              .Content(Resource)
-                              .Type(ContentType);
+                              .Content(new ResourceContent(Resource, ContentType));
 
         var modified = Resource.Modified;
 
-        if (modified != null)
+        /* todo if (modified != null)
         {
             response.Modified(modified.Value);
-        }
+        }*/
 
         var fileName = FileName ?? Resource.Name;
 

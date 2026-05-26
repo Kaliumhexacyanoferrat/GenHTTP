@@ -8,14 +8,13 @@
         <PackageTags>GenHTTP HTTP Webserver C# Module Compression Brotli Gzip</PackageTags>
         <PackageReadmeFile>README.md</PackageReadmeFile>
 
-        <!-- remove this line after Fleck has been removed -->
-        <NoWarn>CS1591,CS1587,CS1572,CS1573,CS0612,CS0618</NoWarn>
-        
     </PropertyGroup>
 
     <ItemGroup>
 
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
+
+        <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
 
         <PackageReference Include="ZstdSharp.Port" Version="0.8.8" />
 

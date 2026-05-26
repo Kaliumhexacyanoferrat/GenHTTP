@@ -5,6 +5,9 @@ namespace GenHTTP.Modules.Security.Providers;
 
 public class SnifferPreventionConcern : IConcern
 {
+    private static readonly ReadOnlyMemory<byte> ContentTypeOptions = "X-Content-Type-Options"u8.ToArray();
+
+    private static readonly ReadOnlyMemory<byte> NoSniffValue = "nosniff"u8.ToArray();
 
     #region Get-/Setters
 
@@ -29,7 +32,7 @@ public class SnifferPreventionConcern : IConcern
 
         if (content != null)
         {
-            content.Headers["X-Content-Type-Options"] = "nosniff";
+            content.Rebuild().Header(ContentTypeOptions, NoSniffValue);
         }
 
         return content;

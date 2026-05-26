@@ -1,5 +1,7 @@
 ﻿using System.Net;
+
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Security;
@@ -96,7 +98,7 @@ public sealed class CorsTests
     public async Task TestCustom(TestEngine engine)
     {
         var policy = CorsPolicy.Restrictive()
-                               .Add("http://google.de", [new(RequestMethod.Get)], null, ["Accept"], false);
+                               .Add("http://google.de", [RequestMethod.Get], null, ["Accept"], false);
 
         await using var runner = await GetRunnerAsync(policy, engine);
 

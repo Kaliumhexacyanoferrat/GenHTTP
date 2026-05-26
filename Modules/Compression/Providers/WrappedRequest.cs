@@ -1,13 +1,9 @@
-using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
-
 namespace GenHTTP.Modules.Compression.Providers;
 
 /// <summary>
 /// Wraps an existing request to provide decompressed content stream.
 /// </summary>
-internal sealed class WrappedRequest : IRequest
+/*internal sealed class WrappedRequest : IRequest
 {
     private readonly IRequest _inner;
 
@@ -71,8 +67,6 @@ internal sealed class WrappedRequest : IRequest
 
     public IResponseBuilder Respond() => _inner.Respond();
 
-    public UpgradeInfo Upgrade() => _inner.Upgrade();
-
     public void Dispose()
     {
         _decompressedContent.Dispose();
@@ -81,3 +75,4 @@ internal sealed class WrappedRequest : IRequest
     #endregion
 
 }
+*/

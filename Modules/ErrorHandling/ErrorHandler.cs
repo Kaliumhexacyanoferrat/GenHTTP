@@ -43,4 +43,5 @@ public static class ErrorHandler
     /// <param name="mapper">The mapper to use for exception mapping</param>
     /// <returns>The newly generated concern</returns>
     public static ErrorSentryBuilder<T> From<T>(IErrorMapper<T> mapper) where T : Exception => new(mapper);
+
 }

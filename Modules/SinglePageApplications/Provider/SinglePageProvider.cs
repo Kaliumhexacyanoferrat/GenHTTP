@@ -7,11 +7,11 @@ namespace GenHTTP.Modules.SinglePageApplications.Provider;
 
 public sealed class SinglePageProvider : IHandler
 {
-    private static readonly HashSet<string> IndexFiles = new(StringComparer.InvariantCultureIgnoreCase)
-    {
-        "index.html",
-        "index.htm"
-    };
+    private static readonly HashSet<PathSegment> IndexFiles =
+    [
+        new("index.html"),
+        new("index.htm")
+    ];
 
     private IHandler? _index;
 
@@ -32,8 +32,7 @@ public sealed class SinglePageProvider : IHandler
         Tree = tree;
         ServerSideRouting = serverSideRouting;
 
-        Resources = IO.Resources.From(tree)
-                      .Build();
+        Resources = IO.Resources.From(tree).Build();
     }
 
     #endregion
@@ -42,7 +41,7 @@ public sealed class SinglePageProvider : IHandler
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        if (request.Target.Ended)
+        if (request.Header.Target.Current == null)
         {
             var index = await GetIndex();
 
@@ -92,7 +91,7 @@ public sealed class SinglePageProvider : IHandler
         return _index;
     }
 
-    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+    public ValueTask PrepareAsync() => Resources.PrepareAsync();
 
     #endregion
 

@@ -7,10 +7,9 @@ namespace GenHTTP.Modules.IO.Providers;
 
 public sealed class DownloadProviderBuilder : IHandlerBuilder<DownloadProviderBuilder>
 {
-
     private readonly List<IConcernBuilder> _concerns = [];
 
-    private FlexibleContentType? _contentType;
+    private ContentType? _contentType;
 
     private string? _fileName;
     private IResource? _resourceProvider;
@@ -23,9 +22,7 @@ public sealed class DownloadProviderBuilder : IHandlerBuilder<DownloadProviderBu
         return this;
     }
 
-    public DownloadProviderBuilder Type(ContentType contentType, string? charset = null) => Type(FlexibleContentType.Get(contentType, charset));
-
-    public DownloadProviderBuilder Type(FlexibleContentType contentType)
+    public DownloadProviderBuilder Type(ContentType contentType)
     {
         _contentType = contentType;
         return this;
@@ -47,7 +44,7 @@ public sealed class DownloadProviderBuilder : IHandlerBuilder<DownloadProviderBu
     {
         var resource = _resourceProvider ?? throw new BuilderMissingPropertyException("resourceProvider");
 
-        return Concerns.Chain(_concerns,  new DownloadProvider( resource, _fileName, _contentType));
+        return Concerns.Chain(_concerns, new DownloadProvider(resource, _fileName, _contentType));
     }
 
     #endregion

@@ -1,6 +1,5 @@
 ﻿using System.Xml.Serialization;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.Conversion.Serializers.Xml;
 
@@ -17,8 +16,7 @@ public sealed class XmlFormat : ISerializationFormat
     public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)
     {
         var result = request.Respond()
-                            .Content(new XmlContent(response))
-                            .Type(ContentType.ApplicationXml);
+                            .Content(new XmlContent(response));
 
         return new ValueTask<IResponseBuilder>(result);
     }
@@ -27,9 +25,11 @@ public sealed class XmlFormat : ISerializationFormat
     {
         return ByteStreamSerialization.SerializeAsync(b =>
         {
-            var content = new XmlContent(data);
+            var serializer = new XmlSerializer(data.GetType());
 
-            return content.WriteAsync(b, 8192);
+            serializer.Serialize(b, data);
+
+            return ValueTask.CompletedTask;
         });
     }
 

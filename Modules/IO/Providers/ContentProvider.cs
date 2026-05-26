@@ -15,18 +15,14 @@ public sealed class ContentProvider : IHandler
 
     private IResponseContent Content { get; }
 
-    private FlexibleContentType ContentType { get; }
-
     #endregion
 
     #region Initialization
 
-    public ContentProvider(IResource resourceProvider)
+    public ContentProvider(IResource resource)
     {
-        Resource = resourceProvider;
-
+        Resource = resource;
         Content = new ResourceContent(Resource);
-        ContentType = Resource.ContentType ?? FlexibleContentType.Get(Resource.Name?.GuessContentType() ?? Api.Protocol.ContentType.ApplicationForceDownload);
     }
 
     #endregion
@@ -36,16 +32,16 @@ public sealed class ContentProvider : IHandler
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
         var response = request.Respond()
-                              .Content(Content)
-                              .Type(ContentType);
+                              .Status(ResponseStatus.Ok)
+                              .Content(Content);
 
-        if (Resource.Modified != null)
+        /*if (Resource.Modified != null)
         {
             response.Modified(Resource.Modified.Value);
-        }
-        
+        }/*/
+
         return new(response.Build());
-    } 
+    }
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 

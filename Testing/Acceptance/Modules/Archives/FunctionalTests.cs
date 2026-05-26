@@ -1,9 +1,11 @@
 ﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Api.Routing;
+
+using GenHTTP.Engine.Shared.Types;
 
 using GenHTTP.Modules.Archives;
 using GenHTTP.Modules.IO;
+
 using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Archives;
@@ -25,14 +27,17 @@ public class FunctionalTests
 
             Assert.IsNotNull(tree.Modified);
 
-            var (foundNode, foundFile) = await tree.Find(new RoutingTarget(WebPath.FromString("/SubDir/SubDir/SubFile.txt")));
+            var target = new RequestTarget();
+            target.Apply("/SubDir/SubDir/SubFile.txt"u8.ToArray());
+            
+            var (foundNode, foundFile) = await tree.Find(target);
 
             Assert.IsNotNull(foundNode);
             Assert.IsNotNull(foundFile);
 
             Assert.AreEqual("SubFile.txt", foundFile.Name);
 
-            Assert.AreEqual(ContentType.TextPlain, foundFile.ContentType?.KnownType);
+            Assert.AreEqual(ContentType.TextPlain, foundFile.ContentType);
             Assert.IsNotNull(foundFile.Modified);
 
             Assert.AreEqual("3", await GetContentAsync(foundFile));
@@ -45,8 +50,11 @@ public class FunctionalTests
         var source = new NonSeekableResource(Resource.FromAssembly("Archive.zip").Build());
 
         var tree = ArchiveTree.From(source).Build();
-
-        var (_, foundFile) = await tree.Find(new RoutingTarget(WebPath.FromString("/SubDir/SubDir/SubFile.txt")));
+        
+        var target = new RequestTarget();
+        target.Apply("/SubDir/SubDir/SubFile.txt"u8.ToArray());
+        
+        var (_, foundFile) = await tree.Find(target);
 
         Assert.AreEqual("3", await GetContentAsync(foundFile!));
     }
@@ -60,9 +68,10 @@ public class FunctionalTests
 
         Assert.HasCount(1, await tree.GetNodes());
         Assert.HasCount(1, await tree.GetResources());
-
-        Assert.IsNotNull(await tree.TryGetResourceAsync("RootFile.txt"));
-        Assert.IsNotNull(await tree.TryGetNodeAsync("SubDir"));
+        
+        Assert.IsNotNull(await tree.TryGetResourceAsync(new("RootFile.txt")));
+        
+        Assert.IsNotNull(await tree.TryGetNodeAsync(new("SubDir")));
 
         Assert.IsNotNull(tree.Modified);
     }
@@ -74,7 +83,7 @@ public class FunctionalTests
 
         var tree = ArchiveTree.From(source).Build();
 
-        var file = (await tree.TryGetResourceAsync("RootFile.txt"))!;
+        var file = (await tree.TryGetResourceAsync(new("RootFile.txt")))!;
 
         await file.CalculateChecksumAsync();
 

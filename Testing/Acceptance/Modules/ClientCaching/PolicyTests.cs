@@ -2,6 +2,8 @@
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 
+using ApiContentType = GenHTTP.Api.Protocol.ContentType;
+
 namespace GenHTTP.Testing.Acceptance.Modules.ClientCaching;
 
 [TestClass]
@@ -58,7 +60,7 @@ public sealed class PolicyTests
     public async Task TestPredicate(TestEngine engine)
     {
         var content = Content.From(Resource.FromString("Content"))
-                             .Add(ClientCache.Policy().Duration(1).Predicate((_, r) => r.ContentType?.RawType != "text/plain"));
+                             .Add(ClientCache.Policy().Duration(1).Predicate((_, r) => r.Content?.Type != ApiContentType.TextPlain));
 
         await using var runner = await TestHost.RunAsync(content, engine: engine);
 
@@ -66,4 +68,5 @@ public sealed class PolicyTests
 
         AssertX.IsNullOrEmpty(response.GetContentHeader("Expires"));
     }
+    
 }

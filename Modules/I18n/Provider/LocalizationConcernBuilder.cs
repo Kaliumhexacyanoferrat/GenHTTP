@@ -10,6 +10,7 @@ namespace GenHTTP.Modules.I18n.Provider;
 /// </summary>
 public sealed class LocalizationConcernBuilder : IConcernBuilder
 {
+
     #region Fields
 
     private CultureInfo _defaultCulture = CultureInfo.CurrentUICulture;
@@ -29,12 +30,12 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// </summary>
     /// <param name="cookieName">The name of the cookie to extract the language from.</param>
     /// <returns></returns>
-    public LocalizationConcernBuilder FromCookie(string cookieName = "lang")
+    /* ToDo: public LocalizationConcernBuilder FromCookie(string cookieName = "lang")
         => FromRequest(request =>
         {
             request.Cookies.TryGetValue(cookieName, out var languageCookie);
             return languageCookie.Value;
-        });
+        });*/
 
     /// <summary>
     /// Extracts the language from a query parameter.
@@ -42,11 +43,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// <param name="queryName">The name of the query parameter to extract the language from.</param>
     /// <returns></returns>
     public LocalizationConcernBuilder FromQuery(string queryName = "lang")
-        => FromRequest(request =>
-        {
-            request.Query.TryGetValue(queryName, out var language);
-            return language;
-        });
+        => FromRequest(request => request.Header.Query.GetEntry(queryName));
 
     /// <summary>
     /// Extracts the language from a header.
@@ -54,11 +51,7 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// <param name="headerName">The name of the header to extract the language from.</param>
     /// <returns></returns>
     public LocalizationConcernBuilder FromHeader(string headerName = "Accept-Language")
-        => FromRequest(request =>
-        {
-            request.Headers.TryGetValue(headerName, out var language);
-            return language;
-        });
+   => FromRequest(request => request.Header.Headers.GetEntry(headerName));
 
     /// <summary>
     /// Extracts the language from a custom selector.
@@ -272,4 +265,5 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     }
 
     #endregion
+
 }

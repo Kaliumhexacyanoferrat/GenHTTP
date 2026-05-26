@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.IO.VirtualTrees;
 
@@ -7,9 +8,9 @@ public sealed class VirtualTree : IResourceTree
 
     #region Initialization
 
-    public VirtualTree(Dictionary<string, Func<IResourceContainer, IResourceNode>> nodes, Dictionary<string, IResource> resources)
+    public VirtualTree(Dictionary<PathSegment, Func<IResourceContainer, IResourceNode>> nodes, Dictionary<PathSegment, IResource> resources)
     {
-        var built = new Dictionary<string, IResourceNode>(nodes.Count);
+        var built = new Dictionary<PathSegment, IResourceNode>(nodes.Count);
 
         foreach (var node in nodes)
         {
@@ -24,9 +25,9 @@ public sealed class VirtualTree : IResourceTree
 
     #region Get-/Setters
 
-    private Dictionary<string, IResourceNode> Nodes { get; }
+    private Dictionary<PathSegment, IResourceNode> Nodes { get; }
 
-    private Dictionary<string, IResource> Resources { get; }
+    private Dictionary<PathSegment, IResource> Resources { get; }
 
     public DateTime? Modified
     {
@@ -52,9 +53,9 @@ public sealed class VirtualTree : IResourceTree
 
     public ValueTask<IReadOnlyCollection<IResource>> GetResources() => new(Resources.Values);
 
-    public ValueTask<IResourceNode?> TryGetNodeAsync(string name) => new(Nodes.GetValueOrDefault(name));
+    public ValueTask<IResourceNode?> TryGetNodeAsync(PathSegment segment) => new(Nodes.GetValueOrDefault(segment));
 
-    public ValueTask<IResource?> TryGetResourceAsync(string name) => new(Resources.GetValueOrDefault(name));
+    public ValueTask<IResource?> TryGetResourceAsync(PathSegment segment) => new(Resources.GetValueOrDefault(segment));
 
     #endregion
 

@@ -1,5 +1,7 @@
 ﻿namespace GenHTTP.Api.Protocol;
 
+// todo: re-visit
+
 public enum Connection
 {
 
@@ -18,13 +20,6 @@ public enum Connection
     /// the configured response and will close the connection after the response content
     /// has been sent.
     /// </summary>
-    Upgrade,
-
-    /// <summary>
-    /// The connection is surrendered to the user logic and the server will not attempt
-    /// to close or change it in any way.
-    /// </summary>
-    [Obsolete("Required to allow Fleck to write their own response. Will be removed in GenHTTP 11.")]
-    UpgradeAndSurrender
+    Upgrade
 
 }
