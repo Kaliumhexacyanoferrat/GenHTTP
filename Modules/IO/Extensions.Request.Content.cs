@@ -1,6 +1,5 @@
 ﻿using System.Buffers;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.IO;
 

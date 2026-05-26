@@ -1,7 +1,4 @@
-﻿using System.Net;
-using GenHTTP.Modules.IO;
-
-namespace GenHTTP.Testing.Acceptance.Engine.Kestrel;
+﻿namespace GenHTTP.Testing.Acceptance.Engine.Kestrel;
 
 // todo
 

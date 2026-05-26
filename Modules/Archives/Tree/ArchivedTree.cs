@@ -95,8 +95,8 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
     {
         using var archive = ArchiveFactory.OpenArchive(input);
 
-        // archive factory does not automatically handle .tar.gz, reader factory does
-        if (archive.Type == ArchiveType.GZip && archive.Entries.Count() == 1)
+        // archive factory does not correctly enumerate all entries for tar/tar.gz files, reader factory does
+        if (archive.Type == ArchiveType.GZip || archive.Type == ArchiveType.Tar)
         {
             input.Position = 0;
             return LoadWithReaderFactory(input);

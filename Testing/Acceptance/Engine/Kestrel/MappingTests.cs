@@ -1,9 +1,6 @@
-﻿using System.Net;
-using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Functional;
+﻿
 
-namespace GenHTTP.Testing.Acceptance.Engine.Kestrel;
-
+/*
 [TestClass]
 public class MappingTests
 {
@@ -57,10 +54,7 @@ public class MappingTests
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
     }
-
-    // todo
     
-    /*
     [TestMethod]
     public async Task TestConnection()
     {
@@ -81,6 +75,6 @@ public class MappingTests
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
     }
-    */
 
 }
+*/

@@ -4,34 +4,33 @@ namespace GenHTTP.Modules.ServerCaching.Provider;
 
 public static class CacheKey
 {
-    private static readonly ReadOnlyMemory<byte> HostHeader = "Host"u8.ToArray();
-
+    
     public static string GetKey(this IRequest request)
     {
         unchecked
         {
+            var hash = new HashCode();
+            
             var header = request.Header;
 
-            ulong hash = 17;
-
-            hash = hash * 23 + (ulong)header.Target.AsString(false).GetHashCode();
+            hash.Add(header.Target.AsString(false));
 
             for (var i = 0; i < header.Query.Count; i++)
             {
                 var arg = header.Query[i];
 
-                hash = hash * 23 + (ulong)arg.Key.GetHashCode(); // todo: this is unstable accross restarts
-                hash = hash * 23 + (ulong)arg.Value.GetHashCode();
+                hash.AddBytes(arg.Key.Span);
+                hash.AddBytes(arg.Value.Span);
             }
 
-            var host = request.Header.Headers.GetEntry(HostHeader);
+            var host = request.Header.Headers.GetEntry(KnownHeaders.Host);
 
             if (host != null)
             {
-                hash = hash * 23 + (ulong)host.GetHashCode();
+                hash.AddBytes(host.Value.Span);
             }
 
-            return hash.ToString();
+            return hash.ToHashCode().ToString();
         }
     }
 

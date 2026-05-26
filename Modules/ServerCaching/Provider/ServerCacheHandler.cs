@@ -55,7 +55,7 @@ public sealed class ServerCacheHandler : IConcern
             {
                 if (match != null)
                 {
-                    if (!Invalidate || !await HasChanged(response!, match))
+                    if (!Invalidate || !await CheckChangedAsync(response!, match))
                     {
                         var content = await Data.GetEntryAsync(key, match.Variations.GetVariationKey());
 
@@ -188,7 +188,7 @@ public sealed class ServerCacheHandler : IConcern
             var key = Encoding.ASCII.GetString(header.Key.Span);
             var value = Encoding.ASCII.GetString(header.Value.Span);
 
-            if (key == vary)
+            if (key == "Vary")
             {
                 vary = value;
             }
@@ -220,7 +220,7 @@ public sealed class ServerCacheHandler : IConcern
         return new CachedResponse((int)response.Status, variations, headers, cookies, contentType, contentEncoding, contentLength, checksum);
     }
 
-    private static async ValueTask<bool> HasChanged(IResponse current, CachedResponse cached)
+    private static async ValueTask<bool> CheckChangedAsync(IResponse current, CachedResponse cached)
     {
         var (checksum, contentLength, contentType, contentEncoding) = await ExtractContentValues(current);
 

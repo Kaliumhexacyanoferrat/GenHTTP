@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Web;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
@@ -82,7 +83,7 @@ public sealed class ParserTests
 
         using var respose = await runner.GetResponseAsync("/?path=/Some+Folder/With%20Subfolders/");
 
-        Assert.AreEqual("path=/Some+Folder/With Subfolders/", await respose.GetContentAsync());
+        Assert.AreEqual("path=/Some Folder/With Subfolders/", await respose.GetContentAsync());
     }
 
     #region Supporting data structures
@@ -112,8 +113,8 @@ public sealed class ParserTests
             {
                 var entry = request.Header.Query[i];
 
-                var key = Encoding.ASCII.GetString(entry.Key.Span);
-                var value = Encoding.ASCII.GetString(entry.Value.Span);
+                var key = HttpUtility.UrlDecode(Encoding.ASCII.GetString(entry.Key.Span));
+                var value = HttpUtility.UrlDecode(Encoding.ASCII.GetString(entry.Value.Span));
                 
                 entries.Add($"{key}={value}");
             }

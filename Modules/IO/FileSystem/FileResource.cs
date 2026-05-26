@@ -60,7 +60,12 @@ public sealed class FileResource : IResource
 
     public ValueTask<ulong> CalculateChecksumAsync() => new(Checksum.Calculate(this));
 
-    public ValueTask WriteAsync(IResponseSink sink) => File.OpenRead().WriteAsync(sink.Writer);
+    public async ValueTask WriteAsync(IResponseSink sink)
+    {
+        await using var stream = File.OpenRead();
+         
+        await stream.WriteAsync(sink.Writer);
+    } 
 
     #endregion
 

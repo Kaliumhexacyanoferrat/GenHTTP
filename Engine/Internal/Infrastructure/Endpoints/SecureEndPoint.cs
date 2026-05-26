@@ -4,8 +4,6 @@ using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Protocol;
-
 using GenHTTP.Engine.Internal.Protocol;
 using GenHTTP.Engine.Shared.Infrastructure;
 

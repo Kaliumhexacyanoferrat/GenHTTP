@@ -1,6 +1,4 @@
-﻿using GenHTTP.Api.Protocol;
-using GenHTTP.Modules.Functional;
-using GenHTTP.Modules.Layouting;
+﻿using GenHTTP.Modules.Layouting;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
 

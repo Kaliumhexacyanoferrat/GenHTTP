@@ -30,7 +30,7 @@ public sealed class ListingProvider : IHandler
     {
         var target = request.Header.Target;
 
-        var model = new ListingModel(Container, !target.IsLast);
+        var model = new ListingModel(Container, target.IsLast);
 
         var content = await ListingRenderer.RenderAsync(model);
 

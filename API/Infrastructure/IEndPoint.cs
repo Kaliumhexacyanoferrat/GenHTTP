@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Infrastructure;
 
