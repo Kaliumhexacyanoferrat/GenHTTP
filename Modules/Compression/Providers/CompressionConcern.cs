@@ -166,8 +166,9 @@ public sealed class CompressionConcern : IConcern
     private static HashSet<AlgorithmName> ParseSupported(ReadOnlySpan<byte> acceptHeader)
     {
         var result = new HashSet<AlgorithmName>();
+        var start = 0;
 
-        while (!acceptHeader.IsEmpty)
+        while (start < acceptHeader.Length)
         {
             var comma = acceptHeader[start..].IndexOf((byte)',');
             var end = comma >= 0 ? start + comma : acceptHeader.Length;
@@ -179,8 +180,7 @@ public sealed class CompressionConcern : IConcern
                 result.Add(new(part.ToArray()));
             }
 
-            if (!token.IsEmpty)
-                result.Add(token.ToString());
+            start = end + 1;
         }
 
         return result;

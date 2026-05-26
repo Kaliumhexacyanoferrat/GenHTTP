@@ -84,6 +84,9 @@ public readonly struct ContentType : IEquatable<ContentType>
     /// <summary>A XML file.</summary>
     public static readonly ContentType TextXml = new("text/xml"u8.ToArray());
 
+    /// <summary>A XML file.</summary>
+    public static readonly ContentType ApplicationXml = new("application/xml"u8.ToArray());
+    
     /// <summary>A JavaScript file.</summary>
     public static readonly ContentType TextJavaScript = new("text/javascript"u8.ToArray());
 

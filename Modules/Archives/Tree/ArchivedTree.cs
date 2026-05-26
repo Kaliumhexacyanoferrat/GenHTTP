@@ -118,7 +118,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
         return root;
     }
 
-    private ValueTask<ArchiveNode> LoadWithReaderFactory(Stream input)
+    private ArchiveNode LoadWithReaderFactory(Stream input)
     {
         using var reader = ReaderFactory.OpenReader(input);
 
@@ -136,7 +136,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
             }
         }
 
-        return new(root);
+        return root;
     }
 
     private static void AddDirectory(ArchiveNode root, IEntry entry)
@@ -191,7 +191,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
         throw new InvalidOperationException($"Unable to find resource '{key}' in archive");
     }
 
-    private static ValueTask<StreamWithDependency> GetReaderStream(Stream input, string key)
+    private static StreamWithDependency GetReaderStream(Stream input, string key)
     {
         var reader = ReaderFactory.OpenReader(input);
 
@@ -199,14 +199,13 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
         {
             if (reader.Entry.Key == key)
             {
-                return new(new StreamWithDependency(reader.OpenEntryStream(), reader));
+                return new StreamWithDependency(reader.OpenEntryStream(), reader);
             }
         }
 
         reader.Dispose();
 
         throw new InvalidOperationException($"Unable to find resource '{key}' in archive");
-
     }
 
     private async ValueTask<bool> CheckUpdateNeededAsync() => _root == null || await source.CheckChangedAsync();
