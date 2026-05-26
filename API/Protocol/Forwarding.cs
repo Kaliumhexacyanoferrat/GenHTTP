@@ -2,6 +2,8 @@
 
 namespace GenHTTP.Api.Protocol;
 
+// todo: re-visit
+
 /// <summary>
 /// Stores information how a request has been proxied
 /// to the server.

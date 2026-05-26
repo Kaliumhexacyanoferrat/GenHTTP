@@ -10,12 +10,14 @@ public class NonSeekableResource(IResource source) : IResource
 
     public DateTime? Modified => null;
 
-    public FlexibleContentType? ContentType  => null;
+    public ContentType? ContentType => null;
 
-    public ulong? Length  => null;
+    public ulong? Length => null;
 
     public ValueTask<ulong> CalculateChecksumAsync() => new(0);
 
     public async ValueTask<Stream> GetContentAsync() => new NonSeekableStream(await source.GetContentAsync());
+
+    public ValueTask WriteAsync(IResponseSink sink) => ((IResource)this).WriteAsync(sink.Stream, 4096);
 
 }

@@ -2,21 +2,17 @@
 
 namespace GenHTTP.Api.Protocol;
 
-/// <summary>
-/// Allows to configure a HTTP response to be send.
-/// </summary>
-public interface IResponseBuilder : IBuilder<IResponse>, IResponseModification<IResponseBuilder>
+public interface IResponseBuilder : IBuilder<IResponse>
 {
 
-    /// <summary>
-    /// Specifies the content to be sent to the client.
-    /// </summary>
-    /// <param name="content">The content to be send to the client</param>
-    IResponseBuilder Content(IResponseContent content);
+    IResponseBuilder Status(ResponseStatus code);
 
-    /// <summary>
-    /// Specifies the length of the content stream, if known.
-    /// </summary>
-    /// <param name="length">The length of the content stream</param>
-    IResponseBuilder Length(ulong length);
+    IResponseBuilder Connection(Connection mode);
+
+    IResponseBuilder Header(ReadOnlyMemory<byte> name, ReadOnlyMemory<byte> value);
+    
+    IResponseBuilder Header(string name, string value);
+
+    IResponseBuilder Content(IResponseContent? content);
+
 }

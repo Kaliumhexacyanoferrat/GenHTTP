@@ -4,27 +4,33 @@ namespace GenHTTP.Modules.ServerCaching.Provider;
 
 public static class CacheKey
 {
-
+    
     public static string GetKey(this IRequest request)
     {
         unchecked
         {
-            ulong hash = 17;
+            var hash = new HashCode();
+            
+            var header = request.Header;
 
-            hash = hash * 23 + (ulong)request.Target.Path.ToString().GetHashCode();
+            hash.Add(header.Target.AsString(false));
 
-            foreach (var arg in request.Query)
+            for (var i = 0; i < header.Query.Count; i++)
             {
-                hash = hash * 23 + (ulong)arg.Key.GetHashCode();
-                hash = hash * 23 + (ulong)arg.Value.GetHashCode();
+                var arg = header.Query[i];
+
+                hash.AddBytes(arg.Key.Span);
+                hash.AddBytes(arg.Value.Span);
             }
 
-            if (request.Host != null)
+            var host = request.Header.Headers.GetEntry(KnownHeaders.Host);
+
+            if (host != null)
             {
-                hash = hash * 23 + (ulong)request.Host.GetHashCode();
+                hash.AddBytes(host.Value.Span);
             }
 
-            return hash.ToString();
+            return hash.ToHashCode().ToString();
         }
     }
 
@@ -46,4 +52,5 @@ public static class CacheKey
             return hash.ToString();
         }
     }
+
 }

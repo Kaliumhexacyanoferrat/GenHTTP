@@ -4,7 +4,7 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
-
+using GenHTTP.Modules.IO.Streaming;
 using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Modules.IO;
@@ -67,7 +67,7 @@ public sealed class ChangeTrackingTests
         var resource = Resource.FromString("Inner").BuildWithTracking();
 
         var app = Inline.Create()
-                                   .Get((IRequest r) => r.Respond().Content(resource).Build());
+                                   .Get((IRequest r) => r.Respond().Content(new ResourceContent(resource)).Build());
 
         await using var runner = await TestHost.RunAsync(app);
 

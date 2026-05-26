@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Protocol;
+
 using ProtoBuf;
 
 namespace GenHTTP.Modules.Protobuf.Providers;
@@ -19,6 +20,10 @@ public sealed class ProtobufContent : IResponseContent
 
     public ulong? Length => null;
 
+    public ContentType? Type => ContentType.ApplicationProtobuf;
+
+    public ReadOnlyMemory<byte>? Encoding => null;
+
     private object Data { get; }
 
     #endregion
@@ -31,7 +36,14 @@ public sealed class ProtobufContent : IResponseContent
     {
         Serializer.Serialize(target, Data);
 
-        return new ValueTask();
+        return default;
+    }
+
+    public ValueTask WriteAsync(IResponseSink sink)
+    {
+        Serializer.Serialize(sink.Writer, Data);
+
+        return default;
     }
 
     #endregion

@@ -90,4 +90,22 @@ public static class StreamExtensions
         return null;
     }
 
+    public static async ValueTask WriteAsync(this Stream stream, IBufferWriter<byte> target)
+    {
+        var read = 0;
+
+        do
+        {
+            var memory = target.GetMemory(32_768);
+
+            read = await stream.ReadAsync(memory);
+
+            if (read > 0)
+            {
+                target.Advance(read);
+            }
+        }
+        while (read > 0);
+    }
+
 }

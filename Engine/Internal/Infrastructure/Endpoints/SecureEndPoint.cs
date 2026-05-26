@@ -4,9 +4,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Infrastructure;
-
 using GenHTTP.Engine.Internal.Protocol;
-using GenHTTP.Engine.Internal.Utilities;
 using GenHTTP.Engine.Shared.Infrastructure;
 
 namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
@@ -54,7 +52,7 @@ internal sealed class SecureEndPoint : EndPoint
 
         if (stream is not null)
         {
-            await Handle(client, new PoolBufferedStream(stream, Configuration.TransferBufferSize), stream.RemoteCertificate);
+            await Handle(client, stream, stream.RemoteCertificate);
         }
         else
         {

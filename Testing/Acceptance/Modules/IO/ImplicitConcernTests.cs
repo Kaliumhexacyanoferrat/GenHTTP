@@ -15,7 +15,7 @@ public class ImplicitConcernTests
                          {
                              var response = await c.HandleAsync(r);
 
-                             response!.Headers.Add("X-Custom", "Value");
+                             response?.Rebuild().Header("X-Custom", "Value");
                              
                              return response;
                          }));

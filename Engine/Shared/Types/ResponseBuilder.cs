@@ -1,87 +1,55 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using System.Text;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Shared.Types;
 
-public sealed class ResponseBuilder(Response response) : IResponseBuilder
+public class ResponseBuilder : IResponseBuilder
 {
+    private readonly Response _response;
 
-    #region Functionality
-
-    public IResponseBuilder Length(ulong length)
+    public ResponseBuilder()
     {
-        response.ContentLength = length;
-        return this;
-    }
-
-    public IResponseBuilder Content(IResponseContent content)
-    {
-        response.Content = content;
-        response.ContentLength = content.Length;
-
-        return this;
-    }
-
-    public IResponseBuilder Type(FlexibleContentType contentType)
-    {
-        response.ContentType = contentType;
-        return this;
-    }
-
-    public IResponseBuilder Cookie(Cookie cookie)
-    {
-        response.WriteableCookies[cookie.Name] = cookie;
-        return this;
-    }
-
-    public IResponseBuilder Header(string key, string value)
-    {
-        response.Headers.Add(key, value);
-        return this;
-    }
-
-    public IResponseBuilder Encoding(string encoding)
-    {
-        response.ContentEncoding = encoding;
-        return this;
-    }
-
-    public IResponseBuilder Expires(DateTime expiryDate)
-    {
-        response.Expires = expiryDate;
-        return this;
-    }
-
-    public IResponseBuilder Modified(DateTime modificationDate)
-    {
-        response.Modified = modificationDate;
-        return this;
+        _response = new(this);
     }
 
     public IResponseBuilder Status(ResponseStatus status)
     {
-        response.Status = new FlexibleResponseStatus(status);
+        _response.Status = status;
         return this;
     }
 
-    public IResponseBuilder Status(int status, string reason)
+    public IResponseBuilder Connection(Connection mode)
     {
-        response.Status = new FlexibleResponseStatus(status, reason);
+        _response.Mode = mode;
         return this;
     }
 
-    public IResponseBuilder Connection(Connection handling)
+    public IResponseBuilder Header(ReadOnlyMemory<byte> name, ReadOnlyMemory<byte> value)
     {
-        response.Connection = handling;
+        _response.EditableHeaders.Add(name, value);
+        return this;
+    }
+    
+    public IResponseBuilder Header(string name, string value)
+        => Header(Encoding.ASCII.GetBytes(name), Encoding.ASCII.GetBytes(value));
+    
+    public IResponseBuilder Content(IResponseContent? content)
+    {
+        if (content != null)
+        {
+            // todo?
+            if (_response.Status == ResponseStatus.NoContent)
+            {
+                _response.Status = ResponseStatus.Ok;
+            }
+        }
+
+        _response.Content = content;
         return this;
     }
 
-    public void Reset()
-    {
-        response.Reset();
-    }
+    public IResponse Build() => _response;
 
-    public IResponse Build() => response;
-
-    #endregion
+    public void Reset() => _response.Reset();
 
 }

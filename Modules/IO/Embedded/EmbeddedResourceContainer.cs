@@ -1,13 +1,15 @@
 ﻿using System.Reflection;
+
 using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.IO.Embedded;
 
 internal class EmbeddedResourceContainer : IResourceContainer
 {
-    private readonly Dictionary<string, IResourceNode> _nodes = new();
+    private readonly Dictionary<PathSegment, IResourceNode> _nodes = new();
 
-    private readonly Dictionary<string, IResource> _resources = new();
+    private readonly Dictionary<PathSegment, IResource> _resources = new();
 
     #region Initialization
 
@@ -31,19 +33,20 @@ internal class EmbeddedResourceContainer : IResourceContainer
                                        .Name(remainder)
                                        .Build();
 
-                    _resources.Add(remainder, file);
+                    _resources.Add(new (remainder), file);
                 }
                 else
                 {
                     var childName = parts[0];
+                    var childSegment = new PathSegment(childName);
 
-                    if (!_nodes.ContainsKey(childName))
+                    if (!_nodes.ContainsKey(childSegment))
                     {
                         var childPrefix = $"{prefix}.{childName}";
 
                         var node = new EmbeddedResourceNode(source, childPrefix, this, childName);
 
-                        _nodes.Add(childName, node);
+                        _nodes.Add(childSegment, node);
                     }
                 }
             }
@@ -65,9 +68,9 @@ internal class EmbeddedResourceContainer : IResourceContainer
 
     public ValueTask<IReadOnlyCollection<IResource>> GetResources() => new(_resources.Values);
 
-    public ValueTask<IResourceNode?> TryGetNodeAsync(string name) => new(_nodes.GetValueOrDefault(name));
+    public ValueTask<IResourceNode?> TryGetNodeAsync(PathSegment segment) => new(_nodes.GetValueOrDefault(segment));
 
-    public ValueTask<IResource?> TryGetResourceAsync(string name) => new(_resources.GetValueOrDefault(name));
+    public ValueTask<IResource?> TryGetResourceAsync(PathSegment segment) => new(_resources.GetValueOrDefault(segment));
 
     #endregion
 

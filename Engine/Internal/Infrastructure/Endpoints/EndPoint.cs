@@ -1,17 +1,22 @@
-﻿using System.Net;
+﻿using System.Buffers;
+using System.IO.Pipelines;
+using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Infrastructure;
-
-using GenHTTP.Engine.Internal.Protocol;
-using GenHTTP.Engine.Internal.Utilities;
+using GenHTTP.Engine.Internal.Context;
 using GenHTTP.Engine.Shared.Infrastructure;
+
+using Microsoft.Extensions.ObjectPool;
 
 namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
 
 internal abstract class EndPoint : IEndPoint
 {
+    private static readonly DefaultObjectPool<ClientContext> ContextPool = new(new ClientContextPolicy(), 65536);
+
+    private static readonly StreamPipeReaderOptions ReaderOptions = new(MemoryPool<byte>.Shared, leaveOpen: true, bufferSize: 4096 * 4, minimumReadSize: 1024);
 
     #region Get-/Setters
 
@@ -109,11 +114,24 @@ internal abstract class EndPoint : IEndPoint
 
     protected abstract ValueTask Accept(Socket client);
 
-    protected ValueTask Handle(Socket client, PoolBufferedStream inputStream, X509Certificate? clientCertificate = null)
+    protected async ValueTask Handle(Socket client, Stream inputStream, X509Certificate? clientCertificate = null)
     {
         client.NoDelay = true;
 
-        return new ClientHandler(client, inputStream, clientCertificate, Server, this, Configuration).Run();
+        var context = ContextPool.Get();
+
+        var reader = PipeReader.Create(inputStream, ReaderOptions);
+
+        try
+        {
+            context.Apply(client, inputStream, reader, clientCertificate, Server, this, Configuration);
+
+            await context.ClientHandler.RunAsync();
+        }
+        finally
+        {
+            ContextPool.Return(context);
+        }
     }
 
     private static IPAddress DetermineBindingAddress(IPAddress? address, bool dualStack)

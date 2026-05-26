@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.IO.VirtualTrees;
 
@@ -35,9 +36,9 @@ public sealed class VirtualNode : IResourceNode
 
     public ValueTask<IReadOnlyCollection<IResource>> GetResources() => Container.GetResources();
 
-    public ValueTask<IResourceNode?> TryGetNodeAsync(string name) => Container.TryGetNodeAsync(name);
+    public ValueTask<IResourceNode?> TryGetNodeAsync(PathSegment segment) => Container.TryGetNodeAsync(segment);
 
-    public ValueTask<IResource?> TryGetResourceAsync(string name) => Container.TryGetResourceAsync(name);
+    public ValueTask<IResource?> TryGetResourceAsync(PathSegment segment) => Container.TryGetResourceAsync(segment);
 
     #endregion
 

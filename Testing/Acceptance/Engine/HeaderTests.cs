@@ -1,5 +1,4 @@
-﻿using System.Net;
-using GenHTTP.Testing.Acceptance.Utilities;
+﻿using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
 
@@ -27,7 +26,7 @@ public class HeaderTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestReservedHeaderCannotBeSet(TestEngine engine)
+    public async Task TestDateHeaderCanBeSet(TestEngine engine)
     {
         var handler = new FunctionalHandler(responseProvider: r =>
         {
@@ -40,7 +39,7 @@ public class HeaderTests
 
         using var response = await runner.GetResponseAsync();
 
-        await response.AssertStatusAsync(HttpStatusCode.InternalServerError);
+        Assert.AreEqual("123", response.GetHeader("Date"));
     }
 
 }

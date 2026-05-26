@@ -26,6 +26,36 @@ internal sealed class ClientResponseContent(HttpResponseMessage message) : IResp
         }
     }
 
+    public ContentType? Type
+    {
+        get
+        {
+            var type = Message.Content.Headers.ContentType;
+
+            if (type != null)
+            {
+                return new(type.ToString()); // todo: stackalloc from parts
+            }
+
+            return ContentType.ApplicationOctetStream;
+        }
+    }
+
+    public ReadOnlyMemory<byte>? Encoding
+    {
+        get
+        {
+            var encoding = Message.Content.Headers.ContentEncoding.FirstOrDefault();
+
+            if (encoding != null)
+            {
+                return System.Text.Encoding.ASCII.GetBytes(encoding);
+            }
+
+            return null;
+        }
+    }
+
     #endregion
 
     #region Functionality
@@ -38,6 +68,8 @@ internal sealed class ClientResponseContent(HttpResponseMessage message) : IResp
 
         await source.CopyPooledAsync(target, bufferSize);
     }
+
+    public ValueTask WriteAsync(IResponseSink sink) => WriteAsync(sink.Stream, 8192);
 
     #endregion
 

@@ -52,7 +52,9 @@ internal sealed class BearerAuthenticationConcern : IConcern
     {
         IdentityModelEventSource.LogCompleteSecurityArtifact = true;
 
-        if (!request.Headers.TryGetValue("Authorization", out var authHeader))
+        var authHeader = request.Header.Headers.GetEntry("Authorization");
+
+        if (authHeader == null)
         {
             throw new ProviderException(ResponseStatus.Unauthorized, "This endpoint requires authorization");
         }
@@ -80,7 +82,7 @@ internal sealed class BearerAuthenticationConcern : IConcern
             if (ValidationOptions.CustomKeyResolver != null)
             {
                 var unvalidatedToken = tokenHandler.ReadJwtToken(tokenString);
-                
+
                 _issuerKeys = await ValidationOptions.CustomKeyResolver(unvalidatedToken);
             }
             else

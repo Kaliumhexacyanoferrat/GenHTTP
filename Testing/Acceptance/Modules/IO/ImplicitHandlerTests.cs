@@ -1,6 +1,4 @@
 using System.Net;
-
-using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO;
 using GenHTTP.Testing.Acceptance.Utilities;
 
@@ -33,7 +31,6 @@ public class ImplicitHandlerTests
         {
             return r.Respond()
                     .Content(new StringContent("Hello World"))
-                    .Type(ContentType.TextPlain)
                     .Build();
         });
         
@@ -49,7 +46,7 @@ public class ImplicitHandlerTests
     [TestMethod]
     public void TestConcernChaining()
     {
-        Chain.Works(Handler.From(r => r.Respond().Content("Hello World").Type(ContentType.TextPlain).Build()));
+        Chain.Works(Handler.From(r => r.Respond().Content(new StringContent("Hello World")).Build()));
     }
     
 }

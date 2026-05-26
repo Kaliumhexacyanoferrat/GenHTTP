@@ -9,14 +9,15 @@ namespace GenHTTP.Modules.Compression.Algorithms;
 
 public sealed class ZstdAlgorithm : ICompressionAlgorithm
 {
+    private static readonly AlgorithmName CachedName = new("zstd");
 
-    public string Name => "zstd";
+    public AlgorithmName Name => CachedName;
 
     public Priority Priority => Priority.High;
 
     public IResponseContent Compress(IResponseContent content, CompressionLevel level)
     {
-        return new CompressedResponseContent(content, target => new CompressionStream(target, MapLevel(level), leaveOpen: false));
+        return new CompressedResponseContent(content, target => new CompressionStream(target, MapLevel(level), leaveOpen: false), Name);
     }
 
     private static int MapLevel(CompressionLevel level)

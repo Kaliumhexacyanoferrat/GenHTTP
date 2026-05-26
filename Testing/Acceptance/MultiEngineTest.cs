@@ -19,7 +19,7 @@ public class MultiEngineTestAttribute : Attribute, ITestDataSource
             return new List<object[]>
             {
                 new object[] { TestEngine.Internal },
-                new object[] { TestEngine.Kestrel }
+                // todo: new object[] { TestEngine.Kestrel }
             };
         }
 

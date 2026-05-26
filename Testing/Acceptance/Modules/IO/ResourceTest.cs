@@ -16,7 +16,7 @@ public sealed class ResourceTest
         var resource = Resource.FromString("Hello World")
                                .Build();
 
-        Assert.AreEqual(ContentType.TextPlain, resource.ContentType?.KnownType);
+        Assert.AreEqual(ContentType.TextPlain, resource.ContentType);
 
         await using var content = await resource.GetContentAsync();
 
@@ -64,7 +64,7 @@ public sealed class ResourceTest
         var resource = Resource.FromAssembly("File.txt")
                                .Build();
 
-        Assert.AreEqual(ContentType.TextPlain, resource.ContentType?.KnownType);
+        Assert.AreEqual(ContentType.TextPlain, resource.ContentType);
 
         await using var content = await resource.GetContentAsync();
 
@@ -128,8 +128,7 @@ public sealed class ResourceTest
         var now = DateTime.UtcNow;
 
         builder.Name("MyFile.txt")
-               .Type(ContentType.VideoH264)
-               .Type(new FlexibleContentType(ContentType.VideoH264));
+               .Type(ContentType.VideoH264);
 
         if (modified)
         {
@@ -139,7 +138,7 @@ public sealed class ResourceTest
         var resource = builder.Build();
 
         Assert.AreEqual("MyFile.txt", resource.Name);
-        Assert.AreEqual(ContentType.VideoH264, resource.ContentType?.KnownType);
+        Assert.AreEqual(ContentType.VideoH264, resource.ContentType);
 
         if (modified)
         {

@@ -1,9 +1,8 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Text;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Caching;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.IO;
-
 using StreamContent = GenHTTP.Modules.IO.Streaming.StreamContent;
 
 namespace GenHTTP.Modules.ServerCaching.Provider;
@@ -56,7 +55,7 @@ public sealed class ServerCacheHandler : IConcern
             {
                 if (match != null)
                 {
-                    if (!Invalidate || !await HasChanged(response!, match))
+                    if (!Invalidate || !await CheckChangedAsync(response!, match))
                     {
                         var content = await Data.GetEntryAsync(key, match.Variations.GetVariationKey());
 
@@ -70,7 +69,9 @@ public sealed class ServerCacheHandler : IConcern
                 response = await Content.HandleAsync(request);
             }
 
-            if (response != null && (response.Status == ResponseStatus.Ok || response.Status == ResponseStatus.NoContent))
+            var status = response?.Status;
+
+            if (response != null && (status == ResponseStatus.Ok || status == ResponseStatus.NoContent))
             {
                 if (Predicate == null || Predicate(request, response))
                 {
@@ -82,7 +83,7 @@ public sealed class ServerCacheHandler : IConcern
 
                     if (response.Content != null)
                     {
-                        await Data.StoreDirectAsync(key, variationKey, target => response.Content.WriteAsync(target, 4096));
+                        await Data.StoreDirectAsync(key, variationKey, target => response.Content.WriteAsync(new StreamSink(target)));
                     }
                     else
                     {
@@ -109,7 +110,9 @@ public sealed class ServerCacheHandler : IConcern
             {
                 foreach (var header in variant.Variations)
                 {
-                    if (request.Headers.TryGetValue(header.Key, out var actual))
+                    var actual = request.Header.Headers.GetEntry(header.Key);
+
+                    if (actual != null)
                     {
                         if (header.Value == actual)
                         {
@@ -131,40 +134,15 @@ public sealed class ServerCacheHandler : IConcern
     private static IResponse GetResponse(IRequest request, CachedResponse cached, Stream? content)
     {
         var response = request.Respond()
-                              .Status(cached.StatusCode, cached.StatusPhrase);
+                              .Status((ResponseStatus)cached.StatusCode); // todo
 
-        if (cached.ContentEncoding != null)
-        {
-            response.Encoding(cached.ContentEncoding);
-        }
-
-        if (cached.ContentLength != null)
-        {
-            response.Length(cached.ContentLength.Value);
-        }
-
-        if (cached.ContentType != null)
-        {
-            response.Type(cached.ContentType);
-        }
-
-        if (cached.Cookies != null)
+        /*if (cached.Cookies != null)
         {
             foreach (var cookie in cached.Cookies)
             {
                 response.Cookie(cookie.Value);
             }
-        }
-
-        if (cached.Expires != null)
-        {
-            response.Expires(cached.Expires.Value);
-        }
-
-        if (cached.Modified != null)
-        {
-            response.Modified(cached.Modified.Value);
-        }
+        }*/
 
         foreach (var header in cached.Headers)
         {
@@ -173,7 +151,23 @@ public sealed class ServerCacheHandler : IConcern
 
         if (content != null)
         {
-            response.Content(new StreamContent(content, cached.ContentLength, () => new ValueTask<ulong?>(cached.ContentChecksum)));
+            // todo: content-type & content-encoding
+
+            ContentType? type = null;
+
+            if (cached.ContentType != null)
+            {
+                type = new(cached.ContentType);
+            }
+
+            ReadOnlyMemory<byte>? encoding = null;
+
+            if (cached.ContentEncoding != null)
+            {
+                encoding = Encoding.ASCII.GetBytes(cached.ContentEncoding);
+            }
+
+            response.Content(new StreamContent(content, type ?? ContentType.ApplicationOctetStream, cached.ContentLength, encoding, () => new ValueTask<ulong?>(cached.ContentChecksum)));
         }
 
         return response.Build();
@@ -181,50 +175,106 @@ public sealed class ServerCacheHandler : IConcern
 
     private static async ValueTask<CachedResponse> GetResponse(IResponse response, IRequest request)
     {
-        var headers = new Dictionary<string, string>(response.Headers);
+        var headers = new Dictionary<string, string>();
 
-        var cookies = new Dictionary<string, Cookie>(response.Cookies);
+        var responseHeaders = response.Headers;
+
+        string? vary = null;
+
+        for (var i = 0; i < responseHeaders.Count; i++)
+        {
+            var header = responseHeaders[i];
+
+            var key = Encoding.ASCII.GetString(header.Key.Span);
+            var value = Encoding.ASCII.GetString(header.Value.Span);
+
+            if (key == "Vary")
+            {
+                vary = value;
+            }
+
+            headers.Add(key, value);
+        }
+
+        var cookies = new Dictionary<string, Cookie>(); // todo
 
         Dictionary<string, string>? variations = null;
 
-        if (response.Headers.TryGetValue("Vary", out var header))
+        if (vary != null)
         {
             variations = new Dictionary<string, string>();
 
-            foreach (var entry in header.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            foreach (var entry in vary.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             {
-                if (request.Headers.TryGetValue(entry, out var value))
+                var value = request.Header.Headers.GetEntry(entry);
+
+                if (value != null)
                 {
                     variations.Add(entry, value);
                 }
             }
         }
 
-        ulong? checksum = null;
+        var (checksum, contentLength, contentType, contentEncoding) = await ExtractContentValues(response);
 
-        if (response.Content != null)
-        {
-            checksum = await response.Content.CalculateChecksumAsync();
-        }
-
-        return new CachedResponse(response.Status.RawStatus, response.Status.Phrase, response.Expires, response.Modified,
-                                  variations, headers, cookies, response.ContentType?.RawType,
-                                  response.ContentEncoding, response.ContentLength,
-                                  checksum);
+        return new CachedResponse((int)response.Status, variations, headers, cookies, contentType, contentEncoding, contentLength, checksum);
     }
 
-    private static async ValueTask<bool> HasChanged(IResponse current, CachedResponse cached)
+    private static async ValueTask<bool> CheckChangedAsync(IResponse current, CachedResponse cached)
     {
-        var checksum = current.Content != null ? await current.Content.CalculateChecksumAsync() : null;
+        var (checksum, contentLength, contentType, contentEncoding) = await ExtractContentValues(current);
 
         return cached.ContentChecksum != checksum
-            || cached.ContentEncoding != current.ContentEncoding
-            || cached.ContentLength != current.ContentLength
-            || cached.ContentType != current.ContentType?.RawType
-            || cached.Expires != current.Expires
-            || cached.Modified != current.Modified
-            || current.Headers.Count != cached.Headers.Count || current.Headers.Except(cached.Headers).Any()
-            || current.Cookies.Count != cached.Cookies?.Count || current.Cookies.Except(cached.Cookies).Any();
+            || cached.ContentEncoding != contentEncoding
+            || cached.ContentLength != contentLength
+            || cached.ContentType != contentType
+            || HeadersChanged(current, cached);
+        // todo:   || current.Cookies.Count != cached.Cookies?.Count || current.Cookies.Except(cached.Cookies).Any();
+    }
+
+    private static async ValueTask<(ulong?, ulong?, string?, string?)> ExtractContentValues(IResponse response)
+    {
+        var content = response.Content;
+
+        if (content != null)
+        {
+            var checksum = await content.CalculateChecksumAsync();
+
+            var contentLength = content.Length;
+            var contentType = (content.Type != null) ? Encoding.ASCII.GetString(content.Type.Value.Value.Span) : null;
+            var contentEncoding = (content.Encoding != null) ? Encoding.ASCII.GetString(content.Encoding.Value.Span) : null;
+
+            return (checksum, contentLength, contentType, contentEncoding);
+        }
+
+        return default;
+    }
+
+    private static bool HeadersChanged(IResponse current, CachedResponse cached)
+    {
+        var headers = current.Headers;
+
+        for (var i = 0; i < headers.Count; i++)
+        {
+            var header = headers[i];
+
+            var key = Encoding.ASCII.GetString(header.Key.Span);
+            var value = Encoding.ASCII.GetString(header.Value.Span);
+
+            if (cached.Headers.TryGetValue(key, out var cachedValue))
+            {
+                if (cachedValue != value)
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     #endregion

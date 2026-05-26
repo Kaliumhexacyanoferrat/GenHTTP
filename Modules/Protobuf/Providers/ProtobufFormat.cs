@@ -2,7 +2,6 @@
 
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Conversion.Serializers;
 
 using ProtoBuf;
@@ -20,8 +19,7 @@ public sealed class ProtobufFormat : ISerializationFormat
     public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)
     {
         var result = request.Respond()
-                            .Content(new ProtobufContent(response))
-                            .Type(ContentType.ApplicationProtobuf);
+                            .Content(new ProtobufContent(response));
 
         return new ValueTask<IResponseBuilder>(result);
     }

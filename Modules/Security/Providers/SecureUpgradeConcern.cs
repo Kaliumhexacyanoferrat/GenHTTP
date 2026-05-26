@@ -1,7 +1,7 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Text;
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Redirects;
 using GenHTTP.Modules.IO;
 
@@ -9,6 +9,11 @@ namespace GenHTTP.Modules.Security.Providers;
 
 public sealed class SecureUpgradeConcern : IConcern
 {
+    private static readonly ReadOnlyMemory<byte> UpgradeInsecureRequestsHeader = "Upgrade-Insecure-Requests"u8.ToArray();
+
+    private static readonly ReadOnlyMemory<byte> VaryHeader = "Vary"u8.ToArray();
+
+    private static readonly ReadOnlyMemory<byte> YesValue = "1"u8.ToArray();
 
     #region Get-/Setters
 
@@ -51,20 +56,19 @@ public sealed class SecureUpgradeConcern : IConcern
                     }
                     if (Mode == SecureUpgrade.Allow)
                     {
-                        if (request.Method.KnownMethod == RequestMethod.Get)
+                        if (request.Header.Method == RequestMethod.Get)
                         {
-                            if (request.Headers.TryGetValue("Upgrade-Insecure-Requests", out var flag))
+                            var flag = request.Header.Headers.GetEntry(UpgradeInsecureRequestsHeader);
+
+                            if (flag?.Span.SequenceEqual(YesValue.Span) == true)
                             {
-                                if (flag == "1")
-                                {
-                                    var response = await Redirect.To(GetRedirectLocation(request, endpoints), true)
-                                                                 .Build()
-                                                                 .HandleAsync(request);
+                                var response = await Redirect.To(GetRedirectLocation(request, endpoints), true)
+                                                             .Build()
+                                                             .HandleAsync(request);
 
-                                    response?.Headers.Add("Vary", "Upgrade-Insecure-Requests");
+                                response?.Rebuild().Header(VaryHeader, UpgradeInsecureRequestsHeader);
 
-                                    return response;
-                                }
+                                return response;
                             }
                         }
                     }
@@ -81,7 +85,13 @@ public sealed class SecureUpgradeConcern : IConcern
 
         var port = targetPort == 443 ? string.Empty : $":{targetPort}";
 
-        return $"https://{request.HostWithoutPort()}{port}{request.Target.Path}";
+        var host = request.GetHostWithoutPort();
+
+        var hostString = (host != null) ? Encoding.ASCII.GetString(host.Value.Span) : string.Empty;
+
+        var pathString = Encoding.ASCII.GetString(request.Header.Path.Span);
+
+        return $"https://{hostString}{port}{pathString}";
     }
 
     private static ushort GetTargetPort(IRequest request, List<IEndPoint> endPoints)

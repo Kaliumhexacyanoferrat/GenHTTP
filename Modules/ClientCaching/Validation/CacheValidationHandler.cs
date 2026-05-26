@@ -1,13 +1,14 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.ClientCaching.Validation;
 
 public sealed class CacheValidationHandler : IConcern
 {
-    private const string EtagHeader = "ETag";
+    private static readonly ReadOnlyMemory<byte> EtagHeader = "ETag"u8.ToArray();
+
+    private static readonly ReadOnlyMemory<byte> IfNoneMatchHeader = "If-None-Match"u8.ToArray();
 
     private static readonly RequestMethod[] SupportedMethods = [RequestMethod.Get, RequestMethod.Head];
 
@@ -34,26 +35,26 @@ public sealed class CacheValidationHandler : IConcern
 
         if (response != null && request.HasType(SupportedMethods))
         {
-            if ((response.Content != null) && (response.Connection != Connection.Upgrade))
+            if ((response.Content != null) && (response.Mode != Connection.Upgrade))
             {
                 var eTag = await CalculateETag(response);
 
-                var cached = request["If-None-Match"];
+                var cached = request.Header.Headers.GetEntry(IfNoneMatchHeader);
 
-                if (cached is not null && cached == eTag)
+                var builder = response.Rebuild();
+
+                if (cached is not null && eTag is not null)
                 {
-                    response.Status = new FlexibleResponseStatus(ResponseStatus.NotModified);
-
-                    response.Content = null;
-
-                    response.ContentEncoding = null;
-                    response.ContentLength = null;
-                    response.ContentType = null;
+                    if (cached.Value.Span.SequenceEqual(eTag.Value.Span))
+                    {
+                        builder.Status(ResponseStatus.NotModified);
+                        builder.Content(null);
+                    }
                 }
 
                 if (eTag is not null)
                 {
-                    response.Headers[EtagHeader] = eTag;
+                    builder.Header(EtagHeader, eTag.Value);
                 }
             }
         }
@@ -63,20 +64,30 @@ public sealed class CacheValidationHandler : IConcern
 
     public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-    private static async ValueTask<string?> CalculateETag(IResponse response)
+    private static async ValueTask<ReadOnlyMemory<byte>?> CalculateETag(IResponse response)
     {
-        if (response.Headers.TryGetValue(EtagHeader, out var eTag))
+        var eTag = response.Headers.GetEntry(EtagHeader);
+
+        if (eTag != null)
         {
             return eTag;
         }
 
         if (response.Content is not null)
         {
-            var checksum = await response.Content.CalculateChecksumAsync();
+            ulong? checksum = await response.Content.CalculateChecksumAsync();
 
             if (checksum is not null)
             {
-                return $"\"{checksum}\"";
+                Span<byte> buffer = stackalloc byte[22];
+
+                buffer[0] = (byte)'"';
+
+                checksum.Value.TryFormat(buffer[1..], out var written);
+
+                buffer[written + 1] = (byte)'"';
+
+                return new(buffer[..(written + 2)].ToArray());
             }
         }
 

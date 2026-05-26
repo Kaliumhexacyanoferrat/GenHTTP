@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Conversion.Serializers.Json;
@@ -20,6 +21,10 @@ public sealed class JsonContent : IResponseContent
 
     public ulong? Length => null;
 
+    public ContentType? Type => ContentType.ApplicationJson;
+
+    public ReadOnlyMemory<byte>? Encoding => null;
+
     private object Data { get; }
 
     private JsonSerializerOptions Options { get; }
@@ -33,6 +38,15 @@ public sealed class JsonContent : IResponseContent
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
         await JsonSerializer.SerializeAsync(target, Data, Data.GetType(), Options);
+    }
+
+    public ValueTask WriteAsync(IResponseSink sink)
+    {
+        using var writer = new Utf8JsonWriter(sink.Writer);
+
+        JsonSerializer.Serialize(writer, Data, Options);
+
+        return default;
     }
 
     #endregion

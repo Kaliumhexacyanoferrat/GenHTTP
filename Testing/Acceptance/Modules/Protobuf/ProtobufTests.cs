@@ -1,5 +1,4 @@
 ﻿using System.Net.Http.Headers;
-using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Protobuf;
@@ -43,7 +42,7 @@ public sealed class ProtobufTests
             return entity;
         }
 
-        [ResourceMethod(RequestMethod.Post)]
+        [ResourceMethod(Method.Post)]
         public TestEntity PostEntity(TestEntity entity) => entity;
     }
 

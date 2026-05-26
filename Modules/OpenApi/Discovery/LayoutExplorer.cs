@@ -10,11 +10,11 @@ namespace GenHTTP.Modules.OpenApi.Discovery;
 public sealed class LayoutExplorer : IApiExplorer
 {
 
-    public bool CanExplore(IHandler handler) => handler is LayoutRouter;
+    public bool CanExplore(IHandler handler) => handler is LayoutHandler;
 
     public async ValueTask ExploreAsync(IRequest request, IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, ApiDiscoveryRegistry registry)
     {
-        if (handler is LayoutRouter layout)
+        if (handler is LayoutHandler layout)
         {
             foreach (var root in layout.RootHandlers)
             {
@@ -23,8 +23,9 @@ public sealed class LayoutExplorer : IApiExplorer
 
             foreach (var (route, routeHandler) in layout.RoutedHandlers)
             {
-                await registry.ExploreAsync(request, routeHandler, [..path, route], document, schemata);
+                await registry.ExploreAsync(request, routeHandler, [..path, route.Decode()], document, schemata);
             }
         }
     }
+
 }

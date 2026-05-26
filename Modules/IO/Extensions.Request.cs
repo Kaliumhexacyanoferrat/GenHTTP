@@ -4,12 +4,13 @@ namespace GenHTTP.Modules.IO;
 
 public static class RequestExtensions
 {
+    private static readonly ReadOnlyMemory<byte> HostHeader = "Host"u8.ToArray();
 
     public static bool HasType(this IRequest request, params RequestMethod[] methods)
     {
         foreach (var method in methods)
         {
-            if (request.Method == method)
+            if (request.Header.Method == method)
             {
                 return true;
             }
@@ -18,18 +19,19 @@ public static class RequestExtensions
         return false;
     }
 
-    public static string? HostWithoutPort(this IRequest request)
+    public static ReadOnlyMemory<byte>? GetHostWithoutPort(this IRequest request)
     {
-        var host = request.Host;
+        var host = request.Header.Headers.GetEntry(HostHeader);
 
-        if (host is not null)
+        if (host == null)
         {
-            var pos = host.IndexOf(':');
-
-            return pos > 0 ? host[..pos] : host;
+            return null;
         }
 
-        return null;
+        var hostSpan = host.Value.Span;
+        var colonIndex = hostSpan.IndexOf((byte)':');
+
+        return colonIndex >= 0 ? host.Value[..colonIndex] : host.Value;
     }
 
 }

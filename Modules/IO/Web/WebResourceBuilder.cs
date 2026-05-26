@@ -10,7 +10,7 @@ public class WebResourceBuilder : IResourceBuilder<WebResourceBuilder>
 
     private string? _fixedName;
 
-    private FlexibleContentType? _fixedType;
+    private ContentType? _fixedType;
 
     private DateTime? _fixedModificationDate;
 
@@ -42,7 +42,7 @@ public class WebResourceBuilder : IResourceBuilder<WebResourceBuilder>
         return this;
     }
 
-    public WebResourceBuilder Type(FlexibleContentType contentType)
+    public WebResourceBuilder Type(ContentType contentType)
     {
         _fixedType = contentType;
         return this;

@@ -1,6 +1,11 @@
 ﻿using System.Net;
+using System.Text;
+
 using GenHTTP.Api.Content.IO;
-using GenHTTP.Api.Routing;
+using GenHTTP.Api.Protocol;
+
+using GenHTTP.Engine.Shared.Types;
+
 using GenHTTP.Modules.DirectoryBrowsing;
 using GenHTTP.Modules.IO;
 
@@ -61,5 +66,12 @@ public sealed class VirtualTreeTests
         await response.AssertStatusAsync(HttpStatusCode.OK);
     }
 
-    private static RoutingTarget GetTarget(string path) => new(WebPath.FromString(path));
+    private static IRequestTarget GetTarget(string path)
+    {
+        var target = new RequestTarget();
+        target.Apply(Encoding.ASCII.GetBytes(path));
+
+        return target;
+    }
+    
 }

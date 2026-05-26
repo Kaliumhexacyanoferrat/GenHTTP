@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO.Streaming;
 using GenHTTP.Modules.IO.Tracking;
 using SharpCompress.Archives;
@@ -20,7 +21,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
 
     public DateTime? Modified => source.Modified;
 
-    public async ValueTask<IResourceNode?> TryGetNodeAsync(string name)
+    public async ValueTask<IResourceNode?> TryGetNodeAsync(PathSegment name)
     {
         await EnsureRoot();
 
@@ -34,11 +35,11 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
         return await _root!.GetNodes();
     }
 
-    public async ValueTask<IResource?> TryGetResourceAsync(string name)
+    public async ValueTask<IResource?> TryGetResourceAsync(PathSegment segment)
     {
         await EnsureRoot();
 
-        return await _root!.TryGetResourceAsync(name);
+        return await _root!.TryGetResourceAsync(segment);
     }
 
     public async ValueTask<IReadOnlyCollection<IResource>> GetResources()
@@ -93,8 +94,8 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
     {
         using var archive = ArchiveFactory.OpenArchive(input);
 
-        // archive factory does not automatically handle .tar.gz, reader factory does
-        if (archive.Type == ArchiveType.Tar)
+        // archive factory does not correctly enumerate all entries for tar/tar.gz files, reader factory does
+        if (archive.Type == ArchiveType.GZip || archive.Type == ArchiveType.Tar)
         {
             input.Position = 0;
             return LoadWithReaderFactory(input);
@@ -117,7 +118,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
         return root;
     }
 
-    private ArchiveNode LoadWithReaderFactory(Stream input)
+    private ValueTask<ArchiveNode> LoadWithReaderFactory(Stream input)
     {
         using var reader = ReaderFactory.OpenReader(input);
 
@@ -135,7 +136,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
             }
         }
 
-        return root;
+        return new(root);
     }
 
     private static void AddDirectory(ArchiveNode root, IEntry entry)
@@ -190,7 +191,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
         throw new InvalidOperationException($"Unable to find resource '{key}' in archive");
     }
 
-    private static StreamWithDependency GetReaderStream(Stream input, string key)
+    private static ValueTask<StreamWithDependency> GetReaderStream(Stream input, string key)
     {
         var reader = ReaderFactory.OpenReader(input);
 
@@ -198,7 +199,7 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
         {
             if (reader.Entry.Key == key)
             {
-                return new StreamWithDependency(reader.OpenEntryStream(), reader);
+                return new(new StreamWithDependency(reader.OpenEntryStream(), reader));
             }
         }
 

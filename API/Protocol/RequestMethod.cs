@@ -1,223 +1,70 @@
-﻿namespace GenHTTP.Api.Protocol;
+﻿using System.Text;
 
-public enum RequestMethod
+namespace GenHTTP.Api.Protocol;
+
+public readonly struct RequestMethod : IEquatable<RequestMethod>
 {
-    Get,
-    Head,
-    Post,
-    Put,
-    Patch,
-    Delete,
-    Options,
-    PropFind,
-    PropPatch,
-    MkCol,
-    Copy,
-    Move,
-    Lock,
-    Unlock
-}
+    private readonly ReadOnlyMemory<byte> _value;
 
-/// <summary>
-/// The kind of request sent by the client.
-/// </summary>
-public class FlexibleRequestMethod
-{
-    private static readonly Dictionary<string, FlexibleRequestMethod> RawCache = new(StringComparer.InvariantCultureIgnoreCase)
+    private readonly int _hashCode;
+
+    public RequestMethod(string type) : this(Encoding.ASCII.GetBytes(type)) { }
+
+    public RequestMethod(ReadOnlyMemory<byte> value)
     {
-        {
-            "HEAD", new FlexibleRequestMethod(RequestMethod.Head)
-        },
-        {
-            "GET", new FlexibleRequestMethod(RequestMethod.Get)
-        },
-        {
-            "POST", new FlexibleRequestMethod(RequestMethod.Post)
-        },
-        {
-            "PUT", new FlexibleRequestMethod(RequestMethod.Put)
-        },
-        {
-            "DELETE", new FlexibleRequestMethod(RequestMethod.Delete)
-        },
-        {
-            "OPTIONS", new FlexibleRequestMethod(RequestMethod.Options)
-        }
-    };
+        _value = value;
 
-    private static readonly Dictionary<RequestMethod, FlexibleRequestMethod> KnownCache = new()
-    {
-        {
-            RequestMethod.Head, new FlexibleRequestMethod(RequestMethod.Head)
-        },
-        {
-            RequestMethod.Get, new FlexibleRequestMethod(RequestMethod.Get)
-        },
-        {
-            RequestMethod.Post, new FlexibleRequestMethod(RequestMethod.Post)
-        },
-        {
-            RequestMethod.Put, new FlexibleRequestMethod(RequestMethod.Put)
-        },
-        {
-            RequestMethod.Delete, new FlexibleRequestMethod(RequestMethod.Delete)
-        },
-        {
-            RequestMethod.Options, new FlexibleRequestMethod(RequestMethod.Options)
-        }
-    };
+        var hash = new HashCode();
+        hash.AddBytes(value.Span);
 
-    #region Mapping
+        _hashCode = hash.ToHashCode();
+    }
 
-    private static readonly Dictionary<string, RequestMethod> Mapping = new(StringComparer.OrdinalIgnoreCase)
-    {
-        {
-            "GET", RequestMethod.Get
-        },
-        {
-            "HEAD", RequestMethod.Head
-        },
-        {
-            "POST", RequestMethod.Post
-        },
-        {
-            "PUT", RequestMethod.Put
-        },
-        {
-            "PATCH", RequestMethod.Patch
-        },
-        {
-            "DELETE", RequestMethod.Delete
-        },
-        {
-            "OPTIONS", RequestMethod.Options
-        },
-        {
-            "PROPFIND", RequestMethod.PropFind
-        },
-        {
-            "PROPPATCH", RequestMethod.PropPatch
-        },
-        {
-            "MKCOL", RequestMethod.MkCol
-        },
-        {
-            "COPY", RequestMethod.Copy
-        },
-        {
-            "MOVE", RequestMethod.Move
-        },
-        {
-            "LOCK", RequestMethod.Lock
-        },
-        {
-            "UNLOCK", RequestMethod.Unlock
-        }
-    };
+    public ReadOnlyMemory<byte> Value => _value;
+
+    #region Known Methods
+
+    public static readonly RequestMethod Get = new("GET"u8.ToArray());
+
+    public static readonly RequestMethod Head = new("HEAD"u8.ToArray());
+
+    public static readonly RequestMethod Post = new("POST"u8.ToArray());
+
+    public static readonly RequestMethod Put = new("PUT"u8.ToArray());
+
+    public static readonly RequestMethod Delete = new("DELETE"u8.ToArray());
+
+    public static readonly RequestMethod Connect = new("CONNECT"u8.ToArray());
+
+    public static readonly RequestMethod Options = new("OPTIONS"u8.ToArray());
+
+    public static readonly RequestMethod Trace = new("TRACE"u8.ToArray());
+
+    public static readonly RequestMethod Patch = new("PATCH"u8.ToArray());
 
     #endregion
 
-    #region Get-/Setters
+    #region Equality and Hashing
 
-    /// <summary>
-    /// The known method of the request, if any.
-    /// </summary>
-    public RequestMethod? KnownMethod { get; }
+    public bool Equals(RequestMethod other)
+        => _value.Span.SequenceEqual(other._value.Span);
 
-    /// <summary>
-    /// The raw method of the request.
-    /// </summary>
-    public string RawMethod { get; }
+    public override bool Equals(object? obj)
+        => obj is RequestMethod other && Equals(other);
 
-    #endregion
+    public override int GetHashCode() => _hashCode;
 
-    #region Initialization
-
-    /// <summary>
-    /// Creates a new request method instance from a known type.
-    /// </summary>
-    /// <param name="method">The known type to be used</param>
-    public FlexibleRequestMethod(RequestMethod method)
+    public static bool operator ==(RequestMethod left, RequestMethod right)
     {
-        KnownMethod = method;
-        RawMethod = Enum.GetName(method) ?? throw new ArgumentException("The given method cannot be mapped", nameof(method));
+        return left.Equals(right);
     }
 
-    /// <summary>
-    /// Create a new request method instance.
-    /// </summary>
-    /// <param name="rawType">The raw type transmitted by the client</param>
-    public FlexibleRequestMethod(string rawType)
+    public static bool operator !=(RequestMethod left, RequestMethod right)
     {
-        RawMethod = rawType;
-
-        if (Mapping.TryGetValue(rawType, out var type))
-        {
-            KnownMethod = type;
-        }
-        else
-        {
-            KnownMethod = null;
-        }
+        return !(left == right);
     }
 
-    #endregion
-
-    #region Functionality
-
-    /// <summary>
-    /// Fetches a cached instance for the given content type.
-    /// </summary>
-    /// <param name="rawMethod">The raw string to be resolved</param>
-    /// <returns>The content type instance to be used</returns>
-    public static FlexibleRequestMethod Get(string rawMethod)
-    {
-        if (RawCache.TryGetValue(rawMethod, out var found))
-        {
-            return found;
-        }
-
-        var method = new FlexibleRequestMethod(rawMethod);
-
-        RawCache[rawMethod] = method;
-
-        return method;
-    }
-
-    /// <summary>
-    /// Fetches a cached instance for the given content type.
-    /// </summary>
-    /// <param name="knownMethod">The known value to be resolved</param>
-    /// <returns>The content type instance to be used</returns>
-    public static FlexibleRequestMethod Get(RequestMethod knownMethod)
-    {
-        if (KnownCache.TryGetValue(knownMethod, out var found))
-        {
-            return found;
-        }
-
-        var method = new FlexibleRequestMethod(knownMethod);
-
-        KnownCache[knownMethod] = method;
-
-        return method;
-    }
-
-    #endregion
-
-    #region Convenience
-
-    public static bool operator ==(FlexibleRequestMethod method, RequestMethod knownMethod) => method.KnownMethod == knownMethod;
-
-    public static bool operator !=(FlexibleRequestMethod method, RequestMethod knownMethod) => method.KnownMethod != knownMethod;
-
-    public static bool operator ==(FlexibleRequestMethod method, string rawMethod) => method.RawMethod == rawMethod;
-
-    public static bool operator !=(FlexibleRequestMethod method, string rawMethod) => method.RawMethod != rawMethod;
-
-    public override bool Equals(object? obj) => obj is FlexibleRequestMethod method && RawMethod == method.RawMethod;
-
-    public override int GetHashCode() => RawMethod.GetHashCode();
+    public override string ToString() => Encoding.ASCII.GetString(Value.Span);
 
     #endregion
 

@@ -5,6 +5,8 @@
 
 # Custom
 *.opencover.xml
+CLAUDE.md
+.claude/
 
 # User-specific files
 *.suo

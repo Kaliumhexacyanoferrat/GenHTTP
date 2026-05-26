@@ -5,10 +5,12 @@ on:
     branches:
       - main
       - 'release/*'
+      - 'feature/genhttp-next'
   push:
     branches:
       - main
-      - 'release/*'
+      - 'release/*'      
+      - 'feature/genhttp-next'
 
 jobs:
 
@@ -140,9 +142,10 @@ jobs:
         if: matrix.os.runs-on != 'linux-arm32'
         with:
           dotnet-version: |
-            8.0
-            9.0
             10.0
+
+      - name: Build (${{ matrix.runtime }})
+        run: dotnet build GenHTTP.slnx -c Release
 
       - name: Build & Test (${{ matrix.runtime }})
         run: dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release --logger "console;verbosity=detailed"
