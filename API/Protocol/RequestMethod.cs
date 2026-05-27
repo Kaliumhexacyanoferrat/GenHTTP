@@ -1,8 +1,6 @@
-using GenHTTP.Api;
-
 namespace GenHTTP.Api.Protocol;
 
-/// <summary>Represents an HTTP request method (verb) backed by a raw ASCII byte sequence.</summary>
+/// <summary>Represents an HTTP request method (verb).</summary>
 [MemoryView]
 public readonly partial struct RequestMethod
 {

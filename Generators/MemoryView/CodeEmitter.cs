@@ -4,6 +4,9 @@ namespace GenHTTP.Generators.MemoryView;
 
 internal static class CodeEmitter
 {
+    private const string FieldName = "_value";
+
+    private const string PropertyName = "Value";
 
     internal static string Emit(StructInfo info)
     {
@@ -24,11 +27,7 @@ internal static class CodeEmitter
             sb.AppendLine();
         }
 
-        if (info.GenerateToString)
-        {
-            sb.AppendLine($"[global::System.Diagnostics.DebuggerDisplay(\"{{_debugView,nq}}\")]");
-        }
-
+        sb.AppendLine($"[global::System.Diagnostics.DebuggerDisplay(\"{{_debugView,nq}}\")]");
         sb.AppendLine($"public readonly partial struct {info.TypeName} : global::System.IEquatable<{info.TypeName}>");
         sb.AppendLine("{");
 
@@ -41,7 +40,7 @@ internal static class CodeEmitter
         sb.AppendLine($"{indent}#region Backing Storage");
         sb.AppendLine();
 
-        sb.AppendLine($"{indent}private readonly global::System.ReadOnlyMemory<byte> {info.FieldName};");
+        sb.AppendLine($"{indent}private readonly global::System.ReadOnlyMemory<byte> {FieldName};");
         sb.AppendLine($"{indent}private readonly int _hash;");
 
         sb.AppendLine();
@@ -58,7 +57,7 @@ internal static class CodeEmitter
         sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
         sb.AppendLine($"{indent}public {info.TypeName}(global::System.ReadOnlyMemory<byte> value)");
         sb.AppendLine($"{indent}{{");
-        sb.AppendLine($"{indent}    {info.FieldName} = value;");
+        sb.AppendLine($"{indent}    {FieldName} = value;");
         sb.AppendLine($"{indent}    _hash = ComputeHash(value.Span);");
         sb.AppendLine($"{indent}}}");
         sb.AppendLine();
@@ -72,7 +71,7 @@ internal static class CodeEmitter
         sb.AppendLine($"{indent}        bytes[i] = (byte)value[i];");
         sb.AppendLine($"{indent}    }}");
         sb.AppendLine();
-        sb.AppendLine($"{indent}    {info.FieldName} = bytes;");
+        sb.AppendLine($"{indent}    {FieldName} = bytes;");
         sb.AppendLine($"{indent}    _hash = ComputeHash(bytes);");
         sb.AppendLine($"{indent}}}");
 
@@ -87,7 +86,7 @@ internal static class CodeEmitter
         sb.AppendLine($"{indent}#region Accessors");
         sb.AppendLine();
 
-        sb.AppendLine($"{indent}public global::System.ReadOnlyMemory<byte> {info.PropertyName} => {info.FieldName};");
+        sb.AppendLine($"{indent}public global::System.ReadOnlyMemory<byte> {PropertyName} => {FieldName};");
 
         sb.AppendLine();
         sb.AppendLine($"{indent}#endregion");
@@ -148,8 +147,8 @@ internal static class CodeEmitter
         sb.AppendLine($"{indent}    }}");
         sb.AppendLine();
 
-        sb.AppendLine($"{indent}    var a = {info.FieldName}.Span;");
-        sb.AppendLine($"{indent}    var b = other.{info.FieldName}.Span;");
+        sb.AppendLine($"{indent}    var a = {FieldName}.Span;");
+        sb.AppendLine($"{indent}    var b = other.{FieldName}.Span;");
         sb.AppendLine();
 
         sb.AppendLine($"{indent}    if (a.Length != b.Length)");
@@ -202,15 +201,12 @@ internal static class CodeEmitter
         sb.AppendLine($"{indent}public static bool operator !=({info.TypeName} left, {info.TypeName} right)");
         sb.AppendLine($"{indent}    => !left.Equals(right);");
 
-        if (info.GenerateToString)
-        {
-            sb.AppendLine();
-            sb.AppendLine($"{indent}public override string ToString()");
-            sb.AppendLine($"{indent}    => global::System.Text.Encoding.ASCII.GetString({info.FieldName}.Span);");
-            sb.AppendLine();
+        sb.AppendLine();
+        sb.AppendLine($"{indent}public override string ToString()");
+        sb.AppendLine($"{indent}    => global::System.Text.Encoding.ASCII.GetString({FieldName}.Span);");
+        sb.AppendLine();
 
-            sb.AppendLine($"{indent}private string _debugView => ToString();");
-        }
+        sb.AppendLine($"{indent}private string _debugView => ToString();");
 
         sb.AppendLine();
         sb.AppendLine($"{indent}#endregion");

@@ -1,8 +1,6 @@
-using GenHTTP.Api;
-
 namespace GenHTTP.Api.Protocol;
 
-/// <summary>Represents an HTTP protocol version backed by a raw ASCII byte sequence.</summary>
+/// <summary>Represents an HTTP protocol version.</summary>
 [MemoryView]
 public readonly partial struct HttpProtocol
 {

@@ -1,26 +1,16 @@
-using System.Buffers;
+﻿using System.Buffers;
 using System.Diagnostics;
-
-using GenHTTP.Api;
 
 namespace GenHTTP.Api.Protocol;
 
 /// <summary>
-/// A single percent-encoded path segment backed by a raw ASCII byte sequence.
-/// Equality is case-insensitive for ASCII letters, matching URI normalisation rules.
+/// A single percent-encoded path segment.
 /// </summary>
-/// <remarks>
-/// <c>GenerateToString = false</c> because <c>ToString()</c> should return the decoded
-/// (human-readable) form via <see cref="Decode"/>, not the raw encoded bytes.
-/// </remarks>
-[MemoryView(GenerateToString = false)]
-[DebuggerDisplay("{DebuggerValue,nq}")]
+[MemoryView]
 public readonly partial struct PathSegment
 {
 
     #region Functionality
-
-    private string DebuggerValue => Decode();
 
     /// <summary>Percent-decodes this segment and returns the human-readable string.</summary>
     public string Decode()

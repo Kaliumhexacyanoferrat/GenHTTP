@@ -11,24 +11,4 @@ namespace GenHTTP.Api;
 /// and hashing functions.
 /// </remarks>
 [AttributeUsage(AttributeTargets.Struct)]
-internal sealed class MemoryViewAttribute : Attribute
-{
-
-    /// <summary>Name of the private <c>ReadOnlyMemory&lt;byte&gt;</c> backing field.</summary>
-    public string FieldName { get; }
-
-    /// <summary>Name of the public property that exposes the backing memory. Defaults to <c>"Value"</c>.</summary>
-    public string PropertyName { get; init; } = "Value";
-
-    /// <summary>
-    /// Generate a <c>ToString()</c> override and a <c>[DebuggerDisplay]</c> helper.
-    /// Set to <c>false</c> for types that provide their own string representation.
-    /// </summary>
-    public bool GenerateToString { get; init; } = true;
-
-    public MemoryViewAttribute(string fieldName = "_value")
-    {
-        FieldName = fieldName;
-    }
-
-}
+internal sealed class MemoryViewAttribute : Attribute;

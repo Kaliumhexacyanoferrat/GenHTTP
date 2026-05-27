@@ -1,8 +1,6 @@
-using GenHTTP.Api;
-
 namespace GenHTTP.Api.Protocol;
 
-/// <summary>Represents an HTTP Content-Type value backed by a raw ASCII byte sequence.</summary>
+/// <summary>Represents an HTTP Content-Type.</summary>
 [MemoryView]
 public readonly partial struct ContentType
 {
@@ -15,7 +13,7 @@ public readonly partial struct ContentType
     /// <summary>A stylesheet.</summary>
     public static readonly ContentType TextCss = new("text/css"u8.ToArray());
 
-    /// <summary>A human readable YAML file.</summary>
+    /// <summary>A human-readable YAML file.</summary>
     public static readonly ContentType TextYaml = new("text/yaml"u8.ToArray());
 
     /// <summary>A JavaScript source file.</summary>
