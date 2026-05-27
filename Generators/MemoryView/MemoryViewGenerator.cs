@@ -20,4 +20,5 @@ public sealed class MemoryViewGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(structs, static (ctx, info) =>
             ctx.AddSource(info!.HintName, CodeEmitter.Emit(info!)));
     }
+
 }

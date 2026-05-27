@@ -36,15 +36,19 @@ internal sealed record StructInfo(
             fieldName = fn;
         }
 
-        var propertyName     = "Value";
+        var propertyName = "Value";
         var generateToString = true;
 
         foreach (var arg in attribute.NamedArguments)
         {
             switch (arg.Key)
             {
-                case "PropertyName":   if (arg.Value.Value is string pn && pn.Length > 0) propertyName = pn; break;
-                case "GenerateToString": if (arg.Value.Value is bool gts) generateToString = gts; break;
+                case "PropertyName":
+                    if (arg.Value.Value is string pn && pn.Length > 0) propertyName = pn;
+                    break;
+                case "GenerateToString":
+                    if (arg.Value.Value is bool gts) generateToString = gts;
+                    break;
             }
         }
 
