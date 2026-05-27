@@ -9,7 +9,7 @@ namespace GenHTTP.Engine.Shared.Types;
 public sealed class Request : IRequest
 {
     private SequencePosition _bodyStart;
-    
+
     private IRequestHeader? _retainedHeader;
 
     private IServer? _server;
@@ -83,20 +83,17 @@ public sealed class Request : IRequest
 
         var headers = Header.Headers;
 
-        if (!headers.ContainsKey(KnownHeaders.ContentLength) && !headers.ContainsKey(KnownHeaders.TransferEncoding))
+        if (headers.ContainsKey(KnownHeaders.ContentLength) || headers.ContainsKey(KnownHeaders.TransferEncoding))
         {
-            // todo: is this enough?
-            Reader.AdvanceTo(_bodyStart); 
-            return null;
+            // todo: always retaining is a hack because the response handler still accesses header information; revisit
+            _retainedHeader = new RetainedRequestHeader(_header);
+            _body = new RequestBody(this, Reader);
         }
 
-        // todo were are always retaining as response handler was accessing header information, revisit this
-        _retainedHeader = new RetainedRequestHeader(_header);
-
-        _body = new RequestBody(this, Reader);
-
+        // Advance the reader past the header in all cases so the header memory can be released
+        // and body streams (or the next request) read from the correct position.
         Reader.AdvanceTo(_bodyStart);
-        
+
         return _body;
     }
 
@@ -132,14 +129,10 @@ public sealed class Request : IRequest
             return _body.DrainAsync();
         }
 
+        // Advance past the header and, if a body exists, drain it.
         GetBody(HeaderAccess.Release);
-        
-        if (_body != null)
-        {
-            return _body.DrainAsync();
-        }
 
-        return default;
+        return _body?.DrainAsync() ?? default;
     }
 
     public IResponseBuilder Respond()

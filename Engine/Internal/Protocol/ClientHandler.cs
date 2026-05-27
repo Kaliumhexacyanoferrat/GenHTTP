@@ -139,13 +139,15 @@ internal sealed class ClientHandler(ClientContext context)
 
                 if (readResult.IsCompleted) break;
 
-                await context.Writer.FlushAsync();
-                ResetCts(KeepAliveTimeout);
-
-                if (reader.TryRead(out var next))
+                if (reader.TryRead(out var next)) // pipeline mode (more data available)
                 {
                     readResult = next;
                     dataRemaining = true;
+                }
+                else
+                {
+                    ResetCts(KeepAliveTimeout);
+                    await context.Writer.FlushAsync();
                 }
             }
         }
