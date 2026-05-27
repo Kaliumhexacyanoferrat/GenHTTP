@@ -1,6 +1,8 @@
 ﻿using System.Buffers;
 using System.Runtime.CompilerServices;
+
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Engine.Internal.Context;
 using GenHTTP.Engine.Internal.Protocol.Sinks;
 
@@ -8,9 +10,6 @@ namespace GenHTTP.Engine.Internal.Protocol;
 
 internal sealed class ResponseHandler
 {
-    private static readonly ReadOnlyMemory<byte> ServerHeaderName = "Server"u8.ToArray();
-
-    private static readonly ReadOnlyMemory<byte> DateHeaderName = "Date"u8.ToArray();
 
     private readonly RegularSink _regularSink;
 
@@ -32,7 +31,7 @@ internal sealed class ResponseHandler
 
     #region Functionality
 
-    internal async ValueTask<bool> HandleAsync(IRequest? request, IResponse response, HttpProtocol version, bool keepAlive)
+    internal async ValueTask<bool> HandleAsync(IRequest? request, IResponse response, HttpProtocol version, bool keepAlive, bool headRequest)
     {
         try
         {
@@ -44,7 +43,7 @@ internal sealed class ResponseHandler
 
             writer.Write("\r\n"u8);
 
-            if (ShouldSendBody(request, response))
+            if (ShouldSendBody(request, response, headRequest))
             {
                 await WriteBodyAsync(response);
             }
@@ -64,14 +63,14 @@ internal sealed class ResponseHandler
         }
     }
 
-    private static bool ShouldSendBody(IRequest? request, IResponse response)
+    private static bool ShouldSendBody(IRequest? request, IResponse response, bool headRequest)
     {
         if (request == null)
         {
             return true;
         }
 
-        if (request.Header.Method == RequestMethod.Head)
+        if (headRequest)
         {
             return false;
         }
@@ -94,12 +93,12 @@ internal sealed class ResponseHandler
 
         var isUpgrade = response.Mode == Connection.Upgrade;
 
-        if (!response.Headers.ContainsKey(ServerHeaderName))
+        if (!response.Headers.ContainsKey(KnownHeaders.Server))
         {
             writer.Write(ServerHeader.GetValue(context).Span);
         }
 
-        if (!response.Headers.ContainsKey(DateHeaderName))
+        if (!response.Headers.ContainsKey(KnownHeaders.Date))
         {
             writer.Write(DateHeader.GetValue().Span);
         }

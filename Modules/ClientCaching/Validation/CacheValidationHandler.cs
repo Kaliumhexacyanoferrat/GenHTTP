@@ -31,15 +31,17 @@ public sealed class CacheValidationHandler : IConcern
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
+        var isSupported = request.HasType(SupportedMethods);
+        
+        var cached = request.Header.Headers.GetEntry(IfNoneMatchHeader);
+        
         var response = await Content.HandleAsync(request);
 
-        if (response != null && request.HasType(SupportedMethods))
+        if (response != null && isSupported)
         {
             if ((response.Content != null) && (response.Mode != Connection.Upgrade))
             {
                 var eTag = await CalculateETag(response);
-
-                var cached = request.Header.Headers.GetEntry(IfNoneMatchHeader);
 
                 var builder = response.Rebuild();
 

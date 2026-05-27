@@ -3,6 +3,10 @@
 public static class KnownHeaders
 {
     
+    public static readonly ReadOnlyMemory<byte> Server = "Server"u8.ToArray();
+
+    public static readonly ReadOnlyMemory<byte> Date = "Date"u8.ToArray();
+    
     public static readonly ReadOnlyMemory<byte> Host = "Host"u8.ToArray();
 
     public static readonly ReadOnlyMemory<byte> ContentType = "Content-Type"u8.ToArray();
