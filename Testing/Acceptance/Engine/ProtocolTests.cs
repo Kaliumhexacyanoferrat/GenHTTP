@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+using Microsoft.CodeAnalysis;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
 
@@ -60,7 +61,9 @@ public sealed class ProtocolTests
 
         using var response = await runner.GetResponseAsync(request);
 
-        Assert.AreEqual("1310720", await response.GetContentAsync());
+        var error = await response.GetContentAsync();
+        
+        Assert.AreEqual("1310720", error);
     }
 
     private class ValueRecorder : IHandler

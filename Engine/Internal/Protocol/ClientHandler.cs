@@ -191,6 +191,8 @@ internal sealed class ClientHandler(ClientContext context)
         {
             throw new ProviderException(ResponseStatus.BadRequest, "Host header is missing from the request");
         }
+        
+        var headRequest = header.Method == RequestMethod.Head;
 
         var connectionHeader = header.Headers.GetEntry(ConnectionHeader);
 
@@ -200,7 +202,7 @@ internal sealed class ClientHandler(ClientContext context)
 
         var closeRequested = response.Mode is Connection.Close or Connection.Upgrade;
 
-        var active = await context.ResponseHandler.HandleAsync(request, response, HttpProtocol.Http11, keepAliveRequested && !closeRequested);
+        var active = await context.ResponseHandler.HandleAsync(request, response, HttpProtocol.Http11, keepAliveRequested && !closeRequested, headRequest);
 
         return (active && keepAliveRequested && !closeRequested) ? Connection.KeepAlive : Connection.Close;
     }
@@ -217,7 +219,7 @@ internal sealed class ClientHandler(ClientContext context)
                            .Content(new StringContent(message))
                            .Build();
 
-            await context.ResponseHandler.HandleAsync(null, response, HttpProtocol.Http10, false);
+            await context.ResponseHandler.HandleAsync(null, response, HttpProtocol.Http10, false, false);
             
             await context.Writer.FlushAsync();
         }

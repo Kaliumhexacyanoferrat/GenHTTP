@@ -1,4 +1,5 @@
 ﻿using System.IO.Pipelines;
+
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
@@ -46,6 +47,11 @@ public sealed class Request : IRequest
         {
             if (_body == null)
             {
+                if (_retainedHeader != null)
+                {
+                    return _retainedHeader;
+                }
+
                 return _header;
             }
 
@@ -83,10 +89,13 @@ public sealed class Request : IRequest
 
         var headers = Header.Headers;
 
+        if (headerAccess == HeaderAccess.Retain && _retainedHeader == null)
+        {
+            _retainedHeader = new RetainedRequestHeader(_header);
+        }
+
         if (headers.ContainsKey(KnownHeaders.ContentLength) || headers.ContainsKey(KnownHeaders.TransferEncoding))
         {
-            // todo: always retaining is a hack because the response handler still accesses header information; revisit
-            _retainedHeader = new RetainedRequestHeader(_header);
             _body = new RequestBody(this, Reader);
         }
 

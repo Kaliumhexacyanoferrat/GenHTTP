@@ -65,6 +65,8 @@ public sealed class CompressionConcern : IConcern
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
+        var acceptEncoding = request.Header.Headers.GetEntry(AcceptEncoding);
+        
         var response = await Content.HandleAsync(request);
 
         if (response == null)
@@ -76,15 +78,13 @@ public sealed class CompressionConcern : IConcern
 
         if (content != null && content.Encoding == null && response.Mode != Connection.Upgrade)
         {
-            if (ShouldCompressByType(request.Header.Target, content.Type) && ShouldCompressBySize(response))
+            if (ShouldCompressByType(content.Type) && ShouldCompressBySize(response))
             {
-                var header = request.Header.Headers.GetEntry(AcceptEncoding);
-
-                if (header != null)
+                if (acceptEncoding != null)
                 {
                     // todo: remove hash set
 
-                    var supported = ParseSupported(header.Value.Span);
+                    var supported = ParseSupported(acceptEncoding.Value.Span);
 
                     // todo: linq, not pre-sorted
 
@@ -130,7 +130,7 @@ public sealed class CompressionConcern : IConcern
         return response;
     }
 
-    private static bool ShouldCompressByType(IRequestTarget path, ContentType? type)
+    private static bool ShouldCompressByType(ContentType? type)
     {
         if (type is not null)
         {
