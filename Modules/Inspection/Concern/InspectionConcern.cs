@@ -78,7 +78,7 @@ public sealed class InspectionConcern : IConcern
                     Path = GetString(header.Path),
                     Target = new
                     {
-                        Current = GetString(header.Target.Current?.Encoded),
+                        Current = GetString(header.Target.Current?.Value),
                         TrailingSlash = header.Target.HasTrailingSlash,
                         Last = header.Target.IsLast
                     },

@@ -1,26 +1,11 @@
-﻿using System.Text;
+using GenHTTP.Api;
 
 namespace GenHTTP.Api.Protocol;
 
-public readonly struct ContentType : IEquatable<ContentType>
+/// <summary>Represents an HTTP Content-Type value backed by a raw ASCII byte sequence.</summary>
+[MemoryView]
+public readonly partial struct ContentType
 {
-    private readonly ReadOnlyMemory<byte> _value;
-
-    private readonly int _hashCode;
-
-    public ContentType(string type) : this(Encoding.ASCII.GetBytes(type)) { }
-
-    public ContentType(ReadOnlyMemory<byte> value)
-    {
-        _value = value;
-
-        var hash = new HashCode();
-        hash.AddBytes(value.Span);
-
-        _hashCode = hash.ToHashCode();
-    }
-
-    public ReadOnlyMemory<byte> Value => _value;
 
     #region Known Types
 
@@ -86,7 +71,7 @@ public readonly struct ContentType : IEquatable<ContentType>
 
     /// <summary>A XML file.</summary>
     public static readonly ContentType ApplicationXml = new("application/xml"u8.ToArray());
-    
+
     /// <summary>A JavaScript file.</summary>
     public static readonly ContentType TextJavaScript = new("text/javascript"u8.ToArray());
 
@@ -215,30 +200,6 @@ public readonly struct ContentType : IEquatable<ContentType>
 
     /// <summary>WebM.</summary>
     public static readonly ContentType VideoWebM = new("video/webm"u8.ToArray());
-
-    #endregion
-
-    #region Equality and Hashing
-
-    public bool Equals(ContentType other)
-        => _value.Span.SequenceEqual(other._value.Span);
-
-    public override bool Equals(object? obj)
-        => obj is ContentType other && Equals(other);
-
-    public override int GetHashCode() => _hashCode;
-
-    public static bool operator ==(ContentType left, ContentType right)
-    {
-        return left.Equals(right);
-    }
-
-    public static bool operator !=(ContentType left, ContentType right)
-    {
-        return !(left == right);
-    }
-
-    public override string ToString() => Encoding.ASCII.GetString(Value.Span);
 
     #endregion
 

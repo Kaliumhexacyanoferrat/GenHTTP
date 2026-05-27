@@ -62,7 +62,7 @@ public sealed class RequestTarget : IRequestTarget
 
         if (offset == 0)
         {
-            return Current.Value.Encoded;
+            return Current.Value.Value;
         }
 
         var span = _path.Span;

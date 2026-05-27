@@ -1,45 +1,10 @@
-﻿using System.Text;
+using GenHTTP.Api;
 
 namespace GenHTTP.Api.Content.IO;
 
-public readonly struct AlgorithmName : IEquatable<AlgorithmName>
+/// <summary>Identifies a compression algorithm by name, backed by a raw ASCII byte sequence.</summary>
+[MemoryView]
+public readonly partial struct AlgorithmName
 {
-
-    public readonly ReadOnlyMemory<byte> Value;
-
-    #region Initialization
-
-    public AlgorithmName(ReadOnlyMemory<byte> value)
-    {
-        Value = value;
-    }
-
-    public AlgorithmName(string stringValue)
-    {
-        Value = new ReadOnlyMemory<byte>(Encoding.ASCII.GetBytes(stringValue));
-    }
-
-    #endregion
-
-    #region Equality
-
-    public bool Equals(AlgorithmName other) => Value.Span.SequenceEqual(other.Value.Span);
-
-    public override bool Equals(object? obj) => obj is AlgorithmName other && Equals(other);
-
-    public override int GetHashCode()
-    {
-        var hash = new HashCode();
-        hash.AddBytes(Value.Span);
-        return hash.ToHashCode();
-    }
-
-    public static bool operator ==(AlgorithmName left, AlgorithmName right) => left.Equals(right);
-
-    public static bool operator !=(AlgorithmName left, AlgorithmName right) => !left.Equals(right);
-
-    public override string ToString() => Encoding.ASCII.GetString(Value.Span);
-    
-    #endregion
-
+    // No additional members needed — all logic lives in the generated partial.
 }
