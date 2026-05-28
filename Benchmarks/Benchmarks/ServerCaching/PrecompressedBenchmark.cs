@@ -15,13 +15,7 @@ public class PrecompressedBenchmark
     private readonly BenchmarkContext _context = CreateContext();
 
     [Benchmark]
-    public async ValueTask BenchmarkPrecompressed()
-    {
-        for (int i = 0; i < 2; i++)
-        {
-            await _context.Execute();
-        }
-    } 
+    public ValueTask BenchmarkPrecompressed() => _context.Execute();
 
     private static BenchmarkContext CreateContext()
     {

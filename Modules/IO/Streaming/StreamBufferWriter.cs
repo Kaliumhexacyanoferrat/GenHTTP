@@ -8,7 +8,7 @@ public sealed class StreamBufferWriter : IBufferWriter<byte>
     private readonly Stream _stream;
     private byte[] _buffer;
 
-    public StreamBufferWriter(Stream stream, int bufferSize = 8192)
+    public StreamBufferWriter(Stream stream, int bufferSize = 65536)
     {
         _stream = stream;
         _buffer = new byte[bufferSize];
