@@ -119,6 +119,7 @@ internal sealed class ClientHandler(ClientContext context)
                 if (!TryParseRequest(ref buffer, into))
                 {
                     reader.AdvanceTo(readResult.Buffer.Start, readResult.Buffer.End);
+                    if (readResult.IsCompleted) break;
                     continue;
                 }
 

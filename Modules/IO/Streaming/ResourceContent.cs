@@ -5,17 +5,7 @@ namespace GenHTTP.Modules.IO.Streaming;
 
 public sealed class ResourceContent : IResponseContent
 {
-
-    #region Initialization
-
-    public ResourceContent(IResource resource, ContentType? contentType = null)
-    {
-        Resource = resource;
-        Type = contentType ?? resource.GuessContentType();
-    }
-
-    #endregion
-
+    
     #region Get-/Setters
 
     public ulong? Length => Resource.Length;
@@ -27,12 +17,20 @@ public sealed class ResourceContent : IResponseContent
     public ReadOnlyMemory<byte>? Encoding => null;
 
     #endregion
+    
+    #region Initialization
+
+    public ResourceContent(IResource resource, ContentType? contentType = null)
+    {
+        Resource = resource;
+        Type = contentType ?? resource.GuessContentType();
+    }
+
+    #endregion
 
     #region Functionality
 
     public async ValueTask<ulong?> CalculateChecksumAsync() => await Resource.CalculateChecksumAsync();
-
-    public ValueTask WriteAsync(Stream target, uint bufferSize) => Resource.WriteAsync(target, bufferSize);
 
     public ValueTask WriteAsync(IResponseSink sink) => Resource.WriteAsync(sink);
 
