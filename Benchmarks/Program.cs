@@ -1,7 +1,7 @@
 ﻿using BenchmarkDotNet.Running;
 
-using GenHTTP.Benchmarks.Benchmarks.IO;
+using GenHTTP.Benchmarks.Benchmarks.ServerCaching;
 
-BenchmarkRunner.Run<StaticFileBenchmark>();
+BenchmarkRunner.Run<PrecompressedBenchmark>();
 
-//await new StaticFileBenchmark().BenchmarkStaticFile();
+// await new PrecompressedBenchmark().BenchmarkPrecompressed();

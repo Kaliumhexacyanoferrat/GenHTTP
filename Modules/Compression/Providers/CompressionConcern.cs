@@ -22,7 +22,6 @@ public sealed class CompressionConcern : IConcern
         ContentType.TextHtml,
         ContentType.TextPlain,
         ContentType.TextRichText,
-        ContentType.FontWoff2,
         ContentType.FontWoff,
         ContentType.FontTrueTypeFont,
         ContentType.FontOpenTypeFont,

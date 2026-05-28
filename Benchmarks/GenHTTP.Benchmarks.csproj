@@ -14,6 +14,10 @@
     <ProjectReference Include="..\API\GenHTTP.Api.csproj" />
     
     <ProjectReference Include="..\Engine\Internal\GenHTTP.Engine.Internal.csproj" />
+    
+    <ProjectReference Include="..\Modules\Compression\GenHTTP.Modules.Compression.csproj" />
+    
+    <ProjectReference Include="..\Modules\ServerCaching\GenHTTP.Modules.ServerCaching.csproj" />
   
   </ItemGroup>
   

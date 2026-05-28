@@ -151,8 +151,6 @@ public sealed class ServerCacheHandler : IConcern
 
         if (content != null)
         {
-            // todo: content-type & content-encoding
-
             ContentType? type = null;
 
             if (cached.ContentType != null)
