@@ -1,67 +1,133 @@
 using System.Buffers;
 using System.IO.Pipelines;
+using System.Runtime.CompilerServices;
 
 namespace GenHTTP.Modules.IO.Streaming;
 
 public sealed class WritingStream : Stream
 {
-
+    private readonly Stream _baseStream;
+    
     private readonly IBufferWriter<byte> _writer;
-
+    
     private readonly PipeWriter _flusher;
 
-    private readonly Stream _readingStream;
+    #region Get-/Setters
+    
+    public override bool CanRead => _baseStream.CanRead;
 
-    public WritingStream(PipeWriter writer, Stream readingStream)
-        : this(writer, writer, readingStream) { }
-
-    public WritingStream(IBufferWriter<byte> writer, PipeWriter flusher, Stream readingStream)
-    {
-        _writer = writer;
-        _flusher = flusher;
-        _readingStream = readingStream;
-    }
-
-    public override bool CanRead => true;
-
-    public override bool CanSeek => false;
+    public override bool CanSeek => _baseStream.CanSeek;
 
     public override bool CanWrite => true;
 
-    public override long Length => throw new NotSupportedException();
+    public override long Length => _baseStream.Length;
 
     public override long Position
     {
-        get => throw new NotSupportedException();
-        set => throw new NotSupportedException();
+        get => _baseStream.Position;
+        set => _baseStream.Position = value;
+    }
+    
+    #endregion
+    
+    #region Initialization
+    
+    public WritingStream(PipeWriter writer, Stream readingStream)
+        : this(writer, writer, readingStream) { }
+
+    public WritingStream(IBufferWriter<byte> writer, PipeWriter flusher, Stream baseStream)
+    {
+        _baseStream = baseStream;
+        _writer = writer;
+        _flusher = flusher;
+    }
+    
+    #endregion
+    
+    #region Functionality
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override int Read(byte[] buffer, int offset, int count)
+        => _baseStream.Read(buffer, offset, count);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override int Read(Span<byte> buffer)
+        => _baseStream.Read(buffer);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override int ReadByte()
+        => _baseStream.ReadByte();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        => _baseStream.ReadAsync(buffer, offset, count, cancellationToken);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+    {
+        return _baseStream.ReadAsync(buffer, cancellationToken);
     }
 
-    public override void Flush()
-        => FlushAsync().GetAwaiter().GetResult();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void Write(byte[] buffer, int offset, int count)
+        => Write(buffer.AsSpan(offset, count));
 
-    public override async Task FlushAsync(CancellationToken cancellationToken)
-        => await _flusher.FlushAsync(cancellationToken);
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Write(ReadOnlySpan<byte> buffer)
     {
-        var dest = _writer.GetSpan(buffer.Length);
-        buffer[..Math.Min(buffer.Length, dest.Length)].CopyTo(dest);
-        _writer.Advance(Math.Min(buffer.Length, dest.Length));
+        var destination = _writer.GetSpan(buffer.Length);
+
+        buffer.CopyTo(destination);
+
+        _writer.Advance(buffer.Length);
     }
 
-    public override void Write(byte[] buffer, int offset, int count) => Write(buffer.AsSpan(offset, count));
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void WriteByte(byte value)
+    {
+        var span = _writer.GetSpan(1);
 
-    public override int Read(byte[] buffer, int offset, int count)
-        => _readingStream.Read(buffer, offset, count);
+        span[0] = value;
 
-    public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = new CancellationToken())
-        => _readingStream.ReadAsync(buffer, cancellationToken);
+        _writer.Advance(1);
+    }
 
-    public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-        => _readingStream.ReadAsync(buffer, offset, count, cancellationToken);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+    {
+        Write(buffer, offset, count);
 
-    public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        return Task.CompletedTask;
+    }
 
-    public override void SetLength(long value) => throw new NotSupportedException();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+    {
+        Write(buffer.Span);
 
+        return ValueTask.CompletedTask;
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void Flush()
+        => _flusher.FlushAsync().GetAwaiter().GetResult();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override Task FlushAsync(CancellationToken cancellationToken)
+        => _flusher.FlushAsync(cancellationToken).AsTask();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override long Seek(long offset, SeekOrigin origin)
+        => _baseStream.Seek(offset, origin);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void SetLength(long value)
+        => _baseStream.SetLength(value);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
+        => _baseStream.CopyToAsync(destination, bufferSize, cancellationToken);
+
+    #endregion
+    
 }

@@ -3,6 +3,8 @@
 public static class KnownHeaders
 {
     
+    public static readonly ReadOnlyMemory<byte> Connection = "Connection"u8.ToArray();
+    
     public static readonly ReadOnlyMemory<byte> Server = "Server"u8.ToArray();
 
     public static readonly ReadOnlyMemory<byte> Date = "Date"u8.ToArray();
