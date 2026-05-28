@@ -13,7 +13,7 @@ namespace GenHTTP.Engine.Internal.Context;
 
 internal sealed class ClientContext
 {
-    private static readonly StreamPipeWriterOptions WriterOptions = new(MemoryPool<byte>.Shared, leaveOpen: true, minimumBufferSize: 512);
+    private static readonly StreamPipeWriterOptions WriterOptions = new(MemoryPool<byte>.Shared, leaveOpen: true, minimumBufferSize: 65536);
     
     private IServer? _server;
 

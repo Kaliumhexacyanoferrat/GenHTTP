@@ -1,7 +1,7 @@
 ﻿using BenchmarkDotNet.Running;
 
-using GenHTTP.Benchmarks.Benchmarks.Compression;
+using GenHTTP.Benchmarks.Benchmarks.IO;
 
-BenchmarkRunner.Run<CompressedResponseBenchmark>();
+BenchmarkRunner.Run<StaticFileBenchmark>();
 
-// await new CompressedResponseBenchmark().BenchmarkCompressedResponse();
+// await new StaticFileBenchmark().BenchmarkStaticFile();

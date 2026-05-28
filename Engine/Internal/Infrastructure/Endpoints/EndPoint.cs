@@ -16,7 +16,7 @@ internal abstract class EndPoint : IEndPoint
 {
     private static readonly DefaultObjectPool<ClientContext> ContextPool = new(new ClientContextPolicy(), 65536);
 
-    private static readonly StreamPipeReaderOptions ReaderOptions = new(MemoryPool<byte>.Shared, leaveOpen: true, bufferSize: 4096 * 4, minimumReadSize: 1024);
+    private static readonly StreamPipeReaderOptions ReaderOptions = new(MemoryPool<byte>.Shared, leaveOpen: true, bufferSize: 16384, minimumReadSize: 16384);
 
     #region Get-/Setters
 
