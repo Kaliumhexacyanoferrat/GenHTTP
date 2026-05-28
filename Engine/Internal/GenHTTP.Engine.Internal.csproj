@@ -18,9 +18,13 @@
 
         <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.8" />
 
-        <!--<PackageReference Include="System.IO.Pipelines" Version="10.0.2" />-->
-
         <PackageReference Include="Glyph11" Version="0.3.3" />
+        
+    </ItemGroup>
+
+    <ItemGroup>
+        
+        <InternalsVisibleTo Include="GenHTTP.Benchmarks" />
         
     </ItemGroup>
 

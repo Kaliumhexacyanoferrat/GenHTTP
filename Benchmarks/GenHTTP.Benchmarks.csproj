@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+
+  <PropertyGroup>
+
+    <OutputType>exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <SonarQubeExclude>true</SonarQubeExclude>
+
+  </PropertyGroup>
+  
+  <ItemGroup>
+    
+    <ProjectReference Include="..\API\GenHTTP.Api.csproj" />
+    
+    <ProjectReference Include="..\Engine\Internal\GenHTTP.Engine.Internal.csproj" />
+    
+    <ProjectReference Include="..\Modules\Compression\GenHTTP.Modules.Compression.csproj" />
+    
+    <ProjectReference Include="..\Modules\ServerCaching\GenHTTP.Modules.ServerCaching.csproj" />
+  
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="Resources\file.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
+</Project>

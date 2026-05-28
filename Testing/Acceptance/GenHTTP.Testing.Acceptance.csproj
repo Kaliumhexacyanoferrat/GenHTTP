@@ -3,6 +3,7 @@
     <PropertyGroup>
 
         <IsPackable>false</IsPackable>
+        <SonarQubeExclude>true</SonarQubeExclude>
 
     </PropertyGroup>
 

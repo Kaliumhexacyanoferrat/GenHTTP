@@ -53,7 +53,7 @@ internal sealed class ResponseHandler
                 Context.Server.Companion?.OnRequestHandled(request, response);
             }
 
-            return Context.Connection.Connected;
+            return true;
         }
         catch (Exception)
         {
