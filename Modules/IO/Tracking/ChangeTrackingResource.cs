@@ -39,13 +39,6 @@ public sealed class ChangeTrackingResource : IResource
         return await Source.GetContentAsync();
     }
 
-    public async ValueTask WriteAsync(Stream target, uint bufferSize)
-    {
-        _lastChecksum = await CalculateChecksumAsync();
-
-        await Source.WriteAsync(target, bufferSize);
-    }
-
     public async ValueTask WriteAsync(IResponseSink sink)
     {
         _lastChecksum = await CalculateChecksumAsync();
@@ -57,7 +50,7 @@ public sealed class ChangeTrackingResource : IResource
 
     /// <summary>
     /// Checks whether the content of the resource has changed
-    /// since <see cref="GetContentAsync()" /> or <see cref="WriteAsync(Stream, uint)"/>
+    /// since <see cref="GetContentAsync()" /> or <see cref="WriteAsync(IResponseSink)"/>
     /// has been called the last time.
     /// </summary>
     /// <returns>True if the content has changed, false otherwise</returns>

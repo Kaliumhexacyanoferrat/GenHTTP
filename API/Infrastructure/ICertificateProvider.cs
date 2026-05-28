@@ -15,4 +15,5 @@ public interface ICertificateProvider
     /// <param name="host">The name of the host, if specified by the client</param>
     /// <returns>The certificate to be used to authenticate the client</returns>
     X509Certificate2? Provide(string? host);
+    
 }

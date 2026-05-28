@@ -120,7 +120,7 @@ public sealed class HttpProxy : IHandler
             req.Headers.Add("Cookie", string.Join("; ", cookieHeader));
         }*/
 
-        var content = request.GetBody(HeaderAccess.Retain);
+        var content = request.GetBody();
 
         if (content is not null && CanSendBody(request))
         {

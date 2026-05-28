@@ -18,6 +18,6 @@ public class NonSeekableResource(IResource source) : IResource
 
     public async ValueTask<Stream> GetContentAsync() => new NonSeekableStream(await source.GetContentAsync());
 
-    public ValueTask WriteAsync(IResponseSink sink) => ((IResource)this).WriteAsync(sink.Stream, 4096);
+    public ValueTask WriteAsync(IResponseSink sink) => ((IResource)this).WriteAsync(sink);
 
 }

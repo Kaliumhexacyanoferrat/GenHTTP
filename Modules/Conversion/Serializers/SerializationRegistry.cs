@@ -9,10 +9,7 @@ namespace GenHTTP.Modules.Conversion.Serializers;
 /// </summary>
 public sealed class SerializationRegistry
 {
-    private static readonly ReadOnlyMemory<byte> ContentTypeHeader = "Content-Type"u8.ToArray();
     
-    private static readonly ReadOnlyMemory<byte> AcceptHeader = "Accept"u8.ToArray();
-
     #region Initialization
 
     public SerializationRegistry(ContentType defaultType, Dictionary<ContentType, ISerializationFormat> formats)
@@ -41,11 +38,11 @@ public sealed class SerializationRegistry
     /// <returns>A serialization format to deserialize the specified content type, or the default one (if any)</returns>
     public ISerializationFormat? GetDeserialization(IRequest request)
     {
-        var contentType = request.Header.Headers.GetEntry(ContentTypeHeader);
+        var contentType = request.Header.Headers.GetEntry(KnownHeaders.ContentType);
 
         if (contentType != null)
         {
-            return GetFormat(new ContentType(contentType.Value.WithoutOptions()));
+            return GetFormat(new ContentType(contentType.Value).WithoutOptions());
         }
 
         return GetFormat(Default);
@@ -59,7 +56,7 @@ public sealed class SerializationRegistry
     /// <returns>Either a format that can serialize into the requested format or the default format (if any)</returns>
     public ISerializationFormat? GetSerialization(IRequest request)
     {
-        var accepted = request.Header.Headers.GetEntry(AcceptHeader);
+        var accepted = request.Header.Headers.GetEntry(KnownHeaders.Accept);
         
         if (accepted != null)
         {

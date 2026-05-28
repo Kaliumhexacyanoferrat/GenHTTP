@@ -131,7 +131,7 @@ public sealed class FormFormat : ISerializationFormat
 
     private static async ValueTask<string> GetRequestContentAsync(IRequest request)
     {
-        var requestContent = request.GetBody(HeaderAccess.Retain);
+        var requestContent = request.GetBody();
 
         if (requestContent is null)
         {

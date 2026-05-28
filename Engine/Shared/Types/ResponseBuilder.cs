@@ -1,4 +1,5 @@
 ﻿using System.Text;
+
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Shared.Types;
@@ -37,7 +38,6 @@ public class ResponseBuilder : IResponseBuilder
     {
         if (content != null)
         {
-            // todo?
             if (_response.Status == ResponseStatus.NoContent)
             {
                 _response.Status = ResponseStatus.Ok;

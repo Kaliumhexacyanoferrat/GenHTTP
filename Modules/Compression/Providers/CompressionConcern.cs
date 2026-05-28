@@ -8,10 +8,6 @@ namespace GenHTTP.Modules.Compression.Providers;
 
 public sealed class CompressionConcern : IConcern
 {
-    private static readonly ReadOnlyMemory<byte> AcceptEncoding = "Accept-Encoding"u8.ToArray();
-
-    private static readonly ReadOnlyMemory<byte> Vary = "Vary"u8.ToArray();
-
     private static readonly HashSet<ContentType> CompressibleTypes =
     [
         ContentType.ApplicationJavaScript,
@@ -48,8 +44,7 @@ public sealed class CompressionConcern : IConcern
 
     #region Initialization
 
-    public CompressionConcern(IHandler content, IReadOnlyDictionary<AlgorithmName, ICompressionAlgorithm> algorithms,
-        CompressionLevel level, ulong? minimumSize)
+    public CompressionConcern(IHandler content, IReadOnlyDictionary<AlgorithmName, ICompressionAlgorithm> algorithms, CompressionLevel level, ulong? minimumSize)
     {
         Content = content;
 
@@ -64,7 +59,7 @@ public sealed class CompressionConcern : IConcern
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var acceptEncoding = request.Header.Headers.GetEntry(AcceptEncoding);
+        var acceptEncoding = request.Header.Headers.GetEntry(KnownHeaders.AcceptEncoding);
         
         var response = await Content.HandleAsync(request);
 
@@ -95,11 +90,11 @@ public sealed class CompressionConcern : IConcern
 
                             builder.Content(algorithm.Compress(content, Level));
 
-                            var vary = response.Headers.GetEntry(Vary);
+                            var vary = response.Headers.GetEntry(KnownHeaders.Vary);
 
                             if (vary != null)
                             {
-                                var combined = new byte[vary.Value.Length + AcceptEncoding.Length + 2];
+                                var combined = new byte[vary.Value.Length + KnownHeaders.AcceptEncoding.Length + 2];
 
                                 var span = combined.AsSpan();
                                 var offset = 0;
@@ -110,13 +105,13 @@ public sealed class CompressionConcern : IConcern
                                 span[offset++] = (byte)',';
                                 span[offset++] = (byte)' ';
 
-                                AcceptEncoding.Span.CopyTo(span[offset..]);
+                                KnownHeaders.AcceptEncoding.Span.CopyTo(span[offset..]);
 
-                                builder.Header(Vary, combined);
+                                builder.Header(KnownHeaders.Vary, combined);
                             }
                             else
                             {
-                                builder.Header(Vary, AcceptEncoding);
+                                builder.Header(KnownHeaders.Vary, KnownHeaders.AcceptEncoding);
                             }
 
                             return builder.Build();
@@ -133,21 +128,13 @@ public sealed class CompressionConcern : IConcern
     {
         if (type is not null)
         {
-            var withoutOptions = type.Value.Value.WithoutOptions();
+            var withoutOptions = type.Value.WithoutOptions();
             
-            if (CompressibleTypes.Contains(new(withoutOptions)))
+            if (CompressibleTypes.Contains(withoutOptions))
             {
                 return true;
             }
         }
-
-        /* todo: if (path.File is not null)
-        {
-            switch (Path.GetExtension(path.File))
-            {
-                case ".rrd": return true;
-            }
-        }*/
 
         return false;
     }
