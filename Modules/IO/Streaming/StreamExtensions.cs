@@ -90,22 +90,21 @@ public static class StreamExtensions
         return null;
     }
 
-    public static async ValueTask WriteAsync(this Stream stream, IBufferWriter<byte> target)
+    public static async ValueTask WriteAsync(this Stream stream, IBufferWriter<byte> target, CancellationToken cancellationToken = default)
     {
-        var read = 0;
-
-        do
+        while (true)
         {
-            var memory = target.GetMemory(32_768);
+            var memory = target.GetMemory(64 * 1024);
 
-            read = await stream.ReadAsync(memory);
+            var read = await stream.ReadAsync(memory, cancellationToken).ConfigureAwait(false);
 
-            if (read > 0)
+            if (read == 0)
             {
-                target.Advance(read);
+                break;
             }
+
+            target.Advance(read);
         }
-        while (read > 0);
     }
 
 }

@@ -119,6 +119,19 @@ public sealed class Request : IRequest
         _retainedHeader = null;
     }
 
+    public void Apply(IServer server)
+    {
+        _server = server;
+
+        _header.Apply();
+
+        _properties.Clear();
+
+        _body = null;
+        _bodyStart = default;
+        _retainedHeader = null;
+    }
+    
     public void Reset()
     {
         Source.Clear();

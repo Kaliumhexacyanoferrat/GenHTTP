@@ -10,6 +10,7 @@ using GenHTTP.Engine.Shared.Types;
 using Glyph11;
 using Glyph11.Parser;
 using Glyph11.Parser.Hardened;
+using Glyph11.Parser.UltraHardened;
 using Glyph11.Protocol;
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
@@ -125,6 +126,11 @@ internal sealed class ClientHandler(ClientContext context)
 
                 var status = await HandleRequestAsync(request);
 
+                if (!context.Connection.Connected)
+                {
+                    return;
+                }
+
                 if (status is Connection.Upgrade)
                 {
                     // content handler is responsible for flushing, avoid duplicate flushes
@@ -175,7 +181,7 @@ internal sealed class ClientHandler(ClientContext context)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool TryParseRequest(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
     {
-        if (!HardenedParser.TryExtractFullHeader(ref buffer, into, Limits, out var bytesRead))
+        if (!UltraHardenedParser.TryExtractFullHeaderValidated(ref buffer, into, Limits, out var bytesRead))
         {
             return false;
         }
@@ -184,7 +190,7 @@ internal sealed class ClientHandler(ClientContext context)
         return true;
     }
 
-    private async ValueTask<Connection> HandleRequestAsync(Request request)
+    internal async ValueTask<Connection> HandleRequestAsync(Request request)
     {
         // request.SetConnection(Server, EndPoint, Connection.GetAddress(), ClientCertificate);
 

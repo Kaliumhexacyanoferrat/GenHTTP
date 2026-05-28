@@ -7,6 +7,7 @@ namespace GenHTTP.Modules.IO.FileSystem;
 
 public sealed class FileResource : IResource
 {
+    private long _length;
 
     #region Initialization
 
@@ -18,6 +19,8 @@ public sealed class FileResource : IResource
         }
 
         File = file;
+
+        _length = file.Length;
 
         Name = name ?? file.Name;
 
@@ -32,25 +35,11 @@ public sealed class FileResource : IResource
 
     public string? Name { get; }
 
-    public DateTime? Modified
-    {
-        get
-        {
-            File.Refresh();
-            return File.LastWriteTimeUtc;
-        }
-    }
+    public DateTime? Modified => File.LastWriteTimeUtc;
 
     public ContentType? ContentType { get; }
 
-    public ulong? Length
-    {
-        get
-        {
-            File.Refresh();
-            return (ulong)File.Length;
-        }
-    }
+    public ulong? Length => (ulong)_length;
 
     #endregion
 
@@ -58,12 +47,21 @@ public sealed class FileResource : IResource
 
     public ValueTask<Stream> GetContentAsync() => new(File.OpenRead());
 
-    public ValueTask<ulong> CalculateChecksumAsync() => new(Checksum.Calculate(this));
+    public ValueTask<ulong> CalculateChecksumAsync()
+    {
+        File.Refresh();
+
+        _length = File.Length;
+        
+        return new(Checksum.Calculate(this));
+    }
 
     public async ValueTask WriteAsync(IResponseSink sink)
     {
         await using var stream = File.OpenRead();
-         
+
+        _length = stream.Length;
+        
         await stream.WriteAsync(sink.Writer);
     } 
 

@@ -80,6 +80,13 @@ internal sealed class ClientContext
         _reader = reader;
         _writer = PipeWriter.Create(stream, WriterOptions);
     }
+
+    internal void Apply(IServer server, Stream stream)
+    {
+        _server = server;
+        _stream = stream;
+        _writer = PipeWriter.Create(stream, WriterOptions);
+    }
     
     public void Reset()
     {
