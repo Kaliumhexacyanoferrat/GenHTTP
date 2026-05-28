@@ -1,4 +1,7 @@
+using System.Buffers;
 using System.Net;
+using GenHTTP.Api.Protocol;
+using GenHTTP.Engine.Internal.Protocol;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.IO.Streaming;
 using GenHTTP.Modules.Websockets.Provider;
@@ -12,9 +15,7 @@ public class ProviderTests
     [TestMethod]
     public async Task TestHandshake()
     {
-        var content = new ResourceContent(Resource.FromString("Hello World").Build());
-        
-        var handler = new WebsocketHandler((r) => content);
+        var handler = new WebsocketHandler((r) => new FlushingContent());
 
         await using var runner = await TestHost.RunAsync(handler);
 
@@ -84,6 +85,26 @@ public class ProviderTests
         using var response = await runner.GetResponseAsync(request);
 
         await response.AssertStatusAsync(HttpStatusCode.UpgradeRequired);
+    }
+
+    private class FlushingContent : IResponseContent
+    {
+
+        public ulong? Length => 11;
+
+        public ContentType? Type => null;
+
+        public ReadOnlyMemory<byte>? Encoding => null;
+
+        public ValueTask<ulong?> CalculateChecksumAsync() => new(42);
+
+        public async ValueTask WriteAsync(IResponseSink sink)
+        {
+            await sink.Stream.WriteAsync("Hello World"u8.ToArray());
+
+            await sink.Stream.FlushAsync();
+        }
+        
     }
     
 }

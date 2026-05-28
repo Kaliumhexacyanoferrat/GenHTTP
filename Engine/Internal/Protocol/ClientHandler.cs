@@ -29,12 +29,10 @@ internal sealed class ClientHandler(ClientContext context)
 
     private static readonly TimeSpan KeepAliveTimeout = TimeSpan.FromSeconds(60);
 
-    private static readonly ReadOnlyMemory<byte> ConnectionHeader = "Connection"u8.ToArray();
-
     private static readonly ReadOnlyMemory<byte> KeepAliveValue = "Keep-Alive"u8.ToArray();
 
     private static readonly ParserLimits Limits = ParserLimits.Default;
-    
+
     private CancellationTokenSource _cts = new();
 
     #region Functionality
@@ -127,7 +125,12 @@ internal sealed class ClientHandler(ClientContext context)
 
                 var status = await HandleRequestAsync(request);
 
-                if (status is Connection.Close)
+                if (status is Connection.Upgrade)
+                {
+                    // content handler is responsible for flushing, avoid duplicate flushes
+                    return;
+                }
+                else if (status is Connection.Close)
                 {
                     await context.Writer.FlushAsync();
                     return;
@@ -191,18 +194,25 @@ internal sealed class ClientHandler(ClientContext context)
         {
             throw new ProviderException(ResponseStatus.BadRequest, "Host header is missing from the request");
         }
-        
+
         var headRequest = header.Method == RequestMethod.Head;
 
-        var connectionHeader = header.Headers.GetEntry(ConnectionHeader);
+        var connectionHeader = header.Headers.GetEntry(KnownHeaders.Connection);
 
         var keepAliveRequested = connectionHeader?.Span.SequenceEqual(KeepAliveValue.Span) ?? (header.Protocol == HttpProtocol.Http11);
 
         var response = await context.Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
 
-        var closeRequested = response.Mode is Connection.Close or Connection.Upgrade;
+        var upgradeResponse = response.Mode is Connection.Upgrade;
+
+        var closeRequested = response.Mode is Connection.Close || upgradeResponse;
 
         var active = await context.ResponseHandler.HandleAsync(request, response, HttpProtocol.Http11, keepAliveRequested && !closeRequested, headRequest);
+
+        if (upgradeResponse)
+        {
+            return Connection.Upgrade;
+        }
 
         return (active && keepAliveRequested && !closeRequested) ? Connection.KeepAlive : Connection.Close;
     }
@@ -220,7 +230,7 @@ internal sealed class ClientHandler(ClientContext context)
                            .Build();
 
             await context.ResponseHandler.HandleAsync(null, response, HttpProtocol.Http10, false, false);
-            
+
             await context.Writer.FlushAsync();
         }
         catch
