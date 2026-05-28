@@ -1,43 +1,32 @@
 ﻿using System.Buffers;
 using System.Diagnostics;
-using System.Text;
 
 namespace GenHTTP.Api.Protocol;
 
-[DebuggerDisplay("{DebuggerValue,nq}")]
-public readonly struct PathSegment : IEquatable<PathSegment>
+/// <summary>
+/// A single percent-encoded path segment.
+/// </summary>
+[MemoryView]
+public readonly partial struct PathSegment
 {
-
-    public readonly ReadOnlyMemory<byte> Encoded;
-
-    #region Initialization
-
-    public PathSegment(ReadOnlyMemory<byte> encoded)
-    {
-        Encoded = encoded;
-    }
-
-    public PathSegment(string decoded)
-    {
-        Encoded = new ReadOnlyMemory<byte>(Encoding.ASCII.GetBytes(Uri.EscapeDataString(decoded)));
-    }
-
-    #endregion
 
     #region Functionality
 
+    /// <summary>Percent-decodes this segment and returns the human-readable string.</summary>
     public string Decode()
     {
-        var span = Encoded.Span;
+        var span = Value.Span;
 
         if (span.IndexOf((byte)'%') < 0)
         {
-            return Encoding.ASCII.GetString(span);
+            return System.Text.Encoding.ASCII.GetString(span);
         }
 
         byte[]? rented = null;
 
-        var buffer = span.Length <= 256 ? stackalloc byte[span.Length] : (rented = ArrayPool<byte>.Shared.Rent(span.Length));
+        var buffer = span.Length <= 256
+            ? stackalloc byte[span.Length]
+            : (rented = ArrayPool<byte>.Shared.Rent(span.Length));
 
         try
         {
@@ -56,7 +45,7 @@ public readonly struct PathSegment : IEquatable<PathSegment>
                 }
             }
 
-            return Encoding.UTF8.GetString(buffer[..write]);
+            return System.Text.Encoding.UTF8.GetString(buffer[..write]);
         }
         finally
         {
@@ -70,49 +59,6 @@ public readonly struct PathSegment : IEquatable<PathSegment>
     private static bool IsHexDigit(byte b) => (uint)(b - '0') <= 9 || (uint)((b | 0x20) - 'a') <= 5;
 
     private static int HexValue(byte b) => b <= '9' ? b - '0' : (b | 0x20) - 'a' + 10;
-
-    #endregion
-
-    #region Equality
-
-    public bool Equals(PathSegment other)
-    {
-        var a = Encoded.Span;
-        var b = other.Encoded.Span;
-
-        if (a.Length != b.Length) return false;
-
-        for (int i = 0; i < a.Length; i++)
-        {
-            var ca = a[i];
-            var cb = b[i];
-
-            if (ca == cb) continue;
-
-            if ((ca | 0x20) != (cb | 0x20)) return false;
-            if ((uint)((ca | 0x20) - 'a') > 'z' - 'a') return false;
-        }
-
-        return true;
-    }
-
-    public override bool Equals(object? obj) => obj is PathSegment other && Equals(other);
-
-    public override int GetHashCode()
-    {
-        var hash = new HashCode();
-
-        foreach (var b in Encoded.Span)
-        {
-            hash.Add((uint)((b | 0x20) - 'a') <= 'z' - 'a' ? (byte)(b | 0x20) : b);
-        }
-
-        return hash.ToHashCode();
-    }
-
-    public static bool operator ==(PathSegment left, PathSegment right) => left.Equals(right);
-
-    public static bool operator !=(PathSegment left, PathSegment right) => !left.Equals(right);
 
     #endregion
 

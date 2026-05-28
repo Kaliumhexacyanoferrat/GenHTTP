@@ -1,6 +1,5 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-using Microsoft.CodeAnalysis;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
 

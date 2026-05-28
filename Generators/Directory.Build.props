@@ -1,0 +1,11 @@
+<Project>
+
+    <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+    <PropertyGroup>
+        <!-- Roslyn generators must target netstandard2.0; clear the root TargetFrameworks first -->
+        <TargetFrameworks></TargetFrameworks>
+        <TargetFramework>netstandard2.0</TargetFramework>
+    </PropertyGroup>
+
+</Project>

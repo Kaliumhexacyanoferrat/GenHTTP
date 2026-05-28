@@ -66,7 +66,7 @@ public sealed class BrowserHandler: IHandler
                           .Build();
         }
 
-        if (current.Value.Encoded.Span.SequenceEqual(StaticSegment.Span))
+        if (current.Value.Value.Span.SequenceEqual(StaticSegment.Span))
         {
             target.Advance();
             return await StaticResources.HandleAsync(request);
