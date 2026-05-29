@@ -106,5 +106,5 @@ public static class StreamExtensions
             target.Advance(read);
         }
     }
-
+    
 }

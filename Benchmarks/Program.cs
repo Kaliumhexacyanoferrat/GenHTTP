@@ -1,7 +1,7 @@
 ﻿using BenchmarkDotNet.Running;
 
-using GenHTTP.Benchmarks.Benchmarks.Functional;
+using GenHTTP.Benchmarks.Benchmarks.IO;
 
-BenchmarkRunner.Run<JsonSerializationBenchmark>();
+BenchmarkRunner.Run<StaticFileBenchmark>();
 
 // await new JsonSerializationBenchmark().BenchmarkReturnedJson();
