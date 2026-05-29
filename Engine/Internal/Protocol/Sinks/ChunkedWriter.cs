@@ -6,64 +6,86 @@ namespace GenHTTP.Engine.Internal.Protocol.Sinks;
 
 internal sealed class ChunkedWriter(ClientContext context) : IBufferWriter<byte>
 {
-    private const int HeaderSize = 10;
+    private const int MaxHeaderSize = 10;
     private const int TrailerSize = 2;
-    private const int Overhead = HeaderSize + TrailerSize;
 
     private Memory<byte> _activeMemory;
 
     public Memory<byte> GetMemory(int sizeHint = 0)
     {
-        _activeMemory = context.Writer.GetMemory(Math.Max(sizeHint, 1) + Overhead);
+        _activeMemory = context.Writer.GetMemory(Math.Max(sizeHint, 1) + MaxHeaderSize + TrailerSize);
 
-        return _activeMemory.Slice(HeaderSize, _activeMemory.Length - Overhead);
+        return _activeMemory.Slice(MaxHeaderSize, _activeMemory.Length - MaxHeaderSize - TrailerSize);
     }
 
-    public Span<byte> GetSpan(int sizeHint = 0) => GetMemory(sizeHint).Span;
+    public Span<byte> GetSpan(int sizeHint = 0)
+        => GetMemory(sizeHint).Span;
 
     public void Advance(int count)
     {
-        if (count == 0) return;
+        if (count == 0)
+        {
+            return;
+        }
+
+        if (_activeMemory.IsEmpty)
+        {
+            throw new InvalidOperationException("GetMemory() or GetSpan() must be called before Advance().");
+        }
 
         var span = _activeMemory.Span;
 
-        WriteHex8((uint)count, span);
+        var headerLength = WriteHex((uint)count, span);
 
-        span[HeaderSize + count] = (byte)'\r';
-        span[HeaderSize + count + 1] = (byte)'\n';
+        if (headerLength != MaxHeaderSize)
+        {
+            span.Slice(MaxHeaderSize, count)
+                .CopyTo(span.Slice(headerLength));
+        }
 
-        context.Writer.Advance(HeaderSize + count + TrailerSize);
-        
+        var trailerOffset = headerLength + count;
+
+        span[trailerOffset] = (byte)'\r';
+        span[trailerOffset + 1] = (byte)'\n';
+
+        context.Writer.Advance(headerLength + count + TrailerSize);
+
         _activeMemory = default;
     }
 
     public void Finish()
     {
-        var writer = context.Writer;
-        
-        var span = writer.GetSpan(5);
-        
-        span[0] = (byte)'0';
-        span[1] = (byte)'\r';
-        span[2] = (byte)'\n';
-        span[3] = (byte)'\r';
-        span[4] = (byte)'\n';
-        
-        writer.Advance(5);
+        var span = context.Writer.GetSpan(5);
+
+        "0\r\n\r\n"u8.CopyTo(span);
+
+        context.Writer.Advance(5);
     }
 
-    private static void WriteHex8(uint value, Span<byte> dest)
+    private static int WriteHex(uint value, Span<byte> dest)
     {
-        const string hex = "0123456789ABCDEF";
+        const int end = 8;
 
-        for (var i = 7; i >= 0; i--)
+        var pos = end;
+
+        do
         {
-            dest[i] = (byte)hex[(int)(value & 0xF)];
+            var digit = value & 0xF;
+
+            dest[--pos] = digit < 10 ? (byte)('0' + digit) : (byte)('A' + digit - 10);
+
             value >>= 4;
         }
+        while (value != 0);
 
-        dest[8] = (byte)'\r';
-        dest[9] = (byte)'\n';
+        var length = end - pos;
+
+        dest.Slice(pos, length).CopyTo(dest);
+
+        dest[length] = (byte)'\r';
+        dest[length + 1] = (byte)'\n';
+
+        return length + 2;
     }
-
+    
 }
