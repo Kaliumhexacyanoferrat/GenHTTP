@@ -1,5 +1,4 @@
 ﻿using System.IO.Compression;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
@@ -34,7 +33,7 @@ public sealed class CompressionConcern : IConcern
 
     public IHandler Content { get; }
 
-    private IReadOnlyDictionary<AlgorithmName, ICompressionAlgorithm> Algorithms { get; }
+    private List<ICompressionAlgorithm> Algorithms { get; }
 
     private CompressionLevel Level { get; }
 
@@ -44,13 +43,15 @@ public sealed class CompressionConcern : IConcern
 
     #region Initialization
 
-    public CompressionConcern(IHandler content, IReadOnlyDictionary<AlgorithmName, ICompressionAlgorithm> algorithms, CompressionLevel level, ulong? minimumSize)
+    public CompressionConcern(IHandler content, List<ICompressionAlgorithm> algorithms, CompressionLevel level, ulong? minimumSize)
     {
         Content = content;
 
         Algorithms = algorithms;
         Level = level;
         MinimumSize = minimumSize;
+
+        Algorithms.Sort((a, b) => b.Priority.CompareTo(a.Priority));
     }
 
     #endregion
@@ -76,46 +77,44 @@ public sealed class CompressionConcern : IConcern
             {
                 if (acceptEncoding != null)
                 {
-                    // todo: remove hash set
+                    var supported = AcceptEncodingHeader.ParseSupported(acceptEncoding.Value.Span);
 
-                    var supported = AcceptHeader.ParseSupported(acceptEncoding.Value.Span);
-
-                    // todo: linq, not pre-sorted
-
-                    foreach (var algorithm in Algorithms.Values.OrderByDescending(a => (int)a.Priority))
+                    foreach (var algorithm in Algorithms)
                     {
-                        if (supported.Contains(algorithm.Name))
+                        if (!supported.Contains(algorithm.Name))
                         {
-                            var builder = response.Rebuild();
-
-                            builder.Content(algorithm.Compress(content, Level));
-
-                            var vary = response.Headers.GetEntry(KnownHeaders.Vary);
-
-                            if (vary != null)
-                            {
-                                var combined = new byte[vary.Value.Length + KnownHeaders.AcceptEncoding.Length + 2];
-
-                                var span = combined.AsSpan();
-                                var offset = 0;
-
-                                vary.Value.Span.CopyTo(span);
-                                offset += vary.Value.Length;
-
-                                span[offset++] = (byte)',';
-                                span[offset++] = (byte)' ';
-
-                                KnownHeaders.AcceptEncoding.Span.CopyTo(span[offset..]);
-
-                                builder.Header(KnownHeaders.Vary, combined);
-                            }
-                            else
-                            {
-                                builder.Header(KnownHeaders.Vary, KnownHeaders.AcceptEncoding);
-                            }
-
-                            return builder.Build();
+                            continue;
                         }
+
+                        var builder = response.Rebuild();
+
+                        builder.Content(algorithm.Compress(content, Level));
+
+                        var vary = response.Headers.GetEntry(KnownHeaders.Vary);
+
+                        if (vary != null)
+                        {
+                            var combined = new byte[vary.Value.Length + KnownHeaders.AcceptEncoding.Length + 2];
+
+                            var span = combined.AsSpan();
+                            var offset = 0;
+
+                            vary.Value.Span.CopyTo(span);
+                            offset += vary.Value.Length;
+
+                            span[offset++] = (byte)',';
+                            span[offset++] = (byte)' ';
+
+                            KnownHeaders.AcceptEncoding.Span.CopyTo(span[offset..]);
+
+                            builder.Header(KnownHeaders.Vary, combined);
+                        }
+                        else
+                        {
+                            builder.Header(KnownHeaders.Vary, KnownHeaders.AcceptEncoding);
+                        }
+
+                        return builder.Build();
                     }
                 }
             }

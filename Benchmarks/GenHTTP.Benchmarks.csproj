@@ -26,9 +26,14 @@
   </ItemGroup>
   
   <ItemGroup>
-    <None Update="Resources\file.js">
+    <None Remove="Resources\file.js.br" />
+    <Content Include="Resources\file.js.br">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </Content>
+    <None Remove="Resources\file.js" />
+    <Content Include="Resources\file.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   
 </Project>

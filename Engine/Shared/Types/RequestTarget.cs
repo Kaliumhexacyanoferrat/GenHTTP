@@ -165,11 +165,18 @@ public sealed class RequestTarget : IRequestTarget
         {
             var span = combined.Span;
 
-            var idx = span[_segmentStart..].IndexOf((byte)'/');
+            var relative = span[_segmentStart..].IndexOf((byte)'/');
 
-            copy.Current = idx < 0
-                ? new PathSegment(combined[_segmentStart..])
-                : new PathSegment(combined.Slice(_segmentStart, idx));
+            if (relative < 0)
+            {
+                copy._offset = combined.Length;
+                copy.Current = new PathSegment(combined[_segmentStart..]);
+            }
+            else
+            {
+                copy._offset = _segmentStart + relative;
+                copy.Current = new PathSegment(combined.Slice(_segmentStart, relative));
+            }
         }
 
         return copy;

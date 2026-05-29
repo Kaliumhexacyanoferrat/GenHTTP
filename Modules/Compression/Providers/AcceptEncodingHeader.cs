@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Modules.Compression.Providers;
 
-public static class AcceptHeader
+public static class AcceptEncodingHeader
 {
 
     public static HashSet<AlgorithmName> ParseSupported(ReadOnlySpan<byte> acceptHeader)

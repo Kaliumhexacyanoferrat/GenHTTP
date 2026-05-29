@@ -1,6 +1,7 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Compression.Providers;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.IO.Streaming;
@@ -13,14 +14,24 @@ public sealed class PreCompressedResourceHandler : IHandler
 
     private readonly IHandler _regular;
 
-    private readonly List<ICompressionAlgorithm> _algorithms;
+    private readonly List<SupportedCompression> _algorithms;
 
-    public PreCompressedResourceHandler(IResourceTree tree, List<ICompressionAlgorithm> algorithms)
+    public PreCompressedResourceHandler(IResourceTree tree, List<ICompressionAlgorithm> algorithms, char separator)
     {
         _tree = tree;
-        _algorithms = algorithms;
 
         _regular = Resources.From(tree).Build();
+
+        _algorithms = algorithms.Select(a =>
+                                {
+                                    var extension = new byte[a.Name.Value.Length + 1];
+                                    extension[0] = (byte)separator;
+                                    a.Name.Value.Span.CopyTo(extension.AsSpan(1));
+                                    
+                                    return new SupportedCompression(a, extension);
+                                })
+                                .OrderByDescending(a => (int)a.Algorithm.Priority)
+                                .ToList();
     }
 
     public ValueTask PrepareAsync() => _regular.PrepareAsync();
@@ -36,28 +47,24 @@ public sealed class PreCompressedResourceHandler : IHandler
             return null;
         }
 
-        var acceptHeader = request.Header.Headers.GetEntry(KnownHeaders.Accept);
+        var acceptEncodingHeader = request.Header.Headers.GetEntry(KnownHeaders.AcceptEncoding);
 
-        if (acceptHeader != null)
+        if (acceptEncodingHeader != null)
         {
-            var supported = AcceptHeader.ParseSupported(acceptHeader.Value.Span);
+            var requested = AcceptEncodingHeader.ParseSupported(acceptEncodingHeader.Value.Span);
 
-            foreach (var algorithm in _algorithms.OrderByDescending(a => (int)a.Priority))
+            foreach (var supported in _algorithms)
             {
-                if (supported.Contains(algorithm.Name))
+                if (requested.Contains(supported.Algorithm.Name))
                 {
-                    var extension = new byte[algorithm.Name.Value.Length + 1];
-                    extension[0] = (byte)'.';
-                    algorithm.Name.Value.Span.CopyTo(extension.AsSpan(1));
-
-                    var newTarget = target.CopyAndAppend(extension);
+                    var newTarget = target.CopyAndAppend(supported.Extension);
 
                     var (_, resource) = await _tree.FindAsync(newTarget);
 
                     if (resource is not null)
                     {
                         var contentType = file.GuessContentType() ?? ContentType.ApplicationOctetStream;
-                        var content = new ResourceContent(resource, contentType, algorithm.Name.Value);
+                        var content = new ResourceContent(resource, contentType, supported.Algorithm.Name.Value);
 
                         return request.Respond()
                                       .Content(content)

@@ -42,12 +42,7 @@ public sealed class CompressionConcernBuilder : IConcernBuilder
         return this;
     }
 
-    public IConcern Build(IHandler content)
-    {
-        var algorithms = _algorithms.ToDictionary(a => a.Name);
-
-        return new CompressionConcern(content, algorithms, _level, _minimumSize);
-    }
+    public IConcern Build(IHandler content) => new CompressionConcern(content, _algorithms, _level, _minimumSize);
 
     #endregion
 
