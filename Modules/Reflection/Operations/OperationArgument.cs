@@ -50,7 +50,7 @@ public sealed class OperationArgument
     /// <summary>
     /// The name of the argument.
     /// </summary>
-    public string Name { get; }
+    public ArgumentName Name { get; }
 
     /// <summary>
     /// The type as expected by the .NET method to be invoked by the operation.
@@ -68,7 +68,7 @@ public sealed class OperationArgument
 
     public OperationArgument(string name, Type type, OperationArgumentSource source)
     {
-        Name = name;
+        Name = new(name);
         Type = type;
         Source = source;
     }

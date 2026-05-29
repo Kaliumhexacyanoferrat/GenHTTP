@@ -13,8 +13,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        
+
         <ProjectReference Include="..\Generators\MemoryView\GenHTTP.Generators.MemoryView.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+
     </ItemGroup>
 
 </Project>

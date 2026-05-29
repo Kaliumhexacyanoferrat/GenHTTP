@@ -11,4 +11,4 @@ namespace GenHTTP.Api;
 /// and hashing functions.
 /// </remarks>
 [AttributeUsage(AttributeTargets.Struct)]
-internal sealed class MemoryViewAttribute : Attribute;
+public sealed class MemoryViewAttribute : Attribute;

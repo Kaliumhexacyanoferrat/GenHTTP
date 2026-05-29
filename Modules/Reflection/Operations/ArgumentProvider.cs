@@ -60,7 +60,7 @@ public static class ArgumentProvider
 
     public static object? GetQueryArgument(IRequest request, Dictionary<string, string>? formArguments, OperationArgument argument, MethodRegistry registry)
     {
-        var queryValue = request.Header.Query.GetEntry(argument.Name); // todo: string based
+        var queryValue = request.Header.Query.GetEntry(argument.Name.Value);
 
         if (queryValue is not null)
         {
@@ -69,7 +69,9 @@ public static class ArgumentProvider
 
         if (formArguments is not null)
         {
-            if (formArguments.TryGetValue(argument.Name, out var bodyValue))
+            // todo: optimize this (e.g. read the form values as readonlymemory)
+
+            if (formArguments.TryGetValue(argument.Name.ToString(), out var bodyValue))
             {
                 return bodyValue.ConvertTo(argument.Type, registry.Formatting);
             }

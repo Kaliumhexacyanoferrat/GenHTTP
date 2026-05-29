@@ -18,14 +18,14 @@
         <ProjectReference Include="..\Conversion\GenHTTP.Modules.Conversion.csproj" />
         <ProjectReference Include="..\Pages\GenHTTP.Modules.Pages.csproj" />
 
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.3.0" />
+
+        <ProjectReference Include="..\..\Generators\MemoryView\GenHTTP.Generators.MemoryView.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+
     </ItemGroup>
 
     <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.3.0" />
     </ItemGroup>
 
     <ItemGroup>
