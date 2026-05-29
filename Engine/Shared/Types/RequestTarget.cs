@@ -53,7 +53,7 @@ public sealed class RequestTarget : IRequestTarget
         MoveNext();
     }
 
-    public ReadOnlyMemory<byte>? Next(int offset)
+    public PathSegment? Next(int offset)
     {
         if (Current == null)
         {
@@ -62,7 +62,7 @@ public sealed class RequestTarget : IRequestTarget
 
         if (offset == 0)
         {
-            return Current.Value.Value;
+            return Current;
         }
 
         var span = _path.Span;
@@ -86,7 +86,7 @@ public sealed class RequestTarget : IRequestTarget
 
             if (skip == offset)
             {
-                return idx < 0 ? _path.Slice(start, length - start) : _path.Slice(start, idx);
+                return new(idx < 0 ? _path.Slice(start, length - start) : _path.Slice(start, idx));
             }
 
             i += idx < 0 ? (length - start) : idx;
@@ -143,6 +143,45 @@ public sealed class RequestTarget : IRequestTarget
         }
     }
 
+    public IRequestTarget CopyAndAppend(ReadOnlyMemory<byte> suffix)
+    {
+        var original = _path;
+
+        var buffer = new byte[original.Length + suffix.Length];
+
+        original.Span.CopyTo(buffer);
+        suffix.Span.CopyTo(buffer.AsSpan(original.Length));
+
+        var combined = new ReadOnlyMemory<byte>(buffer);
+
+        var copy = new RequestTarget
+        {
+            _path = combined,
+            _offset = _offset,
+            _segmentStart = _segmentStart
+        };
+
+        if (Current != null)
+        {
+            var span = combined.Span;
+
+            var relative = span[_segmentStart..].IndexOf((byte)'/');
+
+            if (relative < 0)
+            {
+                copy._offset = combined.Length;
+                copy.Current = new PathSegment(combined[_segmentStart..]);
+            }
+            else
+            {
+                copy._offset = _segmentStart + relative;
+                copy.Current = new PathSegment(combined.Slice(_segmentStart, relative));
+            }
+        }
+
+        return copy;
+    }
+
     public string AsString(bool decode = true, bool remainingOnly = false)
     {
         ReadOnlyMemory<byte> slice;
@@ -162,7 +201,7 @@ public sealed class RequestTarget : IRequestTarget
         }
 
         var stringPath = Encoding.ASCII.GetString(slice.Span);
-        
+
         if (decode && stringPath.Contains('%'))
         {
             return Uri.UnescapeDataString(stringPath);

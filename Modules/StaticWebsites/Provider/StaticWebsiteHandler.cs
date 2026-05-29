@@ -38,7 +38,7 @@ public sealed class StaticWebsiteHandler : IHandler
 
         if (target.HasTrailingSlash)
         {
-            var (node, _) = await Tree.Find(target);
+            var (node, _) = await Tree.FindAsync(target);
 
             if (node != null)
             {

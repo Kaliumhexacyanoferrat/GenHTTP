@@ -17,7 +17,7 @@ internal sealed class StringSegment(string segment) : IRoutingSegment
     {
         var next = target.Next(offset);
 
-        if (next?.Span.SequenceEqual(_segmentBytes.Span) ?? false)
+        if (next?.Value.Span.SequenceEqual(_segmentBytes.Span) ?? false)
         {
             return (true, 1);
         }

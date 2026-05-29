@@ -1,5 +1,4 @@
 ﻿using System.IO.Compression;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
@@ -34,7 +33,7 @@ public sealed class CompressionConcern : IConcern
 
     public IHandler Content { get; }
 
-    private IReadOnlyDictionary<AlgorithmName, ICompressionAlgorithm> Algorithms { get; }
+    private List<ICompressionAlgorithm> Algorithms { get; }
 
     private CompressionLevel Level { get; }
 
@@ -44,13 +43,15 @@ public sealed class CompressionConcern : IConcern
 
     #region Initialization
 
-    public CompressionConcern(IHandler content, IReadOnlyDictionary<AlgorithmName, ICompressionAlgorithm> algorithms, CompressionLevel level, ulong? minimumSize)
+    public CompressionConcern(IHandler content, List<ICompressionAlgorithm> algorithms, CompressionLevel level, ulong? minimumSize)
     {
         Content = content;
 
         Algorithms = algorithms;
         Level = level;
         MinimumSize = minimumSize;
+
+        Algorithms.Sort((a, b) => b.Priority.CompareTo(a.Priority));
     }
 
     #endregion
@@ -60,7 +61,7 @@ public sealed class CompressionConcern : IConcern
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
         var acceptEncoding = request.Header.Headers.GetEntry(KnownHeaders.AcceptEncoding);
-        
+
         var response = await Content.HandleAsync(request);
 
         if (response == null)
@@ -76,46 +77,44 @@ public sealed class CompressionConcern : IConcern
             {
                 if (acceptEncoding != null)
                 {
-                    // todo: remove hash set
+                    var supported = AcceptEncodingHeader.ParseSupported(acceptEncoding.Value.Span);
 
-                    var supported = ParseSupported(acceptEncoding.Value.Span);
-
-                    // todo: linq, not pre-sorted
-
-                    foreach (var algorithm in Algorithms.Values.OrderByDescending(a => (int)a.Priority))
+                    foreach (var algorithm in Algorithms)
                     {
-                        if (supported.Contains(algorithm.Name))
+                        if (!supported.Contains(algorithm.Name))
                         {
-                            var builder = response.Rebuild();
-
-                            builder.Content(algorithm.Compress(content, Level));
-
-                            var vary = response.Headers.GetEntry(KnownHeaders.Vary);
-
-                            if (vary != null)
-                            {
-                                var combined = new byte[vary.Value.Length + KnownHeaders.AcceptEncoding.Length + 2];
-
-                                var span = combined.AsSpan();
-                                var offset = 0;
-
-                                vary.Value.Span.CopyTo(span);
-                                offset += vary.Value.Length;
-
-                                span[offset++] = (byte)',';
-                                span[offset++] = (byte)' ';
-
-                                KnownHeaders.AcceptEncoding.Span.CopyTo(span[offset..]);
-
-                                builder.Header(KnownHeaders.Vary, combined);
-                            }
-                            else
-                            {
-                                builder.Header(KnownHeaders.Vary, KnownHeaders.AcceptEncoding);
-                            }
-
-                            return builder.Build();
+                            continue;
                         }
+
+                        var builder = response.Rebuild();
+
+                        builder.Content(algorithm.Compress(content, Level));
+
+                        var vary = response.Headers.GetEntry(KnownHeaders.Vary);
+
+                        if (vary != null)
+                        {
+                            var combined = new byte[vary.Value.Length + KnownHeaders.AcceptEncoding.Length + 2];
+
+                            var span = combined.AsSpan();
+                            var offset = 0;
+
+                            vary.Value.Span.CopyTo(span);
+                            offset += vary.Value.Length;
+
+                            span[offset++] = (byte)',';
+                            span[offset++] = (byte)' ';
+
+                            KnownHeaders.AcceptEncoding.Span.CopyTo(span[offset..]);
+
+                            builder.Header(KnownHeaders.Vary, combined);
+                        }
+                        else
+                        {
+                            builder.Header(KnownHeaders.Vary, KnownHeaders.AcceptEncoding);
+                        }
+
+                        return builder.Build();
                     }
                 }
             }
@@ -129,7 +128,7 @@ public sealed class CompressionConcern : IConcern
         if (type is not null)
         {
             var withoutOptions = type.Value.WithoutOptions();
-            
+
             if (CompressibleTypes.Contains(withoutOptions))
             {
                 return true;
@@ -144,53 +143,6 @@ public sealed class CompressionConcern : IConcern
         var contentLength = response.Content?.Length;
 
         return MinimumSize is null || contentLength is null || contentLength >= MinimumSize;
-    }
-    
-    private static HashSet<AlgorithmName> ParseSupported(ReadOnlySpan<byte> acceptHeader)
-    {
-        var result = new HashSet<AlgorithmName>();
-        var start = 0;
-
-        while (start < acceptHeader.Length)
-        {
-            var comma = acceptHeader[start..].IndexOf((byte)',');
-            var end = comma >= 0 ? start + comma : acceptHeader.Length;
-
-            var token = acceptHeader.Slice(start, end - start);
-
-            var semicolon = token.IndexOf((byte)';');
-            var nameSpan = semicolon >= 0 ? token[..semicolon] : token;
-
-            var part = TrimAscii(nameSpan);
-
-            if (!part.IsEmpty)
-            {
-                result.Add(new(part.ToArray()));
-            }
-
-            start = end + 1;
-        }
-
-        return result;
-    }
-
-    private static ReadOnlySpan<byte> TrimAscii(ReadOnlySpan<byte> span)
-    {
-        var start = 0;
-        var end = span.Length - 1;
-
-        while (start <= end && IsAsciiWhiteSpace(span[start]))
-            start++;
-
-        while (end >= start && IsAsciiWhiteSpace(span[end]))
-            end--;
-
-        return span.Slice(start, end - start + 1);
-    }
-
-    private static bool IsAsciiWhiteSpace(byte b)
-    {
-        return b == (byte)' ' || b == (byte)'\t';
     }
 
     public ValueTask PrepareAsync() => Content.PrepareAsync();

@@ -1,13 +1,10 @@
-﻿using System.Collections.Concurrent;
-
-using GenHTTP.Api.Content.IO;
+﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.IO.FileSystem;
 
 internal class DirectoryContainer : IResourceContainer
 {
-    private readonly ConcurrentDictionary<PathSegment, IResource?> _resourceCache = new();
 
     #region Initialization
 
@@ -68,12 +65,15 @@ internal class DirectoryContainer : IResourceContainer
 
     public ValueTask<IResource?> TryGetResourceAsync(PathSegment segment)
     {
-        return new ValueTask<IResource?>(_resourceCache.GetOrAdd(segment, static (key, dir) =>
+        var path = Path.Combine(Directory.FullName, segment.Decode());
+        var file = new FileInfo(path);
+
+        if (File.Exists(file.FullName))
         {
-            var path = Path.Combine(dir.FullName, key.Decode());
-            var file = new FileInfo(path);
-            return file.Exists ? Resource.FromFile(file).Build() : null;
-        }, Directory));
+            return new(Resource.FromFile(file).Build());
+        }
+
+        return default;
     }
 
     #endregion

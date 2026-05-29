@@ -1,6 +1,4 @@
-﻿using System.Collections.Concurrent;
-
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
@@ -10,8 +8,7 @@ namespace GenHTTP.Modules.IO.Providers;
 
 public sealed class ResourceHandler : IHandler
 {
-    private readonly ConcurrentDictionary<IResource, ResourceContent> _contentCache = new();
-    
+
     #region Get-/Setters
 
     private IResourceTree Tree { get; }
@@ -33,14 +30,12 @@ public sealed class ResourceHandler : IHandler
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var (_, resource) = await Tree.Find(request.Header.Target);
+        var (_, resource) = await Tree.FindAsync(request.Header.Target);
 
         if (resource is not null)
         {
-            var content = _contentCache.GetOrAdd(resource, static r => new ResourceContent(r));
-
             return request.Respond()
-                          .Content(content)
+                          .Content(new ResourceContent(resource))
                           .Build();
         }
 

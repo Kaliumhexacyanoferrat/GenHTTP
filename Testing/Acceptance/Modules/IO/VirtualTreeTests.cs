@@ -24,7 +24,7 @@ public sealed class VirtualTreeTests
                               .Add("r", tree)
                               .Build();
 
-        var (node, file) = await virt.Find(GetTarget("/r/File.txt"));
+        var (node, file) = await virt.FindAsync(GetTarget("/r/File.txt"));
 
         Assert.IsNotNull(node);
         Assert.IsNotNull(file);
@@ -41,7 +41,7 @@ public sealed class VirtualTreeTests
                               .Add("res.txt", Resource.FromString("Blubb"))
                               .Build();
 
-        var (node, file) = await virt.Find(GetTarget("/res.txt"));
+        var (node, file) = await virt.FindAsync(GetTarget("/res.txt"));
 
         Assert.IsNotNull(node);
         Assert.IsNotNull(file);

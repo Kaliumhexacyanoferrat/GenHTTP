@@ -19,7 +19,7 @@ public sealed class ResourceTreeTests
 
         Assert.HasCount(2, await tree.GetNodes());
 
-        Assert.HasCount(6, await tree.GetResources());
+        Assert.HasCount(7, await tree.GetResources());
     }
 
     [TestMethod]

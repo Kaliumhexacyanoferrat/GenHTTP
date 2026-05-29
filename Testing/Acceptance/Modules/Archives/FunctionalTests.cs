@@ -30,7 +30,7 @@ public class FunctionalTests
             var target = new RequestTarget();
             target.Apply("/SubDir/SubDir/SubFile.txt"u8.ToArray());
             
-            var (foundNode, foundFile) = await tree.Find(target);
+            var (foundNode, foundFile) = await tree.FindAsync(target);
 
             Assert.IsNotNull(foundNode);
             Assert.IsNotNull(foundFile);
@@ -54,7 +54,7 @@ public class FunctionalTests
         var target = new RequestTarget();
         target.Apply("/SubDir/SubDir/SubFile.txt"u8.ToArray());
         
-        var (_, foundFile) = await tree.Find(target);
+        var (_, foundFile) = await tree.FindAsync(target);
 
         Assert.AreEqual("3", await GetContentAsync(foundFile!));
     }
