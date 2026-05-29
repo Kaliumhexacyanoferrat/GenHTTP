@@ -6,17 +6,6 @@ namespace GenHTTP.Modules.Compression.Providers;
 public sealed class CompressedResponseContent : IResponseContent, IDisposable
 {
 
-    #region Initialization
-
-    public CompressedResponseContent(IResponseContent originalContent, Func<IResponseSink, IResponseSink> sinkFactory, AlgorithmName algorithmName)
-    {
-        OriginalContent = originalContent;
-        SinkFactory = sinkFactory;
-        Encoding = algorithmName.Value;
-    }
-
-    #endregion
-
     #region Get-/Setters
 
     public ulong? Length => null;
@@ -30,7 +19,18 @@ public sealed class CompressedResponseContent : IResponseContent, IDisposable
     private Func<IResponseSink, IResponseSink> SinkFactory { get; }
 
     #endregion
+    
+    #region Initialization
 
+    public CompressedResponseContent(IResponseContent originalContent, Func<IResponseSink, IResponseSink> sinkFactory, AlgorithmName algorithmName)
+    {
+        OriginalContent = originalContent;
+        SinkFactory = sinkFactory;
+        Encoding = algorithmName.Value;
+    }
+
+    #endregion
+    
     #region Functionality
 
     public ValueTask<ulong?> CalculateChecksumAsync() => OriginalContent.CalculateChecksumAsync();
@@ -46,9 +46,13 @@ public sealed class CompressedResponseContent : IResponseContent, IDisposable
         finally
         {
             if (compressingSink is IAsyncDisposable asyncDisposable)
+            {
                 await asyncDisposable.DisposeAsync();
+            }
             else if (compressingSink is IDisposable disposable)
+            {
                 disposable.Dispose();
+            }
         }
     }
 

@@ -61,12 +61,20 @@ internal sealed class BrotliCompressingSink : IResponseSink, IAsyncDisposable, I
 
         do
         {
-            var output = _inner.Writer.GetSpan(256);
+            var writer = _inner.Writer;
+
+            var output = writer.GetSpan(2048);
+
             status = _encoder.Compress(input, output, out int consumed, out int written, isFinalBlock);
-            _inner.Writer.Advance(written);
+
+            if (written > 0)
+            {
+                writer.Advance(written);
+            }
+
             input = input.Slice(consumed);
         }
-        while (status == OperationStatus.DestinationTooSmall || (isFinalBlock && status != OperationStatus.Done));
+        while (status == OperationStatus.DestinationTooSmall || (isFinalBlock && status != OperationStatus.Done && input.Length > 0));
     }
 
     private static int MapQuality(CompressionLevel level) => level switch
