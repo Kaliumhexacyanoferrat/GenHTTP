@@ -1,7 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.Compression.Providers;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.IO.Streaming;
@@ -32,35 +31,37 @@ public sealed class PreCompressedResourceHandler : IHandler
 
         var file = GetFileName(target);
 
-        if (file is not null)
+        if (file is null)
         {
-            var acceptHeader = request.Header.Headers.GetEntry(KnownHeaders.Accept);
+            return null;
+        }
 
-            if (acceptHeader != null)
+        var acceptHeader = request.Header.Headers.GetEntry(KnownHeaders.Accept);
+
+        if (acceptHeader != null)
+        {
+            var supported = AcceptHeader.ParseSupported(acceptHeader.Value.Span);
+
+            foreach (var algorithm in _algorithms.OrderByDescending(a => (int)a.Priority))
             {
-                var supported = AcceptHeader.ParseSupported(acceptHeader.Value.Span);
-
-                foreach (var algorithm in _algorithms.OrderByDescending(a => (int)a.Priority))
+                if (supported.Contains(algorithm.Name))
                 {
-                    if (supported.Contains(algorithm.Name))
+                    var extension = new byte[algorithm.Name.Value.Length + 1];
+                    extension[0] = (byte)'.';
+                    algorithm.Name.Value.Span.CopyTo(extension.AsSpan(1));
+
+                    var newTarget = target.CopyAndAppend(extension);
+
+                    var (_, resource) = await _tree.FindAsync(newTarget);
+
+                    if (resource is not null)
                     {
-                        var extension = new byte[algorithm.Name.Value.Length + 1];
-                        extension[0] = (byte)'.';
-                        algorithm.Name.Value.Span.CopyTo(extension.AsSpan(1));
+                        var contentType = file.GuessContentType() ?? ContentType.ApplicationOctetStream;
+                        var content = new ResourceContent(resource, contentType, algorithm.Name.Value);
 
-                        var newTarget = target.CopyAndAppend(extension);
-
-                        var (_, resource) = await _tree.FindAsync(newTarget);
-
-                        if (resource is not null)
-                        {
-                            var contentType = file.GuessContentType() ?? ContentType.ApplicationOctetStream;
-                            var content = new ResourceContent(resource, contentType, algorithm.Name.Value);
-
-                            return request.Respond()
-                                          .Content(content)
-                                          .Build();
-                        }
+                        return request.Respond()
+                                      .Content(content)
+                                      .Build();
                     }
                 }
             }

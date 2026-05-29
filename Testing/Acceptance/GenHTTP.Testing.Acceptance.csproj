@@ -31,6 +31,8 @@
         <EmbeddedResource Include="Resources\Archives\Archive.zip" />
         <None Remove="Resources\Archives\Archive.tar.gz" />
         <EmbeddedResource Include="Resources\Archives\Archive.tar.gz" />
+        <None Remove="Resources\LargeTemplate.html.br" />
+        <EmbeddedResource Include="Resources\LargeTemplate.html.br" />
     </ItemGroup>
 
     <ItemGroup>

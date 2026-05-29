@@ -17,7 +17,7 @@ public sealed class ResourceTreeTests
 
         Assert.IsNotNull(await tree.TryGetResourceAsync(new("File.txt")));
 
-        Assert.HasCount(2, await tree.GetNodes());
+        Assert.HasCount(3, await tree.GetNodes());
 
         Assert.HasCount(6, await tree.GetResources());
     }
