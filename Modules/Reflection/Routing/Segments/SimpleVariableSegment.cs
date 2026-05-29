@@ -1,4 +1,3 @@
-using System.Text;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Reflection.Routing.Segments;
@@ -25,7 +24,7 @@ internal sealed class SimpleVariableSegment(string variableName) : IRoutingSegme
             return (false, 0);
         }
 
-        argumentSink.Add(variableName, Encoding.ASCII.GetString(part.Value.Span)); // todo: optimize?
+        argumentSink.Add(variableName, part.Value.ToString()); // todo: optimize?
         return (true, 1);
     }
 

@@ -6,12 +6,14 @@ public interface IRequestTarget
     PathSegment? Current { get; }
 
     bool IsLast { get; }
-    
+
     bool HasTrailingSlash { get; }
 
     void Advance(int segments = 1);
 
-    ReadOnlyMemory<byte>? Next(int offset);
+    PathSegment? Next(int offset);
+
+    IRequestTarget CopyAndAppend(ReadOnlyMemory<byte> suffix);
 
     string AsString(bool decode = true, bool remainingOnly = false);
 

@@ -5,7 +5,7 @@ namespace GenHTTP.Modules.IO.Streaming;
 
 public sealed class ResourceContent : IResponseContent
 {
-    
+
     #region Get-/Setters
 
     public ulong? Length => Resource.Length;
@@ -14,16 +14,17 @@ public sealed class ResourceContent : IResponseContent
 
     private IResource Resource { get; }
 
-    public ReadOnlyMemory<byte>? Encoding => null;
+    public ReadOnlyMemory<byte>? Encoding { get; }
 
     #endregion
-    
+
     #region Initialization
 
-    public ResourceContent(IResource resource, ContentType? contentType = null)
+    public ResourceContent(IResource resource, ContentType? contentType = null, ReadOnlyMemory<byte>? encoding = null)
     {
         Resource = resource;
         Type = contentType ?? resource.GuessContentType();
+        Encoding = encoding;
     }
 
     #endregion

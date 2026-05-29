@@ -56,7 +56,7 @@ internal sealed partial class RegexSegment : IRoutingSegment
             return (false, 0);
         }
 
-        var stringPart = Encoding.ASCII.GetString(part.Value.Span);
+        var stringPart = part.Value.ToString();
 
         var match = _matcher.Match(stringPart);
 
