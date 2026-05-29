@@ -9,6 +9,8 @@ public sealed class FileResource : IResource
 {
     private long _length;
 
+    private readonly string _fullPath;
+
     #region Initialization
 
     public FileResource(FileInfo file, string? name, ContentType? contentType)
@@ -20,6 +22,7 @@ public sealed class FileResource : IResource
 
         File = file;
 
+        _fullPath = file.FullName;
         _length = file.Length;
 
         Name = name ?? file.Name;
@@ -58,7 +61,7 @@ public sealed class FileResource : IResource
 
     public async ValueTask WriteAsync(IResponseSink sink)
     {
-        await using var stream = File.OpenRead();
+        await using var stream = new FileStream(_fullPath, FileMode.Open, FileAccess.Read, FileShare.Read, 64 * 1024, FileOptions.SequentialScan);
 
         _length = stream.Length;
         
