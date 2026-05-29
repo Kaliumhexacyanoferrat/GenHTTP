@@ -8,10 +8,10 @@ public sealed class CompressedResponseContent : IResponseContent, IDisposable
 
     #region Initialization
 
-    public CompressedResponseContent(IResponseContent originalContent, Func<Stream, Stream> generator, AlgorithmName algorithmName)
+    public CompressedResponseContent(IResponseContent originalContent, Func<IResponseSink, IResponseSink> sinkFactory, AlgorithmName algorithmName)
     {
         OriginalContent = originalContent;
-        Generator = generator;
+        SinkFactory = sinkFactory;
         Encoding = algorithmName.Value;
     }
 
@@ -27,7 +27,7 @@ public sealed class CompressedResponseContent : IResponseContent, IDisposable
 
     private IResponseContent OriginalContent { get; }
 
-    private Func<Stream, Stream> Generator { get; }
+    private Func<IResponseSink, IResponseSink> SinkFactory { get; }
 
     #endregion
 
@@ -37,9 +37,19 @@ public sealed class CompressedResponseContent : IResponseContent, IDisposable
 
     public async ValueTask WriteAsync(IResponseSink sink)
     {
-        await using var compressingSink = new CompressingSink(sink, Generator);
+        var compressingSink = SinkFactory(sink);
 
-        await OriginalContent.WriteAsync(compressingSink);
+        try
+        {
+            await OriginalContent.WriteAsync(compressingSink);
+        }
+        finally
+        {
+            if (compressingSink is IAsyncDisposable asyncDisposable)
+                await asyncDisposable.DisposeAsync();
+            else if (compressingSink is IDisposable disposable)
+                disposable.Dispose();
+        }
     }
 
     #endregion

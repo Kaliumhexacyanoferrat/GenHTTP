@@ -17,7 +17,7 @@ public sealed class ZstdAlgorithm : ICompressionAlgorithm
 
     public IResponseContent Compress(IResponseContent content, CompressionLevel level)
     {
-        return new CompressedResponseContent(content, target => new CompressionStream(target, MapLevel(level), leaveOpen: false), Name);
+        return new CompressedResponseContent(content, sink => new ZstdCompressingSink(sink, MapLevel(level)), Name);
     }
 
     private static int MapLevel(CompressionLevel level)
