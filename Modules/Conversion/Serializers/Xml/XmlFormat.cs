@@ -13,7 +13,7 @@ public sealed class XmlFormat : ISerializationFormat
         return new ValueTask<object?>(result);
     }
 
-    public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)
+    public ValueTask<IResponseBuilder> SerializeAsync<T>(IRequest request, T response) where T : class
     {
         var result = request.Respond()
                             .Content(new XmlContent(response));
@@ -21,7 +21,7 @@ public sealed class XmlFormat : ISerializationFormat
         return new ValueTask<IResponseBuilder>(result);
     }
 
-    public ValueTask<ReadOnlyMemory<byte>> SerializeAsync(object data)
+    public ValueTask<ReadOnlyMemory<byte>> SerializeAsync<T>(T data) where T : class
     {
         return ByteStreamSerialization.SerializeAsync(b =>
         {
