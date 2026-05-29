@@ -16,7 +16,7 @@ public sealed class ProtobufFormat : ISerializationFormat
         return new ValueTask<object?>(deserializedObject);
     }
 
-    public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)
+    public ValueTask<IResponseBuilder> SerializeAsync<T>(IRequest request, T response) where T : class
     {
         var result = request.Respond()
                             .Content(new ProtobufContent(response));
@@ -24,7 +24,7 @@ public sealed class ProtobufFormat : ISerializationFormat
         return new ValueTask<IResponseBuilder>(result);
     }
 
-    public ValueTask<ReadOnlyMemory<byte>> SerializeAsync(object data)
+    public ValueTask<ReadOnlyMemory<byte>> SerializeAsync<T>(T data) where T : class
     {
         return ByteStreamSerialization.SerializeAsync(b =>
         {

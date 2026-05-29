@@ -1,7 +1,7 @@
 ﻿using BenchmarkDotNet.Running;
 
-using GenHTTP.Benchmarks.Benchmarks.Compression;
+using GenHTTP.Benchmarks.Benchmarks.Functional;
 
-BenchmarkRunner.Run<PreCompressedBenchmark>();
+BenchmarkRunner.Run<JsonSerializationBenchmark>();
 
-// await new PreCompressedBenchmark().BenchmarkPreCompressedStaticFiles();
+// await new JsonSerializationBenchmark().BenchmarkReturnedJson();

@@ -11,7 +11,8 @@ public sealed class JsonFormat : ISerializationFormat
     {
         PropertyNameCaseInsensitive = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        WriteIndented = false
     };
 
     #region Get-/Setters
@@ -40,19 +41,19 @@ public sealed class JsonFormat : ISerializationFormat
 
     public ValueTask<object?> DeserializeAsync(Stream stream, Type type) => JsonSerializer.DeserializeAsync(stream, type, Options);
 
-    public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)
+    public ValueTask<IResponseBuilder> SerializeAsync<T>(IRequest request, T response) where T : class
     {
         var result = request.Respond()
-                            .Content(new JsonContent(response, Options));
+                            .Content(new JsonContent<T>(response, Options));
 
         return new ValueTask<IResponseBuilder>(result);
     }
 
-    public ValueTask<ReadOnlyMemory<byte>> SerializeAsync(object data)
+    public ValueTask<ReadOnlyMemory<byte>> SerializeAsync<T>(T data) where T : class
     {
         return ByteStreamSerialization.SerializeAsync(b =>
         {
-            var content = new JsonContent(data, Options);
+            var content = new JsonContent<T>(data, Options);
 
             return content.WriteAsync(b, 8192);
         });

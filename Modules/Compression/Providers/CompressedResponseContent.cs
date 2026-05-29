@@ -6,17 +6,6 @@ namespace GenHTTP.Modules.Compression.Providers;
 public sealed class CompressedResponseContent : IResponseContent, IDisposable
 {
 
-    #region Initialization
-
-    public CompressedResponseContent(IResponseContent originalContent, Func<Stream, Stream> generator, AlgorithmName algorithmName)
-    {
-        OriginalContent = originalContent;
-        Generator = generator;
-        Encoding = algorithmName.Value;
-    }
-
-    #endregion
-
     #region Get-/Setters
 
     public ulong? Length => null;
@@ -27,19 +16,44 @@ public sealed class CompressedResponseContent : IResponseContent, IDisposable
 
     private IResponseContent OriginalContent { get; }
 
-    private Func<Stream, Stream> Generator { get; }
+    private Func<IResponseSink, IResponseSink> SinkFactory { get; }
 
     #endregion
+    
+    #region Initialization
 
+    public CompressedResponseContent(IResponseContent originalContent, Func<IResponseSink, IResponseSink> sinkFactory, AlgorithmName algorithmName)
+    {
+        OriginalContent = originalContent;
+        SinkFactory = sinkFactory;
+        Encoding = algorithmName.Value;
+    }
+
+    #endregion
+    
     #region Functionality
 
     public ValueTask<ulong?> CalculateChecksumAsync() => OriginalContent.CalculateChecksumAsync();
 
     public async ValueTask WriteAsync(IResponseSink sink)
     {
-        await using var compressingSink = new CompressingSink(sink, Generator);
+        var compressingSink = SinkFactory(sink);
 
-        await OriginalContent.WriteAsync(compressingSink);
+        try
+        {
+            await OriginalContent.WriteAsync(compressingSink);
+        }
+        finally
+        {
+            if (compressingSink is IAsyncDisposable asyncDisposable)
+            {
+                await asyncDisposable.DisposeAsync();
+            }
+            else if (compressingSink is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
     }
 
     #endregion

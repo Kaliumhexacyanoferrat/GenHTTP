@@ -31,13 +31,13 @@ public interface ISerializationFormat
     /// <param name="request">The request to generate a response for</param>
     /// <param name="response">The object to be serialized</param>
     /// <returns>The response representing the serialized object</returns>
-    ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response);
+    ValueTask<IResponseBuilder> SerializeAsync<T>(IRequest request, T response) where T : class;
 
     /// <summary>
     /// Serializes the given payload into a memory buffer.
     /// </summary>
     /// <param name="data">The data to be processed</param>
     /// <returns>The byte representation of the serialized data</returns>
-    ValueTask<ReadOnlyMemory<byte>> SerializeAsync(object data); // todo: why? performance?
+    ValueTask<ReadOnlyMemory<byte>> SerializeAsync<T>(T data) where T : class; // todo: why? performance?
 
 }

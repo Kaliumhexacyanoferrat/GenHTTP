@@ -16,7 +16,7 @@ public sealed class BrotliAlgorithm : ICompressionAlgorithm
 
     public IResponseContent Compress(IResponseContent content, CompressionLevel level)
     {
-        return new CompressedResponseContent(content, target => new BrotliStream(target, level, false), Name);
+        return new CompressedResponseContent(content, sink => new BrotliCompressingSink(sink, level), Name);
     }
 
     public Stream Decompress(Stream content)

@@ -28,7 +28,7 @@ public sealed class YamlFormat : ISerializationFormat
         return new(Deserializer.Deserialize(reader, type));
     }
 
-    public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)
+    public ValueTask<IResponseBuilder> SerializeAsync<T>(IRequest request, T response) where T : class
     {
         var result = request.Respond()
                             .Content(new YamlContent(response));
@@ -36,7 +36,7 @@ public sealed class YamlFormat : ISerializationFormat
         return new ValueTask<IResponseBuilder>(result);
     }
 
-    public ValueTask<ReadOnlyMemory<byte>> SerializeAsync(object data)
+    public ValueTask<ReadOnlyMemory<byte>> SerializeAsync<T>(T data) where T : class
     {
         return ByteStreamSerialization.SerializeAsync(b =>
         {

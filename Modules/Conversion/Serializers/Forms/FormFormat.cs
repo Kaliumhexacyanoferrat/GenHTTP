@@ -80,7 +80,7 @@ public sealed class FormFormat : ISerializationFormat
         return result;
     }
 
-    public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)
+    public ValueTask<IResponseBuilder> SerializeAsync<T>(IRequest request, T response) where T : class
     {
         var result = request.Respond()
                             .Content(new FormContent(response.GetType(), response, Formatters));
@@ -88,7 +88,7 @@ public sealed class FormFormat : ISerializationFormat
         return new ValueTask<IResponseBuilder>(result);
     }
 
-    public ValueTask<ReadOnlyMemory<byte>> SerializeAsync(object data)
+    public ValueTask<ReadOnlyMemory<byte>> SerializeAsync<T>(T data) where T : class
     {
         return ByteStreamSerialization.SerializeAsync(b =>
         {

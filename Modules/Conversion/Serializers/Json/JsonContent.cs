@@ -4,18 +4,12 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Conversion.Serializers.Json;
 
-public sealed class JsonContent : IResponseContent
+public sealed class JsonContent<T> : IResponseContent where T : class
 {
-
-    #region Initialization
-
-    public JsonContent(object data, JsonSerializerOptions options)
+    private readonly JsonWriterOptions _writerOptions = new()
     {
-        Data = data;
-        Options = options;
-    }
-
-    #endregion
+        SkipValidation = true
+    };
 
     #region Get-/Setters
 
@@ -25,9 +19,19 @@ public sealed class JsonContent : IResponseContent
 
     public ReadOnlyMemory<byte>? Encoding => null;
 
-    private object Data { get; }
+    private T Data { get; }
 
-    private JsonSerializerOptions Options { get; }
+    private JsonSerializerOptions SerializerOptions { get; }
+
+    #endregion
+    
+    #region Initialization
+
+    public JsonContent(T data, JsonSerializerOptions serializerOptions)
+    {
+        Data = data;
+        SerializerOptions = serializerOptions;
+    }
 
     #endregion
 
@@ -37,14 +41,14 @@ public sealed class JsonContent : IResponseContent
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
-        await JsonSerializer.SerializeAsync(target, Data, Data.GetType(), Options);
+        await JsonSerializer.SerializeAsync(target, Data, Data.GetType(), SerializerOptions);
     }
 
     public ValueTask WriteAsync(IResponseSink sink)
     {
-        using var writer = new Utf8JsonWriter(sink.Writer);
+        using var writer = new Utf8JsonWriter(sink.Writer, _writerOptions);
 
-        JsonSerializer.Serialize(writer, Data, Options);
+        JsonSerializer.Serialize(writer, Data, SerializerOptions);
 
         return default;
     }
