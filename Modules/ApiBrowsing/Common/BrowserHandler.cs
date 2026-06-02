@@ -3,6 +3,7 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
+using GenHTTP.Modules.Files;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Pages;
 using GenHTTP.Modules.Pages.Rendering;
@@ -27,8 +28,8 @@ public sealed class BrowserHandler: IHandler
 
     public BrowserHandler(string resourceRoot, BrowserMetaData metaData)
     {
-        StaticResources = Resources.From(ResourceTree.FromAssembly($"{resourceRoot}.Static"))
-                                   .Build();
+        StaticResources = Assets.From(ResourceTree.FromAssembly($"{resourceRoot}.Static"))
+                                .Build();
 
         Template = Renderer.From(Resource.FromAssembly($"{resourceRoot}.Index.html").Build());
 

@@ -1,6 +1,8 @@
 ﻿using System.IO.Compression;
 using System.Net;
+
 using GenHTTP.Modules.Compression;
+using GenHTTP.Modules.Files;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.ServerCaching;
 
@@ -14,9 +16,9 @@ public class PrecompressedContentTest
     [MultiEngineTest]
     public async Task TestContentCanBePreCompressed(TestEngine engine)
     {
-        var content = Resources.From(ResourceTree.FromAssembly("Resources"))
-                               .Add(CompressedContent.Default().Level(CompressionLevel.Optimal))
-                               .Add(ServerCache.Memory());
+        var content = Assets.From(ResourceTree.FromAssembly("Resources"))
+                            .Add(CompressedContent.Default().Level(CompressionLevel.Optimal))
+                            .Add(ServerCache.Memory());
 
         await using var runner = await TestHost.RunAsync(content, false, engine: engine);
 

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 
+using GenHTTP.Modules.Files;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Reflection;
@@ -16,7 +17,7 @@ public class WildcardTests
     {
         var tree = ResourceTree.FromAssembly("Resources");
 
-        var resources = Resources.From(tree);
+        var resources = Assets.From(tree);
 
         var app = Inline.Create()
                         .Get("/tenant/:tenantId/", (int tenantId) =>

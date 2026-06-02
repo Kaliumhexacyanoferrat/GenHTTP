@@ -1,6 +1,8 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.Files;
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.SinglePageApplications.Provider;
@@ -32,7 +34,7 @@ public sealed class SinglePageProvider : IHandler
         Tree = tree;
         ServerSideRouting = serverSideRouting;
 
-        Resources = IO.Resources.From(tree).Build();
+        Resources = Assets.From(tree).Build();
     }
 
     #endregion
