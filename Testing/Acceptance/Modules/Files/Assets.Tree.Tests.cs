@@ -2,6 +2,7 @@
 
 using GenHTTP.Modules.Files;
 using GenHTTP.Modules.IO;
+using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Files;
 
@@ -88,5 +89,8 @@ public sealed class AssetsTreeTests
 
         await response.AssertStatusAsync(HttpStatusCode.NotFound);
     }
+
+    [TestMethod]
+    public void TestChaining() => Chain.Works(Assets.From(ResourceTree.FromDirectory("./")));
 
 }

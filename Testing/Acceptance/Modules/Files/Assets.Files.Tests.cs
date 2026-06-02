@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using GenHTTP.Modules.Compression.Algorithms;
 using GenHTTP.Modules.Files;
 using GenHTTP.Modules.Files.Multi;
+using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Files;
 
@@ -75,6 +76,9 @@ public sealed class AssetsFilesTests
             await response.AssertStatusAsync(HttpStatusCode.NotFound);
         });
     }
+
+    [TestMethod]
+    public void TestChaining() => Chain.Works(Assets.From("./"));
 
     private async ValueTask RunAsync(TestEngine engine, Func<TestHost, ValueTask> logic, Action<FileAssetsBuilder>? customizations = null)
     {
