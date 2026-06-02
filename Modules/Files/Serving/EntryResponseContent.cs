@@ -1,10 +1,8 @@
 ﻿using fdout;
-
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.IO;
 
-namespace GenHTTP.Modules.Files.Handlers;
+namespace GenHTTP.Modules.Files.Serving;
 
 public sealed class EntryResponseContent : IResponseContent, IDisposable
 {

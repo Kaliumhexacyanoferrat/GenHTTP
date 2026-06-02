@@ -3,8 +3,9 @@ using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Compression.Providers;
+using GenHTTP.Modules.IO;
 
-namespace GenHTTP.Modules.Files.Handlers;
+namespace GenHTTP.Modules.Files.Multi;
 
 public abstract class AbstractAssetsHandler : IHandler
 {
@@ -73,7 +74,11 @@ public abstract class AbstractAssetsHandler : IHandler
                 {
                     var newTarget = target.CopyAndAppend(supported.Extension);
 
-                    var content = await Resolve(newTarget);
+                    var fileName = GetFileName(target);
+
+                    var contentType = fileName?.GuessContentType() ?? ContentType.ApplicationOctetStream;
+
+                    var content = await Resolve(newTarget, contentType, supported.Algorithm.Name.Value);
 
                     if (content != null)
                     {
@@ -88,6 +93,32 @@ public abstract class AbstractAssetsHandler : IHandler
         return null;
     }
 
-    protected abstract ValueTask<IResponseContent?> Resolve(IRequestTarget target);
+    protected abstract ValueTask<IResponseContent?> Resolve(IRequestTarget target, ContentType? contentType = null, ReadOnlyMemory<byte>? contentEncoding = null);
+
+    private static string? GetFileName(IRequestTarget target)
+    {
+        if (target.HasTrailingSlash)
+        {
+            return null;
+        }
+
+        var offset = 0;
+
+        PathSegment? current = null;
+
+        while (true)
+        {
+            var next = target.Next(offset++);
+
+            if (next == null)
+            {
+                break;
+            }
+
+            current = next.Value;
+        }
+
+        return current?.Decode();
+    }
 
 }

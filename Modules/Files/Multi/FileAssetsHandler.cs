@@ -1,9 +1,9 @@
 ﻿using fdout;
-
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Files.Serving;
 
-namespace GenHTTP.Modules.Files.Handlers;
+namespace GenHTTP.Modules.Files.Multi;
 
 public sealed class FileAssetsHandler : AbstractAssetsHandler
 {
@@ -18,7 +18,7 @@ public sealed class FileAssetsHandler : AbstractAssetsHandler
         _cache = new RandomAccessCache(_directory.FullName);
     }
 
-    protected override ValueTask<IResponseContent?> Resolve(IRequestTarget target)
+    protected override ValueTask<IResponseContent?> Resolve(IRequestTarget target, ContentType? contentType = null, ReadOnlyMemory<byte>? contentEncoding = null)
     {
         var path = target.AsString(decode: true, remainingOnly: true);
 
@@ -26,7 +26,7 @@ public sealed class FileAssetsHandler : AbstractAssetsHandler
 
         if (_cache.TryGet(targetFile, out var entry))
         {
-            return new(new EntryResponseContent(_cache, entry));
+            return new(new EntryResponseContent(_cache, entry, contentType, contentEncoding));
         }
 
         return default;

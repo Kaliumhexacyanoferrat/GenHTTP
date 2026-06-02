@@ -1,7 +1,7 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 
-namespace GenHTTP.Modules.Files.Handlers;
+namespace GenHTTP.Modules.Files.Multi;
 
 public sealed class TreeAssetsBuilder(IResourceTree tree) : IHandlerBuilder<TreeAssetsBuilder>
 {

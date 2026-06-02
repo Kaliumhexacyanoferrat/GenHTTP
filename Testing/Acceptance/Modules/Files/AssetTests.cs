@@ -1,20 +1,23 @@
 ﻿using System.Net;
 using System.Text;
+
 using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.Files;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 
-namespace GenHTTP.Testing.Acceptance.Modules.IO;
+namespace GenHTTP.Testing.Acceptance.Modules.Files;
 
 [TestClass]
-public sealed class DownloadTests
+public sealed class AssetTests
 {
 
     [TestMethod]
     [MultiEngineTest]
     public async Task TestDownload(TestEngine engine)
     {
-        await using var runner = await TestHost.RunAsync(Download.From(Resource.FromAssembly("File.txt")), engine: engine);
+        await using var runner = await TestHost.RunAsync(Asset.From(Resource.FromAssembly("File.txt")), engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
@@ -29,7 +32,7 @@ public sealed class DownloadTests
     public async Task TestDownloadDoesNotAcceptRouting(TestEngine engine)
     {
         var layout = Layout.Create()
-                           .Add("file.txt", Download.From(Resource.FromAssembly("File.txt")));
+                           .Add("file.txt", Asset.From(Resource.FromAssembly("File.txt")));
 
         await using var runner = await TestHost.RunAsync(layout, engine: engine);
 
@@ -42,7 +45,7 @@ public sealed class DownloadTests
     [MultiEngineTest]
     public async Task DownloadsCannotBeModified(TestEngine engine)
     {
-        var download = Download.From(Resource.FromAssembly("File.txt"));
+        var download = Asset.From(Resource.FromAssembly("File.txt"));
 
         await using var runner = await TestHost.RunAsync(download, engine: engine);
 
@@ -62,8 +65,8 @@ public sealed class DownloadTests
     [MultiEngineTest]
     public async Task TestFileName(TestEngine engine)
     {
-        var download = Download.From(Resource.FromAssembly("File.txt"))
-                               .FileName("myfile.txt");
+        var download = Asset.From(Resource.FromAssembly("File.txt"))
+                            .AsDownload("myfile.txt");
 
         await using var runner = await TestHost.RunAsync(download, engine: engine);
 
@@ -76,7 +79,8 @@ public sealed class DownloadTests
     [MultiEngineTest]
     public async Task TestNoFileName(TestEngine engine)
     {
-        var download = Download.From(Resource.FromAssembly("File.txt"));
+        var download = Asset.From(Resource.FromAssembly("File.txt"))
+                            .AsDownload();
 
         await using var runner = await TestHost.RunAsync(download, engine: engine);
 
@@ -89,7 +93,8 @@ public sealed class DownloadTests
     [MultiEngineTest]
     public async Task TestFileNameFromResource(TestEngine engine)
     {
-        var download = Download.From(Resource.FromAssembly("File.txt").Name("myfile.txt"));
+        var download = Asset.From(Resource.FromAssembly("File.txt").Name("myfile.txt"))
+                            .AsDownload();
 
         await using var runner = await TestHost.RunAsync(download, engine: engine);
 
@@ -102,8 +107,8 @@ public sealed class DownloadTests
     [MultiEngineTest]
     public async Task TestTypeCanBeSet(TestEngine engine)
     {
-        var download = Download.From(Resource.FromString("This;is;CSV"))
-                               .Type(ContentType.TextCsv);
+        var download = Asset.From(Resource.FromString("This;is;CSV"))
+                            .Type(ContentType.TextCsv);
 
         await using var runner = await TestHost.RunAsync(download, engine: engine);
 

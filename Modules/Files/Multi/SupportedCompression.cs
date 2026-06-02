@@ -1,6 +1,6 @@
 using GenHTTP.Api.Content.IO;
 
-namespace GenHTTP.Modules.Files.Handlers;
+namespace GenHTTP.Modules.Files.Multi;
 
 public readonly struct SupportedCompression(ICompressionAlgorithm algorithm, ReadOnlyMemory<byte> extension)
 {

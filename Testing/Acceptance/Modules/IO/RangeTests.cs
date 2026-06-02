@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Modules.Files;
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Modules.IO;
@@ -150,8 +151,8 @@ public class RangeTests
     [MultiEngineTest]
     public async Task TestAddSupportForSingleFile(TestEngine engine)
     {
-        var download = Download.From(Resource.FromString("Hello World!"))
-                               .AddRangeSupport();
+        var download = Asset.From(Resource.FromString("Hello World!"))
+                            .AddRangeSupport();
 
         await using var runner = await TestHost.RunAsync(download);
 

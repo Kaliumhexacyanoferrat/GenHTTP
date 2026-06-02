@@ -1,10 +1,9 @@
 ﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.IO.Streaming;
 
-namespace GenHTTP.Modules.Files.Handlers;
+namespace GenHTTP.Modules.Files.Multi;
 
 public sealed class TreeAssetsHandler : AbstractAssetsHandler
 {
@@ -15,13 +14,13 @@ public sealed class TreeAssetsHandler : AbstractAssetsHandler
         _tree = tree;
     }
 
-    protected override async ValueTask<IResponseContent?> Resolve(IRequestTarget target)
+    protected override async ValueTask<IResponseContent?> Resolve(IRequestTarget target, ContentType? contentType = null, ReadOnlyMemory<byte>? contentEncoding = null)
     {
         var (_, resource) = await _tree.FindAsync(target);
 
         if (resource is not null)
         {
-            return new ResourceContent(resource);
+            return new ResourceContent(resource, contentType, contentEncoding);
         }
 
         return null;
