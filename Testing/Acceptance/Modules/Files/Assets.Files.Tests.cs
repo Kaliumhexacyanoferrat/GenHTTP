@@ -60,7 +60,7 @@ public sealed class AssetsFilesTests
 
         void Adjustments(FileAssetsBuilder h)
         {
-            h.AllowPrecompressed(new BrotliAlgorithm());
+            h.AllowPrecompressed([new BrotliAlgorithm()], '.');
         }
     }
 
