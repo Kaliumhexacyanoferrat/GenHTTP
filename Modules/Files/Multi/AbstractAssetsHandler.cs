@@ -4,48 +4,63 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Compression.Providers;
 using GenHTTP.Modules.IO;
-using GenHTTP.Modules.IO.Streaming;
 
-namespace GenHTTP.Modules.Compression.PreCompression;
+namespace GenHTTP.Modules.Files.Multi;
 
-public sealed class PreCompressedResourceHandler : IHandler
+public abstract class AbstractAssetsHandler : IHandler
 {
-    private readonly IResourceTree _tree;
-
-    private readonly IHandler _regular;
-
     private readonly List<SupportedCompression> _algorithms;
 
-    public PreCompressedResourceHandler(IResourceTree tree, List<ICompressionAlgorithm> algorithms, char separator)
+    protected AbstractAssetsHandler(List<ICompressionAlgorithm> algorithms, char separator)
     {
-        _tree = tree;
-
-        _regular = Resources.From(tree).Build();
-
         _algorithms = algorithms.Select(a =>
                                 {
                                     var extension = new byte[a.Name.Value.Length + 1];
                                     extension[0] = (byte)separator;
                                     a.Name.Value.Span.CopyTo(extension.AsSpan(1));
-                                    
+
                                     return new SupportedCompression(a, extension);
                                 })
                                 .OrderByDescending(a => (int)a.Algorithm.Priority)
                                 .ToList();
     }
 
-    public ValueTask PrepareAsync() => _regular.PrepareAsync();
+    public ValueTask PrepareAsync() => default;
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
         var target = request.Header.Target;
 
-        var file = GetFileName(target);
-
-        if (file is null)
+        if (target.HasTrailingSlash)
         {
             return null;
         }
+
+        if (_algorithms.Count > 0)
+        {
+            var handled = await TryGetPreCompressed(request);
+
+            if (handled != null)
+            {
+                return handled;
+            }
+        }
+
+        var content = await Resolve(target);
+
+        if (content != null)
+        {
+            return request.Respond()
+                          .Content(content)
+                          .Build();
+        }
+
+        return null;
+    }
+
+    private async ValueTask<IResponse?> TryGetPreCompressed(IRequest request)
+    {
+        var target = request.Header.Target;
 
         var acceptEncodingHeader = request.Header.Headers.GetEntry(KnownHeaders.AcceptEncoding);
 
@@ -59,13 +74,14 @@ public sealed class PreCompressedResourceHandler : IHandler
                 {
                     var newTarget = target.CopyAndAppend(supported.Extension);
 
-                    var (_, resource) = await _tree.FindAsync(newTarget);
+                    var fileName = GetFileName(target);
 
-                    if (resource is not null)
+                    var contentType = fileName?.GuessContentType() ?? ContentType.ApplicationOctetStream;
+
+                    var content = await Resolve(newTarget, contentType, supported.Algorithm.Name.Value);
+
+                    if (content != null)
                     {
-                        var contentType = file.GuessContentType() ?? ContentType.ApplicationOctetStream;
-                        var content = new ResourceContent(resource, contentType, supported.Algorithm.Name.Value);
-
                         return request.Respond()
                                       .Content(content)
                                       .Build();
@@ -74,8 +90,10 @@ public sealed class PreCompressedResourceHandler : IHandler
             }
         }
 
-        return await _regular.HandleAsync(request);
+        return null;
     }
+
+    protected abstract ValueTask<IResponseContent?> Resolve(IRequestTarget target, ContentType? contentType = null, ReadOnlyMemory<byte>? contentEncoding = null);
 
     private static string? GetFileName(IRequestTarget target)
     {

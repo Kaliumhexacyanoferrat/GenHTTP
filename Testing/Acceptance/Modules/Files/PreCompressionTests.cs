@@ -1,13 +1,11 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
-
-using GenHTTP.Modules.Compression;
 using GenHTTP.Modules.Compression.Algorithms;
+using GenHTTP.Modules.Files;
 using GenHTTP.Modules.IO;
-
 using GenHTTP.Testing.Acceptance.Utilities;
 
-namespace GenHTTP.Testing.Acceptance.Modules.Compression;
+namespace GenHTTP.Testing.Acceptance.Modules.Files;
 
 [TestClass]
 public class PreCompressionTests
@@ -52,7 +50,7 @@ public class PreCompressionTests
 
         Assert.IsEmpty(response.Content.Headers.ContentEncoding);
     }
-    
+
     [TestMethod]
     [MultiEngineTest]
     public async Task TestNoCompressionRequested(TestEngine engine)
@@ -84,17 +82,16 @@ public class PreCompressionTests
     [TestMethod]
     public void TestChaining()
     {
-        var handler = PreCompressedResources.From(ResourceTree.FromAssembly())
-                                            .Add(new BrotliAlgorithm());
-                                            
+        var handler = Assets.From(ResourceTree.FromAssembly())
+                            .AllowPrecompressed(new BrotliAlgorithm());
+
         Chain.Works(handler);
     }
-    
+
     private static async ValueTask<TestHost> RunAsync(TestEngine engine)
     {
-        var handler = PreCompressedResources.From(ResourceTree.FromAssembly())
-                                            .Add(new BrotliAlgorithm())
-                                            .Separator('+');
+        var handler = Assets.From(ResourceTree.FromAssembly())
+                            .AllowPrecompressed([new BrotliAlgorithm()], '+');
 
         return await TestHost.RunAsync(handler, defaults: false, engine: engine);
     }

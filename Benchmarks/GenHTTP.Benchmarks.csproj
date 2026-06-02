@@ -17,6 +17,8 @@
     
     <ProjectReference Include="..\Modules\Compression\GenHTTP.Modules.Compression.csproj" />
     
+    <ProjectReference Include="..\Modules\Files\GenHTTP.Modules.Files.csproj" />
+    
     <ProjectReference Include="..\Modules\Functional\GenHTTP.Modules.Functional.csproj" />
     
     <ProjectReference Include="..\Modules\ServerCaching\GenHTTP.Modules.ServerCaching.csproj" />

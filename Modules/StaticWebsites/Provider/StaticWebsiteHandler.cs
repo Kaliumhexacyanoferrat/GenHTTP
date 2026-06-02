@@ -1,6 +1,8 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.Files;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.IO.Streaming;
 
@@ -8,7 +10,7 @@ namespace GenHTTP.Modules.StaticWebsites.Provider;
 
 public sealed class StaticWebsiteHandler : IHandler
 {
-    private static readonly PathSegment[] IndexFiles = [ new("index.html"), new("index.htm") ];
+    private static readonly PathSegment[] IndexFiles = [new("index.html"), new("index.htm")];
 
     #region Get-/Setters
 
@@ -24,8 +26,8 @@ public sealed class StaticWebsiteHandler : IHandler
     {
         Tree = tree;
 
-        Resources = IO.Resources.From(tree)
-                      .Build();
+        Resources = Assets.From(tree)
+                          .Build();
     }
 
     #endregion

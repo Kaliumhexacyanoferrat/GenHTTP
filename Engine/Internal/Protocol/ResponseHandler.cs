@@ -142,7 +142,7 @@ internal sealed class ResponseHandler
             {
                 writer.Write("Transfer-Encoding: chunked\r\n"u8);
             }
-            
+
             var encoding = content.Encoding;
 
             if (encoding != null)
@@ -179,26 +179,31 @@ internal sealed class ResponseHandler
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ValueTask WriteBodyAsync(IResponse response)
+    private async ValueTask WriteBodyAsync(IResponse response)
     {
         var content = response.Content;
 
         if (content is null)
         {
-            return ValueTask.CompletedTask;
+            return;
         }
 
         var length = content.Length;
 
         if (length is null && response.Mode != Connection.Upgrade)
         {
-            return WriteChunked(content);
+            await WriteChunked(content);
+        }
+        else
+        {
+            _regularSink.Apply();
+            await content.WriteAsync(_regularSink);
         }
 
-        _regularSink.Apply();
-
-        return content.WriteAsync(_regularSink);
-
+        if (content is IDisposable disposableContent)
+        {
+            disposableContent.Dispose();
+        }
     }
 
     private async ValueTask WriteChunked(IResponseContent content)

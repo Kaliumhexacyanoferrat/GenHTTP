@@ -1,9 +1,7 @@
 using BenchmarkDotNet.Attributes;
-
 using GenHTTP.Benchmarks.Infrastructure;
-
 using GenHTTP.Modules.Compression;
-using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Files;
 
 namespace GenHTTP.Benchmarks.Benchmarks.Compression;
 
@@ -17,12 +15,10 @@ public class CompressedResponseBenchmark
 
     private static BenchmarkContext CreateContext()
     {
-        var tree = ResourceTree.FromDirectory("./Resources/");
-
         var compression = CompressedContent.Default();
 
-        var handler = Resources.From(tree)
-                               .Add(compression);
+        var handler = Assets.From("./Resources/")
+                            .Add(compression);
 
         var request = "GET /file.js HTTP/1.1\r\nHost: localhost:8080\r\nAccept-Encoding: br;q=1, gzip;q=0.8\r\n\r\n";
 

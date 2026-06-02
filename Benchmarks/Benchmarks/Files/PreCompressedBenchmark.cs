@@ -4,9 +4,9 @@ using GenHTTP.Benchmarks.Infrastructure;
 
 using GenHTTP.Modules.Compression;
 using GenHTTP.Modules.Compression.Algorithms;
-using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Files;
 
-namespace GenHTTP.Benchmarks.Benchmarks.Compression;
+namespace GenHTTP.Benchmarks.Benchmarks.Files;
 
 [MemoryDiagnoser]
 public class PreCompressedBenchmark
@@ -18,11 +18,9 @@ public class PreCompressedBenchmark
 
     private static BenchmarkContext CreateContext()
     {
-        var tree = ResourceTree.FromDirectory("./Resources/");
-
-        var handler = PreCompressedResources.From(tree)
-                                            .Add(new BrotliAlgorithm())
-                                            .Add(CompressedContent.Default());
+        var handler = Assets.From("./Resources/")
+                            .AllowPrecompressed(new BrotliAlgorithm())
+                            .Add(CompressedContent.Default());
 
         var request = "GET /file.js HTTP/1.1\r\nHost: localhost:8080\r\nAccept-Encoding: br;q=1, gzip;q=0.8\r\n\r\n";
 
@@ -30,4 +28,3 @@ public class PreCompressedBenchmark
     }
 
 }
-

@@ -12,6 +12,8 @@
 
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj"/>
 
+        <ProjectReference Include="..\Files\GenHTTP.Modules.Files.csproj" />
+
         <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj"/>
 
     </ItemGroup>
