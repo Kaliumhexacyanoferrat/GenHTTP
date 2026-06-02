@@ -1,4 +1,6 @@
 ﻿using System.Net;
+using System.Net.Http.Headers;
+using GenHTTP.Modules.Compression.Algorithms;
 using GenHTTP.Modules.Files;
 using GenHTTP.Modules.Files.Multi;
 
@@ -38,6 +40,32 @@ public sealed class AssetsFilesTests
 
     [TestMethod]
     [MultiEngineTest]
+    public async Task TestSubFileCompressed(TestEngine engine)
+    {
+        await RunAsync(engine, async host =>
+        {
+            var request = host.GetRequest("/SubDir/subfile.txt");
+
+            request.Headers.AcceptEncoding.Add(new StringWithQualityHeaderValue("br"));
+
+            using var response = await host.GetResponseAsync(request);
+
+            await response.AssertStatusAsync(HttpStatusCode.OK);
+
+            Assert.AreEqual("This is subcompressed", await response.GetContentAsync());
+            Assert.AreEqual("br", response.GetContentHeader("Content-Encoding"));
+        }, Adjustments);
+
+        return;
+
+        void Adjustments(FileAssetsBuilder h)
+        {
+            h.AllowPrecompressed(new BrotliAlgorithm());
+        }
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
     public async Task TestDirectory(TestEngine engine)
     {
         await RunAsync(engine, async host =>
@@ -61,6 +89,10 @@ public sealed class AssetsFilesTests
         var subFile = Path.Combine(subDir.FullName, "subfile.txt");
 
         await File.WriteAllTextAsync(subFile, "This is sub");
+
+        var subFileCompressed = Path.Combine(subDir.FullName, "subfile.txt.br");
+
+        await File.WriteAllTextAsync(subFileCompressed, "This is subcompressed");
 
         var assets = Assets.From(dir);
 
