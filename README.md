@@ -93,6 +93,9 @@ Additionally, our automated tests ensure full compatibility on the following pla
 
 ## Building the Server
 
+> [!NOTE]
+> The `main` branch reflects the upcoming changes for GenHTTP 11, which are rather drastic. For the current stable release, checkout `release/10.5` instead.
+
 To build the server from source, clone this repository and run the playground project launcher for .NET 10:
 
 ```sh
