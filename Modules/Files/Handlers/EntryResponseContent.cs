@@ -8,6 +8,8 @@ namespace GenHTTP.Modules.Files.Handlers;
 
 public class EntryResponseContent : IResponseContent
 {
+    private readonly RandomAccessCache _cache;
+
     private readonly Entry _entry;
 
     public ulong? Length { get; }
@@ -16,8 +18,9 @@ public class EntryResponseContent : IResponseContent
 
     public ReadOnlyMemory<byte>? Encoding { get; }
 
-    public EntryResponseContent(Entry entry, ContentType? type = null, ReadOnlyMemory<byte>? encoding = null)
+    public EntryResponseContent(RandomAccessCache cache, Entry entry, ContentType? type = null, ReadOnlyMemory<byte>? encoding = null)
     {
+        _cache = cache;
         _entry = entry;
 
         Length = (ulong)entry.Size;
@@ -48,8 +51,20 @@ public class EntryResponseContent : IResponseContent
         {
             var buffer = writer.GetMemory(64 * 1024);
 
-            var want = (int)Math.Min(buffer.Length, _entry.Size - offset);
-        };
+            var read = _cache.Read(_entry, buffer.Span, offset);
+
+            if (read <= 0)
+            {
+                break;
+            }
+
+            writer.Advance(read);
+
+            offset += read;
+        }
+        while (offset < _entry.Size);
+
+        return default;
     }
 
 }

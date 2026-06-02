@@ -1,4 +1,5 @@
 ﻿using fdout;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
@@ -28,8 +29,14 @@ public class FileAssetsHandler : IHandler
 
         if (_cache.TryGet(target, out var entry))
         {
-            
+            var response = request.Respond()
+                                  .Content(new EntryResponseContent(_cache, entry))
+                                  .Build();
+
+            return new(response);
         }
+
+        return default;
     }
 
 }
