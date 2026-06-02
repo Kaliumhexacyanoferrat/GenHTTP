@@ -6,7 +6,7 @@ using GenHTTP.Modules.IO;
 namespace GenHTTP.Testing.Acceptance.Modules.Files;
 
 [TestClass]
-public sealed class AssetsTests
+public sealed class AssetsTreeTests
 {
 
     [TestMethod]

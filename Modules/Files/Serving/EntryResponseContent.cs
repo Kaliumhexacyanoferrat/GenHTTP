@@ -1,10 +1,12 @@
 ﻿using fdout;
+
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.Files.Serving;
 
-public sealed class EntryResponseContent : IResponseContent, IDisposable
+public sealed class EntryResponseContent : IResponseContent
 {
     private readonly RandomAccessCache _cache;
 
@@ -63,11 +65,6 @@ public sealed class EntryResponseContent : IResponseContent, IDisposable
         while (offset < _entry.Size);
 
         return default;
-    }
-
-    public void Dispose()
-    {
-        _entry.Dispose();
     }
 
 }
