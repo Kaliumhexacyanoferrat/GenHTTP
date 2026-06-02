@@ -33,7 +33,7 @@ public sealed class FormatterRegistry
         return false;
     }
 
-    public object? Read(string value, Type type)
+    public object? Read(ReadOnlyMemory<byte> value, Type type)
     {
         for (var i = 0; i < Formatters.Count; i++)
         {
@@ -45,7 +45,6 @@ public sealed class FormatterRegistry
 
         return null;
     }
-
 
     public string? Write(object value, Type type)
     {

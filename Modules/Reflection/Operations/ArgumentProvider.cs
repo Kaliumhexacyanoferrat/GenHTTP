@@ -25,7 +25,7 @@ public static class ArgumentProvider
         return null;
     }
 
-    public static object? GetPathArgument(string name, Type type, RoutingMatch match, MethodRegistry registry)
+    public static object? GetPathArgument(ArgumentName name, Type type, RoutingMatch match, MethodRegistry registry)
     {
         if (match.PathArguments?.TryGetValue(name, out var pathArgument) ?? false)
         {
@@ -48,17 +48,15 @@ public static class ArgumentProvider
 
         var buffer = await content.ReadToEndAsync();
 
-        var body = Encoding.UTF8.GetString(buffer.Span);
-
-        if (!string.IsNullOrWhiteSpace(body))
+        if (!buffer.IsEmpty)
         {
-            result = body.ConvertTo(type, registry.Formatting);
+            result = buffer.ConvertTo(type, registry.Formatting);
         }
 
         return result;
     }
 
-    public static object? GetQueryArgument(IRequest request, Dictionary<string, string>? formArguments, OperationArgument argument, MethodRegistry registry)
+    public static object? GetQueryArgument(IRequest request, OperationArgument argument, MethodRegistry registry)
     {
         var queryValue = request.Header.Query.GetEntry(argument.Name.Value);
 
@@ -67,15 +65,15 @@ public static class ArgumentProvider
             return queryValue.ConvertTo(argument.Type, registry.Formatting);
         }
 
+        /* todo: remove first-class support for body args
         if (formArguments is not null)
         {
-            // todo: optimize this (e.g. read the form values as readonlymemory)
-
             if (formArguments.TryGetValue(argument.Name.ToString(), out var bodyValue))
             {
                 return bodyValue.ConvertTo(argument.Type, registry.Formatting);
             }
         }
+        */
 
         return null;
     }

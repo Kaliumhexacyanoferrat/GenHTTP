@@ -1,17 +1,27 @@
-﻿namespace GenHTTP.Modules.Conversion.Formatters;
+﻿using GenHTTP.Modules.IO;
+
+namespace GenHTTP.Modules.Conversion.Formatters;
 
 public sealed class BoolFormatter : IFormatter
 {
+    private static readonly ReadOnlyMemory<byte> SwitchOne = "1"u8.ToArray();
+    private static readonly ReadOnlyMemory<byte> SwitchZero = "0"u8.ToArray();
+
+    private static readonly ReadOnlyMemory<byte> SwitchOn = "on"u8.ToArray();
+    private static readonly ReadOnlyMemory<byte> SwitchOff = "off"u8.ToArray();
+
+    private static readonly ReadOnlyMemory<byte> SwitchTrue = "true"u8.ToArray();
+    private static readonly ReadOnlyMemory<byte> SwitchFalse = "false"u8.ToArray();
 
     public bool CanHandle(Type type) => type == typeof(bool);
 
-    public object? Read(string value, Type type)
+    public object? Read(ReadOnlyMemory<byte> value, Type type)
     {
-        if (value == "1" || Compare(value, "on") || Compare(value, "true"))
+        if (MemoryValue.Equal(value, SwitchOne) || MemoryValue.Equal(value, SwitchOn) || MemoryValue.Equal(value, SwitchTrue))
         {
             return true;
         }
-        if (value == "0" || Compare(value, "off") || Compare(value, "false"))
+        if (MemoryValue.Equal(value, SwitchZero) || MemoryValue.Equal(value, SwitchOff) || MemoryValue.Equal(value, SwitchFalse))
         {
             return false;
         }
@@ -21,5 +31,4 @@ public sealed class BoolFormatter : IFormatter
 
     public string Write(object value, Type type) => (bool)value ? "1" : "0";
 
-    private static bool Compare(string value, string expected) => string.Equals(value, expected, StringComparison.InvariantCultureIgnoreCase);
 }

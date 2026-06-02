@@ -15,7 +15,7 @@ public interface IFormatter
     bool CanHandle(Type type);
 
     /// <summary>
-    /// Converts the given string into the specified type.
+    /// Converts the given memory value into the specified type.
     /// </summary>
     /// <param name="value">The value to be converted</param>
     /// <param name="type">The type to convert the value to</param>
@@ -23,7 +23,7 @@ public interface IFormatter
     /// <remarks>
     /// Used by the framework to read parameters to be passed to controllers or the like.
     /// </remarks>
-    object? Read(string value, Type type);
+    object? Read(ReadOnlyMemory<byte> value, Type type);
 
     /// <summary>
     /// Converts the given object instance of the given type into a string representation.
@@ -36,4 +36,5 @@ public interface IFormatter
     /// or to generate form encoded data.
     /// </remarks>
     string? Write(object value, Type type);
+
 }
