@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+
+        <Description>Provides functionality to efficiently serve files to clients</Description>
+        <PackageTags>GenHTTP HTTP Webserver C# Module Files Assets Asset</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+
+        <Authors>Andreas Nägeli</Authors>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+
+        <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
+
+        <ProjectReference Include="..\Compression\GenHTTP.Modules.Compression.csproj" />
+
+        <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
+        
+        <PackageReference Include="fdout" Version="0.0.1" />
+
+    </ItemGroup>
+
+    <ItemGroup>
+
+        <None Include="README.md" Pack="true" PackagePath="" />
+
+    </ItemGroup>
+
+</Project>
