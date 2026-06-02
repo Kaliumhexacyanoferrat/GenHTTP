@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Modules.Files.Handlers;
 
-public class FileAssetsBuilder(DirectoryInfo directory) : IHandlerBuilder<FileAssetsBuilder>
+public sealed class FileAssetsBuilder(DirectoryInfo directory) : IHandlerBuilder<FileAssetsBuilder>
 {
     private readonly List<IConcernBuilder> _concerns = [];
 

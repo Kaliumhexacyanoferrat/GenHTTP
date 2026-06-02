@@ -3,7 +3,7 @@ using GenHTTP.Api.Content.IO;
 
 namespace GenHTTP.Modules.Files.Handlers;
 
-public class TreeAssetsBuilder(IResourceTree tree) : IHandlerBuilder<TreeAssetsBuilder>
+public sealed class TreeAssetsBuilder(IResourceTree tree) : IHandlerBuilder<TreeAssetsBuilder>
 {
     private readonly List<IConcernBuilder> _concerns = [];
 

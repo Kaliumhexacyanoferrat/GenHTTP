@@ -6,7 +6,7 @@ using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.Files.Handlers;
 
-public class EntryResponseContent : IResponseContent
+public sealed class EntryResponseContent : IResponseContent, IDisposable
 {
     private readonly RandomAccessCache _cache;
 
@@ -65,6 +65,11 @@ public class EntryResponseContent : IResponseContent
         while (offset < _entry.Size);
 
         return default;
+    }
+
+    public void Dispose()
+    {
+        _entry.Dispose();
     }
 
 }

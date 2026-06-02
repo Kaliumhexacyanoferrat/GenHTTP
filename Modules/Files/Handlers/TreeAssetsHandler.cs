@@ -7,7 +7,7 @@ using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.Files.Handlers;
 
-public class TreeAssetsHandler : IHandler
+public sealed class TreeAssetsHandler : IHandler
 {
     private readonly IResourceTree _tree;
 

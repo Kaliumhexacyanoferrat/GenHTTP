@@ -5,7 +5,7 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Files.Handlers;
 
-public class FileAssetsHandler : IHandler
+public sealed class FileAssetsHandler : IHandler
 {
     private readonly DirectoryInfo _directory;
 
