@@ -33,7 +33,7 @@ public sealed class ResourceAssetHandler(IResource resource, bool asDownload, st
         {
             var name = fileName ?? resource.Name;
 
-            if (fileName is not null)
+            if (name is not null)
             {
                 response.Header("Content-Disposition", $"attachment; filename=\"{name}\"");
             }
