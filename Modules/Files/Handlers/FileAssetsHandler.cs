@@ -1,39 +1,32 @@
 ﻿using fdout;
 
-using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Files.Handlers;
 
-public sealed class FileAssetsHandler : IHandler
+public sealed class FileAssetsHandler : AbstractAssetsHandler
 {
     private readonly DirectoryInfo _directory;
 
     private readonly RandomAccessCache _cache;
 
-    public FileAssetsHandler(DirectoryInfo directory)
+    public FileAssetsHandler(DirectoryInfo directory, List<ICompressionAlgorithm> algorithms, char separator) : base(algorithms, separator)
     {
         _directory = directory;
 
         _cache = new RandomAccessCache(_directory.FullName);
     }
 
-    public ValueTask PrepareAsync() => default;
-
-    public ValueTask<IResponse?> HandleAsync(IRequest request)
+    protected override ValueTask<IResponseContent?> Resolve(IRequestTarget target)
     {
-        // todo: make this non-allocating
-        var path = request.Header.Target.AsString(decode: true, remainingOnly: true);
+        var path = target.AsString(decode: true, remainingOnly: true);
 
-        var target = Path.Combine(_directory.FullName, path);
+        var targetFile = Path.Combine(_directory.FullName, path);
 
-        if (_cache.TryGet(target, out var entry))
+        if (_cache.TryGet(targetFile, out var entry))
         {
-            var response = request.Respond()
-                                  .Content(new EntryResponseContent(_cache, entry))
-                                  .Build();
-
-            return new(response);
+            return new(new EntryResponseContent(_cache, entry));
         }
 
         return default;

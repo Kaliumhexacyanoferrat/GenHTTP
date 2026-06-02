@@ -80,6 +80,8 @@
 
         <ProjectReference Include="..\..\Modules\Archives\GenHTTP.Modules.Archives.csproj" />
 
+        <ProjectReference Include="..\..\Modules\Files\GenHTTP.Modules.Files.csproj" />
+
         <ProjectReference Include="..\Testing\GenHTTP.Testing.csproj" />
 
         <ProjectReference Include="..\..\Modules\ApiBrowsing\GenHTTP.Modules.ApiBrowsing.csproj" />

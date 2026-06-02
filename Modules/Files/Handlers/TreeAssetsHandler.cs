@@ -1,5 +1,4 @@
-﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.IO;
+﻿using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO;
@@ -7,26 +6,22 @@ using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.Files.Handlers;
 
-public sealed class TreeAssetsHandler : IHandler
+public sealed class TreeAssetsHandler : AbstractAssetsHandler
 {
     private readonly IResourceTree _tree;
 
-    public TreeAssetsHandler(IResourceTree tree)
+    public TreeAssetsHandler(IResourceTree tree, List<ICompressionAlgorithm> algorithms, char separator) : base(algorithms, separator)
     {
         _tree = tree;
     }
 
-    public ValueTask PrepareAsync() => default;
-
-    public async ValueTask<IResponse?> HandleAsync(IRequest request)
+    protected override async ValueTask<IResponseContent?> Resolve(IRequestTarget target)
     {
-        var (_, resource) = await _tree.FindAsync(request.Header.Target);
+        var (_, resource) = await _tree.FindAsync(target);
 
         if (resource is not null)
         {
-            return request.Respond()
-                          .Content(new ResourceContent(resource))
-                          .Build();
+            return new ResourceContent(resource);
         }
 
         return null;
