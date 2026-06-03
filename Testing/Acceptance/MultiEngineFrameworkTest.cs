@@ -21,7 +21,7 @@ public class MultiEngineFrameworkTestAttribute : Attribute, ITestDataSource
         foreach (var engine in engines)
         {
             result.Add([engine[0], ExecutionMode.Reflection]);
-            // result.Add([engine[0], ExecutionMode.Auto]);
+            result.Add([engine[0], ExecutionMode.Auto]);
         }
 
         return result;

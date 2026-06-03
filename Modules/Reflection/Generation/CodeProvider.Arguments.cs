@@ -8,39 +8,21 @@ namespace GenHTTP.Modules.Reflection.Generation;
 public static class CodeProviderArgumentExtensions
 {
 
-    public static void AppendArguments(this StringBuilder sb, Operation operation)
+    public static void AppendArguments(this StringBuilder sb, Operation operation, StringBuilder declarations)
     {
         if (operation.Arguments.Count > 0)
         {
-            var hasQueryArgs = operation.Arguments.Any(a => a.Value.Source == OperationArgumentSource.Query);
-
-            var mayHasBody = operation.Configuration.SupportedMethods.Any(m => m != RequestMethod.Get && m != RequestMethod.Head);
-
-            var supportBodyArguments = hasQueryArgs && mayHasBody;
-
-            if (supportBodyArguments)
-            {
-                sb.AppendLine("        Dictionary<string, string>? bodyArgs = null;");
-                sb.AppendLine();
-
-                sb.AppendLine("        if (request.ContentType?.KnownType == ContentType.ApplicationWwwFormUrlEncoded)");
-                sb.AppendLine("        {");
-                sb.AppendLine("            bodyArgs = FormFormat.GetContent(request);");
-                sb.AppendLine("        }");
-                sb.AppendLine();
-            }
-
             var index = 0;
 
             foreach (var arg in operation.Arguments)
             {
-                sb.AppendArgument(arg.Value, ++index, supportBodyArguments);
+                sb.AppendArgument(arg.Value, ++index, declarations);
                 sb.AppendLine();
             }
         }
     }
 
-    private static void AppendArgument(this StringBuilder sb, OperationArgument argument, int index, bool supportBodyArguments)
+    private static void AppendArgument(this StringBuilder sb, OperationArgument argument, int index, StringBuilder declarations)
     {
         switch (argument.Source)
         {
@@ -51,7 +33,7 @@ public static class CodeProviderArgumentExtensions
                 }
             case OperationArgumentSource.Query:
                 {
-                    sb.AppendQueryArgument(argument, index, supportBodyArguments);
+                    sb.AppendQueryArgument(argument, index, declarations);
                     break;
                 }
             case OperationArgumentSource.Streamed:
@@ -79,21 +61,19 @@ public static class CodeProviderArgumentExtensions
         }
     }
 
-    private static void AppendQueryArgument(this StringBuilder sb, OperationArgument argument, int index, bool supportBodyArguments)
+    private static void AppendQueryArgument(this StringBuilder sb, OperationArgument argument, int index, StringBuilder declarations)
     {
         var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
 
+        declarations.AppendLine($"    private static ByteString QueryArg{index}Name = new({CompilationUtil.GetSafeString(argument.Name)});");
+        
         sb.AppendLine($"        {safeType}? arg{index} = null;");
         sb.AppendLine();
 
-        sb.AppendLine($"        if (request.Query.TryGetValue({CompilationUtil.GetSafeString(argument.Name)}, out var queryArg{index}))");
+        sb.AppendLine($"        var queryArg{index} = request.Header.Query.GetEntry(QueryArg{index}Name);");
+        
+        sb.AppendLine($"        if (queryArg{index} != null)");
         sb.AppendArgumentAssignment(argument, index, "query");
-
-        if (supportBodyArguments)
-        {
-            sb.AppendLine($"        else if (bodyArgs?.TryGetValue({CompilationUtil.GetSafeString(argument.Name)}, out var bodyArg{index}) == true)");
-            sb.AppendArgumentAssignment(argument, index, "body");
-        }
     }
 
     private static void AppendStreamArgument(this StringBuilder sb, int index)
@@ -173,44 +153,17 @@ public static class CodeProviderArgumentExtensions
     private static void AppendArgumentAssignment(this StringBuilder sb, OperationArgument argument, int index, string readFrom)
     {
         sb.AppendLine("        {");
-        sb.AppendLine($"            if (!string.IsNullOrEmpty({readFrom}Arg{index}))");
+        sb.AppendLine($"            if (!{readFrom}Arg{index}.Value.Bytes.IsEmpty)");
         sb.AppendLine("            {");
 
         var sourceName = $"{readFrom}Arg{index}";
 
         var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
 
-        if (argument.Type == typeof(string))
-        {
-            sb.AppendLine($"                arg{index} = {sourceName};");
-        }
-        else if (argument.Type.IsPrimitive && argument.Type != typeof(bool))
-        {
-            sb.AppendTryParse(argument, $"{safeType}.TryParse({sourceName}, out var {sourceName}Typed)", sourceName, index);
-        }
-        else if (argument.Type.IsEnum)
-        {
-            sb.AppendTryParse(argument, $"Enum.TryParse({sourceName}, out {safeType} {sourceName}Typed)", sourceName, index);
-        }
-        else
-        {
-            sb.AppendLine($"                arg{index} = ({safeType}?)registry.Formatting.Read({sourceName}, typeof({safeType}));");
-        }
+        sb.AppendLine($"                arg{index} = ({safeType}?)registry.Formatting.Read({sourceName}.Value, typeof({safeType}));");
 
         sb.AppendLine("            }");
         sb.AppendLine("        }");
-    }
-
-    private static void AppendTryParse(this StringBuilder sb, OperationArgument argument, string condition, string sourceName, int index)
-    {
-        sb.AppendLine($"                if ({condition})");
-        sb.AppendLine("                {");
-        sb.AppendLine($"                    arg{index} = {sourceName}Typed;");
-        sb.AppendLine("                }");
-        sb.AppendLine("                else");
-        sb.AppendLine("                {");
-        sb.AppendLine($"                    throw new ProviderException(ResponseStatus.BadRequest, \"Invalid format for input parameter '{argument.Name}'\");");
-        sb.AppendLine("                }");
     }
 
 }

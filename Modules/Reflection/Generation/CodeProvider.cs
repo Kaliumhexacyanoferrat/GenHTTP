@@ -22,6 +22,8 @@ public static class CodeProvider
 
         var sb = new StringBuilder();
 
+        var declarations = new StringBuilder();
+
         sb.AppendLine("using System;");
         sb.AppendLine("using System.Collections;");
         sb.AppendLine("using System.Collections.Generic;");
@@ -41,6 +43,9 @@ public static class CodeProvider
         sb.AppendLine("public static class Invoker");
         sb.AppendLine("{");
 
+        sb.AppendLine("[DECLARATIONS]");
+        sb.AppendLine();
+
         if (operation.Delegate != null)
         {
             sb.AppendLine($"    public static {(isAsync ? "async" : string.Empty)} ValueTask<IResponse?> Invoke(Delegate logic, Operation operation, IRequest request, IHandler handler, MethodRegistry registry, RoutingMatch routingMatch, RequestInterception interception)");
@@ -52,7 +57,7 @@ public static class CodeProvider
 
         sb.AppendLine("    {");
 
-        sb.AppendArguments(operation);
+        sb.AppendArguments(operation, declarations);
         
         sb.AppendInterception(operation);
 
@@ -63,6 +68,8 @@ public static class CodeProvider
         sb.AppendLine("    }");
 
         sb.AppendLine("}");
+
+        sb.Replace("[DECLARATIONS]", declarations.ToString());
 
         var code = sb.ToString();
 
