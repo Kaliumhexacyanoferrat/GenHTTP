@@ -1,10 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
-using System.Text;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion;
-using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Reflection.Routing;
 
 namespace GenHTTP.Modules.Reflection.Operations;
@@ -35,7 +32,7 @@ public static class ArgumentProvider
         return null;
     }
 
-    public static async ValueTask<object?> GetBodyArgumentAsync(IRequest request, string name, Type type, MethodRegistry registry)
+    public static async ValueTask<object?> GetBodyArgumentAsync(IRequest request, ArgumentName name, Type type, MethodRegistry registry)
     {
         var content = request.GetBody();
 
@@ -46,7 +43,7 @@ public static class ArgumentProvider
 
         object? result = null;
 
-        var buffer = await content.ReadToEndAsync();
+        var buffer = await content.AsMemoryAsync();
 
         if (!buffer.IsEmpty)
         {

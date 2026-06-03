@@ -1,6 +1,4 @@
-﻿using BenchmarkDotNet.Running;
-
-using GenHTTP.Benchmarks.Benchmarks.Webservices;
+﻿using GenHTTP.Benchmarks.Benchmarks.Webservices;
 
 // BenchmarkRunner.Run<BaselineBenchmark>();
 

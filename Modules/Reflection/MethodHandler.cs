@@ -6,7 +6,6 @@ using Cottle;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Conversion.Serializers.Forms;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Pages;
 using GenHTTP.Modules.Pages.Rendering;
@@ -16,7 +15,7 @@ using GenHTTP.Modules.Reflection.Routing;
 
 namespace GenHTTP.Modules.Reflection;
 
-public delegate ValueTask<IResponse?> RequestInterception(IRequest request, IReadOnlyDictionary<string, object?> arguments);
+public delegate ValueTask<IResponse?> RequestInterception(IRequest request, IReadOnlyDictionary<ArgumentName, object?> arguments);
 
 /// <summary>
 /// Allows to invoke a function on a service oriented resource.
@@ -28,7 +27,7 @@ public delegate ValueTask<IResponse?> RequestInterception(IRequest request, IRea
 /// </remarks>
 public sealed class MethodHandler : IHandler
 {
-    private static readonly Dictionary<string, object?> NoArguments = [];
+    private static readonly Dictionary<ArgumentName, object?> NoArguments = [];
 
     private static readonly TemplateRenderer ErrorRenderer = Renderer.From(Resource.FromAssembly("CodeGenerationError.html").Build());
 
@@ -162,15 +161,13 @@ public sealed class MethodHandler : IHandler
         return await ResponseProvider.GetResponseAsync(request, Operation, await UnwrapAsync(result));
     }
 
-    private async ValueTask<IReadOnlyDictionary<string, object?>> GetArguments(IRequest request, RoutingMatch match)
+    private async ValueTask<IReadOnlyDictionary<ArgumentName, object?>> GetArguments(IRequest request, RoutingMatch match)
     {
         var targetParameters = Operation.Method.GetParameters();
 
         if (targetParameters.Length > 0)
         {
-            var targetArguments = new Dictionary<string, object?>(targetParameters.Length);
-
-            var bodyArguments = await FormFormat.GetContentAsync(request);
+            var targetArguments = new Dictionary<ArgumentName, object?>(targetParameters.Length);
 
             for (var i = 0; i < targetParameters.Length; i++)
             {
@@ -185,7 +182,7 @@ public sealed class MethodHandler : IHandler
                             OperationArgumentSource.Injected => ArgumentProvider.GetInjectedArgument(request, this, arg, Registry),
                             OperationArgumentSource.Path => ArgumentProvider.GetPathArgument(arg.Name, arg.Type, match, Registry),
                             OperationArgumentSource.Body => await ArgumentProvider.GetBodyArgumentAsync(request, arg.Name, arg.Type, Registry),
-                            OperationArgumentSource.Query => ArgumentProvider.GetQueryArgument(request, bodyArguments, arg, Registry),
+                            OperationArgumentSource.Query => ArgumentProvider.GetQueryArgument(request, arg, Registry),
                             OperationArgumentSource.Content => await ArgumentProvider.GetContentAsync(request, arg, Registry),
                             OperationArgumentSource.Streamed => ArgumentProvider.GetStream(request),
                             _ => throw new ProviderException(ResponseStatus.InternalServerError, $"Unable to map argument '{arg.Name}' of type '{arg.Type}' because source '{arg.Source}' is not supported")
@@ -200,7 +197,7 @@ public sealed class MethodHandler : IHandler
         return NoArguments;
     }
 
-    private async ValueTask<IResponse?> InterceptAsync(IRequest request, IReadOnlyDictionary<string, object?> arguments)
+    private async ValueTask<IResponse?> InterceptAsync(IRequest request, IReadOnlyDictionary<ArgumentName, object?> arguments)
     {
         if (Operation.Interceptors.Count > 0)
         {

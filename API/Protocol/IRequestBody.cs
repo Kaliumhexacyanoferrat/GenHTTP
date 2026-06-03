@@ -11,4 +11,6 @@ public interface IRequestBody
 
     Stream AsStream();
 
+    ValueTask<ReadOnlyMemory<byte>> AsMemoryAsync();
+
 }

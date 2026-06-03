@@ -7,32 +7,42 @@ using GenHTTP.Engine.Shared.Types.Body;
 
 namespace GenHTTP.Engine.Shared.Types;
 
-public class RequestBody : IRequestBody
+internal enum ConsumptionStrategy
+{
+    Stream,
+    Memory
+}
+
+public class RequestBody(IRequest request) : IRequestBody
 {
     private static readonly ReadOnlyMemory<byte> ChunkedValue = "chunked"u8.ToArray();
+
+    private ConsumptionStrategy? _strategy;
+
+    private readonly StreamConsumptionStrategy _streamStrategy = new();
+
+    private readonly MemoryConsumptionStrategy _memoryStrategy = new();
     
-    private readonly PipeReader _reader;
-
-    private readonly bool _isChunked;
-
-    private Stream? _stream;
+    private PipeReader? _reader;
 
     #region Get-/Setters
 
-    public ContentType? Type { get; }
+    public ContentType? Type { get; private set; }
 
-    public ReadOnlyMemory<byte>? Encoding { get; }
+    public ReadOnlyMemory<byte>? Encoding { get; private set; }
 
-    public ulong? Length { get; }
+    public ulong? Length { get; private set; }
 
+    internal PipeReader Reader => _reader ?? throw new InvalidOperationException("Reader has not been initialized");
+    
     #endregion
 
     #region Initialization
 
-    public RequestBody(IRequest request, PipeReader reader)
+    public void Apply(PipeReader reader)
     {
         _reader = reader;
-
+        
         // request headers might be released so we need to persist the values here
         var headers = request.Header.Headers;
 
@@ -55,10 +65,28 @@ public class RequestBody : IRequestBody
                 throw new ProviderException(ResponseStatus.BadRequest, "Content-Length header has an invalid value");
             }
         }
+        else
+        {
+            Length = null;
+        }
 
         var transferEncoding = headers.GetEntry(KnownHeaders.TransferEncoding);
 
-        _isChunked = transferEncoding != null && transferEncoding.Value.Span.SequenceEqual(ChunkedValue.Span);
+        var chunked = transferEncoding != null && transferEncoding.Value.Span.SequenceEqual(ChunkedValue.Span);
+
+        if (Length == null && !chunked)
+        {
+            throw new InvalidOperationException("Request body has neither Content-Length nor Transfer-Encoding: chunked");
+        }
+    }
+
+    public void Reset()
+    {
+        _strategy = null;
+        _reader = null;
+        
+        _streamStrategy.Reset();
+        _memoryStrategy.Reset();
     }
 
     #endregion
@@ -67,34 +95,56 @@ public class RequestBody : IRequestBody
 
     public Stream AsStream()
     {
-        if (_stream != null)
+        if (_strategy == ConsumptionStrategy.Stream)
         {
-            return _stream;
+            return _streamStrategy.Obtain();
+        }
+        
+        SetStrategy(ConsumptionStrategy.Stream);
+        
+        _streamStrategy.Apply(Reader, (long?)Length);
+        
+        return _streamStrategy.Obtain();
+    }
+
+    public ValueTask<ReadOnlyMemory<byte>> AsMemoryAsync()
+    {
+        if (_strategy == ConsumptionStrategy.Memory)
+        {
+            return _memoryStrategy.ObtainAsync();
+        }
+        
+        SetStrategy(ConsumptionStrategy.Memory);
+        
+        _memoryStrategy.Apply(Reader, (long?)Length);
+
+        return _memoryStrategy.ObtainAsync();
+    }
+
+    private void SetStrategy(ConsumptionStrategy requested)
+    {
+        if (_strategy != null)
+        {
+            throw new InvalidOperationException($"Cannot provide body as '{requested}' as it has already been opened as '{_strategy}'");
         }
 
-        if (Length != null)
-        {
-            return _stream = new LengthLimitedStream(_reader, (long)Length.Value);
-        }
-
-        if (_isChunked)
-        {
-            return _stream = new ChunkedBodyStream(_reader);
-        }
-
-        throw new InvalidOperationException("Request body has neither Content-Length nor Transfer-Encoding: chunked");
+        _strategy = requested;
     }
 
     public ValueTask DrainAsync()
     {
-        if (_stream == null)
+        var strategy = _strategy;
+
+        _strategy = null;
+        
+        if (strategy == ConsumptionStrategy.Stream)
         {
-            AsStream();
+            return _streamStrategy.DrainAsync();
         }
         
-        if (_stream is IDrainableStream drainable)
+        if (strategy == ConsumptionStrategy.Memory)
         {
-            return drainable.DrainAsync();
+            return _memoryStrategy.DrainAsync();
         }
 
         return default;

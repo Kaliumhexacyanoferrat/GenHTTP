@@ -24,9 +24,11 @@ public sealed class Request : IRequest
     private readonly RequestProperties _properties;
 
     private readonly ResponseBuilder _response = new();
-    
-    private RequestBody? _body;
 
+    private readonly RequestBody _body;
+
+    private bool _bodyLoaded;
+    
     private bool _resetRequired = true;
 
     #region Get-/Setters
@@ -45,7 +47,7 @@ public sealed class Request : IRequest
     {
         get
         {
-            if (_body == null)
+            if (!_bodyLoaded)
             {
                 if (_retainedHeader != null)
                 {
@@ -73,6 +75,7 @@ public sealed class Request : IRequest
         Source = new();
 
         _header = new(this);
+        _body = new(this);
         _properties = new RequestProperties();
     }
 
@@ -82,10 +85,12 @@ public sealed class Request : IRequest
 
     public IRequestBody? GetBody(HeaderAccess headerAccess)
     {
-        if (_body != null)
+        if (_bodyLoaded)
         {
             throw new InvalidOperationException("Request body can only be fetched once.");
         }
+
+        _bodyLoaded = true;
 
         var headers = Header.Headers;
 
@@ -94,14 +99,17 @@ public sealed class Request : IRequest
             _retainedHeader = new RetainedRequestHeader(_header);
         }
 
+        var hasBody = false;
+
         if (headers.ContainsKey(KnownHeaders.ContentLength) || headers.ContainsKey(KnownHeaders.TransferEncoding))
         {
-            _body = new RequestBody(this, Reader);
+            hasBody = true;
+            _body.Apply(Reader);
         }
 
         Reader.AdvanceTo(_bodyStart);
 
-        return _body;
+        return (hasBody) ? _body : null;
     }
 
     public void Apply(IServer server, IEndPoint endPoint, PipeReader reader, SequencePosition bodyStart)
@@ -114,7 +122,7 @@ public sealed class Request : IRequest
 
         _properties.Clear();
 
-        _body = null;
+        _bodyLoaded = false;
         _bodyStart = bodyStart;
         _retainedHeader = null;
     }
@@ -126,8 +134,8 @@ public sealed class Request : IRequest
         _header.Apply();
 
         _properties.Clear();
-
-        _body = null;
+        
+        _bodyLoaded = false;
         _bodyStart = default;
         _retainedHeader = null;
     }
@@ -137,21 +145,26 @@ public sealed class Request : IRequest
         Source.Clear();
 
         _response.Reset();
+        _body.Reset();
 
         _resetRequired = true;
-        
     }
 
     public ValueTask DrainAsync()
     {
-        if (_body != null)
+        if (_bodyLoaded)
         {
             return _body.DrainAsync();
         }
 
         GetBody(HeaderAccess.Release);
-
-        return _body?.DrainAsync() ?? default;
+        
+        if (_bodyLoaded)
+        {
+            return _body.DrainAsync();
+        }
+        
+        return default;
     }
 
     public IResponseBuilder Respond()

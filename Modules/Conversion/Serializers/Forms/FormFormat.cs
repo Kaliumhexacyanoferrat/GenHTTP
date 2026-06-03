@@ -4,15 +4,13 @@ using System.Web;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Conversion.Formatters;
-using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.Conversion.Serializers.Forms;
 
 public sealed class FormFormat : ISerializationFormat
 {
-    private static readonly ReadOnlyMemory<byte> ContentTypeHeader = "Content-Type"u8.ToArray();
-
     private static readonly Type[] EmptyConstructor = [];
 
     private static readonly object[] EmptyArgs = [];
@@ -63,15 +61,19 @@ public sealed class FormFormat : ISerializationFormat
                 {
                     var property = type.GetProperty(key, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 
+                    // very inefficient, but the form format is probably not used that much
+                    // so we do not optimize that for now
+                    ReadOnlyMemory<byte> byteValue = Encoding.UTF8.GetBytes(value);
+                    
                     if (property is not null)
                     {
-                        property.SetValue(result, value.ConvertTo(property.PropertyType, Formatters));
+                        property.SetValue(result, byteValue.ConvertTo(property.PropertyType, Formatters));
                     }
                     else
                     {
                         var field = type.GetField(key, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 
-                        field?.SetValue(result, value.ConvertTo(field.FieldType, Formatters));
+                        field?.SetValue(result, byteValue.ConvertTo(field.FieldType, Formatters));
                     }
                 }
             }
@@ -98,9 +100,9 @@ public sealed class FormFormat : ISerializationFormat
         });
     }
 
-    public static async ValueTask<Dictionary<string, string>?> GetContentAsync(IRequest request)
+    public static async ValueTask<Dictionary<string, string>?> GetContentAsync(IRequest request) // todo: refactor into an own type
     {
-        var contentType = request.Header.Headers.GetEntry(ContentTypeHeader);
+        var contentType = request.Header.Headers.GetEntry(KnownHeaders.ContentType);
 
         if (contentType is not null)
         {
@@ -138,7 +140,7 @@ public sealed class FormFormat : ISerializationFormat
             throw new InvalidOperationException("Request content has to be set");
         }
 
-        var buffer = await requestContent.ReadToEndAsync();
+        var buffer = await requestContent.AsMemoryAsync();
 
         return Encoding.UTF8.GetString(buffer.Span);
     }
