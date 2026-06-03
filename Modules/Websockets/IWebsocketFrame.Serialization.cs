@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace GenHTTP.Modules.Websockets;
+﻿namespace GenHTTP.Modules.Websockets;
 
 public static class WebsocketFrameSerializationExtensions
 {
