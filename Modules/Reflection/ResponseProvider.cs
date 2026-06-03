@@ -34,7 +34,7 @@ public class ResponseProvider
 
     #region Functionality
 
-    public async ValueTask<IResponse?> GetResponseAsync(IRequest request, Operation operation, object? result, Action<IResponseBuilder>? adjustments = null)
+    public async ValueTask<IResponse?> GetResponseAsync(IRequest request, Operation operation, object? result, ByteString? acceptedFormat, Action<IResponseBuilder>? adjustments = null)
     {
         // no result = 204
         if (result is null)
@@ -49,7 +49,7 @@ public class ResponseProvider
         {
             var wrapped = (IResultWrapper)result;
 
-            return await GetResponseAsync(request, operation, wrapped.Payload, b => wrapped.Apply(b));
+            return await GetResponseAsync(request, operation, wrapped.Payload, acceptedFormat ,b => wrapped.Apply(b));
         }
 
         return operation.Result.Sink switch
@@ -57,7 +57,7 @@ public class ResponseProvider
             OperationResultSink.Dynamic => await GetDynamicResponse(request, result, adjustments),
             OperationResultSink.Binary => GetBinaryResponse(request, result, adjustments),
             OperationResultSink.Formatter => GetFormattedResponse(request, result, type, adjustments),
-            OperationResultSink.Serializer => await GetSerializedResponse(request, result, adjustments),
+            OperationResultSink.Serializer => await GetSerializedResponse(request, result, acceptedFormat, adjustments),
             OperationResultSink.None => GetNoContent(request, adjustments),
             _ => throw new ProviderException(ResponseStatus.InternalServerError, $"Unsupported sink '{operation.Result.Sink}' for type '{operation.Result.Type}'")
         };
@@ -122,9 +122,9 @@ public class ResponseProvider
                                                                                                                                         .Adjust(adjustments)
                                                                                                                                         .Build();
 
-    private async ValueTask<IResponse> GetSerializedResponse(IRequest request, object result, Action<IResponseBuilder>? adjustments)
+    private async ValueTask<IResponse> GetSerializedResponse(IRequest request, object result, ByteString? acceptedFormat, Action<IResponseBuilder>? adjustments)
     {
-        var serializer = Registry.Serialization.GetSerialization(request);
+        var serializer = Registry.Serialization.GetSerialization(request, acceptedFormat);
 
         if (serializer is null)
         {

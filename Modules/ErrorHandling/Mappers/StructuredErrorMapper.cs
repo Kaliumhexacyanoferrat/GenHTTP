@@ -45,7 +45,7 @@ public sealed class StructuredErrorMapper : IErrorMapper<Exception>
 
     #region Functionality
 
-    public async ValueTask<IResponse?> Map(IRequest request, IHandler handler, Exception error)
+    public async ValueTask<IResponse?> Map(IRequest request, IHandler handler, Exception error, ByteString? acceptedFormat)
     {
         string? stackTrace = null;
 
@@ -58,26 +58,26 @@ public sealed class StructuredErrorMapper : IErrorMapper<Exception>
         {
             var model = new ErrorModel(e.Status, error.Message, stackTrace);
 
-            return (await RenderAsync(request, model)).Apply(e.Modifications).Build();
+            return (await RenderAsync(request, model,acceptedFormat)).Apply(e.Modifications).Build();
         }
         else
         {
             var model = new ErrorModel(ResponseStatus.InternalServerError, error.Message, stackTrace);
 
-            return (await RenderAsync(request, model)).Build();
+            return (await RenderAsync(request, model, acceptedFormat)).Build();
         }
     }
 
-    public async ValueTask<IResponse?> GetNotFound(IRequest request, IHandler handler)
+    public async ValueTask<IResponse?> GetNotFound(IRequest request, IHandler handler, ByteString? acceptedFormat)
     {
         var model = new ErrorModel(ResponseStatus.NotFound, "The requested resource does not exist on this server");
 
-        return (await RenderAsync(request, model)).Build();
+        return (await RenderAsync(request, model, acceptedFormat)).Build();
     }
 
-    private async ValueTask<IResponseBuilder> RenderAsync(IRequest request, ErrorModel model)
+    private async ValueTask<IResponseBuilder> RenderAsync(IRequest request, ErrorModel model, ByteString? acceptedFormat)
     {
-        var format = Registry.GetSerialization(request) ?? new JsonFormat();
+        var format = Registry.GetSerialization(request, acceptedFormat) ?? new JsonFormat();
 
         var response = await format.SerializeAsync(request, model);
 

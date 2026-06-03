@@ -34,7 +34,7 @@ public static class ArgumentProvider
 
     public static async ValueTask<object?> GetBodyArgumentAsync(IRequest request, ByteString name, Type type, MethodRegistry registry)
     {
-        var content = request.GetBody();
+        var content = request.GetBody(HeaderAccess.Release);
 
         if (content == null)
         {
@@ -74,7 +74,7 @@ public static class ArgumentProvider
             throw new ProviderException(ResponseStatus.UnsupportedMediaType, "Requested format is not supported");
         }
 
-        var content = request.GetBody();
+        var content = request.GetBody(HeaderAccess.Release);
 
         if (content is null)
         {
@@ -94,7 +94,7 @@ public static class ArgumentProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Stream GetStream(IRequest request)
     {
-        var content = request.GetBody();
+        var content = request.GetBody(HeaderAccess.Release);
 
         if (content == null)
         {

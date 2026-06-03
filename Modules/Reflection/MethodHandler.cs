@@ -15,7 +15,7 @@ using GenHTTP.Modules.Reflection.Routing;
 
 namespace GenHTTP.Modules.Reflection;
 
-public delegate ValueTask<IResponse?> RequestInterception(IRequest request, IReadOnlyDictionary<ByteString, object?> arguments);
+public delegate ValueTask<IResponse?> RequestInterception(IRequest request, IReadOnlyDictionary<ByteString, object?> arguments, ByteString? acceptedFormat);
 
 /// <summary>
 /// Allows to invoke a function on a service oriented resource.
@@ -70,7 +70,7 @@ public sealed class MethodHandler : IHandler
 
         ResponseProvider = new(registry);
 
-        var effectiveMode = Operation.ExecutionSettings.Mode ?? ExecutionMode.Reflection;
+        var effectiveMode = Operation.ExecutionSettings.Mode ?? ExecutionMode.Auto;
 
         UseCodeGeneration = OptimizedDelegate.Supported && effectiveMode == ExecutionMode.Auto;
 
@@ -147,9 +147,11 @@ public sealed class MethodHandler : IHandler
 
     private async ValueTask<IResponse?> RunViaReflection(IRequest request, RoutingMatch match)
     {
+        var accepted = request.Header.Headers.GetEntry(KnownHeaders.Accept);
+
         var arguments = await GetArguments(request, match);
 
-        var interception = await InterceptAsync(request, arguments);
+        var interception = await InterceptAsync(request, arguments, accepted);
 
         if (interception is not null)
         {
@@ -158,7 +160,7 @@ public sealed class MethodHandler : IHandler
 
         var result = await InvokeAsync(request, arguments.Values.ToArray());
 
-        return await ResponseProvider.GetResponseAsync(request, Operation, await UnwrapAsync(result));
+        return await ResponseProvider.GetResponseAsync(request, Operation, await UnwrapAsync(result), accepted);
     }
 
     private async ValueTask<IReadOnlyDictionary<ByteString, object?>> GetArguments(IRequest request, RoutingMatch match)
@@ -197,7 +199,7 @@ public sealed class MethodHandler : IHandler
         return NoArguments;
     }
 
-    private async ValueTask<IResponse?> InterceptAsync(IRequest request, IReadOnlyDictionary<ByteString, object?> arguments)
+    private async ValueTask<IResponse?> InterceptAsync(IRequest request, IReadOnlyDictionary<ByteString, object?> arguments, ByteString? acceptedFormat)
     {
         if (Operation.Interceptors.Count > 0)
         {
@@ -205,7 +207,7 @@ public sealed class MethodHandler : IHandler
             {
                 if (await interceptor.InterceptAsync(request, Operation, arguments) is IResultWrapper result)
                 {
-                    return await ResponseProvider.GetResponseAsync(request, Operation, result.Payload, r => result.Apply(r));
+                    return await ResponseProvider.GetResponseAsync(request, Operation, result.Payload, acceptedFormat, r => result.Apply(r));
                 }
             }
         }

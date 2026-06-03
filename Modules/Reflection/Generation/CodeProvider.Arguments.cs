@@ -1,6 +1,8 @@
 ﻿using System.Text;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Reflection.Generation;
@@ -28,7 +30,7 @@ public static class CodeProviderArgumentExtensions
         {
             case OperationArgumentSource.Path:
                 {
-                    sb.AppendPathArgument(argument, index);
+                    sb.AppendPathArgument(argument, index, declarations);
                     break;
                 }
             case OperationArgumentSource.Query:
@@ -65,13 +67,13 @@ public static class CodeProviderArgumentExtensions
     {
         var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
 
-        declarations.AppendLine($"    private static ByteString QueryArg{index}Name = new({CompilationUtil.GetSafeString(argument.Name)});");
-        
+        declarations.AppendDeclaration(argument, index);
+
         sb.AppendLine($"        {safeType}? arg{index} = null;");
         sb.AppendLine();
 
         sb.AppendLine($"        var queryArg{index} = request.Header.Query.GetEntry(QueryArg{index}Name);");
-        
+
         sb.AppendLine($"        if (queryArg{index} != null)");
         sb.AppendArgumentAssignment(argument, index, "query");
     }
@@ -88,13 +90,13 @@ public static class CodeProviderArgumentExtensions
 
         sb.AppendLine("        var deserializer = registry.Serialization.GetDeserialization(request) ?? throw new ProviderException(ResponseStatus.UnsupportedMediaType, \"Requested format is not supported\");");
         sb.AppendLine();
-        sb.AppendLine("        var content = request.Content ?? throw new ProviderException(ResponseStatus.BadRequest, \"Request body expected\");");
+        sb.AppendLine("        var content = request.GetBody(HeaderAccess.Release) ?? throw new ProviderException(ResponseStatus.BadRequest, \"Request body expected\");");
         sb.AppendLine();
         sb.AppendLine($"        {safeType}? arg{index} = null;");
         sb.AppendLine();
         sb.AppendLine("        try");
         sb.AppendLine("        {");
-        sb.AppendLine($"            arg{index} = ({safeType}?)await deserializer.DeserializeAsync(content, typeof({safeType}));");
+        sb.AppendLine($"            arg{index} = ({safeType}?)await deserializer.DeserializeAsync(content.AsStream(), typeof({safeType}));");
         sb.AppendLine("        }");
         sb.AppendLine("        catch (Exception e)");
         sb.AppendLine("        {");
@@ -139,14 +141,16 @@ public static class CodeProviderArgumentExtensions
         sb.AppendLine();
     }
 
-    private static void AppendPathArgument(this StringBuilder sb, OperationArgument argument, int index)
+    private static void AppendPathArgument(this StringBuilder sb, OperationArgument argument, int index, StringBuilder declarations)
     {
         var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
+
+        declarations.AppendDeclaration(argument, index);
 
         sb.AppendLine($"        {safeType}? arg{index} = null;");
         sb.AppendLine();
 
-        sb.AppendLine($"        if (routingMatch.PathArguments?.TryGetValue({CompilationUtil.GetSafeString(argument.Name)}, out var pathArg{index}) ?? false)");
+        sb.AppendLine($"        if (routingMatch.PathArguments?.TryGetValue(PathArg{index}Name, out var pathArg{index}) ?? false)");
         sb.AppendArgumentAssignment(argument, index, "path");
     }
 
@@ -164,6 +168,18 @@ public static class CodeProviderArgumentExtensions
 
         sb.AppendLine("            }");
         sb.AppendLine("        }");
+    }
+
+    private static void AppendDeclaration(this StringBuilder sb, OperationArgument argument, int index)
+    {
+        var source = argument.Source switch
+        {
+            OperationArgumentSource.Query => "Query",
+            OperationArgumentSource.Path => "Path",
+            _ => throw new InvalidOperationException($"Unsupported declaration type '{argument.Source}'")
+        };
+
+        sb.AppendLine($"    private static ByteString {source}Arg{index}Name = new({CompilationUtil.GetSafeString(argument.Name)});");
     }
 
 }

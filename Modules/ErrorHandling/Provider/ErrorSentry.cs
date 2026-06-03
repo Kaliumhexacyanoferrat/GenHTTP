@@ -31,31 +31,33 @@ public sealed class ErrorSentry<T> : IConcern where T : Exception
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
+        var accepted = request.Header.Headers.GetEntry(KnownHeaders.Accept);
+
         try
         {
             var responseTask = Content.HandleAsync(request);
 
             if (!responseTask.IsCompletedSuccessfully)
             {
-                return HandleAsyncSlow(responseTask, request);
+                return HandleAsyncSlow(responseTask, request, accepted);
             }
 
             var response = responseTask.Result;
 
             if (response is null)
             {
-                return ErrorHandler.GetNotFound(request, Content);
+                return ErrorHandler.GetNotFound(request, Content, accepted);
             }
 
             return new ValueTask<IResponse?>(response);
         }
         catch (T e)
         {
-            return ErrorHandler.Map(request, Content, e);
+            return ErrorHandler.Map(request, Content, e, accepted);
         }
     }
 
-    private async ValueTask<IResponse?> HandleAsyncSlow(ValueTask<IResponse?> pending, IRequest request)
+    private async ValueTask<IResponse?> HandleAsyncSlow(ValueTask<IResponse?> pending, IRequest request, ByteString? accepted)
     {
         try
         {
@@ -63,14 +65,14 @@ public sealed class ErrorSentry<T> : IConcern where T : Exception
 
             if (response is null)
             {
-                return await ErrorHandler.GetNotFound(request, Content);
+                return await ErrorHandler.GetNotFound(request, Content, accepted);
             }
 
             return response;
         }
         catch (T e)
         {
-            return await ErrorHandler.Map(request, Content, e);
+            return await ErrorHandler.Map(request, Content, e, accepted);
         }
     }
 

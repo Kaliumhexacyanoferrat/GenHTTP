@@ -36,12 +36,14 @@ public sealed class InspectionConcern : IConcern
     {
         if (request.Header.Query.ContainsKey(InspectInstruction))
         {
+            var accepted = request.Header.Headers.GetEntry(KnownHeaders.Accept);
+
             var response = await Content.HandleAsync(request);
 
             var server = request.Server;
 
             var header = request.Header;
-            
+
             var model = new
             {
                 Server = new
@@ -89,7 +91,7 @@ public sealed class InspectionConcern : IConcern
                 } : null
             };
 
-            var format = Serialization.GetSerialization(request);
+            var format = Serialization.GetSerialization(request, accepted);
 
             if (format == null)
             {
