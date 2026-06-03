@@ -14,7 +14,7 @@ public static class CodeProviderInterceptionExtensions
             sb.AppendLine("        {");
 
             int i = 1;
-            
+
             foreach (var arg in operation.Arguments)
             {
                 sb.Append($"            {{ {CompilationUtil.GetSafeString(arg.Key)}, arg{i++} }}");
@@ -26,13 +26,13 @@ public static class CodeProviderInterceptionExtensions
 
                 sb.AppendLine();
             }
-            
+
             sb.AppendLine("        };");
             sb.AppendLine();
-            
-            sb.AppendLine("        var interceptionResult = await interception(request, interceptionArgs);");
+
+            sb.AppendLine("        var interceptionResult = await interception(request, interceptionArgs, accepted);");
             sb.AppendLine();
-            
+
             sb.AppendLine("        if (interceptionResult != null)");
             sb.AppendLine("        {");
             sb.AppendLine("            return interceptionResult;");
@@ -40,5 +40,5 @@ public static class CodeProviderInterceptionExtensions
             sb.AppendLine();
         }
     }
-    
+
 }
