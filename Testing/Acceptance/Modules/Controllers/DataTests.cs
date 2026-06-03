@@ -30,7 +30,7 @@ public sealed class DataTests
     public class TestController
     {
 
-        [ControllerAction(Method.Post)]
+        [ControllerAction(Method.Get)]
         public DateOnly Date(DateOnly date) => date;
     }
 
@@ -44,18 +44,7 @@ public sealed class DataTests
     {
         await using var host = await GetHostAsync(engine, mode);
 
-        var request = host.GetRequest("/t/date/", HttpMethod.Post);
-
-        var data = new Dictionary<string, string>
-        {
-            {
-                "date", "2024-03-11"
-            }
-        };
-
-        request.Content = new FormUrlEncodedContent(data);
-
-        using var response = await host.GetResponseAsync(request);
+        using var response = await host.GetResponseAsync("/t/date/?date=2024-03-11");
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
 
@@ -67,19 +56,8 @@ public sealed class DataTests
     public async Task TestInvalidDateOnly(TestEngine engine, ExecutionMode mode)
     {
         await using var host = await GetHostAsync(engine, mode);
-
-        var request = host.GetRequest("/t/date/", HttpMethod.Post);
-
-        var data = new Dictionary<string, string>
-        {
-            {
-                "date", "ABC"
-            }
-        };
-
-        request.Content = new FormUrlEncodedContent(data);
-
-        using var response = await host.GetResponseAsync(request);
+        
+        using var response = await host.GetResponseAsync("/t/date/?date=ABC");
 
         await response.AssertStatusAsync(HttpStatusCode.BadRequest);
     }

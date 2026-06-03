@@ -130,14 +130,14 @@ public sealed class ChunkedContentTest
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            var body = request.GetBody(HeaderAccess.Retain);
+            var body = request.GetBody();
 
             if (body is null)
             {
                 return request.Respond().Status(ResponseStatus.BadRequest).Build();
             }
 
-            var bytes = await body.ReadToEndAsync();
+            var bytes = (await body.AsMemoryAsync()).ToArray();
 
             return request.Respond()
                           .Status(ResponseStatus.Ok)

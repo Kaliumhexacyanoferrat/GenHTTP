@@ -110,6 +110,8 @@ public class MemoryConsumptionStrategy
         {
             pool.Return(buffer);
         }
+
+        await chunkedStream.DrainAsync();
         
         return (_memory = writer.WrittenMemory).Value;
     }

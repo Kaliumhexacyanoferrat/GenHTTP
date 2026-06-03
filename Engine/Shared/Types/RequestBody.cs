@@ -1,4 +1,5 @@
 ﻿using System.IO.Pipelines;
+using System.Runtime.CompilerServices;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -121,6 +122,7 @@ public class RequestBody(IRequest request) : IRequestBody
         return _memoryStrategy.ObtainAsync();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void SetStrategy(ConsumptionStrategy requested)
     {
         if (_strategy != null)
@@ -135,6 +137,15 @@ public class RequestBody(IRequest request) : IRequestBody
     {
         var strategy = _strategy;
 
+        if (strategy == null)
+        {
+            // the user has ignored the body so we need to use
+            // a strategy ourselves
+            
+            AsStream();
+            strategy = ConsumptionStrategy.Stream;
+        }
+        
         _strategy = null;
         
         if (strategy == ConsumptionStrategy.Stream)

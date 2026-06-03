@@ -24,7 +24,7 @@ internal sealed class SimpleVariableSegment(string variableName) : IRoutingSegme
             return (false, 0);
         }
 
-        argumentSink.Add(variableName, part.Value.ToString());
+        argumentSink.Add(new(variableName), part.Value.Value);
         return (true, 1);
     }
 

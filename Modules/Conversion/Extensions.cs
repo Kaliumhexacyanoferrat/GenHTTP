@@ -24,6 +24,11 @@ public static class Extensions
                 return null;
             }
 
+            if (type == typeof(string))
+            {
+                return null;
+            }
+
             return Activator.CreateInstance(type);
         }
 
@@ -43,5 +48,5 @@ public static class Extensions
             throw new ProviderException(ResponseStatus.BadRequest, $"Unable to convert value '{value}' to type '{type}'", e);
         }
     }
-
+    
 }

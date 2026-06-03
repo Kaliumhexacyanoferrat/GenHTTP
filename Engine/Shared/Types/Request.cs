@@ -90,10 +90,8 @@ public sealed class Request : IRequest
             throw new InvalidOperationException("Request body can only be fetched once.");
         }
 
-        _bodyLoaded = true;
-
         var headers = Header.Headers;
-
+        
         if (headerAccess == HeaderAccess.Retain && _retainedHeader == null)
         {
             _retainedHeader = new RetainedRequestHeader(_header);
@@ -109,6 +107,8 @@ public sealed class Request : IRequest
 
         Reader.AdvanceTo(_bodyStart);
 
+        _bodyLoaded = true;
+        
         return (hasBody) ? _body : null;
     }
 
@@ -157,9 +157,7 @@ public sealed class Request : IRequest
             return _body.DrainAsync();
         }
 
-        GetBody(HeaderAccess.Release);
-        
-        if (_bodyLoaded)
+        if (GetBody(HeaderAccess.Release) != null) 
         {
             return _body.DrainAsync();
         }

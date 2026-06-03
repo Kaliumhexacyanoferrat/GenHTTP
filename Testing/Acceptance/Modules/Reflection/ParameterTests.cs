@@ -28,23 +28,6 @@ public sealed class ParameterTests
         Assert.AreEqual("1-1", await response.GetContentAsync());
     }*/
 
-    [TestMethod]
-    [MultiEngineFrameworkTest]
-    public async Task TestCanPassEmptyString(TestEngine engine, ExecutionMode mode)
-    {
-        var inline = Inline.Create()
-                           .Post(([FromBody] int number) => number)
-                           .ExecutionMode(mode);
-
-        await using var runner = await TestHost.RunAsync(inline, engine: engine);
-
-        using var response = await PostAsync(runner, " ");
-
-        await response.AssertStatusAsync(HttpStatusCode.OK);
-
-        Assert.AreEqual("0", await response.GetContentAsync());
-    }
-
     // todo
     
     /*

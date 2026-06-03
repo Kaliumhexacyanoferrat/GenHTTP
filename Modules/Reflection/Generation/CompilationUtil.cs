@@ -1,4 +1,5 @@
-﻿using GenHTTP.Modules.Reflection.Operations;
+﻿using System.Text;
+using GenHTTP.Modules.Reflection.Operations;
 
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -22,6 +23,9 @@ public static class CompilationUtil
         { typeof(char), "char" }
     };
 
+    internal static string GetSafeString(ArgumentName name)
+        => GetSafeString(name.ToString());
+    
     internal static string GetSafeString(string input)
         => SyntaxFactory.Literal(input).ToFullString();
     

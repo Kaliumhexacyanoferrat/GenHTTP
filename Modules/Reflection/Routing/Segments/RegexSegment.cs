@@ -69,7 +69,7 @@ internal sealed partial class RegexSegment : IRoutingSegment
 
         for (var i = 1; i < groups.Count; i++)
         {
-            argumentSink.Add(groups[i].Name, groups[i].Value);
+            argumentSink.Add(new(groups[i].Name), Encoding.ASCII.GetBytes(groups[i].Value));
         }
 
         return (true, 1);

@@ -35,7 +35,7 @@ public class InterceptionTests
             }
         }
 
-        public ValueTask<InterceptionResult?> InterceptAsync(IRequest request, Operation operation, IReadOnlyDictionary<string, object?> arguments)
+        public ValueTask<InterceptionResult?> InterceptAsync(IRequest request, Operation operation, IReadOnlyDictionary<ArgumentName, object?> arguments)
         {
             if (Command == "intercept")
             {
