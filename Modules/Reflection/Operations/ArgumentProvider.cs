@@ -62,16 +62,6 @@ public static class ArgumentProvider
             return queryValue.ConvertTo(argument.Type, registry.Formatting);
         }
 
-        /* todo: remove first-class support for body args
-        if (formArguments is not null)
-        {
-            if (formArguments.TryGetValue(argument.Name.ToString(), out var bodyValue))
-            {
-                return bodyValue.ConvertTo(argument.Type, registry.Formatting);
-            }
-        }
-        */
-
         return null;
     }
 

@@ -1,5 +1,4 @@
-﻿using System.Text;
-using GenHTTP.Modules.Reflection.Operations;
+﻿using GenHTTP.Modules.Reflection.Operations;
 
 using Microsoft.CodeAnalysis.CSharp;
 

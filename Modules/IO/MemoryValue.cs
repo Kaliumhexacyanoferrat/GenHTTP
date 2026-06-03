@@ -40,10 +40,10 @@ public static class MemoryValue
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static byte Normalize(byte value)
-    {{
+    {
         var lower = (byte)(value | 0x20);
 
         return (uint)(lower - 'a') <= ('z' - 'a') ? lower : value;
-    }}
+    }
 
 }
