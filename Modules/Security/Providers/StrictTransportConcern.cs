@@ -1,5 +1,4 @@
-﻿using System.Text;
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Security.Providers;
