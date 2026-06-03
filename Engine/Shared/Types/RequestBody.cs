@@ -40,7 +40,7 @@ public class RequestBody(IRequest request) : IRequestBody
 
         if (contentLength != null)
         {
-            if (ulong.TryParse(contentLength.Value.Span, out var longValue))
+            if (ulong.TryParse(contentLength.Value.Bytes.Span, out var longValue))
             {
                 Length = longValue;
             }
@@ -56,7 +56,7 @@ public class RequestBody(IRequest request) : IRequestBody
 
         var transferEncoding = headers.GetEntry(KnownHeaders.TransferEncoding);
 
-        var chunked = transferEncoding != null && transferEncoding.Value.Span.SequenceEqual(ChunkedValue.Span);
+        var chunked = transferEncoding != null && transferEncoding.Value.Bytes.Span.SequenceEqual(ChunkedValue.Span);
 
         if (Length == null && !chunked)
         {

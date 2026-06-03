@@ -22,7 +22,7 @@ public class RetainedRequestHeader : IRequestHeader
         Path = source.Path.ToArray();
 
         Protocol = new(source.Version.ToArray());
-        Method = new(source.Method.Value.ToArray());
+        Method = new(source.Method.Bytes.ToArray());
 
         var target = new RequestTarget();
 

@@ -113,8 +113,8 @@ public sealed class ParserTests
             {
                 var entry = request.Header.Query[i];
 
-                var key = HttpUtility.UrlDecode(Encoding.ASCII.GetString(entry.Key.Span));
-                var value = HttpUtility.UrlDecode(Encoding.ASCII.GetString(entry.Value.Span));
+                var key = HttpUtility.UrlDecode(entry.Key.ToString());
+                var value = HttpUtility.UrlDecode(entry.Value.ToString());
                 
                 entries.Add($"{key}={value}");
             }

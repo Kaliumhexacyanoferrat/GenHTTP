@@ -179,8 +179,8 @@ public sealed class ReverseProxyTests
             {
                 var entry = r.Header.Query[i];
 
-                var key = Encoding.ASCII.GetString(entry.Key.Span);
-                var value = Encoding.ASCII.GetString(entry.Value.Span);
+                var key = entry.Key.ToString();
+                var value = entry.Value.ToString();
                 
                 entries.Add($"{key}={value}");
             }
@@ -212,8 +212,8 @@ public sealed class ReverseProxyTests
             {
                 var entry = r.Header.Query[i];
 
-                var key = Encoding.ASCII.GetString(entry.Key.Span);
-                var value = HttpUtility.UrlDecode(Encoding.ASCII.GetString(entry.Value.Span));
+                var key = entry.Key.ToString();
+                var value = HttpUtility.UrlDecode(entry.Value.ToString());
                 
                 entries.Add($"{key}={value}");
             }

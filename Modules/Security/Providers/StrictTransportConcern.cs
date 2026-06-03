@@ -6,7 +6,7 @@ namespace GenHTTP.Modules.Security.Providers;
 
 public sealed class StrictTransportConcern : IConcern
 {
-    private static readonly ReadOnlyMemory<byte> StrictTransportHeader = "Strict-Transport-Security"u8.ToArray();
+    private static readonly ByteString StrictTransportHeader = new("Strict-Transport-Security");
 
     #region Get-/Setters
 
@@ -14,7 +14,7 @@ public sealed class StrictTransportConcern : IConcern
 
     public StrictTransportPolicy Policy { get; }
 
-    private ReadOnlyMemory<byte> HeaderValue { get; }
+    private ByteString HeaderValue { get; }
 
     #endregion
 
@@ -52,7 +52,7 @@ public sealed class StrictTransportConcern : IConcern
         return response;
     }
 
-    private ReadOnlyMemory<byte> GetPolicyHeader()
+    private ByteString GetPolicyHeader()
     {
         var seconds = (int)Policy.MaximumAge.TotalSeconds;
 
@@ -68,7 +68,7 @@ public sealed class StrictTransportConcern : IConcern
             result += "; preload";
         }
 
-        return Encoding.ASCII.GetBytes(result);
+        return new(result);
     }
 
     public ValueTask PrepareAsync() => Content.PrepareAsync();

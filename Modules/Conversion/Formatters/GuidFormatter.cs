@@ -1,13 +1,15 @@
-﻿namespace GenHTTP.Modules.Conversion.Formatters;
+﻿using GenHTTP.Api.Protocol;
+
+namespace GenHTTP.Modules.Conversion.Formatters;
 
 public sealed class GuidFormatter : IFormatter
 {
 
     public bool CanHandle(Type type) => type == typeof(Guid);
 
-    public object Read(ReadOnlyMemory<byte> value, Type type)
+    public object Read(ByteString value, Type type)
     {
-        var span = value.Span;
+        var span = value.Bytes.Span;
 
         if (Guid.TryParse(span, out var guid))
         {

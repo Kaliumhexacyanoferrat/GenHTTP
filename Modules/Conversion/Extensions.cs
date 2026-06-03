@@ -15,9 +15,9 @@ public static class Extensions
     /// <param name="type">The target type to convert the value to</param>
     /// <param name="formatters">The formatting to be used to actually perform the conversion</param>
     /// <returns>The converted value</returns>
-    public static object? ConvertTo(this ReadOnlyMemory<byte>? value, Type type, FormatterRegistry formatters)
+    public static object? ConvertTo(this ByteString? value, Type type, FormatterRegistry formatters)
     {
-        if (value is null || value.Value.IsEmpty)
+        if (value is null || value.Value.Bytes.IsEmpty)
         {
             if (Nullable.GetUnderlyingType(type) is not null)
             {
@@ -35,7 +35,7 @@ public static class Extensions
         return value.Value.ConvertTo(type, formatters);
     }
 
-    public static object? ConvertTo(this ReadOnlyMemory<byte> value, Type type, FormatterRegistry formatters)
+    public static object? ConvertTo(this ByteString value, Type type, FormatterRegistry formatters)
     {
         try
         {

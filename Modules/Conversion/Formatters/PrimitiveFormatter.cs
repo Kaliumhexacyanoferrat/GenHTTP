@@ -1,6 +1,7 @@
 ﻿using System.Buffers.Text;
 using System.Globalization;
 using System.Text;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Conversion.Formatters;
 
@@ -9,9 +10,9 @@ public sealed class PrimitiveFormatter : IFormatter
     
     public bool CanHandle(Type type) => type.IsPrimitive;
 
-    public object Read(ReadOnlyMemory<byte> value, Type type)
+    public object Read(ByteString value, Type type)
     {
-        var span = value.Span;
+        var span = value.Bytes.Span;
 
         if (type == typeof(int))
         {

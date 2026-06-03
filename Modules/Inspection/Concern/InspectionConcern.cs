@@ -8,7 +8,7 @@ namespace GenHTTP.Modules.Inspection.Concern;
 
 public sealed class InspectionConcern : IConcern
 {
-    private static readonly ReadOnlyMemory<byte> InspectInstruction = "inspect"u8.ToArray();
+    private static readonly ByteString InspectInstruction = new("inspect"u8.ToArray());
 
     #region Get-/Setters
 
@@ -73,12 +73,12 @@ public sealed class InspectionConcern : IConcern
                 } : null,*/
                 Request = new
                 {
-                    Protocol = GetString(header.Protocol.Value),
-                    Method = GetString(header.Method.Value),
+                    Protocol = GetString(header.Protocol.Bytes),
+                    Method = GetString(header.Method.Bytes),
                     Path = GetString(header.Path),
                     Target = new
                     {
-                        Current = GetString(header.Target.Current?.Value),
+                        Current = GetString(header.Target.Current?.Bytes),
                         TrailingSlash = header.Target.HasTrailingSlash,
                         Last = header.Target.IsLast
                     },

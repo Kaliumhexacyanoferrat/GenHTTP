@@ -7,7 +7,7 @@ public sealed class VirtualHostRouterBuilder : IHandlerBuilder<VirtualHostRouter
 {
     private readonly List<IConcernBuilder> _concerns = [];
 
-    private readonly Dictionary<PathSegment, IHandlerBuilder> _hosts = [];
+    private readonly Dictionary<ByteString, IHandlerBuilder> _hosts = [];
 
     private IHandlerBuilder? _defaultRoute;
 
@@ -37,7 +37,7 @@ public sealed class VirtualHostRouterBuilder : IHandlerBuilder<VirtualHostRouter
 
     public IHandler Build()
     {
-        return Concerns.Chain(_concerns,  new VirtualHostRouter( _hosts, _defaultRoute));
+        return Concerns.Chain(_concerns, new VirtualHostRouter(_hosts, _defaultRoute));
     }
 
     #endregion

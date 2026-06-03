@@ -14,7 +14,7 @@ public readonly partial struct PathSegment
     /// <summary>Percent-decodes this segment and returns the human-readable string.</summary>
     public string Decode()
     {
-        var span = Value.Span;
+        var span = Bytes.Span;
 
         if (span.IndexOf((byte)'%') < 0)
         {

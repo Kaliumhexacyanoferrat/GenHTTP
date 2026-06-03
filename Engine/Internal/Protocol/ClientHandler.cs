@@ -205,7 +205,7 @@ internal sealed class ClientHandler(ClientContext context)
 
         var connectionHeader = header.Headers.GetEntry(KnownHeaders.Connection);
 
-        var keepAliveRequested = connectionHeader?.Span.SequenceEqual(KeepAliveValue.Span) ?? (header.Protocol == HttpProtocol.Http11);
+        var keepAliveRequested = connectionHeader?.Bytes.Span.SequenceEqual(KeepAliveValue.Span) ?? (header.Protocol == HttpProtocol.Http11);
 
         var response = await context.Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
 

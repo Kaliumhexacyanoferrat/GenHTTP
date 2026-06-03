@@ -63,7 +63,7 @@ public sealed class FormFormat : ISerializationFormat
 
                     // very inefficient, but the form format is probably not used that much
                     // so we do not optimize that for now
-                    ReadOnlyMemory<byte> byteValue = Encoding.UTF8.GetBytes(value);
+                    ByteString byteValue = new(value);
                     
                     if (property is not null)
                     {
@@ -106,7 +106,7 @@ public sealed class FormFormat : ISerializationFormat
 
         if (contentType is not null)
         {
-            if (new ContentType(contentType.Value) == ContentType.ApplicationWwwFormUrlEncoded) // todo: ugly API
+            if (new ContentType(contentType.Value.Bytes) == ContentType.ApplicationWwwFormUrlEncoded) // todo: ugly API
             {
                 var content = await GetRequestContentAsync(request); // todo: make this memory based?
 

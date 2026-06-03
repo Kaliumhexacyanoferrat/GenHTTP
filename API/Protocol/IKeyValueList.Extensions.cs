@@ -5,13 +5,13 @@ namespace GenHTTP.Api.Protocol;
 public static class IKeyValueListExtensions
 {
     
-    public static ReadOnlyMemory<byte>? GetEntry(this IKeyValueList list, ReadOnlyMemory<byte> key)
+    public static ByteString? GetEntry(this IKeyValueList list, ByteString key)
     {
         for (var i = 0; i < list.Count; i++)
         {
             var entry = list[i];
 
-            if (entry.Key.Span.SequenceEqual(key.Span))
+            if (entry.Key.Bytes.Span.SequenceEqual(key.Bytes.Span))
             {
                 return entry.Value;
             }
@@ -22,23 +22,23 @@ public static class IKeyValueListExtensions
 
     public static string? GetEntry(this IKeyValueList list, string key)
     {
-        var entry = list.GetEntry(Encoding.ASCII.GetBytes(key));
+        var entry = list.GetEntry(new ByteString(Encoding.ASCII.GetBytes(key)));
 
         if (entry != null)
         {
-            return Encoding.ASCII.GetString(entry.Value.Span);
+            return Encoding.ASCII.GetString(entry.Value.Bytes.Span);
         }
 
         return null;
     }
 
-    public static bool ContainsKey(this IKeyValueList list, ReadOnlyMemory<byte> key)
+    public static bool ContainsKey(this IKeyValueList list, ByteString key)
     {
-        var keySpan = key.Span;
+        var keySpan = key.Bytes.Span;
 
         for (var i = 0; i < list.Count; i++)
         {
-            if (list[i].Key.Span.SequenceEqual(keySpan))
+            if (list[i].Key.Bytes.Span.SequenceEqual(keySpan))
                 return true;
         }
 
@@ -46,6 +46,6 @@ public static class IKeyValueListExtensions
     }
 
     public static bool ContainsKey(this IKeyValueList list, string key)
-        => list.ContainsKey(Encoding.ASCII.GetBytes(key));
+        => list.ContainsKey(new ByteString(Encoding.ASCII.GetBytes(key)));
     
 }

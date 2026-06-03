@@ -7,7 +7,6 @@ namespace GenHTTP.Modules.ClientCaching.Policy;
 
 public sealed class CachePolicyConcern : IConcern
 {
-    private static readonly ReadOnlyMemory<byte> ExpiresHeader = "Expires"u8.ToArray();
 
     #region Get-/Setters
 
@@ -49,7 +48,7 @@ public sealed class CachePolicyConcern : IConcern
                     value.TryFormat(buffer, out _, "R");
 
                     response.Rebuild()
-                            .Header(ExpiresHeader, buffer);
+                            .Header(KnownHeaders.Expires, new(buffer));
                 }
             }
         }

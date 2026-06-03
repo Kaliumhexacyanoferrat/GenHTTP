@@ -1,5 +1,7 @@
 ﻿using System.Text;
 
+using GenHTTP.Api.Protocol;
+
 namespace GenHTTP.Modules.Conversion.Formatters;
 
 public sealed class EnumFormatter : IFormatter
@@ -7,9 +9,9 @@ public sealed class EnumFormatter : IFormatter
 
     public bool CanHandle(Type type) => type.IsEnum;
 
-    public object Read(ReadOnlyMemory<byte> value, Type type)
+    public object Read(ByteString value, Type type)
     {
-        var span = value.Span;
+        var span = value.Bytes.Span;
 
         Span<char> buffer = stackalloc char[span.Length];
 

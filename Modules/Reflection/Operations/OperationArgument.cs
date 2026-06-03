@@ -1,4 +1,6 @@
-﻿using GenHTTP.Modules.Conversion.Serializers;
+﻿using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.Conversion.Serializers;
 using GenHTTP.Modules.Reflection.Injectors;
 
 namespace GenHTTP.Modules.Reflection.Operations;
@@ -50,7 +52,7 @@ public sealed class OperationArgument
     /// <summary>
     /// The name of the argument.
     /// </summary>
-    public ArgumentName Name { get; }
+    public ByteString Name { get; }
 
     /// <summary>
     /// The type as expected by the .NET method to be invoked by the operation.

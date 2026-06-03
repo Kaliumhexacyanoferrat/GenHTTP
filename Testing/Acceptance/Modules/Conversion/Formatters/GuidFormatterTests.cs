@@ -1,4 +1,5 @@
 using System.Text;
+using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion.Formatters;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Conversion.Formatters;
@@ -10,7 +11,7 @@ public sealed class GuidFormatterTests
 
     private static readonly Guid TestGuid = new("a1b2c3d4-e5f6-7890-abcd-ef1234567890");
 
-    private static ReadOnlyMemory<byte> Bytes(string s) => Encoding.UTF8.GetBytes(s);
+    private static ByteString Bytes(string s) => new(s);
 
     [TestMethod]
     public void HandlesOnlyGuid()

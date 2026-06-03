@@ -5,7 +5,7 @@ public static class ContentTypeExtensions
     
     public static ContentType WithoutOptions(this ContentType type)
     {
-        var span = type.Value.Span;
+        var span = type.Bytes.Span;
         var idx = span.IndexOf((byte)';');
 
         if (idx < 0)

@@ -1,4 +1,5 @@
 using System.Text;
+using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion.Formatters;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Conversion.Formatters;
@@ -11,7 +12,7 @@ public sealed class DateOnlyFormatterTests
     private static readonly DateOnly TestDate = new(2024, 6, 15);
     private const string TestDateString = "2024-06-15";
 
-    private static ReadOnlyMemory<byte> Bytes(string s) => Encoding.UTF8.GetBytes(s);
+    private static ByteString Bytes(string s) => new(s);
 
     [TestMethod]
     public void HandlesOnlyDateOnly()

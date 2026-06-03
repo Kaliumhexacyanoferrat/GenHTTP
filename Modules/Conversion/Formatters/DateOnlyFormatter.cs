@@ -1,16 +1,18 @@
-﻿namespace GenHTTP.Modules.Conversion.Formatters;
+﻿using GenHTTP.Api.Protocol;
+
+namespace GenHTTP.Modules.Conversion.Formatters;
 
 public sealed class DateOnlyFormatter : IFormatter
 {
     
     public bool CanHandle(Type type) => type == typeof(DateOnly);
 
-    public object Read(ReadOnlyMemory<byte> value, Type type)
+    public object Read(ByteString value, Type type)
     {
-        if (value.Length != 10)
+        if (value.Bytes.Length != 10)
             Throw();
 
-        var span = value.Span;
+        var span = value.Bytes.Span;
 
         if (span[4] != (byte)'-' || span[7] != (byte)'-')
             Throw();

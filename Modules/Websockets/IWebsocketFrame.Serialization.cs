@@ -13,7 +13,7 @@ public static class WebsocketFrameSerializationExtensions
     {
         if (frame.Connection.Settings.Formatters.CanHandle(typeof(T)))
         {
-            return Enforce<T>(frame.Connection.Settings.Formatters.Read(frame.Data.ToArray(), typeof(T)));
+            return Enforce<T>(frame.Connection.Settings.Formatters.Read(new(frame.Data.ToArray()), typeof(T)));
         }
 
         var buffer = frame.Data.ToArray();

@@ -126,7 +126,7 @@ internal sealed class ResponseHandler
             if (type != null)
             {
                 writer.Write("Content-Type: "u8);
-                writer.Write(type.Value.Value.Span);
+                writer.Write(type.Value.Bytes.Span);
                 writer.Write("\r\n"u8);
             }
 
@@ -163,9 +163,9 @@ internal sealed class ResponseHandler
         {
             var header = headers[i];
 
-            writer.Write(header.Key.Span);
+            writer.Write(header.Key.Bytes.Span);
             writer.Write(": "u8);
-            writer.Write(header.Value.Span);
+            writer.Write(header.Value.Bytes.Span);
             writer.Write("\r\n"u8);
         }
 

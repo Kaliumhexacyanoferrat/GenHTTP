@@ -131,9 +131,9 @@ public class RoutingTests
         return target;
     }
 
-    private static void MatchArgument(IReadOnlyDictionary<ArgumentName, ReadOnlyMemory<byte>> arguments, string key, string value)
+    private static void MatchArgument(IReadOnlyDictionary<ByteString, ByteString> arguments, string key, string value)
     {
-        Assert.AreEqual(value, Encoding.ASCII.GetString(arguments[new(key)].ToArray()));
+        Assert.AreEqual(value, arguments[new(key)].ToString());
     }
     
 }

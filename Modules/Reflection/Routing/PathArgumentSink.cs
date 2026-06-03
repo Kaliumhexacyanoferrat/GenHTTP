@@ -1,4 +1,4 @@
-using GenHTTP.Modules.Reflection.Operations;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Reflection.Routing;
 
@@ -9,9 +9,9 @@ namespace GenHTTP.Modules.Reflection.Routing;
 public struct PathArgumentSink
 {
 
-    internal Dictionary<ArgumentName, ReadOnlyMemory<byte>>? Arguments;
+    internal Dictionary<ByteString, ByteString>? Arguments;
 
-    public void Add(ArgumentName key, ReadOnlyMemory<byte> value)
+    public void Add(ByteString key, ByteString value)
         => (Arguments ??= new()).Add(key, value);
 
 }

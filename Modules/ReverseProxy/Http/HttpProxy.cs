@@ -13,9 +13,9 @@ namespace GenHTTP.Modules.ReverseProxy.Http;
 
 public sealed class HttpProxy : IHandler
 {
-    private static readonly ReadOnlyMemory<byte> UpgradeHeader = "Upgrade"u8.ToArray();
+    private static readonly ByteString UpgradeHeader = new("Upgrade"u8.ToArray());
 
-    private static readonly ReadOnlyMemory<byte> WebsocketValue = "websocket"u8.ToArray();
+    private static readonly ByteString WebsocketValue = new("websocket"u8.ToArray());
 
     private static readonly HashSet<string> ReservedResponseHeaders = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -63,7 +63,7 @@ public sealed class HttpProxy : IHandler
         {
             var upgradeHeader = request.Header.Headers.GetEntry(UpgradeHeader);
 
-            if (upgradeHeader != null && upgradeHeader.Value.Span.SequenceEqual(WebsocketValue.Span))
+            if (upgradeHeader == WebsocketValue)
             {
                 var wsProxy = new WebsocketProxy(Upstream);
                 return await wsProxy.HandleAsync(request);
@@ -95,8 +95,8 @@ public sealed class HttpProxy : IHandler
         {
             var header = headers[i];
 
-            var key = Encoding.ASCII.GetString(header.Key.Span);
-            var value = Encoding.ASCII.GetString(header.Value.Span);
+            var key = header.Key.ToString();
+            var value = header.Value.ToString();
 
             if (!ReservedRequestHeaders.Contains(key))
             {
@@ -154,8 +154,8 @@ public sealed class HttpProxy : IHandler
             {
                 var arg = query[i];
 
-                var key = Encoding.ASCII.GetString(arg.Key.Span);
-                var value= HttpUtility.UrlDecode(Encoding.ASCII.GetString(arg.Value.Span));
+                var key = arg.Key.ToString();
+                var value= HttpUtility.UrlDecode(arg.Value.ToString());
 
                 queryBuilder[key] = value;
             }

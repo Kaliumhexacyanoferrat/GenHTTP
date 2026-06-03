@@ -19,15 +19,15 @@ public static class CacheKey
             {
                 var arg = header.Query[i];
 
-                hash.AddBytes(arg.Key.Span);
-                hash.AddBytes(arg.Value.Span);
+                hash.AddBytes(arg.Key.Bytes.Span);
+                hash.AddBytes(arg.Value.Bytes.Span);
             }
 
             var host = request.Header.Headers.GetEntry(KnownHeaders.Host);
 
             if (host != null)
             {
-                hash.AddBytes(host.Value.Span);
+                hash.AddBytes(host.Value.Bytes.Span);
             }
 
             return hash.ToHashCode().ToString();

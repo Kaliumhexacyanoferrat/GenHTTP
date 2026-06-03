@@ -22,7 +22,7 @@ public static class ArgumentProvider
         return null;
     }
 
-    public static object? GetPathArgument(ArgumentName name, Type type, RoutingMatch match, MethodRegistry registry)
+    public static object? GetPathArgument(ByteString name, Type type, RoutingMatch match, MethodRegistry registry)
     {
         if (match.PathArguments?.TryGetValue(name, out var pathArgument) ?? false)
         {
@@ -32,7 +32,7 @@ public static class ArgumentProvider
         return null;
     }
 
-    public static async ValueTask<object?> GetBodyArgumentAsync(IRequest request, ArgumentName name, Type type, MethodRegistry registry)
+    public static async ValueTask<object?> GetBodyArgumentAsync(IRequest request, ByteString name, Type type, MethodRegistry registry)
     {
         var content = request.GetBody();
 
@@ -43,9 +43,9 @@ public static class ArgumentProvider
 
         object? result = null;
 
-        var buffer = await content.AsMemoryAsync();
+        var buffer = new ByteString(await content.AsMemoryAsync());
 
-        if (!buffer.IsEmpty)
+        if (!buffer.Bytes.IsEmpty)
         {
             result = buffer.ConvertTo(type, registry.Formatting);
         }
@@ -55,7 +55,7 @@ public static class ArgumentProvider
 
     public static object? GetQueryArgument(IRequest request, OperationArgument argument, MethodRegistry registry)
     {
-        var queryValue = request.Header.Query.GetEntry(argument.Name.Value);
+        var queryValue = request.Header.Query.GetEntry(argument.Name);
 
         if (queryValue is not null)
         {

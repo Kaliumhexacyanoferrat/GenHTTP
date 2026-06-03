@@ -6,7 +6,7 @@ internal static class CodeEmitter
 {
     private const string FieldName = "_value";
 
-    private const string PropertyName = "Value";
+    private const string PropertyName = "Bytes";
 
     internal static string Emit(StructInfo info)
     {

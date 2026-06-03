@@ -25,14 +25,14 @@ public class ResponseBuilder : IResponseBuilder
         return this;
     }
 
-    public IResponseBuilder Header(ReadOnlyMemory<byte> name, ReadOnlyMemory<byte> value)
+    public IResponseBuilder Header(ByteString name, ByteString value)
     {
         _response.EditableHeaders.Add(name, value);
         return this;
     }
     
     public IResponseBuilder Header(string name, string value)
-        => Header(Encoding.ASCII.GetBytes(name), Encoding.ASCII.GetBytes(value));
+        => Header(new ByteString(Encoding.ASCII.GetBytes(name)), new ByteString(Encoding.ASCII.GetBytes(value)));
     
     public IResponseBuilder Content(IResponseContent? content)
     {

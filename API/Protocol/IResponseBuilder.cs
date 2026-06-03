@@ -9,7 +9,7 @@ public interface IResponseBuilder : IBuilder<IResponse>
 
     IResponseBuilder Connection(Connection mode);
 
-    IResponseBuilder Header(ReadOnlyMemory<byte> name, ReadOnlyMemory<byte> value);
+    IResponseBuilder Header(ByteString name, ByteString value);
     
     IResponseBuilder Header(string name, string value);
 

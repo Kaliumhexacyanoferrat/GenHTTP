@@ -15,9 +15,9 @@ public abstract class AbstractAssetsHandler : IHandler
     {
         _algorithms = algorithms.Select(a =>
                                 {
-                                    var extension = new byte[a.Name.Value.Length + 1];
+                                    var extension = new byte[a.Name.Bytes.Length + 1];
                                     extension[0] = (byte)separator;
-                                    a.Name.Value.Span.CopyTo(extension.AsSpan(1));
+                                    a.Name.Bytes.Span.CopyTo(extension.AsSpan(1));
 
                                     return new SupportedCompression(a, extension);
                                 })
@@ -66,7 +66,7 @@ public abstract class AbstractAssetsHandler : IHandler
 
         if (acceptEncodingHeader != null)
         {
-            var requested = AcceptEncodingHeader.ParseSupported(acceptEncodingHeader.Value.Span);
+            var requested = AcceptEncodingHeader.ParseSupported(acceptEncodingHeader.Value);
 
             foreach (var supported in _algorithms)
             {
@@ -78,7 +78,7 @@ public abstract class AbstractAssetsHandler : IHandler
 
                     var contentType = fileName?.GuessContentType() ?? ContentType.ApplicationOctetStream;
 
-                    var content = await Resolve(newTarget, contentType, supported.Algorithm.Name.Value);
+                    var content = await Resolve(newTarget, contentType, supported.Algorithm.Name.Bytes);
 
                     if (content != null)
                     {

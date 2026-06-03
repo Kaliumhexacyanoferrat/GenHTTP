@@ -1,4 +1,6 @@
-﻿namespace GenHTTP.Modules.Conversion.Formatters;
+﻿using GenHTTP.Api.Protocol;
+
+namespace GenHTTP.Modules.Conversion.Formatters;
 
 /// <summary>
 /// Allows to add support for a specific type to be used as a parameter
@@ -23,7 +25,7 @@ public interface IFormatter
     /// <remarks>
     /// Used by the framework to read parameters to be passed to controllers or the like.
     /// </remarks>
-    object? Read(ReadOnlyMemory<byte> value, Type type);
+    object? Read(ByteString value, Type type);
 
     /// <summary>
     /// Converts the given object instance of the given type into a string representation.

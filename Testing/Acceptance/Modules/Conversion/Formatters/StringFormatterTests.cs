@@ -1,5 +1,5 @@
 using System.Text;
-
+using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion.Formatters;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Conversion.Formatters;
@@ -9,7 +9,7 @@ public sealed class StringFormatterTests
 {
     private readonly StringFormatter _formatter = new();
 
-    private static ReadOnlyMemory<byte> Bytes(string s) => Encoding.UTF8.GetBytes(s);
+    private static ByteString Bytes(string s) => new(Encoding.UTF8.GetBytes(s));
 
     [TestMethod] public void HandlesOnlyString()
     {

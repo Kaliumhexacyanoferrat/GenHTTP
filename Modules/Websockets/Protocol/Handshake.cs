@@ -1,6 +1,8 @@
 using System.Buffers.Text;
 using System.Security.Cryptography;
 
+using GenHTTP.Api.Protocol;
+
 namespace GenHTTP.Modules.Websockets.Protocol;
 
 public static class Handshake
@@ -17,14 +19,14 @@ public static class Handshake
       both sides stop speaking HTTP entirely and begin exchanging raw WebSocket frames over the same TCP connection,
       establishing a stateful, bidirectional, message-oriented stream.
      */
-    public static ReadOnlyMemory<byte> CreateAcceptKey(ReadOnlyMemory<byte> key)
+    public static ByteString CreateAcceptKey(ByteString key)
     {
-        var totalLength = key.Length + MagicString.Length;
+        var totalLength = key.Bytes.Length + MagicString.Length;
 
         Span<byte> buffer = stackalloc byte[totalLength];
 
-        key.Span.CopyTo(buffer);
-        MagicString.Span.CopyTo(buffer[key.Length..]);
+        key.Bytes.Span.CopyTo(buffer);
+        MagicString.Span.CopyTo(buffer[key.Bytes.Length..]);
 
         Span<byte> hash = stackalloc byte[20];
         SHA1.HashData(buffer, hash);
@@ -33,7 +35,7 @@ public static class Handshake
 
         Base64.EncodeToUtf8(hash, result, out _, out var written);
 
-        return result.AsMemory(0, written);
+        return new(result.AsMemory(0, written));
     }
 
 }

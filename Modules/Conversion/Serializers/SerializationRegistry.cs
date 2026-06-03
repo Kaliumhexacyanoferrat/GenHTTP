@@ -42,7 +42,7 @@ public sealed class SerializationRegistry
 
         if (contentType != null)
         {
-            return GetFormat(new ContentType(contentType.Value).WithoutOptions());
+            return GetFormat(new ContentType(contentType.Value.Bytes).WithoutOptions());
         }
 
         return GetFormat(Default);
@@ -60,7 +60,7 @@ public sealed class SerializationRegistry
         
         if (accepted != null)
         {
-            return GetFormat(new ContentType(accepted.Value)) ?? GetFormat(Default);
+            return GetFormat(new ContentType(accepted.Value.Bytes)) ?? GetFormat(Default);
         }
 
         return GetFormat(Default);

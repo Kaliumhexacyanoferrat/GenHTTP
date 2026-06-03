@@ -1,27 +1,27 @@
-﻿using GenHTTP.Modules.IO;
+﻿using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Conversion.Formatters;
 
 public sealed class BoolFormatter : IFormatter
 {
-    private static readonly ReadOnlyMemory<byte> SwitchOne = "1"u8.ToArray();
-    private static readonly ReadOnlyMemory<byte> SwitchZero = "0"u8.ToArray();
+    private static readonly ByteString SwitchOne = new("1");
+    private static readonly ByteString SwitchZero = new("0");
 
-    private static readonly ReadOnlyMemory<byte> SwitchOn = "on"u8.ToArray();
-    private static readonly ReadOnlyMemory<byte> SwitchOff = "off"u8.ToArray();
+    private static readonly ByteString SwitchOn = new("on");
+    private static readonly ByteString SwitchOff = new("off");
 
-    private static readonly ReadOnlyMemory<byte> SwitchTrue = "true"u8.ToArray();
-    private static readonly ReadOnlyMemory<byte> SwitchFalse = "false"u8.ToArray();
+    private static readonly ByteString SwitchTrue = new("true");
+    private static readonly ByteString SwitchFalse = new("false");
 
     public bool CanHandle(Type type) => type == typeof(bool);
 
-    public object? Read(ReadOnlyMemory<byte> value, Type type)
+    public object? Read(ByteString value, Type type)
     {
-        if (MemoryValue.Equal(value, SwitchOne) || MemoryValue.Equal(value, SwitchOn) || MemoryValue.Equal(value, SwitchTrue))
+        if (value == SwitchOne || value == SwitchOn || value == SwitchTrue)
         {
             return true;
         }
-        if (MemoryValue.Equal(value, SwitchZero) || MemoryValue.Equal(value, SwitchOff) || MemoryValue.Equal(value, SwitchFalse))
+        if (value == SwitchZero || value == SwitchOff || value == SwitchFalse)
         {
             return false;
         }
