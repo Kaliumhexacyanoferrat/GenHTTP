@@ -89,7 +89,7 @@ public sealed class SecureUpgradeConcern : IConcern
 
         var hostString = (host != null) ? host.Value.ToString() : string.Empty;
 
-        var pathString = Encoding.ASCII.GetString(request.Header.Path.Span);
+        var pathString = Encoding.ASCII.GetString(request.Header.Path.Bytes.Span);
 
         return $"https://{hostString}{port}{pathString}";
     }

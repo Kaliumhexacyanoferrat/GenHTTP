@@ -125,7 +125,7 @@ public class RoutingTests
     private static IRequestTarget CreateTarget(string path)
     {
         var target = new RequestTarget();
-        target.Apply(Encoding.ASCII.GetBytes(path));
+        target.Apply(new(path));
         
         return target;
     }

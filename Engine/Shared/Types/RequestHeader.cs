@@ -14,7 +14,7 @@ public class RequestHeader : IRequestHeader
 
     public RequestMethod Method { get; private set; }
 
-    public ReadOnlyMemory<byte> Path => _request.Source.Path;
+    public ByteString Path => new(_request.Source.Path);
 
     public IRequestTarget Target => _target;
 

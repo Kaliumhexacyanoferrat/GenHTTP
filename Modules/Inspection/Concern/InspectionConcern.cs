@@ -77,7 +77,7 @@ public sealed class InspectionConcern : IConcern
                 {
                     Protocol = GetString(header.Protocol.Bytes),
                     Method = GetString(header.Method.Bytes),
-                    Path = GetString(header.Path),
+                    Path = GetString(header.Path.Bytes),
                     Target = new
                     {
                         Current = GetString(header.Target.Current?.Bytes),

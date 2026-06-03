@@ -6,7 +6,7 @@ namespace GenHTTP.Engine.Shared.Types;
 
 public sealed class RequestTarget : IRequestTarget
 {
-    private ReadOnlyMemory<byte> _path = ReadOnlyMemory<byte>.Empty;
+    private ByteString _path;
 
     private int _offset;
     private int _segmentStart;
@@ -22,7 +22,7 @@ public sealed class RequestTarget : IRequestTarget
                 return false;
             }
 
-            var span = _path.Span;
+            var span = _path.Bytes.Span;
             var length = span.Length;
             var i = _offset;
 
@@ -37,12 +37,12 @@ public sealed class RequestTarget : IRequestTarget
     {
         get
         {
-            var span = _path.Span;
+            var span = _path.Bytes.Span;
             return span.Length > 0 && span[^1] == (byte)'/';
         }
     }
 
-    public void Apply(ReadOnlyMemory<byte> path)
+    public void Apply(ByteString path)
     {
         _path = path;
 
@@ -65,7 +65,7 @@ public sealed class RequestTarget : IRequestTarget
             return Current;
         }
 
-        var span = _path.Span;
+        var span = _path.Bytes.Span;
         var length = span.Length;
         var i = _offset;
 
@@ -86,7 +86,7 @@ public sealed class RequestTarget : IRequestTarget
 
             if (skip == offset)
             {
-                return new(idx < 0 ? _path.Slice(start, length - start) : _path.Slice(start, idx));
+                return new(idx < 0 ? _path.Bytes.Slice(start, length - start) : _path.Bytes.Slice(start, idx));
             }
 
             i += idx < 0 ? (length - start) : idx;
@@ -106,7 +106,7 @@ public sealed class RequestTarget : IRequestTarget
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void MoveNext()
     {
-        var span = _path.Span;
+        var span = _path.Bytes.Span;
         var length = span.Length;
 
         if (length < 2)
@@ -134,18 +134,18 @@ public sealed class RequestTarget : IRequestTarget
         if (idx < 0)
         {
             _offset = length;
-            Current = new(_path.Slice(start, length - start));
+            Current = new(_path.Bytes.Slice(start, length - start));
         }
         else
         {
             _offset += idx;
-            Current = new(_path.Slice(start, idx));
+            Current = new(_path.Bytes.Slice(start, idx));
         }
     }
 
     public IRequestTarget CopyAndAppend(ReadOnlyMemory<byte> suffix)
     {
-        var original = _path;
+        var original = _path.Bytes;
 
         var buffer = new byte[original.Length + suffix.Length];
 
@@ -156,7 +156,7 @@ public sealed class RequestTarget : IRequestTarget
 
         var copy = new RequestTarget
         {
-            _path = combined,
+            _path = new(combined),
             _offset = _offset,
             _segmentStart = _segmentStart
         };
@@ -184,6 +184,8 @@ public sealed class RequestTarget : IRequestTarget
 
     public string AsString(bool decode = true, bool remainingOnly = false)
     {
+        var pathBuffer = _path.Bytes;
+        
         ReadOnlyMemory<byte> slice;
 
         if (remainingOnly)
@@ -193,11 +195,11 @@ public sealed class RequestTarget : IRequestTarget
                 return string.Empty;
             }
 
-            slice = _path[_segmentStart..];
+            slice = pathBuffer[_segmentStart..];
         }
         else
         {
-            slice = _path;
+            slice = pathBuffer;
         }
 
         var stringPath = Encoding.ASCII.GetString(slice.Span);

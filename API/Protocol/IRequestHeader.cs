@@ -7,7 +7,7 @@ public interface IRequestHeader
 
     RequestMethod Method { get; }
 
-    ReadOnlyMemory<byte> Path { get; }
+    ByteString Path { get; }
 
     IRequestTarget Target { get; }
 

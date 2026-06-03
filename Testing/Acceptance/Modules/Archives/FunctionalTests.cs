@@ -28,7 +28,7 @@ public class FunctionalTests
             Assert.IsNotNull(tree.Modified);
 
             var target = new RequestTarget();
-            target.Apply("/SubDir/SubDir/SubFile.txt"u8.ToArray());
+            target.Apply(new("/SubDir/SubDir/SubFile.txt"));
             
             var (foundNode, foundFile) = await tree.FindAsync(target);
 
@@ -52,7 +52,7 @@ public class FunctionalTests
         var tree = ArchiveTree.From(source).Build();
         
         var target = new RequestTarget();
-        target.Apply("/SubDir/SubDir/SubFile.txt"u8.ToArray());
+        target.Apply(new("/SubDir/SubDir/SubFile.txt"));
         
         var (_, foundFile) = await tree.FindAsync(target);
 
