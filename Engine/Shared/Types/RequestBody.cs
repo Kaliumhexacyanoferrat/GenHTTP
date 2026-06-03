@@ -8,12 +8,6 @@ using GenHTTP.Engine.Shared.Types.Body;
 
 namespace GenHTTP.Engine.Shared.Types;
 
-internal enum ConsumptionStrategy
-{
-    Stream,
-    Memory
-}
-
 public class RequestBody(IRequest request) : IRequestBody
 {
     private static readonly ReadOnlyMemory<byte> ChunkedValue = "chunked"u8.ToArray();
@@ -28,10 +22,6 @@ public class RequestBody(IRequest request) : IRequestBody
 
     #region Get-/Setters
 
-    public ContentType? Type { get; private set; }
-
-    public ReadOnlyMemory<byte>? Encoding { get; private set; }
-
     public ulong? Length { get; private set; }
 
     internal PipeReader Reader => _reader ?? throw new InvalidOperationException("Reader has not been initialized");
@@ -44,14 +34,7 @@ public class RequestBody(IRequest request) : IRequestBody
     {
         _reader = reader;
         
-        // request headers might be released so we need to persist the values here
         var headers = request.Header.Headers;
-
-        var contentType = headers.GetEntry(KnownHeaders.ContentType);
-
-        Type = (contentType != null) ? new(contentType.Value.ToArray()) : null;
-
-        Encoding = headers.GetEntry(KnownHeaders.ContentEncoding)?.ToArray();
 
         var contentLength = headers.GetEntry(KnownHeaders.ContentLength);
 

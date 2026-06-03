@@ -1,13 +1,10 @@
 ﻿namespace GenHTTP.Api.Protocol;
 
+/// <summary>
+/// Grants access to the body of the HTTP request.
+/// </summary>
 public interface IRequestBody
 {
-
-    ContentType? Type { get; }
-
-    ReadOnlyMemory<byte>? Encoding { get; }
-
-    ulong? Length { get; }
 
     Stream AsStream();
 
