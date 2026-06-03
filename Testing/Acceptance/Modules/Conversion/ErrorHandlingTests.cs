@@ -35,7 +35,7 @@ public class ErrorHandlingTests
 
     #region Supporting data structures
 
-    private record MyEntity(string Data);
+    public record MyEntity(string Data);
 
     #endregion
 

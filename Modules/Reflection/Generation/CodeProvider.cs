@@ -65,7 +65,7 @@ public static class CodeProvider
 
         sb.AppendArguments(operation, declarations);
 
-        sb.AppendInterception(operation);
+        sb.AppendInterception(operation, declarations);
 
         sb.AppendInvocation(operation);
 

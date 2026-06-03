@@ -277,6 +277,7 @@ public sealed class MethodHandler : IHandler
         var content = await ErrorRenderer.RenderAsync(template);
 
         return request.GetPage(content)
+                      .Status(ResponseStatus.InternalServerError)
                       .Build();
     }
 

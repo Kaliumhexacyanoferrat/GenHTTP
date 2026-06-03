@@ -55,7 +55,7 @@ public static class CodeProviderArgumentExtensions
                 }
             case OperationArgumentSource.Body:
                 {
-                    sb.AppendBodyArgument(argument, index);
+                    sb.AppendBodyArgument(argument, index, declarations);
                     break;
                 }
             default:
@@ -132,12 +132,13 @@ public static class CodeProviderArgumentExtensions
         }
     }
 
-    private static void AppendBodyArgument(this StringBuilder sb, OperationArgument argument, int index)
+    private static void AppendBodyArgument(this StringBuilder sb, OperationArgument argument, int index, StringBuilder declarations)
     {
         var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
-        var safeName = CompilationUtil.GetSafeString(argument.Name);
+        
+        declarations.AppendDeclaration(argument, index);
 
-        sb.AppendLine($"        {safeType}? arg{index} = ({safeType}?)await ArgumentProvider.GetBodyArgumentAsync(request, {safeName}, typeof({safeType}), registry);");
+        sb.AppendLine($"        {safeType}? arg{index} = ({safeType}?)await ArgumentProvider.GetBodyArgumentAsync(request, BodyArg{index}Name, typeof({safeType}), registry);");
         sb.AppendLine();
     }
 
@@ -166,8 +167,14 @@ public static class CodeProviderArgumentExtensions
 
         var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
 
+        sb.AppendLine("               try");
+        sb.AppendLine("               {");
         sb.AppendLine($"                arg{index} = ({safeType}?)registry.Formatting.Read({sourceName}{valueClaim}, typeof({safeType}));");
-
+        sb.AppendLine("               }");
+        sb.AppendLine("               catch (Exception e)");
+        sb.AppendLine("               {");
+        sb.AppendLine($"                  throw new ProviderException(ResponseStatus.BadRequest, \"Failed read '{argument.Name}'\", e);");
+        sb.AppendLine("               }");
         sb.AppendLine("            }");
         sb.AppendLine("        }");
     }
@@ -178,10 +185,11 @@ public static class CodeProviderArgumentExtensions
         {
             OperationArgumentSource.Query => "Query",
             OperationArgumentSource.Path => "Path",
+            OperationArgumentSource.Body => "Body",
             _ => throw new InvalidOperationException($"Unsupported declaration type '{argument.Source}'")
         };
 
-        sb.AppendLine($"    private static ByteString {source}Arg{index}Name = new({CompilationUtil.GetSafeString(argument.Name)});");
+        sb.AppendLine($"    private static readonly ByteString {source}Arg{index}Name = new({CompilationUtil.GetSafeString(argument.Name)});");
     }
 
 }

@@ -53,17 +53,14 @@ public class WebsocketTunnelTests
             await upstreamServer.Host.Handler(GenHTTP.Modules.Websockets.Websocket.Functional()
                     .OnConnected(_ =>
                     {
-                        Console.WriteLine("[Upstream] - Connected");
                         return ValueTask.CompletedTask;
                     })
                     .OnMessage(async (connection, message) =>
                     {
-                        Console.WriteLine($"[Upstream] - Echoing: {message}");
                         await connection.WriteAsync(message.Data);
                     })
                     .OnClose((_, __) =>
                     {
-                        Console.WriteLine("[Upstream] - Closed");
                         return ValueTask.CompletedTask;
                     }))
                     .StartAsync();
