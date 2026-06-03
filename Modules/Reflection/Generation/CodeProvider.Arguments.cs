@@ -75,7 +75,7 @@ public static class CodeProviderArgumentExtensions
         sb.AppendLine($"        var queryArg{index} = request.Header.Query.GetEntry(QueryArg{index}Name);");
 
         sb.AppendLine($"        if (queryArg{index} != null)");
-        sb.AppendArgumentAssignment(argument, index, "query");
+        sb.AppendArgumentAssignment(argument, index, "query", true);
     }
 
     private static void AppendStreamArgument(this StringBuilder sb, int index)
@@ -151,20 +151,22 @@ public static class CodeProviderArgumentExtensions
         sb.AppendLine();
 
         sb.AppendLine($"        if (routingMatch.PathArguments?.TryGetValue(PathArg{index}Name, out var pathArg{index}) ?? false)");
-        sb.AppendArgumentAssignment(argument, index, "path");
+        sb.AppendArgumentAssignment(argument, index, "path", false);
     }
 
-    private static void AppendArgumentAssignment(this StringBuilder sb, OperationArgument argument, int index, string readFrom)
+    private static void AppendArgumentAssignment(this StringBuilder sb, OperationArgument argument, int index, string readFrom, bool optional)
     {
+        var valueClaim = (optional) ? ".Value" : string.Empty;
+
         sb.AppendLine("        {");
-        sb.AppendLine($"            if (!{readFrom}Arg{index}.Value.Bytes.IsEmpty)");
+        sb.AppendLine($"            if (!{readFrom}Arg{index}{valueClaim}.Bytes.IsEmpty)");
         sb.AppendLine("            {");
 
         var sourceName = $"{readFrom}Arg{index}";
 
         var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
 
-        sb.AppendLine($"                arg{index} = ({safeType}?)registry.Formatting.Read({sourceName}.Value, typeof({safeType}));");
+        sb.AppendLine($"                arg{index} = ({safeType}?)registry.Formatting.Read({sourceName}{valueClaim}, typeof({safeType}));");
 
         sb.AppendLine("            }");
         sb.AppendLine("        }");

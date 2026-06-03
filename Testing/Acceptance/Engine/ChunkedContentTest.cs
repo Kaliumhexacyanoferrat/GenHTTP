@@ -122,7 +122,7 @@ public sealed class ChunkedContentTest
 
     #region Supporting types
 
-    private record Model(string Value);
+    public record Model(string Value);
 
     private sealed class BodyEchoHandler : IHandler
     {

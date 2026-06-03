@@ -57,8 +57,14 @@ public static class CodeProvider
 
         sb.AppendLine("    {");
 
+        if (operation.Result.Sink == OperationResultSink.Serializer)
+        {
+            sb.AppendLine("        var accepted = request.Header.Headers.GetEntry(KnownHeaders.Accept);");
+            sb.AppendLine();
+        }
+
         sb.AppendArguments(operation, declarations);
-        
+
         sb.AppendInterception(operation);
 
         sb.AppendInvocation(operation);

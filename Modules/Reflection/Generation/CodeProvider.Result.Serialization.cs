@@ -6,10 +6,10 @@ namespace GenHTTP.Modules.Reflection.Generation;
 
 public static class CodeProviderResultSerializationExtensions
 {
-    
+
     public static void AppendSerializedResult(this StringBuilder sb, Operation operation)
     {
-        sb.AppendLine("        var serializer = registry.Serialization.GetSerialization(request);");
+        sb.AppendLine("        var serializer = registry.Serialization.GetSerialization(request, accepted);");
         sb.AppendLine();
         sb.AppendLine("        if (serializer is null)");
         sb.AppendLine("        {");
@@ -22,7 +22,6 @@ public static class CodeProviderResultSerializationExtensions
         sb.AppendResultModifications(operation, "                                       ");
         sb.AppendLine("                                       .Build();");
         sb.AppendLine();
-        
     }
-    
+
 }
