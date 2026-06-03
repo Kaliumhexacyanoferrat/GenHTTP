@@ -31,6 +31,8 @@ public class MemoryConsumptionStrategy
     {
         _reader = null;
         _length = null;
+        _readResult = null;
+        _memory = null;
     }
 
     public ValueTask<ReadOnlyMemory<byte>> ObtainAsync()

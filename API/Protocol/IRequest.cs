@@ -35,6 +35,10 @@ public interface IRequest
     /// <returns>The body of the HTTP request (if any)</returns>
     IRequestBody? GetBody(HeaderAccess headerAccess = HeaderAccess.Retain);
 
+    /// <summary>
+    /// Creates a response for this request.
+    /// </summary>
+    /// <returns>The response which can be returned by handlers to answer this request</returns>
     IResponseBuilder Respond();
     
     // todo: wrap body (e.g. content decoding)
