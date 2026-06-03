@@ -7,15 +7,15 @@ namespace GenHTTP.Modules.Websockets.Provider;
 
 public class WebsocketHandler(Func<IRequest, IResponseContent> contentFactory) : IHandler
 {
-    private static readonly ByteString KeyHeader = new("Sec-WebSocket-Key"u8.ToArray());
+    private static readonly ByteString KeyHeader = new("Sec-WebSocket-Key");
 
-    private static readonly ByteString VersionHeader = new("Sec-WebSocket-Version"u8.ToArray());
+    private static readonly ByteString VersionHeader = new("Sec-WebSocket-Version");
 
-    private static readonly ByteString AcceptHeader = new("Sec-WebSocket-Accept"u8.ToArray());
+    private static readonly ByteString AcceptHeader = new("Sec-WebSocket-Accept");
 
-    private static readonly ByteString UpgradeHeaderName = new("Upgrade"u8.ToArray());
+    private static readonly ByteString UpgradeHeaderName = new("Upgrade");
 
-    private static readonly ByteString UpgradeHeaderValue = new("websocket"u8.ToArray());
+    private static readonly ByteString UpgradeHeaderValue = new("websocket");
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 

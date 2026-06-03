@@ -9,11 +9,11 @@ namespace GenHTTP.Modules.Security.Providers;
 
 public sealed class SecureUpgradeConcern : IConcern
 {
-    private static readonly ByteString UpgradeInsecureRequestsHeader = new("Upgrade-Insecure-Requests"u8.ToArray());
+    private static readonly ByteString UpgradeInsecureRequestsHeader = new("Upgrade-Insecure-Requests");
 
-    private static readonly ByteString VaryHeader = new("Vary"u8.ToArray());
+    private static readonly ByteString VaryHeader = new("Vary");
 
-    private static readonly ByteString YesValue = new("1"u8.ToArray());
+    private static readonly ByteString YesValue = new("1");
 
     #region Get-/Setters
 

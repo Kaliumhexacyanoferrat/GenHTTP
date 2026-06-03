@@ -8,25 +8,25 @@ namespace GenHTTP.Modules.Security.Cors;
 
 public sealed class CorsPolicyHandler : IConcern
 {
-    private static readonly ByteString OriginHeader = new("Origin"u8.ToArray());
+    private static readonly ByteString OriginHeader = new("Origin");
 
-    private static readonly ByteString AcaOrigin = new("Access-Control-Allow-Origin"u8.ToArray());
+    private static readonly ByteString AcaOrigin = new("Access-Control-Allow-Origin");
 
-    private static readonly ByteString AcaMethods = new("Access-Control-Allow-Methods"u8.ToArray());
+    private static readonly ByteString AcaMethods = new("Access-Control-Allow-Methods");
 
-    private static readonly ByteString AcaHeaders = new("Access-Control-Allow-Headers"u8.ToArray());
+    private static readonly ByteString AcaHeaders = new("Access-Control-Allow-Headers");
 
-    private static readonly ByteString AcExposeHeaders = new("Access-Control-Expose-Headers"u8.ToArray());
+    private static readonly ByteString AcExposeHeaders = new("Access-Control-Expose-Headers");
 
-    private static readonly ByteString AcaCredentials = new("Access-Control-Allow-Credentials"u8.ToArray());
+    private static readonly ByteString AcaCredentials = new("Access-Control-Allow-Credentials");
 
-    private static readonly ByteString AcMaxAge = new("Access-Control-Max-Age"u8.ToArray());
+    private static readonly ByteString AcMaxAge = new("Access-Control-Max-Age");
 
-    private static readonly ByteString TrueValue = new("true"u8.ToArray());
+    private static readonly ByteString TrueValue = new("true");
 
-    private static readonly ByteString VaryHeader = new("Vary"u8.ToArray());
+    private static readonly ByteString VaryHeader = new("Vary");
 
-    public static readonly ByteString AllowAny = new("*"u8.ToArray());
+    public static readonly ByteString AllowAny = new("*");
 
     #region Get-/Setters
 

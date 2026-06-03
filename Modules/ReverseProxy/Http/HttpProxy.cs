@@ -13,9 +13,9 @@ namespace GenHTTP.Modules.ReverseProxy.Http;
 
 public sealed class HttpProxy : IHandler
 {
-    private static readonly ByteString UpgradeHeader = new("Upgrade"u8.ToArray());
+    private static readonly ByteString UpgradeHeader = new("Upgrade");
 
-    private static readonly ByteString WebsocketValue = new("websocket"u8.ToArray());
+    private static readonly ByteString WebsocketValue = new("websocket");
 
     private static readonly HashSet<string> ReservedResponseHeaders = new(StringComparer.OrdinalIgnoreCase)
     {

@@ -8,9 +8,9 @@ namespace GenHTTP.Modules.ReverseProxy.Provider;
 
 public sealed class ReverseProxyProvider : IHandler
 {
-    private static readonly ByteString UpgradeHeader = new("Upgrade"u8.ToArray());
+    private static readonly ByteString UpgradeHeader = new("Upgrade");
 
-    private static readonly ByteString WebsocketValue = new("websocket"u8.ToArray());
+    private static readonly ByteString WebsocketValue = new("websocket");
 
     #region Get-/Setters
 

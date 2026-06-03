@@ -12,7 +12,7 @@ namespace GenHTTP.Modules.ApiBrowsing.Common;
 
 public sealed class BrowserHandler: IHandler
 {
-    private static readonly PathSegment StaticSegment = new("static"u8.ToArray());
+    private static readonly PathSegment StaticSegment = new("static");
 
     #region Get-/Setters
 

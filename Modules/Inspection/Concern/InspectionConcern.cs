@@ -8,7 +8,7 @@ namespace GenHTTP.Modules.Inspection.Concern;
 
 public sealed class InspectionConcern : IConcern
 {
-    private static readonly ByteString InspectInstruction = new("inspect"u8.ToArray());
+    private static readonly ByteString InspectInstruction = new("inspect");
 
     #region Get-/Setters
 
