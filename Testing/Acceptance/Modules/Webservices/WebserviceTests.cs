@@ -50,6 +50,10 @@ public sealed class WebserviceTests
         [ResourceMethod(Method.Post, "entity")]
         public TestEntity Entity(TestEntity entity) => entity;
 
+        [ResourceMethod(Method.Get, "entity-result")]
+        public Task<Result<TestEntity>> EntityResultAsync()
+            => Task.FromResult(new Result<TestEntity>(new() { Id = 12}).Status(ResponseStatus.Created));
+
         [ResourceMethod(Method.Put, "stream")]
         public Stream Stream(Stream input) => new MemoryStream(Encoding.UTF8.GetBytes(input.Length.ToString()));
 
@@ -197,6 +201,13 @@ public sealed class WebserviceTests
     {
         const string entity = "{\"id\":42,\"nullable\":123.456}";
         await WithResponse(engine, mode, "entity", HttpMethod.Post, entity, null, "bla/blubb", async r => Assert.AreEqual(entity, await r.GetContentAsync()));
+    }
+
+    [TestMethod]
+    [MultiEngineFrameworkTest]
+    public async Task TestEntityWithResult(TestEngine engine, ExecutionMode mode)
+    {
+        await WithResponse(engine, mode, "entity-result", HttpMethod.Get, null, null, null, async r => await r.AssertStatusAsync(HttpStatusCode.Created));
     }
 
     [TestMethod]

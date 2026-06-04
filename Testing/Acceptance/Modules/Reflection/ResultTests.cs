@@ -26,10 +26,8 @@ public sealed class ResultTests
     public async Task TestResponseCanBeModified(TestEngine engine, ExecutionMode mode)
     {
         var result = new Result<MyPayload>(new MyPayload("Hello World!"))
-                     .Status(ResponseStatus.Accepted)
-                     // todo: .Status() //, "Accepted Custom")
+                     .Status(ResponseStatus.Created)
                      .Connection(Connection.Close)
-                     // .Type(new FlexibleContentType(ContentType.TextRichText))
                      .Header("X-Custom", "Value")
                      .Cookie(new Cookie("Cookie", "Value"));
 
@@ -41,7 +39,7 @@ public sealed class ResultTests
 
         using var response = await runner.GetResponseAsync();
 
-        await response.AssertStatusAsync(HttpStatusCode.Accepted);
+        await response.AssertStatusAsync(HttpStatusCode.Created);
 
         Assert.AreEqual("Value", response.GetHeader("X-Custom"));
 
