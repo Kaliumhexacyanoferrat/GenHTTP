@@ -68,16 +68,17 @@ public class MemoryConsumptionStrategy
 
             var buffer = result.Buffer.Slice(0, length);
 
-            _readResult = result;
-
             if (buffer.IsSingleSegment)
             {
+                _readResult = result;
                 return (_memory = buffer.First).Value;
             }
 
             var linearized = GC.AllocateUninitializedArray<byte>((int)length);
 
             buffer.CopyTo(linearized);
+
+            reader.AdvanceTo(result.Buffer.GetPosition(length));
 
             return (_memory = linearized).Value;
         }
@@ -122,7 +123,7 @@ public class MemoryConsumptionStrategy
     {
         if (_readResult is not null)
         {
-            Reader.AdvanceTo(_readResult.Value.Buffer.End);
+            Reader.AdvanceTo(_readResult.Value.Buffer.GetPosition(_length!.Value));
         }
 
         Reset();
