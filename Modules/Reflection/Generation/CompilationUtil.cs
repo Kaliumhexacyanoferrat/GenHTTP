@@ -74,7 +74,12 @@ public static class CompilationUtil
     internal static bool HasWrappedResult(Operation operation)
     {
         var returnType = operation.Method.ReturnType;
-        
+
+        if (returnType.IsAsyncGeneric())
+        {
+            returnType = returnType.GenericTypeArguments[0];
+        }
+
         return typeof(IResultWrapper).IsAssignableFrom(returnType);
     }
 
