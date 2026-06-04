@@ -48,7 +48,7 @@ internal sealed class BrotliCompressingSink : IResponseSink, IAsyncDisposable, I
     {
         _inner = inner;
         _inputBuffer = ArrayPool<byte>.Shared.Rent(InputBufferSize);
-        _encoder = new BrotliEncoder(MapQuality(level), window: 22);
+        _encoder = new BrotliEncoder(MapQuality(level), MapWindow(level));
     }
 
     #endregion
@@ -82,6 +82,14 @@ internal sealed class BrotliCompressingSink : IResponseSink, IAsyncDisposable, I
         CompressionLevel.Fastest => 0,
         CompressionLevel.Optimal => 4,
         CompressionLevel.SmallestSize => 11,
+        _ => throw new InvalidOperationException($"Unsupported compression level: {level}")
+    };
+
+    private static int MapWindow(CompressionLevel level) => level switch
+    {
+        CompressionLevel.Fastest => 16,       // 64 KB — adequate for typical HTTP responses
+        CompressionLevel.Optimal => 20,       // 1 MB
+        CompressionLevel.SmallestSize => 22,  // 4 MB — full window for best ratio
         _ => throw new InvalidOperationException($"Unsupported compression level: {level}")
     };
 
