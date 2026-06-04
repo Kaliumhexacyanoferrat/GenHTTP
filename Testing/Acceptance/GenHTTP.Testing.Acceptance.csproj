@@ -18,28 +18,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="Resources\Certificate.pfx">
-            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        </EmbeddedResource>
-        <EmbeddedResource Include="Resources\Error.html" />
-        <EmbeddedResource Include="Resources\LargeTemplate.html" />
-        <EmbeddedResource Include="Resources\OtherFile.txt" />
         <None Remove="Resources\Archives\Archive.7z" />
-        <EmbeddedResource Include="Resources\Archives\Archive.7z" />
         <None Remove="Resources\Archives\Archive.tar" />
         <None Remove="Resources\Archives\Archive.zip" />
-        <EmbeddedResource Include="Resources\Archives\Archive.zip" />
         <None Remove="Resources\Archives\Archive.tar.gz" />
-        <EmbeddedResource Include="Resources\Archives\Archive.tar.gz" />
         <None Remove="Resources\LargeTemplate.html.br" />
         <None Remove="Resources\LargeTemplate.html+br" />
-        <EmbeddedResource Include="Resources\LargeTemplate.html+br" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <EmbeddedResource Include="Resources\File.txt" />
-        <EmbeddedResource Include="Resources\Subdirectory\AnotherFile.txt" />
-        <EmbeddedResource Include="Resources\Template.html" />
     </ItemGroup>
 
     <ItemGroup>
