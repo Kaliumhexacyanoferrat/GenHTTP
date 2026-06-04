@@ -15,14 +15,14 @@ public sealed class CustomErrorMapperTests
 
     public class ErrorLengthMapper : IErrorMapper<Exception>
     {
-        public ValueTask<IResponse?> GetNotFound(IRequest request, IHandler handler) => new(
+        public ValueTask<IResponse?> GetNotFound(IRequest request, IHandler handler, ByteString? acceptedFormat) => new(
             request.Respond()
                    .Status(ResponseStatus.NotFound)
                    .Content(new GenHTTP.Modules.IO.Strings.StringContent("404"))
                    .Build()
         );
 
-        public ValueTask<IResponse?> Map(IRequest request, IHandler handler, Exception error) => new(
+        public ValueTask<IResponse?> Map(IRequest request, IHandler handler, Exception error, ByteString? acceptedFormat) => new(
             request.Respond()
                    .Status(ResponseStatus.NotFound)
                    .Content(new GenHTTP.Modules.IO.Strings.StringContent($"{error.Message.Length}"))

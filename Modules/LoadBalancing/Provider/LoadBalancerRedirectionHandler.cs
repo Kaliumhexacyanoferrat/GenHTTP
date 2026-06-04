@@ -31,7 +31,7 @@ public sealed class LoadBalancerRedirectionHandler : IHandler
     {
         var current = request.Header.Target.Current;
 
-        var appendix = (current != null) ? Encoding.ASCII.GetString(current.Value.Value.Span) : string.Empty;
+        var appendix = (current != null) ? Encoding.ASCII.GetString(current.Value.Bytes.Span) : string.Empty;
 
         return Redirect.To(Root + appendix, true)
                        .Build()

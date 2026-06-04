@@ -77,7 +77,7 @@ public sealed class CompressionConcern : IConcern
             {
                 if (acceptEncoding != null)
                 {
-                    var supported = AcceptEncodingHeader.ParseSupported(acceptEncoding.Value.Span);
+                    var supported = AcceptEncodingHeader.ParseSupported(acceptEncoding.Value);
 
                     foreach (var algorithm in Algorithms)
                     {
@@ -94,20 +94,20 @@ public sealed class CompressionConcern : IConcern
 
                         if (vary != null)
                         {
-                            var combined = new byte[vary.Value.Length + KnownHeaders.AcceptEncoding.Length + 2];
+                            var combined = new byte[vary.Value.Bytes.Length + KnownHeaders.AcceptEncoding.Bytes.Length + 2];
 
                             var span = combined.AsSpan();
                             var offset = 0;
 
-                            vary.Value.Span.CopyTo(span);
-                            offset += vary.Value.Length;
+                            vary.Value.Bytes.Span.CopyTo(span);
+                            offset += vary.Value.Bytes.Length;
 
                             span[offset++] = (byte)',';
                             span[offset++] = (byte)' ';
 
-                            KnownHeaders.AcceptEncoding.Span.CopyTo(span[offset..]);
+                            KnownHeaders.AcceptEncoding.Bytes.Span.CopyTo(span[offset..]);
 
-                            builder.Header(KnownHeaders.Vary, combined);
+                            builder.Header(KnownHeaders.Vary, new(combined));
                         }
                         else
                         {

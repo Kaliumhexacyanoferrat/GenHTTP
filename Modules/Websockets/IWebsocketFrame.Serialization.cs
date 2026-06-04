@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace GenHTTP.Modules.Websockets;
+﻿namespace GenHTTP.Modules.Websockets;
 
 public static class WebsocketFrameSerializationExtensions
 {
@@ -15,9 +13,7 @@ public static class WebsocketFrameSerializationExtensions
     {
         if (frame.Connection.Settings.Formatters.CanHandle(typeof(T)))
         {
-            var stringData = Encoding.UTF8.GetString(frame.Data.ToArray());
-
-            return Enforce<T>(frame.Connection.Settings.Formatters.Read(stringData, typeof(T)));
+            return Enforce<T>(frame.Connection.Settings.Formatters.Read(new(frame.Data.ToArray()), typeof(T)));
         }
 
         var buffer = frame.Data.ToArray();

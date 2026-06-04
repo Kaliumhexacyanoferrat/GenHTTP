@@ -11,7 +11,7 @@ public sealed class VirtualHostRouter : IHandler
 
     #region Get-/Setters
 
-    private FrozenDictionary<PathSegment, IHandler> Hosts { get; }
+    private FrozenDictionary<ByteString, IHandler> Hosts { get; }
 
     private IHandler? DefaultRoute { get; }
 
@@ -19,7 +19,7 @@ public sealed class VirtualHostRouter : IHandler
 
     #region Initialization
 
-    public VirtualHostRouter(Dictionary<PathSegment, IHandlerBuilder> hosts, IHandlerBuilder? defaultRoute)
+    public VirtualHostRouter(Dictionary<ByteString, IHandlerBuilder> hosts, IHandlerBuilder? defaultRoute)
     {
         Hosts = hosts.ToFrozenDictionary(kv => kv.Key, kv => kv.Value.Build());
         DefaultRoute = defaultRoute?.Build();
@@ -51,7 +51,7 @@ public sealed class VirtualHostRouter : IHandler
         // try to find a regular route
         if (host is not null)
         {
-            if (Hosts.TryGetValue(new(host.Value), out var handler))
+            if (Hosts.TryGetValue(host.Value, out var handler))
             {
                 return handler;
             }

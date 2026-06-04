@@ -1,10 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
-using System.Text;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion;
-using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Reflection.Routing;
 
 namespace GenHTTP.Modules.Reflection.Operations;
@@ -25,7 +22,7 @@ public static class ArgumentProvider
         return null;
     }
 
-    public static object? GetPathArgument(string name, Type type, RoutingMatch match, MethodRegistry registry)
+    public static object? GetPathArgument(ByteString name, Type type, RoutingMatch match, MethodRegistry registry)
     {
         if (match.PathArguments?.TryGetValue(name, out var pathArgument) ?? false)
         {
@@ -35,9 +32,9 @@ public static class ArgumentProvider
         return null;
     }
 
-    public static async ValueTask<object?> GetBodyArgumentAsync(IRequest request, string name, Type type, MethodRegistry registry)
+    public static async ValueTask<object?> GetBodyArgumentAsync(IRequest request, ByteString name, Type type, MethodRegistry registry)
     {
-        var content = request.GetBody();
+        var content = request.GetBody(HeaderAccess.Release);
 
         if (content == null)
         {
@@ -46,33 +43,23 @@ public static class ArgumentProvider
 
         object? result = null;
 
-        var buffer = await content.ReadToEndAsync();
+        var buffer = new ByteString(await content.AsMemoryAsync());
 
-        var body = Encoding.UTF8.GetString(buffer.Span);
-
-        if (!string.IsNullOrWhiteSpace(body))
+        if (!buffer.Bytes.IsEmpty)
         {
-            result = body.ConvertTo(type, registry.Formatting);
+            result = buffer.ConvertTo(type, registry.Formatting);
         }
 
         return result;
     }
 
-    public static object? GetQueryArgument(IRequest request, Dictionary<string, string>? formArguments, OperationArgument argument, MethodRegistry registry)
+    public static object? GetQueryArgument(IRequest request, OperationArgument argument, MethodRegistry registry)
     {
-        var queryValue = request.Header.Query.GetEntry(argument.Name); // todo: string based
+        var queryValue = request.Header.Query.GetEntry(argument.Name);
 
         if (queryValue is not null)
         {
             return queryValue.ConvertTo(argument.Type, registry.Formatting);
-        }
-
-        if (formArguments is not null)
-        {
-            if (formArguments.TryGetValue(argument.Name, out var bodyValue))
-            {
-                return bodyValue.ConvertTo(argument.Type, registry.Formatting);
-            }
         }
 
         return null;
@@ -87,7 +74,7 @@ public static class ArgumentProvider
             throw new ProviderException(ResponseStatus.UnsupportedMediaType, "Requested format is not supported");
         }
 
-        var content = request.GetBody();
+        var content = request.GetBody(HeaderAccess.Release);
 
         if (content is null)
         {
@@ -107,7 +94,7 @@ public static class ArgumentProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Stream GetStream(IRequest request)
     {
-        var content = request.GetBody();
+        var content = request.GetBody(HeaderAccess.Release);
 
         if (content == null)
         {

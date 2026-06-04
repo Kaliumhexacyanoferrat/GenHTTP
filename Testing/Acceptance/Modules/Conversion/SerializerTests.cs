@@ -12,7 +12,7 @@ public class SerializerTests
 
     #region Supporting data structures
 
-    record MyType(string StringValue, int IntValue);
+    public record MyType(string StringValue, int IntValue);
 
     #endregion
 

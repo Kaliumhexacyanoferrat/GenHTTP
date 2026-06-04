@@ -1,4 +1,5 @@
 ﻿using System.IO.Pipelines;
+using System.Runtime.CompilerServices;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
@@ -7,46 +8,39 @@ using GenHTTP.Engine.Shared.Types.Body;
 
 namespace GenHTTP.Engine.Shared.Types;
 
-public class RequestBody : IRequestBody
+public class RequestBody(IRequest request) : IRequestBody
 {
     private static readonly ReadOnlyMemory<byte> ChunkedValue = "chunked"u8.ToArray();
+
+    private ConsumptionStrategy? _strategy;
+
+    private readonly StreamConsumptionStrategy _streamStrategy = new();
+
+    private readonly MemoryConsumptionStrategy _memoryStrategy = new();
     
-    private readonly PipeReader _reader;
-
-    private readonly bool _isChunked;
-
-    private Stream? _stream;
+    private PipeReader? _reader;
 
     #region Get-/Setters
 
-    public ContentType? Type { get; }
+    public ulong? Length { get; private set; }
 
-    public ReadOnlyMemory<byte>? Encoding { get; }
-
-    public ulong? Length { get; }
-
+    internal PipeReader Reader => _reader ?? throw new InvalidOperationException("Reader has not been initialized");
+    
     #endregion
 
     #region Initialization
 
-    public RequestBody(IRequest request, PipeReader reader)
+    public void Apply(PipeReader reader)
     {
         _reader = reader;
-
-        // request headers might be released so we need to persist the values here
+        
         var headers = request.Header.Headers;
-
-        var contentType = headers.GetEntry(KnownHeaders.ContentType);
-
-        Type = (contentType != null) ? new(contentType.Value.ToArray()) : null;
-
-        Encoding = headers.GetEntry(KnownHeaders.ContentEncoding)?.ToArray();
 
         var contentLength = headers.GetEntry(KnownHeaders.ContentLength);
 
         if (contentLength != null)
         {
-            if (ulong.TryParse(contentLength.Value.Span, out var longValue))
+            if (ulong.TryParse(contentLength.Value.Bytes.Span, out var longValue))
             {
                 Length = longValue;
             }
@@ -55,10 +49,28 @@ public class RequestBody : IRequestBody
                 throw new ProviderException(ResponseStatus.BadRequest, "Content-Length header has an invalid value");
             }
         }
+        else
+        {
+            Length = null;
+        }
 
         var transferEncoding = headers.GetEntry(KnownHeaders.TransferEncoding);
 
-        _isChunked = transferEncoding != null && transferEncoding.Value.Span.SequenceEqual(ChunkedValue.Span);
+        var chunked = transferEncoding != null && transferEncoding.Value.Bytes.Span.SequenceEqual(ChunkedValue.Span);
+
+        if (Length == null && !chunked)
+        {
+            throw new InvalidOperationException("Request body has neither Content-Length nor Transfer-Encoding: chunked");
+        }
+    }
+
+    public void Reset()
+    {
+        _strategy = null;
+        _reader = null;
+        
+        _streamStrategy.Reset();
+        _memoryStrategy.Reset();
     }
 
     #endregion
@@ -67,34 +79,66 @@ public class RequestBody : IRequestBody
 
     public Stream AsStream()
     {
-        if (_stream != null)
+        if (_strategy == ConsumptionStrategy.Stream)
         {
-            return _stream;
+            return _streamStrategy.Obtain();
+        }
+        
+        SetStrategy(ConsumptionStrategy.Stream);
+        
+        _streamStrategy.Apply(Reader, (long?)Length);
+        
+        return _streamStrategy.Obtain();
+    }
+
+    public ValueTask<ReadOnlyMemory<byte>> AsMemoryAsync()
+    {
+        if (_strategy == ConsumptionStrategy.Memory)
+        {
+            return _memoryStrategy.ObtainAsync();
+        }
+        
+        SetStrategy(ConsumptionStrategy.Memory);
+        
+        _memoryStrategy.Apply(Reader, (long?)Length);
+
+        return _memoryStrategy.ObtainAsync();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void SetStrategy(ConsumptionStrategy requested)
+    {
+        if (_strategy != null)
+        {
+            throw new InvalidOperationException($"Cannot provide body as '{requested}' as it has already been opened as '{_strategy}'");
         }
 
-        if (Length != null)
-        {
-            return _stream = new LengthLimitedStream(_reader, (long)Length.Value);
-        }
-
-        if (_isChunked)
-        {
-            return _stream = new ChunkedBodyStream(_reader);
-        }
-
-        throw new InvalidOperationException("Request body has neither Content-Length nor Transfer-Encoding: chunked");
+        _strategy = requested;
     }
 
     public ValueTask DrainAsync()
     {
-        if (_stream == null)
+        var strategy = _strategy;
+
+        if (strategy == null)
         {
+            // the user has ignored the body so we need to use
+            // a strategy ourselves
+            
             AsStream();
+            strategy = ConsumptionStrategy.Stream;
         }
         
-        if (_stream is IDrainableStream drainable)
+        _strategy = null;
+        
+        if (strategy == ConsumptionStrategy.Stream)
         {
-            return drainable.DrainAsync();
+            return _streamStrategy.DrainAsync();
+        }
+        
+        if (strategy == ConsumptionStrategy.Memory)
+        {
+            return _memoryStrategy.DrainAsync();
         }
 
         return default;

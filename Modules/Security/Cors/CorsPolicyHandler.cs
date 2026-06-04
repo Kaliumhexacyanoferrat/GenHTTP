@@ -8,25 +8,25 @@ namespace GenHTTP.Modules.Security.Cors;
 
 public sealed class CorsPolicyHandler : IConcern
 {
-    private static readonly ReadOnlyMemory<byte> OriginHeader = "Origin"u8.ToArray();
+    private static readonly ByteString OriginHeader = new("Origin");
 
-    private static readonly ReadOnlyMemory<byte> AcaOrigin = "Access-Control-Allow-Origin"u8.ToArray();
+    private static readonly ByteString AcaOrigin = new("Access-Control-Allow-Origin");
 
-    private static readonly ReadOnlyMemory<byte> AcaMethods = "Access-Control-Allow-Methods"u8.ToArray();
+    private static readonly ByteString AcaMethods = new("Access-Control-Allow-Methods");
 
-    private static readonly ReadOnlyMemory<byte> AcaHeaders = "Access-Control-Allow-Headers"u8.ToArray();
+    private static readonly ByteString AcaHeaders = new("Access-Control-Allow-Headers");
 
-    private static readonly ReadOnlyMemory<byte> AcExposeHeaders = "Access-Control-Expose-Headers"u8.ToArray();
+    private static readonly ByteString AcExposeHeaders = new("Access-Control-Expose-Headers");
 
-    private static readonly ReadOnlyMemory<byte> AcaCredentials = "Access-Control-Allow-Credentials"u8.ToArray();
+    private static readonly ByteString AcaCredentials = new("Access-Control-Allow-Credentials");
 
-    private static readonly ReadOnlyMemory<byte> AcMaxAge = "Access-Control-Max-Age"u8.ToArray();
+    private static readonly ByteString AcMaxAge = new("Access-Control-Max-Age");
 
-    private static readonly ReadOnlyMemory<byte> TrueValue = "true"u8.ToArray();
+    private static readonly ByteString TrueValue = new("true");
 
-    private static readonly ReadOnlyMemory<byte> VaryHeader = "Vary"u8.ToArray();
+    private static readonly ByteString VaryHeader = new("Vary");
 
-    public static readonly ReadOnlyMemory<byte> AllowAny = "*"u8.ToArray();
+    public static readonly ByteString AllowAny = new("*");
 
     #region Get-/Setters
 
@@ -79,7 +79,7 @@ public sealed class CorsPolicyHandler : IConcern
         return response;
     }
 
-    private static void ConfigureResponse(IResponse response, ReadOnlyMemory<byte> origin, OriginPolicy policy)
+    private static void ConfigureResponse(IResponse response, ByteString origin, OriginPolicy policy)
     {
         var builder = response.Rebuild();
 
@@ -109,23 +109,23 @@ public sealed class CorsPolicyHandler : IConcern
 
         policy.MaxAge.TryFormat(age, out var written);
 
-        var ageBuffer = age[..written].ToArray();
+        var ageBuffer = new ByteString(age[..written].ToArray());
 
         builder.Header(AcMaxAge, ageBuffer);
 
-        if (!origin.Span.SequenceEqual(AllowAny.Span))
+        if (origin != AllowAny)
         {
             builder.Header(VaryHeader, OriginHeader);
         }
     }
 
-    private (ReadOnlyMemory<byte> origin, OriginPolicy? policy) GetPolicy(IRequest request)
+    private (ByteString origin, OriginPolicy? policy) GetPolicy(IRequest request)
     {
         var origin = request.Header.Headers.GetEntry(OriginHeader);
 
         if (origin is not null)
         {
-            var originString = Encoding.ASCII.GetString(origin.Value.Span);
+            var originString = origin.Value.ToString();
 
             if (AdditionalPolicies.TryGetValue(originString, out var policy))
             {
@@ -136,7 +136,7 @@ public sealed class CorsPolicyHandler : IConcern
         return (origin ?? AllowAny, DefaultPolicy);
     }
 
-    private static ReadOnlyMemory<byte> GetListOrWildcard(List<string>? values)
+    private static ByteString GetListOrWildcard(List<string>? values)
     {
         if (values is null) return AllowAny;
 
@@ -162,10 +162,10 @@ public sealed class CorsPolicyHandler : IConcern
             }
         }
 
-        return buffer;
+        return new(buffer);
     }
 
-    private static ReadOnlyMemory<byte> GetListOrWildcard(List<RequestMethod>? values)
+    private static ByteString GetListOrWildcard(List<RequestMethod>? values)
     {
         if (values is null) return AllowAny;
 
@@ -173,7 +173,7 @@ public sealed class CorsPolicyHandler : IConcern
 
         for (var i = 0; i < values.Count; i++)
         {
-            totalLength += values[i].Value.Length;
+            totalLength += values[i].Bytes.Length;
             if (i < values.Count - 1) totalLength += 2; // ", "
         }
 
@@ -182,7 +182,7 @@ public sealed class CorsPolicyHandler : IConcern
 
         for (var i = 0; i < values.Count; i++)
         {
-            var span = values[i].Value.Span;
+            var span = values[i].Bytes.Span;
             span.CopyTo(buffer.AsSpan(pos));
 
             pos += span.Length;
@@ -194,7 +194,7 @@ public sealed class CorsPolicyHandler : IConcern
             }
         }
 
-        return buffer;
+        return new(buffer);
     }
 
     private static bool HasValue<T>(List<T>? list) => list is null || list.Count > 0;

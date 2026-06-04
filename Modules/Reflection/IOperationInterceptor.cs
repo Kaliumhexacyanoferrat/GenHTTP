@@ -34,6 +34,6 @@ public interface IOperationInterceptor
     /// <param name="operation">The currently executed operation</param>
     /// <param name="arguments">The operation arguments as derived by the framework</param>
     /// <returns>If a result is returned, it will be converted into a response and the method is not invoked</returns>
-    ValueTask<InterceptionResult?> InterceptAsync(IRequest request, Operation operation, IReadOnlyDictionary<string, object?> arguments);
+    ValueTask<InterceptionResult?> InterceptAsync(IRequest request, Operation operation, IReadOnlyDictionary<ByteString, object?> arguments);
 
 }

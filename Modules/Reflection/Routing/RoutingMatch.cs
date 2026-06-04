@@ -1,3 +1,5 @@
+using GenHTTP.Api.Protocol;
+
 namespace GenHTTP.Modules.Reflection.Routing;
 
 /// <summary>
@@ -6,4 +8,4 @@ namespace GenHTTP.Modules.Reflection.Routing;
 /// </summary>
 /// <param name="Offset">The offset to advance the request target by</param>
 /// <param name="PathArguments">The arguments read from the request path, if any</param>
-public record RoutingMatch(int Offset, IReadOnlyDictionary<string, string>? PathArguments);
+public record RoutingMatch(int Offset, IReadOnlyDictionary<ByteString, ByteString>? PathArguments);

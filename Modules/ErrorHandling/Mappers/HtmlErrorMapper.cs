@@ -9,7 +9,7 @@ namespace GenHTTP.Modules.ErrorHandling.Mappers;
 public class HtmlErrorMapper : IErrorMapper<Exception>
 {
 
-    public async ValueTask<IResponse?> Map(IRequest request, IHandler handler, Exception error)
+    public async ValueTask<IResponse?> Map(IRequest request, IHandler handler, Exception error, ByteString? acceptedFormat)
     {
         var developmentMode = request.Server.Development;
 
@@ -34,7 +34,7 @@ public class HtmlErrorMapper : IErrorMapper<Exception>
         }
     }
 
-    public async ValueTask<IResponse?> GetNotFound(IRequest request, IHandler handler)
+    public async ValueTask<IResponse?> GetNotFound(IRequest request, IHandler handler, ByteString? acceptedFormat)
     {
         var content = await Renderer.Server.RenderAsync("Not Found", "The specified content was not found on this server.");
 

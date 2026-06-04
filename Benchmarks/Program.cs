@@ -1,7 +1,5 @@
-﻿using BenchmarkDotNet.Running;
+﻿using GenHTTP.Benchmarks.Benchmarks.Webservices;
 
-using GenHTTP.Benchmarks.Benchmarks.IO;
+// BenchmarkRunner.Run<BaselineBenchmark>();
 
-BenchmarkRunner.Run<StaticFileBenchmark>();
-
-// await new JsonSerializationBenchmark().BenchmarkReturnedJson();
+await new BaselineBodyBenchmark().BenchmarkBaseline();

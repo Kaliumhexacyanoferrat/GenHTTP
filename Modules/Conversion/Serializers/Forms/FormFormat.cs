@@ -4,15 +4,13 @@ using System.Web;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Conversion.Formatters;
-using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.Conversion.Serializers.Forms;
 
 public sealed class FormFormat : ISerializationFormat
 {
-    private static readonly ReadOnlyMemory<byte> ContentTypeHeader = "Content-Type"u8.ToArray();
-
     private static readonly Type[] EmptyConstructor = [];
 
     private static readonly object[] EmptyArgs = [];
@@ -63,15 +61,19 @@ public sealed class FormFormat : ISerializationFormat
                 {
                     var property = type.GetProperty(key, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 
+                    // very inefficient, but the form format is probably not used that much
+                    // so we do not optimize that for now
+                    ByteString byteValue = new(value);
+                    
                     if (property is not null)
                     {
-                        property.SetValue(result, value.ConvertTo(property.PropertyType, Formatters));
+                        property.SetValue(result, byteValue.ConvertTo(property.PropertyType, Formatters));
                     }
                     else
                     {
                         var field = type.GetField(key, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 
-                        field?.SetValue(result, value.ConvertTo(field.FieldType, Formatters));
+                        field?.SetValue(result, byteValue.ConvertTo(field.FieldType, Formatters));
                     }
                 }
             }
@@ -80,7 +82,7 @@ public sealed class FormFormat : ISerializationFormat
         return result;
     }
 
-    public ValueTask<IResponseBuilder> SerializeAsync<T>(IRequest request, T response) where T : class
+    public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)
     {
         var result = request.Respond()
                             .Content(new FormContent(response.GetType(), response, Formatters));
@@ -88,7 +90,7 @@ public sealed class FormFormat : ISerializationFormat
         return new ValueTask<IResponseBuilder>(result);
     }
 
-    public ValueTask<ReadOnlyMemory<byte>> SerializeAsync<T>(T data) where T : class
+    public ValueTask<ReadOnlyMemory<byte>> SerializeAsync(object data)
     {
         return ByteStreamSerialization.SerializeAsync(b =>
         {
@@ -98,13 +100,13 @@ public sealed class FormFormat : ISerializationFormat
         });
     }
 
-    public static async ValueTask<Dictionary<string, string>?> GetContentAsync(IRequest request)
+    public static async ValueTask<Dictionary<string, string>?> GetContentAsync(IRequest request) // todo: refactor into an own type
     {
-        var contentType = request.Header.Headers.GetEntry(ContentTypeHeader);
+        var contentType = request.Header.Headers.GetEntry(KnownHeaders.ContentType);
 
         if (contentType is not null)
         {
-            if (new ContentType(contentType.Value) == ContentType.ApplicationWwwFormUrlEncoded) // todo: ugly API
+            if (new ContentType(contentType.Value.Bytes) == ContentType.ApplicationWwwFormUrlEncoded) // todo: ugly API
             {
                 var content = await GetRequestContentAsync(request); // todo: make this memory based?
 
@@ -138,7 +140,7 @@ public sealed class FormFormat : ISerializationFormat
             throw new InvalidOperationException("Request content has to be set");
         }
 
-        var buffer = await requestContent.ReadToEndAsync();
+        var buffer = await requestContent.AsMemoryAsync();
 
         return Encoding.UTF8.GetString(buffer.Span);
     }

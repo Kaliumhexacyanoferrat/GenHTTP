@@ -1,15 +1,12 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.ClientCaching.Validation;
 
 public sealed class CacheValidationHandler : IConcern
 {
-    private static readonly ReadOnlyMemory<byte> EtagHeader = "ETag"u8.ToArray();
-
-    private static readonly ReadOnlyMemory<byte> IfNoneMatchHeader = "If-None-Match"u8.ToArray();
-
     private static readonly RequestMethod[] SupportedMethods = [RequestMethod.Get, RequestMethod.Head];
 
     #region Get-/Setters
@@ -33,7 +30,7 @@ public sealed class CacheValidationHandler : IConcern
     {
         var isSupported = request.HasType(SupportedMethods);
         
-        var cached = request.Header.Headers.GetEntry(IfNoneMatchHeader);
+        var cached = request.Header.Headers.GetEntry(KnownHeaders.IfNoneMatch);
         
         var response = await Content.HandleAsync(request);
 
@@ -47,7 +44,7 @@ public sealed class CacheValidationHandler : IConcern
 
                 if (cached is not null && eTag is not null)
                 {
-                    if (cached.Value.Span.SequenceEqual(eTag.Value.Span))
+                    if (cached.Value == eTag.Value)
                     {
                         builder.Status(ResponseStatus.NotModified);
                         builder.Content(null);
@@ -56,7 +53,7 @@ public sealed class CacheValidationHandler : IConcern
 
                 if (eTag is not null)
                 {
-                    builder.Header(EtagHeader, eTag.Value);
+                    builder.Header(KnownHeaders.ETag, eTag.Value);
                 }
             }
         }
@@ -66,9 +63,9 @@ public sealed class CacheValidationHandler : IConcern
 
     public ValueTask PrepareAsync() => Content.PrepareAsync();
 
-    private static async ValueTask<ReadOnlyMemory<byte>?> CalculateETag(IResponse response)
+    private static async ValueTask<ByteString?> CalculateETag(IResponse response)
     {
-        var eTag = response.Headers.GetEntry(EtagHeader);
+        var eTag = response.Headers.GetEntry(KnownHeaders.ETag);
 
         if (eTag != null)
         {

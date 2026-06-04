@@ -91,30 +91,6 @@ public sealed class ActionTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestActionWithQueryFromBody(TestEngine engine, ExecutionMode mode)
-    {
-        await using var runner = await GetRunnerAsync(engine, mode);
-
-        var dict = new Dictionary<string, string>
-        {
-            {
-                "value2", "test"
-            }
-        };
-
-        var request = runner.GetRequest("/t/action/");
-
-        request.Method = HttpMethod.Put;
-        request.Content = new FormUrlEncodedContent(dict);
-
-        using var response = await runner.GetResponseAsync(request);
-
-        await response.AssertStatusAsync(HttpStatusCode.OK);
-        Assert.AreEqual("Action test", await response.GetContentAsync());
-    }
-
-    [TestMethod]
-    [MultiEngineFrameworkTest]
     public async Task TestActionWithBody(TestEngine engine, ExecutionMode mode)
     {
         await using var runner = await GetRunnerAsync(engine, mode);

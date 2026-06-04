@@ -7,7 +7,7 @@ namespace GenHTTP.Modules.Pages;
 
 public static class Extensions
 {
-    private static readonly ReadOnlyMemory<byte> HtmlContentType = "text/html; charset=\"utf-8\""u8.ToArray();
+    private static readonly ByteString HtmlContentType = new("text/html; charset=\"utf-8\"");
 
     /// <summary>
     /// Creates a response that can be returned by a handler to serve

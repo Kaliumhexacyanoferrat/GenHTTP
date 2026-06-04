@@ -11,9 +11,9 @@ public partial class RangeSupportConcern : IConcern
 {
     private static readonly Regex Pattern = CreatePattern();
     
-    private static readonly ReadOnlyMemory<byte> AcceptRangesHeader = "Accept-Ranges"u8.ToArray();
+    private static readonly ByteString AcceptRangesHeader = new("Accept-Ranges");
     
-    private static readonly ReadOnlyMemory<byte> BytesValue = "bytes"u8.ToArray();
+    private static readonly ByteString BytesValue = new("bytes");
 
     #region Get-/Setters
 

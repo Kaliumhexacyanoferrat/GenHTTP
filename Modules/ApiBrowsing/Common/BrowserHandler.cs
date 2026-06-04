@@ -12,7 +12,7 @@ namespace GenHTTP.Modules.ApiBrowsing.Common;
 
 public sealed class BrowserHandler: IHandler
 {
-    private static readonly ReadOnlyMemory<byte> StaticSegment = "static"u8.ToArray();
+    private static readonly PathSegment StaticSegment = new("static");
 
     #region Get-/Setters
 
@@ -67,7 +67,7 @@ public sealed class BrowserHandler: IHandler
                           .Build();
         }
 
-        if (current.Value.Value.Span.SequenceEqual(StaticSegment.Span))
+        if (current == StaticSegment)
         {
             target.Advance();
             return await StaticResources.HandleAsync(request);

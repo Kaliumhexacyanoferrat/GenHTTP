@@ -183,8 +183,8 @@ public sealed class ServerCacheHandler : IConcern
         {
             var header = responseHeaders[i];
 
-            var key = Encoding.ASCII.GetString(header.Key.Span);
-            var value = Encoding.ASCII.GetString(header.Value.Span);
+            var key = header.Key.ToString();
+            var value = header.Value.ToString();
 
             if (key == "Vary")
             {
@@ -239,8 +239,8 @@ public sealed class ServerCacheHandler : IConcern
             var checksum = await content.CalculateChecksumAsync();
 
             var contentLength = content.Length;
-            var contentType = (content.Type != null) ? Encoding.ASCII.GetString(content.Type.Value.Value.Span) : null;
-            var contentEncoding = (content.Encoding != null) ? Encoding.ASCII.GetString(content.Encoding.Value.Span) : null;
+            var contentType = content.Type?.ToString();
+            var contentEncoding = content.Encoding?.ToString();
 
             return (checksum, contentLength, contentType, contentEncoding);
         }
@@ -256,8 +256,8 @@ public sealed class ServerCacheHandler : IConcern
         {
             var header = headers[i];
 
-            var key = Encoding.ASCII.GetString(header.Key.Span);
-            var value = Encoding.ASCII.GetString(header.Value.Span);
+            var key = header.Key.ToString();
+            var value = header.Value.ToString();
 
             if (cached.Headers.TryGetValue(key, out var cachedValue))
             {

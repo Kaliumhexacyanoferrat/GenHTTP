@@ -3,26 +3,32 @@
 public static class KnownHeaders
 {
     
-    public static readonly ReadOnlyMemory<byte> Connection = "Connection"u8.ToArray();
+    public static readonly ByteString Connection = new("Connection");
     
-    public static readonly ReadOnlyMemory<byte> Server = "Server"u8.ToArray();
+    public static readonly ByteString Server = new("Server");
 
-    public static readonly ReadOnlyMemory<byte> Date = "Date"u8.ToArray();
+    public static readonly ByteString Date = new("Date");
     
-    public static readonly ReadOnlyMemory<byte> Host = "Host"u8.ToArray();
+    public static readonly ByteString Host = new("Host");
 
-    public static readonly ReadOnlyMemory<byte> Vary = "Vary"u8.ToArray();
+    public static readonly ByteString Vary = new("Vary");
     
-    public static readonly ReadOnlyMemory<byte> ContentType = "Content-Type"u8.ToArray();
+    public static readonly ByteString ContentType = new("Content-Type");
 
-    public static readonly ReadOnlyMemory<byte> ContentEncoding = "Content-Encoding"u8.ToArray();
+    public static readonly ByteString ContentEncoding = new("Content-Encoding");
 
-    public static readonly ReadOnlyMemory<byte> ContentLength = "Content-Length"u8.ToArray();
+    public static readonly ByteString ContentLength = new("Content-Length");
 
-    public static readonly ReadOnlyMemory<byte> TransferEncoding = "Transfer-Encoding"u8.ToArray();
+    public static readonly ByteString TransferEncoding = new("Transfer-Encoding");
     
-    public static readonly ReadOnlyMemory<byte> Accept = "Accept"u8.ToArray();
+    public static readonly ByteString Accept = new("Accept");
     
-    public static readonly ReadOnlyMemory<byte> AcceptEncoding = "Accept-Encoding"u8.ToArray();
+    public static readonly ByteString AcceptEncoding = new("Accept-Encoding");
+
+    public static readonly ByteString Expires = new("Expires");
+
+    public static readonly ByteString IfNoneMatch = new("If-None-Match");
+        
+    public static readonly ByteString ETag = new("ETag");
 
 }

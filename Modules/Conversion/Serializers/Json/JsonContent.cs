@@ -4,7 +4,7 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Conversion.Serializers.Json;
 
-public sealed class JsonContent<T> : IResponseContent where T : class
+public sealed class JsonContent : IResponseContent
 {
     private readonly JsonWriterOptions _writerOptions = new()
     {
@@ -19,7 +19,7 @@ public sealed class JsonContent<T> : IResponseContent where T : class
 
     public ReadOnlyMemory<byte>? Encoding => null;
 
-    private T Data { get; }
+    private object Data { get; }
 
     private JsonSerializerOptions SerializerOptions { get; }
 
@@ -27,7 +27,7 @@ public sealed class JsonContent<T> : IResponseContent where T : class
     
     #region Initialization
 
-    public JsonContent(T data, JsonSerializerOptions serializerOptions)
+    public JsonContent(object data, JsonSerializerOptions serializerOptions)
     {
         Data = data;
         SerializerOptions = serializerOptions;

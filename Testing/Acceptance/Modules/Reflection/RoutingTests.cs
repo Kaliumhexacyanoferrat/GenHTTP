@@ -2,7 +2,6 @@ using System.Text;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Engine.Shared.Types;
-
 using GenHTTP.Modules.Reflection.Routing;
 using GenHTTP.Modules.Reflection.Routing.Segments;
 
@@ -96,8 +95,8 @@ public class RoutingTests
         
         Assert.IsNotNull(match.PathArguments);
         Assert.HasCount(1, match.PathArguments);
-        
-        Assert.AreEqual("99", match.PathArguments["var"]);
+
+        MatchArgument(match.PathArguments, "var", "99");
     }
     
     [TestMethod]
@@ -116,9 +115,9 @@ public class RoutingTests
         Assert.IsNotNull(match.PathArguments);
         Assert.HasCount(3, match.PathArguments);
         
-        Assert.AreEqual("99", match.PathArguments["one"]);
-        Assert.AreEqual("88", match.PathArguments["two"]);
-        Assert.AreEqual("77", match.PathArguments["three"]);
+        MatchArgument(match.PathArguments, "one", "99");
+        MatchArgument(match.PathArguments, "two", "88");
+        MatchArgument(match.PathArguments, "three", "77");
     }
 
     private static OperationRoute CreateRoute(bool wildcard, params IRoutingSegment[] segments) => new("name", segments, wildcard);
@@ -126,9 +125,14 @@ public class RoutingTests
     private static IRequestTarget CreateTarget(string path)
     {
         var target = new RequestTarget();
-        target.Apply(Encoding.ASCII.GetBytes(path));
+        target.Apply(new(path));
         
         return target;
+    }
+
+    private static void MatchArgument(IReadOnlyDictionary<ByteString, ByteString> arguments, string key, string value)
+    {
+        Assert.AreEqual(value, arguments[new(key)].ToString());
     }
     
 }

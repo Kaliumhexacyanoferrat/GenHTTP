@@ -19,7 +19,7 @@ public class RoleInterceptor : IOperationInterceptor
         }
     }
 
-    public ValueTask<InterceptionResult?> InterceptAsync(IRequest request, Operation operation, IReadOnlyDictionary<string, object?> arguments)
+    public ValueTask<InterceptionResult?> InterceptAsync(IRequest request, Operation operation, IReadOnlyDictionary<ByteString, object?> arguments)
     {
         if (_roles?.Length > 0)
         {

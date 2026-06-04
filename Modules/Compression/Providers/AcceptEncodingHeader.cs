@@ -1,21 +1,24 @@
 ﻿using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Compression.Providers;
 
 public static class AcceptEncodingHeader
 {
 
-    public static HashSet<AlgorithmName> ParseSupported(ReadOnlySpan<byte> acceptHeader)
+    public static HashSet<AlgorithmName> ParseSupported(ByteString acceptHeader)
     {
         var result = new HashSet<AlgorithmName>();
         var start = 0;
 
-        while (start < acceptHeader.Length)
-        {
-            var comma = acceptHeader[start..].IndexOf((byte)',');
-            var end = comma >= 0 ? start + comma : acceptHeader.Length;
+        var span = acceptHeader.Bytes.Span;
 
-            var token = acceptHeader.Slice(start, end - start);
+        while (start < span.Length)
+        {
+            var comma = span[start..].IndexOf((byte)',');
+            var end = comma >= 0 ? start + comma : span.Length;
+
+            var token = span.Slice(start, end - start);
 
             var semicolon = token.IndexOf((byte)';');
             var nameSpan = semicolon >= 0 ? token[..semicolon] : token;

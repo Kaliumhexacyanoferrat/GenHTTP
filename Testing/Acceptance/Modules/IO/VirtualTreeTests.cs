@@ -69,7 +69,7 @@ public sealed class VirtualTreeTests
     private static IRequestTarget GetTarget(string path)
     {
         var target = new RequestTarget();
-        target.Apply(Encoding.ASCII.GetBytes(path));
+        target.Apply(new(path));
 
         return target;
     }

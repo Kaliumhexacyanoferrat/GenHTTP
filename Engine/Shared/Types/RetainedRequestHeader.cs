@@ -9,7 +9,7 @@ public class RetainedRequestHeader : IRequestHeader
 
     public RequestMethod Method { get; }
 
-    public ReadOnlyMemory<byte> Path { get; }
+    public ByteString Path { get; }
 
     public IRequestTarget Target { get; }
 
@@ -19,10 +19,10 @@ public class RetainedRequestHeader : IRequestHeader
 
     internal RetainedRequestHeader(RequestHeader source)
     {
-        Path = source.Path.ToArray();
+        Path = new(source.Path.Bytes.ToArray());
 
         Protocol = new(source.Version.ToArray());
-        Method = new(source.Method.Value.ToArray());
+        Method = new(source.Method.Bytes.ToArray());
 
         var target = new RequestTarget();
 

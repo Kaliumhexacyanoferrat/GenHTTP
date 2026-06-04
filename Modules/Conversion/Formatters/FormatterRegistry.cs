@@ -1,4 +1,6 @@
-﻿namespace GenHTTP.Modules.Conversion.Formatters;
+﻿using GenHTTP.Api.Protocol;
+
+namespace GenHTTP.Modules.Conversion.Formatters;
 
 public sealed class FormatterRegistry
 {
@@ -33,7 +35,7 @@ public sealed class FormatterRegistry
         return false;
     }
 
-    public object? Read(string value, Type type)
+    public object? Read(ByteString value, Type type)
     {
         for (var i = 0; i < Formatters.Count; i++)
         {
@@ -45,7 +47,6 @@ public sealed class FormatterRegistry
 
         return null;
     }
-
 
     public string? Write(object value, Type type)
     {

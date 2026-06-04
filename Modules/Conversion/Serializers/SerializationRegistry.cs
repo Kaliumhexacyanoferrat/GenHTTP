@@ -9,7 +9,7 @@ namespace GenHTTP.Modules.Conversion.Serializers;
 /// </summary>
 public sealed class SerializationRegistry
 {
-    
+
     #region Initialization
 
     public SerializationRegistry(ContentType defaultType, Dictionary<ContentType, ISerializationFormat> formats)
@@ -42,7 +42,7 @@ public sealed class SerializationRegistry
 
         if (contentType != null)
         {
-            return GetFormat(new ContentType(contentType.Value).WithoutOptions());
+            return GetFormat(new ContentType(contentType.Value.Bytes).WithoutOptions());
         }
 
         return GetFormat(Default);
@@ -53,14 +53,13 @@ public sealed class SerializationRegistry
     /// and attempts to provide a format that matches this preference.
     /// </summary>
     /// <param name="request">The request to be analyzed</param>
+    /// <param name="accepted">The accept header as sent by the client</param>
     /// <returns>Either a format that can serialize into the requested format or the default format (if any)</returns>
-    public ISerializationFormat? GetSerialization(IRequest request)
+    public ISerializationFormat? GetSerialization(IRequest request, ByteString? accepted)
     {
-        var accepted = request.Header.Headers.GetEntry(KnownHeaders.Accept);
-        
         if (accepted != null)
         {
-            return GetFormat(new ContentType(accepted.Value)) ?? GetFormat(Default);
+            return GetFormat(new ContentType(accepted.Value.Bytes)) ?? GetFormat(Default);
         }
 
         return GetFormat(Default);

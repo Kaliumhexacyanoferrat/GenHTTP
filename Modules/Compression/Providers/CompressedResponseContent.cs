@@ -26,7 +26,7 @@ public sealed class CompressedResponseContent : IResponseContent, IDisposable
     {
         OriginalContent = originalContent;
         SinkFactory = sinkFactory;
-        Encoding = algorithmName.Value;
+        Encoding = algorithmName.Bytes;
     }
 
     #endregion

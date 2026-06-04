@@ -1,3 +1,5 @@
+using GenHTTP.Api.Protocol;
+
 namespace GenHTTP.Modules.Reflection.Routing;
 
 /// <summary>
@@ -6,10 +8,10 @@ namespace GenHTTP.Modules.Reflection.Routing;
 /// </summary>
 public struct PathArgumentSink
 {
-    
-    internal Dictionary<string, string>? Arguments;
 
-    public void Add(string key, string value)
+    internal Dictionary<ByteString, ByteString>? Arguments;
+
+    public void Add(ByteString key, ByteString value)
         => (Arguments ??= new()).Add(key, value);
-    
+
 }

@@ -1,17 +1,27 @@
-﻿namespace GenHTTP.Modules.Conversion.Formatters;
+﻿using GenHTTP.Api.Protocol;
+
+namespace GenHTTP.Modules.Conversion.Formatters;
 
 public sealed class BoolFormatter : IFormatter
 {
+    private static readonly ByteString SwitchOne = new("1");
+    private static readonly ByteString SwitchZero = new("0");
+
+    private static readonly ByteString SwitchOn = new("on");
+    private static readonly ByteString SwitchOff = new("off");
+
+    private static readonly ByteString SwitchTrue = new("true");
+    private static readonly ByteString SwitchFalse = new("false");
 
     public bool CanHandle(Type type) => type == typeof(bool);
 
-    public object? Read(string value, Type type)
+    public object? Read(ByteString value, Type type)
     {
-        if (value == "1" || Compare(value, "on") || Compare(value, "true"))
+        if (value == SwitchOne || value == SwitchOn || value == SwitchTrue)
         {
             return true;
         }
-        if (value == "0" || Compare(value, "off") || Compare(value, "false"))
+        if (value == SwitchZero || value == SwitchOff || value == SwitchFalse)
         {
             return false;
         }
@@ -21,5 +31,4 @@ public sealed class BoolFormatter : IFormatter
 
     public string Write(object value, Type type) => (bool)value ? "1" : "0";
 
-    private static bool Compare(string value, string expected) => string.Equals(value, expected, StringComparison.InvariantCultureIgnoreCase);
 }

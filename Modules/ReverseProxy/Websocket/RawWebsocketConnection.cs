@@ -123,8 +123,8 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
         {
             var header = headers[i];
 
-            var key = Encoding.ASCII.GetString(header.Key.Span);
-            var value = Encoding.ASCII.GetString(header.Value.Span);
+            var key = header.Key.ToString();
+            var value = header.Value.ToString();
 
             if (key.Equals("Host", StringComparison.OrdinalIgnoreCase))
                 continue;

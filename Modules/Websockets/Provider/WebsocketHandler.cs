@@ -7,15 +7,15 @@ namespace GenHTTP.Modules.Websockets.Provider;
 
 public class WebsocketHandler(Func<IRequest, IResponseContent> contentFactory) : IHandler
 {
-    private static readonly ReadOnlyMemory<byte> KeyHeader = "Sec-WebSocket-Key"u8.ToArray();
+    private static readonly ByteString KeyHeader = new("Sec-WebSocket-Key");
 
-    private static readonly ReadOnlyMemory<byte> VersionHeader = "Sec-WebSocket-Version"u8.ToArray();
+    private static readonly ByteString VersionHeader = new("Sec-WebSocket-Version");
 
-    private static readonly ReadOnlyMemory<byte> AcceptHeader = "Sec-WebSocket-Accept"u8.ToArray();
+    private static readonly ByteString AcceptHeader = new("Sec-WebSocket-Accept");
 
-    private static readonly ReadOnlyMemory<byte> UpgradeHeaderName = "Upgrade"u8.ToArray();
+    private static readonly ByteString UpgradeHeaderName = new("Upgrade");
 
-    private static readonly ReadOnlyMemory<byte> UpgradeHeaderValue = "websocket"u8.ToArray();
+    private static readonly ByteString UpgradeHeaderValue = new("websocket");
 
     public ValueTask PrepareAsync() => ValueTask.CompletedTask;
 
@@ -36,7 +36,7 @@ public class WebsocketHandler(Func<IRequest, IResponseContent> contentFactory) :
         return ValueTask.FromResult<IResponse?>(response);
     }
 
-    private static ReadOnlyMemory<byte> ValidateRequest(IRequest request)
+    private static ByteString ValidateRequest(IRequest request)
     {
         var headers = request.Header.Headers;
 
@@ -51,7 +51,7 @@ public class WebsocketHandler(Func<IRequest, IResponseContent> contentFactory) :
         var version = headers.GetEntry(VersionHeader)
             ?? throw new ProviderException(ResponseStatus.BadGateway, "Client does not specify the requested websocket version.");
 
-        if (!int.TryParse(version.Span, out var versionInt) || versionInt != 13)
+        if (!int.TryParse(version.Bytes.Span, out var versionInt) || versionInt != 13)
         {
             throw new ProviderException(ResponseStatus.UpgradeRequired, "Only version 13 is supported by this websocket server.", (b) => b.Header("Sec-WebSocket-Version", "13"));
         }
