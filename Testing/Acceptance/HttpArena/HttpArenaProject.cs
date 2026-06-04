@@ -47,20 +47,6 @@ public static class HttpArenaProject
 
     private static string FindDataPath()
     {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-
-        while (dir?.Parent != null)
-        {
-            var candidate = Path.Combine(dir.Parent.FullName, "HttpArena", "data");
-
-            if (Directory.Exists(candidate))
-            {
-                return candidate;
-            }
-
-            dir = dir.Parent;
-        }
-
-        return Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../../HttpArena/data"));
+        return Path.Combine(AppContext.BaseDirectory, "HttpArena", "Data");
     }
 }

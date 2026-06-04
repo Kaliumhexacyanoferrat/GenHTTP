@@ -12,15 +12,10 @@ namespace GenHTTP.Testing.Acceptance.HttpArena;
 [TestClass]
 public sealed class StaticTests
 {
-    private static bool StaticFilesAvailable =>
-        Directory.Exists(Path.Combine(HttpArenaProject.DataPath, "static"));
-
     [TestMethod]
     [MultiEngineTest]
     public async Task TestStaticHeaderHtml(TestEngine engine)
     {
-        if (!StaticFilesAvailable) Assert.Inconclusive("HttpArena static files not available");
-
         await using var host = await TestHost.RunAsync(HttpArenaProject.Create(), engine: engine);
 
         using var response = await host.GetResponseAsync("/static/header.html");
@@ -35,8 +30,6 @@ public sealed class StaticTests
     [MultiEngineTest]
     public async Task TestStaticHeaderHtmlBrotli(TestEngine engine)
     {
-        if (!StaticFilesAvailable) Assert.Inconclusive("HttpArena static files not available");
-
         await using var host = await TestHost.RunAsync(HttpArenaProject.Create(), engine: engine);
 
         var request = host.GetRequest("/static/header.html");
@@ -55,8 +48,6 @@ public sealed class StaticTests
     [MultiEngineTest]
     public async Task TestStaticFooterHtml(TestEngine engine)
     {
-        if (!StaticFilesAvailable) Assert.Inconclusive("HttpArena static files not available");
-
         await using var host = await TestHost.RunAsync(HttpArenaProject.Create(), engine: engine);
 
         using var response = await host.GetResponseAsync("/static/footer.html");
@@ -68,8 +59,6 @@ public sealed class StaticTests
     [MultiEngineTest]
     public async Task TestStaticAppJs(TestEngine engine)
     {
-        if (!StaticFilesAvailable) Assert.Inconclusive("HttpArena static files not available");
-
         await using var host = await TestHost.RunAsync(HttpArenaProject.Create(), engine: engine);
 
         using var response = await host.GetResponseAsync("/static/app.js");
@@ -83,10 +72,8 @@ public sealed class StaticTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestStaticAppJsGzip(TestEngine engine)
+    public async Task TestStaticAppJsBrotli(TestEngine engine)
     {
-        if (!StaticFilesAvailable) Assert.Inconclusive("HttpArena static files not available");
-
         await using var host = await TestHost.RunAsync(HttpArenaProject.Create(), engine: engine);
 
         var request = host.GetRequest("/static/app.js");
@@ -96,14 +83,14 @@ public sealed class StaticTests
         using var response = await host.GetResponseAsync(request);
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
+
+        Assert.AreEqual("br", response.Content.Headers.ContentEncoding.FirstOrDefault());
     }
 
     [TestMethod]
     [MultiEngineTest]
     public async Task TestStaticComponentsCss(TestEngine engine)
     {
-        if (!StaticFilesAvailable) Assert.Inconclusive("HttpArena static files not available");
-
         await using var host = await TestHost.RunAsync(HttpArenaProject.Create(), engine: engine);
 
         using var response = await host.GetResponseAsync("/static/components.css");
@@ -119,8 +106,6 @@ public sealed class StaticTests
     [MultiEngineTest]
     public async Task TestStaticComponentsCssBrotli(TestEngine engine)
     {
-        if (!StaticFilesAvailable) Assert.Inconclusive("HttpArena static files not available");
-
         await using var host = await TestHost.RunAsync(HttpArenaProject.Create(), engine: engine);
 
         var request = host.GetRequest("/static/components.css");
@@ -137,8 +122,6 @@ public sealed class StaticTests
     [MultiEngineTest]
     public async Task TestStaticHeroWebp(TestEngine engine)
     {
-        if (!StaticFilesAvailable) Assert.Inconclusive("HttpArena static files not available");
-
         await using var host = await TestHost.RunAsync(HttpArenaProject.Create(), engine: engine);
 
         using var response = await host.GetResponseAsync("/static/hero.webp");
@@ -150,8 +133,6 @@ public sealed class StaticTests
     [MultiEngineTest]
     public async Task TestStaticBoldWoff2(TestEngine engine)
     {
-        if (!StaticFilesAvailable) Assert.Inconclusive("HttpArena static files not available");
-
         await using var host = await TestHost.RunAsync(HttpArenaProject.Create(), engine: engine);
 
         using var response = await host.GetResponseAsync("/static/bold.woff2");
@@ -163,8 +144,6 @@ public sealed class StaticTests
     [MultiEngineTest]
     public async Task TestStaticLogoSvg(TestEngine engine)
     {
-        if (!StaticFilesAvailable) Assert.Inconclusive("HttpArena static files not available");
-
         await using var host = await TestHost.RunAsync(HttpArenaProject.Create(), engine: engine);
 
         using var response = await host.GetResponseAsync("/static/logo.svg");
@@ -176,8 +155,6 @@ public sealed class StaticTests
     [MultiEngineTest]
     public async Task TestStaticManifestJson(TestEngine engine)
     {
-        if (!StaticFilesAvailable) Assert.Inconclusive("HttpArena static files not available");
-
         await using var host = await TestHost.RunAsync(HttpArenaProject.Create(), engine: engine);
 
         using var response = await host.GetResponseAsync("/static/manifest.json");
@@ -189,8 +166,6 @@ public sealed class StaticTests
     [MultiEngineTest]
     public async Task TestStaticNotFound(TestEngine engine)
     {
-        if (!StaticFilesAvailable) Assert.Inconclusive("HttpArena static files not available");
-
         await using var host = await TestHost.RunAsync(HttpArenaProject.Create(), engine: engine);
 
         using var response = await host.GetResponseAsync("/static/nonexistent.file");
@@ -202,8 +177,6 @@ public sealed class StaticTests
     [MultiEngineTest]
     public async Task TestStaticAllFiles(TestEngine engine)
     {
-        if (!StaticFilesAvailable) Assert.Inconclusive("HttpArena static files not available");
-
         await using var host = await TestHost.RunAsync(HttpArenaProject.Create(), engine: engine);
 
         var files = new[]

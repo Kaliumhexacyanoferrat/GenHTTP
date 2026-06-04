@@ -53,6 +53,15 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Content Include="HttpArena\Data\dataset.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="HttpArena\Data\static\**\*">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
 
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
 
