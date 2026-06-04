@@ -47,7 +47,17 @@ jobs:
       
     - name: Begin scan
       if: env.SONAR_TOKEN != null && env.SONAR_TOKEN != ''
-      run: dotnet sonarscanner begin /k:"GenHTTP" /d:sonar.token="$SONAR_TOKEN" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/bin/**/*,**/obj/**/*,**/*.css,**/*.js,**/*.html" /o:"kaliumhexacyanoferrat" /k:"GenHTTP" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.branch.name="${GITHUB_REF##*/}" /d:sonar.dotnet.excludeTestProjects=true
+      run: |
+        BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF##*/}}" 
+        dotnet sonarscanner begin \
+        /k:"GenHTTP" \
+        /o:"kaliumhexacyanoferrat" \
+        /d:sonar.token="$SONAR_TOKEN" \
+        /d:sonar.host.url="https://sonarcloud.io" \
+        /d:sonar.branch.name="$BRANCH_NAME" \
+        /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" \
+        /d:sonar.exclusions="**/bin/**/*,**/obj/**/*,**/*.css,**/*.js,**/*.html" \
+        /d:sonar.dotnet.excludeTestProjects=true
       
     - name: Build project
       run: dotnet build GenHTTP.slnx -c Release
