@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Compression.Providers;
@@ -25,7 +26,7 @@ public abstract class AbstractAssetsHandler : IHandler
                                 .ToList();
     }
 
-    public ValueTask PrepareAsync() => default;
+    public ValueTask PrepareAsync(IServer server) => default;
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {

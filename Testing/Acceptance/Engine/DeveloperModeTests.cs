@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Layouting;
 
@@ -47,7 +48,7 @@ public sealed class DeveloperModeTests
     private class ThrowingProvider : IHandler
     {
 
-        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+        public ValueTask PrepareAsync(IServer server) => ValueTask.CompletedTask;
 
         public ValueTask<IResponse?> HandleAsync(IRequest request) => throw new InvalidOperationException("Nope!");
 

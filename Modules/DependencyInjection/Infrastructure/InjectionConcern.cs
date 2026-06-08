@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -27,13 +28,18 @@ internal class InjectionConcern : IConcern
 
     #region Functionality
 
-    public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync(IServer server)
+    {
+        server.Configure(Services);
+        
+        return Content.PrepareAsync(server);
+    } 
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
         using var scope = Services.CreateScope();
 
-        request.Configure(Services, scope);
+        request.Configure(scope);
 
         return await Content.HandleAsync(request);
     }

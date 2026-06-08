@@ -1,14 +1,19 @@
 ﻿using System.Reflection;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Engine.Internal.Infrastructure.Endpoints;
 using GenHTTP.Engine.Shared.Infrastructure;
+using GenHTTP.Engine.Shared.Types;
 
 namespace GenHTTP.Engine.Internal.Infrastructure;
 
 internal sealed class ThreadedServer : IServer
 {
     private readonly EndPointCollection _endPoints;
+
+    private readonly PropertyBag _properties = new(); 
 
     #region Get-/Setters
 
@@ -21,6 +26,8 @@ internal sealed class ThreadedServer : IServer
     public IHandler Handler { get; }
 
     public IServerCompanion? Companion { get; }
+
+    public IPropertyBag Properties => _properties;
 
     public IEndPointCollection EndPoints => _endPoints;
 
@@ -42,18 +49,6 @@ internal sealed class ThreadedServer : IServer
         _endPoints = new EndPointCollection(this, configuration.EndPoints, configuration.Network);
     }
 
-    private static async ValueTask PrepareHandlerAsync(IHandler handler, IServerCompanion? companion)
-    {
-        try
-        {
-            await handler.PrepareAsync();
-        }
-        catch (Exception e)
-        {
-            companion?.OnServerError(ServerErrorScope.General, null, e);
-        }
-    }
-
     #endregion
 
     #region Functionality
@@ -63,6 +58,18 @@ internal sealed class ThreadedServer : IServer
         await PrepareHandlerAsync(Handler, Companion);
 
         _endPoints.Start();
+    }
+
+    private async ValueTask PrepareHandlerAsync(IHandler handler, IServerCompanion? companion)
+    {
+        try
+        {
+            await handler.PrepareAsync(this);
+        }
+        catch (Exception e)
+        {
+            companion?.OnServerError(ServerErrorScope.General, null, e);
+        }
     }
 
     #endregion

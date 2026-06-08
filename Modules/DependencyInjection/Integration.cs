@@ -21,10 +21,20 @@ public static class Integration
     /// <returns>The updated host</returns>
     public static IServerHost AddDependencyInjection(this IServerHost host, IServiceProvider services) => host.Add(new InjectionConcernBuilder(services));
 
-    internal static void Configure(this IRequest request, IServiceProvider provider, IServiceScope scope)
+    /// <summary>
+    /// Retrieves the service provider used to resolve dependencies from the given server instance.
+    /// </summary>
+    /// <param name="server">The server instance to obtain the service provider from</param>
+    /// <returns>The service provider retrieved from the server instance</returns>
+    /// <exception cref="InvalidOperationException">Thrown if dependency injection is not enabled on the host</exception>
+    public static IServiceProvider GetServiceProvider(this IServer server)
     {
-        request.Properties[ProviderVar] = provider;
-        request.Properties[ScopeVar] = scope;
+        if (!server.Properties.TryGet(ProviderVar, out IServiceProvider? provider))
+        {
+            throw new InvalidOperationException("Unable to retrieve service provider from the request. Ensure dependency injection has been configured.");
+        }
+
+        return provider!;
     }
 
     /// <summary>
@@ -33,15 +43,7 @@ public static class Integration
     /// <param name="request">The request to obtain the service provider from</param>
     /// <returns>The service provider retrieved from the request</returns>
     /// <exception cref="InvalidOperationException">Thrown if dependency injection is not enabled on the host</exception>
-    public static IServiceProvider GetServiceProvider(this IRequest request)
-    {
-        if (!request.Properties.TryGet(ScopeVar, out IServiceProvider? provider))
-        {
-            throw new InvalidOperationException("Unable to retrieve service provider from the request. Ensure dependency injection has been configured.");
-        }
-
-        return provider!;
-    }
+    public static IServiceProvider GetServiceProvider(this IRequest request) => request.Server.GetServiceProvider();
 
     /// <summary>
     /// Retrieves the service scope used to resolve dependencies from the given request.
@@ -58,5 +60,15 @@ public static class Integration
 
         return scope!;
     }
-
+    
+    internal static void Configure(this IServer server, IServiceProvider provider)
+    {
+        server.Properties[ProviderVar] = provider;
+    }
+    
+    internal static void Configure(this IRequest request, IServiceScope scope)
+    {
+        request.Properties[ScopeVar] = scope;
+    }
+    
 }

@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.ReverseProxy.Http;
@@ -44,7 +45,7 @@ public sealed class ReverseProxyProvider : IHandler
         return HttpProxy.HandleAsync(request);
     }
 
-    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+    public ValueTask PrepareAsync(IServer server) => ValueTask.CompletedTask;
 
     #endregion
 

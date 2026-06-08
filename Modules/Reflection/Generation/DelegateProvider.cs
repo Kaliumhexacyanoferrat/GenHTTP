@@ -1,11 +1,13 @@
-using System.Reflection;
+using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
+using System.Runtime.Loader;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Reflection.Operations;
 using GenHTTP.Modules.Reflection.Routing;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -13,7 +15,15 @@ namespace GenHTTP.Modules.Reflection.Generation;
 
 internal static class DelegateProvider
 {
+    private static readonly ConcurrentDictionary<string, MetadataReference> References = [];
 
+    private static readonly CSharpCompilationOptions CompilationOptions = new(
+        OutputKind.DynamicallyLinkedLibrary,
+        optimizationLevel: OptimizationLevel.Release,
+        concurrentBuild: false,
+        deterministic: false
+    );
+    
     /// <summary>
     /// Compiles the given source code into an invocable delegate.
     /// </summary>
@@ -27,19 +37,7 @@ internal static class DelegateProvider
 
         var assemblyName = Path.GetRandomFileName();
 
-        var references = AppDomain.CurrentDomain.GetAssemblies()
-                                  .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
-                                  .Select(a => MetadataReference.CreateFromFile(a.Location))
-                                  .Cast<MetadataReference>();
-
-        var compilation = CSharpCompilation.Create(assemblyName, [syntaxTree], references,
-                                                   new CSharpCompilationOptions(
-                                                       OutputKind.DynamicallyLinkedLibrary,
-                                                       optimizationLevel: OptimizationLevel.Release,
-                                                       concurrentBuild: true,
-                                                       deterministic: false
-                                                   )
-        );
+        var compilation = CSharpCompilation.Create(assemblyName, [syntaxTree], GetReferences(), CompilationOptions);
 
         using var ms = new MemoryStream();
 
@@ -54,12 +52,12 @@ internal static class DelegateProvider
 
         ms.Seek(0, SeekOrigin.Begin);
 
-        var assembly = Assembly.Load(ms.ToArray());
-
+        var assembly = AssemblyLoadContext.Default.LoadFromStream(ms);
+        
         var type = assembly.GetType("Invoker");
 
         var method = type!.GetMethod("Invoke")!;
-
+        
         // warm up the JIT
         RuntimeHelpers.PrepareMethod(method.MethodHandle);
 
@@ -68,4 +66,19 @@ internal static class DelegateProvider
         );
     }
 
+    private static MetadataReference[] GetReferences()
+    {
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            if (assembly.IsDynamic || string.IsNullOrEmpty(assembly.Location))
+            {
+                continue;
+            }
+
+            References.GetOrAdd(assembly.Location, (s) => MetadataReference.CreateFromFile(s));
+        }
+
+        return References.Values.ToArray();
+    }
+    
 }

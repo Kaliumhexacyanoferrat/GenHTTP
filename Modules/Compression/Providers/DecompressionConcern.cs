@@ -48,7 +48,7 @@ namespace GenHTTP.Modules.Compression.Providers;
         return Content.HandleAsync(request);
     }
 
-    public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
 
     #endregion
 

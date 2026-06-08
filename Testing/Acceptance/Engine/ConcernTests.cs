@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Functional;
 
@@ -24,7 +25,7 @@ public class ConcernTests
             Logic = logic;
         }
 
-        public ValueTask PrepareAsync() => Content.PrepareAsync();
+        public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {

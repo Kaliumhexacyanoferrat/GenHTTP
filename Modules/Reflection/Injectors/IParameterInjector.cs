@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Reflection.Injectors;
@@ -6,7 +7,7 @@ namespace GenHTTP.Modules.Reflection.Injectors;
 public interface IParameterInjector
 {
 
-    bool Supports(IRequest request, Type type);
+    bool Supports(IServer server, Type type);
 
     object? GetValue(IHandler handler, IRequest request, Type targetType);
 

@@ -25,7 +25,7 @@ public sealed class MultiAuthenticationTests
             throw new NotImplementedException();
         }
 
-        public ValueTask PrepareAsync()
+        public ValueTask PrepareAsync(IServer server)
         {
             throw new NotImplementedException();
         }

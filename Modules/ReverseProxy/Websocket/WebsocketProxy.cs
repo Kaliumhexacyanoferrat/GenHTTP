@@ -1,4 +1,5 @@
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Websockets.Provider;
@@ -11,7 +12,7 @@ public sealed class WebsocketProxy(string upstream) : IHandler
     
     #region Functionality
 
-    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+    public ValueTask PrepareAsync(IServer server) => ValueTask.CompletedTask;
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {

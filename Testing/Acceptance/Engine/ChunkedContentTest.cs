@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Functional;
@@ -126,7 +127,7 @@ public sealed class ChunkedContentTest
 
     private sealed class BodyEchoHandler : IHandler
     {
-        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+        public ValueTask PrepareAsync(IServer server) => ValueTask.CompletedTask;
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
@@ -152,7 +153,7 @@ public sealed class ChunkedContentTest
 
         public int RequestCount => _requestCount;
 
-        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+        public ValueTask PrepareAsync(IServer server) => ValueTask.CompletedTask;
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {

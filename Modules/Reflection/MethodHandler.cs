@@ -4,6 +4,7 @@ using System.Runtime.ExceptionServices;
 using Cottle;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO;
@@ -81,7 +82,7 @@ public sealed class MethodHandler : IHandler
 
     #region Functionality
 
-    public ValueTask PrepareAsync()
+    public ValueTask PrepareAsync(IServer server)
     {
         if (UseCodeGeneration)
         {

@@ -1,5 +1,6 @@
 using System.Net;
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Testing.Acceptance.Engine.Body;
@@ -155,7 +156,7 @@ public sealed class DrainBodyTests
 
         public int RequestCount => _requestCount;
 
-        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+        public ValueTask PrepareAsync(IServer server) => ValueTask.CompletedTask;
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
@@ -172,7 +173,7 @@ public sealed class DrainBodyTests
 
         public int RequestCount => _requestCount;
 
-        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+        public ValueTask PrepareAsync(IServer server) => ValueTask.CompletedTask;
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {

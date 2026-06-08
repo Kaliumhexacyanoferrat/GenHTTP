@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Web;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.ReverseProxy.Websocket;
@@ -87,7 +88,7 @@ public sealed class HttpProxy : IHandler
     private HttpRequestMessage ConfigureRequest(IRequest request)
     {
         var headers = request.Header.Headers;
-        
+
         var req = new HttpRequestMessage(new HttpMethod(request.Header.Method.ToString()), GetRequestUri(request));
 
         for (var i = 0; i < headers.Count; i++)
@@ -137,9 +138,9 @@ public sealed class HttpProxy : IHandler
         {
             remaining = '/' + remaining;
         }
-        
+
         return Upstream + remaining + GetQueryString(request);
-    } 
+    }
 
     private static string GetQueryString(IRequest request)
     {
@@ -292,7 +293,7 @@ public sealed class HttpProxy : IHandler
         return string.Join("; ", result);
     }
 
-    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+    public ValueTask PrepareAsync(IServer server) => ValueTask.CompletedTask;
 
     #endregion
 

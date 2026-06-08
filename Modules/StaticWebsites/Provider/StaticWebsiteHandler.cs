@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Files;
@@ -64,7 +65,7 @@ public sealed class StaticWebsiteHandler : IHandler
         return await Resources.HandleAsync(request);
     }
 
-    public ValueTask PrepareAsync() => Resources.PrepareAsync();
+    public ValueTask PrepareAsync(IServer server) => Resources.PrepareAsync(server);
 
     #endregion
 

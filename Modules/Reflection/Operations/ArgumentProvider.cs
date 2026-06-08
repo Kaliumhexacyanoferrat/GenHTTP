@@ -1,6 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Reflection.Routing;
 
@@ -13,7 +15,7 @@ public static class ArgumentProvider
     {
         foreach (var injector in registry.Injection)
         {
-            if (injector.Supports(request, argument.Type))
+            if (injector.Supports(request.Server, argument.Type))
             {
                 return injector.GetValue(handler, request, argument.Type);
             }

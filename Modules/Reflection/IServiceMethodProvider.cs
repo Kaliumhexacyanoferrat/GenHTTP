@@ -11,6 +11,6 @@ public interface IServiceMethodProvider
     /// <summary>
     /// Allows to read or initialize a new method collection.
     /// </summary>
-    SynchronizedMethodCollection Methods { get; }
+    MethodCollection Methods { get; }
 
 }

@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Reflection;
@@ -8,6 +9,7 @@ namespace GenHTTP.Modules.Functional.Provider;
 
 public sealed class InlineHandler : IHandler, IServiceMethodProvider
 {
+    private MethodCollection? _methods;
 
     #region Get-/Setters
 
@@ -17,7 +19,7 @@ public sealed class InlineHandler : IHandler, IServiceMethodProvider
 
     private ExecutionSettings ExecutionSettings { get; }
 
-    public SynchronizedMethodCollection Methods { get; }
+    public MethodCollection Methods => _methods ?? throw new InvalidOperationException("Handler is not prepared yet");
 
     #endregion
 
@@ -28,19 +30,13 @@ public sealed class InlineHandler : IHandler, IServiceMethodProvider
         Functions = functions;
         Registry = registry;
         ExecutionSettings = executionSettings;
-
-        Methods = new SynchronizedMethodCollection(GetMethodsAsync);
     }
 
     #endregion
 
     #region Functionality
 
-    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
-
-    public ValueTask<IResponse?> HandleAsync(IRequest request) => Methods.HandleAsync(request);
-
-    private async Task<MethodCollection> GetMethodsAsync(IRequest request)
+    public async ValueTask PrepareAsync(IServer server)
     {
         var found = new List<MethodHandler>();
 
@@ -48,7 +44,7 @@ public sealed class InlineHandler : IHandler, IServiceMethodProvider
         {
             var method = function.Delegate.Method;
 
-            var operation = OperationBuilder.Create(request, function.Path, method, function.Delegate, ExecutionSettings, function.Configuration, Registry);
+            var operation = OperationBuilder.Create(server, function.Path, method, function.Delegate, ExecutionSettings, function.Configuration, Registry);
 
             var target = function.Delegate.Target ?? throw new InvalidOperationException("Delegate target must not be null");
 
@@ -59,10 +55,12 @@ public sealed class InlineHandler : IHandler, IServiceMethodProvider
 
         var result = new MethodCollection(found);
 
-        await result.PrepareAsync();
+        await result.PrepareAsync(server);
 
-        return result;
+        _methods = result;
     }
+
+    public ValueTask<IResponse?> HandleAsync(IRequest request) => Methods.HandleAsync(request);
 
     #endregion
 

@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Authentication.ClientCertificate;
@@ -26,7 +27,7 @@ public sealed class ClientCertificateAuthenticationConcern : IConcern
 
     #region Functionality
 
-    public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {

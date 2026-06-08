@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using Microsoft.IdentityModel.Logging;
@@ -46,7 +47,7 @@ internal sealed class BearerAuthenticationConcern : IConcern
 
     #region Functionality
 
-    public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {

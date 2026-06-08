@@ -43,7 +43,7 @@ public sealed class CookieTests
 
         public Dictionary<string, Cookie>? Cookies { get; private set; }
 
-        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+        public ValueTask PrepareAsync(IServer server) => ValueTask.CompletedTask;
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {

@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Reflection.Injectors;
@@ -10,18 +11,18 @@ namespace GenHTTP.Modules.DependencyInjection.Infrastructure;
 public class DependencyInjector : IParameterInjector
 {
 
-    public bool Supports(IRequest request, Type type)
+    public bool Supports(IServer server, Type type)
     {
-        var scope = request.GetServiceScope();
+        var provider = server.GetServiceProvider();
 
-        var supportService = scope.ServiceProvider.GetService<IServiceProviderIsService>();
+        var supportService = provider.GetService<IServiceProviderIsService>();
 
         if (supportService != null)
         {
             return supportService.IsService(type);
         }
 
-        return (scope.ServiceProvider.GetService(type) != null);
+        return (provider.GetService(type) != null);
     }
 
     public object? GetValue(IHandler handler, IRequest request, Type targetType)

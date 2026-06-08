@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO;
@@ -61,7 +62,7 @@ public sealed class CacheValidationHandler : IConcern
         return response;
     }
 
-    public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
 
     private static async ValueTask<ByteString?> CalculateETag(IResponse response)
     {

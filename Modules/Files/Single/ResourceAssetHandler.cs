@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO;
@@ -10,7 +11,7 @@ namespace GenHTTP.Modules.Files.Single;
 public sealed class ResourceAssetHandler(IResource resource, bool asDownload, string? fileName, ContentType? contentType) : IHandler
 {
 
-    public ValueTask PrepareAsync() => default;
+    public ValueTask PrepareAsync(IServer server) => default;
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {

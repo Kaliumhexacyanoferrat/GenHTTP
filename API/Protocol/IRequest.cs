@@ -21,7 +21,7 @@ public interface IRequest
     /// <summary>
     /// Property bag to store values during the lifetime of the request.
     /// </summary>
-    IRequestProperties Properties { get; }
+    IPropertyBag Properties { get; }
 
     /// <summary>
     /// The header of the HTTP request.

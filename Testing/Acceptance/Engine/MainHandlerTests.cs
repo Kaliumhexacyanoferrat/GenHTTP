@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Layouting;
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
@@ -15,7 +16,7 @@ public class MainHandlerTests
     {
         private bool _prepared;
 
-        public ValueTask PrepareAsync()
+        public ValueTask PrepareAsync(IServer server)
         {
             _prepared = true;
             return new();

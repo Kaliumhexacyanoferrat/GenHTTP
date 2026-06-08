@@ -13,6 +13,8 @@ public class BenchmarkServer(IHandler handler) : IServer
 
     public bool Development => false;
 
+    public IPropertyBag Properties => throw new NotSupportedException(); 
+
     public IEndPointCollection EndPoints => throw new NotSupportedException(); 
 
     public IServerCompanion? Companion => null;

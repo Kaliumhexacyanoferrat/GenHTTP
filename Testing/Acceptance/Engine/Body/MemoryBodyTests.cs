@@ -1,5 +1,6 @@
 using System.Net;
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO;
@@ -178,7 +179,7 @@ public sealed class MemoryBodyTests
 
     private sealed class BodyEchoHandler : IHandler
     {
-        public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+        public ValueTask PrepareAsync(IServer server) => ValueTask.CompletedTask;
 
         public async ValueTask<IResponse?> HandleAsync(IRequest request)
         {
