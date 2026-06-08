@@ -1,15 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        
+
         <Description>Roslyn source generator for GenHTTP memory-backed view types.</Description>
-        
+
         <IsRoslynComponent>true</IsRoslynComponent>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <IncludeBuildOutput>false</IncludeBuildOutput>
         <DevelopmentDependency>true</DevelopmentDependency>
         <IsPackable>false</IsPackable>
-        
+        <SonarQubeExclude>true</SonarQubeExclude>
+
     </PropertyGroup>
 
     <ItemGroup>
