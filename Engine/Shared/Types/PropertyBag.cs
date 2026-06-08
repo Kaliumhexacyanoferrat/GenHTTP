@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Shared.Types;
 
-public sealed class RequestProperties : IRequestProperties
+public sealed class PropertyBag : IPropertyBag
 {
     private readonly Dictionary<string, object?> _data = new();
 

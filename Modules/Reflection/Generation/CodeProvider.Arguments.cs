@@ -124,7 +124,7 @@ public static class CodeProviderArgumentExtensions
 
             sb.AppendLine("        foreach (var injector in registry.Injection)");
             sb.AppendLine("        {");
-            sb.AppendLine($"            if (injector.Supports(request, typeof({safeType})))");
+            sb.AppendLine($"            if (injector.Supports(request.Server, typeof({safeType})))");
             sb.AppendLine("            {");
             sb.AppendLine($"                arg{index} = ({safeType})injector.GetValue(handler, request, typeof({safeType}));");
             sb.AppendLine("            }");

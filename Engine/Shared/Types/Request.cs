@@ -21,7 +21,7 @@ public sealed class Request : IRequest
     
     private readonly RequestHeader _header;
 
-    private readonly RequestProperties _properties;
+    private readonly PropertyBag _properties;
 
     private readonly ResponseBuilder _response = new();
 
@@ -41,7 +41,7 @@ public sealed class Request : IRequest
 
     public IEndPoint EndPoint => _endPoint ?? throw new InvalidOperationException("EndPoint property has not been initialized");
 
-    public IRequestProperties Properties => _properties;
+    public IPropertyBag Properties => _properties;
 
     public IRequestHeader Header
     {
@@ -76,7 +76,7 @@ public sealed class Request : IRequest
 
         _header = new(this);
         _body = new(this);
-        _properties = new RequestProperties();
+        _properties = new PropertyBag();
     }
 
     #endregion

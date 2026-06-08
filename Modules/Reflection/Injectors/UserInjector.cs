@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Reflection.Injectors;
@@ -9,7 +10,7 @@ public class UserInjector<T> : IParameterInjector where T : IUser
 
     #region Get-/Setters
 
-    public bool Supports(IRequest request, Type type) => type == typeof(T);
+    public bool Supports(IServer server, Type type) => type == typeof(T);
 
     #endregion
 

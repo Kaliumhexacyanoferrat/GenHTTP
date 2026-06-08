@@ -31,6 +31,11 @@ public interface IServer : IAsyncDisposable
     bool Development { get; }
 
     /// <summary>
+    /// Property bag to store values during the lifetime of the server.
+    /// </summary>
+    IPropertyBag Properties { get; }
+    
+    /// <summary>
     /// The endpoints the server is listening on.
     /// </summary>
     IEndPointCollection EndPoints { get; }

@@ -11,6 +11,7 @@ namespace GenHTTP.Modules.Webservices.Provider;
 
 public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 {
+    private MethodCollection? _methods;
 
     #region Get-/Setters
 
@@ -22,7 +23,7 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 
     private ExecutionSettings ExecutionSettings { get; }
 
-    public SynchronizedMethodCollection Methods { get; }
+    public MethodCollection Methods => _methods ?? throw new InvalidOperationException("Handler is not prepared yet");
 
     #endregion
 
@@ -34,19 +35,13 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
         InstanceProvider = instanceProvider;
         ExecutionSettings = executionSettings;
         Registry = registry;
-
-        Methods = new SynchronizedMethodCollection(GetMethodsAsync);
     }
 
     #endregion
 
     #region Functionality
 
-    public ValueTask PrepareAsync(IServer server) => ValueTask.CompletedTask;
-
-    public ValueTask<IResponse?> HandleAsync(IRequest request) => Methods.HandleAsync(request);
-
-    private async Task<MethodCollection> GetMethodsAsync(IRequest request)
+    public async ValueTask PrepareAsync(IServer server)
     {
         var found = new List<MethodHandler>();
 
@@ -56,7 +51,7 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 
             if (attribute is not null)
             {
-                var operation = OperationBuilder.Create(request, attribute.Path, method, null, ExecutionSettings, attribute, Registry);
+                var operation = OperationBuilder.Create(server, attribute.Path, method, null, ExecutionSettings, attribute, Registry);
 
                 found.Add(new MethodHandler(operation, InstanceProvider, Registry));
             }
@@ -64,10 +59,12 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
 
         var result = new MethodCollection(found);
 
-        await result.PrepareAsync();
+        await result.PrepareAsync(server);
 
-        return result;
+        _methods = result;
     }
+
+    public ValueTask<IResponse?> HandleAsync(IRequest request) => Methods.HandleAsync(request);
 
     #endregion
 
