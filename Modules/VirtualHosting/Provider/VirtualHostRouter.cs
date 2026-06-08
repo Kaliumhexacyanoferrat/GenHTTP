@@ -1,6 +1,7 @@
 ﻿using System.Collections.Frozen;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO;
 
@@ -29,16 +30,16 @@ public sealed class VirtualHostRouter : IHandler
 
     #region Functionality
 
-    public async ValueTask PrepareAsync()
+    public async ValueTask PrepareAsync(IServer server)
     {
         foreach (var host in Hosts.Values)
         {
-            await host.PrepareAsync();
+            await host.PrepareAsync(server);
         }
 
         if (DefaultRoute != null)
         {
-            await DefaultRoute.PrepareAsync();
+            await DefaultRoute.PrepareAsync(server);
         }
     }
 

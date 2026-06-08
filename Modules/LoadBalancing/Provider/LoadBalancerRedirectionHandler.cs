@@ -1,6 +1,7 @@
 ﻿using System.Text;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Redirects;
@@ -38,7 +39,7 @@ public sealed class LoadBalancerRedirectionHandler : IHandler
                        .HandleAsync(request);
     }
 
-    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+    public ValueTask PrepareAsync(IServer server) => ValueTask.CompletedTask;
 
     #endregion
 

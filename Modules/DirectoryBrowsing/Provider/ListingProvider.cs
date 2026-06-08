@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Pages;
@@ -39,7 +40,7 @@ public sealed class ListingProvider : IHandler
         return request.GetPage(page).Build();
     }
 
-    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+    public ValueTask PrepareAsync(IServer server) => ValueTask.CompletedTask;
 
     #endregion
 

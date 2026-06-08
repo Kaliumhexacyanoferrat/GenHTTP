@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.OpenApi.Discovery;
@@ -49,7 +50,7 @@ public sealed class OpenApiConcern : IConcern
 
     #region Functionality
 
-    public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {

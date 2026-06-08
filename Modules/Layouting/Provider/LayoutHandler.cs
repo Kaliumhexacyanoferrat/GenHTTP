@@ -1,6 +1,7 @@
 ﻿using System.Collections.Frozen;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Redirects;
 
@@ -32,21 +33,21 @@ public sealed class LayoutHandler : IHandler
 
     #region Functionality
 
-    public async ValueTask PrepareAsync()
+    public async ValueTask PrepareAsync(IServer server)
     {
         foreach (var routed in RoutedHandlers.Values)
         {
-            await routed.PrepareAsync();
+            await routed.PrepareAsync(server);
         }
 
         foreach (var root in RootHandlers)
         {
-            await root.PrepareAsync();
+            await root.PrepareAsync(server);
         }
 
         if (Index != null)
         {
-            await Index.PrepareAsync();
+            await Index.PrepareAsync(server);
         }
     }
 
@@ -63,7 +64,7 @@ public sealed class LayoutHandler : IHandler
                 return handler.HandleAsync(request);
             }
         }
-        else 
+        else
         {
             // force a trailing slash to prevent duplicate content
             if (!target.HasTrailingSlash)

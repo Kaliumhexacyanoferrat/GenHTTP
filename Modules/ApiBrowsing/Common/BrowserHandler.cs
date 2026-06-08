@@ -1,6 +1,7 @@
 ﻿using Cottle;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Files;
@@ -40,7 +41,7 @@ public sealed class BrowserHandler: IHandler
 
     #region Functionality
 
-    public ValueTask PrepareAsync() => StaticResources.PrepareAsync();
+    public ValueTask PrepareAsync(IServer server) => StaticResources.PrepareAsync(server);
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {

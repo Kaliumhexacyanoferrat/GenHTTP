@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.I18n.Provider;
@@ -45,7 +46,7 @@ public sealed class LocalizationConcern : IConcern
 
     #region Functionality
 
-    public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {

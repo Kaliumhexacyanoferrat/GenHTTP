@@ -1,8 +1,10 @@
 ﻿using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+
 using GenHTTP.Api.Content;
-using GenHTTP.Api.Protocol;
+using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Modules.Reflection.Routing;
 using GenHTTP.Modules.Reflection.Routing.Segments;
 
@@ -26,7 +28,7 @@ public static class OperationBuilder
     /// <param name="registry">The customizable registry used to read and write data</param>
     /// <param name="forceTrailingSlash">If set to true, the operation requires the client to append a trailing slash to the path</param>
     /// <returns>The newly created operation</returns>
-    public static Operation Create(IRequest request, string? definition, MethodInfo method, Delegate? del, ExecutionSettings executionSettings, IMethodConfiguration configuration, MethodRegistry registry, bool forceTrailingSlash = false)
+    public static Operation Create(IServer server, string? definition, MethodInfo method, Delegate? del, ExecutionSettings executionSettings, IMethodConfiguration configuration, MethodRegistry registry, bool forceTrailingSlash = false)
     {
         var isWildcard = CheckWildcardRoute(method.ReturnType);
 
@@ -68,7 +70,7 @@ public static class OperationBuilder
 
             route = new OperationRoute(displayName, segments, isWildcard);
         }
-        
+
         var pathArguments = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var segment in route.Segments)
@@ -79,7 +81,7 @@ public static class OperationBuilder
             }
         }
 
-        var arguments = SignatureAnalyzer.GetArguments(request, method, pathArguments, registry);
+        var arguments = SignatureAnalyzer.GetArguments(server, method, pathArguments, registry);
 
         var result = SignatureAnalyzer.GetResult(method, registry);
 
@@ -165,7 +167,7 @@ public static class OperationBuilder
     {
         foreach (var c in value)
         {
-            if (c is (< 'A' or > 'Z') and (< 'a' or > 'z') and (< '0' or > '9')) 
+            if (c is (< 'A' or > 'Z') and (< 'a' or > 'z') and (< '0' or > '9'))
             {
                 return false;
             }

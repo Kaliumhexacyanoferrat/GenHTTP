@@ -1,6 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Authentication.ApiKey;
@@ -56,7 +56,7 @@ public sealed class ApiKeyConcern : IConcern
                       .Build();
     }
 
-    public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
 
     #endregion
 

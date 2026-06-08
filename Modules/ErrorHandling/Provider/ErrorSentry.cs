@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.ErrorHandling.Provider;
@@ -27,7 +28,7 @@ public sealed class ErrorSentry<T> : IConcern where T : Exception
 
     #region Functionality
 
-    public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {

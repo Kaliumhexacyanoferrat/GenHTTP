@@ -1,4 +1,5 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Api.Content;
 
@@ -21,7 +22,8 @@ public interface IHandler
     /// May be called multiple times depending on the setup
     /// the handler is used in.
     /// </remarks>
-    ValueTask PrepareAsync();
+    /// <param name="server">The server instance running this handler</param>
+    ValueTask PrepareAsync(IServer server);
 
     /// <summary>
     /// Handles the given request and returns a response, if applicable.

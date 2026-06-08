@@ -42,18 +42,6 @@ internal sealed class ThreadedServer : IServer
         _endPoints = new EndPointCollection(this, configuration.EndPoints, configuration.Network);
     }
 
-    private static async ValueTask PrepareHandlerAsync(IHandler handler, IServerCompanion? companion)
-    {
-        try
-        {
-            await handler.PrepareAsync();
-        }
-        catch (Exception e)
-        {
-            companion?.OnServerError(ServerErrorScope.General, null, e);
-        }
-    }
-
     #endregion
 
     #region Functionality
@@ -63,6 +51,18 @@ internal sealed class ThreadedServer : IServer
         await PrepareHandlerAsync(Handler, Companion);
 
         _endPoints.Start();
+    }
+
+    private async ValueTask PrepareHandlerAsync(IHandler handler, IServerCompanion? companion)
+    {
+        try
+        {
+            await handler.PrepareAsync(this);
+        }
+        catch (Exception e)
+        {
+            companion?.OnServerError(ServerErrorScope.General, null, e);
+        }
     }
 
     #endregion

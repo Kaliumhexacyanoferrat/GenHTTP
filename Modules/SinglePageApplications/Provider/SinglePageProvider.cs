@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Files;
@@ -93,7 +94,7 @@ public sealed class SinglePageProvider : IHandler
         return _index;
     }
 
-    public ValueTask PrepareAsync() => Resources.PrepareAsync();
+    public ValueTask PrepareAsync(IServer server) => Resources.PrepareAsync(server);
 
     #endregion
 

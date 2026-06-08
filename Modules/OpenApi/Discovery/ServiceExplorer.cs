@@ -16,9 +16,7 @@ public sealed class ServiceExplorer : IApiExplorer
     {
         if (handler is IServiceMethodProvider serviceProvider)
         {
-            var methods = await serviceProvider.Methods.GetAsync(request);
-            
-            await registry.ExploreAsync(request, methods, path, document, schemata);
+            await registry.ExploreAsync(request, serviceProvider.Methods, path, document, schemata);
         }
     }
 

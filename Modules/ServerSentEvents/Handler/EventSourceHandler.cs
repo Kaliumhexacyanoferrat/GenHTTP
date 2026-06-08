@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Conversion.Formatters;
@@ -31,7 +32,7 @@ public sealed class EventSourceHandler : IHandler
 
     #region Functionality
 
-    public ValueTask PrepareAsync() => default;
+    public ValueTask PrepareAsync(IServer server) => default;
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {

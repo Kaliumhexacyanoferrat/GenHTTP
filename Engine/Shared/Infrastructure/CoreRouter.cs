@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Shared.Infrastructure;
@@ -30,7 +31,7 @@ public sealed class CoreRouter : IHandler
 
     public ValueTask<IResponse?> HandleAsync(IRequest request) => Content.HandleAsync(request);
 
-    public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
 
     #endregion
 

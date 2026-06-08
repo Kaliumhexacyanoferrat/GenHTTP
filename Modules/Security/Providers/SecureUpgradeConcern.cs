@@ -120,7 +120,7 @@ public sealed class SecureUpgradeConcern : IConcern
         return endPoints.First().Port;
     }
 
-    public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
 
     #endregion
 

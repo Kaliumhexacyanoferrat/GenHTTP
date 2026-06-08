@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Caching;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO;
 using StreamContent = GenHTTP.Modules.IO.Streaming.StreamContent;
@@ -98,7 +99,7 @@ public sealed class ServerCacheHandler : IConcern
         return await Content.HandleAsync(request);
     }
 
-    public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
 
     private static bool TryFindMatching(CachedResponse[] list, IRequest request, out CachedResponse? response)
     {

@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Reflection.Routing;
@@ -89,11 +90,11 @@ public sealed class MethodCollection : IHandler
         return new ValueTask<IResponse?>();
     }
 
-    public async ValueTask PrepareAsync()
+    public async ValueTask PrepareAsync(IServer server)
     {
         foreach (var handler in Methods)
         {
-            await handler.PrepareAsync();
+            await handler.PrepareAsync(server);
         }
     }
 

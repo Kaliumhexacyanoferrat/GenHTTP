@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.LoadBalancing.Provider;
@@ -25,11 +26,11 @@ public sealed class LoadBalancerHandler : IHandler
 
     #region Functionality
 
-    public async ValueTask PrepareAsync()
+    public async ValueTask PrepareAsync(IServer server)
     {
         foreach (var entry in _nodes)
         {
-            await entry.Item1.PrepareAsync();
+            await entry.Item1.PrepareAsync(server);
         }
     }
 

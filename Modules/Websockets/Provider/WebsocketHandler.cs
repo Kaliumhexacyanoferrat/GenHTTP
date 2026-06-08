@@ -1,4 +1,5 @@
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Websockets.Protocol;
@@ -17,7 +18,7 @@ public class WebsocketHandler(Func<IRequest, IResponseContent> contentFactory) :
 
     private static readonly ByteString UpgradeHeaderValue = new("websocket");
 
-    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
+    public ValueTask PrepareAsync(IServer server) => ValueTask.CompletedTask;
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {

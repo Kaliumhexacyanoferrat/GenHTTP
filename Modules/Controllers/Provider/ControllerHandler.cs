@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Reflection;
@@ -13,6 +14,8 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 {
     private static readonly Regex HyphenMatcher = CreateHyphenMatcher();
 
+    private MethodCollection? _methods;
+
     #region Get-/Setters
 
     private Type Type { get; }
@@ -23,7 +26,7 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 
     private ExecutionSettings ExecutionSettings { get; }
 
-    public SynchronizedMethodCollection Methods { get; }
+    public MethodCollection Methods => _methods ?? throw new InvalidOperationException("Handler is not prepared yet");
 
     #endregion
 
@@ -35,19 +38,13 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
         InstanceProvider = instanceProvider;
         ExecutionSettings = executionSettings;
         Registry = registry;
-
-        Methods = new SynchronizedMethodCollection(GetMethodsAsync);
     }
 
     #endregion
 
     #region Functionality
 
-    public ValueTask PrepareAsync() => ValueTask.CompletedTask;
-
-    public ValueTask<IResponse?> HandleAsync(IRequest request) => Methods.HandleAsync(request);
-
-    private async Task<MethodCollection> GetMethodsAsync(IRequest request)
+    public async ValueTask PrepareAsync(IServer server)
     {
         var found = new List<MethodHandler>();
 
@@ -57,32 +54,34 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
 
             var arguments = FindPathArguments(method);
 
-            var operation = CreateOperation(request, method, ExecutionSettings, annotation, arguments, Registry);
+            var operation = CreateOperation(server, method, ExecutionSettings, annotation, arguments, Registry);
 
             found.Add(new MethodHandler(operation, InstanceProvider, Registry));
         }
 
         var result = new MethodCollection(found);
 
-        await result.PrepareAsync();
+        await result.PrepareAsync(server);
 
-        return result;
+        _methods = result;
     }
 
-    private static Operation CreateOperation(IRequest request, MethodInfo method, ExecutionSettings executionSettings, IMethodConfiguration configuration, List<string> arguments, MethodRegistry registry)
+    public ValueTask<IResponse?> HandleAsync(IRequest request) => Methods.HandleAsync(request);
+
+    private static Operation CreateOperation(IServer server, MethodInfo method, ExecutionSettings executionSettings, IMethodConfiguration configuration, List<string> arguments, MethodRegistry registry)
     {
         var pathArguments = string.Join('/', arguments.Select(a => $":{a}"));
 
         if (method.Name == "Index")
         {
-            return OperationBuilder.Create(request, pathArguments.Length > 0 ? $"/{pathArguments}/" : null, method, null, executionSettings, configuration, registry, true);
+            return OperationBuilder.Create(server, pathArguments.Length > 0 ? $"/{pathArguments}/" : null, method, null, executionSettings, configuration, registry, true);
         }
 
         var name = HypenCase(method.Name);
 
         var path = $"/{name}";
 
-        return OperationBuilder.Create(request, pathArguments.Length > 0 ? $"{path}/{pathArguments}/" : $"{path}/", method, null, executionSettings, configuration, registry, true);
+        return OperationBuilder.Create(server, pathArguments.Length > 0 ? $"{path}/{pathArguments}/" : $"{path}/", method, null, executionSettings, configuration, registry, true);
     }
 
     private static List<string> FindPathArguments(MethodInfo method)

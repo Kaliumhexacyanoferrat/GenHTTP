@@ -1,6 +1,7 @@
 ﻿using System.IO.Compression;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Compression.Providers;
@@ -145,7 +146,7 @@ public sealed class CompressionConcern : IConcern
         return MinimumSize is null || contentLength is null || contentLength >= MinimumSize;
     }
 
-    public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
 
     #endregion
 

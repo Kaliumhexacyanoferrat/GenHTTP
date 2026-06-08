@@ -2,6 +2,7 @@
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Authentication;
@@ -35,7 +36,7 @@ public class RoleTests
             User = user;
         }
 
-        public ValueTask PrepareAsync() => Content.PrepareAsync();
+        public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
