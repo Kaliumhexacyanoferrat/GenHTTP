@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Shared.Types;
 
