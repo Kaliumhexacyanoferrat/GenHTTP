@@ -4,7 +4,7 @@ using System.Runtime.Loader;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
-
+using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Reflection.Operations;
 using GenHTTP.Modules.Reflection.Routing;
 
@@ -23,7 +23,9 @@ internal static class DelegateProvider
         concurrentBuild: false,
         deterministic: false
     );
-    
+
+    private static bool _requirementsLoaded = false;
+
     /// <summary>
     /// Compiles the given source code into an invocable delegate.
     /// </summary>
@@ -53,11 +55,11 @@ internal static class DelegateProvider
         ms.Seek(0, SeekOrigin.Begin);
 
         var assembly = AssemblyLoadContext.Default.LoadFromStream(ms);
-        
+
         var type = assembly.GetType("Invoker");
 
         var method = type!.GetMethod("Invoke")!;
-        
+
         // warm up the JIT
         RuntimeHelpers.PrepareMethod(method.MethodHandle);
 
@@ -75,10 +77,21 @@ internal static class DelegateProvider
                 continue;
             }
 
-            References.GetOrAdd(assembly.Location, (s) => MetadataReference.CreateFromFile(s));
+            References.GetOrAdd(assembly.Location, LoadAssembly);
+        }
+
+        // add the dependencies that are required by the compiled code
+        if (!_requirementsLoaded)
+        {
+            References.GetOrAdd(typeof(Content).Assembly.Location, LoadAssembly);
+
+            _requirementsLoaded = true;
         }
 
         return References.Values.ToArray();
     }
-    
+
+    private static MetadataReference LoadAssembly(string fullName)
+        => MetadataReference.CreateFromFile(fullName);
+
 }

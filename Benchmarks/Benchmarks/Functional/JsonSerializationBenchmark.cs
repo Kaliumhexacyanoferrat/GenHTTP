@@ -12,29 +12,39 @@ public record SomeItem(Guid Id, String StringValue, int IntValue, DateTime DateV
 [MemoryDiagnoser]
 public class JsonSerializationBenchmark
 {
-    private readonly BenchmarkContext _context = CreateContext();
+    private BenchmarkContext _context = default!;
+
+    [GlobalSetup]
+    public async Task Setup()
+    {
+        _context = await CreateContext();
+    }
 
     [Benchmark]
     public ValueTask BenchmarkReturnedJson() => _context.Execute();
 
-    private static BenchmarkContext CreateContext()
+    private static async Task<BenchmarkContext> CreateContext()
     {
         var list = new List<SomeItem>();
 
         var random = new Random();
-        
+
         for (var i = 0; i < 500; i++)
         {
             list.Add(new(Guid.NewGuid(), "Some string", random.Next(), DateTime.Now));
         }
-        
+
         var handler = Inline.Create()
                             .Get(() => list)
                             .Add(CompressedContent.Default());
 
         var request = "GET / HTTP/1.1\r\nHost: localhost:8080\r\nAccept-Encoding: br;q=1, gzip;q=0.8\r\n\r\n";
 
-        return new(request, handler.Build());
+        var context = new BenchmarkContext(request, handler.Build());
+
+        await context.PrepareAsync();
+
+        return context;
     }
 
 }

@@ -13,9 +13,9 @@ public class BenchmarkServer(IHandler handler) : IServer
 
     public bool Development => false;
 
-    public IPropertyBag Properties => throw new NotSupportedException(); 
+    public IPropertyBag Properties => throw new NotSupportedException();
 
-    public IEndPointCollection EndPoints => throw new NotSupportedException(); 
+    public IEndPointCollection EndPoints => throw new NotSupportedException();
 
     public IServerCompanion? Companion => null;
 
@@ -26,11 +26,11 @@ public class BenchmarkServer(IHandler handler) : IServer
         _running = true;
         return default;
     }
-    
+
     public ValueTask DisposeAsync()
     {
         _running = false;
         return default;
     }
-    
+
 }

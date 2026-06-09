@@ -25,6 +25,8 @@ public sealed class BenchmarkContext
         _context.Apply(new BenchmarkServer(handler), _stream);
     }
 
+    public ValueTask PrepareAsync() => _context.Server.Handler.PrepareAsync(_context.Server);
+
     public async ValueTask Execute()
     {
         if (!UltraHardenedParser.TryExtractFullHeaderROM(ref _request, _context.Request.Source, Limits, out _))
@@ -39,7 +41,7 @@ public sealed class BenchmarkContext
         await _context.Writer.FlushAsync();
 
         _context.Request.Reset();
-        
+
         _stream.Seek(0, SeekOrigin.Begin);
     }
 
