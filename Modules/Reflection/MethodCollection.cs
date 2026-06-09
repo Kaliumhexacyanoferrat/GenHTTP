@@ -60,7 +60,7 @@ public sealed class MethodCollection : IHandler
 
             if (route.IsWildcard)
             {
-                wildcardMatch = (method, match);
+                wildcardMatch = (method, match.Value);
             }
             else if (directMatch != null)
             {
@@ -68,7 +68,7 @@ public sealed class MethodCollection : IHandler
             }
             else
             {
-                directMatch = (method, match);
+                directMatch = (method, match.Value);
             }
         }
 

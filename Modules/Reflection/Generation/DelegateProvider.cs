@@ -24,7 +24,7 @@ internal static class DelegateProvider
         deterministic: false
     );
 
-    private static bool _requirementsLoaded = false;
+    private static bool _requirementsLoaded;
 
     /// <summary>
     /// Compiles the given source code into an invocable delegate.
