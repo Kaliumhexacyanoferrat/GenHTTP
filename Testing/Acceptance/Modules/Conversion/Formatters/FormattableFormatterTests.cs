@@ -4,9 +4,9 @@ using GenHTTP.Modules.Conversion.Formatters;
 namespace GenHTTP.Testing.Acceptance.Modules.Conversion.Formatters;
 
 [TestClass]
-public sealed class PrimitiveFormatterTests
+public sealed class FormattableFormatterTests
 {
-    private readonly PrimitiveFormatter _formatter = new();
+    private readonly FormattableFormatter _formatter = new();
 
     private static ByteString Bytes(string s) => new(s);
 

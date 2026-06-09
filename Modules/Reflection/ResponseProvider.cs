@@ -118,7 +118,7 @@ public class ResponseProvider
     }
 
     private IResponse GetFormattedResponse(IRequest request, object result, Type type, Action<IResponseBuilder>? adjustments) => request.Respond()
-                                                                                                                                        .Content(new StringContent(Registry.Formatting.Write(result, type) ?? string.Empty))
+                                                                                                                                        .Content(Registry.Formatting.GetContent(result, type))
                                                                                                                                         .Adjust(adjustments)
                                                                                                                                         .Build();
 

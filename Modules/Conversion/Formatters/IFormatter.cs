@@ -27,6 +27,8 @@ public interface IFormatter
     /// </remarks>
     object? Read(ByteString value, Type type);
 
+    T Read<T>(ByteString value);
+
     /// <summary>
     /// Converts the given object instance of the given type into a string representation.
     /// </summary>
@@ -38,5 +40,7 @@ public interface IFormatter
     /// or to generate form encoded data.
     /// </remarks>
     string? Write(object value, Type type);
+
+    IResponseContent GetContent<T>(T value);
 
 }

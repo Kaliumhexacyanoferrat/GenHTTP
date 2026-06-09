@@ -135,7 +135,7 @@ public static class CodeProviderArgumentExtensions
     private static void AppendBodyArgument(this StringBuilder sb, OperationArgument argument, int index, StringBuilder declarations)
     {
         var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
-        
+
         declarations.AppendDeclaration(argument, index);
 
         sb.AppendLine($"        {safeType}? arg{index} = ({safeType}?)await ArgumentProvider.GetBodyArgumentAsync(request, BodyArg{index}Name, typeof({safeType}), registry);");
@@ -169,7 +169,7 @@ public static class CodeProviderArgumentExtensions
 
         sb.AppendLine("               try");
         sb.AppendLine("               {");
-        sb.AppendLine($"                arg{index} = ({safeType}?)registry.Formatting.Read({sourceName}{valueClaim}, typeof({safeType}));");
+        sb.AppendLine($"                arg{index} = registry.Formatting.Read<{safeType}>({sourceName}{valueClaim});");
         sb.AppendLine("               }");
         sb.AppendLine("               catch (Exception e)");
         sb.AppendLine("               {");

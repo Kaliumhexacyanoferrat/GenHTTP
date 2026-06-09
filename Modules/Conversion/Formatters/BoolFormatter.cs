@@ -1,5 +1,7 @@
 ﻿using GenHTTP.Api.Protocol;
 
+using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
+
 namespace GenHTTP.Modules.Conversion.Formatters;
 
 public sealed class BoolFormatter : IFormatter
@@ -29,6 +31,28 @@ public sealed class BoolFormatter : IFormatter
         return null;
     }
 
+    public T Read<T>(ByteString value)
+    {
+        if (value == SwitchOne || value == SwitchOn || value == SwitchTrue)
+        {
+            return (T)(object)true;
+        }
+        if (value == SwitchZero || value == SwitchOff || value == SwitchFalse)
+        {
+            return (T)(object)false;
+        }
+
+        throw new ArgumentException();
+    }
+
     public string Write(object value, Type type) => (bool)value ? "1" : "0";
+
+    public IResponseContent GetContent<T>(T value)
+    {
+        if (value is bool b)
+            return new StringContent(b ? "1" : "0");
+
+        throw new NotSupportedException();
+    }
 
 }

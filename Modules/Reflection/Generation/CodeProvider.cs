@@ -38,6 +38,8 @@ public static class CodeProvider
         sb.AppendLine("using GenHTTP.Modules.Reflection.Operations;");
         sb.AppendLine("using GenHTTP.Modules.Reflection.Routing;");
         sb.AppendLine("using GenHTTP.Modules.IO;");
+        sb.AppendLine("using GenHTTP.Modules.IO.Formattable;");
+        sb.AppendLine("using GenHTTP.Modules.IO.Strings;");
         sb.AppendLine();
 
         sb.AppendLine("public static class Invoker");

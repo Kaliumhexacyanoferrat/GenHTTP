@@ -48,6 +48,21 @@ public sealed class FormatterRegistry
         return null;
     }
 
+    public T? Read<T>(ByteString value)
+    {
+        var type = typeof(T);
+
+        for (var i = 0; i < Formatters.Count; i++)
+        {
+            if (Formatters[i].CanHandle(type))
+            {
+                return Formatters[i].Read<T>(value);
+            }
+        }
+
+        return default;
+    }
+
     public string? Write(object value, Type type)
     {
         for (var i = 0; i < Formatters.Count; i++)
@@ -55,6 +70,32 @@ public sealed class FormatterRegistry
             if (Formatters[i].CanHandle(type))
             {
                 return Formatters[i].Write(value, type);
+            }
+        }
+
+        return null;
+    }
+
+    public IResponseContent? GetContent(object value, Type type)
+    {
+        for (var i = 0; i < Formatters.Count; i++)
+        {
+            if (Formatters[i].CanHandle(type))
+            {
+                return Formatters[i].GetContent(value);
+            }
+        }
+
+        return null;
+    }
+
+    public IResponseContent? GetContent<T>(T value)
+    {
+        for (var i = 0; i < Formatters.Count; i++)
+        {
+            if (Formatters[i].CanHandle(typeof(T)))
+            {
+                return Formatters[i].GetContent(value);
             }
         }
 
