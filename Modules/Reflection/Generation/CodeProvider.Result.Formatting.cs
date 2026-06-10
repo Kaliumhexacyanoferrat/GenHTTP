@@ -12,23 +12,27 @@ public static class CodeProviderResultFormattingExtensions
 
         if (type == typeof(string))
         {
-            sb.AppendLine("        var content = new StringContent(result);");
+            sb.AppendLine("        var resultContent = new StringContent(result);");
         }
-        else if (type.IsAssignableTo(typeof(IUtf8SpanFormattable)))
+        else if (IsFormattable(type))
         {
-            sb.AppendLine("        var content = new FormattableContent(result);");
+            sb.AppendLine("        var resultContent = new FormattableContent(result);");
         }
         else
         {
-            sb.AppendLine("        var content = registry.Formatting.GetContent(result);");
+            sb.AppendLine("        var resultContent = registry.Formatting.GetContent(result);");
         }
 
         sb.AppendLine();
         sb.AppendLine("        var response = request.Respond()");
-        sb.AppendLine("                              .Content(content)");
+        sb.AppendLine("                              .Content(resultContent)");
         sb.AppendResultModifications(operation, "                              ");
         sb.AppendLine("                              .Build();");
         sb.AppendLine();
     }
+
+    private static bool IsFormattable(Type type)
+        => type == typeof(int) || type == typeof(long) || type == typeof(short) || type == typeof(byte) || type == typeof(uint) ||
+           type == typeof(ulong) || type == typeof(float) || type == typeof(double) || type == typeof(decimal) || type == typeof(Guid);
 
 }

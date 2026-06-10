@@ -17,6 +17,13 @@ public sealed class StringFormatter : IFormatter
     public string Write(object value, Type type) => (string)value;
 
     public IResponseContent GetContent<T>(T value)
-        => throw new NotSupportedException("Strings are explicitly supported by code generation");
+    {
+        if (value is string s)
+        {
+            return new StringContent(s);
+        }
+
+        throw new NotSupportedException();
+    }
 
 }

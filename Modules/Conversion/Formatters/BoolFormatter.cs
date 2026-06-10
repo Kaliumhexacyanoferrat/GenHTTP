@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+
 using GenHTTP.Api.Protocol;
 
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
@@ -16,8 +17,8 @@ public sealed class BoolFormatter : IFormatter
     private static readonly ByteString SwitchTrue = new("true");
     private static readonly ByteString SwitchFalse = new("false");
 
-    private static readonly StringContent TrueContent = new StringContent("1");
-    private static readonly StringContent FalseContent = new StringContent("0");
+    private static readonly StringContent TrueContent = new("1");
+    private static readonly StringContent FalseContent = new("0");
 
     public bool CanHandle(Type type) => type == typeof(bool);
 

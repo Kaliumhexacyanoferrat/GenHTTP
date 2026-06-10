@@ -2,6 +2,7 @@
 using System.Text;
 
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.IO.Formattable;
 
 namespace GenHTTP.Modules.Conversion.Formatters;
 
@@ -44,7 +45,7 @@ public sealed class FormattableFormatter : IFormatter
 
         if (type == typeof(Guid))
             return Guid.Parse(span);
-
+        
         Throw(type, span);
         return default!;
     }
@@ -55,7 +56,14 @@ public sealed class FormattableFormatter : IFormatter
     public string? Write(object value, Type type) => Convert.ToString(value, CultureInfo.InvariantCulture);
 
     public IResponseContent GetContent<T>(T value)
-        => throw new NotSupportedException("Formattables are explicitly supported by code generation");
+    {
+        if (value is IUtf8SpanFormattable formattable)
+        {
+            return new FormattableContent(formattable);
+        }
+
+        throw new NotSupportedException();
+    }
 
     private static void Throw(Type type, ReadOnlySpan<byte> span) => throw new ArgumentException($"Invalid value '{Encoding.ASCII.GetString(span)}' for primitive type {type.Name}");
 

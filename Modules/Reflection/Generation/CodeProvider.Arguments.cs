@@ -157,7 +157,7 @@ public static class CodeProviderArgumentExtensions
 
     private static void AppendArgumentAssignment(this StringBuilder sb, OperationArgument argument, int index, string readFrom, bool optional)
     {
-        var type = argument.Type;
+        var type = Nullable.GetUnderlyingType(argument.Type) ?? argument.Type;
 
         var valueClaim = (optional) ? ".Value" : string.Empty;
 
@@ -174,11 +174,26 @@ public static class CodeProviderArgumentExtensions
 
         if (type == typeof(string))
         {
-            sb.AppendLine($"                arg{index} = Encoding.UTF8.GetString({sourceName}{valueClaim}.Bytes.Span);");
+            sb.AppendLine($"                arg{index} = {sourceName}{valueClaim}.ToString();");
         }
-        else if (IsUtf8Parsable(type))
+        else if (IsInvariantParsable(type))
+        {
+            sb.AppendLine($"                arg{index} = {safeType}.Parse({sourceName}{valueClaim}.Bytes.Span, CultureInfo.InvariantCulture);");
+        }
+        else if (IsDirectlyParsable(type))
         {
             sb.AppendLine($"                arg{index} = {safeType}.Parse({sourceName}{valueClaim}.Bytes.Span);");
+        }
+        else if (type.IsEnum)
+        {
+            sb.AppendLine($"                if ({safeType}.TryParse<{safeType}>({sourceName}{valueClaim}.ToString(), out var arg{index}Enum))");
+            sb.AppendLine("                {");
+            sb.AppendLine($"                    arg{index} = arg{index}Enum;");
+            sb.AppendLine("                }");
+            sb.AppendLine("                else");
+            sb.AppendLine("                {");
+            sb.AppendLine($"                    throw new ArgumentException($\"Unable to convert value '{{{sourceName}{valueClaim}.ToString()}}' to type '{safeType}'\");");
+            sb.AppendLine("                }");
         }
         else
         {
@@ -194,19 +209,6 @@ public static class CodeProviderArgumentExtensions
         sb.AppendLine("        }");
     }
 
-    private static bool IsUtf8Parsable(Type type)
-    {
-        if (type.IsEnum)
-        {
-            return true;
-        }
-
-        return type.GetInterfaces()
-                   .Any(i => i.IsGenericType &&
-                            i.GetGenericTypeDefinition() == typeof(IUtf8SpanParsable<>) &&
-                            i.GenericTypeArguments[0] == type);
-    }
-
     private static void AppendDeclaration(this StringBuilder sb, OperationArgument argument, int index)
     {
         var source = argument.Source switch
@@ -219,5 +221,12 @@ public static class CodeProviderArgumentExtensions
 
         sb.AppendLine($"    private static readonly ByteString {source}Arg{index}Name = new({CompilationUtil.GetSafeString(argument.Name)});");
     }
+    
+    private static bool IsInvariantParsable(Type type)
+        => type == typeof(int) || type == typeof(long) || type == typeof(short) || type == typeof(byte) || type == typeof(uint) ||
+            type == typeof(ulong) || type == typeof(float) || type == typeof(double) || type == typeof(decimal);
+    
+    private static bool IsDirectlyParsable(Type type)
+        => type == typeof(Guid);
 
 }

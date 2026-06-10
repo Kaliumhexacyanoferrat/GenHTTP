@@ -1,6 +1,7 @@
 ﻿using System.Buffers.Text;
 using System.Globalization;
 using System.Text;
+
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
 using GenHTTP.Api.Protocol;
@@ -19,7 +20,7 @@ public sealed class DateFormatter : IFormatter
                || type == typeof(TimeSpan);
     }
 
-    public object? Read(ByteString value, Type type)
+    public object Read(ByteString value, Type type)
     {
         var span = value.Bytes.Span;
 
@@ -64,9 +65,9 @@ public sealed class DateFormatter : IFormatter
 
     public T Read<T>(ByteString value) => (T)Read(value, typeof(T))!;
 
-    public string? Write(object value, Type type)
+    public string Write(object value, Type type)
     {
-        type = Nullable.GetUnderlyingType(type) ?? type;
+        type = Nullable.GetUnderlyingType(value.GetType()) ?? value.GetType();
 
         Span<byte> buffer = stackalloc byte[64];
 
@@ -113,12 +114,7 @@ public sealed class DateFormatter : IFormatter
         throw new InvalidOperationException($"Unsupported type {type}");
     }
 
-    public IResponseContent GetContent<T>(T value)
-    {
-        var text = Write(value!, typeof(T)) ?? string.Empty;
-
-        return new StringContent(text);
-    }
+    public IResponseContent GetContent<T>(T value) => new StringContent(Write(value!, typeof(T)));
 
     private static string StringFromUtf8(ReadOnlySpan<byte> utf8)
         => Encoding.UTF8.GetString(utf8);
