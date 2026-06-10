@@ -34,7 +34,7 @@ internal sealed class ClientResponseContent(HttpResponseMessage message) : IResp
 
             if (type != null)
             {
-                return new(type.ToString()); // todo: stackalloc from parts
+                return new(type.ToString());
             }
 
             return ContentType.ApplicationOctetStream;

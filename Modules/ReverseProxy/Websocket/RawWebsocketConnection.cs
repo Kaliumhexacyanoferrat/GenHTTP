@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Collections.Immutable;
 using System.IO.Pipelines;
 using System.Net.Security;
 using System.Net.Sockets;
@@ -31,12 +32,12 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
     private readonly string _host;
     private readonly int _port;
     private readonly bool _isDefaultPort;
-    private readonly string _route;
+    private readonly ReadOnlyMemory<byte> _route;
 
     private readonly int _rxMaxBufferSize;
     private readonly int _txMaxBufferSize;
 
-    private const string Crlf = "\r\n";
+    private readonly ReadOnlyMemory<byte> _clrf = "\r\n"u8.ToArray();
 
     #region Get-/Setters
 
@@ -95,27 +96,23 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
             throw new InvalidOperationException("Not initialized.");
         }
 
-        // todo: make this more effient with readonly memory instead of a string?
+        var writer = new ArrayBufferWriter<byte>();
 
-        var upgradeRequestSb = new StringBuilder();
-
-        upgradeRequestSb
-             // GET {_route} HTTP/1.1\r\n
-            .Append("GET ")
-            .Append(_route)
-            .Append(" HTTP/1.1")
-            .Append(Crlf)
-            // Host: {_host}:{_port}\r\n
-            .Append("Host: ")
-            .Append(_host);
-
+        writer.Write("GET "u8);
+        writer.Write(_route.Span);
+        writer.Write(" HTTP/1.1"u8);
+        writer.Write(_clrf.Span);
+        
+        writer.Write("Host: "u8);
+        writer.Write(Encoding.ASCII.GetBytes(_host));
+        
         if (!_isDefaultPort)
         {
-            upgradeRequestSb.Append(':');
-            upgradeRequestSb.Append(_port);
+            writer.Write(":"u8);
+            writer.Write(Encoding.ASCII.GetBytes(_port.ToString()));
         }
 
-        upgradeRequestSb.Append(Crlf);
+        writer.Write(_clrf.Span);
 
         var headers = request.Header.Headers;
 
@@ -123,23 +120,22 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
         {
             var header = headers[i];
 
-            var key = header.Key.ToString();
-            var value = header.Value.ToString();
+            var key = header.Key;
+            var value = header.Value;
 
-            if (key.Equals("Host", StringComparison.OrdinalIgnoreCase))
+            if (key == KnownHeaders.Host)
                 continue;
 
-            upgradeRequestSb
-                .Append(key)
-                .Append(": ")
-                .Append(value)
-                .Append(Crlf);
+            writer.Write(key.Bytes.Span);
+            writer.Write(":"u8);
+            writer.Write(value.Bytes.Span);
+            writer.Write(_clrf.Span);
         }
 
-        upgradeRequestSb.Append(Crlf);
+        writer.Write(_clrf.Span);
 
         // Writes and flushes
-        await Pipe.Output.WriteAsync(Encoding.UTF8.GetBytes(upgradeRequestSb.ToString()), token);
+        await Pipe.Output.WriteAsync(writer.WrittenMemory, token);
 
         // Read the handshake response until \r\n\r\n
         while (request.Server.Running)
@@ -179,10 +175,12 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
         }
     }
 
-    private static (string host, int port, bool isDefaultPort, bool secure, string route) GetHostPortAndSecurity(string url)
+    private static (string host, int port, bool isDefaultPort, bool secure, ReadOnlyMemory<byte> route) GetHostPortAndSecurity(string url)
     {
         if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+        {
             throw new ArgumentException($"Invalid URL: {url}", nameof(url));
+        }
 
         var secure = uri.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase) ||
                      uri.Scheme.Equals("wss", StringComparison.OrdinalIgnoreCase);
@@ -200,7 +198,7 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
 
         var route = string.IsNullOrEmpty(uri.PathAndQuery) ? "/" : uri.PathAndQuery;
 
-        return (uri.Host, port, uri.IsDefaultPort, secure, route);
+        return (uri.Host, port, uri.IsDefaultPort, secure, Encoding.ASCII.GetBytes(route));
     }
 
     public async ValueTask DisposeAsync()
