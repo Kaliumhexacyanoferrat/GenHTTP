@@ -58,9 +58,35 @@ public sealed class FormattableFormatterTests
     public void ReadsFloat() => Assert.AreEqual(1.5f, (float)_formatter.Read(Bytes("1.5"), typeof(float))!, 1e-6f);
 
     [TestMethod]
+    public void ReadsUInt() => Assert.AreEqual(4294967295u, _formatter.Read(Bytes("4294967295"), typeof(uint)));
+
+    [TestMethod]
+    public void ReadsULong() => Assert.AreEqual(18446744073709551615ul, _formatter.Read(Bytes("18446744073709551615"), typeof(ulong)));
+
+    [TestMethod]
+    public void ReadsDecimal() => Assert.AreEqual(3.14m, (decimal)_formatter.Read(Bytes("3.14"), typeof(decimal))!);
+
+    [TestMethod]
+    public void ReadsGuid()
+    {
+        var guid = new Guid("d4a6b7c8-1234-5678-abcd-ef0123456789");
+        Assert.AreEqual(guid, _formatter.Read(Bytes("d4a6b7c8-1234-5678-abcd-ef0123456789"), typeof(Guid)));
+    }
+
+    [TestMethod]
     public void WritesInt() => Assert.AreEqual("42", _formatter.Write(42, typeof(int)));
 
     [TestMethod]
     public void WritesDoubleInInvariantCulture() => Assert.AreEqual("3.14", _formatter.Write(3.14, typeof(double)));
-    
+
+    [TestMethod]
+    public void WritesDecimalInInvariantCulture() => Assert.AreEqual("3.14", _formatter.Write(3.14m, typeof(decimal)));
+
+    [TestMethod]
+    public void WritesGuid()
+    {
+        var guid = new Guid("d4a6b7c8-1234-5678-abcd-ef0123456789");
+        Assert.AreEqual("d4a6b7c8-1234-5678-abcd-ef0123456789", _formatter.Write(guid, typeof(Guid)));
+    }
+
 }
