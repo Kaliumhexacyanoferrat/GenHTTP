@@ -5,7 +5,6 @@ using System.Xml.Serialization;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion;
-using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Reflection;
 using GenHTTP.Modules.Webservices;

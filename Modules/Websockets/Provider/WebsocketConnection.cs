@@ -57,39 +57,41 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
     #region Functionality
 
-    public async ValueTask WriteAsync(ReadOnlyMemory<byte> payload, FrameType opcode = FrameType.Text, bool fin = true, CancellationToken token = default)
+    public async ValueTask WriteAsync(ReadOnlyMemory<byte> payload, FrameType opcode = FrameType.Text, bool fin = true, bool flush = true, CancellationToken token = default)
     {
         Frame.Write(_writer, payload, opcode: (byte)opcode, fin);
-        await _stream.FlushAsync(token);
+        if (flush) await _stream.FlushAsync(token);
     }
 
-    public async ValueTask PingAsync(CancellationToken token = default)
+    public async ValueTask PingAsync(bool flush = true, CancellationToken token = default)
     {
         Frame.WritePing(_writer);
-        await _stream.FlushAsync(token);
+        if (flush) await _stream.FlushAsync(token);
     }
 
-    public async ValueTask PongAsync(ReadOnlyMemory<byte> payload, CancellationToken token = default)
+    public async ValueTask PongAsync(ReadOnlyMemory<byte> payload, bool flush = true, CancellationToken token = default)
     {
         Frame.WritePong(_writer, payload);
-        await _stream.FlushAsync(token);
+        if (flush) await _stream.FlushAsync(token);
     }
 
-    public async ValueTask PongAsync(string payload, CancellationToken token = default)
+    public async ValueTask PongAsync(string payload, bool flush = true, CancellationToken token = default)
     {
-        await PongAsync(Encoding.UTF8.GetBytes(payload), token);
+        await PongAsync(Encoding.UTF8.GetBytes(payload), flush, token);
     }
 
-    public async ValueTask PongAsync(CancellationToken token = default)
+    public async ValueTask PongAsync(bool flush = true, CancellationToken token = default)
     {
-        await PongAsync(ReadOnlyMemory<byte>.Empty, token);
+        await PongAsync(ReadOnlyMemory<byte>.Empty, flush, token);
     }
 
-    public async ValueTask CloseAsync(string? reason = null, ushort statusCode = 1000, CancellationToken token = default)
+    public async ValueTask CloseAsync(string? reason = null, ushort statusCode = 1000, bool flush = true, CancellationToken token = default)
     {
         Frame.WriteClose(_writer, reason, statusCode);
-        await _stream.FlushAsync(token);
+        if (flush) await _stream.FlushAsync(token);
     }
+
+    public ValueTask FlushAsync(CancellationToken token = default) => new(_stream.FlushAsync(token));
 
     public async ValueTask<IWebsocketFrame> ReadFrameAsync(CancellationToken token = default)
     {
