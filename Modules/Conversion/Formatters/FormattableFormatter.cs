@@ -2,6 +2,7 @@
 using System.Text;
 
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.IO.Formattable;
 
 namespace GenHTTP.Modules.Conversion.Formatters;
@@ -10,7 +11,7 @@ public sealed class FormattableFormatter : IFormatter
 {
 
     public bool CanHandle(Type type)
-        => type.IsAssignableTo(typeof(IUtf8SpanFormattable));
+        => type.IsAssignableTo(typeof(IUtf8SpanFormattable)) && type != typeof(char);
 
     public object Read(ByteString value, Type type)
     {

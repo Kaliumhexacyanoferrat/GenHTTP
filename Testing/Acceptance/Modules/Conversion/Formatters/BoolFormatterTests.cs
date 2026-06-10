@@ -44,10 +44,10 @@ public sealed class BoolFormatterTests
     }
 
     [TestMethod]
-    public void ReturnsNullForUnrecognizedInput()
+    public void ThrowsForUnrecognizedInput()
     {
-        Assert.IsNull(_formatter.Read(Bytes("yes"), typeof(bool)));
-        Assert.IsNull(_formatter.Read(Bytes("maybe"), typeof(bool)));
+        Assert.ThrowsExactly<ArgumentException>(() => _formatter.Read(Bytes("yes"), typeof(bool)));
+        Assert.ThrowsExactly<ArgumentException>(() => _formatter.Read(Bytes("maybe"), typeof(bool)));
     }
 
     [TestMethod]
