@@ -27,4 +27,6 @@ public class MockConnection : ISocketConnection
 
     public ValueTask FlushAsync(CancellationToken token = default) => throw new NotImplementedException();
 
+    public bool TryReadFrame(out IWebsocketFrame frame) => throw new NotImplementedException();
+
 }

@@ -24,6 +24,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
     private bool _skipFrameInit;
     private bool _keepPipeReaderBufferValid;
+    private bool _pendingAdvance;
 
     private WebsocketFrame _frame = null!;
 
@@ -103,6 +104,60 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
         }
 
         return await ReadSegmentedFrameAsync(token);
+    }
+
+    public bool TryReadFrame(out IWebsocketFrame frame)
+    {
+        Advance();
+
+        if (!_pipeReader.TryRead(out var result))
+        {
+            frame = default!;
+            return false;
+        }
+
+        if (result.IsCanceled)
+        {
+            _pipeReader.AdvanceTo(result.Buffer.Start, result.Buffer.Start);
+            _consumed = result.Buffer.Start;
+            _examined = result.Buffer.Start;
+            frame = new WebsocketFrame(this, frameError: new FrameError(FrameError.ReadCanceled, FrameErrorType.Canceled));
+            return true;
+        }
+
+        if (result.Buffer.Length == 0 && result.IsCompleted)
+        {
+            var end = result.Buffer.End;
+            _pipeReader.AdvanceTo(end, end);
+            _consumed = end;
+            _examined = end;
+            frame = new WebsocketFrame(this, FrameType.Close);
+            return true;
+        }
+
+        _currentSequence = result.Buffer;
+
+        var decoded = Frame.Decode(this, ref _currentSequence, Settings.RxBufferSize, out var consumed, out var examined);
+        _consumed = consumed;
+        _examined = examined;
+
+        if (decoded.IsError(out var error) && error.ErrorType == FrameErrorType.Incomplete)
+        {
+            // Not a complete frame yet; keep all data and mark all as examined so
+            // the next ReadAsync waits for new data rather than returning immediately.
+            _pipeReader.AdvanceTo(result.Buffer.Start, result.Buffer.End);
+            frame = default!;
+            return false;
+        }
+
+        if (Settings.AllocateFrameData)
+        {
+            decoded.SetCachedData();
+        }
+
+        _pendingAdvance = true;
+        frame = decoded;
+        return true;
     }
 
     private async ValueTask<WebsocketFrame> ReadSegmentedFrameAsync(CancellationToken token = default)
@@ -199,7 +254,10 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
             if (result.Buffer.Length == 0 && result.IsCompleted) // Clean EOF: no more data, reader completed
             {
-                _pipeReader.AdvanceTo(result.Buffer.End, result.Buffer.End);
+                var end = result.Buffer.End;
+                _pipeReader.AdvanceTo(end, end);
+                _consumed = end;
+                _examined = end;
                 return new WebsocketFrame(this, FrameType.Close);
             }
 
@@ -220,7 +278,10 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                     // The partial data of the request is therefore discarded
 
                     // Dev note: Should we eventually still give the user the partial data received?
-                    _pipeReader.AdvanceTo(_currentSequence.End, _currentSequence.End);
+                    var end = _currentSequence.End;
+                    _pipeReader.AdvanceTo(end, end);
+                    _consumed = end;
+                    _examined = end;
 
                     return new WebsocketFrame(this, frameError: new FrameError(FrameError.UnexpectedEndOfStream, FrameErrorType.IncompleteForever));
                 }
@@ -233,6 +294,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
             }
 
             // Any other frame (including other errors)
+            _pendingAdvance = true;
             return frame;
         }
 
@@ -251,6 +313,10 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
     private void Advance()
     {
+        if (!_pendingAdvance) return;
+
+        _pendingAdvance = false;
+
         if (_keepPipeReaderBufferValid)
         {
             Examine();
