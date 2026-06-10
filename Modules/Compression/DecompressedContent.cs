@@ -1,5 +1,3 @@
-namespace GenHTTP.Modules.Compression;
-
 /// <summary>
 /// Provides automatic decompression of incoming request content.
 /// </summary>

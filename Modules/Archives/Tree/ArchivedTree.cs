@@ -21,11 +21,11 @@ public sealed class ArchivedTree(ChangeTrackingResource source) : IResourceTree
 
     public DateTime? Modified => source.Modified;
 
-    public async ValueTask<IResourceNode?> TryGetNodeAsync(PathSegment name)
+    public async ValueTask<IResourceNode?> TryGetNodeAsync(PathSegment segment)
     {
         await EnsureRoot();
 
-        return await _root!.TryGetNodeAsync(name);
+        return await _root!.TryGetNodeAsync(segment);
     }
 
     public async ValueTask<IReadOnlyCollection<IResourceNode>> GetNodes()

@@ -31,11 +31,11 @@ internal sealed class ClientContext
     
     private PipeWriter? _writer;
 
-    private Request _request = new();
+    private readonly Request _request = new();
 
-    private ResponseHandler _responseHandler;
+    private readonly ResponseHandler _responseHandler;
 
-    private ClientHandler _clientHandler;
+    private readonly ClientHandler _clientHandler;
     
     internal IServer Server => _server ?? throw new InvalidOperationException("Handler has not been initialized");
 

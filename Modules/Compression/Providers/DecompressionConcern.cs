@@ -1,5 +1,3 @@
-namespace GenHTTP.Modules.Compression.Providers;
-
 /// <summary>
 /// Concern that automatically decompresses incoming request content
 /// based on the Content-Encoding header.

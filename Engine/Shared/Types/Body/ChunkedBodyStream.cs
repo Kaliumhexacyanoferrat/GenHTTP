@@ -15,7 +15,7 @@ internal sealed class ChunkedBodyStream : Stream, IDrainableStream
 {
     private readonly PipeReader _reader;
 
-    private GlyphParser _parser;
+    private readonly GlyphParser _parser = new();
 
     private bool _completed;
 
@@ -56,9 +56,9 @@ internal sealed class ChunkedBodyStream : Stream, IDrainableStream
     public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         => ReadAsync(buffer.AsMemory(offset, count), cancellationToken).AsTask();
 
-    public override async ValueTask<int> ReadAsync(Memory<byte> destination, CancellationToken cancellationToken = default)
+    public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
     {
-        if (_completed || destination.IsEmpty)
+        if (_completed || buffer.IsEmpty)
         {
             return 0;
         }
@@ -66,29 +66,29 @@ internal sealed class ChunkedBodyStream : Stream, IDrainableStream
         // Return buffered overflow from a previous large chunk first.
         if (_overflowLength > 0)
         {
-            return ConsumeOverflow(destination.Span);
+            return ConsumeOverflow(buffer.Span);
         }
 
         while (true)
         {
             var result = await _reader.ReadAsync(cancellationToken);
-            var buffer = result.Buffer;
+            var readBuffer = result.Buffer;
 
             byte[]? rented = null;
             ReadOnlySpan<byte> span;
 
-            if (buffer.IsSingleSegment)
+            if (readBuffer.IsSingleSegment)
             {
-                span = buffer.First.Span;
+                span = readBuffer.First.Span;
             }
             else
             {
                 // Linearise the full multi-segment buffer so Glyph11 gets a contiguous view.
                 // Glyph11 requires the complete chunk to be present before returning Chunk;
                 // capping would cause perpetual NeedMoreData for chunks larger than the cap.
-                var len = (int)buffer.Length;
+                var len = (int)readBuffer.Length;
                 rented = ArrayPool<byte>.Shared.Rent(len);
-                buffer.CopyTo(rented);
+                readBuffer.CopyTo(rented);
                 span = rented.AsSpan(0, len);
             }
 
@@ -96,7 +96,7 @@ internal sealed class ChunkedBodyStream : Stream, IDrainableStream
             {
                 if (span.IsEmpty)
                 {
-                    _reader.AdvanceTo(buffer.Start, buffer.End);
+                    _reader.AdvanceTo(readBuffer.Start, readBuffer.End);
 
                     if (result.IsCompleted)
                     {
@@ -111,12 +111,12 @@ internal sealed class ChunkedBodyStream : Stream, IDrainableStream
                 switch (chunkResult)
                 {
                     case ChunkResult.Completed:
-                        _reader.AdvanceTo(buffer.GetPosition(bytesConsumed));
+                        _reader.AdvanceTo(readBuffer.GetPosition(bytesConsumed));
                         _completed = true;
                         return 0;
 
                     case ChunkResult.NeedMoreData:
-                        _reader.AdvanceTo(buffer.Start, buffer.End);
+                        _reader.AdvanceTo(readBuffer.Start, readBuffer.End);
 
                         if (result.IsCompleted)
                         {
@@ -127,10 +127,10 @@ internal sealed class ChunkedBodyStream : Stream, IDrainableStream
 
                     case ChunkResult.Chunk:
                         var chunk = span.Slice(dataOffset, dataLength);
-                        var toCopy = Math.Min(destination.Length, dataLength);
+                        var toCopy = Math.Min(buffer.Length, dataLength);
 
                         // Copy to caller's buffer BEFORE advancing the pipe reader to keep span valid.
-                        chunk[..toCopy].CopyTo(destination.Span);
+                        chunk[..toCopy].CopyTo(buffer.Span);
 
                         if (toCopy < dataLength)
                         {
@@ -141,7 +141,7 @@ internal sealed class ChunkedBodyStream : Stream, IDrainableStream
                             _overflowLength = dataLength - toCopy;
                         }
 
-                        _reader.AdvanceTo(buffer.GetPosition(bytesConsumed));
+                        _reader.AdvanceTo(readBuffer.GetPosition(bytesConsumed));
                         return toCopy;
                 }
             }

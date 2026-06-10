@@ -110,7 +110,7 @@ public sealed class WritingStream : Stream
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Flush()
-        => _flusher.FlushAsync().GetAwaiter().GetResult();
+        => _flusher.FlushAsync().GetAwaiter().GetResult(); // required by XML serializer
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override Task FlushAsync(CancellationToken cancellationToken)

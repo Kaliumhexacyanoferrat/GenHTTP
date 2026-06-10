@@ -5,7 +5,7 @@ namespace GenHTTP.Api.Protocol;
 public interface IResponseBuilder : IBuilder<IResponse>
 {
 
-    IResponseBuilder Status(ResponseStatus code);
+    IResponseBuilder Status(ResponseStatus status);
 
     IResponseBuilder Connection(Connection mode);
 

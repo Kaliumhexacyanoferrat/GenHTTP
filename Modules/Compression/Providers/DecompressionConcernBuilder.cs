@@ -1,5 +1,3 @@
-namespace GenHTTP.Modules.Compression.Providers;
-
 /// <summary>
 /// Builder for configuring automatic request content decompression.
 /// </summary>

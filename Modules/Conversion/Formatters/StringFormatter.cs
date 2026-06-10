@@ -11,8 +11,7 @@ public sealed class StringFormatter : IFormatter
 
     public object Read(ByteString value, Type type) => Encoding.UTF8.GetString(value.Bytes.Span);
 
-    public T Read<T>(ByteString value)
-        => throw new NotSupportedException("Strings are explicitly supported by code generation");
+    public T Read<T>(ByteString value) => (T)(object)value.ToString();
 
     public string Write(object value, Type type) => (string)value;
 

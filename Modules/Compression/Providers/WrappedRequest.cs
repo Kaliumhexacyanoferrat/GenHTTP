@@ -1,5 +1,3 @@
-namespace GenHTTP.Modules.Compression.Providers;
-
 /// <summary>
 /// Wraps an existing request to provide decompressed content stream.
 /// </summary>

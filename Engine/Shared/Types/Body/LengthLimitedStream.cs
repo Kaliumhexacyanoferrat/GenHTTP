@@ -34,7 +34,7 @@ public class LengthLimitedStream : Stream, IDrainableStream
     public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         => ReadAsync(buffer.AsMemory(offset, count), cancellationToken).AsTask();
     
-    public override async ValueTask<int> ReadAsync(Memory<byte> destination, CancellationToken cancellationToken = default)
+    public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
     {
         if (_bytesRemaining <= 0)
         {
@@ -42,19 +42,19 @@ public class LengthLimitedStream : Stream, IDrainableStream
         }
 
         var result = await _reader.ReadAsync(cancellationToken);
-        var buffer = result.Buffer;
+        var readBuffer = result.Buffer;
 
-        var toRead = (int)Math.Min(Math.Min(destination.Length, _bytesRemaining), buffer.Length);
+        var toRead = (int)Math.Min(Math.Min(buffer.Length, _bytesRemaining), readBuffer.Length);
 
         if (toRead == 0)
         {
-            _reader.AdvanceTo(buffer.Start, buffer.End);
+            _reader.AdvanceTo(readBuffer.Start, readBuffer.End);
             return 0;
         }
 
-        buffer.Slice(0, toRead).CopyTo(destination.Span);
+        readBuffer.Slice(0, toRead).CopyTo(buffer.Span);
 
-        _reader.AdvanceTo(buffer.GetPosition(toRead));
+        _reader.AdvanceTo(readBuffer.GetPosition(toRead));
 
         _bytesRemaining -= toRead;
         return toRead;

@@ -83,7 +83,7 @@ public sealed class Request : IRequest
 
     #region Functionality
 
-    public IRequestBody? GetBody(HeaderAccess headerAccess)
+    public IRequestBody? GetBody(HeaderAccess headerAccess = HeaderAccess.Retain)
     {
         if (_bodyLoaded)
         {
