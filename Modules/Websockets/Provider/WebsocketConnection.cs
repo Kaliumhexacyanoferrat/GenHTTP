@@ -116,15 +116,9 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
             return false;
         }
 
-        if (result.IsCanceled)
-        {
-            _pipeReader.AdvanceTo(result.Buffer.Start, result.Buffer.Start);
-            _consumed = result.Buffer.Start;
-            _examined = result.Buffer.Start;
-            frame = new WebsocketFrame(this, frameError: new FrameError(FrameError.ReadCanceled, FrameErrorType.Canceled));
-            return true;
-        }
-
+        // Reached when the stream closed after a prior ReadAsync already saw EOF.
+        // Returning true with a Close frame lets the caller's drain loop terminate
+        // naturally without needing a further ReadFrameAsync call.
         if (result.Buffer.Length == 0 && result.IsCompleted)
         {
             var end = result.Buffer.End;
