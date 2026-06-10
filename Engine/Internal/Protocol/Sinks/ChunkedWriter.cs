@@ -35,20 +35,14 @@ internal sealed class ChunkedWriter(ClientContext context) : IBufferWriter<byte>
 
         var span = _activeMemory.Span;
 
-        var headerLength = WriteHex((uint)count, span);
+        WriteHex((uint)count, span);
 
-        if (headerLength != MaxHeaderSize)
-        {
-            span.Slice(MaxHeaderSize, count)
-                .CopyTo(span.Slice(headerLength));
-        }
-
-        var trailerOffset = headerLength + count;
+        var trailerOffset = MaxHeaderSize + count;
 
         span[trailerOffset] = (byte)'\r';
         span[trailerOffset + 1] = (byte)'\n';
 
-        context.Writer.Advance(headerLength + count + TrailerSize);
+        context.Writer.Advance(MaxHeaderSize + count + TrailerSize);
 
         _activeMemory = default;
     }
@@ -62,30 +56,19 @@ internal sealed class ChunkedWriter(ClientContext context) : IBufferWriter<byte>
         context.Writer.Advance(5);
     }
 
-    private static int WriteHex(uint value, Span<byte> dest)
+    private static void WriteHex(uint value, Span<byte> dest)
     {
-        const int end = 8;
-
-        var pos = end;
-
-        do
+        for (var pos = 7; pos >= 0; pos--)
         {
             var digit = value & 0xF;
 
-            dest[--pos] = digit < 10 ? (byte)('0' + digit) : (byte)('A' + digit - 10);
+            dest[pos] = digit < 10 ? (byte)('0' + digit) : (byte)('A' + digit - 10);
 
             value >>= 4;
         }
-        while (value != 0);
 
-        var length = end - pos;
-
-        dest.Slice(pos, length).CopyTo(dest);
-
-        dest[length] = (byte)'\r';
-        dest[length + 1] = (byte)'\n';
-
-        return length + 2;
+        dest[8] = (byte)'\r';
+        dest[9] = (byte)'\n';
     }
     
 }
