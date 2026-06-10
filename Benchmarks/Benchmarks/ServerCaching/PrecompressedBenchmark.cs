@@ -12,12 +12,18 @@ namespace GenHTTP.Benchmarks.Benchmarks.ServerCaching;
 [MemoryDiagnoser]
 public class PrecompressedBenchmark
 {
-    private readonly BenchmarkContext _context = CreateContext();
+    private BenchmarkContext _context = default!;
+
+    [GlobalSetup]
+    public async Task Setup()
+    {
+        _context = await CreateContext();
+    }
 
     [Benchmark]
     public ValueTask BenchmarkPrecompressed() => _context.Execute();
 
-    private static BenchmarkContext CreateContext()
+    private static async Task<BenchmarkContext> CreateContext()
     {
         var compression = CompressedContent.Default()
                                            .Level(CompressionLevel.Optimal);
@@ -31,7 +37,11 @@ public class PrecompressedBenchmark
 
         var request = "GET /file.js HTTP/1.1\r\nHost: localhost:8080\r\nAccept-Encoding: br;q=1, gzip;q=0.8\r\n\r\n";
 
-        return new(request, handler.Build());
+        var context = new BenchmarkContext(request, handler.Build());
+
+        await context.PrepareAsync();
+
+        return context;
     }
 
 }

@@ -135,7 +135,7 @@ public static class CodeProviderArgumentExtensions
     private static void AppendBodyArgument(this StringBuilder sb, OperationArgument argument, int index, StringBuilder declarations)
     {
         var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
-        
+
         declarations.AppendDeclaration(argument, index);
 
         sb.AppendLine($"        {safeType}? arg{index} = ({safeType}?)await ArgumentProvider.GetBodyArgumentAsync(request, BodyArg{index}Name, typeof({safeType}), registry);");
@@ -157,6 +157,8 @@ public static class CodeProviderArgumentExtensions
 
     private static void AppendArgumentAssignment(this StringBuilder sb, OperationArgument argument, int index, string readFrom, bool optional)
     {
+        var type = Nullable.GetUnderlyingType(argument.Type) ?? argument.Type;
+
         var valueClaim = (optional) ? ".Value" : string.Empty;
 
         sb.AppendLine("        {");
@@ -169,7 +171,35 @@ public static class CodeProviderArgumentExtensions
 
         sb.AppendLine("               try");
         sb.AppendLine("               {");
-        sb.AppendLine($"                arg{index} = ({safeType}?)registry.Formatting.Read({sourceName}{valueClaim}, typeof({safeType}));");
+
+        if (type == typeof(string))
+        {
+            sb.AppendLine($"                arg{index} = {sourceName}{valueClaim}.ToString();");
+        }
+        else if (IsInvariantParsable(type))
+        {
+            sb.AppendLine($"                arg{index} = {safeType}.Parse({sourceName}{valueClaim}.Bytes.Span, CultureInfo.InvariantCulture);");
+        }
+        else if (IsDirectlyParsable(type))
+        {
+            sb.AppendLine($"                arg{index} = {safeType}.Parse({sourceName}{valueClaim}.Bytes.Span);");
+        }
+        else if (type.IsEnum)
+        {
+            sb.AppendLine($"                if ({safeType}.TryParse<{safeType}>({sourceName}{valueClaim}.ToString(), out var arg{index}Enum))");
+            sb.AppendLine("                {");
+            sb.AppendLine($"                    arg{index} = arg{index}Enum;");
+            sb.AppendLine("                }");
+            sb.AppendLine("                else");
+            sb.AppendLine("                {");
+            sb.AppendLine($"                    throw new ArgumentException($\"Unable to convert value '{{{sourceName}{valueClaim}.ToString()}}' to type '{safeType}'\");");
+            sb.AppendLine("                }");
+        }
+        else
+        {
+            sb.AppendLine($"                arg{index} = registry.Formatting.Read<{safeType}>({sourceName}{valueClaim});");
+        }
+
         sb.AppendLine("               }");
         sb.AppendLine("               catch (Exception e)");
         sb.AppendLine("               {");
@@ -191,5 +221,12 @@ public static class CodeProviderArgumentExtensions
 
         sb.AppendLine($"    private static readonly ByteString {source}Arg{index}Name = new({CompilationUtil.GetSafeString(argument.Name)});");
     }
+    
+    private static bool IsInvariantParsable(Type type)
+        => type == typeof(int) || type == typeof(long) || type == typeof(short) || type == typeof(byte) || type == typeof(uint) ||
+            type == typeof(ulong) || type == typeof(float) || type == typeof(double) || type == typeof(decimal);
+    
+    private static bool IsDirectlyParsable(Type type)
+        => type == typeof(Guid);
 
 }

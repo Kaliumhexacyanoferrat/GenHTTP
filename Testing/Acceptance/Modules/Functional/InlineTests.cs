@@ -212,6 +212,17 @@ public sealed class InlineTests
 
         Assert.AreEqual(target, response.GetHeader("Location"));
     }
+    
+    [TestMethod]
+    [MultiEngineFrameworkTest]
+    public async Task TestNullable(TestEngine engine, ExecutionMode mode)
+    {
+        await using var host = await TestHost.RunAsync(Inline.Create().Get((int? i) => i ?? 42).ExecutionMode(mode), engine: engine);
+
+        using var response = await host.GetResponseAsync("/?i=43");
+
+        Assert.AreEqual("43", await response.GetContentAsync());
+    }
 
     #region Supporting data structures
 

@@ -1,5 +1,9 @@
-﻿using GenHTTP.Benchmarks.Benchmarks.Webservices;
+﻿using BenchmarkDotNet.Running;
+using GenHTTP.Benchmarks.Benchmarks.Webservices;
 
-// BenchmarkRunner.Run<BaselineBenchmark>();
+BenchmarkRunner.Run<BaselineBenchmark>();
 
-await new BaselineBodyBenchmark().BenchmarkBaseline();
+/*var bench = new BaselineBenchmark();
+
+await bench.Setup();
+await bench.BenchmarkBaseline();*/

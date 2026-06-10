@@ -1,12 +1,13 @@
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Conversion.Formatters;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Conversion.Formatters;
 
 [TestClass]
-public sealed class PrimitiveFormatterTests
+public sealed class FormattableFormatterTests
 {
-    private readonly PrimitiveFormatter _formatter = new();
+    private readonly FormattableFormatter _formatter = new();
 
     private static ByteString Bytes(string s) => new(s);
 
@@ -19,16 +20,16 @@ public sealed class PrimitiveFormatterTests
         Assert.IsTrue(_formatter.CanHandle(typeof(byte)));
         Assert.IsTrue(_formatter.CanHandle(typeof(double)));
         Assert.IsTrue(_formatter.CanHandle(typeof(float)));
-        Assert.IsTrue(_formatter.CanHandle(typeof(bool)));
-        Assert.IsTrue(_formatter.CanHandle(typeof(char)));
+        Assert.IsTrue(_formatter.CanHandle(typeof(Guid)));
+        Assert.IsTrue(_formatter.CanHandle(typeof(decimal)));
     }
 
     [TestMethod]
-    public void DoesNotHandleNonPrimitives()
+    public void DoesNotHandleNonIUtf8SpanFormattables()
     {
         Assert.IsFalse(_formatter.CanHandle(typeof(string)));
-        Assert.IsFalse(_formatter.CanHandle(typeof(Guid)));
-        Assert.IsFalse(_formatter.CanHandle(typeof(decimal)));
+        Assert.IsFalse(_formatter.CanHandle(typeof(bool)));
+        Assert.IsFalse(_formatter.CanHandle(typeof(char)));
     }
 
     [TestMethod]
@@ -39,7 +40,7 @@ public sealed class PrimitiveFormatterTests
 
     [TestMethod]
     public void ThrowsForInvalidInt() =>
-        Assert.ThrowsExactly<ArgumentException>(() => _formatter.Read(Bytes("abc"), typeof(int)));
+        Assert.ThrowsExactly<FormatException>(() => _formatter.Read(Bytes("abc"), typeof(int)));
 
     [TestMethod]
     public void ReadsLong() => Assert.AreEqual(1_000_000_000_000L, _formatter.Read(Bytes("1000000000000"), typeof(long)));
@@ -57,25 +58,20 @@ public sealed class PrimitiveFormatterTests
     public void ReadsFloat() => Assert.AreEqual(1.5f, (float)_formatter.Read(Bytes("1.5"), typeof(float))!, 1e-6f);
 
     [TestMethod]
-    public void ReadsBoolCaseInsensitive()
+    public void ReadsUInt() => Assert.AreEqual(4294967295u, _formatter.Read(Bytes("4294967295"), typeof(uint)));
+
+    [TestMethod]
+    public void ReadsULong() => Assert.AreEqual(18446744073709551615ul, _formatter.Read(Bytes("18446744073709551615"), typeof(ulong)));
+
+    [TestMethod]
+    public void ReadsDecimal() => Assert.AreEqual(3.14m, (decimal)_formatter.Read(Bytes("3.14"), typeof(decimal))!);
+
+    [TestMethod]
+    public void ReadsGuid()
     {
-        Assert.AreEqual(true, _formatter.Read(Bytes("true"), typeof(bool)));
-        Assert.AreEqual(true, _formatter.Read(Bytes("True"), typeof(bool)));
-        Assert.AreEqual(true, _formatter.Read(Bytes("TRUE"), typeof(bool)));
-        Assert.AreEqual(false, _formatter.Read(Bytes("false"), typeof(bool)));
-        Assert.AreEqual(false, _formatter.Read(Bytes("False"), typeof(bool)));
+        var guid = new Guid("d4a6b7c8-1234-5678-abcd-ef0123456789");
+        Assert.AreEqual(guid, _formatter.Read(Bytes("d4a6b7c8-1234-5678-abcd-ef0123456789"), typeof(Guid)));
     }
-
-    [TestMethod]
-    public void ThrowsForInvalidBool() =>
-        Assert.ThrowsExactly<ArgumentException>(() => _formatter.Read(Bytes("yes"), typeof(bool)));
-
-    [TestMethod]
-    public void ReadsChar() => Assert.AreEqual('A', _formatter.Read(Bytes("A"), typeof(char)));
-
-    [TestMethod]
-    public void ThrowsForMultiCharInput() =>
-        Assert.ThrowsExactly<ArgumentException>(() => _formatter.Read(Bytes("AB"), typeof(char)));
 
     [TestMethod]
     public void WritesInt() => Assert.AreEqual("42", _formatter.Write(42, typeof(int)));
@@ -84,5 +80,13 @@ public sealed class PrimitiveFormatterTests
     public void WritesDoubleInInvariantCulture() => Assert.AreEqual("3.14", _formatter.Write(3.14, typeof(double)));
 
     [TestMethod]
-    public void WritesBoolAsWord() => Assert.AreEqual("True", _formatter.Write(true, typeof(bool)));
+    public void WritesDecimalInInvariantCulture() => Assert.AreEqual("3.14", _formatter.Write(3.14m, typeof(decimal)));
+
+    [TestMethod]
+    public void WritesGuid()
+    {
+        var guid = new Guid("d4a6b7c8-1234-5678-abcd-ef0123456789");
+        Assert.AreEqual("d4a6b7c8-1234-5678-abcd-ef0123456789", _formatter.Write(guid, typeof(Guid)));
+    }
+
 }

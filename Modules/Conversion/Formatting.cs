@@ -15,11 +15,10 @@ public static class Formatting
     /// </summary>
     /// <returns>The default formatters</returns>
     public static FormatterBuilder Default() => new FormatterBuilder().Add<StringFormatter>()
-                                                                      .Add<BoolFormatter>()
                                                                       .Add<EnumFormatter>()
-                                                                      .Add<GuidFormatter>()
-                                                                      .Add<DateOnlyFormatter>()
-                                                                      .Add<PrimitiveFormatter>();
+                                                                      .Add<BoolFormatter>()
+                                                                      .Add<DateFormatter>()
+                                                                      .Add<FormattableFormatter>();
 
     /// <summary>
     /// Creates an empty formatter registry that can be extended
@@ -27,4 +26,5 @@ public static class Formatting
     /// </summary>
     /// <returns>An empty formatter registry</returns>
     public static FormatterBuilder Empty() => new();
+
 }
