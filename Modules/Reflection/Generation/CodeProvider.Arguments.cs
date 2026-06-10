@@ -157,6 +157,8 @@ public static class CodeProviderArgumentExtensions
 
     private static void AppendArgumentAssignment(this StringBuilder sb, OperationArgument argument, int index, string readFrom, bool optional)
     {
+        var type = argument.Type;
+
         var valueClaim = (optional) ? ".Value" : string.Empty;
 
         sb.AppendLine("        {");
@@ -169,7 +171,20 @@ public static class CodeProviderArgumentExtensions
 
         sb.AppendLine("               try");
         sb.AppendLine("               {");
-        sb.AppendLine($"                arg{index} = registry.Formatting.Read<{safeType}>({sourceName}{valueClaim});");
+
+        if (type == typeof(string))
+        {
+            sb.AppendLine($"                arg{index} = Encoding.UTF8.GetString({sourceName}{valueClaim}.Bytes.Span);");
+        }
+        else if (type.IsAssignableTo(typeof(IUtf8SpanFormattable)))
+        {
+            sb.AppendLine($"                arg{index} = {safeType}.Parse({sourceName}{valueClaim}.Bytes.Span);");
+        }
+        else
+        {
+            sb.AppendLine($"                arg{index} = registry.Formatting.Read<{safeType}>({sourceName}{valueClaim});");
+        }
+
         sb.AppendLine("               }");
         sb.AppendLine("               catch (Exception e)");
         sb.AppendLine("               {");

@@ -32,7 +32,7 @@ public static class Invoker
             {
                try
                {
-                arg1 = registry.Formatting.Read<int>(queryArg1.Value);
+                arg1 = int.Parse(queryArg1.Value.Bytes.Span);
                }
                catch (Exception e)
                {
@@ -50,7 +50,7 @@ public static class Invoker
             {
                try
                {
-                arg2 = registry.Formatting.Read<int>(queryArg2.Value);
+                arg2 = int.Parse(queryArg2.Value.Bytes.Span);
                }
                catch (Exception e)
                {

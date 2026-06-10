@@ -1,10 +1,7 @@
 ﻿using System.Globalization;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.IO.Formattable;
 
 namespace GenHTTP.Modules.Conversion.Formatters;
 
@@ -53,84 +50,12 @@ public sealed class FormattableFormatter : IFormatter
     }
 
     public T Read<T>(ByteString value)
-    {
-        var span = value.Bytes.Span;
-
-        if (typeof(T) == typeof(int))
-        {
-            var v = int.Parse(span, CultureInfo.InvariantCulture);
-            return Unsafe.As<int, T>(ref v);
-        }
-
-        if (typeof(T) == typeof(long))
-        {
-            var v = long.Parse(span, CultureInfo.InvariantCulture);
-            return Unsafe.As<long, T>(ref v);
-        }
-
-        if (typeof(T) == typeof(short))
-        {
-            var v = short.Parse(span, CultureInfo.InvariantCulture);
-            return Unsafe.As<short, T>(ref v);
-        }
-
-        if (typeof(T) == typeof(byte))
-        {
-            var v = byte.Parse(span, CultureInfo.InvariantCulture);
-            return Unsafe.As<byte, T>(ref v);
-        }
-
-        if (typeof(T) == typeof(uint))
-        {
-            var v = uint.Parse(span, CultureInfo.InvariantCulture);
-            return Unsafe.As<uint, T>(ref v);
-        }
-
-        if (typeof(T) == typeof(ulong))
-        {
-            var v = ulong.Parse(span, CultureInfo.InvariantCulture);
-            return Unsafe.As<ulong, T>(ref v);
-        }
-
-        if (typeof(T) == typeof(float))
-        {
-            var v = float.Parse(span, CultureInfo.InvariantCulture);
-            return Unsafe.As<float, T>(ref v);
-        }
-
-        if (typeof(T) == typeof(double))
-        {
-            var v = double.Parse(span, CultureInfo.InvariantCulture);
-            return Unsafe.As<double, T>(ref v);
-        }
-
-        if (typeof(T) == typeof(decimal))
-        {
-            var v = decimal.Parse(span, CultureInfo.InvariantCulture);
-            return Unsafe.As<decimal, T>(ref v);
-        }
-
-        if (typeof(T) == typeof(Guid))
-        {
-            var v = Guid.Parse(span);
-            return Unsafe.As<Guid, T>(ref v);
-        }
-
-        Throw(typeof(T), span);
-        return default!;
-    }
+        => throw new NotSupportedException("Formattables are explicitly supported by code generation");
 
     public string? Write(object value, Type type) => Convert.ToString(value, CultureInfo.InvariantCulture);
 
     public IResponseContent GetContent<T>(T value)
-    {
-        if (value is IUtf8SpanFormattable formattable)
-        {
-            return new FormattableContent(formattable);
-        }
-
-        throw new ArgumentException();
-    }
+        => throw new NotSupportedException("Formattables are explicitly supported by code generation");
 
     private static void Throw(Type type, ReadOnlySpan<byte> span) => throw new ArgumentException($"Invalid value '{Encoding.ASCII.GetString(span)}' for primitive type {type.Name}");
 

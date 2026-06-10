@@ -15,8 +15,9 @@ public static class Formatting
     /// </summary>
     /// <returns>The default formatters</returns>
     public static FormatterBuilder Default() => new FormatterBuilder().Add<StringFormatter>()
+                                                                      .Add<FormattableFormatter>()
                                                                       .Add<BoolFormatter>()
-                                                                      .Add<FormattableFormatter>();
+                                                                      .Add<DateFormatter>();
 
     /// <summary>
     /// Creates an empty formatter registry that can be extended
