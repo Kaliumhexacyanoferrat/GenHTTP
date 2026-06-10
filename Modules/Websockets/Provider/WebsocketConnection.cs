@@ -13,6 +13,7 @@ namespace GenHTTP.Modules.Websockets.Provider;
 
 public class WebsocketConnection : IReactiveConnection, IImperativeConnection, IAsyncDisposable
 {
+    private readonly IBufferWriter<byte> _writer;
     private readonly Stream _stream;
     private readonly PipeReader _pipeReader;
 
@@ -36,19 +37,20 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
     #region Initialization
 
-    public WebsocketConnection(IRequest request, Stream stream, ConnectionSettings settings)
+    public WebsocketConnection(IRequest request, IResponseSink sink, ConnectionSettings settings)
     {
         Request = request;
         Settings = settings;
 
-        _stream = stream;
+        _writer = sink.Writer;
+        _stream = sink.Stream;
 
-        _pipeReader = PipeReader.Create(stream,
+        _pipeReader = PipeReader.Create(_stream,
             new StreamPipeReaderOptions(
                 MemoryPool<byte>.Shared,
                 leaveOpen: true,
                 bufferSize: settings.RxBufferSize,
-                minimumReadSize: Math.Min( settings.RxBufferSize / 4 , 1024 )));
+                minimumReadSize: Math.Min(settings.RxBufferSize / 4, 1024)));
     }
 
     #endregion
@@ -57,31 +59,19 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
     public async ValueTask WriteAsync(ReadOnlyMemory<byte> payload, FrameType opcode = FrameType.Text, bool fin = true, CancellationToken token = default)
     {
-        using var frameOwner = Frame.Encode(payload, opcode: (byte)opcode, fin);
-        var frameMemory = frameOwner.Memory;
-
-        // Send the frame to the WebSocket client
-        await _stream.WriteAsync(frameMemory, token);
+        Frame.Write(_writer, payload, opcode: (byte)opcode, fin);
         await _stream.FlushAsync(token);
     }
 
     public async ValueTask PingAsync(CancellationToken token = default)
     {
-        using var frameOwner = Frame.EncodePing();
-        var frameMemory = frameOwner.Memory;
-
-        // Send the frame to the WebSocket client
-        await _stream.WriteAsync(frameMemory, token);
+        Frame.WritePing(_writer);
         await _stream.FlushAsync(token);
     }
 
     public async ValueTask PongAsync(ReadOnlyMemory<byte> payload, CancellationToken token = default)
     {
-        using var frameOwner = Frame.EncodePong(payload);
-        var frameMemory = frameOwner.Memory;
-
-        // Send the frame to the WebSocket client
-        await _stream.WriteAsync(frameMemory, token);
+        Frame.WritePong(_writer, payload);
         await _stream.FlushAsync(token);
     }
 
@@ -97,11 +87,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
     public async ValueTask CloseAsync(string? reason = null, ushort statusCode = 1000, CancellationToken token = default)
     {
-        using var frameOwner = Frame.EncodeClose(reason, statusCode);
-        var frameMemory = frameOwner.Memory;
-
-        // Send the frame to the WebSocket client
-        await _stream.WriteAsync(frameMemory, token);
+        Frame.WriteClose(_writer, reason, statusCode);
         await _stream.FlushAsync(token);
     }
 

@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Buffers.Binary;
 using System.Text;
 using GenHTTP.Modules.Websockets.Protocol;
@@ -49,22 +50,9 @@ public sealed class Frame_Encode_Tests
 
     private static byte[] EncodeToArray(ReadOnlyMemory<byte> payload, byte opcode = 0x01, bool fin = true)
     {
-        using var owner = Frame.Encode(payload, opcode, fin);
-
-        var expectedLength = GetExpectedFrameLength(payload.Length);
-        return owner.Memory[..expectedLength].ToArray();
-    }
-
-    private static int GetExpectedFrameLength(int payloadLength)
-    {
-        const int maxSmallPayloadLength = 125;
-
-        return payloadLength switch
-        {
-            <= maxSmallPayloadLength => 2 + payloadLength, // 1-byte length
-            <= ushort.MaxValue => 4 + payloadLength, // 2-byte length
-            _ => 10 + payloadLength // 8-byte length
-        };
+        var writer = new ArrayBufferWriter<byte>();
+        Frame.Write(writer, payload, opcode, fin);
+        return writer.WrittenSpan.ToArray();
     }
 
     [TestMethod]
@@ -181,9 +169,9 @@ public sealed class Frame_Encode_Tests
     [TestMethod]
     public void Encode_ControlFrame_WithFinFalse_Throws()
     {
-        var payload = ReadOnlyMemory<byte>.Empty;
+        var writer = new ArrayBufferWriter<byte>();
 
-        var ex = Assert.Throws<ArgumentException>(() => Frame.Encode(payload, opcode: 0x08, fin: false));
+        var ex = Assert.Throws<ArgumentException>(() => Frame.Write(writer, ReadOnlyMemory<byte>.Empty, opcode: 0x08, fin: false));
 
         Assert.AreEqual("fin", ex.ParamName);
         Assert.Contains("Control frames", ex.Message);
@@ -192,9 +180,9 @@ public sealed class Frame_Encode_Tests
     [TestMethod]
     public void Encode_InvalidOpcodeBelowControlRange_Throws()
     {
-        var payload = ReadOnlyMemory<byte>.Empty;
+        var writer = new ArrayBufferWriter<byte>();
 
-        var ex = Assert.Throws<ArgumentException>(() => Frame.Encode(payload, opcode: 0x03, fin: true));
+        var ex = Assert.Throws<ArgumentException>(() => Frame.Write(writer, ReadOnlyMemory<byte>.Empty, opcode: 0x03, fin: true));
 
         Assert.AreEqual("opcode", ex.ParamName);
         Assert.Contains("Invalid opcode", ex.Message);

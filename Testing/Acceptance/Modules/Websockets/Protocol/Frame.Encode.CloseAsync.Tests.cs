@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Buffers.Binary;
 using System.Text;
 using GenHTTP.Modules.Websockets.Protocol;
@@ -25,14 +26,9 @@ public sealed class Frame_Encode_CloseAsync_Tests
 
     private static byte[] EncodeCloseToArray(string? reason, ushort statusCode)
     {
-        // Call your EncodeClose method and trim to the actual frame length
-        using var owner = Frame.EncodeClose(reason, statusCode);
-
-        var payloadLength = 2 + (reason is null ? 0 : Encoding.UTF8.GetByteCount(reason));
-        // For close frames we always stay <= 125, so header is always 2 bytes
-        var frameLength = 2 + payloadLength;
-
-        return owner.Memory[..frameLength].ToArray();
+        var writer = new ArrayBufferWriter<byte>();
+        Frame.WriteClose(writer, reason, statusCode);
+        return writer.WrittenSpan.ToArray();
     }
 
     [TestMethod]
@@ -83,10 +79,11 @@ public sealed class Frame_Encode_CloseAsync_Tests
     public void EncodeClose_TooLongReason_ThrowsArgumentException()
     {
         var tooLongReason = new string('a', 200);
+        var writer = new ArrayBufferWriter<byte>();
 
         Assert.Throws<ArgumentException>(() =>
         {
-            Frame.EncodeClose(tooLongReason, 1000);
+            Frame.WriteClose(writer, tooLongReason, 1000);
         });
     }
 
