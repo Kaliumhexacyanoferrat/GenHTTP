@@ -176,7 +176,7 @@ public static class CodeProviderArgumentExtensions
         {
             sb.AppendLine($"                arg{index} = Encoding.UTF8.GetString({sourceName}{valueClaim}.Bytes.Span);");
         }
-        else if (type.IsAssignableTo(typeof(IUtf8SpanFormattable)))
+        else if (IsUtf8Parsable(type))
         {
             sb.AppendLine($"                arg{index} = {safeType}.Parse({sourceName}{valueClaim}.Bytes.Span);");
         }
@@ -192,6 +192,19 @@ public static class CodeProviderArgumentExtensions
         sb.AppendLine("               }");
         sb.AppendLine("            }");
         sb.AppendLine("        }");
+    }
+
+    private static bool IsUtf8Parsable(Type type)
+    {
+        if (type.IsEnum)
+        {
+            return true;
+        }
+
+        return type.GetInterfaces()
+                   .Any(i => i.IsGenericType &&
+                            i.GetGenericTypeDefinition() == typeof(IUtf8SpanParsable<>) &&
+                            i.GenericTypeArguments[0] == type);
     }
 
     private static void AppendDeclaration(this StringBuilder sb, OperationArgument argument, int index)
