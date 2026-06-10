@@ -51,9 +51,39 @@ public sealed class BoolFormatterTests
     }
 
     [TestMethod]
+    public void ReadGenericTruthyValues()
+    {
+        Assert.AreEqual(true, _formatter.Read<bool>(Bytes("1")));
+        Assert.AreEqual(true, _formatter.Read<bool>(Bytes("on")));
+        Assert.AreEqual(true, _formatter.Read<bool>(Bytes("true")));
+    }
+
+    [TestMethod]
+    public void ReadGenericFalsyValues()
+    {
+        Assert.AreEqual(false, _formatter.Read<bool>(Bytes("0")));
+        Assert.AreEqual(false, _formatter.Read<bool>(Bytes("off")));
+        Assert.AreEqual(false, _formatter.Read<bool>(Bytes("false")));
+    }
+
+    [TestMethod]
+    public void ReadGenericThrowsForUnrecognizedInput() =>
+        Assert.ThrowsExactly<ArgumentException>(() => _formatter.Read<bool>(Bytes("yes")));
+
+    [TestMethod]
     public void WritesTrueAsOne() => Assert.AreEqual("1", _formatter.Write(true, typeof(bool)));
 
     [TestMethod]
     public void WritesFalseAsZero() => Assert.AreEqual("0", _formatter.Write(false, typeof(bool)));
-    
+
+    [TestMethod]
+    public void GetContentReturnsTrueContent() => Assert.IsNotNull(_formatter.GetContent(true));
+
+    [TestMethod]
+    public void GetContentReturnsFalseContent() => Assert.IsNotNull(_formatter.GetContent(false));
+
+    [TestMethod]
+    public void GetContentThrowsForNonBool() =>
+        Assert.ThrowsExactly<NotSupportedException>(() => _formatter.GetContent(42));
+
 }
