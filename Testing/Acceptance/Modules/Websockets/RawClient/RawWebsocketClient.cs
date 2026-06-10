@@ -339,4 +339,5 @@ public sealed class RawWebSocketClient : IAsyncDisposable
         _socket.Dispose();
         return ValueTask.CompletedTask;
     }
+    
 }

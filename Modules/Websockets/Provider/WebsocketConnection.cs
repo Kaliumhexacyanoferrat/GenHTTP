@@ -13,6 +13,7 @@ namespace GenHTTP.Modules.Websockets.Provider;
 
 public class WebsocketConnection : IReactiveConnection, IImperativeConnection, IAsyncDisposable
 {
+    private readonly IBufferWriter<byte> _writer;
     private readonly Stream _stream;
     private readonly PipeReader _pipeReader;
 
@@ -23,6 +24,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
     private bool _skipFrameInit;
     private bool _keepPipeReaderBufferValid;
+    private bool _pendingAdvance;
 
     private WebsocketFrame _frame = null!;
 
@@ -36,74 +38,61 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
     #region Initialization
 
-    public WebsocketConnection(IRequest request, Stream stream, ConnectionSettings settings)
+    public WebsocketConnection(IRequest request, IResponseSink sink, ConnectionSettings settings)
     {
         Request = request;
         Settings = settings;
 
-        _stream = stream;
+        _writer = sink.Writer;
+        _stream = sink.Stream;
 
-        _pipeReader = PipeReader.Create(stream,
+        _pipeReader = PipeReader.Create(_stream,
             new StreamPipeReaderOptions(
                 MemoryPool<byte>.Shared,
                 leaveOpen: true,
                 bufferSize: settings.RxBufferSize,
-                minimumReadSize: Math.Min( settings.RxBufferSize / 4 , 1024 )));
+                minimumReadSize: Math.Min(settings.RxBufferSize / 4, 1024)));
     }
 
     #endregion
 
     #region Functionality
 
-    public async ValueTask WriteAsync(ReadOnlyMemory<byte> payload, FrameType opcode = FrameType.Text, bool fin = true, CancellationToken token = default)
+    public async ValueTask WriteAsync(ReadOnlyMemory<byte> payload, FrameType opcode = FrameType.Text, bool fin = true, bool flush = true, CancellationToken token = default)
     {
-        using var frameOwner = Frame.Encode(payload, opcode: (byte)opcode, fin);
-        var frameMemory = frameOwner.Memory;
-
-        // Send the frame to the WebSocket client
-        await _stream.WriteAsync(frameMemory, token);
-        await _stream.FlushAsync(token);
+        Frame.Write(_writer, payload, opcode: (byte)opcode, fin);
+        if (flush) await _stream.FlushAsync(token);
     }
 
-    public async ValueTask PingAsync(CancellationToken token = default)
+    public async ValueTask PingAsync(bool flush = true, CancellationToken token = default)
     {
-        using var frameOwner = Frame.EncodePing();
-        var frameMemory = frameOwner.Memory;
-
-        // Send the frame to the WebSocket client
-        await _stream.WriteAsync(frameMemory, token);
-        await _stream.FlushAsync(token);
+        Frame.WritePing(_writer);
+        if (flush) await _stream.FlushAsync(token);
     }
 
-    public async ValueTask PongAsync(ReadOnlyMemory<byte> payload, CancellationToken token = default)
+    public async ValueTask PongAsync(ReadOnlyMemory<byte> payload, bool flush = true, CancellationToken token = default)
     {
-        using var frameOwner = Frame.EncodePong(payload);
-        var frameMemory = frameOwner.Memory;
-
-        // Send the frame to the WebSocket client
-        await _stream.WriteAsync(frameMemory, token);
-        await _stream.FlushAsync(token);
+        Frame.WritePong(_writer, payload);
+        if (flush) await _stream.FlushAsync(token);
     }
 
-    public async ValueTask PongAsync(string payload, CancellationToken token = default)
+    public async ValueTask PongAsync(string payload, bool flush = true, CancellationToken token = default)
     {
-        await PongAsync(Encoding.UTF8.GetBytes(payload), token);
+        await PongAsync(Encoding.UTF8.GetBytes(payload), flush, token);
     }
 
-    public async ValueTask PongAsync(CancellationToken token = default)
+    public async ValueTask PongAsync(bool flush = true, CancellationToken token = default)
     {
-        await PongAsync(ReadOnlyMemory<byte>.Empty, token);
+        await PongAsync(ReadOnlyMemory<byte>.Empty, flush, token);
     }
 
-    public async ValueTask CloseAsync(string? reason = null, ushort statusCode = 1000, CancellationToken token = default)
+    public async ValueTask CloseAsync(string? reason = null, ushort statusCode = 1000, bool flush = true, CancellationToken token = default)
     {
-        using var frameOwner = Frame.EncodeClose(reason, statusCode);
-        var frameMemory = frameOwner.Memory;
-
-        // Send the frame to the WebSocket client
-        await _stream.WriteAsync(frameMemory, token);
-        await _stream.FlushAsync(token);
+        Frame.WriteClose(_writer, reason, statusCode);
+        if (flush) await _stream.FlushAsync(token);
     }
+
+    public ValueTask FlushAsync(CancellationToken token = default) => new(_stream.FlushAsync(token));
 
     public async ValueTask<IWebsocketFrame> ReadFrameAsync(CancellationToken token = default)
     {
@@ -115,6 +104,54 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
         }
 
         return await ReadSegmentedFrameAsync(token);
+    }
+
+    public bool TryReadFrame(out IWebsocketFrame frame)
+    {
+        Advance();
+
+        if (!_pipeReader.TryRead(out var result))
+        {
+            frame = default!;
+            return false;
+        }
+
+        // Reached when the stream closed after a prior ReadAsync already saw EOF.
+        // Returning true with a Close frame lets the caller's drain loop terminate
+        // naturally without needing a further ReadFrameAsync call.
+        if (result.Buffer.Length == 0 && result.IsCompleted)
+        {
+            var end = result.Buffer.End;
+            _pipeReader.AdvanceTo(end, end);
+            _consumed = end;
+            _examined = end;
+            frame = new WebsocketFrame(this, FrameType.Close);
+            return true;
+        }
+
+        _currentSequence = result.Buffer;
+
+        var decoded = Frame.Decode(this, ref _currentSequence, Settings.RxBufferSize, out var consumed, out var examined);
+        _consumed = consumed;
+        _examined = examined;
+
+        if (decoded.IsError(out var error) && error.ErrorType == FrameErrorType.Incomplete)
+        {
+            // Not a complete frame yet; keep all data and mark all as examined so
+            // the next ReadAsync waits for new data rather than returning immediately.
+            _pipeReader.AdvanceTo(result.Buffer.Start, result.Buffer.End);
+            frame = default!;
+            return false;
+        }
+
+        if (Settings.AllocateFrameData)
+        {
+            decoded.SetCachedData();
+        }
+
+        _pendingAdvance = true;
+        frame = decoded;
+        return true;
     }
 
     private async ValueTask<WebsocketFrame> ReadSegmentedFrameAsync(CancellationToken token = default)
@@ -211,7 +248,10 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
             if (result.Buffer.Length == 0 && result.IsCompleted) // Clean EOF: no more data, reader completed
             {
-                _pipeReader.AdvanceTo(result.Buffer.End, result.Buffer.End);
+                var end = result.Buffer.End;
+                _pipeReader.AdvanceTo(end, end);
+                _consumed = end;
+                _examined = end;
                 return new WebsocketFrame(this, FrameType.Close);
             }
 
@@ -232,7 +272,10 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                     // The partial data of the request is therefore discarded
 
                     // Dev note: Should we eventually still give the user the partial data received?
-                    _pipeReader.AdvanceTo(_currentSequence.End, _currentSequence.End);
+                    var end = _currentSequence.End;
+                    _pipeReader.AdvanceTo(end, end);
+                    _consumed = end;
+                    _examined = end;
 
                     return new WebsocketFrame(this, frameError: new FrameError(FrameError.UnexpectedEndOfStream, FrameErrorType.IncompleteForever));
                 }
@@ -245,6 +288,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
             }
 
             // Any other frame (including other errors)
+            _pendingAdvance = true;
             return frame;
         }
 
@@ -263,6 +307,10 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
     private void Advance()
     {
+        if (!_pendingAdvance) return;
+
+        _pendingAdvance = false;
+
         if (_keepPipeReaderBufferValid)
         {
             Examine();

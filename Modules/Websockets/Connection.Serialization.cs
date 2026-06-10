@@ -29,7 +29,7 @@ public static class ConnectionSerializationExtensions
         {
             var data = connection.Settings.Formatters.Write(payload, typeof(T)) ?? string.Empty;
 
-            return connection.WriteAsync(Encoding.UTF8.GetBytes(data), opcode, true, token);
+            return connection.WriteAsync(Encoding.UTF8.GetBytes(data), opcode, token: token);
         }
 
         return connection.WriteAsync(connection.Settings.SerializationFormat, opcode, payload, token);
@@ -39,7 +39,7 @@ public static class ConnectionSerializationExtensions
     {
         var buffer = await format.SerializeAsync(payload);
 
-        await connection.WriteAsync(buffer, opcode, true, token);
+        await connection.WriteAsync(buffer, opcode, token: token);
     }
 
 }

@@ -1,6 +1,4 @@
 ﻿using System.Net;
-using System.Text;
-
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 

@@ -15,4 +15,16 @@ public interface IImperativeConnection : ISocketConnection
     /// <returns>The next websocket frame to be handled</returns>
     ValueTask<IWebsocketFrame> ReadFrameAsync(CancellationToken token = default);
 
+    /// <summary>
+    /// Attempts to decode the next complete websocket frame from already-buffered pipe data
+    /// without performing an asynchronous read. Use this to drain multiple frames that
+    /// arrived in a single TCP segment before falling back to <see cref="ReadFrameAsync"/>.
+    /// </summary>
+    /// <remarks>
+    /// Returns individual RFC 6455 frame segments; continuation-frame assembly is not performed.
+    /// </remarks>
+    /// <param name="frame">The decoded frame when the method returns true.</param>
+    /// <returns>true if a complete frame was available; false if more data is needed.</returns>
+    bool TryReadFrame(out IWebsocketFrame frame);
+
 }

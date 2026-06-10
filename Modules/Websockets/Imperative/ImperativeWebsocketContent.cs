@@ -15,15 +15,13 @@ public sealed class ImperativeWebsocketContent(IImperativeHandler handler, IRequ
 
     public ValueTask<ulong?> CalculateChecksumAsync() => ValueTask.FromResult<ulong?>(null);
 
-    public async ValueTask WriteAsync(Stream target, uint bufferSize)
+    public async ValueTask WriteAsync(IResponseSink sink)
     {
-        await target.FlushAsync();
+        await sink.Stream.FlushAsync();
 
-        await using var connection = new WebsocketConnection(request, target, settings);
+        await using var connection = new WebsocketConnection(request, sink, settings);
 
         await handler.HandleAsync(connection);
     }
-
-    public ValueTask WriteAsync(IResponseSink sink) => WriteAsync(sink.Stream, 0); // todo: make use of the writer
 
 }
