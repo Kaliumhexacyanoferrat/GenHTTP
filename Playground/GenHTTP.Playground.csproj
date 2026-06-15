@@ -14,8 +14,9 @@
 
         <ProjectReference Include="..\API\GenHTTP.Api.csproj"/>
 
-        <ProjectReference Include="..\Engine\Internal\GenHTTP.Engine.Internal.csproj"/>
+        <!--<ProjectReference Include="..\Engine\Internal\GenHTTP.Engine.Internal.csproj"/>-->
         <!--<ProjectReference Include="..\Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj"/>-->
+        <ProjectReference Include="..\Engine\Ioxide\GenHTTP.Engine.Ioxide.csproj"/>
 
         <ProjectReference Include="..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj"/>
         <ProjectReference Include="..\Modules\IO\GenHTTP.Modules.IO.csproj"/>

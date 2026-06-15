@@ -14,6 +14,7 @@
     <Folder Name="/Engine/">
         <Project Path="Engine\Internal\GenHTTP.Engine.Internal.csproj" />
         <!--<Project Path="Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj" />-->
+        <Project Path="Engine\Ioxide\GenHTTP.Engine.Ioxide.csproj" />
         <Project Path="Engine\Shared\GenHTTP.Engine.Shared.csproj" />
     </Folder>
     <Folder Name="/Modules/">

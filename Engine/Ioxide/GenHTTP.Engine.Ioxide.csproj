@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
+    <ProjectReference Include="..\Shared\GenHTTP.Engine.Shared.csproj" />
+    <PackageReference Include="ioxide" Version="0.0.5" />
+    <PackageReference Include="Glyph11" Version="0.3.3" />
+  </ItemGroup>
+
+</Project>
