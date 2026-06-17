@@ -32,8 +32,12 @@ public sealed class CrudService
 
     private const string UpdateSql = "UPDATE items SET name = $2, category = $3, price = $4, quantity = $5 WHERE id = $1";
 
+    // Crud list envelope: total == count == rows on this page (load-more semantics, no count(*)),
+    // with the requested page echoed back. Field order matches the reference: items, total, page, count.
+    public sealed record ListResponse(Db.DbItem[] Items, int Total, int Page, int Count);
+
     [ResourceMethod("items")]
-    public async ValueTask<Db.DbResponse> ListItems(string? category = null, int page = 1, int limit = 10)
+    public async ValueTask<ListResponse> ListItems(string? category = null, int page = 1, int limit = 10)
     {
         if (page < 1)
         {
@@ -49,7 +53,7 @@ public sealed class CrudService
         PgParam[] args = [PgParam.Text(category ?? ""), PgParam.Int(limit), PgParam.Int((long)(page - 1) * limit)];
         await Db.Pool.QueryAsync(SelectList, args, row => items.Add(Db.MapRow(row)));
 
-        return new Db.DbResponse(items.ToArray(), items.Count);
+        return new ListResponse(items.ToArray(), items.Count, page, items.Count);
     }
 
     [ResourceMethod("items/:id")]
