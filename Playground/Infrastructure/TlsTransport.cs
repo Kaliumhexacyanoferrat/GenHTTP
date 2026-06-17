@@ -6,7 +6,7 @@ using GenHTTP.Engine.Ioxide;
 using ioxide;
 using ioxide.tls;
 
-namespace genhttp;
+namespace genhttp.Infrastructure;
 
 /// <summary>
 /// TLS termination for the json-tls profile: a second listener on :8081 with kTLS TX offload.

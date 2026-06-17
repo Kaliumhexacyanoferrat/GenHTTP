@@ -4,8 +4,10 @@ using GenHTTP.Modules.Compression.Algorithms;
 using GenHTTP.Modules.Files;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Layouting.Provider;
 using GenHTTP.Modules.Webservices;
 
+using genhttp.Infrastructure;
 using genhttp.Tests;
 
 namespace genhttp;
@@ -18,31 +20,44 @@ public static class Project
     //   pipelined               -> /pipeline     (fixed "ok")
     //   json / json-comp        -> /json/{count}?m=N   (json-comp = json + Accept-Encoding: br)
     //   upload                  -> /upload       (streamed request-body byte count)
+    //   async-db                -> /async-db     (Postgres range query, when DATABASE_URL is set)
+    //   crud                    -> /crud/items   (list/read/create/update, when DATABASE_URL is set)
     //   static                  -> /static/...   (files from IOXIDE_STATIC, when the dir exists)
     public static IHandlerBuilder Create()
     {
-        var layout = Layout.Create()
-                           .Add("pipeline", Content.From(Resource.FromString("ok")))
-                           .AddService<Baseline>("baseline11")
-                           .AddService<Baseline>("baseline2")
-                           .AddService<JsonService>("json")
-                           .AddService<UploadService>("upload");
+        var app = Layout.Create()
+                        .Add("pipeline", Content.From(Resource.FromString("ok")))
+                        .AddService<Baseline>("baseline11")
+                        .AddService<Baseline>("baseline2")
+                        .AddService<Upload>("upload")
+                        .AddService<Json>("json");
 
         // async-db and crud require a configured Postgres (DATABASE_URL).
-        if (Db.Enabled)
+        if (Postgres.Enabled)
         {
-            layout = layout.AddService<AsyncDbService>("async-db")
-                           .AddService<CrudService>("crud");
+            var crud = Layout.Create()
+                             .AddService<Crud>("items");
+
+            app = app.AddService<AsyncDatabase>("async-db")
+                     .Add("crud", crud);
         }
 
+        return app.AddStaticFiles();
+    }
+
+    private static LayoutBuilder AddStaticFiles(this LayoutBuilder app)
+    {
         var staticDir = Environment.GetEnvironmentVariable("IOXIDE_STATIC") ?? "/data/static";
 
         if (Directory.Exists(staticDir))
         {
-            layout = layout.Add("static", Assets.From(ResourceTree.FromDirectory(staticDir)).AllowPrecompressed(new BrotliAlgorithm()));
+            var handler = Assets.From(ResourceTree.FromDirectory(staticDir))
+                                .AllowPrecompressed(new BrotliAlgorithm());
+
+            app.Add("static", handler);
         }
 
-        return layout;
+        return app;
     }
 
 }
