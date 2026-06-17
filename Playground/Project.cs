@@ -1,5 +1,6 @@
 using GenHTTP.Api.Content;
 
+using GenHTTP.Modules.Compression.Algorithms;
 using GenHTTP.Modules.Files;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
@@ -38,7 +39,7 @@ public static class Project
 
         if (Directory.Exists(staticDir))
         {
-            layout = layout.Add("static", Assets.From(ResourceTree.FromDirectory(staticDir)));
+            layout = layout.Add("static", Assets.From(ResourceTree.FromDirectory(staticDir)).AllowPrecompressed(new BrotliAlgorithm()));
         }
 
         return layout;
