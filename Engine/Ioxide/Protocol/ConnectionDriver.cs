@@ -8,6 +8,7 @@ using GenHTTP.Engine.Shared.Types;
 
 using Glyph11.Parser;
 using Glyph11.Parser.UltraHardened;
+using Glyph11.Pico;
 using Glyph11.Protocol;
 
 using Connection = GenHTTP.Api.Protocol.Connection;
@@ -23,6 +24,15 @@ namespace GenHTTP.Engine.Ioxide.Protocol;
 internal static class ConnectionDriver
 {
     private static readonly ParserLimits Limits = ParserLimits.Default;
+
+    // Benchmark switch: set GENHTTP_IOXIDE_PARSER=pico to parse request headers with
+    // Glyph11.Pico (picohttpparser, native) instead of the hardened managed Glyph11 parser.
+    // Both fill the same BinaryRequest, so the rest of the pipeline is identical — only the
+    // header-parsing implementation differs. NOTE: the Pico path does picohttpparser-level
+    // validation only (no path/token/smuggling hardening); it's for benchmarking, not for
+    // hardening untrusted traffic.
+    private static readonly bool UsePico =
+        string.Equals(Environment.GetEnvironmentVariable("GENHTTP_IOXIDE_PARSER"), "pico", StringComparison.OrdinalIgnoreCase);
 
     private static readonly ReadOnlyMemory<byte> KeepAliveValue = "Keep-Alive"u8.ToArray();
 
@@ -45,6 +55,12 @@ internal static class ConnectionDriver
         var request = RentRequest();
         var into = request.Source;
 
+        // Diagnostic: the [ThreadStatic] Request pool and lock-free pooling assume every continuation
+        // in this method resumes on the reactor thread that entered it. Capture that thread now — before
+        // the first await — so we can warn (once) if ioxide ever resumes us on a different thread
+        // (e.g. under a work-stealing scheduler), which silently degrades the pool.
+        var reactorThreadId = Environment.CurrentManagedThreadId;
+
         try
         {
             var dataRemaining = false;
@@ -55,6 +71,7 @@ internal static class ConnectionDriver
                 if (!dataRemaining)
                 {
                     readResult = await reader.ReadAsync();
+                    WarnIfThreadHopped(reactorThreadId, "after-read");
                 }
 
                 dataRemaining = false;
@@ -74,6 +91,7 @@ internal static class ConnectionDriver
                 request.Apply(server, endPoint, reader, buffer.Start);
 
                 var keepAlive = await HandleRequestAsync(server, writer, request);
+                WarnIfThreadHopped(reactorThreadId, "after-handle");
 
                 if (!keepAlive)
                 {
@@ -107,12 +125,17 @@ internal static class ConnectionDriver
         finally
         {
             await reader.CompleteAsync();
+            WarnIfThreadHopped(reactorThreadId, "before-return");
             conn.DecRef();
             ReturnRequest(request);
         }
     }
 
     private static bool TryParseRequest(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
+        => UsePico ? TryParseRequestPico(ref buffer, into) : TryParseRequestGlyph11(ref buffer, into);
+
+    // Hardened managed parser (default): full RFC + smuggling validation.
+    private static bool TryParseRequestGlyph11(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
     {
         if (!UltraHardenedParser.TryExtractFullHeaderValidated(ref buffer, into, Limits, out var bytesRead))
         {
@@ -120,6 +143,19 @@ internal static class ConnectionDriver
         }
 
         buffer = buffer.Slice(bytesRead + 1);
+        return true;
+    }
+
+    // picohttpparser (native) — single-segment is parsed in place, multi-segment is linearized.
+    // `consumed` follows the same -1 convention as the managed parser, so the slice is identical.
+    private static bool TryParseRequestPico(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
+    {
+        if (!PicoParser.TryParse(buffer, into, out var consumed))
+        {
+            return false;
+        }
+
+        buffer = buffer.Slice(consumed + 1);
         return true;
     }
 
@@ -154,6 +190,28 @@ internal static class ConnectionDriver
         if (pool.Count < MaxPooledRequests)
         {
             pool.Push(request);
+        }
+    }
+
+    // Set to 1 the first time a continuation is seen resuming off the reactor thread.
+    private static int _hopWarned;
+
+    // Warns at most once per process if this phase's continuation resumed on a different thread than the
+    // reactor thread that entered HandleAsync. On the fast (affine) path it's a single int compare, so it's
+    // safe to leave enabled during benchmarks — the one-shot guard keeps it from perturbing throughput.
+    private static void WarnIfThreadHopped(int reactorThreadId, string phase)
+    {
+        var now = Environment.CurrentManagedThreadId;
+
+        if (now == reactorThreadId || _hopWarned != 0)
+        {
+            return;
+        }
+
+        if (Interlocked.Exchange(ref _hopWarned, 1) == 0)
+        {
+            Console.WriteLine($"[Ioxide] thread hop detected: reactor={reactorThreadId} now={now} phase={phase}. " +
+                              "The [ThreadStatic] Request pool assumes reactor affinity; pooling degrades under work-stealing. (warns once)");
         }
     }
 }

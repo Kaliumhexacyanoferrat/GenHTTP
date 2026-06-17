@@ -7,8 +7,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
     <ProjectReference Include="..\Shared\GenHTTP.Engine.Shared.csproj" />
-    <PackageReference Include="ioxide" Version="0.0.6" />
-    <PackageReference Include="Glyph11" Version="0.3.3" />
+    <PackageReference Include="ioxide" Version="0.0.7" />
+    <PackageReference Include="Glyph11" Version="0.3.5" />
+    <!-- Parallel parse path for benchmarking — GENHTTP_IOXIDE_PARSER=pico (see ConnectionDriver). -->
+    <PackageReference Include="Glyph11.Pico" Version="0.0.1" />
   </ItemGroup>
 
 </Project>

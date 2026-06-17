@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <TargetFrameworks>net10.0</TargetFrameworks>
+        <TargetFrameworks>net11.0</TargetFrameworks>
 
         <LangVersion>14.0</LangVersion>
         <Nullable>enable</Nullable>
@@ -28,7 +28,7 @@
         <Deterministic>true</Deterministic>
 
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>CS1591,CS1587,CS1572,CS1573</NoWarn>
+        <NoWarn>CS1591,CS1587,CS1572,CS1573,NU1510</NoWarn>
 
     </PropertyGroup>
 
