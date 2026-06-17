@@ -45,9 +45,12 @@ internal static class ConnectionDriver
 
     private const int MaxPooledRequests = 1024;
 
-    internal static async Task HandleAsync(IServer server, IEndPoint endPoint, IoConnection conn)
+    internal static async Task HandleAsync(IServer server, IEndPoint endPoint, IoConnection conn, Func<IoConnection, ValueTask<IDuplexPipe>>? connectionFactory)
     {
-        var pipe = new ioxide.ConnectionDualPipe(conn);
+        // Default transport is a plain duplex pipe over the connection. A connectionFactory (e.g. the
+        // TLS-terminating one supplied by the host for the :8081 listener) can swap in a transport that
+        // decrypts inbound bytes and writes plaintext for kTLS TX.
+        var pipe = connectionFactory is null ? new ioxide.ConnectionDualPipe(conn) : await connectionFactory(conn);
 
         var reader = pipe.Input;
         var writer = pipe.Output;
@@ -126,6 +129,10 @@ internal static class ConnectionDriver
         {
             await reader.CompleteAsync();
             WarnIfThreadHopped(reactorThreadId, "before-return");
+            if (pipe is IAsyncDisposable disposable)
+            {
+                await disposable.DisposeAsync(); // tears down a TLS transport (stops the decrypt pump, close_notify)
+            }
             conn.DecRef();
             ReturnRequest(request);
         }

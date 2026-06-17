@@ -1,3 +1,5 @@
+using System.IO.Pipelines;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
@@ -17,6 +19,10 @@ public sealed class IoxideServer : IServer
 
     private readonly Func<ServerConfig, ServerConfig>? _configure;
 
+    private readonly Action<Reactor>? _onReactorStart;
+
+    private readonly Func<Connection, ValueTask<IDuplexPipe>>? _connectionFactory;
+
     private Thread[]? _threads;
 
     public string Version { get; } = typeof(IoxideServer).Assembly.GetName().Version?.ToString() ?? "0.1";
@@ -33,12 +39,14 @@ public sealed class IoxideServer : IServer
 
     public IHandler Handler { get; }
 
-    internal IoxideServer(IServerCompanion? companion, ServerConfiguration config, IHandler handler, Func<ServerConfig, ServerConfig>? configure = null)
+    internal IoxideServer(IServerCompanion? companion, ServerConfiguration config, IHandler handler, Func<ServerConfig, ServerConfig>? configure = null, Action<Reactor>? onReactorStart = null, Func<Connection, ValueTask<IDuplexPipe>>? connectionFactory = null)
     {
         Companion = companion;
         _config = config;
         Handler = handler;
         _configure = configure;
+        _onReactorStart = onReactorStart;
+        _connectionFactory = connectionFactory;
 
         var ep = config.EndPoints.First(); // spike: first endpoint only
 
@@ -74,7 +82,15 @@ public sealed class IoxideServer : IServer
         {
             var reactor = new Reactor(i, cfg)
             {
-                Handle = (_, c) => ConnectionDriver.HandleAsync(this, _endPoint, c),
+                // Runs once on the reactor's own thread before it serves: bind the reactor into the
+                // [ThreadStatic] seam so handler code can resolve per-reactor services, then let the
+                // host register those services (e.g. PgPool.Start(r, ...)) on this reactor's ring.
+                OnStart = r =>
+                {
+                    IoxideReactor.Bind(r);
+                    _onReactorStart?.Invoke(r);
+                },
+                Handle = (_, c) => ConnectionDriver.HandleAsync(this, _endPoint, c, _connectionFactory),
             };
 
             _threads[i] = new Thread(reactor.Run)
