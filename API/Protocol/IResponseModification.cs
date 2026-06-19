@@ -35,9 +35,11 @@ public interface IResponseModification<out TBuilder>
     TBuilder Header(string key, string value);
 
     /// <summary>
-    /// Adds the given cookie to the response.
+    /// Adds a cookie with the given name, value and attributes to the response.
     /// </summary>
-    /// <param name="cookie">The cookie to be added</param>
-    TBuilder Cookie(Cookie cookie);
+    /// <param name="name">The name of the cookie</param>
+    /// <param name="value">The value of the cookie</param>
+    /// <param name="options">The attributes to be set on the cookie</param>
+    TBuilder Cookie(string name, string value, CookieOptions options = default);
 
 }

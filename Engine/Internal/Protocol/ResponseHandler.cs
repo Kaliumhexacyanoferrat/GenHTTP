@@ -168,14 +168,6 @@ internal sealed class ResponseHandler
             writer.Write(header.Value.Bytes.Span);
             writer.Write("\r\n"u8);
         }
-
-        /*if (response.HasCookies)
-        {
-            foreach (var cookie in response.Cookies)
-            {
-                WriteCookie(cookie.Value);
-            }
-        }*/
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -214,26 +206,6 @@ internal sealed class ResponseHandler
 
         _chunkedSink.Finish();
     }
-
-    #endregion
-
-    #region Helpers
-
-    /*private void WriteCookie(Cookie cookie)
-    {
-        Writer.Write("Set-Cookie: "u8);
-        Writer.Write(cookie.Name);
-        Writer.Write("="u8);
-        Writer.Write(cookie.Value);
-
-        if (cookie.MaxAge is not null)
-        {
-            Writer.Write("; Max-Age="u8);
-            Writer.Write(cookie.MaxAge.Value);
-        }
-
-        Writer.Write("; Path=/\r\n"u8);
-    }*/
 
     #endregion
 

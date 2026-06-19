@@ -15,14 +15,25 @@ namespace GenHTTP.Modules.Reflection;
 /// </remarks>
 public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
 {
+    private ResponseStatus? _status;
+    
     private Connection? _connectionHandling;
-
-    private List<Cookie>? _cookies;
-
+    
     private Dictionary<string, string>? _headers;
 
-    private ResponseStatus? _status;
+    private List<(string Name, string Value, CookieOptions Options)>? _cookies;
 
+    #region Get-/Setters
+
+    /// <summary>
+    /// The actual data to be returned to the client.
+    /// </summary>
+    public T? Payload { get; }
+
+    object? IResultWrapper.Payload => Payload;
+
+    #endregion
+    
     #region Initialization
 
     /// <summary>
@@ -33,17 +44,6 @@ public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
     {
         Payload = payload;
     }
-
-    #endregion
-
-    #region Get-/Setters
-
-    /// <summary>
-    /// The actual data to be returned to the client.
-    /// </summary>
-    public T? Payload { get; }
-
-    object? IResultWrapper.Payload => Payload;
 
     #endregion
 
@@ -70,9 +70,9 @@ public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
         return this;
     }
 
-    public Result<T> Cookie(Cookie cookie)
+    public Result<T> Cookie(string name, string value, CookieOptions options = default)
     {
-        (_cookies ??= []).Add(cookie);
+        (_cookies ??= []).Add((name, value, options));
 
         return this;
     }
@@ -97,13 +97,13 @@ public class Result<T> : IResultWrapper, IResponseModification<Result<T>>
             }
         }
 
-        /*if (_cookies != null)
+        if (_cookies != null)
         {
             foreach (var cookie in _cookies)
             {
-                builder.Cookie(cookie);
+                builder.Cookie(cookie.Name, cookie.Value, cookie.Options);
             }
-        }*/
+        }
     }
 
     #endregion

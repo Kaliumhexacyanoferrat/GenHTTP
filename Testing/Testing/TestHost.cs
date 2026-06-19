@@ -179,7 +179,8 @@ public class TestHost : IAsyncDisposable
         {
             AllowAutoRedirect = followRedirects,
             Credentials = creds,
-            UseProxy = false
+            UseProxy = false,
+            UseCookies = cookies != null
         };
 
         if (cookies != null)
