@@ -9,5 +9,5 @@ public class RequestInjector : IParameterInjector
 
     public bool Supports(IServer server, Type type) => type == typeof(IRequest);
 
-    public object GetValue(IHandler handler, IRequest request, Type targetType) => request;
+    public ValueTask<object?> GetValueAsync(IHandler handler, IRequest request, Type targetType) => new(request);
 }

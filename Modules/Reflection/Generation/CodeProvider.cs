@@ -91,7 +91,7 @@ public static class CodeProvider
         if (operation.Method.ReturnType.IsAsync())
             return true;
 
-        if (operation.Arguments.Any(a => a.Value.Source == OperationArgumentSource.Body || a.Value.Source == OperationArgumentSource.Content))
+        if (operation.Arguments.Any(a => a.Value.Source == OperationArgumentSource.Body || a.Value.Source == OperationArgumentSource.Content || a.Value.Source == OperationArgumentSource.Injected))
             return true;
 
         if (operation.Result.Sink == OperationResultSink.Dynamic)

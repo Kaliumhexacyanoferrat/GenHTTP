@@ -16,11 +16,11 @@ public class UserInjector<T> : IParameterInjector where T : IUser
 
     #region Functionality
 
-    public object GetValue(IHandler handler, IRequest request, Type targetType)
+    public ValueTask<object?> GetValueAsync(IHandler handler, IRequest request, Type targetType)
     {
         if (request.Properties.TryGet<T>("__AUTH_USER", out var user))
         {
-            return user;
+            return new ValueTask<object?>(user);
         }
 
         throw new ProviderException(ResponseStatus.Unauthorized, "Authentication required to invoke this endpoint");

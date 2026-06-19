@@ -126,7 +126,7 @@ public static class CodeProviderArgumentExtensions
             sb.AppendLine("        {");
             sb.AppendLine($"            if (injector.Supports(request.Server, typeof({safeType})))");
             sb.AppendLine("            {");
-            sb.AppendLine($"                arg{index} = ({safeType})injector.GetValue(handler, request, typeof({safeType}));");
+            sb.AppendLine($"                arg{index} = ({safeType})await injector.GetValueAsync(handler, request, typeof({safeType}));");
             sb.AppendLine("            }");
             sb.AppendLine("        }");
         }

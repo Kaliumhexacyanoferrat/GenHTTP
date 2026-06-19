@@ -8,5 +8,6 @@ public static class Injection
     public static InjectionRegistryBuilder Empty() => new();
 
     public static InjectionRegistryBuilder Default() => new InjectionRegistryBuilder().Add(new RequestInjector())
-                                                                                      .Add(new HandlerInjector());
+                                                                                      .Add(new HandlerInjector())
+                                                                                      .Add(new BodyArgumentsInjector());
 }

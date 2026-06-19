@@ -9,6 +9,6 @@ public interface IParameterInjector
 
     bool Supports(IServer server, Type type);
 
-    object? GetValue(IHandler handler, IRequest request, Type targetType);
+    ValueTask<object?> GetValueAsync(IHandler handler, IRequest request, Type targetType);
 
 }

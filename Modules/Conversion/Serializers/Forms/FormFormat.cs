@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Text;
 using System.Web;
 
 using GenHTTP.Api.Content;
@@ -98,51 +97,6 @@ public sealed class FormFormat : ISerializationFormat
 
             return content.WriteAsync(b);
         });
-    }
-
-    public static async ValueTask<Dictionary<string, string>?> GetContentAsync(IRequest request) // todo: refactor into an own type
-    {
-        var contentType = request.Header.Headers.GetEntry(KnownHeaders.ContentType);
-
-        if (contentType is not null)
-        {
-            if (new ContentType(contentType.Value.Bytes) == ContentType.ApplicationWwwFormUrlEncoded) // todo: ugly API
-            {
-                var content = await GetRequestContentAsync(request); // todo: make this memory based?
-
-                var query = HttpUtility.ParseQueryString(content);
-
-                var result = new Dictionary<string, string>(query.Count);
-
-                foreach (var key in query.AllKeys)
-                {
-                    var value = query[key];
-
-                    if (key is not null && value is not null)
-                    {
-                        result.Add(key, value);
-                    }
-                }
-
-                return result;
-            }
-        }
-
-        return null;
-    }
-
-    private static async ValueTask<string> GetRequestContentAsync(IRequest request)
-    {
-        var requestContent = request.GetBody();
-
-        if (requestContent is null)
-        {
-            throw new InvalidOperationException("Request content has to be set");
-        }
-
-        var buffer = await requestContent.AsMemoryAsync();
-
-        return Encoding.UTF8.GetString(buffer.Span);
     }
 
     #endregion
