@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 using Microsoft.Win32.SafeHandles;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Engine.Ioxide;
+using GenHTTP.Modules.Compression.Providers;
 using GenHTTP.Modules.IO;
 
 using ioxide;
@@ -53,6 +55,11 @@ public sealed class IoxideFilesBuilder : IHandlerBuilder<IoxideFilesBuilder>
 
 public sealed class IoxideFilesHandler : IHandler
 {
+    // Precompressed negotiation: the request's Accept-Encoding is matched against these, and the
+    // ".br"/".gz" sibling served (with the matching Content-Encoding) when present. br before gzip.
+    private static readonly AlgorithmName Brotli = new("br"u8.ToArray());
+    private static readonly AlgorithmName Gzip = new("gzip"u8.ToArray());
+
     private readonly StaticAssets _assets;
 
     internal IoxideFilesHandler(StaticAssets assets)
@@ -73,14 +80,17 @@ public sealed class IoxideFilesHandler : IHandler
 
         var path = NormalizePath(target.AsString(decode: true, remainingOnly: true));
 
-        // Resolve + revalidate just to frame Content-Length / Content-Type. The body is written later
+        // Resolve + revalidate just to frame Content-Length / Type / Encoding. The body is written later
         // by the content, which re-resolves under its own lease - so no lease is held across the
         // HandleAsync -> WriteAsync boundary (leak-safe for HEAD, where WriteAsync is never called).
+        string servePath;
         long length;
+        ReadOnlyMemory<byte>? encoding;
 
         using (var lease = _assets.Acquire())
         {
-            if (!lease.TryGet(path, out var asset))
+            // The identity file must exist; precompressed variants are an optimization on top of it.
+            if (!lease.TryGet(path, out _))
             {
                 return default; // 404 upstream
             }
@@ -88,6 +98,14 @@ public sealed class IoxideFilesHandler : IHandler
             if (!request.HasType(RequestMethod.Get, RequestMethod.Head))
             {
                 throw new ProviderException(ResponseStatus.MethodNotAllowed, "Only GET and HEAD are allowed for static files", b => b.Header("Allow", "GET, HEAD"));
+            }
+
+            // Best accepted precompressed sibling (br > gzip), else the identity file.
+            (servePath, encoding) = Negotiate(request, lease, path);
+
+            if (!lease.TryGet(servePath, out var asset))
+            {
+                return default; // raced away
             }
 
             if (AssetCache.IsFresh(asset, out var exists, out var currentSize))
@@ -104,12 +122,37 @@ public sealed class IoxideFilesHandler : IHandler
             }
         }
 
+        // Content-Type from the *identity* file name - the sibling only carries the encoding.
         var contentType = Path.GetFileName(path).GuessContentType() ?? ContentType.ApplicationOctetStream;
 
         var response = request.Respond()
-                              .Content(new IoxideAssetContent(_assets, path, length, contentType));
+                              .Header("Vary", "Accept-Encoding")
+                              .Content(new IoxideAssetContent(_assets, servePath, length, contentType, encoding));
 
         return new ValueTask<IResponse?>(response.Build());
+    }
+
+    // Pick the best precompressed sibling the client accepts (br before gzip), else fall back to identity.
+    private static (string Path, ReadOnlyMemory<byte>? Encoding) Negotiate(IRequest request, StaticAssets.Lease lease, string path)
+    {
+        var header = request.Header.Headers.GetEntry(KnownHeaders.AcceptEncoding);
+
+        if (header != null)
+        {
+            var accepted = AcceptEncodingHeader.ParseSupported(header.Value);
+
+            if (accepted.Contains(Brotli) && lease.TryGet(path + ".br", out _))
+            {
+                return (path + ".br", Brotli.Bytes);
+            }
+
+            if (accepted.Contains(Gzip) && lease.TryGet(path + ".gz", out _))
+            {
+                return (path + ".gz", Gzip.Bytes);
+            }
+        }
+
+        return (path, null);
     }
 
     private static string NormalizePath(string remaining)
@@ -121,7 +164,7 @@ public sealed class IoxideFilesHandler : IHandler
 /// <see cref="Chunk"/> bytes into the ioxide write slab at once. Re-resolves the asset under its own
 /// lease, so nothing is held across an await.
 /// </summary>
-public sealed class IoxideAssetContent(StaticAssets assets, string path, long length, ContentType contentType) : IResponseContent
+public sealed class IoxideAssetContent(StaticAssets assets, string path, long length, ContentType contentType, ReadOnlyMemory<byte>? contentEncoding) : IResponseContent
 {
     // Stay well under the default 16 KB slab, leaving room for the status + headers GenHTTP already
     // staged before the body (the engine does not flush between them).
@@ -131,7 +174,7 @@ public sealed class IoxideAssetContent(StaticAssets assets, string path, long le
 
     public ContentType? Type => contentType;
 
-    public ReadOnlyMemory<byte>? Encoding => null;
+    public ReadOnlyMemory<byte>? Encoding => contentEncoding;
 
     public ValueTask<ulong?> CalculateChecksumAsync() => new((ulong?)null);
 
