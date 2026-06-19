@@ -16,18 +16,11 @@ public abstract class ServerBuilder : IServerBuilder
     private readonly List<IConcernBuilder> _concerns = [];
     private readonly List<EndPointConfiguration> _endPoints = [];
 
-    private ushort _backlog = 1024;
-
     private bool _development;
 
     private IHandler? _handler;
 
     private ushort _port = 8080;
-
-    private uint _requestMemoryLimit = 1 * 1024 * 1024; // 1 MB
-
-    private TimeSpan _requestReadTimeout = TimeSpan.FromSeconds(10);
-    private uint _transferBufferSize = 65 * 1024; // 65 KB
 
     #region Content
 
@@ -88,34 +81,6 @@ public abstract class ServerBuilder : IServerBuilder
 
     #endregion
 
-    #region Network settings
-
-    public IServerBuilder Backlog(ushort backlog)
-    {
-        _backlog = backlog;
-        return this;
-    }
-
-    public IServerBuilder RequestReadTimeout(TimeSpan timeout)
-    {
-        _requestReadTimeout = timeout;
-        return this;
-    }
-
-    public IServerBuilder RequestMemoryLimit(uint limit)
-    {
-        _requestMemoryLimit = limit;
-        return this;
-    }
-
-    public IServerBuilder TransferBufferSize(uint bufferSize)
-    {
-        _transferBufferSize = bufferSize;
-        return this;
-    }
-
-    #endregion
-
     #region Builder
 
     public IServer Build()
@@ -125,8 +90,6 @@ public abstract class ServerBuilder : IServerBuilder
             throw new BuilderMissingPropertyException("Handler");
         }
 
-        var network = new NetworkConfiguration(_requestReadTimeout, _requestMemoryLimit, _transferBufferSize, _backlog);
-
         var endpoints = new List<EndPointConfiguration>(_endPoints);
 
         if (endpoints.Count == 0)
@@ -134,7 +97,7 @@ public abstract class ServerBuilder : IServerBuilder
             endpoints.Add(new EndPointConfiguration(null, _port, true, null, false));
         }
 
-        var config = new ServerConfiguration(_development, endpoints, network);
+        var config = new ServerConfiguration(_development, endpoints);
 
         var concerns = new[]
         {

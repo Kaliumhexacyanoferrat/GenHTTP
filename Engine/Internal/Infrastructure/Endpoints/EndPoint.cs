@@ -6,8 +6,6 @@ using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Engine.Internal.Context;
-using GenHTTP.Engine.Shared.Infrastructure;
-
 using Microsoft.Extensions.ObjectPool;
 
 namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
@@ -21,8 +19,6 @@ internal abstract class EndPoint : IEndPoint
     #region Get-/Setters
 
     protected IServer Server { get; }
-
-    protected NetworkConfiguration Configuration { get; }
 
     private Task? Task { get; set; }
 
@@ -40,11 +36,9 @@ internal abstract class EndPoint : IEndPoint
 
     #region Initialization
 
-    protected EndPoint(IServer server, IPAddress? address, ushort port, bool dualStack, NetworkConfiguration configuration)
+    protected EndPoint(IServer server, IPAddress? address, ushort port, bool dualStack)
     {
         Server = server;
-
-        Configuration = configuration;
 
         Address = address;
         Port = port;
@@ -74,7 +68,7 @@ internal abstract class EndPoint : IEndPoint
 
             Socket.Bind(new IPEndPoint(address, Port));
 
-            Socket.Listen(Configuration.Backlog);
+            Socket.Listen(2048);
         }
         catch (Exception e)
         {
@@ -124,7 +118,7 @@ internal abstract class EndPoint : IEndPoint
 
         try
         {
-            context.Apply(client, inputStream, reader, clientCertificate, Server, this, Configuration);
+            context.Apply(client, inputStream, reader, clientCertificate, Server, this);
 
             await context.ClientHandler.RunAsync();
         }

@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Engine.Internal.Protocol;
+
 using GenHTTP.Engine.Shared.Infrastructure;
 
 namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
@@ -24,8 +24,8 @@ internal sealed class SecureEndPoint : EndPoint
 
     #region Initialization
 
-    internal SecureEndPoint(IServer server, IPAddress? address, ushort port, bool dualStack, SecurityConfiguration options, NetworkConfiguration configuration)
-        : base(server, address, port, dualStack, configuration)
+    internal SecureEndPoint(IServer server, IPAddress? address, ushort port, bool dualStack, SecurityConfiguration options)
+        : base(server, address, port, dualStack)
     {
         Options = options;
 

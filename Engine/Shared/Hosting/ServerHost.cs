@@ -29,12 +29,6 @@ public sealed class ServerHost : IServerHost
 
     #region Builder facade
 
-    public IServerHost Backlog(ushort backlog)
-    {
-        _builder.Backlog(backlog);
-        return this;
-    }
-
     public IServerHost Bind(IPAddress? address, ushort port, bool dualStack = true)
     {
         _builder.Bind(address, port, dualStack);
@@ -65,27 +59,9 @@ public sealed class ServerHost : IServerHost
         return this;
     }
 
-    public IServerHost RequestMemoryLimit(uint limit)
-    {
-        _builder.RequestMemoryLimit(limit);
-        return this;
-    }
-
-    public IServerHost RequestReadTimeout(TimeSpan timeout)
-    {
-        _builder.RequestReadTimeout(timeout);
-        return this;
-    }
-
     public IServerHost Handler(IHandler handler)
     {
         _builder.Handler(handler);
-        return this;
-    }
-
-    public IServerHost TransferBufferSize(uint bufferSize)
-    {
-        _builder.TransferBufferSize(bufferSize);
         return this;
     }
 

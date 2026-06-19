@@ -1,7 +1,5 @@
 using System.Net;
-using System.Net.Http;
 using System.Net.Security;
-using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Content.Authentication;
@@ -11,8 +9,6 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Authentication;
 using GenHTTP.Modules.Authentication.ClientCertificate;
 using GenHTTP.Modules.Functional;
-
-using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Authentication;
 

@@ -6,7 +6,6 @@ using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Internal.Protocol;
-using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Types;
 
 namespace GenHTTP.Engine.Internal.Context;
@@ -14,12 +13,10 @@ namespace GenHTTP.Engine.Internal.Context;
 internal sealed class ClientContext
 {
     private static readonly StreamPipeWriterOptions WriterOptions = new(MemoryPool<byte>.Shared, leaveOpen: true, minimumBufferSize: 65536);
-    
+
     private IServer? _server;
 
     private IEndPoint? _endPoint;
-
-    private NetworkConfiguration? _networkConfiguration;
 
     private Socket? _connection;
 
@@ -28,7 +25,7 @@ internal sealed class ClientContext
     private Stream? _stream;
 
     private PipeReader? _reader;
-    
+
     private PipeWriter? _writer;
 
     private readonly Request _request = new();
@@ -36,12 +33,10 @@ internal sealed class ClientContext
     private readonly ResponseHandler _responseHandler;
 
     private readonly ClientHandler _clientHandler;
-    
+
     internal IServer Server => _server ?? throw new InvalidOperationException("Handler has not been initialized");
 
     internal IEndPoint EndPoint => _endPoint ?? throw new InvalidOperationException("Handler has not been initialized");
-
-    internal NetworkConfiguration Configuration => _networkConfiguration ?? throw new InvalidOperationException("Handler has not been initialized");
 
     internal Socket Connection => _connection ?? throw new InvalidOperationException("Handler has not been initialized");
 
@@ -50,13 +45,13 @@ internal sealed class ClientContext
     internal Stream Stream => _stream ?? throw new InvalidOperationException("Handler has not been initialized");
 
     internal PipeWriter Writer => _writer ?? throw new InvalidOperationException("Handler has not been initialized");
-    
+
     internal PipeReader Reader => _reader ?? throw new InvalidOperationException("Handler has not been initialized");
 
     internal Request Request => _request;
 
     internal ResponseHandler ResponseHandler => _responseHandler;
-    
+
     internal ClientHandler ClientHandler => _clientHandler;
 
     internal ClientContext()
@@ -64,16 +59,14 @@ internal sealed class ClientContext
         _clientHandler = new(this);
         _responseHandler = new(this);
     }
-    
-    internal void Apply(Socket socket, Stream stream, PipeReader reader, X509Certificate? clientCertificate, IServer server, IEndPoint endPoint, NetworkConfiguration config)
+
+    internal void Apply(Socket socket, Stream stream, PipeReader reader, X509Certificate? clientCertificate, IServer server, IEndPoint endPoint)
     {
         _server = server;
         _endPoint = endPoint;
 
         _connection = socket;
         _clientCertificate = clientCertificate;
-
-        _networkConfiguration = config;
 
         _stream = stream;
 
@@ -87,7 +80,7 @@ internal sealed class ClientContext
         _stream = stream;
         _writer = PipeWriter.Create(stream, WriterOptions);
     }
-    
+
     public void Reset()
     {
         _server = null;
@@ -96,14 +89,12 @@ internal sealed class ClientContext
         _connection = null;
         _clientCertificate = null;
 
-        _networkConfiguration = null;
-
         _stream = null;
 
         _reader = null;
         _writer = null;
-        
+
         Request.Reset();
-    } 
+    }
 
 }

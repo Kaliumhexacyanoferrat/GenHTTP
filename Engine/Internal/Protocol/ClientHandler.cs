@@ -3,7 +3,6 @@ using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using GenHTTP.Api.Content;
-using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Internal.Context;
 using GenHTTP.Engine.Shared.Types;

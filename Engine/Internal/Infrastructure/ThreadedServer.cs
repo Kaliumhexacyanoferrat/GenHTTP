@@ -13,7 +13,7 @@ internal sealed class ThreadedServer : IServer
 {
     private readonly EndPointCollection _endPoints;
 
-    private readonly PropertyBag _properties = new(); 
+    private readonly PropertyBag _properties = new();
 
     #region Get-/Setters
 
@@ -43,7 +43,7 @@ internal sealed class ThreadedServer : IServer
 
         Handler = handler;
 
-        _endPoints = new EndPointCollection(this, configuration.EndPoints, configuration.Network);
+        _endPoints = new EndPointCollection(this, configuration.EndPoints);
     }
 
     #endregion
@@ -63,7 +63,7 @@ internal sealed class ThreadedServer : IServer
         {
             await handler.PrepareAsync(this);
         }
-        catch 
+        catch
         {
             // todo: logging
         }

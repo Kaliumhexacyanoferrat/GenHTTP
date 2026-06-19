@@ -81,39 +81,6 @@ public interface IServerBuilder<out T> : IBuilder<IServer>
 
     #endregion
 
-    #region Network settings
-
-    /// <summary>
-    /// Configures the number of connections the operating system will accept
-    /// while they not have yet been accepted by the server.
-    /// </summary>
-    /// <param name="backlog">The number of connections to be accepted</param>
-    /// <remarks>
-    /// Adjust this value only, if you expect large bursts of simultaneous requests
-    /// or your server requires very long to generate requests.
-    /// </remarks>
-    T Backlog(ushort backlog);
-
-    /// <summary>
-    /// Specifies the period of time after which the server will
-    /// assume the client connection timed out.
-    /// </summary>
-    T RequestReadTimeout(TimeSpan timeout);
-
-    /// <summary>
-    /// Requests smaller than this limit (in bytes) will be held in memory, while
-    /// larger requests will be cached in a temporary file.
-    /// </summary>
-    T RequestMemoryLimit(uint limit);
-
-    /// <summary>
-    /// Size of the buffer that will be used to read or write large
-    /// data streams (such as uploads or downloads).
-    /// </summary>
-    T TransferBufferSize(uint bufferSize);
-
-    #endregion
-
     #region Content
 
     /// <summary>

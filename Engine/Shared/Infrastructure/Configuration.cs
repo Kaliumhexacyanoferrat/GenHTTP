@@ -5,11 +5,7 @@ using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Engine.Shared.Infrastructure;
 
-public record ServerConfiguration(bool DevelopmentMode, IEnumerable<EndPointConfiguration> EndPoints,
-    NetworkConfiguration Network);
-
-public record NetworkConfiguration(TimeSpan RequestReadTimeout, uint RequestMemoryLimit,
-    uint TransferBufferSize, ushort Backlog);
+public record ServerConfiguration(bool DevelopmentMode, IEnumerable<EndPointConfiguration> EndPoints);
 
 public record EndPointConfiguration(IPAddress? Address, ushort Port, bool DualStack, SecurityConfiguration? Security, bool EnableQuic);
 
