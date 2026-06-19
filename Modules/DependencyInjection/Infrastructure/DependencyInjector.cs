@@ -25,11 +25,11 @@ public class DependencyInjector : IParameterInjector
         return (provider.GetService(type) != null);
     }
 
-    public object? GetValue(IHandler handler, IRequest request, Type targetType)
+    public ValueTask<object?> GetValueAsync(IHandler handler, IRequest request, Type targetType)
     {
         var scope = request.GetServiceScope();
 
-        return scope.ServiceProvider.GetService(targetType);
+        return new ValueTask<object?>(scope.ServiceProvider.GetService(targetType));
     }
 
 }

@@ -182,7 +182,7 @@ public sealed class MethodHandler : IHandler
                     {
                         targetArguments[arg.Name] = arg.Source switch
                         {
-                            OperationArgumentSource.Injected => ArgumentProvider.GetInjectedArgument(request, this, arg, Registry),
+                            OperationArgumentSource.Injected => await ArgumentProvider.GetInjectedArgumentAsync(request, this, arg, Registry),
                             OperationArgumentSource.Path => ArgumentProvider.GetPathArgument(arg.Name, arg.Type, match, Registry),
                             OperationArgumentSource.Body => await ArgumentProvider.GetBodyArgumentAsync(request, arg.Name, arg.Type, Registry),
                             OperationArgumentSource.Query => ArgumentProvider.GetQueryArgument(request, arg, Registry),

@@ -11,13 +11,13 @@ namespace GenHTTP.Modules.Reflection.Operations;
 public static class ArgumentProvider
 {
 
-    public static object? GetInjectedArgument(IRequest request, IHandler handler, OperationArgument argument, MethodRegistry registry)
+    public static async ValueTask<object?> GetInjectedArgumentAsync(IRequest request, IHandler handler, OperationArgument argument, MethodRegistry registry)
     {
         foreach (var injector in registry.Injection)
         {
             if (injector.Supports(request.Server, argument.Type))
             {
-                return injector.GetValue(handler, request, argument.Type);
+                return await injector.GetValueAsync(handler, request, argument.Type);
             }
         }
 

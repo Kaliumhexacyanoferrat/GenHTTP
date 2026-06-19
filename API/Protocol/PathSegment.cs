@@ -1,4 +1,5 @@
 ﻿using System.Buffers;
+using System.Text;
 
 namespace GenHTTP.Api.Protocol;
 
@@ -8,6 +9,9 @@ namespace GenHTTP.Api.Protocol;
 [MemoryView]
 public readonly partial struct PathSegment
 {
+    private static readonly Encoding Ascii = Encoding.ASCII;
+    
+    private static readonly Encoding Utf8 = Encoding.UTF8;
 
     #region Functionality
 
@@ -18,33 +22,18 @@ public readonly partial struct PathSegment
 
         if (span.IndexOf((byte)'%') < 0)
         {
-            return System.Text.Encoding.ASCII.GetString(span);
+            return Ascii.GetString(span);
         }
 
         byte[]? rented = null;
 
-        var buffer = span.Length <= 256
-            ? stackalloc byte[span.Length]
-            : (rented = ArrayPool<byte>.Shared.Rent(span.Length));
+        var buffer = span.Length <= 256 ? stackalloc byte[span.Length] : (rented = ArrayPool<byte>.Shared.Rent(span.Length));
 
         try
         {
-            int write = 0, i = 0;
+            var written = PercentEncoding.Decode(span, buffer);
 
-            while (i < span.Length)
-            {
-                if (span[i] == '%' && i + 2 < span.Length && IsHexDigit(span[i + 1]) && IsHexDigit(span[i + 2]))
-                {
-                    buffer[write++] = (byte)((HexValue(span[i + 1]) << 4) | HexValue(span[i + 2]));
-                    i += 3;
-                }
-                else
-                {
-                    buffer[write++] = span[i++];
-                }
-            }
-
-            return System.Text.Encoding.UTF8.GetString(buffer[..write]);
+            return Utf8.GetString(buffer[..written]);
         }
         finally
         {
@@ -54,10 +43,6 @@ public readonly partial struct PathSegment
             }
         }
     }
-
-    private static bool IsHexDigit(byte b) => (uint)(b - '0') <= 9 || (uint)((b | 0x20) - 'a') <= 5;
-
-    private static int HexValue(byte b) => b <= '9' ? b - '0' : (b | 0x20) - 'a' + 10;
 
     #endregion
 
