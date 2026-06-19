@@ -47,8 +47,6 @@
 
     public ICookieCollection Cookies => _inner.Cookies;
 
-    public IForwardingCollection Forwardings => _inner.Forwardings;
-
     public IHeaderCollection Headers => _inner.Headers;
 
     public FlexibleContentType? ContentType => _inner.ContentType;
