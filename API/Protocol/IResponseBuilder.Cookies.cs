@@ -111,7 +111,7 @@ public static class CookieResponseExtensions
         if (options.SameSite is not null)
         {
             position += WriteSpan(buffer.AsSpan(position), SameSitePrefix);
-            position += WriteSpan(buffer.AsSpan(position), GetSameSite(options.SameSite.Value));
+            WriteSpan(buffer.AsSpan(position), GetSameSite(options.SameSite.Value));
         }
 
         return new ByteString(buffer);
