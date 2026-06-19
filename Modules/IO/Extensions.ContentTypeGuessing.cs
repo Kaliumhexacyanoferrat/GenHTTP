@@ -91,6 +91,12 @@ public static class ContentTypeGuessingExtensions
             "png", ContentType.ImagePng
         },
         {
+            "webp", ContentType.ImageWebp
+        },
+        {
+            "avif", ContentType.ImageAvif
+        },
+        {
             "bmp", ContentType.ImageBmp
         },
         {

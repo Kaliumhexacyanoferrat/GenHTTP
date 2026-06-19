@@ -28,6 +28,12 @@ public readonly partial struct ContentType
     /// <summary>A PNG image.</summary>
     public static readonly ContentType ImagePng = new("image/png");
 
+    /// <summary>A WebP image.</summary>
+    public static readonly ContentType ImageWebp = new("image/webp");
+
+    /// <summary>An AVIF image.</summary>
+    public static readonly ContentType ImageAvif = new("image/avif");
+
     /// <summary>A BMP image.</summary>
     public static readonly ContentType ImageBmp = new("image/bmp");
 
