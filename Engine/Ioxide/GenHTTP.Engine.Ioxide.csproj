@@ -14,8 +14,4 @@
     <PackageReference Include="Glyph11.Pico" Version="0.0.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="FIles\" />
-  </ItemGroup>
-
 </Project>
