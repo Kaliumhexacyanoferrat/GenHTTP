@@ -9,6 +9,8 @@
         <IsPackable>false</IsPackable>
         <SonarQubeExclude>true</SonarQubeExclude>
 
+        <Features>runtime-async=on</Features>
+
     </PropertyGroup>
 
     <ItemGroup>
