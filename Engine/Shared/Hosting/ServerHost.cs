@@ -53,18 +53,6 @@ public sealed class ServerHost : IServerHost
         return this;
     }
 
-    public IServerHost Companion(IServerCompanion companion)
-    {
-        _builder.Companion(companion);
-        return this;
-    }
-
-    public IServerHost Console()
-    {
-        _builder.Console();
-        return this;
-    }
-
     public IServerHost Development(bool developmentMode = true)
     {
         _builder.Development(developmentMode);
@@ -137,23 +125,14 @@ public sealed class ServerHost : IServerHost
 
             return 0;
         }
-        catch (Exception e)
+        catch
         {
             if (Debugger.IsAttached)
             {
                 Debugger.Break();
             }
 
-            var companion = Instance?.Companion;
-
-            if (companion is not null)
-            {
-                companion.OnServerError(ServerErrorScope.General, null, e);
-            }
-            else
-            {
-                System.Console.WriteLine(e);
-            }
+            // todo: logging
 
             return -1;
         }

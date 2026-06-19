@@ -69,19 +69,6 @@ public interface IServerBuilder<out T> : IBuilder<IServer>
     #region Infrastructure
 
     /// <summary>
-    /// Registers a companion that will log all handled requests and
-    /// errors to the console.
-    /// </summary>
-    T Console();
-
-    /// <summary>
-    /// Registers the given companion to be used by the server, allowing
-    /// to log and handle requests and errors.
-    /// </summary>
-    /// <param name="companion">The companion to be used by the server</param>
-    T Companion(IServerCompanion companion);
-
-    /// <summary>
     /// Enables or disables the development mode on the server instance. When in
     /// development mode, the server will return additional information
     /// useful for developers of web applications.

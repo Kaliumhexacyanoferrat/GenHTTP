@@ -70,9 +70,12 @@ public sealed class ReverseProxyTests
         {
             var forwardings = r.Header.Headers.GetForwardings();
 
-            Assert.AreEqual(1, forwardings.Count);
+            // the proxy relays the original hop and appends one of its own
+            Assert.AreEqual(2, forwardings.Count);
             Assert.AreEqual(IPAddress.Parse("85.192.1.5"), forwardings[0].For);
             Assert.AreEqual("google.com", forwardings[0].Host);
+
+            Assert.IsTrue(IPAddress.IsLoopback(forwardings[1].For!));
 
             return r.Respond().Content("Hello World!").Build();
         });
@@ -435,7 +438,7 @@ public sealed class ReverseProxyTests
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            // todo: assert request.Client / request.Forwardings once client connection determination is wired up
+            Assert.IsNotNull(request.Client.IPAddress);
 
             var response = _response.Invoke(request);
 

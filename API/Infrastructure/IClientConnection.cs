@@ -22,12 +22,6 @@ public interface IClientConnection
     ClientProtocol? Protocol { get; }
 
     /// <summary>
-    /// The host name used by the client to connect
-    /// to the server.
-    /// </summary>
-    string? Host { get; }
-
-    /// <summary>
     /// The certificate used by the client to connect.
     /// </summary>
     X509Certificate? Certificate { get; }

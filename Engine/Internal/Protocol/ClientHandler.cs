@@ -45,9 +45,9 @@ internal sealed class ClientHandler(ClientContext context)
         {
             await HandlePipeAsync(context.Reader).ConfigureAwait(false);
         }
-        catch (Exception e)
+        catch
         {
-            context.Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, connection.GetAddress(), e);
+            // todo: logging
         }
         finally
         {
@@ -55,9 +55,9 @@ internal sealed class ClientHandler(ClientContext context)
             {
                 await context.Stream.DisposeAsync();
             }
-            catch (Exception e)
+            catch
             {
-                context.Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, connection.GetAddress(), e);
+                // todo: logging
             }
 
             try
@@ -70,9 +70,9 @@ internal sealed class ClientHandler(ClientContext context)
 
                 connection.Dispose();
             }
-            catch (Exception e)
+            catch
             {
-                context.Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, connection.GetAddress(), e);
+                // todo: logging
             }
         }
     }
@@ -122,7 +122,7 @@ internal sealed class ClientHandler(ClientContext context)
                     continue;
                 }
 
-                request.Apply(context.Server, context.EndPoint, reader, buffer.Start);
+                request.Apply(context.Server, context.EndPoint, reader, buffer.Start, context.Connection.GetAddress(), context.ClientCertificate);
 
                 var status = await HandleRequestAsync(request);
 
@@ -192,8 +192,6 @@ internal sealed class ClientHandler(ClientContext context)
 
     internal async ValueTask<Connection> HandleRequestAsync(Request request)
     {
-        // request.SetConnection(Server, EndPoint, Connection.GetAddress(), ClientCertificate);
-
         var header = request.Header;
 
         if (!header.Headers.ContainsKey(KnownHeaders.Host))

@@ -41,12 +41,6 @@ public interface IServer : IAsyncDisposable
     IEndPointCollection EndPoints { get; }
 
     /// <summary>
-    /// An instance that will be called on certain events such as
-    /// handled requests or errors that occur within the engine.
-    /// </summary>
-    IServerCompanion? Companion { get; }
-
-    /// <summary>
     /// The main router that will be used by the server to dispatch
     /// incoming HTTP requests.
     /// </summary>

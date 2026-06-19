@@ -61,9 +61,9 @@ internal sealed class SecureEndPoint : EndPoint
                 client.Close();
                 client.Dispose();
             }
-            catch (Exception e)
+            catch
             {
-                Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, client.GetAddress(), e);
+                // todo: logging
             }
         }
     }
@@ -78,9 +78,9 @@ internal sealed class SecureEndPoint : EndPoint
 
             return stream;
         }
-        catch (Exception e)
+        catch
         {
-            Server.Companion?.OnServerError(ServerErrorScope.Security, client.GetAddress(), e);
+            // todo: logging
 
             return null;
         }

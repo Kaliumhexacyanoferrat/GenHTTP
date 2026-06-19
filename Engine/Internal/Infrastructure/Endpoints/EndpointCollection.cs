@@ -66,9 +66,9 @@ internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPoi
                 {
                     endpoint.Dispose();
                 }
-                catch (Exception e)
+                catch
                 {
-                    Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, null, e);
+                    // todo: logging
                 }
             }
 

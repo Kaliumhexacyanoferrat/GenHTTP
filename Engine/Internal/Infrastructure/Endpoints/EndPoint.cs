@@ -96,11 +96,11 @@ internal abstract class EndPoint : IEndPoint
             }
             while (!_shuttingDown);
         }
-        catch (Exception e)
+        catch
         {
             if (!_shuttingDown)
             {
-                Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, null, e);
+                // todo: logging
             }
         }
     }
@@ -178,9 +178,9 @@ internal abstract class EndPoint : IEndPoint
                         Task.Wait();
                     }
                 }
-                catch (Exception e)
+                catch
                 {
-                    Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, null, e);
+                    // todo: logging
                 }
             }
 

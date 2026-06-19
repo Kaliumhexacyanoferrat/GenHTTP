@@ -17,8 +17,6 @@ public class BenchmarkServer(IHandler handler) : IServer
 
     public IEndPointCollection EndPoints => throw new NotSupportedException();
 
-    public IServerCompanion? Companion => null;
-
     public IHandler Handler => handler;
 
     public ValueTask StartAsync()

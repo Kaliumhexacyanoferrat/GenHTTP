@@ -19,6 +19,11 @@ public interface IRequest
     IEndPoint EndPoint { get; }
 
     /// <summary>
+    /// The remote client that issued this request.
+    /// </summary>
+    IClientConnection Client { get; }
+
+    /// <summary>
     /// Property bag to store values during the lifetime of the request.
     /// </summary>
     IPropertyBag Properties { get; }

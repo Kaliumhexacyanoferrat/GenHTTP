@@ -18,8 +18,6 @@ public abstract class ServerBuilder : IServerBuilder
 
     private ushort _backlog = 1024;
 
-    private IServerCompanion? _companion;
-
     private bool _development;
 
     private IHandler? _handler;
@@ -52,18 +50,6 @@ public abstract class ServerBuilder : IServerBuilder
     #endregion
 
     #region Infrastructure
-
-    public IServerBuilder Console()
-    {
-        _companion = new ConsoleCompanion();
-        return this;
-    }
-
-    public IServerBuilder Companion(IServerCompanion companion)
-    {
-        _companion = companion;
-        return this;
-    }
 
     public IServerBuilder Development(bool developmentMode = true)
     {
@@ -157,10 +143,10 @@ public abstract class ServerBuilder : IServerBuilder
 
         var handler = new CoreRouter(_handler, concerns);
 
-        return Build(_companion, config, handler);
+        return Build(config, handler);
     }
 
-    protected abstract IServer Build(IServerCompanion? companion, ServerConfiguration config, IHandler handler);
+    protected abstract IServer Build(ServerConfiguration config, IHandler handler);
 
     #endregion
 

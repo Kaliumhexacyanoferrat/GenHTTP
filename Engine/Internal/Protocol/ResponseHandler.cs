@@ -1,6 +1,7 @@
 ﻿using System.Buffers;
 using System.Runtime.CompilerServices;
 
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Engine.Internal.Context;
@@ -48,17 +49,11 @@ internal sealed class ResponseHandler
                 await WriteBodyAsync(response);
             }
 
-            if (request != null)
-            {
-                Context.Server.Companion?.OnRequestHandled(request, response);
-            }
-
             return true;
         }
-        catch (Exception)
+        catch
         {
-            // todo
-            // Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, request?.Client.IPAddress, e);
+            // todo: logging
             return false;
         }
     }

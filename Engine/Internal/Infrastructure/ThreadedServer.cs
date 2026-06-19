@@ -25,8 +25,6 @@ internal sealed class ThreadedServer : IServer
 
     public IHandler Handler { get; }
 
-    public IServerCompanion? Companion { get; }
-
     public IPropertyBag Properties => _properties;
 
     public IEndPointCollection EndPoints => _endPoints;
@@ -37,11 +35,10 @@ internal sealed class ThreadedServer : IServer
 
     #region Constructors
 
-    internal ThreadedServer(IServerCompanion? companion, ServerConfiguration configuration, IHandler handler)
+    internal ThreadedServer(ServerConfiguration configuration, IHandler handler)
     {
         Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "(n/a)";
 
-        Companion = companion;
         Configuration = configuration;
 
         Handler = handler;
@@ -55,20 +52,20 @@ internal sealed class ThreadedServer : IServer
 
     public async ValueTask StartAsync()
     {
-        await PrepareHandlerAsync(Handler, Companion);
+        await PrepareHandlerAsync(Handler);
 
         _endPoints.Start();
     }
 
-    private async ValueTask PrepareHandlerAsync(IHandler handler, IServerCompanion? companion)
+    private async ValueTask PrepareHandlerAsync(IHandler handler)
     {
         try
         {
             await handler.PrepareAsync(this);
         }
-        catch (Exception e)
+        catch 
         {
-            companion?.OnServerError(ServerErrorScope.General, null, e);
+            // todo: logging
         }
     }
 

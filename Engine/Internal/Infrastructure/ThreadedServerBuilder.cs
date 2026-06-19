@@ -8,6 +8,6 @@ namespace GenHTTP.Engine.Internal.Infrastructure;
 internal sealed class ThreadedServerBuilder : ServerBuilder
 {
 
-    protected override IServer Build(IServerCompanion? companion, ServerConfiguration config, IHandler handler) => new ThreadedServer(companion, config, handler);
+    protected override IServer Build(ServerConfiguration config, IHandler handler) => new ThreadedServer(config, handler);
 
 }

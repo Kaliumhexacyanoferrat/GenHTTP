@@ -113,12 +113,11 @@ public sealed class HttpProxy : IHandler
 
         var forwardings = request.Header.Headers.GetForwardings();
 
-        if (forwardings.Count > 0)
-        {
-            // todo: append a hop for the current request once the client connection (the "for" value
-            // of this hop) can be determined from the request again (follow-up)
-            req.Headers.Add("Forwarded", string.Join(", ", forwardings.Select(GetForwarding)));
-        }
+        var client = request.Client;
+
+        forwardings.Add(new Forwarding(client.IPAddress, null, headers.GetEntry("Host"), client.Protocol));
+
+        req.Headers.Add("Forwarded", string.Join(", ", forwardings.Select(GetForwarding)));
 
         var content = request.GetBody();
 
