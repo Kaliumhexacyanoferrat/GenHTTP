@@ -1,4 +1,4 @@
-﻿<Solution>
+<Solution>
     <!--<Folder Name="/Adapters/">
       <Project Path="Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj" />
     </Folder>-->
@@ -74,4 +74,5 @@
         <Project Path="Testing\Acceptance\GenHTTP.Testing.Acceptance.csproj" />
         <Project Path="Testing\Testing\GenHTTP.Testing.csproj" />
     </Folder>
+    <Project Path="Modules/IoxideFiles/GenHTTP.Modules.IoxideFiles.csproj" />
 </Solution>

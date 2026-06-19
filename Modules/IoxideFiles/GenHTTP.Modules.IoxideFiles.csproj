@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+        <Description>Serves static files on the GenHTTP Ioxide engine through ioxide.file - baked native responses, statx-based revalidation, and precompressed (.br/.gz) Accept-Encoding negotiation.</Description>
+
+        <PackageTags>GenHTTP HTTP Webserver C# Module Ioxide Static Files io_uring</PackageTags>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+
+        <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
+        <ProjectReference Include="..\..\Engine\Ioxide\GenHTTP.Engine.Ioxide.csproj" />
+
+        <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
+        <ProjectReference Include="..\Compression\GenHTTP.Modules.Compression.csproj" />
+
+        <PackageReference Include="ioxide.file" Version="0.0.8" />
+
+    </ItemGroup>
+
+</Project>
