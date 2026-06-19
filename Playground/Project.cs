@@ -1,8 +1,7 @@
 using GenHTTP.Api.Content;
 
-using GenHTTP.Modules.Compression.Algorithms;
-using GenHTTP.Modules.Files;
 using GenHTTP.Modules.IO;
+using GenHTTP.Modules.IoxideFiles;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Layouting.Provider;
 using GenHTTP.Modules.Webservices;
@@ -51,10 +50,9 @@ public static class Project
 
         if (Directory.Exists(staticDir))
         {
-            var handler = Assets.From(ResourceTree.FromDirectory(staticDir))
-                                .AllowPrecompressed(new BrotliAlgorithm());
-
-            app.Add("static", handler);
+            // Serve static files through ioxide.file (baked native responses + statx revalidation)
+            // rather than GenHTTP's Modules.Files, whose FileResource overflows the ioxide write slab.
+            app.Add("static", IoxideFiles.From(staticDir));
         }
 
         return app;
