@@ -1,62 +1,193 @@
-﻿namespace GenHTTP.Testing.Acceptance.Engine;
+﻿using GenHTTP.Api.Protocol;
+
+using GenHTTP.Testing.Acceptance.Utilities;
+
+namespace GenHTTP.Testing.Acceptance.Engine;
 
 [TestClass]
 public sealed class CookieTests
 {
 
-    /*
-    /// <summary>
-    /// As a developer, I want to be able to set cookies to be accepted by the browser.
-    /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCookiesCanBeReturned(TestEngine engine)
+    public async Task TestCookieCanBeRead(TestEngine engine)
     {
-        await using var runner = await TestHost.RunAsync(new TestProvider().Wrap(), engine: engine);
+        string? cookie = null;
 
-        using var response = await runner.GetResponseAsync();
+        var handler = new FunctionalHandler(responseProvider: r =>
+        {
+            cookie = r.Header.Headers.GetCookie("session");
 
-        Assert.AreEqual("TestCookie=TestValue; Max-Age=86400; Path=/", response.GetHeader("Set-Cookie"), StringComparer.OrdinalIgnoreCase);
-    }
+            return r.Respond().Build();
+        });
 
-    /// <summary>
-    /// As a developer, I want to be able to read cookies from the client.
-    /// </summary>
-    [TestMethod]
-    [MultiEngineTest]
-    public async Task TestCookiesCanBeRead(TestEngine engine)
-    {
-        var provider = new TestProvider();
-
-        await using var runner = await TestHost.RunAsync(provider.Wrap(), engine: engine);
+        await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
 
         var request = runner.GetRequest();
-        request.Headers.Add("Cookie", "1=2; 3=4");
+        request.Headers.Add("Cookie", "first=1; session=abc123; third=3");
 
         using var _ = await runner.GetResponseAsync(request);
 
-        Assert.AreEqual("4", provider.Cookies?["3"].Value);
+        Assert.AreEqual("abc123", cookie);
     }
 
-    private class TestProvider : IHandler
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestMissingCookieReturnsNull(TestEngine engine)
     {
+        string? cookie = "not-null";
 
-        public Dictionary<string, Cookie>? Cookies { get; private set; }
-
-        public ValueTask PrepareAsync(IServer server) => ValueTask.CompletedTask;
-
-        public ValueTask<IResponse?> HandleAsync(IRequest request)
+        var handler = new FunctionalHandler(responseProvider: r =>
         {
-            Cookies = new(request.Cookies);
+            cookie = r.Header.Headers.GetCookie("missing");
 
-            return request.Respond()
-                          .Cookie(new Cookie("TestCookie", "TestValue", 86400))
-                          .Content("I ❤ Cookies!")
-                          .Type(ContentType.TextHtml)
-                          .BuildTask();
+            return r.Respond().Build();
+        });
 
-        }
+        await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
+
+        var request = runner.GetRequest();
+        request.Headers.Add("Cookie", "first=1; second=2");
+
+        using var _ = await runner.GetResponseAsync(request);
+
+        Assert.IsNull(cookie);
     }
-    */
-    
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestCookiesCanBeIterated(TestEngine engine)
+    {
+        List<(string, string)>? cookies = null;
+
+        var handler = new FunctionalHandler(responseProvider: r =>
+        {
+            var list = r.Header.Headers.GetCookies();
+
+            cookies = [];
+
+            for (var i = 0; i < list.Count; i++)
+            {
+                var entry = list[i];
+
+                cookies.Add((entry.Key.ToString(), entry.Value.ToString()));
+            }
+
+            return r.Respond().Build();
+        });
+
+        await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
+
+        var request = runner.GetRequest();
+        request.Headers.Add("Cookie", "first=1; second=2");
+
+        using var _ = await runner.GetResponseAsync(request);
+
+        CollectionAssert.AreEqual(new[] { ("first", "1"), ("second", "2") }, cookies);
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestCookiesCanBeLookedUpByName(TestEngine engine)
+    {
+        string? cookie = null;
+
+        var handler = new FunctionalHandler(responseProvider: r =>
+        {
+            cookie = r.Header.Headers.GetCookies().GetEntry("second");
+
+            return r.Respond().Build();
+        });
+
+        await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
+
+        var request = runner.GetRequest();
+        request.Headers.Add("Cookie", "first=1; second=2");
+
+        using var _ = await runner.GetResponseAsync(request);
+
+        Assert.AreEqual("2", cookie);
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestCookieCanBeWritten(TestEngine engine)
+    {
+        var handler = new FunctionalHandler(responseProvider: r => r.Respond().Cookie("session", "abc123").Build());
+
+        await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
+
+        using var response = await runner.GetResponseAsync();
+
+        response.Headers.TryGetValues("Set-Cookie", out var values);
+
+        CollectionAssert.AreEqual(new[] { "session=abc123" }, values?.ToList());
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestCookieWithOptionsCanBeWritten(TestEngine engine)
+    {
+        var expires = new DateTimeOffset(2030, 1, 2, 3, 4, 5, TimeSpan.Zero);
+
+        var options = new CookieOptions
+        {
+            Expires = expires,
+            MaxAge = TimeSpan.FromSeconds(86400),
+            Domain = new ByteString("example.com"),
+            Path = new ByteString("/api"),
+            Secure = true,
+            HttpOnly = true,
+            SameSite = SameSite.Strict
+        };
+
+        var handler = new FunctionalHandler(responseProvider: r => r.Respond().Cookie("session", "abc123", options).Build());
+
+        await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
+
+        using var response = await runner.GetResponseAsync();
+
+        response.Headers.TryGetValues("Set-Cookie", out var values);
+
+        var expected = $"session=abc123; Expires={expires.UtcDateTime:r}; Max-Age=86400; Domain=example.com; Path=/api; Secure; HttpOnly; SameSite=Strict";
+
+        CollectionAssert.AreEqual(new[] { expected }, values?.ToList());
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestCookieWithExpiresOnlyCanBeWritten(TestEngine engine)
+    {
+        var expires = new DateTimeOffset(2030, 1, 2, 3, 4, 5, TimeSpan.Zero);
+
+        var options = new CookieOptions { Expires = expires };
+
+        var handler = new FunctionalHandler(responseProvider: r => r.Respond().Cookie("session", "abc123", options).Build());
+
+        await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
+
+        using var response = await runner.GetResponseAsync();
+
+        response.Headers.TryGetValues("Set-Cookie", out var values);
+
+        var expected = $"session=abc123; Expires={expires.UtcDateTime:r}";
+
+        CollectionAssert.AreEqual(new[] { expected }, values?.ToList());
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestMultipleCookiesCanBeWritten(TestEngine engine)
+    {
+        var handler = new FunctionalHandler(responseProvider: r => r.Respond().Cookie("first", "1").Cookie("second", "2").Build());
+
+        await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
+
+        using var response = await runner.GetResponseAsync();
+
+        response.Headers.TryGetValues("Set-Cookie", out var values);
+
+        CollectionAssert.AreEqual(new[] { "first=1", "second=2" }, values?.ToList());
+    }
+
 }

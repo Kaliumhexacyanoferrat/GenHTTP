@@ -86,8 +86,6 @@ public sealed class LocalizationTests
         });
     }
 
-    // todo
-    /*
     [TestMethod]
     [MultiEngineTest]
     public async Task TestFromCookie(TestEngine engine)
@@ -105,7 +103,7 @@ public sealed class LocalizationTests
         {
             Assert.AreEqual(CultureInfo.CreateSpecificCulture("quz-EC"), CultureInfo.CurrentUICulture);
         });
-    }*/
+    }
 
     [TestMethod]
     [MultiEngineTest]
@@ -176,7 +174,7 @@ public sealed class LocalizationTests
         var localization = Localization
             .Create()
             .FromQuery()
-            // todo: .FromCookie()
+            .FromCookie()
             .FromHeader()
             .FromRequest(_ => "de")
             .Supports([CultureInfo.CreateSpecificCulture("de")])

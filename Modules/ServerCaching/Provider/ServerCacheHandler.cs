@@ -137,14 +137,6 @@ public sealed class ServerCacheHandler : IConcern
         var response = request.Respond()
                               .Status((ResponseStatus)cached.StatusCode); // todo
 
-        /*if (cached.Cookies != null)
-        {
-            foreach (var cookie in cached.Cookies)
-            {
-                response.Cookie(cookie.Value);
-            }
-        }*/
-
         foreach (var header in cached.Headers)
         {
             response.Header(header.Key, header.Value);
@@ -195,8 +187,6 @@ public sealed class ServerCacheHandler : IConcern
             headers.Add(key, value);
         }
 
-        var cookies = new Dictionary<string, Cookie>(); // todo
-
         Dictionary<string, string>? variations = null;
 
         if (vary != null)
@@ -216,7 +206,7 @@ public sealed class ServerCacheHandler : IConcern
 
         var (checksum, contentLength, contentType, contentEncoding) = await ExtractContentValues(response);
 
-        return new CachedResponse((int)response.Status, variations, headers, cookies, contentType, contentEncoding, contentLength, checksum);
+        return new CachedResponse((int)response.Status, variations, headers, contentType, contentEncoding, contentLength, checksum);
     }
 
     private static async ValueTask<bool> CheckChangedAsync(IResponse current, CachedResponse cached)
@@ -228,7 +218,6 @@ public sealed class ServerCacheHandler : IConcern
             || cached.ContentLength != contentLength
             || cached.ContentType != contentType
             || HeadersChanged(current, cached);
-        // todo:   || current.Cookies.Count != cached.Cookies?.Count || current.Cookies.Except(cached.Cookies).Any();
     }
 
     private static async ValueTask<(ulong?, ulong?, string?, string?)> ExtractContentValues(IResponse response)

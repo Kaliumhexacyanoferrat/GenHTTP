@@ -30,12 +30,8 @@ public sealed class LocalizationConcernBuilder : IConcernBuilder
     /// </summary>
     /// <param name="cookieName">The name of the cookie to extract the language from.</param>
     /// <returns></returns>
-    /* ToDo: public LocalizationConcernBuilder FromCookie(string cookieName = "lang")
-        => FromRequest(request =>
-        {
-            request.Cookies.TryGetValue(cookieName, out var languageCookie);
-            return languageCookie.Value;
-        });*/
+    public LocalizationConcernBuilder FromCookie(string cookieName = "lang")
+        => FromRequest(request => request.Header.Headers.GetCookie(cookieName));
 
     /// <summary>
     /// Extracts the language from a query parameter.

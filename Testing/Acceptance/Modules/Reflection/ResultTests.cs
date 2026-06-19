@@ -5,8 +5,6 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Reflection;
 
-using Cookie = GenHTTP.Api.Protocol.Cookie;
-
 namespace GenHTTP.Testing.Acceptance.Modules.Reflection;
 
 [TestClass]
@@ -29,7 +27,7 @@ public sealed class ResultTests
                      .Status(ResponseStatus.Created)
                      .Connection(Connection.Close)
                      .Header("X-Custom", "Value")
-                     .Cookie(new Cookie("Cookie", "Value"));
+                     .Cookie("Cookie", "Value");
 
         var inline = Inline.Create()
                            .Get(() => result)
@@ -42,6 +40,8 @@ public sealed class ResultTests
         await response.AssertStatusAsync(HttpStatusCode.Created);
 
         Assert.AreEqual("Value", response.GetHeader("X-Custom"));
+
+        Assert.AreEqual("Cookie=Value", response.GetHeader("Set-Cookie"));
 
         Assert.AreEqual("close", response.GetHeader("Connection")?.ToLower());
     }

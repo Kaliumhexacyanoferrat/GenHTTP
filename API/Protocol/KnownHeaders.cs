@@ -28,7 +28,11 @@ public static class KnownHeaders
     public static readonly ByteString Expires = new("Expires");
 
     public static readonly ByteString IfNoneMatch = new("If-None-Match");
-        
+
     public static readonly ByteString ETag = new("ETag");
+
+    public static readonly ByteString Cookie = new("Cookie");
+
+    public static readonly ByteString SetCookie = new("Set-Cookie");
 
 }

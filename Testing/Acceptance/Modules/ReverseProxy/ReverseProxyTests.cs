@@ -62,20 +62,18 @@ public sealed class ReverseProxyTests
         await headed.AssertStatusAsync(HttpStatusCode.OK);
     }
 
-    // todo
-    /*
     [TestMethod]
     [MultiEngineTest]
     public async Task TestCookies(TestEngine engine)
     {
         await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
-            Assert.AreEqual("World", r.Cookies["Hello"].Value);
+            Assert.AreEqual("World", r.Header.Headers.GetCookie("Hello"));
 
             return r.Respond()
                     .Content("Hello World!")
-                    .Cookie(new Cookie("One", "1"))
-                    .Cookie(new Cookie("Two", "2"))
+                    .Cookie("One", "1")
+                    .Cookie("Two", "2")
                     .Build();
         });
 
@@ -96,7 +94,7 @@ public sealed class ReverseProxyTests
 
         Assert.AreEqual("1", returned["One"]!.Value);
         Assert.AreEqual("2", returned["Two"]!.Value);
-    }*/
+    }
 
     [TestMethod]
     [MultiEngineTest]

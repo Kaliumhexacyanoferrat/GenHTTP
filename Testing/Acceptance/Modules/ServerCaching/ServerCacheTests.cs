@@ -136,7 +136,7 @@ public class ServerCacheTests
         var handler = new FunctionalHandler(responseProvider: r =>
         {
             return r.Respond()
-                    // .Cookie(new Cookie("CKey", "CValue"))
+                    .Cookie("CKey", "CValue")
                     .Header("HKey", "HValue")
                     .Content(new ResourceContent(Resource.FromString("0123456789").Type(ContentType.AudioWav).Build()))
                     .Build();
@@ -151,6 +151,8 @@ public class ServerCacheTests
         Assert.AreEqual("audio/wav", cached.GetContentHeader("Content-Type"));
 
         Assert.AreEqual("HValue", cached.GetHeader("HKey"));
+
+        Assert.AreEqual("CKey=CValue", cached.GetHeader("Set-Cookie"));
 
         Assert.AreEqual("0123456789", await cached.GetContentAsync());
     }
