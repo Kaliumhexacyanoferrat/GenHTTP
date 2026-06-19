@@ -128,8 +128,11 @@ public sealed class CookieTests
     [MultiEngineTest]
     public async Task TestCookieWithOptionsCanBeWritten(TestEngine engine)
     {
+        var expires = new DateTimeOffset(2030, 1, 2, 3, 4, 5, TimeSpan.Zero);
+
         var options = new CookieOptions
         {
+            Expires = expires,
             MaxAge = TimeSpan.FromSeconds(86400),
             Domain = new ByteString("example.com"),
             Path = new ByteString("/api"),
@@ -146,7 +149,30 @@ public sealed class CookieTests
 
         response.Headers.TryGetValues("Set-Cookie", out var values);
 
-        CollectionAssert.AreEqual(new[] { "session=abc123; Max-Age=86400; Domain=example.com; Path=/api; Secure; HttpOnly; SameSite=Strict" }, values?.ToList());
+        var expected = $"session=abc123; Expires={expires.UtcDateTime:r}; Max-Age=86400; Domain=example.com; Path=/api; Secure; HttpOnly; SameSite=Strict";
+
+        CollectionAssert.AreEqual(new[] { expected }, values?.ToList());
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestCookieWithExpiresOnlyCanBeWritten(TestEngine engine)
+    {
+        var expires = new DateTimeOffset(2030, 1, 2, 3, 4, 5, TimeSpan.Zero);
+
+        var options = new CookieOptions { Expires = expires };
+
+        var handler = new FunctionalHandler(responseProvider: r => r.Respond().Cookie("session", "abc123", options).Build());
+
+        await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
+
+        using var response = await runner.GetResponseAsync();
+
+        response.Headers.TryGetValues("Set-Cookie", out var values);
+
+        var expected = $"session=abc123; Expires={expires.UtcDateTime:r}";
+
+        CollectionAssert.AreEqual(new[] { expected }, values?.ToList());
     }
 
     [TestMethod]
