@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
@@ -7,6 +8,8 @@ using GenHTTP.Engine.Internal.Infrastructure.Endpoints;
 using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Types;
 
+using Microsoft.Extensions.Logging;
+
 namespace GenHTTP.Engine.Internal.Infrastructure;
 
 internal sealed class ThreadedServer : IServer
@@ -14,6 +17,8 @@ internal sealed class ThreadedServer : IServer
     private readonly EndPointCollection _endPoints;
 
     private readonly PropertyBag _properties = new();
+
+    private readonly ILogger _logger;
 
     #region Get-/Setters
 
@@ -26,6 +31,8 @@ internal sealed class ThreadedServer : IServer
     public IHandler Handler { get; }
 
     public IPropertyBag Properties => _properties;
+
+    public ILoggerFactory Logging => Configuration.Logging;
 
     public IEndPointCollection EndPoints => _endPoints;
 
@@ -42,6 +49,8 @@ internal sealed class ThreadedServer : IServer
         Configuration = configuration;
 
         Handler = handler;
+
+        _logger = configuration.Logging.CreateLogger<ThreadedServer>();
 
         _endPoints = new EndPointCollection(this, configuration.EndPoints);
     }
@@ -61,11 +70,17 @@ internal sealed class ThreadedServer : IServer
     {
         try
         {
+            var start = Stopwatch.GetTimestamp();
+            
             await handler.PrepareAsync(this);
+
+            var elapsed = Stopwatch.GetElapsedTime(start);
+            
+            _logger.LogInformation("Prepared handlers in {ElapsedMs:0.##} ms", elapsed.TotalMilliseconds);
         }
-        catch
+        catch (Exception e)
         {
-            // todo: logging
+            _logger.LogCritical(e, "Failed to prepare the handler chain");
         }
     }
 

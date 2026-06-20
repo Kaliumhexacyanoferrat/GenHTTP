@@ -10,6 +10,7 @@ using Glyph11;
 using Glyph11.Parser;
 using Glyph11.Parser.UltraHardened;
 using Glyph11.Protocol;
+using Microsoft.Extensions.Logging;
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
 namespace GenHTTP.Engine.Internal.Protocol;
@@ -40,13 +41,19 @@ internal sealed class ClientHandler(ClientContext context)
     {
         var connection = context.Connection;
 
+        // only resolved if an actual error needs to be logged, so well
+        // behaved connections never pay for it; cached locally (rather than
+        // on the instance, which is reused for many connections via the
+        // pool) in case more than one of the catch blocks below triggers
+        ILogger? logger = null;
+
         try
         {
             await HandlePipeAsync(context.Reader).ConfigureAwait(false);
         }
-        catch
+        catch (Exception e)
         {
-            // todo: logging
+            LogUnlessGracefulDisconnect(ref logger, e, "Failed to handle client connection");
         }
         finally
         {
@@ -54,9 +61,9 @@ internal sealed class ClientHandler(ClientContext context)
             {
                 await context.Stream.DisposeAsync();
             }
-            catch
+            catch (Exception e)
             {
-                // todo: logging
+                LogUnlessGracefulDisconnect(ref logger, e, "Failed to dispose client stream");
             }
 
             try
@@ -69,9 +76,9 @@ internal sealed class ClientHandler(ClientContext context)
 
                 connection.Dispose();
             }
-            catch
+            catch (Exception e)
             {
-                // todo: logging
+                LogUnlessGracefulDisconnect(ref logger, e, "Failed to shut down client connection");
             }
         }
     }
@@ -240,6 +247,18 @@ internal sealed class ClientHandler(ClientContext context)
         {
             /* no recovery here */
         }
+    }
+
+    private void LogUnlessGracefulDisconnect(ref ILogger? logger, Exception e, string message)
+    {
+        if (ConnectionExceptions.IsGracefulDisconnect(e))
+        {
+            return;
+        }
+
+        logger ??= context.Server.Logging.CreateLogger<ClientHandler>();
+
+        logger.LogWarning(e, message);
     }
 
     private void ResetCts(TimeSpan timeout)

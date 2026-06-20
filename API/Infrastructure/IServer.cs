@@ -1,5 +1,7 @@
 ﻿using GenHTTP.Api.Content;
 
+using Microsoft.Extensions.Logging;
+
 namespace GenHTTP.Api.Infrastructure;
 
 /// <summary>
@@ -34,6 +36,17 @@ public interface IServer : IAsyncDisposable
     /// Property bag to store values during the lifetime of the server.
     /// </summary>
     IPropertyBag Properties { get; }
+
+    /// <summary>
+    /// The logging infrastructure of the application, used by the server itself
+    /// as well as by the handlers, concerns and other components running within it
+    /// to emit diagnostic information.
+    /// </summary>
+    /// <remarks>
+    /// Logs to the console by default. Use <see cref="IServerBuilder{T}.Logging(ILoggerFactory?, bool)" />
+    /// to configure a different factory or to disable logging entirely.
+    /// </remarks>
+    ILoggerFactory Logging { get; }
     
     /// <summary>
     /// The endpoints the server is listening on.

@@ -5,15 +5,20 @@ using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
+using GenHTTP.Engine.Shared.Infrastructure.Logging;
 using GenHTTP.Engine.Shared.Security;
 
 using GenHTTP.Modules.ErrorHandling;
+
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace GenHTTP.Engine.Shared.Infrastructure;
 
 public abstract class ServerBuilder : IServerBuilder
 {
     private readonly List<IConcernBuilder> _concerns = [];
+    
     private readonly List<EndPointConfiguration> _endPoints = [];
 
     private bool _development;
@@ -21,6 +26,10 @@ public abstract class ServerBuilder : IServerBuilder
     private IHandler? _handler;
 
     private ushort _port = 8080;
+
+    private ILoggerFactory _loggerFactory = CreateDefaultLoggerFactory();
+
+    private bool _logRequests = true;
 
     #region Content
 
@@ -47,6 +56,14 @@ public abstract class ServerBuilder : IServerBuilder
     public IServerBuilder Development(bool developmentMode = true)
     {
         _development = developmentMode;
+        return this;
+    }
+
+    public IServerBuilder Logging(ILoggerFactory loggerFactory, bool logRequests = true)
+    {
+        _loggerFactory = loggerFactory;
+        _logRequests = logRequests && !(loggerFactory is NullLoggerFactory);
+
         return this;
     }
 
@@ -97,12 +114,16 @@ public abstract class ServerBuilder : IServerBuilder
             endpoints.Add(new EndPointConfiguration(null, _port, true, null, false));
         }
 
-        var config = new ServerConfiguration(_development, endpoints);
+        var config = new ServerConfiguration(_development, endpoints, _loggerFactory);
 
-        var concerns = new[]
+        var concerns = new List<IConcernBuilder> { ErrorHandler.Default() };
+
+        concerns.AddRange(_concerns);
+
+        if (_logRequests)
         {
-            ErrorHandler.Default()
-        }.Concat(_concerns);
+            concerns.Add(new RequestLoggingConcernBuilder());
+        }
 
         var handler = new CoreRouter(_handler, concerns);
 
@@ -110,6 +131,8 @@ public abstract class ServerBuilder : IServerBuilder
     }
 
     protected abstract IServer Build(ServerConfiguration config, IHandler handler);
+
+    private static ILoggerFactory CreateDefaultLoggerFactory() => LoggerFactory.Create(builder => builder.AddConsole());
 
     #endregion
 

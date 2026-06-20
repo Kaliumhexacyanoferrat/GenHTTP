@@ -5,7 +5,10 @@ using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Infrastructure;
 
+using GenHTTP.Engine.Internal.Protocol;
 using GenHTTP.Engine.Shared.Infrastructure;
+
+using Microsoft.Extensions.Logging;
 
 namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
 
@@ -61,9 +64,12 @@ internal sealed class SecureEndPoint : EndPoint
                 client.Close();
                 client.Dispose();
             }
-            catch
+            catch (Exception e)
             {
-                // todo: logging
+                if (!ConnectionExceptions.IsGracefulDisconnect(e))
+                {
+                    Logger.LogWarning(e, "Failed to close unauthenticated client connection");
+                }
             }
         }
     }
@@ -78,9 +84,12 @@ internal sealed class SecureEndPoint : EndPoint
 
             return stream;
         }
-        catch
+        catch (Exception e)
         {
-            // todo: logging
+            if (!ConnectionExceptions.IsGracefulDisconnect(e))
+            {
+                Logger.LogWarning(e, "Failed to authenticate client connection");
+            }
 
             return null;
         }
@@ -100,6 +109,9 @@ internal sealed class SecureEndPoint : EndPoint
 
     private bool ValidateClient(object _, X509Certificate? certificate, X509Chain? chain, SslPolicyErrors sslpolicyerrors)
         => Options.CertificateValidator?.Validate(certificate, chain, sslpolicyerrors) ?? true;
+
+    protected override string DescribeSettings() =>
+        $"{base.DescribeSettings()}, Protocols: {Options.Protocols}, ClientCertificate: {(Options.CertificateValidator?.RequireCertificate == true ? "Required" : "Optional")}";
 
     #endregion
 

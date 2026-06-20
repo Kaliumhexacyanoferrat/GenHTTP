@@ -6,6 +6,8 @@ using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Engine.Internal.Context;
+using GenHTTP.Engine.Internal.Protocol;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
 
 namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
@@ -19,6 +21,8 @@ internal abstract class EndPoint : IEndPoint
     #region Get-/Setters
 
     protected IServer Server { get; }
+
+    protected ILogger Logger { get; }
 
     private Task? Task { get; set; }
 
@@ -39,6 +43,7 @@ internal abstract class EndPoint : IEndPoint
     protected EndPoint(IServer server, IPAddress? address, ushort port, bool dualStack)
     {
         Server = server;
+        Logger = server.Logging.CreateLogger(GetType());
 
         Address = address;
         Port = port;
@@ -75,8 +80,16 @@ internal abstract class EndPoint : IEndPoint
             throw new BindingException($"Failed to bind to {address} on port {Port}.", e);
         }
 
+        Logger.LogInformation("Listening on {Address}:{Port} ({Settings})", address, Port, DescribeSettings());
+
         Task = Task.Run(Listen);
     }
+
+    /// <summary>
+    /// Describes the settings of this endpoint for diagnostic purposes (e.g.
+    /// whether it is secured and which protocols it accepts).
+    /// </summary>
+    protected virtual string DescribeSettings() => $"{(Secure ? "HTTPS" : "HTTP")}, DualStack: {DualStack}";
 
     private async Task Listen()
     {
@@ -90,11 +103,11 @@ internal abstract class EndPoint : IEndPoint
             }
             while (!_shuttingDown);
         }
-        catch
+        catch (Exception e)
         {
-            if (!_shuttingDown)
+            if (!_shuttingDown && !ConnectionExceptions.IsGracefulDisconnect(e))
             {
-                // todo: logging
+                Logger.LogError(e, "Failed to accept incoming connection");
             }
         }
     }
@@ -172,9 +185,9 @@ internal abstract class EndPoint : IEndPoint
                         Task.Wait();
                     }
                 }
-                catch
+                catch (Exception e)
                 {
-                    // todo: logging
+                    Logger.LogWarning(e, "Failed to dispose endpoint socket");
                 }
             }
 

@@ -5,6 +5,8 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Internal.Context;
 using GenHTTP.Engine.Internal.Protocol.Sinks;
 
+using Microsoft.Extensions.Logging;
+
 namespace GenHTTP.Engine.Internal.Protocol;
 
 internal sealed class ResponseHandler
@@ -49,9 +51,13 @@ internal sealed class ResponseHandler
 
             return true;
         }
-        catch
+        catch (Exception e)
         {
-            // todo: logging
+            if (!ConnectionExceptions.IsGracefulDisconnect(e))
+            {
+                Context.Server.Logging.CreateLogger<ResponseHandler>().LogWarning(e, "Failed to write response to client");
+            }
+
             return false;
         }
     }

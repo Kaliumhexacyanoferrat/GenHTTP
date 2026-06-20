@@ -6,6 +6,8 @@ using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
+using Microsoft.Extensions.Logging;
+
 namespace GenHTTP.Engine.Shared.Hosting;
 
 public sealed class ServerHost : IServerHost
@@ -50,6 +52,12 @@ public sealed class ServerHost : IServerHost
     public IServerHost Development(bool developmentMode = true)
     {
         _builder.Development(developmentMode);
+        return this;
+    }
+
+    public IServerHost Logging(ILoggerFactory loggerFactory, bool logRequests = true)
+    {
+        _builder.Logging(loggerFactory, logRequests);
         return this;
     }
 
@@ -101,14 +109,21 @@ public sealed class ServerHost : IServerHost
 
             return 0;
         }
-        catch
+        catch (Exception e)
         {
             if (Debugger.IsAttached)
             {
                 Debugger.Break();
             }
 
-            // todo: logging
+            if (Instance is not null)
+            {
+                Instance.Logging.CreateLogger<ServerHost>().LogCritical(e, "Server stopped unexpectedly");
+            }
+            else
+            {
+                Console.WriteLine(e);
+            }
 
             return -1;
         }
@@ -119,8 +134,14 @@ public sealed class ServerHost : IServerHost
         await StopAsync();
 
         Instance = Build();
+        
+        var logger = Instance.Logging.CreateLogger<ServerHost>();
 
+        logger.LogInformation("Starting server ...");
+        
         await Instance.StartAsync();
+
+        logger.LogInformation("Server has started");
 
         return this;
     }
@@ -129,6 +150,8 @@ public sealed class ServerHost : IServerHost
     {
         if (Instance != null)
         {
+            Instance.Logging.CreateLogger<ServerHost>().LogInformation("Server is shutting down ...");
+
             await Instance.DisposeAsync();
         }
 

@@ -2,6 +2,8 @@
 
 using GenHTTP.Engine.Shared.Infrastructure;
 
+using Microsoft.Extensions.Logging;
+
 namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
 
 internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPointCollection
@@ -12,6 +14,7 @@ internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPoi
     public EndPointCollection(IServer server, IEnumerable<EndPointConfiguration> configuration)
     {
         Server = server;
+        Logger = server.Logging.CreateLogger<EndPointCollection>();
 
         foreach (var config in configuration)
         {
@@ -47,6 +50,8 @@ internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPoi
 
     private IServer Server { get; }
 
+    private ILogger Logger { get; }
+
     #endregion
 
     #region IDisposable Support
@@ -63,9 +68,9 @@ internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPoi
                 {
                     endpoint.Dispose();
                 }
-                catch
+                catch (Exception e)
                 {
-                    // todo: logging
+                    Logger.LogWarning(e, "Failed to dispose endpoint");
                 }
             }
 

@@ -1,6 +1,9 @@
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace GenHTTP.Benchmarks.Infrastructure;
 
 public class BenchmarkServer(IHandler handler) : IServer
@@ -14,6 +17,8 @@ public class BenchmarkServer(IHandler handler) : IServer
     public bool Development => false;
 
     public IPropertyBag Properties => throw new NotSupportedException();
+
+    public ILoggerFactory Logging => NullLoggerFactory.Instance;
 
     public IEndPointCollection EndPoints => throw new NotSupportedException();
 

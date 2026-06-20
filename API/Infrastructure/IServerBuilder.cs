@@ -4,6 +4,8 @@ using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Content;
 
+using Microsoft.Extensions.Logging;
+
 namespace GenHTTP.Api.Infrastructure;
 
 /// <summary>
@@ -78,6 +80,17 @@ public interface IServerBuilder<out T> : IBuilder<IServer>
     /// By default, the development mode is disabled.
     /// </remarks>
     T Development(bool developmentMode = true);
+
+    /// <summary>
+    /// Configures how this server instance will log status changes and handled requests.
+    /// </summary>
+    /// <remarks>
+    /// By default, the server will log to console and install a concern that will
+    /// log every handled request.
+    /// </remarks>
+    /// <param name="loggerFactory">The logger factory to be used (pass a null logger to disable logging)</param>
+    /// <param name="logRequests">Specifies whether handled requests should be logged</param>
+    T Logging(ILoggerFactory loggerFactory, bool logRequests = true);
 
     #endregion
 
