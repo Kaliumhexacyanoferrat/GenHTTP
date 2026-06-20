@@ -25,6 +25,8 @@ public sealed class IoxideServer : IServer
 
     private Thread[]? _threads;
 
+    private Reactor[]? _reactors;
+
     public string Version { get; } = typeof(IoxideServer).Assembly.GetName().Version?.ToString() ?? "0.1";
 
     public bool Running { get; private set; }
@@ -77,6 +79,7 @@ public sealed class IoxideServer : IServer
         };
 
         _threads = new Thread[cfg.ReactorCount];
+        _reactors = new Reactor[cfg.ReactorCount];
 
         for (var i = 0; i < _threads.Length; i++)
         {
@@ -93,6 +96,8 @@ public sealed class IoxideServer : IServer
                 Handle = (_, c) => ConnectionDriver.HandleAsync(this, _endPoint, c, _connectionFactory),
             };
 
+            _reactors[i] = reactor;
+
             _threads[i] = new Thread(reactor.Run)
             {
                 Name = $"ioxide-genhttp-{i}",
@@ -103,10 +108,37 @@ public sealed class IoxideServer : IServer
         }
     }
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
-        Running = false; // spike: reactor threads are background; no graceful drain
-        
-        return ValueTask.CompletedTask;
+        Running = false;
+
+        var reactors = _reactors;
+        var threads = _threads;
+
+        _reactors = null;
+        _threads = null;
+
+        if (reactors is null || threads is null)
+        {
+            return;
+        }
+
+        // Each reactor owns an io_uring ring on its own thread. Signal every reactor to stop, then join
+        // the threads: each loop exits and Run() disposes its ring on the reactor thread (mandatory for a
+        // single-issuer / DEFER_TASKRUN ring). Without this the rings leak for the lifetime of the process,
+        // so a long-lived host - or a test run that spins up hundreds of hosts - eventually exhausts
+        // io_uring_setup and crashes. Joining runs off the caller so DisposeAsync stays non-blocking.
+        await Task.Run(() =>
+        {
+            foreach (var reactor in reactors)
+            {
+                reactor.Stop();
+            }
+
+            foreach (var thread in threads)
+            {
+                thread.Join(TimeSpan.FromSeconds(5));
+            }
+        });
     }
 }
