@@ -15,6 +15,11 @@ public enum TestEngine
     /// <summary>
     /// Microsoft Kestrel.
     /// </summary>
-    Kestrel
+    Kestrel,
+    
+    /// <summary>
+    /// Thread per reactor io_uring engine.
+    /// </summary>
+    Ioxide
 
 }

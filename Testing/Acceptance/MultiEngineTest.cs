@@ -17,8 +17,9 @@ public class MultiEngineTestAttribute : Attribute, ITestDataSource
         
         if (engine == null) {
             return new List<object[]>
-            {
+            { 
                 new object[] { TestEngine.Internal },
+                new object[] { TestEngine.Ioxide },
                 // todo: new object[] { TestEngine.Kestrel }
             };
         }

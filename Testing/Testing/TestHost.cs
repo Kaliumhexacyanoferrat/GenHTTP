@@ -58,7 +58,20 @@ public class TestHost : IAsyncDisposable
     {
         Port = NextPort();
 
-        Host = (engine == TestEngine.Internal) ? Engine.Internal.Host.Create() : throw new NotSupportedException(); // todo: Engine.Kestrel.Host.Create();
+        if (engine == TestEngine.Internal)
+        {
+            Host = Engine.Internal.Host.Create();
+        }
+        else if (engine == TestEngine.Ioxide)
+        {
+            Host = Engine.Ioxide.Host.Create();
+        }
+        else
+        {
+            throw new NotSupportedException();
+        }
+        
+        //Host = (engine == TestEngine.Internal) ? Engine.Internal.Host.Create() : throw new NotSupportedException(); // todo: Engine.Kestrel.Host.Create();
 
         Host.Handler(handler);
         Host.Port((ushort)Port);
@@ -196,7 +209,8 @@ public class TestHost : IAsyncDisposable
 
         var client = new HttpClient(handler)
         {
-            DefaultRequestVersion = protocolVersion ?? HttpVersion.Version11
+            DefaultRequestVersion = protocolVersion ?? HttpVersion.Version11,
+            Timeout = TimeSpan.FromSeconds(1)
         };
 
         client.DefaultRequestHeaders.ConnectionClose = false;

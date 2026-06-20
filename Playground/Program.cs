@@ -53,7 +53,13 @@ if (Directory.Exists(staticRoot))
 }
 
 var host = Host.Create(
-        c => c with { ReactorCount = reactors, ExtraPorts = tls ? [Tls.Port] : c.ExtraPorts, WriteSlabSize = writeSlab ?? c.WriteSlabSize },
+        c => c with
+        {
+            ReactorCount = reactors, 
+            ExtraPorts = tls ? [Tls.Port] : c.ExtraPorts, 
+            WriteSlabSize = writeSlab ?? c.WriteSlabSize,
+            BufferRingEntries = 256
+        },
         onReactorStart,
         connectionFactory)
     .Handler(Project.Create())
