@@ -32,6 +32,8 @@ public sealed class Request : IRequest
     private readonly RequestBody _body;
 
     private bool _bodyLoaded;
+
+    private bool _bodyPresent;
     
     private bool _resetRequired = true;
 
@@ -114,7 +116,8 @@ public sealed class Request : IRequest
         Reader.AdvanceTo(_bodyStart);
 
         _bodyLoaded = true;
-        
+        _bodyPresent = hasBody;
+
         return (hasBody) ? _body : null;
     }
 
@@ -131,6 +134,7 @@ public sealed class Request : IRequest
         _properties.Clear();
 
         _bodyLoaded = false;
+        _bodyPresent = false;
         _bodyStart = bodyStart;
         _retainedHeader = null;
     }
@@ -146,6 +150,7 @@ public sealed class Request : IRequest
         _properties.Clear();
 
         _bodyLoaded = false;
+        _bodyPresent = false;
         _bodyStart = default;
         _retainedHeader = null;
     }
@@ -166,7 +171,7 @@ public sealed class Request : IRequest
     {
         if (_bodyLoaded)
         {
-            return _body.DrainAsync();
+            return _bodyPresent ? _body.DrainAsync() : default;
         }
 
         if (GetBody(HeaderAccess.Release) != null) 
