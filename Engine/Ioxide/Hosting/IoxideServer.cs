@@ -50,10 +50,16 @@ public sealed class IoxideServer : IServer
         _onReactorStart = onReactorStart;
         _connectionFactory = connectionFactory;
 
-        var ep = config.EndPoints.First(); // spike: first endpoint only
+        var ep = config.EndPoints.First(); // spike: still only SERVE the first endpoint
 
         _endPoint = new IoxideEndPoint(ep.Address, ep.Port, ep.DualStack, ep.Security != null);
-        EndPoints = new IoxideEndPoints([_endPoint]);
+
+        // Advertise every configured endpoint (including secure ones) in IServer.EndPoints so concerns
+        // that inspect it — e.g. the secure-upgrade redirect, which derives the HTTPS port from a secure
+        // endpoint — behave correctly, even though the reactor currently only binds the first endpoint.
+        EndPoints = new IoxideEndPoints(
+            config.EndPoints.Select(e => (IEndPoint)new IoxideEndPoint(e.Address, e.Port, e.DualStack, e.Security != null)).ToList()
+        );
     }
 
     public async ValueTask StartAsync()

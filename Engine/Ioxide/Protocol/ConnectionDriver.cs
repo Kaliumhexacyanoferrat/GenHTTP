@@ -36,6 +36,15 @@ internal static class ConnectionDriver
 
     private static readonly ReadOnlyMemory<byte> KeepAliveValue = "Keep-Alive"u8.ToArray();
 
+    // Half-close (SHUT_WR = 1) the socket's write side to send FIN. ioxide's refcounted teardown does not
+    // FIN a server-initiated close by itself (the reactor's active recv keeps a reference), so an
+    // EOF-delimited response (connection-close / upgrade) would otherwise hang the client. The read side
+    // stays open so the client's own close is still observed and the reactor reclaims the connection.
+    private const int ShutWrite = 1;
+
+    [System.Runtime.InteropServices.DllImport("libc", EntryPoint = "shutdown")]
+    private static extern int Shutdown(int sockfd, int how);
+
     // Per-reactor pool of Request objects. Each reactor runs on its own thread and services its
     // connections cooperatively, so the stack needs no locking. Reuses the per-connection Request
     // allocation, which matters under connection churn (e.g. limited-conn). Mirrors the Internal
@@ -128,11 +137,21 @@ internal static class ConnectionDriver
         finally
         {
             await reader.CompleteAsync();
+
+            // Signal end-of-writes so the client sees EOF. Length-delimited responses don't strictly
+            // need this, but connection-close and upgrade (101) responses are delimited by FIN — without
+            // completing the writer the client blocks waiting for bytes that never come. Mirrors the
+            // reader completion above.
+            await writer.CompleteAsync();
+
             WarnIfThreadHopped(reactorThreadId, "before-return");
             if (pipe is IAsyncDisposable disposable)
             {
                 await disposable.DisposeAsync(); // tears down a TLS transport (stops the decrypt pump, close_notify)
             }
+            // Send FIN for server-initiated closes so EOF-delimited responses terminate for the client
+            // (see ShutWrite above). Harmless for client-initiated closes — the fd is already closing.
+            Shutdown(conn.ClientFd, ShutWrite);
             conn.DecRef();
             ReturnRequest(request);
         }
@@ -181,6 +200,10 @@ internal static class ConnectionDriver
         var closeRequested = response.Mode is Connection.Close or Connection.Upgrade;
 
         await ResponseWriter.WriteAsync(writer, request, response, keepAliveRequested && !closeRequested, headRequest);
+
+        // Notify companions after the response has been written (mirrors the Internal engine's
+        // ResponseHandler). Fires for every handled request; the host wires logging/metrics here.
+        server.Companion?.OnRequestHandled(request, response);
 
         return keepAliveRequested && !closeRequested;
     }

@@ -60,7 +60,11 @@ internal sealed class PipeWriterStream(IBufferWriter<byte> sink, PipeWriter flus
         return ValueTask.CompletedTask;
     }
 
-    public override void Flush() => flush.FlushAsync().GetAwaiter().GetResult();
+    // Deliberately a no-op: a synchronous flush would block the reactor thread on the pipe's
+    // IValueTaskSource, but that flush is completed by the very same reactor -> deadlock. The bytes
+    // written above are already buffered in `sink` and get drained by the end-of-response FlushAsync
+    // (and async callers can await FlushAsync below), so dropping the sync flush loses nothing.
+    public override void Flush() { }
 
     public override Task FlushAsync(CancellationToken cancellationToken) => flush.FlushAsync(cancellationToken).AsTask();
 
