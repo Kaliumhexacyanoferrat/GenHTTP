@@ -87,11 +87,12 @@ public sealed class IoxideServer : IServer
             cfg = _configure(cfg);
         }
 
-        // The endpoint binding (.Port()/.Bind()) determines the listen port, so it
-        // always wins over whatever the configuration hook may have set.
+        // The endpoint binding (.Port()/.Bind()) determines the listen port and dual-stack mode, so
+        // they always win over whatever the configuration hook may have set.
         cfg = cfg with
         {
-            Port = _endPoint.Port
+            Port = _endPoint.Port,
+            DualStack = _endPoint.DualStack
         };
 
         _threads = new Thread[cfg.ReactorCount];

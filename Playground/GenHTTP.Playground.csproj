@@ -34,8 +34,8 @@
         <ProjectReference Include="..\Modules\Controllers\GenHTTP.Modules.Controllers.csproj"/>
         <ProjectReference Include="..\Modules\Files\GenHTTP.Modules.Files.csproj"/>
         <ProjectReference Include="..\Modules\IoxideFiles\GenHTTP.Modules.IoxideFiles.csproj"/>
-        <PackageReference Include="ioxide.pg" Version="0.0.11" />
-        <PackageReference Include="ioxide.tls" Version="0.0.11" />
+        <PackageReference Include="ioxide.pg" Version="0.0.12" />
+        <PackageReference Include="ioxide.tls" Version="0.0.12" />
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="11.0.0-preview.5.26302.115" />
         <ProjectReference Include="..\Modules\Conversion\GenHTTP.Modules.Conversion.csproj"/>
         <ProjectReference Include="..\Modules\DependencyInjection\GenHTTP.Modules.DependencyInjection.csproj" />

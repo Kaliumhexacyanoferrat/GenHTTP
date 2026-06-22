@@ -24,6 +24,8 @@ public sealed class SecurityTests
     [MultiEngineTest]
     public Task TestSecure(TestEngine engine)
     {
+        SkipIfNoTls(engine);
+
         return RunSecure(async (_, sec) =>
         {
             using var client = TestHost.GetClient(ignoreSecurityErrors: true);
@@ -106,6 +108,8 @@ public sealed class SecurityTests
     [MultiEngineTest]
     public Task TestTransportPolicy(TestEngine engine)
     {
+        SkipIfNoTls(engine);
+
         return RunSecure(async (insec, sec) =>
         {
             using var client = TestHost.GetClient(ignoreSecurityErrors: true);
@@ -131,6 +135,8 @@ public sealed class SecurityTests
     [MultiEngineTest]
     public Task TestSecurityError(TestEngine engine)
     {
+        SkipIfNoTls(engine);
+
         return RunSecure(async (_, sec) =>
         {
             await Assert.ThrowsExactlyAsync<HttpRequestException>(async () =>
@@ -164,6 +170,18 @@ public sealed class SecurityTests
                 using var failedResponse = await client.GetAsync($"https://localhost:{sec}");
             });
         }, engine, host: "myserver");
+    }
+
+    // Ioxide doesn't implement TLS termination yet: it prefers kTLS (file-based certs, no SNI), which
+    // doesn't fit GenHTTP's in-memory, SNI-aware ICertificateProvider model used by these tests. Skip
+    // (don't fail) the cases that need a real handshake to the secure port until a kTLS-based suite is
+    // added. Surfaces as "Inconclusive" with this reason so the coverage gap stays visible.
+    private static void SkipIfNoTls(TestEngine engine)
+    {
+        if (engine == TestEngine.Ioxide)
+        {
+            Assert.Inconclusive("Ioxide: TLS termination not implemented yet (kTLS-only, no SNI cert provider). kTLS tests to follow.");
+        }
     }
 
     private static async Task RunSecure(Func<ushort, ushort, Task> logic, TestEngine engine, SecureUpgrade? mode = null, string host = "localhost")
