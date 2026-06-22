@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.InteropServices;
 
 namespace GenHTTP.Testing.Acceptance;
 
@@ -22,14 +21,14 @@ public class MultiEngineTestAttribute : Attribute, ITestDataSource
     {
         var engine = Environment.GetEnvironmentVariable("TEST_ENGINE");
 
-        if (engine == null || engine == "CI") {
+        if (engine == null) {
             var engines = new List<object[]>
             {
                 new object[] { TestEngine.Internal },
                 // todo: new object[] { TestEngine.Kestrel }
             };
 
-            if (IoxideSupported && engine != "CI")
+            if (IoxideSupported)
             {
                 engines.Add(new object[] { TestEngine.Ioxide });
             }
