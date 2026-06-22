@@ -2,6 +2,7 @@
 
     <PropertyGroup>
 
+        <TargetFrameworks>net11.0</TargetFrameworks>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
         <Description>Serves static files on the GenHTTP Ioxide engine through ioxide.file - baked native responses, statx-based revalidation, and precompressed (.br/.gz) Accept-Encoding negotiation.</Description>

@@ -15,9 +15,9 @@ namespace GenHTTP.Testing;
 public class TestHost : IAsyncDisposable
 {
 
-#if NET8_0
+#if NET10_0
     private static volatile int _nextPort = 20000;
-#elif NET9_0
+#elif NET11_0
     private static volatile int _nextPort = 22000;
 #else
     private static volatile int _nextPort = 24000;
@@ -62,10 +62,12 @@ public class TestHost : IAsyncDisposable
         {
             Host = Engine.Internal.Host.Create();
         }
+#if NET11_0_OR_GREATER
         else if (engine == TestEngine.Ioxide)
         {
             Host = Engine.Ioxide.Host.Create();
         }
+#endif
         else
         {
             throw new NotSupportedException();

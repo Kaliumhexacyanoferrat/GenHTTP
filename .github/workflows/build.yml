@@ -40,7 +40,7 @@ jobs:
     - name: Download .NET SDK
       uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 10.0
+        global-json-file: global.json
         
     - name: Restore tools
       run: dotnet tool restore
@@ -141,8 +141,7 @@ jobs:
         uses: actions/setup-dotnet@v5
         if: matrix.os.runs-on != 'linux-arm32'
         with:
-          dotnet-version: |
-            10.0
+          global-json-file: global.json
 
       - name: Build (${{ matrix.runtime }})
         run: dotnet build GenHTTP.slnx -c Release

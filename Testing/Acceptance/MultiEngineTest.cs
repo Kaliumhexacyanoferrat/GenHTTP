@@ -14,7 +14,12 @@ public class MultiEngineTestAttribute : Attribute, ITestDataSource
 
     // ioxide wraps io_uring, which is Linux-only - running its tests on
     // Windows/macOS would just fail to bind the engine, not exercise it.
+    // It also only ships for net11.0, so it's unavailable in net10.0 builds.
+#if NET11_0_OR_GREATER
     private static readonly bool IoxideSupported = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+#else
+    private static readonly bool IoxideSupported = false;
+#endif
 
     public IEnumerable<object[]> GetData(MethodInfo methodInfo)
     {
