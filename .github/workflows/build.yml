@@ -41,7 +41,9 @@ jobs:
       run: dotnet tool restore
 
     - name: Enable io_uring
-      run: sudo sysctl -w kernel.io_uring_disabled=0 2>/dev/null || true
+      run: |
+        sudo sysctl -w kernel.io_uring_disabled=0 2>/dev/null || true
+        sudo modprobe tls 2>/dev/null || true
 
     - name: Begin scan
       if: env.SONAR_TOKEN != null && env.SONAR_TOKEN != ''
