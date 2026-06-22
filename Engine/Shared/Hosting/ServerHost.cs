@@ -208,7 +208,7 @@ public abstract class ServerHost : IServerHost
 
         var handler = new CoreRouter(_handler, concerns);
 
-        return Build(config, handler);
+        return Build(config, handler); 
     }
 
     private static ILoggerFactory CreateDefaultLoggerFactory() => LoggerFactory.Create(builder => builder.AddConsole());
