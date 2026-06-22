@@ -1,6 +1,6 @@
 ﻿using GenHTTP.Api.Infrastructure;
 
-using GenHTTP.Engine.Shared.Hosting;
+using GenHTTP.Engine.Kestrel.Hosting;
 
 using Microsoft.AspNetCore.Builder;
 
@@ -17,6 +17,6 @@ public static class Host
     /// <param name="applicationHook">An action invoked with the created application instance, allowing to customize the underlying ASP.NET app</param>
     /// <returns>The host which can be used to run a server instance</returns>
     public static IServerHost Create(Action<WebApplicationBuilder>? configurationHook = null, Action<WebApplication>? applicationHook = null)
-        => new ServerHost(Server.Create(configurationHook, applicationHook));
+        => new KestrelServerHost(configurationHook, applicationHook);
 
 }

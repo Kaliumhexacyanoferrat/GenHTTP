@@ -43,7 +43,7 @@ public interface IServer : IAsyncDisposable
     /// to emit diagnostic information.
     /// </summary>
     /// <remarks>
-    /// Logs to the console by default. Use <see cref="IServerBuilder{T}.Logging(ILoggerFactory?, bool)" />
+    /// Logs to the console by default. Use <see cref="IServerHost.Logging(ILoggerFactory, bool)" />
     /// to configure a different factory or to disable logging entirely.
     /// </remarks>
     ILoggerFactory Logging { get; }
