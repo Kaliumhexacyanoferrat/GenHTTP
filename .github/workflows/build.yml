@@ -18,7 +18,7 @@ jobs:
 
     name: Test & Coverage 
 
-    runs-on: ci
+    runs-on: ubuntu-latest
 
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -39,7 +39,10 @@ jobs:
         
     - name: Restore tools
       run: dotnet tool restore
-      
+
+    - name: Enable io_uring
+      run: sudo sysctl -w kernel.io_uring_disabled=0 2>/dev/null || true
+
     - name: Begin scan
       if: env.SONAR_TOKEN != null && env.SONAR_TOKEN != ''
       run: dotnet sonarscanner begin /k:"GenHTTP" /d:sonar.token="$SONAR_TOKEN" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/bin/**/*,**/obj/**/*,**/*.css,**/*.js,**/*.html" /o:"kaliumhexacyanoferrat" /k:"GenHTTP" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.branch.name="${GITHUB_REF##*/}" /d:sonar.dotnet.excludeTestProjects=true
