@@ -55,6 +55,8 @@
     </Folder>
     <Folder Name="/Packages/">
         <File Path="Packages\GenHTTP.Core.nuspec" />
+        <File Path="Packages/GenHTTP.Core.Ioxide.md" />
+        <File Path="Packages/GenHTTP.Core.Ioxide.nuspec" />
         <!--<File Path="Packages\GenHTTP.Core.Kestrel.nuspec" />-->
         <File Path="Packages\GenHTTP.Core.md" />
         <!--<File Path="Packages\GenHTTP.Core.Kestrel.md" />-->

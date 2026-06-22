@@ -1,0 +1,44 @@
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+
+    <metadata>
+
+        <id>GenHTTP.Core.Kestrel</id>
+        <version>11.0.0-preview.19-preview.19</version>
+
+        <description>Basic dependencies for projects using the GenHTTP framework, combined with the Ioxide HTTP engine to serve requests</description>
+
+        <projectUrl>https://genhttp.org/</projectUrl>
+
+        <authors>Andreas Nägeli, Diogo Martins</authors>
+        <tags>HTTP Webserver Library C# Server REST API Host Ioxide</tags>
+
+        <icon>images\icon.png</icon>
+        <readme>README.md</readme>
+
+        <license type="expression">MIT</license>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+
+        <dependencies>
+
+            <group>
+
+                <dependency id="GenHTTP.Api" version="11.0.0-preview.19"/>
+
+                <dependency id="GenHTTP.Engine.Ioxide" version="11.0.0-preview.19"/>
+
+                <dependency id="GenHTTP.Modules.Practices" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.IO" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.Layouting" version="11.0.0-preview.19"/>
+
+            </group>
+
+        </dependencies>
+
+    </metadata>
+
+    <files>
+        <file src="..\Resources\icon.png" target="images\"/>
+        <file src="GenHTTP.Core.Kestrel.md" target="README.md" />
+    </files>
+
+</package>
