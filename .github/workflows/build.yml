@@ -51,7 +51,9 @@ jobs:
       run: dotnet build GenHTTP.slnx -c Release
       
     - name: Test project
-      run: dotnet test GenHTTP.slnx --no-build --collect:"XPlat Code Coverage" -c Release -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+      run: |
+        sudo prlimit --pid $$ --memlock=-1:-1 2>/dev/null || ulimit -l unlimited 2>/dev/null || true
+        dotnet test GenHTTP.slnx --no-build --collect:"XPlat Code Coverage" -c Release -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
       
     - name: End scan
       if: env.SONAR_TOKEN != null && env.SONAR_TOKEN != ''
