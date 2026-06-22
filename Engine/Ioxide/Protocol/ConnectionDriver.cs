@@ -11,6 +11,8 @@ using Glyph11.Parser.UltraHardened;
 using Glyph11.Pico;
 using Glyph11.Protocol;
 
+using Microsoft.Extensions.Logging;
+
 using Connection = GenHTTP.Api.Protocol.Connection;
 using IoConnection = ioxide.Connection;
 
@@ -83,7 +85,7 @@ internal static class ConnectionDriver
                 if (!dataRemaining)
                 {
                     readResult = await reader.ReadAsync();
-                    WarnIfThreadHopped(reactorThreadId, "after-read");
+                    WarnIfThreadHopped(server, reactorThreadId, "after-read");
                 }
 
                 dataRemaining = false;
@@ -104,7 +106,7 @@ internal static class ConnectionDriver
                 request.Apply(server, endPoint, reader, buffer.Start, null, null);
 
                 var keepAlive = await HandleRequestAsync(server, writer, request);
-                WarnIfThreadHopped(reactorThreadId, "after-handle");
+                WarnIfThreadHopped(server, reactorThreadId, "after-handle");
 
                 if (!keepAlive)
                 {
@@ -145,7 +147,7 @@ internal static class ConnectionDriver
             // reader completion above.
             await writer.CompleteAsync();
 
-            WarnIfThreadHopped(reactorThreadId, "before-return");
+            WarnIfThreadHopped(server, reactorThreadId, "before-return");
             if (pipe is IAsyncDisposable disposable)
             {
                 await disposable.DisposeAsync(); // tears down a TLS transport (stops the decrypt pump, close_notify)
@@ -226,7 +228,7 @@ internal static class ConnectionDriver
     // Warns at most once per process if this phase's continuation resumed on a different thread than the
     // reactor thread that entered HandleAsync. On the fast (affine) path it's a single int compare, so it's
     // safe to leave enabled during benchmarks — the one-shot guard keeps it from perturbing throughput.
-    private static void WarnIfThreadHopped(int reactorThreadId, string phase)
+    private static void WarnIfThreadHopped(IServer server, int reactorThreadId, string phase)
     {
         var now = Environment.CurrentManagedThreadId;
 
@@ -237,8 +239,9 @@ internal static class ConnectionDriver
 
         if (Interlocked.Exchange(ref _hopWarned, 1) == 0)
         {
-            Console.WriteLine($"[Ioxide] thread hop detected: reactor={reactorThreadId} now={now} phase={phase}. " +
-                              "The [ThreadStatic] Request pool assumes reactor affinity; pooling degrades under work-stealing. (warns once)");
+            server.Logging.CreateLogger("GenHTTP.Engine.Ioxide.Protocol.ConnectionDriver")
+                  .LogWarning("Thread hop detected: reactor={ReactorThreadId} now={CurrentThreadId} phase={Phase}. " +
+                              "The [ThreadStatic] Request pool assumes reactor affinity; pooling degrades under work-stealing. (warns once)", reactorThreadId, now, phase);
         }
     }
     

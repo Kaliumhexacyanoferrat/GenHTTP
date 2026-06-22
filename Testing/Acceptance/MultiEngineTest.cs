@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace GenHTTP.Testing.Acceptance;
 
@@ -11,21 +12,36 @@ namespace GenHTTP.Testing.Acceptance;
 public class MultiEngineTestAttribute : Attribute, ITestDataSource
 {
 
+    // ioxide wraps io_uring, which is Linux-only - running its tests on
+    // Windows/macOS would just fail to bind the engine, not exercise it.
+    private static readonly bool IoxideSupported = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+
     public IEnumerable<object[]> GetData(MethodInfo methodInfo)
     {
         var engine = Environment.GetEnvironmentVariable("TEST_ENGINE");
-        
+
         if (engine == null) {
-            return new List<object[]>
-            { 
+            var engines = new List<object[]>
+            {
                 new object[] { TestEngine.Internal },
-                new object[] { TestEngine.Ioxide },
                 // todo: new object[] { TestEngine.Kestrel }
             };
+
+            if (IoxideSupported)
+            {
+                engines.Add(new object[] { TestEngine.Ioxide });
+            }
+
+            return engines;
         }
 
         if (Enum.TryParse(engine, out TestEngine found))
         {
+            if (found == TestEngine.Ioxide && !IoxideSupported)
+            {
+                throw new InvalidOperationException("The ioxide engine is Linux-only and cannot be tested on this platform");
+            }
+
             return new List<object[]>
             {
                 new object[] { found }

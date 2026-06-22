@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO.Pipelines;
 
 using GenHTTP.Api.Content;
@@ -23,6 +24,8 @@ public sealed class IoxideServer : IServer
     private readonly Action<Reactor>? _onReactorStart;
 
     private readonly Func<Connection, ValueTask<IDuplexPipe>>? _connectionFactory;
+
+    private readonly ILogger _logger;
 
     private Thread[]? _threads;
 
@@ -50,6 +53,8 @@ public sealed class IoxideServer : IServer
         _onReactorStart = onReactorStart;
         _connectionFactory = connectionFactory;
 
+        _logger = config.Logging.CreateLogger<IoxideServer>();
+
         var ep = config.EndPoints.First(); // spike: still only SERVE the first endpoint
 
         _endPoint = new IoxideEndPoint(ep.Address, ep.Port, ep.DualStack, ep.Security != null);
@@ -60,13 +65,18 @@ public sealed class IoxideServer : IServer
         EndPoints = new IoxideEndPoints(
             config.EndPoints.Select(e => (IEndPoint)new IoxideEndPoint(e.Address, e.Port, e.DualStack, e.Security != null)).ToList()
         );
+
+        var endPointCount = config.EndPoints.Count();
+
+        if (endPointCount > 1)
+        {
+            _logger.LogWarning("Configured with {Count} endpoints, but the ioxide engine only serves the first one ({Address}:{Port})", endPointCount, _endPoint.Address, _endPoint.Port);
+        }
     }
 
     public async ValueTask StartAsync()
     {
-        // Initialise the handler chain (routing, reflection, websockets, ...) before serving;
-        // GenHTTP handlers throw "Handler is not prepared yet" otherwise.
-        await Handler.PrepareAsync(this);
+        await PrepareHandlerAsync();
 
         Running = true;
 
@@ -112,7 +122,31 @@ public sealed class IoxideServer : IServer
 
             _threads[i].Start();
         }
+
+        _logger.LogInformation("Listening on {Address}:{Port} ({Settings})", _endPoint.Address, _endPoint.Port, DescribeSettings());
     }
+
+    private async ValueTask PrepareHandlerAsync()
+    {
+        try
+        {
+            var start = Stopwatch.GetTimestamp();
+
+            // Initialise the handler chain (routing, reflection, websockets, ...) before serving;
+            // GenHTTP handlers throw "Handler is not prepared yet" otherwise.
+            await Handler.PrepareAsync(this);
+
+            var elapsed = Stopwatch.GetElapsedTime(start);
+
+            _logger.LogInformation("Prepared handlers in {ElapsedMs:0.##} ms", elapsed.TotalMilliseconds);
+        }
+        catch (Exception e)
+        {
+            _logger.LogCritical(e, "Failed to prepare the handler chain");
+        }
+    }
+
+    private string DescribeSettings() => $"ioxide, {(_endPoint.Secure ? "HTTPS" : "HTTP")}, DualStack: {_endPoint.DualStack}, Reactors: {_reactors?.Length ?? 0}";
 
     public async ValueTask DisposeAsync()
     {
@@ -128,6 +162,8 @@ public sealed class IoxideServer : IServer
         {
             return;
         }
+
+        _logger.LogInformation("Stopping {Count} ioxide reactors ...", reactors.Length);
 
         // Each reactor owns an io_uring ring on its own thread. Signal every reactor to stop, then join
         // the threads: each loop exits and Run() disposes its ring on the reactor thread (mandatory for a
@@ -146,6 +182,8 @@ public sealed class IoxideServer : IServer
                 thread.Join(TimeSpan.FromSeconds(5));
             }
         });
+
+        _logger.LogInformation("Stopped ioxide reactors");
     }
-    
+
 }
