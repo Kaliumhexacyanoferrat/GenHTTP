@@ -28,15 +28,17 @@ public abstract class ServerHost : IServerHost
     private IHandler? _handler;
 
     private ushort _port = 8080;
-
-    private ILoggerFactory _loggerFactory = CreateDefaultLoggerFactory();
+    
+    private ILoggerFactory? _loggerFactory;
 
     private bool _logRequests = true;
 
+    private bool _autoLogging = true;
+    
     #region Get-/Setters
 
     public IServer? Instance { get; private set; }
-
+    
     #endregion
 
     #region Functionality
@@ -65,6 +67,7 @@ public abstract class ServerHost : IServerHost
     {
         _loggerFactory = loggerFactory;
         _logRequests = logRequests && !(loggerFactory is NullLoggerFactory);
+        _autoLogging = false;
 
         return this;
     }
@@ -158,8 +161,14 @@ public abstract class ServerHost : IServerHost
         if (Instance != null)
         {
             Instance.Logging.CreateLogger<IServerHost>().LogInformation("Server is shutting down ...");
-
+            
             await Instance.DisposeAsync();
+        }
+
+        if (_autoLogging && _loggerFactory is not null)
+        {
+            _loggerFactory.Dispose();
+            _loggerFactory = null;
         }
 
         Instance = null;
@@ -190,8 +199,10 @@ public abstract class ServerHost : IServerHost
         {
             endpoints.Add(new EndPointConfiguration(null, _port, true, null, false));
         }
+        
+        var logging = _loggerFactory ?? CreateDefaultLoggerFactory();
 
-        var config = new ServerConfiguration(_development, endpoints, _loggerFactory);
+        var config = new ServerConfiguration(_development, endpoints, logging);
 
         var concerns = new List<IConcernBuilder> { ErrorHandler.Default() };
 
