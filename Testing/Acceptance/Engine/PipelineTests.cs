@@ -16,7 +16,7 @@ public sealed class PipelineTests
 
         using var client = new TcpClient("127.0.0.1", runner.Port)
         {
-            ReceiveTimeout = 1000
+            ReceiveTimeout = Constants.ClientTimeout
         };
 
         var stream = client.GetStream();
