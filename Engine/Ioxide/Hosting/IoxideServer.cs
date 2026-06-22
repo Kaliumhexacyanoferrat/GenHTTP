@@ -8,6 +8,7 @@ using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Types;
 
 using ioxide;
+using Microsoft.Extensions.Logging;
 
 namespace GenHTTP.Engine.Ioxide.Hosting;
 
@@ -35,15 +36,14 @@ public sealed class IoxideServer : IServer
 
     public IPropertyBag Properties { get; } = new PropertyBag();
 
+    public ILoggerFactory Logging => _config.Logging;
+    
     public IEndPointCollection EndPoints { get; }
-
-    public IServerCompanion? Companion { get; }
 
     public IHandler Handler { get; }
 
-    internal IoxideServer(IServerCompanion? companion, ServerConfiguration config, IHandler handler, Func<ServerConfig, ServerConfig>? configure = null, Action<Reactor>? onReactorStart = null, Func<Connection, ValueTask<IDuplexPipe>>? connectionFactory = null)
+    internal IoxideServer(ServerConfiguration config, IHandler handler, Func<ServerConfig, ServerConfig>? configure = null, Action<Reactor>? onReactorStart = null, Func<Connection, ValueTask<IDuplexPipe>>? connectionFactory = null)
     {
-        Companion = companion;
         _config = config;
         Handler = handler;
         _configure = configure;
@@ -147,4 +147,5 @@ public sealed class IoxideServer : IServer
             }
         });
     }
+    
 }

@@ -14,6 +14,7 @@ namespace GenHTTP.Engine.Ioxide;
 /// </summary>
 public static class Host
 {
+    
     /// <param name="configure">
     /// Optional hook to tune the ioxide runtime (reactor count, ring sizes, recv/write
     /// buffers, ...). Receives a config pre-seeded with sensible defaults; return a
@@ -33,13 +34,7 @@ public static class Host
     /// and writing plaintext for kTLS TX. A returned pipe implementing <see cref="IAsyncDisposable" />
     /// is disposed when the connection ends.
     /// </param>
-    public static IServerHost Create(Func<ServerConfig, ServerConfig>? configure = null, Action<Reactor>? onReactorStart = null, Func<Connection, ValueTask<IDuplexPipe>>? connectionFactory = null) => new ServerHost(Server.Create(configure, onReactorStart, connectionFactory));
-}
-
-/// <summary>
-/// Creates server builders backed by the ioxide io_uring runtime.
-/// </summary>
-public static class Server
-{
-    public static IServerBuilder Create(Func<ServerConfig, ServerConfig>? configure = null, Action<Reactor>? onReactorStart = null, Func<Connection, ValueTask<IDuplexPipe>>? connectionFactory = null) => new IoxideServerBuilder(configure, onReactorStart, connectionFactory);
+    public static IServerHost Create(Func<ServerConfig, ServerConfig>? configure = null, Action<Reactor>? onReactorStart = null, Func<Connection, ValueTask<IDuplexPipe>>? connectionFactory = null) 
+        => new IoxideServerHost(configure, onReactorStart, connectionFactory);
+    
 }

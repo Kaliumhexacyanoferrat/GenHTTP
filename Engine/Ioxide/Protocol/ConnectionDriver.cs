@@ -100,7 +100,8 @@ internal static class ConnectionDriver
                     continue;
                 }
 
-                request.Apply(server, endPoint, reader, buffer.Start);
+                // todo: connection does not seem to expose IP address and client cert currently
+                request.Apply(server, endPoint, reader, buffer.Start, null, null);
 
                 var keepAlive = await HandleRequestAsync(server, writer, request);
                 WarnIfThreadHopped(reactorThreadId, "after-handle");
@@ -201,10 +202,6 @@ internal static class ConnectionDriver
 
         await ResponseWriter.WriteAsync(writer, request, response, keepAliveRequested && !closeRequested, headRequest);
 
-        // Notify companions after the response has been written (mirrors the Internal engine's
-        // ResponseHandler). Fires for every handled request; the host wires logging/metrics here.
-        server.Companion?.OnRequestHandled(request, response);
-
         return keepAliveRequested && !closeRequested;
     }
 
@@ -244,4 +241,5 @@ internal static class ConnectionDriver
                               "The [ThreadStatic] Request pool assumes reactor affinity; pooling degrades under work-stealing. (warns once)");
         }
     }
+    
 }
