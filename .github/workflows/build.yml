@@ -24,6 +24,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       DOTNET_ROLL_FORWARD: Major
+      TEST_ENGINE: CI
 
     steps:
     
@@ -36,9 +37,6 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y libmsquic
-
-    - name: Enable io_uring
-      run: sudo sysctl -w kernel.io_uring_disabled=0
 
     - name: Download .NET SDK
       uses: actions/setup-dotnet@v5

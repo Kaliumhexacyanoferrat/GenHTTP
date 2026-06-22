@@ -11,10 +11,7 @@ namespace GenHTTP.Testing.Acceptance;
 [AttributeUsage(AttributeTargets.Method)]
 public class MultiEngineTestAttribute : Attribute, ITestDataSource
 {
-
-    // ioxide wraps io_uring, which is Linux-only - running its tests on
-    // Windows/macOS would just fail to bind the engine, not exercise it.
-    // It also only ships for net11.0, so it's unavailable in net10.0 builds.
+    
 #if NET11_0_OR_GREATER
     private static readonly bool IoxideSupported = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 #else
@@ -25,14 +22,14 @@ public class MultiEngineTestAttribute : Attribute, ITestDataSource
     {
         var engine = Environment.GetEnvironmentVariable("TEST_ENGINE");
 
-        if (engine == null) {
+        if (engine == null || engine == "CI") {
             var engines = new List<object[]>
             {
                 new object[] { TestEngine.Internal },
                 // todo: new object[] { TestEngine.Kestrel }
             };
 
-            if (IoxideSupported)
+            if (IoxideSupported && engine != "CI")
             {
                 engines.Add(new object[] { TestEngine.Ioxide });
             }
