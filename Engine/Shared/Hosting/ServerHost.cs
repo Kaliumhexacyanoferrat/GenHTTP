@@ -19,6 +19,8 @@ namespace GenHTTP.Engine.Shared.Hosting;
 
 public abstract class ServerHost : IServerHost
 {
+    private static readonly ILoggerFactory DefaultLoggerFactory = CreateDefaultLoggerFactory();
+    
     private readonly List<IConcernBuilder> _concerns = [];
 
     private readonly List<EndPointConfiguration> _endPoints = [];
@@ -29,11 +31,9 @@ public abstract class ServerHost : IServerHost
 
     private ushort _port = 8080;
     
-    private ILoggerFactory? _loggerFactory;
+    private ILoggerFactory? _customLoggerFactory;
 
     private bool _logRequests = true;
-
-    private bool _autoLogging = true;
     
     #region Get-/Setters
 
@@ -65,9 +65,8 @@ public abstract class ServerHost : IServerHost
 
     public IServerHost Logging(ILoggerFactory loggerFactory, bool logRequests = true)
     {
-        _loggerFactory = loggerFactory;
+        _customLoggerFactory = loggerFactory;
         _logRequests = logRequests && !(loggerFactory is NullLoggerFactory);
-        _autoLogging = false;
 
         return this;
     }
@@ -165,12 +164,6 @@ public abstract class ServerHost : IServerHost
             await Instance.DisposeAsync();
         }
 
-        if (_autoLogging && _loggerFactory is not null)
-        {
-            _loggerFactory.Dispose();
-            _loggerFactory = null;
-        }
-
         Instance = null;
 
         return this;
@@ -200,7 +193,7 @@ public abstract class ServerHost : IServerHost
             endpoints.Add(new EndPointConfiguration(null, _port, true, null, false));
         }
         
-        var logging = _loggerFactory ?? CreateDefaultLoggerFactory();
+        var logging = _customLoggerFactory ?? DefaultLoggerFactory;
 
         var config = new ServerConfiguration(_development, endpoints, logging);
 
