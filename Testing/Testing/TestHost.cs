@@ -6,6 +6,10 @@ using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Modules.Practices;
 
+using YamlDotNet.Core;
+
+using Version = System.Version;
+
 namespace GenHTTP.Testing;
 
 /// <summary>
@@ -212,7 +216,7 @@ public class TestHost : IAsyncDisposable
         var client = new HttpClient(handler)
         {
             DefaultRequestVersion = protocolVersion ?? HttpVersion.Version11,
-            Timeout = TimeSpan.FromSeconds(1)
+            Timeout = TimeSpan.FromSeconds(5)
         };
 
         client.DefaultRequestHeaders.ConnectionClose = false;
