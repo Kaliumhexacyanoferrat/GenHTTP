@@ -1,5 +1,6 @@
 using System.Buffers;
 using System.IO.Pipelines;
+using System.Net;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
@@ -47,6 +48,33 @@ internal static class ConnectionDriver
     [System.Runtime.InteropServices.DllImport("libc", EntryPoint = "shutdown")]
     private static extern int Shutdown(int sockfd, int how);
 
+    [System.Runtime.InteropServices.DllImport("libc", EntryPoint = "getpeername")]
+    private static extern int GetPeerName(int sockfd, byte[] addr, ref int addrlen);
+
+    // The connected client's remote address, read once per connection straight from the socket fd
+    // (ioxide exposes the fd but not the peer address). Mirrors the Internal engine's
+    // Socket.RemoteEndPoint.Address - returned as-is (IPv4-mapped IPv6 on a dual-stack listener), which
+    // IPAddress.IsLoopback and the rest of the pipeline already handle.
+    private static IPAddress? GetPeerAddress(int fd)
+    {
+        var addr = new byte[128]; // sockaddr_storage
+        var len = addr.Length;
+
+        if (GetPeerName(fd, addr, ref len) != 0)
+        {
+            return null;
+        }
+
+        var family = addr[0] | (addr[1] << 8);
+
+        return family switch
+        {
+            2  => new IPAddress(addr[4..8]),   // AF_INET  -> sin_addr
+            10 => new IPAddress(addr[8..24]),  // AF_INET6 -> sin6_addr
+            _  => null,
+        };
+    }
+
     // Per-reactor pool of Request objects. Each reactor runs on its own thread and services its
     // connections cooperatively, so the stack needs no locking. Reuses the per-connection Request
     // allocation, which matters under connection churn (e.g. limited-conn). Mirrors the Internal
@@ -65,6 +93,9 @@ internal static class ConnectionDriver
 
         var reader = pipe.Input;
         var writer = pipe.Output;
+
+        // The peer address is constant for the connection; resolve it once from the socket fd.
+        var remoteAddress = GetPeerAddress(conn.ClientFd);
 
         var request = RentRequest();
         var into = request.Source;
@@ -102,8 +133,8 @@ internal static class ConnectionDriver
                     continue;
                 }
 
-                // todo: connection does not seem to expose IP address and client cert currently
-                request.Apply(server, endPoint, reader, buffer.Start, null, null);
+                // Client cert stays null until TLS termination lands; the remote address is read from the socket.
+                request.Apply(server, endPoint, reader, buffer.Start, remoteAddress, null);
 
                 var keepAlive = await HandleRequestAsync(server, writer, request);
                 WarnIfThreadHopped(server, reactorThreadId, "after-handle");
