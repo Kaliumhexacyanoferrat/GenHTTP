@@ -6,4 +6,4 @@ var app = Content.From(Resource.FromString("Hello World!"));
 
 await Host.Create()
           .Handler(app)
-          .RunAsync(); 
+          .RunAsync();
