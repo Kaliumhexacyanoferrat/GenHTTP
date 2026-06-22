@@ -36,7 +36,10 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y libmsquic
-        
+
+    - name: Enable io_uring
+      run: sudo sysctl -w kernel.io_uring_disabled=0
+
     - name: Download .NET SDK
       uses: actions/setup-dotnet@v5
       with:
