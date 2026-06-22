@@ -21,6 +21,7 @@
         <Project Path="Modules/Archives/GenHTTP.Modules.Archives.csproj" />
         <Project Path="Modules\Authentication\GenHTTP.Modules.Authentication.csproj" />
         <Project Path="Modules/Files/GenHTTP.Modules.Files.csproj" />
+        <Project Path="Modules/IoxideFiles/GenHTTP.Modules.IoxideFiles.csproj" />
         <Project Path="Modules\ApiBrowsing\GenHTTP.Modules.ApiBrowsing.csproj" />
         <Project Path="Modules\Redirects\GenHTTP.Modules.Redirects.csproj" />
         <Project Path="Modules\Caching\GenHTTP.Modules.Caching.csproj" />
@@ -74,5 +75,4 @@
         <Project Path="Testing\Acceptance\GenHTTP.Testing.Acceptance.csproj" />
         <Project Path="Testing\Testing\GenHTTP.Testing.csproj" />
     </Folder>
-    <Project Path="Modules/IoxideFiles/GenHTTP.Modules.IoxideFiles.csproj" />
 </Solution>
