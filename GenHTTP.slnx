@@ -1,4 +1,4 @@
-﻿<Solution>
+<Solution>
     <!--<Folder Name="/Adapters/">
       <Project Path="Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj" />
     </Folder>-->
@@ -14,12 +14,14 @@
     <Folder Name="/Engine/">
         <Project Path="Engine\Internal\GenHTTP.Engine.Internal.csproj" />
         <!--<Project Path="Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj" />-->
+        <Project Path="Engine\Ioxide\GenHTTP.Engine.Ioxide.csproj" />
         <Project Path="Engine\Shared\GenHTTP.Engine.Shared.csproj" />
     </Folder>
     <Folder Name="/Modules/">
         <Project Path="Modules/Archives/GenHTTP.Modules.Archives.csproj" />
         <Project Path="Modules\Authentication\GenHTTP.Modules.Authentication.csproj" />
         <Project Path="Modules/Files/GenHTTP.Modules.Files.csproj" />
+        <Project Path="Modules/IoxideFiles/GenHTTP.Modules.IoxideFiles.csproj" />
         <Project Path="Modules\ApiBrowsing\GenHTTP.Modules.ApiBrowsing.csproj" />
         <Project Path="Modules\Redirects\GenHTTP.Modules.Redirects.csproj" />
         <Project Path="Modules\Caching\GenHTTP.Modules.Caching.csproj" />
@@ -53,6 +55,8 @@
     </Folder>
     <Folder Name="/Packages/">
         <File Path="Packages\GenHTTP.Core.nuspec" />
+        <File Path="Packages/GenHTTP.Core.Ioxide.md" />
+        <File Path="Packages/GenHTTP.Core.Ioxide.nuspec" />
         <!--<File Path="Packages\GenHTTP.Core.Kestrel.nuspec" />-->
         <File Path="Packages\GenHTTP.Core.md" />
         <!--<File Path="Packages\GenHTTP.Core.Kestrel.md" />-->

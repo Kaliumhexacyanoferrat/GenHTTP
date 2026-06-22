@@ -1,0 +1,209 @@
+using System.Diagnostics;
+using System.IO.Pipelines;
+
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
+
+using GenHTTP.Engine.Ioxide.Protocol;
+using GenHTTP.Engine.Shared.Infrastructure;
+using GenHTTP.Engine.Shared.Types;
+
+using ioxide;
+using Microsoft.Extensions.Logging;
+
+namespace GenHTTP.Engine.Ioxide.Hosting;
+
+public sealed class IoxideServer : IServer
+{
+    private readonly ServerConfiguration _config;
+
+    private readonly IoxideEndPoint _endPoint;
+
+    private readonly Func<ServerConfig, ServerConfig>? _configure;
+
+    private readonly Action<Reactor>? _onReactorStart;
+
+    private readonly Func<Connection, ValueTask<IDuplexPipe>>? _connectionFactory;
+
+    private readonly ILogger _logger;
+
+    private Thread[]? _threads;
+
+    private Reactor[]? _reactors;
+
+    public string Version { get; } = typeof(IoxideServer).Assembly.GetName().Version?.ToString() ?? "0.1";
+
+    public bool Running { get; private set; }
+
+    public bool Development => _config.DevelopmentMode;
+
+    public IPropertyBag Properties { get; } = new PropertyBag();
+
+    public ILoggerFactory Logging => _config.Logging;
+    
+    public IEndPointCollection EndPoints { get; }
+
+    public IHandler Handler { get; }
+
+    internal IoxideServer(ServerConfiguration config, IHandler handler, Func<ServerConfig, ServerConfig>? configure = null, Action<Reactor>? onReactorStart = null, Func<Connection, ValueTask<IDuplexPipe>>? connectionFactory = null)
+    {
+        _config = config;
+        Handler = handler;
+        _configure = configure;
+        _onReactorStart = onReactorStart;
+        _connectionFactory = connectionFactory;
+
+        _logger = config.Logging.CreateLogger<IoxideServer>();
+
+        var ep = config.EndPoints.First(); // spike: still only SERVE the first endpoint
+
+        _endPoint = new IoxideEndPoint(ep.Address, ep.Port, ep.DualStack, ep.Security != null);
+
+        // Advertise every configured endpoint (including secure ones) in IServer.EndPoints so concerns
+        // that inspect it — e.g. the secure-upgrade redirect, which derives the HTTPS port from a secure
+        // endpoint — behave correctly, even though the reactor currently only binds the first endpoint.
+        EndPoints = new IoxideEndPoints(
+            config.EndPoints.Select(e => (IEndPoint)new IoxideEndPoint(e.Address, e.Port, e.DualStack, e.Security != null)).ToList()
+        );
+
+        var endPointCount = config.EndPoints.Count();
+
+        if (endPointCount > 1)
+        {
+            _logger.LogWarning("Configured with {Count} endpoints, but the ioxide engine only serves the first one ({Address}:{Port})", endPointCount, _endPoint.Address, _endPoint.Port);
+        }
+    }
+
+    public async ValueTask StartAsync()
+    {
+        await PrepareHandlerAsync();
+
+        Running = true;
+
+        var cfg = new ServerConfig { ReactorCount = Environment.ProcessorCount };
+
+        if (_configure is not null)
+        {
+            cfg = _configure(cfg);
+        }
+
+        // The endpoint binding (.Port()/.Bind()) determines the listen port and dual-stack mode, so
+        // they always win over whatever the configuration hook may have set.
+        cfg = cfg with
+        {
+            Port = _endPoint.Port,
+            DualStack = _endPoint.DualStack
+        };
+
+        _threads = new Thread[cfg.ReactorCount];
+        _reactors = new Reactor[cfg.ReactorCount];
+
+        // Reactors bind their listeners on their own threads (inside Reactor.Run), so StartAsync must
+        // not return until they're actually accepting - otherwise a client that connects immediately
+        // (as the test host does) races the bind and gets "connection refused". OnStart fires right
+        // after the listener is bound, so each reactor signals once it's up.
+        var listening = new CountdownEvent(cfg.ReactorCount);
+
+        for (var i = 0; i < _threads.Length; i++)
+        {
+            var reactor = new Reactor(i, cfg)
+            {
+                // Runs once on the reactor's own thread before it serves: bind the reactor into the
+                // [ThreadStatic] seam so handler code can resolve per-reactor services, then let the
+                // host register those services (e.g. PgPool.Start(r, ...)) on this reactor's ring.
+                OnStart = r =>
+                {
+                    IoxideReactor.Bind(r);
+                    _onReactorStart?.Invoke(r);
+                    listening.Signal();
+                },
+                Handle = (_, c) => ConnectionDriver.HandleAsync(this, _endPoint, c, _connectionFactory),
+            };
+
+            _reactors[i] = reactor;
+
+            _threads[i] = new Thread(reactor.Run)
+            {
+                Name = $"ioxide-genhttp-{i}",
+                IsBackground = true,
+            };
+
+            _threads[i].Start();
+        }
+
+        // Block (off the caller) until every reactor reports listening, so the server is accepting
+        // before StartAsync returns. The timeout is a safety net for a reactor that fails to bind -
+        // log and continue rather than hang the host forever.
+        if (await Task.Run(() => listening.Wait(TimeSpan.FromSeconds(10))))
+        {
+            listening.Dispose();
+        }
+        else
+        {
+            _logger.LogWarning("Not all reactors reported listening within 10s; the server may not be fully accepting yet.");
+        }
+
+        _logger.LogInformation("Listening on {Address}:{Port} ({Settings})", _endPoint.Address, _endPoint.Port, DescribeSettings());
+    }
+
+    private async ValueTask PrepareHandlerAsync()
+    {
+        try
+        {
+            var start = Stopwatch.GetTimestamp();
+
+            // Initialise the handler chain (routing, reflection, websockets, ...) before serving;
+            // GenHTTP handlers throw "Handler is not prepared yet" otherwise.
+            await Handler.PrepareAsync(this);
+
+            var elapsed = Stopwatch.GetElapsedTime(start);
+
+            _logger.LogInformation("Prepared handlers in {ElapsedMs:0.##} ms", elapsed.TotalMilliseconds);
+        }
+        catch (Exception e)
+        {
+            _logger.LogCritical(e, "Failed to prepare the handler chain");
+        }
+    }
+
+    private string DescribeSettings() => $"ioxide, {(_endPoint.Secure ? "HTTPS" : "HTTP")}, DualStack: {_endPoint.DualStack}, Reactors: {_reactors?.Length ?? 0}";
+
+    public async ValueTask DisposeAsync()
+    {
+        Running = false;
+
+        var reactors = _reactors;
+        var threads = _threads;
+
+        _reactors = null;
+        _threads = null;
+
+        if (reactors is null || threads is null)
+        {
+            return;
+        }
+
+        _logger.LogInformation("Stopping {Count} ioxide reactors ...", reactors.Length);
+
+        // Each reactor owns an io_uring ring on its own thread. Signal every reactor to stop, then join
+        // the threads: each loop exits and Run() disposes its ring on the reactor thread (mandatory for a
+        // single-issuer / DEFER_TASKRUN ring). Without this the rings leak for the lifetime of the process,
+        // so a long-lived host - or a test run that spins up hundreds of hosts - eventually exhausts
+        // io_uring_setup and crashes. Joining runs off the caller so DisposeAsync stays non-blocking.
+        await Task.Run(() =>
+        {
+            foreach (var reactor in reactors)
+            {
+                reactor.Stop();
+            }
+
+            foreach (var thread in threads)
+            {
+                thread.Join(TimeSpan.FromSeconds(5));
+            }
+        });
+
+        _logger.LogInformation("Stopped ioxide reactors");
+    }
+
+}

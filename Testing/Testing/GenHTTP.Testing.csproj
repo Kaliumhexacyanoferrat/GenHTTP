@@ -22,6 +22,10 @@
         <ProjectReference Include="..\..\Modules\Protobuf\GenHTTP.Modules.Protobuf.csproj"/>
 
     </ItemGroup>
+    
+    <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+        <ProjectReference Include="..\..\Engine\Ioxide\GenHTTP.Engine.Ioxide.csproj"/>
+    </ItemGroup>
 
     <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="" />

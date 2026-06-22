@@ -2,15 +2,15 @@
 
     <metadata>
 
-        <id>GenHTTP.Core</id>
-        <version>11.0.0-preview.19</version>
+        <id>GenHTTP.Core.Kestrel</id>
+        <version>11.0.0-preview.19-preview.19</version>
 
-        <description>Basic dependencies for projects using the GenHTTP framework, including the engine itself</description>
+        <description>Basic dependencies for projects using the GenHTTP framework, combined with the Ioxide HTTP engine to serve requests</description>
 
         <projectUrl>https://genhttp.org/</projectUrl>
 
-        <authors>Andreas Nägeli</authors>
-        <tags>HTTP Webserver Library C# Server REST API Embeddable Embedded Host</tags>
+        <authors>Andreas Nägeli, Diogo Martins</authors>
+        <tags>HTTP Webserver Library C# Server REST API Host Ioxide</tags>
 
         <icon>images\icon.png</icon>
         <readme>README.md</readme>
@@ -24,10 +24,9 @@
 
                 <dependency id="GenHTTP.Api" version="11.0.0-preview.19"/>
 
-                <dependency id="GenHTTP.Engine.Internal" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Engine.Ioxide" version="11.0.0-preview.19"/>
 
-                <!--<dependency id="GenHTTP.Modules.Practices" version="11.0.0"/>-->
-
+                <dependency id="GenHTTP.Modules.Practices" version="11.0.0-preview.19"/>
                 <dependency id="GenHTTP.Modules.IO" version="11.0.0-preview.19"/>
                 <dependency id="GenHTTP.Modules.Layouting" version="11.0.0-preview.19"/>
 
@@ -39,7 +38,7 @@
 
     <files>
         <file src="..\Resources\icon.png" target="images\"/>
-        <file src="GenHTTP.Core.md" target="README.md" />
+        <file src="GenHTTP.Core.Kestrel.md" target="README.md" />
     </files>
 
 </package>

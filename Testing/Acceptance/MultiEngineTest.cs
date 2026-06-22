@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace GenHTTP.Testing.Acceptance;
 
@@ -10,21 +11,39 @@ namespace GenHTTP.Testing.Acceptance;
 [AttributeUsage(AttributeTargets.Method)]
 public class MultiEngineTestAttribute : Attribute, ITestDataSource
 {
+    
+#if NET11_0_OR_GREATER
+    private static readonly bool IoxideSupported = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+#else
+    private static readonly bool IoxideSupported = false;
+#endif
 
     public IEnumerable<object[]> GetData(MethodInfo methodInfo)
     {
         var engine = Environment.GetEnvironmentVariable("TEST_ENGINE");
-        
+
         if (engine == null) {
-            return new List<object[]>
+            var engines = new List<object[]>
             {
                 new object[] { TestEngine.Internal },
                 // todo: new object[] { TestEngine.Kestrel }
             };
+
+            if (IoxideSupported)
+            {
+                engines.Add(new object[] { TestEngine.Ioxide });
+            }
+
+            return engines;
         }
 
         if (Enum.TryParse(engine, out TestEngine found))
         {
+            if (found == TestEngine.Ioxide && !IoxideSupported)
+            {
+                throw new InvalidOperationException("The ioxide engine is Linux-only and cannot be tested on this platform");
+            }
+
             return new List<object[]>
             {
                 new object[] { found }

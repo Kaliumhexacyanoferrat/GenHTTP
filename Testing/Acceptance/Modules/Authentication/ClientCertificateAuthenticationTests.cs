@@ -119,6 +119,13 @@ public class ClientCertificateAuthenticationTests
 
     private static async ValueTask<HttpResponseMessage> TestAsync(ClientCertificateAuthenticationBuilder auth, ICertificateValidator validator, bool sendCertificate, TestEngine engine)
     {
+        if (engine == TestEngine.Ioxide)
+        {
+            // Client-certificate auth needs TLS termination, which the Ioxide engine doesn't do yet
+            // (kTLS-only, no SNI cert provider). Skip rather than hang the handshake; kTLS tests to follow.
+            Assert.Inconclusive("Ioxide: TLS termination not implemented yet (kTLS-only, no SNI cert provider). kTLS tests to follow.");
+        }
+
         var certificate = await Utilities.Security.GetCertificateAsync();
 
         var content = Inline.Create()

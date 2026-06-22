@@ -3,10 +3,13 @@
     <PropertyGroup>
 
         <OutputType>Exe</OutputType>
-        <TargetFramework>net10.0</TargetFramework>
+        <TargetFrameworks>net11.0</TargetFrameworks>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
         <IsPackable>false</IsPackable>
         <SonarQubeExclude>true</SonarQubeExclude>
+
+        <Features>runtime-async=on</Features>
 
     </PropertyGroup>
 
@@ -14,8 +17,9 @@
 
         <ProjectReference Include="..\API\GenHTTP.Api.csproj"/>
 
-        <ProjectReference Include="..\Engine\Internal\GenHTTP.Engine.Internal.csproj"/>
+        <!--<ProjectReference Include="..\Engine\Internal\GenHTTP.Engine.Internal.csproj"/>-->
         <!--<ProjectReference Include="..\Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj"/>-->
+        <ProjectReference Include="..\Engine\Ioxide\GenHTTP.Engine.Ioxide.csproj"/>
 
         <ProjectReference Include="..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj"/>
         <ProjectReference Include="..\Modules\IO\GenHTTP.Modules.IO.csproj"/>
@@ -28,6 +32,11 @@
         <ProjectReference Include="..\Modules\ClientCaching\GenHTTP.Modules.ClientCaching.csproj"/>
         <ProjectReference Include="..\Modules\Compression\GenHTTP.Modules.Compression.csproj"/>
         <ProjectReference Include="..\Modules\Controllers\GenHTTP.Modules.Controllers.csproj"/>
+        <ProjectReference Include="..\Modules\Files\GenHTTP.Modules.Files.csproj"/>
+        <ProjectReference Include="..\Modules\IoxideFiles\GenHTTP.Modules.IoxideFiles.csproj"/>
+        <PackageReference Include="ioxide.pg" Version="0.0.12" />
+        <PackageReference Include="ioxide.tls" Version="0.0.12" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="11.0.0-preview.5.26302.115" />
         <ProjectReference Include="..\Modules\Conversion\GenHTTP.Modules.Conversion.csproj"/>
         <ProjectReference Include="..\Modules\DependencyInjection\GenHTTP.Modules.DependencyInjection.csproj" />
         <ProjectReference Include="..\Modules\DirectoryBrowsing\GenHTTP.Modules.DirectoryBrowsing.csproj"/>

@@ -27,7 +27,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 10.0
+          global-json-file: global.json
 
       - name: Setup NuGet CLI
         uses: NuGet/setup-nuget@v4
@@ -45,6 +45,7 @@ jobs:
         working-directory: Packages
         run: |
           nuget pack GenHTTP.Core.nuspec -OutputDirectory ../artifacts
+          nuget pack GenHTTP.Core.Ioxide.nuspec -OutputDirectory ../artifacts
           # nuget pack GenHTTP.Core.Kestrel.nuspec -OutputDirectory ../artifacts
 
       - name: List gathered packages

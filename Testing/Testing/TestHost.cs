@@ -6,6 +6,10 @@ using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Modules.Practices;
 
+using YamlDotNet.Core;
+
+using Version = System.Version;
+
 namespace GenHTTP.Testing;
 
 /// <summary>
@@ -15,9 +19,9 @@ namespace GenHTTP.Testing;
 public class TestHost : IAsyncDisposable
 {
 
-#if NET8_0
+#if NET10_0
     private static volatile int _nextPort = 20000;
-#elif NET9_0
+#elif NET11_0
     private static volatile int _nextPort = 22000;
 #else
     private static volatile int _nextPort = 24000;
@@ -58,7 +62,22 @@ public class TestHost : IAsyncDisposable
     {
         Port = NextPort();
 
-        Host = (engine == TestEngine.Internal) ? Engine.Internal.Host.Create() : throw new NotSupportedException(); // todo: Engine.Kestrel.Host.Create();
+        if (engine == TestEngine.Internal)
+        {
+            Host = Engine.Internal.Host.Create();
+        }
+#if NET11_0_OR_GREATER
+        else if (engine == TestEngine.Ioxide)
+        {
+            Host = Engine.Ioxide.Host.Create();
+        }
+#endif
+        else
+        {
+            throw new NotSupportedException();
+        }
+
+        //Host = (engine == TestEngine.Internal) ? Engine.Internal.Host.Create() : throw new NotSupportedException(); // todo: Engine.Kestrel.Host.Create();
 
         Host.Handler(handler);
         Host.Port((ushort)Port);
@@ -196,7 +215,8 @@ public class TestHost : IAsyncDisposable
 
         var client = new HttpClient(handler)
         {
-            DefaultRequestVersion = protocolVersion ?? HttpVersion.Version11
+            DefaultRequestVersion = protocolVersion ?? HttpVersion.Version11,
+            Timeout = TimeSpan.FromSeconds(10)
         };
 
         client.DefaultRequestHeaders.ConnectionClose = false;

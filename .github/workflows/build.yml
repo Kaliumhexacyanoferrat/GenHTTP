@@ -32,19 +32,19 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Install msquic
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libmsquic
-        
     - name: Download .NET SDK
       uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 10.0
+        global-json-file: global.json
         
     - name: Restore tools
       run: dotnet tool restore
-      
+
+    - name: Enable io_uring
+      run: |
+        sudo sysctl -w kernel.io_uring_disabled=0 2>/dev/null || true
+        sudo modprobe tls 2>/dev/null || true
+
     - name: Begin scan
       if: env.SONAR_TOKEN != null && env.SONAR_TOKEN != ''
       run: dotnet sonarscanner begin /k:"GenHTTP" /d:sonar.token="$SONAR_TOKEN" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/bin/**/*,**/obj/**/*,**/*.css,**/*.js,**/*.html" /o:"kaliumhexacyanoferrat" /k:"GenHTTP" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.branch.name="${GITHUB_REF##*/}" /d:sonar.dotnet.excludeTestProjects=true
@@ -53,7 +53,9 @@ jobs:
       run: dotnet build GenHTTP.slnx -c Release
       
     - name: Test project
-      run: dotnet test GenHTTP.slnx --no-build --collect:"XPlat Code Coverage" -c Release -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+      run: |
+        sudo prlimit --pid $$ --memlock=-1:-1 2>/dev/null || ulimit -l unlimited 2>/dev/null || true
+        dotnet test GenHTTP.slnx --no-build --collect:"XPlat Code Coverage" -c Release -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
       
     - name: End scan
       if: env.SONAR_TOKEN != null && env.SONAR_TOKEN != ''
@@ -141,8 +143,7 @@ jobs:
         uses: actions/setup-dotnet@v5
         if: matrix.os.runs-on != 'linux-arm32'
         with:
-          dotnet-version: |
-            10.0
+          global-json-file: global.json
 
       - name: Build (${{ matrix.runtime }})
         run: dotnet build GenHTTP.slnx -c Release
