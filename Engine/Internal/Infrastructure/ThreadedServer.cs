@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
@@ -7,13 +8,17 @@ using GenHTTP.Engine.Internal.Infrastructure.Endpoints;
 using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Types;
 
+using Microsoft.Extensions.Logging;
+
 namespace GenHTTP.Engine.Internal.Infrastructure;
 
 internal sealed class ThreadedServer : IServer
 {
     private readonly EndPointCollection _endPoints;
 
-    private readonly PropertyBag _properties = new(); 
+    private readonly PropertyBag _properties = new();
+
+    private readonly ILogger _logger;
 
     #region Get-/Setters
 
@@ -25,9 +30,9 @@ internal sealed class ThreadedServer : IServer
 
     public IHandler Handler { get; }
 
-    public IServerCompanion? Companion { get; }
-
     public IPropertyBag Properties => _properties;
+
+    public ILoggerFactory Logging => Configuration.Logging;
 
     public IEndPointCollection EndPoints => _endPoints;
 
@@ -37,16 +42,17 @@ internal sealed class ThreadedServer : IServer
 
     #region Constructors
 
-    internal ThreadedServer(IServerCompanion? companion, ServerConfiguration configuration, IHandler handler)
+    internal ThreadedServer(ServerConfiguration configuration, IHandler handler)
     {
         Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "(n/a)";
 
-        Companion = companion;
         Configuration = configuration;
 
         Handler = handler;
 
-        _endPoints = new EndPointCollection(this, configuration.EndPoints, configuration.Network);
+        _logger = configuration.Logging.CreateLogger<ThreadedServer>();
+
+        _endPoints = new EndPointCollection(this, configuration.EndPoints);
     }
 
     #endregion
@@ -55,20 +61,26 @@ internal sealed class ThreadedServer : IServer
 
     public async ValueTask StartAsync()
     {
-        await PrepareHandlerAsync(Handler, Companion);
+        await PrepareHandlerAsync(Handler);
 
         _endPoints.Start();
     }
 
-    private async ValueTask PrepareHandlerAsync(IHandler handler, IServerCompanion? companion)
+    private async ValueTask PrepareHandlerAsync(IHandler handler)
     {
         try
         {
+            var start = Stopwatch.GetTimestamp();
+            
             await handler.PrepareAsync(this);
+
+            var elapsed = Stopwatch.GetElapsedTime(start);
+            
+            _logger.LogInformation("Prepared handlers in {ElapsedMs:0.##} ms", elapsed.TotalMilliseconds);
         }
         catch (Exception e)
         {
-            companion?.OnServerError(ServerErrorScope.General, null, e);
+            _logger.LogCritical(e, "Failed to prepare the handler chain");
         }
     }
 

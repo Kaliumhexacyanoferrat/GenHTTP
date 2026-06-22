@@ -4,7 +4,7 @@ using Glyph = Glyph11.Protocol;
 
 namespace GenHTTP.Engine.Shared.Types;
 
-public sealed class KeyValueList(Glyph.KeyValueList source) : IKeyValueList
+public sealed class KeyValueList(Glyph.KeyValueList source) : IRequestHeaders, IRequestQuery
 {
 
     public int Count => source.Count;

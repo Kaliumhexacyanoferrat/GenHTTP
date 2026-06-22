@@ -1,8 +1,17 @@
-﻿
+using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 
-// todo: re-enable
+using GenHTTP.Api.Content.Authentication;
+using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol;
 
-/*
+using GenHTTP.Modules.Authentication;
+using GenHTTP.Modules.Authentication.ClientCertificate;
+using GenHTTP.Modules.Functional;
+
+namespace GenHTTP.Testing.Acceptance.Modules.Authentication;
+
 [TestClass]
 public class ClientCertificateAuthenticationTests
 {
@@ -151,4 +160,3 @@ public class ClientCertificateAuthenticationTests
     #endregion
 
 }
-*/

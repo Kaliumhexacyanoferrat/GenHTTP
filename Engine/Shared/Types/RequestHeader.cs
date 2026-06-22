@@ -22,9 +22,9 @@ public class RequestHeader : IRequestHeader
 
     public ReadOnlyMemory<byte> Version => _request.Source.Version;
 
-    public IKeyValueList Headers => _headers;
+    public IRequestHeaders Headers => _headers;
 
-    public IKeyValueList Query => _query;
+    public IRequestQuery Query => _query;
 
     public RequestHeader(Request request)
     {

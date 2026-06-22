@@ -2,11 +2,8 @@
 
 namespace GenHTTP.Api.Infrastructure;
 
-// todo: re-visit
-
 /// <summary>
-/// Property bag to store additional data within the
-/// currently running request context.
+/// Property bag to store additional data within a context, such as a request or server instance.
 /// </summary>
 public interface IPropertyBag
 {

@@ -1,5 +1,5 @@
 ﻿using GenHTTP.Api.Infrastructure;
-using GenHTTP.Engine.Shared.Hosting;
+using GenHTTP.Engine.Internal.Infrastructure;
 
 namespace GenHTTP.Engine.Internal;
 
@@ -11,6 +11,6 @@ public static class Host
     /// server instance of the GenHTTP webserver.
     /// </summary>
     /// <returns>The host which can be used to run a server instance</returns>
-    public static IServerHost Create() => new ServerHost(Server.Create());
+    public static IServerHost Create() => new ThreadedServerHost();
 
 }

@@ -111,7 +111,13 @@ public sealed class HttpProxy : IHandler
             }
         }
 
-        // todo: req.Headers.Add("Forwarded", GetForwardings(request));
+        var forwardings = request.Header.Headers.GetForwardings();
+
+        var client = request.Client;
+
+        forwardings.Add(new Forwarding(client.IPAddress, null, headers.GetEntry("Host"), client.Protocol));
+
+        req.Headers.Add("Forwarded", string.Join(", ", forwardings.Select(GetForwarding)));
 
         var content = request.GetBody();
 
@@ -248,18 +254,9 @@ public sealed class HttpProxy : IHandler
         return location;
     }
 
-    /*private static string GetForwardings(IRequest request)
-    {
-        return string.Join(", ", request.Forwardings
-                                        .Union([
-                                            new Forwarding(request.LocalClient.IPAddress, request.LocalClient.Host, request.LocalClient.Protocol)
-                                        ])
-                                        .Select(GetForwarding));
-    }*/
-
     private static string GetForwarding(Forwarding forwarding)
     {
-        var result = new List<string>(2);
+        var result = new List<string>(3);
 
         if (forwarding.For is not null)
         {
@@ -270,6 +267,18 @@ public sealed class HttpProxy : IHandler
             else
             {
                 result.Add($"for={forwarding.For}");
+            }
+        }
+
+        if (forwarding.By is not null)
+        {
+            if (forwarding.By.AddressFamily == AddressFamily.InterNetworkV6)
+            {
+                result.Add($"by=[{forwarding.By}]");
+            }
+            else
+            {
+                result.Add($"by={forwarding.By}");
             }
         }
 

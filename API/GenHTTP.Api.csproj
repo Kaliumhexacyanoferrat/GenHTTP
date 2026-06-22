@@ -16,6 +16,8 @@
 
         <ProjectReference Include="..\Generators\MemoryView\GenHTTP.Generators.MemoryView.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
+
     </ItemGroup>
 
 </Project>

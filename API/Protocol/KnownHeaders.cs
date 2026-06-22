@@ -35,4 +35,12 @@ public static class KnownHeaders
 
     public static readonly ByteString SetCookie = new("Set-Cookie");
 
+    public static readonly ByteString Forwarded = new("Forwarded");
+
+    public static readonly ByteString ForwardedFor = new("X-Forwarded-For");
+
+    public static readonly ByteString ForwardedHost = new("X-Forwarded-Host");
+
+    public static readonly ByteString ForwardedProto = new("X-Forwarded-Proto");
+
 }

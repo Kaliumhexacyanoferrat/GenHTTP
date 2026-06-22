@@ -52,7 +52,6 @@ public sealed class InspectionConcern : IConcern
                     Version = server.Version,
                     Development = server.Development,
                     Handler = server.Handler.ToString(),
-                    Companion = server.Companion?.ToString(),
                     Endpoints = server.EndPoints.Select(e => new
                     {
                         Port = e.Port,

@@ -2,6 +2,8 @@
 
 using GenHTTP.Engine.Shared.Infrastructure;
 
+using Microsoft.Extensions.Logging;
+
 namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
 
 internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPointCollection
@@ -9,10 +11,10 @@ internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPoi
 
     #region Initialization
 
-    public EndPointCollection(IServer server, IEnumerable<EndPointConfiguration> configuration, NetworkConfiguration networkConfiguration)
+    public EndPointCollection(IServer server, IEnumerable<EndPointConfiguration> configuration)
     {
         Server = server;
-        NetworkConfiguration = networkConfiguration;
+        Logger = server.Logging.CreateLogger<EndPointCollection>();
 
         foreach (var config in configuration)
         {
@@ -28,10 +30,10 @@ internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPoi
     {
         if (configuration.Security is null)
         {
-            return new InsecureEndPoint(Server, configuration.Address, configuration.Port, configuration.DualStack, NetworkConfiguration);
+            return new InsecureEndPoint(Server, configuration.Address, configuration.Port, configuration.DualStack);
         }
 
-        return new SecureEndPoint(Server, configuration.Address, configuration.Port, configuration.DualStack, configuration.Security, NetworkConfiguration);
+        return new SecureEndPoint(Server, configuration.Address, configuration.Port, configuration.DualStack, configuration.Security);
     }
 
     internal void Start()
@@ -48,7 +50,7 @@ internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPoi
 
     private IServer Server { get; }
 
-    private NetworkConfiguration NetworkConfiguration { get; }
+    private ILogger Logger { get; }
 
     #endregion
 
@@ -68,7 +70,7 @@ internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPoi
                 }
                 catch (Exception e)
                 {
-                    Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, null, e);
+                    Logger.LogWarning(e, "Failed to dispose endpoint");
                 }
             }
 

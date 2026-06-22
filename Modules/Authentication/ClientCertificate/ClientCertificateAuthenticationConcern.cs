@@ -31,9 +31,7 @@ public sealed class ClientCertificateAuthenticationConcern : IConcern
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        // todo
-
-        /*var certificate = request.Client.Certificate;
+        var certificate = request.Client.Certificate;
 
         if (Options.Authorizer != null)
         {
@@ -51,7 +49,7 @@ public sealed class ClientCertificateAuthenticationConcern : IConcern
             {
                 request.SetUser(user);
             }
-        }*/
+        }
 
         return await Content.HandleAsync(request);
     }

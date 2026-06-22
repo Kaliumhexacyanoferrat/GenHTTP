@@ -1,10 +1,11 @@
 ﻿using System.Buffers;
 using System.Runtime.CompilerServices;
-
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Engine.Internal.Context;
 using GenHTTP.Engine.Internal.Protocol.Sinks;
+
+using Microsoft.Extensions.Logging;
 
 namespace GenHTTP.Engine.Internal.Protocol;
 
@@ -48,17 +49,15 @@ internal sealed class ResponseHandler
                 await WriteBodyAsync(response);
             }
 
-            if (request != null)
-            {
-                Context.Server.Companion?.OnRequestHandled(request, response);
-            }
-
             return true;
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            // todo
-            // Server.Companion?.OnServerError(ServerErrorScope.ClientConnection, request?.Client.IPAddress, e);
+            if (!ConnectionExceptions.IsGracefulDisconnect(e))
+            {
+                Context.Server.Logging.CreateLogger<ResponseHandler>().LogWarning(e, "Failed to write response to client");
+            }
+
             return false;
         }
     }

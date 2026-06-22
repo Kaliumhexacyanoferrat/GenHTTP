@@ -1,15 +1,137 @@
-﻿namespace GenHTTP.Api.Infrastructure;
+using System.Net;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+
+using GenHTTP.Api.Content;
+
+using Microsoft.Extensions.Logging;
+
+namespace GenHTTP.Api.Infrastructure;
 
 /// <summary>
-/// Allows applications to manage the lifecycle of a server instance.
+/// Allows to configure, build and manage the lifecycle of a server instance.
 /// </summary>
-public interface IServerHost : IServerBuilder<IServerHost>
+public interface IServerHost
 {
 
+    #region Get-/Setters
+    
     /// <summary>
     /// The server instance maintained by the host, if started.
     /// </summary>
     IServer? Instance { get; }
+
+    #endregion
+    
+    #region Binding
+
+    /// <summary>
+    /// Specifies the port, the server will listen on (defaults to 8080 on IPv4/IPv6).
+    /// </summary>
+    /// <param name="port">The port the server should listen on</param>
+    /// <remarks>
+    /// If you register custom endpoints using the Bind methods, this value
+    /// will be ignored.
+    /// </remarks>
+    IServerHost Port(ushort port);
+
+    /// <summary>
+    /// Registers an endpoint for the given address and port the server will
+    /// bind to on startup to listen for incomming HTTP requests.
+    /// </summary>
+    /// <param name="address">The address to bind to (or null, if the server should listen to any IP)</param>
+    /// <param name="port">The port to listen on</param>
+    /// <param name="dualStack">If enabled, the endpoint will listen for incoming IPv4 and IPv6 connections. If disabled, the endpoint will listen only for connections matching the specificed IP address</param>
+    IServerHost Bind(IPAddress? address, ushort port, bool dualStack = true);
+
+    /// <summary>
+    /// Registers a secure endpoint the server will bind to on
+    /// startup to listen for incoming HTTPS requests.
+    /// </summary>
+    /// <param name="address">The address to bind to (or null, if the server should listen to any IP)</param>
+    /// <param name="port">The port to listen on</param>
+    /// <param name="certificate">The certificate used to negoiate a connection with</param>
+    /// <param name="protocols">The SSL/TLS protocl versions which should be supported by the endpoint</param>
+    /// <param name="certificateValidator">The validator to check the validity of client certificates with</param>
+    /// <param name="enableQuic">If enabled, the server will host a HTTP/3 endpoint via QUIC</param>
+    /// <param name="dualStack">If enabled, the endpoint will listen for incoming IPv4 and IPv6 connections. If disabled, the endpoint will listen only for connections matching the specificed IP address</param>
+    IServerHost Bind(IPAddress? address, ushort port, X509Certificate2 certificate, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false, bool dualStack = true);
+
+    /// <summary>
+    /// Registers a secure endpoint the server will bind to on
+    /// startup to listen for incoming HTTPS requests.
+    /// </summary>
+    /// <param name="address">The address to bind to (or null, if the server should listen to any IP)</param>
+    /// <param name="port">The port to listen on</param>
+    /// <param name="certificateProvider">The provider to select the certificate used to negoiate a connection with</param>
+    /// <param name="protocols">The SSL/TLS protocl versions which should be supported by the endpoint</param>
+    /// <param name="certificateValidator">The validator to check the validity of client certificates with</param>
+    /// <param name="enableQuic">If enabled, the server will host a HTTP/3 endpoint via QUIC</param>
+    /// <param name="dualStack">If enabled, the endpoint will listen for incoming IPv4 and IPv6 connections. If disabled, the endpoint will listen only for connections matching the specificed IP address</param>
+    IServerHost Bind(IPAddress? address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false, bool dualStack = true);
+
+    #endregion
+
+    #region Infrastructure
+
+    /// <summary>
+    /// Enables or disables the development mode on the server instance. When in
+    /// development mode, the server will return additional information
+    /// useful for developers of web applications.
+    /// </summary>
+    /// <param name="developmentMode">Whether the development should be active</param>
+    /// <remarks>
+    /// By default, the development mode is disabled.
+    /// </remarks>
+    IServerHost Development(bool developmentMode = true);
+
+    /// <summary>
+    /// Configures how this server instance will log status changes and handled requests.
+    /// </summary>
+    /// <remarks>
+    /// By default, the server will log to console and install a concern that will
+    /// log every handled request.
+    /// </remarks>
+    /// <param name="loggerFactory">The logger factory to be used (pass a null logger to disable logging)</param>
+    /// <param name="logRequests">Specifies whether handled requests should be logged</param>
+    IServerHost Logging(ILoggerFactory loggerFactory, bool logRequests = true);
+
+    #endregion
+
+    #region Content
+
+    /// <summary>
+    /// Specifies the root handler that will be invoked when
+    /// a client request needs to be handled.
+    /// </summary>
+    /// <param name="handler">The handler to be invoked to handle requests</param>
+    /// <remarks>
+    /// Note that only a single handler is supported. To build are more
+    /// complex application, consider passing a Layout instead.
+    /// </remarks>
+    IServerHost Handler(IHandler handler);
+
+    /// <summary>
+    /// Specifies the root handler that will be invoked when
+    /// a client request needs to be handled.
+    /// </summary>
+    /// <param name="handler">The handler to be invoked to handle requests</param>
+    /// <remarks>
+    /// Note that only a single handler is supported. To build are more
+    /// complex application, consider passing a Layout instead.
+    /// </remarks>
+    IServerHost Handler(IHandlerBuilder handlerBuilder) => Handler(handlerBuilder.Build());
+
+    /// <summary>
+    /// Adds a concern to the server instance which will be executed before
+    /// and after the root handler is invoked.
+    /// </summary>
+    /// <param name="concern">The concern to be added to the instance</param>
+    IServerHost Add(IConcernBuilder concern);
+
+    #endregion
+
+    #region Lifecycle
 
     /// <summary>
     /// Builds a server instance from the current configuration
@@ -38,5 +160,7 @@ public interface IServerHost : IServerBuilder<IServerHost>
     /// </remarks>
     /// <returns>The return code to be passed to the operating system</returns>
     ValueTask<int> RunAsync();
+
+    #endregion
 
 }

@@ -14,7 +14,7 @@ public static class CookieHeaderExtensions
     /// <param name="headers">The headers to search (typically <see cref="IRequestHeader.Headers"/>)</param>
     /// <param name="key">The name of the cookie to be looked up</param>
     /// <returns>The value of the cookie, if found</returns>
-    public static ByteString? GetCookie(this IKeyValueList headers, ByteString key)
+    public static ByteString? GetCookie(this IRequestHeaders headers, ByteString key)
     {
         for (var i = 0; i < headers.Count; i++)
         {
@@ -42,7 +42,7 @@ public static class CookieHeaderExtensions
     /// <param name="headers">The headers to search (typically <see cref="IRequestHeader.Headers"/>)</param>
     /// <param name="key">The name of the cookie to be looked up</param>
     /// <returns>The value of the cookie, if found</returns>
-    public static string? GetCookie(this IKeyValueList headers, string key)
+    public static string? GetCookie(this IRequestHeaders headers, string key)
         => headers.GetCookie(new ByteString(key))?.ToString();
 
     /// <summary>
@@ -51,7 +51,7 @@ public static class CookieHeaderExtensions
     /// </summary>
     /// <param name="headers">The headers to search (typically <see cref="IRequestHeader.Headers"/>)</param>
     /// <returns>The cookies found in the given headers</returns>
-    public static IKeyValueList GetCookies(this IKeyValueList headers)
+    public static IKeyValueList GetCookies(this IRequestHeaders headers)
     {
         var cookies = new List<KeyValuePair<ByteString, ByteString>>();
 

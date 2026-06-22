@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
@@ -6,113 +6,94 @@ using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
+using GenHTTP.Engine.Shared.Infrastructure;
+using GenHTTP.Engine.Shared.Infrastructure.Logging;
+using GenHTTP.Engine.Shared.Security;
+
+using GenHTTP.Modules.ErrorHandling;
+
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace GenHTTP.Engine.Shared.Hosting;
 
-public sealed class ServerHost : IServerHost
+public abstract class ServerHost : IServerHost
 {
-    private readonly IServerBuilder _builder;
+    private static ILoggerFactory? _defaultLoggerFactory;
+    
+    private readonly List<IConcernBuilder> _concerns = [];
 
+    private readonly List<EndPointConfiguration> _endPoints = [];
+
+    private bool _development;
+
+    private IHandler? _handler;
+
+    private ushort _port = 8080;
+    
+    private ILoggerFactory? _customLoggerFactory;
+
+    private bool _logRequests = true;
+    
     #region Get-/Setters
 
     public IServer? Instance { get; private set; }
-
+    
     #endregion
 
-    #region  Initialization
-
-    public ServerHost(IServerBuilder builder)
-    {
-        _builder = builder;
-    }
-
-    #endregion
-
-    #region Builder facade
-
-    public IServerHost Backlog(ushort backlog)
-    {
-        _builder.Backlog(backlog);
-        return this;
-    }
-
+    #region Functionality
+    
     public IServerHost Bind(IPAddress? address, ushort port, bool dualStack = true)
     {
-        _builder.Bind(address, port, dualStack);
+        _endPoints.Add(new EndPointConfiguration(address, port, dualStack, null, false));
         return this;
     }
 
-    public IServerHost Bind(IPAddress? address, ushort port, X509Certificate2 certificate, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false, bool dualStack = true)
-    {
-        _builder.Bind(address, port, certificate, protocols, certificateValidator, enableQuic, dualStack);
-        return this;
-    }
+    public IServerHost Bind(IPAddress? address, ushort port, X509Certificate2 certificate, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false, bool dualStack = true) => Bind(address, port, new SimpleCertificateProvider(certificate), protocols, certificateValidator, enableQuic, dualStack);
 
     public IServerHost Bind(IPAddress? address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false, bool dualStack = true)
     {
-        _builder.Bind(address, port, certificateProvider, protocols, certificateValidator, enableQuic, dualStack);
-        return this;
-    }
-
-    public IServerHost Companion(IServerCompanion companion)
-    {
-        _builder.Companion(companion);
-        return this;
-    }
-
-    public IServerHost Console()
-    {
-        _builder.Console();
+        _endPoints.Add(new EndPointConfiguration(address, port, dualStack, new SecurityConfiguration(certificateProvider, protocols, certificateValidator), enableQuic));
         return this;
     }
 
     public IServerHost Development(bool developmentMode = true)
     {
-        _builder.Development(developmentMode);
+        _development = developmentMode;
+        return this;
+    }
+
+    public IServerHost Logging(ILoggerFactory loggerFactory, bool logRequests = true)
+    {
+        _customLoggerFactory = loggerFactory;
+        _logRequests = logRequests && !(loggerFactory is NullLoggerFactory);
+
         return this;
     }
 
     public IServerHost Port(ushort port)
     {
-        _builder.Port(port);
-        return this;
-    }
+        if (port == 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(port));
+        }
 
-    public IServerHost RequestMemoryLimit(uint limit)
-    {
-        _builder.RequestMemoryLimit(limit);
-        return this;
-    }
-
-    public IServerHost RequestReadTimeout(TimeSpan timeout)
-    {
-        _builder.RequestReadTimeout(timeout);
+        _port = port;
         return this;
     }
 
     public IServerHost Handler(IHandler handler)
     {
-        _builder.Handler(handler);
-        return this;
-    }
-
-    public IServerHost TransferBufferSize(uint bufferSize)
-    {
-        _builder.TransferBufferSize(bufferSize);
+        _handler = handler;
         return this;
     }
 
     public IServerHost Add(IConcernBuilder concern)
     {
-        _builder.Add(concern);
+        _concerns.Add(concern);
         return this;
     }
-
-    public IServer Build() => _builder.Build();
-
-    #endregion
-
-    #region Functionality
-
+    
     public async ValueTask<int> RunAsync()
     {
         try
@@ -144,15 +125,13 @@ public sealed class ServerHost : IServerHost
                 Debugger.Break();
             }
 
-            var companion = Instance?.Companion;
-
-            if (companion is not null)
+            if (Instance is not null)
             {
-                companion.OnServerError(ServerErrorScope.General, null, e);
+                Instance.Logging.CreateLogger<IServerHost>().LogCritical(e, "Server stopped unexpectedly");
             }
             else
             {
-                System.Console.WriteLine(e);
+                Console.WriteLine(e);
             }
 
             return -1;
@@ -163,9 +142,15 @@ public sealed class ServerHost : IServerHost
     {
         await StopAsync();
 
-        Instance = Build();
+        Instance = CreateInstance();
+
+        var logger = Instance.Logging.CreateLogger<IServerHost>();
+
+        logger.LogInformation("Starting server ...");
 
         await Instance.StartAsync();
+
+        logger.LogInformation("Server has started");
 
         return this;
     }
@@ -174,6 +159,8 @@ public sealed class ServerHost : IServerHost
     {
         if (Instance != null)
         {
+            Instance.Logging.CreateLogger<IServerHost>().LogInformation("Server is shutting down ...");
+            
             await Instance.DisposeAsync();
         }
 
@@ -189,6 +176,42 @@ public sealed class ServerHost : IServerHost
 
         return this;
     }
+    
+    protected abstract IServer Build(ServerConfiguration config, IHandler handler);
+    
+    private IServer CreateInstance()
+    {
+        if (_handler is null)
+        {
+            throw new BuilderMissingPropertyException("Handler");
+        }
+
+        var endpoints = new List<EndPointConfiguration>(_endPoints);
+
+        if (endpoints.Count == 0)
+        {
+            endpoints.Add(new EndPointConfiguration(null, _port, true, null, false));
+        }
+        
+        var logging = _customLoggerFactory ?? (_defaultLoggerFactory ??= CreateDefaultLoggerFactory());
+
+        var config = new ServerConfiguration(_development, endpoints, logging);
+
+        var concerns = new List<IConcernBuilder> { ErrorHandler.Default() };
+
+        concerns.AddRange(_concerns);
+
+        if (_logRequests)
+        {
+            concerns.Add(new RequestLoggingConcernBuilder());
+        }
+
+        var handler = new CoreRouter(_handler, concerns);
+
+        return Build(config, handler); 
+    }
+
+    private static ILoggerFactory CreateDefaultLoggerFactory() => LoggerFactory.Create(builder => builder.AddConsole());
 
     #endregion
 

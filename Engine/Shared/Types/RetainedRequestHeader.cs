@@ -13,9 +13,9 @@ public class RetainedRequestHeader : IRequestHeader
 
     public IRequestTarget Target { get; }
 
-    public IKeyValueList Query { get; }
+    public IRequestQuery Query { get; }
 
-    public IKeyValueList Headers { get; }
+    public IRequestHeaders Headers { get; }
 
     internal RetainedRequestHeader(RequestHeader source)
     {

@@ -1,4 +1,5 @@
 ﻿using System.Net;
+
 using GenHTTP.Modules.Layouting;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
@@ -6,24 +7,6 @@ namespace GenHTTP.Testing.Acceptance.Engine;
 [TestClass]
 public sealed class BasicTests
 {
-
-    [TestMethod]
-    [MultiEngineTest]
-    public async Task TestBuilder(TestEngine engine)
-    {
-        await using var runner = new TestHost(Layout.Create().Build(), engine: engine);
-
-        runner.Host.RequestMemoryLimit(128)
-              .TransferBufferSize(128)
-              .RequestReadTimeout(TimeSpan.FromSeconds(2))
-              .Backlog(1);
-
-        await runner.StartAsync();
-
-        using var response = await runner.GetResponseAsync();
-
-        await response.AssertStatusAsync(HttpStatusCode.NotFound);
-    }
 
     [TestMethod]
     [MultiEngineTest]

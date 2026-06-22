@@ -6,8 +6,8 @@ using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Engine.Internal.Context;
-using GenHTTP.Engine.Shared.Infrastructure;
-
+using GenHTTP.Engine.Internal.Protocol;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
 
 namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
@@ -22,7 +22,7 @@ internal abstract class EndPoint : IEndPoint
 
     protected IServer Server { get; }
 
-    protected NetworkConfiguration Configuration { get; }
+    protected ILogger Logger { get; }
 
     private Task? Task { get; set; }
 
@@ -40,11 +40,10 @@ internal abstract class EndPoint : IEndPoint
 
     #region Initialization
 
-    protected EndPoint(IServer server, IPAddress? address, ushort port, bool dualStack, NetworkConfiguration configuration)
+    protected EndPoint(IServer server, IPAddress? address, ushort port, bool dualStack)
     {
         Server = server;
-
-        Configuration = configuration;
+        Logger = server.Logging.CreateLogger(GetType());
 
         Address = address;
         Port = port;
@@ -74,15 +73,23 @@ internal abstract class EndPoint : IEndPoint
 
             Socket.Bind(new IPEndPoint(address, Port));
 
-            Socket.Listen(Configuration.Backlog);
+            Socket.Listen(2048);
         }
         catch (Exception e)
         {
             throw new BindingException($"Failed to bind to {address} on port {Port}.", e);
         }
 
+        Logger.LogInformation("Listening on {Address}:{Port} ({Settings})", address, Port, DescribeSettings());
+
         Task = Task.Run(Listen);
     }
+
+    /// <summary>
+    /// Describes the settings of this endpoint for diagnostic purposes (e.g.
+    /// whether it is secured and which protocols it accepts).
+    /// </summary>
+    protected virtual string DescribeSettings() => $"{(Secure ? "HTTPS" : "HTTP")}, DualStack: {DualStack}";
 
     private async Task Listen()
     {
@@ -98,9 +105,9 @@ internal abstract class EndPoint : IEndPoint
         }
         catch (Exception e)
         {
-            if (!_shuttingDown)
+            if (!_shuttingDown && !ConnectionExceptions.IsGracefulDisconnect(e))
             {
-                Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, null, e);
+                Logger.LogError(e, "Failed to accept incoming connection");
             }
         }
     }
@@ -124,7 +131,7 @@ internal abstract class EndPoint : IEndPoint
 
         try
         {
-            context.Apply(client, inputStream, reader, clientCertificate, Server, this, Configuration);
+            context.Apply(client, inputStream, reader, clientCertificate, Server, this);
 
             await context.ClientHandler.RunAsync();
         }
@@ -180,7 +187,7 @@ internal abstract class EndPoint : IEndPoint
                 }
                 catch (Exception e)
                 {
-                    Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, null, e);
+                    Logger.LogWarning(e, "Failed to dispose endpoint socket");
                 }
             }
 

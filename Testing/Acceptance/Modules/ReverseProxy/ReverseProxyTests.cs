@@ -64,6 +64,33 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
+    public async Task TestForwardingChainIsRelayed(TestEngine engine)
+    {
+        await using var setup = await TestSetup.CreateAsync(engine, r =>
+        {
+            var forwardings = r.Header.Headers.GetForwardings();
+
+            // the proxy relays the original hop and appends one of its own
+            Assert.AreEqual(2, forwardings.Count);
+            Assert.AreEqual(IPAddress.Parse("85.192.1.5"), forwardings[0].For);
+            Assert.AreEqual("google.com", forwardings[0].Host);
+
+            Assert.IsTrue(IPAddress.IsLoopback(forwardings[1].For!));
+
+            return r.Respond().Content("Hello World!").Build();
+        });
+
+        var runner = setup.Runner;
+
+        var request = runner.GetRequest();
+        request.Headers.Add("Forwarded", "for=85.192.1.5; host=google.com");
+
+        using var response = await runner.GetResponseAsync(request);
+        Assert.AreEqual("Hello World!", await response.GetContentAsync());
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
     public async Task TestCookies(TestEngine engine)
     {
         await using var setup = await TestSetup.CreateAsync(engine, r =>
@@ -411,10 +438,7 @@ public sealed class ReverseProxyTests
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            // todo
-            
-            // Assert.AreNotEqual(request.Client, request.LocalClient);
-            // Assert.IsNotEmpty(request.Forwardings);
+            Assert.IsNotNull(request.Client.IPAddress);
 
             var response = _response.Invoke(request);
 

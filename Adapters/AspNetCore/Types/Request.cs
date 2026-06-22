@@ -29,8 +29,6 @@ public sealed class Request : IRequest
 
     private readonly Cookies _cookies = new();
 
-    private readonly ForwardingCollection _forwardings = new();
-
     private readonly Headers _headers = new();
 
     private readonly Query _query = new();
@@ -64,8 +62,6 @@ public sealed class Request : IRequest
     public IRequestQuery Query => _query;
 
     public ICookieCollection Cookies => _cookies;
-
-    public IForwardingCollection Forwardings => _forwardings;
 
     public IHeaderCollection Headers => _headers;
 
@@ -125,21 +121,10 @@ public sealed class Request : IRequest
         _headers.SetRequest(request);
         _cookies.SetRequest(request);
 
-        if (context.Request.Headers.TryGetValue("forwarded", out var forwardings))
-        {
-            foreach (var entry in forwardings)
-            {
-                if (entry != null) _forwardings.Add(entry);
-            }
-        }
-        else
-        {
-            _forwardings.TryAddLegacy(Headers);
-        }
-
         _localClient = new ClientConnection(context.Connection, request);
 
-        _clientConnection = _forwardings.DetermineClient(context.Connection.ClientCertificate) ?? LocalClient;
+        // todo: determine the client connection from the request's forwardings (follow-up)
+        _clientConnection = LocalClient;
 
         for (var i = 0; i < Server.EndPoints.Count; i++)
         {
@@ -156,7 +141,6 @@ public sealed class Request : IRequest
     internal void Reset()
     {
         _properties.Clear();
-        _forwardings.Clear();
         _cookies.Clear();
 
         _query.SetRequest(null);

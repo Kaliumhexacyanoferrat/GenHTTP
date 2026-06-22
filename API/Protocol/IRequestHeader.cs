@@ -11,8 +11,8 @@ public interface IRequestHeader
 
     IRequestTarget Target { get; }
 
-    IKeyValueList Query { get; }
+    IRequestQuery Query { get; }
 
-    IKeyValueList Headers { get; }
+    IRequestHeaders Headers { get; }
 
 }
