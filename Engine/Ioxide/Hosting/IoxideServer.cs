@@ -98,6 +98,12 @@ public sealed class IoxideServer : IServer
         _threads = new Thread[cfg.ReactorCount];
         _reactors = new Reactor[cfg.ReactorCount];
 
+        // Reactors bind their listeners on their own threads (inside Reactor.Run), so StartAsync must
+        // not return until they're actually accepting - otherwise a client that connects immediately
+        // (as the test host does) races the bind and gets "connection refused". OnStart fires right
+        // after the listener is bound, so each reactor signals once it's up.
+        var listening = new CountdownEvent(cfg.ReactorCount);
+
         for (var i = 0; i < _threads.Length; i++)
         {
             var reactor = new Reactor(i, cfg)
@@ -109,6 +115,7 @@ public sealed class IoxideServer : IServer
                 {
                     IoxideReactor.Bind(r);
                     _onReactorStart?.Invoke(r);
+                    listening.Signal();
                 },
                 Handle = (_, c) => ConnectionDriver.HandleAsync(this, _endPoint, c, _connectionFactory),
             };
@@ -122,6 +129,18 @@ public sealed class IoxideServer : IServer
             };
 
             _threads[i].Start();
+        }
+
+        // Block (off the caller) until every reactor reports listening, so the server is accepting
+        // before StartAsync returns. The timeout is a safety net for a reactor that fails to bind -
+        // log and continue rather than hang the host forever.
+        if (await Task.Run(() => listening.Wait(TimeSpan.FromSeconds(10))))
+        {
+            listening.Dispose();
+        }
+        else
+        {
+            _logger.LogWarning("Not all reactors reported listening within 10s; the server may not be fully accepting yet.");
         }
 
         _logger.LogInformation("Listening on {Address}:{Port} ({Settings})", _endPoint.Address, _endPoint.Port, DescribeSettings());
