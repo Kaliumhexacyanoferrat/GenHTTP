@@ -19,7 +19,7 @@ namespace GenHTTP.Engine.Shared.Hosting;
 
 public abstract class ServerHost : IServerHost
 {
-    private static readonly ILoggerFactory DefaultLoggerFactory = CreateDefaultLoggerFactory();
+    private static ILoggerFactory? _defaultLoggerFactory;
     
     private readonly List<IConcernBuilder> _concerns = [];
 
@@ -193,7 +193,7 @@ public abstract class ServerHost : IServerHost
             endpoints.Add(new EndPointConfiguration(null, _port, true, null, false));
         }
         
-        var logging = _customLoggerFactory ?? DefaultLoggerFactory;
+        var logging = _customLoggerFactory ?? (_defaultLoggerFactory ??= CreateDefaultLoggerFactory());
 
         var config = new ServerConfiguration(_development, endpoints, logging);
 
