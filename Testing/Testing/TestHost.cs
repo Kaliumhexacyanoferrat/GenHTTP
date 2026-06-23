@@ -6,8 +6,6 @@ using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Modules.Practices;
 
-using YamlDotNet.Core;
-
 using Version = System.Version;
 
 namespace GenHTTP.Testing;
@@ -76,8 +74,6 @@ public class TestHost : IAsyncDisposable
         {
             throw new NotSupportedException();
         }
-
-        //Host = (engine == TestEngine.Internal) ? Engine.Internal.Host.Create() : throw new NotSupportedException(); // todo: Engine.Kestrel.Host.Create();
 
         Host.Handler(handler);
         Host.Port((ushort)Port);

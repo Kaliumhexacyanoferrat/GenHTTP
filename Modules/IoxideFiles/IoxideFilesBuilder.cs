@@ -1,6 +1,4 @@
 using GenHTTP.Api.Content;
-using GenHTTP.Api.Infrastructure;
-
 using ioxide.file;
 
 namespace GenHTTP.Modules.IoxideFiles;

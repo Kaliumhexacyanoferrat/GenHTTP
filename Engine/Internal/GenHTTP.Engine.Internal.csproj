@@ -18,7 +18,7 @@
 
         <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.9" />
 
-        <PackageReference Include="Glyph11" Version="0.3.3" />
+        <PackageReference Include="Glyph11" Version="0.3.5" />
         
     </ItemGroup>
 

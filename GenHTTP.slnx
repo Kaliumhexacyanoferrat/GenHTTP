@@ -70,6 +70,7 @@
     <Folder Name="/Solution Items/">
         <File Path="CONTRIBUTING.md" />
         <File Path="Directory.Build.props" />
+        <File Path="global.json" />
         <File Path="LICENSE" />
         <File Path="README.md" />
     </Folder>

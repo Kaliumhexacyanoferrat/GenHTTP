@@ -1,8 +1,6 @@
 using System.Buffers;
 
 using Microsoft.Win32.SafeHandles;
-
-using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Engine.Ioxide;

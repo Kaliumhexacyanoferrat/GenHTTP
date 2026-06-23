@@ -3,8 +3,6 @@ using System.IO.Pipelines;
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Ioxide.Hosting;
-using GenHTTP.Engine.Shared.Hosting;
-
 using ioxide;
 
 namespace GenHTTP.Engine.Ioxide;
