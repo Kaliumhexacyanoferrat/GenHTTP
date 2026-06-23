@@ -45,7 +45,8 @@ public class WebResourceTests
 
         var source = Content.From(Resource.FromString("Hello World"));
 
-        var target = Asset.From(resource);
+        var target = Asset.From(resource)
+                          .AsDownload();
 
         using var response = await RunAsync(source, target, engine, port);
 
