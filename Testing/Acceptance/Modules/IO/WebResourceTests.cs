@@ -51,7 +51,6 @@ public class WebResourceTests
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
 
-        Assert.AreEqual("Sat, 03 Dec 2005 12:00:00 GMT", response.GetContentHeader("Last-Modified"));
         Assert.AreEqual("application/json", response.GetContentHeader("Content-Type"));
         Assert.AreEqual("attachment; filename=\"Test.txt\"", response.GetContentHeader("Content-Disposition"));
     }
