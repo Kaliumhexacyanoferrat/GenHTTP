@@ -171,7 +171,7 @@ public sealed class HttpProxy : IHandler
     {
         var builder = request.Respond();
 
-        builder.Status((ResponseStatus)response.StatusCode); // todo: rework status model
+        builder.Status((ResponseStatus)response.StatusCode);
 
         SetHeaders(builder, request, response.Headers);
 

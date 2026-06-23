@@ -36,11 +36,6 @@ public sealed class ContentProvider : IHandler
                               .Status(ResponseStatus.Ok)
                               .Content(Content);
 
-        /*if (Resource.Modified != null)
-        {
-            response.Modified(Resource.Modified.Value);
-        }/*/
-
         return new(response.Build());
     }
 

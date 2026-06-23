@@ -1,8 +1,15 @@
-﻿namespace GenHTTP.Testing.Acceptance.Modules.IO;
+﻿using System.Net;
 
-// todo
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
 
-/*[TestClass]
+using GenHTTP.Modules.Files;
+using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Layouting;
+
+namespace GenHTTP.Testing.Acceptance.Modules.IO;
+
+[TestClass]
 public class WebResourceTests
 {
 
@@ -11,7 +18,7 @@ public class WebResourceTests
     public async Task TestLifecycle(TestEngine engine)
     {
         var port = TestHost.NextPort();
-        
+
         var resource = Resource.FromWeb($"http://localhost:{port}/source");
 
         var source = Content.From(Resource.FromString("Hello World"));
@@ -24,7 +31,7 @@ public class WebResourceTests
 
         Assert.AreEqual("Hello World", await response.GetContentAsync());
     }
-    
+
     [TestMethod]
     [MultiEngineTest]
     public async Task TestOverwrites(TestEngine engine)
@@ -33,12 +40,12 @@ public class WebResourceTests
 
         var resource = Resource.FromWeb(new Uri($"http://localhost:{port}/source"))
                                .Modified(new DateTime(2005, 12, 3, 12, 0, 0, DateTimeKind.Utc))
-                               .Type(new(ContentType.ApplicationJson))
+                               .Type(ContentType.ApplicationJson)
                                .Name("Test.txt");
 
         var source = Content.From(Resource.FromString("Hello World"));
 
-        var target = Download.From(resource);
+        var target = Asset.From(resource);
 
         using var response = await RunAsync(source, target, engine, port);
 
@@ -54,19 +61,19 @@ public class WebResourceTests
     {
         Assert.ThrowsExactly<InvalidOperationException>(() => Resource.FromWeb("file:///test.txt").Build());
     }
-    
+
     [TestMethod]
     public void TestBuilderDoesRequireAbsolute()
     {
         Assert.ThrowsExactly<ArgumentException>(() => Resource.FromWeb("./test.txt").Build());
     }
-    
+
     [TestMethod]
     public void TestBuilderDoesRequireUri()
     {
         Assert.ThrowsExactly<ArgumentException>(() => Resource.FromWeb("http://").Build());
     }
-    
+
     private async Task<HttpResponseMessage> RunAsync(IHandlerBuilder source, IHandlerBuilder target, TestEngine engine, int port)
     {
         var app = Layout.Create()
@@ -83,6 +90,5 @@ public class WebResourceTests
 
         return await client.GetAsync($"http://localhost:{port}/target");
     }
-    
+
 }
-*/

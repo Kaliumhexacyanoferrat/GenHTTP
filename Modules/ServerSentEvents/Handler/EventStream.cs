@@ -2,6 +2,8 @@
 
 using GenHTTP.Modules.Conversion.Formatters;
 
+using Microsoft.Extensions.Logging;
+
 namespace GenHTTP.Modules.ServerSentEvents.Handler;
 
 public sealed class EventStream : IResponseContent
@@ -48,9 +50,11 @@ public sealed class EventStream : IResponseContent
         {
             await Generator(connection);
         }
-        catch // (Exception e)
+        catch (Exception e)
         {
-            // todo: Request.Server.Companion?.OnServerError(ServerErrorScope.ServerConnection, Request.Client.IPAddress, e);
+            var logger = Request.Server.Logging.CreateLogger(GetType());
+
+            logger.LogError(e, "Unhandled exception in event stream generator");
 
             await connection.RetryAsync(ErrorRetryTimeout);
         }
