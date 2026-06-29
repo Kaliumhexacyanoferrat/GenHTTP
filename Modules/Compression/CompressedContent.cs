@@ -21,8 +21,7 @@ public static class CompressedContent
     /// Zstandard, Brotli and Gzip compression.
     /// </summary>
     /// <returns>The newly created builder</returns>
-    public static CompressionConcernBuilder Default() => new CompressionConcernBuilder().Add(new ZstdAlgorithm())
-                                                                                        .Add(new BrotliAlgorithm())
+    public static CompressionConcernBuilder Default() => new CompressionConcernBuilder().Add(new BrotliAlgorithm())
                                                                                         .Add(new GzipAlgorithm());
 
     #endregion

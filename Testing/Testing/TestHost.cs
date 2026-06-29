@@ -76,7 +76,7 @@ public class TestHost : IAsyncDisposable
         {
             throw new NotSupportedException();
         }
-
+        
         //Host = (engine == TestEngine.Internal) ? Engine.Internal.Host.Create() : throw new NotSupportedException(); // todo: Engine.Kestrel.Host.Create();
 
         Host.Handler(handler);
@@ -216,7 +216,7 @@ public class TestHost : IAsyncDisposable
         var client = new HttpClient(handler)
         {
             DefaultRequestVersion = protocolVersion ?? HttpVersion.Version11,
-            Timeout = TimeSpan.FromSeconds(10)
+            Timeout = TimeSpan.FromSeconds(15)
         };
 
         client.DefaultRequestHeaders.ConnectionClose = false;

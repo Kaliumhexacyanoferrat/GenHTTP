@@ -1,9 +1,12 @@
 ﻿using System.Text;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Caching;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.IO;
+
 using StreamContent = GenHTTP.Modules.IO.Streaming.StreamContent;
 
 namespace GenHTTP.Modules.ServerCaching.Provider;
@@ -135,7 +138,7 @@ public sealed class ServerCacheHandler : IConcern
     private static IResponse GetResponse(IRequest request, CachedResponse cached, Stream? content)
     {
         var response = request.Respond()
-                              .Status((ResponseStatus)cached.StatusCode); // todo
+                              .Status(cached.Status);
 
         foreach (var header in cached.Headers)
         {
@@ -206,7 +209,7 @@ public sealed class ServerCacheHandler : IConcern
 
         var (checksum, contentLength, contentType, contentEncoding) = await ExtractContentValues(response);
 
-        return new CachedResponse((int)response.Status, variations, headers, contentType, contentEncoding, contentLength, checksum);
+        return new CachedResponse(response.Status, variations, headers, contentType, contentEncoding, contentLength, checksum);
     }
 
     private static async ValueTask<bool> CheckChangedAsync(IResponse current, CachedResponse cached)

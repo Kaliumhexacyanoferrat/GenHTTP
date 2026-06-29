@@ -6,7 +6,7 @@ namespace GenHTTP.Modules.Authentication.Multi;
 
 public sealed class MultiAuthenticationConcern : IConcern
 {
-    
+
     #region Get-/Setters
 
     public IHandler Content { get; }
@@ -33,9 +33,6 @@ public sealed class MultiAuthenticationConcern : IConcern
 
         foreach (var concern in _delegatingConcerns)
         {
-            // todo: this seems broken
-            // lastResponse?.Dispose();
-
             try
             {
                 lastResponse = new(await concern.HandleAsync(request));

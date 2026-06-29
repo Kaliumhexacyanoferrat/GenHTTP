@@ -31,13 +31,13 @@ public sealed class CompressionTests
         await using var runner = await TestHost.RunAsync(CreateLargeContentHandler().Build(), engine: engine);
 
         var request = runner.GetRequest();
-        request.Headers.Add("Accept-Encoding", "gzip, br, zstd");
+        request.Headers.Add("Accept-Encoding", "gzip, br");
 
         using var response = await runner.GetResponseAsync(request);
 
-        Assert.AreEqual("zstd", response.Content.Headers.ContentEncoding.First());
+        Assert.AreEqual("br", response.Content.Headers.ContentEncoding.First());
     }
-    
+
     /// <summary>
     /// As a browser, I expect only supported compression algorithms to be used
     /// to generate my response.
@@ -46,7 +46,7 @@ public sealed class CompressionTests
     [MultiEngineTest]
     public async Task TestSpecificAlgorithms(TestEngine engine)
     {
-        foreach (var algorithm in new[] { "gzip", "br", "zstd" })
+        foreach (var algorithm in new[] { "gzip", "br" })
         {
             await using var runner = await TestHost.RunAsync(CreateLargeContentHandler(), engine: engine);
 
@@ -186,7 +186,7 @@ public sealed class CompressionTests
         await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
 
         var request = runner.GetRequest();
-        request.Headers.Add("Accept-Encoding", "gzip, br, zstd");
+        request.Headers.Add("Accept-Encoding", "gzip, br");
 
         using var response = await runner.GetResponseAsync(request);
 
@@ -214,13 +214,13 @@ public sealed class CompressionTests
         await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
 
         var request = runner.GetRequest();
-        request.Headers.Add("Accept-Encoding", "gzip, br, zstd");
+        request.Headers.Add("Accept-Encoding", "gzip, br");
 
         using var response = await runner.GetResponseAsync(request);
 
         // Content should be compressed as it's above the threshold
         Assert.IsNotEmpty(response.Content.Headers.ContentEncoding);
-        Assert.AreEqual("zstd", response.Content.Headers.ContentEncoding.First());
+        Assert.AreEqual("br", response.Content.Headers.ContentEncoding.First());
     }
 
     /// <summary>
@@ -243,13 +243,13 @@ public sealed class CompressionTests
         await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
 
         var request = runner.GetRequest();
-        request.Headers.Add("Accept-Encoding", "gzip, br, zstd");
+        request.Headers.Add("Accept-Encoding", "gzip, br");
 
         using var response = await runner.GetResponseAsync(request);
 
         // Content should be compressed as it's exactly at the threshold (>= check)
         Assert.IsNotEmpty(response.Content.Headers.ContentEncoding);
-        Assert.AreEqual("zstd", response.Content.Headers.ContentEncoding.First());
+        Assert.AreEqual("br", response.Content.Headers.ContentEncoding.First());
     }
 
     /// <summary>
@@ -270,7 +270,7 @@ public sealed class CompressionTests
         await runner.Host.Compression(CompressedContent.Default().MinimumSize(500)).StartAsync();
 
         var request = runner.GetRequest();
-        request.Headers.Add("Accept-Encoding", "gzip, br, zstd");
+        request.Headers.Add("Accept-Encoding", "gzip, br");
 
         using var response = await runner.GetResponseAsync(request);
 
@@ -300,13 +300,13 @@ public sealed class CompressionTests
         await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
 
         var request = runner.GetRequest();
-        request.Headers.Add("Accept-Encoding", "gzip, br, zstd");
+        request.Headers.Add("Accept-Encoding", "gzip, br");
 
         using var response = await runner.GetResponseAsync(request);
 
         // Content with unknown length should always be compressed if suitable
         Assert.IsNotEmpty(response.Content.Headers.ContentEncoding);
-        Assert.AreEqual("zstd", response.Content.Headers.ContentEncoding.First());
+        Assert.AreEqual("br", response.Content.Headers.ContentEncoding.First());
     }
 
     /// <summary>
@@ -330,7 +330,7 @@ public sealed class CompressionTests
                      .StartAsync();
 
         var request = runner.GetRequest();
-        request.Headers.Add("Accept-Encoding", "custom, gzip, br, zstd");
+        request.Headers.Add("Accept-Encoding", "custom, gzip, br");
 
         using var response = await runner.GetResponseAsync(request);
 
@@ -363,17 +363,17 @@ public sealed class CompressionTests
         await runner.Host.Compression(CompressedContent.Default().MinimumSize(null)).StartAsync();
 
         var request = runner.GetRequest();
-        request.Headers.Add("Accept-Encoding", "gzip, br, zstd");
+        request.Headers.Add("Accept-Encoding", "gzip, br");
 
         using var response = await runner.GetResponseAsync(request);
 
         // Content should be compressed even though it's very small, as threshold is disabled
         Assert.IsNotEmpty(response.Content.Headers.ContentEncoding);
-        Assert.AreEqual("zstd", response.Content.Headers.ContentEncoding.First());
+        Assert.AreEqual("br", response.Content.Headers.ContentEncoding.First());
 
         await runner.DisposeAsync();
     }
-    
+
     [TestMethod]
     [MultiEngineTest]
     public async Task TestWeights(TestEngine engine)
@@ -419,7 +419,7 @@ public sealed class CompressionTests
 
         public Priority Priority => Priority.High;
 
-        public IResponseContent Compress(IResponseContent content, CompressionLevel level) 
+        public IResponseContent Compress(IResponseContent content, CompressionLevel level)
             => new CompressedResponseContent(content, target => target, Name);
 
         public Stream Decompress(Stream stream) => throw new NotImplementedException();

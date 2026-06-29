@@ -42,7 +42,7 @@ public sealed class YamlContent : IResponseContent
 
     public ValueTask WriteAsync(IResponseSink sink)
     {
-        sink.Writer.Write(TextEncoding.GetBytes(Serializer.Serialize(Data))); // ToDo: custom IEmitter
+        sink.Writer.Write(TextEncoding.GetBytes(Serializer.Serialize(Data)));
         return default;
     }
 

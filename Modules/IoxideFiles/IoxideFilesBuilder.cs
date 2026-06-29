@@ -1,5 +1,4 @@
 using GenHTTP.Api.Content;
-using GenHTTP.Api.Infrastructure;
 
 using ioxide.file;
 
@@ -29,4 +28,5 @@ public sealed class IoxideFilesBuilder : IHandlerBuilder<IoxideFilesBuilder>
     }
 
     public IHandler Build() => Concerns.Chain(_concerns, new IoxideFilesHandler(_assets));
+
 }
