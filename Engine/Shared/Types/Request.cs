@@ -1,10 +1,8 @@
 ﻿using System.IO.Pipelines;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
-
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-
 using Glyph11.Protocol;
 
 namespace GenHTTP.Engine.Shared.Types;
@@ -196,7 +194,15 @@ public sealed class Request : IRequest
         return _response;
     }
 
-    public PipeReader Upgrade() => Reader;
+    public PipeReader Upgrade()
+    {
+        Reader.AdvanceTo(_bodyStart);
+
+        _bodyLoaded = true;
+        _bodyPresent = false;
+
+        return Reader;
+    }
 
     #endregion
 
