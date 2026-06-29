@@ -11,7 +11,8 @@ public sealed class IntegrationTests
 {
 
     [TestMethod]
-    public async Task TestServerFunctional()
+    [MultiEngineTest]
+    public async Task TestServerFunctional(TestEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
                                .HandleContinuationFramesManually()
@@ -24,13 +25,14 @@ public sealed class IntegrationTests
 
         Chain.Works(websocket);
 
-        await using var host = await TestHost.RunAsync(websocket);
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
 
         await Client.Execute(host.Port);
     }
 
     [TestMethod]
-    public async Task TestText()
+    [MultiEngineTest]
+    public async Task TestText(TestEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
                                .Formatters(Formatting.Default().Build())
@@ -40,13 +42,14 @@ public sealed class IntegrationTests
                                    await c.WritePayloadAsync(data);
                                });
 
-        await using var host = await TestHost.RunAsync(websocket);
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
 
         await Client.ExecuteSerialized(host.Port);
     }
 
     [TestMethod]
-    public async Task TestSerialization()
+    [MultiEngineTest]
+    public async Task TestSerialization(TestEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
                                .Serialization(new JsonFormat())
@@ -56,14 +59,15 @@ public sealed class IntegrationTests
                                    await c.WritePayloadAsync(thing);
                                });
 
-        await using var host = await TestHost.RunAsync(websocket);
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
 
         await Client.ExecuteSerialized(host.Port);
     }
 
     // Automatic segmented handling
     [TestMethod]
-    public async Task TestServerFunctionalSegmented()
+    [MultiEngineTest]
+    public async Task TestServerFunctionalSegmented(TestEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
             .OnConnected(c => c.PingAsync())
@@ -75,7 +79,7 @@ public sealed class IntegrationTests
 
         Chain.Works(websocket);
 
-        await using var host = await TestHost.RunAsync(websocket);
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
 
         await Client.ExecuteSegmented(host.Port);
     }
@@ -83,7 +87,8 @@ public sealed class IntegrationTests
     // Automatic segmented handling
     // Plus TCP fragmentation
     [TestMethod]
-    public async Task TestServerFunctionalFragmented()
+    [MultiEngineTest]
+    public async Task TestServerFunctionalFragmented(TestEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
             .OnConnected(_ => ValueTask.CompletedTask)
@@ -95,7 +100,7 @@ public sealed class IntegrationTests
 
         Chain.Works(websocket);
 
-        await using var host = await TestHost.RunAsync(websocket);
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
 
         await Client.ExecuteFragmented("127.0.0.1", host.Port);
     }
@@ -104,7 +109,8 @@ public sealed class IntegrationTests
     // Plus TCP fragmentation
     // Plus segmented message
     [TestMethod]
-    public async Task TestServerFunctionalFragmentedSegmented()
+    [MultiEngineTest]
+    public async Task TestServerFunctionalFragmentedSegmented(TestEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
             .OnConnected(_ => ValueTask.CompletedTask)
@@ -116,7 +122,7 @@ public sealed class IntegrationTests
 
         Chain.Works(websocket);
 
-        await using var host = await TestHost.RunAsync(websocket);
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
 
         await Client.ExecuteFragmentedWithContinuationFrames("127.0.0.1", host.Port);
     }
@@ -126,7 +132,8 @@ public sealed class IntegrationTests
     // Plus segmented message
     // No allocations
     [TestMethod]
-    public async Task TestServerFunctionalFragmentedSegmentedNoAllocations()
+    [MultiEngineTest]
+    public async Task TestServerFunctionalFragmentedSegmentedNoAllocations(TestEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
             .OnConnected(_ => ValueTask.CompletedTask)
@@ -138,7 +145,7 @@ public sealed class IntegrationTests
 
         Chain.Works(websocket);
 
-        await using var host = await TestHost.RunAsync(websocket);
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
 
         await Client.ExecuteFragmentedWithContinuationFrames("127.0.0.1", host.Port);
     }
