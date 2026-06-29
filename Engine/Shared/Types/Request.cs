@@ -20,7 +20,7 @@ public sealed class Request : IRequest
     private IEndPoint? _endPoint;
 
     private PipeReader? _reader;
-    
+
     private readonly RequestHeader _header;
 
     private readonly ClientConnection _client = new();
@@ -34,7 +34,7 @@ public sealed class Request : IRequest
     private bool _bodyLoaded;
 
     private bool _bodyPresent;
-    
+
     private bool _resetRequired = true;
 
     #region Get-/Setters
@@ -99,7 +99,7 @@ public sealed class Request : IRequest
         }
 
         var headers = Header.Headers;
-        
+
         if (headerAccess == HeaderAccess.Retain && _retainedHeader == null)
         {
             _retainedHeader = new RetainedRequestHeader(_header);
@@ -174,11 +174,11 @@ public sealed class Request : IRequest
             return _bodyPresent ? _body.DrainAsync() : default;
         }
 
-        if (GetBody(HeaderAccess.Release) != null) 
+        if (GetBody(HeaderAccess.Release) != null)
         {
             return _body.DrainAsync();
         }
-        
+
         return default;
     }
 
@@ -195,6 +195,8 @@ public sealed class Request : IRequest
 
         return _response;
     }
+
+    public PipeReader Upgrade() => Reader;
 
     #endregion
 

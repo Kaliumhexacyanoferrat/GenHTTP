@@ -15,7 +15,6 @@ public sealed class IntegrationTests
     public async Task TestServerReactive(TestEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Reactive()
-                               .MaxFrameSize(1024)
                                .HandleContinuationFramesManually()
                                .Handler(new ReactiveHandler());
 
@@ -28,28 +27,29 @@ public sealed class IntegrationTests
 
 
     [TestMethod]
-    public async Task TestSerialization()
+    [MultiEngineTest]
+    public async Task TestSerialization(TestEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Reactive()
                                .Serialization(new JsonFormat())
                                .Handler(new ReactiveHandlerSerialized());
 
-        await using var host = await TestHost.RunAsync(websocket);
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
 
         await Client.ExecuteSerialized(host.Port);
     }
 
     // Automatic segmented handling
     [TestMethod]
-    public async Task TestServerReactiveSegmented()
+    [MultiEngineTest]
+    public async Task TestServerReactiveSegmented(TestEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Reactive()
-            .MaxFrameSize(1024)
             .Handler(new ReactiveHandler());
 
         Chain.Works(websocket);
 
-        await using var host = await TestHost.RunAsync(websocket);
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
 
         await Client.ExecuteSegmented(host.Port);
     }
@@ -57,15 +57,15 @@ public sealed class IntegrationTests
     // Automatic segmented handling
     // Plus TCP fragmentation
     [TestMethod]
-    public async Task TestServerReactiveFragmented()
+    [MultiEngineTest]
+    public async Task TestServerReactiveFragmented(TestEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Reactive()
-            .MaxFrameSize(1024)
             .Handler(new ReactiveHandlerFragmented());
 
         Chain.Works(websocket);
 
-        await using var host = await TestHost.RunAsync(websocket);
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
 
         await Client.ExecuteFragmented("127.0.0.1", host.Port);
     }
@@ -74,15 +74,15 @@ public sealed class IntegrationTests
     // Plus TCP fragmentation
     // Plus segmented message
     [TestMethod]
-    public async Task TestServerReactiveFragmentedSegmented()
+    [MultiEngineTest]
+    public async Task TestServerReactiveFragmentedSegmented(TestEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Reactive()
-            .MaxFrameSize(1024)
             .Handler(new ReactiveHandlerFragmented());
 
         Chain.Works(websocket);
 
-        await using var host = await TestHost.RunAsync(websocket);
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
 
         await Client.ExecuteFragmentedWithContinuationFrames("127.0.0.1", host.Port);
     }
@@ -92,16 +92,16 @@ public sealed class IntegrationTests
     // Plus segmented message
     // No allocations
     [TestMethod]
-    public async Task TestServerReactiveFragmentedSegmentedNoAllocations()
+    [MultiEngineTest]
+    public async Task TestServerReactiveFragmentedSegmentedNoAllocations(TestEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Reactive()
-            .MaxFrameSize(1024)
             .DoNotAllocateFrameData()
             .Handler(new ReactiveHandlerFragmented());
 
         Chain.Works(websocket);
 
-        await using var host = await TestHost.RunAsync(websocket);
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
 
         await Client.ExecuteFragmentedWithContinuationFrames("127.0.0.1", host.Port);
     }
