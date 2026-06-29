@@ -16,8 +16,6 @@
 
         <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
 
-        <PackageReference Include="ZstdSharp.Port" Version="0.8.8" />
-
     </ItemGroup>
 
     <ItemGroup>
