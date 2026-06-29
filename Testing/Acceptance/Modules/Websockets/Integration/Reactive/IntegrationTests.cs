@@ -11,7 +11,8 @@ public sealed class IntegrationTests
 {
 
     [TestMethod]
-    public async Task TestServerReactive()
+    [MultiEngineTest]
+    public async Task TestServerReactive(TestEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Reactive()
                                .MaxFrameSize(1024)
@@ -20,7 +21,7 @@ public sealed class IntegrationTests
 
         Chain.Works(websocket);
 
-        await using var host = await TestHost.RunAsync(websocket);
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
 
         await Client.Execute(host.Port);
     }
