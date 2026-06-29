@@ -3,7 +3,7 @@
     <metadata>
 
         <id>GenHTTP.Core.Kestrel</id>
-        <version>11.0.0-preview.19-preview.19</version>
+        <version>11.0.0-preview.20-preview.19</version>
 
         <description>Basic dependencies for projects using the GenHTTP framework, combined with the Ioxide HTTP engine to serve requests</description>
 
@@ -22,13 +22,13 @@
 
             <group>
 
-                <dependency id="GenHTTP.Api" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Api" version="11.0.0-preview.20"/>
 
-                <dependency id="GenHTTP.Engine.Ioxide" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Engine.Ioxide" version="11.0.0-preview.20"/>
 
-                <dependency id="GenHTTP.Modules.Practices" version="11.0.0-preview.19"/>
-                <dependency id="GenHTTP.Modules.IO" version="11.0.0-preview.19"/>
-                <dependency id="GenHTTP.Modules.Layouting" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.Practices" version="11.0.0-preview.20"/>
+                <dependency id="GenHTTP.Modules.IO" version="11.0.0-preview.20"/>
+                <dependency id="GenHTTP.Modules.Layouting" version="11.0.0-preview.20"/>
 
             </group>
 
