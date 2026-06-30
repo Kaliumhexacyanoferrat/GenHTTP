@@ -438,7 +438,7 @@ public sealed class ReverseProxyTests
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            Assert.IsNotNull(request.Client.IPAddress);
+            Assert.IsNotNull(request.Client.Address);
 
             var response = _response.Invoke(request);
 

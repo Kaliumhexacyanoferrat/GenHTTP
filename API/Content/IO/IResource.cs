@@ -54,6 +54,10 @@ public interface IResource
     /// <returns>The resource to be accessed</returns>
     ValueTask<Stream> GetContentAsync();
 
+    /// <summary>
+    /// Writes the resource as a response body directly to the given sink.
+    /// </summary>
+    /// <param name="sink">The sink to write the resource to</param>
     ValueTask WriteAsync(IResponseSink sink);
 
 }

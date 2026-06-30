@@ -9,7 +9,7 @@ namespace GenHTTP.Engine.Shared.Types;
 public sealed class ClientConnection : IClientConnection
 {
 
-    public IPAddress? IPAddress { get; private set; }
+    public IPAddress? Address { get; private set; }
 
     public ClientProtocol? Protocol { get; private set; }
 
@@ -17,14 +17,14 @@ public sealed class ClientConnection : IClientConnection
 
     public void Apply(IPAddress? address, ClientProtocol? protocol, X509Certificate? certificate)
     {
-        IPAddress = address;
+        Address = address;
         Protocol = protocol;
         Certificate = certificate;
     }
 
     public void Reset()
     {
-        IPAddress = null;
+        Address = null;
         Protocol = null;
         Certificate = null;
     }

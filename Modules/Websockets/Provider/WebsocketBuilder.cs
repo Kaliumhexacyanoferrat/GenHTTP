@@ -1,5 +1,5 @@
 ﻿using GenHTTP.Api.Content;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Conversion.Serializers;
@@ -13,7 +13,7 @@ public abstract class WebsocketBuilder<T> : IHandlerBuilder<T> where T : Websock
 
     protected bool _handleContinuationFramesManually, _allocateFrameData = true;
 
-    protected int _maxRxBufferSize = 1024 * 16; // 16 KB
+    protected int _maxRxBufferSize = BufferSize.Read;
 
     protected FormatterRegistry _formatters = Formatting.Default().Build();
 

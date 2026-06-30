@@ -68,7 +68,7 @@ public sealed class InspectionConcern : IConcern
                 Client = new
                 {
                     Protocol = request.Client.Protocol,
-                    IPAddress = request.Client.IPAddress?.ToString()
+                    IPAddress = request.Client.Address?.ToString()
                 },
                 Request = new
                 {

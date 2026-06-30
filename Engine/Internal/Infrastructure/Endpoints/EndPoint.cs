@@ -15,9 +15,9 @@ namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
 
 internal abstract class EndPoint : IEndPoint
 {
-    private static readonly DefaultObjectPool<ClientContext> ContextPool = new(new ClientContextPolicy(), 65536);
+    private static readonly DefaultObjectPool<ClientContext> ContextPool = new(new ClientContextPolicy(), BufferSize.Write);
 
-    private static readonly StreamPipeReaderOptions ReaderOptions = new(MemoryPool<byte>.Shared, leaveOpen: true, bufferSize: 16384, minimumReadSize: 16384);
+    private static readonly StreamPipeReaderOptions ReaderOptions = new(MemoryPool<byte>.Shared, leaveOpen: true, bufferSize: BufferSize.Read, minimumReadSize: BufferSize.Read);
 
     #region Get-/Setters
 

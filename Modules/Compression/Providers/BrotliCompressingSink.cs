@@ -1,6 +1,6 @@
 using System.Buffers;
 using System.IO.Compression;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO.Streaming;
 
@@ -8,8 +8,6 @@ namespace GenHTTP.Modules.Compression.Providers;
 
 internal sealed class BrotliCompressingSink : IResponseSink, IAsyncDisposable, IDisposable
 {
-    private const int InputBufferSize = 65536;
-
     private readonly IResponseSink _inner;
     private BrotliEncoder _encoder;
     private readonly byte[] _inputBuffer;
@@ -33,7 +31,7 @@ internal sealed class BrotliCompressingSink : IResponseSink, IAsyncDisposable, I
     }
 
     #endregion
-    
+
     #region Get-/Setters
 
     public IBufferWriter<byte> Writer => _bufferWriter ??= new EncoderBufferWriter(this);
@@ -47,7 +45,7 @@ internal sealed class BrotliCompressingSink : IResponseSink, IAsyncDisposable, I
     internal BrotliCompressingSink(IResponseSink inner, CompressionLevel level)
     {
         _inner = inner;
-        _inputBuffer = ArrayPool<byte>.Shared.Rent(InputBufferSize);
+        _inputBuffer = ArrayPool<byte>.Shared.Rent(BufferSize.Write);
         _encoder = new BrotliEncoder(MapQuality(level), MapWindow(level));
     }
 
