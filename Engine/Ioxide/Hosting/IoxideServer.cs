@@ -40,7 +40,7 @@ public sealed class IoxideServer : IServer
     public IPropertyBag Properties { get; } = new PropertyBag();
 
     public ILoggerFactory Logging => _config.Logging;
-    
+
     public IEndPointCollection EndPoints { get; }
 
     public IHandler Handler { get; }
@@ -152,8 +152,6 @@ public sealed class IoxideServer : IServer
         {
             var start = Stopwatch.GetTimestamp();
 
-            // Initialise the handler chain (routing, reflection, websockets, ...) before serving;
-            // GenHTTP handlers throw "Handler is not prepared yet" otherwise.
             await Handler.PrepareAsync(this);
 
             var elapsed = Stopwatch.GetElapsedTime(start);

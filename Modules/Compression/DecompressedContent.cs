@@ -1,8 +1,13 @@
+using GenHTTP.Api.Infrastructure;
+using GenHTTP.Modules.Compression.Algorithms;
+using GenHTTP.Modules.Compression.Providers;
+
+namespace GenHTTP.Modules.Compression;
+
 /// <summary>
 /// Provides automatic decompression of incoming request content.
 /// </summary>
-// todo
-/*public static class DecompressedContent
+public static class DecompressedContent
 {
 
     #region Builder
@@ -16,13 +21,12 @@
 
     /// <summary>
     /// Creates a pre-configured builder which already supports
-    /// Zstandard, Brotli, Gzip, and Deflate decompression.
+    /// Brotli and Gzip decompression.
     /// </summary>
     /// <returns>The newly created builder</returns>
     public static DecompressionConcernBuilder Default() => new DecompressionConcernBuilder()
-        .Add(new ZstdAlgorithm())
-        .Add(new BrotliAlgorithm())
-        .Add(new GzipAlgorithm());
+                                                           .Add(new BrotliAlgorithm())
+                                                           .Add(new GzipAlgorithm());
 
     #endregion
 
@@ -52,4 +56,3 @@
     #endregion
 
 }
-*/

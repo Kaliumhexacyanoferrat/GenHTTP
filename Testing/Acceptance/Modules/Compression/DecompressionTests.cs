@@ -1,8 +1,22 @@
+using System.IO.Compression;
+using System.Net.Http.Headers;
+using System.Text;
+
+using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.Compression;
+using GenHTTP.Modules.Practices;
+using GenHTTP.Modules.IO;
+
+using GenHTTP.Testing.Acceptance.Utilities;
+
+using Resource = GenHTTP.Modules.IO.Resource;
+
 namespace GenHTTP.Testing.Acceptance.Modules.Compression;
 
-// todo
-
-/*[TestClass]
+[TestClass]
 public sealed class DecompressionTests
 {
     private const string TestContent = "Hello, this is test content that will be compressed!";
@@ -28,26 +42,17 @@ public sealed class DecompressionTests
     }
 
     /// <summary>
-    /// As a developer, I expect incoming zstd-compressed requests to be automatically decompressed.
-    /// </summary>
-    [TestMethod]
-    [MultiEngineTest]
-    public async Task TestZstdDecompression(TestEngine engine)
-    {
-        await TestDecompressionAsync(engine, "zstd", CompressZstd);
-    }
-
-    /// <summary>
     /// As a developer, I expect requests without Content-Encoding to pass through unchanged.
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
     public async Task TestNoDecompressionWithoutHeader(TestEngine engine)
     {
-        var handler = new FunctionalHandler(responseProvider: r =>
+        var handler = new AsyncFunctionalHandler(responseProvider: async r =>
         {
-            using var reader = new StreamReader(r.Content!);
-            var body = reader.ReadToEnd();
+            var memory = await r.GetBody()!.AsMemoryAsync();
+
+            var body = Encoding.UTF8.GetString(memory.Span);
 
             return r.Respond()
                     .Content(new GenHTTP.Modules.IO.Strings.StringContent(body))
@@ -74,14 +79,14 @@ public sealed class DecompressionTests
     [MultiEngineTest]
     public async Task TestNoDecompressionWithUnknownEncoding(TestEngine engine)
     {
-        var handler = new FunctionalHandler(responseProvider: r =>
+        var handler = new AsyncFunctionalHandler(responseProvider: async r =>
         {
-            using var reader = new StreamReader(r.Content!);
-            var body = reader.ReadToEnd();
+            var memory = await r.GetBody()!.AsMemoryAsync();
+
+            var body = Encoding.UTF8.GetString(memory.Span);
 
             return r.Respond()
                     .Content(Resource.FromString(body).Build())
-                    .Type(ContentType.TextPlain)
                     .Build();
         });
 
@@ -106,14 +111,14 @@ public sealed class DecompressionTests
     [MultiEngineTest]
     public async Task TestCustomDecompressionAlgorithm(TestEngine engine)
     {
-        var handler = new FunctionalHandler(responseProvider: r =>
+        var handler = new AsyncFunctionalHandler(responseProvider: async r =>
         {
-            using var reader = new StreamReader(r.Content!);
-            var body = reader.ReadToEnd();
+            var memory = await r.GetBody()!.AsMemoryAsync();
+
+            var body = Encoding.UTF8.GetString(memory.Span);
 
             return r.Respond()
                     .Content(Resource.FromString(body).Build())
-                    .Type(ContentType.TextPlain)
                     .Build();
         });
 
@@ -140,14 +145,14 @@ public sealed class DecompressionTests
     [MultiEngineTest]
     public async Task TestDecompressionViaDefaults(TestEngine engine)
     {
-        var handler = new FunctionalHandler(responseProvider: r =>
+        var handler = new AsyncFunctionalHandler(responseProvider: async r =>
         {
-            using var reader = new StreamReader(r.Content!);
-            var body = reader.ReadToEnd();
+            var memory = await r.GetBody()!.AsMemoryAsync();
+
+            var body = Encoding.UTF8.GetString(memory.Span);
 
             return r.Respond()
                     .Content(Resource.FromString(body).Build())
-                    .Type(ContentType.TextPlain)
                     .Build();
         });
 
@@ -161,50 +166,6 @@ public sealed class DecompressionTests
 
         var responseBody = await response.Content.ReadAsStringAsync();
         Assert.AreEqual(TestContent, responseBody);
-    }
-
-    [TestMethod]
-    [MultiEngineTest]
-    public async Task TestRequestWrapping(TestEngine engine)
-    {
-        var app = Inline.Create()
-                        .Post((IRequest wrapped) =>
-                        {
-                            Assert.IsNotNull(wrapped.Properties);
-                            Assert.IsNotNull(wrapped.Server);
-                            Assert.IsNotNull(wrapped.Client);
-                            Assert.IsNotNull(wrapped.LocalClient);
-                            Assert.IsNotNull(wrapped.Target);
-                            Assert.IsNotNull(wrapped.Cookies);
-                            Assert.IsNotNull(wrapped.Forwardings);
-
-                            Assert.AreEqual(HttpProtocol.Http11, wrapped.ProtocolType);
-                            Assert.AreEqual(RequestMethod.Post, wrapped.Method.KnownMethod);
-
-                            Assert.AreEqual("https://google.com/", wrapped.Referer);
-                            Assert.AreEqual("server.local", wrapped.Host);
-                            Assert.AreEqual("test-client/1.0 (100% not compatible)", wrapped.UserAgent);
-
-                            Assert.AreEqual("1", wrapped.Query["x"]);
-                            Assert.AreEqual("test-client/1.0 (100% not compatible)", wrapped.Headers["User-Agent"]);
-
-                            return wrapped.Respond()
-                                          .Status(ResponseStatus.NoContent);
-                        });
-
-        await using var runner = new TestHost(app.Build(), defaults: false, engine: engine);
-
-        await runner.Host.Defaults(decompression: true).StartAsync();
-
-        var request = GetRequestWithCompressedPayload(runner, "/?x=1");
-
-        request.Headers.Add("Referer", "https://google.com");
-        request.Headers.Add("Host", "server.local");
-        request.Headers.Add("User-Agent", "test-client/1.0 (100% not compatible)");
-
-        using var response = await runner.GetResponseAsync(request);
-
-        await response.AssertStatusAsync(HttpStatusCode.NoContent);
     }
 
     #region Helpers
@@ -224,14 +185,14 @@ public sealed class DecompressionTests
 
     private static async Task TestDecompressionAsync(TestEngine engine, string encoding, Func<string, byte[]> compressor)
     {
-        var handler = new FunctionalHandler(responseProvider: r =>
+        var handler = new AsyncFunctionalHandler(responseProvider: async r =>
         {
-            using var reader = new StreamReader(r.Content!);
-            var body = reader.ReadToEnd();
+            var memory = await r.GetBody()!.AsMemoryAsync();
+
+            var body = Encoding.UTF8.GetString(memory.Span);
 
             return r.Respond()
                     .Content(Resource.FromString(body).Build())
-                    .Type(ContentType.TextPlain)
                     .Build();
         });
 
@@ -274,24 +235,14 @@ public sealed class DecompressionTests
         return output.ToArray();
     }
 
-    private static byte[] CompressZstd(string content)
-    {
-        var bytes = Encoding.UTF8.GetBytes(content);
-        using var output = new MemoryStream();
-        using (var zstd = new ZstdSharp.CompressionStream(output, 1, leaveOpen: true))
-        {
-            zstd.Write(bytes, 0, bytes.Length);
-        }
-        return output.ToArray();
-    }
-
     #endregion
 
     #region Custom Algorithm
 
     private class CustomDecompression : ICompressionAlgorithm
     {
-        public string Name => "custom";
+
+        public AlgorithmName Name => new("custom");
 
         public Priority Priority => Priority.Low;
 
@@ -310,4 +261,3 @@ public sealed class DecompressionTests
     #endregion
 
 }
-*/

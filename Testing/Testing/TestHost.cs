@@ -6,8 +6,6 @@ using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Modules.Practices;
 
-using YamlDotNet.Core;
-
 using Version = System.Version;
 
 namespace GenHTTP.Testing;
@@ -62,22 +60,7 @@ public class TestHost : IAsyncDisposable
     {
         Port = NextPort();
 
-        if (engine == TestEngine.Internal)
-        {
-            Host = Engine.Internal.Host.Create();
-        }
-#if NET11_0_OR_GREATER
-        else if (engine == TestEngine.Ioxide)
-        {
-            Host = Engine.Ioxide.Host.Create();
-        }
-#endif
-        else
-        {
-            throw new NotSupportedException();
-        }
-        
-        //Host = (engine == TestEngine.Internal) ? Engine.Internal.Host.Create() : throw new NotSupportedException(); // todo: Engine.Kestrel.Host.Create();
+        Host = CreateHost(engine);
 
         Host.Handler(handler);
         Host.Port((ushort)Port);
@@ -130,6 +113,22 @@ public class TestHost : IAsyncDisposable
     public async Task StartAsync()
     {
         await Host.StartAsync();
+    }
+
+    private static IServerHost CreateHost(TestEngine engine)
+    {
+        if (engine == TestEngine.Internal)
+        {
+            return Engine.Internal.Host.Create();
+        }
+#if NET11_0_OR_GREATER
+        else if (engine == TestEngine.Ioxide)
+        {
+            return Engine.Ioxide.Host.Create();
+        }
+#endif
+
+        throw new NotSupportedException();
     }
 
     #endregion
