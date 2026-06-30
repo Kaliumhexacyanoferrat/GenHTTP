@@ -1,8 +1,9 @@
-﻿using System.Text;
-using GenHTTP.Api.Content;
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Conversion.Serializers;
+
 using Strings = GenHTTP.Modules.IO.Strings;
 
 namespace GenHTTP.Modules.Inspection.Concern;
@@ -45,6 +46,10 @@ public sealed class InspectionConcern : IConcern
 
             var header = request.Header;
 
+            var target = header.Target;
+
+            var responseContent = response?.Content;
+
             var model = new
             {
                 Server = new
@@ -60,34 +65,35 @@ public sealed class InspectionConcern : IConcern
                         RequestSource = e == request.EndPoint
                     })
                 },
-                // todo
-                /*Client = new
+                Client = new
                 {
                     Protocol = request.Client.Protocol,
-                    IPAddress = request.Client.IPAddress?.ToString(),
-                    Host = request.Client.Host
+                    IPAddress = request.Client.IPAddress?.ToString()
                 },
-                LocalClient = (request.Client != request.LocalClient) ? new
-                {
-                    Protocol = request.LocalClient.Protocol,
-                    IPAddress = request.LocalClient.IPAddress?.ToString(),
-                    Host = request.LocalClient.Host
-                } : null,*/
                 Request = new
                 {
-                    Protocol = GetString(header.Protocol.Bytes),
-                    Method = GetString(header.Method.Bytes),
-                    Path = GetString(header.Path.Bytes),
+                    Protocol = header.Protocol.ToString(),
+                    Method = header.Method.ToString(),
+                    Path = header.Path.ToString(),
                     Target = new
                     {
-                        Current = GetString(header.Target.Current?.Bytes),
-                        TrailingSlash = header.Target.HasTrailingSlash,
-                        Last = header.Target.IsLast
+                        Current = target.Current?.ToString(),
+                        TrailingSlash = target.HasTrailingSlash,
+                        Last = target.IsLast
                     },
-                    // todo: content
+                    Headers = GetList(header.Headers),
+                    Query = GetList(header.Query)
                 },
                 Response = (response != null) ? new {
-                    // todo
+                    Status = response.Status,
+                    Mode = response.Mode,
+                    Headers = GetList(response.Headers),
+                    Content = (responseContent != null) ? new
+                    {
+                        Length = responseContent.Length,
+                        Type = responseContent.Type?.ToString(),
+                        Checksum = await responseContent.CalculateChecksumAsync()
+                    } : null
                 } : null
             };
 
@@ -107,8 +113,19 @@ public sealed class InspectionConcern : IConcern
         return await Content.HandleAsync(request);
     }
 
-    private static string GetString(ReadOnlyMemory<byte>? value)
-        => (value != null) ? Encoding.ASCII.GetString(value.Value.Span) : string.Empty;
+    private static List<KeyValuePair<string, string>> GetList(IKeyValueList list)
+    {
+        var result = new List<KeyValuePair<string, string>>();
+
+        for (var i = 0; i < list.Count; i++)
+        {
+            var entry = list[i];
+
+            result.Add(new(entry.Key.ToString(), entry.Value.ToString()));
+        }
+
+        return result;
+    }
 
     #endregion
 

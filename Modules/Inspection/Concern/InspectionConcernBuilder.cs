@@ -1,6 +1,7 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion.Serializers;
+using GenHTTP.Modules.Conversion.Serializers.Json;
 using GenHTTP.Modules.Conversion.Serializers.Yaml;
 using Conv = GenHTTP.Modules.Conversion;
 
@@ -21,7 +22,8 @@ public sealed class InspectionConcernBuilder : IConcernBuilder
     public IConcern Build(IHandler content)
     {
         var serialization = _serialization ?? Conv.Serialization.Empty()
-                                                  .Default(ContentType.ApplicationYaml)
+                                                  .Default(ContentType.ApplicationJson)
+                                                  .Add(ContentType.ApplicationJson, new JsonFormat())
                                                   .Add(ContentType.ApplicationYaml, new YamlFormat())
                                                   .Build();
 
