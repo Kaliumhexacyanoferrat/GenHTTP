@@ -87,7 +87,6 @@
         <ProjectReference Include="..\..\Modules\ApiBrowsing\GenHTTP.Modules.ApiBrowsing.csproj" />
         <ProjectReference Include="..\..\Modules\I18n\GenHTTP.Modules.I18n.csproj" />
         <ProjectReference Include="..\..\Modules\Authentication\GenHTTP.Modules.Authentication.csproj" />
-        <ProjectReference Include="..\..\Modules\Caching\GenHTTP.Modules.Caching.csproj" />
         <ProjectReference Include="..\..\Modules\Compression\GenHTTP.Modules.Compression.csproj" />
         <ProjectReference Include="..\..\Modules\Controllers\GenHTTP.Modules.Controllers.csproj" />
         <ProjectReference Include="..\..\Modules\Conversion\GenHTTP.Modules.Conversion.csproj" />
@@ -104,7 +103,6 @@
         <ProjectReference Include="..\..\Modules\Reflection\GenHTTP.Modules.Reflection.csproj" />
         <ProjectReference Include="..\..\Modules\ReverseProxy\GenHTTP.Modules.ReverseProxy.csproj" />
         <ProjectReference Include="..\..\Modules\Security\GenHTTP.Modules.Security.csproj" />
-        <ProjectReference Include="..\..\Modules\ServerCaching\GenHTTP.Modules.ServerCaching.csproj" />
         <ProjectReference Include="..\..\Modules\SinglePageApplications\GenHTTP.Modules.SinglePageApplications.csproj" />
         <ProjectReference Include="..\..\Modules\StaticWebsites\GenHTTP.Modules.StaticWebsites.csproj" />
         <ProjectReference Include="..\..\Modules\VirtualHosting\GenHTTP.Modules.VirtualHosting.csproj" />
