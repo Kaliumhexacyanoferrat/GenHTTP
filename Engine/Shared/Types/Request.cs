@@ -125,7 +125,13 @@ public sealed class Request : IRequest
             return null;
         }
 
-        return (_bodyWrapper != null) ? _wrappedBody = _bodyWrapper(_body) : _body;
+        if (_bodyWrapper != null)
+        {
+            _wrappedBody = _bodyWrapper(_body);
+            return _wrappedBody;
+        }
+
+        return _body;
     }
 
     public void Apply(IServer server, IEndPoint endPoint, PipeReader reader, SequencePosition bodyStart, IPAddress? remoteAddress, X509Certificate? clientCertificate)

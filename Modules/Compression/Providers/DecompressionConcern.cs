@@ -11,7 +11,6 @@ namespace GenHTTP.Modules.Compression.Providers;
 /// </summary>
 public sealed class DecompressionConcern : IConcern
 {
-    private const string ContentEncoding = "Content-Encoding";
 
     #region Get-/Setters
 
