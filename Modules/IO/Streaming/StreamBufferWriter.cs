@@ -1,18 +1,27 @@
-﻿namespace GenHTTP.Modules.IO.Streaming;
+﻿using System.Buffers;
 
-using System.Buffers;
-using System.IO;
+using GenHTTP.Api.Infrastructure;
+
+namespace GenHTTP.Modules.IO.Streaming;
+
 
 public sealed class StreamBufferWriter : IBufferWriter<byte>
 {
     private readonly Stream _stream;
+
     private byte[] _buffer;
 
-    public StreamBufferWriter(Stream stream, int bufferSize = 65536)
+    #region Initialization
+
+    public StreamBufferWriter(Stream stream, int bufferSize = BufferSize.Write)
     {
         _stream = stream;
         _buffer = new byte[bufferSize];
     }
+
+    #endregion
+
+    #region Functionality
 
     public void Advance(int count)
     {
@@ -38,5 +47,7 @@ public sealed class StreamBufferWriter : IBufferWriter<byte>
             _buffer = new byte[Math.Max(sizeHint, _buffer.Length * 2)];
         }
     }
+
+    #endregion
 
 }

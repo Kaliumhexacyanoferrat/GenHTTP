@@ -23,7 +23,7 @@ public sealed class ClientConnectionTests
 
         var handler = Inline.Create().Get((IRequest r) =>
         {
-            address = r.Client.IPAddress;
+            address = r.Client.Address;
             protocol = r.Client.Protocol;
             certificate = r.Client.Certificate;
 
@@ -49,7 +49,7 @@ public sealed class ClientConnectionTests
 
         var handler = Inline.Create().Get((IRequest r) =>
         {
-            addresses.Add(r.Client.IPAddress);
+            addresses.Add(r.Client.Address);
 
             return r.Respond().Build();
         });

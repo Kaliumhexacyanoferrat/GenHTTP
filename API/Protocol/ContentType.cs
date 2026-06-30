@@ -7,7 +7,7 @@ public readonly partial struct ContentType
 
     #region Known Types
 
-    /// <summary>A html page.</summary>
+    /// <summary>A HTML page.</summary>
     public static readonly ContentType TextHtml = new("text/html");
 
     /// <summary>A stylesheet.</summary>
@@ -204,6 +204,35 @@ public readonly partial struct ContentType
 
     /// <summary>WebM.</summary>
     public static readonly ContentType VideoWebM = new("video/webm");
+
+    #endregion
+
+    #region Functionality
+
+    /// <summary>
+    /// Removes any addition from the given content type value
+    /// (such as "; charset=utf-8").
+    /// </summary>
+    /// <returns>The content type without any additional options</returns>
+    public ContentType WithoutOptions()
+    {
+        var span = Bytes.Span;
+        var idx = span.IndexOf((byte)';');
+
+        if (idx < 0)
+        {
+            return this;
+        }
+
+        var trimmed = span[..idx];
+
+        while (!trimmed.IsEmpty && trimmed[^1] == (byte)' ')
+        {
+            trimmed = trimmed[..^1];
+        }
+
+        return new(trimmed.ToArray());
+    }
 
     #endregion
 

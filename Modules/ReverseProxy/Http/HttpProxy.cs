@@ -115,7 +115,7 @@ public sealed class HttpProxy : IHandler
 
         var client = request.Client;
 
-        forwardings.Add(new Forwarding(client.IPAddress, null, headers.GetEntry("Host"), client.Protocol));
+        forwardings.Add(new Forwarding(client.Address, null, headers.GetEntry("Host"), client.Protocol));
 
         req.Headers.Add("Forwarded", string.Join(", ", forwardings.Select(GetForwarding)));
 
