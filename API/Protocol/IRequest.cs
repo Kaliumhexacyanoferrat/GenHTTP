@@ -1,4 +1,5 @@
-﻿using GenHTTP.Api.Infrastructure;
+﻿using System.IO.Pipelines;
+using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Api.Protocol;
 
@@ -45,8 +46,18 @@ public interface IRequest
     /// </summary>
     /// <returns>The response which can be returned by handlers to answer this request</returns>
     IResponseBuilder Respond();
-    
+
+    /// <summary>
+    /// Expresses intention to upgrade the request to another protocol,
+    /// granting access to the underlying pipe reader used by the engine.
+    /// </summary>
+    /// <remarks>
+    /// Using the pipe reader in non-upgrade scenarios might cause the server
+    /// failing to handle requests as intended.
+    /// </remarks>
+    /// <returns>The underlying pipe reader</returns>
+    PipeReader Upgrade();
+
     // todo: wrap body (e.g. content decoding)
 
 }
-

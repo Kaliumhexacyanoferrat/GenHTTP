@@ -39,12 +39,6 @@ public class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebsocketBui
         return this;
     }
 
-    public FunctionalWebsocketBuilder MaxFrameSize(int maxRxBufferSize)
-    {
-        _builder.MaxFrameSize(maxRxBufferSize);
-        return this;
-    }
-
     public FunctionalWebsocketBuilder HandleContinuationFramesManually()
     {
         _builder.HandleContinuationFramesManually();

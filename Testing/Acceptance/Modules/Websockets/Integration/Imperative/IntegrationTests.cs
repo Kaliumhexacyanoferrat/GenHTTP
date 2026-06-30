@@ -9,7 +9,8 @@ public sealed class IntegrationTests
 {
 
     [TestMethod]
-    public async Task TestServerImperative()
+    [MultiEngineTest]
+    public async Task TestServerImperative(TestEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
             .Imperative()
@@ -18,14 +19,15 @@ public sealed class IntegrationTests
 
         Chain.Works(websocket);
 
-        await using var host = await TestHost.RunAsync(websocket);
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
 
         await Client.Execute(host.Port);
     }
 
     // Automatic segmented handling
     [TestMethod]
-    public async Task TestServerImperativeSegmented()
+    [MultiEngineTest]
+    public async Task TestServerImperativeSegmented(TestEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
             .Imperative()
@@ -33,7 +35,7 @@ public sealed class IntegrationTests
 
         Chain.Works(websocket);
 
-        await using var host = await TestHost.RunAsync(websocket);
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
 
         await Client.ExecuteSegmented(host.Port);
     }

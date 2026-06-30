@@ -13,6 +13,8 @@ namespace GenHTTP.Modules.Websockets.Provider;
 
 public class WebsocketConnection : IReactiveConnection, IImperativeConnection, IAsyncDisposable
 {
+    private const int MaxFrameSize = 16 * 1024;
+
     private readonly IBufferWriter<byte> _writer;
     private readonly Stream _stream;
     private readonly PipeReader _pipeReader;
@@ -46,12 +48,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
         _writer = sink.Writer;
         _stream = sink.Stream;
 
-        _pipeReader = PipeReader.Create(_stream,
-            new StreamPipeReaderOptions(
-                MemoryPool<byte>.Shared,
-                leaveOpen: true,
-                bufferSize: settings.RxBufferSize,
-                minimumReadSize: Math.Min(settings.RxBufferSize / 4, 1024)));
+        _pipeReader = request.Upgrade();
     }
 
     #endregion
@@ -131,7 +128,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
         _currentSequence = result.Buffer;
 
-        var decoded = Frame.Decode(this, ref _currentSequence, Settings.RxBufferSize, out var consumed, out var examined);
+        var decoded = Frame.Decode(this, ref _currentSequence, MaxFrameSize, out var consumed, out var examined);
         _consumed = consumed;
         _examined = examined;
 
@@ -259,7 +256,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                 ? result.Buffer.Slice(innerExamined)
                 : result.Buffer;
 
-            var frame = Frame.Decode(this, ref _currentSequence, Settings.RxBufferSize, out var consumed, out var examined);
+            var frame = Frame.Decode(this, ref _currentSequence, MaxFrameSize, out var consumed, out var examined);
             _consumed = consumed;
             _examined = examined;
 
