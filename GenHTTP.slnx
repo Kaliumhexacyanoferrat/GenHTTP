@@ -55,6 +55,12 @@
         <File Path="Packages\GenHTTP.Core.nuspec" />
         <File Path="Packages/GenHTTP.Core.Ioxide.md" />
         <File Path="Packages/GenHTTP.Core.Ioxide.nuspec" />
+        <File Path="Packages/GenHTTP.Full.Ioxide.md" />
+        <File Path="Packages/GenHTTP.Full.Ioxide.nuspec" />
+        <File Path="Packages/GenHTTP.Full.Kestrel.md" />
+        <File Path="Packages/GenHTTP.Full.Kestrel.nuspec" />
+        <File Path="Packages/GenHTTP.Full.md" />
+        <File Path="Packages/GenHTTP.Full.nuspec" />
         <!--<File Path="Packages\GenHTTP.Core.Kestrel.nuspec" />-->
         <File Path="Packages\GenHTTP.Core.md" />
         <!--<File Path="Packages\GenHTTP.Core.Kestrel.md" />-->
