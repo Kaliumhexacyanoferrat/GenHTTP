@@ -1,22 +1,28 @@
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol;
+
+namespace GenHTTP.Modules.Compression.Providers;
+
 /// <summary>
 /// Concern that automatically decompresses incoming request content
 /// based on the Content-Encoding header.
 /// </summary>
-/*public sealed class DecompressionConcern : IConcern
+public sealed class DecompressionConcern : IConcern
 {
-    private const string ContentEncoding = "Content-Encoding";
 
     #region Get-/Setters
 
     public IHandler Content { get; }
 
-    private IReadOnlyDictionary<string, ICompressionAlgorithm> Algorithms { get; }
+    private IReadOnlyDictionary<AlgorithmName, ICompressionAlgorithm> Algorithms { get; }
 
     #endregion
 
     #region Initialization
 
-    public DecompressionConcern(IHandler content, IReadOnlyDictionary<string, ICompressionAlgorithm> algorithms)
+    public DecompressionConcern(IHandler content, IReadOnlyDictionary<AlgorithmName, ICompressionAlgorithm> algorithms)
     {
         Content = content;
         Algorithms = algorithms;
@@ -28,18 +34,15 @@
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        if (request.Content != null && request.Headers.TryGetValue(ContentEncoding, out var encoding))
+        var encoding = request.Header.Headers.GetEntry(KnownHeaders.ContentEncoding);
+
+        if (encoding != null)
         {
-            if (!string.IsNullOrEmpty(encoding))
+            var requestedAlgorithm = new AlgorithmName(encoding.Value.Bytes);
+
+            if (Algorithms.TryGetValue(requestedAlgorithm, out var algorithm))
             {
-                if (Algorithms.TryGetValue(encoding, out var algorithm))
-                {
-                    using var decompressedContent = algorithm.Decompress(request.Content);
-
-                    using var wrappedRequest = new WrappedRequest(request, decompressedContent);
-
-                    return Content.HandleAsync(wrappedRequest);
-                }
+                request.WrapBody(b => new DecompressedBody(b, algorithm));
             }
         }
 
@@ -51,4 +54,3 @@
     #endregion
 
 }
-*/

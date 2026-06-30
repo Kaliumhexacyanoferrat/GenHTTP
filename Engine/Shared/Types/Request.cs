@@ -1,10 +1,8 @@
 ﻿using System.IO.Pipelines;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
-
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-
 using Glyph11.Protocol;
 
 namespace GenHTTP.Engine.Shared.Types;
@@ -20,7 +18,11 @@ public sealed class Request : IRequest
     private IEndPoint? _endPoint;
 
     private PipeReader? _reader;
-    
+
+    private IRequestBody? _wrappedBody;
+
+    private Func<IRequestBody, IRequestBody>? _bodyWrapper;
+
     private readonly RequestHeader _header;
 
     private readonly ClientConnection _client = new();
@@ -34,7 +36,7 @@ public sealed class Request : IRequest
     private bool _bodyLoaded;
 
     private bool _bodyPresent;
-    
+
     private bool _resetRequired = true;
 
     #region Get-/Setters
@@ -99,7 +101,7 @@ public sealed class Request : IRequest
         }
 
         var headers = Header.Headers;
-        
+
         if (headerAccess == HeaderAccess.Retain && _retainedHeader == null)
         {
             _retainedHeader = new RetainedRequestHeader(_header);
@@ -118,7 +120,18 @@ public sealed class Request : IRequest
         _bodyLoaded = true;
         _bodyPresent = hasBody;
 
-        return (hasBody) ? _body : null;
+        if (!hasBody)
+        {
+            return null;
+        }
+
+        if (_bodyWrapper != null)
+        {
+            _wrappedBody = _bodyWrapper(_body);
+            return _wrappedBody;
+        }
+
+        return _body;
     }
 
     public void Apply(IServer server, IEndPoint endPoint, PipeReader reader, SequencePosition bodyStart, IPAddress? remoteAddress, X509Certificate? clientCertificate)
@@ -137,6 +150,9 @@ public sealed class Request : IRequest
         _bodyPresent = false;
         _bodyStart = bodyStart;
         _retainedHeader = null;
+
+        _wrappedBody = null;
+        _bodyWrapper = null;
     }
 
     public void Apply(IServer server)
@@ -153,6 +169,9 @@ public sealed class Request : IRequest
         _bodyPresent = false;
         _bodyStart = default;
         _retainedHeader = null;
+
+        _wrappedBody = null;
+        _bodyWrapper = null;
     }
 
     public void Reset()
@@ -164,6 +183,14 @@ public sealed class Request : IRequest
 
         _client.Reset();
 
+        if (_wrappedBody is IDisposable disposableWrappedBody)
+        {
+            disposableWrappedBody.Dispose();
+        }
+
+        _wrappedBody = null;
+        _bodyWrapper = null;
+
         _resetRequired = true;
     }
 
@@ -174,11 +201,11 @@ public sealed class Request : IRequest
             return _bodyPresent ? _body.DrainAsync() : default;
         }
 
-        if (GetBody(HeaderAccess.Release) != null) 
+        if (GetBody(HeaderAccess.Release) != null)
         {
             return _body.DrainAsync();
         }
-        
+
         return default;
     }
 
@@ -194,6 +221,11 @@ public sealed class Request : IRequest
         }
 
         return _response;
+    }
+
+    public void WrapBody(Func<IRequestBody, IRequestBody> wrapper)
+    {
+        _bodyWrapper = wrapper;
     }
 
     #endregion

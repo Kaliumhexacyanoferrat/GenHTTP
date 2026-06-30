@@ -45,7 +45,7 @@ public static class Extensions
 
         if (decompression)
         {
-            // todo: host.Decompression(DecompressedContent.Default());
+            host.Decompression(DecompressedContent.Default());
         }
 
         if (rangeSupport)

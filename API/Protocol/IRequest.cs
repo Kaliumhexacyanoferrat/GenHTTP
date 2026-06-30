@@ -41,12 +41,21 @@ public interface IRequest
     IRequestBody? GetBody(HeaderAccess headerAccess = HeaderAccess.Retain);
 
     /// <summary>
+    /// Registers a wrapper function that will be used to construct
+    /// the actual request body instance when requested.
+    /// </summary>
+    /// <remarks>
+    /// Allows concerns to transparently replace the request body
+    /// to implement features such as automatic request body
+    /// decompression. Note, that only one wrapper can be active.
+    /// </remarks>
+    /// <param name="wrapper">The wrapper to apply when the body is retrieved</param>
+    void WrapBody(Func<IRequestBody, IRequestBody> wrapper);
+
+    /// <summary>
     /// Creates a response for this request.
     /// </summary>
     /// <returns>The response which can be returned by handlers to answer this request</returns>
     IResponseBuilder Respond();
-    
-    // todo: wrap body (e.g. content decoding)
 
 }
-
