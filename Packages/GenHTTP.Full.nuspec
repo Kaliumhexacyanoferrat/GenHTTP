@@ -1,0 +1,74 @@
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+
+    <metadata>
+
+        <id>GenHTTP.Full</id>
+        <version>11.0.0-preview.19</version>
+
+        <description>Contains all modules of the GenHTTP framework suite, including the internal server engine</description>
+
+        <projectUrl>https://genhttp.org/</projectUrl>
+
+        <authors>Andreas Nägeli</authors>
+        <tags>HTTP Webserver Library C# Server REST API Embeddable Embedded Host</tags>
+
+        <icon>images\icon.png</icon>
+        <readme>README.md</readme>
+
+        <license type="expression">MIT</license>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+
+        <dependencies>
+
+            <group>
+
+                <dependency id="GenHTTP.Api" version="11.0.0-preview.19"/>
+
+                <dependency id="GenHTTP.Engine.Internal" version="11.0.0-preview.19"/>
+
+                <dependency id="GenHTTP.Modules.ApiBrowsing" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.Archives" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.Authentication" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.ClientCaching" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.Compression" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.Controllers" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.Conversion" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.DependencyInjection" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.DirectoryBrowsing" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.ErrorHandling" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.Files" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.Functional" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.I18n" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.Inspection" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.IO" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.Layouting" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.LoadBalancing" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.OpenApi" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.Pages" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.Practices" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.Protobuf" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.Redirects" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.Reflection" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.ReverseProxy" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.Security" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.ServerSentEvents" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.SinglePageApplications" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.StaticWebsites" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.VirtualHosting" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.Webservices" version="11.0.0-preview.19"/>
+                <dependency id="GenHTTP.Modules.Websockets" version="11.0.0-preview.19"/>
+
+                <dependency id="GenHTTP.Testing" version="11.0.0-preview.19"/>
+
+            </group>
+
+        </dependencies>
+
+    </metadata>
+
+    <files>
+        <file src="..\Resources\icon.png" target="images\"/>
+        <file src="GenHTTP.Full.md" target="README.md" />
+    </files>
+
+</package>

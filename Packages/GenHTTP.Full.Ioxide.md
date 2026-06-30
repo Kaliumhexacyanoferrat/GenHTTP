@@ -1,8 +1,7 @@
-﻿# GenHTTP.Core.Ioxide
+﻿# GenHTTP.Full.Ioxide
 
-This package provides the basic dependencies
-required to run a GenHTTP application using
-Ioxide as a server engine.
+This package provides all available GenHTTP modules
+as well as the Ioxide-based server engine.
 
 Please refer to [the documentation](https://genhttp.org/documentation/)
 for tutorials, template projects and other examples.
