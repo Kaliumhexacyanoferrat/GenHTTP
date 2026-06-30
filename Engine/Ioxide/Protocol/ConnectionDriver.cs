@@ -1,7 +1,7 @@
 using System.Buffers;
 using System.IO.Pipelines;
 using System.Net;
-
+using System.Runtime.InteropServices;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
@@ -24,7 +24,7 @@ namespace GenHTTP.Engine.Ioxide.Protocol;
 /// runs per accepted connection on the reactor thread; awaited continuations resume inline on that
 /// same thread.
 /// </summary>
-internal static class ConnectionDriver
+internal static partial class ConnectionDriver
 {
     private static readonly ParserLimits Limits = ParserLimits.Default;
 
@@ -37,19 +37,22 @@ internal static class ConnectionDriver
     private static readonly bool UsePico =
         string.Equals(Environment.GetEnvironmentVariable("GENHTTP_IOXIDE_PARSER"), "pico", StringComparison.OrdinalIgnoreCase);
 
-    private static readonly ReadOnlyMemory<byte> KeepAliveValue = "Keep-Alive"u8.ToArray();
 
-    // Half-close (SHUT_WR = 1) the socket's write side to send FIN. ioxide's refcounted teardown does not
-    // FIN a server-initiated close by itself (the reactor's active recv keeps a reference), so an
-    // EOF-delimited response (connection-close / upgrade) would otherwise hang the client. The read side
-    // stays open so the client's own close is still observed and the reactor reclaims the connection.
+    /// <summary>
+    /// Half-close (SHUT_WR = 1) the socket's write side to send FIN. ioxide's refcounted teardown does not
+    /// FIN a server-initiated close by itself (the reactor's active recv keeps a reference), so an
+    /// EOF-delimited response (connection-close / upgrade) would otherwise hang the client. The read side
+    /// stays open so the client's own close is still observed and the reactor reclaims the connection.
+    /// </summary>
     private const int ShutWrite = 1;
 
-    [System.Runtime.InteropServices.DllImport("libc", EntryPoint = "shutdown")]
-    private static extern int Shutdown(int sockfd, int how);
+    [LibraryImport("libc", EntryPoint = "shutdown")]
+    private static partial int Shutdown(int sockfd, int how);
 
-    [System.Runtime.InteropServices.DllImport("libc", EntryPoint = "getpeername")]
-    private static extern int GetPeerName(int sockfd, byte[] addr, ref int addrlen);
+    [LibraryImport("libc", EntryPoint = "getpeername")]
+    private static partial int GetPeerName(int sockfd, [Out] byte[] addr, ref int addrlen);
+
+    private static readonly ReadOnlyMemory<byte> KeepAliveValue = "Keep-Alive"u8.ToArray();
 
     // The connected client's remote address, read once per connection straight from the socket fd
     // (ioxide exposes the fd but not the peer address). Mirrors the Internal engine's
@@ -275,5 +278,5 @@ internal static class ConnectionDriver
                               "The [ThreadStatic] Request pool assumes reactor affinity; pooling degrades under work-stealing. (warns once)", reactorThreadId, now, phase);
         }
     }
-    
+
 }

@@ -34,7 +34,6 @@ public sealed class EntryResponseContent : IResponseContent
         {
             ulong hash = 17;
 
-            // todo: modification date
             hash = hash * 23 + (Length ?? 0);
 
             return new(hash);
