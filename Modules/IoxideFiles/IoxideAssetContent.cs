@@ -17,6 +17,7 @@ namespace GenHTTP.Modules.IoxideFiles;
 /// </summary>
 public sealed class IoxideAssetContent(StaticAssets assets, string path, long length, ContentType contentType, ReadOnlyMemory<byte>? contentEncoding) : IResponseContent
 {
+
     // Stay well under the default 16 KB slab, leaving room for the status + headers GenHTTP already
     // staged before the body (the engine does not flush between them).
     private const int Chunk = 12 * 1024;
@@ -113,7 +114,7 @@ public sealed class IoxideAssetContent(StaticAssets assets, string path, long le
 
         try
         {
-            handle = File.OpenHandle(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            handle = File.OpenHandle(filePath);
         }
         catch
         {
@@ -145,4 +146,5 @@ public sealed class IoxideAssetContent(StaticAssets assets, string path, long le
             return AssetReader.CreatePool(reactor, readers: 4, bufferBytes: 1 << 20);
         }
     }
+
 }

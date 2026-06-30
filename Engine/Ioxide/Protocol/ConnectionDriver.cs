@@ -39,18 +39,6 @@ internal static class ConnectionDriver
 
     private static readonly ReadOnlyMemory<byte> KeepAliveValue = "Keep-Alive"u8.ToArray();
 
-    // Half-close (SHUT_WR = 1) the socket's write side to send FIN. ioxide's refcounted teardown does not
-    // FIN a server-initiated close by itself (the reactor's active recv keeps a reference), so an
-    // EOF-delimited response (connection-close / upgrade) would otherwise hang the client. The read side
-    // stays open so the client's own close is still observed and the reactor reclaims the connection.
-    private const int ShutWrite = 1;
-
-    [System.Runtime.InteropServices.DllImport("libc", EntryPoint = "shutdown")]
-    private static extern int Shutdown(int sockfd, int how);
-
-    [System.Runtime.InteropServices.DllImport("libc", EntryPoint = "getpeername")]
-    private static extern int GetPeerName(int sockfd, byte[] addr, ref int addrlen);
-
     // The connected client's remote address, read once per connection straight from the socket fd
     // (ioxide exposes the fd but not the peer address). Mirrors the Internal engine's
     // Socket.RemoteEndPoint.Address - returned as-is (IPv4-mapped IPv6 on a dual-stack listener), which
@@ -60,7 +48,7 @@ internal static class ConnectionDriver
         var addr = new byte[128]; // sockaddr_storage
         var len = addr.Length;
 
-        if (GetPeerName(fd, addr, ref len) != 0)
+        if (Syscalls.GetPeerName(fd, addr, ref len) != 0)
         {
             return null;
         }
@@ -185,7 +173,7 @@ internal static class ConnectionDriver
             }
             // Send FIN for server-initiated closes so EOF-delimited responses terminate for the client
             // (see ShutWrite above). Harmless for client-initiated closes — the fd is already closing.
-            Shutdown(conn.ClientFd, ShutWrite);
+            Syscalls.Shutdown(conn.ClientFd, Syscalls.ShutWrite);
             conn.DecRef();
             ReturnRequest(request);
         }
@@ -275,5 +263,5 @@ internal static class ConnectionDriver
                               "The [ThreadStatic] Request pool assumes reactor affinity; pooling degrades under work-stealing. (warns once)", reactorThreadId, now, phase);
         }
     }
-    
+
 }
