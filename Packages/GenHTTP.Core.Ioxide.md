@@ -15,7 +15,11 @@ using GenHTTP.Modules.Practices;
 
 var content = Content.From(Resource.FromString("Hello World!"));
 
-await Host.Create()
+await Host.Create(c => c with
+            {
+                ReactorCount = Environment.ProcessorCount, 
+                BufferRingEntries = 256
+            })
           .Handler(content)
           .Defaults()
           .RunAsync(); // or StartAsync() for non-blocking
