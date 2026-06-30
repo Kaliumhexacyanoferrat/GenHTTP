@@ -35,7 +35,7 @@ public sealed class WebsocketTunnelContent : IResponseContent
 
     public ValueTask<ulong?> CalculateChecksumAsync() => ValueTask.FromResult<ulong?>(null);
 
-    public ValueTask WriteAsync(IResponseSink sink) => WriteAsync(sink.Stream, 0); // todo
+    public ValueTask WriteAsync(IResponseSink sink) => WriteAsync(sink.Stream, 0);
 
     public async ValueTask WriteAsync(Stream target, uint bufferSize)
     {
