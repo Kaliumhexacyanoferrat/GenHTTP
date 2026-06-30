@@ -28,7 +28,6 @@
 
         <ProjectReference Include="..\Modules\ApiBrowsing\GenHTTP.Modules.ApiBrowsing.csproj"/>
         <ProjectReference Include="..\Modules\Authentication\GenHTTP.Modules.Authentication.csproj"/>
-        <ProjectReference Include="..\Modules\Caching\GenHTTP.Modules.Caching.csproj"/>
         <ProjectReference Include="..\Modules\ClientCaching\GenHTTP.Modules.ClientCaching.csproj"/>
         <ProjectReference Include="..\Modules\Compression\GenHTTP.Modules.Compression.csproj"/>
         <ProjectReference Include="..\Modules\Controllers\GenHTTP.Modules.Controllers.csproj"/>
@@ -49,7 +48,6 @@
         <ProjectReference Include="..\Modules\Reflection\GenHTTP.Modules.Reflection.csproj"/>
         <ProjectReference Include="..\Modules\ReverseProxy\GenHTTP.Modules.ReverseProxy.csproj"/>
         <ProjectReference Include="..\Modules\Security\GenHTTP.Modules.Security.csproj"/>
-        <ProjectReference Include="..\Modules\ServerCaching\GenHTTP.Modules.ServerCaching.csproj"/>
         <ProjectReference Include="..\Modules\ServerSentEvents\GenHTTP.Modules.ServerSentEvents.csproj" />
         <ProjectReference Include="..\Modules\SinglePageApplications\GenHTTP.Modules.SinglePageApplications.csproj"/>
         <ProjectReference Include="..\Modules\StaticWebsites\GenHTTP.Modules.StaticWebsites.csproj"/>
