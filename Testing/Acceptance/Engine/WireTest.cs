@@ -10,11 +10,11 @@ public abstract class WireTest
 {
     protected const string NL = "\r\n";
 
-    protected static ValueTask TestAsync(string[] request, string assertion, IHandlerBuilder? handler = null) => TestAsync(string.Join(NL, request) + NL, assertion, handler);
+    protected static ValueTask TestAsync(string[] request, string assertion, IHandlerBuilder? handler = null, TestEngine engine = TestEngine.Internal) => TestAsync(string.Join(NL, request) + NL, assertion, handler);
 
-    protected static async ValueTask TestAsync(string request, string assertion, IHandlerBuilder? handler = null)
+    protected static async ValueTask TestAsync(string request, string assertion, IHandlerBuilder? handler = null, TestEngine engine = TestEngine.Internal)
     {
-        await using var host = await TestHost.RunAsync(handler ?? Layout.Create());
+        await using var host = await TestHost.RunAsync(handler ?? Layout.Create(), engine: engine);
 
         var result = await SendAsync(host, w =>
         {

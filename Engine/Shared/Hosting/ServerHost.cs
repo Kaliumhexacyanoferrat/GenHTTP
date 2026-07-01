@@ -20,7 +20,7 @@ namespace GenHTTP.Engine.Shared.Hosting;
 public abstract class ServerHost : IServerHost
 {
     private static ILoggerFactory? _defaultLoggerFactory;
-    
+
     private readonly List<IConcernBuilder> _concerns = [];
 
     private readonly List<EndPointConfiguration> _endPoints = [];
@@ -30,19 +30,19 @@ public abstract class ServerHost : IServerHost
     private IHandler? _handler;
 
     private ushort _port = 8080;
-    
+
     private ILoggerFactory? _customLoggerFactory;
 
     private bool _logRequests = true;
-    
+
     #region Get-/Setters
 
     public IServer? Instance { get; private set; }
-    
+
     #endregion
 
     #region Functionality
-    
+
     public IServerHost Bind(IPAddress? address, ushort port, bool dualStack = true)
     {
         _endPoints.Add(new EndPointConfiguration(address, port, dualStack, null, false));
@@ -93,7 +93,7 @@ public abstract class ServerHost : IServerHost
         _concerns.Add(concern);
         return this;
     }
-    
+
     public async ValueTask<int> RunAsync()
     {
         try
@@ -160,7 +160,7 @@ public abstract class ServerHost : IServerHost
         if (Instance != null)
         {
             Instance.Logging.CreateLogger<IServerHost>().LogInformation("Server is shutting down ...");
-            
+
             await Instance.DisposeAsync();
         }
 
@@ -176,9 +176,9 @@ public abstract class ServerHost : IServerHost
 
         return this;
     }
-    
+
     protected abstract IServer Build(ServerConfiguration config, IHandler handler);
-    
+
     private IServer CreateInstance()
     {
         if (_handler is null)
@@ -192,12 +192,16 @@ public abstract class ServerHost : IServerHost
         {
             endpoints.Add(new EndPointConfiguration(null, _port, true, null, false));
         }
-        
+
         var logging = _customLoggerFactory ?? (_defaultLoggerFactory ??= CreateDefaultLoggerFactory());
 
         var config = new ServerConfiguration(_development, endpoints, logging);
 
-        var concerns = new List<IConcernBuilder> { ErrorHandler.Default() };
+        var concerns = new List<IConcernBuilder>
+        {
+            ServerCompliance.Create(),
+            ErrorHandler.Default()
+        };
 
         concerns.AddRange(_concerns);
 
@@ -208,7 +212,7 @@ public abstract class ServerHost : IServerHost
 
         var handler = new CoreRouter(_handler, concerns);
 
-        return Build(config, handler); 
+        return Build(config, handler);
     }
 
     private static ILoggerFactory CreateDefaultLoggerFactory() => LoggerFactory.Create(builder => builder.AddConsole());
