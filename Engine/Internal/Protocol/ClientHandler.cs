@@ -200,11 +200,6 @@ internal sealed class ClientHandler(ClientContext context)
     {
         var header = request.Header;
 
-        if (!header.Headers.ContainsKey(KnownHeaders.Host))
-        {
-            throw new ProviderException(ResponseStatus.BadRequest, "Host header is missing from the request");
-        }
-
         var headRequest = header.Method == RequestMethod.Head;
 
         var connectionHeader = header.Headers.GetEntry(KnownHeaders.Connection);
