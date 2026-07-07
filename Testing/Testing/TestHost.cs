@@ -18,7 +18,7 @@ public class TestHost : IAsyncDisposable
 {
 
 #if NET10_0
-    private static volatile int _nextPort = 20000;
+    private static volatile int _nextPort = 20010;
 #elif NET11_0
     private static volatile int _nextPort = 22000;
 #else

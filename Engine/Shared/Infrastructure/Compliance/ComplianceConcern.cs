@@ -13,7 +13,9 @@ public class ComplianceConcern(IHandler content) : IConcern
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var host = request.Header.Headers.GetEntry(KnownHeaders.Host);
+        var header = request.Header;
+
+        var host = header.Headers.GetEntry(KnownHeaders.Host);
 
         if (host == null)
         {
@@ -23,6 +25,14 @@ public class ComplianceConcern(IHandler content) : IConcern
         if (host.Value.Bytes.IsEmpty)
         {
             throw new ProviderException(ResponseStatus.BadRequest, "Host header is empty");
+        }
+
+        if (header.Method == RequestMethod.Get || header.Method == RequestMethod.Head)
+        {
+            if (header.Headers.ContainsKey(KnownHeaders.ContentLength) || header.Headers.ContainsKey(KnownHeaders.TransferEncoding))
+            {
+                throw new ProviderException(ResponseStatus.BadRequest, "GET/HEAD requests must not contain a body");
+            }
         }
 
         return content.HandleAsync(request);
