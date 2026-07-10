@@ -11,7 +11,7 @@ internal sealed class ChunkedBodyStream : Stream, IDrainableStream
 {
     private readonly PipeReader _reader;
 
-    private GlyphParser _parser;
+    private GlyphParser _parser = new();
 
     private bool _completed;
 
