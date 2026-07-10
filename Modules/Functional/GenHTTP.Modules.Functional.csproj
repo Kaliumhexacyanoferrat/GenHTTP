@@ -13,7 +13,6 @@
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
 
         <ProjectReference Include="..\Reflection\GenHTTP.Modules.Reflection.csproj" />
-        <ProjectReference Include="..\Layouting\GenHTTP.Modules.Layouting.csproj" />
         <ProjectReference Include="..\Conversion\GenHTTP.Modules.Conversion.csproj" />
 
     </ItemGroup>
