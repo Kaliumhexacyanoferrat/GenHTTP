@@ -7,19 +7,14 @@ using GlyphParser = Glyph11.Parser.ChunkedBodyStream;
 
 namespace GenHTTP.Engine.Shared.Types.Body;
 
-/// <summary>
-/// Decodes an HTTP/1.1 chunked transfer-encoded request body from a <see cref="PipeReader" />,
-/// delegating chunk framing to Glyph11's <see cref="GlyphParser" /> struct.
-/// </summary>
 internal sealed class ChunkedBodyStream : Stream, IDrainableStream
 {
     private readonly PipeReader _reader;
 
-    private readonly GlyphParser _parser = new();
+    private GlyphParser _parser;
 
     private bool _completed;
 
-    // Overflow bytes from a chunk that exceeded the caller's ReadAsync destination buffer.
     private byte[]? _overflow;
     private int _overflowOffset;
     private int _overflowLength;
@@ -63,7 +58,6 @@ internal sealed class ChunkedBodyStream : Stream, IDrainableStream
             return 0;
         }
 
-        // Return buffered overflow from a previous large chunk first.
         if (_overflowLength > 0)
         {
             return ConsumeOverflow(buffer.Span);
@@ -74,90 +68,59 @@ internal sealed class ChunkedBodyStream : Stream, IDrainableStream
             var result = await _reader.ReadAsync(cancellationToken);
             var readBuffer = result.Buffer;
 
-            byte[]? rented = null;
-            ReadOnlySpan<byte> span;
+            if (readBuffer.IsEmpty)
+            {
+                _reader.AdvanceTo(readBuffer.Start, readBuffer.End);
 
-            if (readBuffer.IsSingleSegment)
-            {
-                span = readBuffer.First.Span;
-            }
-            else
-            {
-                // Linearise the full multi-segment buffer so Glyph11 gets a contiguous view.
-                // Glyph11 requires the complete chunk to be present before returning Chunk;
-                // capping would cause perpetual NeedMoreData for chunks larger than the cap.
-                var len = (int)readBuffer.Length;
-                rented = ArrayPool<byte>.Shared.Rent(len);
-                readBuffer.CopyTo(rented);
-                span = rented.AsSpan(0, len);
-            }
-
-            try
-            {
-                if (span.IsEmpty)
+                if (result.IsCompleted)
                 {
+                    return 0;
+                }
+
+                continue;
+            }
+
+            var chunkResult = _parser.TryReadChunk(in readBuffer, out var bytesConsumed, out var chunkData);
+
+            switch (chunkResult)
+            {
+                case ChunkResult.Completed:
+                    _reader.AdvanceTo(readBuffer.GetPosition(bytesConsumed));
+                    _completed = true;
+                    return 0;
+
+                case ChunkResult.NeedMoreData:
                     _reader.AdvanceTo(readBuffer.Start, readBuffer.End);
 
                     if (result.IsCompleted)
                     {
-                        return 0;
+                        throw new InvalidDataException("Unexpected end of chunked body");
                     }
 
                     continue;
-                }
 
-                var chunkResult = _parser.TryReadChunk(span, out var bytesConsumed, out var dataOffset, out var dataLength);
+                case ChunkResult.Chunk:
+                    var chunkLength = (int)chunkData.Length;
+                    var toCopy = Math.Min(buffer.Length, chunkLength);
 
-                switch (chunkResult)
-                {
-                    case ChunkResult.Completed:
-                        _reader.AdvanceTo(readBuffer.GetPosition(bytesConsumed));
-                        _completed = true;
-                        return 0;
+                    chunkData.Slice(0, toCopy).CopyTo(buffer.Span);
 
-                    case ChunkResult.NeedMoreData:
-                        _reader.AdvanceTo(readBuffer.Start, readBuffer.End);
+                    if (toCopy < chunkLength)
+                    {
+                        _overflow = ArrayPool<byte>.Shared.Rent(chunkLength - toCopy);
+                        chunkData.Slice(toCopy).CopyTo(_overflow.AsSpan());
+                        _overflowOffset = 0;
+                        _overflowLength = chunkLength - toCopy;
+                    }
 
-                        if (result.IsCompleted)
-                        {
-                            throw new InvalidDataException("Unexpected end of chunked body");
-                        }
-
-                        continue;
-
-                    case ChunkResult.Chunk:
-                        var chunk = span.Slice(dataOffset, dataLength);
-                        var toCopy = Math.Min(buffer.Length, dataLength);
-
-                        // Copy to caller's buffer BEFORE advancing the pipe reader to keep span valid.
-                        chunk[..toCopy].CopyTo(buffer.Span);
-
-                        if (toCopy < dataLength)
-                        {
-                            // Stash the excess bytes for the next ReadAsync call.
-                            _overflow = ArrayPool<byte>.Shared.Rent(dataLength - toCopy);
-                            chunk[toCopy..].CopyTo(_overflow);
-                            _overflowOffset = 0;
-                            _overflowLength = dataLength - toCopy;
-                        }
-
-                        _reader.AdvanceTo(readBuffer.GetPosition(bytesConsumed));
-                        return toCopy;
-                }
-            }
-            finally
-            {
-                if (rented != null)
-                {
-                    ArrayPool<byte>.Shared.Return(rented);
-                }
+                    _reader.AdvanceTo(readBuffer.GetPosition(bytesConsumed));
+                    return toCopy;
             }
         }
     }
 
     public async ValueTask DrainAsync(CancellationToken cancellationToken = default)
     {
-        // Release any buffered overflow — we don't need its contents.
         if (_overflow != null)
         {
             ArrayPool<byte>.Shared.Return(_overflow);
@@ -171,25 +134,28 @@ internal sealed class ChunkedBodyStream : Stream, IDrainableStream
             var result = await _reader.ReadAsync(cancellationToken);
             var buffer = result.Buffer;
 
-            byte[]? rented = null;
-            ReadOnlySpan<byte> span;
+            if (buffer.IsEmpty)
+            {
+                _reader.AdvanceTo(buffer.Start, buffer.End);
 
-            if (buffer.IsSingleSegment)
-            {
-                span = buffer.First.Span;
-            }
-            else
-            {
-                var len = (int)buffer.Length;
-                rented = ArrayPool<byte>.Shared.Rent(len);
-                buffer.CopyTo(rented);
-                span = rented.AsSpan(0, len);
-            }
-
-            try
-            {
-                if (span.IsEmpty)
+                if (result.IsCompleted)
                 {
+                    return;
+                }
+
+                continue;
+            }
+
+            var chunkResult = _parser.TryReadChunk(in buffer, out var bytesConsumed, out _);
+
+            switch (chunkResult)
+            {
+                case ChunkResult.Completed:
+                    _reader.AdvanceTo(buffer.GetPosition(bytesConsumed));
+                    _completed = true;
+                    return;
+
+                case ChunkResult.NeedMoreData:
                     _reader.AdvanceTo(buffer.Start, buffer.End);
 
                     if (result.IsCompleted)
@@ -197,40 +163,11 @@ internal sealed class ChunkedBodyStream : Stream, IDrainableStream
                         return;
                     }
 
-                    continue;
-                }
+                    break;
 
-                // dataOffset/dataLength are irrelevant — we're discarding payload.
-                var chunkResult = _parser.TryReadChunk(span, out var bytesConsumed, out _, out _);
-
-                switch (chunkResult)
-                {
-                    case ChunkResult.Completed:
-                        _reader.AdvanceTo(buffer.GetPosition(bytesConsumed));
-                        _completed = true;
-                        return;
-
-                    case ChunkResult.NeedMoreData:
-                        _reader.AdvanceTo(buffer.Start, buffer.End);
-
-                        if (result.IsCompleted)
-                        {
-                            return;
-                        }
-
-                        break;
-
-                    case ChunkResult.Chunk:
-                        _reader.AdvanceTo(buffer.GetPosition(bytesConsumed));
-                        break;
-                }
-            }
-            finally
-            {
-                if (rented != null)
-                {
-                    ArrayPool<byte>.Shared.Return(rented);
-                }
+                case ChunkResult.Chunk:
+                    _reader.AdvanceTo(buffer.GetPosition(bytesConsumed));
+                    break;
             }
         }
     }

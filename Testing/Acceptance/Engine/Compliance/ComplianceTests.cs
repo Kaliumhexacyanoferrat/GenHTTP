@@ -12,7 +12,7 @@ public class ComplianceTests : WireTest
     {
         await using var host = await TestHost.RunAsync(Layout.Create(), engine: engine);
 
-        await TestAsync(["GET / HTTP/1", "Host: localhost"], "400", Layout.Create(), engine);
+        await TestAsync(["GET / HTTP/1", "Host: localhost"], "505", Layout.Create(), engine);
     }
 
     [TestMethod]
@@ -30,7 +30,7 @@ public class ComplianceTests : WireTest
     {
         await using var host = await TestHost.RunAsync(Layout.Create(), engine: engine);
 
-        await TestAsync(["GET / HTTP/1.1", "Host: "], "400", Layout.Create(), engine);
+        await TestAsync(["GET / HTTP/1.0", "Host: "], "400", Layout.Create(), engine);
     }
 
     [TestMethod]
@@ -39,7 +39,7 @@ public class ComplianceTests : WireTest
     {
         await using var host = await TestHost.RunAsync(Layout.Create(), engine: engine);
 
-        await TestAsync(["POST / HTTP/1.1", "Host: host"], "404", Layout.Create(), engine);
+        await TestAsync(["POST / HTTP/1.0", "Host: host"], "404", Layout.Create(), engine);
     }
 
     [TestMethod]
@@ -48,7 +48,7 @@ public class ComplianceTests : WireTest
     {
         await using var host = await TestHost.RunAsync(Layout.Create(), engine: engine);
 
-        await TestAsync(["GET / HTTP/1.1", "Host: host", "Content-Length: 3", "", "123"], "400", Layout.Create(), engine);
+        await TestAsync(["GET / HTTP/1.0", "Host: host", "Content-Length: 3", "", "123"], "400", Layout.Create(), engine);
     }
 
 }
