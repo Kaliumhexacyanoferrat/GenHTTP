@@ -28,8 +28,6 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
     // further would let the pipe recycle segments that are still referenced.
     private SequencePosition _bufferStart;
 
-    private ReadOnlySequence<byte> _currentSequence;
-
     private bool _skipFrameInit;
     private bool _keepPipeReaderBufferValid;
     private bool _pendingAdvance;
@@ -134,9 +132,9 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
             return true;
         }
 
-        _currentSequence = result.Buffer;
+        var currentSequence = result.Buffer;
 
-        var decoded = Frame.Decode(this, ref _currentSequence, MaxFrameSize, out var consumed, out var examined);
+        var decoded = Frame.Decode(this, ref currentSequence, MaxFrameSize, out var consumed, out var examined);
         _consumed = consumed;
         _examined = examined;
 
@@ -262,11 +260,11 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                 return new WebsocketFrame(this, FrameType.Close);
             }
 
-            _currentSequence = !isFirstFrame
+            var currentSequence = !isFirstFrame
                 ? result.Buffer.Slice(innerExamined)
                 : result.Buffer;
 
-            var frame = Frame.Decode(this, ref _currentSequence, MaxFrameSize, out var consumed, out var examined);
+            var frame = Frame.Decode(this, ref currentSequence, MaxFrameSize, out var consumed, out var examined);
             _consumed = consumed;
             _examined = examined;
 
@@ -279,7 +277,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                     // The partial data of the request is therefore discarded
 
                     // Dev note: Should we eventually still give the user the partial data received?
-                    var end = _currentSequence.End;
+                    var end = currentSequence.End;
                     _pipeReader.AdvanceTo(end, end);
                     _consumed = end;
                     _examined = end;
