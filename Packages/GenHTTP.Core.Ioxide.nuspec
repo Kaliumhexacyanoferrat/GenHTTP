@@ -2,8 +2,8 @@
 
     <metadata>
 
-        <id>GenHTTP.Core.Kestrel</id>
-        <version>11.0.0-preview.21-preview.19</version>
+        <id>GenHTTP.Core.Ioxide</id>
+        <version>11.0.0-preview.21</version>
 
         <description>Basic dependencies for projects using the GenHTTP framework, combined with the Ioxide HTTP engine to serve requests</description>
 
