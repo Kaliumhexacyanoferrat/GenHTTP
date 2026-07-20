@@ -12,7 +12,6 @@ public static partial class Frame
     private const string InvalidControlFrame = "Invalid Control Frame";
     private const string InvalidControlFrameLength = "Invalid Control Frame Length";
     private const string PayloadTooLarge = "Payload is too large";
-    private const string NonWritablePipeSegment = "Pipe segment is not writable (cannot unmask in-place)";
 
     /* Websockets RFC 6455 Frame Decode definition (LLM generated)
 
@@ -143,12 +142,7 @@ public static partial class Frame
         // Unmask in-place
         if (isMasked && payloadLength != 0)
         {
-            if (!TryUnmaskInPlace(payloadSeq, maskKey))
-            {
-                consumed = sequence.Start;
-                examined = sequence.End;
-                return new WebsocketFrame(connection, new FrameError(NonWritablePipeSegment, FrameErrorType.UndefinedBehavior));
-            }
+            UnmaskInPlace(payloadSeq, maskKey);
         }
 
         // Advance reader past payload for consumed/examined
@@ -199,7 +193,7 @@ public static partial class Frame
     /// <summary>
     /// Brute force modifying the PipeReader's buffer, unmask the bytes.
     /// </summary>
-    private static bool TryUnmaskInPlace(in ReadOnlySequence<byte> payload, ReadOnlySpan<byte> maskKey)
+    private static void UnmaskInPlace(in ReadOnlySequence<byte> payload, ReadOnlySpan<byte> maskKey)
     {
         var maskOffset = 0;
 
@@ -207,14 +201,10 @@ public static partial class Frame
         {
             if (mem.Length == 0) continue;
 
-            // We need a writable backing store. Pipe segments are usually byte[].
-            if (!MemoryMarshal.TryGetArray(mem, out ArraySegment<byte> seg) ||
-                seg.Array is null)
-            {
-                return false;
-            }
-
-            var span = seg.Array.AsSpan(seg.Offset, seg.Count);
+            // Receive buffers are writable regardless of their backing store: managed
+            // arrays for the internal engine's Pipe, a MemoryManager over native memory
+            // for the ioxide engine (io_uring buffer ring, where TryGetArray would fail).
+            var span = MemoryMarshal.AsMemory(mem).Span;
 
             for (var i = 0; i < span.Length; i++)
             {
@@ -223,7 +213,5 @@ public static partial class Frame
 
             maskOffset = (maskOffset + span.Length) & 3;
         }
-
-        return true;
     }
 }
