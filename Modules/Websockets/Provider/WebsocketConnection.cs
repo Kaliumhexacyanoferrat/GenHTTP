@@ -22,6 +22,12 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
     private SequencePosition _consumed;
     private SequencePosition _examined;
 
+    // Start of the buffer returned by the most recent pipe read. While a segmented
+    // message is being assembled, earlier frames are held as zero-copy slices into
+    // the pipe buffer, so Examine() must keep "consumed" pinned here - consuming any
+    // further would let the pipe recycle segments that are still referenced.
+    private SequencePosition _bufferStart;
+
     private ReadOnlySequence<byte> _currentSequence;
 
     private bool _skipFrameInit;
@@ -112,6 +118,8 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
             frame = default!;
             return false;
         }
+
+        _bufferStart = result.Buffer.Start;
 
         // Reached when the stream closed after a prior ReadAsync already saw EOF.
         // Returning true with a Close frame lets the caller's drain loop terminate
@@ -238,6 +246,8 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
         {
             var result = await _pipeReader.ReadAsync(token);
 
+            _bufferStart = result.Buffer.Start;
+
             if (result.IsCanceled)
             {
                 return new WebsocketFrame(this, frameError: new FrameError(FrameError.ReadCanceled, FrameErrorType.Canceled));
@@ -294,7 +304,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
     private void Examine()
     {
-        _pipeReader.AdvanceTo(_currentSequence.Start, _examined);
+        _pipeReader.AdvanceTo(_bufferStart, _examined);
     }
 
     private void Consume()

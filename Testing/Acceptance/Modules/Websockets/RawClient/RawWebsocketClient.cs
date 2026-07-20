@@ -12,7 +12,10 @@ public sealed class RawWebSocketClient : IAsyncDisposable
 
     public RawWebSocketClient()
     {
-        _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+        {
+            NoDelay = true
+        };
     }
 
     public async Task ConnectAsync(string host, int port, CancellationToken token = default)
@@ -136,6 +139,13 @@ public sealed class RawWebSocketClient : IAsyncDisposable
             await _socket.SendAsync(segment, SocketFlags.None, token).ConfigureAwait(false);
 
             offset += toSend;
+
+            if (offset < data.Length)
+            {
+                // Ensure each chunk arrives as a separate receive on every platform,
+                // so the server is actually exercised with fragmented reads.
+                await Task.Delay(1, token).ConfigureAwait(false);
+            }
         }
     }
 
