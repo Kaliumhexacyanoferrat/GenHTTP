@@ -13,7 +13,7 @@ public class MockConnection : ISocketConnection
 
     public IRequest Request => throw new NotImplementedException();
 
-    public ConnectionSettings Settings => new ConnectionSettings(Formatting.Default().Build(), new JsonFormat(), 128, true, true);
+    public ConnectionSettings Settings => new ConnectionSettings(Formatting.Default().Build(), new JsonFormat(), true, true);
 
     public ValueTask WriteAsync(ReadOnlyMemory<byte> payload, FrameType opcode = FrameType.Text, bool fin = true, bool flush = true, CancellationToken token = default) => throw new NotImplementedException();
 

@@ -14,13 +14,14 @@ public sealed class PipeliningTests
     /// must all arrive at the client in a single batch.
     /// </summary>
     [TestMethod]
-    public async Task TestBatchedWritesWithExplicitFlush()
+    [MultiEngineTest]
+    public async Task TestBatchedWritesWithExplicitFlush(TestEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
             .Imperative()
             .Handler(new BatchHandler());
 
-        await using var host = await TestHost.RunAsync(websocket);
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
 
         await using var client = new RawWebSocketClient();
         await client.ConnectAsync("127.0.0.1", host.Port);
@@ -40,13 +41,14 @@ public sealed class PipeliningTests
     /// Frames written with flush:false must be flushed when the last write uses flush:true (the default).
     /// </summary>
     [TestMethod]
-    public async Task TestBatchedWritesFlushedByLastWrite()
+    [MultiEngineTest]
+    public async Task TestBatchedWritesFlushedByLastWrite(TestEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
             .Imperative()
             .Handler(new LastWriteFlushHandler());
 
-        await using var host = await TestHost.RunAsync(websocket);
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
 
         await using var client = new RawWebSocketClient();
         await client.ConnectAsync("127.0.0.1", host.Port);
@@ -68,13 +70,14 @@ public sealed class PipeliningTests
     /// the server calls FlushAsync does the buffered frame become readable.
     /// </summary>
     [TestMethod]
-    public async Task TestBufferedFrameNotDeliveredBeforeFlush()
+    [MultiEngineTest]
+    public async Task TestBufferedFrameNotDeliveredBeforeFlush(TestEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
             .Imperative()
             .Handler(new BufferThenFlushHandler());
 
-        await using var host = await TestHost.RunAsync(websocket);
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
 
         await using var client = new RawWebSocketClient();
         await client.ConnectAsync("127.0.0.1", host.Port);
@@ -101,13 +104,14 @@ public sealed class PipeliningTests
     /// then receive false on the fourth call indicating the buffer is empty.
     /// </summary>
     [TestMethod]
-    public async Task TestTryReadFrameDrainsBufferedFrames()
+    [MultiEngineTest]
+    public async Task TestTryReadFrameDrainsBufferedFrames(TestEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
             .Imperative()
             .Handler(new TryReadHandler());
 
-        await using var host = await TestHost.RunAsync(websocket);
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
 
         await using var client = new RawWebSocketClient();
         await client.ConnectAsync("127.0.0.1", host.Port);
@@ -136,13 +140,14 @@ public sealed class PipeliningTests
     /// The client then sends the missing payload, and ReadFrameAsync assembles the full frame.
     /// </summary>
     [TestMethod]
-    public async Task TestTryReadFrameReturnsFalseOnPartialFrame()
+    [MultiEngineTest]
+    public async Task TestTryReadFrameReturnsFalseOnPartialFrame(TestEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
             .Imperative()
             .Handler(new PartialFrameHandler());
 
-        await using var host = await TestHost.RunAsync(websocket);
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
 
         await using var client = new RawWebSocketClient();
         await client.ConnectAsync("127.0.0.1", host.Port);

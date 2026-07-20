@@ -13,6 +13,8 @@ namespace GenHTTP.Modules.Websockets.Provider;
 
 public class WebsocketConnection : IReactiveConnection, IImperativeConnection, IAsyncDisposable
 {
+    private const int MaxFrameSize = 16 * 1024;
+
     private readonly IBufferWriter<byte> _writer;
     private readonly Stream _stream;
     private readonly PipeReader _pipeReader;
@@ -20,7 +22,11 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
     private SequencePosition _consumed;
     private SequencePosition _examined;
 
-    private ReadOnlySequence<byte> _currentSequence;
+    // Start of the buffer returned by the most recent pipe read. While a segmented
+    // message is being assembled, earlier frames are held as zero-copy slices into
+    // the pipe buffer, so Examine() must keep "consumed" pinned here - consuming any
+    // further would let the pipe recycle segments that are still referenced.
+    private SequencePosition _bufferStart;
 
     private bool _skipFrameInit;
     private bool _keepPipeReaderBufferValid;
@@ -46,12 +52,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
         _writer = sink.Writer;
         _stream = sink.Stream;
 
-        _pipeReader = PipeReader.Create(_stream,
-            new StreamPipeReaderOptions(
-                MemoryPool<byte>.Shared,
-                leaveOpen: true,
-                bufferSize: settings.RxBufferSize,
-                minimumReadSize: Math.Min(settings.RxBufferSize / 4, 1024)));
+        _pipeReader = request.Upgrade();
     }
 
     #endregion
@@ -116,6 +117,8 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
             return false;
         }
 
+        _bufferStart = result.Buffer.Start;
+
         // Reached when the stream closed after a prior ReadAsync already saw EOF.
         // Returning true with a Close frame lets the caller's drain loop terminate
         // naturally without needing a further ReadFrameAsync call.
@@ -129,9 +132,9 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
             return true;
         }
 
-        _currentSequence = result.Buffer;
+        var currentSequence = result.Buffer;
 
-        var decoded = Frame.Decode(this, ref _currentSequence, Settings.RxBufferSize, out var consumed, out var examined);
+        var decoded = Frame.Decode(this, ref currentSequence, MaxFrameSize, out var consumed, out var examined);
         _consumed = consumed;
         _examined = examined;
 
@@ -241,6 +244,8 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
         {
             var result = await _pipeReader.ReadAsync(token);
 
+            _bufferStart = result.Buffer.Start;
+
             if (result.IsCanceled)
             {
                 return new WebsocketFrame(this, frameError: new FrameError(FrameError.ReadCanceled, FrameErrorType.Canceled));
@@ -255,11 +260,11 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                 return new WebsocketFrame(this, FrameType.Close);
             }
 
-            _currentSequence = !isFirstFrame
+            var currentSequence = !isFirstFrame
                 ? result.Buffer.Slice(innerExamined)
                 : result.Buffer;
 
-            var frame = Frame.Decode(this, ref _currentSequence, Settings.RxBufferSize, out var consumed, out var examined);
+            var frame = Frame.Decode(this, ref currentSequence, MaxFrameSize, out var consumed, out var examined);
             _consumed = consumed;
             _examined = examined;
 
@@ -272,7 +277,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
                     // The partial data of the request is therefore discarded
 
                     // Dev note: Should we eventually still give the user the partial data received?
-                    var end = _currentSequence.End;
+                    var end = currentSequence.End;
                     _pipeReader.AdvanceTo(end, end);
                     _consumed = end;
                     _examined = end;
@@ -297,7 +302,7 @@ public class WebsocketConnection : IReactiveConnection, IImperativeConnection, I
 
     private void Examine()
     {
-        _pipeReader.AdvanceTo(_currentSequence.Start, _examined);
+        _pipeReader.AdvanceTo(_bufferStart, _examined);
     }
 
     private void Consume()

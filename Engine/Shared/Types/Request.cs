@@ -228,6 +228,16 @@ public sealed class Request : IRequest
         _bodyWrapper = wrapper;
     }
 
+    public PipeReader Upgrade()
+    {
+        Reader.AdvanceTo(_bodyStart);
+
+        _bodyLoaded = true;
+        _bodyPresent = false;
+
+        return Reader;
+    }
+
     #endregion
 
 }
