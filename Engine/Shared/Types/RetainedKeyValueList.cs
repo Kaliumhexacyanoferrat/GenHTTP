@@ -14,12 +14,12 @@ public class RetainedKeyValueList : IRequestHeaders, IRequestQuery
 
         for (var i = 0; i < source.Count; i++)
         {
-            var pair = source[i];
+            var pair = source.GetMemoryEntry(i);
 
             _items.Add(new (pair.Key.ToArray(), pair.Value.ToArray()));
         }
     }
 
-    public KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>> this[int index] => _items[index];
+    public KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>> GetMemoryEntry(int index) => _items[index];
 
 }

@@ -18,7 +18,7 @@ public static class CookieHeaderExtensions
     {
         for (var i = 0; i < headers.Count; i++)
         {
-            var entry = headers[i];
+            var entry = headers.GetMemoryEntry(i);
 
             if (entry.Key != KnownHeaders.Cookie)
             {
@@ -57,7 +57,7 @@ public static class CookieHeaderExtensions
 
         for (var i = 0; i < headers.Count; i++)
         {
-            var entry = headers[i];
+            var entry = headers.GetMemoryEntry(i);
 
             if (entry.Key == KnownHeaders.Cookie)
             {
@@ -166,7 +166,7 @@ public static class CookieHeaderExtensions
 
         public int Count => entries.Count;
 
-        public KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>> this[int index] => entries[index];
+        public KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>> GetMemoryEntry(int index) => entries[index];
 
     }
 

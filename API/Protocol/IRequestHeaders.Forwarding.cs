@@ -28,7 +28,7 @@ public static class ForwardingHeaderExtensions
 
         for (var i = 0; i < headers.Count; i++)
         {
-            var entry = headers[i];
+            var entry = headers.GetStringEntry(i);
 
             if (entry.Key == KnownHeaders.Forwarded)
             {

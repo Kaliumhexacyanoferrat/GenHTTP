@@ -93,7 +93,7 @@ public sealed class HttpProxy : IHandler
 
         for (var i = 0; i < headers.Count; i++)
         {
-            var header = headers[i];
+            var header = headers.GetStringEntry(i);
 
             var key = header.Key.ToString();
             var value = header.Value.ToString();
@@ -151,7 +151,7 @@ public sealed class HttpProxy : IHandler
 
             for (var i = 0; i < query.Count; i++)
             {
-                var arg = query[i];
+                var arg = query.GetStringEntry(i);
 
                 var key = arg.Key.ToString();
                 var value= HttpUtility.UrlDecode(arg.Value.ToString());

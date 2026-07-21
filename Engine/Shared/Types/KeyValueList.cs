@@ -8,6 +8,6 @@ public sealed class KeyValueList(Glyph.KeyValueList source) : IRequestHeaders, I
 
     public int Count => source.Count;
 
-    public KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>> this [int index] => source[index];
+    public KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>> GetMemoryEntry(int index) => source[index];
 
 }

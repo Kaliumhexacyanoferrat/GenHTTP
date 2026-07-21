@@ -99,6 +99,25 @@ internal static class CodeEmitter
         sb.AppendLine($"{indent}#region Helpers");
         sb.AppendLine();
 
+        // ─────────────────────────────────────────────────────────────────────
+        // ASCII normalization
+        // ─────────────────────────────────────────────────────────────────────
+
+        sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
+        sb.AppendLine($"{indent}private static byte Normalize(byte value)");
+        sb.AppendLine($"{indent}{{");
+        sb.AppendLine($"{indent}    var lower = (byte)(value | 0x20);");
+        sb.AppendLine();
+        sb.AppendLine($"{indent}    return (uint)(lower - 'a') <= ('z' - 'a')");
+        sb.AppendLine($"{indent}        ? lower");
+        sb.AppendLine($"{indent}        : value;");
+        sb.AppendLine($"{indent}}}");
+        sb.AppendLine();
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Case-insensitive hash
+        // ─────────────────────────────────────────────────────────────────────
+
         sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
         sb.AppendLine($"{indent}private static int ComputeHash(global::System.ReadOnlySpan<byte> span)");
         sb.AppendLine($"{indent}{{");
@@ -109,11 +128,45 @@ internal static class CodeEmitter
         sb.AppendLine();
         sb.AppendLine($"{indent}    foreach (var b in span)");
         sb.AppendLine($"{indent}    {{");
-        sb.AppendLine($"{indent}        hash ^= b;");
+        sb.AppendLine($"{indent}        hash ^= Normalize(b);");
         sb.AppendLine($"{indent}        hash *= Prime;");
         sb.AppendLine($"{indent}    }}");
         sb.AppendLine();
         sb.AppendLine($"{indent}    return (int)hash;");
+        sb.AppendLine($"{indent}}}");
+        sb.AppendLine();
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Case-insensitive memory comparison
+        // ─────────────────────────────────────────────────────────────────────
+
+        sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
+        sb.AppendLine($"{indent}private static bool EqualsIgnoreCase(global::System.ReadOnlySpan<byte> a, global::System.ReadOnlySpan<byte> b)");
+        sb.AppendLine($"{indent}{{");
+        sb.AppendLine($"{indent}    if (a.Length != b.Length)");
+        sb.AppendLine($"{indent}    {{");
+        sb.AppendLine($"{indent}        return false;");
+        sb.AppendLine($"{indent}    }}");
+        sb.AppendLine();
+
+        // Exact equality is by far the cheapest successful path.
+        // SequenceEqual is vectorized by the runtime where supported.
+        sb.AppendLine($"{indent}    if (a.SequenceEqual(b))");
+        sb.AppendLine($"{indent}    {{");
+        sb.AppendLine($"{indent}        return true;");
+        sb.AppendLine($"{indent}    }}");
+        sb.AppendLine();
+
+        // Only normalize when exact equality failed.
+        sb.AppendLine($"{indent}    for (var i = 0; i < a.Length; i++)");
+        sb.AppendLine($"{indent}    {{");
+        sb.AppendLine($"{indent}        if (Normalize(a[i]) != Normalize(b[i]))");
+        sb.AppendLine($"{indent}        {{");
+        sb.AppendLine($"{indent}            return false;");
+        sb.AppendLine($"{indent}        }}");
+        sb.AppendLine($"{indent}    }}");
+        sb.AppendLine();
+        sb.AppendLine($"{indent}    return true;");
         sb.AppendLine($"{indent}}}");
 
         sb.AppendLine();
@@ -135,16 +188,15 @@ internal static class CodeEmitter
         sb.AppendLine($"{indent}public bool Equals({info.TypeName} other)");
         sb.AppendLine($"{indent}{{");
 
-        // The hash includes the length and all bytes.
-        // A hash mismatch is therefore a very cheap rejection.
-        // SequenceEqual remains the definitive equality check.
+        // The hash is computed using the same case-insensitive normalization
+        // as the equality comparison.
         sb.AppendLine($"{indent}    if (_hash != other._hash)");
         sb.AppendLine($"{indent}    {{");
         sb.AppendLine($"{indent}        return false;");
         sb.AppendLine($"{indent}    }}");
         sb.AppendLine();
 
-        sb.AppendLine($"{indent}    return {FieldName}.Span.SequenceEqual(other.{FieldName}.Span);");
+        sb.AppendLine($"{indent}    return EqualsIgnoreCase({FieldName}.Span, other.{FieldName}.Span);");
         sb.AppendLine($"{indent}}}");
         sb.AppendLine();
 
@@ -154,7 +206,7 @@ internal static class CodeEmitter
 
         sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
         sb.AppendLine($"{indent}public bool Equals(global::System.ReadOnlyMemory<byte> other)");
-        sb.AppendLine($"{indent}    => {FieldName}.Span.SequenceEqual(other.Span);");
+        sb.AppendLine($"{indent}    => EqualsIgnoreCase({FieldName}.Span, other.Span);");
         sb.AppendLine();
 
         // ─────────────────────────────────────────────────────────────────────

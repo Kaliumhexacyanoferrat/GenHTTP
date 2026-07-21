@@ -119,7 +119,7 @@ public sealed class InspectionConcern : IConcern
 
         for (var i = 0; i < list.Count; i++)
         {
-            var entry = list[i];
+            var entry = list.GetStringEntry(i);
 
             result.Add(new(entry.Key.ToString(), entry.Value.ToString()));
         }

@@ -117,7 +117,7 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
 
         for (var i = 0; i < headers.Count; i++)
         {
-            var header = headers[i];
+            var header = headers.GetMemoryEntry(i);
 
             var key = header.Key;
             var value = header.Value;

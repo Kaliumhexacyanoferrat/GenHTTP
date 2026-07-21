@@ -8,7 +8,7 @@ public class EditableKeyValueList : IKeyValueList
 
     public int Count => _store.Count;
 
-    public KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>> this[int index] => _store[index];
+    public KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>> GetMemoryEntry(int index) => _store[index];
 
     public void Add(ByteString key, ByteString value)
     {

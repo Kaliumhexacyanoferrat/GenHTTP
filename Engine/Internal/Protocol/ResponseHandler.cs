@@ -160,7 +160,7 @@ internal sealed class ResponseHandler
 
         for (var i = 0; i < headers.Count; i++)
         {
-            var header = headers[i];
+            var header = headers.GetMemoryEntry(i);
 
             writer.Write(header.Key.Span);
             writer.Write(": "u8);

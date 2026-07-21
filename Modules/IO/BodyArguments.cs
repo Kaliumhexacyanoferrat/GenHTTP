@@ -40,7 +40,7 @@ public sealed class BodyArguments : IKeyValueList
 
     public int Count => _entries.Length;
 
-    public KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>> this[int index] => _entries[index];
+    public KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>> GetMemoryEntry(int index) => _entries[index];
 
     #endregion
 

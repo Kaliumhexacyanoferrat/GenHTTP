@@ -13,7 +13,7 @@ public static class IKeyValueListExtensions
     {
         for (var i = 0; i < list.Count; i++)
         {
-            var entry = list[i];
+            var entry = list.GetMemoryEntry(i);
 
             if (entry.Key == key)
             {
@@ -43,7 +43,7 @@ public static class IKeyValueListExtensions
     {
         for (var i = 0; i < list.Count; i++)
         {
-            if (list[i].Key == key)
+            if (list.GetMemoryEntry(i).Key == key)
                 return true;
         }
 
@@ -58,5 +58,18 @@ public static class IKeyValueListExtensions
     /// <returns>true, if the list contains an entry with that key, otherwise false</returns>
     public static bool ContainsKey(this IKeyValueList list, string key)
         => list.ContainsKey(new ByteString(key));
+
+    /// <summary>
+    /// Fetches an entry of the list by index and converts it into byte strings.
+    /// </summary>
+    /// <param name="list">The list to get the entry from</param>
+    /// <param name="index">The zero based index of the item to be fetched</param>
+    /// <returns>The entry as byte strings</returns>
+    public static KeyValuePair<ByteString, ByteString> GetStringEntry(this IKeyValueList list, int index)
+    {
+        var entry = list.GetMemoryEntry(index);
+
+        return new(new ByteString(entry.Key), new ByteString(entry.Value));
+    }
 
 }
