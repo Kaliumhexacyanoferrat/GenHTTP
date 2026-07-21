@@ -162,9 +162,9 @@ internal sealed class ResponseHandler
         {
             var header = headers[i];
 
-            writer.Write(header.Key.Bytes.Span);
+            writer.Write(header.Key.Span);
             writer.Write(": "u8);
-            writer.Write(header.Value.Bytes.Span);
+            writer.Write(header.Value.Span);
             writer.Write("\r\n"u8);
         }
     }

@@ -101,10 +101,10 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
         writer.Write(_route.Span);
         writer.Write(" HTTP/1.1"u8);
         writer.Write(_clrf.Span);
-        
+
         writer.Write("Host: "u8);
         writer.Write(Encoding.ASCII.GetBytes(_host));
-        
+
         if (!_isDefaultPort)
         {
             writer.Write(":"u8);
@@ -125,9 +125,9 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
             if (key == KnownHeaders.Host)
                 continue;
 
-            writer.Write(key.Bytes.Span);
+            writer.Write(key.Span);
             writer.Write(":"u8);
-            writer.Write(value.Bytes.Span);
+            writer.Write(value.Span);
             writer.Write(_clrf.Span);
         }
 

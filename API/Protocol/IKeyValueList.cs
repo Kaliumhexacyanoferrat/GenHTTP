@@ -17,10 +17,6 @@ public interface IKeyValueList
     /// </summary>
     int Count { get; }
 
-    /// <summary>
-    /// Fetches the entry with the given index.
-    /// </summary>
-    /// <param name="index">The zero-based index of the item to fetch</param>
-    KeyValuePair<ByteString, ByteString> this[int index] { get; }
+    KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>> this[int index] { get; }
 
 }

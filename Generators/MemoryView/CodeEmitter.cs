@@ -100,17 +100,6 @@ internal static class CodeEmitter
         sb.AppendLine();
 
         sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
-        sb.AppendLine($"{indent}private static byte Normalize(byte value)");
-        sb.AppendLine($"{indent}{{");
-        sb.AppendLine($"{indent}    var lower = (byte)(value | 0x20);");
-        sb.AppendLine();
-        sb.AppendLine($"{indent}    return (uint)(lower - 'a') <= ('z' - 'a')");
-        sb.AppendLine($"{indent}        ? lower");
-        sb.AppendLine($"{indent}        : value;");
-        sb.AppendLine($"{indent}}}");
-        sb.AppendLine();
-
-        sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
         sb.AppendLine($"{indent}private static int ComputeHash(global::System.ReadOnlySpan<byte> span)");
         sb.AppendLine($"{indent}{{");
         sb.AppendLine($"{indent}    const uint Offset = 2166136261;");
@@ -120,7 +109,7 @@ internal static class CodeEmitter
         sb.AppendLine();
         sb.AppendLine($"{indent}    foreach (var b in span)");
         sb.AppendLine($"{indent}    {{");
-        sb.AppendLine($"{indent}        hash ^= Normalize(b);");
+        sb.AppendLine($"{indent}        hash ^= b;");
         sb.AppendLine($"{indent}        hash *= Prime;");
         sb.AppendLine($"{indent}    }}");
         sb.AppendLine();
@@ -138,70 +127,111 @@ internal static class CodeEmitter
         sb.AppendLine($"{indent}#region Equality");
         sb.AppendLine();
 
+        // ─────────────────────────────────────────────────────────────────────
+        // Generated type == Generated type
+        // ─────────────────────────────────────────────────────────────────────
+
         sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
         sb.AppendLine($"{indent}public bool Equals({info.TypeName} other)");
         sb.AppendLine($"{indent}{{");
+
+        // The hash includes the length and all bytes.
+        // A hash mismatch is therefore a very cheap rejection.
+        // SequenceEqual remains the definitive equality check.
         sb.AppendLine($"{indent}    if (_hash != other._hash)");
         sb.AppendLine($"{indent}    {{");
         sb.AppendLine($"{indent}        return false;");
         sb.AppendLine($"{indent}    }}");
         sb.AppendLine();
 
-        sb.AppendLine($"{indent}    var a = {FieldName}.Span;");
-        sb.AppendLine($"{indent}    var b = other.{FieldName}.Span;");
-        sb.AppendLine();
-
-        sb.AppendLine($"{indent}    if (a.Length != b.Length)");
-        sb.AppendLine($"{indent}    {{");
-        sb.AppendLine($"{indent}        return false;");
-        sb.AppendLine($"{indent}    }}");
-        sb.AppendLine();
-
-        // SIMD fast path
-        sb.AppendLine($"{indent}    if (a.SequenceEqual(b))");
-        sb.AppendLine($"{indent}    {{");
-        sb.AppendLine($"{indent}        return true;");
-        sb.AppendLine($"{indent}    }}");
-        sb.AppendLine();
-
-        // ASCII-insensitive fallback
-        sb.AppendLine($"{indent}    for (var i = 0; i < a.Length; i++)");
-        sb.AppendLine($"{indent}    {{");
-        sb.AppendLine($"{indent}        var ca = a[i];");
-        sb.AppendLine($"{indent}        var cb = b[i];");
-        sb.AppendLine();
-        sb.AppendLine($"{indent}        var la = Normalize(ca);");
-        sb.AppendLine($"{indent}        var lb = Normalize(cb);");
-        sb.AppendLine();
-        sb.AppendLine($"{indent}        if (la != lb)");
-        sb.AppendLine($"{indent}        {{");
-        sb.AppendLine($"{indent}            return false;");
-        sb.AppendLine($"{indent}        }}");
-        sb.AppendLine($"{indent}    }}");
-        sb.AppendLine();
-        sb.AppendLine($"{indent}    return true;");
+        sb.AppendLine($"{indent}    return {FieldName}.Span.SequenceEqual(other.{FieldName}.Span);");
         sb.AppendLine($"{indent}}}");
         sb.AppendLine();
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Generated type == ReadOnlyMemory<byte>
+        // ─────────────────────────────────────────────────────────────────────
+
+        sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
+        sb.AppendLine($"{indent}public bool Equals(global::System.ReadOnlyMemory<byte> other)");
+        sb.AppendLine($"{indent}    => {FieldName}.Span.SequenceEqual(other.Span);");
+        sb.AppendLine();
+
+        // ─────────────────────────────────────────────────────────────────────
+        // object.Equals
+        // ─────────────────────────────────────────────────────────────────────
 
         sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
         sb.AppendLine($"{indent}public override bool Equals(object? obj)");
         sb.AppendLine($"{indent}    => obj is {info.TypeName} other && Equals(other);");
         sb.AppendLine();
 
+        // ─────────────────────────────────────────────────────────────────────
+        // GetHashCode
+        // ─────────────────────────────────────────────────────────────────────
+
         sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
         sb.AppendLine($"{indent}public override int GetHashCode() => _hash;");
         sb.AppendLine();
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Generated type == Generated type
+        // ─────────────────────────────────────────────────────────────────────
 
         sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
         sb.AppendLine($"{indent}public static bool operator ==({info.TypeName} left, {info.TypeName} right)");
         sb.AppendLine($"{indent}    => left.Equals(right);");
         sb.AppendLine();
 
+        // ─────────────────────────────────────────────────────────────────────
+        // Generated type != Generated type
+        // ─────────────────────────────────────────────────────────────────────
+
         sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
         sb.AppendLine($"{indent}public static bool operator !=({info.TypeName} left, {info.TypeName} right)");
         sb.AppendLine($"{indent}    => !left.Equals(right);");
-
         sb.AppendLine();
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Generated type == ReadOnlyMemory<byte>
+        // ─────────────────────────────────────────────────────────────────────
+
+        sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
+        sb.AppendLine($"{indent}public static bool operator ==({info.TypeName} left, global::System.ReadOnlyMemory<byte> right)");
+        sb.AppendLine($"{indent}    => left.Equals(right);");
+        sb.AppendLine();
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Generated type != ReadOnlyMemory<byte>
+        // ─────────────────────────────────────────────────────────────────────
+
+        sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
+        sb.AppendLine($"{indent}public static bool operator !=({info.TypeName} left, global::System.ReadOnlyMemory<byte> right)");
+        sb.AppendLine($"{indent}    => !left.Equals(right);");
+        sb.AppendLine();
+
+        // ─────────────────────────────────────────────────────────────────────
+        // ReadOnlyMemory<byte> == Generated type
+        // ─────────────────────────────────────────────────────────────────────
+
+        sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
+        sb.AppendLine($"{indent}public static bool operator ==(global::System.ReadOnlyMemory<byte> left, {info.TypeName} right)");
+        sb.AppendLine($"{indent}    => right.Equals(left);");
+        sb.AppendLine();
+
+        // ─────────────────────────────────────────────────────────────────────
+        // ReadOnlyMemory<byte> != Generated type
+        // ─────────────────────────────────────────────────────────────────────
+
+        sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
+        sb.AppendLine($"{indent}public static bool operator !=(global::System.ReadOnlyMemory<byte> left, {info.TypeName} right)");
+        sb.AppendLine($"{indent}    => !right.Equals(left);");
+        sb.AppendLine();
+
+        // ─────────────────────────────────────────────────────────────────────
+        // String representation
+        // ─────────────────────────────────────────────────────────────────────
+
         sb.AppendLine($"{indent}public override string ToString()");
         sb.AppendLine($"{indent}    => global::System.Text.Encoding.ASCII.GetString({FieldName}.Span);");
         sb.AppendLine();
@@ -216,5 +246,4 @@ internal static class CodeEmitter
 
         return sb.ToString();
     }
-
 }

@@ -1,5 +1,4 @@
 ﻿using GenHTTP.Api.Protocol;
-
 using Glyph = Glyph11.Protocol;
 
 namespace GenHTTP.Engine.Shared.Types;
@@ -9,14 +8,6 @@ public sealed class KeyValueList(Glyph.KeyValueList source) : IRequestHeaders, I
 
     public int Count => source.Count;
 
-    public KeyValuePair<ByteString, ByteString> this[int index]
-    {
-        get
-        {
-            var kv = source[index];
-            
-            return new KeyValuePair<ByteString, ByteString>(new(kv.Key), new(kv.Value));
-        }
-    }
+    public KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>> this [int index] => source[index];
 
 }

@@ -4,7 +4,7 @@ namespace GenHTTP.Engine.Shared.Types;
 
 public class RetainedKeyValueList : IRequestHeaders, IRequestQuery
 {
-    private readonly List<KeyValuePair<ByteString, ByteString>> _items;
+    private readonly List<KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>> _items;
 
     public int Count => _items.Count;
 
@@ -15,11 +15,11 @@ public class RetainedKeyValueList : IRequestHeaders, IRequestQuery
         for (var i = 0; i < source.Count; i++)
         {
             var pair = source[i];
-            
-            _items.Add(new (new ByteString(pair.Key.Bytes.ToArray()), new ByteString(pair.Value.Bytes.ToArray())));
+
+            _items.Add(new (pair.Key.ToArray(), pair.Value.ToArray()));
         }
     }
 
-    public KeyValuePair<ByteString, ByteString> this[int index] => _items[index];
+    public KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>> this[int index] => _items[index];
 
 }

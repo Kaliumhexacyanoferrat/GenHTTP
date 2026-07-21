@@ -122,9 +122,9 @@ internal static class ResponseWriter
         {
             var header = headers[i];
 
-            writer.Write(header.Key.Bytes.Span);
+            writer.Write(header.Key.Span);
             writer.Write(": "u8);
-            writer.Write(header.Value.Bytes.Span);
+            writer.Write(header.Value.Span);
             writer.Write("\r\n"u8);
         }
     }
@@ -162,4 +162,5 @@ internal static class ResponseWriter
         Utf8Formatter.TryFormat(value, span, out var written);
         writer.Advance(written);
     }
+
 }

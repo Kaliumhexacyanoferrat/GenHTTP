@@ -17,7 +17,7 @@ public static class IKeyValueListExtensions
 
             if (entry.Key == key)
             {
-                return entry.Value;
+                return new(entry.Value);
             }
         }
 
