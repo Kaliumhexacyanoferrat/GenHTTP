@@ -44,18 +44,18 @@
 
     <ItemGroup>
 
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.10" />
 
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.9" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.10" />
 
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
 
-        <PackageReference Include="Microsoft.OpenApi" Version="3.8.0" />
-        <PackageReference Include="Microsoft.OpenApi.YamlReader" Version="3.8.0" />
+        <PackageReference Include="Microsoft.OpenApi" Version="3.9.0" />
+        <PackageReference Include="Microsoft.OpenApi.YamlReader" Version="3.9.0" />
 
-        <PackageReference Include="MSTest" Version="4.3.0" />
+        <PackageReference Include="MSTest" Version="4.3.2" />
 
-        <PackageReference Include="NSubstitute" Version="5.3.0" />
+        <PackageReference Include="NSubstitute" Version="6.0.0" />
 
         <PackageReference Include="coverlet.collector" Version="10.0.1">
             <PrivateAssets>all</PrivateAssets>
@@ -64,7 +64,7 @@
 
         <PackageReference Include="Websocket.Client" Version="5.5.0" />
 
-        <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.300" />
+        <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.301" />
 
     </ItemGroup>
 
