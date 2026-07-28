@@ -68,7 +68,7 @@ public sealed class CookieTests
 
             for (var i = 0; i < list.Count; i++)
             {
-                var entry = list[i];
+                var entry = list.GetStringEntry(i);
 
                 cookies.Add((entry.Key.ToString(), entry.Value.ToString()));
             }

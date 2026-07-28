@@ -202,14 +202,14 @@ public sealed class ReverseProxyTests
 
             for (var i = 0; i < r.Header.Query.Count; i++)
             {
-                var entry = r.Header.Query[i];
+                var entry = r.Header.Query.GetStringEntry(i);
 
                 var key = entry.Key.ToString();
                 var value = entry.Value.ToString();
-                
+
                 entries.Add($"{key}={value}");
             }
-            
+
             var result = string.Join('|', entries);
             return r.Respond().Content(result).Build();
         });
@@ -235,16 +235,16 @@ public sealed class ReverseProxyTests
 
             for (var i = 0; i < r.Header.Query.Count; i++)
             {
-                var entry = r.Header.Query[i];
+                var entry = r.Header.Query.GetStringEntry(i);
 
                 var key = entry.Key.ToString();
                 var value = HttpUtility.UrlDecode(entry.Value.ToString());
-                
+
                 entries.Add($"{key}={value}");
             }
-            
+
             var result = string.Join('|', entries);
-            
+
             return r.Respond().Content(result).Build();
         });
 

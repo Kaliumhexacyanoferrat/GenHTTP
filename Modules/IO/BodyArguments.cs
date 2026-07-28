@@ -8,7 +8,7 @@ namespace GenHTTP.Modules.IO;
 /// </summary>
 public sealed class BodyArguments : IKeyValueList
 {
-    private readonly KeyValuePair<ByteString, ByteString>[] _entries;
+    private readonly KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>[] _entries;
 
     #region Initialization
 
@@ -17,7 +17,7 @@ public sealed class BodyArguments : IKeyValueList
     /// </summary>
     public static readonly BodyArguments Empty = new([]);
 
-    private BodyArguments(KeyValuePair<ByteString, ByteString>[] entries)
+    private BodyArguments(KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>[] entries)
     {
         _entries = entries;
     }
@@ -40,7 +40,7 @@ public sealed class BodyArguments : IKeyValueList
 
     public int Count => _entries.Length;
 
-    public KeyValuePair<ByteString, ByteString> this[int index] => _entries[index];
+    public KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>> GetMemoryEntry(int index) => _entries[index];
 
     #endregion
 
@@ -53,7 +53,7 @@ public sealed class BodyArguments : IKeyValueList
             return Empty;
         }
 
-        var entries = new List<KeyValuePair<ByteString, ByteString>>();
+        var entries = new List<KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>>();
 
         var remaining = memory;
 
@@ -74,7 +74,7 @@ public sealed class BodyArguments : IKeyValueList
         return new BodyArguments(entries.ToArray());
     }
 
-    private static KeyValuePair<ByteString, ByteString> ParsePair(ReadOnlyMemory<byte> pair)
+    private static KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>> ParsePair(ReadOnlyMemory<byte> pair)
     {
         var separator = pair.Span.IndexOf((byte)'=');
 
@@ -86,20 +86,20 @@ public sealed class BodyArguments : IKeyValueList
     /// Decodes a percent- and "+"-encoded token, only allocating a new
     /// buffer if the token actually requires decoding.
     /// </summary>
-    private static ByteString Decode(ReadOnlyMemory<byte> raw)
+    private static ReadOnlyMemory<byte> Decode(ReadOnlyMemory<byte> raw)
     {
         var source = raw.Span;
 
         if (source.IndexOfAny((byte)'%', (byte)'+') < 0)
         {
-            return new ByteString(raw);
+            return raw;
         }
 
         var target = new byte[source.Length];
 
         var written = PercentEncoding.Decode(source, target, decodePlus: true);
 
-        return new ByteString(target.AsMemory(0, written));
+        return target.AsMemory(0, written);
     }
 
     #endregion

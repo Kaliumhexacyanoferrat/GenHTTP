@@ -20,7 +20,7 @@ public interface IKeyValueList
     /// <summary>
     /// Fetches the entry with the given index.
     /// </summary>
-    /// <param name="index">The zero-based index of the item to fetch</param>
-    KeyValuePair<ByteString, ByteString> this[int index] { get; }
+    /// <param name="index">The zero based index of the entry to fetch</param>
+    KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>> GetMemoryEntry(int index);
 
 }

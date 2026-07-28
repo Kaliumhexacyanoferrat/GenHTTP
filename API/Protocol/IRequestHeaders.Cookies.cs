@@ -18,7 +18,7 @@ public static class CookieHeaderExtensions
     {
         for (var i = 0; i < headers.Count; i++)
         {
-            var entry = headers[i];
+            var entry = headers.GetMemoryEntry(i);
 
             if (entry.Key != KnownHeaders.Cookie)
             {
@@ -53,11 +53,11 @@ public static class CookieHeaderExtensions
     /// <returns>The cookies found in the given headers</returns>
     public static IKeyValueList GetCookies(this IRequestHeaders headers)
     {
-        var cookies = new List<KeyValuePair<ByteString, ByteString>>();
+        var cookies = new List<KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>>();
 
         for (var i = 0; i < headers.Count; i++)
         {
-            var entry = headers[i];
+            var entry = headers.GetMemoryEntry(i);
 
             if (entry.Key == KnownHeaders.Cookie)
             {
@@ -72,10 +72,9 @@ public static class CookieHeaderExtensions
 
     #region Parsing
 
-    private static ByteString? FindCookie(ByteString header, ByteString key)
+    private static ByteString? FindCookie(ReadOnlyMemory<byte> header, ByteString key)
     {
-        var memory = header.Bytes;
-        var span = memory.Span;
+        var span = header.Span;
 
         var keySpan = key.Bytes.Span;
 
@@ -85,22 +84,20 @@ public static class CookieHeaderExtensions
         {
             if (span[segments.Name].SequenceEqual(keySpan))
             {
-                return new ByteString(memory[segments.Value]);
+                return new ByteString(header[segments.Value]);
             }
         }
 
         return null;
     }
 
-    private static void ParseCookies(ByteString header, List<KeyValuePair<ByteString, ByteString>> target)
+    private static void ParseCookies(ReadOnlyMemory<byte> header, List<KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>> target)
     {
-        var memory = header.Bytes;
-
-        var segments = new CookieSegments(memory.Span);
+        var segments = new CookieSegments(header.Span);
 
         while (segments.MoveNext())
         {
-            target.Add(new(new ByteString(memory[segments.Name]), new ByteString(memory[segments.Value])));
+            target.Add(new(header[segments.Name], header[segments.Value]));
         }
     }
 
@@ -164,12 +161,12 @@ public static class CookieHeaderExtensions
     /// A read-only list of cookies that have been parsed from one or
     /// more "Cookie" header values.
     /// </summary>
-    private sealed class CookieList(List<KeyValuePair<ByteString, ByteString>> entries) : IKeyValueList
+    private sealed class CookieList(List<KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>> entries) : IKeyValueList
     {
 
         public int Count => entries.Count;
 
-        public KeyValuePair<ByteString, ByteString> this[int index] => entries[index];
+        public KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>> GetMemoryEntry(int index) => entries[index];
 
     }
 

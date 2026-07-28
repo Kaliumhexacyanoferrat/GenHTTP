@@ -106,21 +106,21 @@ public sealed class ParserTests
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
             // todo: make this logic block reusable
-            
+
             var entries = new List<string>();
-            
+
             for (var i = 0; i < request.Header.Query.Count; i++)
             {
-                var entry = request.Header.Query[i];
+                var entry = request.Header.Query.GetStringEntry(i);
 
                 var key = HttpUtility.UrlDecode(entry.Key.ToString());
                 var value = HttpUtility.UrlDecode(entry.Value.ToString());
-                
+
                 entries.Add($"{key}={value}");
             }
-            
+
             var result = string.Join('|', entries);
-            
+
             return request.Respond()
                           .Content(result)
                           .BuildTask();
