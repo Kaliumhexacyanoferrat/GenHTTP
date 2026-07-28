@@ -7,7 +7,7 @@ using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Internal.Protocol;
 using GenHTTP.Engine.Shared.Infrastructure;
-
+using GenHTTP.Engine.Shared.Types;
 using Microsoft.Extensions.Logging;
 
 namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;

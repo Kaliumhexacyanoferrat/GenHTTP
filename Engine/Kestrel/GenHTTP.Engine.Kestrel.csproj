@@ -10,22 +10,20 @@
 
     <ItemGroup>
 
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
-
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
-
-        <ProjectReference Include="..\..\Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj" />
 
         <ProjectReference Include="..\Shared\GenHTTP.Engine.Shared.csproj" />
 
         <ProjectReference Include="..\..\Modules\IO\GenHTTP.Modules.IO.csproj" />
 
         <ProjectReference Include="..\..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj" />
-
+        
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+        
     </ItemGroup>
 
     <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="" />
     </ItemGroup>
-    
+
 </Project>

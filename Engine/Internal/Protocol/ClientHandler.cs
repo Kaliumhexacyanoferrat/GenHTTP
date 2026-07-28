@@ -226,8 +226,6 @@ internal sealed class ClientHandler(ClientContext context)
     {
         try
         {
-
-
             var message = context.Server.Development ? e.ToString() : e.Message;
 
             var response = new ResponseBuilder()

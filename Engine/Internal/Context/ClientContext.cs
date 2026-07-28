@@ -10,7 +10,7 @@ using GenHTTP.Engine.Shared.Types;
 
 namespace GenHTTP.Engine.Internal.Context;
 
-internal sealed class ClientContext
+internal sealed class ClientContext : IClientContext
 {
     private static readonly StreamPipeWriterOptions WriterOptions = new(MemoryPool<byte>.Shared, leaveOpen: true, minimumBufferSize: BufferSize.Write);
 
@@ -34,7 +34,7 @@ internal sealed class ClientContext
 
     private readonly ClientHandler _clientHandler;
 
-    internal IServer Server => _server ?? throw new InvalidOperationException("Handler has not been initialized");
+    public IServer Server => _server ?? throw new InvalidOperationException("Handler has not been initialized");
 
     internal IEndPoint EndPoint => _endPoint ?? throw new InvalidOperationException("Handler has not been initialized");
 
@@ -42,9 +42,9 @@ internal sealed class ClientContext
 
     internal X509Certificate? ClientCertificate => _clientCertificate;
 
-    internal Stream Stream => _stream ?? throw new InvalidOperationException("Handler has not been initialized");
+    public Stream Stream => _stream ?? throw new InvalidOperationException("Handler has not been initialized");
 
-    internal PipeWriter Writer => _writer ?? throw new InvalidOperationException("Handler has not been initialized");
+    public PipeWriter Writer => _writer ?? throw new InvalidOperationException("Handler has not been initialized");
 
     internal PipeReader Reader => _reader ?? throw new InvalidOperationException("Handler has not been initialized");
 

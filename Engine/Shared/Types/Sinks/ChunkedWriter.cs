@@ -1,10 +1,8 @@
 using System.Buffers;
 
-using GenHTTP.Engine.Internal.Context;
+namespace GenHTTP.Engine.Shared.Types.Sinks;
 
-namespace GenHTTP.Engine.Internal.Protocol.Sinks;
-
-internal sealed class ChunkedWriter(ClientContext context) : IBufferWriter<byte>
+internal sealed class ChunkedWriter(IClientContext context) : IBufferWriter<byte>
 {
     private const int MaxHeaderSize = 10;
     private const int TrailerSize = 2;
@@ -70,5 +68,5 @@ internal sealed class ChunkedWriter(ClientContext context) : IBufferWriter<byte>
         dest[8] = (byte)'\r';
         dest[9] = (byte)'\n';
     }
-    
+
 }

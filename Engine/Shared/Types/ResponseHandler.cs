@@ -1,26 +1,24 @@
-﻿using System.Buffers;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
+using System.Buffers;
+
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Engine.Internal.Context;
-using GenHTTP.Engine.Internal.Protocol.Sinks;
-
+using GenHTTP.Engine.Shared.Types.Sinks;
 using Microsoft.Extensions.Logging;
 
-namespace GenHTTP.Engine.Internal.Protocol;
+namespace GenHTTP.Engine.Shared.Types;
 
-internal sealed class ResponseHandler
+public sealed class ResponseHandler
 {
-
     private readonly RegularSink _regularSink;
 
     private readonly ChunkedSink _chunkedSink;
 
-    private ClientContext Context { get; }
+    private IClientContext Context { get; }
 
     #region Initialization
 
-    internal ResponseHandler(ClientContext context)
+    public ResponseHandler(IClientContext context)
     {
         Context = context;
 
@@ -32,7 +30,7 @@ internal sealed class ResponseHandler
 
     #region Functionality
 
-    internal async ValueTask<bool> HandleAsync(IRequest? request, IResponse response, HttpProtocol version, bool keepAlive, bool headRequest)
+    public async ValueTask<bool> HandleAsync(IRequest? request, IResponse response, HttpProtocol version, bool keepAlive, bool headRequest)
     {
         try
         {

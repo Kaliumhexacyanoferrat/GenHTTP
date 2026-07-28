@@ -1,16 +1,16 @@
 using System.Net.Sockets;
 
-namespace GenHTTP.Engine.Internal.Protocol;
+namespace GenHTTP.Engine.Shared.Types;
 
 /// <summary>
 /// Helps to identify exceptions that are caused by a client disconnecting
 /// gracefully (e.g. during a keep alive read or while the response is
 /// flushed), so they do not need to be logged as actual server errors.
 /// </summary>
-internal static class ConnectionExceptions
+public static class ConnectionExceptions
 {
 
-    internal static bool IsGracefulDisconnect(Exception e) => e switch
+    public static bool IsGracefulDisconnect(Exception e) => e switch
     {
         OperationCanceledException => true,
         IOException { InnerException: SocketException { SocketErrorCode: SocketError.ConnectionReset or SocketError.ConnectionAborted or SocketError.Shutdown } } => true,

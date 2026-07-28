@@ -1,6 +1,6 @@
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Engine.Internal.Protocol;
+namespace GenHTTP.Engine.Shared.Types;
 
 internal static class StatusLine
 {
@@ -85,5 +85,5 @@ internal static class StatusLine
 
         return arr;
     }
-    
+
 }

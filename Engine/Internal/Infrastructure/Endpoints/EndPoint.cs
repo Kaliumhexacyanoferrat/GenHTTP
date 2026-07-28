@@ -7,7 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Engine.Internal.Context;
 using GenHTTP.Engine.Internal.Protocol;
-
+using GenHTTP.Engine.Shared.Types;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
 

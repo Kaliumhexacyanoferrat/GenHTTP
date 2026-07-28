@@ -2,22 +2,23 @@
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 
-using GenHTTP.Adapters.AspNetCore;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Shared.Infrastructure;
+using GenHTTP.Engine.Shared.Types;
 
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
+using Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace GenHTTP.Engine.Kestrel.Hosting;
 
-internal sealed class KestrelServer : IServer
+internal sealed class KestrelServerBridge : IServer
 {
 
     #region Get-/Setters
@@ -28,25 +29,26 @@ internal sealed class KestrelServer : IServer
 
     public bool Development { get; }
 
-    public IEndPointCollection EndPoints { get; }
+    public IPropertyBag Properties { get; } = new PropertyBag();
 
-    public IServerCompanion? Companion { get; }
+    public ILoggerFactory Logging => Configuration.Logging;
+
+    public IEndPointCollection EndPoints { get; }
 
     public IHandler Handler { get; }
 
     private ServerConfiguration Configuration { get; }
 
-    private WebApplication Application { get; }
+    private KestrelServer Instance { get; }
 
     #endregion
 
     #region Initialization
 
-    internal KestrelServer(IServerCompanion? companion, ServerConfiguration configuration, IHandler handler, Action<WebApplicationBuilder>? configurationHook, Action<WebApplication>? applicationHook)
+    internal KestrelServerBridge(ServerConfiguration configuration, IHandler handler)
     {
         Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "(n/a)";
 
-        Companion = companion;
         Configuration = configuration;
 
         Development = configuration.DevelopmentMode;
@@ -59,73 +61,66 @@ internal sealed class KestrelServer : IServer
 
         EndPoints = endpoints;
 
-        Application = Spawn(configurationHook, applicationHook);
+        Instance = Spawn();
     }
 
     #endregion
 
     #region Functionality
 
-    private WebApplication Spawn(Action<WebApplicationBuilder>? configurationHook, Action<WebApplication>? applicationHook)
+    private KestrelServer Spawn()
     {
-        var builder = WebApplication.CreateBuilder();
+        var options = Configure();
 
-        Configure(builder);
+        var transportFactory = new SocketTransportFactory(Options.Create(new SocketTransportOptions()), Configuration.Logging);
 
-        configurationHook?.Invoke(builder);
-
-        var app = builder.Build();
-
-        app.Run(Handler, server: this);
-
-        applicationHook?.Invoke(app);
-
-        return app;
+        return new KestrelServer(options, transportFactory, Configuration.Logging);
     }
 
     public async ValueTask StartAsync()
     {
-        await Handler.PrepareAsync();
+        await Handler.PrepareAsync(this);
 
-        await Application.StartAsync();
+        await Instance.StartAsync(new Application(this), CancellationToken.None);
 
         Running = true;
     }
 
-    private void Configure(WebApplicationBuilder builder)
+    private IOptions<KestrelServerOptions> Configure()
     {
-        builder.Logging.ClearProviders();
+        var builder = Options.Create(new KestrelServerOptions());
 
-        builder.WebHost.ConfigureKestrel(options =>
+        var options = builder.Value;
+
+        options.AllowSynchronousIO = true;
+
+        options.Limits.MaxRequestBodySize = null;
+
+        foreach (var endpoint in Configuration.EndPoints)
         {
-            options.AllowSynchronousIO = true;
-
-            options.Limits.MaxRequestBodySize = null;
-
-            foreach (var endpoint in Configuration.EndPoints)
+            if ((endpoint.Address == null) || (endpoint.DualStack && (endpoint.Address.Equals(IPAddress.Any) || endpoint.Address.Equals(IPAddress.IPv6Any))))
             {
-                if ((endpoint.Address == null) || (endpoint.DualStack && (endpoint.Address.Equals(IPAddress.Any) || endpoint.Address.Equals(IPAddress.IPv6Any))))
+                options.ListenAnyIP(endpoint.Port, listenOptions =>
                 {
-                    options.ListenAnyIP(endpoint.Port, listenOptions =>
+                    if (endpoint.Security is not null)
                     {
-                        if (endpoint.Security is not null)
-                        {
-                            Secure(listenOptions, endpoint, endpoint.Security);
-                        }
-                    });
-                }
-                else
-                {
-                    options.Listen(endpoint.Address, endpoint.Port, listenOptions =>
-                    {
-                        if (endpoint.Security is not null)
-                        {
-                            Secure(listenOptions, endpoint, endpoint.Security);
-                        }
-                    });
-                }
+                        Secure(listenOptions, endpoint, endpoint.Security);
+                    }
+                });
             }
-        });
+            else
+            {
+                options.Listen(endpoint.Address, endpoint.Port, listenOptions =>
+                {
+                    if (endpoint.Security is not null)
+                    {
+                        Secure(listenOptions, endpoint, endpoint.Security);
+                    }
+                });
+            }
+        }
+
+        return builder;
     }
 
     private static void Secure(ListenOptions options, EndPointConfiguration endpoint, SecurityConfiguration security)
@@ -158,9 +153,9 @@ internal sealed class KestrelServer : IServer
     {
         if (!_disposed)
         {
-            await Application.StopAsync();
+            await Instance.StopAsync(CancellationToken.None);
 
-            await Application.DisposeAsync();
+            Instance.Dispose();
 
             _disposed = true;
         }

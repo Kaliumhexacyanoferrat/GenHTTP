@@ -1,15 +1,14 @@
 using System.Runtime.CompilerServices;
 using System.Text;
-using GenHTTP.Engine.Internal.Context;
 
-namespace GenHTTP.Engine.Internal.Protocol;
+namespace GenHTTP.Engine.Shared.Types;
 
 internal static class ServerHeader
 {
     private static ReadOnlyMemory<byte> _cached;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static ReadOnlyMemory<byte> GetValue(ClientContext context)
+    internal static ReadOnlyMemory<byte> GetValue(IClientContext context)
     {
         if (!_cached.IsEmpty)
         {
@@ -26,5 +25,5 @@ internal static class ServerHeader
         _cached = buffer;
         return _cached;
     }
-    
+
 }

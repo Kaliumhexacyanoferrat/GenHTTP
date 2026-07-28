@@ -1,7 +1,4 @@
 <Solution>
-    <!--<Folder Name="/Adapters/">
-      <Project Path="Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj" />
-    </Folder>-->
     <Folder Name="/API/">
         <Project Path="API\GenHTTP.Api.csproj" />
     </Folder>
@@ -13,8 +10,8 @@
     </Folder>
     <Folder Name="/Engine/">
         <Project Path="Engine\Internal\GenHTTP.Engine.Internal.csproj" />
-        <!--<Project Path="Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj" />-->
         <Project Path="Engine\Ioxide\GenHTTP.Engine.Ioxide.csproj" />
+        <Project Path="Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj" />
         <Project Path="Engine\Shared\GenHTTP.Engine.Shared.csproj" />
     </Folder>
     <Folder Name="/Modules/">
@@ -61,9 +58,9 @@
         <File Path="Packages/GenHTTP.Full.Kestrel.nuspec" />
         <File Path="Packages/GenHTTP.Full.md" />
         <File Path="Packages/GenHTTP.Full.nuspec" />
-        <!--<File Path="Packages\GenHTTP.Core.Kestrel.nuspec" />-->
+        <File Path="Packages\GenHTTP.Core.Kestrel.nuspec" />
         <File Path="Packages\GenHTTP.Core.md" />
-        <!--<File Path="Packages\GenHTTP.Core.Kestrel.md" />-->
+        <File Path="Packages\GenHTTP.Core.Kestrel.md" />
     </Folder>
     <Folder Name="/Playground/">
         <Project Path="Playground\GenHTTP.Playground.csproj" />

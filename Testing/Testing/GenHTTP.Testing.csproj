@@ -13,7 +13,7 @@
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj"/>
 
         <ProjectReference Include="..\..\Engine\Internal\GenHTTP.Engine.Internal.csproj"/>
-        <!--<ProjectReference Include="..\..\Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj"/>-->
+        <ProjectReference Include="..\..\Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj"/>
 
         <ProjectReference Include="..\..\Modules\IO\GenHTTP.Modules.IO.csproj"/>
         <ProjectReference Include="..\..\Modules\Layouting\GenHTTP.Modules.Layouting.csproj"/>
@@ -22,7 +22,7 @@
         <ProjectReference Include="..\..\Modules\Protobuf\GenHTTP.Modules.Protobuf.csproj"/>
 
     </ItemGroup>
-    
+
     <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
         <ProjectReference Include="..\..\Engine\Ioxide\GenHTTP.Engine.Ioxide.csproj"/>
     </ItemGroup>
