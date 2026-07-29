@@ -66,9 +66,11 @@ public sealed class BasicTests
 
         using var response = await runner.GetResponseAsync();
 
-        // Not "GenHTTP/" - some engines (e.g. Kestrel) append their own suffix to identify
-        // which engine is serving the response (e.g. "GenHTTP-Kestrel/x.y").
-        Assert.StartsWith("GenHTTP", response.GetHeader("Server"));
+        // Not an exact prefix - engines identify themselves differently (e.g. Kestrel sends
+        // "GenHTTP-Kestrel/x.y", Ioxide sends "ioxide-genhttp/x.y"), so just check that the
+        // response identifies itself as a GenHTTP server somewhere in the value.
+        var server = response.GetHeader("Server");
+        Assert.IsTrue(server?.Contains("genhttp", StringComparison.OrdinalIgnoreCase) ?? false, $"Server header '{server}' does not identify a GenHTTP server");
     }
 
 }
