@@ -3,14 +3,18 @@ using System.IO.Pipelines;
 
 using GenHTTP.Api.Infrastructure;
 
-using GenHTTP.Engine.Kestrel.Integration;
 using GenHTTP.Engine.Shared.Types;
 
 using Microsoft.AspNetCore.Http.Features;
 
-namespace GenHTTP.Engine.Kestrel.Context;
+namespace GenHTTP.Adapters.AspNetCore.Context;
 
-internal sealed class ClientContext : IClientContext
+/// <summary>
+/// Pools a <see cref="Context.Request"/>/<see cref="Context.ResponseWriter"/> pair per request.
+/// Public: consumed by <c>GenHTTP.Engine.Kestrel</c> as well as this package's own
+/// <c>Mapping.Bridge</c>.
+/// </summary>
+public sealed class ClientContext : IClientContext
 {
     private static readonly StreamPipeWriterOptions WriterOptions = new(MemoryPool<byte>.Shared, leaveOpen: true, minimumBufferSize: BufferSize.Write);
 
@@ -19,8 +23,6 @@ internal sealed class ClientContext : IClientContext
     private IFeatureCollection? _features;
 
     private readonly Request _request = new();
-
-    private readonly RequestHandler _requestHandler;
 
     private readonly ResponseWriter _responseWriter;
 
@@ -39,11 +41,9 @@ internal sealed class ClientContext : IClientContext
 
     internal IFeatureCollection Features => _features ?? throw new InvalidOperationException("Handler has not been initialized");
 
-    internal Request Request => _request;
+    public Request Request => _request;
 
-    internal ResponseWriter ResponseWriter => _responseWriter;
-
-    internal RequestHandler RequestHandler => _requestHandler;
+    public ResponseWriter ResponseWriter => _responseWriter;
 
     // Before an upgrade, the response body belongs to Kestrel's own framing (chunked/
     // content-length/h2 DATA frames); after IHttpUpgradeFeature.UpgradeAsync() (see
@@ -53,13 +53,12 @@ internal sealed class ClientContext : IClientContext
 
     public PipeWriter Writer => _request.UpgradedWriter ?? (_bodyWriter ??= PipeWriter.Create(Stream, WriterOptions));
 
-    internal ClientContext()
+    public ClientContext()
     {
-        _requestHandler = new(this);
         _responseWriter = new(this);
     }
 
-    internal void Apply(IServer server, IFeatureCollection features)
+    public void Apply(IServer server, IFeatureCollection features)
     {
         _server = server;
         _features = features;

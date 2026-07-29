@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.ObjectPool;
 
-namespace GenHTTP.Engine.Kestrel.Context;
+namespace GenHTTP.Adapters.AspNetCore.Context;
 
-internal sealed class ClientContextPolicy : PooledObjectPolicy<ClientContext>
+public sealed class ClientContextPolicy : PooledObjectPolicy<ClientContext>
 {
 
     public override ClientContext Create() => new();

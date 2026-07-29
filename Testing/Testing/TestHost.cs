@@ -20,9 +20,9 @@ public class TestHost : IAsyncDisposable
 #if NET10_0
     private static volatile int _nextPort = 20010;
 #elif NET11_0
-    private static volatile int _nextPort = 22000;
+    private static volatile int _nextPort = 22010;
 #else
-    private static volatile int _nextPort = 24000;
+    private static volatile int _nextPort = 24010;
 #endif
 
     private static readonly HttpClient DefaultClient = GetClient();

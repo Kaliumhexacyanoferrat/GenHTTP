@@ -14,10 +14,12 @@
 
         <ProjectReference Include="..\Shared\GenHTTP.Engine.Shared.csproj" />
 
-        <ProjectReference Include="..\..\Modules\IO\GenHTTP.Modules.IO.csproj" />
+        <!-- The IFeatureCollection<->IRequest/IResponse bridging lives in the adapter package,
+             not here - Engine.Kestrel and Adapters.AspNetCore both need it, and an Engine must
+             never reference a Module (the adapter itself does, for its Defaults() helper), so it
+             can only live on the adapter side of this dependency, not the other way around. -->
+        <ProjectReference Include="..\..\Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj" />
 
-        <ProjectReference Include="..\..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj" />
-        
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
         
     </ItemGroup>

@@ -5,7 +5,7 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Shared.Types;
 using GenHTTP.Modules.IO.Streaming;
 
-namespace GenHTTP.Engine.Kestrel.Context;
+namespace GenHTTP.Adapters.AspNetCore.Context;
 
 /// <summary>
 /// Writes response content to the current <see cref="IClientContext"/> writer/stream.

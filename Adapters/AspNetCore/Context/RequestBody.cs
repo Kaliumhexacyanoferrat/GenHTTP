@@ -1,6 +1,6 @@
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Engine.Kestrel.Context;
+namespace GenHTTP.Adapters.AspNetCore.Context;
 
 /// <summary>
 /// Grants access to the body of a Kestrel-hosted request.

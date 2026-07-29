@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 
-namespace GenHTTP.Engine.Kestrel.Context;
+namespace GenHTTP.Adapters.AspNetCore.Context;
 
 /// <summary>
 /// Writes a <see cref="IResponse"/> onto Kestrel's <see cref="IHttpResponseFeature"/>/
@@ -17,9 +17,10 @@ namespace GenHTTP.Engine.Kestrel.Context;
 /// the status line, headers and chunked transfer-encoding as raw bytes onto a PipeWriter,
 /// which only makes sense for engines that own the wire format themselves (Internal/Ioxide).
 /// Kestrel owns framing for HTTP/1.1, h2 and h3 alike, so we only ever set feature state and
-/// write body bytes - never wire bytes.
+/// write body bytes - never wire bytes. Public: consumed by <c>GenHTTP.Engine.Kestrel</c> as well
+/// as this package's own <c>Mapping.Bridge</c>.
 /// </remarks>
-internal sealed class ResponseWriter(ClientContext context)
+public sealed class ResponseWriter(ClientContext context)
 {
     private readonly ResponseSink _sink = new(context);
 
@@ -90,6 +91,8 @@ internal sealed class ResponseWriter(ClientContext context)
 
         var content = response.Content;
 
+        var isUpgrade = response.Mode == Connection.Upgrade;
+
         if (content != null)
         {
             if (content.Type is { } type)
@@ -97,7 +100,12 @@ internal sealed class ResponseWriter(ClientContext context)
                 headers.ContentType = type.ToString();
             }
 
-            if (content.Length is { } length)
+            // An upgrade response (e.g. a websocket handshake) has no body in the HTTP sense -
+            // whatever the content writes afterward is raw protocol bytes, not a length-framed
+            // response body. Kestrel enforces this (unlike Internal/Ioxide, which just write
+            // whatever bytes they're given): setting Content-Length here makes it silently
+            // reject the response.
+            if (!isUpgrade && content.Length is { } length)
             {
                 headers.ContentLength = (long)length;
             }
@@ -110,7 +118,7 @@ internal sealed class ResponseWriter(ClientContext context)
                 headers.ContentEncoding = Encoding.ASCII.GetString(encoding.Span);
             }
         }
-        else
+        else if (!isUpgrade)
         {
             headers.ContentLength = 0;
         }

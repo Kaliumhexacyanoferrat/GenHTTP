@@ -67,9 +67,6 @@ public sealed class ConnectionTests
 
         // upgrade responses cannot have eTags
         Assert.IsNull(response.GetHeader("ETag"));
-
-        // this should not work, but it somehow does
-        Assert.AreEqual("Hello World", await response.GetContentAsync());
     }
 
     #region Supporting data structures

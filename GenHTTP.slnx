@@ -2,6 +2,9 @@
     <Folder Name="/API/">
         <Project Path="API\GenHTTP.Api.csproj" />
     </Folder>
+    <Folder Name="/Adapters/">
+        <Project Path="Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj" />
+    </Folder>
     <Folder Name="/Generators/">
         <Project Path="Generators\MemoryView\GenHTTP.Generators.MemoryView.csproj" />
     </Folder>

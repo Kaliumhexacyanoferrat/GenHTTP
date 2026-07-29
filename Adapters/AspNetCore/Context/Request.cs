@@ -10,19 +10,20 @@ using GenHTTP.Engine.Shared.Types;
 
 using Microsoft.AspNetCore.Http.Features;
 
-namespace GenHTTP.Engine.Kestrel.Context;
+namespace GenHTTP.Adapters.AspNetCore.Context;
 
 /// <summary>
-/// Adapts an in-flight Kestrel request (represented by an <see cref="IFeatureCollection"/>)
+/// Adapts an in-flight ASP.NET Core request (represented by an <see cref="IFeatureCollection"/>)
 /// to the engine agnostic <see cref="IRequest"/> contract.
 /// </summary>
 /// <remarks>
-/// Clone of <c>GenHTTP.Engine.Shared.Types.Request</c>, adapted to Kestrel's feature based
+/// Clone of <c>GenHTTP.Engine.Shared.Types.Request</c>, adapted to the ASP.NET Core feature based
 /// request model instead of the Glyph11-parsed <c>BinaryRequest</c> the Internal/Ioxide
 /// engines are built around - see <see cref="RequestHeader"/> and <see cref="RequestBody"/>
-/// for the parts that actually differ.
+/// for the parts that actually differ. Public: consumed by <c>GenHTTP.Engine.Kestrel</c> as well
+/// as this package's own <c>Mapping.Bridge</c>.
 /// </remarks>
-internal sealed class Request : IRequest
+public sealed class Request : IRequest
 {
     private readonly RequestHeader _header = new();
 

@@ -4,7 +4,7 @@ using GenHTTP.Engine.Shared.Types;
 
 using Microsoft.AspNetCore.Http.Features;
 
-namespace GenHTTP.Engine.Kestrel.Context;
+namespace GenHTTP.Adapters.AspNetCore.Context;
 
 /// <summary>
 /// Adapts Kestrel's <see cref="IHttpRequestFeature"/> to the engine agnostic

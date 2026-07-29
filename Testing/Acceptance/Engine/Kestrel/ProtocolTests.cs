@@ -1,18 +1,22 @@
-﻿namespace GenHTTP.Testing.Acceptance.Engine.Kestrel;
+﻿using System.Net;
+
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.Functional;
+
+namespace GenHTTP.Testing.Acceptance.Engine.Kestrel;
 
 [TestClass]
 public class ProtocolTests
 {
     
-    // todo
-
-    /*
     [TestMethod]
     public async Task TestHttp2And3()
     {
         if (!Engines.KestrelEnabled()) return;
 
-        var logic = Inline.Create().Get((IRequest request) => request.ProtocolType);
+        var logic = Inline.Create().Get((IRequest request) => request.Header.Protocol.ToString());
 
         var client = GetClient();
 
@@ -24,7 +28,7 @@ public class ProtocolTests
 
             await response.AssertStatusAsync(HttpStatusCode.OK);
 
-            Assert.AreEqual("Http2", await response.GetContentAsync());
+            Assert.AreEqual("HTTP/2", await response.GetContentAsync());
 
             Assert.IsTrue(response.Headers.Contains("Alt-Svc"));
 
@@ -69,5 +73,5 @@ public class ProtocolTests
     }
 
     #endregion
-*/
+
 }

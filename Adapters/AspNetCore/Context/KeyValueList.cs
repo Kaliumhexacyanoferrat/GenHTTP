@@ -1,6 +1,6 @@
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Engine.Kestrel.Context;
+namespace GenHTTP.Adapters.AspNetCore.Context;
 
 /// <summary>
 /// A mutable list of key/value pairs used to expose Kestrel's flattened request
