@@ -2,6 +2,7 @@ using System.Text;
 
 using GenHTTP.Api.Protocol;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 
@@ -121,11 +122,14 @@ internal sealed class ResponseWriter(ClientContext context)
 
         var responseHeaders = response.Headers;
 
+        // Append, not assign - a response can carry several headers with the same name
+        // (e.g. multiple Set-Cookie entries), and IHeaderDictionary's indexer would
+        // silently replace earlier ones instead of keeping both.
         for (var i = 0; i < responseHeaders.Count; i++)
         {
             var pair = responseHeaders.GetMemoryEntry(i);
 
-            headers[Encoding.ASCII.GetString(pair.Key.Span)] = Encoding.ASCII.GetString(pair.Value.Span);
+            headers.Append(Encoding.ASCII.GetString(pair.Key.Span), Encoding.ASCII.GetString(pair.Value.Span));
         }
 
         if (!response.Headers.ContainsKey(KnownHeaders.Server))

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -84,6 +85,17 @@ internal sealed class KestrelServerBridge : IServer
         await Instance.StartAsync(new Application(this), CancellationToken.None);
 
         Running = true;
+
+        // Other engines log this from their own endpoint-binding code (see e.g. Internal's
+        // EndPoint.Start()). Kestrel would normally get this from the generic host's
+        // "Now listening on ..." lifecycle logging, but we bypass that host layer entirely
+        // by driving KestrelServer directly, so nothing would otherwise log it.
+        var logger = Logging.CreateLogger<KestrelServerBridge>();
+
+        foreach (var endpoint in EndPoints)
+        {
+            logger.LogInformation("Listening on {Address}:{Port} ({Settings})", endpoint.Address, endpoint.Port, endpoint.Secure ? "HTTPS" : "HTTP");
+        }
     }
 
     private IOptions<KestrelServerOptions> Configure()
@@ -91,6 +103,13 @@ internal sealed class KestrelServerBridge : IServer
         var builder = Options.Create(new KestrelServerOptions());
 
         var options = builder.Value;
+
+        // Every KestrelServerOptions.UseHttps(...) overload routes through
+        // EnableHttpsConfiguration(), which unconditionally resolves an
+        // IHttpsConfigurationService from options.ApplicationServices - normally supplied by
+        // the generic host's DI container. We drive KestrelServer directly and have no such
+        // container, so build the smallest one that satisfies it.
+        options.ApplicationServices = BuildApplicationServices();
 
         options.AllowSynchronousIO = true;
 
@@ -127,24 +146,58 @@ internal sealed class KestrelServerBridge : IServer
         return builder;
     }
 
+    /// <summary>
+    /// <see cref="Microsoft.AspNetCore.Server.Kestrel.Core.IHttpsConfigurationService"/> and
+    /// <c>KestrelMetrics</c> (both required to activate <c>UseHttps(...)</c>, see
+    /// <see cref="Secure"/>) are internal to Kestrel's assembly - there is no supported public
+    /// way to construct them when not going through the generic host's DI container, so this
+    /// resolves them by name via reflection. Fragile in principle (an internal implementation
+    /// detail we depend on), but empirically the minimal container that satisfies
+    /// EnableHttpsConfiguration() without pulling in the full ASP.NET Core hosting stack.
+    /// </summary>
+    private IServiceProvider BuildApplicationServices()
+    {
+        var kestrelCore = typeof(KestrelServerOptions).Assembly;
+
+        var httpsConfigurationServiceInterface = kestrelCore.GetType("Microsoft.AspNetCore.Server.Kestrel.Core.IHttpsConfigurationService", throwOnError: true)!;
+        var httpsConfigurationService = kestrelCore.GetType("Microsoft.AspNetCore.Server.Kestrel.Core.HttpsConfigurationService", throwOnError: true)!;
+        var kestrelMetrics = kestrelCore.GetType("Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure.KestrelMetrics", throwOnError: true)!;
+
+        var services = new ServiceCollection();
+
+        services.AddSingleton(Configuration.Logging);
+        services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+        services.AddMetrics();
+
+        services.AddSingleton(httpsConfigurationServiceInterface, httpsConfigurationService);
+        services.AddSingleton(kestrelMetrics);
+
+        return services.BuildServiceProvider();
+    }
+
     private static void Secure(ListenOptions options, EndPointConfiguration endpoint, SecurityConfiguration security)
     {
         options.Protocols = (endpoint.EnableQuic) ? HttpProtocols.Http1AndHttp2AndHttp3 : HttpProtocols.Http1AndHttp2;
 
-        options.UseHttps(httpsOptions =>
+        // Every UseHttps(...) overload routes through KestrelServerOptions.
+        // EnableHttpsConfiguration(), which resolves services from options.ApplicationServices
+        // regardless of which overload is used - see BuildApplicationServices().
+        var httpsOptions = new HttpsConnectionAdapterOptions
         {
-            httpsOptions.SslProtocols = security.Protocols;
-            httpsOptions.ServerCertificateSelector = (_, hostName) => security.CertificateProvider.Provide(hostName);
+            SslProtocols = security.Protocols,
+            ServerCertificateSelector = (_, hostName) => security.CertificateProvider.Provide(hostName)
+        };
 
-            var validator = security.CertificateValidator;
+        var validator = security.CertificateValidator;
 
-            if (validator != null)
-            {
-                httpsOptions.ClientCertificateMode = validator.RequireCertificate ? ClientCertificateMode.RequireCertificate : ClientCertificateMode.AllowCertificate;
-                httpsOptions.ClientCertificateValidation = validator.Validate;
-                httpsOptions.CheckCertificateRevocation = (validator.RevocationCheck != X509RevocationMode.NoCheck);
-            }
-        });
+        if (validator != null)
+        {
+            httpsOptions.ClientCertificateMode = validator.RequireCertificate ? ClientCertificateMode.RequireCertificate : ClientCertificateMode.AllowCertificate;
+            httpsOptions.ClientCertificateValidation = validator.Validate;
+            httpsOptions.CheckCertificateRevocation = (validator.RevocationCheck != X509RevocationMode.NoCheck);
+        }
+
+        options.UseHttps(httpsOptions);
     }
 
     #endregion
