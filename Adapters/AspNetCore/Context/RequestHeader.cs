@@ -6,18 +6,6 @@ using Microsoft.AspNetCore.Http.Features;
 
 namespace GenHTTP.Adapters.AspNetCore.Context;
 
-/// <summary>
-/// Adapts Kestrel's <see cref="IHttpRequestFeature"/> to the engine agnostic
-/// <see cref="IRequestHeader"/> contract.
-/// </summary>
-/// <remarks>
-/// Unlike the Internal/Ioxide engines (which fill this information from a raw,
-/// Glyph11-parsed wire buffer), Kestrel already parsed the request for us. Path
-/// and query are still read from the raw request target (rather than Kestrel's
-/// already-decoded <see cref="IHttpRequestFeature.Path"/>/query collection) to
-/// keep the same "raw, decode-on-demand" semantics the other engines expose via
-/// <see cref="PathSegment.Decode"/>.
-/// </remarks>
 internal sealed class RequestHeader : IRequestHeader
 {
     private readonly RequestTarget _target = new();

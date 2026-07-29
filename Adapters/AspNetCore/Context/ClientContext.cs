@@ -11,8 +11,6 @@ namespace GenHTTP.Adapters.AspNetCore.Context;
 
 /// <summary>
 /// Pools a <see cref="Context.Request"/>/<see cref="Context.ResponseWriter"/> pair per request.
-/// Public: consumed by <c>GenHTTP.Engine.Kestrel</c> as well as this package's own
-/// <c>Mapping.Bridge</c>.
 /// </summary>
 public sealed class ClientContext : IClientContext
 {
@@ -26,13 +24,9 @@ public sealed class ClientContext : IClientContext
 
     private readonly ResponseWriter _responseWriter;
 
-    // Wraps IHttpResponseBodyFeature.Stream in our own, well-behaved PipeWriter (same as the
-    // Internal engine's ClientContext). Kestrel's own IHttpResponseBodyFeature.Writer turns out
-    // to hand back a zero-length span from GetSpan() on its very first call when used via this
-    // low-level IHttpApplication hosting path - which makes the generic
-    // IBufferWriter<byte>.Write(ReadOnlySpan<byte>) extension (used by e.g. StringResource)
-    // throw. Routing writes through a plain StreamPipeWriter over the same underlying stream
-    // sidesteps that entirely.
+    // Wraps IHttpResponseBodyFeature.Stream in our own PipeWriter: Kestrel's own
+    // IHttpResponseBodyFeature.Writer hands back a zero-length span from GetSpan() on its
+    // first call in this hosting path, which breaks IBufferWriter<byte>.Write(...).
     private PipeWriter? _bodyWriter;
 
     private Stream? _bodyStream;
@@ -45,10 +39,8 @@ public sealed class ClientContext : IClientContext
 
     public ResponseWriter ResponseWriter => _responseWriter;
 
-    // Before an upgrade, the response body belongs to Kestrel's own framing (chunked/
-    // content-length/h2 DATA frames); after IHttpUpgradeFeature.UpgradeAsync() (see
-    // ResponseWriter/Request.SetUpgraded), it must be the raw connection stream instead -
-    // that's the same duplex stream IRequest.Upgrade() hands out as a PipeReader.
+    // Before an upgrade, the body belongs to Kestrel's own framing; after Request.SetUpgraded()
+    // it must be the same raw connection stream IRequest.Upgrade() hands out as a PipeReader.
     public Stream Stream => _request.UpgradedStream ?? (_bodyStream ??= Features.GetRequiredFeature<IHttpResponseBodyFeature>().Stream);
 
     public PipeWriter Writer => _request.UpgradedWriter ?? (_bodyWriter ??= PipeWriter.Create(Stream, WriterOptions));

@@ -13,19 +13,6 @@ using Microsoft.Extensions.ObjectPool;
 
 namespace GenHTTP.Adapters.AspNetCore.Mapping;
 
-/// <summary>
-/// Bridges an ASP.NET Core <see cref="HttpContext"/> to the GenHTTP handler chain.
-/// </summary>
-/// <remarks>
-/// Built on this package's own <see cref="Context"/> types (they already operate on
-/// <see cref="IFeatureCollection"/>, which <see cref="HttpContext.Features"/> is) - the same ones
-/// <c>GenHTTP.Engine.Kestrel</c> uses for its own request handling. One thing intentionally does
-/// *not* match the engine's own orchestration: a <c>null</c> response here means the caller handed
-/// us a raw, unwrapped handler that simply didn't match - not an engine-level invariant violation -
-/// so it becomes a 404 instead of an exception (mirrors the pre-removal adapter's behavior;
-/// GenHTTP's own engines only see a top-level handler already wrapped by CoreRouter/ErrorHandler,
-/// which never returns null, hence those throw instead).
-/// </remarks>
 internal static class Bridge
 {
     private static readonly DefaultObjectPool<ClientContext> ContextPool = new(new ClientContextPolicy(), 1024);
@@ -54,6 +41,8 @@ internal static class Bridge
 
             var response = await handler.HandleAsync(request);
 
+            // Unlike GenHTTP's own engines, a null response is not an invariant violation here -
+            // it just means the handler passed in didn't match, so it becomes a 404.
             if (response == null)
             {
                 context.Response.StatusCode = StatusCodes.Status404NotFound;

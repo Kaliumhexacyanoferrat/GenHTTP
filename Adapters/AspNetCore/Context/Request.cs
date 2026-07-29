@@ -13,16 +13,9 @@ using Microsoft.AspNetCore.Http.Features;
 namespace GenHTTP.Adapters.AspNetCore.Context;
 
 /// <summary>
-/// Adapts an in-flight ASP.NET Core request (represented by an <see cref="IFeatureCollection"/>)
-/// to the engine agnostic <see cref="IRequest"/> contract.
+/// Adapts an in-flight ASP.NET Core request (an <see cref="IFeatureCollection"/>) to the
+/// engine-agnostic <see cref="IRequest"/> contract.
 /// </summary>
-/// <remarks>
-/// Clone of <c>GenHTTP.Engine.Shared.Types.Request</c>, adapted to the ASP.NET Core feature based
-/// request model instead of the Glyph11-parsed <c>BinaryRequest</c> the Internal/Ioxide
-/// engines are built around - see <see cref="RequestHeader"/> and <see cref="RequestBody"/>
-/// for the parts that actually differ. Public: consumed by <c>GenHTTP.Engine.Kestrel</c> as well
-/// as this package's own <c>Mapping.Bridge</c>.
-/// </remarks>
 public sealed class Request : IRequest
 {
     private readonly RequestHeader _header = new();
@@ -41,10 +34,7 @@ public sealed class Request : IRequest
 
     private IFeatureCollection? _features;
 
-    // Unlike the Glyph11-backed engines, our RequestHeader never aliases a reusable wire
-    // buffer (its ByteStrings are independently allocated in RequestHeader.Apply()), so
-    // there is nothing to snapshot for HeaderAccess.Retain - just whether it's still
-    // allowed to be accessed after the body has been loaded.
+    // Whether the header is still allowed to be accessed after the body has been loaded.
     private bool _headerRetained;
 
     private IRequestBody? _wrappedBody;
@@ -55,9 +45,7 @@ public sealed class Request : IRequest
 
     private bool _resetRequired = true;
 
-    // Populated once the response has been upgraded (see Upgrade() below and
-    // ResponseWriter, which drives IHttpUpgradeFeature.UpgradeAsync() before any
-    // upgrade-mode body is written).
+    // Populated once the response has been upgraded, see SetUpgraded() below.
     private Stream? _upgradedStream;
 
     private PipeWriter? _upgradedWriter;
@@ -187,12 +175,8 @@ public sealed class Request : IRequest
     public PipeReader Upgrade()
         => _upgradedReader ?? throw new InvalidOperationException("The connection has not been upgraded yet");
 
-    /// <summary>
-    /// Called by <see cref="ResponseWriter"/> once <see cref="IHttpUpgradeFeature.UpgradeAsync"/>
-    /// has completed, exposing the resulting duplex stream both to <see cref="Upgrade"/>
-    /// (used by e.g. the websocket module) and to <see cref="ClientContext"/>'s
-    /// <c>Stream</c>/<c>Writer</c> (used by response sinks writing the upgraded body).
-    /// </summary>
+    // Called by ResponseWriter once the connection has been upgraded, exposing the resulting
+    // duplex stream both to Upgrade() and to ClientContext's Stream/Writer.
     internal void SetUpgraded(Stream stream)
     {
         _upgradedStream = stream;

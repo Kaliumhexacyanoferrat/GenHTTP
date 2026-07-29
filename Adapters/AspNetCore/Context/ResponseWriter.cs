@@ -9,17 +9,10 @@ using Microsoft.Extensions.Logging;
 namespace GenHTTP.Adapters.AspNetCore.Context;
 
 /// <summary>
-/// Writes a <see cref="IResponse"/> onto Kestrel's <see cref="IHttpResponseFeature"/>/
-/// <see cref="IHttpResponseBodyFeature"/>.
+/// Writes an <see cref="IResponse"/> onto Kestrel's <see cref="IHttpResponseFeature"/>/
+/// <see cref="IHttpResponseBodyFeature"/>. Kestrel owns wire framing itself, so this only
+/// ever sets feature state and writes body bytes.
 /// </summary>
-/// <remarks>
-/// Replaces <c>Engine.Shared.Types.ResponseHandler</c> for this engine: that type hand-writes
-/// the status line, headers and chunked transfer-encoding as raw bytes onto a PipeWriter,
-/// which only makes sense for engines that own the wire format themselves (Internal/Ioxide).
-/// Kestrel owns framing for HTTP/1.1, h2 and h3 alike, so we only ever set feature state and
-/// write body bytes - never wire bytes. Public: consumed by <c>GenHTTP.Engine.Kestrel</c> as well
-/// as this package's own <c>Mapping.Bridge</c>.
-/// </remarks>
 public sealed class ResponseWriter(ClientContext context)
 {
     private readonly ResponseSink _sink = new(context);
@@ -40,12 +33,9 @@ public sealed class ResponseWriter(ClientContext context)
 
             if (response.Mode == Connection.Upgrade)
             {
-                // Sending the upgrade response (e.g. 101 Switching Protocols) has to happen
-                // here, synchronously with the headers set above - IHttpUpgradeFeature.
-                // UpgradeAsync() flushes whatever is currently set on the response feature
-                // and hands back the raw duplex connection stream. IRequest.Upgrade() (used
-                // by e.g. the websocket module, invoked further down inside WriteBodyAsync)
-                // is a synchronous API, so the stream has to already be available by then.
+                // Must happen here, synchronously with the headers set above: UpgradeAsync()
+                // flushes the response feature and hands back the raw duplex stream that
+                // IRequest.Upgrade() (a synchronous API) needs to already have available.
                 var upgradeFeature = features.GetRequiredFeature<IHttpUpgradeFeature>();
 
                 var stream = await upgradeFeature.UpgradeAsync();
@@ -100,18 +90,12 @@ public sealed class ResponseWriter(ClientContext context)
                 headers.ContentType = type.ToString();
             }
 
-            // An upgrade response (e.g. a websocket handshake) has no body in the HTTP sense -
-            // whatever the content writes afterward is raw protocol bytes, not a length-framed
-            // response body. Kestrel enforces this (unlike Internal/Ioxide, which just write
-            // whatever bytes they're given): setting Content-Length here makes it silently
-            // reject the response.
+            // An upgrade response has no HTTP body - Kestrel silently rejects it if
+            // Content-Length is set, so it's left unset (chunked/DATA framing otherwise).
             if (!isUpgrade && content.Length is { } length)
             {
                 headers.ContentLength = (long)length;
             }
-
-            // else: leave Content-Length unset - Kestrel applies chunked framing (HTTP/1.1)
-            // or DATA frames (h2/h3) itself, there is no "Transfer-Encoding: chunked" to write.
 
             if (content.Encoding is { } encoding)
             {

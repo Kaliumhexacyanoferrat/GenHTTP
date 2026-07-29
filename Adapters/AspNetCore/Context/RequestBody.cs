@@ -2,16 +2,6 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Adapters.AspNetCore.Context;
 
-/// <summary>
-/// Grants access to the body of a Kestrel-hosted request.
-/// </summary>
-/// <remarks>
-/// Considerably simpler than the Internal/Ioxide engines' body types: Kestrel has
-/// already de-chunked the request body by the time it reaches us, so there is no
-/// need to replicate their <c>ConsumptionStrategy</c>/<c>ChunkedBodyStream</c>
-/// machinery (which expects raw, wire-framed bytes) - we just read the body stream
-/// Kestrel already hands us.
-/// </remarks>
 internal sealed class RequestBody : IRequestBody
 {
     private Stream? _stream;

@@ -24,21 +24,6 @@ using Microsoft.Extensions.ObjectPool;
 
 namespace GenHTTP.Engine.Kestrel.Hosting;
 
-/// <summary>
-/// Drives Kestrel through the full ASP.NET Core generic host (<see cref="WebApplication"/>)
-/// rather than the low-level <see cref="Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServer"/>
-/// API directly.
-/// </summary>
-/// <remarks>
-/// An earlier draft used the raw <c>KestrelServer</c> constructor to avoid the generic host
-/// altogether, but that path structurally cannot support HTTP/3: <c>KestrelServer</c>'s only
-/// public constructor accepts nothing but a TCP <c>IConnectionListenerFactory</c>, and the real
-/// HTTP/3 (QUIC) wiring lives in Kestrel's internal implementation, only reachable through the
-/// generic host's own DI-based bootstrapping (<c>WebHostBuilderQuicExtensions.UseQuic</c>). Going
-/// through <see cref="WebApplication"/> also removes the need to hand-construct a DI container
-/// for Kestrel's internal <c>IHttpsConfigurationService</c>/<c>KestrelMetrics</c> - the host wires
-/// all of that up itself.
-/// </remarks>
 internal sealed class KestrelServerBridge : IServer
 {
     private static readonly DefaultObjectPool<ClientContext> ContextPool = new(new ClientContextPolicy(), BufferSize.Write);
@@ -92,13 +77,11 @@ internal sealed class KestrelServerBridge : IServer
 
     private WebApplication Build()
     {
-        // Passing no args of our own: this is meant to be embeddable in someone else's process,
-        // and we don't want the generic host parsing *that* process's command line as if it were
-        // ASP.NET Core options (e.g. a stray --urls flag colliding with our own endpoint config).
+        // No args of our own: avoids the generic host parsing the embedding process's command
+        // line as ASP.NET Core options (e.g. a stray --urls flag).
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { Args = [] });
 
-        // Route Kestrel's own internal logging (and anything else DI-resolved) through the same
-        // ILoggerFactory the rest of GenHTTP already uses, instead of the host's own default.
+        // Route Kestrel's own internal logging through the same ILoggerFactory GenHTTP uses.
         builder.Services.AddSingleton(Configuration.Logging);
 
         if (Configuration.EndPoints.Any(e => e.EnableQuic))
@@ -178,10 +161,8 @@ internal sealed class KestrelServerBridge : IServer
 
         Running = true;
 
-        // The generic host logs its own "Now listening on: ..." lifecycle message, but with a
-        // lowercase "listening" - other engines log "Listening on ..." (capital L, see e.g.
-        // Internal's EndPoint.Start()), which is what TestServerLifecycleIsLogged actually checks
-        // for, so keep logging this ourselves too rather than relying on the host's own message.
+        // Logged ourselves (capital "Listening") to match the other engines' lifecycle
+        // message - the generic host's own message uses a lowercase "listening".
         var logger = Logging.CreateLogger<KestrelServerBridge>();
 
         foreach (var endpoint in EndPoints)
@@ -210,9 +191,8 @@ internal sealed class KestrelServerBridge : IServer
 
                 request.Apply(this, endPoint, context.Features, connectionFeature?.RemoteIpAddress, tlsFeature?.ClientCertificate);
 
-                // Captured before invoking the handler chain, as handlers may release the header
-                // information by calling GetBody(HeaderAccess.Release) (mirrors ClientHandler.
-                // HandleRequestAsync on the Internal engine).
+                // Captured before invoking the handler chain, as handlers may release the
+                // header information by calling GetBody(HeaderAccess.Release).
                 var headRequest = request.Header.Method == RequestMethod.Head;
 
                 var response = await Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
@@ -230,11 +210,8 @@ internal sealed class KestrelServerBridge : IServer
         }
     }
 
-    /// <summary>
-    /// Maps the connection this request arrived on back to the <see cref="IEndPoint"/> it
-    /// was bound through, matched by local port (and, as a tiebreaker, by scheme) - the request
-    /// feature set does not hand us the originating <see cref="IEndPoint"/> directly.
-    /// </summary>
+    // Maps the connection back to the IEndPoint it was bound through, matched by local port
+    // (and, as a tiebreaker, by scheme) - the request features don't hand us this directly.
     private IEndPoint ResolveEndPoint(IHttpConnectionFeature? connection, IHttpRequestFeature requestFeature)
     {
         var port = connection?.LocalPort;

@@ -12,10 +12,6 @@ using Microsoft.Extensions.Logging;
 
 namespace GenHTTP.Adapters.AspNetCore.Server;
 
-/// <summary>
-/// Stands in for a GenHTTP <see cref="IServer"/> when handlers are embedded into an existing
-/// ASP.NET Core application - the server lifecycle here is owned by that host, not by GenHTTP.
-/// </summary>
 internal sealed class ImplicitServer : IServer
 {
 
