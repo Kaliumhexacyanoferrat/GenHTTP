@@ -96,6 +96,10 @@ internal sealed class KestrelServerBridge : IServer
 
         options.Limits.MaxRequestBodySize = null;
 
+        // ResponseWriter sets its own "Server: GenHTTP/x.y" header - don't let
+        // Kestrel add its own "Server: Kestrel" alongside it.
+        options.AddServerHeader = false;
+
         foreach (var endpoint in Configuration.EndPoints)
         {
             if ((endpoint.Address == null) || (endpoint.DualStack && (endpoint.Address.Equals(IPAddress.Any) || endpoint.Address.Equals(IPAddress.IPv6Any))))

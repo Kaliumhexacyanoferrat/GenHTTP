@@ -1,7 +1,6 @@
-﻿using GenHTTP.Engine.Kestrel.Context;
-using Microsoft.Extensions.ObjectPool;
+﻿using Microsoft.Extensions.ObjectPool;
 
-namespace GenHTTP.Engine.Internal.Context;
+namespace GenHTTP.Engine.Kestrel.Context;
 
 internal sealed class ClientContextPolicy : PooledObjectPolicy<ClientContext>
 {
