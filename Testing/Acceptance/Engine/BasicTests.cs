@@ -48,13 +48,27 @@ public sealed class BasicTests
     }
 
     [TestMethod]
-    public async Task TestNoKeepAliveHeaderOn11()
+    [MultiEngineTest]
+    public async Task TestNoKeepAliveHeaderOn11(TestEngine engine)
     {
-        await using var runner = await TestHost.RunAsync(Layout.Create());
+        await using var runner = await TestHost.RunAsync(Layout.Create(), engine: engine);
 
         using var response = await runner.GetResponseAsync();
 
         Assert.DoesNotContain("Keep-Alive", response.Headers.Connection);
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestServerHeader(TestEngine engine)
+    {
+        await using var runner = await TestHost.RunAsync(Layout.Create(), engine: engine);
+
+        using var response = await runner.GetResponseAsync();
+
+        // Not "GenHTTP/" - some engines (e.g. Kestrel) append their own suffix to identify
+        // which engine is serving the response (e.g. "GenHTTP-Kestrel/x.y").
+        Assert.StartsWith("GenHTTP", response.GetHeader("Server"));
     }
 
 }

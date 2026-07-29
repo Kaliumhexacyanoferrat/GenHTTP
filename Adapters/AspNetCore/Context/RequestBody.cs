@@ -42,6 +42,11 @@ internal sealed class RequestBody : IRequestBody
     {
         EnsureNotYetOpened();
 
+        if (Length is { } length && length <= long.MaxValue)
+        {
+            return new LengthAwareStream(Stream, (long)length);
+        }
+
         return Stream;
     }
 
