@@ -121,8 +121,14 @@ public class TestHost : IAsyncDisposable
         {
             return Engine.Internal.Host.Create();
         }
+        
+        if (engine == TestEngine.Kestrel)
+        {
+            return Engine.Kestrel.Host.Create();
+        }
+        
 #if NET11_0_OR_GREATER
-        else if (engine == TestEngine.Ioxide)
+        if (engine == TestEngine.Ioxide)
         {
             return Engine.Ioxide.Host.Create();
         }
