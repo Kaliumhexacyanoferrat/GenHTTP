@@ -53,8 +53,6 @@ public sealed class Request : IRequest
 
     private bool _bodyLoaded;
 
-    private bool _bodyPresent;
-
     private bool _resetRequired = true;
 
     // Populated once the response has been upgraded (see Upgrade() below and
@@ -112,7 +110,6 @@ public sealed class Request : IRequest
         _properties.Clear();
 
         _bodyLoaded = false;
-        _bodyPresent = false;
         _headerRetained = false;
 
         _wrappedBody = null;
@@ -153,7 +150,6 @@ public sealed class Request : IRequest
         var hasBody = length is not null || headers.ContainsKey(KnownHeaders.TransferEncoding);
 
         _bodyLoaded = true;
-        _bodyPresent = hasBody;
 
         if (!hasBody)
         {
@@ -186,14 +182,6 @@ public sealed class Request : IRequest
         }
 
         return _response;
-    }
-
-    public ValueTask DrainAsync()
-    {
-        // Kestrel drains any unread request body itself (as part of tearing down
-        // the request) before it will read the next request off the same
-        // connection, so there is nothing left for the handler chain to do here.
-        return default;
     }
 
     public PipeReader Upgrade()
