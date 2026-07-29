@@ -30,4 +30,10 @@
         <None Include="README.md" Pack="true" PackagePath="" />
     </ItemGroup>
 
+    <ItemGroup>
+        <!-- Lets GenHTTP.Engine.Kestrel reuse Bridge.MapAsync instead of re-implementing its
+             own request dispatch on top of the public Context types. -->
+        <InternalsVisibleTo Include="GenHTTP.Engine.Kestrel" />
+    </ItemGroup>
+
 </Project>

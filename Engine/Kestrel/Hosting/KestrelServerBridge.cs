@@ -7,7 +7,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Adapters.AspNetCore.Context;
+using GenHTTP.Adapters.AspNetCore.Mapping;
 using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Types;
 
@@ -20,14 +20,11 @@ using Microsoft.AspNetCore.Server.Kestrel.Https;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.ObjectPool;
 
 namespace GenHTTP.Engine.Kestrel.Hosting;
 
 internal sealed class KestrelServerBridge : IServer
 {
-    private static readonly DefaultObjectPool<ClientContext> ContextPool = new(new ClientContextPolicy(), BufferSize.Write);
-
     #region Get-/Setters
 
     public string Version { get; }
@@ -173,66 +170,14 @@ internal sealed class KestrelServerBridge : IServer
 
     private async Task HandleAsync(HttpContext context)
     {
-        var clientContext = ContextPool.Get();
-
         try
         {
-            clientContext.Apply(this, context.Features);
-
-            try
-            {
-                var connectionFeature = context.Features.Get<IHttpConnectionFeature>();
-                var tlsFeature = context.Features.Get<ITlsConnectionFeature>();
-                var requestFeature = context.Features.GetRequiredFeature<IHttpRequestFeature>();
-
-                var endPoint = ResolveEndPoint(connectionFeature, requestFeature);
-
-                var request = clientContext.Request;
-
-                request.Apply(this, endPoint, context.Features, connectionFeature?.RemoteIpAddress, tlsFeature?.ClientCertificate);
-
-                // Captured before invoking the handler chain, as handlers may release the
-                // header information by calling GetBody(HeaderAccess.Release).
-                var headRequest = request.Header.Method == RequestMethod.Head;
-
-                var response = await Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
-
-                await clientContext.ResponseWriter.HandleAsync(request, response, headRequest);
-            }
-            catch (Exception e)
-            {
-                await SendErrorAsync(context, e);
-            }
+            await Bridge.MapAsync(context, Handler, this, requireResponse: true);
         }
-        finally
+        catch (Exception e)
         {
-            ContextPool.Return(clientContext);
+            await SendErrorAsync(context, e);
         }
-    }
-
-    // Maps the connection back to the IEndPoint it was bound through, matched by local port
-    // (and, as a tiebreaker, by scheme) - the request features don't hand us this directly.
-    private IEndPoint ResolveEndPoint(IHttpConnectionFeature? connection, IHttpRequestFeature requestFeature)
-    {
-        var port = connection?.LocalPort;
-        var secure = string.Equals(requestFeature.Scheme, "https", StringComparison.OrdinalIgnoreCase);
-
-        IEndPoint? portMatch = null;
-
-        foreach (var candidate in EndPoints)
-        {
-            if (candidate.Port == port)
-            {
-                if (candidate.Secure == secure)
-                {
-                    return candidate;
-                }
-
-                portMatch ??= candidate;
-            }
-        }
-
-        return portMatch ?? EndPoints[0];
     }
 
     private async Task SendErrorAsync(HttpContext context, Exception e)
@@ -247,7 +192,10 @@ internal sealed class KestrelServerBridge : IServer
                 return;
             }
 
-            Logging.CreateLogger<KestrelServerBridge>().LogWarning(e, "Failed to handle client request");
+            if (!ConnectionExceptions.IsGracefulDisconnect(e))
+            {
+                Logging.CreateLogger<KestrelServerBridge>().LogWarning(e, "Failed to handle client request");
+            }
 
             var message = Development ? e.ToString() : "Internal Server Error";
             var body = Encoding.UTF8.GetBytes(message);

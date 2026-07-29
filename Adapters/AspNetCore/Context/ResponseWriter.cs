@@ -126,7 +126,7 @@ public sealed class ResponseWriter(ClientContext context)
 
         if (!response.Headers.ContainsKey(KnownHeaders.Server))
         {
-            headers.Server = $"GenHTTP/{context.Server.Version}";
+            headers.Server = $"GenHTTP-Kestrel/{context.Server.Version}";
         }
 
         // Date is intentionally left to Kestrel, which sets it itself for HTTP/1.x.

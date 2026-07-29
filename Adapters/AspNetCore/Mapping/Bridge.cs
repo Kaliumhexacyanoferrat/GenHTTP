@@ -17,7 +17,7 @@ internal static class Bridge
 {
     private static readonly DefaultObjectPool<ClientContext> ContextPool = new(new ClientContextPolicy(), 1024);
 
-    public static async Task MapAsync(HttpContext context, IHandler handler, IServer? server = null)
+    public static async Task MapAsync(HttpContext context, IHandler handler, IServer? server = null, bool requireResponse = false)
     {
         var actualServer = server ?? new ImplicitServer(context, handler);
 
@@ -41,10 +41,16 @@ internal static class Bridge
 
             var response = await handler.HandleAsync(request);
 
-            // Unlike GenHTTP's own engines, a null response is not an invariant violation here -
-            // it just means the handler passed in didn't match, so it becomes a 404.
             if (response == null)
             {
+                // A root server (requireResponse) never sees a null response - only a
+                // raw, unwrapped handler passed into Map()/Run() can return one, which
+                // just means it didn't match, so it becomes a 404 instead.
+                if (requireResponse)
+                {
+                    throw new InvalidOperationException("The root request handler did not return a response");
+                }
+
                 context.Response.StatusCode = StatusCodes.Status404NotFound;
                 return;
             }

@@ -10,9 +10,9 @@ internal sealed class RequestHeader : IRequestHeader
 {
     private readonly RequestTarget _target = new();
 
-    private readonly KeyValueList _headers = new();
+    private readonly EditableKeyValueList _headers = new();
 
-    private readonly KeyValueList _query = new();
+    private readonly EditableKeyValueList _query = new();
 
     private ByteString _path;
 
@@ -49,11 +49,13 @@ internal sealed class RequestHeader : IRequestHeader
 
         foreach (var header in feature.Headers)
         {
+            var key = new ByteString(header.Key);
+
             foreach (var value in header.Value)
             {
                 if (value is not null)
                 {
-                    _headers.Add(new ByteString(header.Key), new ByteString(value));
+                    _headers.Add(key, new ByteString(value));
                 }
             }
         }

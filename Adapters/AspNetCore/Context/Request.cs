@@ -43,8 +43,6 @@ public sealed class Request : IRequest
 
     private bool _bodyLoaded;
 
-    private bool _resetRequired = true;
-
     // Populated once the response has been upgraded, see SetUpgraded() below.
     private Stream? _upgradedStream;
 
@@ -160,14 +158,7 @@ public sealed class Request : IRequest
 
     public IResponseBuilder Respond()
     {
-        if (!_resetRequired)
-        {
-            _response.Reset();
-        }
-        else
-        {
-            _resetRequired = false;
-        }
+        _response.Reset();
 
         return _response;
     }
@@ -203,8 +194,6 @@ public sealed class Request : IRequest
         _upgradedStream = null;
         _upgradedWriter = null;
         _upgradedReader = null;
-
-        _resetRequired = true;
     }
 
     #endregion
