@@ -2,7 +2,6 @@
 using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
-using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Internal.Context;
 using GenHTTP.Engine.Shared.Types;
@@ -226,8 +225,6 @@ internal sealed class ClientHandler(ClientContext context)
     {
         try
         {
-
-
             var message = context.Server.Development ? e.ToString() : e.Message;
 
             var response = new ResponseBuilder()

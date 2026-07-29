@@ -72,11 +72,11 @@
 
         <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
 
-        <ProjectReference Include="..\..\Engine\Internal\GenHTTP.Engine.Internal.csproj" />
-        <!--<ProjectReference Include="..\..\Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj" />-->
-        <ProjectReference Include="..\..\Engine\Shared\GenHTTP.Engine.Shared.csproj" />
+        <ProjectReference Include="..\..\Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj" />
 
-        <!--<ProjectReference Include="..\..\Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj" />-->
+        <ProjectReference Include="..\..\Engine\Internal\GenHTTP.Engine.Internal.csproj" />
+        <ProjectReference Include="..\..\Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj" />
+        <ProjectReference Include="..\..\Engine\Shared\GenHTTP.Engine.Shared.csproj" />
 
         <ProjectReference Include="..\..\Modules\Archives\GenHTTP.Modules.Archives.csproj" />
 

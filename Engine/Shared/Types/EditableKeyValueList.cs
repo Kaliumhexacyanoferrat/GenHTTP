@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Engine.Shared.Types;
 
-public class EditableKeyValueList : IKeyValueList
+public class EditableKeyValueList : IRequestHeaders, IRequestQuery
 {
     private readonly List<KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>> _store = [];
 

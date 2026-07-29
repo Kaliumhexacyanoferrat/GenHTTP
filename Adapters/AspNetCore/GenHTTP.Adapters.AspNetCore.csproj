@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
 
@@ -6,15 +6,13 @@
         <PackageTags>GenHTTP ASP.NET Core Adapter GenHTTP</PackageTags>
         <PackageReadmeFile>README.md</PackageReadmeFile>
 
-        <Authors>Andreas Nägeli, Tanzim Hossain Romel</Authors>
-
     </PropertyGroup>
 
     <ItemGroup>
 
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
 
-        <ProjectReference Include="..\..\API\GenHTTP.Api.csproj"/>
+        <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
 
         <ProjectReference Include="..\..\Engine\Shared\GenHTTP.Engine.Shared.csproj" />
 
@@ -22,14 +20,20 @@
 
         <ProjectReference Include="..\..\Modules\Compression\GenHTTP.Modules.Compression.csproj" />
 
-        <ProjectReference Include="..\..\Modules\IO\GenHTTP.Modules.IO.csproj"/>
+        <ProjectReference Include="..\..\Modules\IO\GenHTTP.Modules.IO.csproj" />
 
-        <ProjectReference Include="..\..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj"/>
+        <ProjectReference Include="..\..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj" />
 
     </ItemGroup>
 
     <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Lets GenHTTP.Engine.Kestrel reuse Bridge.MapAsync instead of re-implementing its
+             own request dispatch on top of the public Context types. -->
+        <InternalsVisibleTo Include="GenHTTP.Engine.Kestrel" />
     </ItemGroup>
 
 </Project>

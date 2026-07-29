@@ -227,9 +227,10 @@ public sealed class ReverseProxyTests
     }
 
     [TestMethod]
-    public async Task TestQuerySpecialChars()
+    [MultiEngineTest]
+    public async Task TestQuerySpecialChars(TestEngine engine)
     {
-        await using var setup = await TestSetup.CreateAsync(TestEngine.Internal, r =>
+        await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
             var entries = new List<string>();
 
@@ -255,9 +256,10 @@ public sealed class ReverseProxyTests
     }
 
     [TestMethod]
-    public async Task TestPathSpecialChars()
+    [MultiEngineTest]
+    public async Task TestPathSpecialChars(TestEngine engine)
     {
-        await using var setup = await TestSetup.CreateAsync(TestEngine.Internal, r =>
+        await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
             return r.Respond().Content(r.Header.Target.AsString(decode: false)).Build();
         });

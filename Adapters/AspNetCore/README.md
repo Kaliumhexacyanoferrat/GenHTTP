@@ -1,4 +1,4 @@
-﻿# GenHTTP.Adapters.AspNetCore
+# GenHTTP.Adapters.AspNetCore
 
 This package provides an adapter that allows
 an ASP.NET Core app to use the handlers of

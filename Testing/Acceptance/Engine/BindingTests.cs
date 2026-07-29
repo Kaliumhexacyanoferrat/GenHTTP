@@ -31,6 +31,8 @@ public class BindingTests
         Assert.IsTrue(await CanConnectAsync(IPAddress.IPv6Loopback, runner.Port));
     }
 
+    // Kestrel-only: Kestrel's socket transport binds IPv6Any without forcing IPV6_V6ONLY,
+    // so a request against the IPv4 loopback still connects even with dualStack = false.
     [TestMethod]
     public async Task TestAnyIPv6NoDualStack()
     {

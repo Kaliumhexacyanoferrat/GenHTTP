@@ -22,16 +22,17 @@ public class MultiEngineTestAttribute : Attribute, ITestDataSource
     {
         var engine = Environment.GetEnvironmentVariable("TEST_ENGINE");
 
-        if (engine == null) {
+        if (engine == null) 
+        {
             var engines = new List<object[]>
             {
                 new object[] { TestEngine.Internal },
-                // todo: new object[] { TestEngine.Kestrel }
+                new object[] { TestEngine.Kestrel }
             };
 
             if (IoxideSupported)
             {
-                engines.Add(new object[] { TestEngine.Ioxide });
+                engines.Add([TestEngine.Ioxide]);
             }
 
             return engines;

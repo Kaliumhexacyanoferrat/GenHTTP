@@ -1,33 +1,33 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
+using GenHTTP.Engine.Shared.Types;
+
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace GenHTTP.Adapters.AspNetCore.Server;
 
-public sealed class ImplicitServer : IServer
+internal sealed class ImplicitServer : IServer
 {
 
     #region Get-/Setters
 
     public string Version => RuntimeInformation.FrameworkDescription;
 
-    public bool Running { get; }
+    public bool Running { get; } = true;
 
-    public bool Development
-    {
-        get
-        {
-            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            return string.Compare(env, "Development", StringComparison.OrdinalIgnoreCase) == 0;
-        }
-    }
+    public bool Development { get; }
+
+    public IPropertyBag Properties { get; } = new PropertyBag();
+
+    public ILoggerFactory Logging { get; }
 
     public IEndPointCollection EndPoints { get; }
-
-    public IServerCompanion? Companion { get; }
 
     public IHandler Handler { get; }
 
@@ -35,23 +35,24 @@ public sealed class ImplicitServer : IServer
 
     #region Initialization
 
-    public ImplicitServer(HttpContext context, IHandler handler, IServerCompanion? companion)
+    public ImplicitServer(HttpContext context, IHandler handler)
     {
         Handler = handler;
-        Companion = companion;
 
         EndPoints = new EndpointCollection(context);
 
-        Running = true;
+        Logging = context.RequestServices.GetRequiredService<ILoggerFactory>();
+
+        Development = context.RequestServices.GetService<IHostEnvironment>()?.IsDevelopment() ?? false;
     }
 
     #endregion
 
     #region Functionality
 
-    public ValueTask DisposeAsync() => new();
-
     public ValueTask StartAsync() => throw new InvalidOperationException("Server is managed by ASP.NET Core and cannot be started");
+
+    public ValueTask DisposeAsync() => default;
 
     #endregion
 

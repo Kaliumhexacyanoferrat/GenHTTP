@@ -6,20 +6,19 @@ using Microsoft.AspNetCore.Http;
 
 namespace GenHTTP.Adapters.AspNetCore.Server;
 
-public class ImplicitEndpoint(HttpContext context) : IEndPoint
+internal sealed class ImplicitEndpoint(HttpContext context) : IEndPoint
 {
 
     public IPAddress? Address => context.Connection.LocalIpAddress;
 
     public ushort Port => (ushort)context.Connection.LocalPort;
 
-    public bool DualStack => throw new NotSupportedException("Cannot determine whether dual stack is enabled in adapter mode");
+    // Not observable from the request-scoped HttpContext this adapter is built from - only
+    // meaningful for the bind-time configuration engines construct their own endpoints from.
+    public bool DualStack => false;
 
     public bool Secure => context.Request.IsHttps;
 
-    public void Dispose()
-    {
-        // nop
-    }
+    public void Dispose() { }
 
 }

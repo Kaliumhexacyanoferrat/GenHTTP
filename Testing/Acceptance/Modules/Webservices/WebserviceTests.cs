@@ -218,15 +218,10 @@ public sealed class WebserviceTests
     }
 
     [TestMethod]
-    public async Task TestStream()
+    [MultiEngineFrameworkTest]
+    public async Task TestStream(TestEngine engine, ExecutionMode mode)
     {
-        foreach (var mode in new[]
-                 {
-                     ExecutionMode.Reflection, ExecutionMode.Auto
-                 })
-        {
-            await WithResponse(TestEngine.Internal, mode, "stream", HttpMethod.Put, "123456", null, null, async r => Assert.AreEqual("6", await r.GetContentAsync()));
-        }
+        await WithResponse(engine, mode, "stream", HttpMethod.Put, "123456", null, null, async r => Assert.AreEqual("6", await r.GetContentAsync()));
     }
 
     [TestMethod]
