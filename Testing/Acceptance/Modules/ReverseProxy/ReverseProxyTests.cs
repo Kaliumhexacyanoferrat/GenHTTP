@@ -3,7 +3,6 @@ using System.Web;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.ReverseProxy;
@@ -372,7 +371,7 @@ public sealed class ReverseProxyTests
             var testServer = new TestHost(Layout.Create().Build(), false, engine: engine);
 
             await testServer.Host.Handler(new ProxiedRouter(response))
-                      .StartAsync();
+                            .StartAsync();
 
             // proxying server
             var proxy = Proxy.Create()
@@ -383,7 +382,7 @@ public sealed class ReverseProxyTests
             var runner = new TestHost(Layout.Create().Build(), engine: engine);
 
             await runner.Host.Handler(proxy)
-                  .StartAsync();
+                        .StartAsync();
 
             return new TestSetup(runner, testServer);
         }
@@ -449,9 +448,11 @@ public sealed class ReverseProxyTests
                 return new ValueTask<IResponse?>(response);
             }
 
-            return request.Respond()
-                          .Status(ResponseStatus.InternalServerError)
-                          .BuildTask();
+            var error = request.Respond()
+                               .Status(ResponseStatus.InternalServerError)
+                               .Build();
+
+            return new(error);
         }
     }
 

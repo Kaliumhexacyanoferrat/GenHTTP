@@ -64,9 +64,9 @@ public sealed class WebserviceTests
         public ReadOnlyMemory<byte> Memory() => Encoding.UTF8.GetBytes("Hello Memory");
 
         [ResourceMethod("requestResponse")]
-        public ValueTask<IResponse?> RequestResponse(IRequest request) => request.Respond()
+        public ValueTask<IResponse?> RequestResponse(IRequest request) => new(request.Respond()
                                                                                  .Content(new GenHTTP.Modules.IO.Strings.StringContent("Hello World"))
-                                                                                 .BuildTask();
+                                                                                 .Build());
 
         [ResourceMethod("exception")]
         public void Exception() => throw new ProviderException(ResponseStatus.AlreadyReported, "Already reported!");
