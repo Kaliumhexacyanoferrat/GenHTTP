@@ -14,7 +14,7 @@ public class MultiEngineFrameworkTestAttribute : Attribute, ITestDataSource
 
     public IEnumerable<object[]> GetData(MethodInfo methodInfo)
     {
-        var engines = new MultiEngineTestAttribute().GetData(methodInfo); // todo: ugly
+        var engines = new MultiEngineTestAttribute().GetData(methodInfo);
 
         var result = new List<object[]>();
 

@@ -104,8 +104,6 @@ public sealed class ParserTests
 
         public ValueTask<IResponse?> HandleAsync(IRequest request)
         {
-            // todo: make this logic block reusable
-
             var entries = new List<string>();
 
             for (var i = 0; i < request.Header.Query.Count; i++)

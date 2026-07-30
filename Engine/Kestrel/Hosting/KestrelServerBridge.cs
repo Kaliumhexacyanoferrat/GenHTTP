@@ -49,7 +49,7 @@ internal sealed class KestrelServerBridge : IServer
 
     #region Initialization
 
-    internal KestrelServerBridge(ServerConfiguration configuration, IHandler handler)
+    internal KestrelServerBridge(ServerConfiguration configuration, IHandler handler, Action<WebApplicationBuilder>? configHook, Action<WebApplication>? appHook)
     {
         Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "(n/a)";
 
@@ -65,14 +65,14 @@ internal sealed class KestrelServerBridge : IServer
 
         EndPoints = endpoints;
 
-        App = Build();
+        App = Build(configHook, appHook);
     }
 
     #endregion
 
     #region Functionality
 
-    private WebApplication Build()
+    private WebApplication Build(Action<WebApplicationBuilder>? configHook, Action<WebApplication>? appHook)
     {
         // No args of our own: avoids the generic host parsing the embedding process's command
         // line as ASP.NET Core options (e.g. a stray --urls flag).
@@ -121,7 +121,11 @@ internal sealed class KestrelServerBridge : IServer
             }
         });
 
+        configHook?.Invoke(builder);
+
         var app = builder.Build();
+
+        appHook?.Invoke(app);
 
         app.Run(HandleAsync);
 

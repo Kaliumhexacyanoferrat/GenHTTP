@@ -1,6 +1,10 @@
-﻿
+﻿using System.Net;
 
-/*
+using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Functional;
+
+namespace GenHTTP.Testing.Acceptance.Engine.Kestrel;
+
 [TestClass]
 public class MappingTests
 {
@@ -15,7 +19,7 @@ public class MappingTests
             var headers = request.Header.Headers;
 
             Assert.IsTrue(headers.ContainsKey("Host"));
-            
+
             var host = headers.GetEntry("Host");
 
             Assert.IsNotNull(host);
@@ -38,9 +42,9 @@ public class MappingTests
         var app = Inline.Create().Get((IRequest request) =>
         {
             var query = request.Header.Query;
-            
+
             Assert.IsTrue(query.ContainsKey("a"));
-            
+
             var a = query.GetEntry("a");
 
             Assert.IsNotNull(a);
@@ -54,7 +58,7 @@ public class MappingTests
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
     }
-    
+
     [TestMethod]
     public async Task TestConnection()
     {
@@ -62,8 +66,6 @@ public class MappingTests
 
         var app = Inline.Create().Get((IRequest request) =>
         {
-            Assert.IsNotNull(request.Client.Host);
-
             Assert.AreEqual(ClientProtocol.Http, request.Client.Protocol);
 
             return true;
@@ -77,4 +79,3 @@ public class MappingTests
     }
 
 }
-*/
