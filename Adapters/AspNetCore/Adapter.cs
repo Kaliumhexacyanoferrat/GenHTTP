@@ -32,11 +32,13 @@ public static class Adapter
     /// <param name="handler">The handler to be registered</param>
     public static void Map(this WebApplication app, string path, IHandler handler)
     {
+        var preparedHandler = Concerns.Chain([new SelfPreparingConcernBuilder()], handler);
+        
         app.Use(async (context, next) =>
         {
             if (context.Request.Path.StartsWithSegments(path, StringComparison.OrdinalIgnoreCase))
             {
-                await Bridge.MapAsync(context, handler);
+                await Bridge.MapAsync(context, preparedHandler);
             }
             else
             {
