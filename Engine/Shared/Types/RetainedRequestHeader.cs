@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Engine.Shared.Types;
 
-public class RetainedRequestHeader : IRequestHeader
+public sealed class RetainedRequestHeader : IRequestHeader
 {
 
     public HttpProtocol Protocol { get; }

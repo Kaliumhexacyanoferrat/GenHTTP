@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Engine.Shared.Infrastructure.Compliance;
 
-public class ComplianceConcernBuilder : IConcernBuilder
+public sealed class ComplianceConcernBuilder : IConcernBuilder
 {
 
     public IConcern Build(IHandler content) => new ComplianceConcern(content);

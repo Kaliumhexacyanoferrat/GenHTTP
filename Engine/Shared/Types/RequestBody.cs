@@ -8,7 +8,7 @@ using GenHTTP.Engine.Shared.Types.Body;
 
 namespace GenHTTP.Engine.Shared.Types;
 
-public class RequestBody(IRequest request) : IRequestBody
+public sealed class RequestBody(IRequest request) : IRequestBody
 {
     private static readonly ReadOnlyMemory<byte> ChunkedValue = "chunked"u8.ToArray();
 

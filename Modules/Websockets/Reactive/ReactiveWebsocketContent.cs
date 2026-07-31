@@ -5,7 +5,7 @@ using GenHTTP.Modules.Websockets.Provider;
 
 namespace GenHTTP.Modules.Websockets.Reactive;
 
-public class ReactiveWebsocketContent(IReactiveHandler handler, IRequest request, ConnectionSettings settings) : IResponseContent
+public sealed class ReactiveWebsocketContent(IReactiveHandler handler, IRequest request, ConnectionSettings settings) : IResponseContent
 {
 
     public ulong? Length => null;

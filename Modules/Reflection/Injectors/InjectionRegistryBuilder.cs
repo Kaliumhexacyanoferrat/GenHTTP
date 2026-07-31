@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Modules.Reflection.Injectors;
 
-public class InjectionRegistryBuilder : IBuilder<InjectionRegistry>
+public sealed class InjectionRegistryBuilder : IBuilder<InjectionRegistry>
 {
     private readonly List<IParameterInjector> _injectors = [];
 

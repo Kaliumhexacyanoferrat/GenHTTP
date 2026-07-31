@@ -6,7 +6,7 @@ using GenHTTP.Modules.Websockets.Reactive;
 
 namespace GenHTTP.Modules.Websockets.Functional;
 
-public class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebsocketBuilder>
+public sealed class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebsocketBuilder>
 {
     private readonly ReactiveWebsocketBuilder _builder = Websocket.Reactive();
 

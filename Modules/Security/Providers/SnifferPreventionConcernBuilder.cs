@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Modules.Security.Providers;
 
-public class SnifferPreventionConcernBuilder : IConcernBuilder
+public sealed class SnifferPreventionConcernBuilder : IConcernBuilder
 {
 
     #region Functionality

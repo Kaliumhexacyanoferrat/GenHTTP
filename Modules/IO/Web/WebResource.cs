@@ -5,7 +5,7 @@ using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.IO.Web;
 
-public class WebResource : IResource
+public sealed class WebResource : IResource
 {
     private readonly HttpClient _client = new();
 

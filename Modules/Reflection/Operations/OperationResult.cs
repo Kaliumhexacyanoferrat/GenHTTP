@@ -39,7 +39,7 @@ public enum OperationResultSink
 
 }
 
-public class OperationResult
+public sealed class OperationResult
 {
 
     #region Get-/Setters

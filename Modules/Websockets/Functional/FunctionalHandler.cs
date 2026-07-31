@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Modules.Websockets.Functional;
 
-public class FunctionalHandler : IReactiveHandler
+public sealed class FunctionalHandler : IReactiveHandler
 {
     private readonly Func<IReactiveConnection, ValueTask> _onConnected;
 

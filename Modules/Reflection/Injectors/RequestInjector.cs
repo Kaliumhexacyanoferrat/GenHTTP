@@ -4,7 +4,7 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Reflection.Injectors;
 
-public class RequestInjector : IParameterInjector
+public sealed class RequestInjector : IParameterInjector
 {
 
     public bool Supports(IServer server, Type type) => type == typeof(IRequest);

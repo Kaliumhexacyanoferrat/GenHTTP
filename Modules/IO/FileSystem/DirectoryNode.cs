@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Modules.IO.FileSystem;
 
-internal class DirectoryNode : DirectoryContainer, IResourceNode
+internal sealed class DirectoryNode : DirectoryContainer, IResourceNode
 {
 
     #region Initialization

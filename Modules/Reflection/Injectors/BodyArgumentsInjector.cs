@@ -6,7 +6,7 @@ using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.Reflection.Injectors;
 
-public class BodyArgumentsInjector : IParameterInjector
+public sealed class BodyArgumentsInjector : IParameterInjector
 {
 
     public bool Supports(IServer server, Type type) => type == typeof(BodyArguments);

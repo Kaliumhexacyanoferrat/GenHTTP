@@ -13,7 +13,7 @@ namespace GenHTTP.Modules.Reflection;
 /// Converts the result fetched from an invocation using reflection
 /// into a HTTP response.
 /// </summary>
-public class ResponseProvider
+public sealed class ResponseProvider
 {
 
     #region Initialization

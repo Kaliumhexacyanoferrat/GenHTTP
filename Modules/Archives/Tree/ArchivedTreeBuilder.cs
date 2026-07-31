@@ -5,7 +5,7 @@ using GenHTTP.Modules.IO.Tracking;
 
 namespace GenHTTP.Modules.Archives.Tree;
 
-public class ArchivedTreeBuilder(ChangeTrackingResource source) : IBuilder<IResourceTree>
+public sealed class ArchivedTreeBuilder(ChangeTrackingResource source) : IBuilder<IResourceTree>
 {
 
     public IResourceTree Build()

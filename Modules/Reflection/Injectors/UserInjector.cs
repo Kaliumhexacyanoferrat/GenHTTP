@@ -5,7 +5,7 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Reflection.Injectors;
 
-public class UserInjector<T> : IParameterInjector where T : IUser
+public sealed class UserInjector<T> : IParameterInjector where T : IUser
 {
 
     #region Get-/Setters

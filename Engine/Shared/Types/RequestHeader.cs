@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Engine.Shared.Types;
 
-public class RequestHeader : IRequestHeader
+public sealed class RequestHeader : IRequestHeader
 {
     private readonly Request _request;
 

@@ -4,7 +4,7 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Shared.Types;
 
-public class ResponseBuilder : IResponseBuilder
+public sealed class ResponseBuilder : IResponseBuilder
 {
     private readonly Response _response;
 

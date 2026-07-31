@@ -8,7 +8,7 @@ namespace GenHTTP.Api.Content;
 /// indicating a server error.
 /// </summary>
 [Serializable]
-public class ProviderException : Exception
+public sealed class ProviderException : Exception
 {
 
     #region Get-/Setters

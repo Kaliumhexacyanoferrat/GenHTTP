@@ -6,7 +6,7 @@ using GenHTTP.Modules.Websockets.Provider;
 
 namespace GenHTTP.Modules.Websockets.Imperative;
 
-public class ImperativeWebsocketBuilder : WebsocketBuilder<ImperativeWebsocketBuilder>
+public sealed class ImperativeWebsocketBuilder : WebsocketBuilder<ImperativeWebsocketBuilder>
 {
     private Func<IRequest, IImperativeHandler>? _handlerFactory;
 

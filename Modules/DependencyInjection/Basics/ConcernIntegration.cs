@@ -5,7 +5,7 @@ using GenHTTP.Modules.DependencyInjection.Infrastructure;
 
 namespace GenHTTP.Modules.DependencyInjection.Basics;
 
-internal class ConcernIntegration<T> : IConcern where T : class, IDependentConcern
+internal sealed class ConcernIntegration<T> : IConcern where T : class, IDependentConcern
 {
 
     #region Getters/Setters

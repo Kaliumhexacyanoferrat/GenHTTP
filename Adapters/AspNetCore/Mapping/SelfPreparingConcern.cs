@@ -4,7 +4,7 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Adapters.AspNetCore.Mapping;
 
-public class SelfPreparingConcern(IHandler content) : IConcern
+public sealed class SelfPreparingConcern(IHandler content) : IConcern
 {
     private Lazy<Task>? _preparation;
 

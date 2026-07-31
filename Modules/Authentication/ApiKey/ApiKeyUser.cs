@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Modules.Authentication.ApiKey;
 
-public class ApiKeyUser : IUser
+public sealed class ApiKeyUser : IUser
 {
 
     #region Initialization

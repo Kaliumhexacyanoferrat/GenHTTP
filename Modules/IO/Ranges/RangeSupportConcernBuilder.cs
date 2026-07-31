@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Modules.IO.Ranges;
 
-public class RangeSupportConcernBuilder : IConcernBuilder
+public sealed class RangeSupportConcernBuilder : IConcernBuilder
 {
 
     #region Functionality

@@ -4,7 +4,7 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Shared.Infrastructure.Compliance;
 
-public class ComplianceConcern(IHandler content) : IConcern
+public sealed class ComplianceConcern(IHandler content) : IConcern
 {
 
     public IHandler Content => content;

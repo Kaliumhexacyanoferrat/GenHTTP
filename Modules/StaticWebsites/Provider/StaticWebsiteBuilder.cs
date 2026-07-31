@@ -4,7 +4,7 @@ using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Modules.StaticWebsites.Provider;
 
-public class StaticWebsiteBuilder : IHandlerBuilder<StaticWebsiteBuilder>
+public sealed class StaticWebsiteBuilder : IHandlerBuilder<StaticWebsiteBuilder>
 {
     private readonly List<IConcernBuilder> _concerns = [];
 

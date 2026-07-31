@@ -3,7 +3,7 @@
 /// <summary>
 /// Centralizes checksum handling of binary data by providing a cache.
 /// </summary>
-public class ChecksumProvider
+public sealed class ChecksumProvider
 {
     private readonly Func<ValueTask<ulong?>> _provider;
 

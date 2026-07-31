@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Engine.Shared.Types;
 
-public class RetainedKeyValueList : IRequestHeaders, IRequestQuery
+public sealed class RetainedKeyValueList : IRequestHeaders, IRequestQuery
 {
     private readonly List<KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>> _items;
 

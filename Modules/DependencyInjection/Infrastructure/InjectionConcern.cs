@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace GenHTTP.Modules.DependencyInjection.Infrastructure;
 
-internal class InjectionConcern : IConcern
+internal sealed class InjectionConcern : IConcern
 {
 
     #region Get-/Setters

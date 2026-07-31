@@ -9,7 +9,7 @@ namespace GenHTTP.Modules.Authentication;
 /// </summary>
 /// <param name="roles">The roles which need to be present in order to let the request pass</param>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public class RequireRoleAttribute(params string[] roles) : InterceptWithAttribute<RoleInterceptor>
+public sealed class RequireRoleAttribute(params string[] roles) : InterceptWithAttribute<RoleInterceptor>
 {
 
     /// <summary>

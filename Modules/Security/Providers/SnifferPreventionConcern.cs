@@ -4,7 +4,7 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Security.Providers;
 
-public class SnifferPreventionConcern : IConcern
+public sealed class SnifferPreventionConcern : IConcern
 {
     private static readonly ByteString ContentTypeOptions = new("X-Content-Type-Options");
 
