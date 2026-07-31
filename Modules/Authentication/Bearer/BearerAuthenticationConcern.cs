@@ -13,7 +13,7 @@ namespace GenHTTP.Modules.Authentication.Bearer;
 
 #region Supporting data structures
 
-internal class OpenIdConfiguration
+internal sealed class OpenIdConfiguration
 {
 
     [JsonPropertyName("jwks_uri")]

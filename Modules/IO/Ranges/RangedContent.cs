@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Modules.IO.Ranges;
 
-public class RangedContent : IResponseContent
+public sealed class RangedContent : IResponseContent
 {
 
     #region Initialization

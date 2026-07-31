@@ -5,7 +5,7 @@ using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.IO.Ranges;
 
-public class RangedSink(RangedStream stream) : IResponseSink
+public sealed class RangedSink(RangedStream stream) : IResponseSink
 {
     private StreamBufferWriter? _writer;
 

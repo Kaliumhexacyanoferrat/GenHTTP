@@ -10,45 +10,22 @@ public sealed class ParameterTests
 
     #region Tests
 
-    // todo
-    
-    /*
     [TestMethod]
-    public async Task TestCanReadSimpleTypesFromBody()
+    [MultiEngineFrameworkTest]
+    public async Task TestCanReadSimpleTypesFromBody(TestEngine engine, ExecutionMode mode)
     {
         var inline = Inline.Create()
-                           .Post(([FromBody] string body1, [FromBody] string body2) => $"{body1}-{body2}");
+                           .Post(([FromBody] string body) => body)
+                           .ExecutionMode(mode);
 
-        await using var runner = await TestHost.RunAsync(inline);
+        await using var runner = await TestHost.RunAsync(inline, engine: engine);
 
         using var response = await PostAsync(runner, "1");
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
 
-        Assert.AreEqual("1-1", await response.GetContentAsync());
-    }*/
-
-    // todo
-    
-    /*
-    [TestMethod]
-    public async Task TestCanAccessBothBodyAndStream()
-    {
-        var inline = Inline.Create()
-                           .Post(([FromBody] int number, Stream body) =>
-                           {
-                               using var reader = new StreamReader(body);
-                               return $"{number} - {reader.ReadToEnd()}";
-                           });
-
-        await using var runner = await TestHost.RunAsync(inline);
-
-        using var response = await PostAsync(runner, "1");
-
-        await response.AssertStatusAsync(HttpStatusCode.OK);
-
-        Assert.AreEqual("1 - 1", await response.GetContentAsync());
-    }*/
+        Assert.AreEqual("1", await response.GetContentAsync());
+    }
 
     [TestMethod]
     [MultiEngineFrameworkTest]

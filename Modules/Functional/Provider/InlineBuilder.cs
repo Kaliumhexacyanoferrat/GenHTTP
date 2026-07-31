@@ -10,7 +10,7 @@ using GenHTTP.Modules.Reflection.Injectors;
 
 namespace GenHTTP.Modules.Functional.Provider;
 
-public class InlineBuilder : IReflectionFrameworkBuilder<InlineBuilder>
+public sealed class InlineBuilder : IReflectionFrameworkBuilder<InlineBuilder>
 {
     private static readonly HashSet<RequestMethod> AllMethods = [
         RequestMethod.Connect,

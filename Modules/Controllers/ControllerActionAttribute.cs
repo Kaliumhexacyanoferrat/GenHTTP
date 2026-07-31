@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Modules.Controllers;
 
-public class ControllerActionAttribute : MethodAttribute
+public sealed class ControllerActionAttribute : MethodAttribute
 {
 
     /// <summary>

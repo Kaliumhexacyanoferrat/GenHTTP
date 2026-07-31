@@ -3,7 +3,7 @@ using System.IO.Pipelines;
 
 namespace GenHTTP.Engine.Shared.Types.Body;
 
-public class MemoryConsumptionStrategy
+public sealed class MemoryConsumptionStrategy
 {
     private long? _length;
 

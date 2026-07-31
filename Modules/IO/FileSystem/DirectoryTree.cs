@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Modules.IO.FileSystem;
 
-internal class DirectoryTree : DirectoryContainer, IResourceTree
+internal sealed class DirectoryTree : DirectoryContainer, IResourceTree
 {
 
     #region Initialization

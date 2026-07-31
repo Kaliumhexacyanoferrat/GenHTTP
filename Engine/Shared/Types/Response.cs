@@ -2,7 +2,7 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Shared.Types;
 
-public class Response : IResponse
+public sealed class Response : IResponse
 {
     private readonly EditableKeyValueList _headers = new();
 

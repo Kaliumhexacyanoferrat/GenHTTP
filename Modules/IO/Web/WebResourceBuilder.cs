@@ -4,7 +4,7 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.IO.Web;
 
-public class WebResourceBuilder : IResourceBuilder<WebResourceBuilder>
+public sealed class WebResourceBuilder : IResourceBuilder<WebResourceBuilder>
 {
     private Uri? _source;
 

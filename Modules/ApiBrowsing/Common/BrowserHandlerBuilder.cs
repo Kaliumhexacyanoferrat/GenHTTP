@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Modules.ApiBrowsing.Common;
 
-public class BrowserHandlerBuilder(string resourceRoot, string title) : IHandlerBuilder<BrowserHandlerBuilder>
+public sealed class BrowserHandlerBuilder(string resourceRoot, string title) : IHandlerBuilder<BrowserHandlerBuilder>
 {
     private readonly List<IConcernBuilder> _concerns = [];
 

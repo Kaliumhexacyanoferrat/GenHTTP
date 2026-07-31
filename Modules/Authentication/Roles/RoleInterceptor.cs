@@ -7,7 +7,7 @@ using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Authentication.Roles;
 
-public class RoleInterceptor : IOperationInterceptor
+public sealed class RoleInterceptor : IOperationInterceptor
 {
     private string[]? _roles;
 

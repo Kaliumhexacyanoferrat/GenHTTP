@@ -6,7 +6,7 @@ using GenHTTP.Modules.Websockets.Protocol;
 
 namespace GenHTTP.Modules.Websockets.Provider;
 
-public class WebsocketHandler(Func<IRequest, IResponseContent> contentFactory) : IHandler
+public sealed class WebsocketHandler(Func<IRequest, IResponseContent> contentFactory) : IHandler
 {
     private static readonly ByteString KeyHeader = new("Sec-WebSocket-Key");
 

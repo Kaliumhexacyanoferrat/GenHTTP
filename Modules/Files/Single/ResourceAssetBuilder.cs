@@ -4,7 +4,7 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Files.Single;
 
-public class ResourceAssetBuilder(IResource resource) : IHandlerBuilder<ResourceAssetBuilder>
+public sealed class ResourceAssetBuilder(IResource resource) : IHandlerBuilder<ResourceAssetBuilder>
 {
     private readonly List<IConcernBuilder> _concerns = [];
 

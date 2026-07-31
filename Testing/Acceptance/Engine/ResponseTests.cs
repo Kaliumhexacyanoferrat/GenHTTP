@@ -73,15 +73,15 @@ public sealed class ResponseTests
         {
             if (request.Header.Method == RequestMethod.Post)
             {
-                return request.Respond()
-                              .Content(new StringContent("", new("")))
-                              .BuildTask();
+                return new(request.Respond()
+                                  .Content(new StringContent("", new("")))
+                                  .Build());
             }
-            
-            return request.Respond()
-                          .Content(new StringContent("Hello World", new("text/x-custom")))
-                          .Header("X-Powered-By", "Test Runner")
-                          .BuildTask();
+
+            return new(request.Respond()
+                              .Content(new StringContent("Hello World", new("text/x-custom")))
+                              .Header("X-Powered-By", "Test Runner")
+                              .Build());
         }
 
     }

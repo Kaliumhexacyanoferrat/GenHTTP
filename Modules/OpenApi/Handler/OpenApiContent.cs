@@ -4,7 +4,7 @@ using NSwag;
 
 namespace GenHTTP.Modules.OpenApi.Handler;
 
-internal class OpenApiContent : IResponseContent
+internal sealed class OpenApiContent : IResponseContent
 {
 
     #region Initialization

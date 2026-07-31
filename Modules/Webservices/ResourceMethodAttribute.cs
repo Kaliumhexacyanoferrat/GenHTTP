@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Modules.Webservices;
 
-public class ResourceMethodAttribute : MethodAttribute
+public sealed class ResourceMethodAttribute : MethodAttribute
 {
 
     #region Get-/Setters

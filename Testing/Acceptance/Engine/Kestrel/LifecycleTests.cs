@@ -1,8 +1,9 @@
-﻿namespace GenHTTP.Testing.Acceptance.Engine.Kestrel;
+﻿using System.Net;
 
-// todo
+using GenHTTP.Modules.IO;
 
-/*
+namespace GenHTTP.Testing.Acceptance.Engine.Kestrel;
+
 [TestClass]
 public class LifecycleTests
 {
@@ -24,4 +25,3 @@ public class LifecycleTests
     }
 
 }
-*/

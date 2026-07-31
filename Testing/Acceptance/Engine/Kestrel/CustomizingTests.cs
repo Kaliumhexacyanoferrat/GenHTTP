@@ -1,6 +1,11 @@
-﻿namespace GenHTTP.Testing.Acceptance.Engine.Kestrel;
+﻿using GenHTTP.Engine.Kestrel;
 
-/*
+using GenHTTP.Modules.Layouting;
+
+using Microsoft.AspNetCore.Builder;
+
+namespace GenHTTP.Testing.Acceptance.Engine.Kestrel;
+
 [TestClass]
 public class CustomizingTests
 {
@@ -22,4 +27,3 @@ public class CustomizingTests
     }
 
 }
-*/

@@ -3,7 +3,7 @@ using GenHTTP.Modules.IO.Tracking;
 
 namespace GenHTTP.Modules.Pages.Rendering;
 
-public class TemplateRenderer
+public sealed class TemplateRenderer
 {
     private IDocument? _document;
 

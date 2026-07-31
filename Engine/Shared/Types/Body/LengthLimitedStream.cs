@@ -3,7 +3,7 @@ using System.IO.Pipelines;
 
 namespace GenHTTP.Engine.Shared.Types.Body;
 
-public class LengthLimitedStream : Stream, IDrainableStream
+public sealed class LengthLimitedStream : Stream, IDrainableStream
 {
     private readonly PipeReader _reader;
     

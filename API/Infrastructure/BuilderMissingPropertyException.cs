@@ -5,7 +5,7 @@
 /// that is needed to create the target instance.
 /// </summary>
 [Serializable]
-public class BuilderMissingPropertyException : Exception
+public sealed class BuilderMissingPropertyException : Exception
 {
 
     #region Initialization

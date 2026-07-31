@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Modules.DependencyInjection.Infrastructure;
 
-internal class InjectionConcernBuilder : IConcernBuilder
+internal sealed class InjectionConcernBuilder : IConcernBuilder
 {
     private readonly IServiceProvider _services;
 

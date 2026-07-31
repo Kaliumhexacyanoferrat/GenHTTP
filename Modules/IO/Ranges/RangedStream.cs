@@ -4,7 +4,7 @@
 /// A stream that can be configured to just write a specified
 /// portion of the incoming data into the underlying stream.
 /// </summary>
-public class RangedStream : Stream
+public sealed class RangedStream : Stream
 {
 
     #region Initialization

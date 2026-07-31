@@ -5,7 +5,7 @@ namespace GenHTTP.Modules.Reflection.Generation;
 /// </summary>
 /// <param name="code">The code that caused the issue</param>
 /// <param name="inner">Information about the actual cause</param>
-public class CodeGenerationException(string? code, Exception inner) : Exception("Failed to compile code for generated handler", inner)
+public sealed class CodeGenerationException(string? code, Exception inner) : Exception("Failed to compile code for generated handler", inner)
 {
 
     /// <summary>

@@ -6,7 +6,7 @@ using GenHTTP.Modules.Pages;
 
 namespace GenHTTP.Modules.ErrorHandling.Mappers;
 
-public class HtmlErrorMapper : IErrorMapper<Exception>
+public sealed class HtmlErrorMapper : IErrorMapper<Exception>
 {
 
     public async ValueTask<IResponse?> Map(IRequest request, IHandler handler, Exception error, ByteString? acceptedFormat)

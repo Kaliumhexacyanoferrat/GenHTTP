@@ -1,6 +1,6 @@
 ﻿namespace GenHTTP.Modules.Reflection.Injectors;
 
-public class InjectionRegistry : List<IParameterInjector>
+public sealed class InjectionRegistry : List<IParameterInjector>
 {
 
     #region Initialization

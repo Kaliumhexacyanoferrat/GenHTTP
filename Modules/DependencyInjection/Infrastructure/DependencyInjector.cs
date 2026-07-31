@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace GenHTTP.Modules.DependencyInjection.Infrastructure;
 
-public class DependencyInjector : IParameterInjector
+public sealed class DependencyInjector : IParameterInjector
 {
 
     public bool Supports(IServer server, Type type)

@@ -3,7 +3,7 @@ using GenHTTP.Api.Content.IO;
 
 namespace GenHTTP.Modules.IO.Embedded;
 
-internal class EmbeddedResourceNode : EmbeddedResourceContainer, IResourceNode
+internal sealed class EmbeddedResourceNode : EmbeddedResourceContainer, IResourceNode
 {
 
     #region Initialization

@@ -8,7 +8,7 @@ using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.IO.Ranges;
 
-public partial class RangeSupportConcern : IConcern
+public sealed partial class RangeSupportConcern : IConcern
 {
     private static readonly Regex Pattern = CreatePattern();
     

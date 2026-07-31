@@ -11,7 +11,7 @@ using GenHTTP.Modules.Websockets.Utils;
 
 namespace GenHTTP.Modules.Websockets.Provider;
 
-public class WebsocketConnection : IReactiveConnection, IImperativeConnection, IAsyncDisposable
+public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnection, IAsyncDisposable
 {
     private const int MaxFrameSize = 16 * 1024;
 

@@ -39,15 +39,12 @@ public sealed class ContentTests
         Assert.IsNull(await response.GetOptionalContentAsync<MyType>());
     }
 
-    // todo
-    
-    /*
     [TestMethod]
     [MultiEngineFrameworkTest]
     public async Task TestUnsupported(TestEngine engine, ExecutionMode mode)
     {
         var handler = Inline.Create()
-                            .Get(() => new Result<string>("Nah").Type(FlexibleContentType.Get("text/html")))
+                            .Get(() => new Result<string>("Nah"))
                             .ExecutionMode(mode);
 
         await using var host = await TestHost.RunAsync(handler, engine: engine);
@@ -59,7 +56,6 @@ public sealed class ContentTests
             await response.GetOptionalContentAsync<MyType>();
         });
     }
-    */
 
     public record MyType(int Id);
 }
