@@ -91,7 +91,7 @@ internal static class Bridge
         return portMatch ?? server.EndPoints[0];
     }
 
-    private static void AdvanceTo(IRequest request, string registeredPath)
+    private static void AdvanceTo(Request request, string registeredPath)
     {
         var parts = registeredPath.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
