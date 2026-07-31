@@ -38,7 +38,7 @@ public static class Adapter
         {
             if (context.Request.Path.StartsWithSegments(path, StringComparison.OrdinalIgnoreCase))
             {
-                await Bridge.MapAsync(context, preparedHandler);
+                await Bridge.MapAsync(context, preparedHandler, registeredPath: path);
             }
             else
             {

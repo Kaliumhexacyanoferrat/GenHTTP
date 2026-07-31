@@ -17,7 +17,7 @@ internal static class Bridge
 {
     private static readonly DefaultObjectPool<ClientContext> ContextPool = new(new ClientContextPolicy(), 1024);
 
-    public static async Task MapAsync(HttpContext context, IHandler handler, IServer? server = null, bool requireResponse = false)
+    public static async Task MapAsync(HttpContext context, IHandler handler, IServer? server = null, bool requireResponse = false, string? registeredPath = null)
     {
         var actualServer = server ?? new ImplicitServer(context, handler);
 
@@ -36,6 +36,11 @@ internal static class Bridge
             var request = clientContext.Request;
 
             request.Apply(actualServer, endPoint, context.Features, connectionFeature?.RemoteIpAddress, tlsFeature?.ClientCertificate);
+
+            if (registeredPath != null)
+            {
+                AdvanceTo(request, registeredPath);
+            }
 
             var headRequest = request.Header.Method == RequestMethod.Head;
 
@@ -84,6 +89,16 @@ internal static class Bridge
         }
 
         return portMatch ?? server.EndPoints[0];
+    }
+
+    private static void AdvanceTo(IRequest request, string registeredPath)
+    {
+        var parts = registeredPath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (var _ in parts)
+        {
+            request.Header.Target.Advance();
+        }
     }
 
 }
