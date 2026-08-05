@@ -8,11 +8,6 @@ using GenHTTP.Generators.MemoryView;
 
 namespace GenHTTP.Testing.Acceptance.Generators;
 
-/// <summary>
-/// Unit tests driving the memory view source generator directly (no server, no I/O) so that
-/// its code is executed in-process and picked up by coverage tooling, instead of only ever
-/// running inside the compiler process during a build.
-/// </summary>
 [TestClass]
 public sealed class MemoryViewGeneratorTests
 {
