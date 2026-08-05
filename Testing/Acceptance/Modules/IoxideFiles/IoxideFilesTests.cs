@@ -84,7 +84,9 @@ public sealed class IoxideFilesTests
 
             await response.AssertStatusAsync(HttpStatusCode.MethodNotAllowed);
 
-            Assert.AreEqual("GET, HEAD", response.GetContentHeader("Allow"));
+            // "Allow" is comma-separated and gets split into tokens by HttpHeaders, so
+            // GetContentHeader's FirstOrDefault() would only see "GET" - check the full set instead.
+            CollectionAssert.AreEquivalent(new[] { "GET", "HEAD" }, response.Content.Headers.Allow.ToList());
         });
     }
 
