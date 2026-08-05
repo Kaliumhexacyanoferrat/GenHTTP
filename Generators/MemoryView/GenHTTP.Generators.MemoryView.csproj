@@ -9,7 +9,6 @@
         <IncludeBuildOutput>false</IncludeBuildOutput>
         <DevelopmentDependency>true</DevelopmentDependency>
         <IsPackable>false</IsPackable>
-        <SonarQubeExclude>true</SonarQubeExclude>
 
     </PropertyGroup>
 

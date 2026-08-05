@@ -4,7 +4,6 @@
     
     <TargetFrameworks>net11.0</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <SonarQubeExclude>true</SonarQubeExclude>
     
   </PropertyGroup>
 
