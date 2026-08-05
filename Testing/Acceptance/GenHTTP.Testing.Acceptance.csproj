@@ -114,4 +114,8 @@
 
     </ItemGroup>
 
+    <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+        <ProjectReference Include="..\..\Modules\IoxideFiles\GenHTTP.Modules.IoxideFiles.csproj" />
+    </ItemGroup>
+
 </Project>
