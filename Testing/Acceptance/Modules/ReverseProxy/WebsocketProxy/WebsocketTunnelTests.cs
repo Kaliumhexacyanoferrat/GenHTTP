@@ -1,14 +1,49 @@
+using System.Net;
 using System.Net.WebSockets;
+using System.Security.Authentication;
 using System.Text;
 
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.ReverseProxy;
+
+using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Modules.ReverseProxy.WebsocketProxy;
 
 [TestClass]
 public class WebsocketTunnelTests
 {
+    [TestMethod]
+    public async Task TestSecureUpstream()
+    {
+        await using var upstreamServer = new TestHost(Layout.Create().Build(), false);
+
+        var securePort = TestHost.NextPort();
+        var cert = await Utilities.Security.GetCertificateAsync();
+
+        upstreamServer.Host.Handler(GenHTTP.Modules.Websockets.Websocket.Functional()
+                                           .OnConnected(_ => ValueTask.CompletedTask)
+                                           .OnMessage(async (connection, message) => await connection.WriteAsync(message.Data))
+                                           .OnClose((_, __) => ValueTask.CompletedTask))
+                       .Bind(IPAddress.Any, (ushort)securePort, cert, SslProtocols.Tls12);
+
+        await upstreamServer.StartAsync();
+
+        var proxy = Proxy.Create().Upstream($"https://localhost:{securePort}");
+
+        await using var runner = await TestHost.RunAsync(proxy);
+
+        // The proxy connects to the upstream over TLS using default (non-bypassed) certificate
+        // validation, so a self-signed test certificate is correctly rejected as untrusted - this
+        // exercises the SslStream upgrade path in RawWebsocketConnection, not a successful tunnel.
+        using var client = new ClientWebSocket();
+
+        var exception = await Assert.ThrowsExactlyAsync<WebSocketException>(() =>
+            client.ConnectAsync(new Uri($"ws://localhost:{runner.Port}"), CancellationToken.None));
+
+        Assert.AreEqual(WebSocketError.NotAWebSocket, exception.WebSocketErrorCode);
+    }
+
     [TestMethod]
     public async Task TestBasics()
     {

@@ -288,6 +288,62 @@ public sealed class RawWebSocketClient : IAsyncDisposable
         return Encoding.UTF8.GetString(payload);
     }
     
+    /// <summary>
+    /// Receive a single raw WebSocket frame (any opcode) and return its opcode, FIN bit and payload.
+    /// </summary>
+    public async Task<(byte Opcode, bool Fin, byte[] Payload)> ReceiveFrameAsync(CancellationToken token = default)
+    {
+        var header = new byte[2];
+        await ReceiveExactAsync(header, token).ConfigureAwait(false);
+
+        var b0 = header[0];
+        var b1 = header[1];
+
+        var fin = (b0 & 0x80) != 0;
+        var opcode = (byte)(b0 & 0x0F);
+
+        var masked = (b1 & 0x80) != 0;
+        var len7 = (byte)(b1 & 0x7F);
+
+        long payloadLen = len7;
+
+        if (len7 == 126)
+        {
+            var lenBytes = new byte[2];
+            await ReceiveExactAsync(lenBytes, token).ConfigureAwait(false);
+            payloadLen = BinaryPrimitives.ReadUInt16BigEndian(lenBytes);
+        }
+        else if (len7 == 127)
+        {
+            var lenBytes = new byte[8];
+            await ReceiveExactAsync(lenBytes, token).ConfigureAwait(false);
+            payloadLen = (long)BinaryPrimitives.ReadUInt64BigEndian(lenBytes);
+        }
+
+        byte[]? maskKey = null;
+        if (masked)
+        {
+            maskKey = new byte[4];
+            await ReceiveExactAsync(maskKey, token).ConfigureAwait(false);
+        }
+
+        var payload = new byte[payloadLen];
+        if (payloadLen > 0)
+        {
+            await ReceiveExactAsync(payload.AsMemory(), token).ConfigureAwait(false);
+        }
+
+        if (masked && maskKey is not null)
+        {
+            for (var i = 0; i < payload.Length; i++)
+            {
+                payload[i] ^= maskKey[i & 0x03];
+            }
+        }
+
+        return (opcode, fin, payload);
+    }
+
     public Task SendTextAsContinuationFramesInTcpChunksAsync(
         string text,
         int wsFragmentPayloadSize,
@@ -334,6 +390,11 @@ public sealed class RawWebSocketClient : IAsyncDisposable
 
         return SendRawInChunksAsync(buffer, tcpChunkSize, token);
     }
+
+    /// <summary>
+    /// Half-closes the write side of the connection (sends FIN) while leaving the read side open.
+    /// </summary>
+    public void ShutdownWrite() => _socket.Shutdown(SocketShutdown.Send);
 
     public ValueTask DisposeAsync()
     {

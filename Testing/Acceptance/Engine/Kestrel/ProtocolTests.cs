@@ -40,6 +40,37 @@ public class ProtocolTests
         }
     }
 
+    [TestMethod]
+    public async Task TestHttpsOnSpecificAddress()
+    {
+        if (!Engines.KestrelEnabled()) return;
+
+        var logic = Inline.Create().Get(() => "Hello");
+
+        var certificate = await Utilities.Security.GetCertificateAsync();
+
+        var runner = new TestHost(logic.Build(), engine: TestEngine.Kestrel);
+
+        var port = TestHost.NextPort();
+
+        runner.Host.Bind(IPAddress.Loopback, (ushort)port, certificate);
+
+        await runner.StartAsync();
+
+        try
+        {
+            using var client = TestHost.GetClient(ignoreSecurityErrors: true);
+
+            using var response = await client.GetAsync($"https://localhost:{port}");
+
+            await response.AssertStatusAsync(HttpStatusCode.OK);
+        }
+        finally
+        {
+            await runner.DisposeAsync();
+        }
+    }
+
     #region Helpers
 
     private static HttpClient GetClient()

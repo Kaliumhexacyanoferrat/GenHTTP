@@ -44,6 +44,8 @@
 
     <ItemGroup>
 
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.6.0" />
+
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.10" />
 
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.10" />
@@ -77,6 +79,10 @@
         <ProjectReference Include="..\..\Engine\Internal\GenHTTP.Engine.Internal.csproj" />
         <ProjectReference Include="..\..\Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj" />
         <ProjectReference Include="..\..\Engine\Shared\GenHTTP.Engine.Shared.csproj" />
+
+        <!-- referenced as a plain library (not as an analyzer) so its generator logic
+             runs in-process and is picked up by code coverage -->
+        <ProjectReference Include="..\..\Generators\MemoryView\GenHTTP.Generators.MemoryView.csproj" />
 
         <ProjectReference Include="..\..\Modules\Archives\GenHTTP.Modules.Archives.csproj" />
 

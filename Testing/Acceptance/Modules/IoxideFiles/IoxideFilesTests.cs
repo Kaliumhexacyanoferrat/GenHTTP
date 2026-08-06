@@ -186,6 +186,58 @@ public sealed class IoxideFilesTests
     }
 
     [TestMethod]
+    public async Task TestLargeFileIsServedFromDisk()
+    {
+        if (!Engines.IoxideEnabled()) return;
+
+        var dir = Directory.CreateTempSubdirectory();
+
+        // AssetCache.DefaultMaxCachedFileBytes is 256 KB - go over it so the asset is read off the ring
+        // instead of being served from the baked in-memory response.
+        var content = string.Concat(Enumerable.Repeat("0123456789", 30_000));
+
+        await File.WriteAllTextAsync(Path.Combine(dir.FullName, "large.txt"), content);
+
+        var handler = IoxideFilesModule.From(dir.FullName);
+
+        await using var host = await TestHost.RunAsync(handler, engine: TestEngine.Ioxide);
+
+        for (var i = 0; i < 3; i++)
+        {
+            using var response = await host.GetResponseAsync("/large.txt");
+
+            await response.AssertStatusAsync(HttpStatusCode.OK);
+
+            Assert.AreEqual(content, await response.GetContentAsync());
+        }
+    }
+
+    [TestMethod]
+    public async Task TestChangedFileServesUpdatedContent()
+    {
+        if (!Engines.IoxideEnabled()) return;
+
+        var dir = Directory.CreateTempSubdirectory();
+
+        var file = Path.Combine(dir.FullName, "file.txt");
+
+        await File.WriteAllTextAsync(file, "This is root");
+
+        var handler = IoxideFilesModule.From(dir.FullName);
+
+        // Edited after the cache snapshot was taken, with a different length so IsFresh's size check fails.
+        await File.WriteAllTextAsync(file, "This is the updated content");
+
+        await using var host = await TestHost.RunAsync(handler, engine: TestEngine.Ioxide);
+
+        using var response = await host.GetResponseAsync("/file.txt");
+
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+
+        Assert.AreEqual("This is the updated content", await response.GetContentAsync());
+    }
+
+    [TestMethod]
     public void TestChaining()
     {
         if (!Engines.IoxideEnabled()) return;
