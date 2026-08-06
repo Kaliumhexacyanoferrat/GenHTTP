@@ -17,7 +17,7 @@ internal static class DateHeader
     private static int _second;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ReadOnlySpan<byte> Get()
+    public static ReadOnlyMemory<byte> Get()
     {
         var buffer = _buffer;
 
