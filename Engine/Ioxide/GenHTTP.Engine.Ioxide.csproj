@@ -17,4 +17,8 @@
     <PackageReference Include="Glyph11.Pico" Version="0.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="GenHTTP.Testing.Acceptance" />
+  </ItemGroup>
+
 </Project>

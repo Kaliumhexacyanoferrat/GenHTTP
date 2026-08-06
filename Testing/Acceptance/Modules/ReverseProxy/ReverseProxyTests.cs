@@ -7,6 +7,8 @@ using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.ReverseProxy;
 
+using GenHTTP.Testing.Acceptance.Utilities;
+
 namespace GenHTTP.Testing.Acceptance.Modules.ReverseProxy;
 
 [TestClass]
@@ -334,6 +336,91 @@ public sealed class ReverseProxyTests
         using var response = await runner.GetResponseAsync(request);
 
         Assert.AreEqual("br", response.GetContentHeader("Content-Encoding"));
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestRedirectionToExternalHostIsNotRewritten(TestEngine engine)
+    {
+        await using var setup = await TestSetup.CreateAsync(engine, r =>
+        {
+            return r.Respond().Header("Location", "https://example.com/elsewhere").Status(ResponseStatus.TemporaryRedirect).Build();
+        });
+
+        using var redirected = await setup.Runner.GetResponseAsync("/");
+
+        Assert.AreEqual("https://example.com/elsewhere", redirected.GetHeader("Location"));
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestRedirectionFromScopedMount(TestEngine engine)
+    {
+        await using var upstream = new TestHost(Layout.Create().Build(), false, engine: engine);
+
+        await upstream.Host.Handler(new ProxiedRouter(r =>
+                          r.Respond().Header("Location", $"http://localhost:{upstream.Port}/target").Status(ResponseStatus.TemporaryRedirect).Build()))
+                      .StartAsync();
+
+        var proxy = Proxy.Create().Upstream("http://localhost:" + upstream.Port);
+
+        await using var runner = await TestHost.RunAsync(Layout.Create().Add("api", proxy), engine: engine);
+
+        using var redirected = await runner.GetResponseAsync("/api/whatever");
+
+        var location = redirected.GetHeader("Location");
+
+        Assert.IsNotNull(location);
+        AssertX.Contains($"http://localhost:{runner.Port}", location);
+        AssertX.Contains("/target", location);
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestForwardingByAddressIsRelayed(TestEngine engine)
+    {
+        await using var setup = await TestSetup.CreateAsync(engine, r =>
+        {
+            var header = r.Header.Headers.GetEntry("Forwarded");
+
+            Assert.IsNotNull(header);
+            AssertX.Contains("by=203.0.113.5", header);
+
+            return r.Respond().Content("Hello World!").Build();
+        });
+
+        var request = setup.Runner.GetRequest();
+        request.Headers.Add("Forwarded", "for=85.192.1.5; by=203.0.113.5; host=google.com");
+
+        using var response = await setup.Runner.GetResponseAsync(request);
+        Assert.AreEqual("Hello World!", await response.GetContentAsync());
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestForwardingByAddressIsRelayedForIPv6(TestEngine engine)
+    {
+        await using var setup = await TestSetup.CreateAsync(engine, r =>
+        {
+            var header = r.Header.Headers.GetEntry("Forwarded");
+
+            Assert.IsNotNull(header);
+            AssertX.Contains("by=[2001:db8::1]", header);
+
+            return r.Respond().Content("Hello World!").Build();
+        });
+
+        var request = setup.Runner.GetRequest();
+        request.Headers.Add("Forwarded", "for=85.192.1.5; by=\"[2001:db8::1]\"; host=google.com");
+
+        using var response = await setup.Runner.GetResponseAsync(request);
+        Assert.AreEqual("Hello World!", await response.GetContentAsync());
+    }
+
+    [TestMethod]
+    public void TestChaining()
+    {
+        Chain.Works(Proxy.Create().Upstream("https://google.com"));
     }
 
     [TestMethod]

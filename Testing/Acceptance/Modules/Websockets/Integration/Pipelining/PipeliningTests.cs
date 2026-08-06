@@ -1,3 +1,5 @@
+using System.Text;
+
 using GenHTTP.Modules.Websockets;
 using GenHTTP.Modules.Websockets.Protocol;
 
@@ -180,9 +182,55 @@ public sealed class PipeliningTests
         Assert.AreEqual("second", await client.ReceiveTextFrameAsync());
     }
 
+    /// <summary>
+    /// A client-sent ping should be answered with a pong that either carries the ping's
+    /// payload or is empty, using both of the interface's PongAsync overloads.
+    /// </summary>
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestPongOverloads(TestEngine engine)
+    {
+        var websocket = GenHTTP.Modules.Websockets.Websocket
+            .Imperative()
+            .Handler(new PongHandler());
+
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
+
+        await using var client = new RawWebSocketClient();
+        await client.ConnectAsync("127.0.0.1", host.Port);
+
+        await client.SendRawInChunksAsync(RawWebSocketClient.BuildClientFrame("ping-data"u8.ToArray(), opcode: 0x9, fin: true), chunkSize: 64);
+
+        var (opcode1, _, payload1) = await client.ReceiveFrameAsync();
+        var (opcode2, _, payload2) = await client.ReceiveFrameAsync();
+
+        Assert.AreEqual((byte)0xA, opcode1);
+        Assert.AreEqual("ping-data", Encoding.UTF8.GetString(payload1));
+
+        Assert.AreEqual((byte)0xA, opcode2);
+        Assert.AreEqual(0, payload2.Length);
+
+        Assert.AreEqual("done", await client.ReceiveTextFrameAsync());
+    }
+
     // -------------------------------------------------------------------------
     // Handlers
     // -------------------------------------------------------------------------
+
+    private sealed class PongHandler : IImperativeHandler
+    {
+        public async ValueTask HandleAsync(IImperativeConnection connection)
+        {
+            var frame = await connection.ReadFrameAsync();
+            if (frame.Type == FrameType.Close) return;
+
+            await connection.PongAsync(frame.Data, flush: false);
+            await connection.PongAsync(flush: false);
+            await connection.WriteAsync("done"u8.ToArray());
+
+            await connection.CloseAsync();
+        }
+    }
 
     private sealed class BatchHandler : IImperativeHandler
     {

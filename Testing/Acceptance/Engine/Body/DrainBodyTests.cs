@@ -146,6 +146,33 @@ public sealed class DrainBodyTests
         Assert.AreEqual(3, handler.RequestCount);
     }
 
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestPartialReadChunked(TestEngine engine)
+    {
+        var handler = new PartialReadHandler(bytesToRead: 4);
+
+        await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
+
+        using var client = TestHost.GetClient();
+
+        for (var i = 0; i < 3; i++)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, runner.GetUrl())
+            {
+                Content = new StreamContent(new MemoryStream("Hello, body!"u8.ToArray()))
+            };
+
+            request.Headers.TransferEncodingChunked = true;
+
+            using var response = await client.SendAsync(request);
+
+            await response.AssertStatusAsync(HttpStatusCode.OK);
+        }
+
+        Assert.AreEqual(3, handler.RequestCount);
+    }
+
     #endregion
 
     #region Supporting types
