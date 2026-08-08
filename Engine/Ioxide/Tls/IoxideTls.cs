@@ -37,5 +37,5 @@ internal sealed class TlsRegistry
 
     public void Add(ushort port, TlsService service) => _byPort[port] = service;
 
-    public TlsService For(ushort port) => _byPort[port];
+    public bool TryFor(ushort port, out TlsService service) => _byPort.TryGetValue(port, out service!);
 }

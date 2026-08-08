@@ -88,11 +88,28 @@ internal static partial class ConnectionDriver
 
         try
         {
-            pipe = connectionFactory is not null
-                ? await connectionFactory(conn)
-                : endPoint.Secure
-                    ? await IoxideTls.AcceptAsync(conn, IoxideReactor.Current.GetService<TlsRegistry>().For(conn.ListenerPort))
-                    : new ioxide.TcpConnectionDualPipe(conn);
+            if (connectionFactory is not null)
+            {
+                pipe = await connectionFactory(conn);
+            }
+            else if (endPoint.Secure)
+            {
+                // A secure port with no certificate (an SNI-only provider yielded none) is advertised
+                // for redirects but cannot handshake - FIN the connection so the client's handshake
+                // fails fast rather than a plaintext response landing on an https port.
+                if (!IoxideReactor.Current.GetService<TlsRegistry>().TryFor(conn.ListenerPort, out var service))
+                {
+                    Shutdown(conn.ClientFd, ShutWrite);
+                    conn.DecRef();
+                    return;
+                }
+
+                pipe = await IoxideTls.AcceptAsync(conn, service);
+            }
+            else
+            {
+                pipe = new ioxide.TcpConnectionDualPipe(conn);
+            }
         }
         catch
         {
