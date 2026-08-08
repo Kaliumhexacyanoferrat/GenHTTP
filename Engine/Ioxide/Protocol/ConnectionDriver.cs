@@ -15,7 +15,7 @@ using Glyph11.Protocol;
 using Microsoft.Extensions.Logging;
 
 using Connection = GenHTTP.Api.Protocol.Connection;
-using IoConnection = ioxide.Connection;
+using IoConnection = ioxide.TcpConnection;
 
 namespace GenHTTP.Engine.Ioxide.Protocol;
 
@@ -89,10 +89,39 @@ internal static partial class ConnectionDriver
 
     internal static async Task HandleAsync(IServer server, IEndPoint endPoint, IoConnection conn, Func<IoConnection, ValueTask<IDuplexPipe>>? connectionFactory)
     {
-        // Default transport is a plain duplex pipe over the connection. A connectionFactory (e.g. the
-        // TLS-terminating one supplied by the host for the :8081 listener) can swap in a transport that
-        // decrypts inbound bytes and writes plaintext for kTLS TX.
-        var pipe = connectionFactory is null ? new ioxide.ConnectionDualPipe(conn) : await connectionFactory(conn);
+        IDuplexPipe pipe;
+
+        try
+        {
+            if (connectionFactory is not null)
+            {
+                pipe = await connectionFactory(conn);
+            }
+            else if (endPoint.Secure)
+            {
+                // A secure port with no certificate (an SNI-only provider yielded none) is advertised
+                // for redirects but cannot handshake - FIN the connection so the client's handshake
+                // fails fast rather than a plaintext response landing on an https port.
+                if (!IoxideReactor.Current.GetService<TlsRegistry>().TryFor(conn.ListenerPort, out var service))
+                {
+                    Shutdown(conn.ClientFd, ShutWrite);
+                    conn.DecRef();
+                    return;
+                }
+
+                pipe = await IoxideTls.AcceptAsync(conn, service);
+            }
+            else
+            {
+                pipe = new ioxide.TcpConnectionDualPipe(conn);
+            }
+        }
+        catch
+        {
+            // failed handshake (or factory fault) - release the connection instead of leaking it
+            conn.DecRef();
+            return;
+        }
 
         var reader = pipe.Input;
         var writer = pipe.Output;

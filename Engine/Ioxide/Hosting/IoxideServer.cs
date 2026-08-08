@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO.Pipelines;
+using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
@@ -9,6 +10,8 @@ using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Types;
 
 using ioxide;
+using ioxide.tls;
+
 using Microsoft.Extensions.Logging;
 
 namespace GenHTTP.Engine.Ioxide.Hosting;
@@ -17,13 +20,19 @@ public sealed class IoxideServer : IServer
 {
     private readonly ServerConfiguration _config;
 
-    private readonly IoxideEndPoint _endPoint;
+    private readonly IoxideEndPoint _primary;
+
+    private readonly Dictionary<ushort, IoxideEndPoint> _endPointByPort;
+
+    private readonly Dictionary<ushort, SecurityConfiguration> _secure;
+
+    private readonly ushort[] _extraPorts;
 
     private readonly Func<ServerConfig, ServerConfig>? _configure;
 
     private readonly Action<Reactor>? _onReactorStart;
 
-    private readonly Func<Connection, ValueTask<IDuplexPipe>>? _connectionFactory;
+    private readonly Func<TcpConnection, ValueTask<IDuplexPipe>>? _connectionFactory;
 
     private readonly ILogger _logger;
 
@@ -45,7 +54,7 @@ public sealed class IoxideServer : IServer
 
     public IHandler Handler { get; }
 
-    internal IoxideServer(ServerConfiguration config, IHandler handler, Func<ServerConfig, ServerConfig>? configure = null, Action<Reactor>? onReactorStart = null, Func<Connection, ValueTask<IDuplexPipe>>? connectionFactory = null)
+    internal IoxideServer(ServerConfiguration config, IHandler handler, Func<ServerConfig, ServerConfig>? configure = null, Action<Reactor>? onReactorStart = null, Func<TcpConnection, ValueTask<IDuplexPipe>>? connectionFactory = null)
     {
         _config = config;
         Handler = handler;
@@ -55,24 +64,59 @@ public sealed class IoxideServer : IServer
 
         _logger = config.Logging.CreateLogger<IoxideServer>();
 
-        var ep = config.EndPoints.First(); // spike: still only SERVE the first endpoint
+        var mapped = config.EndPoints
+                           .Select(e => new IoxideEndPoint(e.Address, e.Port, e.DualStack, e.Security != null))
+                           .ToList();
 
-        _endPoint = new IoxideEndPoint(ep.Address, ep.Port, ep.DualStack, ep.Security != null);
+        _primary = mapped[0];
+        _endPointByPort = mapped.ToDictionary(e => e.Port);
+        _extraPorts = mapped.Skip(1).Select(e => e.Port).ToArray();
 
-        // Advertise every configured endpoint (including secure ones) in IServer.EndPoints so concerns
-        // that inspect it — e.g. the secure-upgrade redirect, which derives the HTTPS port from a secure
-        // endpoint — behave correctly, even though the reactor currently only binds the first endpoint.
-        EndPoints = new IoxideEndPoints(
-            config.EndPoints.Select(e => (IEndPoint)new IoxideEndPoint(e.Address, e.Port, e.DualStack, e.Security != null)).ToList()
-        );
-
-        var endPointCount = config.EndPoints.Count();
-
-        if (endPointCount > 1)
+        if (mapped.Any(e => e.DualStack != _primary.DualStack))
         {
-            _logger.LogWarning("Configured with {Count} endpoints, but the ioxide engine only serves the first one ({Address}:{Port})", endPointCount, _endPoint.Address, _endPoint.Port);
+            throw new NotSupportedException("The ioxide engine binds all endpoints with one dual-stack mode.");
+        }
+
+        // Certificates are resolved per reactor in OnStart, not here: the provider is queried for
+        // its default (no-SNI) certificate then, and a port whose provider yields none is still
+        // advertised as secure (so secure-upgrade redirects work) but serves no handshake.
+        _secure = config.EndPoints
+                        .Where(e => e.Security is not null)
+                        .ToDictionary(e => e.Port, e => e.Security!);
+
+        EndPoints = new IoxideEndPoints(mapped.Cast<IEndPoint>().ToList());
+    }
+
+    // The certificate for every secure port whose provider yields a default (no-SNI) certificate.
+    // Providers that select by SNI (unsupported here) return none and are skipped - the port stays
+    // advertised as secure but its handshakes are refused.
+    private IEnumerable<KeyValuePair<ushort, TlsOptions>> ResolveTls()
+    {
+        foreach (var (port, security) in _secure)
+        {
+            if (security.CertificateValidator is not null)
+            {
+                throw new NotSupportedException("Client certificate validation is not supported by the ioxide engine.");
+            }
+
+            if (security.CertificateProvider.Provide(null) is not { } certificate)
+            {
+                _logger.LogWarning("No default certificate for secure port {Port}; handshakes there will be refused (SNI selection is unsupported).", port);
+                continue;
+            }
+
+            yield return new(port, new TlsOptions
+            {
+                CertificatePem = certificate.ExportCertificatePem(),
+                KeyPem = ExportKeyPem(certificate)
+            });
         }
     }
+
+    private static string ExportKeyPem(X509Certificate2 certificate)
+        => certificate.GetRSAPrivateKey()?.ExportPkcs8PrivateKeyPem()
+           ?? certificate.GetECDsaPrivateKey()?.ExportPkcs8PrivateKeyPem()
+           ?? throw new InvalidOperationException("The certificate carries no exportable RSA or ECDSA private key.");
 
     public async ValueTask StartAsync()
     {
@@ -87,12 +131,16 @@ public sealed class IoxideServer : IServer
             cfg = _configure(cfg);
         }
 
-        // The endpoint binding (.Port()/.Bind()) determines the listen port and dual-stack mode, so
+        // The endpoint bindings (.Port()/.Bind()) determine the listen ports and dual-stack mode, so
         // they always win over whatever the configuration hook may have set.
         cfg = cfg with
         {
-            Port = _endPoint.Port,
-            DualStack = _endPoint.DualStack
+            DualStack = _primary.DualStack,
+            Tcp = (cfg.Tcp ?? new TcpOptions()) with
+            {
+                Port = _primary.Port,
+                ExtraPorts = _extraPorts
+            }
         };
 
         _threads = new Thread[cfg.ReactorCount];
@@ -108,16 +156,26 @@ public sealed class IoxideServer : IServer
         {
             var reactor = new Reactor(i, cfg)
             {
-                // Runs once on the reactor's own thread before it serves: bind the reactor into the
-                // [ThreadStatic] seam so handler code can resolve per-reactor services, then let the
-                // host register those services (e.g. PgPool.Start(r, ...)) on this reactor's ring.
                 OnStart = r =>
                 {
                     IoxideReactor.Bind(r);
+
+                    if (_secure.Count > 0)
+                    {
+                        var registry = new TlsRegistry();
+
+                        foreach (var (port, options) in ResolveTls())
+                        {
+                            registry.Add(port, TlsService.Start(r, options, register: false));
+                        }
+
+                        r.AddService(registry);
+                    }
+
                     _onReactorStart?.Invoke(r);
                     listening.Signal();
                 },
-                Handle = (_, c) => ConnectionDriver.HandleAsync(this, _endPoint, c, _connectionFactory),
+                TcpHandle = (_, c) => ConnectionDriver.HandleAsync(this, _endPointByPort[c.ListenerPort], c, _connectionFactory)
             };
 
             _reactors[i] = reactor;
@@ -143,7 +201,7 @@ public sealed class IoxideServer : IServer
             _logger.LogWarning("Not all reactors reported listening within 10s; the server may not be fully accepting yet.");
         }
 
-        _logger.LogInformation("Listening on {Address}:{Port} ({Settings})", _endPoint.Address, _endPoint.Port, DescribeSettings());
+        _logger.LogInformation("Listening on {Address}:{Port} ({Settings})", _primary.Address, _primary.Port, DescribeSettings());
     }
 
     private async ValueTask PrepareHandlerAsync()
@@ -164,7 +222,7 @@ public sealed class IoxideServer : IServer
         }
     }
 
-    private string DescribeSettings() => $"ioxide, {(_endPoint.Secure ? "HTTPS" : "HTTP")}, DualStack: {_endPoint.DualStack}, Reactors: {_reactors?.Length ?? 0}";
+    private string DescribeSettings() => $"ioxide, {_endPointByPort.Count} endpoint(s), TLS on {_secure.Count}, DualStack: {_primary.DualStack}, Reactors: {_reactors?.Length ?? 0}";
 
     public async ValueTask DisposeAsync()
     {
