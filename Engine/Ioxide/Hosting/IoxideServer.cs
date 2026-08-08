@@ -24,7 +24,7 @@ public sealed class IoxideServer : IServer
 
     private readonly Dictionary<ushort, IoxideEndPoint> _endPointByPort;
 
-    private readonly Dictionary<ushort, TlsOptions> _tls;
+    private readonly Dictionary<ushort, SecurityConfiguration> _secure;
 
     private readonly ushort[] _extraPorts;
 
@@ -77,31 +77,40 @@ public sealed class IoxideServer : IServer
             throw new NotSupportedException("The ioxide engine binds all endpoints with one dual-stack mode.");
         }
 
-        _tls = new Dictionary<ushort, TlsOptions>();
+        // Certificates are resolved per reactor in OnStart, not here: the provider is queried for
+        // its default (no-SNI) certificate then, and a port whose provider yields none is still
+        // advertised as secure (so secure-upgrade redirects work) but serves no handshake.
+        _secure = config.EndPoints
+                        .Where(e => e.Security is not null)
+                        .ToDictionary(e => e.Port, e => e.Security!);
 
-        foreach (var endpoint in config.EndPoints)
+        EndPoints = new IoxideEndPoints(mapped.Cast<IEndPoint>().ToList());
+    }
+
+    // The certificate for every secure port whose provider yields a default (no-SNI) certificate.
+    // Providers that select by SNI (unsupported here) return none and are skipped - the port stays
+    // advertised as secure but its handshakes are refused.
+    private IEnumerable<KeyValuePair<ushort, TlsOptions>> ResolveTls()
+    {
+        foreach (var (port, security) in _secure)
         {
-            if (endpoint.Security is not { } security)
-            {
-                continue;
-            }
-
             if (security.CertificateValidator is not null)
             {
                 throw new NotSupportedException("Client certificate validation is not supported by the ioxide engine.");
             }
 
-            var certificate = security.CertificateProvider.Provide(null)
-                ?? throw new InvalidOperationException($"The certificate provider returned no default certificate for port {endpoint.Port}.");
+            if (security.CertificateProvider.Provide(null) is not { } certificate)
+            {
+                _logger.LogWarning("No default certificate for secure port {Port}; handshakes there will be refused (SNI selection is unsupported).", port);
+                continue;
+            }
 
-            _tls[endpoint.Port] = new TlsOptions
+            yield return new(port, new TlsOptions
             {
                 CertificatePem = certificate.ExportCertificatePem(),
                 KeyPem = ExportKeyPem(certificate)
-            };
+            });
         }
-
-        EndPoints = new IoxideEndPoints(mapped.Cast<IEndPoint>().ToList());
     }
 
     private static string ExportKeyPem(X509Certificate2 certificate)
@@ -151,11 +160,11 @@ public sealed class IoxideServer : IServer
                 {
                     IoxideReactor.Bind(r);
 
-                    if (_tls.Count > 0)
+                    if (_secure.Count > 0)
                     {
                         var registry = new TlsRegistry();
 
-                        foreach (var (port, options) in _tls)
+                        foreach (var (port, options) in ResolveTls())
                         {
                             registry.Add(port, TlsService.Start(r, options, register: false));
                         }
@@ -213,7 +222,7 @@ public sealed class IoxideServer : IServer
         }
     }
 
-    private string DescribeSettings() => $"ioxide, {_endPointByPort.Count} endpoint(s), TLS on {_tls.Count}, DualStack: {_primary.DualStack}, Reactors: {_reactors?.Length ?? 0}";
+    private string DescribeSettings() => $"ioxide, {_endPointByPort.Count} endpoint(s), TLS on {_secure.Count}, DualStack: {_primary.DualStack}, Reactors: {_reactors?.Length ?? 0}";
 
     public async ValueTask DisposeAsync()
     {
