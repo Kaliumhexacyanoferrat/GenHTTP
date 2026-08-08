@@ -13,13 +13,14 @@ no ASP.NET Core.
 
 ```
 ioxide reactor (one per core, io_uring, SO_REUSEPORT)
-  └─ accept → Connection
-       └─ new ConnectionDualPipe(conn)            // .Input = PipeReader, .Output = PipeWriter (zero-copy, inline IVTS)
+  └─ accept → TcpConnection
+       └─ TcpConnectionDualPipe(conn)             // .Input = PipeReader, .Output = PipeWriter (zero-copy, inline IVTS)
+          (or TlsConnectionDualPipe for endpoints bound with a certificate)
             └─ ConnectionDriver loop:
                  Glyph11 parser → GenHTTP Request (reused, public) → Handler.HandleAsync → ResponseWriter → PipeWriter
 ```
 
-The integration seam is ioxide's `ConnectionDualPipe`: GenHTTP's parse/handle/respond
+The integration seam is ioxide's `TcpConnectionDualPipe`: GenHTTP's parse/handle/respond
 loop is already pure `PipeReader`/`PipeWriter`, so ioxide's native pipe bridge drops
 straight in. Reused from GenHTTP unchanged: the public `Request` model, the Glyph11
 parser, the `IResponseSink` content contract. Forked (thin): the per-connection loop
@@ -48,10 +49,10 @@ binding (`.Port()`/`.Bind()`), so any port set in the hook is overridden.
 ```csharp
 await Host.Create(c => c with
                   {
-                      ReactorCount      = 16,        // one io_uring reactor per core
-                      RingEntries       = 16384,
-                      RecvBufferSize    = 64 * 1024,
-                      BufferRingEntries = 8192,
+                      ReactorCount   = 16,           // one io_uring reactor per core
+                      RingEntries    = 16384,
+                      RecvBufferSize = 64 * 1024,
+                      RecvSlots      = 8192,
                   })
           .Handler(app)
           .RunAsync();
@@ -60,9 +61,9 @@ await Host.Create(c => c with
 ## Dependency on ioxide
 
 References the published [`ioxide`](https://www.nuget.org/packages/ioxide) NuGet
-package (`0.0.5`). The BCL pipe bridges the engine builds on
-(`ConnectionDualPipe`/`ConnectionPipeReader`/`ConnectionPipeWriter`/`ConnectionStream`)
-ship in that package.
+package (`0.4.161`). The BCL pipe bridges the engine builds on
+(`TcpConnectionDualPipe`/`TcpConnectionPipeReader`/`TcpConnectionPipeWriter`) and the
+ring-native TLS termination (`TlsService`/`TlsConnectionDualPipe`) ship in that package.
 
 **Build note:** requires a .NET SDK with Roslyn 5.3+ (SDK 10.0.301+) because
 GenHTTP's `MemoryView` source generator references `Microsoft.CodeAnalysis 5.3`.
@@ -77,10 +78,14 @@ Response handling mirrors the Internal engine: cached status lines, a once-a-sec
 `Date` header (per-reactor, thread-static), and a `ChunkedWriter` for unknown-length
 content. `Handler.PrepareAsync` runs at startup so handlers initialise before serving.
 
+Also validated: **HTTPS** - endpoints bound with a certificate (`.Bind(address, port, cert)`)
+are TLS-terminated ring-natively (OpenSSL both ways; kernel TLS stays opt-in through the
+`connectionFactory` seam) - and **multiple endpoints**, served by one reactor set via
+`ExtraPorts`, mixed plaintext and TLS.
+
 Not yet implemented:
 
-- TLS / HTTPS (ioxide is plaintext `AF_INET` only here; `ioxide.tls`/kTLS would wire HTTPS endpoints).
-- IPv6 bind and multiple endpoints (first endpoint only).
+- Client certificates, SNI-selected certificates, and per-endpoint dual-stack modes.
 - Graceful shutdown / connection drain (reactors are background threads; `DisposeAsync` only flips `Running`).
 - `IServerCompanion` callbacks, the `Host`-header check, and the error-response path.
 

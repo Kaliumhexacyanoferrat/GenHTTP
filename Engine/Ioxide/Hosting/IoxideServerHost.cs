@@ -9,7 +9,7 @@ using ioxide;
 
 namespace GenHTTP.Engine.Ioxide.Hosting;
 
-public sealed class IoxideServerHost(Func<ServerConfig, ServerConfig>? configure = null, Action<Reactor>? onReactorStart = null, Func<Connection, ValueTask<IDuplexPipe>>? connectionFactory = null) : ServerHost
+public sealed class IoxideServerHost(Func<ServerConfig, ServerConfig>? configure = null, Action<Reactor>? onReactorStart = null, Func<TcpConnection, ValueTask<IDuplexPipe>>? connectionFactory = null) : ServerHost
 {
     
     protected override IServer Build(ServerConfiguration config, IHandler handler)

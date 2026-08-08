@@ -26,13 +26,12 @@ public static class Host
     /// <see cref="Hosting.IoxideServer" />'s reactor seam (<c>IoxideReactor.Current</c>).
     /// </param>
     /// <param name="connectionFactory">
-    /// Optional hook to turn an accepted <see cref="Connection" /> into the duplex pipe the engine
-    /// serves it over. Defaults to a plain <c>ConnectionDualPipe</c>. Supply a custom factory to
-    /// wrap the transport — e.g. terminate TLS on a second listener port by decrypting inbound bytes
-    /// and writing plaintext for kTLS TX. A returned pipe implementing <see cref="IAsyncDisposable" />
-    /// is disposed when the connection ends.
+    /// Optional hook to turn an accepted <see cref="TcpConnection" /> into the duplex pipe the engine
+    /// serves it over, overriding the built-in transport selection (plain pipe, or TLS termination
+    /// for endpoints bound with a certificate). A returned pipe implementing
+    /// <see cref="IAsyncDisposable" /> is disposed when the connection ends.
     /// </param>
-    public static IServerHost Create(Func<ServerConfig, ServerConfig>? configure = null, Action<Reactor>? onReactorStart = null, Func<Connection, ValueTask<IDuplexPipe>>? connectionFactory = null) 
+    public static IServerHost Create(Func<ServerConfig, ServerConfig>? configure = null, Action<Reactor>? onReactorStart = null, Func<TcpConnection, ValueTask<IDuplexPipe>>? connectionFactory = null) 
         => new IoxideServerHost(configure, onReactorStart, connectionFactory);
     
 }
