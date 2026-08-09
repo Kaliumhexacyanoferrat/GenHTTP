@@ -34,6 +34,10 @@ public sealed class IoxideServer : IServer
 
     private readonly Func<TcpConnection, ValueTask<IDuplexPipe>>? _connectionFactory;
 
+    private readonly bool _kernelTx;
+
+    private readonly bool _kernelRx;
+
     private readonly ILogger _logger;
 
     private Thread[]? _threads;
@@ -54,13 +58,15 @@ public sealed class IoxideServer : IServer
 
     public IHandler Handler { get; }
 
-    internal IoxideServer(ServerConfiguration config, IHandler handler, Func<ServerConfig, ServerConfig>? configure = null, Action<Reactor>? onReactorStart = null, Func<TcpConnection, ValueTask<IDuplexPipe>>? connectionFactory = null)
+    internal IoxideServer(ServerConfiguration config, IHandler handler, Func<ServerConfig, ServerConfig>? configure = null, Action<Reactor>? onReactorStart = null, Func<TcpConnection, ValueTask<IDuplexPipe>>? connectionFactory = null, bool kernelTx = false, bool kernelRx = false)
     {
         _config = config;
         Handler = handler;
         _configure = configure;
         _onReactorStart = onReactorStart;
         _connectionFactory = connectionFactory;
+        _kernelTx = kernelTx;
+        _kernelRx = kernelRx;
 
         _logger = config.Logging.CreateLogger<IoxideServer>();
 
@@ -108,7 +114,9 @@ public sealed class IoxideServer : IServer
             yield return new(port, new TlsOptions
             {
                 CertificatePem = certificate.ExportCertificatePem(),
-                KeyPem = ExportKeyPem(certificate)
+                KeyPem = ExportKeyPem(certificate),
+                KernelTx = _kernelTx,
+                KernelRx = _kernelRx
             });
         }
     }
