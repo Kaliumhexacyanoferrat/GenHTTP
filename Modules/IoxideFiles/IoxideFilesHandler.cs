@@ -70,7 +70,9 @@ public sealed class IoxideFilesHandler : IHandler
                 return default; // raced away
             }
 
-            if (AssetCache.IsFresh(asset, out var exists, out var currentSize))
+            // This length becomes Content-Length, so it has to be the size the body writer will
+            // actually produce - hence resolving freshness here and not only at write time.
+            if (AssetFreshness.IsFresh(asset, out var exists, out var currentSize))
             {
                 length = asset.Length;
             }
