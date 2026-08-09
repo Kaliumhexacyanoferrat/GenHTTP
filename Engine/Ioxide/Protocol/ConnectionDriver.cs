@@ -99,7 +99,7 @@ internal static partial class ConnectionDriver
                 // fails fast rather than a plaintext response landing on an https port.
                 if (!IoxideReactor.Current.GetService<TlsRegistry>().TryFor(conn.ListenerPort, out var service))
                 {
-                    Shutdown(conn.ClientFd, ShutWrite);
+                    _ = Shutdown(conn.ClientFd, ShutWrite);
                     conn.DecRef();
                     return;
                 }

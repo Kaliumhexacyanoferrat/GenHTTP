@@ -209,7 +209,10 @@ public sealed class IoxideServer : IServer
             _logger.LogWarning("Not all reactors reported listening within 10s; the server may not be fully accepting yet.");
         }
 
-        _logger.LogInformation("Listening on {Address}:{Port} ({Settings})", _primary.Address, _primary.Port, DescribeSettings());
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("Listening on {Address}:{Port} ({Settings})", _primary.Address, _primary.Port, DescribeSettings());
+        }
     }
 
     private async ValueTask PrepareHandlerAsync()
