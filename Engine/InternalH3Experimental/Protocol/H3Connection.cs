@@ -95,7 +95,15 @@ internal sealed class H3Connection : IHttp3Transport, IAsyncDisposable
     // context and it never blocks the parser. Glyph3's await, captured here, comes back through
     // PumpContext, so the submit still happens on the pump thread.
     private ValueTask<Http3Response> DispatchAsync(Http3Request request)
-        => new(Task.Run(() => HandleAsync(request)));
+    {
+        // Start the handler INLINE. A chain that completes synchronously - which the common case
+        // does - then costs no thread hop at all, and Glyph3 submits the response without ever
+        // leaving the pump. Only a handler that actually suspends pays for a continuation, and it
+        // comes back through PumpContext.
+        Task<Http3Response> pending = HandleAsync(request);
+
+        return new ValueTask<Http3Response>(pending);
+    }
 
     private async Task<Http3Response> HandleAsync(Http3Request source)
     {
