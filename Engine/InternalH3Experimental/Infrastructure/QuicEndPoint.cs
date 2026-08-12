@@ -117,7 +117,8 @@ internal sealed class QuicEndPoint : IEndPoint
     {
         try
         {
-            await H3Connection.ServeAsync(connection, _server, this, _logger, _shutdown.Token);
+            await H3Connection.ServeAsync(connection, _server, this, _logger,
+                (_server as H3Server)?.QpackCapacity ?? 0, _shutdown.Token);
         }
         catch (Exception e)
         {

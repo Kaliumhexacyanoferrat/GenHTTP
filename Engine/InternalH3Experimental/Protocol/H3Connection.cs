@@ -50,37 +50,47 @@ internal sealed class H3Connection : IHttp3Transport, IAsyncDisposable
 
     private readonly record struct Outbound(long StreamId, byte[] Buffer, int Length, bool Fin);
 
-    private H3Connection(QuicConnection quic, IServer server, IEndPoint endPoint, ILogger logger)
+    private readonly int _qpackCapacity;
+
+    private H3Connection(QuicConnection quic, IServer server, IEndPoint endPoint, ILogger logger, int qpackCapacity)
     {
         _quic = quic;
         _server = server;
         _endPoint = endPoint;
         _logger = logger;
+        _qpackCapacity = qpackCapacity;
     }
 
-    internal static async Task ServeAsync(QuicConnection quic, IServer server, IEndPoint endPoint, ILogger logger, CancellationToken cancellationToken)
+    internal static async Task ServeAsync(QuicConnection quic, IServer server, IEndPoint endPoint, ILogger logger,
+        int qpackCapacity, CancellationToken cancellationToken)
     {
-        await using var connection = new H3Connection(quic, server, endPoint, logger);
+        await using var connection = new H3Connection(quic, server, endPoint, logger, qpackCapacity);
         await connection.RunAsync(cancellationToken);
     }
 
     private async Task RunAsync(CancellationToken cancellationToken)
     {
         // Opened before Glyph3 exists, because OpenUniStream answers synchronously while
-        // OpenOutboundStreamAsync does not.
+        // OpenOutboundStreamAsync does not. With the dynamic table on it also wants a QPACK
+        // decoder stream, and an encoder stream if the client advertises a table of its own.
         //
         // One is enough: Glyph3 asks for a single unidirectional stream, for control and SETTINGS.
         // HTTP/3 also defines QPACK encoder and decoder streams, but Glyph3 advertises a dynamic
         // table capacity of 0, so there is nothing to insert and nothing to acknowledge. Raise this
         // if that ever changes.
-        for (int i = 0; i < ServerUniStreams; i++)
+        int uniStreams = _qpackCapacity > 0 ? ServerUniStreams + 2 : ServerUniStreams;
+
+        for (int i = 0; i < uniStreams; i++)
         {
             QuicStream uni = await _quic.OpenOutboundStreamAsync(QuicStreamType.Unidirectional, cancellationToken);
             _streams[uni.Id] = uni;
             _spareUniStreams.Enqueue(uni);
         }
 
-        _h3 = new Http3Connection(this, DispatchAsync);
+        _h3 = new Http3Connection(this, DispatchAsync, new Http3Options
+        {
+            QpackDynamicTableCapacity = _qpackCapacity,
+        });
 
         Task accepting = AcceptStreamsAsync(cancellationToken);
         Task writing = WriteLoopAsync(cancellationToken);

@@ -18,7 +18,7 @@
 
         <ProjectReference Include="..\Shared\GenHTTP.Engine.Shared.csproj" />
 
-        <PackageReference Include="Glyph3" Version="0.1.0" />
+        <PackageReference Include="Glyph3" Version="0.3.0" />
 
     </ItemGroup>
 

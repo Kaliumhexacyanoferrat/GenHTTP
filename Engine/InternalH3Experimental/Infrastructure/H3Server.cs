@@ -35,8 +35,12 @@ internal sealed class H3Server : IServer
 
     internal ServerConfiguration Configuration { get; }
 
-    internal H3Server(ServerConfiguration configuration, IHandler handler)
+    internal int QpackCapacity { get; }
+
+    internal H3Server(ServerConfiguration configuration, IHandler handler, int qpackCapacity)
     {
+        QpackCapacity = qpackCapacity;
+
         Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "(n/a)";
 
         Configuration = configuration;

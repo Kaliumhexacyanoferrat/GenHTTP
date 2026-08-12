@@ -21,6 +21,16 @@ public static class Host
     /// <summary>
     /// Provides a new server host serving HTTP/3 over QUIC.
     /// </summary>
-    public static IServerHost Create() => new H3ServerHost();
+    /// <param name="qpackDynamicTableCapacity">
+    /// Bytes of QPACK dynamic table advertised to clients, and the ceiling on what this server will
+    /// use for its own responses. 0 (the default) switches the mechanism off: headers are encoded
+    /// with the static table and literals only.
+    ///
+    /// A nonzero value lets a client compress headers it repeats - cookies and user-agent, mostly -
+    /// to about two bytes each. Most clients decline: curl, and .NET's own HTTP/3 client, advertise
+    /// no table at all. Browsers are the ones that may use it.
+    /// </param>
+    public static IServerHost Create(int qpackDynamicTableCapacity = 0)
+        => new H3ServerHost(qpackDynamicTableCapacity);
 
 }
