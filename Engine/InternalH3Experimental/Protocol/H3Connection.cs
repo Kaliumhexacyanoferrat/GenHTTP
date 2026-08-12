@@ -43,6 +43,8 @@ internal sealed class H3Connection : IHttp3Transport, IAsyncDisposable
 
     private Http3Connection? _h3;
 
+    private const int ServerUniStreams = 1;
+
     // Stream bytes, a stream ending, or a continuation that must run on the pump thread.
     private readonly record struct Inbound(long StreamId, byte[]? Buffer, int Length, bool Fin, bool Closed, Action? Resume);
 
@@ -64,8 +66,14 @@ internal sealed class H3Connection : IHttp3Transport, IAsyncDisposable
 
     private async Task RunAsync(CancellationToken cancellationToken)
     {
-        // Opened before Glyph3 exists, because OpenUniStream answers synchronously.
-        for (int i = 0; i < 3; i++)
+        // Opened before Glyph3 exists, because OpenUniStream answers synchronously while
+        // OpenOutboundStreamAsync does not.
+        //
+        // One is enough: Glyph3 asks for a single unidirectional stream, for control and SETTINGS.
+        // HTTP/3 also defines QPACK encoder and decoder streams, but Glyph3 advertises a dynamic
+        // table capacity of 0, so there is nothing to insert and nothing to acknowledge. Raise this
+        // if that ever changes.
+        for (int i = 0; i < ServerUniStreams; i++)
         {
             QuicStream uni = await _quic.OpenOutboundStreamAsync(QuicStreamType.Unidirectional, cancellationToken);
             _streams[uni.Id] = uni;
