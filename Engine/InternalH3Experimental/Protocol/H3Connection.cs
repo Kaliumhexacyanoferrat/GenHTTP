@@ -71,13 +71,13 @@ internal sealed class H3Connection : IHttp3Transport, IAsyncDisposable
     private async Task RunAsync(CancellationToken cancellationToken)
     {
         // Opened before Glyph3 exists, because OpenUniStream answers synchronously while
-        // OpenOutboundStreamAsync does not. With the dynamic table on it also wants a QPACK
-        // decoder stream, and an encoder stream if the client advertises a table of its own.
+        // OpenOutboundStreamAsync does not.
         //
-        // One is enough: Glyph3 asks for a single unidirectional stream, for control and SETTINGS.
-        // HTTP/3 also defines QPACK encoder and decoder streams, but Glyph3 advertises a dynamic
-        // table capacity of 0, so there is nothing to insert and nothing to acknowledge. Raise this
-        // if that ever changes.
+        // One is enough at capacity 0: Glyph3 asks for a single unidirectional stream, for control
+        // and SETTINGS, and with no dynamic table there is nothing to insert and nothing to
+        // acknowledge. With a capacity it also wants the QPACK decoder stream, plus an encoder
+        // stream for the case where the client advertises a table of its own. The encoder one goes
+        // unused if the client then advertises 0, which every non-browser client does.
         int uniStreams = _qpackCapacity > 0 ? ServerUniStreams + 2 : ServerUniStreams;
 
         for (int i = 0; i < uniStreams; i++)
@@ -101,11 +101,36 @@ internal sealed class H3Connection : IHttp3Transport, IAsyncDisposable
         }
         finally
         {
+            ReportQpack();
+
             _h3.Close();
             _egress.Writer.TryComplete();
             _ingress.Writer.TryComplete();
             await Task.WhenAny(Task.WhenAll(accepting, writing), Task.Delay(1000, CancellationToken.None));
         }
+    }
+
+    /// <summary>
+    /// Reports what QPACK actually did on this connection, which is otherwise invisible.
+    /// </summary>
+    /// <remarks>
+    /// A capacity of 0 is worth distinguishing from SETTINGS that never arrived, since both leave
+    /// the counters at 0 while meaning entirely different things. In practice only browsers
+    /// advertise a table at all: everything else sends 0, which makes the dynamic table inert no
+    /// matter what capacity this engine was configured with.
+    /// </remarks>
+    private void ReportQpack()
+    {
+        if (_h3 is null || !_logger.IsEnabled(LogLevel.Debug))
+        {
+            return;
+        }
+
+        _logger.LogDebug(
+            "HTTP/3 connection closed: peer QPACK table {Capacity}, dynamic inserts in {Inbound} / out {Outbound}",
+            _h3.PeerSettingsReceived ? $"{_h3.PeerDynamicTableCapacity} B" : "never advertised",
+            _h3.InboundDynamicInserts,
+            _h3.OutboundDynamicInserts);
     }
 
     // Glyph3 calls this on the pump thread and awaits the result before submitting the response.
