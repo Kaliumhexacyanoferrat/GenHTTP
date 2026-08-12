@@ -7,6 +7,8 @@ using GenHTTP.Engine.InternalH3Experimental;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 
+using Microsoft.Extensions.Logging.Abstractions;
+
 //   curl -k https://localhost:8443/hello              # HTTP/1.1, over TCP
 //   curl -k --http3 https://localhost:8443/hello      # HTTP/3, over QUIC
 //   curl -k -i https://localhost:8443/hello | grep -i alt-svc
@@ -24,8 +26,12 @@ var app = Layout.Create()
 var certificate = CreateDevelopmentCertificate();
 
 // HTTP/3 first, so it is listening before anything advertises it.
+//
+// Request logging is off on both hosts: it writes a console line per request, which is enough to
+// dominate a throughput measurement. Drop the Logging call to get it back.
 var h3 = Host.Create()
              .Handler(app)
+             .Logging(NullLoggerFactory.Instance, logRequests: false)
              .Bind(IPAddress.Loopback, Port, certificate);
 
 await h3.StartAsync();
@@ -35,6 +41,7 @@ await h3.StartAsync();
 await GenHTTP.Engine.Internal.Host.Create()
              .Handler(app)
              .Add(AltSvc.To(Port))
+             .Logging(NullLoggerFactory.Instance, logRequests: false)
              .Bind(IPAddress.Loopback, Port, certificate)
              .RunAsync();
 
