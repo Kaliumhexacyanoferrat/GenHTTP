@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+
+        <Description>EXPERIMENTAL HTTP/3 engine for GenHTTP: QUIC via System.Net.Quic (MsQuic), HTTP/3 via Glyph3. Runs alongside another engine that serves HTTP/1.1 and advertises this one with Alt-Svc.</Description>
+        <PackageTags>GenHTTP HTTP HTTP3 H3 QUIC Webserver Server Library C# Engine Experimental</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+
+        <!-- System.Net.Quic is annotated as linux/macOS/windows only, and the analyzer cannot see
+             the QuicListener.IsSupported check this engine makes before touching any of it. -->
+        <NoWarn>$(NoWarn);CA1416</NoWarn>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+
+        <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
+
+        <ProjectReference Include="..\Shared\GenHTTP.Engine.Shared.csproj" />
+
+        <PackageReference Include="Glyph3" Version="0.1.0" />
+
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+</Project>
