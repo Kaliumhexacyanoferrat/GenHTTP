@@ -18,8 +18,8 @@ namespace GenHTTP.Engine.InternalH3Experimental.Protocol;
 /// </summary>
 /// <remarks>
 /// Glyph3 is a single state machine, so every call into it is funnelled through one channel and one
-/// consumer. Handlers run off that thread and their responses are posted back, which is what lets
-/// several requests be in flight on one connection without the parser ever seeing two threads.
+/// consumer - the pump. Handlers start on that thread and, if they suspend, resume back onto it
+/// through PumpContext, so several requests can be in flight without the parser seeing two threads.
 /// </remarks>
 internal sealed class H3Connection : IHttp3Transport, IAsyncDisposable
 {
@@ -91,9 +91,6 @@ internal sealed class H3Connection : IHttp3Transport, IAsyncDisposable
     }
 
     // Glyph3 calls this on the pump thread and awaits the result before submitting the response.
-    // Task.Run moves the handler chain off the pump, so its own awaits do not inherit the pump's
-    // context and it never blocks the parser. Glyph3's await, captured here, comes back through
-    // PumpContext, so the submit still happens on the pump thread.
     private ValueTask<Http3Response> DispatchAsync(Http3Request request)
     {
         // Start the handler INLINE. A chain that completes synchronously - which the common case

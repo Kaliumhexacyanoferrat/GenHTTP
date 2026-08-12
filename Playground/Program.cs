@@ -15,9 +15,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 //
 // TCP:8443 and UDP:8443 are different sockets, so both engines bind the same number.
 
-// One number, two sockets: the HTTP/1.1 host binds TCP 8443 and the HTTP/3 host binds
-// UDP 8443. They do not collide, and Alt-Svc can then advertise the same port the client is
-// already talking to.
 const ushort Port = 8443;
 
 var app = Layout.Create()
@@ -25,19 +22,14 @@ var app = Layout.Create()
 
 var certificate = CreateDevelopmentCertificate();
 
-// HTTP/3 first, so it is listening before anything advertises it.
-//
-// Request logging is off on both hosts: it writes a console line per request, which is enough to
-// dominate a throughput measurement. Drop the Logging call to get it back.
 var h3 = Host.Create()
              .Handler(app)
              .Logging(NullLoggerFactory.Instance, logRequests: false)
              .Bind(IPAddress.Loopback, Port, certificate);
 
-await h3.StartAsync();
+await h3.StartAsync(); // start h3 server, non blocking
 
-// HTTP/1.1, advertising the endpoint above. The port has to match, and nothing checks that it does:
-// get it wrong and clients simply never upgrade.
+// h1 internal engine
 await GenHTTP.Engine.Internal.Host.Create()
              .Handler(app)
              .Add(AltSvc.To(Port))
