@@ -13,6 +13,7 @@
     </Folder>
     <Folder Name="/Engine/">
         <Project Path="Engine\Internal\GenHTTP.Engine.Internal.csproj" />
+        <Project Path="Engine\InternalH3Experimental\GenHTTP.Engine.InternalH3Experimental.csproj" />
         <Project Path="Engine\Ioxide\GenHTTP.Engine.Ioxide.csproj" />
         <Project Path="Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj" />
         <Project Path="Engine\Shared\GenHTTP.Engine.Shared.csproj" />
