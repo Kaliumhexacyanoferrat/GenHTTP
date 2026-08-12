@@ -41,7 +41,7 @@ var certificate = CreateDevelopmentCertificate();
 Console.WriteLine($"SPKI hash: {SpkiHash(certificate)}");
 
 // HTTP/3 first, so it is listening before anything advertises it.
-var h3 = Host.Create(QpackCapacity)
+var h3 = Host.Create(qpackDynamicTableCapacity: QpackCapacity)
              .Handler(content)
              .Logging(NullLoggerFactory.Instance, logRequests: false)
              .Bind(IPAddress.Loopback, Port, certificate);
