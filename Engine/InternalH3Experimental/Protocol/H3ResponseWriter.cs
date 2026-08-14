@@ -14,7 +14,28 @@ internal static class H3ResponseWriter
 
     internal static async ValueTask<Http3Response> BuildAsync(IResponse response, bool headRequest)
     {
-        var headers = new List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)>();
+        ReadOnlyMemory<byte> body = default;
+
+        IResponseContent? content = response.Content;
+
+        // A HEAD response keeps the headers its GET would have produced and sends no body.
+        if (content is not null && !headRequest)
+        {
+            var buffer = new ArrayBufferWriter<byte>(
+                content.Length is { } length and > 0 and < int.MaxValue ? (int)length : 4096);
+
+            await content.WriteAsync(new H3Sink(buffer));
+
+            body = buffer.WrittenMemory;
+        }
+
+        // Written straight into the response. Collecting into a list first and copying it across
+        // allocated a second list and its backing array on every single response.
+        var result = new Http3Response
+        {
+            Status = (int)response.Status,
+            Body = body,
+        };
 
         for (int i = 0; i < response.Headers.Count; i++)
         {
@@ -24,49 +45,37 @@ internal static class H3ResponseWriter
             // treat them as a protocol error rather than ignore them.
             if (!IsConnectionSpecific(header.Key.Span))
             {
-                headers.Add((Lowercase(header.Key), header.Value));
+                result.Headers.Add((Lowercase(header.Key), header.Value));
             }
         }
 
-        ReadOnlyMemory<byte> body = default;
-
-        if (response.Content is { } content)
+        if (content is not null)
         {
             if (content.Type is { } type)
             {
-                headers.Add((ContentTypeName, type.Bytes));
+                result.Headers.Add((ContentTypeName, type.Bytes));
             }
 
             if (content.Encoding is { } encoding)
             {
-                headers.Add((ContentEncodingName, encoding));
+                result.Headers.Add((ContentEncodingName, encoding));
             }
-
-            // A HEAD response keeps the headers its GET would have produced and sends no body.
-            if (!headRequest)
-            {
-                var buffer = new ArrayBufferWriter<byte>(
-                    content.Length is { } length and > 0 and < int.MaxValue ? (int)length : 4096);
-
-                await content.WriteAsync(new H3Sink(buffer));
-
-                body = buffer.WrittenMemory;
-            }
-        }
-
-        var result = new Http3Response
-        {
-            Status = (int)response.Status,
-            Body = body,
-        };
-
-        foreach ((ReadOnlyMemory<byte> name, ReadOnlyMemory<byte> value) in headers)
-        {
-            result.Headers.Add((name, value));
         }
 
         return result;
     }
+
+    // The field names GenHTTP actually emits, pre-lowercased. Every one of these arrives with
+    // capitals, so without this table each of them allocated a fresh array on every response.
+    private static readonly byte[][] KnownNames =
+    [
+        "server"u8.ToArray(), "date"u8.ToArray(), "content-type"u8.ToArray(),
+        "content-encoding"u8.ToArray(), "content-disposition"u8.ToArray(), "content-range"u8.ToArray(),
+        "cache-control"u8.ToArray(), "last-modified"u8.ToArray(), "expires"u8.ToArray(),
+        "location"u8.ToArray(), "etag"u8.ToArray(), "vary"u8.ToArray(),
+        "accept-ranges"u8.ToArray(), "set-cookie"u8.ToArray(), "alt-svc"u8.ToArray(),
+        "access-control-allow-origin"u8.ToArray(), "www-authenticate"u8.ToArray(),
+    ];
 
     // HTTP/3 requires lowercase field names; anything else is a malformed message.
     private static ReadOnlyMemory<byte> Lowercase(ReadOnlyMemory<byte> name)
@@ -77,6 +86,15 @@ internal static class H3ResponseWriter
         {
             if (span[i] is >= (byte)'A' and <= (byte)'Z')
             {
+                // Matches compares case-insensitively, so a known name resolves to a shared array.
+                foreach (byte[] known in KnownNames)
+                {
+                    if (Matches(span, known))
+                    {
+                        return known;
+                    }
+                }
+
                 byte[] lowered = name.ToArray();
                 for (int j = 0; j < lowered.Length; j++)
                 {
