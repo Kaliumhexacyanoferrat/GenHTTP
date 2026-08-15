@@ -42,7 +42,12 @@ public static class Host
     /// experimental; it requires <paramref name="kernelTx"/> (RX shares the ULP handoff TX installs,
     /// so ioxide refuses RX alone) and a peer that sends no post-handshake control records.
     /// </param>
-    public static IServerHost Create(Func<ServerConfig, ServerConfig>? configure = null, Action<Reactor>? onReactorStart = null, Func<TcpConnection, ValueTask<IDuplexPipe>>? connectionFactory = null, bool kernelTx = false, bool kernelRx = false)
-        => new IoxideServerHost(configure, onReactorStart, connectionFactory, kernelTx, kernelRx);
+    /// <param name="options">
+    /// Protocol and TLS options for the engine: HTTP/2, the HTTP/3 certificate, mutual TLS and
+    /// QPACK. Endpoint-level settings stay on <c>Bind</c> - the port, its certificate, whether it
+    /// serves HTTP/3 (<c>enableQuic</c>) and whether it asks for a client certificate.
+    /// </param>
+    public static IServerHost Create(Func<ServerConfig, ServerConfig>? configure = null, Action<Reactor>? onReactorStart = null, Func<TcpConnection, ValueTask<IDuplexPipe>>? connectionFactory = null, bool kernelTx = false, bool kernelRx = false, IoxideOptions? options = null)
+        => new IoxideServerHost(configure, onReactorStart, connectionFactory, kernelTx, kernelRx, options);
     
 }

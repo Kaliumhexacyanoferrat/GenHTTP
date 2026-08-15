@@ -4,6 +4,8 @@ using System.Net;
 using System.Runtime.InteropServices;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+
+using GenHTTP.Engine.Ioxide.Protocol.Mux;
 using GenHTTP.Engine.Shared.Types;
 using Glyph11.Parser;
 using Glyph11.Parser.UltraHardened;
@@ -82,9 +84,13 @@ internal static partial class ConnectionDriver
 
     private const int MaxPooledRequests = 1024;
 
-    internal static async Task HandleAsync(IServer server, IEndPoint endPoint, IoConnection conn, Func<IoConnection, ValueTask<IDuplexPipe>>? connectionFactory)
+    internal static async Task HandleAsync(IServer server, IEndPoint endPoint, IoConnection conn, Func<IoConnection, ValueTask<IDuplexPipe>>? connectionFactory, bool http2 = false)
     {
         IDuplexPipe pipe;
+
+        // What ALPN settled on, when the transport negotiated anything. Null on a plaintext port,
+        // and on a TLS port whose client offered nothing we serve.
+        string? negotiated = null;
 
         try
         {
@@ -104,7 +110,7 @@ internal static partial class ConnectionDriver
                     return;
                 }
 
-                pipe = await IoxideTls.AcceptAsync(conn, service);
+                (pipe, negotiated) = await IoxideTls.AcceptWithAlpnAsync(conn, service);
             }
             else
             {
@@ -123,6 +129,26 @@ internal static partial class ConnectionDriver
 
         // The peer address is constant for the connection; resolve it once from the socket fd.
         var remoteAddress = GetPeerAddress(conn.ClientFd);
+
+        if (http2 && (negotiated == "h2" || (negotiated is null && await StartsWithPrefaceAsync(reader))))
+        {
+            // HTTP/2 owns the connection from here: it multiplexes, so there is no request loop to
+            // run above it and nothing of the HTTP/1.1 path applies.
+            try
+            {
+                await Http2Driver.RunAsync(server, endPoint, pipe, remoteAddress, endPoint.Secure);
+            }
+            catch
+            {
+                // client or protocol fault - teardown happens below
+            }
+            finally
+            {
+                await CloseAsync(pipe, conn);
+            }
+
+            return;
+        }
 
         var request = RentRequest();
         var into = request.Source;
@@ -216,6 +242,56 @@ internal static partial class ConnectionDriver
             conn.DecRef();
             ReturnRequest(request);
         }
+    }
+
+    /// <summary>
+    /// Peeks for the HTTP/2 connection preface without consuming it, so a plaintext client using
+    /// prior knowledge (h2c) is recognised and the same bytes are handed to the HTTP/2 layer.
+    /// </summary>
+    private static async ValueTask<bool> StartsWithPrefaceAsync(PipeReader reader)
+    {
+        while (true)
+        {
+            var result = await reader.ReadAsync();
+            var buffer = result.Buffer;
+
+            if (buffer.Length >= Preface.Length)
+            {
+                Span<byte> head = stackalloc byte[Preface.Length];
+                buffer.Slice(0, Preface.Length).CopyTo(head);
+
+                // Nothing consumed AND nothing examined: marking these bytes examined would tell the
+                // pipe we are waiting for more, and whichever protocol reads next would block on data
+                // that has already arrived.
+                reader.AdvanceTo(buffer.Start, buffer.Start);
+
+                return head.SequenceEqual(Preface.Span);
+            }
+
+            // Too short to decide yet - examined to the end, so the next read waits for more.
+            reader.AdvanceTo(buffer.Start, buffer.End);
+
+            if (result.IsCompleted)
+            {
+                return false;
+            }
+        }
+    }
+
+    private static readonly ReadOnlyMemory<byte> Preface = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n"u8.ToArray();
+
+    private static async ValueTask CloseAsync(IDuplexPipe pipe, IoConnection conn)
+    {
+        await pipe.Input.CompleteAsync();
+        await pipe.Output.CompleteAsync();
+
+        if (pipe is IAsyncDisposable disposable)
+        {
+            await disposable.DisposeAsync();
+        }
+
+        Shutdown(conn.ClientFd, ShutWrite);
+        conn.DecRef();
     }
 
     private static bool TryParseRequest(ref ReadOnlySequence<byte> buffer, BinaryRequest into)

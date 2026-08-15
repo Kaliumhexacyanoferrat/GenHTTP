@@ -24,10 +24,18 @@ public static class IoxideTls
         => await AcceptAsync(conn, IoxideReactor.Current.GetService<TlsService>());
 
     internal static async ValueTask<IDuplexPipe> AcceptAsync(TcpConnection conn, TlsService service)
+        => (await AcceptWithAlpnAsync(conn, service)).Pipe;
+
+    /// <summary>
+    /// Terminates TLS and reports what ALPN settled on, which is how a port serving several
+    /// protocols knows which one this connection speaks. Null means the client offered nothing this
+    /// port lists, in which case it continues without an ALPN extension and HTTP/1.1 is assumed.
+    /// </summary>
+    internal static async ValueTask<(IDuplexPipe Pipe, string? Protocol)> AcceptWithAlpnAsync(TcpConnection conn, TlsService service)
     {
         var session = await service.AcceptAsync(conn);
 
-        return new TlsConnectionDualPipe(conn, session);
+        return (new TlsConnectionDualPipe(conn, session), session.NegotiatedAlpn);
     }
 }
 

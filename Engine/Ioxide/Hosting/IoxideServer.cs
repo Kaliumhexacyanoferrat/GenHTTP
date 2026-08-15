@@ -1,22 +1,32 @@
 using System.Diagnostics;
 using System.IO.Pipelines;
-using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Ioxide.Protocol;
+using GenHTTP.Engine.Ioxide.Protocol.Mux;
 using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Types;
 
 using ioxide;
+using ioxide.nghttp3;
 using ioxide.tls;
 
 using Microsoft.Extensions.Logging;
 
 namespace GenHTTP.Engine.Ioxide.Hosting;
 
-public sealed class IoxideServer : IServer
+/// <summary>
+/// Hosts an application on ioxide's io_uring reactors.
+/// </summary>
+/// <remarks>
+/// One reactor per core, each owning a ring and its connections on its own thread. Protocol
+/// selection is per endpoint: HTTP/1.1 always, HTTP/2 when enabled (by ALPN on a TLS port, by the
+/// connection preface on a plaintext one), and HTTP/3 on the endpoint bound with <c>enableQuic</c>.
+/// TLS termination and the QUIC listener live in the other halves of this class.
+/// </remarks>
+public sealed partial class IoxideServer : IServer
 {
     private readonly ServerConfiguration _config;
 
@@ -28,6 +38,8 @@ public sealed class IoxideServer : IServer
 
     private readonly ushort[] _extraPorts;
 
+    private readonly IoxideEndPoint? _quicRequested;
+
     private readonly Func<ServerConfig, ServerConfig>? _configure;
 
     private readonly Action<Reactor>? _onReactorStart;
@@ -37,6 +49,10 @@ public sealed class IoxideServer : IServer
     private readonly bool _kernelTx;
 
     private readonly bool _kernelRx;
+
+    private readonly IoxideOptions _options;
+
+    private readonly Nghttp3Options _h3Options;
 
     private readonly ILogger _logger;
 
@@ -58,7 +74,9 @@ public sealed class IoxideServer : IServer
 
     public IHandler Handler { get; }
 
-    internal IoxideServer(ServerConfiguration config, IHandler handler, Func<ServerConfig, ServerConfig>? configure = null, Action<Reactor>? onReactorStart = null, Func<TcpConnection, ValueTask<IDuplexPipe>>? connectionFactory = null, bool kernelTx = false, bool kernelRx = false)
+    internal IoxideServer(ServerConfiguration config, IHandler handler, Func<ServerConfig, ServerConfig>? configure = null,
+        Action<Reactor>? onReactorStart = null, Func<TcpConnection, ValueTask<IDuplexPipe>>? connectionFactory = null,
+        bool kernelTx = false, bool kernelRx = false, IoxideOptions? options = null)
     {
         _config = config;
         Handler = handler;
@@ -67,6 +85,13 @@ public sealed class IoxideServer : IServer
         _connectionFactory = connectionFactory;
         _kernelTx = kernelTx;
         _kernelRx = kernelRx;
+        _options = options ?? IoxideOptions.Default;
+
+        _h3Options = new Nghttp3Options
+        {
+            QpackDynamicTableCapacity = _options.QpackDynamicTableCapacity,
+            QpackBlockedStreams = _options.QpackBlockedStreams,
+        };
 
         _logger = config.Logging.CreateLogger<IoxideServer>();
 
@@ -83,6 +108,17 @@ public sealed class IoxideServer : IServer
             throw new NotSupportedException("The ioxide engine binds all endpoints with one dual-stack mode.");
         }
 
+        // One QUIC listener: the transport binds a single UDP port for the whole server, so several
+        // endpoints asking for HTTP/3 would each want their own and only the first could have it.
+        var quic = config.EndPoints.Where(e => e.EnableQuic).ToList();
+
+        if (quic.Count > 1)
+        {
+            throw new NotSupportedException("The ioxide engine serves HTTP/3 on one endpoint; enableQuic is set on several.");
+        }
+
+        _quicRequested = quic.Count == 1 ? _endPointByPort[quic[0].Port] : null;
+
         // Certificates are resolved per reactor in OnStart, not here: the provider is queried for
         // its default (no-SNI) certificate then, and a port whose provider yields none is still
         // advertised as secure (so secure-upgrade redirects work) but serves no handshake.
@@ -92,39 +128,6 @@ public sealed class IoxideServer : IServer
 
         EndPoints = new IoxideEndPoints(mapped.Cast<IEndPoint>().ToList());
     }
-
-    // The certificate for every secure port whose provider yields a default (no-SNI) certificate.
-    // Providers that select by SNI (unsupported here) return none and are skipped - the port stays
-    // advertised as secure but its handshakes are refused.
-    private IEnumerable<KeyValuePair<ushort, TlsOptions>> ResolveTls()
-    {
-        foreach (var (port, security) in _secure)
-        {
-            if (security.CertificateValidator is not null)
-            {
-                throw new NotSupportedException("Client certificate validation is not supported by the ioxide engine.");
-            }
-
-            if (security.CertificateProvider.Provide(null) is not { } certificate)
-            {
-                _logger.LogWarning("No default certificate for secure port {Port}; handshakes there will be refused (SNI selection is unsupported).", port);
-                continue;
-            }
-
-            yield return new(port, new TlsOptions
-            {
-                CertificatePem = certificate.ExportCertificatePem(),
-                KeyPem = ExportKeyPem(certificate),
-                KernelTx = _kernelTx,
-                KernelRx = _kernelRx
-            });
-        }
-    }
-
-    private static string ExportKeyPem(X509Certificate2 certificate)
-        => certificate.GetRSAPrivateKey()?.ExportPkcs8PrivateKeyPem()
-           ?? certificate.GetECDsaPrivateKey()?.ExportPkcs8PrivateKeyPem()
-           ?? throw new InvalidOperationException("The certificate carries no exportable RSA or ECDSA private key.");
 
     public async ValueTask StartAsync()
     {
@@ -150,6 +153,11 @@ public sealed class IoxideServer : IServer
                 ExtraPorts = _extraPorts
             }
         };
+
+        if (_quicRequested is { } quicEndPoint)
+        {
+            cfg = WithQuic(cfg, quicEndPoint);
+        }
 
         _threads = new Thread[cfg.ReactorCount];
         _reactors = new Reactor[cfg.ReactorCount];
@@ -183,7 +191,8 @@ public sealed class IoxideServer : IServer
                     _onReactorStart?.Invoke(r);
                     listening.Signal();
                 },
-                TcpHandle = (_, c) => ConnectionDriver.HandleAsync(this, _endPointByPort[c.ListenerPort], c, _connectionFactory)
+                TcpHandle = (_, c) => ConnectionDriver.HandleAsync(this, _endPointByPort[c.ListenerPort], c, _connectionFactory, _options.Http2),
+                QuicHandle = _quic is not null ? (_, c) => Http3Driver.RunAsync(this, _quicEndPoint!, c, _h3Options) : null
             };
 
             _reactors[i] = reactor;
@@ -233,7 +242,19 @@ public sealed class IoxideServer : IServer
         }
     }
 
-    private string DescribeSettings() => $"ioxide, {_endPointByPort.Count} endpoint(s), TLS on {_secure.Count}, DualStack: {_primary.DualStack}, Reactors: {_reactors?.Length ?? 0}";
+    private string DescribeSettings()
+    {
+        var protocols = _options.Http2 ? "HTTP/1.1+2" : "HTTP/1.1";
+
+        if (_quic is not null)
+        {
+            protocols += "+3";
+        }
+
+        return $"ioxide, {protocols}, {_endPointByPort.Count} endpoint(s), TLS on {_secure.Count}"
+               + (MutualTlsConfigured ? ", mTLS" : string.Empty)
+               + $", DualStack: {_primary.DualStack}, Reactors: {_reactors?.Length ?? 0}";
+    }
 
     public async ValueTask DisposeAsync()
     {
@@ -270,7 +291,8 @@ public sealed class IoxideServer : IServer
             }
         });
 
+        DisposeQuic();
+
         _logger.LogInformation("Stopped ioxide reactors");
     }
-
 }
