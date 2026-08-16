@@ -13,10 +13,6 @@ namespace GenHTTP.Engine.Ioxide;
 public static class Host
 {
 
-    /// <param name="configure">
-    /// Tunes the ioxide runtime, e.g. <c>c => c with { ReactorCount = 16 }</c>. Listen ports always
-    /// come from the GenHTTP endpoint bindings.
-    /// </param>
     /// <param name="onReactorStart">
     /// Registers ring-native services on each reactor's own thread before it serves, e.g.
     /// <c>r => PgPool.Start(r, pgOptions)</c>. Handlers resolve them via <c>IoxideReactor.Current</c>.
@@ -26,10 +22,10 @@ public static class Host
     /// <see cref="IAsyncDisposable" /> is disposed when the connection ends.
     /// </param>
     /// <param name="options">
-    /// Protocols, kernel TLS, the HTTP/3 certificate, mutual TLS and QPACK. Per-endpoint
-    /// settings stay on <c>Bind</c>.
+    /// Everything the engine is tuned by: the reactors, the TCP transport, protocols per port,
+    /// the HTTP/3 certificate, mutual TLS and QPACK. Ports and certificates stay on <c>Bind</c>.
     /// </param>
-    public static IServerHost Create(Func<ServerConfig, ServerConfig>? configure = null, Action<Reactor>? onReactorStart = null, Func<TcpConnection, ValueTask<IDuplexPipe>>? connectionFactory = null, IoxideOptions? options = null)
-        => new IoxideServerHost(configure, onReactorStart, connectionFactory, options);
+    public static IServerHost Create(Action<Reactor>? onReactorStart = null, Func<TcpConnection, ValueTask<IDuplexPipe>>? connectionFactory = null, IoxideOptions? options = null)
+        => new IoxideServerHost(onReactorStart, connectionFactory, options);
 
 }

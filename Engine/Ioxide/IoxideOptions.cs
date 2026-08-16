@@ -40,33 +40,29 @@ public sealed record IoxideOptions
 /// on it, and shares nothing with the others - so these are per reactor, not per server, and the
 /// memory they describe is multiplied by <see cref="ReactorCount"/>.
 /// </summary>
-/// <remarks>
-/// Every value is optional and left at ioxide's own default when unset, rather than restated here
-/// where it would drift the first time ioxide retunes one.
-/// </remarks>
 public sealed record IoxideReactorOptions
 {
     /// <summary>
-    /// How many reactors to run. Unset means one per core, which is what a server with the machine
-    /// to itself wants; anything sharing the box - a colocated load generator, a database, sibling
-    /// containers - wants fewer, or the reactors and everything else fight for the same cores.
+    /// How many reactors to run. One per core suits a server with the machine to itself; anything
+    /// sharing the box - a colocated load generator, a database, sibling containers - wants fewer,
+    /// or the reactors and everything else fight for the same cores.
     /// </summary>
-    public int? ReactorCount { get; init; }
+    public int ReactorCount { get; init; } = Environment.ProcessorCount;
 
     /// <summary>io_uring submission and completion queue depth, per reactor.</summary>
-    public uint? RingEntries { get; init; }
+    public uint RingEntries { get; init; } = 8192;
 
     /// <summary>
     /// Bytes per buffer in the shared recv ring. Larger reads more per completion and wastes more
     /// per idle connection. Unused when <see cref="Incremental"/> is set.
     /// </summary>
-    public int? RecvBufferSize { get; init; }
+    public int RecvBufferSize { get; init; } = 32 * 1024;
 
     /// <summary>
     /// Buffers in the shared recv ring. Running out costs a retry, not a lost byte. Unused when
     /// <see cref="Incremental"/> is set.
     /// </summary>
-    public int? RecvSlots { get; init; }
+    public int RecvSlots { get; init; } = 4096;
 
     /// <summary>
     /// Give each connection its own small buffer ring (IOU_PBUF_RING_INC, kernel 6.12+) instead of
@@ -95,6 +91,39 @@ public sealed record IoxideTcpOptions
     /// alone. The peer must send no post-handshake control records.
     /// </summary>
     public bool RxKernelTls { get; init; }
+
+    /// <summary>
+    /// listen() backlog per reactor - the accept queue that absorbs a burst of connections. Every
+    /// reactor binds its own SO_REUSEPORT listener, so the server absorbs this many per reactor.
+    /// </summary>
+    public int ListenBacklog { get; init; } = 1024;
+
+    /// <summary>
+    /// Bytes of write buffer per connection. A response that fits leaves in one send; a larger one
+    /// is handled by <see cref="WriteOverflow"/>.
+    /// </summary>
+    public int WriteSlabSize { get; init; } = 16 * 1024;
+
+    /// <summary>
+    /// What a response larger than <see cref="WriteSlabSize"/> does: grow the slab and keep one
+    /// send, or chain pooled slabs and flush them with one vectored sendmsg instead of reallocating.
+    /// </summary>
+    public WriteOverflowStrategy WriteOverflow { get; init; } = WriteOverflowStrategy.Grow;
+
+    /// <summary>Connections kept pooled per reactor for reuse rather than freed.</summary>
+    public int PoolMax { get; init; } = 1024;
+
+    /// <summary>
+    /// Send responses with zero-copy (IORING_OP_SEND_ZC) instead of a normal send. Trades the
+    /// in-kernel payload copy for page pinning and a second completion per send, so it only pays
+    /// for large responses. kTLS connections always fall back to a plain send.
+    /// </summary>
+    public bool ZeroCopySend { get; init; }
+
+    /// <summary>
+    /// Depth of the per-connection recv queue, a power of two. Overflow closes the connection.
+    /// </summary>
+    public int RecvQueueEntries { get; init; } = 64;
 }
 
 /// <summary>

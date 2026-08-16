@@ -7,6 +7,8 @@ using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Ioxide;
 
+using ioxide;
+
 using GenHTTP.Modules.Files;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
@@ -97,12 +99,6 @@ await Host.Create(
 
                   Reactor = new IoxideReactorOptions
                   {
-                      // One per core is the default. Two here because a sample does not need the
-                      // whole machine, and because a load generator run on this same box would
-                      // otherwise be fighting the reactors for every core.
-                      //
-                      // RingEntries, RecvBufferSize, RecvSlots and Incremental are the rest of the
-                      // per-reactor machinery; left unset they keep ioxide's own defaults.
                       ReactorCount = 2,
                   },
 
@@ -116,8 +112,23 @@ await Host.Create(
 
                   Tcp = new IoxideTcpOptions
                   {
+                      // Hand the TLS record layer to the kernel instead of OpenSSL, which still
+                      // performs the handshake. Both off because kTLS needs the Linux tls module
+                      // and TLS 1.3, and without it the TLS ports fail every handshake silently:
+                      //
+                      //     cat /proc/sys/net/ipv4/tcp_available_ulp   # wanted: tls
                       TxKernelTls = false,
                       RxKernelTls = false,
+
+                      // The rest of the TCP transport: accept backlog, the per-connection write
+                      // slab and what happens when a response outgrows it, the connection pool,
+                      // zero-copy send and recv queue depth. All shown at their defaults.
+                      ListenBacklog = 1024,
+                      WriteSlabSize = 16 * 1024,
+                      WriteOverflow = WriteOverflowStrategy.Grow,
+                      PoolMax = 1024,
+                      ZeroCopySend = false,
+                      RecvQueueEntries = 64,
                   },
 
                   MutualTls = new IoxideMutualTlsOptions

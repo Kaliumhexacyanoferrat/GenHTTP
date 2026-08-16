@@ -38,8 +38,6 @@ public sealed partial class IoxideServer : IServer
 
     private readonly Dictionary<ushort, IoxideProtocols> _protocols;
 
-    private readonly Func<ServerConfig, ServerConfig>? _configure;
-
     private readonly Action<Reactor>? _onReactorStart;
 
     private readonly Func<TcpConnection, ValueTask<IDuplexPipe>>? _connectionFactory;
@@ -70,14 +68,13 @@ public sealed partial class IoxideServer : IServer
 
     internal IoxideServer(
         ServerConfiguration config, 
-        IHandler handler, Func<ServerConfig, ServerConfig>? configure = null,
+        IHandler handler,
         Action<Reactor>? onReactorStart = null,
         Func<TcpConnection, ValueTask<IDuplexPipe>>? connectionFactory = null,
         IoxideOptions? options = null)
     {
         _config = config;
         Handler = handler;
-        _configure = configure;
         _onReactorStart = onReactorStart;
         _connectionFactory = connectionFactory;
         _options = options ?? IoxideOptions.Default;
@@ -127,29 +124,28 @@ public sealed partial class IoxideServer : IServer
     }
 
     /// <summary>
-    /// ioxide's own defaults with the reactor options applied over them. Only what was set is
-    /// touched, so an unset knob keeps whatever ioxide currently defaults it to.
+    /// The engine's configuration, straight from the options. Ports are not set here: StartAsync
+    /// takes those from the endpoint bindings, which is also where an all-HTTP/3 server drops the
+    /// TCP listener entirely.
     /// </summary>
-    private ServerConfig BuildServerConfig()
+    private ServerConfig BuildServerConfig() => new()
     {
-        var reactor = _options.Reactor;
+        ReactorCount = _options.Reactor.ReactorCount,
+        RingEntries = _options.Reactor.RingEntries,
+        RecvBufferSize = _options.Reactor.RecvBufferSize,
+        RecvSlots = _options.Reactor.RecvSlots,
+        Incremental = _options.Reactor.Incremental,
 
-        var serverConfig = new ServerConfig();
-
-        return serverConfig with
+        Tcp = new TcpOptions
         {
-            // The one default the engine overrides: ioxide ships a fixed 12, which is either
-            // wasteful or a bottleneck depending on the machine it lands on.
-            ReactorCount = reactor.ReactorCount ?? Environment.ProcessorCount,
-
-            RingEntries = reactor.RingEntries ?? serverConfig.RingEntries,
-            RecvBufferSize = reactor.RecvBufferSize ?? serverConfig.RecvBufferSize,
-            RecvSlots = reactor.RecvSlots ?? serverConfig.RecvSlots,
-
-            // Null is meaningful here - it selects the shared ring - so it passes straight through.
-            Incremental = reactor.Incremental,
-        };
-    }
+            ListenBacklog = _options.Tcp.ListenBacklog,
+            WriteSlabSize = _options.Tcp.WriteSlabSize,
+            WriteOverflow = _options.Tcp.WriteOverflow,
+            PoolMax = _options.Tcp.PoolMax,
+            ZeroCopySend = _options.Tcp.ZeroCopySend,
+            RecvQueueEntries = _options.Tcp.RecvQueueEntries,
+        },
+    };
 
     public async ValueTask StartAsync()
     {
@@ -159,14 +155,8 @@ public sealed partial class IoxideServer : IServer
         
         var serverConfig = BuildServerConfig();
 
-        // The escape hatch runs last, so it can reach anything IoxideOptions does not model.
-        if (_configure is not null)
-        {
-            serverConfig = _configure(serverConfig);
-        }
-
-        // Endpoint bindings always win over the configuration hook. Only ports serving something
-        // over TCP are bound, so an HTTP/3-only endpoint gets a UDP socket and nothing else.
+        // Only ports serving something over TCP are bound, so an HTTP/3-only endpoint gets a UDP
+        // socket and nothing else.
         var tcpPorts = _protocols.Where(p => (p.Value & IoxideProtocols.Http1AndHttp2) != 0)
                                  .Select(p => p.Key)
                                  .OrderBy(p => p == _primary.Port ? 0 : 1)
