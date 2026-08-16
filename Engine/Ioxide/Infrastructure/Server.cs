@@ -183,6 +183,7 @@ public sealed partial class Server : IServer
                     }
 
                     _onReactorStart?.Invoke(r);
+                    
                     listening.Signal();
                 },
                 TcpHandle = (_, tcpConnection) => 

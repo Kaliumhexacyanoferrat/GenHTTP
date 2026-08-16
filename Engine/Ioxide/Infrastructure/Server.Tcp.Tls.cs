@@ -71,3 +71,18 @@ public sealed partial class Server
            ?? certificate.GetECDsaPrivateKey()?.ExportPkcs8PrivateKeyPem()
            ?? throw new InvalidOperationException("The certificate carries no exportable RSA or ECDSA private key.");
 }
+
+/// <summary>
+/// The TLS service each secure port owns on this reactor, keyed by the port a connection arrived
+/// on. One per port, since ALPN and the client CA differ per endpoint; filled from
+/// <see cref="Server.ResolveTls"/> when the reactor starts, and read per connection by the
+/// connection driver.
+/// </summary>
+internal sealed class TlsRegistry
+{
+    private readonly Dictionary<ushort, TlsService> _byPort = [];
+
+    public void Add(ushort port, TlsService service) => _byPort[port] = service;
+
+    public bool TryFor(ushort port, out TlsService service) => _byPort.TryGetValue(port, out service!);
+}

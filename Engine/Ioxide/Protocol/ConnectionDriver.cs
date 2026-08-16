@@ -5,8 +5,11 @@ using System.Runtime.InteropServices;
 
 using GenHTTP.Api.Infrastructure;
 
+using GenHTTP.Engine.Ioxide.Infrastructure;
 using GenHTTP.Engine.Ioxide.Protocol.Http1;
 using GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
+
+using ioxide.tls;
 
 using IoConnection = ioxide.TcpConnection;
 
@@ -58,7 +61,7 @@ internal static partial class ConnectionDriver
                     return;
                 }
 
-                (pipe, negotiated) = await IoxideTls.AcceptWithAlpnAsync(conn, service);
+                (pipe, negotiated) = await AcceptTlsAsync(conn, service);
             }
             else
             {
@@ -113,6 +116,18 @@ internal static partial class ConnectionDriver
 
         // HTTP/1.1 tears the connection down itself, so that it can return its pooled request first.
         await Http1Driver.RunAsync(server, endPoint, pipe, conn, remoteAddress);
+    }
+
+    /// <summary>
+    /// Terminates TLS and reports what ALPN settled on, which is how a port serving several
+    /// protocols knows which one this connection speaks. Null means the client offered nothing the
+    /// port lists, and HTTP/1.1 is assumed.
+    /// </summary>
+    private static async ValueTask<(IDuplexPipe Pipe, string? Protocol)> AcceptTlsAsync(IoConnection conn, TlsService service)
+    {
+        var session = await service.AcceptAsync(conn);
+
+        return (new TlsConnectionDualPipe(conn, session), session.NegotiatedAlpn);
     }
 
     /// <summary>
