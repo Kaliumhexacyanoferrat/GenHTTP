@@ -16,11 +16,6 @@ public sealed partial class IoxideServer
 
     private IoxideEndPoint? _quicEndPoint;
 
-    // Only set when a certificate had to be written out; a user-supplied path is never touched.
-    private string? _exportedCertPath;
-
-    private string? _exportedKeyPath;
-
     /// <summary>
     /// Adds the QUIC listener for the endpoint bound with <c>enableQuic</c>.
     /// </summary>
@@ -60,61 +55,37 @@ public sealed partial class IoxideServer
     }
 
     /// <summary>
-    /// The PEM files ngtcp2 loads: the ones configured, or the bound certificate written out.
+    /// The PEM files ngtcp2 loads. Configured, or HTTP/3 does not start.
     /// </summary>
     /// <remarks>
-    /// ngtcp2 takes paths, not a certificate object, so one of the two has to happen. A configured
-    /// path is used as it is and nothing is written. Otherwise the endpoint's certificate is
-    /// exported to a file this user alone can read, which does put a private key on disk for the
-    /// lifetime of the process - so a deployment holding PEM files should name them through
-    /// <see cref="IoxideHttp3Options.CertificatePath"/> and skip this entirely.
+    /// ngtcp2 takes paths rather than a certificate object, so serving HTTP/3 needs PEM on disk.
+    /// That is the C layer's contract and this honours it rather than working around it: the engine
+    /// will not write a private key out on your behalf, because a key it creates is a key it has to
+    /// choose a location and a lifetime for, and one written to a temporary directory outlives any
+    /// shutdown that skips cleanup.
     /// </remarks>
     private bool TryResolveQuicCertificate(Shared.Infrastructure.SecurityConfiguration security, ushort port,
         out string certPath, out string keyPath)
     {
-        if (_options.Http3.CertificatePath is { } configuredCert && _options.Http3.KeyPath is { } configuredKey)
+        certPath = keyPath = string.Empty;
+
+        if (_options.Http3.CertificatePath is not { } configuredCert || _options.Http3.KeyPath is not { } configuredKey)
         {
-            if (!File.Exists(configuredCert) || !File.Exists(configuredKey))
-            {
-                _logger.LogError("The configured HTTP/3 certificate or key does not exist ({Certificate}, {Key}); no listener was started.", configuredCert, configuredKey);
-                certPath = keyPath = string.Empty;
-                return false;
-            }
-
-            WarnIfNotTheBoundCertificate(configuredCert, security, port);
-
-            certPath = configuredCert;
-            keyPath = configuredKey;
-            return true;
+            throw new InvalidOperationException(
+                $"Port {port} serves HTTP/3, which needs a PEM certificate and key on disk - ngtcp2 loads them by path. "
+                + "Set IoxideOptions.Http3.CertificatePath and Http3.KeyPath to the same certificate bound to that endpoint.");
         }
 
-        if (security.CertificateProvider.Provide(null) is not { } certificate)
+        if (!File.Exists(configuredCert) || !File.Exists(configuredKey))
         {
-            _logger.LogWarning("No default certificate for port {Port}; no HTTP/3 listener was started.", port);
-            certPath = keyPath = string.Empty;
+            _logger.LogError("The configured HTTP/3 certificate or key does not exist ({Certificate}, {Key}); no listener was started.", configuredCert, configuredKey);
             return false;
         }
 
-        var directory = Directory.CreateTempSubdirectory("genhttp-ioxide-");
+        WarnIfNotTheBoundCertificate(configuredCert, security, port);
 
-        // Owner-only, set before anything is written: the key must never exist world-readable, not
-        // even for the moment between creating the file and tightening it. The engine only runs on
-        // Linux (io_uring), but the file APIs are cross-platform and the analyzer checks them.
-        if (!OperatingSystem.IsWindows())
-        {
-            directory.UnixFileMode = UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute;
-        }
-
-        _exportedCertPath = Path.Combine(directory.FullName, "quic.crt");
-        _exportedKeyPath = Path.Combine(directory.FullName, "quic.key");
-
-        WriteOwnerOnly(_exportedCertPath, certificate.ExportCertificatePem());
-        WriteOwnerOnly(_exportedKeyPath, ExportKeyPem(certificate));
-
-        _logger.LogInformation("Exported the certificate bound to port {Port} to {Directory} for the HTTP/3 listener; set Http3CertificatePath to avoid writing a key to disk.", port, directory.FullName);
-
-        certPath = _exportedCertPath;
-        keyPath = _exportedKeyPath;
+        certPath = configuredCert;
+        keyPath = configuredKey;
         return true;
     }
 
@@ -160,50 +131,12 @@ public sealed partial class IoxideServer
         }
     }
 
-    private static void WriteOwnerOnly(string path, string content)
-    {
-        var options = new FileStreamOptions
-        {
-            Mode = FileMode.CreateNew,
-            Access = FileAccess.Write,
-        };
-
-        if (!OperatingSystem.IsWindows())
-        {
-            options.UnixCreateMode = UnixFileMode.UserRead | UnixFileMode.UserWrite;
-        }
-
-        using var stream = new FileStream(path, options);
-        using var writer = new StreamWriter(stream);
-
-        writer.Write(content);
-    }
-
     /// <summary>
-    /// Drops the QUIC engine and anything that was written out for it.
+    /// Drops the QUIC engine. Nothing was written for it, so nothing is cleaned up.
     /// </summary>
     private void DisposeQuic()
     {
         _quic?.Dispose();
         _quic = null;
-
-        if (_exportedCertPath is null)
-        {
-            return;
-        }
-
-        try
-        {
-            Directory.Delete(Path.GetDirectoryName(_exportedCertPath)!, recursive: true);
-        }
-        catch (IOException e)
-        {
-            // Best effort. A leftover key in a temp directory is worth a line in the log, but not a
-            // failed shutdown - it is owner-only and the directory name is unique to this process.
-            _logger.LogWarning(e, "Could not remove the exported HTTP/3 certificate at {Path}", _exportedCertPath);
-        }
-
-        _exportedCertPath = null;
-        _exportedKeyPath = null;
     }
 }

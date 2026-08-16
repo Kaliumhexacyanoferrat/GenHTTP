@@ -70,19 +70,18 @@ public sealed record IoxideOptions
 public sealed record IoxideHttp3Options
 {
     /// <summary>
-    /// PEM certificate chain for the HTTP/3 listener, as a path.
+    /// PEM certificate chain for the HTTP/3 listener, as a path. Required to serve HTTP/3.
     /// </summary>
     /// <remarks>
-    /// Not a second certificate: HTTP/3 serves the one bound to its endpoint, exactly as HTTP/1.1
-    /// and HTTP/2 do. This changes only how that certificate reaches ngtcp2, which loads PEM from a
-    /// file and has no in-memory alternative - unlike OpenSSL, which terminates the TCP protocols
-    /// and takes the PEM text directly. Setting this and <see cref="KeyPath"/> hands it files that
-    /// already exist.
+    /// Not a second certificate: this should be the one bound to the endpoint, which is what
+    /// HTTP/1.1 and HTTP/2 serve there. It is named separately because ngtcp2 loads PEM by path and
+    /// has no in-memory alternative - unlike OpenSSL, which terminates the TCP protocols and takes
+    /// the PEM text directly.
     ///
-    /// <para>Left null, the certificate bound to the endpoint is exported to a temporary file
-    /// instead - readable only by this user, and deleted on shutdown. That works, but it puts a
-    /// private key on disk for the lifetime of the process, so a deployment that already has PEM
-    /// files should name them here.</para>
+    /// <para>The engine will not write one out for you. A key it creates is a key it has to choose
+    /// a location and a lifetime for, and one written to a temporary directory outlives any
+    /// shutdown that skips cleanup - so an endpoint asking for HTTP/3 without this is a
+    /// configuration error rather than something to paper over.</para>
     /// </remarks>
     public string? CertificatePath { get; init; }
 

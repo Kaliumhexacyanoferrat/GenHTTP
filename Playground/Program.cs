@@ -84,10 +84,9 @@ if (staticDir != null && Directory.Exists(staticDir))
 // to serve a real one - a browser will refuse HTTP/3 to a certificate it does not trust.
 using var certificate = LoadCertificate();
 
-// Written out and named below, so the HTTP/3 listener loads it from here rather than having the
-// engine export a copy into a temporary directory. Same certificate either way - this is only
-// about where ngtcp2 reads it from, and a key under ./certs beats one in /tmp that outlives a
-// SIGKILL.
+// ngtcp2 loads PEM by path, so serving HTTP/3 means having the certificate on disk. The engine will
+// not write one out on your behalf, so the sample writes its own throwaway certificate here and
+// names it below. A deployment points at the PEM it already has.
 var (serverCertPath, serverKeyPath) = WriteServerCertificate(certificate);
 
 // A CA, a client it signs, and an impostor it does not - so the mutual TLS port below can be tried
@@ -125,14 +124,10 @@ await Host.Create(
                       QpackDynamicTableCapacity = 4096,
                       QpackBlockedStreams = 100,
 
-                      // HTTP/3 serves the SAME certificate as the rest of the endpoint - the one
-                      // passed to Bind below. These two only change how it reaches ngtcp2, which
-                      // loads PEM from a file and has no in-memory alternative (OpenSSL, which
-                      // terminates HTTP/1.1 and HTTP/2, takes the PEM text directly and touches no
-                      // disk). Name the files and they are used as they are; leave them out and the
-                      // bound certificate is written to an owner-only temporary directory, deleted
-                      // on shutdown - which works, but puts a private key on disk for the lifetime
-                      // of the process.
+                      // The SAME certificate passed to Bind below, named again because ngtcp2
+                      // loads PEM by path - OpenSSL, which terminates HTTP/1.1 and HTTP/2, takes
+                      // the PEM text directly and touches no disk. Required for HTTP/3: the engine
+                      // refuses to start a QUIC listener without it rather than writing a key out.
                       //
                       CertificatePath = serverCertPath,
                       KeyPath = serverKeyPath,
