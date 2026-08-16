@@ -19,6 +19,11 @@ using IoxideFilesModule = GenHTTP.Modules.IoxideFiles.IoxideFiles;
 //   http://localhost:8081    HTTP/2 only, without TLS (h2c, for a client using prior knowledge)
 //   https://localhost:8443   all three at once - HTTP/1.1 and HTTP/2 over TCP, HTTP/3 over UDP
 //
+// Every port is independent, so 8081 serves ONLY HTTP/2 - an HTTP/1.1 client is turned away there.
+// Give a port Http1AndHttp2 and it serves both, one connection at a time: ALPN picks during the
+// handshake on a secure port, and the HTTP/2 connection preface picks on a plaintext one. That is
+// what 8443 does below.
+//
 //     dotnet run -c Release --project Playground
 //
 //     curl http://localhost:8080/ok
@@ -73,7 +78,9 @@ await Host.Create(
 
                   ProtocolsByPort =
                   {
-                      [8081] = IoxideProtocols.Http2,   // h2c only - no HTTP/1.1 on this port
+                      // h2c only: an HTTP/1.1 client is turned away here. Http1AndHttp2 would
+                      // serve both on this one port, decided by the connection preface.
+                      [8081] = IoxideProtocols.Http2,
                       [8443] = IoxideProtocols.All,     // h1 + h2 over TCP, h3 over UDP, one number
                   },
 
