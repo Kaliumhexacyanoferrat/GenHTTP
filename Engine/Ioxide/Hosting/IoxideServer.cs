@@ -93,8 +93,8 @@ public sealed partial class IoxideServer : IServer
 
         _h3Options = new Nghttp3Options
         {
-            QpackDynamicTableCapacity = _options.QpackDynamicTableCapacity,
-            QpackBlockedStreams = _options.QpackBlockedStreams,
+            QpackDynamicTableCapacity = _options.Http3.QpackDynamicTableCapacity,
+            QpackBlockedStreams = _options.Http3.QpackBlockedStreams,
         };
 
         _logger = config.Logging.CreateLogger<IoxideServer>();

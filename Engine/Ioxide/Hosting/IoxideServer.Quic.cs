@@ -43,7 +43,7 @@ public sealed partial class IoxideServer
         }
 
         _quic = new QuicEngine(certPath, keyPath, alpn: ["h3"],
-            clientCaPemPath: _options.ClientCaPath,
+            clientCaPemPath: _options.MutualTls.ClientCaPath,
             requireClientCertificate: RequiresClientCertificate(security));
 
         _quicEndPoint = endPoint;
@@ -67,12 +67,12 @@ public sealed partial class IoxideServer
     /// path is used as it is and nothing is written. Otherwise the endpoint's certificate is
     /// exported to a file this user alone can read, which does put a private key on disk for the
     /// lifetime of the process - so a deployment holding PEM files should name them through
-    /// <see cref="IoxideOptions.Http3CertificatePath"/> and skip this entirely.
+    /// <see cref="IoxideHttp3Options.CertificatePath"/> and skip this entirely.
     /// </remarks>
     private bool TryResolveQuicCertificate(Shared.Infrastructure.SecurityConfiguration security, ushort port,
         out string certPath, out string keyPath)
     {
-        if (_options.Http3CertificatePath is { } configuredCert && _options.Http3KeyPath is { } configuredKey)
+        if (_options.Http3.CertificatePath is { } configuredCert && _options.Http3.KeyPath is { } configuredKey)
         {
             if (!File.Exists(configuredCert) || !File.Exists(configuredKey))
             {

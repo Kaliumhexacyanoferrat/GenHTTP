@@ -40,8 +40,8 @@ public sealed partial class IoxideServer
                 // an ALPN extension at all.
                 Alpn = ProtocolsFor(port).HasFlag(IoxideProtocols.Http2) ? ["h2", "http/1.1"] : ["http/1.1"],
 
-                ClientCaPath = _options.ClientCaPath,
-                ClientCaPem = _options.ClientCaPem,
+                ClientCaPath = _options.MutualTls.ClientCaPath,
+                ClientCaPem = _options.MutualTls.ClientCaPem,
                 RequireClientCertificate = RequiresClientCertificate(security),
 
                 KernelTx = _kernelTx,
@@ -59,14 +59,14 @@ public sealed partial class IoxideServer
     /// still gets asked, because the CertificateRequest goes out either way.
     /// </remarks>
     private bool RequiresClientCertificate(SecurityConfiguration security)
-        => _options.RequireClientCertificate || security.CertificateValidator?.RequireCertificate == true;
+        => _options.MutualTls.RequireClientCertificate || security.CertificateValidator?.RequireCertificate == true;
 
     /// <summary>
     /// Whether any endpoint asks for a client certificate at all.
     /// </summary>
     private bool MutualTlsConfigured
-        => _options.ClientCaPath is not null || _options.ClientCaPem is not null
-           || _options.RequireClientCertificate || _secure.Values.Any(s => s.CertificateValidator is not null);
+        => _options.MutualTls.ClientCaPath is not null || _options.MutualTls.ClientCaPem is not null
+           || _options.MutualTls.RequireClientCertificate || _secure.Values.Any(s => s.CertificateValidator is not null);
 
     private static string ExportKeyPem(X509Certificate2 certificate)
         => certificate.GetRSAPrivateKey()?.ExportPkcs8PrivateKeyPem()

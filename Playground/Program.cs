@@ -1,6 +1,9 @@
 using System.Net;
+using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+
+using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Ioxide;
 
@@ -18,6 +21,8 @@ using IoxideFilesModule = GenHTTP.Modules.IoxideFiles.IoxideFiles;
 //   http://localhost:8081     Http2           HTTP/2 only (h2c) - an HTTP/1.1 client is turned away
 //   http://localhost:8082     Http1AndHttp2   both on one socket, the preface decides
 //   https://localhost:8443    All             HTTP/1.1 + HTTP/2 over TCP, HTTP/3 over UDP
+//   https://localhost:8444    Http1           HTTP/1.1 behind mutual TLS - a client certificate is
+//                                             required, and one signed by the wrong CA is refused
 //
 //     dotnet run -c Release --project Playground
 //
@@ -27,6 +32,12 @@ using IoxideFilesModule = GenHTTP.Modules.IoxideFiles.IoxideFiles;
 //     curl -k --http1.1 https://localhost:8443/ok
 //     curl -k --http2 https://localhost:8443/ok
 //     curl -k --http3-only https://localhost:8443/ok
+//     curl -k --cert certs/client.crt --key certs/client.key https://localhost:8444/ok
+//
+// The mutual TLS port needs a client certificate to answer at all, so the sample writes a CA, a
+// certificate signed by it and a second signed by nobody into ./certs on startup, and prints the
+// commands. Validation happens in OpenSSL against the CA - the endpoint's certificateValidator is
+// what marks the port as requiring one.
 //
 // Where two protocols share the TCP socket, ALPN decides during the handshake on a secure port and
 // the HTTP/2 connection preface decides on a plaintext one. HTTP/3 always needs a certificate,
@@ -73,6 +84,10 @@ if (staticDir != null && Directory.Exists(staticDir))
 // to serve a real one - a browser will refuse HTTP/3 to a certificate it does not trust.
 using var certificate = LoadCertificate();
 
+// A CA, a client it signs, and an impostor it does not - so the mutual TLS port below can be tried
+// both ways without generating anything by hand.
+var clientCa = WriteClientCertificates();
+
 await Host.Create(
               configure: c => c with { ReactorCount = Reactors },
               options: new IoxideOptions
@@ -85,33 +100,91 @@ await Host.Create(
                       [8081] = IoxideProtocols.Http2,
                       [8082] = IoxideProtocols.Http1AndHttp2,
                       [8443] = IoxideProtocols.All,
+                      [8444] = IoxideProtocols.Http1,
                   },
 
-                  // Bytes of QPACK dynamic table offered to HTTP/3 clients. 0 keeps every header
-                  // literal, which costs bytes but can never stall a stream on a table update. In
-                  // practice only browsers advertise a table of their own.
-                  QpackDynamicTableCapacity = 4096,
-                  QpackBlockedStreams = 100,
+                  MutualTls = new IoxideMutualTlsOptions
+                  {
+                      // What an offered client certificate is validated against. WHICH ports ask
+                      // for one is decided per endpoint, by the validator passed to Bind - so 8443
+                      // stays open while 8444 requires a certificate.
+                      ClientCaPath = clientCa,
+                  },
 
-                  // HTTP/3 is terminated by ngtcp2, which loads PEM from disk. Name the files here
-                  // and nothing is written; leave them out and the bound certificate is exported to
-                  // an owner-only temporary directory for the lifetime of the process.
-                  //
-                  // Http3CertificatePath = "/etc/ssl/site.crt",
-                  // Http3KeyPath         = "/etc/ssl/site.key",
+                  Http3 = new IoxideHttp3Options
+                  {
+                      // Bytes of QPACK dynamic table offered to HTTP/3 clients. 0 keeps every
+                      // header literal, which costs bytes but can never stall a stream on a table
+                      // update. In practice only browsers advertise a table of their own.
+                      QpackDynamicTableCapacity = 4096,
+                      QpackBlockedStreams = 100,
 
-                  // Mutual TLS, enforced on all three protocols. Clients are asked for a
-                  // certificate and validated against this bundle.
-                  //
-                  // ClientCaPath             = "/etc/ssl/clients.pem",
-                  // RequireClientCertificate = true,
+                      // ngtcp2 loads PEM from disk. Name the files here and nothing is written;
+                      // leave them out and the bound certificate is exported to an owner-only
+                      // temporary directory for the lifetime of the process.
+                      //
+                      // CertificatePath = "/etc/ssl/site.crt",
+                      // KeyPath         = "/etc/ssl/site.key",
+                  },
               })
           .Handler(app)
           .Bind(IPAddress.Loopback, 8080)
           .Bind(IPAddress.Loopback, 8081)
           .Bind(IPAddress.Loopback, 8082)
           .Bind(IPAddress.Loopback, 8443, certificate)
+          // The validator marks this endpoint as requiring a client certificate. Validation itself
+          // happens in OpenSSL against ClientCaPath above, so Validate below is never called - the
+          // engine refuses a bad chain before a request exists.
+          .Bind(IPAddress.Loopback, 8444, certificate, certificateValidator: new RequireClientCertificate())
           .RunAsync();
+
+/// <summary>
+/// Writes a client CA, a certificate it signs, and one it does not, and returns the CA's path.
+/// </summary>
+/// <remarks>
+/// A mutual TLS endpoint cannot be tried without a client certificate, so the sample makes one
+/// rather than asking you to. The impostor exists so the refusal can be seen as well as the pass.
+/// </remarks>
+static string WriteClientCertificates()
+{
+    var directory = Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "certs"));
+
+    // One instant for every certificate here. Reading the clock per certificate gives the CA and
+    // the client it signs windows a second apart, and a leaf outliving its issuer is refused.
+    var from = DateTimeOffset.UtcNow.AddDays(-1);
+    var until = from.AddYears(1);
+
+    using var caKey = RSA.Create(2048);
+
+    var caRequest = new CertificateRequest("CN=playground client CA", caKey, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+    caRequest.CertificateExtensions.Add(new X509BasicConstraintsExtension(true, false, 0, true));
+
+    using var ca = caRequest.CreateSelfSigned(from, until);
+
+    var caPath = Path.Combine(directory.FullName, "client-ca.crt");
+    File.WriteAllText(caPath, ca.ExportCertificatePem());
+
+    Issue(ca, "client", "CN=alice", directory.FullName, from, until);
+    Issue(null, "impostor", "CN=mallory", directory.FullName, from, until);
+
+    return caPath;
+
+    static void Issue(X509Certificate2? issuer, string name, string subject, string directory,
+        DateTimeOffset from, DateTimeOffset until)
+    {
+        using var key = RSA.Create(2048);
+
+        var request = new CertificateRequest(subject, key, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+
+        // Signed by the CA the server trusts, or self-signed - which is the impostor.
+        using var certificate = issuer is null
+            ? request.CreateSelfSigned(from, until)
+            : request.Create(issuer, from, until, Guid.NewGuid().ToByteArray());
+
+        File.WriteAllText(Path.Combine(directory, $"{name}.crt"), certificate.ExportCertificatePem());
+        File.WriteAllText(Path.Combine(directory, $"{name}.key"), key.ExportPkcs8PrivateKeyPem());
+    }
+}
 
 static X509Certificate2 LoadCertificate()
 {
@@ -134,4 +207,22 @@ static X509Certificate2 LoadCertificate()
 
     // The private key has to come back through a PKCS#12 round trip before a TLS stack will use it.
     return X509CertificateLoader.LoadPkcs12(generated.Export(X509ContentType.Pfx), null);
+}
+
+/// <summary>
+/// Marks an endpoint as requiring a client certificate.
+/// </summary>
+/// <remarks>
+/// The ioxide engine reads <see cref="RequireCertificate"/> and lets OpenSSL (or ngtcp2 on HTTP/3)
+/// validate the offered chain against the configured client CA, so a bad chain is refused before a
+/// request exists and <see cref="Validate"/> is never called. Returning true here would not admit
+/// anyone the CA had already rejected.
+/// </remarks>
+internal sealed class RequireClientCertificate : ICertificateValidator
+{
+    public bool RequireCertificate => true;
+
+    public X509RevocationMode RevocationCheck => X509RevocationMode.NoCheck;
+
+    public bool Validate(X509Certificate? certificate, X509Chain? chain, SslPolicyErrors policyErrors) => true;
 }
