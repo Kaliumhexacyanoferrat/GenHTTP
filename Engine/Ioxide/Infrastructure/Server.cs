@@ -23,7 +23,7 @@ namespace GenHTTP.Engine.Ioxide.Infrastructure;
 /// connections on its own thread. Protocols are per port; TLS termination and the QUIC listener
 /// live in the other halves of this class.
 /// </summary>
-public sealed partial class IoxideServer : IServer
+public sealed partial class Server : IServer
 {
     private readonly ServerConfiguration _config;
 
@@ -49,7 +49,7 @@ public sealed partial class IoxideServer : IServer
 
     private Reactor[]? _reactors;
 
-    public string Version { get; } = typeof(IoxideServer).Assembly.GetName().Version?.ToString() ?? "0.1";
+    public string Version { get; } = typeof(Server).Assembly.GetName().Version?.ToString() ?? "0.1";
 
     public bool Running { get; private set; }
 
@@ -63,7 +63,7 @@ public sealed partial class IoxideServer : IServer
 
     public IHandler Handler { get; }
 
-    internal IoxideServer(
+    internal Server(
         ServerConfiguration config, 
         IHandler handler,
         Action<Reactor>? onReactorStart = null,
@@ -74,7 +74,7 @@ public sealed partial class IoxideServer : IServer
         _onReactorStart = onReactorStart;
         _options = options ?? IoxideOptions.Default;
 
-        _logger = config.Logging.CreateLogger<IoxideServer>();
+        _logger = config.Logging.CreateLogger<Server>();
 
         var mapped = MapEndPoints(config);
 

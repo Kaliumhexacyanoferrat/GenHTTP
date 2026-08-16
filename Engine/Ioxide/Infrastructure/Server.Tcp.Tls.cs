@@ -11,7 +11,7 @@ namespace GenHTTP.Engine.Ioxide.Infrastructure;
 /// <summary>
 /// TLS termination for the TCP endpoints - HTTP/1.1 and HTTP/2 both ride this.
 /// </summary>
-public sealed partial class IoxideServer
+public sealed partial class Server
 {
     /// <summary>
     /// The TLS options for every secure port whose provider yields a default (no-SNI) certificate.

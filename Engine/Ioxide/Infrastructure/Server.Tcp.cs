@@ -5,7 +5,7 @@ namespace GenHTTP.Engine.Ioxide.Infrastructure;
 /// <summary>
 /// The TCP listener that carries HTTP/1.1 and HTTP/2, alongside the QUIC one.
 /// </summary>
-public sealed partial class IoxideServer
+public sealed partial class Server
 {
     /// <summary>
     /// The ports that want a TCP listener: those serving HTTP/1.1 or HTTP/2, primary first - it

@@ -20,6 +20,6 @@ public static class Host
     /// the HTTP/3 certificate, mutual TLS and QPACK. Ports and certificates stay on <c>Bind</c>.
     /// </param>
     public static IServerHost Create(Action<Reactor>? onReactorStart = null, IoxideOptions? options = null)
-        => new IoxideServerHost(onReactorStart, options);
+        => new ServerHost(onReactorStart, options);
 
 }

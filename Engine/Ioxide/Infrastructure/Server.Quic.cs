@@ -13,7 +13,7 @@ namespace GenHTTP.Engine.Ioxide.Infrastructure;
 /// <summary>
 /// The QUIC listener that carries HTTP/3, alongside the TCP one.
 /// </summary>
-public sealed partial class IoxideServer
+public sealed partial class Server
 {
     private QuicEngine? _quicEngine;
 
