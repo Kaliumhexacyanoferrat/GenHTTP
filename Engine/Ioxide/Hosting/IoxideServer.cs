@@ -74,40 +74,17 @@ public sealed partial class IoxideServer : IServer
 
         _logger = config.Logging.CreateLogger<IoxideServer>();
 
-        var mapped = config.EndPoints
-                           .Select(e => new IoxideEndPoint(e.Address, e.Port, e.DualStack, e.Security != null))
-                           .ToList();
+        var mapped = MapEndPoints(config);
 
         _primary = mapped[0];
         _endPointByPort = mapped.ToDictionary(e => e.Port);
 
-        if (mapped.Any(e => e.DualStack != _primary.DualStack))
-        {
-            throw new NotSupportedException("The ioxide engine binds all endpoints with one dual-stack mode.");
-        }
-
         _protocols = mapped.ToDictionary(e => e.Port, e => ResolveProtocols(_options, config, e.Port));
 
-        // Which endpoints want which listener, decided here so StartAsync only has to act on it.
-        // The ports serving HTTP/1.1 or HTTP/2 share one TCP listener, primary first - it becomes
-        // TcpOptions.Port and the rest its ExtraPorts.
-        _tcpRequested = _protocols.Where(p => (p.Value & IoxideProtocols.Http1AndHttp2) != 0)
-                                  .Select(p => p.Key)
-                                  .OrderBy(p => p == _primary.Port ? 0 : 1)
-                                  .ToArray();
-
-        // QUIC is the other way round: the transport binds a single UDP port for the whole server,
-        // so only one endpoint can serve HTTP/3.
-        var quicEndpoints = mapped.Where(e => _protocols[e.Port].HasFlag(IoxideProtocols.Http3)).ToList();
-
-        if (quicEndpoints.Count > 1)
-        {
-            throw new NotSupportedException(
-                $"The ioxide engine binds one QUIC listener, but HTTP/3 was requested on ports {string.Join(", ", quicEndpoints.Select(e => e.Port))}. "
-                + "Name the protocols per port (ProtocolsByPort) so only one of them serves HTTP/3.");
-        }
-
-        _quicRequested = quicEndpoints.Count == 1 ? quicEndpoints[0] : null;
+        // Which endpoints want which listener, settled here so StartAsync only has to act on it.
+        // Order matters: both read _protocols, and the TCP one reads _primary as well.
+        _tcpRequested = ResolveTcpPorts();
+        _quicRequested = ResolveQuicEndPoint(mapped);
 
         // Certificates are resolved per reactor in OnStart, not here - see ResolveTls.
         _secure = config.EndPoints
@@ -115,6 +92,24 @@ public sealed partial class IoxideServer : IServer
                         .ToDictionary(e => e.Port, e => e.Security!);
 
         EndPoints = new IoxideEndPoints(mapped.Cast<IEndPoint>().ToList());
+    }
+
+    /// <summary>
+    /// GenHTTP's endpoints as the engine's own, which is also where the one thing every endpoint
+    /// must agree on is checked: ioxide binds the whole server with a single dual-stack mode.
+    /// </summary>
+    private static List<IoxideEndPoint> MapEndPoints(ServerConfiguration config)
+    {
+        var mapped = config.EndPoints
+                           .Select(e => new IoxideEndPoint(e.Address, e.Port, e.DualStack, e.Security != null))
+                           .ToList();
+
+        if (mapped.Any(e => e.DualStack != mapped[0].DualStack))
+        {
+            throw new NotSupportedException("The ioxide engine binds all endpoints with one dual-stack mode.");
+        }
+
+        return mapped;
     }
 
     /// <summary>

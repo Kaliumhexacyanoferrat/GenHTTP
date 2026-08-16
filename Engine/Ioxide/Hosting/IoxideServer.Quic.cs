@@ -20,6 +20,25 @@ public sealed partial class IoxideServer
     private Nghttp3Options? _h3Options;
 
     /// <summary>
+    /// The endpoint that wants a QUIC listener, or none. At most one: the transport binds a single
+    /// UDP port for the whole server, so several endpoints asking for HTTP/3 would each want their
+    /// own and only the first could have it - refused here rather than silently honouring one.
+    /// </summary>
+    private IoxideEndPoint? ResolveQuicEndPoint(List<IoxideEndPoint> mapped)
+    {
+        var quicEndPoints = mapped.Where(e => _protocols[e.Port].HasFlag(IoxideProtocols.Http3)).ToList();
+
+        if (quicEndPoints.Count > 1)
+        {
+            throw new NotSupportedException(
+                $"The ioxide engine binds one QUIC listener, but HTTP/3 was requested on ports {string.Join(", ", quicEndPoints.Select(e => e.Port))}. "
+                + "Name the protocols per port (ProtocolsByPort) so only one of them serves HTTP/3.");
+        }
+
+        return quicEndPoints.Count == 1 ? quicEndPoints[0] : null;
+    }
+
+    /// <summary>
     /// Adds the QUIC listener for the endpoint serving HTTP/3. Needs a secure endpoint - QUIC
     /// carries TLS 1.3 and has no cleartext mode - and takes its port, which is what a browser
     /// assumes when an Alt-Svc advertisement names none of its own.
