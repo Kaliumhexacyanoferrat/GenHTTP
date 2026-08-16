@@ -1,0 +1,26 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>GenHTTP over HTTP/3</title>
+<style>
+  body { font: 16px/1.5 system-ui, sans-serif; max-width: 40rem; margin: 4rem auto; padding: 0 1rem; }
+  code { background: #f4f4f5; padding: .1rem .3rem; border-radius: .2rem; }
+  img { display: block; margin: 1rem 0; }
+</style>
+<h1>GenHTTP over HTTP/3</h1>
+<p>
+  Served by the experimental HTTP/3 engine, with HTTP/3 framing and QPACK from Glyph3 and QUIC from
+  System.Net.Quic.
+</p>
+<p>
+  The first load arrives over HTTP/1.1. The response carries an <code>Alt-Svc</code> header pointing
+  at the same port over UDP, so a reload should switch to HTTP/3. Check the Protocol column in the
+  network tab.
+</p>
+<img src="/img/a.svg" width="120" height="60" alt="">
+<img src="/img/b.svg" width="120" height="60" alt="">
+<img src="/img/c.svg" width="120" height="60" alt="">
+<p>
+  Several subresources on purpose: repeated requests on one connection are what a QPACK dynamic
+  table would compress.
+</p>
+<script src="/js/app.js"></script>

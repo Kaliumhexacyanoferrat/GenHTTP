@@ -2,6 +2,7 @@
 using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using System.Text;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Internal.Context;
 using GenHTTP.Engine.Shared.Types;
@@ -28,7 +29,7 @@ internal sealed class ClientHandler(ClientContext context)
 
     private static readonly TimeSpan KeepAliveTimeout = TimeSpan.FromSeconds(60);
 
-    private static readonly ReadOnlyMemory<byte> KeepAliveValue = "Keep-Alive"u8.ToArray();
+    private static readonly ReadOnlyMemory<byte> KeepAliveValue = "keep-alive"u8.ToArray();
 
     private static readonly ParserLimits Limits = ParserLimits.Default;
 
@@ -203,7 +204,12 @@ internal sealed class ClientHandler(ClientContext context)
 
         var connectionHeader = header.Headers.GetEntry(KnownHeaders.Connection);
 
-        var keepAliveRequested = connectionHeader?.Bytes.Span.SequenceEqual(KeepAliveValue.Span) ?? (header.Protocol == HttpProtocol.Http11);
+        // Connection options are case-insensitive tokens (RFC 9110 7.6.1). Matching them exactly
+        // read a browser, which sends "keep-alive" in lower case, as asking to close - so every
+        // browser request got a new connection, and a new TLS handshake with it.
+        var keepAliveRequested = connectionHeader is { } connection
+            ? Ascii.EqualsIgnoreCase(connection.Bytes.Span, KeepAliveValue.Span)
+            : header.Protocol == HttpProtocol.Http11;
 
         var response = await context.Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
 
