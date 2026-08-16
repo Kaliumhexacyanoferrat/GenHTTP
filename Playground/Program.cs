@@ -110,13 +110,19 @@ await Host.Create(
 
                   Tcp = new IoxideTcpOptions
                   {
-                      // Move TLS record encryption from OpenSSL into the kernel on the ports below
-                      // that carry HTTP/1.1 and HTTP/2. Off here because it needs the Linux tls
-                      // module (`modprobe tls`) and TLS 1.3, and a machine without it serves
-                      // nothing. RxKernelTls decrypts there too, and requires this one.
+                      // Hand the TLS record layer to the kernel instead of OpenSSL, which still
+                      // performs the handshake: TX encrypts on the way out, RX decrypts on the way
+                      // in and requires TX. Only 8443 and 8444 are affected - 8080-8082 carry no
+                      // TLS, and 8443's HTTP/3 keeps its own TLS 1.3 inside ngtcp2.
                       //
-                      // HTTP/3 is unaffected either way - QUIC carries its own TLS inside ngtcp2.
+                      // Both off here because kTLS needs the Linux tls module and TLS 1.3, and
+                      // where the module is missing the handshake fails per connection with
+                      // nothing logged: the TLS ports simply stop answering. Check first with
+                      //
+                      //     cat /proc/sys/net/ipv4/tcp_available_ulp   # wanted: tls
+                      //     sudo modprobe tls
                       TxKernelTls = false,
+                      RxKernelTls = false,
                   },
 
                   MutualTls = new IoxideMutualTlsOptions
