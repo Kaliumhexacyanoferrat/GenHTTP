@@ -1,3 +1,5 @@
+using ioxide;
+
 namespace GenHTTP.Engine.Ioxide;
 
 /// <summary>
@@ -20,6 +22,9 @@ public sealed record IoxideOptions
     /// </summary>
     public Dictionary<ushort, IoxideProtocols> ProtocolsByPort { get; init; } = [];
 
+    /// <summary>The reactors: how many, and the io_uring machinery each one owns.</summary>
+    public IoxideReactorOptions Reactor { get; init; } = new();
+
     /// <summary>The TCP endpoints: how TLS is terminated for HTTP/1.1 and HTTP/2.</summary>
     public IoxideTcpOptions Tcp { get; init; } = new();
 
@@ -28,6 +33,48 @@ public sealed record IoxideOptions
 
     /// <summary>Client certificates: what they are validated against, and whether one is required.</summary>
     public IoxideMutualTlsOptions MutualTls { get; init; } = new();
+}
+
+/// <summary>
+/// The reactors. Each runs on its own thread, owns an io_uring ring and the connections accepted
+/// on it, and shares nothing with the others - so these are per reactor, not per server, and the
+/// memory they describe is multiplied by <see cref="ReactorCount"/>.
+/// </summary>
+/// <remarks>
+/// Every value is optional and left at ioxide's own default when unset, rather than restated here
+/// where it would drift the first time ioxide retunes one.
+/// </remarks>
+public sealed record IoxideReactorOptions
+{
+    /// <summary>
+    /// How many reactors to run. Unset means one per core, which is what a server with the machine
+    /// to itself wants; anything sharing the box - a colocated load generator, a database, sibling
+    /// containers - wants fewer, or the reactors and everything else fight for the same cores.
+    /// </summary>
+    public int? ReactorCount { get; init; }
+
+    /// <summary>io_uring submission and completion queue depth, per reactor.</summary>
+    public uint? RingEntries { get; init; }
+
+    /// <summary>
+    /// Bytes per buffer in the shared recv ring. Larger reads more per completion and wastes more
+    /// per idle connection. Unused when <see cref="Incremental"/> is set.
+    /// </summary>
+    public int? RecvBufferSize { get; init; }
+
+    /// <summary>
+    /// Buffers in the shared recv ring. Running out costs a retry, not a lost byte. Unused when
+    /// <see cref="Incremental"/> is set.
+    /// </summary>
+    public int? RecvSlots { get; init; }
+
+    /// <summary>
+    /// Give each connection its own small buffer ring (IOU_PBUF_RING_INC, kernel 6.12+) instead of
+    /// drawing from the shared one. Setting this IS enabling the mode, and the two shared-ring
+    /// knobs above then go unused. Reserves MaxConnections x RecvSlots x RecvBufferSize per
+    /// reactor up front, so it trades memory for not sharing a ring between connections.
+    /// </summary>
+    public IncrementalOptions? Incremental { get; init; }
 }
 
 /// <summary>

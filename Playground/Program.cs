@@ -65,10 +65,6 @@ using IoxideFilesModule = GenHTTP.Modules.IoxideFiles.IoxideFiles;
 //     wrk -t8 -c64 -d8s http://127.0.0.1:8080/ring/asset.bin
 //     wrk -t8 -c64 -d8s http://127.0.0.1:8080/disk/asset.bin
 
-// One reactor per core is the default. A sample does not need the whole machine, and this is not
-// where throughput is measured - bench/ is.
-const int Reactors = 2;
-
 var staticDir = Environment.GetEnvironmentVariable("GENHTTP_STATIC");
 
 var app = Layout.Create()
@@ -94,11 +90,21 @@ var (serverCertPath, serverKeyPath) = WriteServerCertificate(certificate);
 var clientCa = WriteClientCertificates();
 
 await Host.Create(
-              configure: c => c with { ReactorCount = Reactors },
               options: new IoxideOptions
               {
                   // What a port serves unless named below.
                   Protocols = IoxideProtocols.Http1,
+
+                  Reactor = new IoxideReactorOptions
+                  {
+                      // One per core is the default. Two here because a sample does not need the
+                      // whole machine, and because a load generator run on this same box would
+                      // otherwise be fighting the reactors for every core.
+                      //
+                      // RingEntries, RecvBufferSize, RecvSlots and Incremental are the rest of the
+                      // per-reactor machinery; left unset they keep ioxide's own defaults.
+                      ReactorCount = 2,
+                  },
 
                   ProtocolsByPort =
                   {
@@ -110,17 +116,6 @@ await Host.Create(
 
                   Tcp = new IoxideTcpOptions
                   {
-                      // Hand the TLS record layer to the kernel instead of OpenSSL, which still
-                      // performs the handshake: TX encrypts on the way out, RX decrypts on the way
-                      // in and requires TX. Only 8443 and 8444 are affected - 8080-8082 carry no
-                      // TLS, and 8443's HTTP/3 keeps its own TLS 1.3 inside ngtcp2.
-                      //
-                      // Both off here because kTLS needs the Linux tls module and TLS 1.3, and
-                      // where the module is missing the handshake fails per connection with
-                      // nothing logged: the TLS ports simply stop answering. Check first with
-                      //
-                      //     cat /proc/sys/net/ipv4/tcp_available_ulp   # wanted: tls
-                      //     sudo modprobe tls
                       TxKernelTls = false,
                       RxKernelTls = false,
                   },

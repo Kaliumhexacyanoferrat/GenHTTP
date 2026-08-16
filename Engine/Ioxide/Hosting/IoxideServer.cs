@@ -126,13 +126,40 @@ public sealed partial class IoxideServer : IServer
         EndPoints = new IoxideEndPoints(mapped.Cast<IEndPoint>().ToList());
     }
 
+    /// <summary>
+    /// ioxide's own defaults with the reactor options applied over them. Only what was set is
+    /// touched, so an unset knob keeps whatever ioxide currently defaults it to.
+    /// </summary>
+    private ServerConfig BuildServerConfig()
+    {
+        var reactor = _options.Reactor;
+
+        var serverConfig = new ServerConfig();
+
+        return serverConfig with
+        {
+            // The one default the engine overrides: ioxide ships a fixed 12, which is either
+            // wasteful or a bottleneck depending on the machine it lands on.
+            ReactorCount = reactor.ReactorCount ?? Environment.ProcessorCount,
+
+            RingEntries = reactor.RingEntries ?? serverConfig.RingEntries,
+            RecvBufferSize = reactor.RecvBufferSize ?? serverConfig.RecvBufferSize,
+            RecvSlots = reactor.RecvSlots ?? serverConfig.RecvSlots,
+
+            // Null is meaningful here - it selects the shared ring - so it passes straight through.
+            Incremental = reactor.Incremental,
+        };
+    }
+
     public async ValueTask StartAsync()
     {
         await PrepareHandlerAsync();
 
         Running = true;
         
-        var serverConfig = new ServerConfig { ReactorCount = Environment.ProcessorCount };
+        var serverConfig = BuildServerConfig();
+
+        // The escape hatch runs last, so it can reach anything IoxideOptions does not model.
         if (_configure is not null)
         {
             serverConfig = _configure(serverConfig);
