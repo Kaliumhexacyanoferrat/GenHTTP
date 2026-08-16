@@ -73,8 +73,11 @@ public sealed record IoxideHttp3Options
     /// PEM certificate chain for the HTTP/3 listener, as a path.
     /// </summary>
     /// <remarks>
-    /// QUIC is terminated by ngtcp2, which loads PEM from disk rather than taking a certificate
-    /// object. Setting this and <see cref="KeyPath"/> hands it the files directly.
+    /// Not a second certificate: HTTP/3 serves the one bound to its endpoint, exactly as HTTP/1.1
+    /// and HTTP/2 do. This changes only how that certificate reaches ngtcp2, which loads PEM from a
+    /// file and has no in-memory alternative - unlike OpenSSL, which terminates the TCP protocols
+    /// and takes the PEM text directly. Setting this and <see cref="KeyPath"/> hands it files that
+    /// already exist.
     ///
     /// <para>Left null, the certificate bound to the endpoint is exported to a temporary file
     /// instead - readable only by this user, and deleted on shutdown. That works, but it puts a

@@ -119,9 +119,14 @@ await Host.Create(
                       QpackDynamicTableCapacity = 4096,
                       QpackBlockedStreams = 100,
 
-                      // ngtcp2 loads PEM from disk. Name the files here and nothing is written;
-                      // leave them out and the bound certificate is exported to an owner-only
-                      // temporary directory for the lifetime of the process.
+                      // HTTP/3 serves the SAME certificate as the rest of the endpoint - the one
+                      // passed to Bind below. These two only change how it reaches ngtcp2, which
+                      // loads PEM from a file and has no in-memory alternative (OpenSSL, which
+                      // terminates HTTP/1.1 and HTTP/2, takes the PEM text directly and touches no
+                      // disk). Name the files and they are used as they are; leave them out and the
+                      // bound certificate is written to an owner-only temporary directory, deleted
+                      // on shutdown - which works, but puts a private key on disk for the lifetime
+                      // of the process.
                       //
                       // CertificatePath = "/etc/ssl/site.crt",
                       // KeyPath         = "/etc/ssl/site.key",
@@ -132,9 +137,7 @@ await Host.Create(
           .Bind(IPAddress.Loopback, 8081)
           .Bind(IPAddress.Loopback, 8082)
           .Bind(IPAddress.Loopback, 8443, certificate)
-          // The validator marks this endpoint as requiring a client certificate. Validation itself
-          // happens in OpenSSL against ClientCaPath above, so Validate below is never called - the
-          // engine refuses a bad chain before a request exists.
+          // mTLS
           .Bind(IPAddress.Loopback, 8444, certificate, certificateValidator: new RequireClientCertificate())
           .RunAsync();
 
