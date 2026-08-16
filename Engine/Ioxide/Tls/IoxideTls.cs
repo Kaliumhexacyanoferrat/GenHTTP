@@ -6,8 +6,8 @@ using ioxide.tls;
 namespace GenHTTP.Engine.Ioxide;
 
 /// <summary>
-/// TLS helpers for the ioxide engine. Endpoints bound with a certificate are terminated
-/// automatically; these helpers remain for hosts that wire a custom <c>connectionFactory</c>.
+/// TLS helpers for hosts wiring a custom <c>connectionFactory</c>. Endpoints bound with a
+/// certificate are terminated automatically and need none of this.
 /// </summary>
 public static class IoxideTls
 {
@@ -28,8 +28,8 @@ public static class IoxideTls
 
     /// <summary>
     /// Terminates TLS and reports what ALPN settled on, which is how a port serving several
-    /// protocols knows which one this connection speaks. Null means the client offered nothing this
-    /// port lists, in which case it continues without an ALPN extension and HTTP/1.1 is assumed.
+    /// protocols knows which one this connection speaks. Null means the client offered nothing the
+    /// port lists, and HTTP/1.1 is assumed.
     /// </summary>
     internal static async ValueTask<(IDuplexPipe Pipe, string? Protocol)> AcceptWithAlpnAsync(TcpConnection conn, TlsService service)
     {

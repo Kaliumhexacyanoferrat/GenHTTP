@@ -6,12 +6,9 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 
 /// <summary>
-/// The status and fields of a response, ready to be handed to a protocol layer.
+/// The status and fields of a response. Protocol-neutral on purpose: the two drivers want the same
+/// thing, but their response types come from different packages, so each builds its own from this.
 /// </summary>
-/// <remarks>
-/// Neutral on purpose. HTTP/2 and HTTP/3 want the same thing, but their response types come from
-/// different packages, so each driver builds its own from this.
-/// </remarks>
 internal readonly struct MultiplexedResponseData
 {
     internal MultiplexedResponseData(int status, List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> headers)
@@ -40,9 +37,7 @@ internal static class MultiplexedResponder
 
     private static readonly ReadOnlyMemory<byte> ServerValue = "ioxide-genhttp"u8.ToArray();
 
-    /// <summary>
-    /// Builds the field section. Does not touch the content, which is streamed afterwards.
-    /// </summary>
+    /// <summary>Builds the field section. The content is streamed afterwards.</summary>
     internal static MultiplexedResponseData BuildHeaders(IResponse response)
     {
         var headers = new List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)>(response.Headers.Count + 4);
@@ -51,9 +46,8 @@ internal static class MultiplexedResponder
         {
             var header = response.Headers.GetMemoryEntry(i);
 
-            // Connection-specific fields are malformed in HTTP/2 and HTTP/3 (RFC 9113 8.2.2,
-            // RFC 9114 4.2) - a peer may treat one as a protocol error rather than ignore it.
-            // Names are passed through as they are: both ioxide layers lowercase as they pack.
+            // Connection-specific fields are malformed here (RFC 9113 8.2.2, RFC 9114 4.2) and a
+            // peer may treat one as a protocol error. Casing is left alone: both layers lowercase.
             if (!IsConnectionSpecific(header.Key.Span))
             {
                 headers.Add((header.Key, header.Value));
@@ -75,8 +69,7 @@ internal static class MultiplexedResponder
             }
 
             // A streamed response has no length by the time its headers go out, so neither layer
-            // fills this in - unlike their buffered paths, which know the body up front. Send it
-            // when the content does know, which is every static file and every fixed page.
+            // fills this in. Send it whenever the content itself knows.
             if (content.Length is { } length)
             {
                 headers.Add((ContentLengthName, Digits(length)));
@@ -86,9 +79,7 @@ internal static class MultiplexedResponder
         return new MultiplexedResponseData((int)response.Status, headers);
     }
 
-    /// <summary>
-    /// Streams the content into the protocol's response writer.
-    /// </summary>
+    /// <summary>Streams the content into the protocol's response writer.</summary>
     internal static async ValueTask WriteBodyAsync(IResponse response, IBufferWriter<byte> writer, Func<ValueTask> flush, bool headRequest)
     {
         var content = response.Content;
@@ -100,7 +91,7 @@ internal static class MultiplexedResponder
 
         try
         {
-            // A HEAD response keeps the headers its GET would have produced and sends no body.
+            // HEAD keeps the headers its GET would have produced and sends no body.
             if (!headRequest)
             {
                 await content.WriteAsync(new MultiplexedSink(writer, flush));

@@ -11,24 +11,17 @@ namespace GenHTTP.Engine.Ioxide.Protocol;
 
 /// <summary>
 /// Takes an accepted TCP connection, establishes its transport, and hands it to the protocol it
-/// turns out to be speaking.
+/// turns out to be speaking - <see cref="Http1Driver"/> or <see cref="Http2Driver"/>, decided by
+/// ALPN on a secure endpoint and by the HTTP/2 connection preface on a plaintext one. HTTP/3 never
+/// reaches this: QUIC is a UDP listener and goes straight to <see cref="Http3Driver"/>.
 /// </summary>
-/// <remarks>
-/// Everything arriving over TCP comes through here - HTTP/1.1 and HTTP/2 both, since they share the
-/// socket. Which of them a connection is settles two ways: ALPN during the TLS handshake on a secure
-/// endpoint, and the HTTP/2 connection preface on a plaintext one. HTTP/3 never reaches this: QUIC
-/// is a UDP listener and goes straight to <see cref="Http3Driver"/>.
-///
-/// <para>Once decided, the connection belongs to <see cref="Http1Driver"/> or
-/// <see cref="Http2Driver"/> for its lifetime, and this only tears it down again.</para>
-/// </remarks>
 internal static partial class ConnectionDriver
 {
     /// <summary>
-    /// Half-close (SHUT_WR = 1) the socket's write side to send FIN. ioxide's refcounted teardown does not
-    /// FIN a server-initiated close by itself (the reactor's active recv keeps a reference), so an
-    /// EOF-delimited response (connection-close / upgrade) would otherwise hang the client. The read side
-    /// stays open so the client's own close is still observed and the reactor reclaims the connection.
+    /// Half-closes the write side to send FIN. ioxide's refcounted teardown does not FIN a
+    /// server-initiated close by itself (the reactor's active recv keeps a reference), so an
+    /// EOF-delimited response would hang the client. The read side stays open, so the client's own
+    /// close is still observed and the reactor reclaims the connection.
     /// </summary>
     private const int ShutWrite = 1;
 
@@ -45,8 +38,7 @@ internal static partial class ConnectionDriver
     {
         IDuplexPipe pipe;
 
-        // What ALPN settled on, when the transport negotiated anything. Null on a plaintext port,
-        // and on a TLS port whose client offered nothing we serve.
+        // Null on a plaintext port, and on a TLS port whose client offered nothing we serve.
         string? negotiated = null;
 
         try
@@ -57,9 +49,9 @@ internal static partial class ConnectionDriver
             }
             else if (endPoint.Secure)
             {
-                // A secure port with no certificate (an SNI-only provider yielded none) is advertised
-                // for redirects but cannot handshake - FIN the connection so the client's handshake
-                // fails fast rather than a plaintext response landing on an https port.
+                // A secure port with no certificate is advertised for redirects but cannot
+                // handshake - FIN, so the client fails fast rather than a plaintext response
+                // landing on an https port.
                 if (!IoxideReactor.Current.GetService<TlsRegistry>().TryFor(conn.ListenerPort, out var service))
                 {
                     _ = Shutdown(conn.ClientFd, ShutWrite);
@@ -81,15 +73,12 @@ internal static partial class ConnectionDriver
             return;
         }
 
-        // The peer address is constant for the connection; resolve it once from the socket fd.
         var remoteAddress = GetPeerAddress(conn.ClientFd);
 
         var http2 = protocols.HasFlag(IoxideProtocols.Http2);
         var http1 = protocols.HasFlag(IoxideProtocols.Http1);
 
-        // Only worth peeking when both share the port. On an HTTP/2-only port every connection is
-        // HTTP/2 by definition, and on an HTTP/1.1-only port the preface would be a malformed
-        // request line either way.
+        // Only worth peeking when both share the port: elsewhere the answer is already known.
         var isHttp2 = http2 && (negotiated == "h2" || (negotiated is null && http1 && await StartsWithPrefaceAsync(pipe.Input)));
 
         if (http2 && !http1)
@@ -115,9 +104,8 @@ internal static partial class ConnectionDriver
             return;
         }
 
-        // The port does not serve HTTP/1.1, and this connection is not HTTP/2 - which on a secure
-        // port means the client offered no ALPN this endpoint accepts. Close rather than answer it
-        // with a protocol the endpoint was configured not to speak.
+        // Not HTTP/2 on a port that does not serve HTTP/1.1 either: close, rather than answer with
+        // a protocol the endpoint was configured not to speak.
         if (!http1)
         {
             await CloseAsync(pipe, conn);
@@ -144,9 +132,8 @@ internal static partial class ConnectionDriver
                 Span<byte> head = stackalloc byte[Preface.Length];
                 buffer.Slice(0, Preface.Length).CopyTo(head);
 
-                // Nothing consumed AND nothing examined: marking these bytes examined would tell the
-                // pipe we are waiting for more, and whichever protocol reads next would block on data
-                // that has already arrived.
+                // Nothing consumed AND nothing examined: marking these examined would tell the pipe
+                // we want more, and whichever protocol reads next would block on data already here.
                 reader.AdvanceTo(buffer.Start, buffer.Start);
 
                 return head.SequenceEqual(Preface.Span);
@@ -163,13 +150,10 @@ internal static partial class ConnectionDriver
     }
 
     /// <summary>
-    /// Ends a connection: complete both halves, tear down the transport, FIN, release.
+    /// Ends a connection: complete both halves, tear down the transport, FIN, release. Completing
+    /// the writer matters beyond tidiness - connection-close and upgrade responses are delimited by
+    /// FIN, and without it the client waits for bytes that never come.
     /// </summary>
-    /// <remarks>
-    /// Completing the writer matters beyond tidiness. Length-delimited responses do not need it, but
-    /// connection-close and upgrade (101) responses are delimited by FIN, and without it the client
-    /// waits for bytes that never come.
-    /// </remarks>
     internal static async ValueTask CloseAsync(IDuplexPipe pipe, IoConnection conn)
     {
         await pipe.Input.CompleteAsync();
@@ -184,10 +168,8 @@ internal static partial class ConnectionDriver
         conn.DecRef();
     }
 
-    // The connected client's remote address, read once per connection straight from the socket fd
-    // (ioxide exposes the fd but not the peer address). Mirrors the Internal engine's
-    // Socket.RemoteEndPoint.Address - returned as-is (IPv4-mapped IPv6 on a dual-stack listener), which
-    // IPAddress.IsLoopback and the rest of the pipeline already handle.
+    // Straight from the socket fd, since ioxide exposes the fd but not the peer address. Returned
+    // as-is (IPv4-mapped IPv6 on a dual-stack listener), which the pipeline already handles.
     private static IPAddress? GetPeerAddress(int fd)
     {
         var addr = new byte[128]; // sockaddr_storage

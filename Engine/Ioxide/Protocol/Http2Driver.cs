@@ -17,10 +17,9 @@ namespace GenHTTP.Engine.Ioxide.Protocol;
 /// request onto GenHTTP's handler chain.
 /// </summary>
 /// <remarks>
-/// Streamed both ways. A handler starts once the request headers have arrived, pulls the body as it
-/// is delivered (paced by flow control, so an upload cannot outrun it) and writes its response into
-/// a writer that frames each flush as a DATA frame - so a large download is never assembled in
-/// memory and is paced by the peer's window.
+/// Streamed both ways: the handler starts at end-of-headers, pulls the body as flow control
+/// delivers it, and writes into a writer that frames each flush as a DATA frame - so neither
+/// direction is assembled in memory and both are paced by the peer's window.
 /// </remarks>
 internal static class Http2Driver
 {
@@ -29,8 +28,8 @@ internal static class Http2Driver
     private static readonly Http2Options Options = new() { StreamRequestBodies = true };
 
     /// <summary>
-    /// Serves an HTTP/2 connection over an established transport: a TLS pipe that negotiated "h2" by
-    /// ALPN, or a plaintext pipe carrying h2c with prior knowledge.
+    /// Serves the connection over an established transport: a TLS pipe that negotiated "h2", or a
+    /// plaintext pipe carrying h2c with prior knowledge.
     /// </summary>
     internal static Task RunAsync(IServer server, IEndPoint endPoint, IDuplexPipe pipe, IPAddress? remoteAddress, bool secure)
         => new Http2Connection(pipe, Options)

@@ -18,16 +18,10 @@ using Microsoft.Extensions.Logging;
 namespace GenHTTP.Engine.Ioxide.Hosting;
 
 /// <summary>
-/// Hosts an application on ioxide's io_uring reactors.
+/// Hosts an application on ioxide's io_uring reactors: one per core, each owning a ring and its
+/// connections on its own thread. Protocols are per port; TLS termination and the QUIC listener
+/// live in the other halves of this class.
 /// </summary>
-/// <remarks>
-/// One reactor per core, each owning a ring and its connections on its own thread.
-///
-/// <para>Protocols are per port. HTTP/1.1 and HTTP/2 share a TCP socket - ALPN decides on a secure
-/// endpoint, the connection preface on a plaintext one - and HTTP/3 is a UDP socket on the same
-/// port number, so one endpoint can serve all three or each can have a port of its own. TLS
-/// termination and the QUIC listener live in the other halves of this class.</para>
-/// </remarks>
 public sealed partial class IoxideServer : IServer
 {
     private readonly ServerConfiguration _config;
@@ -112,12 +106,10 @@ public sealed partial class IoxideServer : IServer
             throw new NotSupportedException("The ioxide engine binds all endpoints with one dual-stack mode.");
         }
 
-        // Resolved once per port: the default, what ProtocolsByPort says for that port, and the
-        // endpoint's own enableQuic flag, which serves HTTP/3 whatever the options say.
         _protocols = mapped.ToDictionary(e => e.Port, e => ResolveProtocols(_options, config, e.Port));
 
-        // One QUIC listener: the transport binds a single UDP port for the whole server, so several
-        // endpoints asking for HTTP/3 would each want their own and only the first could have it.
+        // The transport binds a single UDP port for the whole server, so only one endpoint can
+        // serve HTTP/3.
         var quic = mapped.Where(e => _protocols[e.Port].HasFlag(IoxideProtocols.Http3)).ToList();
 
         if (quic.Count > 1)
@@ -129,9 +121,7 @@ public sealed partial class IoxideServer : IServer
 
         _quicRequested = quic.Count == 1 ? quic[0] : null;
 
-        // Certificates are resolved per reactor in OnStart, not here: the provider is queried for
-        // its default (no-SNI) certificate then, and a port whose provider yields none is still
-        // advertised as secure (so secure-upgrade redirects work) but serves no handshake.
+        // Certificates are resolved per reactor in OnStart, not here - see ResolveTls.
         _secure = config.EndPoints
                         .Where(e => e.Security is not null)
                         .ToDictionary(e => e.Port, e => e.Security!);
@@ -142,20 +132,15 @@ public sealed partial class IoxideServer : IServer
     /// <summary>
     /// What one port serves: the default, its override, and the endpoint's own enableQuic flag.
     /// </summary>
-    /// <remarks>
-    /// A port given only HTTP/3 opens no TCP listener at all, rather than binding one that answers
-    /// nothing.
-    /// </remarks>
     private static IoxideProtocols ResolveProtocols(IoxideOptions options, ServerConfiguration config, ushort port)
     {
         var named = options.ProtocolsByPort.TryGetValue(port, out var configured);
 
         var protocols = named ? configured : options.Protocols;
 
-        // HTTP/3 from the DEFAULT applies only where it can: QUIC carries TLS 1.3, so a plaintext
-        // port cannot serve it. Writing Protocols = All then means "everything each port supports"
-        // rather than an error about the one without a certificate. Named per port it is taken
-        // literally, and refused loudly below if the port cannot serve it.
+        // HTTP/3 from the DEFAULT applies only where it can, so Protocols = All means "everything
+        // each port supports" rather than an error about the plaintext one. Named per port it is
+        // taken literally, and refused where the port has no certificate.
         if (!named && protocols.HasFlag(IoxideProtocols.Http3) && config.EndPoints.All(e => e.Port != port || e.Security is null))
         {
             protocols &= ~IoxideProtocols.Http3;
@@ -191,10 +176,8 @@ public sealed partial class IoxideServer : IServer
             cfg = _configure(cfg);
         }
 
-        // The endpoint bindings (.Port()/.Bind()) determine the listen ports and dual-stack mode, so
-        // they always win over whatever the configuration hook may have set. Only the ports serving
-        // something over TCP are bound: an HTTP/3-only endpoint has a UDP socket and nothing else,
-        // and a server made entirely of those opens no TCP listener at all.
+        // Endpoint bindings always win over the configuration hook. Only ports serving something
+        // over TCP are bound, so an HTTP/3-only endpoint gets a UDP socket and nothing else.
         var tcpPorts = _protocols.Where(p => (p.Value & IoxideProtocols.Http1AndHttp2) != 0)
                                  .Select(p => p.Key)
                                  .OrderBy(p => p == _primary.Port ? 0 : 1)
@@ -218,10 +201,9 @@ public sealed partial class IoxideServer : IServer
         _threads = new Thread[cfg.ReactorCount];
         _reactors = new Reactor[cfg.ReactorCount];
 
-        // Reactors bind their listeners on their own threads (inside Reactor.Run), so StartAsync must
-        // not return until they're actually accepting - otherwise a client that connects immediately
-        // (as the test host does) races the bind and gets "connection refused". OnStart fires right
-        // after the listener is bound, so each reactor signals once it's up.
+        // Reactors bind their listeners on their own threads, so StartAsync must not return before
+        // they accept - a client connecting immediately (as the test host does) would otherwise
+        // race the bind and get "connection refused".
         var listening = new CountdownEvent(cfg.ReactorCount);
 
         for (var i = 0; i < _threads.Length; i++)
@@ -262,9 +244,8 @@ public sealed partial class IoxideServer : IServer
             _threads[i].Start();
         }
 
-        // Block (off the caller) until every reactor reports listening, so the server is accepting
-        // before StartAsync returns. The timeout is a safety net for a reactor that fails to bind -
-        // log and continue rather than hang the host forever.
+        // Off the caller. The timeout is a safety net for a reactor that fails to bind: log and
+        // continue rather than hang the host forever.
         if (await Task.Run(() => listening.Wait(TimeSpan.FromSeconds(10))))
         {
             listening.Dispose();
@@ -335,11 +316,9 @@ public sealed partial class IoxideServer : IServer
 
         _logger.LogInformation("Stopping {Count} ioxide reactors ...", reactors.Length);
 
-        // Each reactor owns an io_uring ring on its own thread. Signal every reactor to stop, then join
-        // the threads: each loop exits and Run() disposes its ring on the reactor thread (mandatory for a
-        // single-issuer / DEFER_TASKRUN ring). Without this the rings leak for the lifetime of the process,
-        // so a long-lived host - or a test run that spins up hundreds of hosts - eventually exhausts
-        // io_uring_setup and crashes. Joining runs off the caller so DisposeAsync stays non-blocking.
+        // Stop, then join: each loop exits and Run() disposes its ring on the reactor thread, which
+        // a single-issuer / DEFER_TASKRUN ring requires. Skipping it leaks a ring per host until
+        // io_uring_setup runs out. Off the caller, so DisposeAsync stays non-blocking.
         await Task.Run(() =>
         {
             foreach (var reactor in reactors)

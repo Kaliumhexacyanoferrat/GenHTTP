@@ -17,13 +17,10 @@ public sealed partial class IoxideServer
     private IoxideEndPoint? _quicEndPoint;
 
     /// <summary>
-    /// Adds the QUIC listener for the endpoint bound with <c>enableQuic</c>.
+    /// Adds the QUIC listener for the endpoint serving HTTP/3. Needs a secure endpoint - QUIC
+    /// carries TLS 1.3 and has no cleartext mode - and takes its port, which is what a browser
+    /// assumes when an Alt-Svc advertisement names none of its own.
     /// </summary>
-    /// <remarks>
-    /// QUIC carries TLS 1.3 and has no cleartext mode, so this needs a secure endpoint - the
-    /// certificate bound there is the one it serves. The UDP port is the endpoint's own port, which
-    /// is what a browser assumes when it reads an Alt-Svc advertisement naming no port of its own.
-    /// </remarks>
     private ServerConfig WithQuic(ServerConfig cfg, IoxideEndPoint endPoint)
     {
         if (!_secure.TryGetValue(endPoint.Port, out var security))
@@ -58,11 +55,9 @@ public sealed partial class IoxideServer
     /// The PEM files ngtcp2 loads. Configured, or HTTP/3 does not start.
     /// </summary>
     /// <remarks>
-    /// ngtcp2 takes paths rather than a certificate object, so serving HTTP/3 needs PEM on disk.
-    /// That is the C layer's contract and this honours it rather than working around it: the engine
-    /// will not write a private key out on your behalf, because a key it creates is a key it has to
-    /// choose a location and a lifetime for, and one written to a temporary directory outlives any
-    /// shutdown that skips cleanup.
+    /// ngtcp2 takes paths rather than a certificate object, so this honours the C layer's contract
+    /// rather than working around it: the engine will not write a private key out on your behalf,
+    /// since one written to a temporary directory outlives any shutdown that skips cleanup.
     /// </remarks>
     private bool TryResolveQuicCertificate(Shared.Infrastructure.SecurityConfiguration security, ushort port,
         out string certPath, out string keyPath)
@@ -90,18 +85,13 @@ public sealed partial class IoxideServer
     }
 
     /// <summary>
-    /// Warns when the configured PEM is not the certificate bound to this endpoint.
+    /// Warns when the configured PEM is not the certificate bound to this endpoint, which would
+    /// answer as one host over TCP and another over QUIC. A browser following an Alt-Svc header
+    /// expects the alternative to be valid for the ORIGIN (RFC 7838 3.1) and would refuse it.
     /// </summary>
     /// <remarks>
-    /// These paths exist to hand ngtcp2 a file rather than to give HTTP/3 an identity of its own,
-    /// and nothing stops them doing the latter: the port would then answer as one host over TCP and
-    /// another over QUIC. A browser moving from HTTP/1.1 to HTTP/3 by an Alt-Svc header expects the
-    /// alternative to present a certificate valid for the ORIGIN (RFC 7838 3.1), so it would refuse
-    /// the upgrade - or worse, not notice.
-    ///
-    /// <para>Compared by leaf thumbprint, so a file carrying a fuller chain than the bound
-    /// certificate is not flagged. A warning rather than a refusal: someone may be deliberately
-    /// serving a different certificate, and this is not the place to decide they cannot.</para>
+    /// Compared by leaf thumbprint, so a file carrying a fuller chain is not flagged. A warning
+    /// rather than a refusal: someone may be serving a different certificate deliberately.
     /// </remarks>
     private void WarnIfNotTheBoundCertificate(string configuredCert, Shared.Infrastructure.SecurityConfiguration security, ushort port)
     {

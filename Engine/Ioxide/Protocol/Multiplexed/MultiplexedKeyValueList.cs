@@ -3,12 +3,10 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 
 /// <summary>
-/// Header and query lists over fields a multiplexed protocol has already decoded.
+/// Header and query lists over fields a multiplexed protocol has already decoded. The shared list
+/// wraps Glyph11's parse output and so assumes HTTP/1.1; HPACK and QPACK hand over name/value
+/// pairs instead, with no request line and no raw header block to point back at.
 /// </summary>
-/// <remarks>
-/// The shared list wraps Glyph11's parse output and so assumes HTTP/1.1. HPACK and QPACK hand over
-/// name/value pairs instead, with no request line and no raw header block to point back at.
-/// </remarks>
 internal sealed class MultiplexedKeyValueList : IRequestHeaders, IRequestQuery
 {
     private readonly List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> _entries;

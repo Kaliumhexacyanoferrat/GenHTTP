@@ -8,10 +8,9 @@ using GenHTTP.Engine.Shared.Types;
 namespace GenHTTP.Engine.Ioxide.Protocol;
 
 /// <summary>
-/// Writes an <see cref="IResponse"/> to a <see cref="PipeWriter"/>. Status line and body writing
-/// stay engine-specific (Ioxide sinks are allocated fresh per response rather than pooled on a
-/// per-connection context), but header serialization is shared with the Internal engine via
-/// <see cref="ResponseSerializer"/>; only the Server/Date header values differ.
+/// Writes an <see cref="IResponse"/> to a <see cref="PipeWriter"/>. Header serialization is
+/// shared with the Internal engine through <see cref="ResponseSerializer"/>; body writing stays
+/// engine-specific, since the sinks are allocated per response rather than pooled per connection.
 /// </summary>
 internal static class ResponseWriter
 {
@@ -42,7 +41,7 @@ internal static class ResponseWriter
 
         if (content.Length is null && response.Mode != Connection.Upgrade)
         {
-            // Unknown length: chunk-frame everything the content writes, then terminate.
+            // Unknown length: chunk-frame everything, then terminate.
             var sink = new ChunkedSink(writer);
             await content.WriteAsync(sink);
             sink.Finish();

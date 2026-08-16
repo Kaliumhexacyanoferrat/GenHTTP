@@ -5,11 +5,10 @@ using System.Runtime.CompilerServices;
 namespace GenHTTP.Engine.Ioxide.Protocol;
 
 /// <summary>
-/// Minimal write-only <see cref="Stream"/> over an <see cref="IBufferWriter{T}"/> so a response
-/// sink's Stream writes through the SAME buffer writer as everything else, preserving ordering.
-/// <paramref name="sink"/> receives the bytes (the raw <see cref="PipeWriter"/> for fixed-length
-/// responses, or a <see cref="ChunkedWriter"/> for chunked ones); <paramref name="flush"/> is the
-/// underlying pipe that actually drains to the socket. Mirrors GenHTTP's WritingStream.
+/// Write-only <see cref="Stream"/> over an <see cref="IBufferWriter{T}"/>, so a sink's Stream
+/// writes through the same buffer writer as everything else and ordering is preserved.
+/// <paramref name="sink"/> takes the bytes (the raw pipe, or a <see cref="ChunkedWriter"/>);
+/// <paramref name="flush"/> is the pipe that drains to the socket.
 /// </summary>
 internal sealed class PipeWriterStream(IBufferWriter<byte> sink, PipeWriter flush) : Stream
 {
@@ -60,10 +59,8 @@ internal sealed class PipeWriterStream(IBufferWriter<byte> sink, PipeWriter flus
         return ValueTask.CompletedTask;
     }
 
-    // Deliberately a no-op: a synchronous flush would block the reactor thread on the pipe's
-    // IValueTaskSource, but that flush is completed by the very same reactor -> deadlock. The bytes
-    // written above are already buffered in `sink` and get drained by the end-of-response FlushAsync
-    // (and async callers can await FlushAsync below), so dropping the sync flush loses nothing.
+    // No-op on purpose: a sync flush would block the reactor thread on a pipe only that reactor
+    // completes. The bytes are buffered in `sink` and drain at the end-of-response FlushAsync.
     public override void Flush() { }
 
     public override Task FlushAsync(CancellationToken cancellationToken) => flush.FlushAsync(cancellationToken).AsTask();

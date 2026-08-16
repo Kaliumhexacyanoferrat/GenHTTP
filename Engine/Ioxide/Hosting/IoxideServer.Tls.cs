@@ -15,11 +15,9 @@ public sealed partial class IoxideServer
 {
     /// <summary>
     /// The TLS options for every secure port whose provider yields a default (no-SNI) certificate.
+    /// A provider selecting by SNI (unsupported here) returns none, leaving the port advertised as
+    /// secure - so secure-upgrade redirects still work - but refusing its handshakes.
     /// </summary>
-    /// <remarks>
-    /// Providers that select by SNI (unsupported here) return none and are skipped - the port stays
-    /// advertised as secure, so secure-upgrade redirects still work, but its handshakes are refused.
-    /// </remarks>
     private IEnumerable<KeyValuePair<ushort, TlsOptions>> ResolveTls()
     {
         foreach (var (port, security) in _secure)
@@ -35,9 +33,8 @@ public sealed partial class IoxideServer
                 CertificatePem = certificate.ExportCertificatePem(),
                 KeyPem = ExportKeyPem(certificate),
 
-                // Server preference, most preferred first: a client offering both gets HTTP/2, one
-                // offering only http/1.1 is unaffected, and one offering neither continues without
-                // an ALPN extension at all.
+                // Server preference, most preferred first. A client offering neither continues
+                // without an ALPN extension at all.
                 Alpn = ProtocolsFor(port).HasFlag(IoxideProtocols.Http2) ? ["h2", "http/1.1"] : ["http/1.1"],
 
                 ClientCaPath = _options.MutualTls.ClientCaPath,
@@ -51,13 +48,10 @@ public sealed partial class IoxideServer
     }
 
     /// <summary>
-    /// Whether a client offering no certificate is refused on this endpoint.
+    /// Whether a client offering no certificate is refused on this endpoint: either the engine says
+    /// so for every endpoint, or the endpoint's own validator does. A validator that only wants to
+    /// inspect what arrives still gets asked, because the CertificateRequest goes out either way.
     /// </summary>
-    /// <remarks>
-    /// Either the engine says so for every endpoint, or the endpoint's own validator does. A
-    /// validator that only wants to inspect what arrives leaves <c>RequireCertificate</c> false and
-    /// still gets asked, because the CertificateRequest goes out either way.
-    /// </remarks>
     private bool RequiresClientCertificate(SecurityConfiguration security)
         => _options.MutualTls.RequireClientCertificate || security.CertificateValidator?.RequireCertificate == true;
 

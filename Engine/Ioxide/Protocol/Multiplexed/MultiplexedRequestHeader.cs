@@ -25,8 +25,7 @@ internal sealed class MultiplexedRequestHeader : IRequestHeader
 
         _target = new RequestTarget();
 
-        // :path carries the query string, exactly as an HTTP/1.1 request target does. Routing must
-        // see the path alone, or every request carrying a query 404s.
+        // Routing must see the path alone, or every request carrying a query 404s.
         Path = new ByteString(WithoutQuery(path));
         Method = new RequestMethod(method);
 
@@ -42,8 +41,7 @@ internal sealed class MultiplexedRequestHeader : IRequestHeader
 
     public IRequestTarget Target => _target;
 
-    // Settled before a byte of the request arrived - by ALPN for HTTP/2, by QUIC plus ALPN for
-    // HTTP/3 - so there is no version token on the wire to read.
+    // Settled by ALPN before a byte arrived, so there is no version token on the wire to read.
     public HttpProtocol Protocol { get; }
 
     public ReadOnlyMemory<byte> Version { get; }
@@ -53,10 +51,8 @@ internal sealed class MultiplexedRequestHeader : IRequestHeader
     public IRequestQuery Query => _query;
 
     /// <summary>
-    /// HTTP/2 and HTTP/3 carry the authority as the :authority pseudo-header, and clients omit Host
-    /// entirely. RFC 9113 8.3.1 and RFC 9114 4.3.1 have an intermediary translating to HTTP/1.1
-    /// construct Host from it, which is what this does: everything above the engine - routing,
-    /// virtual hosting, redirects - expects a Host header to exist.
+    /// Constructs Host from :authority, which clients send instead - as RFC 9113 8.3.1 and RFC 9114
+    /// 4.3.1 have an intermediary do. Routing, virtual hosting and redirects all expect a Host.
     /// </summary>
     private static List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> WithHost(
         List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> headers, ReadOnlyMemory<byte> authority)

@@ -1,55 +1,23 @@
 namespace GenHTTP.Engine.Ioxide;
 
 /// <summary>
-/// Protocol and TLS options for the ioxide engine.
+/// Protocol and TLS options for the ioxide engine. The port, its certificate and whether it asks
+/// for a client certificate stay on <c>Bind</c>; which protocols it then serves lives here.
 /// </summary>
-/// <remarks>
-/// The port, its certificate and whether it asks for a client certificate stay on <c>Bind</c>,
-/// where GenHTTP already puts them. Which protocols that port then serves lives here, because
-/// GenHTTP's endpoint model has nowhere to put it.
-/// </remarks>
 public sealed record IoxideOptions
 {
     internal static readonly IoxideOptions Default = new();
 
     /// <summary>
     /// The protocols every endpoint serves, unless <see cref="ProtocolsByPort"/> says otherwise.
+    /// An endpoint bound with <c>enableQuic</c> serves HTTP/3 whatever is set here.
     /// </summary>
-    /// <remarks>
-    /// Defaults to HTTP/1.1 alone. <c>Http1AndHttp2</c> lets the two share a port - ALPN picks on a
-    /// secure endpoint, the connection preface on a plaintext one - and adding <c>Http3</c> binds
-    /// the same port number over UDP as well.
-    ///
-    /// <para>An endpoint bound with <c>enableQuic</c> serves HTTP/3 whatever is set here, so code
-    /// already using that flag keeps working.</para>
-    /// </remarks>
     public IoxideProtocols Protocols { get; init; } = IoxideProtocols.Http1;
 
     /// <summary>
-    /// Protocols for one port, overriding <see cref="Protocols"/>.
+    /// Protocols for one port, overriding <see cref="Protocols"/> - bind the ports, then name the
+    /// ones that differ: <c>{ [8081] = IoxideProtocols.Http2, [8443] = IoxideProtocols.All }</c>.
     /// </summary>
-    /// <remarks>
-    /// This is how endpoints get different protocols: bind the ports, then name the ones that differ.
-    ///
-    /// <code>
-    /// .Bind(IPAddress.Any, 8080)                     // HTTP/1.1
-    /// .Bind(IPAddress.Any, 8081)                     // HTTP/2 only, h2c
-    /// .Bind(IPAddress.Any, 8443, certificate)        // all three
-    ///
-    /// new IoxideOptions
-    /// {
-    ///     ProtocolsByPort =
-    ///     {
-    ///         [8081] = IoxideProtocols.Http2,
-    ///         [8443] = IoxideProtocols.All,
-    ///     }
-    /// }
-    /// </code>
-    ///
-    /// <para>A port left out follows <see cref="Protocols"/>. A port given neither HTTP/1.1 nor
-    /// HTTP/2 still has a TCP listener, since the endpoint is bound, so HTTP/1.1 is served there
-    /// rather than accepting connections and answering nothing.</para>
-    /// </remarks>
     public Dictionary<ushort, IoxideProtocols> ProtocolsByPort { get; init; } = [];
 
     /// <summary>The HTTP/3 endpoint: the certificate QUIC serves, and QPACK.</summary>
@@ -60,42 +28,24 @@ public sealed record IoxideOptions
 }
 
 /// <summary>
-/// The HTTP/3 endpoint.
+/// The HTTP/3 endpoint. Only consulted when a port serves <see cref="IoxideProtocols.Http3"/>.
 /// </summary>
-/// <remarks>
-/// Only consulted when a port serves <see cref="IoxideProtocols.Http3"/>. QUIC's certificate and
-/// HTTP/3's QPACK are both here because they configure the same endpoint, even though they belong
-/// to different layers of it.
-/// </remarks>
 public sealed record IoxideHttp3Options
 {
     /// <summary>
-    /// PEM certificate chain for the HTTP/3 listener, as a path. Required to serve HTTP/3.
+    /// PEM certificate chain for the HTTP/3 listener, as a path. Required to serve HTTP/3, and
+    /// should be the certificate bound to the endpoint rather than a second one - it is named
+    /// separately only because ngtcp2 loads PEM by path, and the engine writes none for you.
     /// </summary>
-    /// <remarks>
-    /// Not a second certificate: this should be the one bound to the endpoint, which is what
-    /// HTTP/1.1 and HTTP/2 serve there. It is named separately because ngtcp2 loads PEM by path and
-    /// has no in-memory alternative - unlike OpenSSL, which terminates the TCP protocols and takes
-    /// the PEM text directly.
-    ///
-    /// <para>The engine will not write one out for you. A key it creates is a key it has to choose
-    /// a location and a lifetime for, and one written to a temporary directory outlives any
-    /// shutdown that skips cleanup - so an endpoint asking for HTTP/3 without this is a
-    /// configuration error rather than something to paper over.</para>
-    /// </remarks>
     public string? CertificatePath { get; init; }
 
     /// <summary>PEM private key for the HTTP/3 listener. Pairs with <see cref="CertificatePath"/>.</summary>
     public string? KeyPath { get; init; }
 
     /// <summary>
-    /// Bytes of QPACK dynamic table advertised to HTTP/3 clients.
+    /// Bytes of QPACK dynamic table advertised to HTTP/3 clients. 0 keeps every header literal
+    /// against the static table, which costs bytes but can never stall a stream on a table update.
     /// </summary>
-    /// <remarks>
-    /// 0 keeps every header literal against the static table, which costs bytes but can never stall
-    /// a stream waiting for a table update. Only browsers advertise a table of their own; every
-    /// other client measured sends 0, which makes the mechanism inert whatever is set here.
-    /// </remarks>
     public long QpackDynamicTableCapacity { get; init; }
 
     /// <summary>
@@ -106,43 +56,26 @@ public sealed record IoxideHttp3Options
 }
 
 /// <summary>
-/// Mutual TLS, enforced on every protocol.
+/// What client certificates are validated against - by OpenSSL for HTTP/1.1 and HTTP/2, by ngtcp2
+/// for HTTP/3, so a bad chain is refused before any request exists. WHICH endpoints ask for one is
+/// decided per endpoint, by the <c>certificateValidator</c> passed to <c>Bind</c>.
 /// </summary>
-/// <remarks>
-/// Validation happens where the connection is terminated - by OpenSSL for HTTP/1.1 and HTTP/2, by
-/// ngtcp2 for HTTP/3 - so a chain that does not validate is refused before any request exists.
-///
-/// <para>WHICH endpoints ask for a certificate is decided per endpoint, by the
-/// <c>certificateValidator</c> passed to <c>Bind</c>: an endpoint with one asks, an endpoint
-/// without one does not. What lives here is what the offered certificate is checked against, which
-/// the whole server shares.</para>
-/// </remarks>
 public sealed record IoxideMutualTlsOptions
 {
     /// <summary>
-    /// PEM bundle of trust anchors that client certificates are validated against, as a path.
+    /// PEM bundle of trust anchors that client certificates are validated against, as a path. Its
+    /// subject names are also sent in the CertificateRequest, so a client holding several
+    /// certificates can pick the right one; <see cref="ClientCaPem"/> sends no such hint.
     /// </summary>
-    /// <remarks>
-    /// The file's subject names are also sent in the CertificateRequest, so a client holding several
-    /// certificates can pick the one this server accepts rather than guessing.
-    /// <see cref="ClientCaPem"/> is trusted identically but sends no such hint.
-    /// </remarks>
     public string? ClientCaPath { get; init; }
 
     /// <summary>The trust anchors as PEM text - the in-memory alternative to <see cref="ClientCaPath"/>.</summary>
     public string? ClientCaPem { get; init; }
 
     /// <summary>
-    /// Refuse a client that offers no certificate at all, on every secure endpoint.
+    /// Refuse a client that offers no certificate, on every secure endpoint; false still asks for
+    /// one and validates what arrives. Usually left alone, since an endpoint's
+    /// <c>certificateValidator</c> raises it for that endpoint. The two are ORed.
     /// </summary>
-    /// <remarks>
-    /// False asks for one and validates what arrives, but lets a client offering nothing through -
-    /// which is what a server serving both a public and a mutually authenticated route wants, since
-    /// it can read who connected and decide per request.
-    ///
-    /// <para>Usually left alone: an endpoint's <c>certificateValidator</c> raises this for that
-    /// endpoint through <c>RequireCertificate</c>, which is how one port requires a certificate
-    /// while another stays open. The two are ORed.</para>
-    /// </remarks>
     public bool RequireClientCertificate { get; init; }
 }

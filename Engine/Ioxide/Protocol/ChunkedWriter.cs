@@ -4,10 +4,9 @@ using System.IO.Pipelines;
 namespace GenHTTP.Engine.Ioxide.Protocol;
 
 /// <summary>
-/// Wraps a <see cref="PipeWriter"/> and frames every <see cref="Advance"/> as an HTTP/1.1
-/// transfer-encoding chunk (size in hex + CRLF + data + CRLF). Ported from GenHTTP's Internal
-/// engine (ChunkedWriter): a fixed 8-hex-digit size header is reserved ahead of the payload so
-/// the chunk can be framed in place without a second copy.
+/// Frames every <see cref="Advance"/> as a transfer-encoding chunk (hex size, CRLF, data, CRLF).
+/// A fixed 8-digit size header is reserved ahead of the payload, so the chunk is framed in place
+/// without a second copy. Ported from the Internal engine.
 /// </summary>
 internal sealed class ChunkedWriter(PipeWriter writer) : IBufferWriter<byte>
 {

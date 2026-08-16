@@ -15,20 +15,15 @@ namespace GenHTTP.Engine.Ioxide.Protocol;
 /// each request onto GenHTTP's handler chain.
 /// </summary>
 /// <remarks>
-/// Streamed both ways, as with HTTP/2. A response is written as it is produced and each flush parks
-/// until the peer's window and the connection's send-retention high-water allow more, so serving a
-/// large file costs about that high-water in memory rather than the size of the file.
-///
-/// <para>nghttp3 brings the parts that are laborious by hand - QPACK with a static-table encoder,
-/// stream priorities, GOAWAY draining - and ngtcp2 brings QUIC itself.</para>
+/// Streamed both ways, as with HTTP/2: each flush parks until the peer's window and the send
+/// retention high-water allow more, so a large file costs about that high-water in memory rather
+/// than its own size.
 /// </remarks>
 internal static class Http3Driver
 {
     private static readonly ReadOnlyMemory<byte> Head = "HEAD"u8.ToArray();
 
-    /// <summary>
-    /// Serves one accepted QUIC connection until it closes.
-    /// </summary>
+    /// <summary>Serves one accepted QUIC connection until it closes.</summary>
     internal static Task RunAsync(IServer server, IEndPoint endPoint, QuicConnection connection, Nghttp3Options options)
         => new Nghttp3Connection(connection, options)
             .RunStreamedResponseAsync((request, writer) => DispatchAsync(server, endPoint, request, writer));
@@ -50,10 +45,9 @@ internal static class Http3Driver
 
             var reader = request.BodyReader;
 
-            // Always secure: HTTP/3 runs over QUIC, which carries TLS 1.3 and has no cleartext mode.
-            // The client address stays null - ioxide's QuicConnection tracks the peer address (it has
-            // to, for path validation) but exposes no way to read it, and a QUIC peer may migrate
-            // mid-connection anyway.
+            // Always secure: QUIC carries TLS 1.3 and has no cleartext mode. The client address
+            // stays null - ioxide's QuicConnection exposes no way to read the peer address, and a
+            // QUIC peer may migrate mid-connection anyway.
             await using var mapped = new MultiplexedRequest(server, endPoint, request.Method, request.Path, request.Authority,
                 headers, reader is null ? null : reader.ReadAsync, remoteAddress: null, HttpProtocol.Http3, secure: true);
 

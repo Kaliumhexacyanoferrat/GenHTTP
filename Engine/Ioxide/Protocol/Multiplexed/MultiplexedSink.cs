@@ -5,16 +5,13 @@ using GenHTTP.Api.Protocol;
 namespace GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 
 /// <summary>
-/// Writes response content straight into a protocol response writer.
+/// Writes response content straight into a protocol response writer, which is itself an
+/// <see cref="IBufferWriter{T}"/> - so the buffer channel reaches the wire with nothing between.
 /// </summary>
 /// <remarks>
-/// Both protocol writers are themselves <see cref="IBufferWriter{T}"/>, so content that writes
-/// through the buffer channel goes to the wire with nothing in between.
-///
-/// <para>The stream channel flushes on every write, which is what makes a large download bounded:
-/// a flush parks until the peer's window and the connection's send retention allow more, so the
-/// await is the backpressure. Content that writes through the buffer channel instead is flushed
-/// once, when it finishes - fine for a page, and the reason file content should use the stream.</para>
+/// The stream channel flushes on every write, and that await is the backpressure that bounds a
+/// large download. The buffer channel flushes once at the end - fine for a page, which is why file
+/// content should use the stream.
 /// </remarks>
 internal sealed class MultiplexedSink : IResponseSink
 {
@@ -35,8 +32,7 @@ internal sealed class MultiplexedSink : IResponseSink
     public Stream Stream => _stream ??= new FlushingStream(_writer, _flush);
 
     /// <summary>
-    /// Adapts the protocol writer to the stream channel, flushing each write so the content is
-    /// paced by the peer rather than accumulated.
+    /// Adapts the protocol writer to the stream channel, flushing each write so the peer paces it.
     /// </summary>
     private sealed class FlushingStream : Stream
     {
@@ -70,8 +66,7 @@ internal sealed class MultiplexedSink : IResponseSink
 
         public override void Write(ReadOnlySpan<byte> buffer)
         {
-            // Synchronous write: the bytes are staged, but the flush that paces them cannot happen
-            // here. Content that writes large bodies should use the async path.
+            // Staged, but not paced: there is no flush on the sync path. Large bodies want async.
             _target.Write(buffer);
             _written += buffer.Length;
         }

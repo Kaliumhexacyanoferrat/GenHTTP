@@ -3,10 +3,8 @@ using System.Runtime.CompilerServices;
 namespace GenHTTP.Engine.Ioxide.Protocol;
 
 /// <summary>
-/// Per-reactor cached "Date: ...\r\n" header, refreshed at most once a second. Mirrors GenHTTP's
-/// Internal-engine DateHeader but is <see cref="ThreadStaticAttribute">[ThreadStatic]</see>: each
-/// reactor runs on its own thread, so it owns its buffer — no cross-thread races (a shared static
-/// would tear under N reactors) and no per-response formatting or allocation.
+/// Per-reactor cached "Date: ...\r\n" header, refreshed at most once a second. [ThreadStatic]
+/// rather than a shared static, which would tear under N reactors writing the same buffer.
 /// </summary>
 internal static class DateHeader
 {

@@ -20,35 +20,30 @@ using IoConnection = ioxide.TcpConnection;
 namespace GenHTTP.Engine.Ioxide.Protocol;
 
 /// <summary>
-/// Serves an HTTP/1.1 connection: parse, handle, respond, repeat until it closes.
+/// Serves an HTTP/1.1 connection: parse, handle, respond, repeat until it closes. Reached from
+/// <see cref="ConnectionDriver"/> once the transport is up and the protocol settled.
 /// </summary>
 /// <remarks>
-/// Reached from <see cref="ConnectionDriver"/> once the transport is up and the protocol settled.
-/// One of these runs per connection on the reactor thread, and awaited continuations resume inline
-/// on that same thread - which is what lets the request pool below go without locking.
-///
-/// <para>Unlike HTTP/2 and HTTP/3 there is one request in flight at a time, so a connection owns a
-/// single <see cref="Request"/> for its lifetime and returns it when the connection ends.</para>
+/// One of these per connection, on the reactor thread, with awaited continuations resuming inline
+/// on that same thread - which is what lets the request pool below go without locking. Unlike
+/// HTTP/2 and HTTP/3 there is one request in flight at a time, so a connection owns a single
+/// <see cref="Request"/> for its lifetime.
 /// </remarks>
 internal static class Http1Driver
 {
     private static readonly ParserLimits Limits = ParserLimits.Default;
 
-    // Benchmark switch: set GENHTTP_IOXIDE_PARSER=pico to parse request headers with
-    // Glyph11.Pico (picohttpparser, native) instead of the hardened managed Glyph11 parser.
-    // Both fill the same BinaryRequest, so the rest of the pipeline is identical — only the
-    // header-parsing implementation differs. NOTE: the Pico path does picohttpparser-level
-    // validation only (no path/token/smuggling hardening); it's for benchmarking, not for
-    // hardening untrusted traffic.
+    // Benchmark switch: GENHTTP_IOXIDE_PARSER=pico parses headers with Glyph11.Pico
+    // (picohttpparser, native) instead of the hardened managed parser. Both fill the same
+    // BinaryRequest. The Pico path does picohttpparser-level validation only (no path/token/
+    // smuggling hardening), so it is for benchmarking, not for untrusted traffic.
     private static readonly bool UsePico =
         string.Equals(Environment.GetEnvironmentVariable("GENHTTP_IOXIDE_PARSER"), "pico", StringComparison.OrdinalIgnoreCase);
 
     private static readonly ByteString KeepAliveValue = new("Keep-Alive");
 
-    // Per-reactor pool of Request objects. Each reactor runs on its own thread and services its
-    // connections cooperatively, so the stack needs no locking. Reuses the per-connection Request
-    // allocation, which matters under connection churn (e.g. limited-conn). Mirrors the Internal
-    // engine's ClientContext pool, adapted for thread-per-core.
+    // Per-reactor, so the stack needs no locking. Reuses the per-connection Request allocation,
+    // which matters under connection churn.
     [ThreadStatic]
     private static Stack<Request>? _requestPool;
 
@@ -62,10 +57,8 @@ internal static class Http1Driver
         var request = RentRequest();
         var into = request.Source;
 
-        // Diagnostic: the [ThreadStatic] Request pool and lock-free pooling assume every continuation
-        // in this method resumes on the reactor thread that entered it. Capture that thread now — before
-        // the first await — so we can warn (once) if ioxide ever resumes us on a different thread
-        // (e.g. under a work-stealing scheduler), which silently degrades the pool.
+        // Captured before the first await, so the diagnostic below can tell whether continuations
+        // really did resume on the reactor thread the pool assumes.
         var reactorThreadId = Environment.CurrentManagedThreadId;
 
         try
@@ -95,7 +88,7 @@ internal static class Http1Driver
                     continue;
                 }
 
-                // Client cert stays null until TLS termination lands; the remote address is read from the socket.
+                // Client cert stays null until TLS termination exposes one.
                 request.Apply(server, endPoint, reader, buffer.Start, remoteAddress, null);
 
                 var keepAlive = await HandleRequestAsync(server, writer, request);
@@ -143,7 +136,7 @@ internal static class Http1Driver
     private static bool TryParseRequest(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
         => UsePico ? TryParseRequestPico(ref buffer, into) : TryParseRequestGlyph11(ref buffer, into);
 
-    // Hardened managed parser (default): full RFC + smuggling validation.
+    // Default: full RFC + smuggling validation.
     private static bool TryParseRequestGlyph11(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
     {
         if (!UltraHardenedParser.TryExtractFullHeaderValidated(ref buffer, into, Limits, out var bytesRead))
@@ -155,8 +148,8 @@ internal static class Http1Driver
         return true;
     }
 
-    // picohttpparser (native) — single-segment is parsed in place, multi-segment is linearized.
-    // `consumed` follows the same -1 convention as the managed parser, so the slice is identical.
+    // picohttpparser: single-segment is parsed in place, multi-segment is linearized. `consumed`
+    // follows the managed parser's -1 convention, so the slice is identical.
     private static bool TryParseRequestPico(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
     {
         if (!PicoParser.TryParse(buffer, into, out var consumed))
@@ -211,12 +204,10 @@ internal static class Http1Driver
         }
     }
 
-    // Set to 1 the first time a continuation is seen resuming off the reactor thread.
     private static int _hopWarned;
 
-    // Warns at most once per process if this phase's continuation resumed on a different thread than the
-    // reactor thread that entered RunAsync. On the fast (affine) path it's a single int compare, so it's
-    // safe to leave enabled during benchmarks — the one-shot guard keeps it from perturbing throughput.
+    // Warns once per process if a continuation resumed off the reactor thread. On the affine path
+    // it is a single int compare, so it can stay enabled during benchmarks.
     private static void WarnIfThreadHopped(IServer server, int reactorThreadId, string phase)
     {
         var now = Environment.CurrentManagedThreadId;
