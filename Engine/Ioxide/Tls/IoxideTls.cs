@@ -6,26 +6,10 @@ using ioxide.tls;
 namespace GenHTTP.Engine.Ioxide;
 
 /// <summary>
-/// TLS helpers for hosts wiring a custom <c>connectionFactory</c>. Endpoints bound with a
-/// certificate are terminated automatically and need none of this.
+/// TLS termination for the endpoints bound with a certificate.
 /// </summary>
-public static class IoxideTls
+internal static class IoxideTls
 {
-    /// <summary>
-    /// <c>onReactorStart</c> hook: start a ring-native TLS service (OpenSSL context) on this reactor.
-    /// </summary>
-    public static void StartService(Reactor reactor, TlsOptions options) => TlsService.Start(reactor, options);
-
-    /// <summary>
-    /// <c>connectionFactory</c> helper: TLS-terminate <paramref name="conn"/> on the current reactor and
-    /// return the duplex pipe the engine serves over. Requires <see cref="StartService"/> to have run.
-    /// </summary>
-    public static async ValueTask<IDuplexPipe> AcceptAsync(TcpConnection conn)
-        => await AcceptAsync(conn, IoxideReactor.Current.GetService<TlsService>());
-
-    internal static async ValueTask<IDuplexPipe> AcceptAsync(TcpConnection conn, TlsService service)
-        => (await AcceptWithAlpnAsync(conn, service)).Pipe;
-
     /// <summary>
     /// Terminates TLS and reports what ALPN settled on, which is how a port serving several
     /// protocols knows which one this connection speaks. Null means the client offered nothing the
@@ -39,6 +23,10 @@ public static class IoxideTls
     }
 }
 
+/// <summary>
+/// The TLS service each secure port owns on this reactor. One per port, since ALPN and the client
+/// CA differ per endpoint; resolved by the listener port a connection arrived on.
+/// </summary>
 internal sealed class TlsRegistry
 {
     private readonly Dictionary<ushort, TlsService> _byPort = [];

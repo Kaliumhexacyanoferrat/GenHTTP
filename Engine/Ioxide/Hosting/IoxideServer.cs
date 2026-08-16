@@ -40,8 +40,6 @@ public sealed partial class IoxideServer : IServer
 
     private readonly Action<Reactor>? _onReactorStart;
 
-    private readonly Func<TcpConnection, ValueTask<IDuplexPipe>>? _connectionFactory;
-
     private readonly IoxideOptions _options;
 
     private readonly Nghttp3Options _h3Options;
@@ -70,13 +68,11 @@ public sealed partial class IoxideServer : IServer
         ServerConfiguration config, 
         IHandler handler,
         Action<Reactor>? onReactorStart = null,
-        Func<TcpConnection, ValueTask<IDuplexPipe>>? connectionFactory = null,
         IoxideOptions? options = null)
     {
         _config = config;
         Handler = handler;
         _onReactorStart = onReactorStart;
-        _connectionFactory = connectionFactory;
         _options = options ?? IoxideOptions.Default;
 
         _h3Options = new Nghttp3Options
@@ -213,7 +209,6 @@ public sealed partial class IoxideServer : IServer
                         this, 
                         _endPointByPort[tcpConnection.ListenerPort], 
                         tcpConnection, 
-                        _connectionFactory, 
                         ProtocolsFor(tcpConnection.ListenerPort)),
                 
                 QuicHandle = _quicEngine is not null 

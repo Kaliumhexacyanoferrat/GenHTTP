@@ -37,7 +37,7 @@ internal static partial class ConnectionDriver
     private static readonly ReadOnlyMemory<byte> Preface = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n"u8.ToArray();
 
     internal static async Task HandleAsync(IServer server, IEndPoint endPoint, IoConnection conn,
-        Func<IoConnection, ValueTask<IDuplexPipe>>? connectionFactory, IoxideProtocols protocols = IoxideProtocols.Http1)
+        IoxideProtocols protocols = IoxideProtocols.Http1)
     {
         IDuplexPipe pipe;
 
@@ -46,11 +46,7 @@ internal static partial class ConnectionDriver
 
         try
         {
-            if (connectionFactory is not null)
-            {
-                pipe = await connectionFactory(conn);
-            }
-            else if (endPoint.Secure)
+            if (endPoint.Secure)
             {
                 // A secure port with no certificate is advertised for redirects but cannot
                 // handshake - FIN, so the client fails fast rather than a plaintext response
@@ -71,7 +67,7 @@ internal static partial class ConnectionDriver
         }
         catch
         {
-            // failed handshake (or factory fault) - release the connection instead of leaking it
+            // failed handshake - release the connection instead of leaking it
             conn.DecRef();
             return;
         }
