@@ -41,8 +41,8 @@ public sealed partial class IoxideServer
                 ClientCaPem = _options.MutualTls.ClientCaPem,
                 RequireClientCertificate = RequiresClientCertificate(security),
 
-                KernelTx = _kernelTx,
-                KernelRx = _kernelRx
+                KernelTx = _options.Tcp.TxKernelTls,
+                KernelRx = _options.Tcp.RxKernelTls
             });
         }
     }

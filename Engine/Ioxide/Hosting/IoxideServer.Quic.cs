@@ -12,7 +12,7 @@ namespace GenHTTP.Engine.Ioxide.Hosting;
 /// </summary>
 public sealed partial class IoxideServer
 {
-    private QuicEngine? _quic;
+    private QuicEngine? _quicEngine;
 
     private IoxideEndPoint? _quicEndPoint;
 
@@ -21,32 +21,32 @@ public sealed partial class IoxideServer
     /// carries TLS 1.3 and has no cleartext mode - and takes its port, which is what a browser
     /// assumes when an Alt-Svc advertisement names none of its own.
     /// </summary>
-    private ServerConfig WithQuic(ServerConfig cfg, IoxideEndPoint endPoint)
+    private ServerConfig WithQuic(ServerConfig serverConfig, IoxideEndPoint quicEndPoint)
     {
-        if (!_secure.TryGetValue(endPoint.Port, out var security))
+        if (!_secure.TryGetValue(quicEndPoint.Port, out var security))
         {
-            _logger.LogWarning("HTTP/3 was requested on port {Port}, which is not bound with a certificate; QUIC has no cleartext mode, so no listener was started.", endPoint.Port);
-            return cfg;
+            _logger.LogWarning("HTTP/3 was requested on port {Port}, which is not bound with a certificate; QUIC has no cleartext mode, so no listener was started.", quicEndPoint.Port);
+            return serverConfig;
         }
 
-        if (!TryResolveQuicCertificate(security, endPoint.Port, out var certPath, out var keyPath))
+        if (!TryResolveQuicCertificate(security, quicEndPoint.Port, out var certPath, out var keyPath))
         {
-            return cfg;
+            return serverConfig;
         }
 
-        _quic = new QuicEngine(certPath, keyPath, alpn: ["h3"],
+        _quicEngine = new QuicEngine(certPath, keyPath, alpn: ["h3"],
             clientCaPemPath: _options.MutualTls.ClientCaPath,
             requireClientCertificate: RequiresClientCertificate(security));
 
-        _quicEndPoint = endPoint;
+        _quicEndPoint = quicEndPoint;
 
-        return cfg with
+        return serverConfig with
         {
-            Udp = cfg.Udp ?? new UdpOptions(),
+            Udp = serverConfig.Udp ?? new UdpOptions(),
             Quic = new QuicOptions
             {
-                Port = endPoint.Port,
-                ConnectionFactory = _quic.CreateFactory(),
+                Port = quicEndPoint.Port,
+                ConnectionFactory = _quicEngine.CreateFactory(),
             },
         };
     }
@@ -126,7 +126,7 @@ public sealed partial class IoxideServer
     /// </summary>
     private void DisposeQuic()
     {
-        _quic?.Dispose();
-        _quic = null;
+        _quicEngine?.Dispose();
+        _quicEngine = null;
     }
 }

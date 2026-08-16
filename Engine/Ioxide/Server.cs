@@ -25,19 +25,11 @@ public static class Host
     /// Replaces the built-in transport selection. A returned pipe implementing
     /// <see cref="IAsyncDisposable" /> is disposed when the connection ends.
     /// </param>
-    /// <param name="kernelTx">
-    /// Encrypt TLS records in the kernel (kTLS TX) rather than OpenSSL, which still handshakes.
-    /// Needs the Linux <c>tls</c> module and TLS 1.3.
-    /// </param>
-    /// <param name="kernelRx">
-    /// Decrypt in the kernel too. Experimental: needs <paramref name="kernelTx"/> (RX shares the
-    /// ULP handoff TX installs) and a peer sending no post-handshake control records.
-    /// </param>
     /// <param name="options">
-    /// Protocols, the HTTP/3 certificate, mutual TLS and QPACK. Per-endpoint settings stay on
-    /// <c>Bind</c>.
+    /// Protocols, kernel TLS, the HTTP/3 certificate, mutual TLS and QPACK. Per-endpoint
+    /// settings stay on <c>Bind</c>.
     /// </param>
-    public static IServerHost Create(Func<ServerConfig, ServerConfig>? configure = null, Action<Reactor>? onReactorStart = null, Func<TcpConnection, ValueTask<IDuplexPipe>>? connectionFactory = null, bool kernelTx = false, bool kernelRx = false, IoxideOptions? options = null)
-        => new IoxideServerHost(configure, onReactorStart, connectionFactory, kernelTx, kernelRx, options);
+    public static IServerHost Create(Func<ServerConfig, ServerConfig>? configure = null, Action<Reactor>? onReactorStart = null, Func<TcpConnection, ValueTask<IDuplexPipe>>? connectionFactory = null, IoxideOptions? options = null)
+        => new IoxideServerHost(configure, onReactorStart, connectionFactory, options);
 
 }

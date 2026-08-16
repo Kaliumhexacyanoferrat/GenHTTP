@@ -20,11 +20,34 @@ public sealed record IoxideOptions
     /// </summary>
     public Dictionary<ushort, IoxideProtocols> ProtocolsByPort { get; init; } = [];
 
+    /// <summary>The TCP endpoints: how TLS is terminated for HTTP/1.1 and HTTP/2.</summary>
+    public IoxideTcpOptions Tcp { get; init; } = new();
+
     /// <summary>The HTTP/3 endpoint: the certificate QUIC serves, and QPACK.</summary>
     public IoxideHttp3Options Http3 { get; init; } = new();
 
     /// <summary>Client certificates: what they are validated against, and whether one is required.</summary>
     public IoxideMutualTlsOptions MutualTls { get; init; } = new();
+}
+
+/// <summary>
+/// The TCP endpoints, where OpenSSL terminates TLS for HTTP/1.1 and HTTP/2. HTTP/3 is not
+/// configured here: QUIC carries its own TLS 1.3 inside ngtcp2, so none of this reaches it.
+/// </summary>
+public sealed record IoxideTcpOptions
+{
+    /// <summary>
+    /// Produce TLS records in the kernel (kTLS) on the send path instead of in OpenSSL, which
+    /// still drives the handshake. Requires the Linux <c>tls</c> module and TLS 1.3.
+    /// </summary>
+    public bool TxKernelTls { get; init; }
+
+    /// <summary>
+    /// Decrypt TLS records in the kernel on the receive path. Experimental, and requires
+    /// <see cref="TxKernelTls"/> - RX shares the ULP handoff TX installs, so ioxide refuses RX
+    /// alone. The peer must send no post-handshake control records.
+    /// </summary>
+    public bool RxKernelTls { get; init; }
 }
 
 /// <summary>
