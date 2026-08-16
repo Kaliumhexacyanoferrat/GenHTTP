@@ -1,6 +1,7 @@
 using System.Security.Cryptography.X509Certificates;
 
 using ioxide;
+using ioxide.nghttp3;
 using ioxide.ngtcp2;
 
 using Microsoft.Extensions.Logging;
@@ -15,6 +16,8 @@ public sealed partial class IoxideServer
     private QuicEngine? _quicEngine;
 
     private IoxideEndPoint? _quicEndPoint;
+
+    private Nghttp3Options? _h3Options;
 
     /// <summary>
     /// Adds the QUIC listener for the endpoint serving HTTP/3. Needs a secure endpoint - QUIC
@@ -39,6 +42,15 @@ public sealed partial class IoxideServer
             requireClientCertificate: RequiresClientCertificate(security));
 
         _quicEndPoint = quicEndPoint;
+
+        // Built once here, not in the QuicHandle below - that runs per accepted connection, and
+        // these two never change. Nghttp3Options is ngtcp2's own record; IoxideHttp3Options is
+        // what the caller sets, and this is where the two meet.
+        _h3Options = new Nghttp3Options
+        {
+            QpackDynamicTableCapacity = _options.Http3.QpackDynamicTableCapacity,
+            QpackBlockedStreams = _options.Http3.QpackBlockedStreams,
+        };
 
         return serverConfig with
         {
@@ -128,5 +140,6 @@ public sealed partial class IoxideServer
     {
         _quicEngine?.Dispose();
         _quicEngine = null;
+        _h3Options = null;
     }
 }

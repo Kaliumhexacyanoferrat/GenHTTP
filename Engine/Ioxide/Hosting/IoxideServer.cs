@@ -10,7 +10,6 @@ using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Types;
 
 using ioxide;
-using ioxide.nghttp3;
 using ioxide.tls;
 
 using Microsoft.Extensions.Logging;
@@ -42,8 +41,6 @@ public sealed partial class IoxideServer : IServer
 
     private readonly IoxideOptions _options;
 
-    private readonly Nghttp3Options _h3Options;
-
     private readonly ILogger _logger;
 
     private Thread[]? _threads;
@@ -74,12 +71,6 @@ public sealed partial class IoxideServer : IServer
         Handler = handler;
         _onReactorStart = onReactorStart;
         _options = options ?? IoxideOptions.Default;
-
-        _h3Options = new Nghttp3Options
-        {
-            QpackDynamicTableCapacity = _options.Http3.QpackDynamicTableCapacity,
-            QpackBlockedStreams = _options.Http3.QpackBlockedStreams,
-        };
 
         _logger = config.Logging.CreateLogger<IoxideServer>();
 
@@ -212,7 +203,7 @@ public sealed partial class IoxideServer : IServer
                         ProtocolsFor(tcpConnection.ListenerPort)),
                 
                 QuicHandle = _quicEngine is not null 
-                    ? (_, quicConnection) => Http3Driver.RunAsync(this, _quicEndPoint!, quicConnection, _h3Options) 
+                    ? (_, quicConnection) => Http3Driver.RunAsync(this, _quicEndPoint!, quicConnection, _h3Options!) 
                     : null
             };
 
