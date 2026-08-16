@@ -143,9 +143,8 @@ public sealed partial class IoxideServer : IServer
     /// What one port serves: the default, its override, and the endpoint's own enableQuic flag.
     /// </summary>
     /// <remarks>
-    /// A port with neither HTTP/1.1 nor HTTP/2 still has a TCP listener, because binding the
-    /// endpoint is what created it - so HTTP/1.1 is served there rather than accepting connections
-    /// and answering nothing.
+    /// A port given only HTTP/3 opens no TCP listener at all, rather than binding one that answers
+    /// nothing.
     /// </remarks>
     private static IoxideProtocols ResolveProtocols(IoxideOptions options, ServerConfiguration config, ushort port)
     {
@@ -167,9 +166,9 @@ public sealed partial class IoxideServer : IServer
             protocols |= IoxideProtocols.Http3;
         }
 
-        if ((protocols & IoxideProtocols.Http1AndHttp2) == 0)
+        if (protocols == 0)
         {
-            protocols |= IoxideProtocols.Http1;
+            throw new NotSupportedException($"Port {port} was given no protocols to serve.");
         }
 
         return protocols;
@@ -193,14 +192,21 @@ public sealed partial class IoxideServer : IServer
         }
 
         // The endpoint bindings (.Port()/.Bind()) determine the listen ports and dual-stack mode, so
-        // they always win over whatever the configuration hook may have set.
+        // they always win over whatever the configuration hook may have set. Only the ports serving
+        // something over TCP are bound: an HTTP/3-only endpoint has a UDP socket and nothing else,
+        // and a server made entirely of those opens no TCP listener at all.
+        var tcpPorts = _protocols.Where(p => (p.Value & IoxideProtocols.Http1AndHttp2) != 0)
+                                 .Select(p => p.Key)
+                                 .OrderBy(p => p == _primary.Port ? 0 : 1)
+                                 .ToArray();
+
         cfg = cfg with
         {
             DualStack = _primary.DualStack,
-            Tcp = (cfg.Tcp ?? new TcpOptions()) with
+            Tcp = tcpPorts.Length == 0 ? null : (cfg.Tcp ?? new TcpOptions()) with
             {
-                Port = _primary.Port,
-                ExtraPorts = _extraPorts
+                Port = tcpPorts[0],
+                ExtraPorts = tcpPorts.Skip(1).ToArray()
             }
         };
 

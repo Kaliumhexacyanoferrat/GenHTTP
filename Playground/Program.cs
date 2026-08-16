@@ -19,10 +19,20 @@ using IoxideFilesModule = GenHTTP.Modules.IoxideFiles.IoxideFiles;
 //   http://localhost:8081    HTTP/2 only, without TLS (h2c, for a client using prior knowledge)
 //   https://localhost:8443   all three at once - HTTP/1.1 and HTTP/2 over TCP, HTTP/3 over UDP
 //
-// Every port is independent, so 8081 serves ONLY HTTP/2 - an HTTP/1.1 client is turned away there.
-// Give a port Http1AndHttp2 and it serves both, one connection at a time: ALPN picks during the
-// handshake on a secure port, and the HTTP/2 connection preface picks on a plaintext one. That is
-// what 8443 does below.
+// Every port is independent, and any combination is allowed:
+//
+//   Http1            HTTP/1.1 only
+//   Http2            HTTP/2 only - an HTTP/1.1 client is turned away
+//   Http3            HTTP/3 only - a UDP socket and NO TCP listener at all
+//   Http1AndHttp2    both on one TCP socket, decided per connection
+//   Http1AndHttp3    HTTP/1.1 over TCP, HTTP/3 over UDP, skipping HTTP/2
+//   Http2AndHttp3    HTTP/2 over TCP, HTTP/3 over UDP, no HTTP/1.1
+//   All              everything, one port number
+//
+// Where two share the TCP socket, ALPN decides during the handshake on a secure port and the
+// HTTP/2 connection preface decides on a plaintext one. HTTP/3 always needs a certificate, since
+// QUIC carries TLS 1.3 and has no cleartext mode - and only one endpoint may serve it, because the
+// transport binds a single QUIC listener.
 //
 //     dotnet run -c Release --project Playground
 //

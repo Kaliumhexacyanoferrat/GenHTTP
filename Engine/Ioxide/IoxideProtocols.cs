@@ -35,6 +35,27 @@ public enum IoxideProtocols
     /// <summary>HTTP/1.1 and HTTP/2 on the TCP socket, chosen per connection.</summary>
     Http1AndHttp2 = Http1 | Http2,
 
+    /// <summary>
+    /// HTTP/1.1 over TCP and HTTP/3 over UDP, skipping HTTP/2 entirely.
+    /// </summary>
+    /// <remarks>
+    /// Every client can still be served: one that speaks neither HTTP/2 nor HTTP/3 gets HTTP/1.1,
+    /// and a browser told about the QUIC port by an Alt-Svc header moves itself there. Worth having
+    /// when HTTP/2 is not wanted - its flow control and HPACK state cost per connection, and a
+    /// deployment that has HTTP/3 may have little use for it.
+    /// </remarks>
+    Http1AndHttp3 = Http1 | Http3,
+
+    /// <summary>
+    /// HTTP/2 over TCP and HTTP/3 over UDP, with no HTTP/1.1 at all.
+    /// </summary>
+    /// <remarks>
+    /// A client that speaks neither is turned away, so this is for somewhere the clients are known -
+    /// a private API, or gRPC, where HTTP/2 is the floor rather than an upgrade. Note that a browser
+    /// reaching a plaintext endpoint cannot use h2c, so this pairs with a certificate in practice.
+    /// </remarks>
+    Http2AndHttp3 = Http2 | Http3,
+
     /// <summary>Everything: HTTP/1.1 and HTTP/2 over TCP, HTTP/3 over UDP, one port number.</summary>
     All = Http1 | Http2 | Http3,
 }
