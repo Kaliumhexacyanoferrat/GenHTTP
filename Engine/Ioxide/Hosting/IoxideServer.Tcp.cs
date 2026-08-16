@@ -8,43 +8,28 @@ namespace GenHTTP.Engine.Ioxide.Hosting;
 public sealed partial class IoxideServer
 {
     /// <summary>
-    /// Adds the TCP listener, or none at all when no endpoint serves anything over TCP - an
-    /// HTTP/3-only server gets a UDP socket and nothing else, rather than a listener that accepts
-    /// connections it would answer with nothing.
+    /// Adds the TCP listener for the ports resolved into <c>_tcpRequested</c>. Only called when
+    /// there are any - an HTTP/3-only server gets a UDP socket and no TCP listener at all.
     /// </summary>
     /// <remarks>
-    /// One listener bound to several ports rather than one per port: the connection carries the
-    /// port it arrived on, which is what lets a single handler serve endpoints with different
-    /// protocols. The transport tuning comes from the options; the ports come from the bindings and
-    /// are not the caller's to set here.
+    /// One listener bound to several ports rather than one per port: a connection carries the port
+    /// it arrived on, which is what lets a single handler serve endpoints speaking different
+    /// protocols. The tuning comes from the options; the ports come from the bindings and are not
+    /// the caller's to set.
     /// </remarks>
-    private ServerConfig WithTcp(ServerConfig serverConfig)
+    private ServerConfig WithTcp(ServerConfig serverConfig) => serverConfig with
     {
-        var tcpPorts = _protocols.Where(p => (p.Value & IoxideProtocols.Http1AndHttp2) != 0)
-                                 .Select(p => p.Key)
-                                 .OrderBy(p => p == _primary.Port ? 0 : 1)
-                                 .ToArray();
-
-        // Nothing to add: no endpoint serves HTTP/1.1 or HTTP/2, so this server is HTTP/3 only.
-        if (tcpPorts.Length == 0)
+        Tcp = new TcpOptions
         {
-            return serverConfig;
-        }
+            Port = _tcpRequested[0],
+            ExtraPorts = _tcpRequested[1..],
 
-        return serverConfig with
-        {
-            Tcp = new TcpOptions
-            {
-                Port = tcpPorts[0],
-                ExtraPorts = tcpPorts.Skip(1).ToArray(),
-
-                ListenBacklog = _options.Tcp.ListenBacklog,
-                WriteSlabSize = _options.Tcp.WriteSlabSize,
-                WriteOverflow = _options.Tcp.WriteOverflow,
-                PoolMax = _options.Tcp.PoolMax,
-                ZeroCopySend = _options.Tcp.ZeroCopySend,
-                RecvQueueEntries = _options.Tcp.RecvQueueEntries,
-            },
-        };
-    }
+            ListenBacklog = _options.Tcp.ListenBacklog,
+            WriteSlabSize = _options.Tcp.WriteSlabSize,
+            WriteOverflow = _options.Tcp.WriteOverflow,
+            PoolMax = _options.Tcp.PoolMax,
+            ZeroCopySend = _options.Tcp.ZeroCopySend,
+            RecvQueueEntries = _options.Tcp.RecvQueueEntries,
+        },
+    };
 }

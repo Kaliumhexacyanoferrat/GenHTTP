@@ -31,7 +31,7 @@ public sealed partial class IoxideServer : IServer
 
     private readonly Dictionary<ushort, SecurityConfiguration> _secure;
 
-    private readonly ushort[] _extraPorts;
+    private readonly ushort[] _tcpRequested;
 
     private readonly IoxideEndPoint? _quicRequested;
 
@@ -80,7 +80,6 @@ public sealed partial class IoxideServer : IServer
 
         _primary = mapped[0];
         _endPointByPort = mapped.ToDictionary(e => e.Port);
-        _extraPorts = mapped.Skip(1).Select(e => e.Port).ToArray();
 
         if (mapped.Any(e => e.DualStack != _primary.DualStack))
         {
@@ -89,8 +88,16 @@ public sealed partial class IoxideServer : IServer
 
         _protocols = mapped.ToDictionary(e => e.Port, e => ResolveProtocols(_options, config, e.Port));
 
-        // The transport binds a single UDP port for the whole server, so only one endpoint can
-        // serve HTTP/3.
+        // Which endpoints want which listener, decided here so StartAsync only has to act on it.
+        // The ports serving HTTP/1.1 or HTTP/2 share one TCP listener, primary first - it becomes
+        // TcpOptions.Port and the rest its ExtraPorts.
+        _tcpRequested = _protocols.Where(p => (p.Value & IoxideProtocols.Http1AndHttp2) != 0)
+                                  .Select(p => p.Key)
+                                  .OrderBy(p => p == _primary.Port ? 0 : 1)
+                                  .ToArray();
+
+        // QUIC is the other way round: the transport binds a single UDP port for the whole server,
+        // so only one endpoint can serve HTTP/3.
         var quicEndpoints = mapped.Where(e => _protocols[e.Port].HasFlag(IoxideProtocols.Http3)).ToList();
 
         if (quicEndpoints.Count > 1)
@@ -138,7 +145,12 @@ public sealed partial class IoxideServer : IServer
 
         Running = true;
         
-        var serverConfig = WithTcp(BuildServerConfig());
+        var serverConfig = BuildServerConfig();
+
+        if (_tcpRequested.Length > 0)
+        {
+            serverConfig = WithTcp(serverConfig);
+        }
 
         if (_quicRequested is { } quicEndPoint)
         {
