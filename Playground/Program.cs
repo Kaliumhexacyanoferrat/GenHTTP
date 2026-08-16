@@ -84,6 +84,12 @@ if (staticDir != null && Directory.Exists(staticDir))
 // to serve a real one - a browser will refuse HTTP/3 to a certificate it does not trust.
 using var certificate = LoadCertificate();
 
+// Written out and named below, so the HTTP/3 listener loads it from here rather than having the
+// engine export a copy into a temporary directory. Same certificate either way - this is only
+// about where ngtcp2 reads it from, and a key under ./certs beats one in /tmp that outlives a
+// SIGKILL.
+var (serverCertPath, serverKeyPath) = WriteServerCertificate(certificate);
+
 // A CA, a client it signs, and an impostor it does not - so the mutual TLS port below can be tried
 // both ways without generating anything by hand.
 var clientCa = WriteClientCertificates();
@@ -128,8 +134,8 @@ await Host.Create(
                       // on shutdown - which works, but puts a private key on disk for the lifetime
                       // of the process.
                       //
-                      // CertificatePath = "/etc/ssl/site.crt",
-                      // KeyPath         = "/etc/ssl/site.key",
+                      CertificatePath = serverCertPath,
+                      KeyPath = serverKeyPath,
                   },
               })
           .Handler(app)
@@ -140,6 +146,24 @@ await Host.Create(
           // mTLS
           .Bind(IPAddress.Loopback, 8444, certificate, certificateValidator: new RequireClientCertificate())
           .RunAsync();
+
+/// <summary>
+/// Writes the server certificate as PEM, so ngtcp2 can load it by path.
+/// </summary>
+static (string Certificate, string Key) WriteServerCertificate(X509Certificate2 certificate)
+{
+    var directory = Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "certs"));
+
+    var certPath = Path.Combine(directory.FullName, "server.crt");
+    var keyPath = Path.Combine(directory.FullName, "server.key");
+
+    File.WriteAllText(certPath, certificate.ExportCertificatePem());
+
+    WritePrivateKey(keyPath, certificate.GetRSAPrivateKey()?.ExportPkcs8PrivateKeyPem()
+                             ?? throw new InvalidOperationException("The development certificate carries no RSA private key."));
+
+    return (certPath, keyPath);
+}
 
 /// <summary>
 /// Writes a client CA, a certificate it signs, and one it does not, and returns the CA's path.
@@ -185,7 +209,7 @@ static string WriteClientCertificates()
             : request.Create(issuer, from, until, Guid.NewGuid().ToByteArray());
 
         File.WriteAllText(Path.Combine(directory, $"{name}.crt"), certificate.ExportCertificatePem());
-        File.WriteAllText(Path.Combine(directory, $"{name}.key"), key.ExportPkcs8PrivateKeyPem());
+        WritePrivateKey(Path.Combine(directory, $"{name}.key"), key.ExportPkcs8PrivateKeyPem());
     }
 }
 
@@ -210,6 +234,28 @@ static X509Certificate2 LoadCertificate()
 
     // The private key has to come back through a PKCS#12 round trip before a TLS stack will use it.
     return X509CertificateLoader.LoadPkcs12(generated.Export(X509ContentType.Pfx), null);
+}
+
+/// <summary>
+/// Writes a private key readable only by this user.
+/// </summary>
+/// <remarks>
+/// File.WriteAllText takes the umask, which on most machines leaves a key world-readable. These are
+/// throwaways, but a sample is read as an example of how to do it.
+/// </remarks>
+static void WritePrivateKey(string path, string pem)
+{
+    var options = new FileStreamOptions { Mode = FileMode.Create, Access = FileAccess.Write };
+
+    if (!OperatingSystem.IsWindows())
+    {
+        options.UnixCreateMode = UnixFileMode.UserRead | UnixFileMode.UserWrite;
+    }
+
+    using var stream = new FileStream(path, options);
+    using var writer = new StreamWriter(stream);
+
+    writer.Write(pem);
 }
 
 /// <summary>
