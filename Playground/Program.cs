@@ -108,6 +108,17 @@ await Host.Create(
                       [8444] = IoxideProtocols.Http1,
                   },
 
+                  Tcp = new IoxideTcpOptions
+                  {
+                      // Move TLS record encryption from OpenSSL into the kernel on the ports below
+                      // that carry HTTP/1.1 and HTTP/2. Off here because it needs the Linux tls
+                      // module (`modprobe tls`) and TLS 1.3, and a machine without it serves
+                      // nothing. RxKernelTls decrypts there too, and requires this one.
+                      //
+                      // HTTP/3 is unaffected either way - QUIC carries its own TLS inside ngtcp2.
+                      TxKernelTls = false,
+                  },
+
                   MutualTls = new IoxideMutualTlsOptions
                   {
                       // What an offered client certificate is validated against. WHICH ports ask
