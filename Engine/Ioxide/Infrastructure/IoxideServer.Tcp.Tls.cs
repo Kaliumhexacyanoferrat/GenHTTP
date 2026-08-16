@@ -6,7 +6,7 @@ using ioxide.tls;
 
 using Microsoft.Extensions.Logging;
 
-namespace GenHTTP.Engine.Ioxide.Hosting;
+namespace GenHTTP.Engine.Ioxide.Infrastructure;
 
 /// <summary>
 /// TLS termination for the TCP endpoints - HTTP/1.1 and HTTP/2 both ride this.

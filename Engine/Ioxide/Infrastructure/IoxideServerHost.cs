@@ -5,7 +5,7 @@ using GenHTTP.Engine.Shared.Infrastructure;
 
 using ioxide;
 
-namespace GenHTTP.Engine.Ioxide.Hosting;
+namespace GenHTTP.Engine.Ioxide.Infrastructure;
 
 public sealed class IoxideServerHost(
     Action<Reactor>? onReactorStart = null,

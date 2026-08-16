@@ -1,6 +1,6 @@
 using ioxide;
 
-namespace GenHTTP.Engine.Ioxide.Hosting;
+namespace GenHTTP.Engine.Ioxide.Infrastructure;
 
 /// <summary>
 /// The TCP listener that carries HTTP/1.1 and HTTP/2, alongside the QUIC one.

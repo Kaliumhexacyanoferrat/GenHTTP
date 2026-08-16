@@ -1,6 +1,6 @@
 using GenHTTP.Api.Infrastructure;
 
-using GenHTTP.Engine.Ioxide.Hosting;
+using GenHTTP.Engine.Ioxide.Infrastructure;
 using ioxide;
 
 namespace GenHTTP.Engine.Ioxide;

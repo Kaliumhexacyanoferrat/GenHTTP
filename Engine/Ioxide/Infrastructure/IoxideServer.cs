@@ -4,6 +4,8 @@ using System.IO.Pipelines;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
+using GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
+
 using GenHTTP.Engine.Ioxide.Protocol;
 using GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 using GenHTTP.Engine.Shared.Infrastructure;
@@ -14,7 +16,7 @@ using ioxide.tls;
 
 using Microsoft.Extensions.Logging;
 
-namespace GenHTTP.Engine.Ioxide.Hosting;
+namespace GenHTTP.Engine.Ioxide.Infrastructure;
 
 /// <summary>
 /// Hosts an application on ioxide's io_uring reactors: one per core, each owning a ring and its
@@ -25,15 +27,15 @@ public sealed partial class IoxideServer : IServer
 {
     private readonly ServerConfiguration _config;
 
-    private readonly IoxideEndPoint _primary;
+    private readonly EndPoint _primary;
 
-    private readonly Dictionary<ushort, IoxideEndPoint> _endPointByPort;
+    private readonly Dictionary<ushort, EndPoint> _endPointByPort;
 
     private readonly Dictionary<ushort, SecurityConfiguration> _secure;
 
     private readonly ushort[] _tcpRequested;
 
-    private readonly IoxideEndPoint? _quicRequested;
+    private readonly EndPoint? _quicRequested;
 
     private readonly Dictionary<ushort, IoxideProtocols> _protocols;
 
@@ -91,17 +93,17 @@ public sealed partial class IoxideServer : IServer
                         .Where(e => e.Security is not null)
                         .ToDictionary(e => e.Port, e => e.Security!);
 
-        EndPoints = new IoxideEndPoints(mapped.Cast<IEndPoint>().ToList());
+        EndPoints = new EndPointCollection(mapped.Cast<IEndPoint>().ToList());
     }
 
     /// <summary>
     /// GenHTTP's endpoints as the engine's own, which is also where the one thing every endpoint
     /// must agree on is checked: ioxide binds the whole server with a single dual-stack mode.
     /// </summary>
-    private static List<IoxideEndPoint> MapEndPoints(ServerConfiguration config)
+    private static List<EndPoint> MapEndPoints(ServerConfiguration config)
     {
         var mapped = config.EndPoints
-                           .Select(e => new IoxideEndPoint(e.Address, e.Port, e.DualStack, e.Security != null))
+                           .Select(e => new EndPoint(e.Address, e.Port, e.DualStack, e.Security != null))
                            .ToList();
 
         if (mapped.Any(e => e.DualStack != mapped[0].DualStack))

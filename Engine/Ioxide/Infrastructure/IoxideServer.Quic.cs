@@ -1,12 +1,14 @@
 using System.Security.Cryptography.X509Certificates;
 
+using GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
+
 using ioxide;
 using ioxide.nghttp3;
 using ioxide.ngtcp2;
 
 using Microsoft.Extensions.Logging;
 
-namespace GenHTTP.Engine.Ioxide.Hosting;
+namespace GenHTTP.Engine.Ioxide.Infrastructure;
 
 /// <summary>
 /// The QUIC listener that carries HTTP/3, alongside the TCP one.
@@ -15,7 +17,7 @@ public sealed partial class IoxideServer
 {
     private QuicEngine? _quicEngine;
 
-    private IoxideEndPoint? _quicEndPoint;
+    private EndPoint? _quicEndPoint;
 
     private Nghttp3Options? _h3Options;
 
@@ -24,7 +26,7 @@ public sealed partial class IoxideServer
     /// UDP port for the whole server, so several endpoints asking for HTTP/3 would each want their
     /// own and only the first could have it - refused here rather than silently honouring one.
     /// </summary>
-    private IoxideEndPoint? ResolveQuicEndPoint(List<IoxideEndPoint> mapped)
+    private EndPoint? ResolveQuicEndPoint(List<EndPoint> mapped)
     {
         var quicEndPoints = mapped.Where(e => _protocols[e.Port].HasFlag(IoxideProtocols.Http3)).ToList();
 
@@ -43,7 +45,7 @@ public sealed partial class IoxideServer
     /// carries TLS 1.3 and has no cleartext mode - and takes its port, which is what a browser
     /// assumes when an Alt-Svc advertisement names none of its own.
     /// </summary>
-    private ServerConfig WithQuic(ServerConfig serverConfig, IoxideEndPoint quicEndPoint)
+    private ServerConfig WithQuic(ServerConfig serverConfig, EndPoint quicEndPoint)
     {
         if (!_secure.TryGetValue(quicEndPoint.Port, out var security))
         {
