@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
+using GenHTTP.Engine.Ioxide;
 using GenHTTP.Engine.Ioxide.Protocol.Mux;
 using GenHTTP.Engine.Shared.Types;
 using Glyph11.Parser;
@@ -84,7 +85,7 @@ internal static partial class ConnectionDriver
 
     private const int MaxPooledRequests = 1024;
 
-    internal static async Task HandleAsync(IServer server, IEndPoint endPoint, IoConnection conn, Func<IoConnection, ValueTask<IDuplexPipe>>? connectionFactory, bool http2 = false)
+    internal static async Task HandleAsync(IServer server, IEndPoint endPoint, IoConnection conn, Func<IoConnection, ValueTask<IDuplexPipe>>? connectionFactory, IoxideProtocols protocols = IoxideProtocols.Http1)
     {
         IDuplexPipe pipe;
 
@@ -130,7 +131,20 @@ internal static partial class ConnectionDriver
         // The peer address is constant for the connection; resolve it once from the socket fd.
         var remoteAddress = GetPeerAddress(conn.ClientFd);
 
-        if (http2 && (negotiated == "h2" || (negotiated is null && await StartsWithPrefaceAsync(reader))))
+        var http2 = protocols.HasFlag(IoxideProtocols.Http2);
+        var http1 = protocols.HasFlag(IoxideProtocols.Http1);
+
+        // Only worth peeking when both share the port. On an HTTP/2-only port every connection is
+        // HTTP/2 by definition, and on an HTTP/1.1-only port the preface would be a malformed
+        // request line either way.
+        var isHttp2 = http2 && (negotiated == "h2" || (negotiated is null && http1 && await StartsWithPrefaceAsync(reader)));
+
+        if (http2 && !http1)
+        {
+            isHttp2 = true;
+        }
+
+        if (isHttp2)
         {
             // HTTP/2 owns the connection from here: it multiplexes, so there is no request loop to
             // run above it and nothing of the HTTP/1.1 path applies.
@@ -147,6 +161,15 @@ internal static partial class ConnectionDriver
                 await CloseAsync(pipe, conn);
             }
 
+            return;
+        }
+
+        // The port does not serve HTTP/1.1, and this connection is not HTTP/2 - which on a secure
+        // port means the client offered no ALPN this endpoint accepts. Close rather than answer it
+        // with a protocol the endpoint was configured not to speak.
+        if (!http1)
+        {
+            await CloseAsync(pipe, conn);
             return;
         }
 

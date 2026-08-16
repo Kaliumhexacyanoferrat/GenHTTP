@@ -11,17 +11,19 @@ using GenHTTP.Modules.Layouting;
 // The namespace and the class share a name, so the class needs an alias to be reachable.
 using IoxideFilesModule = GenHTTP.Modules.IoxideFiles.IoxideFiles;
 
-// One host, four protocols:
+// One host, three ports, showing every arrangement the engine allows. Protocols are configured per
+// port: HTTP/1.1 and HTTP/2 share a TCP socket, and HTTP/3 is a UDP socket on the same port number,
+// so ports can be shared or separated however you like.
 //
-//   http://localhost:8080    HTTP/1.1, and HTTP/2 without TLS (h2c) for a client that opens with
-//                            the HTTP/2 preface. Both share the port - the first bytes decide.
-//   https://localhost:8443   HTTP/1.1 or HTTP/2, chosen by ALPN during the handshake, plus
-//                            HTTP/3 on the same number over UDP.
+//   http://localhost:8080    HTTP/1.1 only
+//   http://localhost:8081    HTTP/2 only, without TLS (h2c, for a client using prior knowledge)
+//   https://localhost:8443   all three at once - HTTP/1.1 and HTTP/2 over TCP, HTTP/3 over UDP
 //
 //     dotnet run -c Release --project Playground
 //
 //     curl http://localhost:8080/ok
-//     curl --http2-prior-knowledge http://localhost:8080/ok
+//     curl --http2-prior-knowledge http://localhost:8081/ok
+//     curl -k --http1.1 https://localhost:8443/ok
 //     curl -k --http2 https://localhost:8443/ok
 //     curl -k --http3-only https://localhost:8443/ok
 //
@@ -66,20 +68,38 @@ await Host.Create(
               configure: c => c with { ReactorCount = reactors },
               options: new IoxideOptions
               {
-                  // HTTP/2 over TLS (ALPN prefers it) and, without TLS, for a client that opens
-                  // with the HTTP/2 preface. HTTP/1.1 clients are unaffected either way.
-                  Http2 = true,
+                  // What a port serves unless named below.
+                  Protocols = IoxideProtocols.Http1,
+
+                  ProtocolsByPort =
+                  {
+                      [8081] = IoxideProtocols.Http2,   // h2c only - no HTTP/1.1 on this port
+                      [8443] = IoxideProtocols.All,     // h1 + h2 over TCP, h3 over UDP, one number
+                  },
 
                   // Bytes of QPACK dynamic table offered to HTTP/3 clients. 0 keeps every header
                   // literal, which costs bytes but can never stall a stream on a table update. In
                   // practice only browsers advertise a table of their own.
                   QpackDynamicTableCapacity = 4096,
                   QpackBlockedStreams = 100,
+
+                  // HTTP/3 is terminated by ngtcp2, which loads PEM from disk. Name the files here
+                  // and nothing is written; leave them out and the bound certificate is exported to
+                  // an owner-only temporary directory for the lifetime of the process.
+                  //
+                  // Http3CertificatePath = "/etc/ssl/site.crt",
+                  // Http3KeyPath         = "/etc/ssl/site.key",
+
+                  // Mutual TLS, enforced on all three protocols. Clients are asked for a
+                  // certificate and validated against this bundle.
+                  //
+                  // ClientCaPath             = "/etc/ssl/clients.pem",
+                  // RequireClientCertificate = true,
               })
           .Handler(app)
           .Bind(IPAddress.Loopback, 8080)
-          // enableQuic adds the HTTP/3 listener on the same port number over UDP.
-          .Bind(IPAddress.Loopback, 8443, certificate, enableQuic: true)
+          .Bind(IPAddress.Loopback, 8081)
+          .Bind(IPAddress.Loopback, 8443, certificate)
           .RunAsync();
 
 static X509Certificate2 LoadCertificate()

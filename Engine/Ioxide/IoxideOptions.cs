@@ -4,22 +4,53 @@ namespace GenHTTP.Engine.Ioxide;
 /// Protocol and TLS options for the ioxide engine.
 /// </summary>
 /// <remarks>
-/// Endpoint-level settings stay on <c>Bind</c> where they already are: the port, its certificate,
-/// whether it serves HTTP/3 (<c>enableQuic</c>) and whether it asks for a client certificate
-/// (<c>certificateValidator</c>). What lives here is what the engine itself needs and GenHTTP's
-/// endpoint model has nowhere to put.
+/// The port, its certificate and whether it asks for a client certificate stay on <c>Bind</c>,
+/// where GenHTTP already puts them. Which protocols that port then serves lives here, because
+/// GenHTTP's endpoint model has nowhere to put it.
 /// </remarks>
 public sealed record IoxideOptions
 {
     internal static readonly IoxideOptions Default = new();
 
     /// <summary>
-    /// Serve HTTP/2. On a TLS endpoint the protocol is chosen by ALPN, so a client offering both
-    /// gets HTTP/2 and one offering only <c>http/1.1</c> is unaffected. On a plaintext endpoint a
-    /// client opening with the HTTP/2 preface (h2c with prior knowledge) is served HTTP/2; the
-    /// <c>Upgrade:</c> dance is not implemented, which is what every deployed h2c client does.
+    /// The protocols every endpoint serves, unless <see cref="ProtocolsByPort"/> says otherwise.
     /// </summary>
-    public bool Http2 { get; init; }
+    /// <remarks>
+    /// Defaults to HTTP/1.1 alone. <c>Http1AndHttp2</c> lets the two share a port - ALPN picks on a
+    /// secure endpoint, the connection preface on a plaintext one - and adding <c>Http3</c> binds
+    /// the same port number over UDP as well.
+    ///
+    /// <para>An endpoint bound with <c>enableQuic</c> serves HTTP/3 whatever is set here, so code
+    /// already using that flag keeps working.</para>
+    /// </remarks>
+    public IoxideProtocols Protocols { get; init; } = IoxideProtocols.Http1;
+
+    /// <summary>
+    /// Protocols for one port, overriding <see cref="Protocols"/>.
+    /// </summary>
+    /// <remarks>
+    /// This is how endpoints get different protocols: bind the ports, then name the ones that differ.
+    ///
+    /// <code>
+    /// .Bind(IPAddress.Any, 8080)                     // HTTP/1.1
+    /// .Bind(IPAddress.Any, 8081)                     // HTTP/2 only, h2c
+    /// .Bind(IPAddress.Any, 8443, certificate)        // all three
+    ///
+    /// new IoxideOptions
+    /// {
+    ///     ProtocolsByPort =
+    ///     {
+    ///         [8081] = IoxideProtocols.Http2,
+    ///         [8443] = IoxideProtocols.All,
+    ///     }
+    /// }
+    /// </code>
+    ///
+    /// <para>A port left out follows <see cref="Protocols"/>. A port given neither HTTP/1.1 nor
+    /// HTTP/2 still has a TCP listener, since the endpoint is bound, so HTTP/1.1 is served there
+    /// rather than accepting connections and answering nothing.</para>
+    /// </remarks>
+    public Dictionary<ushort, IoxideProtocols> ProtocolsByPort { get; init; } = [];
 
     /// <summary>
     /// PEM certificate chain for the HTTP/3 listener, as a path.

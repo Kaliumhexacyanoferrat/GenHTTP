@@ -38,7 +38,7 @@ public sealed partial class IoxideServer
                 // Server preference, most preferred first: a client offering both gets HTTP/2, one
                 // offering only http/1.1 is unaffected, and one offering neither continues without
                 // an ALPN extension at all.
-                Alpn = _options.Http2 ? ["h2", "http/1.1"] : ["http/1.1"],
+                Alpn = ProtocolsFor(port).HasFlag(IoxideProtocols.Http2) ? ["h2", "http/1.1"] : ["http/1.1"],
 
                 ClientCaPath = _options.ClientCaPath,
                 ClientCaPem = _options.ClientCaPem,

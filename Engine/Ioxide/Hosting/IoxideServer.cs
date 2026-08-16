@@ -21,10 +21,12 @@ namespace GenHTTP.Engine.Ioxide.Hosting;
 /// Hosts an application on ioxide's io_uring reactors.
 /// </summary>
 /// <remarks>
-/// One reactor per core, each owning a ring and its connections on its own thread. Protocol
-/// selection is per endpoint: HTTP/1.1 always, HTTP/2 when enabled (by ALPN on a TLS port, by the
-/// connection preface on a plaintext one), and HTTP/3 on the endpoint bound with <c>enableQuic</c>.
-/// TLS termination and the QUIC listener live in the other halves of this class.
+/// One reactor per core, each owning a ring and its connections on its own thread.
+///
+/// <para>Protocols are per port. HTTP/1.1 and HTTP/2 share a TCP socket - ALPN decides on a secure
+/// endpoint, the connection preface on a plaintext one - and HTTP/3 is a UDP socket on the same
+/// port number, so one endpoint can serve all three or each can have a port of its own. TLS
+/// termination and the QUIC listener live in the other halves of this class.</para>
 /// </remarks>
 public sealed partial class IoxideServer : IServer
 {
@@ -39,6 +41,8 @@ public sealed partial class IoxideServer : IServer
     private readonly ushort[] _extraPorts;
 
     private readonly IoxideEndPoint? _quicRequested;
+
+    private readonly Dictionary<ushort, IoxideProtocols> _protocols;
 
     private readonly Func<ServerConfig, ServerConfig>? _configure;
 
@@ -108,16 +112,22 @@ public sealed partial class IoxideServer : IServer
             throw new NotSupportedException("The ioxide engine binds all endpoints with one dual-stack mode.");
         }
 
+        // Resolved once per port: the default, what ProtocolsByPort says for that port, and the
+        // endpoint's own enableQuic flag, which serves HTTP/3 whatever the options say.
+        _protocols = mapped.ToDictionary(e => e.Port, e => ResolveProtocols(_options, config, e.Port));
+
         // One QUIC listener: the transport binds a single UDP port for the whole server, so several
         // endpoints asking for HTTP/3 would each want their own and only the first could have it.
-        var quic = config.EndPoints.Where(e => e.EnableQuic).ToList();
+        var quic = mapped.Where(e => _protocols[e.Port].HasFlag(IoxideProtocols.Http3)).ToList();
 
         if (quic.Count > 1)
         {
-            throw new NotSupportedException("The ioxide engine serves HTTP/3 on one endpoint; enableQuic is set on several.");
+            throw new NotSupportedException(
+                $"The ioxide engine binds one QUIC listener, but HTTP/3 was requested on ports {string.Join(", ", quic.Select(e => e.Port))}. "
+                + "Name the protocols per port (ProtocolsByPort) so only one of them serves HTTP/3.");
         }
 
-        _quicRequested = quic.Count == 1 ? _endPointByPort[quic[0].Port] : null;
+        _quicRequested = quic.Count == 1 ? quic[0] : null;
 
         // Certificates are resolved per reactor in OnStart, not here: the provider is queried for
         // its default (no-SNI) certificate then, and a port whose provider yields none is still
@@ -128,6 +138,46 @@ public sealed partial class IoxideServer : IServer
 
         EndPoints = new IoxideEndPoints(mapped.Cast<IEndPoint>().ToList());
     }
+
+    /// <summary>
+    /// What one port serves: the default, its override, and the endpoint's own enableQuic flag.
+    /// </summary>
+    /// <remarks>
+    /// A port with neither HTTP/1.1 nor HTTP/2 still has a TCP listener, because binding the
+    /// endpoint is what created it - so HTTP/1.1 is served there rather than accepting connections
+    /// and answering nothing.
+    /// </remarks>
+    private static IoxideProtocols ResolveProtocols(IoxideOptions options, ServerConfiguration config, ushort port)
+    {
+        var named = options.ProtocolsByPort.TryGetValue(port, out var configured);
+
+        var protocols = named ? configured : options.Protocols;
+
+        // HTTP/3 from the DEFAULT applies only where it can: QUIC carries TLS 1.3, so a plaintext
+        // port cannot serve it. Writing Protocols = All then means "everything each port supports"
+        // rather than an error about the one without a certificate. Named per port it is taken
+        // literally, and refused loudly below if the port cannot serve it.
+        if (!named && protocols.HasFlag(IoxideProtocols.Http3) && config.EndPoints.All(e => e.Port != port || e.Security is null))
+        {
+            protocols &= ~IoxideProtocols.Http3;
+        }
+
+        if (config.EndPoints.Any(e => e.Port == port && e.EnableQuic))
+        {
+            protocols |= IoxideProtocols.Http3;
+        }
+
+        if ((protocols & IoxideProtocols.Http1AndHttp2) == 0)
+        {
+            protocols |= IoxideProtocols.Http1;
+        }
+
+        return protocols;
+    }
+
+    /// <summary>The protocols this port serves.</summary>
+    private IoxideProtocols ProtocolsFor(ushort port)
+        => _protocols.TryGetValue(port, out var protocols) ? protocols : IoxideProtocols.Http1;
 
     public async ValueTask StartAsync()
     {
@@ -191,7 +241,7 @@ public sealed partial class IoxideServer : IServer
                     _onReactorStart?.Invoke(r);
                     listening.Signal();
                 },
-                TcpHandle = (_, c) => ConnectionDriver.HandleAsync(this, _endPointByPort[c.ListenerPort], c, _connectionFactory, _options.Http2),
+                TcpHandle = (_, c) => ConnectionDriver.HandleAsync(this, _endPointByPort[c.ListenerPort], c, _connectionFactory, ProtocolsFor(c.ListenerPort)),
                 QuicHandle = _quic is not null ? (_, c) => Http3Driver.RunAsync(this, _quicEndPoint!, c, _h3Options) : null
             };
 
@@ -244,16 +294,22 @@ public sealed partial class IoxideServer : IServer
 
     private string DescribeSettings()
     {
-        var protocols = _options.Http2 ? "HTTP/1.1+2" : "HTTP/1.1";
+        var protocols = string.Join(" ", _protocols.OrderBy(p => p.Key).Select(p => $"{p.Key}:{Describe(p.Value)}"));
 
-        if (_quic is not null)
-        {
-            protocols += "+3";
-        }
-
-        return $"ioxide, {protocols}, {_endPointByPort.Count} endpoint(s), TLS on {_secure.Count}"
+        return $"ioxide, {protocols}, TLS on {_secure.Count}"
                + (MutualTlsConfigured ? ", mTLS" : string.Empty)
                + $", DualStack: {_primary.DualStack}, Reactors: {_reactors?.Length ?? 0}";
+    }
+
+    private static string Describe(IoxideProtocols protocols)
+    {
+        var names = new List<string>(3);
+
+        if (protocols.HasFlag(IoxideProtocols.Http1)) names.Add("h1");
+        if (protocols.HasFlag(IoxideProtocols.Http2)) names.Add("h2");
+        if (protocols.HasFlag(IoxideProtocols.Http3)) names.Add("h3");
+
+        return string.Join("+", names);
     }
 
     public async ValueTask DisposeAsync()
