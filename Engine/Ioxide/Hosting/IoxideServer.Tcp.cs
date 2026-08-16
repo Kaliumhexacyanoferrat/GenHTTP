@@ -25,9 +25,10 @@ public sealed partial class IoxideServer
                                  .OrderBy(p => p == _primary.Port ? 0 : 1)
                                  .ToArray();
 
+        // Nothing to add: no endpoint serves HTTP/1.1 or HTTP/2, so this server is HTTP/3 only.
         if (tcpPorts.Length == 0)
         {
-            return serverConfig with { Tcp = null };
+            return serverConfig;
         }
 
         return serverConfig with

@@ -125,6 +125,11 @@ public sealed partial class IoxideServer : IServer
         // Server-wide rather than per transport: it applies to the TCP listener and the UDP socket
         // alike, which is why the engine binds every endpoint with one mode.
         DualStack = _primary.DualStack,
+
+        // No listeners yet - WithTcp and WithQuic add the ones the bindings ask for. Explicitly
+        // null because ioxide's own default is a live listener on 8080, which an HTTP/3-only server
+        // would otherwise inherit and bind for a protocol it does not serve.
+        Tcp = null,
     };
 
     public async ValueTask StartAsync()
