@@ -3,7 +3,7 @@ using System.Buffers.Text;
 
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Engine.Ioxide.Protocol.Mux;
+namespace GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 
 /// <summary>
 /// The status and fields of a response, ready to be handed to a protocol layer.
@@ -12,9 +12,9 @@ namespace GenHTTP.Engine.Ioxide.Protocol.Mux;
 /// Neutral on purpose. HTTP/2 and HTTP/3 want the same thing, but their response types come from
 /// different packages, so each driver builds its own from this.
 /// </remarks>
-internal readonly struct MuxResponseData
+internal readonly struct MultiplexedResponseData
 {
-    internal MuxResponseData(int status, List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> headers)
+    internal MultiplexedResponseData(int status, List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> headers)
     {
         Status = status;
         Headers = headers;
@@ -28,7 +28,7 @@ internal readonly struct MuxResponseData
 /// <summary>
 /// Maps a GenHTTP <see cref="IResponse"/> onto what a multiplexed protocol submits.
 /// </summary>
-internal static class MuxResponder
+internal static class MultiplexedResponder
 {
     private static readonly ReadOnlyMemory<byte> ContentTypeName = "content-type"u8.ToArray();
 
@@ -43,7 +43,7 @@ internal static class MuxResponder
     /// <summary>
     /// Builds the field section. Does not touch the content, which is streamed afterwards.
     /// </summary>
-    internal static MuxResponseData BuildHeaders(IResponse response)
+    internal static MultiplexedResponseData BuildHeaders(IResponse response)
     {
         var headers = new List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)>(response.Headers.Count + 4);
 
@@ -83,7 +83,7 @@ internal static class MuxResponder
             }
         }
 
-        return new MuxResponseData((int)response.Status, headers);
+        return new MultiplexedResponseData((int)response.Status, headers);
     }
 
     /// <summary>
@@ -103,7 +103,7 @@ internal static class MuxResponder
             // A HEAD response keeps the headers its GET would have produced and sends no body.
             if (!headRequest)
             {
-                await content.WriteAsync(new MuxSink(writer, flush));
+                await content.WriteAsync(new MultiplexedSink(writer, flush));
             }
         }
         finally

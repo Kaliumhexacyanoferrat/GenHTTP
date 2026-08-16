@@ -6,7 +6,9 @@ using ioxide.nghttp3;
 
 using Microsoft.Extensions.Logging;
 
-namespace GenHTTP.Engine.Ioxide.Protocol.Mux;
+using GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
+
+namespace GenHTTP.Engine.Ioxide.Protocol;
 
 /// <summary>
 /// Serves an HTTP/3 connection: ngtcp2 carries QUIC, nghttp3 carries HTTP/3 and QPACK, this maps
@@ -52,13 +54,13 @@ internal static class Http3Driver
             // The client address stays null - ioxide's QuicConnection tracks the peer address (it has
             // to, for path validation) but exposes no way to read it, and a QUIC peer may migrate
             // mid-connection anyway.
-            await using var mapped = new MuxRequest(server, endPoint, request.Method, request.Path, request.Authority,
+            await using var mapped = new MultiplexedRequest(server, endPoint, request.Method, request.Path, request.Authority,
                 headers, reader is null ? null : reader.ReadAsync, remoteAddress: null, HttpProtocol.Http3, secure: true);
 
             var response = await server.Handler.HandleAsync(mapped)
                            ?? throw new InvalidOperationException("The root request handler did not return a response");
 
-            var data = MuxResponder.BuildHeaders(response);
+            var data = MultiplexedResponder.BuildHeaders(response);
 
             var head = new Nghttp3Response { Status = data.Status };
 
@@ -69,11 +71,11 @@ internal static class Http3Driver
 
             writer.WriteHeaders(head);
 
-            await MuxResponder.WriteBodyAsync(response, writer, writer.FlushAsync, headRequest);
+            await MultiplexedResponder.WriteBodyAsync(response, writer, writer.FlushAsync, headRequest);
         }
         catch (Exception e)
         {
-            server.Logging.CreateLogger("GenHTTP.Engine.Ioxide.Protocol.Mux.Http3Driver")
+            server.Logging.CreateLogger("GenHTTP.Engine.Ioxide.Protocol.Http3Driver")
                   .LogError(e, "Failed to handle HTTP/3 request");
 
             if (!writer.IsCompleted)

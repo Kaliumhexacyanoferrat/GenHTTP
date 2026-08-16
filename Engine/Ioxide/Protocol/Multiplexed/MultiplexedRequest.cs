@@ -5,7 +5,7 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Shared.Types;
 
-namespace GenHTTP.Engine.Ioxide.Protocol.Mux;
+namespace GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 
 /// <summary>
 /// An <see cref="IRequest"/> over a request decoded by HPACK or QPACK.
@@ -16,9 +16,9 @@ namespace GenHTTP.Engine.Ioxide.Protocol.Mux;
 /// several of these are live on one connection at once and a per-connection pool would need locking
 /// to be safe - which is exactly what the reactor model is trying to avoid.
 /// </remarks>
-internal sealed class MuxRequest : IRequest
+internal sealed class MultiplexedRequest : IRequest
 {
-    private readonly MuxRequestBody? _body;
+    private readonly MultiplexedRequestBody? _body;
 
     private readonly ClientConnection _client = new();
 
@@ -30,16 +30,16 @@ internal sealed class MuxRequest : IRequest
 
     private bool _bodyFetched;
 
-    internal MuxRequest(IServer server, IEndPoint endPoint, ReadOnlyMemory<byte> method, ReadOnlyMemory<byte> path,
+    internal MultiplexedRequest(IServer server, IEndPoint endPoint, ReadOnlyMemory<byte> method, ReadOnlyMemory<byte> path,
         ReadOnlyMemory<byte> authority, List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> headers,
         Func<ValueTask<ReadOnlyMemory<byte>>>? read, IPAddress? remoteAddress, HttpProtocol protocol, bool secure)
     {
         Server = server;
         EndPoint = endPoint;
 
-        Header = new MuxRequestHeader(method, path, authority, headers, ParseQuery(path), protocol);
+        Header = new MultiplexedRequestHeader(method, path, authority, headers, ParseQuery(path), protocol);
 
-        _body = read is null ? null : new MuxRequestBody(read);
+        _body = read is null ? null : new MultiplexedRequestBody(read);
 
         _client.Apply(remoteAddress, secure ? ClientProtocol.Https : ClientProtocol.Http, null);
     }

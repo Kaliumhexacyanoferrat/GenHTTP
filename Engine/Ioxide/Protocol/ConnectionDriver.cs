@@ -6,7 +6,7 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Engine.Ioxide;
-using GenHTTP.Engine.Ioxide.Protocol.Mux;
+using GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 using GenHTTP.Engine.Shared.Types;
 using Glyph11.Parser;
 using Glyph11.Parser.UltraHardened;

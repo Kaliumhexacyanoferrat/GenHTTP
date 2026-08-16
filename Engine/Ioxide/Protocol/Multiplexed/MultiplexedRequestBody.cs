@@ -1,6 +1,6 @@
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Engine.Ioxide.Protocol.Mux;
+namespace GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 
 /// <summary>
 /// A request body pulled from the protocol layer as it arrives.
@@ -13,11 +13,11 @@ namespace GenHTTP.Engine.Ioxide.Protocol.Mux;
 /// <para>The read delegate abstracts the two body readers, which have the same shape but come from
 /// different packages. It returns empty once the request stream has ended.</para>
 /// </remarks>
-internal sealed class MuxRequestBody : IRequestBody
+internal sealed class MultiplexedRequestBody : IRequestBody
 {
     private readonly Func<ValueTask<ReadOnlyMemory<byte>>> _read;
 
-    internal MuxRequestBody(Func<ValueTask<ReadOnlyMemory<byte>>> read)
+    internal MultiplexedRequestBody(Func<ValueTask<ReadOnlyMemory<byte>>> read)
     {
         _read = read;
     }

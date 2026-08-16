@@ -5,7 +5,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Ioxide.Protocol;
-using GenHTTP.Engine.Ioxide.Protocol.Mux;
+using GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Types;
 

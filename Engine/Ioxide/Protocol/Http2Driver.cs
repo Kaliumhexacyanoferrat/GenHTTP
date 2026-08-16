@@ -8,7 +8,9 @@ using ioxide.http2;
 
 using Microsoft.Extensions.Logging;
 
-namespace GenHTTP.Engine.Ioxide.Protocol.Mux;
+using GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
+
+namespace GenHTTP.Engine.Ioxide.Protocol;
 
 /// <summary>
 /// Serves an HTTP/2 connection: ioxide.http2 owns framing, HPACK and flow control, this maps each
@@ -51,13 +53,13 @@ internal static class Http2Driver
 
             var reader = request.BodyReader;
 
-            await using var mapped = new MuxRequest(server, endPoint, request.Method, request.Path, request.Authority,
+            await using var mapped = new MultiplexedRequest(server, endPoint, request.Method, request.Path, request.Authority,
                 headers, reader is null ? null : reader.ReadAsync, remoteAddress, HttpProtocol.Http2, secure);
 
             var response = await server.Handler.HandleAsync(mapped)
                            ?? throw new InvalidOperationException("The root request handler did not return a response");
 
-            var data = MuxResponder.BuildHeaders(response);
+            var data = MultiplexedResponder.BuildHeaders(response);
 
             var head = new Http2Response { Status = data.Status };
 
@@ -68,11 +70,11 @@ internal static class Http2Driver
 
             writer.WriteHeaders(head);
 
-            await MuxResponder.WriteBodyAsync(response, writer, writer.FlushAsync, headRequest);
+            await MultiplexedResponder.WriteBodyAsync(response, writer, writer.FlushAsync, headRequest);
         }
         catch (Exception e)
         {
-            server.Logging.CreateLogger("GenHTTP.Engine.Ioxide.Protocol.Mux.Http2Driver")
+            server.Logging.CreateLogger("GenHTTP.Engine.Ioxide.Protocol.Http2Driver")
                   .LogError(e, "Failed to handle HTTP/2 request");
 
             if (!writer.IsCompleted)

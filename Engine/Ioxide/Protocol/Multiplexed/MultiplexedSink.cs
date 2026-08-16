@@ -2,7 +2,7 @@ using System.Buffers;
 
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Engine.Ioxide.Protocol.Mux;
+namespace GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 
 /// <summary>
 /// Writes response content straight into a protocol response writer.
@@ -16,7 +16,7 @@ namespace GenHTTP.Engine.Ioxide.Protocol.Mux;
 /// await is the backpressure. Content that writes through the buffer channel instead is flushed
 /// once, when it finishes - fine for a page, and the reason file content should use the stream.</para>
 /// </remarks>
-internal sealed class MuxSink : IResponseSink
+internal sealed class MultiplexedSink : IResponseSink
 {
     private readonly IBufferWriter<byte> _writer;
 
@@ -24,7 +24,7 @@ internal sealed class MuxSink : IResponseSink
 
     private Stream? _stream;
 
-    internal MuxSink(IBufferWriter<byte> writer, Func<ValueTask> flush)
+    internal MultiplexedSink(IBufferWriter<byte> writer, Func<ValueTask> flush)
     {
         _writer = writer;
         _flush = flush;

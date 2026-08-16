@@ -1,27 +1,27 @@
 using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Shared.Types;
 
-namespace GenHTTP.Engine.Ioxide.Protocol.Mux;
+namespace GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 
 /// <summary>
 /// An <see cref="IRequestHeader"/> over the pseudo-headers a multiplexed protocol carries.
 /// </summary>
-internal sealed class MuxRequestHeader : IRequestHeader
+internal sealed class MultiplexedRequestHeader : IRequestHeader
 {
     private static readonly ReadOnlyMemory<byte> HostName = "host"u8.ToArray();
 
-    private readonly MuxKeyValueList _headers;
+    private readonly MultiplexedKeyValueList _headers;
 
-    private readonly MuxKeyValueList _query;
+    private readonly MultiplexedKeyValueList _query;
 
     private readonly RequestTarget _target;
 
-    internal MuxRequestHeader(ReadOnlyMemory<byte> method, ReadOnlyMemory<byte> path, ReadOnlyMemory<byte> authority,
+    internal MultiplexedRequestHeader(ReadOnlyMemory<byte> method, ReadOnlyMemory<byte> path, ReadOnlyMemory<byte> authority,
         List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> headers,
         List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> query, HttpProtocol protocol)
     {
-        _headers = new MuxKeyValueList(WithHost(headers, authority));
-        _query = new MuxKeyValueList(query);
+        _headers = new MultiplexedKeyValueList(WithHost(headers, authority));
+        _query = new MultiplexedKeyValueList(query);
 
         _target = new RequestTarget();
 
