@@ -52,6 +52,10 @@ public sealed partial class IoxideServer
     /// so for every endpoint, or the endpoint's own validator does. A validator that only wants to
     /// inspect what arrives still gets asked, because the CertificateRequest goes out either way.
     /// </summary>
+    /// <remarks>
+    /// Shared with the QUIC half, which asks the same question of ngtcp2 - mutual TLS is the one
+    /// setting that means the same thing on both transports.
+    /// </remarks>
     private bool RequiresClientCertificate(SecurityConfiguration security)
         => _options.MutualTls.RequireClientCertificate || security.CertificateValidator?.RequireCertificate == true;
 

@@ -111,9 +111,8 @@ public sealed partial class IoxideServer : IServer
     }
 
     /// <summary>
-    /// The engine's configuration, straight from the options. Ports are not set here: StartAsync
-    /// takes those from the endpoint bindings, which is also where an all-HTTP/3 server drops the
-    /// TCP listener entirely.
+    /// The engine-wide configuration, straight from the options. The listeners are added on top by
+    /// <c>WithTcp</c> and <c>WithQuic</c>, which take their ports from the endpoint bindings.
     /// </summary>
     private ServerConfig BuildServerConfig() => new()
     {
@@ -123,15 +122,9 @@ public sealed partial class IoxideServer : IServer
         RecvSlots = _options.Reactor.RecvSlots,
         Incremental = _options.Reactor.Incremental,
 
-        Tcp = new TcpOptions
-        {
-            ListenBacklog = _options.Tcp.ListenBacklog,
-            WriteSlabSize = _options.Tcp.WriteSlabSize,
-            WriteOverflow = _options.Tcp.WriteOverflow,
-            PoolMax = _options.Tcp.PoolMax,
-            ZeroCopySend = _options.Tcp.ZeroCopySend,
-            RecvQueueEntries = _options.Tcp.RecvQueueEntries,
-        },
+        // Server-wide rather than per transport: it applies to the TCP listener and the UDP socket
+        // alike, which is why the engine binds every endpoint with one mode.
+        DualStack = _primary.DualStack,
     };
 
     public async ValueTask StartAsync()
@@ -140,24 +133,7 @@ public sealed partial class IoxideServer : IServer
 
         Running = true;
         
-        var serverConfig = BuildServerConfig();
-
-        // Only ports serving something over TCP are bound, so an HTTP/3-only endpoint gets a UDP
-        // socket and nothing else.
-        var tcpPorts = _protocols.Where(p => (p.Value & IoxideProtocols.Http1AndHttp2) != 0)
-                                 .Select(p => p.Key)
-                                 .OrderBy(p => p == _primary.Port ? 0 : 1)
-                                 .ToArray();
-
-        serverConfig = serverConfig with
-        {
-            DualStack = _primary.DualStack,
-            Tcp = tcpPorts.Length == 0 ? null : (serverConfig.Tcp ?? new TcpOptions()) with
-            {
-                Port = tcpPorts[0],
-                ExtraPorts = tcpPorts.Skip(1).ToArray()
-            }
-        };
+        var serverConfig = WithTcp(BuildServerConfig());
 
         if (_quicRequested is { } quicEndPoint)
         {
