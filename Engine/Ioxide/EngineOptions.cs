@@ -6,9 +6,9 @@ namespace GenHTTP.Engine.Ioxide;
 /// Protocol and TLS options for the ioxide engine. The port, its certificate and whether it asks
 /// for a client certificate stay on <c>Bind</c>; which protocols it then serves lives here.
 /// </summary>
-public sealed record IoxideOptions
+public sealed record EngineOptions
 {
-    internal static readonly IoxideOptions Default = new();
+    internal static readonly EngineOptions Default = new();
 
     /// <summary>
     /// The protocols every endpoint serves, unless <see cref="ProtocolsByPort"/> says otherwise.
@@ -23,16 +23,16 @@ public sealed record IoxideOptions
     public Dictionary<ushort, IoxideProtocols> ProtocolsByPort { get; init; } = [];
 
     /// <summary>The reactors: how many, and the io_uring machinery each one owns.</summary>
-    public IoxideReactorOptions Reactor { get; init; } = new();
+    public ReactorOptions Reactor { get; init; } = new();
 
     /// <summary>The TCP endpoints: how TLS is terminated for HTTP/1.1 and HTTP/2.</summary>
-    public IoxideTcpOptions Tcp { get; init; } = new();
+    public TcpTransportOptions Tcp { get; init; } = new();
 
     /// <summary>The HTTP/3 endpoint: the certificate QUIC serves, and QPACK.</summary>
-    public IoxideHttp3Options Http3 { get; init; } = new();
+    public Http3Options Http3 { get; init; } = new();
 
     /// <summary>Client certificates: what they are validated against, and whether one is required.</summary>
-    public IoxideMutualTlsOptions MutualTls { get; init; } = new();
+    public MutualTlsOptions MutualTls { get; init; } = new();
 }
 
 /// <summary>
@@ -40,7 +40,7 @@ public sealed record IoxideOptions
 /// on it, and shares nothing with the others - so these are per reactor, not per server, and the
 /// memory they describe is multiplied by <see cref="ReactorCount"/>.
 /// </summary>
-public sealed record IoxideReactorOptions
+public sealed record ReactorOptions
 {
     /// <summary>
     /// How many reactors to run. One per core suits a server with the machine to itself; anything
@@ -77,7 +77,7 @@ public sealed record IoxideReactorOptions
 /// The TCP endpoints, where OpenSSL terminates TLS for HTTP/1.1 and HTTP/2. HTTP/3 is not
 /// configured here: QUIC carries its own TLS 1.3 inside ngtcp2, so none of this reaches it.
 /// </summary>
-public sealed record IoxideTcpOptions
+public sealed record TcpTransportOptions
 {
     /// <summary>
     /// Produce TLS records in the kernel (kTLS) on the send path instead of in OpenSSL, which
@@ -129,7 +129,7 @@ public sealed record IoxideTcpOptions
 /// <summary>
 /// The HTTP/3 endpoint. Only consulted when a port serves <see cref="IoxideProtocols.Http3"/>.
 /// </summary>
-public sealed record IoxideHttp3Options
+public sealed record Http3Options
 {
     /// <summary>
     /// PEM certificate chain for the HTTP/3 listener, as a path. Required to serve HTTP/3, and
@@ -159,7 +159,7 @@ public sealed record IoxideHttp3Options
 /// for HTTP/3, so a bad chain is refused before any request exists. WHICH endpoints ask for one is
 /// decided per endpoint, by the <c>certificateValidator</c> passed to <c>Bind</c>.
 /// </summary>
-public sealed record IoxideMutualTlsOptions
+public sealed record MutualTlsOptions
 {
     /// <summary>
     /// PEM bundle of trust anchors that client certificates are validated against, as a path. Its

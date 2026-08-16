@@ -9,8 +9,8 @@ public sealed partial class Server
 {
     /// <summary>
     /// The ports that want a TCP listener: those serving HTTP/1.1 or HTTP/2, primary first - it
-    /// becomes <c>TcpOptions.Port</c> and the rest its <c>ExtraPorts</c>. Empty means this server
-    /// serves HTTP/3 only and opens no TCP listener at all.
+    /// becomes ioxide's <c>TcpOptions.Port</c> and the rest its <c>ExtraPorts</c>. Empty means this
+    /// server serves HTTP/3 only and opens no TCP listener at all.
     /// </summary>
     /// <remarks>
     /// One listener bound to several ports rather than one per port: a connection carries the port
@@ -33,7 +33,8 @@ public sealed partial class Server
     /// </remarks>
     private ServerConfig WithTcp(ServerConfig serverConfig) => serverConfig with
     {
-        Tcp = new TcpOptions
+        // ioxide's, not ours - the engine's own TcpTransportOptions is what feeds it below.
+        Tcp = new ioxide.TcpOptions
         {
             Port = _tcpRequested[0],
             ExtraPorts = _tcpRequested[1..],

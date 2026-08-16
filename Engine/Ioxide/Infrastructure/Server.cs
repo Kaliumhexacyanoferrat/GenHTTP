@@ -41,7 +41,7 @@ public sealed partial class Server : IServer
 
     private readonly Action<Reactor>? _onReactorStart;
 
-    private readonly IoxideOptions _options;
+    private readonly EngineOptions _options;
 
     private readonly ILogger _logger;
 
@@ -67,12 +67,12 @@ public sealed partial class Server : IServer
         ServerConfiguration config, 
         IHandler handler,
         Action<Reactor>? onReactorStart = null,
-        IoxideOptions? options = null)
+        EngineOptions? options = null)
     {
         _config = config;
         Handler = handler;
         _onReactorStart = onReactorStart;
-        _options = options ?? IoxideOptions.Default;
+        _options = options ?? EngineOptions.Default;
 
         _logger = config.Logging.CreateLogger<Server>();
 
@@ -246,7 +246,7 @@ public sealed partial class Server : IServer
     /// <summary>
     /// What one port serves: the default, its override, and the endpoint's own enableQuic flag.
     /// </summary>
-    private static IoxideProtocols ResolveProtocols(IoxideOptions options, ServerConfiguration config, ushort port)
+    private static IoxideProtocols ResolveProtocols(EngineOptions options, ServerConfiguration config, ushort port)
     {
         var named = options.ProtocolsByPort.TryGetValue(port, out var configured);
 

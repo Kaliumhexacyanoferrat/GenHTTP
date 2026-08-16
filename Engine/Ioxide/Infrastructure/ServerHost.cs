@@ -16,7 +16,7 @@ namespace GenHTTP.Engine.Ioxide.Infrastructure;
 /// </remarks>
 public sealed class ServerHost(
     Action<Reactor>? onReactorStart = null,
-    IoxideOptions? options = null) : Shared.Hosting.ServerHost
+    EngineOptions? options = null) : Shared.Hosting.ServerHost
 {
 
     protected override IServer Build(ServerConfiguration config, IHandler handler)

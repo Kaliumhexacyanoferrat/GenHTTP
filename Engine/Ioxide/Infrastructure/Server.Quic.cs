@@ -65,7 +65,7 @@ public sealed partial class Server
         _quicEndPoint = quicEndPoint;
 
         // Built once here, not in the QuicHandle below - that runs per accepted connection, and
-        // these two never change. Nghttp3Options is ngtcp2's own record; IoxideHttp3Options is
+        // these two never change. Nghttp3Options is ngtcp2's own record; Http3Options is
         // what the caller sets, and this is where the two meet.
         _h3Options = new Nghttp3Options
         {
@@ -101,7 +101,7 @@ public sealed partial class Server
         {
             throw new InvalidOperationException(
                 $"Port {port} serves HTTP/3, which needs a PEM certificate and key on disk - ngtcp2 loads them by path. "
-                + "Set IoxideOptions.Http3.CertificatePath and Http3.KeyPath to the same certificate bound to that endpoint.");
+                + "Set EngineOptions.Http3.CertificatePath and Http3.KeyPath to the same certificate bound to that endpoint.");
         }
 
         if (!File.Exists(configuredCert) || !File.Exists(configuredKey))

@@ -19,7 +19,7 @@ public static class Host
     /// Everything the engine is tuned by: the reactors, the TCP transport, protocols per port,
     /// the HTTP/3 certificate, mutual TLS and QPACK. Ports and certificates stay on <c>Bind</c>.
     /// </param>
-    public static IServerHost Create(Action<Reactor>? onReactorStart = null, IoxideOptions? options = null)
+    public static IServerHost Create(Action<Reactor>? onReactorStart = null, EngineOptions? options = null)
         => new ServerHost(onReactorStart, options);
 
 }

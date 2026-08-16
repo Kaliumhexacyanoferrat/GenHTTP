@@ -92,12 +92,12 @@ var (serverCertPath, serverKeyPath) = WriteServerCertificate(certificate);
 var clientCa = WriteClientCertificates();
 
 await Host.Create(
-              options: new IoxideOptions
+              options: new EngineOptions
               {
                   // What a port serves unless named below.
                   Protocols = IoxideProtocols.Http1,
 
-                  Reactor = new IoxideReactorOptions
+                  Reactor = new ReactorOptions
                   {
                       ReactorCount = 2,
                   },
@@ -110,7 +110,7 @@ await Host.Create(
                       [8444] = IoxideProtocols.Http1,
                   },
 
-                  Tcp = new IoxideTcpOptions
+                  Tcp = new TcpTransportOptions
                   {
                       // Hand the TLS record layer to the kernel instead of OpenSSL, which still
                       // performs the handshake. Both off because kTLS needs the Linux tls module
@@ -131,7 +131,7 @@ await Host.Create(
                       RecvQueueEntries = 64,
                   },
 
-                  MutualTls = new IoxideMutualTlsOptions
+                  MutualTls = new MutualTlsOptions
                   {
                       // What an offered client certificate is validated against. WHICH ports ask
                       // for one is decided per endpoint, by the validator passed to Bind - so 8443
@@ -139,7 +139,7 @@ await Host.Create(
                       ClientCaPath = clientCa,
                   },
 
-                  Http3 = new IoxideHttp3Options
+                  Http3 = new Http3Options
                   {
                       // Bytes of QPACK dynamic table offered to HTTP/3 clients. 0 keeps every
                       // header literal, which costs bytes but can never stall a stream on a table
