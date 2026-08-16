@@ -81,6 +81,8 @@ public sealed partial class IoxideServer
                 return false;
             }
 
+            WarnIfNotTheBoundCertificate(configuredCert, security, port);
+
             certPath = configuredCert;
             keyPath = configuredKey;
             return true;
@@ -114,6 +116,48 @@ public sealed partial class IoxideServer
         certPath = _exportedCertPath;
         keyPath = _exportedKeyPath;
         return true;
+    }
+
+    /// <summary>
+    /// Warns when the configured PEM is not the certificate bound to this endpoint.
+    /// </summary>
+    /// <remarks>
+    /// These paths exist to hand ngtcp2 a file rather than to give HTTP/3 an identity of its own,
+    /// and nothing stops them doing the latter: the port would then answer as one host over TCP and
+    /// another over QUIC. A browser moving from HTTP/1.1 to HTTP/3 by an Alt-Svc header expects the
+    /// alternative to present a certificate valid for the ORIGIN (RFC 7838 3.1), so it would refuse
+    /// the upgrade - or worse, not notice.
+    ///
+    /// <para>Compared by leaf thumbprint, so a file carrying a fuller chain than the bound
+    /// certificate is not flagged. A warning rather than a refusal: someone may be deliberately
+    /// serving a different certificate, and this is not the place to decide they cannot.</para>
+    /// </remarks>
+    private void WarnIfNotTheBoundCertificate(string configuredCert, Shared.Infrastructure.SecurityConfiguration security, ushort port)
+    {
+        if (security.CertificateProvider.Provide(null) is not { } bound)
+        {
+            return;
+        }
+
+        try
+        {
+            // From the PEM text, not CreateFromPemFile - that one wants a private key alongside
+            // the certificate and throws on a certificate-only file, which is what this usually is.
+            using var configured = X509Certificate2.CreateFromPem(File.ReadAllText(configuredCert));
+
+            if (!string.Equals(configured.Thumbprint, bound.Thumbprint, StringComparison.OrdinalIgnoreCase))
+            {
+                _logger.LogWarning(
+                    "The HTTP/3 certificate configured for port {Port} ({ConfiguredSubject}) is not the one bound to that endpoint ({BoundSubject}). "
+                    + "The port will answer as one host over TCP and another over QUIC, and a browser following an Alt-Svc advertisement expects them to match.",
+                    port, configured.Subject, bound.Subject);
+            }
+        }
+        catch (Exception e)
+        {
+            // Only the comparison failed; ngtcp2 will report a certificate it cannot load itself.
+            _logger.LogDebug(e, "Could not compare the configured HTTP/3 certificate at {Path} with the bound one", configuredCert);
+        }
     }
 
     private static void WriteOwnerOnly(string path, string content)
