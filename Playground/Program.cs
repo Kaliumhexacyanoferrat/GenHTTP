@@ -11,36 +11,36 @@ using GenHTTP.Modules.Layouting;
 // The namespace and the class share a name, so the class needs an alias to be reachable.
 using IoxideFilesModule = GenHTTP.Modules.IoxideFiles.IoxideFiles;
 
-// One host, three ports, showing every arrangement the engine allows. Protocols are configured per
-// port: HTTP/1.1 and HTTP/2 share a TCP socket, and HTTP/3 is a UDP socket on the same port number,
-// so ports can be shared or separated however you like.
+// A port per protocol combination. Protocols are configured per port: HTTP/1.1 and HTTP/2 share a
+// TCP socket, HTTP/3 is a UDP socket on the same port number, and any combination of the three is
+// allowed - so ports can be shared or separated however you like.
 //
-//   http://localhost:8080    HTTP/1.1 only
-//   http://localhost:8081    HTTP/2 only, without TLS (h2c, for a client using prior knowledge)
-//   https://localhost:8443   all three at once - HTTP/1.1 and HTTP/2 over TCP, HTTP/3 over UDP
-//
-// Every port is independent, and any combination is allowed:
-//
-//   Http1            HTTP/1.1 only
-//   Http2            HTTP/2 only - an HTTP/1.1 client is turned away
-//   Http3            HTTP/3 only - a UDP socket and NO TCP listener at all
-//   Http1AndHttp2    both on one TCP socket, decided per connection
-//   Http1AndHttp3    HTTP/1.1 over TCP, HTTP/3 over UDP, skipping HTTP/2
-//   Http2AndHttp3    HTTP/2 over TCP, HTTP/3 over UDP, no HTTP/1.1
-//   All              everything, one port number
-//
-// Where two share the TCP socket, ALPN decides during the handshake on a secure port and the
-// HTTP/2 connection preface decides on a plaintext one. HTTP/3 always needs a certificate, since
-// QUIC carries TLS 1.3 and has no cleartext mode - and only one endpoint may serve it, because the
-// transport binds a single QUIC listener.
+//   http://localhost:8080    Http1           HTTP/1.1 only
+//   http://localhost:8081    Http2           HTTP/2 only (h2c, prior knowledge) - h1 turned away
+//   http://localhost:8082    Http1AndHttp2   both on one socket, the preface decides
+//   https://localhost:8443   the HTTP/3 case, see below
 //
 //     dotnet run -c Release --project Playground
 //
 //     curl http://localhost:8080/ok
 //     curl --http2-prior-knowledge http://localhost:8081/ok
-//     curl -k --http1.1 https://localhost:8443/ok
-//     curl -k --http2 https://localhost:8443/ok
+//     curl --http1.1 http://localhost:8082/ok
+//     curl --http2-prior-knowledge http://localhost:8082/ok
 //     curl -k --http3-only https://localhost:8443/ok
+//
+// The four combinations carrying HTTP/3 take turns on 8443, because the transport binds ONE QUIC
+// listener per server - asking two endpoints for HTTP/3 is refused at startup. GENHTTP_H3 picks:
+//
+//   All             (default)  HTTP/1.1 and HTTP/2 over TCP, HTTP/3 over UDP
+//   Http1AndHttp3              HTTP/1.1 over TCP, HTTP/3 over UDP, no HTTP/2
+//   Http2AndHttp3              HTTP/2 over TCP, HTTP/3 over UDP, no HTTP/1.1
+//   Http3                      HTTP/3 alone - a UDP socket and NO TCP listener on that port
+//
+//     GENHTTP_H3=Http3 dotnet run -c Release --project Playground
+//
+// Where two protocols share the TCP socket, ALPN decides during the handshake on a secure port and
+// the HTTP/2 connection preface decides on a plaintext one. HTTP/3 always needs a certificate,
+// since QUIC carries TLS 1.3 and has no cleartext mode.
 //
 // Browsers never try HTTP/3 first. They connect over TCP and only move to QUIC once a response has
 // told them where to look, so a browser-facing deployment adds an Alt-Svc header pointing at the
@@ -70,14 +70,18 @@ if (staticDir != null && Directory.Exists(staticDir))
              .Add("disk", Assets.From(staticDir));
 }
 
-// A throwaway certificate so the sample runs with no setup. Point GENHTTP_CERT at a PKCS#12 bundle
-// to serve a real one - a browser will refuse HTTP/3 to a certificate it does not trust.
-using var certificate = LoadCertificate();
-
 // One io_uring reactor per core by default. GENHTTP_REACTORS lowers it, which is what a benchmark
 // wants: a server sized to every core leaves none for the load generator, and the run then measures
 // the generator rather than the server.
 var reactors = int.TryParse(Environment.GetEnvironmentVariable("GENHTTP_REACTORS"), out var r) ? r : Environment.ProcessorCount;
+
+var http3Case = Enum.TryParse<IoxideProtocols>(Environment.GetEnvironmentVariable("GENHTTP_H3"), ignoreCase: true, out var selected)
+    ? selected
+    : IoxideProtocols.All;
+
+// A throwaway certificate so the sample runs with no setup. Point GENHTTP_CERT at a PKCS#12 bundle
+// to serve a real one - a browser will refuse HTTP/3 to a certificate it does not trust.
+using var certificate = LoadCertificate();
 
 await Host.Create(
               configure: c => c with { ReactorCount = reactors },
@@ -88,10 +92,14 @@ await Host.Create(
 
                   ProtocolsByPort =
                   {
-                      // h2c only: an HTTP/1.1 client is turned away here. Http1AndHttp2 would
-                      // serve both on this one port, decided by the connection preface.
+                      // h2c only: an HTTP/1.1 client is turned away here.
                       [8081] = IoxideProtocols.Http2,
-                      [8443] = IoxideProtocols.All,     // h1 + h2 over TCP, h3 over UDP, one number
+
+                      // Both on one plaintext socket - the connection preface decides.
+                      [8082] = IoxideProtocols.Http1AndHttp2,
+
+                      // The HTTP/3 case under test. With Http3 alone this port has no TCP listener.
+                      [8443] = http3Case,
                   },
 
                   // Bytes of QPACK dynamic table offered to HTTP/3 clients. 0 keeps every header
@@ -116,6 +124,7 @@ await Host.Create(
           .Handler(app)
           .Bind(IPAddress.Loopback, 8080)
           .Bind(IPAddress.Loopback, 8081)
+          .Bind(IPAddress.Loopback, 8082)
           .Bind(IPAddress.Loopback, 8443, certificate)
           .RunAsync();
 
