@@ -17,7 +17,7 @@ using Microsoft.Extensions.Logging;
 using Connection = GenHTTP.Api.Protocol.Connection;
 using IoConnection = ioxide.TcpConnection;
 
-namespace GenHTTP.Engine.Ioxide.Protocol;
+namespace GenHTTP.Engine.Ioxide.Protocol.Http1;
 
 /// <summary>
 /// Serves an HTTP/1.1 connection: parse, handle, respond, repeat until it closes. Reached from

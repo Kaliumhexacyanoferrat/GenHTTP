@@ -5,6 +5,9 @@ using System.Runtime.InteropServices;
 
 using GenHTTP.Api.Infrastructure;
 
+using GenHTTP.Engine.Ioxide.Protocol.Http1;
+using GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
+
 using IoConnection = ioxide.TcpConnection;
 
 namespace GenHTTP.Engine.Ioxide.Protocol;

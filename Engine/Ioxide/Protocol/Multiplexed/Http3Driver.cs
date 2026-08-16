@@ -6,9 +6,7 @@ using ioxide.nghttp3;
 
 using Microsoft.Extensions.Logging;
 
-using GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
-
-namespace GenHTTP.Engine.Ioxide.Protocol;
+namespace GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 
 /// <summary>
 /// Serves an HTTP/3 connection: ngtcp2 carries QUIC, nghttp3 carries HTTP/3 and QPACK, this maps

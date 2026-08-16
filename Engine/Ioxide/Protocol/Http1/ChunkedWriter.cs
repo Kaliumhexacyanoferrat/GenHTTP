@@ -1,7 +1,7 @@
 using System.Buffers;
 using System.IO.Pipelines;
 
-namespace GenHTTP.Engine.Ioxide.Protocol;
+namespace GenHTTP.Engine.Ioxide.Protocol.Http1;
 
 /// <summary>
 /// Frames every <see cref="Advance"/> as a transfer-encoding chunk (hex size, CRLF, data, CRLF).

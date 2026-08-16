@@ -3,7 +3,7 @@ using System.IO.Pipelines;
 
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Engine.Ioxide.Protocol;
+namespace GenHTTP.Engine.Ioxide.Protocol.Http1;
 
 internal sealed class IoxideSink(PipeWriter writer) : IResponseSink
 {

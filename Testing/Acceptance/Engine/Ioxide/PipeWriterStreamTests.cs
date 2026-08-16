@@ -4,7 +4,7 @@ using System.Buffers;
 using System.IO.Pipelines;
 using System.Text;
 
-using GenHTTP.Engine.Ioxide.Protocol;
+using GenHTTP.Engine.Ioxide.Protocol.Http1;
 
 namespace GenHTTP.Testing.Acceptance.Engine.Ioxide;
 

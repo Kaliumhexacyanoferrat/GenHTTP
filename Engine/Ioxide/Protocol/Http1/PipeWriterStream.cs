@@ -2,7 +2,7 @@ using System.Buffers;
 using System.IO.Pipelines;
 using System.Runtime.CompilerServices;
 
-namespace GenHTTP.Engine.Ioxide.Protocol;
+namespace GenHTTP.Engine.Ioxide.Protocol.Http1;
 
 /// <summary>
 /// Write-only <see cref="Stream"/> over an <see cref="IBufferWriter{T}"/>, so a sink's Stream

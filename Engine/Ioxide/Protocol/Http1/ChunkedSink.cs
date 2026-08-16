@@ -3,7 +3,7 @@ using System.IO.Pipelines;
 
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Engine.Ioxide.Protocol;
+namespace GenHTTP.Engine.Ioxide.Protocol.Http1;
 
 /// <summary>
 /// Response sink for unknown-length content: both channels route through a

@@ -5,7 +5,7 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Engine.Shared.Types;
 
-namespace GenHTTP.Engine.Ioxide.Protocol;
+namespace GenHTTP.Engine.Ioxide.Protocol.Http1;
 
 /// <summary>
 /// Writes an <see cref="IResponse"/> to a <see cref="PipeWriter"/>. Header serialization is

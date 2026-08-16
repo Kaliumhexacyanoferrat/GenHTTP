@@ -8,9 +8,7 @@ using ioxide.http2;
 
 using Microsoft.Extensions.Logging;
 
-using GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
-
-namespace GenHTTP.Engine.Ioxide.Protocol;
+namespace GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 
 /// <summary>
 /// Serves an HTTP/2 connection: ioxide.http2 owns framing, HPACK and flow control, this maps each
