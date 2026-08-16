@@ -2,9 +2,6 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
-using GenHTTP.Api.Content;
-using GenHTTP.Api.Infrastructure;
-
 using GenHTTP.Engine.Ioxide;
 
 using GenHTTP.Modules.Files;
@@ -14,34 +11,31 @@ using GenHTTP.Modules.Layouting;
 // The namespace and the class share a name, so the class needs an alias to be reachable.
 using IoxideFilesModule = GenHTTP.Modules.IoxideFiles.IoxideFiles;
 
-// A port for every protocol combination the engine allows. Protocols are configured per port:
-// HTTP/1.1 and HTTP/2 share a TCP socket, HTTP/3 is a UDP socket on the same port number, and any
-// combination of the three is allowed.
+// One host, a protocol combination per port. HTTP/1.1 and HTTP/2 share a TCP socket, HTTP/3 is a
+// UDP socket on the same port number, and any combination of the three is allowed.
 //
 //   http://localhost:8080     Http1           HTTP/1.1 only
 //   http://localhost:8081     Http2           HTTP/2 only (h2c) - an HTTP/1.1 client is turned away
 //   http://localhost:8082     Http1AndHttp2   both on one socket, the preface decides
 //   https://localhost:8443    All             HTTP/1.1 + HTTP/2 over TCP, HTTP/3 over UDP
-//   https://localhost:8444    Http1AndHttp3   HTTP/1.1 over TCP, HTTP/3 over UDP, no HTTP/2
-//   https://localhost:8445    Http2AndHttp3   HTTP/2 over TCP, HTTP/3 over UDP, no HTTP/1.1
-//   https://localhost:8446    Http3           HTTP/3 alone - a UDP socket and NO TCP listener
 //
 //     dotnet run -c Release --project Playground
 //
 //     curl http://localhost:8080/ok
 //     curl --http2-prior-knowledge http://localhost:8081/ok
 //     curl --http1.1 http://localhost:8082/ok
+//     curl -k --http1.1 https://localhost:8443/ok
 //     curl -k --http2 https://localhost:8443/ok
-//     curl -k --http3-only https://localhost:8444/ok
-//     curl -k --http3-only https://localhost:8446/ok
+//     curl -k --http3-only https://localhost:8443/ok
 //
 // Where two protocols share the TCP socket, ALPN decides during the handshake on a secure port and
 // the HTTP/2 connection preface decides on a plaintext one. HTTP/3 always needs a certificate,
 // since QUIC carries TLS 1.3 and has no cleartext mode.
 //
-// The four combinations carrying HTTP/3 need a host each: one server binds one QUIC listener, so
-// asking two of its endpoints for HTTP/3 is refused at startup. Hosts are cheap enough to run side
-// by side - each owns its own reactors, kept small here because six of them share the machine.
+// Http1AndHttp3 and Http2AndHttp3 exist too - HTTP/3 alongside just one of the TCP protocols - and
+// so does Http3 on its own, which opens a UDP socket and no TCP listener at all. Only one of them
+// can be live here: a server binds a single QUIC listener, so a second endpoint asking for HTTP/3
+// is refused at startup. Change what 8443 serves to try another.
 //
 // Browsers never try HTTP/3 first. They connect over TCP and only move to QUIC once a response has
 // told them where to look, so a browser-facing deployment adds an Alt-Svc header pointing at the
@@ -60,7 +54,7 @@ using IoxideFilesModule = GenHTTP.Modules.IoxideFiles.IoxideFiles;
 //     wrk -t8 -c64 -d8s http://127.0.0.1:8080/ring/asset.bin
 //     wrk -t8 -c64 -d8s http://127.0.0.1:8080/disk/asset.bin
 
-// One reactor per core is the default. Six hosts sharing a machine want fewer, and a sample is not
+// One reactor per core is the default. A sample does not need the whole machine, and this is not
 // where throughput is measured - bench/ is.
 const int Reactors = 2;
 
@@ -79,71 +73,45 @@ if (staticDir != null && Directory.Exists(staticDir))
 // to serve a real one - a browser will refuse HTTP/3 to a certificate it does not trust.
 using var certificate = LoadCertificate();
 
-// The plaintext combinations share one host: none of them serves HTTP/3, so none needs a QUIC
-// listener of its own.
-var plaintext = Host.Create(
-                        configure: c => c with { ReactorCount = Reactors },
-                        options: new IoxideOptions
-                        {
-                            Protocols = IoxideProtocols.Http1,
-                            ProtocolsByPort =
-                            {
-                                [8081] = IoxideProtocols.Http2,
-                                [8082] = IoxideProtocols.Http1AndHttp2,
-                            }
-                        })
-                    .Handler(app)
-                    .Bind(IPAddress.Loopback, 8080)
-                    .Bind(IPAddress.Loopback, 8081)
-                    .Bind(IPAddress.Loopback, 8082);
+await Host.Create(
+              configure: c => c with { ReactorCount = Reactors },
+              options: new IoxideOptions
+              {
+                  // What a port serves unless named below.
+                  Protocols = IoxideProtocols.Http1,
 
-var secure = new[]
-{
-    Secure(8443, IoxideProtocols.All),
-    Secure(8444, IoxideProtocols.Http1AndHttp3),
-    Secure(8445, IoxideProtocols.Http2AndHttp3),
-    Secure(8446, IoxideProtocols.Http3),
-};
+                  ProtocolsByPort =
+                  {
+                      [8081] = IoxideProtocols.Http2,
+                      [8082] = IoxideProtocols.Http1AndHttp2,
+                      [8443] = IoxideProtocols.All,
+                  },
 
-await plaintext.StartAsync();
+                  // Bytes of QPACK dynamic table offered to HTTP/3 clients. 0 keeps every header
+                  // literal, which costs bytes but can never stall a stream on a table update. In
+                  // practice only browsers advertise a table of their own.
+                  QpackDynamicTableCapacity = 4096,
+                  QpackBlockedStreams = 100,
 
-foreach (var host in secure)
-{
-    await host.StartAsync();
-}
+                  // HTTP/3 is terminated by ngtcp2, which loads PEM from disk. Name the files here
+                  // and nothing is written; leave them out and the bound certificate is exported to
+                  // an owner-only temporary directory for the lifetime of the process.
+                  //
+                  // Http3CertificatePath = "/etc/ssl/site.crt",
+                  // Http3KeyPath         = "/etc/ssl/site.key",
 
-Console.WriteLine("Serving 8080 h1 | 8081 h2 | 8082 h1+h2 | 8443 h1+h2+h3 | 8444 h1+h3 | 8445 h2+h3 | 8446 h3");
-
-await Task.Delay(Timeout.Infinite);
-
-IServerHost Secure(ushort port, IoxideProtocols protocols)
-    => Host.Create(
-               configure: c => c with { ReactorCount = Reactors },
-               options: new IoxideOptions
-               {
-                   ProtocolsByPort = { [port] = protocols },
-
-                   // Bytes of QPACK dynamic table offered to HTTP/3 clients. 0 keeps every header
-                   // literal, which costs bytes but can never stall a stream on a table update. In
-                   // practice only browsers advertise a table of their own.
-                   QpackDynamicTableCapacity = 4096,
-                   QpackBlockedStreams = 100,
-
-                   // HTTP/3 is terminated by ngtcp2, which loads PEM from disk. Name the files here
-                   // and nothing is written; leave them out and the bound certificate is exported to
-                   // an owner-only temporary directory for the lifetime of the process.
-                   //
-                   // Http3CertificatePath = "/etc/ssl/site.crt",
-                   // Http3KeyPath         = "/etc/ssl/site.key",
-
-                   // Mutual TLS, enforced on all three protocols. Clients are asked for a
-                   // certificate and validated against this bundle.
-                   //
-                   // ClientCaPath             = "/etc/ssl/clients.pem",
-                   // RequireClientCertificate = true,
-               })
-           .Handler(app)
-           .Bind(IPAddress.Loopback, port, certificate);
+                  // Mutual TLS, enforced on all three protocols. Clients are asked for a
+                  // certificate and validated against this bundle.
+                  //
+                  // ClientCaPath             = "/etc/ssl/clients.pem",
+                  // RequireClientCertificate = true,
+              })
+          .Handler(app)
+          .Bind(IPAddress.Loopback, 8080)
+          .Bind(IPAddress.Loopback, 8081)
+          .Bind(IPAddress.Loopback, 8082)
+          .Bind(IPAddress.Loopback, 8443, certificate)
+          .RunAsync();
 
 static X509Certificate2 LoadCertificate()
 {
