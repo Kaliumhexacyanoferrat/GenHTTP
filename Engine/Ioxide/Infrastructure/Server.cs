@@ -270,9 +270,16 @@ public sealed partial class Server : IServer
     {
         var protocols = ResolveProtocols(options, endPoint);
 
-        return endPoint.Security is { } security
-            ? new SecureEndPoint(endPoint.Address, endPoint.Port, endPoint.DualStack, protocols, security, options.MutualTls)
-            : new InsecureEndPoint(endPoint.Address, endPoint.Port, endPoint.DualStack, protocols);
+        if (endPoint.Security is not { } security)
+        {
+            return new InsecureEndPoint(endPoint.Address, endPoint.Port, endPoint.DualStack, protocols);
+        }
+
+        // Named per port or the engine-wide one, taken whole either way - a named port does not
+        // inherit the halves it left unset, matching how ProtocolsByPort overrides Protocols.
+        var mutualTls = options.MutualTlsByPort.GetValueOrDefault(endPoint.Port) ?? options.MutualTls;
+
+        return new SecureEndPoint(endPoint.Address, endPoint.Port, endPoint.DualStack, protocols, security, mutualTls);
     }
 
     /// <summary>

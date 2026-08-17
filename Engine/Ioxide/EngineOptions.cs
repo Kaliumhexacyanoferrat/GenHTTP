@@ -31,8 +31,18 @@ public sealed record EngineOptions
     /// <summary>The HTTP/3 endpoint: the certificate QUIC serves, and QPACK.</summary>
     public Http3Options Http3 { get; init; } = new();
 
-    /// <summary>Client certificates: what they are validated against, and whether one is required.</summary>
+    /// <summary>
+    /// Client certificates: what they are validated against, and whether one is required. Applies
+    /// to every secure endpoint unless <see cref="MutualTlsByPort"/> names one.
+    /// </summary>
     public MutualTlsOptions MutualTls { get; init; } = new();
+
+    /// <summary>
+    /// Client certificates for one port, overriding <see cref="MutualTls"/> whole - a named port
+    /// takes none of the engine-wide settings, the way <see cref="ProtocolsByPort"/> does with
+    /// <see cref="Protocols"/>. This is what lets two secure ports trust different issuers.
+    /// </summary>
+    public Dictionary<ushort, MutualTlsOptions> MutualTlsByPort { get; init; } = [];
 }
 
 /// <summary>
@@ -157,10 +167,10 @@ public sealed record Http3Options
 /// <summary>
 /// What client certificates are validated against - by OpenSSL for HTTP/1.1 and HTTP/2, by ngtcp2
 /// for HTTP/3, so a bad chain is refused before any request exists. WHICH endpoints ask for one is
-/// decided per endpoint, by the <c>certificateValidator</c> passed to <c>Bind</c>. Configured here
-/// for the whole engine because <c>Bind</c> takes no bundle of its own, then resolved onto each
-/// secure endpoint as the server is built - see <c>SecureEndPoint</c>, which is what the transports
-/// read.
+/// decided per endpoint, by the <c>certificateValidator</c> passed to <c>Bind</c>. Set on
+/// <c>EngineOptions.MutualTls</c> for every secure endpoint, or per port through
+/// <c>EngineOptions.MutualTlsByPort</c>; either way it is resolved onto each <c>SecureEndPoint</c>
+/// as the server is built, and read from there rather than from the options.
 /// </summary>
 public sealed record MutualTlsOptions
 {
@@ -175,8 +185,8 @@ public sealed record MutualTlsOptions
     public string? ClientCaPem { get; init; }
 
     /// <summary>
-    /// Refuse a client that offers no certificate, on every secure endpoint; false still asks for
-    /// one and validates what arrives. Usually left alone, since an endpoint's
+    /// Refuse a client that offers no certificate, on the endpoints this applies to; false still
+    /// asks for one and validates what arrives. Usually left alone, since an endpoint's
     /// <c>certificateValidator</c> raises it for that endpoint. The two are ORed.
     /// </summary>
     public bool RequireClientCertificate { get; init; }

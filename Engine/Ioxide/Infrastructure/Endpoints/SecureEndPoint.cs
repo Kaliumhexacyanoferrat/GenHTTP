@@ -10,9 +10,10 @@ namespace GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 /// so this carries the settings rather than performing it.
 /// </summary>
 /// <remarks>
-/// The trust anchors are configured once for the engine, since GenHTTP's <c>Bind</c> takes no
-/// bundle per endpoint, but whether a client certificate is demanded is settled here: the engine's
-/// flag and the binding's own validator are ORed at construction rather than at each use.
+/// The trust anchors come from <c>EngineOptions</c> - the engine-wide ones, or the set named for
+/// this port - since GenHTTP's <c>Bind</c> carries no bundle of its own. Whether a client
+/// certificate is demanded is settled here: that setting and the binding's own validator are ORed
+/// at construction rather than at each use.
 /// </remarks>
 internal sealed class SecureEndPoint : EndPoint
 {
