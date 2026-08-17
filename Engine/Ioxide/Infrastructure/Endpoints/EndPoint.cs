@@ -11,11 +11,11 @@ namespace GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 /// </summary>
 /// <remarks>
 /// <see cref="Security"/> carries the binding's certificate provider, protocols and client
-/// certificate validator, so an endpoint answers for its own TLS rather than the server keeping a
-/// second table keyed by port. Nothing to dispose: the listener belongs to the reactors, which bind
-/// it themselves and tear it down with their rings.
+/// certificate validator, and <see cref="Protocols"/> what the port serves, so an endpoint answers
+/// for itself rather than the server keeping second tables keyed by port. Nothing to dispose: the
+/// listener belongs to the reactors, which bind it themselves and tear it down with their rings.
 /// </remarks>
-internal sealed class EndPoint(IPAddress? address, ushort port, bool dualStack, SecurityConfiguration? security) : IEndPoint
+internal sealed class EndPoint(IPAddress? address, ushort port, bool dualStack, SecurityConfiguration? security, Protocols protocols) : IEndPoint
 {
     public IPAddress? Address => address;
 
@@ -27,6 +27,9 @@ internal sealed class EndPoint(IPAddress? address, ushort port, bool dualStack, 
     public SecurityConfiguration? Security => security;
 
     public bool Secure => security is not null;
+
+    /// <summary>What this endpoint serves, resolved once from the options and its own binding.</summary>
+    public Protocols Protocols => protocols;
 
     public void Dispose() { }
 }

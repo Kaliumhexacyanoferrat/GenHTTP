@@ -38,8 +38,6 @@ public sealed partial class Server : IServer
 
     private readonly ushort[] _tcpPorts;
 
-    private readonly Dictionary<ushort, Protocols> _protocols;
-
     private readonly Action<Reactor>? _onReactorStart;
 
     private readonly EngineOptions _engineOptions;
@@ -83,13 +81,11 @@ public sealed partial class Server : IServer
 
         _logger = serverConfiguration.Logging.CreateLogger<Server>();
 
-        _endPoints = MapEndPoints(serverConfiguration);
+        _endPoints = MapEndPoints(serverConfiguration, _engineOptions);
         _dualStack = _endPoints[0].DualStack;
 
-        _protocols = _endPoints.ToDictionary(e => e.Port, e => ResolveProtocols(_engineOptions, serverConfiguration, e.Port));
-
         // Which endpoints want which listener, settled here so StartAsync only has to act on it.
-        // Order matters: both read _protocols, and the TCP one reads _endPoints as well.
+        // Both read _endPoints, which each endpoint's own protocols now come with.
         _tcpPorts = ResolveTcpPorts();
         _quicEndPoint = ResolveQuicEndPoint();
 
@@ -148,12 +144,12 @@ public sealed partial class Server : IServer
                     
                     listening.Signal();
                 },
-                TcpHandle = (_, tcpConnection) => 
-                    ConnectionDriver.HandleAsync(
-                        this, 
-                        EndPointFor(tcpConnection.ListenerPort),
-                        tcpConnection, 
-                        ProtocolsFor(tcpConnection.ListenerPort)),
+                TcpHandle = (_, tcpConnection) =>
+                {
+                    var endPoint = EndPointFor(tcpConnection.ListenerPort);
+
+                    return ConnectionDriver.HandleAsync(this, endPoint, tcpConnection, endPoint.Protocols);
+                },
                 
                 QuicHandle = _quicEngine is not null 
                     ? (_, quicConnection) => Http3Driver.RunAsync(this, _quicEndPoint!, quicConnection, _h3Options!) 
@@ -189,8 +185,9 @@ public sealed partial class Server : IServer
     }
 
     /// <summary>
-    /// GenHTTP's endpoints as the engine's own, which is also where the one thing every endpoint
-    /// must agree on is checked.
+    /// GenHTTP's endpoints as the engine's own, resolving what each one serves, and where the two
+    /// things the engine cannot express are refused: a port bound twice, and endpoints asking for
+    /// different dual-stack modes.
     /// </summary>
     /// <remarks>
     /// GenHTTP takes dual-stack per endpoint, on <c>Bind</c>; ioxide takes one flag for the whole
@@ -198,11 +195,20 @@ public sealed partial class Server : IServer
     /// The engine can only honour one, and honours the first endpoint's - so endpoints that
     /// disagree are refused here rather than silently served the first one's mode.
     /// </remarks>
-    private static EndPoint[] MapEndPoints(ServerConfiguration config)
+    private static EndPoint[] MapEndPoints(ServerConfiguration config, EngineOptions options)
     {
         var mapped = config.EndPoints
-                           .Select(e => new EndPoint(e.Address, e.Port, e.DualStack, e.Security))
+                           .Select(e => new EndPoint(e.Address, e.Port, e.DualStack, e.Security, ResolveProtocols(options, e)))
                            .ToArray();
+
+        // A connection carries only the port it arrived on, so that port has to name one endpoint.
+        // Checked explicitly because nothing else keys them by port any more.
+        if (mapped.GroupBy(e => e.Port).FirstOrDefault(g => g.Count() > 1) is { } duplicate)
+        {
+            throw new NotSupportedException(
+                $"Port {duplicate.Key} was bound {duplicate.Count()} times. A connection is matched to its endpoint "
+                + "by the port it arrived on, so each port carries one endpoint.");
+        }
 
         var dualStack = mapped[0].DualStack;
 
@@ -261,38 +267,34 @@ public sealed partial class Server : IServer
     }
     
     /// <summary>
-    /// What one port serves: the default, its override, and the endpoint's own enableQuic flag.
+    /// What one endpoint serves: the default, its port's override, and its own enableQuic flag.
     /// </summary>
-    private static Protocols ResolveProtocols(EngineOptions options, ServerConfiguration config, ushort port)
+    private static Protocols ResolveProtocols(EngineOptions options, EndPointConfiguration endPoint)
     {
-        var named = options.ProtocolsByPort.TryGetValue(port, out var configured);
+        var named = options.ProtocolsByPort.TryGetValue(endPoint.Port, out var configured);
 
         var protocols = named ? configured : options.Protocols;
 
         // HTTP/3 from the DEFAULT applies only where it can, so Protocols = All means "everything
         // each port supports" rather than an error about the plaintext one. Named per port it is
         // taken literally, and refused where the port has no certificate.
-        if (!named && protocols.HasFlag(Protocols.Http3) && config.EndPoints.All(e => e.Port != port || e.Security is null))
+        if (!named && protocols.HasFlag(Protocols.Http3) && endPoint.Security is null)
         {
             protocols &= ~Protocols.Http3;
         }
 
-        if (config.EndPoints.Any(e => e.Port == port && e.EnableQuic))
+        if (endPoint.EnableQuic)
         {
             protocols |= Protocols.Http3;
         }
 
         if (protocols == 0)
         {
-            throw new NotSupportedException($"Port {port} was given no protocols to serve.");
+            throw new NotSupportedException($"Port {endPoint.Port} was given no protocols to serve.");
         }
 
         return protocols;
     }
-
-    /// <summary>The protocols this port serves.</summary>
-    private Protocols ProtocolsFor(ushort port)
-        => _protocols.TryGetValue(port, out var protocols) ? protocols : Protocols.Http1;
 
     /// <summary>
     /// The endpoint a connection arrived on, matched by the port its listener bound. A scan rather
@@ -314,7 +316,7 @@ public sealed partial class Server : IServer
 
     private string DescribeSettings()
     {
-        var protocols = string.Join(" ", _protocols.OrderBy(p => p.Key).Select(p => $"{p.Key}:{Describe(p.Value)}"));
+        var protocols = string.Join(" ", _endPoints.OrderBy(e => e.Port).Select(e => $"{e.Port}:{Describe(e.Protocols)}"));
 
         return $"ioxide, {protocols}, TLS on {SecureEndPoints.Count()}"
                + (MutualTlsConfigured ? ", mTLS" : string.Empty)

@@ -18,8 +18,8 @@ public sealed partial class Server
     /// protocols.
     /// </remarks>
     private ushort[] ResolveTcpPorts()
-        => _protocols.Where(p => (p.Value & Protocols.Http1AndHttp2) != 0)
-                     .Select(p => p.Key)
+        => _endPoints.Where(e => (e.Protocols & Protocols.Http1AndHttp2) != 0)
+                     .Select(e => e.Port)
                      .OrderBy(p => p == _endPoints[0].Port ? 0 : 1)
                      .ToArray();
 

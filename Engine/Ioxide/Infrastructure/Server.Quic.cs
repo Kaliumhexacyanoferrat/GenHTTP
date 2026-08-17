@@ -29,7 +29,7 @@ public sealed partial class Server
     /// </summary>
     private EndPoint? ResolveQuicEndPoint()
     {
-        var quicEndPoints = _endPoints.Where(e => _protocols[e.Port].HasFlag(Protocols.Http3)).ToList();
+        var quicEndPoints = _endPoints.Where(e => e.Protocols.HasFlag(Protocols.Http3)).ToList();
 
         if (quicEndPoints.Count > 1)
         {

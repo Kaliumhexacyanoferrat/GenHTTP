@@ -38,7 +38,7 @@ public sealed partial class Server
 
                 // Server preference, most preferred first. A client offering neither continues
                 // without an ALPN extension at all.
-                Alpn = ProtocolsFor(port).HasFlag(Protocols.Http2) ? ["h2", "http/1.1"] : ["http/1.1"],
+                Alpn = endPoint.Protocols.HasFlag(Protocols.Http2) ? ["h2", "http/1.1"] : ["http/1.1"],
 
                 ClientCaPath = _engineOptions.MutualTls.ClientCaPath,
                 ClientCaPem = _engineOptions.MutualTls.ClientCaPem,
