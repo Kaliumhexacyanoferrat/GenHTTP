@@ -1,4 +1,5 @@
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 
 using GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 
@@ -32,7 +33,7 @@ public sealed partial class Server
 
             yield return new(port, new TlsOptions
             {
-                CertificatePem = certificate.ExportCertificatePem(),
+                CertificatePem = ExportChainPem(certificate, port),
                 KeyPem = ExportKeyPem(certificate),
 
                 // Server preference, most preferred first. A client offering neither continues
@@ -56,6 +57,74 @@ public sealed partial class Server
 
     /// <summary>The endpoints bound with a certificate - the ones TLS applies to.</summary>
     private IEnumerable<SecureEndPoint> SecureEndPoints => _endPoints.OfType<SecureEndPoint>();
+
+    /// <summary>
+    /// The certificate and the intermediates a client needs to reach a root it trusts, leaf first.
+    /// </summary>
+    /// <remarks>
+    /// <c>ICertificateProvider</c> hands over one certificate, but anything issued by a real
+    /// CA is signed by an intermediate, and a client that does not already hold that intermediate
+    /// cannot build a path to its root - so a server sends them (RFC 8446 4.4.2). The Internal
+    /// engine gets this for free from <c>SslStream</c>, which assembles the chain itself; this
+    /// engine terminates TLS on its own, so it assembles it here.
+    ///
+    /// The root is left out deliberately: a client that does not already trust it will not start
+    /// because we sent it, and it is bytes on every handshake.
+    ///
+    /// Certificate downloads are off. Fetching a missing intermediate over AIA would put a network
+    /// call on the startup path, where a slow or unreachable host is a hung server rather than a
+    /// slow one - the intermediate is expected in the machine store beside the certificate.
+    /// </remarks>
+    private string ExportChainPem(X509Certificate2 certificate, ushort port)
+    {
+        using var chain = new X509Chain();
+
+        chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+        chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllFlags;
+        chain.ChainPolicy.DisableCertificateDownloads = true;
+
+        // Built for its elements, not its verdict: a privately issued or self-signed certificate
+        // does not validate against this machine's roots and still carries the chain to send.
+        chain.Build(certificate);
+
+        var links = chain.ChainElements;
+
+        if (links.Count <= 1)
+        {
+            // Self-signed is the ordinary case here - leaf and root at once, nothing to add. Any
+            // other certificate arriving alone means its issuer was not found, and the handshake
+            // will fail for clients that cannot supply the gap themselves.
+            if (!IsSelfIssued(certificate))
+            {
+                _logger.LogWarning(
+                    "No issuer chain found for the certificate on port {Port} ({Subject}), so only the leaf will be sent. "
+                    + "Clients without its intermediates cached will refuse the handshake; install them in the machine store.",
+                    port, certificate.Subject);
+            }
+
+            return certificate.ExportCertificatePem();
+        }
+
+        var pem = new StringBuilder();
+
+        for (var i = 0; i < links.Count; i++)
+        {
+            var link = links[i].Certificate;
+
+            if (i == links.Count - 1 && IsSelfIssued(link))
+            {
+                break;
+            }
+
+            pem.AppendLine(link.ExportCertificatePem());
+        }
+
+        return pem.ToString();
+    }
+
+    /// <summary>Whether a certificate is its own issuer, which is what makes it a root.</summary>
+    private static bool IsSelfIssued(X509Certificate2 certificate)
+        => certificate.SubjectName.RawData.AsSpan().SequenceEqual(certificate.IssuerName.RawData);
 
     private static string ExportKeyPem(X509Certificate2 certificate)
         => certificate.GetRSAPrivateKey()?.ExportPkcs8PrivateKeyPem()
