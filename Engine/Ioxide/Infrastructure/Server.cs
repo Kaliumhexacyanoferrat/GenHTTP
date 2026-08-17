@@ -36,8 +36,6 @@ public sealed partial class Server : IServer
     /// </summary>
     private readonly bool _dualStack;
 
-    private readonly ushort[] _tcpPorts;
-
     private readonly Action<Reactor>? _onReactorStart;
 
     private readonly EngineOptions _engineOptions;

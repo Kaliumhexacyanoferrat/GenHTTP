@@ -7,6 +7,8 @@ namespace GenHTTP.Engine.Ioxide.Infrastructure;
 /// </summary>
 public sealed partial class Server
 {
+    private readonly ushort[] _tcpPorts;
+    
     /// <summary>
     /// The ports that want a TCP listener: those serving HTTP/1.1 or HTTP/2, primary first - it
     /// becomes ioxide's <c>TcpOptions.Port</c> and the rest its <c>ExtraPorts</c>. Empty means this
