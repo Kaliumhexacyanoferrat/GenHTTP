@@ -124,20 +124,11 @@ public sealed record TcpTransportOptions
 }
 
 /// <summary>
-/// The HTTP/3 endpoint. Only consulted when a port serves <see cref="Protocols.Http3"/>.
+/// QPACK, for HTTP/3. Only consulted when a port serves <see cref="Protocols.Http3"/>. The
+/// certificate is not here: it comes off the binding, from an <c>IFileCertificateProvider</c>.
 /// </summary>
 public sealed record Http3Options
 {
-    /// <summary>
-    /// PEM certificate chain for the HTTP/3 listener, as a path. Required to serve HTTP/3, and
-    /// should be the certificate bound to the endpoint rather than a second one - it is named
-    /// separately only because ngtcp2 loads PEM by path, and the engine writes none for you.
-    /// </summary>
-    public string? CertificatePath { get; init; }
-
-    /// <summary>PEM private key for the HTTP/3 listener. Pairs with <see cref="CertificatePath"/>.</summary>
-    public string? KeyPath { get; init; }
-
     /// <summary>
     /// Bytes of QPACK dynamic table advertised to HTTP/3 clients. 0 keeps every header literal
     /// against the static table, which costs bytes but can never stall a stream on a table update.

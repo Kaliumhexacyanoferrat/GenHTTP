@@ -15,17 +15,35 @@ namespace GenHTTP.Engine.Ioxide.Infrastructure;
 public sealed partial class Server
 {
     /// <summary>
-    /// The TLS options for every secure port whose provider yields a default (no-SNI) certificate.
-    /// A provider selecting by SNI (unsupported here) returns none, leaving the port advertised as
-    /// secure - so secure-upgrade redirects still work - but refusing its handshakes.
+    /// The TLS options for every secure port the binding can produce a certificate for. A provider
+    /// with neither files nor a default (no-SNI) certificate leaves the port advertised as secure -
+    /// so secure-upgrade redirects still work - but refusing its handshakes.
     /// </summary>
+    /// <remarks>
+    /// Files are preferred where the provider has them. OpenSSL reads a chain file whole, so the
+    /// intermediates come from the file the binding named rather than being recovered from the
+    /// machine store, and the private key never enters managed memory.
+    /// </remarks>
     private IEnumerable<KeyValuePair<ushort, TlsOptions>> ResolveTls()
     {
         foreach (var endPoint in SecureEndPoints)
         {
             var port = endPoint.Port;
 
-            if (endPoint.Security.CertificateProvider.Provide(null) is not { } certificate)
+            // ioxide takes exactly one source, so only one pair of these is ever set.
+            string? certificatePath = null, keyPath = null, certificatePem = null, keyPem = null;
+
+            if (endPoint.Files is { } files)
+            {
+                certificatePath = files.Certificate;
+                keyPath = files.Key;
+            }
+            else if (endPoint.Security.CertificateProvider.Provide(null) is { } certificate)
+            {
+                certificatePem = ExportChainPem(certificate, port);
+                keyPem = ExportKeyPem(certificate);
+            }
+            else
             {
                 _logger.LogWarning("No default certificate for secure port {Port}; handshakes there will be refused (SNI selection is unsupported).", port);
                 continue;
@@ -33,8 +51,10 @@ public sealed partial class Server
 
             yield return new(port, new TlsOptions
             {
-                CertificatePem = ExportChainPem(certificate, port),
-                KeyPem = ExportKeyPem(certificate),
+                CertificatePath = certificatePath,
+                KeyPath = keyPath,
+                CertificatePem = certificatePem,
+                KeyPem = keyPem,
 
                 // Server preference, most preferred first. A client offering neither continues
                 // without an ALPN extension at all.

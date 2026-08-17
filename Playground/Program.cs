@@ -83,9 +83,13 @@ if (staticDir != null && Directory.Exists(staticDir))
 using var certificate = LoadCertificate();
 
 // ngtcp2 loads PEM by path, so serving HTTP/3 means having the certificate on disk. The engine will
-// not write one out on your behalf, so the sample writes its own throwaway certificate here and
-// names it below. A deployment points at the PEM it already has.
+// not write one out on your behalf, so the sample writes its own throwaway certificate here. A
+// deployment points at the PEM it already has and skips this.
 var (serverCertPath, serverKeyPath) = WriteServerCertificate(certificate);
+
+// One binding, both forms: the object for OpenSSL on HTTP/1.1 and HTTP/2, the paths for ngtcp2 on
+// HTTP/3. Naming them together is what keeps the two transports serving the same certificate.
+var certificates = new FileCertificateProvider(certificate, serverCertPath, serverKeyPath);
 
 // A CA, a client it signs, and an impostor it does not - so the mutual TLS port below can be tried
 // both ways without generating anything by hand.
@@ -138,23 +142,15 @@ await Host.Create(
                       // update. In practice only browsers advertise a table of their own.
                       QpackDynamicTableCapacity = 4096,
                       QpackBlockedStreams = 100,
-
-                      // The SAME certificate passed to Bind below, named again because ngtcp2
-                      // loads PEM by path - OpenSSL, which terminates HTTP/1.1 and HTTP/2, takes
-                      // the PEM text directly and touches no disk. Required for HTTP/3: the engine
-                      // refuses to start a QUIC listener without it rather than writing a key out.
-                      //
-                      CertificatePath = serverCertPath,
-                      KeyPath = serverKeyPath,
                   },
               })
           .Handler(app)
           .Bind(IPAddress.Loopback, 8080)
           .Bind(IPAddress.Loopback, 8081)
           .Bind(IPAddress.Loopback, 8082)
-          .Bind(IPAddress.Loopback, 8443, certificate)
+          .Bind(IPAddress.Loopback, 8443, certificates)
           // mTLS
-          .Bind(IPAddress.Loopback, 8444, certificate, certificateValidator: new RequireClientCertificate(clientCa))
+          .Bind(IPAddress.Loopback, 8444, certificates, certificateValidator: new RequireClientCertificate(clientCa))
           .RunAsync();
 
 /// <summary>
@@ -266,6 +262,22 @@ static void WritePrivateKey(string path, string pem)
     using var writer = new StreamWriter(stream);
 
     writer.Write(pem);
+}
+
+/// <summary>
+/// Serves one certificate in both forms: the object OpenSSL takes for HTTP/1.1 and HTTP/2, and the
+/// PEM paths ngtcp2 takes for HTTP/3.
+/// </summary>
+/// <remarks>
+/// A binding without the file half still serves HTTP/1.1 and HTTP/2; it is HTTP/3 that refuses to
+/// start, since ngtcp2 accepts nothing but a path and the engine will not write your key out.
+/// </remarks>
+internal sealed class FileCertificateProvider(X509Certificate2 certificate, string certificatePath, string keyPath)
+    : IFileCertificateProvider
+{
+    public X509Certificate2 Provide(string? host) => certificate;
+
+    public CertificateFiles? ProvideFiles(string? host) => new(certificatePath, keyPath);
 }
 
 /// <summary>

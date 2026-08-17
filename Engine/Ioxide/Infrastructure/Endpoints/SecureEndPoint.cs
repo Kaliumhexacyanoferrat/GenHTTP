@@ -16,30 +16,31 @@ namespace GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 /// here rather than at each use, so the transports ask the endpoint and nothing else.
 ///
 /// <para>
-/// What each transport accepts, and in what form. The two do not match, because OpenSSL is handed
-/// the certificate as data while ngtcp2 loads it by path:
+/// What each transport accepts, and in what form. Everything is named once, on the binding; the
+/// forms differ because OpenSSL takes the certificate as data while ngtcp2 loads it by path:
 /// </para>
 ///
 /// <code>
 ///                          TCP (HTTP/1.1, HTTP/2)          HTTP/3 (QUIC)
-///   server certificate     X509Certificate2, from Bind     PEM file, Http3.CertificatePath
-///   server key             exported from that certificate  PEM file, Http3.KeyPath
-///   issuer chain           built here, root omitted        whatever that PEM file holds
+///   server certificate     PEM files, or X509Certificate2  PEM files only
+///   server key             the same, whichever was given   PEM files only
+///   issuer chain           from the file, else rebuilt      from the file
 ///   client trust anchors   ClientCaPath or ClientCaPem     ClientCaPath or ClientCaPem
 ///   demand a client cert   ICertificateValidator.RequireCertificate, on both
 /// </code>
 ///
 /// <para>
-/// Three consequences of that table. The HTTP/3 certificate is named a SECOND time, on
-/// <c>EngineOptions.Http3</c>, because ngtcp2 takes paths and the engine will not write a private
-/// key out on anyone's behalf - it should be the same certificate the endpoint is bound with, and
-/// the QUIC half warns when the thumbprints disagree.
+/// A plain <c>ICertificateProvider</c> answers with an <c>X509Certificate2</c> and serves TCP only:
+/// HTTP/3 on such a binding is refused when the server is built, rather than started without the
+/// listener it was asked for. An <see cref="IFileCertificateProvider"/> names files as well and
+/// serves both.
 /// </para>
 ///
 /// <para>
-/// The issuer chain is assembled for TCP only. <c>ICertificateProvider</c> yields a single
-/// certificate, which cannot carry intermediates, so they are recovered from the machine store and
-/// sent leaf-first with the root left off; HTTP/3 sends whatever the configured PEM file contains.
+/// Files are preferred wherever both are on offer, which also settles the chain. OpenSSL reads a
+/// chain file whole, so intermediates come from the file the binding named. Only the in-memory form
+/// needs them rebuilt - an <c>X509Certificate2</c> carries no chain, so they are recovered from the
+/// machine store and sent leaf-first with the root left off.
 /// </para>
 ///
 /// <para>
@@ -57,6 +58,10 @@ internal sealed class SecureEndPoint : EndPoint
     {
         Security = security;
 
+        // Asked once, here, because QUIC needs an answer when its engine is built rather than per
+        // handshake - so a provider selecting files by host would only ever be asked about null.
+        Files = (security.CertificateProvider as IFileCertificateProvider)?.ProvideFiles(null);
+
         RequireClientCertificate = security.CertificateValidator?.RequireCertificate == true;
 
         if (security.CertificateValidator is IMutualTlsValidator mutualTls)
@@ -70,6 +75,13 @@ internal sealed class SecureEndPoint : EndPoint
 
     /// <summary>How this endpoint is secured: its certificate provider, protocols and validator.</summary>
     public SecurityConfiguration Security { get; }
+
+    /// <summary>
+    /// The certificate as files, when the provider has them - what HTTP/3 needs, and what TCP
+    /// prefers, since OpenSSL loads a chain file whole. Null when the binding gave only the
+    /// in-memory certificate.
+    /// </summary>
+    public CertificateFiles? Files { get; }
 
     /// <summary>
     /// PEM bundle of trust anchors that client certificates are validated against, as a path. Its
