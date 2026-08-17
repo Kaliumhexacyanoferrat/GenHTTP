@@ -14,6 +14,40 @@ namespace GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 /// settings from the validator passed alongside it. A validator asks for a client certificate; an
 /// <see cref="IMutualTlsValidator"/> also names what the chain is validated against. Read once
 /// here rather than at each use, so the transports ask the endpoint and nothing else.
+///
+/// <para>
+/// What each transport accepts, and in what form. The two do not match, because OpenSSL is handed
+/// the certificate as data while ngtcp2 loads it by path:
+/// </para>
+///
+/// <code>
+///                          TCP (HTTP/1.1, HTTP/2)          HTTP/3 (QUIC)
+///   server certificate     X509Certificate2, from Bind     PEM file, Http3.CertificatePath
+///   server key             exported from that certificate  PEM file, Http3.KeyPath
+///   issuer chain           built here, root omitted        whatever that PEM file holds
+///   client trust anchors   ClientCaPath or ClientCaPem     ClientCaPath only
+///   demand a client cert   ICertificateValidator.RequireCertificate, on both
+/// </code>
+///
+/// <para>
+/// Three consequences of that table. The HTTP/3 certificate is named a SECOND time, on
+/// <c>EngineOptions.Http3</c>, because ngtcp2 takes paths and the engine will not write a private
+/// key out on anyone's behalf - it should be the same certificate the endpoint is bound with, and
+/// the QUIC half warns when the thumbprints disagree.
+/// </para>
+///
+/// <para>
+/// The issuer chain is assembled for TCP only. <c>ICertificateProvider</c> yields a single
+/// certificate, which cannot carry intermediates, so they are recovered from the machine store and
+/// sent leaf-first with the root left off; HTTP/3 sends whatever the configured PEM file contains.
+/// </para>
+///
+/// <para>
+/// And <see cref="ClientCaPem"/> is DROPPED on HTTP/3. ioxide gained PEM-text anchors in 0.5.192
+/// and this engine still references 0.4.186, so until that bump an endpoint serving both transports
+/// validates clients over TCP and lets them through unvalidated over QUIC. Anchors given as a path
+/// apply to both.
+/// </para>
 /// </remarks>
 internal sealed class SecureEndPoint : EndPoint
 {
