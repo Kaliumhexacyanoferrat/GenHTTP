@@ -157,7 +157,10 @@ public sealed record Http3Options
 /// <summary>
 /// What client certificates are validated against - by OpenSSL for HTTP/1.1 and HTTP/2, by ngtcp2
 /// for HTTP/3, so a bad chain is refused before any request exists. WHICH endpoints ask for one is
-/// decided per endpoint, by the <c>certificateValidator</c> passed to <c>Bind</c>.
+/// decided per endpoint, by the <c>certificateValidator</c> passed to <c>Bind</c>. Configured here
+/// for the whole engine because <c>Bind</c> takes no bundle of its own, then resolved onto each
+/// secure endpoint as the server is built - see <c>SecureEndPoint</c>, which is what the transports
+/// read.
 /// </summary>
 public sealed record MutualTlsOptions
 {

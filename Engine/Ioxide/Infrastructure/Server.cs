@@ -195,9 +195,7 @@ public sealed partial class Server : IServer
     /// </remarks>
     private static EndPoint[] MapEndPoints(ServerConfiguration config, EngineOptions options)
     {
-        var mapped = config.EndPoints
-                           .Select(e => new EndPoint(e.Address, e.Port, e.DualStack, e.Security, ResolveProtocols(options, e)))
-                           .ToArray();
+        var mapped = config.EndPoints.Select(e => Map(e, options)).ToArray();
 
         // A connection carries only the port it arrived on, so that port has to name one endpoint.
         // Checked explicitly because nothing else keys them by port any more.
@@ -264,6 +262,19 @@ public sealed partial class Server : IServer
         }
     }
     
+    /// <summary>
+    /// One binding as the engine's own endpoint. A certificate makes it a <see cref="SecureEndPoint"/>,
+    /// which is what carries the TLS settings; without one it is cleartext and has none to carry.
+    /// </summary>
+    private static EndPoint Map(EndPointConfiguration endPoint, EngineOptions options)
+    {
+        var protocols = ResolveProtocols(options, endPoint);
+
+        return endPoint.Security is { } security
+            ? new SecureEndPoint(endPoint.Address, endPoint.Port, endPoint.DualStack, protocols, security, options.MutualTls)
+            : new InsecureEndPoint(endPoint.Address, endPoint.Port, endPoint.DualStack, protocols);
+    }
+
     /// <summary>
     /// What one endpoint serves: the default, its port's override, and its own enableQuic flag.
     /// </summary>

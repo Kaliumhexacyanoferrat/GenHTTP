@@ -48,22 +48,22 @@ public sealed partial class Server
     /// </summary>
     private ServerConfig WithQuic(ServerConfig serverConfig)
     {
-        var quicEndPoint = _quicEndPoint!;
+        var endPoint = _quicEndPoint!;
 
-        if (quicEndPoint.Security is not { } security)
+        if (endPoint is not SecureEndPoint quicEndPoint)
         {
-            _logger.LogWarning("HTTP/3 was requested on port {Port}, which is not bound with a certificate; QUIC has no cleartext mode, so no listener was started.", quicEndPoint.Port);
+            _logger.LogWarning("HTTP/3 was requested on port {Port}, which is not bound with a certificate; QUIC has no cleartext mode, so no listener was started.", endPoint.Port);
             return serverConfig;
         }
 
-        if (!TryResolveQuicCertificate(security, quicEndPoint.Port, out var certPath, out var keyPath))
+        if (!TryResolveQuicCertificate(quicEndPoint.Security, quicEndPoint.Port, out var certPath, out var keyPath))
         {
             return serverConfig;
         }
 
         _quicEngine = new QuicEngine(certPath, keyPath, alpn: ["h3"],
-            clientCaPemPath: _engineOptions.MutualTls.ClientCaPath,
-            requireClientCertificate: RequiresClientCertificate(security));
+            clientCaPemPath: quicEndPoint.ClientCaPath,
+            requireClientCertificate: quicEndPoint.RequireClientCertificate);
 
         // Built once here, not in the QuicHandle below - that runs per accepted connection, and
         // these two never change. Nghttp3Options is ngtcp2's own record; Http3Options is
