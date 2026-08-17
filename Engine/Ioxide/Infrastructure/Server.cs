@@ -33,9 +33,7 @@ public sealed partial class Server : IServer
 
     private readonly Dictionary<ushort, SecurityConfiguration> _secure;
 
-    private readonly ushort[] _tcpRequested;
-
-    private readonly EndPoint? _quicRequested;
+    private readonly ushort[] _tcpPorts;
 
     private readonly Dictionary<ushort, IoxideProtocols> _protocols;
 
@@ -85,8 +83,8 @@ public sealed partial class Server : IServer
 
         // Which endpoints want which listener, settled here so StartAsync only has to act on it.
         // Order matters: both read _protocols, and the TCP one reads _primary as well.
-        _tcpRequested = ResolveTcpPorts();
-        _quicRequested = ResolveQuicEndPoint(mapped);
+        _tcpPorts = ResolveTcpPorts();
+        _quicEndPoint = ResolveQuicEndPoint(mapped);
 
         // Certificates are resolved per reactor in OnStart, not here - see ResolveTls.
         _secure = config.EndPoints
@@ -144,14 +142,14 @@ public sealed partial class Server : IServer
         
         var serverConfig = BuildServerConfig();
 
-        if (_tcpRequested.Length > 0)
+        if (_tcpPorts.Length > 0)
         {
             serverConfig = WithTcp(serverConfig);
         }
 
-        if (_quicRequested is { } quicEndPoint)
+        if (_quicEndPoint is not null)
         {
-            serverConfig = WithQuic(serverConfig, quicEndPoint);
+            serverConfig = WithQuic(serverConfig);
         }
 
         _threads = new Thread[serverConfig.ReactorCount];

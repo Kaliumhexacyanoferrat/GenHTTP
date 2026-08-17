@@ -17,7 +17,8 @@ public sealed partial class Server
 {
     private QuicEngine? _quicEngine;
 
-    private EndPoint? _quicEndPoint;
+    /// <summary>The endpoint serving HTTP/3, or null. Resolved in the constructor.</summary>
+    private readonly EndPoint? _quicEndPoint;
 
     private Nghttp3Options? _h3Options;
 
@@ -45,8 +46,10 @@ public sealed partial class Server
     /// carries TLS 1.3 and has no cleartext mode - and takes its port, which is what a browser
     /// assumes when an Alt-Svc advertisement names none of its own.
     /// </summary>
-    private ServerConfig WithQuic(ServerConfig serverConfig, EndPoint quicEndPoint)
+    private ServerConfig WithQuic(ServerConfig serverConfig)
     {
+        var quicEndPoint = _quicEndPoint!;
+
         if (!_secure.TryGetValue(quicEndPoint.Port, out var security))
         {
             _logger.LogWarning("HTTP/3 was requested on port {Port}, which is not bound with a certificate; QUIC has no cleartext mode, so no listener was started.", quicEndPoint.Port);
@@ -61,8 +64,6 @@ public sealed partial class Server
         _quicEngine = new QuicEngine(certPath, keyPath, alpn: ["h3"],
             clientCaPemPath: _options.MutualTls.ClientCaPath,
             requireClientCertificate: RequiresClientCertificate(security));
-
-        _quicEndPoint = quicEndPoint;
 
         // Built once here, not in the QuicHandle below - that runs per accepted connection, and
         // these two never change. Nghttp3Options is ngtcp2's own record; Http3Options is

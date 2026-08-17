@@ -24,7 +24,7 @@ public sealed partial class Server
                      .ToArray();
 
     /// <summary>
-    /// Adds the TCP listener for the ports resolved into <c>_tcpRequested</c>. Only called when
+    /// Adds the TCP listener for the ports resolved into <c>_tcpPorts</c>. Only called when
     /// there are any - an HTTP/3-only server gets a UDP socket and no TCP listener at all.
     /// </summary>
     /// <remarks>
@@ -36,8 +36,8 @@ public sealed partial class Server
         // ioxide's, not ours - the engine's own TcpTransportOptions is what feeds it below.
         Tcp = new ioxide.TcpOptions
         {
-            Port = _tcpRequested[0],
-            ExtraPorts = _tcpRequested[1..],
+            Port = _tcpPorts[0],
+            ExtraPorts = _tcpPorts[1..],
 
             ListenBacklog = _options.Tcp.ListenBacklog,
             WriteSlabSize = _options.Tcp.WriteSlabSize,
