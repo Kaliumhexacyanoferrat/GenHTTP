@@ -25,7 +25,7 @@ namespace GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 ///   server certificate     X509Certificate2, from Bind     PEM file, Http3.CertificatePath
 ///   server key             exported from that certificate  PEM file, Http3.KeyPath
 ///   issuer chain           built here, root omitted        whatever that PEM file holds
-///   client trust anchors   ClientCaPath or ClientCaPem     ClientCaPath only
+///   client trust anchors   ClientCaPath or ClientCaPem     ClientCaPath or ClientCaPem
 ///   demand a client cert   ICertificateValidator.RequireCertificate, on both
 /// </code>
 ///
@@ -43,10 +43,10 @@ namespace GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 /// </para>
 ///
 /// <para>
-/// And <see cref="ClientCaPem"/> is DROPPED on HTTP/3. ioxide gained PEM-text anchors in 0.5.192
-/// and this engine still references 0.4.186, so until that bump an endpoint serving both transports
-/// validates clients over TCP and lets them through unvalidated over QUIC. Anchors given as a path
-/// apply to both.
+/// Client anchors are the one setting that reads the same on both, in either form. That took
+/// ioxide 0.5.192: before it, ngtcp2 took only a path, so <see cref="ClientCaPem"/> reached OpenSSL
+/// and was dropped on the way to QUIC - an endpoint serving both transports validated clients over
+/// TCP and let them through unvalidated over HTTP/3, saying nothing about it.
 /// </para>
 /// </remarks>
 internal sealed class SecureEndPoint : EndPoint

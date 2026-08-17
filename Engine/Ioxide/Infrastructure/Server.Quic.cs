@@ -63,7 +63,8 @@ public sealed partial class Server
 
         _quicEngine = new QuicEngine(certPath, keyPath, alpn: ["h3"],
             clientCaPemPath: quicEndPoint.ClientCaPath,
-            requireClientCertificate: quicEndPoint.RequireClientCertificate);
+            requireClientCertificate: quicEndPoint.RequireClientCertificate,
+            clientCaPem: quicEndPoint.ClientCaPem);
 
         // Built once here, not in the QuicHandle below - that runs per accepted connection, and
         // these two never change. Nghttp3Options is ngtcp2's own record; Http3Options is

@@ -10,12 +10,12 @@
   <ItemGroup>
     <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
     <ProjectReference Include="..\Shared\GenHTTP.Engine.Shared.csproj" />
-    <PackageReference Include="ioxide" Version="0.4.186" />
+    <PackageReference Include="ioxide" Version="0.5.192" />
     <!-- HTTP/2 in pure C# (framing, HPACK, flow control); HTTP/3 as ngtcp2 (QUIC) plus nghttp3
          (H3 + QPACK, including a static-table response encoder). -->
-    <PackageReference Include="ioxide.http2" Version="0.4.186" />
-    <PackageReference Include="ioxide.ngtcp2" Version="0.4.186" />
-    <PackageReference Include="ioxide.nghttp3" Version="0.4.186" />
+    <PackageReference Include="ioxide.http2" Version="0.5.192" />
+    <PackageReference Include="ioxide.ngtcp2" Version="0.5.192" />
+    <PackageReference Include="ioxide.nghttp3" Version="0.5.192" />
     <PackageReference Include="Glyph11" Version="0.3.6" />
     <!-- Parallel parse path for benchmarking — GENHTTP_IOXIDE_PARSER=pico (see Http1Driver). -->
     <PackageReference Include="Glyph11.Pico" Version="0.0.1" />
