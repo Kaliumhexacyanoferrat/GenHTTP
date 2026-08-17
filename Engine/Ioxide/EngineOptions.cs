@@ -30,19 +30,6 @@ public sealed record EngineOptions
 
     /// <summary>The HTTP/3 endpoint: the certificate QUIC serves, and QPACK.</summary>
     public Http3Options Http3 { get; init; } = new();
-
-    /// <summary>
-    /// Client certificates: what they are validated against, and whether one is required. Applies
-    /// to every secure endpoint unless <see cref="MutualTlsByPort"/> names one.
-    /// </summary>
-    public MutualTlsOptions MutualTls { get; init; } = new();
-
-    /// <summary>
-    /// Client certificates for one port, overriding <see cref="MutualTls"/> whole - a named port
-    /// takes none of the engine-wide settings, the way <see cref="ProtocolsByPort"/> does with
-    /// <see cref="Protocols"/>. This is what lets two secure ports trust different issuers.
-    /// </summary>
-    public Dictionary<ushort, MutualTlsOptions> MutualTlsByPort { get; init; } = [];
 }
 
 /// <summary>
@@ -162,32 +149,4 @@ public sealed record Http3Options
     /// nonzero <see cref="QpackDynamicTableCapacity"/>, and the price paid for one.
     /// </summary>
     public long QpackBlockedStreams { get; init; }
-}
-
-/// <summary>
-/// What client certificates are validated against - by OpenSSL for HTTP/1.1 and HTTP/2, by ngtcp2
-/// for HTTP/3, so a bad chain is refused before any request exists. WHICH endpoints ask for one is
-/// decided per endpoint, by the <c>certificateValidator</c> passed to <c>Bind</c>. Set on
-/// <c>EngineOptions.MutualTls</c> for every secure endpoint, or per port through
-/// <c>EngineOptions.MutualTlsByPort</c>; either way it is resolved onto each <c>SecureEndPoint</c>
-/// as the server is built, and read from there rather than from the options.
-/// </summary>
-public sealed record MutualTlsOptions
-{
-    /// <summary>
-    /// PEM bundle of trust anchors that client certificates are validated against, as a path. Its
-    /// subject names are also sent in the CertificateRequest, so a client holding several
-    /// certificates can pick the right one; <see cref="ClientCaPem"/> sends no such hint.
-    /// </summary>
-    public string? ClientCaPath { get; init; }
-
-    /// <summary>The trust anchors as PEM text - the in-memory alternative to <see cref="ClientCaPath"/>.</summary>
-    public string? ClientCaPem { get; init; }
-
-    /// <summary>
-    /// Refuse a client that offers no certificate, on the endpoints this applies to; false still
-    /// asks for one and validates what arrives. Usually left alone, since an endpoint's
-    /// <c>certificateValidator</c> raises it for that endpoint. The two are ORed.
-    /// </summary>
-    public bool RequireClientCertificate { get; init; }
 }

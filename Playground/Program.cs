@@ -131,14 +131,6 @@ await Host.Create(
                       RecvQueueEntries = 64,
                   },
 
-                  MutualTls = new MutualTlsOptions
-                  {
-                      // What an offered client certificate is validated against. WHICH ports ask
-                      // for one is decided per endpoint, by the validator passed to Bind - so 8443
-                      // stays open while 8444 requires a certificate.
-                      ClientCaPath = clientCa,
-                  },
-
                   Http3 = new Http3Options
                   {
                       // Bytes of QPACK dynamic table offered to HTTP/3 clients. 0 keeps every
@@ -162,7 +154,7 @@ await Host.Create(
           .Bind(IPAddress.Loopback, 8082)
           .Bind(IPAddress.Loopback, 8443, certificate)
           // mTLS
-          .Bind(IPAddress.Loopback, 8444, certificate, certificateValidator: new RequireClientCertificate())
+          .Bind(IPAddress.Loopback, 8444, certificate, certificateValidator: new RequireClientCertificate(clientCa))
           .RunAsync();
 
 /// <summary>
@@ -277,17 +269,20 @@ static void WritePrivateKey(string path, string pem)
 }
 
 /// <summary>
-/// Marks an endpoint as requiring a client certificate.
+/// Marks an endpoint as requiring a client certificate, and names the CA the offered chain is
+/// validated against. Both travel with the endpoint, so another binding can require none or trust
+/// a different issuer.
 /// </summary>
 /// <remarks>
-/// The ioxide engine reads <see cref="RequireCertificate"/> and lets OpenSSL (or ngtcp2 on HTTP/3)
-/// validate the offered chain against the configured client CA, so a bad chain is refused before a
-/// request exists and <see cref="Validate"/> is never called. Returning true here would not admit
-/// anyone the CA had already rejected.
+/// OpenSSL (or ngtcp2 on HTTP/3) validates the chain against that CA, so a bad one is refused
+/// before a request exists and <see cref="Validate"/> is never called. Returning true here would
+/// not admit anyone the CA had already rejected.
 /// </remarks>
-internal sealed class RequireClientCertificate : ICertificateValidator
+internal sealed class RequireClientCertificate(string clientCaPath) : IMutualTlsValidator
 {
     public bool RequireCertificate => true;
+
+    public string? ClientCaPath => clientCaPath;
 
     public X509RevocationMode RevocationCheck => X509RevocationMode.NoCheck;
 

@@ -10,24 +10,26 @@ namespace GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 /// so this carries the settings rather than performing it.
 /// </summary>
 /// <remarks>
-/// The trust anchors come from <c>EngineOptions</c> - the engine-wide ones, or the set named for
-/// this port - since GenHTTP's <c>Bind</c> carries no bundle of its own. Whether a client
-/// certificate is demanded is settled here: that setting and the binding's own validator are ORed
-/// at construction rather than at each use.
+/// Everything here comes off the binding: the certificate from <c>Bind</c>, and the mutual-TLS
+/// settings from the validator passed alongside it. A validator asks for a client certificate; an
+/// <see cref="IMutualTlsValidator"/> also names what the chain is validated against. Read once
+/// here rather than at each use, so the transports ask the endpoint and nothing else.
 /// </remarks>
 internal sealed class SecureEndPoint : EndPoint
 {
     internal SecureEndPoint(IPAddress? address, ushort port, bool dualStack, Protocols protocols,
-        SecurityConfiguration security, MutualTlsOptions mutualTls)
+        SecurityConfiguration security)
         : base(address, port, dualStack, protocols)
     {
         Security = security;
 
-        ClientCaPath = mutualTls.ClientCaPath;
-        ClientCaPem = mutualTls.ClientCaPem;
+        RequireClientCertificate = security.CertificateValidator?.RequireCertificate == true;
 
-        RequireClientCertificate = mutualTls.RequireClientCertificate
-                                   || security.CertificateValidator?.RequireCertificate == true;
+        if (security.CertificateValidator is IMutualTlsValidator mutualTls)
+        {
+            ClientCaPath = mutualTls.ClientCaPath;
+            ClientCaPem = mutualTls.ClientCaPem;
+        }
     }
 
     public override bool Secure => true;
@@ -51,9 +53,9 @@ internal sealed class SecureEndPoint : EndPoint
     /// </summary>
     public bool RequireClientCertificate { get; }
 
-    /// <summary>Whether this endpoint asks for a client certificate at all.</summary>
-    public bool MutualTls => RequireClientCertificate
-                             || ClientCaPath is not null
-                             || ClientCaPem is not null
-                             || Security.CertificateValidator is not null;
+    /// <summary>
+    /// Whether this endpoint asks for a client certificate at all - which is exactly whether the
+    /// binding named a validator, since everything mutual TLS needs now arrives on one.
+    /// </summary>
+    public bool MutualTls => Security.CertificateValidator is not null;
 }
