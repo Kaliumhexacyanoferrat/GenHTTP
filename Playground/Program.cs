@@ -265,22 +265,6 @@ static void WritePrivateKey(string path, string pem)
 }
 
 /// <summary>
-/// Serves one certificate in both forms: the object OpenSSL takes for HTTP/1.1 and HTTP/2, and the
-/// PEM paths ngtcp2 takes for HTTP/3.
-/// </summary>
-/// <remarks>
-/// A binding without the file half still serves HTTP/1.1 and HTTP/2; it is HTTP/3 that refuses to
-/// start, since ngtcp2 accepts nothing but a path and the engine will not write your key out.
-/// </remarks>
-internal sealed class FileCertificateProvider(X509Certificate2 certificate, string certificatePath, string keyPath)
-    : IFileCertificateProvider
-{
-    public X509Certificate2 Provide(string? host) => certificate;
-
-    public CertificateFiles? ProvideFiles(string? host) => new(certificatePath, keyPath);
-}
-
-/// <summary>
 /// Marks an endpoint as requiring a client certificate, and names the CA the offered chain is
 /// validated against. Both travel with the endpoint, so another binding can require none or trust
 /// a different issuer.
