@@ -34,7 +34,7 @@ public sealed partial class Server
     private ServerConfig WithTcp(ServerConfig serverConfig) => serverConfig with
     {
         // ioxide's, not ours - the engine's own TcpTransportOptions is what feeds it below.
-        Tcp = new ioxide.TcpOptions
+        Tcp = new TcpOptions
         {
             Port = _tcpPorts[0],
             ExtraPorts = _tcpPorts[1..],

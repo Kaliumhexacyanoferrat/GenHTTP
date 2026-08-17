@@ -74,39 +74,51 @@ public sealed partial class Server : IServer
 
         _logger = config.Logging.CreateLogger<Server>();
 
-        var mapped = MapEndPoints(config);
+        var mappedEndpoints = MapEndPoints(config);
 
-        _primary = mapped[0];
-        _endPointByPort = mapped.ToDictionary(e => e.Port);
+        _primary = mappedEndpoints[0];
+        _endPointByPort = mappedEndpoints.ToDictionary(e => e.Port);
 
-        _protocols = mapped.ToDictionary(e => e.Port, e => ResolveProtocols(_options, config, e.Port));
+        _protocols = mappedEndpoints.ToDictionary(e => e.Port, e => ResolveProtocols(_options, config, e.Port));
 
         // Which endpoints want which listener, settled here so StartAsync only has to act on it.
         // Order matters: both read _protocols, and the TCP one reads _primary as well.
         _tcpPorts = ResolveTcpPorts();
-        _quicEndPoint = ResolveQuicEndPoint(mapped);
+        _quicEndPoint = ResolveQuicEndPoint(mappedEndpoints);
 
         // Certificates are resolved per reactor in OnStart, not here - see ResolveTls.
         _secure = config.EndPoints
                         .Where(e => e.Security is not null)
                         .ToDictionary(e => e.Port, e => e.Security!);
 
-        EndPoints = new EndPointCollection(mapped.Cast<IEndPoint>().ToList());
+        EndPoints = new EndPointCollection(mappedEndpoints.Cast<IEndPoint>().ToList());
     }
 
     /// <summary>
     /// GenHTTP's endpoints as the engine's own, which is also where the one thing every endpoint
-    /// must agree on is checked: ioxide binds the whole server with a single dual-stack mode.
+    /// must agree on is checked.
     /// </summary>
+    /// <remarks>
+    /// GenHTTP takes dual-stack per endpoint, on <c>Bind</c>; ioxide takes one flag for the whole
+    /// server, deciding whether listeners are IPv6 on :: with V6ONLY off or plain IPv4 on 0.0.0.0.
+    /// The engine can only honour one, and honours the first endpoint's - so endpoints that
+    /// disagree are refused here rather than silently served the first one's mode.
+    /// </remarks>
     private static List<EndPoint> MapEndPoints(ServerConfiguration config)
     {
         var mapped = config.EndPoints
                            .Select(e => new EndPoint(e.Address, e.Port, e.DualStack, e.Security != null))
                            .ToList();
 
-        if (mapped.Any(e => e.DualStack != mapped[0].DualStack))
+        var dualStack = mapped[0].DualStack;
+
+        if (mapped.Any(e => e.DualStack != dualStack))
         {
-            throw new NotSupportedException("The ioxide engine binds all endpoints with one dual-stack mode.");
+            var disagreeing = mapped.Where(e => e.DualStack != dualStack).Select(e => e.Port);
+
+            throw new NotSupportedException(
+                $"The ioxide engine binds every endpoint with one dual-stack mode, taken from the first one bound "
+                + $"(port {mapped[0].Port}, DualStack = {dualStack}). These ask for the other: {string.Join(", ", disagreeing)}.");
         }
 
         return mapped;
