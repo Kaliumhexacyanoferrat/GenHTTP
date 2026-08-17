@@ -77,6 +77,8 @@ public sealed partial class Server
             requireClientCertificate: quicEndPoint.RequireClientCertificate,
             clientCaPem: quicEndPoint.ClientCaPem);
 
+        RegisterQuicHosts(quicEndPoint);
+
         // Built once here, not in the QuicHandle below - that runs per accepted connection, and
         // these two never change. Nghttp3Options is ngtcp2's own record; Http3Options is
         // what the caller sets, and this is where the two meet.
@@ -95,6 +97,55 @@ public sealed partial class Server
                 ConnectionFactory = _quicEngine.CreateFactory(),
             },
         };
+    }
+
+    /// <summary>
+    /// Registers the certificates this endpoint serves by name, so one UDP port can answer for
+    /// several hosts.
+    /// </summary>
+    /// <remarks>
+    /// Before the factory is built, and that is not a style preference: the table is read during
+    /// handshakes on whichever reactor a connection landed on, with no lock, so ioxide refuses a
+    /// host added once the engine is serving.
+    ///
+    /// A host without files is skipped rather than refused. ngtcp2 loads PEM by path and takes
+    /// nothing else, and the engine will not write a private key out on anyone's behalf - so such
+    /// a name serves HTTP/1.1 and HTTP/2 and is simply not offered over HTTP/3, which is the rule
+    /// the default certificate already follows. Said out loud, because the alternative is a name
+    /// that works on one port and quietly gets the wrong certificate on another.
+    /// </remarks>
+    private void RegisterQuicHosts(SecureEndPoint endPoint)
+    {
+        foreach (var host in endPoint.Hosts)
+        {
+            if (host.Files is not { } files)
+            {
+                _logger.LogWarning("The certificate for {Host} on port {Port} is in-memory only, so HTTP/3 cannot serve it; clients asking for that name over QUIC get the default certificate. Bind it with an {Provider} to serve it here too.",
+                    host.Host, endPoint.Port, nameof(IFileCertificateProvider));
+
+                continue;
+            }
+
+            if (!File.Exists(files.Certificate) || !File.Exists(files.Key))
+            {
+                _logger.LogError("The HTTP/3 certificate or key for {Host} does not exist ({Certificate}, {Key}); that name was not registered.",
+                    host.Host, files.Certificate, files.Key);
+
+                continue;
+            }
+
+            try
+            {
+                _quicEngine!.AddHost(host.Host, files.Certificate, files.Key);
+            }
+            catch (Exception e) when (e is InvalidOperationException or ArgumentException)
+            {
+                // One unusable name is not worth losing the listener over - the default still
+                // answers it, and every other name still gets its own certificate.
+                _logger.LogError(e, "Could not serve {Host} over HTTP/3 on port {Port}; that name will be answered with the default certificate.",
+                    host.Host, endPoint.Port);
+            }
+        }
     }
 
     /// <summary>

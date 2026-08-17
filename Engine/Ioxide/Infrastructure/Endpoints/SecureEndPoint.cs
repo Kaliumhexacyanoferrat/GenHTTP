@@ -1,5 +1,7 @@
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Engine.Shared.Infrastructure;
 
 namespace GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
@@ -58,9 +60,12 @@ internal sealed class SecureEndPoint : EndPoint
     {
         Security = security;
 
-        // Asked once, here, because QUIC needs an answer when its engine is built rather than per
-        // handshake - so a provider selecting files by host would only ever be asked about null.
+        // Asked once, here, because both transports settle their certificates when the server
+        // starts rather than per handshake: OpenSSL wants a context per name and ngtcp2 wants the
+        // files before it accepts anything.
         Files = (security.CertificateProvider as IFileCertificateProvider)?.ProvideFiles(null);
+
+        Hosts = ResolveHosts(security.CertificateProvider);
 
         RequireClientCertificate = security.CertificateValidator?.RequireCertificate == true;
 
@@ -84,6 +89,45 @@ internal sealed class SecureEndPoint : EndPoint
     public CertificateFiles? Files { get; }
 
     /// <summary>
+    /// The certificates this endpoint serves by name, beside <see cref="Files"/> - empty unless the
+    /// binding named an <see cref="IHostCertificateProvider"/>.
+    /// </summary>
+    public IReadOnlyList<HostCertificate> Hosts { get; }
+
+    /// <summary>
+    /// Each name the provider answers for, resolved once. A name is asked for in both forms: the
+    /// files, which HTTP/3 needs and TCP prefers, and the object, which is all a plain provider
+    /// has. A name that yields neither is dropped here rather than half-registered later.
+    /// </summary>
+    private static IReadOnlyList<HostCertificate> ResolveHosts(ICertificateProvider provider)
+    {
+        if (provider is not IHostCertificateProvider byHost)
+        {
+            return [];
+        }
+
+        var files = provider as IFileCertificateProvider;
+        var resolved = new List<HostCertificate>();
+
+        foreach (var host in byHost.Hosts)
+        {
+            if (string.IsNullOrWhiteSpace(host))
+            {
+                continue;
+            }
+
+            var certificate = new HostCertificate(host, files?.ProvideFiles(host), byHost.Provide(host));
+
+            if (certificate.Files is not null || certificate.Certificate is not null)
+            {
+                resolved.Add(certificate);
+            }
+        }
+
+        return resolved;
+    }
+
+    /// <summary>
     /// PEM bundle of trust anchors that client certificates are validated against, as a path. Its
     /// subject names are also sent in the CertificateRequest, so a client holding several
     /// certificates can pick the right one; <see cref="ClientCaPem"/> sends no such hint.
@@ -105,3 +149,14 @@ internal sealed class SecureEndPoint : EndPoint
     /// </summary>
     public bool MutualTls => Security.CertificateValidator is not null;
 }
+
+/// <summary>
+/// One host name and the certificate answering for it, in whichever forms the provider had.
+/// </summary>
+/// <param name="Host">The name a client asks for, matched case-insensitively.</param>
+/// <param name="Files">
+/// The PEM paths, when the provider is also an <see cref="IFileCertificateProvider"/>. Required for
+/// HTTP/3 - a host without them serves the TCP transports only.
+/// </param>
+/// <param name="Certificate">The in-memory form, which every provider has.</param>
+internal sealed record HostCertificate(string Host, CertificateFiles? Files, X509Certificate2? Certificate);

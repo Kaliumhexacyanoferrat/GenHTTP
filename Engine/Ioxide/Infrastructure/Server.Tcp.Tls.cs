@@ -45,7 +45,7 @@ public sealed partial class Server
             }
             else
             {
-                _logger.LogWarning("No default certificate for secure port {Port}; handshakes there will be refused (SNI selection is unsupported).", port);
+                _logger.LogWarning("No default certificate for secure port {Port}; handshakes there will be refused.", port);
                 continue;
             }
 
@@ -55,6 +55,11 @@ public sealed partial class Server
                 KeyPath = keyPath,
                 CertificatePem = certificatePem,
                 KeyPem = keyPem,
+
+                // The alternatives, chosen by the name the client asks for. Empty unless the
+                // binding named an IHostCertificateProvider, in which case the handshake gets a
+                // servername callback and this one above is what answers everyone else.
+                CertificatesByHost = ResolveHostCertificates(endPoint, port),
 
                 // Server preference, most preferred first. A client offering neither continues
                 // without an ALPN extension at all.
@@ -68,6 +73,51 @@ public sealed partial class Server
                 KernelRx = _engineOptions.Tcp.RxKernelTls
             });
         }
+    }
+
+    /// <summary>
+    /// The certificates this port serves by name, in the form ioxide takes them. Null when the
+    /// binding named no hosts, which leaves the handshake without a servername callback at all.
+    /// </summary>
+    /// <remarks>
+    /// Files are preferred here for the same reason as the default: OpenSSL reads a chain file
+    /// whole, so the intermediates come from the file rather than being rebuilt from the machine
+    /// store. A host that has only the in-memory form still works - it is exported the same way
+    /// the default is.
+    ///
+    /// Client verification is NOT repeated per host, and does not need to be: OpenSSL fixes the
+    /// verify mode on a connection when it is created, from the default context, so a name cannot
+    /// select its way out of the mutual TLS this endpoint was bound with.
+    /// </remarks>
+    private IReadOnlyDictionary<string, TlsCertificate>? ResolveHostCertificates(SecureEndPoint endPoint, ushort port)
+    {
+        if (endPoint.Hosts.Count == 0)
+        {
+            return null;
+        }
+
+        var byHost = new Dictionary<string, TlsCertificate>(endPoint.Hosts.Count, StringComparer.OrdinalIgnoreCase);
+
+        foreach (var host in endPoint.Hosts)
+        {
+            // Two spellings of one name would be refused by ioxide as a table it cannot serve
+            // both halves of. Caught here instead, so the binding is what gets named.
+            if (byHost.ContainsKey(host.Host))
+            {
+                _logger.LogWarning("Port {Port} names the host {Host} more than once; only the first certificate can ever be served, so the rest were dropped.", port, host.Host);
+                continue;
+            }
+
+            byHost[host.Host] = host.Files is { } files
+                ? new TlsCertificate { CertificatePath = files.Certificate, KeyPath = files.Key }
+                : new TlsCertificate
+                {
+                    CertificatePem = ExportChainPem(host.Certificate!, port),
+                    KeyPem = ExportKeyPem(host.Certificate!),
+                };
+        }
+
+        return byHost.Count > 0 ? byHost : null;
     }
 
     /// <summary>
