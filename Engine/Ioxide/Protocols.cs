@@ -6,7 +6,7 @@ namespace GenHTTP.Engine.Ioxide;
 /// port number, which is what lets one endpoint serve all three.
 /// </summary>
 [Flags]
-public enum IoxideProtocols
+public enum Protocols
 {
     /// <summary>HTTP/1.1 over TCP.</summary>
     Http1 = 1,

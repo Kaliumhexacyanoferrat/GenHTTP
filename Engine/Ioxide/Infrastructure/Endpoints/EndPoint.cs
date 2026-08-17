@@ -2,13 +2,20 @@ using System.Net;
 
 using GenHTTP.Api.Infrastructure;
 
+using GenHTTP.Engine.Shared.Infrastructure;
+
 namespace GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 
 /// <summary>
-/// One bound endpoint, as the engine sees it. Nothing to dispose: the listener belongs to the
-/// reactors, which bind it themselves and tear it down with their rings.
+/// One bound endpoint, as the engine sees it: where it listens, and what secures it.
 /// </summary>
-internal sealed class EndPoint(IPAddress? address, ushort port, bool dualStack, bool secure) : IEndPoint
+/// <remarks>
+/// <see cref="Security"/> carries the binding's certificate provider, protocols and client
+/// certificate validator, so an endpoint answers for its own TLS rather than the server keeping a
+/// second table keyed by port. Nothing to dispose: the listener belongs to the reactors, which bind
+/// it themselves and tear it down with their rings.
+/// </remarks>
+internal sealed class EndPoint(IPAddress? address, ushort port, bool dualStack, SecurityConfiguration? security) : IEndPoint
 {
     public IPAddress? Address => address;
 
@@ -16,7 +23,10 @@ internal sealed class EndPoint(IPAddress? address, ushort port, bool dualStack, 
 
     public bool DualStack => dualStack;
 
-    public bool Secure => secure;
+    /// <summary>How this endpoint is secured, or null for a plaintext one.</summary>
+    public SecurityConfiguration? Security => security;
+
+    public bool Secure => security is not null;
 
     public void Dispose() { }
 }

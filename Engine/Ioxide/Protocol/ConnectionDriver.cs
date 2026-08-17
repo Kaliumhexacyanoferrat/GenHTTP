@@ -40,7 +40,7 @@ internal static partial class ConnectionDriver
     private static readonly ReadOnlyMemory<byte> Preface = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n"u8.ToArray();
 
     internal static async Task HandleAsync(IServer server, IEndPoint endPoint, IoConnection conn,
-        IoxideProtocols protocols = IoxideProtocols.Http1)
+        Protocols protocols = Protocols.Http1)
     {
         IDuplexPipe pipe;
 
@@ -77,8 +77,8 @@ internal static partial class ConnectionDriver
 
         var remoteAddress = GetPeerAddress(conn.ClientFd);
 
-        var http2 = protocols.HasFlag(IoxideProtocols.Http2);
-        var http1 = protocols.HasFlag(IoxideProtocols.Http1);
+        var http2 = protocols.HasFlag(Protocols.Http2);
+        var http1 = protocols.HasFlag(Protocols.Http1);
 
         // Only worth peeking when both share the port: elsewhere the answer is already known.
         var isHttp2 = http2 && (negotiated == "h2" || (negotiated is null && http1 && await StartsWithPrefaceAsync(pipe.Input)));

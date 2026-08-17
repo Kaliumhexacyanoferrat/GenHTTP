@@ -29,7 +29,7 @@ public sealed partial class Server
     /// </summary>
     private EndPoint? ResolveQuicEndPoint(List<EndPoint> mapped)
     {
-        var quicEndPoints = mapped.Where(e => _protocols[e.Port].HasFlag(IoxideProtocols.Http3)).ToList();
+        var quicEndPoints = mapped.Where(e => _protocols[e.Port].HasFlag(Protocols.Http3)).ToList();
 
         if (quicEndPoints.Count > 1)
         {
@@ -50,7 +50,7 @@ public sealed partial class Server
     {
         var quicEndPoint = _quicEndPoint!;
 
-        if (!_secure.TryGetValue(quicEndPoint.Port, out var security))
+        if (quicEndPoint.Security is not { } security)
         {
             _logger.LogWarning("HTTP/3 was requested on port {Port}, which is not bound with a certificate; QUIC has no cleartext mode, so no listener was started.", quicEndPoint.Port);
             return serverConfig;

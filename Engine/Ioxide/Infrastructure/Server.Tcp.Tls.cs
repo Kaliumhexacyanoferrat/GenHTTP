@@ -1,5 +1,6 @@
 using System.Security.Cryptography.X509Certificates;
 
+using GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 using GenHTTP.Engine.Shared.Infrastructure;
 
 using ioxide.tls;
@@ -20,9 +21,11 @@ public sealed partial class Server
     /// </summary>
     private IEnumerable<KeyValuePair<ushort, TlsOptions>> ResolveTls()
     {
-        foreach (var (port, security) in _secure)
+        foreach (var endPoint in SecureEndPoints)
         {
-            if (security.CertificateProvider.Provide(null) is not { } certificate)
+            var port = endPoint.Port;
+
+            if (endPoint.Security!.CertificateProvider.Provide(null) is not { } certificate)
             {
                 _logger.LogWarning("No default certificate for secure port {Port}; handshakes there will be refused (SNI selection is unsupported).", port);
                 continue;
@@ -35,11 +38,11 @@ public sealed partial class Server
 
                 // Server preference, most preferred first. A client offering neither continues
                 // without an ALPN extension at all.
-                Alpn = ProtocolsFor(port).HasFlag(IoxideProtocols.Http2) ? ["h2", "http/1.1"] : ["http/1.1"],
+                Alpn = ProtocolsFor(port).HasFlag(Protocols.Http2) ? ["h2", "http/1.1"] : ["http/1.1"],
 
                 ClientCaPath = _options.MutualTls.ClientCaPath,
                 ClientCaPem = _options.MutualTls.ClientCaPem,
-                RequireClientCertificate = RequiresClientCertificate(security),
+                RequireClientCertificate = RequiresClientCertificate(endPoint.Security),
 
                 KernelTx = _options.Tcp.TxKernelTls,
                 KernelRx = _options.Tcp.RxKernelTls
@@ -64,7 +67,11 @@ public sealed partial class Server
     /// </summary>
     private bool MutualTlsConfigured
         => _options.MutualTls.ClientCaPath is not null || _options.MutualTls.ClientCaPem is not null
-           || _options.MutualTls.RequireClientCertificate || _secure.Values.Any(s => s.CertificateValidator is not null);
+           || _options.MutualTls.RequireClientCertificate
+           || SecureEndPoints.Any(e => e.Security!.CertificateValidator is not null);
+
+    /// <summary>The endpoints bound with a certificate - the ones TLS applies to.</summary>
+    private IEnumerable<EndPoint> SecureEndPoints => _endPointByPort.Values.Where(e => e.Security is not null);
 
     private static string ExportKeyPem(X509Certificate2 certificate)
         => certificate.GetRSAPrivateKey()?.ExportPkcs8PrivateKeyPem()

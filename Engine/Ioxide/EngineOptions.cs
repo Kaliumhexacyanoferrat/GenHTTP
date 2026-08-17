@@ -14,13 +14,13 @@ public sealed record EngineOptions
     /// The protocols every endpoint serves, unless <see cref="ProtocolsByPort"/> says otherwise.
     /// An endpoint bound with <c>enableQuic</c> serves HTTP/3 whatever is set here.
     /// </summary>
-    public IoxideProtocols Protocols { get; init; } = IoxideProtocols.Http1;
+    public Protocols Protocols { get; init; } = Protocols.Http1;
 
     /// <summary>
     /// Protocols for one port, overriding <see cref="Protocols"/> - bind the ports, then name the
     /// ones that differ: <c>{ [8081] = IoxideProtocols.Http2, [8443] = IoxideProtocols.All }</c>.
     /// </summary>
-    public Dictionary<ushort, IoxideProtocols> ProtocolsByPort { get; init; } = [];
+    public Dictionary<ushort, Protocols> ProtocolsByPort { get; init; } = [];
 
     /// <summary>The reactors: how many, and the io_uring machinery each one owns.</summary>
     public ReactorOptions Reactor { get; init; } = new();
@@ -127,7 +127,7 @@ public sealed record TcpTransportOptions
 }
 
 /// <summary>
-/// The HTTP/3 endpoint. Only consulted when a port serves <see cref="IoxideProtocols.Http3"/>.
+/// The HTTP/3 endpoint. Only consulted when a port serves <see cref="Protocols.Http3"/>.
 /// </summary>
 public sealed record Http3Options
 {

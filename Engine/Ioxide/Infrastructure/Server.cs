@@ -31,11 +31,9 @@ public sealed partial class Server : IServer
 
     private readonly Dictionary<ushort, EndPoint> _endPointByPort;
 
-    private readonly Dictionary<ushort, SecurityConfiguration> _secure;
-
     private readonly ushort[] _tcpPorts;
 
-    private readonly Dictionary<ushort, IoxideProtocols> _protocols;
+    private readonly Dictionary<ushort, Protocols> _protocols;
 
     private readonly Action<Reactor>? _onReactorStart;
 
@@ -86,11 +84,6 @@ public sealed partial class Server : IServer
         _tcpPorts = ResolveTcpPorts();
         _quicEndPoint = ResolveQuicEndPoint(mappedEndpoints);
 
-        // Certificates are resolved per reactor in OnStart, not here - see ResolveTls.
-        _secure = config.EndPoints
-                        .Where(e => e.Security is not null)
-                        .ToDictionary(e => e.Port, e => e.Security!);
-
         EndPoints = new EndPointCollection(mappedEndpoints.Cast<IEndPoint>().ToList());
     }
 
@@ -107,7 +100,7 @@ public sealed partial class Server : IServer
     private static List<EndPoint> MapEndPoints(ServerConfiguration config)
     {
         var mapped = config.EndPoints
-                           .Select(e => new EndPoint(e.Address, e.Port, e.DualStack, e.Security != null))
+                           .Select(e => new EndPoint(e.Address, e.Port, e.DualStack, e.Security))
                            .ToList();
 
         var dualStack = mapped[0].DualStack;
@@ -180,7 +173,7 @@ public sealed partial class Server : IServer
                 {
                     IoxideReactor.Bind(r);
 
-                    if (_secure.Count > 0)
+                    if (SecureEndPoints.Any())
                     {
                         var registry = new TlsRegistry();
 
@@ -257,7 +250,7 @@ public sealed partial class Server : IServer
     /// <summary>
     /// What one port serves: the default, its override, and the endpoint's own enableQuic flag.
     /// </summary>
-    private static IoxideProtocols ResolveProtocols(EngineOptions options, ServerConfiguration config, ushort port)
+    private static Protocols ResolveProtocols(EngineOptions options, ServerConfiguration config, ushort port)
     {
         var named = options.ProtocolsByPort.TryGetValue(port, out var configured);
 
@@ -266,14 +259,14 @@ public sealed partial class Server : IServer
         // HTTP/3 from the DEFAULT applies only where it can, so Protocols = All means "everything
         // each port supports" rather than an error about the plaintext one. Named per port it is
         // taken literally, and refused where the port has no certificate.
-        if (!named && protocols.HasFlag(IoxideProtocols.Http3) && config.EndPoints.All(e => e.Port != port || e.Security is null))
+        if (!named && protocols.HasFlag(Protocols.Http3) && config.EndPoints.All(e => e.Port != port || e.Security is null))
         {
-            protocols &= ~IoxideProtocols.Http3;
+            protocols &= ~Protocols.Http3;
         }
 
         if (config.EndPoints.Any(e => e.Port == port && e.EnableQuic))
         {
-            protocols |= IoxideProtocols.Http3;
+            protocols |= Protocols.Http3;
         }
 
         if (protocols == 0)
@@ -285,25 +278,25 @@ public sealed partial class Server : IServer
     }
 
     /// <summary>The protocols this port serves.</summary>
-    private IoxideProtocols ProtocolsFor(ushort port)
-        => _protocols.TryGetValue(port, out var protocols) ? protocols : IoxideProtocols.Http1;
+    private Protocols ProtocolsFor(ushort port)
+        => _protocols.TryGetValue(port, out var protocols) ? protocols : Protocols.Http1;
 
     private string DescribeSettings()
     {
         var protocols = string.Join(" ", _protocols.OrderBy(p => p.Key).Select(p => $"{p.Key}:{Describe(p.Value)}"));
 
-        return $"ioxide, {protocols}, TLS on {_secure.Count}"
+        return $"ioxide, {protocols}, TLS on {SecureEndPoints.Count()}"
                + (MutualTlsConfigured ? ", mTLS" : string.Empty)
                + $", DualStack: {_primary.DualStack}, Reactors: {_reactors?.Length ?? 0}";
     }
 
-    private static string Describe(IoxideProtocols protocols)
+    private static string Describe(Protocols protocols)
     {
         var names = new List<string>(3);
 
-        if (protocols.HasFlag(IoxideProtocols.Http1)) names.Add("h1");
-        if (protocols.HasFlag(IoxideProtocols.Http2)) names.Add("h2");
-        if (protocols.HasFlag(IoxideProtocols.Http3)) names.Add("h3");
+        if (protocols.HasFlag(Protocols.Http1)) names.Add("h1");
+        if (protocols.HasFlag(Protocols.Http2)) names.Add("h2");
+        if (protocols.HasFlag(Protocols.Http3)) names.Add("h3");
 
         return string.Join("+", names);
     }
