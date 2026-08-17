@@ -30,9 +30,6 @@ public sealed partial class Server : IServer
     /// <summary>Every endpoint, in the order it was bound. The first one names the server.</summary>
     private readonly EndPoint[] _endPoints;
 
-    /// <summary>The same endpoints by listener port, which is how a connection finds its own.</summary>
-    private readonly Dictionary<ushort, EndPoint> _endPointByPort;
-
     /// <summary>
     /// One mode for the whole server, since that is all ioxide takes - see <see cref="MapEndPoints"/>,
     /// which refuses endpoints that disagree.
@@ -87,7 +84,6 @@ public sealed partial class Server : IServer
         _logger = serverConfiguration.Logging.CreateLogger<Server>();
 
         _endPoints = MapEndPoints(serverConfiguration);
-        _endPointByPort = _endPoints.ToDictionary(e => e.Port);
         _dualStack = _endPoints[0].DualStack;
 
         _protocols = _endPoints.ToDictionary(e => e.Port, e => ResolveProtocols(_engineOptions, serverConfiguration, e.Port));
@@ -155,7 +151,7 @@ public sealed partial class Server : IServer
                 TcpHandle = (_, tcpConnection) => 
                     ConnectionDriver.HandleAsync(
                         this, 
-                        _endPointByPort[tcpConnection.ListenerPort], 
+                        EndPointFor(tcpConnection.ListenerPort),
                         tcpConnection, 
                         ProtocolsFor(tcpConnection.ListenerPort)),
                 
@@ -297,6 +293,24 @@ public sealed partial class Server : IServer
     /// <summary>The protocols this port serves.</summary>
     private Protocols ProtocolsFor(ushort port)
         => _protocols.TryGetValue(port, out var protocols) ? protocols : Protocols.Http1;
+
+    /// <summary>
+    /// The endpoint a connection arrived on, matched by the port its listener bound. A scan rather
+    /// than a table: a server binds a handful of endpoints, so the array is the whole truth and
+    /// there is no second copy of it to keep in step.
+    /// </summary>
+    private EndPoint EndPointFor(ushort port)
+    {
+        foreach (var endPoint in _endPoints)
+        {
+            if (endPoint.Port == port)
+            {
+                return endPoint;
+            }
+        }
+
+        throw new InvalidOperationException($"A connection arrived on port {port}, which no endpoint is bound to.");
+    }
 
     private string DescribeSettings()
     {
