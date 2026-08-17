@@ -62,7 +62,7 @@ public sealed partial class Server
         }
 
         _quicEngine = new QuicEngine(certPath, keyPath, alpn: ["h3"],
-            clientCaPemPath: _options.MutualTls.ClientCaPath,
+            clientCaPemPath: _engineOptions.MutualTls.ClientCaPath,
             requireClientCertificate: RequiresClientCertificate(security));
 
         // Built once here, not in the QuicHandle below - that runs per accepted connection, and
@@ -70,8 +70,8 @@ public sealed partial class Server
         // what the caller sets, and this is where the two meet.
         _h3Options = new Nghttp3Options
         {
-            QpackDynamicTableCapacity = _options.Http3.QpackDynamicTableCapacity,
-            QpackBlockedStreams = _options.Http3.QpackBlockedStreams,
+            QpackDynamicTableCapacity = _engineOptions.Http3.QpackDynamicTableCapacity,
+            QpackBlockedStreams = _engineOptions.Http3.QpackBlockedStreams,
         };
 
         return serverConfig with
@@ -98,7 +98,7 @@ public sealed partial class Server
     {
         certPath = keyPath = string.Empty;
 
-        if (_options.Http3.CertificatePath is not { } configuredCert || _options.Http3.KeyPath is not { } configuredKey)
+        if (_engineOptions.Http3.CertificatePath is not { } configuredCert || _engineOptions.Http3.KeyPath is not { } configuredKey)
         {
             throw new InvalidOperationException(
                 $"Port {port} serves HTTP/3, which needs a PEM certificate and key on disk - ngtcp2 loads them by path. "

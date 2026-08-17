@@ -40,12 +40,12 @@ public sealed partial class Server
                 // without an ALPN extension at all.
                 Alpn = ProtocolsFor(port).HasFlag(Protocols.Http2) ? ["h2", "http/1.1"] : ["http/1.1"],
 
-                ClientCaPath = _options.MutualTls.ClientCaPath,
-                ClientCaPem = _options.MutualTls.ClientCaPem,
+                ClientCaPath = _engineOptions.MutualTls.ClientCaPath,
+                ClientCaPem = _engineOptions.MutualTls.ClientCaPem,
                 RequireClientCertificate = RequiresClientCertificate(endPoint.Security),
 
-                KernelTx = _options.Tcp.TxKernelTls,
-                KernelRx = _options.Tcp.RxKernelTls
+                KernelTx = _engineOptions.Tcp.TxKernelTls,
+                KernelRx = _engineOptions.Tcp.RxKernelTls
             });
         }
     }
@@ -60,14 +60,14 @@ public sealed partial class Server
     /// setting that means the same thing on both transports.
     /// </remarks>
     private bool RequiresClientCertificate(SecurityConfiguration security)
-        => _options.MutualTls.RequireClientCertificate || security.CertificateValidator?.RequireCertificate == true;
+        => _engineOptions.MutualTls.RequireClientCertificate || security.CertificateValidator?.RequireCertificate == true;
 
     /// <summary>
     /// Whether any endpoint asks for a client certificate at all.
     /// </summary>
     private bool MutualTlsConfigured
-        => _options.MutualTls.ClientCaPath is not null || _options.MutualTls.ClientCaPem is not null
-           || _options.MutualTls.RequireClientCertificate
+        => _engineOptions.MutualTls.ClientCaPath is not null || _engineOptions.MutualTls.ClientCaPem is not null
+           || _engineOptions.MutualTls.RequireClientCertificate
            || SecureEndPoints.Any(e => e.Security!.CertificateValidator is not null);
 
     /// <summary>The endpoints bound with a certificate - the ones TLS applies to.</summary>

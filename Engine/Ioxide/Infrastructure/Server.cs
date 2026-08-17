@@ -25,7 +25,7 @@ namespace GenHTTP.Engine.Ioxide.Infrastructure;
 /// </summary>
 public sealed partial class Server : IServer
 {
-    private readonly ServerConfiguration _config;
+    private readonly ServerConfiguration _serverConfiguration;
 
     /// <summary>Every endpoint, in the order it was bound. The first one names the server.</summary>
     private readonly EndPoint[] _endPoints;
@@ -45,7 +45,7 @@ public sealed partial class Server : IServer
 
     private readonly Action<Reactor>? _onReactorStart;
 
-    private readonly EngineOptions _options;
+    private readonly EngineOptions _engineOptions;
 
     private readonly ILogger _logger;
 
@@ -53,38 +53,44 @@ public sealed partial class Server : IServer
 
     private Reactor[]? _reactors;
 
+#region Get-/Setters
+    
     public string Version { get; } = typeof(Server).Assembly.GetName().Version?.ToString() ?? "0.1";
 
     public bool Running { get; private set; }
 
-    public bool Development => _config.DevelopmentMode;
+    public bool Development => _serverConfiguration.DevelopmentMode;
 
     public IPropertyBag Properties { get; } = new PropertyBag();
 
-    public ILoggerFactory Logging => _config.Logging;
+    public ILoggerFactory Logging => _serverConfiguration.Logging;
 
     public IEndPointCollection EndPoints { get; }
 
     public IHandler Handler { get; }
+    
+#endregion
 
+#region Constructors
+    
     internal Server(
-        ServerConfiguration config, 
+        ServerConfiguration serverConfiguration, 
         IHandler handler,
         Action<Reactor>? onReactorStart = null,
         EngineOptions? options = null)
     {
-        _config = config;
+        _serverConfiguration = serverConfiguration;
         Handler = handler;
         _onReactorStart = onReactorStart;
-        _options = options ?? EngineOptions.Default;
+        _engineOptions = options ?? EngineOptions.Default;
 
-        _logger = config.Logging.CreateLogger<Server>();
+        _logger = serverConfiguration.Logging.CreateLogger<Server>();
 
-        _endPoints = MapEndPoints(config);
+        _endPoints = MapEndPoints(serverConfiguration);
         _endPointByPort = _endPoints.ToDictionary(e => e.Port);
         _dualStack = _endPoints[0].DualStack;
 
-        _protocols = _endPoints.ToDictionary(e => e.Port, e => ResolveProtocols(_options, config, e.Port));
+        _protocols = _endPoints.ToDictionary(e => e.Port, e => ResolveProtocols(_engineOptions, serverConfiguration, e.Port));
 
         // Which endpoints want which listener, settled here so StartAsync only has to act on it.
         // Order matters: both read _protocols, and the TCP one reads _endPoints as well.
@@ -93,60 +99,8 @@ public sealed partial class Server : IServer
 
         EndPoints = new EndPointCollection(_endPoints);
     }
-
-    /// <summary>
-    /// GenHTTP's endpoints as the engine's own, which is also where the one thing every endpoint
-    /// must agree on is checked.
-    /// </summary>
-    /// <remarks>
-    /// GenHTTP takes dual-stack per endpoint, on <c>Bind</c>; ioxide takes one flag for the whole
-    /// server, deciding whether listeners are IPv6 on :: with V6ONLY off or plain IPv4 on 0.0.0.0.
-    /// The engine can only honour one, and honours the first endpoint's - so endpoints that
-    /// disagree are refused here rather than silently served the first one's mode.
-    /// </remarks>
-    private static EndPoint[] MapEndPoints(ServerConfiguration config)
-    {
-        var mapped = config.EndPoints
-                           .Select(e => new EndPoint(e.Address, e.Port, e.DualStack, e.Security))
-                           .ToArray();
-
-        var dualStack = mapped[0].DualStack;
-
-        // No disagreement between DualStack capability among endpoints is supported as of today
-        // To support that user can simply have two different IServerHost instances running.
-        if (mapped.Any(e => e.DualStack != dualStack))
-        {
-            var disagreeing = mapped.Where(e => e.DualStack != dualStack).Select(e => e.Port);
-
-            throw new NotSupportedException(
-                $"The ioxide engine binds every endpoint with one dual-stack mode, taken from the first one bound "
-                + $"(port {mapped[0].Port}, DualStack = {dualStack}). These ask for the other: {string.Join(", ", disagreeing)}.");
-        }
-
-        return mapped;
-    }
-
-    /// <summary>
-    /// The engine-wide configuration, straight from the options. The listeners are added on top by
-    /// <c>WithTcp</c> and <c>WithQuic</c>, which take their ports from the endpoint bindings.
-    /// </summary>
-    private ServerConfig BuildServerConfig() => new()
-    {
-        ReactorCount = _options.Reactor.ReactorCount,
-        RingEntries = _options.Reactor.RingEntries,
-        RecvBufferSize = _options.Reactor.RecvBufferSize,
-        RecvSlots = _options.Reactor.RecvSlots,
-        Incremental = _options.Reactor.Incremental,
-
-        // Server-wide rather than per transport: it applies to the TCP listener and the UDP socket
-        // alike, which is why the engine binds every endpoint with one mode.
-        DualStack = _dualStack,
-
-        // No listeners yet - WithTcp and WithQuic add the ones the bindings ask for. Explicitly
-        // null because ioxide's own default is a live listener on 8080, which an HTTP/3-only server
-        // would otherwise inherit and bind for a protocol it does not serve.
-        Tcp = null,
-    };
+    
+#endregion
 
     public async ValueTask StartAsync()
     {
@@ -237,6 +191,60 @@ public sealed partial class Server : IServer
             _logger.LogInformation("Listening on {Address}:{Port} ({Settings})", _endPoints[0].Address, _endPoints[0].Port, DescribeSettings());
         }
     }
+
+    /// <summary>
+    /// GenHTTP's endpoints as the engine's own, which is also where the one thing every endpoint
+    /// must agree on is checked.
+    /// </summary>
+    /// <remarks>
+    /// GenHTTP takes dual-stack per endpoint, on <c>Bind</c>; ioxide takes one flag for the whole
+    /// server, deciding whether listeners are IPv6 on :: with V6ONLY off or plain IPv4 on 0.0.0.0.
+    /// The engine can only honour one, and honours the first endpoint's - so endpoints that
+    /// disagree are refused here rather than silently served the first one's mode.
+    /// </remarks>
+    private static EndPoint[] MapEndPoints(ServerConfiguration config)
+    {
+        var mapped = config.EndPoints
+                           .Select(e => new EndPoint(e.Address, e.Port, e.DualStack, e.Security))
+                           .ToArray();
+
+        var dualStack = mapped[0].DualStack;
+
+        // No disagreement between DualStack capability among endpoints is supported as of today
+        // To support that user can simply have two different IServerHost instances running.
+        if (mapped.Any(e => e.DualStack != dualStack))
+        {
+            var disagreeing = mapped.Where(e => e.DualStack != dualStack).Select(e => e.Port);
+
+            throw new NotSupportedException(
+                $"The ioxide engine binds every endpoint with one dual-stack mode, taken from the first one bound "
+                + $"(port {mapped[0].Port}, DualStack = {dualStack}). These ask for the other: {string.Join(", ", disagreeing)}.");
+        }
+
+        return mapped;
+    }
+
+    /// <summary>
+    /// The engine-wide configuration, straight from the options. The listeners are added on top by
+    /// <c>WithTcp</c> and <c>WithQuic</c>, which take their ports from the endpoint bindings.
+    /// </summary>
+    private ServerConfig BuildServerConfig() => new()
+    {
+        ReactorCount = _engineOptions.Reactor.ReactorCount,
+        RingEntries = _engineOptions.Reactor.RingEntries,
+        RecvBufferSize = _engineOptions.Reactor.RecvBufferSize,
+        RecvSlots = _engineOptions.Reactor.RecvSlots,
+        Incremental = _engineOptions.Reactor.Incremental,
+
+        // Server-wide rather than per transport: it applies to the TCP listener and the UDP socket
+        // alike, which is why the engine binds every endpoint with one mode.
+        DualStack = _dualStack,
+
+        // No listeners yet - WithTcp and WithQuic add the ones the bindings ask for. Explicitly
+        // null because ioxide's own default is a live listener on 8080, which an HTTP/3-only server
+        // would otherwise inherit and bind for a protocol it does not serve.
+        Tcp = null,
+    };
 
     private async ValueTask PrepareHandlerAsync()
     {

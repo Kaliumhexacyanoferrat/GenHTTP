@@ -39,12 +39,12 @@ public sealed partial class Server
             Port = _tcpPorts[0],
             ExtraPorts = _tcpPorts[1..],
 
-            ListenBacklog = _options.Tcp.ListenBacklog,
-            WriteSlabSize = _options.Tcp.WriteSlabSize,
-            WriteOverflow = _options.Tcp.WriteOverflow,
-            PoolMax = _options.Tcp.PoolMax,
-            ZeroCopySend = _options.Tcp.ZeroCopySend,
-            RecvQueueEntries = _options.Tcp.RecvQueueEntries,
+            ListenBacklog = _engineOptions.Tcp.ListenBacklog,
+            WriteSlabSize = _engineOptions.Tcp.WriteSlabSize,
+            WriteOverflow = _engineOptions.Tcp.WriteOverflow,
+            PoolMax = _engineOptions.Tcp.PoolMax,
+            ZeroCopySend = _engineOptions.Tcp.ZeroCopySend,
+            RecvQueueEntries = _engineOptions.Tcp.RecvQueueEntries,
         },
     };
 }
