@@ -27,9 +27,17 @@ public sealed partial class Server : IServer
 {
     private readonly ServerConfiguration _config;
 
-    private readonly EndPoint _primary;
+    /// <summary>Every endpoint, in the order it was bound. The first one names the server.</summary>
+    private readonly EndPoint[] _endPoints;
 
+    /// <summary>The same endpoints by listener port, which is how a connection finds its own.</summary>
     private readonly Dictionary<ushort, EndPoint> _endPointByPort;
+
+    /// <summary>
+    /// One mode for the whole server, since that is all ioxide takes - see <see cref="MapEndPoints"/>,
+    /// which refuses endpoints that disagree.
+    /// </summary>
+    private readonly bool _dualStack;
 
     private readonly ushort[] _tcpPorts;
 
@@ -72,19 +80,18 @@ public sealed partial class Server : IServer
 
         _logger = config.Logging.CreateLogger<Server>();
 
-        var mappedEndpoints = MapEndPoints(config);
+        _endPoints = MapEndPoints(config);
+        _endPointByPort = _endPoints.ToDictionary(e => e.Port);
+        _dualStack = _endPoints[0].DualStack;
 
-        _primary = mappedEndpoints[0];
-        _endPointByPort = mappedEndpoints.ToDictionary(e => e.Port);
-
-        _protocols = mappedEndpoints.ToDictionary(e => e.Port, e => ResolveProtocols(_options, config, e.Port));
+        _protocols = _endPoints.ToDictionary(e => e.Port, e => ResolveProtocols(_options, config, e.Port));
 
         // Which endpoints want which listener, settled here so StartAsync only has to act on it.
-        // Order matters: both read _protocols, and the TCP one reads _primary as well.
+        // Order matters: both read _protocols, and the TCP one reads _endPoints as well.
         _tcpPorts = ResolveTcpPorts();
-        _quicEndPoint = ResolveQuicEndPoint(mappedEndpoints);
+        _quicEndPoint = ResolveQuicEndPoint();
 
-        EndPoints = new EndPointCollection(mappedEndpoints.Cast<IEndPoint>().ToList());
+        EndPoints = new EndPointCollection(_endPoints);
     }
 
     /// <summary>
@@ -97,14 +104,16 @@ public sealed partial class Server : IServer
     /// The engine can only honour one, and honours the first endpoint's - so endpoints that
     /// disagree are refused here rather than silently served the first one's mode.
     /// </remarks>
-    private static List<EndPoint> MapEndPoints(ServerConfiguration config)
+    private static EndPoint[] MapEndPoints(ServerConfiguration config)
     {
         var mapped = config.EndPoints
                            .Select(e => new EndPoint(e.Address, e.Port, e.DualStack, e.Security))
-                           .ToList();
+                           .ToArray();
 
         var dualStack = mapped[0].DualStack;
 
+        // No disagreement between DualStack capability among endpoints is supported as of today
+        // To support that user can simply have two different IServerHost instances running.
         if (mapped.Any(e => e.DualStack != dualStack))
         {
             var disagreeing = mapped.Where(e => e.DualStack != dualStack).Select(e => e.Port);
@@ -131,7 +140,7 @@ public sealed partial class Server : IServer
 
         // Server-wide rather than per transport: it applies to the TCP listener and the UDP socket
         // alike, which is why the engine binds every endpoint with one mode.
-        DualStack = _primary.DualStack,
+        DualStack = _dualStack,
 
         // No listeners yet - WithTcp and WithQuic add the ones the bindings ask for. Explicitly
         // null because ioxide's own default is a live listener on 8080, which an HTTP/3-only server
@@ -225,7 +234,7 @@ public sealed partial class Server : IServer
 
         if (_logger.IsEnabled(LogLevel.Information))
         {
-            _logger.LogInformation("Listening on {Address}:{Port} ({Settings})", _primary.Address, _primary.Port, DescribeSettings());
+            _logger.LogInformation("Listening on {Address}:{Port} ({Settings})", _endPoints[0].Address, _endPoints[0].Port, DescribeSettings());
         }
     }
 
@@ -287,7 +296,7 @@ public sealed partial class Server : IServer
 
         return $"ioxide, {protocols}, TLS on {SecureEndPoints.Count()}"
                + (MutualTlsConfigured ? ", mTLS" : string.Empty)
-               + $", DualStack: {_primary.DualStack}, Reactors: {_reactors?.Length ?? 0}";
+               + $", DualStack: {_dualStack}, Reactors: {_reactors?.Length ?? 0}";
     }
 
     private static string Describe(Protocols protocols)

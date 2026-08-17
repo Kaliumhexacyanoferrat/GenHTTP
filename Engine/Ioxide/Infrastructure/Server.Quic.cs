@@ -27,9 +27,9 @@ public sealed partial class Server
     /// UDP port for the whole server, so several endpoints asking for HTTP/3 would each want their
     /// own and only the first could have it - refused here rather than silently honouring one.
     /// </summary>
-    private EndPoint? ResolveQuicEndPoint(List<EndPoint> mapped)
+    private EndPoint? ResolveQuicEndPoint()
     {
-        var quicEndPoints = mapped.Where(e => _protocols[e.Port].HasFlag(Protocols.Http3)).ToList();
+        var quicEndPoints = _endPoints.Where(e => _protocols[e.Port].HasFlag(Protocols.Http3)).ToList();
 
         if (quicEndPoints.Count > 1)
         {

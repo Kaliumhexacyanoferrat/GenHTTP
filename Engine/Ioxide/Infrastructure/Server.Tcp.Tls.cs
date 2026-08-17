@@ -71,7 +71,7 @@ public sealed partial class Server
            || SecureEndPoints.Any(e => e.Security!.CertificateValidator is not null);
 
     /// <summary>The endpoints bound with a certificate - the ones TLS applies to.</summary>
-    private IEnumerable<EndPoint> SecureEndPoints => _endPointByPort.Values.Where(e => e.Security is not null);
+    private IEnumerable<EndPoint> SecureEndPoints => _endPoints.Where(e => e.Security is not null);
 
     private static string ExportKeyPem(X509Certificate2 certificate)
         => certificate.GetRSAPrivateKey()?.ExportPkcs8PrivateKeyPem()
