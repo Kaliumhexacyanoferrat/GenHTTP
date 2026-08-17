@@ -18,7 +18,7 @@ public sealed record EngineOptions
 
     /// <summary>
     /// Protocols for one port, overriding <see cref="Protocols"/> - bind the ports, then name the
-    /// ones that differ: <c>{ [8081] = IoxideProtocols.Http2, [8443] = IoxideProtocols.All }</c>.
+    /// ones that differ: <c>{ [8081] = Protocols.Http2, [8443] = Protocols.All }</c>.
     /// </summary>
     public Dictionary<ushort, Protocols> ProtocolsByPort { get; init; } = [];
 

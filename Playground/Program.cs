@@ -95,7 +95,7 @@ await Host.Create(
               options: new EngineOptions
               {
                   // What a port serves unless named below.
-                  Protocols = IoxideProtocols.Http1,
+                  Protocols = Protocols.Http1,
 
                   Reactor = new ReactorOptions
                   {
@@ -104,10 +104,10 @@ await Host.Create(
 
                   ProtocolsByPort =
                   {
-                      [8081] = IoxideProtocols.Http2,
-                      [8082] = IoxideProtocols.Http1AndHttp2,
-                      [8443] = IoxideProtocols.All,
-                      [8444] = IoxideProtocols.Http1,
+                      [8081] = Protocols.Http2,
+                      [8082] = Protocols.Http1AndHttp2,
+                      [8443] = Protocols.All,
+                      [8444] = Protocols.Http1,
                   },
 
                   Tcp = new TcpTransportOptions
