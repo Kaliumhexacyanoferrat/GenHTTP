@@ -206,6 +206,21 @@ public sealed partial class Server : IServer
                 + "by the port it arrived on, so each port carries one endpoint.");
         }
 
+        // ioxide validates a client chain in OpenSSL and ngtcp2, which need the anchors before the
+        // handshake. ICertificateValidator.RequireCertificate defaults to TRUE, so a validator that
+        // names none is the easy mistake to make - and it would otherwise surface as an exception
+        // out of TlsService, on a reactor thread, halfway through starting the server.
+        foreach (var endPoint in mapped.OfType<SecureEndPoint>())
+        {
+            if (endPoint.RequireClientCertificate && endPoint.ClientCaPath is null && endPoint.ClientCaPem is null)
+            {
+                throw new NotSupportedException(
+                    $"Port {endPoint.Port} requires a client certificate but names nothing to validate one against. "
+                    + $"Pass an {nameof(IMutualTlsValidator)} to Bind with ClientCaPath or ClientCaPem set, or leave "
+                    + "RequireCertificate false to let the connection in and decide in the handler.");
+            }
+        }
+
         var dualStack = mapped[0].DualStack;
 
         // No disagreement between DualStack capability among endpoints is supported as of today
