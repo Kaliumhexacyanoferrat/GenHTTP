@@ -35,6 +35,7 @@ var host = await Host.Create()
                      .StartAsync(); // or .RunAsync() to block until the (console) application is shut down
 ```
 
+
 Running this snippet will provide the following endpoints:
 
 | Endpoint                           | Description                                                            |
@@ -66,9 +67,7 @@ cd ./GenHTTP/Playground
 dotnet run
 ```
 
-This will build the playground project launcher with all the server dependencies and launch the server process on port
-
-8080. You can access the playground in the browser via http://localhost:8080.
+This will build the playground project launcher with all the server dependencies and launch the server process on port 8080.
 
 ## History
 
