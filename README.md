@@ -1,75 +1,45 @@
 # GenHTTP Webserver
 
 GenHTTP is a lightweight, modular web server written in pure C# with a strong focus on developer experience. The main
-purpose of this project is to quickly create web services written in .NET 8 / 9 / 10, allowing developers to concentrate on
+purpose of this project is to quickly create web services written in .NET 10 / 11, allowing developers to concentrate on
 the functionality rather than on messing around with configuration files or complex concepts.
 
-[![View - Documentation](https://img.shields.io/badge/view-Documentation-AB54FF)](https://genhttp.org/documentation/) [![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Core.svg)](https://www.nuget.org/packages/GenHTTP.Core/) [![HTTP Arena](https://img.shields.io/endpoint?url=https://www.http-arena.com/badge/genhttp/h1.json)](https://www.http-arena.com/#type=emerging,flagship&tuned=1) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GenHTTP&metric=coverage)](https://sonarcloud.io/dashboard?id=GenHTTP) [![Discord](https://discordapp.com/api/guilds/1177529388229734410/widget.png?style=shield)](https://discord.gg/PRkwKrnrB4)
-
-## Features
-
-- Setup new webservices in a couple of minutes using [project templates](https://genhttp.org/documentation/content/templates/)
-- Supports [current standards](https://genhttp.org/features/) such as Open API, Websockets, Server Sent Events or JWT authentication
-- Embed web services into a new or already existing console, service, WPF, WinForms, WinUI, MAUI, Avalonia or Uno application
-- Projects are fully described in code - no configuration files needed, no magical behavior you need to learn
-- Optionally supports [Kestrel](https://genhttp.org/documentation/server/engines/) as an underlying HTTP engine (enables HTTP/2 and HTTP/3 via QUIC)
-- [Optimized](https://genhttp.org/features/) out of the box, small memory and storage [footprint](https://genhttp.org/features/#footprint)
-- Carefully hand-crafted code, with stable releases and long-term [support options](https://genhttp.org/support/)
-- Grade A+ security level according to SSL Labs, hardened against typical attack vectors
+[![View - Documentation](https://img.shields.io/badge/view-Documentation-AB54FF)](https://genhttp.org/documentation/) [![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Full.svg)](https://www.nuget.org/packages/GenHTTP.Full/) [![HTTP Arena](https://img.shields.io/endpoint?url=https://www.http-arena.com/badge/genhttp/h1.json)](https://www.http-arena.com/#type=emerging,flagship&tuned=0) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GenHTTP&metric=coverage)](https://sonarcloud.io/dashboard?id=GenHTTP) [![Discord](https://discordapp.com/api/guilds/1177529388229734410/widget.png?style=shield)](https://discord.gg/PRkwKrnrB4)
 
 ## Getting Started
 
-This section shows how to create a new project from scratch using project templates and how to extend your existing
-application by embedding the GenHTTP engine.
-
-> [!NOTE]  
-> This is a brief overview to get you running. You might want to have a look at
-> the [tutorials](https://genhttp.org/documentation/tutorials/) for detailed step-by-step guides.
-
-### New Project
-
-Project templates can be used to create apps for typical use cases with little effort. After installing
-the [.NET SDK](https://dotnet.microsoft.com/en-us/download) and the templates via `dotnet new -i GenHTTP.Templates` in
-the terminal, the templates are available via the console or directly in Visual Studio:
-
-<img src="https://user-images.githubusercontent.com/4992119/146939721-2970d28c-61bc-4a9a-b924-d483f97c8d8e.png" style="width: 30em;" />
-
-To create a project by using the terminal, create a new folder for your app and use one of the following commands:
-
-| Template                      | Command                                     | Documentation                                                                                                    |
-|-------------------------------|---------------------------------------------|------------------------------------------------------------------------------------------------------------------|
-| REST Webservice               | `dotnet new genhttp-webservice`             | [Webservices](https://genhttp.org/documentation/content/frameworks/webservices/)                                 |
-| REST Webservice (single file) | `dotnet new genhttp-webservice-minimal`     | [Functional Handlers](https://genhttp.org/documentation/content/frameworks/functional/)                          |
-| REST Webservice (controllers) | `dotnet new genhttp-webservice-controllers` | [Controllers](https://genhttp.org/documentation/content/frameworks/controllers/)                                 |
-| Websocket                     | `dotnet new genhttp-websocket`              | [Websockets](https://genhttp.org/documentation/content/frameworks/websockets/)                                   |
-| Server Sent Events (SSE)      | `dotnet new genhttp-sse`                    | [Server Sent Events](https://genhttp.org/documentation/content/handlers/server-sent-events/)                     |
-| Website (Static HTML)         | `dotnet new genhttp-website-static`         | [Statics Websites](https://genhttp.org/documentation/content/frameworks/static-websites/)                        |
-| Single Page Application (SPA) | `dotnet new genhttp-spa`                    | [Single Page Applications (SPA)](https://genhttp.org/documentation/content/frameworks/single-page-applications/) |
-
-After the project has been created, you can run it via `dotnet run` and access the server via http://localhost:8080.
-
-### Extending Existing Apps
-
-If you would like to extend an existing .NET application, just add a nuget reference to the `GenHTTP.Core` nuget package. You can then spawn a new server instance with just a few lines of code:
+To host a GenHTTP server instance in an existing or new .NET project, add a reference to `GenHTTP.Full` to your
+project and spin off a new host:
 
 ```csharp
-var content = Content.From(Resource.FromString("Hello World!"));
+using GenHTTP.Engine.Internal;
+
+using GenHTTP.Modules.ApiBrowsing;
+using GenHTTP.Modules.Functional;
+using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.OpenApi;
+using GenHTTP.Modules.Practices;
+
+// use a handler of your choice (see the samples below)
+var api = Layout.Create()
+                .Add(Inline.Create().Get(() => "Hello World"))
+                .AddOpenApi()
+                .AddScalar();
 
 var host = await Host.Create()
-                     .Handler(content)
+                     .Handler(api)
                      .Defaults()
-                     .StartAsync(); // or .RunAsync() to block until the application is shut down
+                     .StartAsync(); // or .RunAsync() to block until the (console) application is shut down
 ```
 
-When you run this sample it can be accessed in the browser via http://localhost:8080.
+When running this snippet, the host will answer any request to http://localhost:8080 with a "Hello World" text response,
+serve an Open API specification at http://localhost:8080/openapi.json and provide a graphical API
+viewer on http://localhost:8080/scalar/.
 
-### Next Steps
+## Samples
 
-The [documentation](https://genhttp.org/documentation/) provides a step-by-step starting guide as well as additional
-information on how to
-implement [webservices](https://genhttp.org/documentation/content/frameworks/webservices/), [minimal webservices](https://genhttp.org/documentation/content/frameworks/functional/), [controller-based webservices](https://genhttp.org/documentation/content/frameworks/controllers/), [static websites](https://genhttp.org/documentation/content/frameworks/static-websites/),
-or [single page applications](https://genhttp.org/documentation/content/frameworks/single-page-applications/) and how
-to [host your application](https://genhttp.org/documentation/hosting/) via Docker.
+This section contains a few typical examples to get you started. See [the documentation](https://genhttp.org/documentation/content/)
+for all available capabilities. Additional, runnable samples can be found in the [playground](./Playground/) project.
 
 ## Support
 
@@ -93,10 +63,7 @@ Additionally, our automated tests ensure full compatibility on the following pla
 
 ## Building the Server
 
-> [!NOTE]
-> The `main` branch reflects the upcoming changes for GenHTTP 11, which are rather drastic. For the current stable release, checkout `release/10.5` instead.
-
-To build the server from source, clone this repository and run the playground project launcher for .NET 10:
+To build the server from source, clone this repository and run the playground project launcher for .NET 11:
 
 ```sh
 git clone https://github.com/Kaliumhexacyanoferrat/GenHTTP.git
@@ -106,23 +73,6 @@ dotnet run
 
 This will build the playground project launcher with all the server dependencies and launch the server process on port 8080. You can access the playground in the browser via http://localhost:8080.
 
-## Contributing
-
-Writing a general purpose web application server is a tremendous task, so any contribution is very welcome. Besides
-extending the server core, you might want to
-
-- Leave a star on GitHub
-- Extend the content capabilities of the server (e.g. by adding a new serialization format or rendering engine)
-- Refine our [project templates](https://genhttp.org/documentation/content/templates/)
-- Perform code reviews
-- Analyze the performance or security of the server
-- Clarfify and extend our tests
-- Improve the documentation on the [website](https://genhttp.org/) or in code
-
-If you would like to contribute, please also have a look at
-the [contribution guidelines](https://github.com/Kaliumhexacyanoferrat/GenHTTP/blob/master/CONTRIBUTING.md) and
-the [good first issues](https://github.com/Kaliumhexacyanoferrat/GenHTTP/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
-
 ## History
 
 The web server was originally developed in 2008 to run on a netbook with an Intel Atom processor. Both IIS and Apache
@@ -131,22 +81,11 @@ on [archive.org](https://web.archive.org/web/20100706192130/http://gene.homeip.n
 code has been moved to GitHub with the goal to rework the project to be able to run dockerized web applications written
 in C#. In 2024 the focus has shifted towards API development, dropping support for generating graphical web applications.
 
-## Links
-
-- Related to
-  GenHTTP: [Templates](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Templates) | [Website](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Website)
-- Reference
-  projects: [GenHTTP Gateway](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Gateway) | [MockH](https://github.com/Kaliumhexacyanoferrat/MockH) | [LiquidPages](https://github.com/kinetq/liquid-pages)
-- Similar
-  projects: [Wired.IO](https://github.com/MDA2AV/Wired.IO) | [Unhinged](https://github.com/MDA2AV/unhinged) | [SimpleW](https://github.com/stratdev3/SimpleW) | [Sisk](https://www.sisk-framework.org/) |  [NetCoreServer](https://github.com/chronoxor/NetCoreServer) | [Watson Webserver](https://github.com/jchristn/WatsonWebserver) | [EmbedIO](https://github.com/unosquare/embedio)
-
 ## Thanks
 
 - Powered by [.NET](https://github.com/dotnet/core)
 - Modules implemented with [NSwag](https://github.com/RicoSuter/NSwag) | [Cottle](https://r3c.github.io/cottle/) | [SharpCompress](https://github.com/adamhathcock/sharpcompress)
 
 ### Supported by
-
-[![HTTP Arena logo.](https://cdn.jsdelivr.net/gh/MDA2AV/httparena-badge/wordmark.svg)]([https://jb.gg/OpenSource](https://www.http-arena.com/leaderboard/))
 
 [![JetBrains logo.](https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg)](https://jb.gg/OpenSource) 
