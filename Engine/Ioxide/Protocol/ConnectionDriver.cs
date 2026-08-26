@@ -4,16 +4,12 @@ using System.Net;
 using System.Runtime.InteropServices;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-
 using GenHTTP.Engine.Shared.Types;
-
 using Glyph11.Parser;
 using Glyph11.Parser.UltraHardened;
 using Glyph11.Pico;
 using Glyph11.Protocol;
-
 using Microsoft.Extensions.Logging;
-
 using Connection = GenHTTP.Api.Protocol.Connection;
 using IoConnection = ioxide.Connection;
 
@@ -52,7 +48,7 @@ internal static partial class ConnectionDriver
     [LibraryImport("libc", EntryPoint = "getpeername")]
     private static partial int GetPeerName(int sockfd, [Out] byte[] addr, ref int addrlen);
 
-    private static readonly ReadOnlyMemory<byte> KeepAliveValue = "Keep-Alive"u8.ToArray();
+    private static readonly ByteString KeepAliveValue = new("Keep-Alive");
 
     // The connected client's remote address, read once per connection straight from the socket fd
     // (ioxide exposes the fd but not the peer address). Mirrors the Internal engine's
@@ -72,9 +68,9 @@ internal static partial class ConnectionDriver
 
         return family switch
         {
-            2  => new IPAddress(addr[4..8]),   // AF_INET  -> sin_addr
-            10 => new IPAddress(addr[8..24]),  // AF_INET6 -> sin6_addr
-            _  => null,
+            2 => new IPAddress(addr[4..8]), // AF_INET  -> sin_addr
+            10 => new IPAddress(addr[8..24]), // AF_INET6 -> sin6_addr
+            _ => null,
         };
     }
 
@@ -82,8 +78,7 @@ internal static partial class ConnectionDriver
     // connections cooperatively, so the stack needs no locking. Reuses the per-connection Request
     // allocation, which matters under connection churn (e.g. limited-conn). Mirrors the Internal
     // engine's ClientContext pool, adapted for thread-per-core.
-    [ThreadStatic]
-    private static Stack<Request>? _requestPool;
+    [ThreadStatic] private static Stack<Request>? _requestPool;
 
     private const int MaxPooledRequests = 1024;
 
@@ -230,7 +225,16 @@ internal static partial class ConnectionDriver
 
         var connectionHeader = header.Headers.GetEntry(KnownHeaders.Connection);
 
-        var keepAliveRequested = connectionHeader?.Bytes.Span.SequenceEqual(KeepAliveValue.Span) ?? (header.Protocol == HttpProtocol.Http11);
+        var keepAliveRequested = true;
+
+        if (connectionHeader is not null)
+        {
+            keepAliveRequested = connectionHeader == KeepAliveValue;
+        }
+        else if (header.Protocol == HttpProtocol.Http10)
+        {
+            keepAliveRequested = false;
+        }
 
         var response = await server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
 
