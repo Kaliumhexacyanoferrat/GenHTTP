@@ -28,7 +28,7 @@ internal sealed class ClientHandler(ClientContext context)
 
     private static readonly TimeSpan KeepAliveTimeout = TimeSpan.FromSeconds(60);
 
-    private static readonly ReadOnlyMemory<byte> KeepAliveValue = "Keep-Alive"u8.ToArray();
+    private static readonly ByteString KeepAliveValue = new("Keep-Alive");
 
     private static readonly ParserLimits Limits = ParserLimits.Default;
 
@@ -203,7 +203,16 @@ internal sealed class ClientHandler(ClientContext context)
 
         var connectionHeader = header.Headers.GetEntry(KnownHeaders.Connection);
 
-        var keepAliveRequested = connectionHeader?.Bytes.Span.SequenceEqual(KeepAliveValue.Span) ?? (header.Protocol == HttpProtocol.Http11);
+        var keepAliveRequested = true;
+
+        if (connectionHeader is not null)
+        {
+            keepAliveRequested = connectionHeader == KeepAliveValue;
+        }
+        else if (header.Protocol == HttpProtocol.Http10)
+        {
+            keepAliveRequested = false;
+        }
 
         var response = await context.Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
 
