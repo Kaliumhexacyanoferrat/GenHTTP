@@ -28,7 +28,7 @@ internal sealed class ClientHandler(ClientContext context)
 
     private static readonly TimeSpan KeepAliveTimeout = TimeSpan.FromSeconds(60);
 
-    private static readonly ByteString KeepAliveValue = new("Keep-Alive");
+    private static readonly ByteString KeepAliveValue = new("keep-alive");
 
     private static readonly ParserLimits Limits = ParserLimits.Default;
 
