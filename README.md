@@ -8,7 +8,7 @@ the functionality rather than on messing around with configuration files or comp
 
 ## Getting Started
 
-To host a GenHTTP server instance in an existing or new .NET project, add a reference to `GenHTTP.Full` to your
+To host a GenHTTP server instance in an existing or new .NET project, add a nuget reference to `GenHTTP.Full` to your
 project and spin off a new host:
 
 ```csharp
@@ -33,13 +33,21 @@ var host = await Host.Create()
 ```
 
 When running this snippet, the host will answer any request to http://localhost:8080 with a "Hello World" text response,
-serve an Open API specification at http://localhost:8080/openapi.json and provide a graphical API
-viewer on http://localhost:8080/scalar/.
+serve an Open API specification at http://localhost:8080/openapi.json and provide a graphical API viewer
+on http://localhost:8080/scalar/.
 
 ## Samples
 
-This section contains a few typical examples to get you started. See [the documentation](https://genhttp.org/documentation/content/)
-for all available capabilities. Additional, runnable samples can be found in the [playground](./Playground/) project.
+The [playground](./Playground/) project provides a quick starting point to view sample code and find more complex apps
+built with GenHTTP. See [the documentation](https://genhttp.org/documentation/content/)
+for all available capabilities.
+
+| Sample                                                                          | Description                                               |
+|---------------------------------------------------------------------------------|-----------------------------------------------------------|
+| [Layouting](./Playground/Samples/LayoutingSample.cs)                            | Allows an app to use multiple handlers by adding routing. |
+| [Static Files](./Playground/Samples/StaticFileSample.cs)                        | Serves static files from a directory.                     |
+| [Static Websites](./Playground/Samples/StaticWebsiteSample.cs)                  | Hosts a static website (with `index.html` support).       |
+| [Single Page Applications](./Playground/Samples/SinglePageApplicationSample.cs) | Hosts a SPA such as a React or Angular application.       |
 
 ## Support
 
@@ -48,18 +56,6 @@ to [join our Discord community](https://discord.gg/PRkwKrnrB4) to get help.
 
 For commercial products and projects, GenHTTP provides additional support options
 [on request](https://genhttp.org/support/).
-
-## Platforms & Releases
-
-GenHTTP targets all .NET versions currently [supported by Microsoft](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core).
-Major versions are released once a year, following the .NET release cycle.
-Additionally, our automated tests ensure full compatibility on the following platforms:
-
-| OS      | Architectures           |
-|---------|-------------------------|
-| Linux   | `x64`, `arm32`, `arm64` |
-| Windows | `x64`, `arm64`          |
-| macOS   | `x64`, `arm64`          |
 
 ## Building the Server
 
@@ -71,7 +67,9 @@ cd ./GenHTTP/Playground
 dotnet run
 ```
 
-This will build the playground project launcher with all the server dependencies and launch the server process on port 8080. You can access the playground in the browser via http://localhost:8080.
+This will build the playground project launcher with all the server dependencies and launch the server process on port
+
+8080. You can access the playground in the browser via http://localhost:8080.
 
 ## History
 
@@ -79,12 +77,14 @@ The web server was originally developed in 2008 to run on a netbook with an Inte
 failed to render dynamic pages on such a slow CPU back then. The original project description can still be found
 on [archive.org](https://web.archive.org/web/20100706192130/http://gene.homeip.net/GenHTTPWebsite/). In 2019, the source
 code has been moved to GitHub with the goal to rework the project to be able to run dockerized web applications written
-in C#. In 2024 the focus has shifted towards API development, dropping support for generating graphical web applications.
+in C#. In 2024 the focus has shifted towards API development, dropping support for generating graphical web
+applications.
 
 ## Thanks
 
 - Powered by [.NET](https://github.com/dotnet/core)
-- Modules implemented with [NSwag](https://github.com/RicoSuter/NSwag) | [Cottle](https://r3c.github.io/cottle/) | [SharpCompress](https://github.com/adamhathcock/sharpcompress)
+- Modules implemented
+  with [NSwag](https://github.com/RicoSuter/NSwag) | [Cottle](https://r3c.github.io/cottle/) | [SharpCompress](https://github.com/adamhathcock/sharpcompress)
 
 ### Supported by
 
