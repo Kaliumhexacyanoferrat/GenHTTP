@@ -32,9 +32,13 @@ var host = await Host.Create()
                      .StartAsync(); // or .RunAsync() to block until the (console) application is shut down
 ```
 
-When running this snippet, the host will answer any request to http://localhost:8080 with a "Hello World" text response,
-serve an Open API specification at http://localhost:8080/openapi.json and provide a graphical API viewer
-on http://localhost:8080/scalar/.
+Running this snippet will provide the following endpoints:
+
+| Endpoint                           | Description                                                            |
+|------------------------------------|------------------------------------------------------------------------|
+| http://localhost:8080              | Serves the API, answering requests with a "Hello World" text response. |
+| http://localhost:8080/openapi.json | Serves the automatically generated Open API specification of the API.  |
+| http://localhost:8080/scalar/      | Servers a graphical viewer of the API, using Scalar.                   |
 
 ## Samples
 
