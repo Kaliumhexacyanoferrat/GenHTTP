@@ -172,15 +172,18 @@ public sealed class SecurityTests
         }, engine, host: "myserver");
     }
 
-    // Ioxide doesn't implement TLS termination yet: it prefers kTLS (file-based certs, no SNI), which
-    // doesn't fit GenHTTP's in-memory, SNI-aware ICertificateProvider model used by these tests. Skip
-    // (don't fail) the cases that need a real handshake to the secure port until a kTLS-based suite is
-    // added. Surfaces as "Inconclusive" with this reason so the coverage gap stays visible.
+    // These cases need a real handshake to the secure port, and PickyCertificateProvider answers only
+    // for the one name it was given - Provide(null) returns nothing. The ioxide engine does terminate
+    // TLS, in OpenSSL, and does serve a certificate per name; what it cannot do is ask per handshake,
+    // since both of its stacks settle their certificates when the server starts. So it asks once with
+    // null, finds no default, and leaves the port advertised as secure while refusing its handshakes.
+    // Binding an IHostCertificateProvider, which names its hosts up front, is what fits that model.
+    // Surfaces as "Inconclusive" so the coverage gap stays visible.
     private static void SkipIfNoTls(TestEngine engine)
     {
         if (engine == TestEngine.Ioxide)
         {
-            Assert.Inconclusive("Ioxide: TLS termination not implemented yet (kTLS-only, no SNI cert provider). kTLS tests to follow.");
+            Assert.Inconclusive("Ioxide asks the provider once, at startup, with no host name; this one answers only a named host, so the port has no default certificate.");
         }
     }
 
