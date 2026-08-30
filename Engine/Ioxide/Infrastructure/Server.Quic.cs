@@ -1,5 +1,3 @@
-using System.Security.Cryptography.X509Certificates;
-
 using GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 
 using ioxide;
@@ -24,8 +22,7 @@ public sealed partial class Server
 
     /// <summary>
     /// The endpoint that wants a QUIC listener, or none. At most one: the transport binds a single
-    /// UDP port for the whole server, so several endpoints asking for HTTP/3 would each want their
-    /// own and only the first could have it - refused here rather than silently honouring one.
+    /// UDP port for the whole server.
     /// </summary>
     private EndPoint? ResolveQuicEndPoint()
     {
@@ -42,9 +39,8 @@ public sealed partial class Server
     }
 
     /// <summary>
-    /// Adds the QUIC listener for the endpoint serving HTTP/3. Needs a secure endpoint - QUIC
-    /// carries TLS 1.3 and has no cleartext mode - and takes its port, which is what a browser
-    /// assumes when an Alt-Svc advertisement names none of its own.
+    /// Adds the QUIC listener. Needs a secure endpoint - QUIC carries TLS 1.3 and has no cleartext
+    /// mode - and takes its port, which is what a browser assumes when Alt-Svc names none.
     /// </summary>
     private ServerConfig WithQuic(ServerConfig serverConfig)
     {
@@ -75,13 +71,11 @@ public sealed partial class Server
         _quicEngine = new QuicEngine(files.Certificate, files.Key, alpn: ["h3"],
             clientCaPemPath: quicEndPoint.ClientCaPath,
             requireClientCertificate: quicEndPoint.RequireClientCertificate,
-            clientCaPem: quicEndPoint.ClientCaPem);
+            clientCaPem: quicEndPoint.ClientCaPem,
+            handshakeTimeoutMs: _engineOptions.Http3.HandshakeTimeoutMs);
 
         RegisterQuicHosts(quicEndPoint);
 
-        // Built once here, not in the QuicHandle below - that runs per accepted connection, and
-        // these two never change. Nghttp3Options is ngtcp2's own record; Http3Options is
-        // what the caller sets, and this is where the two meet.
         _h3Options = new Nghttp3Options
         {
             QpackDynamicTableCapacity = _engineOptions.Http3.QpackDynamicTableCapacity,
@@ -90,33 +84,54 @@ public sealed partial class Server
 
         return serverConfig with
         {
-            Udp = serverConfig.Udp ?? new UdpOptions(),
+            // The listener binds its own port below; Udp carries the socket tuning they share.
+            Udp = (serverConfig.Udp ?? new UdpOptions()) with
+            {
+                SocketBufferBytes = _engineOptions.Http3.SocketBufferBytes,
+            },
             Quic = new QuicOptions
             {
                 Port = quicEndPoint.Port,
                 ConnectionFactory = _quicEngine.CreateFactory(),
+
+                IdleTimeoutMs = _engineOptions.Http3.IdleTimeoutMs,
+                Routing = _engineOptions.Http3.Routing,
+                PinMigratedPeers = _engineOptions.Http3.PinMigratedPeers,
             },
         };
     }
 
     /// <summary>
-    /// Registers the certificates this endpoint serves by name, so one UDP port can answer for
-    /// several hosts.
+    /// Registers the certificates this endpoint serves by name, before the factory is built:
+    /// the table is read during handshakes with no lock, so ioxide refuses a host added later.
     /// </summary>
-    /// <remarks>
-    /// Before the factory is built, and that is not a style preference: the table is read during
-    /// handshakes on whichever reactor a connection landed on, with no lock, so ioxide refuses a
-    /// host added once the engine is serving.
-    ///
-    /// A host without files is skipped rather than refused. ngtcp2 loads PEM by path and takes
-    /// nothing else, and the engine will not write a private key out on anyone's behalf - so such
-    /// a name serves HTTP/1.1 and HTTP/2 and is simply not offered over HTTP/3, which is the rule
-    /// the default certificate already follows. Said out loud, because the alternative is a name
-    /// that works on one port and quietly gets the wrong certificate on another.
-    /// </remarks>
     private void RegisterQuicHosts(SecureEndPoint endPoint)
     {
-        foreach (var host in endPoint.Hosts)
+        foreach (var (host, certificate) in ResolveQuicHosts(endPoint, endPoint.Hosts))
+        {
+            try
+            {
+                _quicEngine!.AddHost(host, certificate.CertificatePath, certificate.KeyPath);
+            }
+            catch (Exception e) when (e is InvalidOperationException or ArgumentException)
+            {
+                // One unusable name is not worth losing the listener over.
+                _logger.LogError(e, "Could not serve {Host} over HTTP/3 on port {Port}; that name will be answered with the default certificate.",
+                    host, endPoint.Port);
+            }
+        }
+    }
+
+    /// <summary>
+    /// The named certificates HTTP/3 can serve, as ngtcp2 takes them. A name without files - or
+    /// with files that are not there - is dropped loudly, since the default certificate will then
+    /// answer it and produce a name mismatch at the client.
+    /// </summary>
+    private Dictionary<string, QuicCertificate> ResolveQuicHosts(SecureEndPoint endPoint, IReadOnlyList<HostCertificate> hosts)
+    {
+        var resolved = new Dictionary<string, QuicCertificate>(hosts.Count, StringComparer.OrdinalIgnoreCase);
+
+        foreach (var host in hosts)
         {
             if (host.Files is not { } files)
             {
@@ -134,23 +149,36 @@ public sealed partial class Server
                 continue;
             }
 
-            try
-            {
-                _quicEngine!.AddHost(host.Host, files.Certificate, files.Key);
-            }
-            catch (Exception e) when (e is InvalidOperationException or ArgumentException)
-            {
-                // One unusable name is not worth losing the listener over - the default still
-                // answers it, and every other name still gets its own certificate.
-                _logger.LogError(e, "Could not serve {Host} over HTTP/3 on port {Port}; that name will be answered with the default certificate.",
-                    host.Host, endPoint.Port);
-            }
+            resolved[host.Host] = new QuicCertificate(files.Certificate, files.Key);
         }
+
+        return resolved;
     }
 
     /// <summary>
-    /// Drops the QUIC engine. Nothing was written for it, so nothing is cleaned up.
+    /// The HTTP/3 half of <see cref="ReloadCertificates"/>. Default and names go together, since
+    /// ngtcp2 publishes a generation with one atomic store, and nothing is published unless all of
+    /// it loaded.
     /// </summary>
+    private void ReloadQuicCertificates(SecureEndPoint endPoint, CertificateFiles? files, IReadOnlyList<HostCertificate> hosts)
+    {
+        if (_quicEngine is null)
+        {
+            return;
+        }
+
+        if (files is null || !File.Exists(files.Certificate) || !File.Exists(files.Key))
+        {
+            throw new InvalidOperationException(
+                $"Port {endPoint.Port} serves HTTP/3, but its provider no longer names a certificate and key that exist "
+                + "as files. The listener still serves the ones it had.");
+        }
+
+        _quicEngine.ReplaceCertificates(new QuicCertificate(files.Certificate, files.Key),
+            ResolveQuicHosts(endPoint, hosts));
+    }
+
+    /// <summary>Drops the QUIC engine. Nothing was written for it, so nothing is cleaned up.</summary>
     private void DisposeQuic()
     {
         _quicEngine?.Dispose();

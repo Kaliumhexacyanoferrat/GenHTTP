@@ -30,10 +30,7 @@ public sealed partial class Server : IServer
     /// <summary>Every endpoint, in the order it was bound. The first one names the server.</summary>
     private readonly EndPoint[] _endPoints;
 
-    /// <summary>
-    /// One mode for the whole server, since that is all ioxide takes - see <see cref="MapEndPoints"/>,
-    /// which refuses endpoints that disagree.
-    /// </summary>
+    /// <summary>One mode for the whole server, since that is all ioxide takes.</summary>
     private readonly bool _dualStack;
 
     private readonly Action<Reactor>? _onReactorStart;
@@ -45,6 +42,13 @@ public sealed partial class Server : IServer
     private Thread[]? _threads;
 
     private Reactor[]? _reactors;
+
+    /// <summary>
+    /// Each reactor's TLS services, by reactor index - what <see cref="ReloadCertificates"/>
+    /// rotates. Null on a server with no secure endpoint, and an entry stays null until its reactor
+    /// has started.
+    /// </summary>
+    private TlsRegistry?[]? _tlsRegistries;
 
 #region Get-/Setters
     
@@ -82,8 +86,7 @@ public sealed partial class Server : IServer
         _endPoints = MapEndPoints(serverConfiguration, _engineOptions);
         _dualStack = _endPoints[0].DualStack;
 
-        // Which endpoints want which listener, settled here so StartAsync only has to act on it.
-        // Both read _endPoints, which each endpoint's own protocols now come with.
+        // Settled here so StartAsync only has to act on it.
         _tcpPorts = ResolveTcpPorts();
         _quicEndPoint = ResolveQuicEndPoint();
 
@@ -110,36 +113,52 @@ public sealed partial class Server : IServer
             serverConfig = WithQuic(serverConfig);
         }
 
+        // Resolved once and shared: each reactor starts its own TlsService, but a chain is built
+        // and a warning logged once for the server rather than once per core.
+        // The registry is registered whenever a port is SECURE, even where none of them produced a
+        // certificate: the connection driver reads it to tell "no certificate here, close" from
+        // "not a TLS port at all", and without it such a connection hangs instead of getting a FIN.
+        var secure = SecureEndPoints.Any();
+
+        var tlsOptions = secure ? ResolveTls().ToArray() : [];
+
+        WarnAboutValidatorGaps();
+
         _threads = new Thread[serverConfig.ReactorCount];
         _reactors = new Reactor[serverConfig.ReactorCount];
+        _tlsRegistries = new TlsRegistry?[serverConfig.ReactorCount];
 
-        // Reactors bind their listeners on their own threads, so StartAsync must not return before
-        // they accept - a client connecting immediately (as the test host does) would otherwise
-        // race the bind and get "connection refused".
+        // Reactors bind on their own threads, so StartAsync must not return before they accept.
         var listening = new CountdownEvent(serverConfig.ReactorCount);
 
         for (var i = 0; i < _threads.Length; i++)
         {
+            // OnStart runs on the reactor's thread, long after the loop variable has moved on.
+            var index = i;
+
             var reactor = new Reactor(i, serverConfig)
             {
                 OnStart = r =>
                 {
                     IoxideReactor.Bind(r);
 
-                    if (SecureEndPoints.Any())
+                    if (secure)
                     {
                         var registry = new TlsRegistry();
 
-                        foreach (var (port, options) in ResolveTls())
+                        foreach (var (port, options) in tlsOptions)
                         {
                             registry.Add(port, TlsService.Start(r, options, register: false));
                         }
 
                         r.AddService(registry);
+
+                        // Also kept here, so ReloadCertificates can reach every reactor's services.
+                        _tlsRegistries![index] = registry;
                     }
 
                     _onReactorStart?.Invoke(r);
-                    
+
                     listening.Signal();
                 },
                 TcpHandle = (_, tcpConnection) =>
@@ -165,8 +184,7 @@ public sealed partial class Server : IServer
             _threads[i].Start();
         }
 
-        // Off the caller. The timeout is a safety net for a reactor that fails to bind: log and
-        // continue rather than hang the host forever.
+        // Off the caller, with a timeout so a reactor that fails to bind logs rather than hangs.
         if (await Task.Run(() => listening.Wait(TimeSpan.FromSeconds(10))))
         {
             listening.Dispose();
@@ -188,17 +206,14 @@ public sealed partial class Server : IServer
     /// different dual-stack modes.
     /// </summary>
     /// <remarks>
-    /// GenHTTP takes dual-stack per endpoint, on <c>Bind</c>; ioxide takes one flag for the whole
-    /// server, deciding whether listeners are IPv6 on :: with V6ONLY off or plain IPv4 on 0.0.0.0.
-    /// The engine can only honour one, and honours the first endpoint's - so endpoints that
-    /// disagree are refused here rather than silently served the first one's mode.
+    /// GenHTTP takes dual-stack per endpoint; ioxide takes one flag for the whole server. Endpoints
+    /// that disagree are refused rather than silently served the first one's mode.
     /// </remarks>
     private static EndPoint[] MapEndPoints(ServerConfiguration config, EngineOptions options)
     {
         var mapped = config.EndPoints.Select(e => Map(e, options)).ToArray();
 
         // A connection carries only the port it arrived on, so that port has to name one endpoint.
-        // Checked explicitly because nothing else keys them by port any more.
         if (mapped.GroupBy(e => e.Port).FirstOrDefault(g => g.Count() > 1) is { } duplicate)
         {
             throw new NotSupportedException(
@@ -206,10 +221,8 @@ public sealed partial class Server : IServer
                 + "by the port it arrived on, so each port carries one endpoint.");
         }
 
-        // ioxide validates a client chain in OpenSSL and ngtcp2, which need the anchors before the
-        // handshake. ICertificateValidator.RequireCertificate defaults to TRUE, so a validator that
-        // names none is the easy mistake to make - and it would otherwise surface as an exception
-        // out of TlsService, on a reactor thread, halfway through starting the server.
+        // RequireCertificate defaults to TRUE, so a validator naming no anchors is the easy
+        // mistake - and it would otherwise throw out of TlsService, on a reactor thread.
         foreach (var endPoint in mapped.OfType<SecureEndPoint>())
         {
             if (endPoint.RequireClientCertificate && endPoint.ClientCaPath is null && endPoint.ClientCaPem is null)
@@ -238,8 +251,8 @@ public sealed partial class Server : IServer
     }
 
     /// <summary>
-    /// The engine-wide configuration, straight from the options. The listeners are added on top by
-    /// <c>WithTcp</c> and <c>WithQuic</c>, which take their ports from the endpoint bindings.
+    /// The engine-wide configuration. <c>WithTcp</c> and <c>WithQuic</c> add the listeners, taking
+    /// their ports from the bindings.
     /// </summary>
     private ServerConfig BuildServerConfig() => new()
     {
@@ -249,13 +262,11 @@ public sealed partial class Server : IServer
         RecvSlots = _engineOptions.Reactor.RecvSlots,
         Incremental = _engineOptions.Reactor.Incremental,
 
-        // Server-wide rather than per transport: it applies to the TCP listener and the UDP socket
-        // alike, which is why the engine binds every endpoint with one mode.
+        // Applies to the TCP listener and the UDP socket alike, hence one mode per server.
         DualStack = _dualStack,
 
-        // No listeners yet - WithTcp and WithQuic add the ones the bindings ask for. Explicitly
-        // null because ioxide's own default is a live listener on 8080, which an HTTP/3-only server
-        // would otherwise inherit and bind for a protocol it does not serve.
+        // Explicitly null: ioxide's own default is a live listener on 8080, which an HTTP/3-only
+        // server would otherwise inherit.
         Tcp = null,
     };
 
@@ -279,7 +290,7 @@ public sealed partial class Server : IServer
     
     /// <summary>
     /// One binding as the engine's own endpoint. A certificate makes it a <see cref="SecureEndPoint"/>,
-    /// which is what carries the TLS settings; without one it is cleartext and has none to carry.
+    /// which carries the TLS settings.
     /// </summary>
     private static EndPoint Map(EndPointConfiguration endPoint, EngineOptions options)
     {
@@ -299,9 +310,8 @@ public sealed partial class Server : IServer
 
         var protocols = named ? configured : options.Protocols;
 
-        // HTTP/3 from the DEFAULT applies only where it can, so Protocols = All means "everything
-        // each port supports" rather than an error about the plaintext one. Named per port it is
-        // taken literally, and refused where the port has no certificate.
+        // From the DEFAULT, HTTP/3 applies only where it can, so Protocols = All means "everything
+        // each port supports". Named per port it is taken literally.
         if (!named && protocols.HasFlag(Protocols.Http3) && endPoint.Security is null)
         {
             protocols &= ~Protocols.Http3;
@@ -321,9 +331,8 @@ public sealed partial class Server : IServer
     }
 
     /// <summary>
-    /// The endpoint a connection arrived on, matched by the port its listener bound. A scan rather
-    /// than a table: a server binds a handful of endpoints, so the array is the whole truth and
-    /// there is no second copy of it to keep in step.
+    /// The endpoint a connection arrived on. A scan rather than a table: a server binds a handful
+    /// of endpoints, so there is no second copy to keep in step.
     /// </summary>
     private EndPoint EndPointFor(ushort port)
     {
@@ -367,6 +376,7 @@ public sealed partial class Server : IServer
 
         _reactors = null;
         _threads = null;
+        _tlsRegistries = null;
 
         if (reactors is null || threads is null)
         {
@@ -375,9 +385,8 @@ public sealed partial class Server : IServer
 
         _logger.LogInformation("Stopping {Count} ioxide reactors ...", reactors.Length);
 
-        // Stop, then join: each loop exits and Run() disposes its ring on the reactor thread, which
-        // a single-issuer / DEFER_TASKRUN ring requires. Skipping it leaks a ring per host until
-        // io_uring_setup runs out. Off the caller, so DisposeAsync stays non-blocking.
+        // Stop, then join: a single-issuer / DEFER_TASKRUN ring must be disposed on its own
+        // thread, and skipping the join leaks a ring per host. Off the caller to stay non-blocking.
         await Task.Run(() =>
         {
             foreach (var reactor in reactors)

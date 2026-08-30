@@ -7,11 +7,9 @@ namespace GenHTTP.Engine.Ioxide;
 /// Pass one to <c>Bind</c> and that endpoint does mutual TLS against these anchors.
 /// </summary>
 /// <remarks>
-/// <see cref="ICertificateValidator"/> is called with a chain that has already been built, which
-/// suits an engine validating in managed code. ioxide validates in OpenSSL, and in ngtcp2 for
-/// HTTP/3, both of which need the trust anchors before the handshake begins - early enough that a
-/// bad chain is refused before any request exists, and <c>Validate</c> is never reached. So the
-/// anchors travel with the validator, on the binding that wanted them.
+/// ioxide validates in OpenSSL, and in ngtcp2 for HTTP/3, both of which need the anchors before the
+/// handshake - early enough that a bad chain is refused before any request exists and
+/// <c>Validate</c> is never reached. So the anchors travel with the validator.
 /// </remarks>
 public interface IMutualTlsValidator : ICertificateValidator
 {

@@ -1,3 +1,4 @@
+using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
@@ -15,35 +16,16 @@ namespace GenHTTP.Engine.Ioxide.Infrastructure;
 public sealed partial class Server
 {
     /// <summary>
-    /// The TLS options for every secure port the binding can produce a certificate for. A provider
-    /// with neither files nor a default (no-SNI) certificate leaves the port advertised as secure -
-    /// so secure-upgrade redirects still work - but refusing its handshakes.
+    /// The TLS options for every secure port that can produce a certificate. A port that cannot
+    /// stays advertised as secure - so upgrade redirects still work - but refuses its handshakes.
     /// </summary>
-    /// <remarks>
-    /// Files are preferred where the provider has them. OpenSSL reads a chain file whole, so the
-    /// intermediates come from the file the binding named rather than being recovered from the
-    /// machine store, and the private key never enters managed memory.
-    /// </remarks>
     private IEnumerable<KeyValuePair<ushort, TlsOptions>> ResolveTls()
     {
         foreach (var endPoint in SecureEndPoints)
         {
             var port = endPoint.Port;
 
-            // ioxide takes exactly one source, so only one pair of these is ever set.
-            string? certificatePath = null, keyPath = null, certificatePem = null, keyPem = null;
-
-            if (endPoint.Files is { } files)
-            {
-                certificatePath = files.Certificate;
-                keyPath = files.Key;
-            }
-            else if (endPoint.Security.CertificateProvider.Provide(null) is { } certificate)
-            {
-                certificatePem = ExportChainPem(certificate, port);
-                keyPem = ExportKeyPem(certificate);
-            }
-            else
+            if (ResolveDefaultCertificate(endPoint, endPoint.Files, port) is not { } certificate)
             {
                 _logger.LogWarning("No default certificate for secure port {Port}; handshakes there will be refused.", port);
                 continue;
@@ -51,23 +33,25 @@ public sealed partial class Server
 
             yield return new(port, new TlsOptions
             {
-                CertificatePath = certificatePath,
-                KeyPath = keyPath,
-                CertificatePem = certificatePem,
-                KeyPem = keyPem,
+                CertificatePath = certificate.CertificatePath,
+                KeyPath = certificate.KeyPath,
+                CertificatePem = certificate.CertificatePem,
+                KeyPem = certificate.KeyPem,
 
-                // The alternatives, chosen by the name the client asks for. Empty unless the
-                // binding named an IHostCertificateProvider, in which case the handshake gets a
-                // servername callback and this one above is what answers everyone else.
-                CertificatesByHost = ResolveHostCertificates(endPoint, port),
+                CertificatesByHost = ResolveHostCertificates(endPoint, endPoint.Hosts, port),
 
-                // Server preference, most preferred first. A client offering neither continues
-                // without an ALPN extension at all.
+                // Server preference, most preferred first.
                 Alpn = endPoint.Protocols.HasFlag(Protocols.Http2) ? ["h2", "http/1.1"] : ["http/1.1"],
 
                 ClientCaPath = endPoint.ClientCaPath,
                 ClientCaPem = endPoint.ClientCaPem,
                 RequireClientCertificate = endPoint.RequireClientCertificate,
+
+                MinProtocolVersion = ResolveMinProtocolVersion(endPoint),
+
+                HandshakeTimeoutMs = _engineOptions.Tcp.HandshakeTimeoutMs,
+                CipherSuites = _engineOptions.Tcp.CipherSuites,
+                CipherList = _engineOptions.Tcp.CipherList,
 
                 KernelTx = _engineOptions.Tcp.TxKernelTls,
                 KernelRx = _engineOptions.Tcp.RxKernelTls
@@ -76,32 +60,49 @@ public sealed partial class Server
     }
 
     /// <summary>
-    /// The certificates this port serves by name, in the form ioxide takes them. Null when the
-    /// binding named no hosts, which leaves the handshake without a servername callback at all.
+    /// The certificate answering a client that asked for no name, or an unknown one. Files are
+    /// preferred: OpenSSL reads a chain file whole, so intermediates come from the file and the key
+    /// never enters managed memory. Null where the provider has neither form.
+    /// </summary>
+    private TlsCertificate? ResolveDefaultCertificate(SecureEndPoint endPoint, CertificateFiles? files, ushort port)
+    {
+        if (files is not null)
+        {
+            return new TlsCertificate { CertificatePath = files.Certificate, KeyPath = files.Key };
+        }
+
+        if (endPoint.Security.CertificateProvider.Provide(null) is { } certificate)
+        {
+            return new TlsCertificate
+            {
+                CertificatePem = ExportChainPem(certificate, port),
+                KeyPem = ExportKeyPem(certificate),
+            };
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// The certificates this port serves by name. Null where the binding named no hosts, which
+    /// leaves the handshake without a servername callback at all.
     /// </summary>
     /// <remarks>
-    /// Files are preferred here for the same reason as the default: OpenSSL reads a chain file
-    /// whole, so the intermediates come from the file rather than being rebuilt from the machine
-    /// store. A host that has only the in-memory form still works - it is exported the same way
-    /// the default is.
-    ///
-    /// Client verification is NOT repeated per host, and does not need to be: OpenSSL fixes the
-    /// verify mode on a connection when it is created, from the default context, so a name cannot
-    /// select its way out of the mutual TLS this endpoint was bound with.
+    /// Client verification is not repeated per host and does not need to be: OpenSSL fixes the
+    /// verify mode from the default context, so a name cannot select its way out of mutual TLS.
     /// </remarks>
-    private IReadOnlyDictionary<string, TlsCertificate>? ResolveHostCertificates(SecureEndPoint endPoint, ushort port)
+    private IReadOnlyDictionary<string, TlsCertificate>? ResolveHostCertificates(SecureEndPoint endPoint,
+        IReadOnlyList<HostCertificate> hosts, ushort port)
     {
-        if (endPoint.Hosts.Count == 0)
+        if (hosts.Count == 0)
         {
             return null;
         }
 
-        var byHost = new Dictionary<string, TlsCertificate>(endPoint.Hosts.Count, StringComparer.OrdinalIgnoreCase);
+        var byHost = new Dictionary<string, TlsCertificate>(hosts.Count, StringComparer.OrdinalIgnoreCase);
 
-        foreach (var host in endPoint.Hosts)
+        foreach (var host in hosts)
         {
-            // Two spellings of one name would be refused by ioxide as a table it cannot serve
-            // both halves of. Caught here instead, so the binding is what gets named.
             if (byHost.ContainsKey(host.Host))
             {
                 _logger.LogWarning("Port {Port} names the host {Host} more than once; only the first certificate can ever be served, so the rest were dropped.", port, host.Host);
@@ -121,30 +122,92 @@ public sealed partial class Server
     }
 
     /// <summary>
-    /// Whether any endpoint asks for a client certificate at all.
+    /// The TLS floor for one endpoint, from the <c>SslProtocols</c> its binding named.
     /// </summary>
+    /// <remarks>
+    /// <c>SslProtocols</c> is a set; OpenSSL takes a minimum and has no maximum. So a set is
+    /// honoured exactly when it is contiguous and open at the top - <c>Tls13</c> and
+    /// <c>Tls12 | Tls13</c> are, anything below 1.2 and 1.2-without-1.3 are not. Those two warn and
+    /// widen rather than throw: a defensible default elsewhere should not be a dead deployment
+    /// here, and serving more than was asked for is what an operator needs told.
+    /// </remarks>
+    private TlsProtocolVersion ResolveMinProtocolVersion(SecureEndPoint endPoint)
+    {
+        var protocols = endPoint.Security.Protocols;
+
+        var tls12 = protocols.HasFlag(SslProtocols.Tls12);
+        var tls13 = protocols.HasFlag(SslProtocols.Tls13);
+
+        // Named without naming them, so no obsolete member has to be suppressed.
+        if ((protocols & ~(SslProtocols.Tls12 | SslProtocols.Tls13)) != 0)
+        {
+            _logger.LogWarning(
+                "Port {Port} was bound asking for a TLS version below 1.2. This engine terminates TLS in OpenSSL, whose floor is 1.2, "
+                + "so those versions are not served and never were; the endpoint serves {Served}.",
+                endPoint.Port, tls13 && !tls12 ? "TLS 1.3" : "TLS 1.2 and above");
+        }
+
+        if (tls12 && !tls13)
+        {
+            _logger.LogWarning(
+                "Port {Port} was bound for TLS 1.2 without 1.3. ioxide takes a minimum version and has no maximum, so 1.3 stays "
+                + "available on this endpoint - it is negotiated only when the client prefers it, and it is the stronger of the two.",
+                endPoint.Port);
+        }
+
+        return (tls12, tls13) switch
+        {
+            (false, true) => TlsProtocolVersion.Tls13,
+            (true, _) => TlsProtocolVersion.Tls12,
+            _ => TlsProtocolVersion.Default,
+        };
+    }
+
+    /// <summary>
+    /// Says once, at startup, which parts of a bound <c>ICertificateValidator</c> this engine
+    /// cannot honour - rather than leaving it to be inferred from a client that was let in.
+    /// </summary>
+    private void WarnAboutValidatorGaps()
+    {
+        foreach (var endPoint in SecureEndPoints)
+        {
+            if (endPoint.Security.CertificateValidator is not { } validator)
+            {
+                continue;
+            }
+
+            if (validator.RevocationCheck != X509RevocationMode.NoCheck)
+            {
+                _logger.LogWarning(
+                    "The validator on port {Port} asks for {Mode} revocation checking, which this engine does not perform - neither OpenSSL "
+                    + "nor ngtcp2 is given a CRL or an OCSP responder here, so a revoked client certificate is accepted until it expires. "
+                    + "Use short-lived certificates, or check the peer in ICertificateValidator.Validate against your own source of truth.",
+                    endPoint.Port, validator.RevocationCheck);
+            }
+
+            if (endPoint.Protocols.HasFlag(Protocols.Http3))
+            {
+                _logger.LogWarning(
+                    "Port {Port} serves HTTP/3 with a certificate validator. Validate runs for HTTP/1.1 and HTTP/2 but NOT over QUIC, where "
+                    + "ngtcp2 exposes no peer certificate to hand it - an HTTP/3 client is admitted on the chain check and RequireCertificate "
+                    + "alone. Keep the two transports on separate ports if that difference matters.",
+                    endPoint.Port);
+            }
+        }
+    }
+
+    /// <summary>Whether any endpoint asks for a client certificate at all.</summary>
     private bool MutualTlsConfigured => SecureEndPoints.Any(e => e.MutualTls);
 
     /// <summary>The endpoints bound with a certificate - the ones TLS applies to.</summary>
     private IEnumerable<SecureEndPoint> SecureEndPoints => _endPoints.OfType<SecureEndPoint>();
 
     /// <summary>
-    /// The certificate and the intermediates a client needs to reach a root it trusts, leaf first.
+    /// The certificate and the intermediates a client needs to reach a root it trusts, leaf first
+    /// and root omitted (RFC 8446 4.4.2). Only the in-memory form needs this - an
+    /// <c>X509Certificate2</c> carries no chain, so it is rebuilt from the machine store. AIA
+    /// downloads stay off: a slow issuer host would hang startup rather than slow it.
     /// </summary>
-    /// <remarks>
-    /// <c>ICertificateProvider</c> hands over one certificate, but anything issued by a real
-    /// CA is signed by an intermediate, and a client that does not already hold that intermediate
-    /// cannot build a path to its root - so a server sends them (RFC 8446 4.4.2). The Internal
-    /// engine gets this for free from <c>SslStream</c>, which assembles the chain itself; this
-    /// engine terminates TLS on its own, so it assembles it here.
-    ///
-    /// The root is left out deliberately: a client that does not already trust it will not start
-    /// because we sent it, and it is bytes on every handshake.
-    ///
-    /// Certificate downloads are off. Fetching a missing intermediate over AIA would put a network
-    /// call on the startup path, where a slow or unreachable host is a hung server rather than a
-    /// slow one - the intermediate is expected in the machine store beside the certificate.
-    /// </remarks>
     private string ExportChainPem(X509Certificate2 certificate, ushort port)
     {
         using var chain = new X509Chain();
@@ -153,17 +216,14 @@ public sealed partial class Server
         chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllFlags;
         chain.ChainPolicy.DisableCertificateDownloads = true;
 
-        // Built for its elements, not its verdict: a privately issued or self-signed certificate
-        // does not validate against this machine's roots and still carries the chain to send.
+        // Built for its elements, not its verdict: a privately issued certificate does not validate
+        // against this machine's roots and still carries the chain to send.
         chain.Build(certificate);
 
         var links = chain.ChainElements;
 
         if (links.Count <= 1)
         {
-            // Self-signed is the ordinary case here - leaf and root at once, nothing to add. Any
-            // other certificate arriving alone means its issuer was not found, and the handshake
-            // will fail for clients that cannot supply the gap themselves.
             if (!IsSelfIssued(certificate))
             {
                 _logger.LogWarning(
@@ -204,9 +264,7 @@ public sealed partial class Server
 
 /// <summary>
 /// The TLS service each secure port owns on this reactor, keyed by the port a connection arrived
-/// on. One per port, since ALPN and the client CA differ per endpoint; filled from
-/// <see cref="Server.ResolveTls"/> when the reactor starts, and read per connection by the
-/// connection driver.
+/// on. One per port, since ALPN and the client CA differ per endpoint.
 /// </summary>
 internal sealed class TlsRegistry
 {

@@ -3,14 +3,9 @@ using System.Security.Cryptography.X509Certificates;
 namespace GenHTTP.Engine.Ioxide;
 
 /// <summary>
-/// Serves one certificate in both the forms this engine's transports take: the PEM files ngtcp2
-/// loads for HTTP/3, and an <see cref="X509Certificate2"/> for anything that wants the object.
+/// Serves one certificate in both forms this engine's transports take: the PEM files ngtcp2 loads
+/// for HTTP/3, and an <see cref="X509Certificate2"/> for anything wanting the object.
 /// </summary>
-/// <remarks>
-/// The ready-made <see cref="IFileCertificateProvider"/>, for a deployment that already has its
-/// certificate on disk - which is what an ACME client leaves behind. Bind with one of these and the
-/// endpoint can serve HTTP/1.1, HTTP/2 and HTTP/3 off the same files.
-/// </remarks>
 public sealed class FileCertificateProvider : IFileCertificateProvider
 {
     private readonly Lazy<X509Certificate2> _certificate;
@@ -18,8 +13,8 @@ public sealed class FileCertificateProvider : IFileCertificateProvider
     private readonly CertificateFiles _files;
 
     /// <summary>
-    /// From files alone. The object form is loaded from them only if something asks for it, so on
-    /// this engine - which prefers the files - the private key stays out of managed memory.
+    /// From files alone. The object form is loaded only if something asks for it, so on this
+    /// engine - which prefers the files - the private key stays out of managed memory.
     /// </summary>
     /// <param name="certificatePath">The certificate, leaf first, with any intermediates.</param>
     /// <param name="keyPath">The private key, PEM, matching that certificate.</param>
@@ -30,8 +25,8 @@ public sealed class FileCertificateProvider : IFileCertificateProvider
     }
 
     /// <summary>
-    /// From a certificate already in hand and the files holding it. Saves reading them back, and is
-    /// the honest form when a caller has both - the two are not checked against each other.
+    /// From a certificate already in hand and the files holding it. The two are not checked against
+    /// each other.
     /// </summary>
     public FileCertificateProvider(X509Certificate2 certificate, string certificatePath, string keyPath)
     {
