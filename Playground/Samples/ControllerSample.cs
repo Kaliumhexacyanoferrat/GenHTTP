@@ -3,31 +3,30 @@
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Reflection;
-using GenHTTP.Modules.Webservices;
 
 namespace GenHTTP.Playground.Samples;
 
-public static class WebserviceSample
+public static class ControllerSample
 {
 
     public static IHandlerBuilder Create()
     {
         /*
          *
-         * Shows how to declare and register a class that will be invoked
+         * Shows how to declare and register a controller that will be invoked
          * to handle incoming HTTP requests.
          *
-         * See https://genhttp.org/documentation/content/frameworks/webservices/
+         * See https://genhttp.org/documentation/content/frameworks/controllers/
          *
          */
 
         return Layout.Create()
-                     .AddService<BookService>("books");
+                     .AddController<BookController>("books");
     }
 
     public record Book(int Id, string Title);
 
-    public class BookService
+    public class BookController
     {
         private static readonly List<Book> Books =
         [
@@ -35,11 +34,11 @@ public static class WebserviceSample
         ];
 
         // GET http://localhost:8080/books/
-        [ResourceMethod]
-        public List<Book> List() => Books;
+        [ControllerAction]
+        public List<Book> Index() => Books;
 
-        // PUT http://localhost:8080/books/ with JSON/XML/... payload
-        [ResourceMethod(Method.Put)]
+        // PUT http://localhost:8080/books/create with JSON/XML/... payload
+        [ControllerAction(Method.Put)]
         public Book Create(Book book)
         {
             var toAdd = book with
@@ -51,8 +50,8 @@ public static class WebserviceSample
             return toAdd;
         }
 
-        // DELETE http://localhost:8080/books/1
-        [ResourceMethod(Method.Delete, ":id")]
+        // DELETE http://localhost:8080/books/delete/1
+        [ControllerAction(Method.Delete)]
         public void Delete([FromPath] int id)
         {
             Books.RemoveAll(b => b.Id == id);
