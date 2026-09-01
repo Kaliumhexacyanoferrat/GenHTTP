@@ -46,7 +46,17 @@ public sealed class CompressionTests
     [MultiEngineTest]
     public async Task TestSpecificAlgorithms(TestEngine engine)
     {
-        foreach (var algorithm in new[] { "gzip", "br" })
+        var list = new List<string>()
+        {
+            "gzip",
+            "br"
+        };
+
+#if NET11_0_OR_GREATER
+        list.Add("zstd");
+#endif
+
+        foreach (var algorithm in list)
         {
             await using var runner = await TestHost.RunAsync(CreateLargeContentHandler(), engine: engine);
 
