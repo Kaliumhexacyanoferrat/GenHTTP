@@ -9,21 +9,18 @@ namespace GenHTTP.Modules.Compression.Algorithms;
 
 internal sealed class CompressingSink : IResponseSink, IAsyncDisposable, IDisposable
 {
-    private const int OutputBufferSize = BufferSize.Write / 2;
+    private const int InputBufferSize = BufferSize.Write;
+    private const int OutputBufferSize = BufferSize.Write;
 
     private static readonly ArrayPool<byte> Pool = ArrayPool<byte>.Shared;
 
     private readonly IResponseSink _inner;
     private readonly ICompressor _compressor;
+    private readonly IBufferWriter<byte> _writer;
 
     private readonly byte[] _inputBuffer;
 
-    private EncoderBufferWriter? _bufferWriter;
-    private WriterStreamAdapter? _stream;
-
     private bool _disposed;
-
-    #region Supporting data structures
 
     private sealed class EncoderBufferWriter : IBufferWriter<byte>
     {
@@ -34,9 +31,25 @@ internal sealed class CompressingSink : IResponseSink, IAsyncDisposable, IDispos
             _sink = sink;
         }
 
-        public Memory<byte> GetMemory(int sizeHint = 0) => _sink._inputBuffer;
+        public Span<byte> GetSpan(int sizeHint = 0)
+        {
+            if ((uint)sizeHint > (uint)_sink._inputBuffer.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(sizeHint));
+            }
 
-        public Span<byte> GetSpan(int sizeHint = 0) => _sink._inputBuffer;
+            return _sink._inputBuffer;
+        }
+
+        public Memory<byte> GetMemory(int sizeHint = 0)
+        {
+            if ((uint)sizeHint > (uint)_sink._inputBuffer.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(sizeHint));
+            }
+
+            return _sink._inputBuffer;
+        }
 
         public void Advance(int count)
         {
@@ -45,78 +58,77 @@ internal sealed class CompressingSink : IResponseSink, IAsyncDisposable, IDispos
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
 
-            _sink.CompressChunk(_sink._inputBuffer.AsSpan(0, count), isFinalBlock: false);
+            _sink.Compress(
+                _sink._inputBuffer.AsSpan(0, count),
+                isFinalBlock: false);
         }
     }
-
-    #endregion
-
-    #region Get-/Setters
-
-    public IBufferWriter<byte> Writer => _bufferWriter ??= new EncoderBufferWriter(this);
-
-    public Stream Stream => _stream ??= new WriterStreamAdapter(Writer);
-
-    #endregion
-
-    #region Initialization
 
     internal CompressingSink(IResponseSink inner, ICompressor compressor)
     {
         _inner = inner;
         _compressor = compressor;
-        _inputBuffer = Pool.Rent(BufferSize.Write);
+
+        _inputBuffer = Pool.Rent(InputBufferSize);
+        _writer = new EncoderBufferWriter(this);
     }
 
-    #endregion
+    public IBufferWriter<byte> Writer => _writer;
 
-    #region Functionality
+    public Stream Stream => _stream ??= new WriterStreamAdapter(_writer);
 
-    private void CompressChunk(ReadOnlySpan<byte> input, bool isFinalBlock)
+    private WriterStreamAdapter? _stream;
+
+    private void Compress(ReadOnlySpan<byte> input, bool isFinalBlock)
     {
-        do
+        var writer = _inner.Writer;
+
+        while (true)
         {
-            var writer = _inner.Writer;
             var output = writer.GetSpan(OutputBufferSize);
 
-            var status = _compressor.Compress(input, output, out var consumed, out var written, isFinalBlock);
+            var status = _compressor.Compress(
+                input,
+                output,
+                out var consumed,
+                out var written,
+                isFinalBlock);
 
-            if (written > 0)
+            if (written != 0)
             {
                 writer.Advance(written);
             }
 
             input = input[consumed..];
 
-            if (status == OperationStatus.InvalidData)
+            switch (status)
             {
-                throw new InvalidDataException("The compression encoder rejected the input data.");
+                case OperationStatus.Done:
+                    return;
+
+                case OperationStatus.NeedMoreData:
+                    if (isFinalBlock)
+                    {
+                        throw new InvalidOperationException(
+                            "The compression encoder requested more data while finalizing.");
+                    }
+
+                    return;
+
+                case OperationStatus.DestinationTooSmall:
+                    // The compressor needs another output buffer.
+                    continue;
+
+                case OperationStatus.InvalidData:
+                    throw new InvalidDataException(
+                        "The compression encoder rejected the input data.");
+
+                default:
+                    throw new InvalidOperationException(
+                        $"Unexpected compression encoder status: {status}.");
             }
-            if (status == OperationStatus.DestinationTooSmall)
-            {
-                continue;
-            }
-            if (status == OperationStatus.NeedMoreData)
-            {
-                if (isFinalBlock)
-                {
-                    throw new InvalidOperationException("The compression encoder requested more data while finalizing.");
-                }
-                break;
-            }
-            if (status == OperationStatus.Done)
-            {
-                break;
-            }
-            
-            throw new InvalidOperationException($"Unexpected compression encoder status: {status}.");
         }
-        while (true);
     }
-
-    #endregion
-
-    #region IDisposable Support
 
     public void Dispose()
     {
@@ -129,7 +141,7 @@ internal sealed class CompressingSink : IResponseSink, IAsyncDisposable, IDispos
 
         try
         {
-            CompressChunk(ReadOnlySpan<byte>.Empty, isFinalBlock: true);
+            Compress(ReadOnlySpan<byte>.Empty, isFinalBlock: true);
         }
         finally
         {
@@ -143,7 +155,5 @@ internal sealed class CompressingSink : IResponseSink, IAsyncDisposable, IDispos
         Dispose();
         return ValueTask.CompletedTask;
     }
-
-    #endregion
-
+    
 }
