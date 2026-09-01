@@ -43,15 +43,7 @@ Running this snippet will provide the following endpoints:
 ## Samples
 
 The [playground](./Playground/) project provides a quick starting point to view sample code and find more complex apps
-built with GenHTTP. See [the documentation](https://genhttp.org/documentation/content/)
-for all available capabilities.
-
-| Sample                                                                          | Description                                               |
-|---------------------------------------------------------------------------------|-----------------------------------------------------------|
-| [Layouting](./Playground/Samples/LayoutingSample.cs)                            | Allows an app to use multiple handlers by adding routing. |
-| [Static Files](./Playground/Samples/StaticFileSample.cs)                        | Serves static files from a directory.                     |
-| [Static Websites](./Playground/Samples/StaticWebsiteSample.cs)                  | Hosts a static website (with `index.html` support).       |
-| [Single Page Applications](./Playground/Samples/SinglePageApplicationSample.cs) | Hosts a SPA such as a React or Angular application.       |
+built with GenHTTP. See [the documentation](https://genhttp.org/documentation/content/) for all available capabilities.
 
 ## Support
 
@@ -82,13 +74,13 @@ failed to render dynamic pages on such a slow CPU back then. The original projec
 on [archive.org](https://web.archive.org/web/20100706192130/http://gene.homeip.net/GenHTTPWebsite/). In 2019, the source
 code has been moved to GitHub with the goal to rework the project to be able to run dockerized web applications written
 in C#. In 2024 the focus has shifted towards API development, dropping support for generating graphical web
-applications.
+applications. In 2026, the API and internal engine have been rewritten to be allocation-free, greatly
+improving performance in result.
 
 ## Thanks
 
 - Powered by [.NET](https://github.com/dotnet/core)
-- Modules implemented
-  with [NSwag](https://github.com/RicoSuter/NSwag) | [Cottle](https://r3c.github.io/cottle/) | [SharpCompress](https://github.com/adamhathcock/sharpcompress)
+- Modules implemented with [NSwag](https://github.com/RicoSuter/NSwag) | [Cottle](https://r3c.github.io/cottle/) | [SharpCompress](https://github.com/adamhathcock/sharpcompress)
 
 ### Supported by
 
