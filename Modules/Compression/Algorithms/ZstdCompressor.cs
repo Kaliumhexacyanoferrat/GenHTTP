@@ -7,7 +7,7 @@ namespace GenHTTP.Modules.Compression.Algorithms;
 
 internal sealed class ZstdCompressor : ICompressor
 {
-    private ZstandardEncoder _encoder;
+    private readonly ZstandardEncoder _encoder;
 
     internal ZstdCompressor(CompressionLevel level)
     {

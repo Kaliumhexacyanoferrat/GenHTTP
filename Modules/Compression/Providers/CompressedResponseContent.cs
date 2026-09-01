@@ -19,7 +19,7 @@ public sealed class CompressedResponseContent : IResponseContent, IDisposable
     private Func<IResponseSink, IResponseSink> SinkFactory { get; }
 
     #endregion
-    
+
     #region Initialization
 
     public CompressedResponseContent(IResponseContent originalContent, Func<IResponseSink, IResponseSink> sinkFactory, AlgorithmName algorithmName)
@@ -30,7 +30,7 @@ public sealed class CompressedResponseContent : IResponseContent, IDisposable
     }
 
     #endregion
-    
+
     #region Functionality
 
     public ValueTask<ulong?> CalculateChecksumAsync() => OriginalContent.CalculateChecksumAsync();
