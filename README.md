@@ -21,13 +21,16 @@ using GenHTTP.Modules.OpenApi;
 using GenHTTP.Modules.Practices;
 
 // use a handler of your choice (see the samples below)
-var api = Layout.Create()
-                .Add(Inline.Create().Get(() => "Hello World"))
+var api = Inline.Create()
+                .Get((int a, int b) => a + b);
+
+var app = Layout.Create()
+                .Add(api)
                 .AddOpenApi()
                 .AddScalar();
 
 var host = await Host.Create()
-                     .Handler(api)
+                     .Handler(app)
                      .Defaults()
                      .StartAsync(); // or .RunAsync() to block until the (console) application is shut down
 ```
@@ -36,7 +39,7 @@ Running this snippet will provide the following endpoints:
 
 | Endpoint                           | Description                                                            |
 |------------------------------------|------------------------------------------------------------------------|
-| http://localhost:8080              | Serves the API, answering requests with a "Hello World" text response. |
+| http://localhost:8080?a=1&b=2      | Serves the API, answering requests by calculating the sum of two query arguments.      |
 | http://localhost:8080/openapi.json | Serves the automatically generated Open API specification of the API.  |
 | http://localhost:8080/scalar/      | Servers a graphical viewer of the API, using Scalar.                   |
 
