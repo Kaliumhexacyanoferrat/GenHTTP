@@ -48,6 +48,7 @@ Running this snippet will provide the following endpoints:
 The [playground](./Playground/) project provides a quick starting point to view sample code and find more complex apps
 built with GenHTTP. See [the documentation](https://genhttp.org/documentation/content/) for all available capabilities.
 
+
 | Sample                                                                          | Description                                               |
 |---------------------------------------------------------------------------------|-----------------------------------------------------------|
 | [Layouting](./Playground/Samples/LayoutingSample.cs)                            | Allows an app to use multiple handlers by adding routing. |
@@ -88,8 +89,7 @@ improving performance in result.
 ## Thanks
 
 - Powered by [.NET](https://github.com/dotnet/core)
-- Modules implemented
-  with [NSwag](https://github.com/RicoSuter/NSwag) | [Cottle](https://r3c.github.io/cottle/) | [SharpCompress](https://github.com/adamhathcock/sharpcompress)
+- Modules implemented with [NSwag](https://github.com/RicoSuter/NSwag) | [Cottle](https://r3c.github.io/cottle/) | [SharpCompress](https://github.com/adamhathcock/sharpcompress)
 
 ### Supported by
 

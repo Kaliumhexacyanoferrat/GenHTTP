@@ -48,6 +48,7 @@ public static class WebserviceSample
             };
 
             Books.Add(toAdd);
+
             return toAdd;
         }
 
