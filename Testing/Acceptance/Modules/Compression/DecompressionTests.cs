@@ -21,9 +21,6 @@ public sealed class DecompressionTests
 {
     private const string TestContent = "Hello, this is test content that will be compressed!";
 
-    /// <summary>
-    /// As a developer, I expect incoming gzip-compressed requests to be automatically decompressed.
-    /// </summary>
     [TestMethod]
     [MultiEngineTest]
     public async Task TestGzipDecompression(TestEngine engine)
@@ -31,9 +28,15 @@ public sealed class DecompressionTests
         await TestDecompressionAsync(engine, "gzip", CompressGzip);
     }
 
-    /// <summary>
-    /// As a developer, I expect incoming brotli-compressed requests to be automatically decompressed.
-    /// </summary>
+#if NET11_0_OR_GREATER
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestZstandardDecompression(TestEngine engine)
+    {
+        await TestDecompressionAsync(engine, "zstd", CompressZstd);
+    }
+#endif
+
     [TestMethod]
     [MultiEngineTest]
     public async Task TestBrotliDecompression(TestEngine engine)
@@ -234,6 +237,19 @@ public sealed class DecompressionTests
         }
         return output.ToArray();
     }
+
+#if NET11_0_OR_GREATER
+    private static byte[] CompressZstd(string content)
+    {
+        var bytes = Encoding.UTF8.GetBytes(content);
+        using var output = new MemoryStream();
+        using (var gzip = new ZstandardStream(output, CompressionLevel.Fastest, leaveOpen: true))
+        {
+            gzip.Write(bytes, 0, bytes.Length);
+        }
+        return output.ToArray();
+    }
+#endif
 
     #endregion
 

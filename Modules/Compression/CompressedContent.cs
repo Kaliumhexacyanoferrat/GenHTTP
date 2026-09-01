@@ -22,7 +22,11 @@ public static class CompressedContent
     /// </summary>
     /// <returns>The newly created builder</returns>
     public static CompressionConcernBuilder Default() => new CompressionConcernBuilder().Add(new BrotliAlgorithm())
-                                                                                        .Add(new GzipAlgorithm());
+                                                                                        .Add(new GzipAlgorithm())
+#if NET11_0_OR_GREATER
+                                                                                        .Add(new ZstdAlgorithm())
+#endif
+                                                                                        ;
 
     #endregion
 
