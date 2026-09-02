@@ -4,6 +4,8 @@
 
         <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
 
+        <Features Condition="'$(TargetFramework)' == 'net11.0'">$(Features);runtime-async=on</Features>
+        
         <LangVersion>14.0</LangVersion>
         <Nullable>enable</Nullable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -28,7 +30,7 @@
         <Deterministic>true</Deterministic>
 
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>CS1591,CS1587,CS1572,CS1573,NU1510</NoWarn>
+        <NoWarn>CS1591,CS1572,CS1573</NoWarn>
 
     </PropertyGroup>
 
@@ -40,7 +42,7 @@
 
     <ItemGroup>
 
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.301" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.400" PrivateAssets="All" />
 
     </ItemGroup>
 

@@ -16,7 +16,7 @@
 
         <ProjectReference Include="..\Conversion\GenHTTP.Modules.Conversion.csproj" />
 
-        <PackageReference Include="protobuf-net" Version="3.2.56" />
+        <PackageReference Include="protobuf-net" Version="3.4.21" />
 
     </ItemGroup>
 
