@@ -16,9 +16,9 @@
 
         <ProjectReference Include="..\..\Modules\IO\GenHTTP.Modules.IO.csproj" />
 
-        <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.10" />
+        <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.11" />
 
-        <PackageReference Include="Glyph11" Version="0.3.6" />
+        <PackageReference Include="Glyph11" Version="0.3.7" />
         
     </ItemGroup>
 

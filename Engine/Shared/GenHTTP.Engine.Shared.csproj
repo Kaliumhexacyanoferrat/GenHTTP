@@ -14,9 +14,9 @@
 
         <ProjectReference Include="..\..\Modules\ErrorHandling\GenHTTP.Modules.ErrorHandling.csproj" />
 
-        <PackageReference Include="Glyph11" Version="0.3.6" />
+        <PackageReference Include="Glyph11" Version="0.3.7" />
 
-        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.10" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.11" />
 
     </ItemGroup>
 
