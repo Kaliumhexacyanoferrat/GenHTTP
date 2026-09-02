@@ -91,9 +91,15 @@ public sealed class RawWebsocketConnectionTests
         {
             using var socket = await listener.AcceptSocketAsync();
 
+            // Drain the client's handshake request first, so the connection is fully established
+            // before we reset it. Otherwise the RST races with the client's ConnectAsync and can
+            // surface there (observed on macOS) instead of during the handshake exchange.
+            var buffer = new byte[1024];
+            await socket.ReceiveAsync(buffer, SocketFlags.None);
+
             // Abortive close: LingerOption(true, 0) makes Close() send an RST instead of a FIN,
-            // reproducing the ECONNRESET a peer triggers when it tears the connection down while
-            // our handshake request is still unread in its receive buffer.
+            // reproducing the ECONNRESET a peer triggers when it tears the connection down
+            // mid-handshake.
             socket.LingerState = new LingerOption(true, 0);
             socket.Close();
         });

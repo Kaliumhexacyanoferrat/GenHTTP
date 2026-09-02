@@ -134,14 +134,7 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
         writer.Write(_clrf.Span);
 
         // Writes and flushes
-        try
-        {
-            await Pipe.Output.WriteAsync(writer.WrittenMemory, token);
-        }
-        catch (Exception e) when (e is IOException or SocketException)
-        {
-            throw new ProviderException(ResponseStatus.BadGateway, "Connection was reset before the WebSocket handshake could be sent.", e);
-        }
+        await Pipe.Output.WriteAsync(writer.WrittenMemory, token);
 
         // Read the handshake response until \r\n\r\n
         while (request.Server.Running)
