@@ -30,7 +30,7 @@
         <Deterministic>true</Deterministic>
 
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>CS1591,CS1587,CS1572,CS1573,NU1510</NoWarn>
+        <NoWarn>CS1591,CS1572,CS1573</NoWarn>
 
     </PropertyGroup>
 
