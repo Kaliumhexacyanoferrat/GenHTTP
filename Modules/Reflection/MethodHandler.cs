@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.ExceptionServices;
+using System.Runtime.CompilerServices;
 
 using Cottle;
 
@@ -235,7 +236,8 @@ public sealed class MethodHandler : IHandler
             throw;
         }
     }
-
+    
+    [RuntimeAsyncMethodGenerationAttribute(false)]
     private static async ValueTask<object?> UnwrapAsync(object? result)
     {
         if (result == null)
