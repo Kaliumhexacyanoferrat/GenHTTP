@@ -6,8 +6,6 @@ using System.Text;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.ReverseProxy;
 
-using GenHTTP.Testing.Acceptance.Utilities;
-
 namespace GenHTTP.Testing.Acceptance.Modules.ReverseProxy.WebsocketProxy;
 
 [TestClass]

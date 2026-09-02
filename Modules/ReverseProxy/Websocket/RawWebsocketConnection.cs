@@ -139,7 +139,21 @@ public sealed class RawWebsocketConnection : IAsyncDisposable
         // Read the handshake response until \r\n\r\n
         while (request.Server.Running)
         {
-            var result = await Pipe.Input.ReadAsync(token);
+            ReadResult result;
+
+            try
+            {
+                result = await Pipe.Input.ReadAsync(token);
+            }
+            catch (Exception e) when (e is IOException or SocketException)
+            {
+                // A peer that closes the socket while our request bytes are still unread in its
+                // receive buffer triggers an RST (RFC 1122, 4.2.2.13) instead of a clean FIN, so
+                // the read surfaces as ECONNRESET rather than an EOF (0 bytes / IsCompleted). Both
+                // cases mean the same thing here: the upstream went away mid-handshake.
+                throw new ProviderException(ResponseStatus.BadGateway, "Connection was reset before the full WebSocket handshake was received.", e);
+            }
+
             var buffer = result.Buffer;
 
             if (result.IsCompleted && buffer.Length == 0)
