@@ -18,7 +18,13 @@
         <ProjectReference Include="..\Conversion\GenHTTP.Modules.Conversion.csproj" />
         <ProjectReference Include="..\Pages\GenHTTP.Modules.Pages.csproj" />
 
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />
+        <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+            <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />
+        </ItemGroup>
+
+        <ItemGroup Condition="'$(TargetFramework)' != 'net11.0'">
+            <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />
+        </ItemGroup>
 
         <ProjectReference Include="..\..\Generators\MemoryView\GenHTTP.Generators.MemoryView.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 
