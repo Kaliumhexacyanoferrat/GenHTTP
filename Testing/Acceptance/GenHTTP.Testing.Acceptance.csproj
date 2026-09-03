@@ -55,7 +55,7 @@
         <PackageReference Include="Microsoft.OpenApi" Version="3.10.2" />
         <PackageReference Include="Microsoft.OpenApi.YamlReader" Version="3.10.2" />
 
-        <PackageReference Include="MSTest" Version="4.3.3" />
+        <PackageReference Include="MSTest" Version="4.4.0" />
 
         <PackageReference Include="NSubstitute" Version="6.2.0" />
 
