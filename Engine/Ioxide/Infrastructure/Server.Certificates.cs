@@ -6,12 +6,14 @@ using Microsoft.Extensions.Logging;
 
 namespace GenHTTP.Engine.Ioxide.Infrastructure;
 
+/// <summary>Replacing the certificates of a server that is already serving.</summary>
 public sealed partial class Server
 {
     private static readonly Dictionary<string, TlsCertificate> NoHosts = [];
 
     private readonly Lock _reload = new();
 
+    // Asks every bound provider again and installs what it answers with, across both transports, without dropping a connection.
     public void ReloadCertificates()
     {
         if (!Running || !SecureEndPoints.Any())
@@ -45,6 +47,7 @@ public sealed partial class Server
         }
     }
 
+    // What each secure TCP port should serve now, and which endpoint carries QUIC.
     private List<CertificateRotation> ResolveRotations(TcpTlsRegistry? started, out SecureEndPoint? quic)
     {
         var rotations = new List<CertificateRotation>();
@@ -86,6 +89,7 @@ public sealed partial class Server
         return rotations;
     }
 
+    // Installs the resolved sets on every reactor, collecting failures rather than stopping half way.
     private void Publish(TcpTlsRegistry?[] registries, List<CertificateRotation> rotations)
     {
         List<Exception>? failures = null;
@@ -126,6 +130,7 @@ public sealed partial class Server
         }
     }
 
+    // Refuses a rotation naming a file that is not there yet, before anything is published.
     private static void RequireFiles(TlsCertificate certificate, ushort port, string what)
     {
         if (certificate.CertificatePath is { } path && !File.Exists(path))
@@ -139,5 +144,6 @@ public sealed partial class Server
         }
     }
 
+    /// <summary>What one port should serve once a rotation is published.</summary>
     private sealed record CertificateRotation(ushort Port, TlsCertificate Default, IReadOnlyDictionary<string, TlsCertificate>? ByHost);
 }

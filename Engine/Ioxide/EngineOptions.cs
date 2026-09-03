@@ -2,6 +2,7 @@ using ioxide;
 
 namespace GenHTTP.Engine.Ioxide;
 
+/// <summary>How the engine itself is tuned, beneath what the bindings decide.</summary>
 public sealed record EngineOptions
 {
     internal static readonly EngineOptions Default = new();
@@ -14,9 +15,12 @@ public sealed record EngineOptions
 
     public TcpTransportOptions Tcp { get; init; } = new();
 
+    public QuicTransportOptions Quic { get; init; } = new();
+
     public Http3Options Http3 { get; init; } = new();
 }
 
+/// <summary>The io_uring reactors: how many, and how much ring each one gets.</summary>
 public sealed record ReactorOptions
 {
     public int ReactorCount { get; init; } = Environment.ProcessorCount;
@@ -30,6 +34,7 @@ public sealed record ReactorOptions
     public IncrementalOptions? Incremental { get; init; }
 }
 
+/// <summary>The TCP listener and its TLS, from the listen backlog to the kTLS switches.</summary>
 public sealed record TcpTransportOptions
 {
     public int HandshakeTimeoutMs { get; init; } = 10_000;
@@ -55,7 +60,8 @@ public sealed record TcpTransportOptions
     public int RecvQueueEntries { get; init; } = 64;
 }
 
-public sealed record Http3Options
+/// <summary>The QUIC transport: its timeouts, how datagrams are routed, and the UDP socket.</summary>
+public sealed record QuicTransportOptions
 {
     public int HandshakeTimeoutMs { get; init; } = 10_000;
 
@@ -66,7 +72,11 @@ public sealed record Http3Options
     public bool PinMigratedPeers { get; init; } = true;
 
     public int SocketBufferBytes { get; init; } = 8 * 1024 * 1024;
+}
 
+/// <summary>HTTP/3 above QUIC, which today means QPACK alone.</summary>
+public sealed record Http3Options
+{
     public long QpackDynamicTableCapacity { get; init; }
 
     public long QpackBlockedStreams { get; init; }

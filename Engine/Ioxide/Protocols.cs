@@ -1,5 +1,6 @@
 namespace GenHTTP.Engine.Ioxide;
 
+/// <summary>Which HTTP versions a port serves.</summary>
 [Flags]
 public enum Protocols
 {

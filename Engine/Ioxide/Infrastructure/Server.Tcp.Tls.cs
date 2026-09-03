@@ -11,8 +11,10 @@ using Microsoft.Extensions.Logging;
 
 namespace GenHTTP.Engine.Ioxide.Infrastructure;
 
+/// <summary>TLS termination on the TCP transports, in OpenSSL.</summary>
 public sealed partial class Server
 {
+    // The TLS options for every secure TCP port that can produce a certificate; the rest refuse their handshakes.
     private IEnumerable<KeyValuePair<ushort, TlsOptions>> ResolveTls()
     {
         foreach (var endPoint in SecureTcpEndPoints)
@@ -52,6 +54,7 @@ public sealed partial class Server
         }
     }
 
+    // Starts a TLS service per secure port on this reactor, and publishes the registry that finds them.
     private void StartTlsServices(Reactor reactor, int index, IReadOnlyList<KeyValuePair<ushort, TlsOptions>> portsTlsOptions)
     {
         TcpTlsRegistry tcpTlsRegistry = new TcpTlsRegistry();
@@ -66,6 +69,7 @@ public sealed partial class Server
         _tcpTlsRegistries![index] = tcpTlsRegistry;
     }
 
+    // The certificate for a client that named no host, or one this port does not know.
     private TlsCertificate? ResolveDefaultCertificate(SecureEndPoint endPoint, CertificateFiles? certificateFiles, ushort port)
     {
         if (certificateFiles is not null)
@@ -85,6 +89,7 @@ public sealed partial class Server
         return null;
     }
 
+    // The certificates this port serves by name, dropping a name claimed more than once.
     private IReadOnlyDictionary<string, TlsCertificate>? ResolveHostCertificates(SecureEndPoint endPoint,
         IReadOnlyList<HostCertificate> hosts, ushort port)
     {
@@ -115,6 +120,7 @@ public sealed partial class Server
         return byHost.Count > 0 ? byHost : null;
     }
 
+    // The TLS floor for one endpoint, widening rather than throwing where SslProtocols asks for something OpenSSL cannot express.
     private TlsProtocolVersion ResolveMinProtocolVersion(SecureEndPoint endPoint)
     {
         var protocols = endPoint.SecurityConfiguration.Protocols;
@@ -146,6 +152,7 @@ public sealed partial class Server
         };
     }
 
+    // Says at startup what a bound validator will not be given, rather than leaving it to be inferred from a client that got in.
     private void WarnAboutValidatorGaps()
     {
         foreach (var endPoint in SecureEndPoints)
@@ -183,6 +190,7 @@ public sealed partial class Server
     private IEnumerable<SecureEndPoint> SecureTcpEndPoints
         => SecureEndPoints.Where(e => (e.Protocols & Protocols.Http1AndHttp2) != 0);
 
+    // An in-memory certificate as PEM text, intermediates included and the root left off.
     private string ExportChainPem(X509Certificate2 certificate, ushort port)
     {
         using var chain = new X509Chain();
@@ -227,20 +235,25 @@ public sealed partial class Server
         return pem.ToString();
     }
 
+    // Whether a certificate is its own issuer, which is what makes it a root.
     private static bool IsSelfIssued(X509Certificate2 certificate)
         => certificate.SubjectName.RawData.AsSpan().SequenceEqual(certificate.IssuerName.RawData);
 
+    // The private key as PKCS#8 PEM, if the certificate will part with it.
     private static string ExportKeyPem(X509Certificate2 certificate)
         => certificate.GetRSAPrivateKey()?.ExportPkcs8PrivateKeyPem()
            ?? certificate.GetECDsaPrivateKey()?.ExportPkcs8PrivateKeyPem()
            ?? throw new InvalidOperationException("The certificate carries no exportable RSA or ECDSA private key.");
 }
 
+/// <summary>The TLS service each secure TCP port owns on one reactor, by the port a connection arrived on.</summary>
 internal sealed class TcpTlsRegistry
 {
     private readonly Dictionary<ushort, TlsService> _byPort = [];
 
+    // Records the service a port's handshakes go through.
     public void Add(ushort port, TlsService service) => _byPort[port] = service;
 
+    // The service for the port a connection arrived on, if that port terminates TLS at all.
     public bool TryFor(ushort port, out TlsService service) => _byPort.TryGetValue(port, out service!);
 }

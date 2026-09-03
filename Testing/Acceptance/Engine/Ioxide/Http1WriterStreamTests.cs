@@ -1,15 +1,14 @@
-#if NET11_0_OR_GREATER
 
 using System.Buffers;
 using System.IO.Pipelines;
 using System.Text;
 
-using GenHTTP.Engine.Ioxide.Protocol.Http1;
+using GenHTTP.Engine.Ioxide.Protocol.Sinks;
 
 namespace GenHTTP.Testing.Acceptance.Engine.Ioxide;
 
 [TestClass]
-public sealed class PipeWriterStreamTests
+public sealed class Http1WriterStreamTests
 {
 
     [TestMethod]
@@ -17,7 +16,7 @@ public sealed class PipeWriterStreamTests
     {
         var pipe = new Pipe();
 
-        var stream = new PipeWriterStream(new ArrayBufferWriter<byte>(), pipe.Writer);
+        var stream = new Http1WriterStream(new ArrayBufferWriter<byte>(), pipe.Writer);
 
         Assert.IsFalse(stream.CanRead);
         Assert.IsFalse(stream.CanSeek);
@@ -39,7 +38,7 @@ public sealed class PipeWriterStreamTests
     {
         var writer = new ArrayBufferWriter<byte>();
 
-        var stream = new PipeWriterStream(writer, new Pipe().Writer);
+        var stream = new Http1WriterStream(writer, new Pipe().Writer);
 
         stream.WriteByte((byte)'H');
         stream.WriteByte((byte)'i');
@@ -52,7 +51,7 @@ public sealed class PipeWriterStreamTests
     {
         var pipe = new Pipe();
 
-        var stream = new PipeWriterStream(pipe.Writer, pipe.Writer);
+        var stream = new Http1WriterStream(pipe.Writer, pipe.Writer);
 
         await stream.WriteAsync("Hello"u8.ToArray());
 
@@ -65,4 +64,3 @@ public sealed class PipeWriterStreamTests
 
 }
 
-#endif

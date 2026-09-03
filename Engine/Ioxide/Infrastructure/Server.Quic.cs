@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace GenHTTP.Engine.Ioxide.Infrastructure;
 
+/// <summary>The QUIC listener, and the HTTP/3 stack above it.</summary>
 public sealed partial class Server
 {
     private QuicEngine? _quicEngine;
@@ -16,6 +17,7 @@ public sealed partial class Server
 
     private Nghttp3Options? _h3Options;
 
+    // The one endpoint serving HTTP/3; more than one is refused, since this engine binds a single QUIC listener.
     private EndPoint? ResolveQuicEndPoint()
     {
         var quicEndPoints = _endPoints.Where(e => e.Protocols.HasFlag(Protocols.Http3)).ToList();
@@ -30,6 +32,7 @@ public sealed partial class Server
         return quicEndPoints.Count == 1 ? quicEndPoints[0] : null;
     }
 
+    // Adds the QUIC listener, which needs a certificate named as files - QUIC has no cleartext mode.
     private ServerConfig WithQuic(ServerConfig serverConfig)
     {
         var endPoint = _quicEndPoint!;
@@ -60,7 +63,7 @@ public sealed partial class Server
             clientCaPemPath: quicEndPoint.ClientCaPath,
             requireClientCertificate: quicEndPoint.RequireClientCertificate,
             clientCaPem: quicEndPoint.ClientCaPem,
-            handshakeTimeoutMs: _engineOptions.Http3.HandshakeTimeoutMs);
+            handshakeTimeoutMs: _engineOptions.Quic.HandshakeTimeoutMs);
 
         RegisterQuicHosts(quicEndPoint);
 
@@ -74,20 +77,21 @@ public sealed partial class Server
         {
             Udp = (serverConfig.Udp ?? new UdpOptions()) with
             {
-                SocketBufferBytes = _engineOptions.Http3.SocketBufferBytes,
+                SocketBufferBytes = _engineOptions.Quic.SocketBufferBytes,
             },
             Quic = new QuicOptions
             {
                 Port = quicEndPoint.Port,
                 ConnectionFactory = _quicEngine.CreateFactory(),
 
-                IdleTimeoutMs = _engineOptions.Http3.IdleTimeoutMs,
-                Routing = _engineOptions.Http3.Routing,
-                PinMigratedPeers = _engineOptions.Http3.PinMigratedPeers,
+                IdleTimeoutMs = _engineOptions.Quic.IdleTimeoutMs,
+                Routing = _engineOptions.Quic.Routing,
+                PinMigratedPeers = _engineOptions.Quic.PinMigratedPeers,
             },
         };
     }
 
+    // Registers each name with ngtcp2, logging the ones it refuses rather than losing the listener.
     private void RegisterQuicHosts(SecureEndPoint endPoint)
     {
         foreach (var (host, certificate) in ResolveQuicHosts(endPoint, endPoint.Hosts))
@@ -104,6 +108,7 @@ public sealed partial class Server
         }
     }
 
+    // The names HTTP/3 can actually serve: those whose certificate exists on disk.
     private Dictionary<string, QuicCertificate> ResolveQuicHosts(SecureEndPoint endPoint, IReadOnlyList<HostCertificate> hosts)
     {
         var resolved = new Dictionary<string, QuicCertificate>(hosts.Count, StringComparer.OrdinalIgnoreCase);
@@ -132,6 +137,7 @@ public sealed partial class Server
         return resolved;
     }
 
+    // Swaps the QUIC certificates in one atomic publish, or throws having changed nothing.
     private void ReloadQuicCertificates(SecureEndPoint endPoint, CertificateFiles? files, IReadOnlyList<HostCertificate> hosts)
     {
         if (_quicEngine is null)
@@ -150,6 +156,7 @@ public sealed partial class Server
             ResolveQuicHosts(endPoint, hosts));
     }
 
+    // Drops the QUIC engine. Nothing was written for it, so nothing is cleaned up.
     private void DisposeQuic()
     {
         _quicEngine?.Dispose();

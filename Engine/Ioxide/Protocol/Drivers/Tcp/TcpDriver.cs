@@ -10,27 +10,29 @@ using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Ioxide.Infrastructure;
 using GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
-using GenHTTP.Engine.Ioxide.Protocol.Http1;
-using GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 
 using ioxide.tls;
 
 using IoConnection = ioxide.TcpConnection;
 
-namespace GenHTTP.Engine.Ioxide.Protocol;
+namespace GenHTTP.Engine.Ioxide.Protocol.Drivers.Tcp;
 
-internal static partial class ConnectionDriver
+/// <summary>Takes an accepted TCP connection through TLS and up to whichever protocol it turns out to speak.</summary>
+internal static partial class TcpDriver
 {
     private const int ShutWrite = 1;
 
+    // Half-closes the socket, which is what puts a FIN on the wire.
     [LibraryImport("libc", EntryPoint = "shutdown")]
     private static partial int Shutdown(int sockfd, int how);
 
+    // The peer's sockaddr, which ioxide does not surface itself.
     [LibraryImport("libc", EntryPoint = "getpeername")]
     private static partial int GetPeerName(int sockfd, [Out] byte[] addr, ref int addrlen);
 
     private static readonly ReadOnlyMemory<byte> Preface = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n"u8.ToArray();
 
+    // Takes an accepted connection through TLS if the port has it, then hands it to whichever protocol it turns out to speak.
     internal static async Task HandleAsync(IServer server, IEndPoint endPoint, IoConnection conn,
         Protocols protocols = Protocols.Http1)
     {
@@ -100,6 +102,7 @@ internal static partial class ConnectionDriver
         await Http1Driver.RunAsync(server, endPoint, pipe, conn, remoteAddress);
     }
 
+    // Runs the handshake, lets the application have its say on the peer, and reports what ALPN settled on.
     private static async ValueTask<(IDuplexPipe Pipe, string? Protocol)> AcceptTlsAsync(IoConnection conn, TlsService service,
         SecureEndPoint? endPoint)
     {
@@ -115,6 +118,7 @@ internal static partial class ConnectionDriver
         return (new TlsConnectionDualPipe(conn, session), session.NegotiatedAlpn);
     }
 
+    // Asks the endpoint's validator about the peer certificate OpenSSL ended up with.
     private static bool Accepts(ICertificateValidator validator, TlsSession session)
     {
         var der = session.PeerCertificateDer;
@@ -134,6 +138,7 @@ internal static partial class ConnectionDriver
         return validator.Validate(certificate, chain, SslPolicyErrors.None);
     }
 
+    // Peeks for the HTTP/2 preface without consuming it, so a prior-knowledge client is recognised.
     private static async ValueTask<bool> StartsWithPrefaceAsync(PipeReader reader)
     {
         while (true)
@@ -162,6 +167,7 @@ internal static partial class ConnectionDriver
         }
     }
 
+    // Completes both halves of the pipe, then FINs the socket and drops the connection's reference.
     internal static async ValueTask CloseAsync(IDuplexPipe pipe, IoConnection conn)
     {
         await pipe.Input.CompleteAsync();
@@ -176,6 +182,7 @@ internal static partial class ConnectionDriver
         conn.DecRef();
     }
 
+    // The peer's address straight from the socket, since ioxide exposes the fd but not the address.
     private static IPAddress? GetPeerAddress(int fd)
     {
         var addr = new byte[128]; // sockaddr_storage

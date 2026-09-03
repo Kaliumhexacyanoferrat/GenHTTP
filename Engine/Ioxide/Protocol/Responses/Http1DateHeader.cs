@@ -1,8 +1,11 @@
 using System.Runtime.CompilerServices;
 
-namespace GenHTTP.Engine.Ioxide.Protocol.Http1;
+namespace GenHTTP.Engine.Ioxide.Protocol.Responses;
 
-internal static class DateHeader
+/// <summary>The Date header, held per reactor and rebuilt once a second.</summary>
+// Not Shared's Http1DateHeader, which formats into one static buffer - fine for a single
+// connection loop, a race across reactor threads.
+internal static class Http1DateHeader
 {
     [ThreadStatic]
     private static byte[]? _buffer; // "Date: " (6) + RFC1123 (29) + CRLF (2)
@@ -11,6 +14,7 @@ internal static class DateHeader
     private static int _second;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    // The Date header, formatted at most once a second per reactor.
     public static ReadOnlyMemory<byte> Get()
     {
         var buffer = _buffer;

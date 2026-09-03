@@ -6,8 +6,10 @@ using GenHTTP.Engine.Shared.Infrastructure;
 
 namespace GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 
+/// <summary>An endpoint bound with a certificate, carrying everything its TLS was configured with.</summary>
 internal sealed class SecureEndPoint : EndPoint
 {
+    // Reads the binding's TLS settings once, since both stacks settle their tables at startup.
     internal SecureEndPoint(IPAddress? address, ushort port, bool dualStack, Protocols protocols,
         SecurityConfiguration securityConfiguration)
         : base(address, port, dualStack, protocols)
@@ -34,9 +36,11 @@ internal sealed class SecureEndPoint : EndPoint
 
     public IReadOnlyList<HostCertificate> Hosts { get; }
 
+    // Asks the provider for the default certificate as paths, now rather than at startup.
     public CertificateFiles? ResolveFiles()
         => (SecurityConfiguration.CertificateProvider as IFileCertificateProvider)?.ProvideFiles(null);
 
+    // Asks the provider for every name it answers for, in both forms, skipping the ones it has neither for.
     public IReadOnlyList<HostCertificate> ResolveHosts()
     {
         if (SecurityConfiguration.CertificateProvider is not IHostCertificateProvider byHost)
@@ -74,4 +78,5 @@ internal sealed class SecureEndPoint : EndPoint
     public bool MutualTls => SecurityConfiguration.CertificateValidator is not null;
 }
 
+/// <summary>One name a provider answers for, in both forms - files for HTTP/3, in-memory for TCP.</summary>
 internal sealed record HostCertificate(string Host, CertificateFiles? Files, X509Certificate2? Certificate);

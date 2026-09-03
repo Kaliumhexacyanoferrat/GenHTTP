@@ -2,9 +2,10 @@ using System.Buffers;
 
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
+namespace GenHTTP.Engine.Ioxide.Protocol.Sinks;
 
-internal sealed class MultiplexedSink : IResponseSink
+/// <summary>The response sink for an HTTP/2 or HTTP/3 stream, flushing as it writes.</summary>
+internal sealed class StreamedSink : IResponseSink
 {
     private readonly IBufferWriter<byte> _writer;
 
@@ -12,7 +13,8 @@ internal sealed class MultiplexedSink : IResponseSink
 
     private Stream? _stream;
 
-    internal MultiplexedSink(IBufferWriter<byte> writer, Func<ValueTask> flush)
+    // The response sink for one stream: write into the frame buffer, flush to pace it.
+    internal StreamedSink(IBufferWriter<byte> writer, Func<ValueTask> flush)
     {
         _writer = writer;
         _flush = flush;
@@ -22,6 +24,7 @@ internal sealed class MultiplexedSink : IResponseSink
 
     public Stream Stream => _stream ??= new FlushingStream(_writer, _flush);
 
+    /// <summary>A write-only stream over the frame buffer that paces itself with flushes.</summary>
     private sealed class FlushingStream : Stream
     {
         private readonly IBufferWriter<byte> _target;
@@ -30,6 +33,7 @@ internal sealed class MultiplexedSink : IResponseSink
 
         private long _written;
 
+        // A write-only stream over the frame buffer that flushes as it goes.
         internal FlushingStream(IBufferWriter<byte> target, Func<ValueTask> flush)
         {
             _target = target;
@@ -50,33 +54,42 @@ internal sealed class MultiplexedSink : IResponseSink
             set => throw new NotSupportedException();
         }
 
+        // The array overload, over the span one.
         public override void Write(byte[] buffer, int offset, int count) => Write(buffer.AsSpan(offset, count));
 
+        // Stages bytes without pacing them: there is no flush on the sync path, so large bodies want async.
         public override void Write(ReadOnlySpan<byte> buffer)
         {
             _target.Write(buffer);
             _written += buffer.Length;
         }
 
-        public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+        // Writes and then flushes, which is what lets a large body stream rather than pile up.
+        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
             _target.Write(buffer.Span);
             _written += buffer.Length;
 
-            await _flush();
+            return _flush();
         }
 
-        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-            => await WriteAsync(buffer.AsMemory(offset, count), cancellationToken);
+        // The array overload, over the memory one.
+        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            => WriteAsync(buffer.AsMemory(offset, count), cancellationToken).AsTask();
 
+        // A no-op, since only FlushAsync can pace a stream without blocking the reactor.
         public override void Flush() { }
 
-        public override async Task FlushAsync(CancellationToken cancellationToken) => await _flush();
+        // Pushes the staged frames out to the peer.
+        public override Task FlushAsync(CancellationToken cancellationToken) => _flush().AsTask();
 
+        // Write-only, so reading is a mistake worth reporting.
         public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
 
+        // A response body only goes forwards.
         public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
 
+        // The length is whatever gets written.
         public override void SetLength(long value) => throw new NotSupportedException();
     }
 }

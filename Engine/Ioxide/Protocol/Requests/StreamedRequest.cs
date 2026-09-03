@@ -5,11 +5,12 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Shared.Types;
 
-namespace GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
+namespace GenHTTP.Engine.Ioxide.Protocol.Requests;
 
-internal sealed class MultiplexedRequest : IRequest
+/// <summary>One HTTP/2 or HTTP/3 stream, as the request shape the handler chain expects.</summary>
+internal sealed class StreamedRequest : IRequest
 {
-    private readonly MultiplexedRequestBody? _body;
+    private readonly StreamedRequestBody? _body;
 
     private readonly ClientConnection _client = new();
 
@@ -21,16 +22,25 @@ internal sealed class MultiplexedRequest : IRequest
 
     private bool _bodyFetched;
 
-    internal MultiplexedRequest(IServer server, IEndPoint endPoint, ReadOnlyMemory<byte> method, ReadOnlyMemory<byte> path,
-        ReadOnlyMemory<byte> authority, List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> headers,
-        Func<ValueTask<ReadOnlyMemory<byte>>>? read, IPAddress? remoteAddress, HttpProtocol protocol, bool secure)
+    // Presents one HTTP/2 or HTTP/3 stream as the request shape the handler chain expects.
+    internal StreamedRequest(
+        IServer server, 
+        IEndPoint endPoint, 
+        ReadOnlyMemory<byte> method, 
+        ReadOnlyMemory<byte> path,
+        ReadOnlyMemory<byte> authority, 
+        List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> headers,
+        Func<ValueTask<ReadOnlyMemory<byte>>>? read,
+        IPAddress? remoteAddress, 
+        HttpProtocol protocol, 
+        bool secure)
     {
         Server = server;
         EndPoint = endPoint;
 
-        Header = new MultiplexedRequestHeader(method, path, authority, headers, ParseQuery(path), protocol);
+        Header = new StreamedRequestHeader(method, path, authority, headers, ParseQuery(path), protocol);
 
-        _body = read is null ? null : new MultiplexedRequestBody(read);
+        _body = read is null ? null : new StreamedRequestBody(read);
 
         _client.Apply(remoteAddress, secure ? ClientProtocol.Https : ClientProtocol.Http, null);
     }
@@ -45,6 +55,7 @@ internal sealed class MultiplexedRequest : IRequest
 
     public IRequestHeader Header { get; }
 
+    // The body, once - a stream cannot be read twice.
     public IRequestBody? GetBody(HeaderAccess headerAccess = HeaderAccess.Retain)
     {
         if (_bodyFetched)
@@ -62,15 +73,20 @@ internal sealed class MultiplexedRequest : IRequest
         return _bodyWrapper is not null ? _bodyWrapper(_body) : _body;
     }
 
+    // Lets a handler decorate the body before anyone reads it.
     public void WrapBody(Func<IRequestBody, IRequestBody> wrapper) => _bodyWrapper = wrapper;
 
+    // A response builder for this request, starting at 200.
     public IResponseBuilder Respond() => _response.Status(ResponseStatus.Ok);
 
+    // There is no upgrade here: both protocols carry their own stream multiplexing.
     public PipeReader Upgrade()
         => throw new NotSupportedException("Connection upgrades are not available over HTTP/2 or HTTP/3.");
 
+    // Nothing of its own to release: the stream is the connection's.
     public ValueTask DisposeAsync() => new();
 
+    // Splits the query out of :path, which is where both protocols carry it.
     private static List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> ParseQuery(ReadOnlyMemory<byte> path)
     {
         var parameters = new List<(ReadOnlyMemory<byte>, ReadOnlyMemory<byte>)>();

@@ -2,12 +2,15 @@ using System.Buffers;
 using System.Buffers.Text;
 
 using GenHTTP.Api.Protocol;
+using GenHTTP.Engine.Ioxide.Protocol.Sinks;
 
-namespace GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
+namespace GenHTTP.Engine.Ioxide.Protocol.Responses;
 
-internal readonly struct MultiplexedResponseData
+/// <summary>A built response head, on its way to whichever driver sends it.</summary>
+internal readonly struct StreamedResponseData
 {
-    internal MultiplexedResponseData(int status, List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> headers)
+    // Carries a built response head between the responder and whichever driver sends it.
+    internal StreamedResponseData(int status, List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> headers)
     {
         Status = status;
         Headers = headers;
@@ -18,7 +21,8 @@ internal readonly struct MultiplexedResponseData
     internal List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> Headers { get; }
 }
 
-internal static class MultiplexedResponder
+/// <summary>The response shaping HTTP/2 and HTTP/3 have in common.</summary>
+internal static class StreamedResponder
 {
     private static readonly ReadOnlyMemory<byte> ContentTypeName = "content-type"u8.ToArray();
 
@@ -30,7 +34,8 @@ internal static class MultiplexedResponder
 
     private static readonly ReadOnlyMemory<byte> ServerValue = "ioxide-genhttp"u8.ToArray();
 
-    internal static MultiplexedResponseData BuildHeaders(IResponse response)
+    // The response head as both protocols want it: connection-specific fields dropped, content fields filled in.
+    internal static StreamedResponseData BuildHeaders(IResponse response)
     {
         var headers = new List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)>(response.Headers.Count + 4);
 
@@ -64,9 +69,10 @@ internal static class MultiplexedResponder
             }
         }
 
-        return new MultiplexedResponseData((int)response.Status, headers);
+        return new StreamedResponseData((int)response.Status, headers);
     }
 
+    // Writes the content, or skips it for a HEAD while still disposing it.
     internal static async ValueTask WriteBodyAsync(IResponse response, IBufferWriter<byte> writer, Func<ValueTask> flush, bool headRequest)
     {
         var content = response.Content;
@@ -80,7 +86,7 @@ internal static class MultiplexedResponder
         {
             if (!headRequest)
             {
-                await content.WriteAsync(new MultiplexedSink(writer, flush));
+                await content.WriteAsync(new StreamedSink(writer, flush));
             }
         }
         finally
@@ -92,6 +98,7 @@ internal static class MultiplexedResponder
         }
     }
 
+    // A content length as ASCII digits, without going through a string.
     private static ReadOnlyMemory<byte> Digits(ulong value)
     {
         var buffer = new byte[20];
@@ -101,11 +108,13 @@ internal static class MultiplexedResponder
         return buffer.AsMemory(0, written);
     }
 
+    // Whether a header is one HTTP/2 and HTTP/3 treat as malformed (RFC 9113 8.2.2, RFC 9114 4.2).
     private static bool IsConnectionSpecific(ReadOnlySpan<byte> name)
         => Matches(name, "connection"u8) || Matches(name, "keep-alive"u8) || Matches(name, "transfer-encoding"u8)
            || Matches(name, "upgrade"u8) || Matches(name, "proxy-connection"u8) || Matches(name, "server"u8)
            || Matches(name, "content-length"u8);
 
+    // Compares a header name case-insensitively without allocating a string for it.
     private static bool Matches(ReadOnlySpan<byte> name, ReadOnlySpan<byte> lowercase)
     {
         if (name.Length != lowercase.Length)

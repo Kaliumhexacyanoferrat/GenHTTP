@@ -12,11 +12,7 @@ namespace GenHTTP.Testing.Acceptance;
 public class MultiEngineTestAttribute : Attribute, ITestDataSource
 {
     
-#if NET11_0_OR_GREATER
     private static readonly bool IoxideSupported = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-#else
-    private static readonly bool IoxideSupported = false;
-#endif
 
     public IEnumerable<object[]> GetData(MethodInfo methodInfo)
     {

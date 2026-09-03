@@ -16,9 +16,11 @@ using Microsoft.Extensions.Logging;
 
 using Connection = GenHTTP.Api.Protocol.Connection;
 using IoConnection = ioxide.TcpConnection;
+using GenHTTP.Engine.Ioxide.Protocol.Responses;
 
-namespace GenHTTP.Engine.Ioxide.Protocol.Http1;
+namespace GenHTTP.Engine.Ioxide.Protocol.Drivers.Tcp;
 
+/// <summary>Serves HTTP/1.1 on one connection, request after request.</summary>
 internal static class Http1Driver
 {
     private static readonly ParserLimits Limits = ParserLimits.Default;
@@ -35,6 +37,7 @@ internal static class Http1Driver
 
     private const int MaxPooledRequests = 1024;
 
+    // Serves requests off one connection until the client closes it, keep-alive says no, or the server stops.
     internal static async Task RunAsync(IServer server, IEndPoint endPoint, IDuplexPipe pipe, IoConnection conn, IPAddress? remoteAddress)
     {
         var reader = pipe.Input;
@@ -109,15 +112,17 @@ internal static class Http1Driver
         {
             WarnIfThreadHopped(server, reactorThreadId, "before-return");
 
-            await ConnectionDriver.CloseAsync(pipe, conn);
+            await TcpDriver.CloseAsync(pipe, conn);
 
             ReturnRequest(request);
         }
     }
 
+    // Parses one request head, through whichever parser this process was started with.
     private static bool TryParseRequest(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
         => UsePico ? TryParseRequestPico(ref buffer, into) : TryParseRequestGlyph11(ref buffer, into);
 
+    // The default path: full RFC validation plus smuggling hardening.
     private static bool TryParseRequestGlyph11(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
     {
         if (!UltraHardenedParser.TryExtractFullHeaderValidated(ref buffer, into, Limits, out var bytesRead))
@@ -129,6 +134,7 @@ internal static class Http1Driver
         return true;
     }
 
+    // The benchmark path: picohttpparser, which validates only as far as picohttpparser does.
     private static bool TryParseRequestPico(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
     {
         if (!PicoParser.TryParse(buffer, into, out var consumed))
@@ -140,6 +146,7 @@ internal static class Http1Driver
         return true;
     }
 
+    // Runs one request through the handler chain and writes the response; returns whether the connection lives on.
     private static async ValueTask<bool> HandleRequestAsync(IServer server, PipeWriter writer, Request request)
     {
         var header = request.Header;
@@ -163,14 +170,16 @@ internal static class Http1Driver
 
         var closeRequested = response.Mode is Connection.Close or Connection.Upgrade;
 
-        await ResponseWriter.WriteAsync(writer, request, response, keepAliveRequested && !closeRequested, headRequest);
+        await Http1Responder.WriteAsync(writer, request, response, keepAliveRequested && !closeRequested, headRequest);
 
         return keepAliveRequested && !closeRequested;
     }
 
+    // Takes a request off this reactor's pool, or makes one.
     private static Request RentRequest()
         => _requestPool is { } pool && pool.TryPop(out var request) ? request : new Request();
 
+    // Puts a reset request back, up to the pool's ceiling.
     private static void ReturnRequest(Request request)
     {
         request.Reset();
@@ -185,6 +194,7 @@ internal static class Http1Driver
 
     private static int _hopWarned;
 
+    // Warns once per process if a continuation resumed off the reactor thread the request pool assumes.
     private static void WarnIfThreadHopped(IServer server, int reactorThreadId, string phase)
     {
         var now = Environment.CurrentManagedThreadId;
@@ -196,7 +206,7 @@ internal static class Http1Driver
 
         if (Interlocked.Exchange(ref _hopWarned, 1) == 0)
         {
-            server.Logging.CreateLogger("GenHTTP.Engine.Ioxide.Protocol.Http1Driver")
+            server.Logging.CreateLogger("GenHTTP.Engine.Ioxide.Protocol.Drivers.Tcp.Http1Driver")
                   .LogWarning("Thread hop detected: reactor={ReactorThreadId} now={CurrentThreadId} phase={Phase}. " +
                               "The [ThreadStatic] Request pool assumes reactor affinity; pooling degrades under work-stealing. (warns once)", reactorThreadId, now, phase);
         }

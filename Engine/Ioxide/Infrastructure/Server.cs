@@ -6,8 +6,6 @@ using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 
-using GenHTTP.Engine.Ioxide.Protocol;
-using GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Types;
 
@@ -15,9 +13,12 @@ using ioxide;
 using ioxide.tls;
 
 using Microsoft.Extensions.Logging;
+using GenHTTP.Engine.Ioxide.Protocol.Drivers.Quic;
+using GenHTTP.Engine.Ioxide.Protocol.Drivers.Tcp;
 
 namespace GenHTTP.Engine.Ioxide.Infrastructure;
 
+/// <summary>The server: maps the bindings, runs a reactor per thread, and stops them again.</summary>
 public sealed partial class Server : IServer
 {
     private readonly ServerConfiguration _serverConfiguration;
@@ -58,6 +59,7 @@ public sealed partial class Server : IServer
 
 #region Constructors
     
+    // Settles everything the bindings decide, so StartAsync only has to act on it.
     internal Server(
         ServerConfiguration serverConfiguration, 
         IHandler handler,
@@ -81,6 +83,7 @@ public sealed partial class Server : IServer
     
 #endregion
 
+    // Starts a reactor per thread and waits until every one of them is listening.
     public async ValueTask StartAsync()
     {
         await PrepareHandlerAsync();
@@ -125,7 +128,7 @@ public sealed partial class Server : IServer
                 {
                     EndPoint endPoint = EndPointFor(tcpConnection.ListenerPort);
 
-                    return ConnectionDriver.HandleAsync(this, endPoint, tcpConnection, endPoint.Protocols);
+                    return TcpDriver.HandleAsync(this, endPoint, tcpConnection, endPoint.Protocols);
                 },
                 
                 QuicHandle = _quicEngine is not null 
@@ -159,6 +162,7 @@ public sealed partial class Server : IServer
         }
     }
 
+    // Turns the bindings into endpoints, refusing the combinations this engine cannot serve.
     private static EndPoint[] MapEndPoints(ServerConfiguration config, EngineOptions options)
     {
         var mapped = config.EndPoints.Select(e => Map(e, options)).ToArray();
@@ -195,6 +199,7 @@ public sealed partial class Server : IServer
         return mapped;
     }
 
+    // The engine-wide configuration, plus whichever listeners the bindings call for.
     private ServerConfig BuildServerConfig()
     {
         var serverConfig = new ServerConfig
@@ -225,6 +230,7 @@ public sealed partial class Server : IServer
         return serverConfig;
     }
 
+    // Warms the handler chain before any connection can reach it; logs rather than throws.
     private async ValueTask PrepareHandlerAsync()
     {
         try
@@ -243,6 +249,7 @@ public sealed partial class Server : IServer
         }
     }
     
+    // One binding as an endpoint - a certificate is what makes it a secure one.
     private static EndPoint Map(EndPointConfiguration endPoint, EngineOptions options)
     {
         var protocols = ResolveProtocols(options, endPoint);
@@ -252,6 +259,7 @@ public sealed partial class Server : IServer
             : new InsecureEndPoint(endPoint.Address, endPoint.Port, endPoint.DualStack, protocols);
     }
 
+    // What one port serves: the default, its own override, and its enableQuic flag.
     private static Protocols ResolveProtocols(EngineOptions options, EndPointConfiguration endPoint)
     {
         var named = options.ProtocolsByPort.TryGetValue(endPoint.Port, out var configured);
@@ -276,6 +284,7 @@ public sealed partial class Server : IServer
         return protocols;
     }
 
+    // The endpoint a connection arrived on. A scan, since a server binds a handful.
     private EndPoint EndPointFor(ushort port)
     {
         foreach (var endPoint in _endPoints)
@@ -289,6 +298,7 @@ public sealed partial class Server : IServer
         throw new InvalidOperationException($"A connection arrived on port {port}, which no endpoint is bound to.");
     }
 
+    // The one-line summary logged once the server is up.
     private string DescribeSettings()
     {
         var protocols = string.Join(" ", _endPoints.OrderBy(e => e.Port).Select(e => $"{e.Port}:{Describe(e.Protocols)}"));
@@ -298,6 +308,7 @@ public sealed partial class Server : IServer
                + $", DualStack: {_dualStack}, Reactors: {_reactors?.Length ?? 0}";
     }
 
+    // Protocol flags as the ALPN-ish names an operator recognises.
     private static string Describe(Protocols protocols)
     {
         var names = new List<string>(3);
@@ -309,6 +320,7 @@ public sealed partial class Server : IServer
         return string.Join("+", names);
     }
 
+    // Stops every reactor and joins its thread, so no ring outlives the server.
     public async ValueTask DisposeAsync()
     {
         Running = false;

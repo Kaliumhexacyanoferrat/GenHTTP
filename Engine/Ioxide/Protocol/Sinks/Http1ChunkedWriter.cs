@@ -1,15 +1,19 @@
 using System.Buffers;
 using System.IO.Pipelines;
 
-namespace GenHTTP.Engine.Ioxide.Protocol.Http1;
+namespace GenHTTP.Engine.Ioxide.Protocol.Sinks;
 
-internal sealed class ChunkedWriter(PipeWriter writer) : IBufferWriter<byte>
+/// <summary>Frames writes as chunked transfer encoding in place, with no staging buffer.</summary>
+// Same arithmetic as Shared's Http1ChunkedWriter, which takes an IClientContext whose Stream leads
+// back to WritingStream. Kept here rather than reshaping a type two other engines depend on.
+internal sealed class Http1ChunkedWriter(PipeWriter writer) : IBufferWriter<byte>
 {
     private const int MaxHeaderSize = 10; // 8 hex digits + CRLF
     private const int TrailerSize = 2;    // CRLF
 
     private Memory<byte> _activeMemory;
 
+    // Hands out the payload window, leaving room for the chunk header and its trailing CRLF.
     public Memory<byte> GetMemory(int sizeHint = 0)
     {
         _activeMemory = writer.GetMemory(Math.Max(sizeHint, 1) + MaxHeaderSize + TrailerSize);
@@ -17,8 +21,10 @@ internal sealed class ChunkedWriter(PipeWriter writer) : IBufferWriter<byte>
         return _activeMemory.Slice(MaxHeaderSize, _activeMemory.Length - MaxHeaderSize - TrailerSize);
     }
 
+    // The same window as a span.
     public Span<byte> GetSpan(int sizeHint = 0) => GetMemory(sizeHint).Span;
 
+    // Frames what was written: size in front, CRLF behind, then commits the whole chunk.
     public void Advance(int count)
     {
         if (count == 0)
@@ -45,6 +51,7 @@ internal sealed class ChunkedWriter(PipeWriter writer) : IBufferWriter<byte>
         _activeMemory = default;
     }
 
+    // Writes the zero-length chunk that ends the body.
     public void Finish()
     {
         var span = writer.GetSpan(5);
@@ -54,6 +61,7 @@ internal sealed class ChunkedWriter(PipeWriter writer) : IBufferWriter<byte>
         writer.Advance(5);
     }
 
+    // The chunk size as eight fixed hex digits, so the header is always the same width.
     private static void WriteHex(uint value, Span<byte> dest)
     {
         for (var pos = 7; pos >= 0; pos--)

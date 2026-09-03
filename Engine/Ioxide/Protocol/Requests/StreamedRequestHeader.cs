@@ -1,24 +1,26 @@
 using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Shared.Types;
 
-namespace GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
+namespace GenHTTP.Engine.Ioxide.Protocol.Requests;
 
-internal sealed class MultiplexedRequestHeader : IRequestHeader
+/// <summary>The request head built from pseudo-headers, with :authority as Host and the query split off.</summary>
+internal sealed class StreamedRequestHeader : IRequestHeader
 {
     private static readonly ReadOnlyMemory<byte> HostName = "host"u8.ToArray();
 
-    private readonly MultiplexedKeyValueList _headers;
+    private readonly StreamedKeyValueList _headers;
 
-    private readonly MultiplexedKeyValueList _query;
+    private readonly StreamedKeyValueList _query;
 
     private readonly RequestTarget _target;
 
-    internal MultiplexedRequestHeader(ReadOnlyMemory<byte> method, ReadOnlyMemory<byte> path, ReadOnlyMemory<byte> authority,
+    // The request head, with :authority folded in as Host and the query taken off the path.
+    internal StreamedRequestHeader(ReadOnlyMemory<byte> method, ReadOnlyMemory<byte> path, ReadOnlyMemory<byte> authority,
         List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> headers,
         List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> query, HttpProtocol protocol)
     {
-        _headers = new MultiplexedKeyValueList(WithHost(headers, authority));
-        _query = new MultiplexedKeyValueList(query);
+        _headers = new StreamedKeyValueList(WithHost(headers, authority));
+        _query = new StreamedKeyValueList(query);
 
         _target = new RequestTarget();
 
@@ -45,6 +47,7 @@ internal sealed class MultiplexedRequestHeader : IRequestHeader
 
     public IRequestQuery Query => _query;
 
+    // Adds :authority as a Host header, unless the client sent one itself.
     private static List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> WithHost(
         List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> headers, ReadOnlyMemory<byte> authority)
     {
@@ -71,6 +74,7 @@ internal sealed class MultiplexedRequestHeader : IRequestHeader
         return result;
     }
 
+    // Compares a header name case-insensitively without allocating a string for it.
     private static bool Matches(ReadOnlySpan<byte> name, ReadOnlySpan<byte> lowercase)
     {
         for (var i = 0; i < name.Length; i++)
@@ -91,6 +95,7 @@ internal sealed class MultiplexedRequestHeader : IRequestHeader
         return true;
     }
 
+    // The path alone - routing must not see the query, or every request carrying one 404s.
     private static ReadOnlyMemory<byte> WithoutQuery(ReadOnlyMemory<byte> path)
     {
         var mark = path.Span.IndexOf((byte)'?');
