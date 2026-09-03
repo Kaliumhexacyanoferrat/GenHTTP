@@ -4,6 +4,7 @@ using System.Runtime.Loader;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Reflection.Operations;
 using GenHTTP.Modules.Reflection.Routing;
@@ -24,6 +25,14 @@ internal static class DelegateProvider
         deterministic: false
     );
 
+    private static readonly CSharpParseOptions? ParseOptions =
+#if NET11_0_OR_GREATER
+        new CSharpParseOptions(LanguageVersion.Preview)
+            .WithFeatures([new KeyValuePair<string, string>("runtime-async", "on")]);
+#else
+        null;
+#endif
+
     private static bool _requirementsLoaded;
 
     /// <summary>
@@ -35,7 +44,7 @@ internal static class DelegateProvider
     /// <exception cref="InvalidOperationException">Thrown if the compilation failed for some reason</exception>
     internal static Func<T, Operation, IRequest, IHandler, MethodRegistry, RoutingMatch, RequestInterception, ValueTask<IResponse?>> Compile<T>(string code)
     {
-        var syntaxTree = CSharpSyntaxTree.ParseText(code);
+        var syntaxTree = CSharpSyntaxTree.ParseText(code, ParseOptions);
 
         var assemblyName = Path.GetRandomFileName();
 
@@ -88,7 +97,7 @@ internal static class DelegateProvider
             _requirementsLoaded = true;
         }
 
-        return References.Values.ToArray();
+        return [.. References.Values];
     }
 
     private static MetadataReference LoadAssembly(string fullName)
