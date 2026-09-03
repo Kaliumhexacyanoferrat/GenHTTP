@@ -82,8 +82,9 @@ improving performance in result.
 
 ## Thanks
 
-- Powered by [.NET](https://github.com/dotnet/core)
-- Modules implemented with [NSwag](https://github.com/RicoSuter/NSwag) | [Cottle](https://r3c.github.io/cottle/) | [SharpCompress](https://github.com/adamhathcock/sharpcompress)
+- Powered by [.NET](https://github.com/dotnet/core) and the [.NET Web Stack](https://github.com/dotnet-web-stack)
+- Modules implemented with [ioxide](https://github.com/MDA2AV/ioxide) | [NSwag](https://github.com/RicoSuter/NSwag) | [Cottle](https://r3c.github.io/cottle/) | [SharpCompress](https://github.com/adamhathcock/sharpcompress)
+- Monitored by [HTTP Arena](https://www.http-arena.com) and [HTTP 1.1 Probe](https://www.http-probe.com/)
 
 ### Supported by
 
