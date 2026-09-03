@@ -7,11 +7,6 @@ using GenHTTP.Engine.Shared.Types;
 
 namespace GenHTTP.Engine.Ioxide.Protocol.Http1;
 
-/// <summary>
-/// Writes an <see cref="IResponse"/> to a <see cref="PipeWriter"/>. Header serialization is
-/// shared with the Internal engine through <see cref="ResponseSerializer"/>; body writing stays
-/// engine-specific, since the sinks are allocated per response rather than pooled per connection.
-/// </summary>
 internal static class ResponseWriter
 {
     private static readonly byte[] ServerHeader = "Server: ioxide-genhttp\r\n"u8.ToArray();
@@ -41,7 +36,6 @@ internal static class ResponseWriter
 
         if (content.Length is null && response.Mode != Connection.Upgrade)
         {
-            // Unknown length: chunk-frame everything, then terminate.
             var sink = new ChunkedSink(writer);
             await content.WriteAsync(sink);
             sink.Finish();
@@ -56,5 +50,4 @@ internal static class ResponseWriter
             disposableContent.Dispose();
         }
     }
-
 }

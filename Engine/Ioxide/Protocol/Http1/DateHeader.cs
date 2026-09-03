@@ -2,10 +2,6 @@ using System.Runtime.CompilerServices;
 
 namespace GenHTTP.Engine.Ioxide.Protocol.Http1;
 
-/// <summary>
-/// Per-reactor cached "Date: ...\r\n" header, refreshed at most once a second. [ThreadStatic]
-/// rather than a shared static, which would tear under N reactors writing the same buffer.
-/// </summary>
 internal static class DateHeader
 {
     [ThreadStatic]

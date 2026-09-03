@@ -3,9 +3,6 @@ using GenHTTP.Engine.Shared.Types;
 
 namespace GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 
-/// <summary>
-/// An <see cref="IRequestHeader"/> over the pseudo-headers a multiplexed protocol carries.
-/// </summary>
 internal sealed class MultiplexedRequestHeader : IRequestHeader
 {
     private static readonly ReadOnlyMemory<byte> HostName = "host"u8.ToArray();
@@ -25,7 +22,6 @@ internal sealed class MultiplexedRequestHeader : IRequestHeader
 
         _target = new RequestTarget();
 
-        // Routing must see the path alone, or every request carrying a query 404s.
         Path = new ByteString(WithoutQuery(path));
         Method = new RequestMethod(method);
 
@@ -41,7 +37,6 @@ internal sealed class MultiplexedRequestHeader : IRequestHeader
 
     public IRequestTarget Target => _target;
 
-    // Settled by ALPN before a byte arrived, so there is no version token on the wire to read.
     public HttpProtocol Protocol { get; }
 
     public ReadOnlyMemory<byte> Version { get; }
@@ -50,10 +45,6 @@ internal sealed class MultiplexedRequestHeader : IRequestHeader
 
     public IRequestQuery Query => _query;
 
-    /// <summary>
-    /// Constructs Host from :authority, which clients send instead - as RFC 9113 8.3.1 and RFC 9114
-    /// 4.3.1 have an intermediary do. Routing, virtual hosting and redirects all expect a Host.
-    /// </summary>
     private static List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> WithHost(
         List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> headers, ReadOnlyMemory<byte> authority)
     {

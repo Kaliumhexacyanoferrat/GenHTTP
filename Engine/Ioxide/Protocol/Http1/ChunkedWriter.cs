@@ -3,11 +3,6 @@ using System.IO.Pipelines;
 
 namespace GenHTTP.Engine.Ioxide.Protocol.Http1;
 
-/// <summary>
-/// Frames every <see cref="Advance"/> as a transfer-encoding chunk (hex size, CRLF, data, CRLF).
-/// A fixed 8-digit size header is reserved ahead of the payload, so the chunk is framed in place
-/// without a second copy. Ported from the Internal engine.
-/// </summary>
 internal sealed class ChunkedWriter(PipeWriter writer) : IBufferWriter<byte>
 {
     private const int MaxHeaderSize = 10; // 8 hex digits + CRLF
@@ -50,7 +45,6 @@ internal sealed class ChunkedWriter(PipeWriter writer) : IBufferWriter<byte>
         _activeMemory = default;
     }
 
-    /// <summary>Writes the terminating zero-length chunk.</summary>
     public void Finish()
     {
         var span = writer.GetSpan(5);

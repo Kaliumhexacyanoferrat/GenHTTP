@@ -7,14 +7,6 @@ using GenHTTP.Engine.Shared.Types;
 
 namespace GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 
-/// <summary>
-/// An <see cref="IRequest"/> over a request decoded by HPACK or QPACK - not the shared
-/// <see cref="Request"/>, whose Source assumes an HTTP/1.1 parse off a pipe.
-/// </summary>
-/// <remarks>
-/// Nothing here is pooled: several are live on one connection at once, so a pool would need the
-/// locking the reactor model exists to avoid.
-/// </remarks>
 internal sealed class MultiplexedRequest : IRequest
 {
     private readonly MultiplexedRequestBody? _body;
@@ -74,15 +66,11 @@ internal sealed class MultiplexedRequest : IRequest
 
     public IResponseBuilder Respond() => _response.Status(ResponseStatus.Ok);
 
-    /// <summary>
-    /// Not supported: upgrading to a raw byte stream is an HTTP/1.1 mechanism.
-    /// </summary>
     public PipeReader Upgrade()
         => throw new NotSupportedException("Connection upgrades are not available over HTTP/2 or HTTP/3.");
 
     public ValueTask DisposeAsync() => new();
 
-    // Both protocols carry the query inside :path, as HTTP/1.1 carries it in the request target.
     private static List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> ParseQuery(ReadOnlyMemory<byte> path)
     {
         var parameters = new List<(ReadOnlyMemory<byte>, ReadOnlyMemory<byte>)>();

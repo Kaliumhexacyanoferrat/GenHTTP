@@ -10,25 +10,12 @@ using Microsoft.Extensions.Logging;
 
 namespace GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 
-/// <summary>
-/// Serves an HTTP/2 connection: ioxide.http2 owns framing, HPACK and flow control, this maps each
-/// request onto GenHTTP's handler chain.
-/// </summary>
-/// <remarks>
-/// Streamed both ways: the handler starts at end-of-headers, pulls the body as flow control
-/// delivers it, and writes into a writer that frames each flush as a DATA frame - so neither
-/// direction is assembled in memory and both are paced by the peer's window.
-/// </remarks>
 internal static class Http2Driver
 {
     private static readonly ReadOnlyMemory<byte> Head = "HEAD"u8.ToArray();
 
     private static readonly Http2Options Options = new() { StreamRequestBodies = true };
 
-    /// <summary>
-    /// Serves the connection over an established transport: a TLS pipe that negotiated "h2", or a
-    /// plaintext pipe carrying h2c with prior knowledge.
-    /// </summary>
     internal static Task RunAsync(IServer server, IEndPoint endPoint, IDuplexPipe pipe, IPAddress? remoteAddress, bool secure)
         => new Http2Connection(pipe, Options)
             .RunAsync((request, writer) => DispatchAsync(server, endPoint, request, writer, remoteAddress, secure));
@@ -81,7 +68,6 @@ internal static class Http2Driver
         }
         finally
         {
-            // Ends the stream. Without it the peer waits for a body that is never coming.
             await writer.CompleteAsync();
         }
     }

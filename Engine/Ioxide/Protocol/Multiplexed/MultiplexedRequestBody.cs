@@ -2,15 +2,6 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 
-/// <summary>
-/// A request body pulled from the protocol layer as it arrives - dispatch happens at
-/// end-of-headers, so it is still in flight when the handler starts. Flow control paces it: the
-/// window only reopens as chunks are consumed, so an upload cannot outrun the handler.
-/// </summary>
-/// <remarks>
-/// The read delegate abstracts the two body readers, which have the same shape but come from
-/// different packages. It returns empty once the request stream has ended.
-/// </remarks>
 internal sealed class MultiplexedRequestBody : IRequestBody
 {
     private readonly Func<ValueTask<ReadOnlyMemory<byte>>> _read;
@@ -24,8 +15,6 @@ internal sealed class MultiplexedRequestBody : IRequestBody
 
     public async ValueTask<ReadOnlyMemory<byte>> AsMemoryAsync()
     {
-        // Assembling defeats the point of streaming, but a handler asking for the whole body has
-        // to keep working.
         var assembled = new MemoryStream();
 
         while (true)
@@ -43,7 +32,6 @@ internal sealed class MultiplexedRequestBody : IRequestBody
         return assembled.ToArray();
     }
 
-    /// <summary>Presents the pull-based reader as a forward-only stream.</summary>
     private sealed class PullStream : Stream
     {
         private readonly Func<ValueTask<ReadOnlyMemory<byte>>> _read;
@@ -102,7 +90,6 @@ internal sealed class MultiplexedRequestBody : IRequestBody
         public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
             => await ReadAsync(buffer.AsMemory(offset, count), cancellationToken);
 
-        // A sync read would block the reactor thread on a chunk only that thread can deliver.
         public override int Read(byte[] buffer, int offset, int count)
             => throw new NotSupportedException("The request body must be read asynchronously.");
 

@@ -6,20 +6,10 @@ using ioxide;
 
 namespace GenHTTP.Engine.Ioxide.Infrastructure;
 
-/// <summary>
-/// Builds the engine's <see cref="Server"/> once the host has collected the bindings, the handler
-/// and the concerns.
-/// </summary>
-/// <remarks>
-/// The base class is GenHTTP's, named the same and qualified here because this one shadows it
-/// inside this namespace.
-/// </remarks>
 public sealed class ServerHost(
     Action<Reactor>? onReactorStart = null,
     EngineOptions? options = null) : Shared.Hosting.ServerHost
 {
-
     protected override IServer Build(ServerConfiguration config, IHandler handler)
         => new Server(config, handler, onReactorStart, options);
-
 }

@@ -4,12 +4,6 @@ using System.Runtime.CompilerServices;
 
 namespace GenHTTP.Engine.Ioxide.Protocol.Http1;
 
-/// <summary>
-/// Write-only <see cref="Stream"/> over an <see cref="IBufferWriter{T}"/>, so a sink's Stream
-/// writes through the same buffer writer as everything else and ordering is preserved.
-/// <paramref name="sink"/> takes the bytes (the raw pipe, or a <see cref="ChunkedWriter"/>);
-/// <paramref name="flush"/> is the pipe that drains to the socket.
-/// </summary>
 internal sealed class PipeWriterStream(IBufferWriter<byte> sink, PipeWriter flush) : Stream
 {
     public override bool CanRead => false;
@@ -59,8 +53,8 @@ internal sealed class PipeWriterStream(IBufferWriter<byte> sink, PipeWriter flus
         return ValueTask.CompletedTask;
     }
 
-    // No-op on purpose: a sync flush would block the reactor thread on a pipe only that reactor
-    // completes. The bytes are buffered in `sink` and drain at the end-of-response FlushAsync.
+    // No-op on purpose: a sync flush would block the reactor thread on a pipe only that
+    // reactor completes. The bytes drain at the end-of-response FlushAsync.
     public override void Flush() { }
 
     public override Task FlushAsync(CancellationToken cancellationToken) => flush.FlushAsync(cancellationToken).AsTask();

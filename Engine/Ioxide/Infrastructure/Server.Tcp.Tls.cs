@@ -11,15 +11,8 @@ using Microsoft.Extensions.Logging;
 
 namespace GenHTTP.Engine.Ioxide.Infrastructure;
 
-/// <summary>
-/// TLS termination for the TCP endpoints - HTTP/1.1 and HTTP/2 both ride this.
-/// </summary>
 public sealed partial class Server
 {
-    /// <summary>
-    /// The TLS options for every secure port that can produce a certificate. A port that cannot
-    /// stays advertised as secure - so upgrade redirects still work - but refuses its handshakes.
-    /// </summary>
     private IEnumerable<KeyValuePair<ushort, TlsOptions>> ResolveTls()
     {
         foreach (var endPoint in SecureTcpEndPoints)
@@ -41,7 +34,6 @@ public sealed partial class Server
 
                 CertificatesByHost = ResolveHostCertificates(endPoint, endPoint.Hosts, port),
 
-                // Server preference, most preferred first.
                 Alpn = endPoint.Protocols.HasFlag(Protocols.Http2) ? ["h2", "http/1.1"] : ["http/1.1"],
 
                 ClientCaPath = endPoint.ClientCaPath,
@@ -60,16 +52,6 @@ public sealed partial class Server
         }
     }
 
-    /// <summary>
-    /// Starts one TLS service per secure TCP port on this reactor, and publishes the registry that
-    /// finds them. Runs on the reactor's own thread, from <c>OnStart</c>.
-    /// </summary>
-    /// <remarks>
-    /// A service per port rather than one for the server: ALPN, the client CA and the TLS floor are
-    /// all per endpoint. They are started unregistered because <c>Reactor.GetService</c> is
-    /// last-write-wins by type, so the registry is what gets registered and the port picks the
-    /// service out of it.
-    /// </remarks>
     private void StartTlsServices(Reactor reactor, int index, IReadOnlyList<KeyValuePair<ushort, TlsOptions>> portsTlsOptions)
     {
         TcpTlsRegistry tcpTlsRegistry = new TcpTlsRegistry();
@@ -81,15 +63,9 @@ public sealed partial class Server
 
         reactor.AddService(tcpTlsRegistry);
 
-        // Also kept on the server, so ReloadCertificates can reach every reactor's services.
         _tcpTlsRegistries![index] = tcpTlsRegistry;
     }
 
-    /// <summary>
-    /// The certificate answering a client that asked for no name, or an unknown one. CertificateFiles are
-    /// preferred: OpenSSL reads a chain file whole, so intermediates come from the file and the key
-    /// never enters managed memory. Null where the provider has neither form.
-    /// </summary>
     private TlsCertificate? ResolveDefaultCertificate(SecureEndPoint endPoint, CertificateFiles? certificateFiles, ushort port)
     {
         if (certificateFiles is not null)
@@ -109,14 +85,6 @@ public sealed partial class Server
         return null;
     }
 
-    /// <summary>
-    /// The certificates this port serves by name. Null where the binding named no hosts, which
-    /// leaves the handshake without a servername callback at all.
-    /// </summary>
-    /// <remarks>
-    /// Client verification is not repeated per host and does not need to be: OpenSSL fixes the
-    /// verify mode from the default context, so a name cannot select its way out of mutual TLS.
-    /// </remarks>
     private IReadOnlyDictionary<string, TlsCertificate>? ResolveHostCertificates(SecureEndPoint endPoint,
         IReadOnlyList<HostCertificate> hosts, ushort port)
     {
@@ -147,16 +115,6 @@ public sealed partial class Server
         return byHost.Count > 0 ? byHost : null;
     }
 
-    /// <summary>
-    /// The TLS floor for one endpoint, from the <c>SslProtocols</c> its binding named.
-    /// </summary>
-    /// <remarks>
-    /// <c>SslProtocols</c> is a set; OpenSSL takes a minimum and has no maximum. So a set is
-    /// honoured exactly when it is contiguous and open at the top - <c>Tls13</c> and
-    /// <c>Tls12 | Tls13</c> are, anything below 1.2 and 1.2-without-1.3 are not. Those two warn and
-    /// widen rather than throw: a defensible default elsewhere should not be a dead deployment
-    /// here, and serving more than was asked for is what an operator needs told.
-    /// </remarks>
     private TlsProtocolVersion ResolveMinProtocolVersion(SecureEndPoint endPoint)
     {
         var protocols = endPoint.SecurityConfiguration.Protocols;
@@ -164,7 +122,6 @@ public sealed partial class Server
         var tls12 = protocols.HasFlag(SslProtocols.Tls12);
         var tls13 = protocols.HasFlag(SslProtocols.Tls13);
 
-        // Named without naming them, so no obsolete member has to be suppressed.
         if ((protocols & ~(SslProtocols.Tls12 | SslProtocols.Tls13)) != 0)
         {
             _logger.LogWarning(
@@ -189,10 +146,6 @@ public sealed partial class Server
         };
     }
 
-    /// <summary>
-    /// Says once, at startup, which parts of a bound <c>ICertificateValidator</c> this engine
-    /// cannot honour - rather than leaving it to be inferred from a client that was let in.
-    /// </summary>
     private void WarnAboutValidatorGaps()
     {
         foreach (var endPoint in SecureEndPoints)
@@ -223,30 +176,13 @@ public sealed partial class Server
         }
     }
 
-    /// <summary>Whether any endpoint asks for a client certificate at all.</summary>
     private bool MutualTlsConfigured => SecureEndPoints.Any(e => e.MutualTls);
 
-    /// <summary>The endpoints bound with a certificate - the ones TLS applies to.</summary>
     private IEnumerable<SecureEndPoint> SecureEndPoints => _endPoints.OfType<SecureEndPoint>();
 
-    /// <summary>
-    /// The secure endpoints a TLS service is actually worth building for: the ones that accept TCP.
-    /// </summary>
-    /// <remarks>
-    /// An HTTP/3-only port is secure and has no TCP listener - <c>ResolveTcpPorts</c> leaves it out
-    /// and <c>BuildServerConfig</c> then binds none - so a context built for it on every reactor
-    /// could never be reached. QUIC terminates its own TLS in ngtcp2, from the certificate paths the
-    /// binding named. A port serving HTTP/3 alongside HTTP/1.1 or HTTP/2 still belongs here.
-    /// </remarks>
     private IEnumerable<SecureEndPoint> SecureTcpEndPoints
         => SecureEndPoints.Where(e => (e.Protocols & Protocols.Http1AndHttp2) != 0);
 
-    /// <summary>
-    /// The certificate and the intermediates a client needs to reach a root it trusts, leaf first
-    /// and root omitted (RFC 8446 4.4.2). Only the in-memory form needs this - an
-    /// <c>X509Certificate2</c> carries no chain, so it is rebuilt from the machine store. AIA
-    /// downloads stay off: a slow issuer host would hang startup rather than slow it.
-    /// </summary>
     private string ExportChainPem(X509Certificate2 certificate, ushort port)
     {
         using var chain = new X509Chain();
@@ -255,8 +191,8 @@ public sealed partial class Server
         chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllFlags;
         chain.ChainPolicy.DisableCertificateDownloads = true;
 
-        // Built for its elements, not its verdict: a privately issued certificate does not validate
-        // against this machine's roots and still carries the chain to send.
+        // Built for its elements, not its verdict: a privately issued certificate does not
+        // validate against this machine's roots and still carries the chain to send.
         chain.Build(certificate);
 
         var links = chain.ChainElements;
@@ -291,7 +227,6 @@ public sealed partial class Server
         return pem.ToString();
     }
 
-    /// <summary>Whether a certificate is its own issuer, which is what makes it a root.</summary>
     private static bool IsSelfIssued(X509Certificate2 certificate)
         => certificate.SubjectName.RawData.AsSpan().SequenceEqual(certificate.IssuerName.RawData);
 
@@ -301,16 +236,6 @@ public sealed partial class Server
            ?? throw new InvalidOperationException("The certificate carries no exportable RSA or ECDSA private key.");
 }
 
-/// <summary>
-/// The TLS service each secure TCP port owns on this reactor, keyed by the port a connection
-/// arrived on. One per port, since ALPN and the client CA differ per endpoint.
-/// </summary>
-/// <remarks>
-/// TCP only, as the name says: QUIC terminates TLS in ngtcp2 through its own engine, so an
-/// HTTP/3-only port holds nothing here. The registry itself is still registered whenever any
-/// endpoint is secure - empty if none of them serve TCP - because <c>ReloadCertificates</c> reaches
-/// every reactor through it, including to rotate the QUIC certificate.
-/// </remarks>
 internal sealed class TcpTlsRegistry
 {
     private readonly Dictionary<ushort, TlsService> _byPort = [];

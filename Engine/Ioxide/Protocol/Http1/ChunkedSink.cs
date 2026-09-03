@@ -5,11 +5,6 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Ioxide.Protocol.Http1;
 
-/// <summary>
-/// Response sink for unknown-length content: both channels route through a
-/// <see cref="ChunkedWriter"/>, so everything the content writes is chunk-framed.
-/// <see cref="Finish"/> emits the terminating chunk.
-/// </summary>
 internal sealed class ChunkedSink : IResponseSink
 {
     private readonly PipeWriter _writer;

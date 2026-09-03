@@ -19,31 +19,17 @@ using IoConnection = ioxide.TcpConnection;
 
 namespace GenHTTP.Engine.Ioxide.Protocol.Http1;
 
-/// <summary>
-/// Serves an HTTP/1.1 connection: parse, handle, respond, repeat until it closes. Reached from
-/// <see cref="ConnectionDriver"/> once the transport is up and the protocol settled.
-/// </summary>
-/// <remarks>
-/// One of these per connection, on the reactor thread, with awaited continuations resuming inline
-/// on that same thread - which is what lets the request pool below go without locking. Unlike
-/// HTTP/2 and HTTP/3 there is one request in flight at a time, so a connection owns a single
-/// <see cref="Request"/> for its lifetime.
-/// </remarks>
 internal static class Http1Driver
 {
     private static readonly ParserLimits Limits = ParserLimits.Default;
 
-    // Benchmark switch: GENHTTP_IOXIDE_PARSER=pico parses headers with Glyph11.Pico
-    // (picohttpparser, native) instead of the hardened managed parser. Both fill the same
-    // BinaryRequest. The Pico path does picohttpparser-level validation only (no path/token/
-    // smuggling hardening), so it is for benchmarking, not for untrusted traffic.
+    // GENHTTP_IOXIDE_PARSER=pico swaps the hardened managed parser for picohttpparser, which
+    // does no path/token/smuggling hardening. For benchmarking, not for untrusted traffic.
     private static readonly bool UsePico =
         string.Equals(Environment.GetEnvironmentVariable("GENHTTP_IOXIDE_PARSER"), "pico", StringComparison.OrdinalIgnoreCase);
 
     private static readonly ByteString KeepAliveValue = new("Keep-Alive");
 
-    // Per-reactor, so the stack needs no locking. Reuses the per-connection Request allocation,
-    // which matters under connection churn.
     [ThreadStatic]
     private static Stack<Request>? _requestPool;
 
@@ -57,8 +43,6 @@ internal static class Http1Driver
         var request = RentRequest();
         var into = request.Source;
 
-        // Captured before the first await, so the diagnostic below can tell whether continuations
-        // really did resume on the reactor thread the pool assumes.
         var reactorThreadId = Environment.CurrentManagedThreadId;
 
         try
@@ -88,7 +72,6 @@ internal static class Http1Driver
                     continue;
                 }
 
-                // Client cert stays null until TLS termination exposes one.
                 request.Apply(server, endPoint, reader, buffer.Start, remoteAddress, null);
 
                 var keepAlive = await HandleRequestAsync(server, writer, request);
@@ -121,7 +104,6 @@ internal static class Http1Driver
         }
         catch
         {
-            // spike: swallow client/protocol faults; teardown happens in finally
         }
         finally
         {
@@ -136,7 +118,6 @@ internal static class Http1Driver
     private static bool TryParseRequest(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
         => UsePico ? TryParseRequestPico(ref buffer, into) : TryParseRequestGlyph11(ref buffer, into);
 
-    // Default: full RFC + smuggling validation.
     private static bool TryParseRequestGlyph11(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
     {
         if (!UltraHardenedParser.TryExtractFullHeaderValidated(ref buffer, into, Limits, out var bytesRead))
@@ -148,8 +129,6 @@ internal static class Http1Driver
         return true;
     }
 
-    // picohttpparser: single-segment is parsed in place, multi-segment is linearized. `consumed`
-    // follows the managed parser's -1 convention, so the slice is identical.
     private static bool TryParseRequestPico(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
     {
         if (!PicoParser.TryParse(buffer, into, out var consumed))
@@ -206,8 +185,6 @@ internal static class Http1Driver
 
     private static int _hopWarned;
 
-    // Warns once per process if a continuation resumed off the reactor thread. On the affine path
-    // it is a single int compare, so it can stay enabled during benchmarks.
     private static void WarnIfThreadHopped(IServer server, int reactorThreadId, string phase)
     {
         var now = Environment.CurrentManagedThreadId;

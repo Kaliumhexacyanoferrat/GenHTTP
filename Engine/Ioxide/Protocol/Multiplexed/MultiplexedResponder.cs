@@ -5,10 +5,6 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 
-/// <summary>
-/// The status and fields of a response. Protocol-neutral on purpose: the two drivers want the same
-/// thing, but their response types come from different packages, so each builds its own from this.
-/// </summary>
 internal readonly struct MultiplexedResponseData
 {
     internal MultiplexedResponseData(int status, List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> headers)
@@ -22,9 +18,6 @@ internal readonly struct MultiplexedResponseData
     internal List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> Headers { get; }
 }
 
-/// <summary>
-/// Maps a GenHTTP <see cref="IResponse"/> onto what a multiplexed protocol submits.
-/// </summary>
 internal static class MultiplexedResponder
 {
     private static readonly ReadOnlyMemory<byte> ContentTypeName = "content-type"u8.ToArray();
@@ -37,7 +30,6 @@ internal static class MultiplexedResponder
 
     private static readonly ReadOnlyMemory<byte> ServerValue = "ioxide-genhttp"u8.ToArray();
 
-    /// <summary>Builds the field section. The content is streamed afterwards.</summary>
     internal static MultiplexedResponseData BuildHeaders(IResponse response)
     {
         var headers = new List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)>(response.Headers.Count + 4);
@@ -46,8 +38,6 @@ internal static class MultiplexedResponder
         {
             var header = response.Headers.GetMemoryEntry(i);
 
-            // Connection-specific fields are malformed here (RFC 9113 8.2.2, RFC 9114 4.2) and a
-            // peer may treat one as a protocol error. Casing is left alone: both layers lowercase.
             if (!IsConnectionSpecific(header.Key.Span))
             {
                 headers.Add((header.Key, header.Value));
@@ -68,8 +58,6 @@ internal static class MultiplexedResponder
                 headers.Add((ContentEncodingName, encoding));
             }
 
-            // A streamed response has no length by the time its headers go out, so neither layer
-            // fills this in. Send it whenever the content itself knows.
             if (content.Length is { } length)
             {
                 headers.Add((ContentLengthName, Digits(length)));
@@ -79,7 +67,6 @@ internal static class MultiplexedResponder
         return new MultiplexedResponseData((int)response.Status, headers);
     }
 
-    /// <summary>Streams the content into the protocol's response writer.</summary>
     internal static async ValueTask WriteBodyAsync(IResponse response, IBufferWriter<byte> writer, Func<ValueTask> flush, bool headRequest)
     {
         var content = response.Content;
@@ -91,7 +78,6 @@ internal static class MultiplexedResponder
 
         try
         {
-            // HEAD keeps the headers its GET would have produced and sends no body.
             if (!headRequest)
             {
                 await content.WriteAsync(new MultiplexedSink(writer, flush));

@@ -6,31 +6,12 @@ using Microsoft.Extensions.Logging;
 
 namespace GenHTTP.Engine.Ioxide.Infrastructure;
 
-/// <summary>
-/// Replacing the certificates of a server that is already serving.
-/// </summary>
 public sealed partial class Server
 {
     private static readonly Dictionary<string, TlsCertificate> NoHosts = [];
 
-    /// <summary>Serialises rotations; the handshake paths take no lock at all.</summary>
     private readonly Lock _reload = new();
 
-    /// <summary>
-    /// Asks every bound certificate provider again and installs what it answers with, across both
-    /// transports, without dropping a connection - what a renewal hook calls once the ACME client
-    /// has rewritten its PEM. Established connections keep the certificate they authenticated with.
-    /// </summary>
-    /// <remarks>
-    /// Only the certificate material changes. Trust anchors, RequireCertificate, ALPN, the TLS floor
-    /// and the kTLS pin stay as the binding set them, and no name can be added: both stacks settle
-    /// their SNI tables at startup. Everything is resolved and checked before anything is published,
-    /// so a provider that throws or a path not yet written leaves the server serving what it had.
-    /// </remarks>
-    /// <exception cref="InvalidOperationException">
-    /// The certificates could not be resolved, and nothing was replaced; or a service refused them,
-    /// and the message names what did and did not rotate.
-    /// </exception>
     public void ReloadCertificates()
     {
         if (!Running || !SecureEndPoints.Any())
@@ -41,21 +22,16 @@ public sealed partial class Server
 
         lock (_reload)
         {
-            // Read once, so a stop landing mid-rotation cannot swap it between resolving and
-            // publishing. Null where nothing serves TLS over TCP - an HTTP/3-only server - which is
-            // a rotation this method still performs, on the QUIC listener alone.
             TcpTlsRegistry?[]? registries = _tcpTlsRegistries;
 
-            // Any one reactor's registry tells which ports actually started a service; they all
-            // started the same set.
             TcpTlsRegistry? started = registries is null ? null : Array.Find(registries, static r => r is not null);
 
             var rotations = ResolveRotations(started, out var quic);
 
             if (quic is { } endPoint)
             {
-                // First, because it is the transport that publishes atomically: bad material throws
-                // here having changed nothing at all.
+                // First, because it is the transport that publishes atomically: bad material
+                // throws here having changed nothing at all.
                 ReloadQuicCertificates(endPoint, endPoint.ResolveFiles(), endPoint.ResolveHosts());
             }
 
@@ -64,23 +40,11 @@ public sealed partial class Server
                 Publish(registries, rotations);
             }
 
-            // Counted apart rather than summed: a port serving HTTP/3 alongside TCP is in rotations
-            // as well and would be counted twice, and an HTTP/3-only one is in neither.
             _logger.LogInformation("Replaced the certificates on {TcpPorts} TCP port(s) and {QuicListeners} QUIC listener(s)",
                 rotations.Count, quic is not null ? 1 : 0);
         }
     }
 
-    /// <summary>
-    /// What each secure TCP port should serve now, and which endpoint carries QUIC. Ports that
-    /// started without a certificate are skipped: they have no service to rotate, and only a
-    /// restart can give them one.
-    /// </summary>
-    /// <param name="started">
-    /// Any one reactor's registry, to tell which ports actually started a service. Null on a server
-    /// with no TCP TLS at all, which yields no rotations and leaves <paramref name="quic"/> to do
-    /// the work.
-    /// </param>
     private List<CertificateRotation> ResolveRotations(TcpTlsRegistry? started, out SecureEndPoint? quic)
     {
         var rotations = new List<CertificateRotation>();
@@ -122,11 +86,6 @@ public sealed partial class Server
         return rotations;
     }
 
-    /// <summary>
-    /// Installs the resolved sets on every reactor, collecting failures rather than stopping half
-    /// way. A service that refuses the new material keeps the old, which is still a certificate the
-    /// endpoint was bound with - so a mixed server serves, it just serves two vintages.
-    /// </summary>
     private void Publish(TcpTlsRegistry?[] registries, List<CertificateRotation> rotations)
     {
         List<Exception>? failures = null;
@@ -167,10 +126,6 @@ public sealed partial class Server
         }
     }
 
-    /// <summary>
-    /// Refuses a certificate naming files that are not there - the half-written renewal, which is
-    /// worth catching before a service is part way through rotating.
-    /// </summary>
     private static void RequireFiles(TlsCertificate certificate, ushort port, string what)
     {
         if (certificate.CertificatePath is { } path && !File.Exists(path))
@@ -184,6 +139,5 @@ public sealed partial class Server
         }
     }
 
-    /// <summary>One port's new certificates: the default, and the alternatives by name.</summary>
     private sealed record CertificateRotation(ushort Port, TlsCertificate Default, IReadOnlyDictionary<string, TlsCertificate>? ByHost);
 }

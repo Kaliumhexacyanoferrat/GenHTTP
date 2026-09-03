@@ -4,15 +4,6 @@ using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 
-/// <summary>
-/// Writes response content straight into a protocol response writer, which is itself an
-/// <see cref="IBufferWriter{T}"/> - so the buffer channel reaches the wire with nothing between.
-/// </summary>
-/// <remarks>
-/// The stream channel flushes on every write, and that await is the backpressure that bounds a
-/// large download. The buffer channel flushes once at the end - fine for a page, which is why file
-/// content should use the stream.
-/// </remarks>
 internal sealed class MultiplexedSink : IResponseSink
 {
     private readonly IBufferWriter<byte> _writer;
@@ -31,9 +22,6 @@ internal sealed class MultiplexedSink : IResponseSink
 
     public Stream Stream => _stream ??= new FlushingStream(_writer, _flush);
 
-    /// <summary>
-    /// Adapts the protocol writer to the stream channel, flushing each write so the peer paces it.
-    /// </summary>
     private sealed class FlushingStream : Stream
     {
         private readonly IBufferWriter<byte> _target;
@@ -66,7 +54,6 @@ internal sealed class MultiplexedSink : IResponseSink
 
         public override void Write(ReadOnlySpan<byte> buffer)
         {
-            // Staged, but not paced: there is no flush on the sync path. Large bodies want async.
             _target.Write(buffer);
             _written += buffer.Length;
         }

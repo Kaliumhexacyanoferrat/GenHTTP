@@ -18,19 +18,12 @@ using Microsoft.Extensions.Logging;
 
 namespace GenHTTP.Engine.Ioxide.Infrastructure;
 
-/// <summary>
-/// Hosts an application on ioxide's io_uring reactors: one per core, each owning a ring and its
-/// connections on its own thread. Protocols are per port; TLS termination and the QUIC listener
-/// live in the other halves of this class.
-/// </summary>
 public sealed partial class Server : IServer
 {
     private readonly ServerConfiguration _serverConfiguration;
 
-    /// <summary>Every endpoint, in the order it was bound. The first one names the server.</summary>
     private readonly EndPoint[] _endPoints;
 
-    /// <summary>One mode for the whole server, since that is all ioxide takes.</summary>
     private readonly bool _dualStack;
 
     private readonly Action<Reactor>? _onReactorStart;
@@ -43,12 +36,6 @@ public sealed partial class Server : IServer
 
     private Reactor[]? _reactors;
 
-    /// <summary>
-    /// Each reactor's TCP TLS services, by reactor index - what <see cref="ReloadCertificates"/>
-    /// rotates. Null unless the server actually serves TLS over TCP, so an HTTP/3-only server holds
-    /// nothing at all: QUIC terminates its own TLS in ngtcp2. An entry is null until its reactor
-    /// has started.
-    /// </summary>
     private TcpTlsRegistry?[]? _tcpTlsRegistries;
 
 #region Get-/Setters
@@ -86,7 +73,6 @@ public sealed partial class Server : IServer
         _endPoints = MapEndPoints(serverConfiguration, _engineOptions);
         _dualStack = _endPoints[0].DualStack;
 
-        // Settled here so StartAsync only has to act on it.
         _tcpPorts = ResolveTcpPorts();
         _quicEndPoint = ResolveQuicEndPoint();
 
@@ -113,7 +99,6 @@ public sealed partial class Server : IServer
         _reactors = new Reactor[serverConfig.ReactorCount];
         _tcpTlsRegistries = secureTcp ? new TcpTlsRegistry?[serverConfig.ReactorCount] : null;
 
-        // Reactors bind on their own threads, so StartAsync must not return before they accept.
         CountdownEvent listening = new CountdownEvent(serverConfig.ReactorCount);
 
         for (var i = 0; i < _threads.Length; i++)
@@ -159,7 +144,6 @@ public sealed partial class Server : IServer
             _threads[i].Start();
         }
 
-        // Off the caller, with a timeout so a reactor that fails to bind logs rather than hangs.
         if (await Task.Run(() => listening.Wait(TimeSpan.FromSeconds(10))))
         {
             listening.Dispose();
@@ -175,20 +159,10 @@ public sealed partial class Server : IServer
         }
     }
 
-    /// <summary>
-    /// GenHTTP's endpoints as the engine's own, resolving what each one serves, and where the two
-    /// things the engine cannot express are refused: a port bound twice, and endpoints asking for
-    /// different dual-stack modes.
-    /// </summary>
-    /// <remarks>
-    /// GenHTTP takes dual-stack per endpoint; ioxide takes one flag for the whole server. Endpoints
-    /// that disagree are refused rather than silently served the first one's mode.
-    /// </remarks>
     private static EndPoint[] MapEndPoints(ServerConfiguration config, EngineOptions options)
     {
         var mapped = config.EndPoints.Select(e => Map(e, options)).ToArray();
 
-        // A connection carries only the port it arrived on, so that port has to name one endpoint.
         if (mapped.GroupBy(e => e.Port).FirstOrDefault(g => g.Count() > 1) is { } duplicate)
         {
             throw new NotSupportedException(
@@ -196,8 +170,6 @@ public sealed partial class Server : IServer
                 + "by the port it arrived on, so each port carries one endpoint.");
         }
 
-        // RequireCertificate defaults to TRUE, so a validator naming no anchors is the easy
-        // mistake - and it would otherwise throw out of TlsService, on a reactor thread.
         foreach (var endPoint in mapped.OfType<SecureEndPoint>())
         {
             if (endPoint.RequireClientCertificate && endPoint.ClientCaPath is null && endPoint.ClientCaPem is null)
@@ -211,8 +183,6 @@ public sealed partial class Server : IServer
 
         var dualStack = mapped[0].DualStack;
 
-        // No disagreement between DualStack capability among endpoints is supported as of today
-        // To support that user can simply have two different IServerHost instances running.
         if (mapped.Any(e => e.DualStack != dualStack))
         {
             var disagreeing = mapped.Where(e => e.DualStack != dualStack).Select(e => e.Port);
@@ -225,10 +195,6 @@ public sealed partial class Server : IServer
         return mapped;
     }
 
-    /// <summary>
-    /// The engine-wide configuration. <c>WithTcp</c> and <c>WithQuic</c> add the listeners, taking
-    /// their ports from the bindings.
-    /// </summary>
     private ServerConfig BuildServerConfig()
     {
         var serverConfig = new ServerConfig
@@ -239,11 +205,10 @@ public sealed partial class Server : IServer
             RecvSlots = _engineOptions.Reactor.RecvSlots,
             Incremental = _engineOptions.Reactor.Incremental,
 
-            // Applies to the TCP listener and the UDP socket alike, hence one mode per server.
             DualStack = _dualStack,
 
-            // Explicitly null: ioxide's own default is a live listener on 8080, which an HTTP/3-only
-            // server would otherwise inherit.
+            // Explicitly null: ioxide's own default is a live listener on 8080, which an
+            // HTTP/3-only server would otherwise inherit.
             Tcp = null,
         };
         
@@ -278,10 +243,6 @@ public sealed partial class Server : IServer
         }
     }
     
-    /// <summary>
-    /// One binding as the engine's own endpoint. A certificate makes it a <see cref="SecureEndPoint"/>,
-    /// which carries the TLS settings.
-    /// </summary>
     private static EndPoint Map(EndPointConfiguration endPoint, EngineOptions options)
     {
         var protocols = ResolveProtocols(options, endPoint);
@@ -291,17 +252,12 @@ public sealed partial class Server : IServer
             : new InsecureEndPoint(endPoint.Address, endPoint.Port, endPoint.DualStack, protocols);
     }
 
-    /// <summary>
-    /// What one endpoint serves: the default, its port's override, and its own enableQuic flag.
-    /// </summary>
     private static Protocols ResolveProtocols(EngineOptions options, EndPointConfiguration endPoint)
     {
         var named = options.ProtocolsByPort.TryGetValue(endPoint.Port, out var configured);
 
         var protocols = named ? configured : options.Protocols;
 
-        // From the DEFAULT, HTTP/3 applies only where it can, so Protocols = All means "everything
-        // each port supports". Named per port it is taken literally.
         if (!named && protocols.HasFlag(Protocols.Http3) && endPoint.Security is null)
         {
             protocols &= ~Protocols.Http3;
@@ -320,10 +276,6 @@ public sealed partial class Server : IServer
         return protocols;
     }
 
-    /// <summary>
-    /// The endpoint a connection arrived on. A scan rather than a table: a server binds a handful
-    /// of endpoints, so there is no second copy to keep in step.
-    /// </summary>
     private EndPoint EndPointFor(ushort port)
     {
         foreach (var endPoint in _endPoints)
@@ -375,10 +327,10 @@ public sealed partial class Server : IServer
 
         _logger.LogInformation("Stopping {Count} ioxide reactors ...", reactors.Length);
 
-        // Stop, then join: a single-issuer / DEFER_TASKRUN ring must be disposed on its own
-        // thread, and skipping the join leaks a ring per host. Off the caller to stay non-blocking.
         await Task.Run(() =>
         {
+            // Stop, then join: a single-issuer / DEFER_TASKRUN ring must be disposed on its own
+            // thread, and skipping the join leaks a ring per host.
             foreach (var reactor in reactors)
             {
                 reactor.Stop();

@@ -19,20 +19,8 @@ using IoConnection = ioxide.TcpConnection;
 
 namespace GenHTTP.Engine.Ioxide.Protocol;
 
-/// <summary>
-/// Takes an accepted TCP connection, establishes its transport, and hands it to the protocol it
-/// turns out to be speaking - <see cref="Http1Driver"/> or <see cref="Http2Driver"/>, decided by
-/// ALPN on a secure endpoint and by the HTTP/2 connection preface on a plaintext one. HTTP/3 never
-/// reaches this: QUIC is a UDP listener and goes straight to <see cref="Http3Driver"/>.
-/// </summary>
 internal static partial class ConnectionDriver
 {
-    /// <summary>
-    /// Half-closes the write side to send FIN. ioxide's refcounted teardown does not FIN a
-    /// server-initiated close by itself (the reactor's active recv keeps a reference), so an
-    /// EOF-delimited response would hang the client. The read side stays open, so the client's own
-    /// close is still observed and the reactor reclaims the connection.
-    /// </summary>
     private const int ShutWrite = 1;
 
     [LibraryImport("libc", EntryPoint = "shutdown")]
@@ -48,16 +36,12 @@ internal static partial class ConnectionDriver
     {
         IDuplexPipe pipe;
 
-        // Null on a plaintext port, and on a TLS port whose client offered nothing we serve.
         string? negotiated = null;
 
         try
         {
             if (endPoint.Secure)
             {
-                // A secure port with no certificate is advertised for redirects but cannot
-                // handshake - FIN, so the client fails fast rather than a plaintext response
-                // landing on an https port.
                 if (!IoxideReactor.Current.GetService<TcpTlsRegistry>().TryFor(conn.ListenerPort, out var service))
                 {
                     _ = Shutdown(conn.ClientFd, ShutWrite);
@@ -74,7 +58,6 @@ internal static partial class ConnectionDriver
         }
         catch
         {
-            // failed handshake - release the connection instead of leaking it
             conn.DecRef();
             return;
         }
@@ -84,7 +67,6 @@ internal static partial class ConnectionDriver
         var http2 = protocols.HasFlag(Protocols.Http2);
         var http1 = protocols.HasFlag(Protocols.Http1);
 
-        // Only worth peeking when both share the port: elsewhere the answer is already known.
         var isHttp2 = http2 && (negotiated == "h2" || (negotiated is null && http1 && await StartsWithPrefaceAsync(pipe.Input)));
 
         if (http2 && !http1)
@@ -100,7 +82,6 @@ internal static partial class ConnectionDriver
             }
             catch
             {
-                // client or protocol fault - teardown happens below
             }
             finally
             {
@@ -110,23 +91,15 @@ internal static partial class ConnectionDriver
             return;
         }
 
-        // Not HTTP/2 on a port that does not serve HTTP/1.1 either: close, rather than answer with
-        // a protocol the endpoint was configured not to speak.
         if (!http1)
         {
             await CloseAsync(pipe, conn);
             return;
         }
 
-        // HTTP/1.1 tears the connection down itself, so that it can return its pooled request first.
         await Http1Driver.RunAsync(server, endPoint, pipe, conn, remoteAddress);
     }
 
-    /// <summary>
-    /// Terminates TLS and reports what ALPN settled on, which is how a port serving several
-    /// protocols knows which one this connection speaks. Null means the client offered nothing the
-    /// port lists, and HTTP/1.1 is assumed.
-    /// </summary>
     private static async ValueTask<(IDuplexPipe Pipe, string? Protocol)> AcceptTlsAsync(IoConnection conn, TlsService service,
         SecureEndPoint? endPoint)
     {
@@ -134,8 +107,6 @@ internal static partial class ConnectionDriver
 
         if (endPoint?.SecurityConfiguration.CertificateValidator is { } validator && !Accepts(validator, session))
         {
-            // Refused by the application, not by the chain: drop the session so the connection is
-            // torn down by the caller rather than handed to a protocol driver.
             session.Dispose();
 
             throw new AuthenticationException("The certificate validator rejected the peer.");
@@ -144,30 +115,12 @@ internal static partial class ConnectionDriver
         return (new TlsConnectionDualPipe(conn, session), session.NegotiatedAlpn);
     }
 
-    /// <summary>
-    /// Runs the endpoint's <see cref="ICertificateValidator"/> against the peer certificate OpenSSL
-    /// ended up with, which ioxide hands over as DER.
-    /// </summary>
-    /// <remarks>
-    /// The chain is already decided by this point: OpenSSL verified it against the anchors the
-    /// binding named, before the handshake completed, so a certificate reaching here has passed and
-    /// the policy errors are none. What is left is the application's own opinion of the peer -
-    /// pinning, a subject allow-list, a revocation source of its own - which is what this is for.
-    ///
-    /// The chain object is built for its elements rather than its verdict, and without certificate
-    /// downloads: a privately issued client certificate does not validate against the machine store
-    /// and is exactly what mutual TLS usually carries, so reporting that as a chain error would
-    /// reject the clients the endpoint was bound to accept.
-    /// </remarks>
     private static bool Accepts(ICertificateValidator validator, TlsSession session)
     {
         var der = session.PeerCertificateDer;
 
         if (der is null || der.Length == 0)
         {
-            // None offered. A port that demands one never reaches this, since OpenSSL refuses the
-            // handshake itself, so this is an endpoint that asked for a certificate and let the
-            // client decline.
             return validator.Validate(null, null, SslPolicyErrors.RemoteCertificateNotAvailable);
         }
 
@@ -181,10 +134,6 @@ internal static partial class ConnectionDriver
         return validator.Validate(certificate, chain, SslPolicyErrors.None);
     }
 
-    /// <summary>
-    /// Peeks for the HTTP/2 connection preface without consuming it, so a plaintext client using
-    /// prior knowledge (h2c) is recognised and the same bytes are handed to the HTTP/2 layer.
-    /// </summary>
     private static async ValueTask<bool> StartsWithPrefaceAsync(PipeReader reader)
     {
         while (true)
@@ -197,14 +146,13 @@ internal static partial class ConnectionDriver
                 Span<byte> head = stackalloc byte[Preface.Length];
                 buffer.Slice(0, Preface.Length).CopyTo(head);
 
-                // Nothing consumed AND nothing examined: marking these examined would tell the pipe
-                // we want more, and whichever protocol reads next would block on data already here.
+                // Nothing consumed AND nothing examined: marking these examined would tell the
+                // pipe we want more, and the protocol reading next would block on data already here.
                 reader.AdvanceTo(buffer.Start, buffer.Start);
 
                 return head.SequenceEqual(Preface.Span);
             }
 
-            // Too short to decide yet - examined to the end, so the next read waits for more.
             reader.AdvanceTo(buffer.Start, buffer.End);
 
             if (result.IsCompleted)
@@ -214,11 +162,6 @@ internal static partial class ConnectionDriver
         }
     }
 
-    /// <summary>
-    /// Ends a connection: complete both halves, tear down the transport, FIN, release. Completing
-    /// the writer matters beyond tidiness - connection-close and upgrade responses are delimited by
-    /// FIN, and without it the client waits for bytes that never come.
-    /// </summary>
     internal static async ValueTask CloseAsync(IDuplexPipe pipe, IoConnection conn)
     {
         await pipe.Input.CompleteAsync();
@@ -233,8 +176,6 @@ internal static partial class ConnectionDriver
         conn.DecRef();
     }
 
-    // Straight from the socket fd, since ioxide exposes the fd but not the peer address. Returned
-    // as-is (IPv4-mapped IPv6 on a dual-stack listener), which the pipeline already handles.
     private static IPAddress? GetPeerAddress(int fd)
     {
         var addr = new byte[128]; // sockaddr_storage
