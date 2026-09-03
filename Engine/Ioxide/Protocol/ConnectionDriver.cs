@@ -1,11 +1,15 @@
 using System.Buffers;
 using System.IO.Pipelines;
 using System.Net;
+using System.Net.Security;
+using System.Security.Authentication;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Ioxide.Infrastructure;
+using GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 using GenHTTP.Engine.Ioxide.Protocol.Http1;
 using GenHTTP.Engine.Ioxide.Protocol.Multiplexed;
 
@@ -54,14 +58,14 @@ internal static partial class ConnectionDriver
                 // A secure port with no certificate is advertised for redirects but cannot
                 // handshake - FIN, so the client fails fast rather than a plaintext response
                 // landing on an https port.
-                if (!IoxideReactor.Current.GetService<TlsRegistry>().TryFor(conn.ListenerPort, out var service))
+                if (!IoxideReactor.Current.GetService<TcpTlsRegistry>().TryFor(conn.ListenerPort, out var service))
                 {
                     _ = Shutdown(conn.ClientFd, ShutWrite);
                     conn.DecRef();
                     return;
                 }
 
-                (pipe, negotiated) = await AcceptTlsAsync(conn, service);
+                (pipe, negotiated) = await AcceptTlsAsync(conn, service, endPoint as SecureEndPoint);
             }
             else
             {
@@ -123,11 +127,58 @@ internal static partial class ConnectionDriver
     /// protocols knows which one this connection speaks. Null means the client offered nothing the
     /// port lists, and HTTP/1.1 is assumed.
     /// </summary>
-    private static async ValueTask<(IDuplexPipe Pipe, string? Protocol)> AcceptTlsAsync(IoConnection conn, TlsService service)
+    private static async ValueTask<(IDuplexPipe Pipe, string? Protocol)> AcceptTlsAsync(IoConnection conn, TlsService service,
+        SecureEndPoint? endPoint)
     {
         var session = await service.AcceptAsync(conn);
 
+        if (endPoint?.SecurityConfiguration.CertificateValidator is { } validator && !Accepts(validator, session))
+        {
+            // Refused by the application, not by the chain: drop the session so the connection is
+            // torn down by the caller rather than handed to a protocol driver.
+            session.Dispose();
+
+            throw new AuthenticationException("The certificate validator rejected the peer.");
+        }
+
         return (new TlsConnectionDualPipe(conn, session), session.NegotiatedAlpn);
+    }
+
+    /// <summary>
+    /// Runs the endpoint's <see cref="ICertificateValidator"/> against the peer certificate OpenSSL
+    /// ended up with, which ioxide hands over as DER.
+    /// </summary>
+    /// <remarks>
+    /// The chain is already decided by this point: OpenSSL verified it against the anchors the
+    /// binding named, before the handshake completed, so a certificate reaching here has passed and
+    /// the policy errors are none. What is left is the application's own opinion of the peer -
+    /// pinning, a subject allow-list, a revocation source of its own - which is what this is for.
+    ///
+    /// The chain object is built for its elements rather than its verdict, and without certificate
+    /// downloads: a privately issued client certificate does not validate against the machine store
+    /// and is exactly what mutual TLS usually carries, so reporting that as a chain error would
+    /// reject the clients the endpoint was bound to accept.
+    /// </remarks>
+    private static bool Accepts(ICertificateValidator validator, TlsSession session)
+    {
+        var der = session.PeerCertificateDer;
+
+        if (der is null || der.Length == 0)
+        {
+            // None offered. A port that demands one never reaches this, since OpenSSL refuses the
+            // handshake itself, so this is an endpoint that asked for a certificate and let the
+            // client decline.
+            return validator.Validate(null, null, SslPolicyErrors.RemoteCertificateNotAvailable);
+        }
+
+        using var certificate = X509CertificateLoader.LoadCertificate(der);
+
+        using var chain = new X509Chain();
+        chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+        chain.ChainPolicy.DisableCertificateDownloads = true;
+        chain.Build(certificate);
+
+        return validator.Validate(certificate, chain, SslPolicyErrors.None);
     }
 
     /// <summary>

@@ -8,7 +8,7 @@ namespace GenHTTP.Engine.Ioxide;
 /// </summary>
 /// <remarks>
 /// ngtcp2 loads PEM by path and takes nothing else, and the engine will not write a private key out
-/// on your behalf. Files are preferred on the TCP transports too: OpenSSL loads a chain file whole,
+/// on your behalf. CertificateFiles are preferred on the TCP transports too: OpenSSL loads a chain file whole,
 /// so the intermediates come from the file rather than the machine store.
 /// </remarks>
 public interface IFileCertificateProvider : ICertificateProvider

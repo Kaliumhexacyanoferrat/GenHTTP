@@ -52,7 +52,7 @@ public sealed partial class Server
             return serverConfig;
         }
 
-        if (quicEndPoint.Files is not { } files)
+        if (quicEndPoint.CertificateFiles is not { } files)
         {
             throw new NotSupportedException(
                 $"Port {quicEndPoint.Port} serves HTTP/3, but its binding supplies only an in-memory certificate. "

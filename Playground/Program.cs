@@ -7,6 +7,8 @@ using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Ioxide;
 
+using ioxide;
+
 using GenHTTP.Modules.Files;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
@@ -101,23 +103,37 @@ var server = Host.Create(
                            [8444] = Protocols.Http1,
                        },
 
-                       Reactor = new ReactorOptions { ReactorCount = 2 },
+                       Reactor = new ReactorOptions
+                       {
+                           ReactorCount = 2,
+                           RingEntries = 8192,
+                           RecvBufferSize = 32 * 1024,
+                           RecvSlots = 4096,
+                           Incremental = null,
+                       },
 
                        Tcp = new TcpTransportOptions
                        {
                            HandshakeTimeoutMs = 10_000,
-
-                           // kTLS hands the record layer to the kernel, and needs the Linux tls
-                           // module plus TLS 1.3 - without it every handshake fails silently:
-                           //
-                           //     cat /proc/sys/net/ipv4/tcp_available_ulp   # wanted: tls
+                           CipherSuites = null,
+                           CipherList = null,
                            TxKernelTls = false,
                            RxKernelTls = false,
+                           ListenBacklog = 1024,
+                           WriteSlabSize = 16 * 1024,
+                           WriteOverflow = WriteOverflowStrategy.Grow,
+                           PoolMax = 1024,
+                           ZeroCopySend = false,
+                           RecvQueueEntries = 64,
                        },
 
                        Http3 = new Http3Options
                        {
                            HandshakeTimeoutMs = 10_000,
+                           IdleTimeoutMs = 60_000,
+                           Routing = QuicRouting.Forward,
+                           PinMigratedPeers = true,
+                           SocketBufferBytes = 8 * 1024 * 1024,
                            QpackDynamicTableCapacity = 4096,
                            QpackBlockedStreams = 100,
                        },
@@ -178,5 +194,6 @@ internal sealed class RequireClientCertificate(string clientCaPath) : IMutualTls
 
     public X509RevocationMode RevocationCheck => X509RevocationMode.NoCheck;
 
+    //TODO: Proper client cert validation example
     public bool Validate(X509Certificate? certificate, X509Chain? chain, SslPolicyErrors policyErrors) => true;
 }

@@ -18,24 +18,24 @@ namespace GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 ///   client trust anchors   ClientCaPath or ClientCaPem     ClientCaPath or ClientCaPem
 ///   demand a client cert   ICertificateValidator.RequireCertificate, on both
 /// </code>
-/// Files are preferred wherever both are offered, which also settles the chain: OpenSSL reads a
+/// CertificateFiles are preferred wherever both are offered, which also settles the chain: OpenSSL reads a
 /// chain file whole, while an <c>X509Certificate2</c> carries no chain and needs it rebuilt from
 /// the machine store. A plain <c>ICertificateProvider</c> therefore serves TCP only.
 /// </remarks>
 internal sealed class SecureEndPoint : EndPoint
 {
     internal SecureEndPoint(IPAddress? address, ushort port, bool dualStack, Protocols protocols,
-        SecurityConfiguration security)
+        SecurityConfiguration securityConfiguration)
         : base(address, port, dualStack, protocols)
     {
-        Security = security;
+        SecurityConfiguration = securityConfiguration;
 
-        Files = ResolveFiles();
+        CertificateFiles = ResolveFiles();
         Hosts = ResolveHosts();
 
-        RequireClientCertificate = security.CertificateValidator?.RequireCertificate == true;
+        RequireClientCertificate = securityConfiguration.CertificateValidator?.RequireCertificate == true;
 
-        if (security.CertificateValidator is IMutualTlsValidator mutualTls)
+        if (securityConfiguration.CertificateValidator is IMutualTlsValidator mutualTls)
         {
             ClientCaPath = mutualTls.ClientCaPath;
             ClientCaPem = mutualTls.ClientCaPem;
@@ -45,13 +45,13 @@ internal sealed class SecureEndPoint : EndPoint
     public override bool Secure => true;
 
     /// <summary>How this endpoint is secured: its certificate provider, protocols and validator.</summary>
-    public SecurityConfiguration Security { get; }
+    public SecurityConfiguration SecurityConfiguration { get; }
 
     /// <summary>
     /// The certificate as files, as it was when the server started. Null where the binding gave
     /// only the in-memory form. A reload asks <see cref="ResolveFiles"/> again.
     /// </summary>
-    public CertificateFiles? Files { get; }
+    public CertificateFiles? CertificateFiles { get; }
 
     /// <summary>
     /// The certificates served by name, as they were when the server started. Empty unless the
@@ -61,7 +61,7 @@ internal sealed class SecureEndPoint : EndPoint
 
     /// <summary>The default certificate as files, asked of the provider now.</summary>
     public CertificateFiles? ResolveFiles()
-        => (Security.CertificateProvider as IFileCertificateProvider)?.ProvideFiles(null);
+        => (SecurityConfiguration.CertificateProvider as IFileCertificateProvider)?.ProvideFiles(null);
 
     /// <summary>
     /// Each name the provider answers for, asked of it now, in both forms - the files HTTP/3 needs
@@ -71,12 +71,12 @@ internal sealed class SecureEndPoint : EndPoint
     /// </summary>
     public IReadOnlyList<HostCertificate> ResolveHosts()
     {
-        if (Security.CertificateProvider is not IHostCertificateProvider byHost)
+        if (SecurityConfiguration.CertificateProvider is not IHostCertificateProvider byHost)
         {
             return [];
         }
 
-        var files = Security.CertificateProvider as IFileCertificateProvider;
+        var files = SecurityConfiguration.CertificateProvider as IFileCertificateProvider;
         var resolved = new List<HostCertificate>();
 
         foreach (var host in byHost.Hosts)
@@ -114,7 +114,7 @@ internal sealed class SecureEndPoint : EndPoint
     public bool RequireClientCertificate { get; }
 
     /// <summary>Whether this endpoint asks for a client certificate at all.</summary>
-    public bool MutualTls => Security.CertificateValidator is not null;
+    public bool MutualTls => SecurityConfiguration.CertificateValidator is not null;
 }
 
 /// <summary>

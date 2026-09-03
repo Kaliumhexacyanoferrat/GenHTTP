@@ -4,6 +4,7 @@ using System.Text;
 
 using GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 
+using ioxide;
 using ioxide.tls;
 
 using Microsoft.Extensions.Logging;
@@ -21,17 +22,17 @@ public sealed partial class Server
     /// </summary>
     private IEnumerable<KeyValuePair<ushort, TlsOptions>> ResolveTls()
     {
-        foreach (var endPoint in SecureEndPoints)
+        foreach (var endPoint in SecureTcpEndPoints)
         {
             var port = endPoint.Port;
 
-            if (ResolveDefaultCertificate(endPoint, endPoint.Files, port) is not { } certificate)
+            if (ResolveDefaultCertificate(endPoint, endPoint.CertificateFiles, port) is not { } certificate)
             {
                 _logger.LogWarning("No default certificate for secure port {Port}; handshakes there will be refused.", port);
                 continue;
             }
 
-            yield return new(port, new TlsOptions
+            yield return new KeyValuePair<ushort, TlsOptions>(port, new TlsOptions
             {
                 CertificatePath = certificate.CertificatePath,
                 KeyPath = certificate.KeyPath,
@@ -60,18 +61,43 @@ public sealed partial class Server
     }
 
     /// <summary>
-    /// The certificate answering a client that asked for no name, or an unknown one. Files are
+    /// Starts one TLS service per secure TCP port on this reactor, and publishes the registry that
+    /// finds them. Runs on the reactor's own thread, from <c>OnStart</c>.
+    /// </summary>
+    /// <remarks>
+    /// A service per port rather than one for the server: ALPN, the client CA and the TLS floor are
+    /// all per endpoint. They are started unregistered because <c>Reactor.GetService</c> is
+    /// last-write-wins by type, so the registry is what gets registered and the port picks the
+    /// service out of it.
+    /// </remarks>
+    private void StartTlsServices(Reactor reactor, int index, IReadOnlyList<KeyValuePair<ushort, TlsOptions>> portsTlsOptions)
+    {
+        TcpTlsRegistry tcpTlsRegistry = new TcpTlsRegistry();
+
+        foreach ((ushort port, TlsOptions options) in portsTlsOptions)
+        {
+            tcpTlsRegistry.Add(port, TlsService.Start(reactor, options, register: false));
+        }
+
+        reactor.AddService(tcpTlsRegistry);
+
+        // Also kept on the server, so ReloadCertificates can reach every reactor's services.
+        _tcpTlsRegistries![index] = tcpTlsRegistry;
+    }
+
+    /// <summary>
+    /// The certificate answering a client that asked for no name, or an unknown one. CertificateFiles are
     /// preferred: OpenSSL reads a chain file whole, so intermediates come from the file and the key
     /// never enters managed memory. Null where the provider has neither form.
     /// </summary>
-    private TlsCertificate? ResolveDefaultCertificate(SecureEndPoint endPoint, CertificateFiles? files, ushort port)
+    private TlsCertificate? ResolveDefaultCertificate(SecureEndPoint endPoint, CertificateFiles? certificateFiles, ushort port)
     {
-        if (files is not null)
+        if (certificateFiles is not null)
         {
-            return new TlsCertificate { CertificatePath = files.Certificate, KeyPath = files.Key };
+            return new TlsCertificate { CertificatePath = certificateFiles.Certificate, KeyPath = certificateFiles.Key };
         }
 
-        if (endPoint.Security.CertificateProvider.Provide(null) is { } certificate)
+        if (endPoint.SecurityConfiguration.CertificateProvider.Provide(null) is { } certificate)
         {
             return new TlsCertificate
             {
@@ -133,7 +159,7 @@ public sealed partial class Server
     /// </remarks>
     private TlsProtocolVersion ResolveMinProtocolVersion(SecureEndPoint endPoint)
     {
-        var protocols = endPoint.Security.Protocols;
+        var protocols = endPoint.SecurityConfiguration.Protocols;
 
         var tls12 = protocols.HasFlag(SslProtocols.Tls12);
         var tls13 = protocols.HasFlag(SslProtocols.Tls13);
@@ -171,7 +197,7 @@ public sealed partial class Server
     {
         foreach (var endPoint in SecureEndPoints)
         {
-            if (endPoint.Security.CertificateValidator is not { } validator)
+            if (endPoint.SecurityConfiguration.CertificateValidator is not { } validator)
             {
                 continue;
             }
@@ -188,9 +214,10 @@ public sealed partial class Server
             if (endPoint.Protocols.HasFlag(Protocols.Http3))
             {
                 _logger.LogWarning(
-                    "Port {Port} serves HTTP/3 with a certificate validator. Validate runs for HTTP/1.1 and HTTP/2 but NOT over QUIC, where "
-                    + "ngtcp2 exposes no peer certificate to hand it - an HTTP/3 client is admitted on the chain check and RequireCertificate "
-                    + "alone. Keep the two transports on separate ports if that difference matters.",
+                    "Port {Port} serves HTTP/3 with a certificate validator. Validate runs on the TCP transports, where OpenSSL hands over the "
+                    + "peer certificate, but NOT over QUIC: ngtcp2 exposes only the peer's subject and common name, so there is no certificate "
+                    + "to hand it. An HTTP/3 client is admitted on the chain check and RequireCertificate alone. Keep the two transports on "
+                    + "separate ports if that difference matters.",
                     endPoint.Port);
             }
         }
@@ -201,6 +228,18 @@ public sealed partial class Server
 
     /// <summary>The endpoints bound with a certificate - the ones TLS applies to.</summary>
     private IEnumerable<SecureEndPoint> SecureEndPoints => _endPoints.OfType<SecureEndPoint>();
+
+    /// <summary>
+    /// The secure endpoints a TLS service is actually worth building for: the ones that accept TCP.
+    /// </summary>
+    /// <remarks>
+    /// An HTTP/3-only port is secure and has no TCP listener - <c>ResolveTcpPorts</c> leaves it out
+    /// and <c>BuildServerConfig</c> then binds none - so a context built for it on every reactor
+    /// could never be reached. QUIC terminates its own TLS in ngtcp2, from the certificate paths the
+    /// binding named. A port serving HTTP/3 alongside HTTP/1.1 or HTTP/2 still belongs here.
+    /// </remarks>
+    private IEnumerable<SecureEndPoint> SecureTcpEndPoints
+        => SecureEndPoints.Where(e => (e.Protocols & Protocols.Http1AndHttp2) != 0);
 
     /// <summary>
     /// The certificate and the intermediates a client needs to reach a root it trusts, leaf first
@@ -263,10 +302,16 @@ public sealed partial class Server
 }
 
 /// <summary>
-/// The TLS service each secure port owns on this reactor, keyed by the port a connection arrived
-/// on. One per port, since ALPN and the client CA differ per endpoint.
+/// The TLS service each secure TCP port owns on this reactor, keyed by the port a connection
+/// arrived on. One per port, since ALPN and the client CA differ per endpoint.
 /// </summary>
-internal sealed class TlsRegistry
+/// <remarks>
+/// TCP only, as the name says: QUIC terminates TLS in ngtcp2 through its own engine, so an
+/// HTTP/3-only port holds nothing here. The registry itself is still registered whenever any
+/// endpoint is secure - empty if none of them serve TCP - because <c>ReloadCertificates</c> reaches
+/// every reactor through it, including to rotate the QUIC certificate.
+/// </remarks>
+internal sealed class TcpTlsRegistry
 {
     private readonly Dictionary<ushort, TlsService> _byPort = [];
 

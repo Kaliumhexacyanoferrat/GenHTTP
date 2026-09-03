@@ -44,11 +44,12 @@ public sealed partial class Server : IServer
     private Reactor[]? _reactors;
 
     /// <summary>
-    /// Each reactor's TLS services, by reactor index - what <see cref="ReloadCertificates"/>
-    /// rotates. Null on a server with no secure endpoint, and an entry stays null until its reactor
+    /// Each reactor's TCP TLS services, by reactor index - what <see cref="ReloadCertificates"/>
+    /// rotates. Null unless the server actually serves TLS over TCP, so an HTTP/3-only server holds
+    /// nothing at all: QUIC terminates its own TLS in ngtcp2. An entry is null until its reactor
     /// has started.
     /// </summary>
-    private TlsRegistry?[]? _tlsRegistries;
+    private TcpTlsRegistry?[]? _tcpTlsRegistries;
 
 #region Get-/Setters
     
@@ -76,13 +77,12 @@ public sealed partial class Server : IServer
         Action<Reactor>? onReactorStart = null,
         EngineOptions? options = null)
     {
-        _serverConfiguration = serverConfiguration;
         Handler = handler;
+        
+        _serverConfiguration = serverConfiguration;
         _onReactorStart = onReactorStart;
         _engineOptions = options ?? EngineOptions.Default;
-
         _logger = serverConfiguration.Logging.CreateLogger<Server>();
-
         _endPoints = MapEndPoints(serverConfiguration, _engineOptions);
         _dualStack = _endPoints[0].DualStack;
 
@@ -103,67 +103,42 @@ public sealed partial class Server : IServer
         
         var serverConfig = BuildServerConfig();
 
-        if (_tcpPorts.Length > 0)
-        {
-            serverConfig = WithTcp(serverConfig);
-        }
+        bool secureTcp = SecureTcpEndPoints.Any();
 
-        if (_quicEndPoint is not null)
-        {
-            serverConfig = WithQuic(serverConfig);
-        }
-
-        // Resolved once and shared: each reactor starts its own TlsService, but a chain is built
-        // and a warning logged once for the server rather than once per core.
-        // The registry is registered whenever a port is SECURE, even where none of them produced a
-        // certificate: the connection driver reads it to tell "no certificate here, close" from
-        // "not a TLS port at all", and without it such a connection hangs instead of getting a FIN.
-        var secure = SecureEndPoints.Any();
-
-        var tlsOptions = secure ? ResolveTls().ToArray() : [];
+        KeyValuePair<ushort, TlsOptions>[] portsTlsOptions = secureTcp ? ResolveTls().ToArray() : [];
 
         WarnAboutValidatorGaps();
 
         _threads = new Thread[serverConfig.ReactorCount];
         _reactors = new Reactor[serverConfig.ReactorCount];
-        _tlsRegistries = new TlsRegistry?[serverConfig.ReactorCount];
+        _tcpTlsRegistries = secureTcp ? new TcpTlsRegistry?[serverConfig.ReactorCount] : null;
 
         // Reactors bind on their own threads, so StartAsync must not return before they accept.
-        var listening = new CountdownEvent(serverConfig.ReactorCount);
+        CountdownEvent listening = new CountdownEvent(serverConfig.ReactorCount);
 
         for (var i = 0; i < _threads.Length; i++)
         {
             // OnStart runs on the reactor's thread, long after the loop variable has moved on.
-            var index = i;
+            int capturedIndex = i;
 
-            var reactor = new Reactor(i, serverConfig)
+            Reactor reactor = new Reactor(i, serverConfig)
             {
-                OnStart = r =>
+                OnStart = _reactor_ =>
                 {
-                    IoxideReactor.Bind(r);
+                    IoxideReactor.Bind(_reactor_);
 
-                    if (secure)
+                    if (secureTcp)
                     {
-                        var registry = new TlsRegistry();
-
-                        foreach (var (port, options) in tlsOptions)
-                        {
-                            registry.Add(port, TlsService.Start(r, options, register: false));
-                        }
-
-                        r.AddService(registry);
-
-                        // Also kept here, so ReloadCertificates can reach every reactor's services.
-                        _tlsRegistries![index] = registry;
+                        StartTlsServices(_reactor_, capturedIndex, portsTlsOptions);
                     }
 
-                    _onReactorStart?.Invoke(r);
+                    _onReactorStart?.Invoke(_reactor_);
 
                     listening.Signal();
                 },
                 TcpHandle = (_, tcpConnection) =>
                 {
-                    var endPoint = EndPointFor(tcpConnection.ListenerPort);
+                    EndPoint endPoint = EndPointFor(tcpConnection.ListenerPort);
 
                     return ConnectionDriver.HandleAsync(this, endPoint, tcpConnection, endPoint.Protocols);
                 },
@@ -254,21 +229,36 @@ public sealed partial class Server : IServer
     /// The engine-wide configuration. <c>WithTcp</c> and <c>WithQuic</c> add the listeners, taking
     /// their ports from the bindings.
     /// </summary>
-    private ServerConfig BuildServerConfig() => new()
+    private ServerConfig BuildServerConfig()
     {
-        ReactorCount = _engineOptions.Reactor.ReactorCount,
-        RingEntries = _engineOptions.Reactor.RingEntries,
-        RecvBufferSize = _engineOptions.Reactor.RecvBufferSize,
-        RecvSlots = _engineOptions.Reactor.RecvSlots,
-        Incremental = _engineOptions.Reactor.Incremental,
+        var serverConfig = new ServerConfig
+        {
+            ReactorCount = _engineOptions.Reactor.ReactorCount,
+            RingEntries = _engineOptions.Reactor.RingEntries,
+            RecvBufferSize = _engineOptions.Reactor.RecvBufferSize,
+            RecvSlots = _engineOptions.Reactor.RecvSlots,
+            Incremental = _engineOptions.Reactor.Incremental,
 
-        // Applies to the TCP listener and the UDP socket alike, hence one mode per server.
-        DualStack = _dualStack,
+            // Applies to the TCP listener and the UDP socket alike, hence one mode per server.
+            DualStack = _dualStack,
 
-        // Explicitly null: ioxide's own default is a live listener on 8080, which an HTTP/3-only
-        // server would otherwise inherit.
-        Tcp = null,
-    };
+            // Explicitly null: ioxide's own default is a live listener on 8080, which an HTTP/3-only
+            // server would otherwise inherit.
+            Tcp = null,
+        };
+        
+        if (_tcpPorts.Length > 0)
+        {
+            serverConfig = WithTcp(serverConfig);
+        }
+
+        if (_quicEndPoint is not null)
+        {
+            serverConfig = WithQuic(serverConfig);
+        }
+        
+        return serverConfig;
+    }
 
     private async ValueTask PrepareHandlerAsync()
     {
@@ -376,7 +366,7 @@ public sealed partial class Server : IServer
 
         _reactors = null;
         _threads = null;
-        _tlsRegistries = null;
+        _tcpTlsRegistries = null;
 
         if (reactors is null || threads is null)
         {

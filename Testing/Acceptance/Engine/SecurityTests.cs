@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
@@ -170,6 +171,64 @@ public sealed class SecurityTests
                 using var failedResponse = await client.GetAsync($"https://localhost:{sec}");
             });
         }, engine, host: "myserver");
+    }
+
+    /// <summary>
+    /// The verdict an ICertificateValidator returns has to actually decide the connection. A
+    /// validator that says no is the whole point of being asked, so a client it rejects must not
+    /// reach the handler; one that says yes must.
+    /// </summary>
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestValidatorVerdictIsHonoured(TestEngine engine)
+    {
+        if (engine == TestEngine.Kestrel)
+        {
+            // Kestrel only calls ClientCertificateValidation when a certificate actually arrives, so
+            // under AllowCertificate a client offering none is admitted without the validator being
+            // asked at all. Its verdict is honoured, just never sought in this case.
+            Assert.Inconclusive("Kestrel does not consult the validator when no client certificate is offered.");
+        }
+
+        await Assert.ThrowsExactlyAsync<HttpRequestException>(async () =>
+        {
+            using var response = await RunWithVerdictAsync(false, engine);
+        });
+
+        using var accepted = await RunWithVerdictAsync(true, engine);
+
+        await accepted.AssertStatusAsync(HttpStatusCode.OK);
+    }
+
+    private static async Task<HttpResponseMessage> RunWithVerdictAsync(bool verdict, TestEngine engine)
+    {
+        var content = Layout.Create().Index(Content.From(Resource.FromString("Hello Alice!")));
+
+        await using var runner = new TestHost(Layout.Create().Build(), false, engine: engine);
+
+        var port = TestHost.NextPort();
+
+        using var cert = await Security.GetCertificateAsync();
+
+        runner.Host.Handler(content)
+              .Bind(IPAddress.Any, (ushort)port, cert, certificateValidator: new VerdictValidator(verdict));
+
+        await runner.StartAsync();
+
+        using var client = TestHost.GetClient(ignoreSecurityErrors: true);
+
+        return await client.GetAsync($"https://localhost:{port}");
+    }
+
+    /// <summary>Answers every peer the same way, so only the verdict is under test.</summary>
+    private sealed class VerdictValidator(bool verdict) : ICertificateValidator
+    {
+        // False: the engine must still ask, and a client offering nothing is what it is asked about.
+        public bool RequireCertificate => false;
+
+        public X509RevocationMode RevocationCheck => X509RevocationMode.NoCheck;
+
+        public bool Validate(X509Certificate? certificate, X509Chain? chain, SslPolicyErrors policyErrors) => verdict;
     }
 
     // These cases need a real handshake to the secure port, and PickyCertificateProvider answers only

@@ -33,14 +33,23 @@ public sealed partial class Server
     /// </exception>
     public void ReloadCertificates()
     {
-        if (_tlsRegistries is not { } registries || Array.Find(registries, r => r is not null) is not { } started)
+        if (!Running || !SecureEndPoints.Any())
         {
             throw new InvalidOperationException(
-                "There are no TLS services to rotate: this server either has no secure endpoint or is not running.");
+                "There are no certificates to rotate: this server either has no secure endpoint or is not running.");
         }
 
         lock (_reload)
         {
+            // Read once, so a stop landing mid-rotation cannot swap it between resolving and
+            // publishing. Null where nothing serves TLS over TCP - an HTTP/3-only server - which is
+            // a rotation this method still performs, on the QUIC listener alone.
+            TcpTlsRegistry?[]? registries = _tcpTlsRegistries;
+
+            // Any one reactor's registry tells which ports actually started a service; they all
+            // started the same set.
+            TcpTlsRegistry? started = registries is null ? null : Array.Find(registries, static r => r is not null);
+
             var rotations = ResolveRotations(started, out var quic);
 
             if (quic is { } endPoint)
@@ -50,17 +59,29 @@ public sealed partial class Server
                 ReloadQuicCertificates(endPoint, endPoint.ResolveFiles(), endPoint.ResolveHosts());
             }
 
-            Publish(registries, rotations);
+            if (registries is not null)
+            {
+                Publish(registries, rotations);
+            }
 
-            _logger.LogInformation("Replaced the certificates on {Count} secure port(s)", rotations.Count);
+            // Counted apart rather than summed: a port serving HTTP/3 alongside TCP is in rotations
+            // as well and would be counted twice, and an HTTP/3-only one is in neither.
+            _logger.LogInformation("Replaced the certificates on {TcpPorts} TCP port(s) and {QuicListeners} QUIC listener(s)",
+                rotations.Count, quic is not null ? 1 : 0);
         }
     }
 
     /// <summary>
-    /// What each secure port should serve now. Ports that started without a certificate are
-    /// skipped: they have no service to rotate, and only a restart can give them one.
+    /// What each secure TCP port should serve now, and which endpoint carries QUIC. Ports that
+    /// started without a certificate are skipped: they have no service to rotate, and only a
+    /// restart can give them one.
     /// </summary>
-    private List<CertificateRotation> ResolveRotations(TlsRegistry started, out SecureEndPoint? quic)
+    /// <param name="started">
+    /// Any one reactor's registry, to tell which ports actually started a service. Null on a server
+    /// with no TCP TLS at all, which yields no rotations and leaves <paramref name="quic"/> to do
+    /// the work.
+    /// </param>
+    private List<CertificateRotation> ResolveRotations(TcpTlsRegistry? started, out SecureEndPoint? quic)
     {
         var rotations = new List<CertificateRotation>();
 
@@ -73,7 +94,7 @@ public sealed partial class Server
                 quic = endPoint;
             }
 
-            if (!started.TryFor(endPoint.Port, out _))
+            if (started is null || !started.TryFor(endPoint.Port, out _))
             {
                 continue;
             }
@@ -106,7 +127,7 @@ public sealed partial class Server
     /// way. A service that refuses the new material keeps the old, which is still a certificate the
     /// endpoint was bound with - so a mixed server serves, it just serves two vintages.
     /// </summary>
-    private void Publish(TlsRegistry?[] registries, List<CertificateRotation> rotations)
+    private void Publish(TcpTlsRegistry?[] registries, List<CertificateRotation> rotations)
     {
         List<Exception>? failures = null;
 
