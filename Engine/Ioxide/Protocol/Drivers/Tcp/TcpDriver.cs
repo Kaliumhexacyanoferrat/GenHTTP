@@ -82,9 +82,6 @@ internal static partial class TcpDriver
             {
                 await Http2Driver.RunAsync(server, endPoint, pipe, remoteAddress, endPoint.Secure);
             }
-            catch
-            {
-            }
             finally
             {
                 await CloseAsync(pipe, conn);

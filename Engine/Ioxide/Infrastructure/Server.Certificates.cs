@@ -74,7 +74,7 @@ public sealed partial class Server
                     $"The provider on port {port} no longer answers with a certificate. The port still serves the one it had.");
             }
 
-            var byHost = ResolveHostCertificates(endPoint, endPoint.ResolveHosts(), port);
+            var byHost = ResolveHostCertificates(endPoint.ResolveHosts(), port);
 
             RequireFiles(certificate, port, "The default certificate");
 

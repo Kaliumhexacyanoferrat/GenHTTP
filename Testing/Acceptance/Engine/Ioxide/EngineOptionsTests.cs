@@ -2,9 +2,6 @@ using System.Net;
 using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Infrastructure;
-
-using GenHTTP.Engine.Ioxide;
-
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 

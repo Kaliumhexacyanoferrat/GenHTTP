@@ -105,9 +105,6 @@ internal static class Http1Driver
                 }
             }
         }
-        catch
-        {
-        }
         finally
         {
             WarnIfThreadHopped(server, reactorThreadId, "before-return");

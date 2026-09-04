@@ -1,6 +1,4 @@
 using System.Diagnostics;
-using System.IO.Pipelines;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 

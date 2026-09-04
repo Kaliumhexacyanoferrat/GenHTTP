@@ -1,9 +1,6 @@
 using System.Net;
 
 using GenHTTP.Api.Infrastructure;
-
-using GenHTTP.Engine.Ioxide;
-
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 

@@ -34,7 +34,7 @@ public sealed partial class Server
                 CertificatePem = certificate.CertificatePem,
                 KeyPem = certificate.KeyPem,
 
-                CertificatesByHost = ResolveHostCertificates(endPoint, endPoint.Hosts, port),
+                CertificatesByHost = ResolveHostCertificates(endPoint.Hosts, port),
 
                 Alpn = endPoint.Protocols.HasFlag(HttpProtocols.Http2) ? ["h2", "http/1.1"] : ["http/1.1"],
 
@@ -90,8 +90,7 @@ public sealed partial class Server
     }
 
     // The certificates this port serves by name, dropping a name claimed more than once.
-    private IReadOnlyDictionary<string, TlsCertificate>? ResolveHostCertificates(SecureEndPoint endPoint,
-        IReadOnlyList<HostCertificate> hosts, ushort port)
+    private Dictionary<string, TlsCertificate>? ResolveHostCertificates(IReadOnlyList<HostCertificate> hosts, ushort port)
     {
         if (hosts.Count == 0)
         {

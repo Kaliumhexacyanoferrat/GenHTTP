@@ -1,14 +1,12 @@
 using System.Diagnostics;
 using System.Net;
 using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
-
+    
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Infrastructure.Logging;
-using GenHTTP.Engine.Shared.Security;
 
 using GenHTTP.Modules.ErrorHandling;
 
@@ -49,9 +47,9 @@ public abstract class ServerHost : IServerHost
         return this;
     }
 
-    public IServerHost Bind(IPAddress? address, ushort port, ICertificateProvider certificateProvider, SslProtocols sslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, HttpProtocols httpHttpProtocols = HttpProtocols.Http1AndHttp2, bool dualStack = true)
+    public IServerHost Bind(IPAddress? address, ushort port, ICertificateProvider certificateProvider, SslProtocols sslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, HttpProtocols httpProtocols = HttpProtocols.Http1AndHttp2, bool dualStack = true)
     {
-        _endPoints.Add(new EndPointConfiguration(address, port, httpHttpProtocols, dualStack, new SecurityConfiguration(certificateProvider, sslProtocols, certificateValidator)));
+        _endPoints.Add(new EndPointConfiguration(address, port, httpProtocols, dualStack, new SecurityConfiguration(certificateProvider, sslProtocols, certificateValidator)));
         return this;
     }
 
