@@ -49,8 +49,6 @@ public static class KernelTlsSample
 
         return Host.Create(options: new EngineOptions
                    {
-                       ProtocolsByPort = { [8443] = HttpProtocols.Http1AndHttp2 },
-
                        Tcp = new TcpTransportOptions
                        {
                            TxKernelTls = true,
@@ -60,7 +58,8 @@ public static class KernelTlsSample
                    .Handler(app)
                    // Tls13 alone: kTLS pins it, and naming 1.2 here would be a contradiction.
                    .Bind(IPAddress.Loopback, 8443, new FileCertificateProvider(certificate, key),
-                         httpProtocols: SslProtocols.Tls13);
+                         sslProtocols: SslProtocols.Tls13,
+                         httpProtocols: HttpProtocols.Http1AndHttp2);
     }
 
 }

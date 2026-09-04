@@ -21,13 +21,13 @@ public sealed partial class Server
     // The one endpoint serving HTTP/3; more than one is refused, since this engine binds a single QUIC listener.
     private EndPoint? ResolveQuicEndPoint()
     {
-        var quicEndPoints = _endPoints.Where(e => e.HttpProtocols.HasFlag(HttpProtocols.Http3)).ToList();
+        var quicEndPoints = _endPoints.Where(e => e.Protocols.HasFlag(HttpProtocols.Http3)).ToList();
 
         if (quicEndPoints.Count > 1)
         {
             throw new NotSupportedException(
                 $"The ioxide engine binds one QUIC listener, but HTTP/3 was requested on ports {string.Join(", ", quicEndPoints.Select(e => e.Port))}. "
-                + "Name the protocols per port (ProtocolsByPort) so only one of them serves HTTP/3.");
+                + "Request HTTP/3 on only one binding so a single QUIC listener suffices.");
         }
 
         return quicEndPoints.Count == 1 ? quicEndPoints[0] : null;

@@ -41,8 +41,6 @@ public static class Http3Sample
 
         return Host.Create(options: new EngineOptions
                    {
-                       ProtocolsByPort = { [8443] = HttpProtocols.Http3 },
-
                        Quic = new QuicTransportOptions
                        {
                            HandshakeTimeoutMs = 10_000,
@@ -50,7 +48,7 @@ public static class Http3Sample
                        },
                    })
                    .Handler(app)
-                   .Bind(IPAddress.Loopback, 8443, new FileCertificateProvider(certificate, key));
+                   .Bind(IPAddress.Loopback, 8443, new FileCertificateProvider(certificate, key), httpProtocols: HttpProtocols.Http3);
     }
 
 }

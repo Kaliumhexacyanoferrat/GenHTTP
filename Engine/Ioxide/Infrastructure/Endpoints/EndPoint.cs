@@ -13,7 +13,7 @@ internal abstract class EndPoint(IPAddress? address, ushort port, bool dualStack
 
     public bool DualStack => dualStack;
 
-    public HttpProtocols HttpProtocols => httpProtocols;
+    public HttpProtocols Protocols => httpProtocols;
 
     public abstract bool Secure { get; }
 

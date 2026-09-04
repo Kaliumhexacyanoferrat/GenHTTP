@@ -36,7 +36,7 @@ public sealed partial class Server
 
                 CertificatesByHost = ResolveHostCertificates(endPoint, endPoint.Hosts, port),
 
-                Alpn = endPoint.HttpProtocols.HasFlag(HttpProtocols.Http2) ? ["h2", "http/1.1"] : ["http/1.1"],
+                Alpn = endPoint.Protocols.HasFlag(HttpProtocols.Http2) ? ["h2", "http/1.1"] : ["http/1.1"],
 
                 ClientCaPath = endPoint.ClientCaPath,
                 ClientCaPem = endPoint.ClientCaPem,
@@ -171,7 +171,7 @@ public sealed partial class Server
                     endPoint.Port, validator.RevocationCheck);
             }
 
-            if (endPoint.HttpProtocols.HasFlag(HttpProtocols.Http3))
+            if (endPoint.Protocols.HasFlag(HttpProtocols.Http3))
             {
                 _logger.LogWarning(
                     "Port {Port} serves HTTP/3 with a certificate validator. Validate runs on the TCP transports, where OpenSSL hands over the "
@@ -188,7 +188,7 @@ public sealed partial class Server
     private IEnumerable<SecureEndPoint> SecureEndPoints => _endPoints.OfType<SecureEndPoint>();
 
     private IEnumerable<SecureEndPoint> SecureTcpEndPoints
-        => SecureEndPoints.Where(e => (e.HttpProtocols & HttpProtocols.Http1AndHttp2) != 0);
+        => SecureEndPoints.Where(e => (e.Protocols & HttpProtocols.Http1AndHttp2) != 0);
 
     // An in-memory certificate as PEM text, intermediates included and the root left off.
     private string ExportChainPem(X509Certificate2 certificate, ushort port)

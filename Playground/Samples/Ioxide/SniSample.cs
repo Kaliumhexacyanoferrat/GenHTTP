@@ -54,9 +54,9 @@ public static class SniSample
             certificates.Add(name, certificate, key);
         }
 
-        return Host.Create(options: new EngineOptions { ProtocolsByPort = { [8443] = HttpProtocols.Http1AndHttp2 } })
+        return Host.Create()
                    .Handler(app)
-                   .Bind(IPAddress.Loopback, 8443, certificates);
+                   .Bind(IPAddress.Loopback, 8443, certificates, httpProtocols: HttpProtocols.Http1AndHttp2);
     }
 
 }

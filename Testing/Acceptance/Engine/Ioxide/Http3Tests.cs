@@ -23,7 +23,7 @@ namespace GenHTTP.Testing.Acceptance.Engine.Ioxide;
 public sealed class Http3Tests
 {
 
-    [TestMethod]
+    [IoxideTestMethod]
     public async Task TestHttp3ServesRequests()
     {
         if (!QuicConnection.IsSupported)
@@ -35,8 +35,8 @@ public sealed class Http3Tests
 
         var port = (ushort)TestHost.NextPort();
 
-        var server = Build(new EngineOptions { ProtocolsByPort = { [port] = HttpProtocols.Http3 } })
-                     .Bind(IPAddress.Loopback, port, new FileCertificateProvider(certificate, key));
+        var server = Build().Bind(IPAddress.Loopback, port, new FileCertificateProvider(certificate, key),
+                                  httpProtocols: HttpProtocols.Http3);
 
         await server.StartAsync();
 
@@ -65,7 +65,7 @@ public sealed class Http3Tests
         }
     }
 
-    [TestMethod]
+    [IoxideTestMethod]
     public async Task TestHttp3OnlyBindsNoTcpListener()
     {
         // Naming Http3 alone for a port is taken literally: ResolveTcpPorts leaves it out, so no
@@ -74,8 +74,8 @@ public sealed class Http3Tests
 
         var port = (ushort)TestHost.NextPort();
 
-        var server = Build(new EngineOptions { ProtocolsByPort = { [port] = HttpProtocols.Http3 } })
-                     .Bind(IPAddress.Loopback, port, new FileCertificateProvider(certificate, key));
+        var server = Build().Bind(IPAddress.Loopback, port, new FileCertificateProvider(certificate, key),
+                                  httpProtocols: HttpProtocols.Http3);
 
         await server.StartAsync();
 
@@ -94,7 +94,7 @@ public sealed class Http3Tests
         }
     }
 
-    [TestMethod]
+    [IoxideTestMethod]
     public async Task TestHttp3OnlyStillRotatesItsCertificate()
     {
         // Rotation must not depend on a TCP TLS registry, which an HTTP/3-only server never builds.
@@ -104,8 +104,8 @@ public sealed class Http3Tests
 
         var port = (ushort)TestHost.NextPort();
 
-        var server = Build(new EngineOptions { ProtocolsByPort = { [port] = HttpProtocols.Http3 } })
-                     .Bind(IPAddress.Loopback, port, new FileCertificateProvider(certificate, key));
+        var server = Build().Bind(IPAddress.Loopback, port, new FileCertificateProvider(certificate, key),
+                                  httpProtocols: HttpProtocols.Http3);
 
         await server.StartAsync();
 
@@ -121,7 +121,7 @@ public sealed class Http3Tests
         }
     }
 
-    [TestMethod]
+    [IoxideTestMethod]
     public async Task TestHttp3SharesItsPortNumberWithTcp()
     {
         // The arrangement a browser can actually reach: TCP and QUIC on the same port number, since
@@ -135,8 +135,8 @@ public sealed class Http3Tests
 
         var port = (ushort)TestHost.NextPort();
 
-        var server = Build(new EngineOptions { ProtocolsByPort = { [port] = HttpProtocols.All } })
-                     .Bind(IPAddress.Loopback, port, new FileCertificateProvider(certificate, key));
+        var server = Build().Bind(IPAddress.Loopback, port, new FileCertificateProvider(certificate, key),
+                                  httpProtocols: HttpProtocols.All);
 
         await server.StartAsync();
 
@@ -167,8 +167,8 @@ public sealed class Http3Tests
         }
     }
 
-    private static IServerHost Build(EngineOptions options)
-        => Host.Create(options: options)
+    private static IServerHost Build()
+        => Host.Create()
                .Handler(Layout.Create().Add("ok", Content.From(Resource.FromString("ok"))));
 
 }

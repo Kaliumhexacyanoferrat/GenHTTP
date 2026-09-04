@@ -29,9 +29,9 @@ public static class AllProtocolsSample
          * only moves to QUIC once an Alt-Svc header points it there - it never tries HTTP/3
          * first. Serving HTTP/3 alone, as Http3Sample does, is invisible to a browser.
          *
-         * Protocols.All is taken literally when named per port. As a DEFAULT it means
-         * "everything each port can serve", so HTTP/3 is dropped from any port bound without a
-         * certificate rather than failing the server.
+         * Each binding names its own protocols. HTTP/3 has no cleartext mode, so it is dropped
+         * from any binding made without a certificate rather than failing the server; only the
+         * secure 8443 below carries it, even though it asks for All.
          *
          *     curl http://localhost:8080/ok
          *     curl --http2-prior-knowledge http://localhost:8082/ok
@@ -48,21 +48,13 @@ public static class AllProtocolsSample
 
         return Host.Create(options: new EngineOptions
                    {
-                       HttpProtocols = HttpProtocols.Http1,
-
-                       ProtocolsByPort =
-                       {
-                           [8082] = HttpProtocols.Http1AndHttp2,
-                           [8443] = HttpProtocols.All,
-                       },
-
                        Reactor = new ReactorOptions { ReactorCount = 2 },
                    })
                    .Handler(app)
-                   .Bind(IPAddress.Loopback, 8080)
-                   .Bind(IPAddress.Loopback, 8082)
+                   .Bind(IPAddress.Loopback, 8080, HttpProtocols.Http1)
+                   .Bind(IPAddress.Loopback, 8082, HttpProtocols.Http1AndHttp2)
                    // Files, not an X509Certificate2: HTTP/3 on this port needs PEM by path.
-                   .Bind(IPAddress.Loopback, 8443, new FileCertificateProvider(certificate, key));
+                   .Bind(IPAddress.Loopback, 8443, new FileCertificateProvider(certificate, key), httpProtocols: HttpProtocols.All);
     }
 
 }

@@ -43,8 +43,6 @@ public static class TlsSample
 
         return Host.Create(options: new EngineOptions
                    {
-                       ProtocolsByPort = { [8443] = HttpProtocols.Http1AndHttp2 },
-
                        Tcp = new TcpTransportOptions
                        {
                            // A peer that connects and then says nothing is swept rather than held.
@@ -53,7 +51,8 @@ public static class TlsSample
                    })
                    .Handler(app)
                    .Bind(IPAddress.Loopback, 8443, new FileCertificateProvider(certificate, key),
-                         httpProtocols: SslProtocols.Tls12 | SslProtocols.Tls13);
+                         sslProtocols: SslProtocols.Tls12 | SslProtocols.Tls13,
+                         httpProtocols: HttpProtocols.Http1AndHttp2);
     }
 
 }

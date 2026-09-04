@@ -18,8 +18,9 @@ public static class Http1Sample
         /*
          *
          * HTTP/1.1 needs no certificate and no negotiation - it is what the engine serves when
-         * nothing else was agreed. Protocols.Http1 is the default, so this binding would behave
-         * the same with no EngineOptions at all; it is named here to make the sample explicit.
+         * nothing else was agreed. HttpProtocols.Http1 is also what a cleartext Bind defaults to,
+         * so the binding below would behave the same with the protocols left off; it is named to
+         * make the sample explicit.
          *
          *     curl http://localhost:8080/ok
          *
@@ -28,9 +29,9 @@ public static class Http1Sample
         var app = Layout.Create()
                         .Add("ok", Content.From(Resource.FromString("ok")));
 
-        return Host.Create(options: new EngineOptions { HttpProtocols = HttpProtocols.Http1 })
+        return Host.Create()
                    .Handler(app)
-                   .Bind(IPAddress.Loopback, 8080);
+                   .Bind(IPAddress.Loopback, 8080, HttpProtocols.Http1);
     }
 
 }

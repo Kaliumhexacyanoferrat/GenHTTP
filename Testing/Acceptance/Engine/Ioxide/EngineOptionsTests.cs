@@ -22,7 +22,7 @@ namespace GenHTTP.Testing.Acceptance.Engine.Ioxide;
 public sealed class EngineOptionsTests
 {
 
-    [TestMethod]
+    [IoxideTestMethod]
     public async Task TestOnePortCarriesOneEndpoint()
     {
         // A connection is matched to its endpoint by the port it arrived on, so a port bound twice
@@ -38,7 +38,7 @@ public sealed class EngineOptionsTests
         });
     }
 
-    [TestMethod]
+    [IoxideTestMethod]
     public async Task TestOnlyOneEndpointMayServeHttp3()
     {
         // The engine binds a single QUIC listener, so a second HTTP/3 port cannot be honoured.
@@ -49,22 +49,14 @@ public sealed class EngineOptionsTests
 
         await Assert.ThrowsExactlyAsync<NotSupportedException>(async () =>
         {
-            var server = Build(new EngineOptions
-                                     {
-                                         ProtocolsByPort =
-                                         {
-                                             [first] = HttpProtocols.All,
-                                             [second] = HttpProtocols.All,
-                                         },
-                                     })
-                                     .Bind(IPAddress.Loopback, first, certificate)
-                                     .Bind(IPAddress.Loopback, second, certificate);
+            var server = Build().Bind(IPAddress.Loopback, first, CertificateProvider.From(certificate), httpProtocols: HttpProtocols.All)
+                                .Bind(IPAddress.Loopback, second, CertificateProvider.From(certificate), httpProtocols: HttpProtocols.All);
 
             await server.StartAsync();
         });
     }
 
-    [TestMethod]
+    [IoxideTestMethod]
     public async Task TestRequiringAClientCertificateNeedsAnchors()
     {
         // Requiring a certificate with nothing to validate it against would ask every client for
@@ -75,14 +67,14 @@ public sealed class EngineOptionsTests
 
         await Assert.ThrowsExactlyAsync<NotSupportedException>(async () =>
         {
-            var server = Build().Bind(IPAddress.Loopback, port, certificate,
+            var server = Build().Bind(IPAddress.Loopback, port, CertificateProvider.From(certificate),
                                                   certificateValidator: new AnchorlessValidator());
 
             await server.StartAsync();
         });
     }
 
-    [TestMethod]
+    [IoxideTestMethod]
     public async Task TestEveryEndpointSharesOneDualStackMode()
     {
         // One reactor binds every listener, so the mode cannot differ per endpoint.
@@ -98,21 +90,20 @@ public sealed class EngineOptionsTests
         });
     }
 
-    [TestMethod]
+    [IoxideTestMethod]
     public async Task TestAPortMustServeSomething()
     {
         var port = (ushort)TestHost.NextPort();
 
         await Assert.ThrowsExactlyAsync<NotSupportedException>(async () =>
         {
-            var server = Build(new EngineOptions { ProtocolsByPort = { [port] = 0 } })
-                                     .Bind(IPAddress.Loopback, port);
+            var server = Build().Bind(IPAddress.Loopback, port, HttpProtocols.None);
 
             await server.StartAsync();
         });
     }
 
-    [TestMethod]
+    [IoxideTestMethod]
     public async Task TestHttp3NeedsTheCertificateAsFiles()
     {
         // ngtcp2 loads PEM by path and the engine will not write a private key out on your behalf.
@@ -122,15 +113,15 @@ public sealed class EngineOptionsTests
 
         await Assert.ThrowsExactlyAsync<NotSupportedException>(async () =>
         {
-            var server = Build(new EngineOptions { ProtocolsByPort = { [port] = HttpProtocols.Http3 } })
-                                     .Bind(IPAddress.Loopback, port, certificate);
+            var server = Build().Bind(IPAddress.Loopback, port, CertificateProvider.From(certificate),
+                                                  httpProtocols: HttpProtocols.Http3);
 
             await server.StartAsync();
         });
     }
 
-    private static IServerHost Build(EngineOptions? options = null)
-        => Host.Create(options: options)
+    private static IServerHost Build()
+        => Host.Create()
                .Handler(Layout.Create().Add("ok", Content.From(Resource.FromString("ok"))));
 
     /// <summary>Demands a client certificate while naming nothing to validate one against.</summary>

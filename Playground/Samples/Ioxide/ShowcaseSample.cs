@@ -108,16 +108,6 @@ public static class ShowcaseSample
         var server = Host.Create(
                            options: new EngineOptions
                            {
-                               HttpProtocols = HttpProtocols.Http1,
-
-                               ProtocolsByPort =
-                               {
-                                   [8081] = HttpProtocols.Http2,
-                                   [8082] = HttpProtocols.Http1AndHttp2,
-                                   [8443] = HttpProtocols.All,
-                                   [8444] = HttpProtocols.Http1,
-                               },
-
                                Reactor = new ReactorOptions
                                {
                                    ReactorCount = 2,
@@ -163,12 +153,13 @@ public static class ShowcaseSample
                                },
                            })
                        .Handler(app)
-                       .Bind(IPAddress.Loopback, 8080)
-                       .Bind(IPAddress.Loopback, 8081)
-                       .Bind(IPAddress.Loopback, 8082)
-                       .Bind(IPAddress.Loopback, 8443, certificates)
+                       .Bind(IPAddress.Loopback, 8080, HttpProtocols.Http1)
+                       .Bind(IPAddress.Loopback, 8081, HttpProtocols.Http2)
+                       .Bind(IPAddress.Loopback, 8082, HttpProtocols.Http1AndHttp2)
+                       .Bind(IPAddress.Loopback, 8443, certificates, httpProtocols: HttpProtocols.All)
                        .Bind(IPAddress.Loopback, 8444, new FileCertificateProvider(defaultCert, defaultKey),
-                             certificateValidator: new RequireClientCertificate(clientCa));
+                             certificateValidator: new RequireClientCertificate(clientCa),
+                             httpProtocols: HttpProtocols.Http1);
 
         // Renewal, as an ACME hook would do it: rewrite the PEM the providers already name, then
         // ask the server to install it. Connections in flight keep the certificate they

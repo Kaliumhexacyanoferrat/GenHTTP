@@ -20,7 +20,7 @@ namespace GenHTTP.Testing.Acceptance.Engine.Ioxide;
 public sealed class CertificateTests
 {
 
-    [TestMethod]
+    [IoxideTestMethod]
     public async Task TestCertificateIsChosenByTheNameTheClientAsksFor()
     {
         var dir = IoxideCertificates.Isolated();
@@ -54,7 +54,7 @@ public sealed class CertificateTests
         }
     }
 
-    [TestMethod]
+    [IoxideTestMethod]
     public async Task TestSecurePortWithoutACertificateClosesRatherThanHangs()
     {
         // The port stays advertised as secure so upgrade redirects still work, but it cannot
@@ -84,7 +84,7 @@ public sealed class CertificateTests
         }
     }
 
-    [TestMethod]
+    [IoxideTestMethod]
     public async Task TestCertificatesRotateOnARunningServer()
     {
         var dir = IoxideCertificates.Isolated();
@@ -116,7 +116,7 @@ public sealed class CertificateTests
         }
     }
 
-    [TestMethod]
+    [IoxideTestMethod]
     public async Task TestRotationNeedsASecureEndpoint()
     {
         var port = (ushort)TestHost.NextPort();

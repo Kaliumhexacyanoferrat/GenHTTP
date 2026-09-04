@@ -36,17 +36,10 @@ public static class Http2Sample
         var app = Layout.Create()
                         .Add("ok", Content.From(Resource.FromString("ok")));
 
-        return Host.Create(options: new EngineOptions
-                   {
-                       ProtocolsByPort =
-                       {
-                           [8081] = HttpProtocols.Http2,
-                           [8082] = HttpProtocols.Http1AndHttp2,
-                       },
-                   })
+        return Host.Create()
                    .Handler(app)
-                   .Bind(IPAddress.Loopback, 8081)
-                   .Bind(IPAddress.Loopback, 8082);
+                   .Bind(IPAddress.Loopback, 8081, HttpProtocols.Http2)
+                   .Bind(IPAddress.Loopback, 8082, HttpProtocols.Http1AndHttp2);
     }
 
 }

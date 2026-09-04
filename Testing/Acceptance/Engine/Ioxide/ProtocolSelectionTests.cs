@@ -19,13 +19,12 @@ namespace GenHTTP.Testing.Acceptance.Engine.Ioxide;
 public sealed class ProtocolSelectionTests
 {
 
-    [TestMethod]
+    [IoxideTestMethod]
     public async Task TestOneSocketServesBothWhenThePortAsksForBoth()
     {
         var port = (ushort)TestHost.NextPort();
 
-        var server = Build(new EngineOptions { ProtocolsByPort = { [port] = HttpProtocols.Http1AndHttp2 } })
-                     .Bind(IPAddress.Loopback, port);
+        var server = Build().Bind(IPAddress.Loopback, port, HttpProtocols.Http1AndHttp2);
 
         await server.StartAsync();
 
@@ -40,15 +39,14 @@ public sealed class ProtocolSelectionTests
         }
     }
 
-    [TestMethod]
+    [IoxideTestMethod]
     public async Task TestHttp2OnlyPortTurnsAwayHttp1()
     {
         // Not HTTP/2 on a port that does not serve HTTP/1.1 either: closed, rather than answered
         // with a protocol the endpoint was configured not to speak.
         var port = (ushort)TestHost.NextPort();
 
-        var server = Build(new EngineOptions { ProtocolsByPort = { [port] = HttpProtocols.Http2 } })
-                     .Bind(IPAddress.Loopback, port);
+        var server = Build().Bind(IPAddress.Loopback, port, HttpProtocols.Http2);
 
         await server.StartAsync();
 
@@ -64,12 +62,12 @@ public sealed class ProtocolSelectionTests
         }
     }
 
-    [TestMethod]
+    [IoxideTestMethod]
     public async Task TestHttp1IsWhatAPortServesByDefault()
     {
         var port = (ushort)TestHost.NextPort();
 
-        var server = Build(new EngineOptions()).Bind(IPAddress.Loopback, port);
+        var server = Build().Bind(IPAddress.Loopback, port);
 
         await server.StartAsync();
 
@@ -103,8 +101,8 @@ public sealed class ProtocolSelectionTests
         return response.Version;
     }
 
-    private static IServerHost Build(EngineOptions options)
-        => Host.Create(options: options)
+    private static IServerHost Build()
+        => Host.Create()
                .Handler(Layout.Create().Add("ok", Content.From(Resource.FromString("ok"))));
 
 }

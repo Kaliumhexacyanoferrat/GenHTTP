@@ -60,9 +60,9 @@ public static class CertificateRotationSample
 
         certificates.Add(names[1], alpha, alphaKey);
 
-        var host = Host.Create(options: new EngineOptions { ProtocolsByPort = { [8443] = HttpProtocols.Http1AndHttp2 } })
+        var host = Host.Create()
                        .Handler(app)
-                       .Bind(IPAddress.Loopback, 8443, certificates);
+                       .Bind(IPAddress.Loopback, 8443, certificates, httpProtocols: HttpProtocols.Http1AndHttp2);
 
         _renewal = PosixSignalRegistration.Create(PosixSignal.SIGHUP, context =>
         {

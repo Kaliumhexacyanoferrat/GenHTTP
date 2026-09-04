@@ -72,7 +72,7 @@ public sealed partial class Server : IServer
         _onReactorStart = onReactorStart;
         _engineOptions = options ?? EngineOptions.Default;
         _logger = serverConfiguration.Logging.CreateLogger<Server>();
-        _endPoints = MapEndPoints(serverConfiguration, _engineOptions);
+        _endPoints = MapEndPoints(serverConfiguration);
         _dualStack = _endPoints[0].DualStack;
 
         _tcpPorts = ResolveTcpPorts();
@@ -128,7 +128,7 @@ public sealed partial class Server : IServer
                 {
                     EndPoint endPoint = EndPointFor(tcpConnection.ListenerPort);
 
-                    return TcpDriver.HandleAsync(this, endPoint, tcpConnection, endPoint.HttpProtocols);
+                    return TcpDriver.HandleAsync(this, endPoint, tcpConnection, endPoint.Protocols);
                 },
                 
                 QuicHandle = _quicEngine is not null 
@@ -163,9 +163,9 @@ public sealed partial class Server : IServer
     }
 
     // Turns the bindings into endpoints, refusing the combinations this engine cannot serve.
-    private static EndPoint[] MapEndPoints(ServerConfiguration config, EngineOptions options)
+    private static EndPoint[] MapEndPoints(ServerConfiguration config)
     {
-        var mapped = config.EndPoints.Select(e => Map(e, options)).ToArray();
+        var mapped = config.EndPoints.Select(Map).ToArray();
 
         if (mapped.GroupBy(e => e.Port).FirstOrDefault(g => g.Count() > 1) is { } duplicate)
         {
@@ -249,39 +249,16 @@ public sealed partial class Server : IServer
         }
     }
     
-    // One binding as an endpoint - a certificate is what makes it a secure one.
-    private static EndPoint Map(EndPointConfiguration endPoint, EngineOptions options)
+    // One binding as an endpoint - a certificate is what makes it a secure one. The binding names
+    // the protocols; the shared validator settles what this configuration can actually serve
+    // (dropping HTTP/3 where there is no certificate, refusing a port left with nothing).
+    private static EndPoint Map(EndPointConfiguration endPoint)
     {
-        var protocols = ResolveProtocols(options, endPoint);
+        var protocols = Protocols.Validate(endPoint);
 
         return endPoint.Security is { } security
             ? new SecureEndPoint(endPoint.Address, endPoint.Port, endPoint.DualStack, protocols, security)
             : new InsecureEndPoint(endPoint.Address, endPoint.Port, endPoint.DualStack, protocols);
-    }
-
-    // What one port serves: the default, its own override, and its enableQuic flag.
-    private static HttpProtocols ResolveProtocols(EngineOptions options, EndPointConfiguration endPoint)
-    {
-        var named = options.ProtocolsByPort.TryGetValue(endPoint.Port, out var configured);
-
-        var protocols = named ? configured : options.HttpProtocols;
-
-        if (!named && protocols.HasFlag(HttpProtocols.Http3) && endPoint.Security is null)
-        {
-            protocols &= ~HttpProtocols.Http3;
-        }
-
-        if (endPoint.EnableQuic)
-        {
-            protocols |= HttpProtocols.Http3;
-        }
-
-        if (protocols == 0)
-        {
-            throw new NotSupportedException($"Port {endPoint.Port} was given no protocols to serve.");
-        }
-
-        return protocols;
     }
 
     // The endpoint a connection arrived on. A scan, since a server binds a handful.
@@ -301,7 +278,7 @@ public sealed partial class Server : IServer
     // The one-line summary logged once the server is up.
     private string DescribeSettings()
     {
-        var protocols = string.Join(" ", _endPoints.OrderBy(e => e.Port).Select(e => $"{e.Port}:{Describe(e.HttpProtocols)}"));
+        var protocols = string.Join(" ", _endPoints.OrderBy(e => e.Port).Select(e => $"{e.Port}:{Describe(e.Protocols)}"));
 
         return $"ioxide, {protocols}, TLS on {SecureEndPoints.Count()}"
                + (MutualTlsConfigured ? ", mTLS" : string.Empty)
