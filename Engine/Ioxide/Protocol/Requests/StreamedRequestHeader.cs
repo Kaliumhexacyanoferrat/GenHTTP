@@ -8,6 +8,8 @@ internal sealed class StreamedRequestHeader : IRequestHeader
 {
     private static readonly ReadOnlyMemory<byte> HostName = "host"u8.ToArray();
 
+    private static readonly ByteString Host = new("host");
+
     private readonly StreamedKeyValueList _headers;
 
     private readonly StreamedKeyValueList _query;
@@ -19,7 +21,7 @@ internal sealed class StreamedRequestHeader : IRequestHeader
         List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> headers,
         List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> query, HttpProtocol protocol)
     {
-        _headers = new StreamedKeyValueList(WithHost(headers, authority));
+        _headers = new StreamedKeyValueList(headers, HostFromAuthority(headers, authority));
         _query = new StreamedKeyValueList(query);
 
         _target = new RequestTarget();
@@ -47,52 +49,25 @@ internal sealed class StreamedRequestHeader : IRequestHeader
 
     public IRequestQuery Query => _query;
 
-    // Adds :authority as a Host header, unless the client sent one itself.
-    private static List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> WithHost(
+    // :authority as a Host header to prepend, or null when there is nothing to add: the client sent
+    // no authority, or a Host header of its own. Returned as an entry so the list is never copied.
+    private static (ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)? HostFromAuthority(
         List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> headers, ReadOnlyMemory<byte> authority)
     {
         if (authority.IsEmpty)
         {
-            return headers;
+            return null;
         }
 
-        foreach ((ReadOnlyMemory<byte> name, ReadOnlyMemory<byte> _) in headers)
+        for (var i = 0; i < headers.Count; i++)
         {
-            if (name.Length == 4 && Matches(name.Span, "host"u8))
+            if (Host == headers[i].Name)
             {
-                return headers;
+                return null;
             }
         }
 
-        var result = new List<(ReadOnlyMemory<byte>, ReadOnlyMemory<byte>)>(headers.Count + 1)
-        {
-            (HostName, authority),
-        };
-
-        result.AddRange(headers);
-
-        return result;
-    }
-
-    // Compares a header name case-insensitively without allocating a string for it.
-    private static bool Matches(ReadOnlySpan<byte> name, ReadOnlySpan<byte> lowercase)
-    {
-        for (var i = 0; i < name.Length; i++)
-        {
-            var c = name[i];
-
-            if (c is >= (byte)'A' and <= (byte)'Z')
-            {
-                c += 32;
-            }
-
-            if (c != lowercase[i])
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return (HostName, authority);
     }
 
     // The path alone - routing must not see the query, or every request carrying one 404s.
@@ -106,4 +81,5 @@ internal sealed class StreamedRequestHeader : IRequestHeader
     private static readonly ReadOnlyMemory<byte> Http2Version = "HTTP/2.0"u8.ToArray();
 
     private static readonly ReadOnlyMemory<byte> Http3Version = "HTTP/3.0"u8.ToArray();
+    
 }

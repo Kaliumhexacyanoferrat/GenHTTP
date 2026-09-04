@@ -7,17 +7,34 @@ internal sealed class StreamedKeyValueList : IRequestHeaders, IRequestQuery
 {
     private readonly List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> _entries;
 
-    // Serves one list of name/value pairs as both headers and query parameters.
-    internal StreamedKeyValueList(List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> entries)
+    private readonly (ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)? _prepended;
+
+    // Serves one list of name/value pairs as both headers and query parameters. An optional
+    // prepended entry is presented first without copying the list to make room for it - the ioxide
+    // header path uses it to fold :authority in as a Host header.
+    internal StreamedKeyValueList(
+        List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> entries,
+        (ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)? prepended = null)
     {
         _entries = entries;
+        _prepended = prepended;
     }
 
-    public int Count => _entries.Count;
+    public int Count => _entries.Count + (_prepended.HasValue ? 1 : 0);
 
     // One entry, still as bytes, so nothing is decoded that no handler asks for.
     public KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>> GetMemoryEntry(int index)
     {
+        if (_prepended is { } head)
+        {
+            if (index == 0)
+            {
+                return new KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>(head.Name, head.Value);
+            }
+
+            index--;
+        }
+
         (ReadOnlyMemory<byte> name, ReadOnlyMemory<byte> value) = _entries[index];
 
         return new KeyValuePair<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>(name, value);

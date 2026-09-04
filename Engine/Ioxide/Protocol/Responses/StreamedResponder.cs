@@ -1,6 +1,5 @@
 using System.Buffers;
 using System.Buffers.Text;
-
 using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Ioxide.Protocol.Sinks;
 
@@ -9,6 +8,7 @@ namespace GenHTTP.Engine.Ioxide.Protocol.Responses;
 /// <summary>A built response head, on its way to whichever driver sends it.</summary>
 internal readonly struct StreamedResponseData
 {
+    
     // Carries a built response head between the responder and whichever driver sends it.
     internal StreamedResponseData(int status, List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> headers)
     {
@@ -19,6 +19,7 @@ internal readonly struct StreamedResponseData
     internal int Status { get; }
 
     internal List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> Headers { get; }
+    
 }
 
 /// <summary>The response shaping HTTP/2 and HTTP/3 have in common.</summary>
@@ -34,6 +35,19 @@ internal static class StreamedResponder
 
     private static readonly ReadOnlyMemory<byte> ServerValue = "ioxide-genhttp"u8.ToArray();
 
+    // The headers HTTP/2 and HTTP/3 treat as malformed, so they must not be forwarded (RFC 9113
+    // 8.2.2, RFC 9114 4.2). Held as ByteStrings, which compare against a header name case-insensitively.
+    private static readonly ByteString[] ConnectionSpecific =
+    [
+        new("connection"),
+        new("keep-alive"),
+        new("transfer-encoding"),
+        new("upgrade"),
+        new("proxy-connection"),
+        new("server"),
+        new("content-length"),
+    ];
+
     // The response head as both protocols want it: connection-specific fields dropped, content fields filled in.
     internal static StreamedResponseData BuildHeaders(IResponse response)
     {
@@ -43,7 +57,7 @@ internal static class StreamedResponder
         {
             var header = response.Headers.GetMemoryEntry(i);
 
-            if (!IsConnectionSpecific(header.Key.Span))
+            if (!IsConnectionSpecific(header.Key))
             {
                 headers.Add((header.Key, header.Value));
             }
@@ -109,34 +123,17 @@ internal static class StreamedResponder
     }
 
     // Whether a header is one HTTP/2 and HTTP/3 treat as malformed (RFC 9113 8.2.2, RFC 9114 4.2).
-    private static bool IsConnectionSpecific(ReadOnlySpan<byte> name)
-        => Matches(name, "connection"u8) || Matches(name, "keep-alive"u8) || Matches(name, "transfer-encoding"u8)
-           || Matches(name, "upgrade"u8) || Matches(name, "proxy-connection"u8) || Matches(name, "server"u8)
-           || Matches(name, "content-length"u8);
-
-    // Compares a header name case-insensitively without allocating a string for it.
-    private static bool Matches(ReadOnlySpan<byte> name, ReadOnlySpan<byte> lowercase)
+    private static bool IsConnectionSpecific(ReadOnlyMemory<byte> name)
     {
-        if (name.Length != lowercase.Length)
+        for (var i = 0; i < ConnectionSpecific.Length; i++)
         {
-            return false;
-        }
-
-        for (var i = 0; i < name.Length; i++)
-        {
-            var c = name[i];
-
-            if (c is >= (byte)'A' and <= (byte)'Z')
+            if (ConnectionSpecific[i] == name)
             {
-                c += 32;
-            }
-
-            if (c != lowercase[i])
-            {
-                return false;
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
+
 }
