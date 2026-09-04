@@ -1,9 +1,13 @@
 using GenHTTP.Engine.Internal;
 
-using GenHTTP.Modules.IO;
+using GenHTTP.Modules.Practices;
 
-var app = Content.From(Resource.FromString("Hello World!"));
+using GenHTTP.Playground.Samples;
 
-await Host.Create()
-          .Handler(app)
-          .RunAsync();
+var sample = CustomFrameworkSample.Create();
+
+return await Host.Create()
+                 .Handler(sample)
+                 .Development()
+                 .Defaults()
+                 .RunAsync();
