@@ -4,7 +4,7 @@ using GenHTTP.Modules.Practices;
 
 using GenHTTP.Playground.Samples;
 
-var sample = LayoutingSample.Create();
+var sample = CustomFrameworkSample.Create();
 
 return await Host.Create()
                  .Handler(sample)
