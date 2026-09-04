@@ -28,27 +28,29 @@ internal static class Http2Driver
     private static async ValueTask DispatchAsync(IServer server, IEndPoint endPoint, Http2Request request,
         Http2ResponseWriter writer, IPAddress? remoteAddress, bool secure)
     {
+        StreamedRequest? mapped = null;
+
         try
         {
-            var headers = new List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)>(request.Headers.Count);
-
-            for (var i = 0; i < request.Headers.Count; i++)
-            {
-                var header = request.Headers[i];
-                headers.Add((header.Key, header.Value));
-            }
-
             var headRequest = request.Method.Span.SequenceEqual(Head.Span);
 
             var reader = request.BodyReader;
 
-            await using var mapped = new StreamedRequest(server, endPoint, request.Method, request.Path, request.Authority,
-                headers, reader is null ? null : reader.ReadAsync, remoteAddress, HttpProtocol.Http2, secure);
+            mapped = StreamedRequest.Rent();
+
+            for (var i = 0; i < request.Headers.Count; i++)
+            {
+                var header = request.Headers[i];
+                mapped.AddHeader(header.Key, header.Value);
+            }
+
+            mapped.Apply(server, endPoint, request.Method, request.Path, request.Authority,
+                reader is null ? null : reader.ReadAsync, remoteAddress, HttpProtocol.Http2, secure);
 
             var response = await server.Handler.HandleAsync(mapped)
                            ?? throw new InvalidOperationException("The root request handler did not return a response");
 
-            var data = StreamedResponder.BuildHeaders(response);
+            var data = StreamedResponder.BuildHeaders(response, mapped);
 
             var head = new Http2Response { Status = data.Status };
 
@@ -73,6 +75,11 @@ internal static class Http2Driver
         }
         finally
         {
+            if (mapped is not null)
+            {
+                StreamedRequest.Return(mapped);
+            }
+
             await writer.CompleteAsync();
         }
     }

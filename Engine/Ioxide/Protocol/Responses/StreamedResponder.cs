@@ -1,6 +1,6 @@
 using System.Buffers;
-using System.Buffers.Text;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Engine.Ioxide.Protocol.Requests;
 using GenHTTP.Engine.Ioxide.Protocol.Sinks;
 
 namespace GenHTTP.Engine.Ioxide.Protocol.Responses;
@@ -48,10 +48,12 @@ internal static class StreamedResponder
         new("content-length"),
     ];
 
-    // The response head as both protocols want it: connection-specific fields dropped, content fields filled in.
-    internal static StreamedResponseData BuildHeaders(IResponse response)
+    // The response head as both protocols want it: connection-specific fields dropped, content fields
+    // filled in. Built into the exchange's own list and content-length buffer, so a response with a
+    // known length allocates nothing here.
+    internal static StreamedResponseData BuildHeaders(IResponse response, StreamedRequest exchange)
     {
-        var headers = new List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)>(response.Headers.Count + 4);
+        var headers = exchange.ResponseHeaders;
 
         for (var i = 0; i < response.Headers.Count; i++)
         {
@@ -79,7 +81,7 @@ internal static class StreamedResponder
 
             if (content.Length is { } length)
             {
-                headers.Add((ContentLengthName, Digits(length)));
+                headers.Add((ContentLengthName, exchange.Digits(length)));
             }
         }
 
@@ -110,16 +112,6 @@ internal static class StreamedResponder
                 disposable.Dispose();
             }
         }
-    }
-
-    // A content length as ASCII digits, without going through a string.
-    private static ReadOnlyMemory<byte> Digits(ulong value)
-    {
-        var buffer = new byte[20];
-
-        Utf8Formatter.TryFormat(value, buffer, out var written);
-
-        return buffer.AsMemory(0, written);
     }
 
     // Whether a header is one HTTP/2 and HTTP/3 treat as malformed (RFC 9113 8.2.2, RFC 9114 4.2).

@@ -112,8 +112,16 @@ public sealed class StreamedRequestHeaderTests
         List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)>? headers = null,
         List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)>? query = null,
         HttpProtocol? protocol = null)
-        => new(Bytes(method), Bytes(path), authority.Length == 0 ? default : Bytes(authority),
-               headers ?? [], query ?? [], protocol ?? HttpProtocol.Http2);
+    {
+        // The lists belong to the request, which refills them per stream; the head is applied once
+        // they are in.
+        var header = new StreamedRequestHeader(headers ?? [], query ?? []);
+
+        header.Apply(Bytes(method), Bytes(path), authority.Length == 0 ? default : Bytes(authority),
+                     protocol ?? HttpProtocol.Http2);
+
+        return header;
+    }
 
     private static (ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value) Entry(string name, string value)
         => (Bytes(name), Bytes(value));

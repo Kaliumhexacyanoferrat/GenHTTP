@@ -5,25 +5,31 @@ namespace GenHTTP.Engine.Ioxide.Protocol.Requests;
 /// <summary>A request body pulled a chunk at a time off an HTTP/2 or HTTP/3 stream.</summary>
 internal sealed class StreamedRequestBody : IRequestBody
 {
-    private readonly Func<ValueTask<ReadOnlyMemory<byte>>> _read;
+    private Func<ValueTask<ReadOnlyMemory<byte>>>? _read;
 
-    // Presents a stream's chunks as a request body the handler chain can read.
-    internal StreamedRequestBody(Func<ValueTask<ReadOnlyMemory<byte>>> read)
-    {
-        _read = read;
-    }
+    // Points at one stream's chunk reader. Re-applied per stream, since the body travels with a
+    // pooled request that outlives the stream it was last used for.
+    internal void Apply(Func<ValueTask<ReadOnlyMemory<byte>>> read) => _read = read;
+
+    // Drops the reader, so a pooled request cannot keep a finished stream alive.
+    internal void Reset() => _read = null;
+
+    private Func<ValueTask<ReadOnlyMemory<byte>>> Read
+        => _read ?? throw new InvalidOperationException("The request body has not been applied to a stream.");
 
     // The body as a stream, pulling a chunk at a time rather than buffering it.
-    public Stream AsStream() => new PullStream(_read);
+    public Stream AsStream() => new PullStream(Read);
 
     // The whole body at once, which defeats streaming but is what some handlers ask for.
     public async ValueTask<ReadOnlyMemory<byte>> AsMemoryAsync()
     {
+        var read = Read;
+
         var assembled = new MemoryStream();
 
         while (true)
         {
-            var chunk = await _read();
+            var chunk = await read();
 
             if (chunk.IsEmpty)
             {
