@@ -26,6 +26,13 @@ internal static class Http3Driver
     {
         StreamedRequest? mapped = null;
 
+        // Whether the head is already on the wire. IsCompleted cannot answer this - it means
+        // END_STREAM has been sent - so a fault AFTER the headers went out used to take the error
+        // path anyway, where WriteHeaders throws "headers have already been written". That second
+        // exception replaced the first, so the only thing ever reported was the masking error and
+        // the real fault was never logged at all.
+        var headersWritten = false;
+
         try
         {
             var headRequest = request.Method.Span.SequenceEqual(Head.Span);
@@ -58,6 +65,7 @@ internal static class Http3Driver
             }
 
             writer.WriteHeaders(head);
+            headersWritten = true;
 
             await StreamedResponder.WriteBodyAsync(response, writer, writer.FlushAsync, headRequest);
         }
@@ -66,7 +74,7 @@ internal static class Http3Driver
             server.Logging.CreateLogger("GenHTTP.Engine.Ioxide.Protocol.Drivers.Quic.Http3Driver")
                   .LogError(e, "Failed to handle HTTP/3 request");
 
-            if (!writer.IsCompleted)
+            if (!headersWritten && !writer.IsCompleted)
             {
                 writer.WriteHeaders(new Nghttp3Response { Status = 500 });
             }

@@ -43,6 +43,11 @@ internal sealed class StreamedRequest : IRequest
     // ulong tops out at 20 digits, so one buffer serves every content length.
     private readonly byte[] _digits = new byte[20];
 
+    // Lowercased header names for this exchange, appended end to end. One buffer per exchange, so
+    // a response whose handler used canonical casing allocates nothing here after the first.
+    private byte[] _names = new byte[256];
+    private int _namesUsed;
+
     private IServer? _server;
 
     private IEndPoint? _endPoint;
@@ -113,6 +118,41 @@ internal sealed class StreamedRequest : IRequest
         return _digits.AsMemory(0, written);
     }
 
+    /// <summary>
+    /// A header name lowercased into this exchange's own buffer.
+    /// </summary>
+    /// <remarks>
+    /// HTTP/2 and HTTP/3 require lowercase field names on the wire (RFC 9113 8.2.1, RFC 9114 4.2),
+    /// while HTTP field names are case-insensitive everywhere else - so handlers reasonably hold
+    /// theirs in the canonical HTTP/1.1 casing, and GenHTTP's own KnownHeaders table is written
+    /// that way too. The conversion belongs here rather than in every caller.
+    ///
+    /// The names accumulate rather than overwrite: a response's whole header set is still being
+    /// built when the next name is converted, so each has to survive until the block is encoded.
+    /// </remarks>
+    internal ReadOnlyMemory<byte> Lowercase(ReadOnlyMemory<byte> name)
+    {
+        var source = name.Span;
+
+        if (_namesUsed + source.Length > _names.Length)
+        {
+            Array.Resize(ref _names, Math.Max(_names.Length * 2, _namesUsed + source.Length));
+        }
+
+        var start = _namesUsed;
+        var target = _names.AsSpan(start, source.Length);
+
+        for (var i = 0; i < source.Length; i++)
+        {
+            var c = source[i];
+            target[i] = c is >= (byte)'A' and <= (byte)'Z' ? (byte)(c | 0x20) : c;
+        }
+
+        _namesUsed += source.Length;
+
+        return _names.AsMemory(start, source.Length);
+    }
+
     // Everything the finished stream left behind, so the next one starts clean.
     private void Reset()
     {
@@ -126,6 +166,7 @@ internal sealed class StreamedRequest : IRequest
         _properties.Clear();
 
         ResponseHeaders.Clear();
+        _namesUsed = 0;
 
         _server = null;
         _endPoint = null;

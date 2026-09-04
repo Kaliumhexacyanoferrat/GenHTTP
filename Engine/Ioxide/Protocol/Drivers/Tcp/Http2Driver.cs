@@ -30,6 +30,13 @@ internal static class Http2Driver
     {
         StreamedRequest? mapped = null;
 
+        // Whether the head is already on the wire. IsCompleted cannot answer this - it means
+        // END_STREAM has been sent - so a fault AFTER the headers went out used to take the error
+        // path anyway, where WriteHeaders throws "headers have already been written". That second
+        // exception replaced the first, so the only thing ever reported was the masking error and
+        // the real fault was never logged at all.
+        var headersWritten = false;
+
         try
         {
             var headRequest = request.Method.Span.SequenceEqual(Head.Span);
@@ -60,6 +67,7 @@ internal static class Http2Driver
             }
 
             writer.WriteHeaders(head);
+            headersWritten = true;
 
             await StreamedResponder.WriteBodyAsync(response, writer, writer.FlushAsync, headRequest);
         }
@@ -68,7 +76,7 @@ internal static class Http2Driver
             server.Logging.CreateLogger("GenHTTP.Engine.Ioxide.Protocol.Drivers.Tcp.Http2Driver")
                   .LogError(e, "Failed to handle HTTP/2 request");
 
-            if (!writer.IsCompleted)
+            if (!headersWritten && !writer.IsCompleted)
             {
                 writer.WriteHeaders(new Http2Response { Status = 500 });
             }

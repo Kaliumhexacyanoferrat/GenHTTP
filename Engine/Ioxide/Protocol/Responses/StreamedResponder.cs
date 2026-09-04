@@ -61,7 +61,7 @@ internal static class StreamedResponder
 
             if (!IsConnectionSpecific(header.Key))
             {
-                headers.Add((header.Key, header.Value));
+                headers.Add((LowercaseName(header.Key, exchange), header.Value));
             }
         }
 
@@ -112,6 +112,27 @@ internal static class StreamedResponder
                 disposable.Dispose();
             }
         }
+    }
+
+    // A field name as the wire requires it. Names this engine adds itself are already lowercase
+    // literals; a handler's are not, because HTTP field names are case-insensitive everywhere the
+    // handler can see and canonical casing is the HTTP/1.1 convention. An uppercase letter is
+    // malformed on both wires though (RFC 9113 8.2.1, RFC 9114 4.2), and a peer may drop the whole
+    // response over it - which arrives as a clean 200 carrying nothing, since the status is parsed
+    // before the offending field. Already-lowercase names are passed straight through.
+    private static ReadOnlyMemory<byte> LowercaseName(ReadOnlyMemory<byte> name, StreamedRequest exchange)
+    {
+        var span = name.Span;
+
+        for (var i = 0; i < span.Length; i++)
+        {
+            if (span[i] is >= (byte)'A' and <= (byte)'Z')
+            {
+                return exchange.Lowercase(name);
+            }
+        }
+
+        return name;
     }
 
     // Whether a header is one HTTP/2 and HTTP/3 treat as malformed (RFC 9113 8.2.2, RFC 9114 4.2).
