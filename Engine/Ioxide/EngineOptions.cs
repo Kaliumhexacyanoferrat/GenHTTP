@@ -1,3 +1,4 @@
+using GenHTTP.Api.Infrastructure;
 using ioxide;
 
 namespace GenHTTP.Engine.Ioxide;
@@ -7,9 +8,9 @@ public sealed record EngineOptions
 {
     internal static readonly EngineOptions Default = new();
 
-    public Protocols Protocols { get; init; } = Protocols.Http1;
+    public HttpProtocols HttpProtocols { get; init; } = HttpProtocols.Http1;
 
-    public Dictionary<ushort, Protocols> ProtocolsByPort { get; init; } = [];
+    public Dictionary<ushort, HttpProtocols> ProtocolsByPort { get; init; } = [];
 
     public ReactorOptions Reactor { get; init; } = new();
 

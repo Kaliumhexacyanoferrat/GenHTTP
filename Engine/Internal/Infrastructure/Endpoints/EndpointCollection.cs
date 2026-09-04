@@ -9,6 +9,14 @@ namespace GenHTTP.Engine.Internal.Infrastructure.Endpoints;
 internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPointCollection
 {
 
+    #region Get-/Setters
+
+    private IServer Server { get; }
+
+    private ILogger Logger { get; }
+
+    #endregion
+    
     #region Initialization
 
     public EndPointCollection(IServer server, IEnumerable<EndPointConfiguration> configuration)
@@ -28,6 +36,11 @@ internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPoi
 
     private EndPoint Build(EndPointConfiguration configuration)
     {
+        if (!configuration.Protocols.HasFlag(HttpProtocols.Http1))
+        {
+            throw new NotSupportedException("The internal engine does only support HTTP/1.1");
+        }
+        
         if (configuration.Security is null)
         {
             return new InsecureEndPoint(Server, configuration.Address, configuration.Port, configuration.DualStack);
@@ -43,14 +56,6 @@ internal sealed class EndPointCollection : List<IEndPoint>, IDisposable, IEndPoi
             (endPoint as EndPoint)?.Start();
         }
     }
-
-    #endregion
-
-    #region Get-/Setters
-
-    private IServer Server { get; }
-
-    private ILogger Logger { get; }
 
     #endregion
 

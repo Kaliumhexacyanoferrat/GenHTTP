@@ -2,7 +2,7 @@ using System.Net;
 using System.Net.WebSockets;
 using System.Security.Authentication;
 using System.Text;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.ReverseProxy;
 
@@ -17,7 +17,7 @@ public class WebsocketTunnelTests
         await using var upstreamServer = new TestHost(Layout.Create().Build(), false);
 
         var securePort = TestHost.NextPort();
-        var cert = await Utilities.Security.GetCertificateAsync();
+        var cert = CertificateProvider.From(await Utilities.Security.GetCertificateAsync());
 
         upstreamServer.Host.Handler(GenHTTP.Modules.Websockets.Websocket.Functional()
                                            .OnConnected(_ => ValueTask.CompletedTask)

@@ -1,6 +1,7 @@
 ﻿using System.Net;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Functional;
@@ -47,7 +48,7 @@ public class ProtocolTests
 
         var logic = Inline.Create().Get(() => "Hello");
 
-        var certificate = await Utilities.Security.GetCertificateAsync();
+        var certificate = CertificateProvider.From(await Utilities.Security.GetCertificateAsync());
 
         var runner = new TestHost(logic.Build(), engine: TestEngine.Kestrel);
 
@@ -90,13 +91,13 @@ public class ProtocolTests
 
     private static async Task<(TestHost, string)> GetHostAsync(IHandlerBuilder handler)
     {
-        var certificate = await Utilities.Security.GetCertificateAsync();
+        var certificate = CertificateProvider.From(await Utilities.Security.GetCertificateAsync());
 
         var runner = new TestHost(handler.Build(), engine: TestEngine.Kestrel);
 
         var port = TestHost.NextPort();
 
-        runner.Host.Bind(IPAddress.Any, (ushort)port, certificate, enableQuic: true);
+        runner.Host.Bind(IPAddress.Any, (ushort)port, certificate, httpProtocols: HttpProtocols.All);
 
         await runner.StartAsync();
 

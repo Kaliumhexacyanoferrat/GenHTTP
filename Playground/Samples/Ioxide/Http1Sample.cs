@@ -28,7 +28,7 @@ public static class Http1Sample
         var app = Layout.Create()
                         .Add("ok", Content.From(Resource.FromString("ok")));
 
-        return Host.Create(options: new EngineOptions { Protocols = Protocols.Http1 })
+        return Host.Create(options: new EngineOptions { HttpProtocols = HttpProtocols.Http1 })
                    .Handler(app)
                    .Bind(IPAddress.Loopback, 8080);
     }

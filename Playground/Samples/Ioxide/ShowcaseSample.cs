@@ -108,14 +108,14 @@ public static class ShowcaseSample
         var server = Host.Create(
                            options: new EngineOptions
                            {
-                               Protocols = Protocols.Http1,
+                               HttpProtocols = HttpProtocols.Http1,
 
                                ProtocolsByPort =
                                {
-                                   [8081] = Protocols.Http2,
-                                   [8082] = Protocols.Http1AndHttp2,
-                                   [8443] = Protocols.All,
-                                   [8444] = Protocols.Http1,
+                                   [8081] = HttpProtocols.Http2,
+                                   [8082] = HttpProtocols.Http1AndHttp2,
+                                   [8443] = HttpProtocols.All,
+                                   [8444] = HttpProtocols.Http1,
                                },
 
                                Reactor = new ReactorOptions

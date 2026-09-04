@@ -132,6 +132,8 @@ public class ClientCertificateAuthenticationTests
 
         var certificate = await Utilities.Security.GetCertificateAsync();
 
+        var provider = CertificateProvider.From(certificate);
+
         var content = Inline.Create()
                                       .Get((IRequest request) => request.GetUser<IUser>()?.DisplayName ?? "No user")
                                       .Add(auth);
@@ -142,7 +144,7 @@ public class ClientCertificateAuthenticationTests
 
         runner.Host
               .Handler(content)
-              .Bind(IPAddress.Any, (ushort)port, certificate, certificateValidator: validator);
+              .Bind(IPAddress.Any, (ushort)port, provider, certificateValidator: validator);
 
         await runner.StartAsync();
 

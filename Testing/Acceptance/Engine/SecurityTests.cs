@@ -210,8 +210,10 @@ public sealed class SecurityTests
 
         using var cert = await Security.GetCertificateAsync();
 
+        var provider = CertificateProvider.From(cert);
+        
         runner.Host.Handler(content)
-              .Bind(IPAddress.Any, (ushort)port, cert, certificateValidator: new VerdictValidator(verdict));
+              .Bind(IPAddress.Any, (ushort)port, provider, certificateValidator: new VerdictValidator(verdict));
 
         await runner.StartAsync();
 

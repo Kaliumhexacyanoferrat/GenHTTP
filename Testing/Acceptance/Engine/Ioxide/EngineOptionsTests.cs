@@ -53,8 +53,8 @@ public sealed class EngineOptionsTests
                                      {
                                          ProtocolsByPort =
                                          {
-                                             [first] = Protocols.All,
-                                             [second] = Protocols.All,
+                                             [first] = HttpProtocols.All,
+                                             [second] = HttpProtocols.All,
                                          },
                                      })
                                      .Bind(IPAddress.Loopback, first, certificate)
@@ -122,7 +122,7 @@ public sealed class EngineOptionsTests
 
         await Assert.ThrowsExactlyAsync<NotSupportedException>(async () =>
         {
-            var server = Build(new EngineOptions { ProtocolsByPort = { [port] = Protocols.Http3 } })
+            var server = Build(new EngineOptions { ProtocolsByPort = { [port] = HttpProtocols.Http3 } })
                                      .Bind(IPAddress.Loopback, port, certificate);
 
             await server.StartAsync();

@@ -48,12 +48,12 @@ public static class AllProtocolsSample
 
         return Host.Create(options: new EngineOptions
                    {
-                       Protocols = Protocols.Http1,
+                       HttpProtocols = HttpProtocols.Http1,
 
                        ProtocolsByPort =
                        {
-                           [8082] = Protocols.Http1AndHttp2,
-                           [8443] = Protocols.All,
+                           [8082] = HttpProtocols.Http1AndHttp2,
+                           [8443] = HttpProtocols.All,
                        },
 
                        Reactor = new ReactorOptions { ReactorCount = 2 },

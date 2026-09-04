@@ -43,7 +43,7 @@ public static class TlsSample
 
         return Host.Create(options: new EngineOptions
                    {
-                       ProtocolsByPort = { [8443] = Protocols.Http1AndHttp2 },
+                       ProtocolsByPort = { [8443] = HttpProtocols.Http1AndHttp2 },
 
                        Tcp = new TcpTransportOptions
                        {
@@ -53,7 +53,7 @@ public static class TlsSample
                    })
                    .Handler(app)
                    .Bind(IPAddress.Loopback, 8443, new FileCertificateProvider(certificate, key),
-                         protocols: SslProtocols.Tls12 | SslProtocols.Tls13);
+                         httpProtocols: SslProtocols.Tls12 | SslProtocols.Tls13);
     }
 
 }

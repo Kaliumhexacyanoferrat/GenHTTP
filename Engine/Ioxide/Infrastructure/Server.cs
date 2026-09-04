@@ -128,7 +128,7 @@ public sealed partial class Server : IServer
                 {
                     EndPoint endPoint = EndPointFor(tcpConnection.ListenerPort);
 
-                    return TcpDriver.HandleAsync(this, endPoint, tcpConnection, endPoint.Protocols);
+                    return TcpDriver.HandleAsync(this, endPoint, tcpConnection, endPoint.HttpProtocols);
                 },
                 
                 QuicHandle = _quicEngine is not null 
@@ -260,20 +260,20 @@ public sealed partial class Server : IServer
     }
 
     // What one port serves: the default, its own override, and its enableQuic flag.
-    private static Protocols ResolveProtocols(EngineOptions options, EndPointConfiguration endPoint)
+    private static HttpProtocols ResolveProtocols(EngineOptions options, EndPointConfiguration endPoint)
     {
         var named = options.ProtocolsByPort.TryGetValue(endPoint.Port, out var configured);
 
-        var protocols = named ? configured : options.Protocols;
+        var protocols = named ? configured : options.HttpProtocols;
 
-        if (!named && protocols.HasFlag(Protocols.Http3) && endPoint.Security is null)
+        if (!named && protocols.HasFlag(HttpProtocols.Http3) && endPoint.Security is null)
         {
-            protocols &= ~Protocols.Http3;
+            protocols &= ~HttpProtocols.Http3;
         }
 
         if (endPoint.EnableQuic)
         {
-            protocols |= Protocols.Http3;
+            protocols |= HttpProtocols.Http3;
         }
 
         if (protocols == 0)
@@ -301,7 +301,7 @@ public sealed partial class Server : IServer
     // The one-line summary logged once the server is up.
     private string DescribeSettings()
     {
-        var protocols = string.Join(" ", _endPoints.OrderBy(e => e.Port).Select(e => $"{e.Port}:{Describe(e.Protocols)}"));
+        var protocols = string.Join(" ", _endPoints.OrderBy(e => e.Port).Select(e => $"{e.Port}:{Describe(e.HttpProtocols)}"));
 
         return $"ioxide, {protocols}, TLS on {SecureEndPoints.Count()}"
                + (MutualTlsConfigured ? ", mTLS" : string.Empty)
@@ -309,13 +309,13 @@ public sealed partial class Server : IServer
     }
 
     // Protocol flags as the ALPN-ish names an operator recognises.
-    private static string Describe(Protocols protocols)
+    private static string Describe(HttpProtocols httpProtocols)
     {
         var names = new List<string>(3);
 
-        if (protocols.HasFlag(Protocols.Http1)) names.Add("h1");
-        if (protocols.HasFlag(Protocols.Http2)) names.Add("h2");
-        if (protocols.HasFlag(Protocols.Http3)) names.Add("h3");
+        if (httpProtocols.HasFlag(HttpProtocols.Http1)) names.Add("h1");
+        if (httpProtocols.HasFlag(HttpProtocols.Http2)) names.Add("h2");
+        if (httpProtocols.HasFlag(HttpProtocols.Http3)) names.Add("h3");
 
         return string.Join("+", names);
     }

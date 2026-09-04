@@ -9,6 +9,6 @@ namespace GenHTTP.Engine.Shared.Infrastructure;
 
 public record ServerConfiguration(bool DevelopmentMode, IEnumerable<EndPointConfiguration> EndPoints, ILoggerFactory Logging);
 
-public record EndPointConfiguration(IPAddress? Address, ushort Port, bool DualStack, SecurityConfiguration? Security, bool EnableQuic);
+public record EndPointConfiguration(IPAddress? Address, ushort Port, HttpProtocols Protocols, bool DualStack, SecurityConfiguration? Security);
 
 public record SecurityConfiguration(ICertificateProvider CertificateProvider, SslProtocols Protocols, ICertificateValidator? CertificateValidator);

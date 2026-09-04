@@ -1,3 +1,4 @@
+using GenHTTP.Api.Infrastructure;
 using ioxide;
 
 namespace GenHTTP.Engine.Ioxide.Infrastructure;
@@ -9,7 +10,7 @@ public sealed partial class Server
     
     // The ports serving HTTP/1.1 or HTTP/2, primary first. Empty on an HTTP/3-only server.
     private ushort[] ResolveTcpPorts()
-        => _endPoints.Where(e => (e.Protocols & Protocols.Http1AndHttp2) != 0)
+        => _endPoints.Where(e => (e.HttpProtocols & HttpProtocols.Http1AndHttp2) != 0)
                      .Select(e => e.Port)
                      .OrderBy(p => p == _endPoints[0].Port ? 0 : 1)
                      .ToArray();

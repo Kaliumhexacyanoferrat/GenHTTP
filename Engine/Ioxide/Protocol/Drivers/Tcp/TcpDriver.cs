@@ -34,7 +34,7 @@ internal static partial class TcpDriver
 
     // Takes an accepted connection through TLS if the port has it, then hands it to whichever protocol it turns out to speak.
     internal static async Task HandleAsync(IServer server, IEndPoint endPoint, IoConnection conn,
-        Protocols protocols = Protocols.Http1)
+        HttpProtocols httpProtocols = HttpProtocols.Http1)
     {
         IDuplexPipe pipe;
 
@@ -66,8 +66,8 @@ internal static partial class TcpDriver
 
         var remoteAddress = GetPeerAddress(conn.ClientFd);
 
-        var http2 = protocols.HasFlag(Protocols.Http2);
-        var http1 = protocols.HasFlag(Protocols.Http1);
+        var http2 = httpProtocols.HasFlag(HttpProtocols.Http2);
+        var http1 = httpProtocols.HasFlag(HttpProtocols.Http1);
 
         var isHttp2 = http2 && (negotiated == "h2" || (negotiated is null && http1 && await StartsWithPrefaceAsync(pipe.Input)));
 

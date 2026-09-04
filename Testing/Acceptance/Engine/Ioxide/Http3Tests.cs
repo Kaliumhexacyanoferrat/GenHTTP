@@ -35,7 +35,7 @@ public sealed class Http3Tests
 
         var port = (ushort)TestHost.NextPort();
 
-        var server = Build(new EngineOptions { ProtocolsByPort = { [port] = Protocols.Http3 } })
+        var server = Build(new EngineOptions { ProtocolsByPort = { [port] = HttpProtocols.Http3 } })
                      .Bind(IPAddress.Loopback, port, new FileCertificateProvider(certificate, key));
 
         await server.StartAsync();
@@ -74,7 +74,7 @@ public sealed class Http3Tests
 
         var port = (ushort)TestHost.NextPort();
 
-        var server = Build(new EngineOptions { ProtocolsByPort = { [port] = Protocols.Http3 } })
+        var server = Build(new EngineOptions { ProtocolsByPort = { [port] = HttpProtocols.Http3 } })
                      .Bind(IPAddress.Loopback, port, new FileCertificateProvider(certificate, key));
 
         await server.StartAsync();
@@ -104,7 +104,7 @@ public sealed class Http3Tests
 
         var port = (ushort)TestHost.NextPort();
 
-        var server = Build(new EngineOptions { ProtocolsByPort = { [port] = Protocols.Http3 } })
+        var server = Build(new EngineOptions { ProtocolsByPort = { [port] = HttpProtocols.Http3 } })
                      .Bind(IPAddress.Loopback, port, new FileCertificateProvider(certificate, key));
 
         await server.StartAsync();
@@ -135,7 +135,7 @@ public sealed class Http3Tests
 
         var port = (ushort)TestHost.NextPort();
 
-        var server = Build(new EngineOptions { ProtocolsByPort = { [port] = Protocols.All } })
+        var server = Build(new EngineOptions { ProtocolsByPort = { [port] = HttpProtocols.All } })
                      .Bind(IPAddress.Loopback, port, new FileCertificateProvider(certificate, key));
 
         await server.StartAsync();

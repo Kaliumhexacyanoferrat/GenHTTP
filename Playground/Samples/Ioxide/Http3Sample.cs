@@ -41,7 +41,7 @@ public static class Http3Sample
 
         return Host.Create(options: new EngineOptions
                    {
-                       ProtocolsByPort = { [8443] = Protocols.Http3 },
+                       ProtocolsByPort = { [8443] = HttpProtocols.Http3 },
 
                        Quic = new QuicTransportOptions
                        {

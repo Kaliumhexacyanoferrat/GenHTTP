@@ -24,7 +24,7 @@ public sealed class ProtocolSelectionTests
     {
         var port = (ushort)TestHost.NextPort();
 
-        var server = Build(new EngineOptions { ProtocolsByPort = { [port] = Protocols.Http1AndHttp2 } })
+        var server = Build(new EngineOptions { ProtocolsByPort = { [port] = HttpProtocols.Http1AndHttp2 } })
                      .Bind(IPAddress.Loopback, port);
 
         await server.StartAsync();
@@ -47,7 +47,7 @@ public sealed class ProtocolSelectionTests
         // with a protocol the endpoint was configured not to speak.
         var port = (ushort)TestHost.NextPort();
 
-        var server = Build(new EngineOptions { ProtocolsByPort = { [port] = Protocols.Http2 } })
+        var server = Build(new EngineOptions { ProtocolsByPort = { [port] = HttpProtocols.Http2 } })
                      .Bind(IPAddress.Loopback, port);
 
         await server.StartAsync();

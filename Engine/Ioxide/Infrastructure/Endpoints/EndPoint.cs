@@ -5,7 +5,7 @@ using GenHTTP.Api.Infrastructure;
 namespace GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 
 /// <summary>One bound address and port, and what it serves.</summary>
-internal abstract class EndPoint(IPAddress? address, ushort port, bool dualStack, Protocols protocols) : IEndPoint
+internal abstract class EndPoint(IPAddress? address, ushort port, bool dualStack, HttpProtocols httpProtocols) : IEndPoint
 {
     public IPAddress? Address => address;
 
@@ -13,7 +13,7 @@ internal abstract class EndPoint(IPAddress? address, ushort port, bool dualStack
 
     public bool DualStack => dualStack;
 
-    public Protocols Protocols => protocols;
+    public HttpProtocols HttpProtocols => httpProtocols;
 
     public abstract bool Secure { get; }
 

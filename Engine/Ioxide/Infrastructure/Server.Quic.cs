@@ -1,3 +1,4 @@
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 
 using ioxide;
@@ -20,7 +21,7 @@ public sealed partial class Server
     // The one endpoint serving HTTP/3; more than one is refused, since this engine binds a single QUIC listener.
     private EndPoint? ResolveQuicEndPoint()
     {
-        var quicEndPoints = _endPoints.Where(e => e.Protocols.HasFlag(Protocols.Http3)).ToList();
+        var quicEndPoints = _endPoints.Where(e => e.HttpProtocols.HasFlag(HttpProtocols.Http3)).ToList();
 
         if (quicEndPoints.Count > 1)
         {

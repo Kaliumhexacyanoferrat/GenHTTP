@@ -40,8 +40,8 @@ public static class Http2Sample
                    {
                        ProtocolsByPort =
                        {
-                           [8081] = Protocols.Http2,
-                           [8082] = Protocols.Http1AndHttp2,
+                           [8081] = HttpProtocols.Http2,
+                           [8082] = HttpProtocols.Http1AndHttp2,
                        },
                    })
                    .Handler(app)

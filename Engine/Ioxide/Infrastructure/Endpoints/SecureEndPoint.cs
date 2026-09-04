@@ -10,9 +10,9 @@ namespace GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 internal sealed class SecureEndPoint : EndPoint
 {
     // Reads the binding's TLS settings once, since both stacks settle their tables at startup.
-    internal SecureEndPoint(IPAddress? address, ushort port, bool dualStack, Protocols protocols,
+    internal SecureEndPoint(IPAddress? address, ushort port, bool dualStack, HttpProtocols httpProtocols,
         SecurityConfiguration securityConfiguration)
-        : base(address, port, dualStack, protocols)
+        : base(address, port, dualStack, httpProtocols)
     {
         SecurityConfiguration = securityConfiguration;
 
