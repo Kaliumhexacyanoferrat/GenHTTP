@@ -17,7 +17,11 @@ public sealed class IoxideTestMethodAttribute([CallerFilePath] string callerFile
 
     public override Task<TestResult[]> ExecuteAsync(ITestMethod testMethod)
     {
-        if (!Supported)
+        var engine = Environment.GetEnvironmentVariable("TEST_ENGINE");
+
+        var engineAllowsIoxide = (engine is null) || string.Compare(engine, "ioxide", StringComparison.OrdinalIgnoreCase) == 0;
+        
+        if (!Supported || !engineAllowsIoxide)
         {
             return Task.FromResult<TestResult[]>(
             [

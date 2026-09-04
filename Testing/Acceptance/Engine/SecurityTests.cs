@@ -25,8 +25,6 @@ public sealed class SecurityTests
     [MultiEngineTest]
     public Task TestSecure(TestEngine engine)
     {
-        SkipIfNoTls(engine);
-
         return RunSecure(async (_, sec) =>
         {
             using var client = TestHost.GetClient(ignoreSecurityErrors: true);
@@ -109,8 +107,6 @@ public sealed class SecurityTests
     [MultiEngineTest]
     public Task TestTransportPolicy(TestEngine engine)
     {
-        SkipIfNoTls(engine);
-
         return RunSecure(async (insec, sec) =>
         {
             using var client = TestHost.GetClient(ignoreSecurityErrors: true);
@@ -136,8 +132,6 @@ public sealed class SecurityTests
     [MultiEngineTest]
     public Task TestSecurityError(TestEngine engine)
     {
-        SkipIfNoTls(engine);
-
         return RunSecure(async (_, sec) =>
         {
             await Assert.ThrowsExactlyAsync<HttpRequestException>(async () =>
@@ -233,21 +227,6 @@ public sealed class SecurityTests
         public bool Validate(X509Certificate? certificate, X509Chain? chain, SslPolicyErrors policyErrors) => verdict;
     }
 
-    // These cases need a real handshake to the secure port, and PickyCertificateProvider answers only
-    // for the one name it was given - Provide(null) returns nothing. The ioxide engine does terminate
-    // TLS, in OpenSSL, and does serve a certificate per name; what it cannot do is ask per handshake,
-    // since both of its stacks settle their certificates when the server starts. So it asks once with
-    // null, finds no default, and leaves the port advertised as secure while refusing its handshakes.
-    // Binding an IHostCertificateProvider, which names its hosts up front, is what fits that model.
-    // Surfaces as "Inconclusive" so the coverage gap stays visible.
-    private static void SkipIfNoTls(TestEngine engine)
-    {
-        if (engine == TestEngine.Ioxide)
-        {
-            Assert.Inconclusive("Ioxide asks the provider once, at startup, with no host name; this one answers only a named host, so the port has no default certificate.");
-        }
-    }
-
     private static async Task RunSecure(Func<ushort, ushort, Task> logic, TestEngine engine, SecureUpgrade? mode = null, string host = "localhost")
     {
         var content = Layout.Create().Index(Content.From(Resource.FromString("Hello Alice!")));
@@ -258,9 +237,17 @@ public sealed class SecurityTests
 
         using var cert = await Security.GetCertificateAsync();
 
+        // Serve the name the client actually presents (localhost) through a plain provider, so every
+        // engine can answer - ioxide included, which resolves its certificate once at startup with no
+        // host name and so needs one that answers a null host. A test that wants the handshake to abort
+        // asks for a different name, leaving PickyCertificateProvider with nothing to offer localhost.
+        ICertificateProvider certificates = host == "localhost"
+            ? CertificateProvider.From(cert)
+            : new PickyCertificateProvider(host, cert);
+
         runner.Host.Handler(content)
               .Bind(IPAddress.Any, (ushort)runner.Port)
-              .Bind(IPAddress.Any, (ushort)port, new PickyCertificateProvider(host, cert), SslProtocols.Tls12);
+              .Bind(IPAddress.Any, (ushort)port, certificates, SslProtocols.Tls12);
 
         if (mode is not null)
         {
@@ -273,6 +260,10 @@ public sealed class SecurityTests
         await logic((ushort)runner.Port, (ushort)port);
     }
 
+    /// <summary>
+    /// Answers only for the one name it was given; Provide(null) and every other name return nothing, so
+    /// a client asking for anything else finds no certificate and the handshake is refused.
+    /// </summary>
     private class PickyCertificateProvider : ICertificateProvider
     {
 
