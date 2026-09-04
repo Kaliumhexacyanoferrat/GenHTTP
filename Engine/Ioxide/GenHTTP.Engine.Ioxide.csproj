@@ -16,7 +16,7 @@
     <PackageReference Include="ioxide.http2" Version="0.7.211" />
     <PackageReference Include="ioxide.ngtcp2" Version="0.7.211" />
     <PackageReference Include="ioxide.nghttp3" Version="0.7.211" />
-    <PackageReference Include="Glyph11" Version="0.3.6" />
+    <PackageReference Include="Glyph11" Version="0.3.7" />
     <!-- Parallel parse path for benchmarking — GENHTTP_IOXIDE_PARSER=pico (see Http1Driver). -->
     <PackageReference Include="Glyph11.Pico" Version="0.0.1" />
   </ItemGroup>
