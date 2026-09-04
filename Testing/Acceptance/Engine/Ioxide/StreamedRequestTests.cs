@@ -156,12 +156,17 @@ public sealed class StreamedRequestTests
 
             using var client = new HttpClient(socketsHandler)
             {
-                DefaultRequestVersion = HttpVersion.Version20,
-                DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact,
                 Timeout = TimeSpan.FromSeconds(10),
             };
 
-            using var request = new HttpRequestMessage(method, $"http://localhost:{port}{pathAndQuery}");
+            // The version has to be set on the message itself: DefaultRequestVersion only applies to the
+            // requests the convenience methods build, not to one handed straight to SendAsync - so without
+            // this it would go out as HTTP/1.1 and the HTTP/2-only port would close it.
+            using var request = new HttpRequestMessage(method, $"http://localhost:{port}{pathAndQuery}")
+            {
+                Version = HttpVersion.Version20,
+                VersionPolicy = HttpVersionPolicy.RequestVersionExact,
+            };
 
             if (requestBody is not null)
             {
