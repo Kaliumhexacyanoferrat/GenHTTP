@@ -1,5 +1,6 @@
 using System.IO.Pipelines;
 using System.Net;
+using System.Text;
 
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
@@ -10,6 +11,8 @@ namespace GenHTTP.Engine.Ioxide.Protocol.Requests;
 /// <summary>One HTTP/2 or HTTP/3 stream, as the request shape the handler chain expects.</summary>
 internal sealed class StreamedRequest : IRequest
 {
+    private static readonly ReadOnlyMemory<byte> ContentLength = "content-length"u8.ToArray();
+
     private readonly StreamedRequestBody? _body;
 
     private readonly ClientConnection _client = new();
@@ -40,7 +43,10 @@ internal sealed class StreamedRequest : IRequest
 
         Header = new StreamedRequestHeader(method, path, authority, headers, ParseQuery(path), protocol);
 
-        _body = read is null ? null : new StreamedRequestBody(read);
+        // A stream carries a body only when it declares one: HTTP/2 and HTTP/3 forbid Transfer-Encoding,
+        // so Content-Length is the signal - and its absence means no body, matching what the other engines
+        // report for a request that carries neither header.
+        _body = read is not null && HasBody(headers) ? new StreamedRequestBody(read) : null;
 
         _client.Apply(remoteAddress, secure ? ClientProtocol.Https : ClientProtocol.Http, null);
     }
@@ -85,6 +91,20 @@ internal sealed class StreamedRequest : IRequest
 
     // Nothing of its own to release: the stream is the connection's.
     public ValueTask DisposeAsync() => new();
+
+    // Whether the request declares a body, which over these protocols means a Content-Length header.
+    private static bool HasBody(List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> headers)
+    {
+        foreach (var (name, _) in headers)
+        {
+            if (Ascii.EqualsIgnoreCase(name.Span, ContentLength.Span))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     // Splits the query out of :path, which is where both protocols carry it.
     private static List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> ParseQuery(ReadOnlyMemory<byte> path)
