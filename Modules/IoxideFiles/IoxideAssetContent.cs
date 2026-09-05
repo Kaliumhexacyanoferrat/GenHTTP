@@ -1,7 +1,5 @@
 using System.Buffers;
 
-using Microsoft.Win32.SafeHandles;
-
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Engine.Ioxide;
@@ -44,21 +42,10 @@ public sealed class IoxideAssetContent(StaticAssets assets, string path, long le
             return; // vanished between header and body (rare)
         }
 
-        // ioxide.file bakes no HTTP any more, so there is no cached response to write - the body
-        // is always read off the ring. The only question is WHICH file: the snapshot's descriptor
-        // when it still matches disk, or a fresh open when the file changed underneath it. The
-        // handler resolved the same question to set Content-Length, and `length` carries its
-        // answer, so the two cannot disagree.
-        if (AssetFreshness.IsFresh(asset, out var exists, out _))
-        {
-            await WriteFromDisk(sink, asset.Fd, length);
-        }
-        else if (exists)
-        {
-            // Changed on disk (edit or atomic rename): open the current path so a rename resolves
-            // to the new inode rather than the descriptor the snapshot still holds.
-            await WriteChanged(sink, asset.Path, length);
-        }
+        // The body is always read off the ring, from the descriptor the snapshot holds. Keeping
+        // that descriptor honest is AssetRefresh's job, and it rebuilds the whole snapshot rather
+        // than having every request ask whether its own file still matches.
+        await WriteFromDisk(sink, asset.Fd, length);
     }
 
     // Copy native memory to the sink in flushed <= Chunk slices; FlushAsync drains the slab to the socket.
@@ -79,29 +66,6 @@ public sealed class IoxideAssetContent(StaticAssets assets, string path, long le
     // sits across an await (you cannot await in an unsafe context).
     private static unsafe void WriteChunk(IBufferWriter<byte> writer, nint data, int len)
         => writer.Write(new ReadOnlySpan<byte>((byte*)data, len));
-
-    private static async ValueTask WriteChanged(IResponseSink sink, string filePath, long len)
-    {
-        SafeFileHandle handle;
-
-        try
-        {
-            handle = File.OpenHandle(filePath);
-        }
-        catch
-        {
-            return; // raced with a delete
-        }
-
-        try
-        {
-            await WriteFromDisk(sink, (int)handle.DangerousGetHandle(), len);
-        }
-        finally
-        {
-            handle.Dispose();
-        }
-    }
 
     private static async ValueTask WriteFromDisk(IResponseSink sink, int fd, long len)
     {
