@@ -1,11 +1,22 @@
+using Microsoft.Win32.SafeHandles;
+
 using ioxide.file;
 
 namespace GenHTTP.Modules.IoxideFiles;
 
 /// <summary>
-/// Whether a snapshot's asset still matches the file on disk, by size - the same check
-/// ioxide.file performed until 0.4.167, when it moved to trusting descriptors for the lifetime of
-/// a snapshot. Reproduced here so this module keeps serving edited files without a reload.
+/// Whether a snapshot's asset still matches the file on disk, so this module keeps serving edited
+/// files without a reload.
+///
+/// Size alone is not enough, and the case it misses is the common one: an atomic replace (write a
+/// temporary, rename it over the target) leaves a NEW inode behind the same path, while the
+/// snapshot's descriptor still refers to the old one. Nothing about the size need change, so a
+/// size check calls it fresh and the old contents are served indefinitely. Editing a file IN
+/// PLACE is the case size does not need to catch at all - the descriptor already sees those bytes.
+///
+/// So the descriptor is compared against the path: same size, and the same last-write time as the
+/// file the path resolves to now. A rename puts a different file there, and a different file has
+/// a different timestamp.
 /// </summary>
 internal static class AssetFreshness
 {
@@ -24,7 +35,15 @@ internal static class AssetFreshness
             exists = info.Exists;
             currentLength = exists ? info.Length : 0;
 
-            return exists && currentLength == asset.Length;
+            if (!exists || currentLength != asset.Length)
+            {
+                return false;
+            }
+
+            // Borrowed, not owned: the snapshot closes this descriptor when it is disposed.
+            using var handle = new SafeFileHandle((nint)asset.Fd, ownsHandle: false);
+
+            return File.GetLastWriteTimeUtc(handle) == info.LastWriteTimeUtc;
         }
         catch (IOException)
         {
