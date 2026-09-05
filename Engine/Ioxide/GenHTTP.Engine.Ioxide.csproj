@@ -12,11 +12,11 @@
     
     <ProjectReference Include="..\Shared\GenHTTP.Engine.Shared.csproj" />
     
-    <PackageReference Include="ioxide" Version="0.7.211" />
+    <PackageReference Include="ioxide" Version="0.13.218" />
     
-    <PackageReference Include="ioxide.http2" Version="0.7.211" />
-    <PackageReference Include="ioxide.ngtcp2" Version="0.7.211" />
-    <PackageReference Include="ioxide.nghttp3" Version="0.7.211" />
+    <PackageReference Include="ioxide.http2" Version="0.13.218" />
+    <PackageReference Include="ioxide.ngtcp2" Version="0.13.218" />
+    <PackageReference Include="ioxide.nghttp3" Version="0.13.218" />
     
     <PackageReference Include="Glyph11" Version="0.3.7" />
     <PackageReference Include="Glyph11.Pico" Version="0.0.1" />

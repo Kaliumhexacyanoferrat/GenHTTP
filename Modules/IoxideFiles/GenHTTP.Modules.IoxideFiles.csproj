@@ -17,7 +17,7 @@
         <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
         <ProjectReference Include="..\Compression\GenHTTP.Modules.Compression.csproj" />
 
-        <PackageReference Include="ioxide.file" Version="0.7.211" />
+        <PackageReference Include="ioxide.file" Version="0.13.218" />
 
     </ItemGroup>
 
