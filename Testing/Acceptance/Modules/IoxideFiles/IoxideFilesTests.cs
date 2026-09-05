@@ -238,6 +238,69 @@ public sealed class IoxideFilesTests
     }
 
     [TestMethod]
+    public async Task TestPinnedSnapshotIgnoresFilesAddedLater()
+    {
+        if (!Engines.IoxideEnabled()) return;
+
+        var dir = Directory.CreateTempSubdirectory();
+
+        await File.WriteAllTextAsync(Path.Combine(dir.FullName, "file.txt"), "This is root");
+
+        // Timeout.InfiniteTimeSpan pins the snapshot taken at startup: the tree is never walked
+        // again, so a file that appears afterwards is not part of the mount.
+        var handler = IoxideFilesModule.From(dir.FullName).RefreshInterval(Timeout.InfiniteTimeSpan);
+
+        await using var host = await TestHost.RunAsync(handler, engine: TestEngine.Ioxide);
+
+        await File.WriteAllTextAsync(Path.Combine(dir.FullName, "added.txt"), "Added after the snapshot");
+
+        using var added = await host.GetResponseAsync("/added.txt");
+        await added.AssertStatusAsync(HttpStatusCode.NotFound);
+
+        // The file that was there at startup still serves, so this is a pinned snapshot and not a
+        // broken mount.
+        using var original = await host.GetResponseAsync("/file.txt");
+        await original.AssertStatusAsync(HttpStatusCode.OK);
+        Assert.AreEqual("This is root", await original.GetContentAsync());
+    }
+
+    [TestMethod]
+    public async Task TestZeroIntervalPicksUpFilesAddedLater()
+    {
+        if (!Engines.IoxideEnabled()) return;
+
+        var dir = Directory.CreateTempSubdirectory();
+
+        await File.WriteAllTextAsync(Path.Combine(dir.FullName, "file.txt"), "This is root");
+
+        // Zero scans on every request, so a file that appears is served by the next one - no wait
+        // for an interval to elapse, which is what makes this assertion safe to make immediately.
+        var handler = IoxideFilesModule.From(dir.FullName).RefreshInterval(TimeSpan.Zero);
+
+        await using var host = await TestHost.RunAsync(handler, engine: TestEngine.Ioxide);
+
+        await File.WriteAllTextAsync(Path.Combine(dir.FullName, "added.txt"), "Added after the snapshot");
+
+        using var response = await host.GetResponseAsync("/added.txt");
+
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+
+        Assert.AreEqual("Added after the snapshot", await response.GetContentAsync());
+    }
+
+    [TestMethod]
+    public void TestNegativeRefreshIntervalIsRejected()
+    {
+        if (!Engines.IoxideEnabled()) return;
+
+        var dir = Directory.CreateTempSubdirectory();
+
+        // Not -1 milliseconds: that value IS Timeout.InfiniteTimeSpan, and means "never rescan".
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(
+            () => IoxideFilesModule.From(dir.FullName).RefreshInterval(TimeSpan.FromSeconds(-1)));
+    }
+
+    [TestMethod]
     public void TestChaining()
     {
         if (!Engines.IoxideEnabled()) return;
