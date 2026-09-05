@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
@@ -24,8 +25,6 @@ public sealed class SecurityTests
     [MultiEngineTest]
     public Task TestSecure(TestEngine engine)
     {
-        SkipIfNoTls(engine);
-
         return RunSecure(async (_, sec) =>
         {
             using var client = TestHost.GetClient(ignoreSecurityErrors: true);
@@ -108,8 +107,6 @@ public sealed class SecurityTests
     [MultiEngineTest]
     public Task TestTransportPolicy(TestEngine engine)
     {
-        SkipIfNoTls(engine);
-
         return RunSecure(async (insec, sec) =>
         {
             using var client = TestHost.GetClient(ignoreSecurityErrors: true);
@@ -135,8 +132,6 @@ public sealed class SecurityTests
     [MultiEngineTest]
     public Task TestSecurityError(TestEngine engine)
     {
-        SkipIfNoTls(engine);
-
         return RunSecure(async (_, sec) =>
         {
             await Assert.ThrowsExactlyAsync<HttpRequestException>(async () =>
@@ -172,16 +167,64 @@ public sealed class SecurityTests
         }, engine, host: "myserver");
     }
 
-    // Ioxide doesn't implement TLS termination yet: it prefers kTLS (file-based certs, no SNI), which
-    // doesn't fit GenHTTP's in-memory, SNI-aware ICertificateProvider model used by these tests. Skip
-    // (don't fail) the cases that need a real handshake to the secure port until a kTLS-based suite is
-    // added. Surfaces as "Inconclusive" with this reason so the coverage gap stays visible.
-    private static void SkipIfNoTls(TestEngine engine)
+    /// <summary>
+    /// The verdict an ICertificateValidator returns has to actually decide the connection. A
+    /// validator that says no is the whole point of being asked, so a client it rejects must not
+    /// reach the handler; one that says yes must.
+    /// </summary>
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestValidatorVerdictIsHonoured(TestEngine engine)
     {
-        if (engine == TestEngine.Ioxide)
+        if (engine == TestEngine.Kestrel)
         {
-            Assert.Inconclusive("Ioxide: TLS termination not implemented yet (kTLS-only, no SNI cert provider). kTLS tests to follow.");
+            // Kestrel only calls ClientCertificateValidation when a certificate actually arrives, so
+            // under AllowCertificate a client offering none is admitted without the validator being
+            // asked at all. Its verdict is honoured, just never sought in this case.
+            Assert.Inconclusive("Kestrel does not consult the validator when no client certificate is offered.");
         }
+
+        await Assert.ThrowsExactlyAsync<HttpRequestException>(async () =>
+        {
+            using var response = await RunWithVerdictAsync(false, engine);
+        });
+
+        using var accepted = await RunWithVerdictAsync(true, engine);
+
+        await accepted.AssertStatusAsync(HttpStatusCode.OK);
+    }
+
+    private static async Task<HttpResponseMessage> RunWithVerdictAsync(bool verdict, TestEngine engine)
+    {
+        var content = Layout.Create().Index(Content.From(Resource.FromString("Hello Alice!")));
+
+        await using var runner = new TestHost(Layout.Create().Build(), false, engine: engine);
+
+        var port = TestHost.NextPort();
+
+        using var cert = await Security.GetCertificateAsync();
+
+        var provider = CertificateProvider.From(cert);
+        
+        runner.Host.Handler(content)
+              .Bind(IPAddress.Any, (ushort)port, provider, certificateValidator: new VerdictValidator(verdict));
+
+        await runner.StartAsync();
+
+        using var client = TestHost.GetClient(ignoreSecurityErrors: true);
+
+        return await client.GetAsync($"https://localhost:{port}");
+    }
+
+    /// <summary>Answers every peer the same way, so only the verdict is under test.</summary>
+    private sealed class VerdictValidator(bool verdict) : ICertificateValidator
+    {
+        // False: the engine must still ask, and a client offering nothing is what it is asked about.
+        public bool RequireCertificate => false;
+
+        public X509RevocationMode RevocationCheck => X509RevocationMode.NoCheck;
+
+        public bool Validate(X509Certificate? certificate, X509Chain? chain, SslPolicyErrors policyErrors) => verdict;
     }
 
     private static async Task RunSecure(Func<ushort, ushort, Task> logic, TestEngine engine, SecureUpgrade? mode = null, string host = "localhost")
@@ -194,9 +237,17 @@ public sealed class SecurityTests
 
         using var cert = await Security.GetCertificateAsync();
 
+        // Serve the name the client actually presents (localhost) through a plain provider, so every
+        // engine can answer - ioxide included, which resolves its certificate once at startup with no
+        // host name and so needs one that answers a null host. A test that wants the handshake to abort
+        // asks for a different name, leaving PickyCertificateProvider with nothing to offer localhost.
+        ICertificateProvider certificates = host == "localhost"
+            ? CertificateProvider.From(cert)
+            : new PickyCertificateProvider(host, cert);
+
         runner.Host.Handler(content)
               .Bind(IPAddress.Any, (ushort)runner.Port)
-              .Bind(IPAddress.Any, (ushort)port, new PickyCertificateProvider(host, cert), SslProtocols.Tls12);
+              .Bind(IPAddress.Any, (ushort)port, certificates, SslProtocols.Tls12);
 
         if (mode is not null)
         {
@@ -209,6 +260,10 @@ public sealed class SecurityTests
         await logic((ushort)runner.Port, (ushort)port);
     }
 
+    /// <summary>
+    /// Answers only for the one name it was given; Provide(null) and every other name return nothing, so
+    /// a client asking for anything else finds no certificate and the handshake is refused.
+    /// </summary>
     private class PickyCertificateProvider : ICertificateProvider
     {
 

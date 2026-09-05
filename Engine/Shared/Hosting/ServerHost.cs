@@ -1,14 +1,12 @@
 using System.Diagnostics;
 using System.Net;
 using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
-
+    
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Infrastructure.Logging;
-using GenHTTP.Engine.Shared.Security;
 
 using GenHTTP.Modules.ErrorHandling;
 
@@ -43,17 +41,15 @@ public abstract class ServerHost : IServerHost
 
     #region Functionality
 
-    public IServerHost Bind(IPAddress? address, ushort port, bool dualStack = true)
+    public IServerHost Bind(IPAddress? address, ushort port, HttpProtocols httpProtocols = HttpProtocols.Http1, bool dualStack = true)
     {
-        _endPoints.Add(new EndPointConfiguration(address, port, dualStack, null, false));
+        _endPoints.Add(new EndPointConfiguration(address, port, httpProtocols, dualStack, null));
         return this;
     }
 
-    public IServerHost Bind(IPAddress? address, ushort port, X509Certificate2 certificate, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false, bool dualStack = true) => Bind(address, port, new SimpleCertificateProvider(certificate), protocols, certificateValidator, enableQuic, dualStack);
-
-    public IServerHost Bind(IPAddress? address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false, bool dualStack = true)
+    public IServerHost Bind(IPAddress? address, ushort port, ICertificateProvider certificateProvider, SslProtocols sslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, HttpProtocols httpProtocols = HttpProtocols.Http1AndHttp2, bool dualStack = true)
     {
-        _endPoints.Add(new EndPointConfiguration(address, port, dualStack, new SecurityConfiguration(certificateProvider, protocols, certificateValidator), enableQuic));
+        _endPoints.Add(new EndPointConfiguration(address, port, httpProtocols, dualStack, new SecurityConfiguration(certificateProvider, sslProtocols, certificateValidator)));
         return this;
     }
 
@@ -190,7 +186,7 @@ public abstract class ServerHost : IServerHost
 
         if (endpoints.Count == 0)
         {
-            endpoints.Add(new EndPointConfiguration(null, _port, true, null, false));
+            endpoints.Add(new EndPointConfiguration(null, _port, HttpProtocols.Http1, true, null));
         }
 
         var logging = _customLoggerFactory ?? (_defaultLoggerFactory ??= CreateDefaultLoggerFactory());

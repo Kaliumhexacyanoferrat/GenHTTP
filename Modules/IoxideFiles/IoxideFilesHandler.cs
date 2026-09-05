@@ -24,15 +24,22 @@ public sealed class IoxideFilesHandler : IHandler
 
     private readonly StaticAssets _assets;
 
-    internal IoxideFilesHandler(StaticAssets assets)
+    private readonly AssetRefresh _refresh;
+
+    internal IoxideFilesHandler(StaticAssets assets, AssetRefresh refresh)
     {
         _assets = assets;
+        _refresh = refresh;
     }
 
     public ValueTask PrepareAsync(IServer server) => default;
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
+        // Throttled: a stat of the tree at most a few times a second, so the snapshot follows the
+        // disk without every request paying to ask whether it still matches.
+        _refresh.Touch();
+
         var target = request.Header.Target;
 
         if (target.HasTrailingSlash)
@@ -70,18 +77,9 @@ public sealed class IoxideFilesHandler : IHandler
                 return default; // raced away
             }
 
-            if (AssetCache.IsFresh(asset, out var exists, out var currentSize))
-            {
-                length = asset.Length;
-            }
-            else if (exists)
-            {
-                length = currentSize; // changed on disk since the snapshot - serve the current size
-            }
-            else
-            {
-                return default; // vanished -> 404
-            }
+            // The snapshot is rebuilt when the tree changes, so its length is the size the body
+            // writer will produce.
+            length = asset.Length;
         }
 
         // Content-Type from the *identity* file name - the sibling only carries the encoding.

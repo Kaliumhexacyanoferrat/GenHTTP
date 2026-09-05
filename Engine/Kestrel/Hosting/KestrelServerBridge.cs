@@ -8,6 +8,7 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Adapters.AspNetCore.Mapping;
+
 using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Types;
 
@@ -21,10 +22,15 @@ using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using GenHttpProtocols = GenHTTP.Api.Infrastructure.HttpProtocols;
+using KestrelProtocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols;
+
 namespace GenHTTP.Engine.Kestrel.Hosting;
 
 internal sealed class KestrelServerBridge : IServer
 {
+    private readonly KestrelEndpoints _endpoints = new();
+
     #region Get-/Setters
 
     public string Version { get; }
@@ -37,7 +43,7 @@ internal sealed class KestrelServerBridge : IServer
 
     public ILoggerFactory Logging => Configuration.Logging;
 
-    public IEndPointCollection EndPoints { get; }
+    public IEndPointCollection EndPoints => _endpoints;
 
     public IHandler Handler { get; }
 
@@ -59,12 +65,6 @@ internal sealed class KestrelServerBridge : IServer
 
         Handler = handler;
 
-        var endpoints = new KestrelEndpoints();
-
-        endpoints.AddRange(configuration.EndPoints.Select(e => new KestrelEndpoint(e.Address, e.Port, e.DualStack, e.Security is not null)));
-
-        EndPoints = endpoints;
-
         App = Build(configHook, appHook);
     }
 
@@ -76,12 +76,15 @@ internal sealed class KestrelServerBridge : IServer
     {
         // No args of our own: avoids the generic host parsing the embedding process's command
         // line as ASP.NET Core options (e.g. a stray --urls flag).
-        var builder = WebApplication.CreateBuilder(new WebApplicationOptions { Args = [] });
+        var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+        {
+            Args = []
+        });
 
         // Route Kestrel's own internal logging through the same ILoggerFactory GenHTTP uses.
         builder.Services.AddSingleton(Configuration.Logging);
 
-        if (Configuration.EndPoints.Any(e => e.EnableQuic))
+        if (Configuration.EndPoints.Any(e => e.Protocols.HasFlag(Api.Infrastructure.HttpProtocols.Http3)))
         {
             builder.WebHost.UseQuic();
         }
@@ -98,26 +101,18 @@ internal sealed class KestrelServerBridge : IServer
 
             foreach (var endpoint in Configuration.EndPoints)
             {
+                var validatedProtocols = Protocols.Validate(endpoint);
+
                 if ((endpoint.Address == null) || (endpoint.DualStack && (endpoint.Address.Equals(IPAddress.Any) || endpoint.Address.Equals(IPAddress.IPv6Any))))
                 {
-                    options.ListenAnyIP(endpoint.Port, listenOptions =>
-                    {
-                        if (endpoint.Security is not null)
-                        {
-                            Secure(listenOptions, endpoint, endpoint.Security);
-                        }
-                    });
+                    options.ListenAnyIP(endpoint.Port, listenOptions => Configure(listenOptions, endpoint, validatedProtocols));
                 }
                 else
                 {
-                    options.Listen(endpoint.Address, endpoint.Port, listenOptions =>
-                    {
-                        if (endpoint.Security is not null)
-                        {
-                            Secure(listenOptions, endpoint, endpoint.Security);
-                        }
-                    });
+                    options.Listen(endpoint.Address, endpoint.Port, listenOptions => Configure(listenOptions, endpoint, validatedProtocols));
                 }
+
+                _endpoints.Add(new KestrelEndpoint(endpoint.Address, endpoint.Port, validatedProtocols, endpoint.DualStack, endpoint.Security is not null));
             }
         });
 
@@ -132,10 +127,18 @@ internal sealed class KestrelServerBridge : IServer
         return app;
     }
 
-    private static void Secure(ListenOptions options, EndPointConfiguration endpoint, SecurityConfiguration security)
+    private static void Configure(ListenOptions options, EndPointConfiguration endpoint, GenHttpProtocols validatedProtocols)
     {
-        options.Protocols = (endpoint.EnableQuic) ? HttpProtocols.Http1AndHttp2AndHttp3 : HttpProtocols.Http1AndHttp2;
+        options.Protocols = MapProtocol(validatedProtocols);
 
+        if (endpoint.Security is not null)
+        {
+            Secure(options, endpoint.Security);
+        }
+    }
+
+    private static void Secure(ListenOptions options, SecurityConfiguration security)
+    {
         var httpsOptions = new HttpsConnectionAdapterOptions
         {
             SslProtocols = security.Protocols,
@@ -162,8 +165,6 @@ internal sealed class KestrelServerBridge : IServer
 
         Running = true;
 
-        // Logged ourselves (capital "Listening") to match the other engines' lifecycle
-        // message - the generic host's own message uses a lowercase "listening".
         var logger = Logging.CreateLogger<KestrelServerBridge>();
 
         foreach (var endpoint in EndPoints)
@@ -216,6 +217,28 @@ internal sealed class KestrelServerBridge : IServer
         {
             /* no recovery here */
         }
+    }
+
+    private static KestrelProtocols MapProtocol(GenHttpProtocols requested)
+    {
+        var protocols = KestrelProtocols.None;
+
+        if (requested.HasFlag(GenHttpProtocols.Http1))
+        {
+            protocols |= KestrelProtocols.Http1;
+        }
+
+        if (requested.HasFlag(GenHttpProtocols.Http2))
+        {
+            protocols |= KestrelProtocols.Http2;
+        }
+
+        if (requested.HasFlag(GenHttpProtocols.Http3))
+        {
+            protocols |= KestrelProtocols.Http3;
+        }
+
+        return protocols;
     }
 
     #endregion

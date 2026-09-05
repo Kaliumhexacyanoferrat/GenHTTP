@@ -23,7 +23,7 @@
 
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <ItemGroup>
         <ProjectReference Include="..\..\Engine\Ioxide\GenHTTP.Engine.Ioxide.csproj"/>
     </ItemGroup>
 

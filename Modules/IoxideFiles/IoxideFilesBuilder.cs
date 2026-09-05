@@ -12,6 +12,8 @@ public sealed class IoxideFilesBuilder : IHandlerBuilder<IoxideFilesBuilder>
 {
     private readonly StaticAssets _assets;
 
+    private readonly AssetRefresh _refresh;
+
     private readonly List<IConcernBuilder> _concerns = [];
 
     internal IoxideFilesBuilder(string directory)
@@ -19,6 +21,7 @@ public sealed class IoxideFilesBuilder : IHandlerBuilder<IoxideFilesBuilder>
         // Opened once and shared across reactors (fds are stable, reads positional); the per-reactor
         // AssetReader pool is resolved lazily in the content.
         _assets = new StaticAssets(directory);
+        _refresh = new AssetRefresh(_assets, directory);
     }
 
     public IoxideFilesBuilder Add(IConcernBuilder concern)
@@ -27,6 +30,6 @@ public sealed class IoxideFilesBuilder : IHandlerBuilder<IoxideFilesBuilder>
         return this;
     }
 
-    public IHandler Build() => Concerns.Chain(_concerns, new IoxideFilesHandler(_assets));
+    public IHandler Build() => Concerns.Chain(_concerns, new IoxideFilesHandler(_assets, _refresh));
 
 }

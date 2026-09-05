@@ -1,9 +1,7 @@
-using GenHTTP.Engine.Internal;
+using GenHTTP.Playground.Samples.Ioxide;
 
-using GenHTTP.Modules.IO;
+// dotnet run -c Release --project Playground
 
-var app = Content.From(Resource.FromString("Hello World!"));
+var server = ShowcaseSample.Create();
 
-await Host.Create()
-          .Handler(app)
-          .RunAsync();
+return await server.RunAsync();

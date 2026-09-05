@@ -119,14 +119,20 @@ public class ClientCertificateAuthenticationTests
 
     private static async ValueTask<HttpResponseMessage> TestAsync(ClientCertificateAuthenticationBuilder auth, ICertificateValidator validator, bool sendCertificate, TestEngine engine)
     {
-        if (engine == TestEngine.Ioxide)
+        if (engine == TestEngine.Ioxide && validator.RequireCertificate)
         {
-            // Client-certificate auth needs TLS termination, which the Ioxide engine doesn't do yet
-            // (kTLS-only, no SNI cert provider). Skip rather than hang the handshake; kTLS tests to follow.
-            Assert.Inconclusive("Ioxide: TLS termination not implemented yet (kTLS-only, no SNI cert provider). kTLS tests to follow.");
+            // ioxide validates the client chain in OpenSSL, which wants the trust anchors before the
+            // handshake begins - so requiring a certificate there means naming what it is validated
+            // against. ConfigurableValidator is a plain ICertificateValidator and names none, which
+            // the engine refuses when the server starts rather than admitting a client it never
+            // checked. An IMutualTlsValidator carrying ClientCaPath or ClientCaPem is what this
+            // engine takes, and the optional case below needs no anchors and does run.
+            Assert.Inconclusive("Ioxide: RequireCertificate needs an IMutualTlsValidator naming trust anchors, which ConfigurableValidator does not.");
         }
 
         var certificate = await Utilities.Security.GetCertificateAsync();
+
+        var provider = CertificateProvider.From(certificate);
 
         var content = Inline.Create()
                                       .Get((IRequest request) => request.GetUser<IUser>()?.DisplayName ?? "No user")
@@ -138,7 +144,7 @@ public class ClientCertificateAuthenticationTests
 
         runner.Host
               .Handler(content)
-              .Bind(IPAddress.Any, (ushort)port, certificate, certificateValidator: validator);
+              .Bind(IPAddress.Any, (ushort)port, provider, certificateValidator: validator);
 
         await runner.StartAsync();
 

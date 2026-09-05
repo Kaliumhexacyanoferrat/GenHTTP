@@ -1,6 +1,5 @@
 using System.Buffers;
 
-using Microsoft.Win32.SafeHandles;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Engine.Ioxide;
@@ -14,6 +13,10 @@ namespace GenHTTP.Modules.IoxideFiles;
 /// Writes one asset's body to the response sink, flush-disciplined so it never stages more than
 /// <see cref="Chunk"/> bytes into the ioxide write slab at once. Re-resolves the asset under its own
 /// lease, so nothing is held across an await.
+///
+/// The body is read positionally off the ring through a per-reactor <see cref="AssetReader"/> pool.
+/// It cannot use the connection's write slab directly - <c>TcpConnection.ReadFileAsync</c> reads
+/// into that slab, and this writes into GenHTTP's response sink instead - so the copy stays.
 /// </summary>
 public sealed class IoxideAssetContent(StaticAssets assets, string path, long length, ContentType contentType, ReadOnlyMemory<byte>? contentEncoding) : IResponseContent
 {
@@ -39,26 +42,10 @@ public sealed class IoxideAssetContent(StaticAssets assets, string path, long le
             return; // vanished between header and body (rare)
         }
 
-        if (AssetCache.IsFresh(asset, out var exists, out _))
-        {
-            if (asset.Response != 0)
-            {
-                // Fresh + baked: write just the body (GenHTTP framed the header). The baked block is
-                // header+body in native memory; the body is the trailing asset.Length bytes.
-                await WriteNative(sink, asset.Response + (nint)(asset.ResponseLength - asset.Length), asset.Length);
-            }
-            else
-            {
-                // Fresh but too large to bake: read off the ring from the cached fd.
-                await WriteFromDisk(sink, asset.Fd, length);
-            }
-        }
-        else if (exists)
-        {
-            // Changed on disk (edit or atomic rename): open the current path fresh so a rename resolves
-            // to the new inode, not the cached fd.
-            await WriteChanged(sink, asset.Path, length);
-        }
+        // The body is always read off the ring, from the descriptor the snapshot holds. Keeping
+        // that descriptor honest is AssetRefresh's job, and it rebuilds the whole snapshot rather
+        // than having every request ask whether its own file still matches.
+        await WriteFromDisk(sink, asset.Fd, length);
     }
 
     // Copy native memory to the sink in flushed <= Chunk slices; FlushAsync drains the slab to the socket.
@@ -105,29 +92,6 @@ public sealed class IoxideAssetContent(StaticAssets assets, string path, long le
         finally
         {
             readers.Return(reader);
-        }
-    }
-
-    private static async ValueTask WriteChanged(IResponseSink sink, string filePath, long len)
-    {
-        SafeFileHandle handle;
-
-        try
-        {
-            handle = File.OpenHandle(filePath);
-        }
-        catch
-        {
-            return; // raced with a delete
-        }
-
-        try
-        {
-            await WriteFromDisk(sink, (int)handle.DangerousGetHandle(), len);
-        }
-        finally
-        {
-            handle.Dispose();
         }
     }
 

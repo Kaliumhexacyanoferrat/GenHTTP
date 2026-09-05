@@ -127,12 +127,10 @@ public class TestHost : IAsyncDisposable
             return Engine.Kestrel.Host.Create();
         }
         
-#if NET11_0_OR_GREATER
         if (engine == TestEngine.Ioxide)
         {
             return Engine.Ioxide.Host.Create();
         }
-#endif
 
         throw new NotSupportedException();
     }
