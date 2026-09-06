@@ -1,6 +1,5 @@
 using System.Net;
 using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Content;
 
@@ -30,32 +29,25 @@ public interface IServerHost
     /// </summary>
     /// <param name="port">The port the server should listen on</param>
     /// <remarks>
-    /// If you register custom endpoints using the Bind methods, this value
-    /// will be ignored.
+    /// If you register custom endpoints using the Bind methods, this value will be ignored.
     /// </remarks>
     IServerHost Port(ushort port);
 
     /// <summary>
     /// Registers an endpoint for the given address and port the server will
-    /// bind to on startup to listen for incomming HTTP requests.
+    /// bind to on startup to listen for incoming HTTP requests.
     /// </summary>
     /// <param name="address">The address to bind to (or null, if the server should listen to any IP)</param>
     /// <param name="port">The port to listen on</param>
+    /// <param name="httpProtocols">The protocols to be accepted by this endpoint</param>
     /// <param name="dualStack">If enabled, the endpoint will listen for incoming IPv4 and IPv6 connections. If disabled, the endpoint will listen only for connections matching the specificed IP address</param>
-    IServerHost Bind(IPAddress? address, ushort port, bool dualStack = true);
-
-    /// <summary>
-    /// Registers a secure endpoint the server will bind to on
-    /// startup to listen for incoming HTTPS requests.
-    /// </summary>
-    /// <param name="address">The address to bind to (or null, if the server should listen to any IP)</param>
-    /// <param name="port">The port to listen on</param>
-    /// <param name="certificate">The certificate used to negoiate a connection with</param>
-    /// <param name="protocols">The SSL/TLS protocl versions which should be supported by the endpoint</param>
-    /// <param name="certificateValidator">The validator to check the validity of client certificates with</param>
-    /// <param name="enableQuic">If enabled, the server will host a HTTP/3 endpoint via QUIC</param>
-    /// <param name="dualStack">If enabled, the endpoint will listen for incoming IPv4 and IPv6 connections. If disabled, the endpoint will listen only for connections matching the specificed IP address</param>
-    IServerHost Bind(IPAddress? address, ushort port, X509Certificate2 certificate, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false, bool dualStack = true);
+    /// <remarks>
+    /// Depending on the engine and configuration, the requested HTTP protocols might not be supported - either because the
+    /// engine does not implement the protocol or because the configuration is invalid (such as H3 without TLS). If the engine
+    /// can at least serve one of the requested protocols, the call will succeed - if no protocol can be provided,
+    /// a NotSupportedException will be thrown.
+    /// </remarks>
+    IServerHost Bind(IPAddress? address, ushort port, HttpProtocols httpProtocols = HttpProtocols.Http1, bool dualStack = true);
 
     /// <summary>
     /// Registers a secure endpoint the server will bind to on
@@ -64,11 +56,17 @@ public interface IServerHost
     /// <param name="address">The address to bind to (or null, if the server should listen to any IP)</param>
     /// <param name="port">The port to listen on</param>
     /// <param name="certificateProvider">The provider to select the certificate used to negoiate a connection with</param>
-    /// <param name="protocols">The SSL/TLS protocl versions which should be supported by the endpoint</param>
+    /// <param name="sslProtocols">The SSL/TLS protocl versions which should be supported by the endpoint</param>
     /// <param name="certificateValidator">The validator to check the validity of client certificates with</param>
-    /// <param name="enableQuic">If enabled, the server will host a HTTP/3 endpoint via QUIC</param>
+    /// <param name="httpHttpProtocols">The HTTP protocols to be accepted by this endpoint</param>
     /// <param name="dualStack">If enabled, the endpoint will listen for incoming IPv4 and IPv6 connections. If disabled, the endpoint will listen only for connections matching the specificed IP address</param>
-    IServerHost Bind(IPAddress? address, ushort port, ICertificateProvider certificateProvider, SslProtocols protocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, bool enableQuic = false, bool dualStack = true);
+    /// <remarks>
+    /// Depending on the engine and configuration, the requested HTTP protocols might not be supported - either because the
+    /// engine does not implement the protocol or because the configuration is invalid (such as H3 without TLS). If the engine
+    /// can at least serve one of the requested protocols, the call will succeed - if no protocol can be provided,
+    /// a NotSupportedException will be thrown.
+    /// </remarks>
+    IServerHost Bind(IPAddress? address, ushort port, ICertificateProvider certificateProvider, SslProtocols sslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13, ICertificateValidator? certificateValidator = null, HttpProtocols httpProtocols = HttpProtocols.Http1AndHttp2, bool dualStack = true);
 
     #endregion
 

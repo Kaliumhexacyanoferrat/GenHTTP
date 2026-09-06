@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Layouting;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
@@ -70,7 +70,7 @@ public class BindingTests
     {
         var runner = new TestHost(Layout.Create().Build(), engine: engine);
 
-        runner.Host.Bind(ip, (ushort)runner.Port, dualStack);
+        runner.Host.Bind(ip, (ushort)runner.Port, HttpProtocols.All, dualStack);
 
         await runner.StartAsync();
 

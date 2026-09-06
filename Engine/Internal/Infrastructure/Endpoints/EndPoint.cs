@@ -7,6 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Engine.Internal.Context;
 using GenHTTP.Engine.Shared.Types;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
 
@@ -31,6 +32,8 @@ internal abstract class EndPoint : IEndPoint
     public IPAddress? Address { get; }
 
     public ushort Port { get; }
+
+    public HttpProtocols Protocols => HttpProtocols.Http1;
 
     public bool DualStack { get; }
 
