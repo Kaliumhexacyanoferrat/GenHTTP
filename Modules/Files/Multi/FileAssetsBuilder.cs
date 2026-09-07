@@ -13,12 +13,25 @@ public sealed class FileAssetsBuilder(DirectoryInfo directory) : IHandlerBuilder
 
     private TimeSpan _refreshInterval = AssetRefresh.DefaultInterval;
 
+    /// <summary>
+    /// Configures the handler to serve pre-compressed files that are placed next
+    /// to the requested files. If you pass the brotli algorithm to this method,
+    /// the handler will look for a "file.txt.br" if "file.txt" is requested.
+    /// </summary>
+    /// <param name="algorithms">The supported algorithms for pre-compression</param>
     public FileAssetsBuilder AllowPrecompressed(params ICompressionAlgorithm[] algorithms)
     {
         _algorithms.AddRange(algorithms);
         return this;
     }
 
+    /// <summary>
+    /// Configures the handler to serve pre-compressed files that are placed next
+    /// to the requested files. If you pass the brotli algorithm and "-" as a separator
+    /// to this method,  the handler will look for a "file.txt-br" if "file.txt" is requested.
+    /// </summary>
+    /// <param name="algorithms">The supported algorithms for pre-compression</param>
+    /// <param name="separator">The separator to use to build the paths</param>
     public FileAssetsBuilder AllowPrecompressed(ICompressionAlgorithm[] algorithms, char separator)
     {
         _separator = separator;
@@ -47,9 +60,6 @@ public sealed class FileAssetsBuilder(DirectoryInfo directory) : IHandlerBuilder
         return this;
     }
 
-    public IHandler Build()
-    {
-        return Concerns.Chain(_concerns, new FileAssetsHandler(directory, _algorithms, _separator, _refreshInterval));
-    }
+    public IHandler Build() => Concerns.Chain(_concerns, new FileAssetsHandler(directory, _algorithms, _separator, _refreshInterval));
 
 }
