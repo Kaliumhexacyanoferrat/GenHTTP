@@ -1,6 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
         <Description>Provides functionality to efficiently serve files to clients</Description>
         <PackageTags>GenHTTP HTTP Webserver C# Module Files Assets Asset</PackageTags>
@@ -12,13 +14,15 @@
 
     <ItemGroup>
 
+        <ProjectReference Include="..\..\API\General\GenHTTP.Api.csproj" />
+
+        <ProjectReference Include="..\..\API\Ioxide\GenHTTP.Api.Ioxide.csproj" />
+        
         <ProjectReference Include="..\IO\GenHTTP.Modules.IO.csproj" />
 
         <ProjectReference Include="..\Compression\GenHTTP.Modules.Compression.csproj" />
 
-        <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
-        
-        <PackageReference Include="fdout" Version="0.0.1" />
+        <PackageReference Include="ioxide.file" Version="0.13.218" />
 
     </ItemGroup>
 

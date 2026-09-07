@@ -15,9 +15,6 @@ using GenHTTP.Modules.Layouting;
 
 using IoxideServer = GenHTTP.Engine.Ioxide.Infrastructure.Server;
 
-// The namespace and the class share a name, so the class needs an alias to be reachable.
-using IoxideFilesModule = GenHTTP.Modules.IoxideFiles.IoxideFiles;
-
 namespace GenHTTP.Playground.Samples.Ioxide;
 
 /// <summary>Everything the engine offers, on one host - the other samples in one piece.</summary>
@@ -66,14 +63,13 @@ public static class ShowcaseSample
          * Browsers never try HTTP/3 first - they connect over TCP and move to QUIC once an
          * Alt-Svc header points them at it.
          *
-         * Two static handlers over the SAME directory, so the difference can be priced rather
-         * than argued: /ring/* is IoxideFiles (descriptors shared across reactors, read
-         * positionally off the ring, nothing cached in memory) and /disk/* is GenHTTP's
-         * built-in Files module. GENHTTP_STATIC picks the directory; without it neither route
-         * is mounted.
+         * A static handler over GENHTTP_STATIC: the built-in Files module, which on the Ioxide
+         * engine automatically serves through ioxide.file (descriptors shared across reactors,
+         * read positionally off the ring, nothing cached in memory) and falls back to the fd
+         * cache on any other engine. Without GENHTTP_STATIC the route is not mounted.
          *
          *     GENHTTP_STATIC=/srv/www dotnet run -c Release --project Playground
-         *     wrk -t8 -c64 -d8s http://127.0.0.1:8080/ring/asset.bin
+         *     wrk -t8 -c64 -d8s http://127.0.0.1:8080/static/asset.bin
          *
          */
 
@@ -84,8 +80,7 @@ public static class ShowcaseSample
 
         if (staticDir != null && Directory.Exists(staticDir))
         {
-            app = app.Add("ring", IoxideFilesModule.From(staticDir))
-                     .Add("disk", Assets.From(staticDir));
+            app = app.Add("static", Assets.From(staticDir));
         }
 
         string[] hosts = ["localhost", "alpha.localhost", "beta.localhost"];

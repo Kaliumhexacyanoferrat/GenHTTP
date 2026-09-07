@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Ioxide;
 
 using GenHTTP.Engine.Ioxide.Infrastructure;
 using GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;

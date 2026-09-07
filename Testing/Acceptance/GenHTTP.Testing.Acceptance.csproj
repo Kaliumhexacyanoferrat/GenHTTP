@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
 
@@ -72,7 +72,7 @@
 
     <ItemGroup>
 
-        <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
+        <ProjectReference Include="..\..\API\General\GenHTTP.Api.csproj" />
 
         <ProjectReference Include="..\..\Adapters\AspNetCore\GenHTTP.Adapters.AspNetCore.csproj" />
 
@@ -117,7 +117,6 @@
 	    <ProjectReference Include="..\..\Modules\Websockets\GenHTTP.Modules.Websockets.csproj" />
         <ProjectReference Include="..\..\Modules\Inspection\GenHTTP.Modules.Inspection.csproj" />
         <ProjectReference Include="..\..\Modules\ServerSentEvents\GenHTTP.Modules.ServerSentEvents.csproj" />
-        <ProjectReference Include="..\..\Modules\IoxideFiles\GenHTTP.Modules.IoxideFiles.csproj" />
 
     </ItemGroup>
 

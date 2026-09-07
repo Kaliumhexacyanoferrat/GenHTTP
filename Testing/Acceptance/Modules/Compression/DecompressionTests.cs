@@ -260,6 +260,8 @@ public sealed class DecompressionTests
 
         public AlgorithmName Name => new("custom");
 
+        public string FileExtension => "custom";
+
         public Priority Priority => Priority.Low;
 
         public IResponseContent Compress(IResponseContent content, CompressionLevel level) => throw new NotImplementedException();

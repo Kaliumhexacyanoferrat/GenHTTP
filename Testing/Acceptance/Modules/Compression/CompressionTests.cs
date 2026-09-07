@@ -427,6 +427,8 @@ public sealed class CompressionTests
 
         public AlgorithmName Name => new("custom");
 
+        public string FileExtension => "custom";
+
         public Priority Priority => Priority.High;
 
         public IResponseContent Compress(IResponseContent content, CompressionLevel level)

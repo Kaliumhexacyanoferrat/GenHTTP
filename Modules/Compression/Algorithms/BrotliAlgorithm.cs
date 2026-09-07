@@ -12,6 +12,8 @@ public sealed class BrotliAlgorithm : ICompressionAlgorithm
 
     public AlgorithmName Name => CachedName;
 
+    public string FileExtension => "br";
+
     public Priority Priority => Priority.Medium;
 
     public IResponseContent Compress(IResponseContent content, CompressionLevel level)

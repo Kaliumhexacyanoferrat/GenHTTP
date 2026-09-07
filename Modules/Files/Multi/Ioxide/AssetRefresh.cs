@@ -1,6 +1,6 @@
 using ioxide.file;
 
-namespace GenHTTP.Modules.IoxideFiles;
+namespace GenHTTP.Modules.Files.Multi;
 
 /// <summary>
 /// Keeps the snapshot honest without paying for it per request.

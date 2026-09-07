@@ -11,6 +11,8 @@ public sealed class FileAssetsBuilder(DirectoryInfo directory) : IHandlerBuilder
 
     private char _separator = '.';
 
+    private TimeSpan _refreshInterval = AssetRefresh.DefaultInterval;
+
     public FileAssetsBuilder AllowPrecompressed(params ICompressionAlgorithm[] algorithms)
     {
         _algorithms.AddRange(algorithms);
@@ -24,6 +26,21 @@ public sealed class FileAssetsBuilder(DirectoryInfo directory) : IHandlerBuilder
         return AllowPrecompressed(algorithms);
     }
 
+    /// <summary>
+    /// How often the mounted directory may be re-scanned for changes. Defaults to 250 ms and
+    /// only affects the implementation on Ioxide.
+    /// </summary>
+    public FileAssetsBuilder RefreshInterval(TimeSpan interval)
+    {
+        if (interval < TimeSpan.Zero && interval != Timeout.InfiniteTimeSpan)
+        {
+            throw new ArgumentOutOfRangeException(nameof(interval), interval, "The refresh interval must not be negative.");
+        }
+
+        _refreshInterval = interval;
+        return this;
+    }
+
     public FileAssetsBuilder Add(IConcernBuilder concern)
     {
         _concerns.Add(concern);
@@ -32,7 +49,7 @@ public sealed class FileAssetsBuilder(DirectoryInfo directory) : IHandlerBuilder
 
     public IHandler Build()
     {
-        return Concerns.Chain(_concerns, new FileAssetsHandler(directory, _algorithms, _separator));
+        return Concerns.Chain(_concerns, new FileAssetsHandler(directory, _algorithms, _separator, _refreshInterval));
     }
 
 }

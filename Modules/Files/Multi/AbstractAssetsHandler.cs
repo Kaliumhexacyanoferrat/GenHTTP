@@ -3,27 +3,18 @@ using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Compression.Providers;
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.Files.Multi;
 
 public abstract class AbstractAssetsHandler : IHandler
 {
-    private readonly List<SupportedCompression> _algorithms;
+
+    private readonly PreCompression _preCompression;
 
     protected AbstractAssetsHandler(List<ICompressionAlgorithm> algorithms, char separator)
     {
-        _algorithms = algorithms.Select(a =>
-                                {
-                                    var extension = new byte[a.Name.Bytes.Length + 1];
-                                    extension[0] = (byte)separator;
-                                    a.Name.Bytes.Span.CopyTo(extension.AsSpan(1));
-
-                                    return new SupportedCompression(a, extension);
-                                })
-                                .OrderByDescending(a => (int)a.Algorithm.Priority)
-                                .ToList();
+        _preCompression = new PreCompression(algorithms, separator);
     }
 
     public ValueTask PrepareAsync(IServer server) => default;
@@ -37,7 +28,7 @@ public abstract class AbstractAssetsHandler : IHandler
             return null;
         }
 
-        if (_algorithms.Count > 0)
+        if (_preCompression.Enabled)
         {
             var handled = await TryGetPreCompressed(request);
 
@@ -51,9 +42,16 @@ public abstract class AbstractAssetsHandler : IHandler
 
         if (content != null)
         {
-            return request.Respond()
-                          .Content(content)
-                          .Build();
+            var response = request.Respond().Content(content);
+
+            // The identity response still varies by Accept-Encoding whenever a compressed variant
+            // could have been served to a different client.
+            if (_preCompression.Enabled)
+            {
+                response = response.Header("Vary", "Accept-Encoding");
+            }
+
+            return response.Build();
         }
 
         return null;
@@ -63,31 +61,22 @@ public abstract class AbstractAssetsHandler : IHandler
     {
         var target = request.Header.Target;
 
-        var acceptEncodingHeader = request.Header.Headers.GetEntry(KnownHeaders.AcceptEncoding);
-
-        if (acceptEncodingHeader != null)
+        foreach (var supported in _preCompression.Accepted(request))
         {
-            var requested = AcceptEncodingHeader.ParseSupported(acceptEncodingHeader.Value);
+            var newTarget = target.CopyAndAppend(supported.Extension);
 
-            foreach (var supported in _algorithms)
+            var fileName = GetFileName(target);
+
+            var contentType = fileName?.GuessContentType() ?? ContentType.ApplicationOctetStream;
+
+            var content = await Resolve(newTarget, contentType, supported.Algorithm.Name.Bytes);
+
+            if (content != null)
             {
-                if (requested.Contains(supported.Algorithm.Name))
-                {
-                    var newTarget = target.CopyAndAppend(supported.Extension);
-
-                    var fileName = GetFileName(target);
-
-                    var contentType = fileName?.GuessContentType() ?? ContentType.ApplicationOctetStream;
-
-                    var content = await Resolve(newTarget, contentType, supported.Algorithm.Name.Bytes);
-
-                    if (content != null)
-                    {
-                        return request.Respond()
-                                      .Content(content)
-                                      .Build();
-                    }
-                }
+                return request.Respond()
+                              .Content(content)
+                              .Header("Vary", "Accept-Encoding")
+                              .Build();
             }
         }
 

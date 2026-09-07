@@ -3,12 +3,13 @@ using System.Net.Http.Headers;
 
 using GenHTTP.Api.Infrastructure;
 
+using GenHTTP.Modules.Compression.Algorithms;
+using GenHTTP.Modules.Files;
+
 using GenHTTP.Testing.Acceptance.Engine;
 using GenHTTP.Testing.Acceptance.Utilities;
 
-using IoxideFilesModule = GenHTTP.Modules.IoxideFiles.IoxideFiles;
-
-namespace GenHTTP.Testing.Acceptance.Modules.IoxideFiles;
+namespace GenHTTP.Testing.Acceptance.Modules.Files;
 
 [TestClass]
 public sealed class IoxideFilesTests
@@ -198,7 +199,7 @@ public sealed class IoxideFilesTests
 
         await File.WriteAllTextAsync(Path.Combine(dir.FullName, "large.txt"), content);
 
-        var handler = IoxideFilesModule.From(dir.FullName);
+        var handler = Assets.From(dir.FullName);
 
         await using var host = await TestHost.RunAsync(handler, engine: ServerEngine.Ioxide);
 
@@ -223,7 +224,7 @@ public sealed class IoxideFilesTests
 
         await File.WriteAllTextAsync(file, "This is root");
 
-        var handler = IoxideFilesModule.From(dir.FullName);
+        var handler = Assets.From(dir.FullName);
 
         // Edited after the cache snapshot was taken, with a different length so IsFresh's size check fails.
         await File.WriteAllTextAsync(file, "This is the updated content");
@@ -248,7 +249,7 @@ public sealed class IoxideFilesTests
 
         // Timeout.InfiniteTimeSpan pins the snapshot taken at startup: the tree is never walked
         // again, so a file that appears afterward is not part of the mount.
-        var handler = IoxideFilesModule.From(dir.FullName).RefreshInterval(Timeout.InfiniteTimeSpan);
+        var handler = Assets.From(dir.FullName).RefreshInterval(Timeout.InfiniteTimeSpan);
 
         await using var host = await TestHost.RunAsync(handler, engine: ServerEngine.Ioxide);
 
@@ -275,7 +276,7 @@ public sealed class IoxideFilesTests
 
         // Zero scans on every request, so a file that appears is served by the next one - no wait
         // for an interval to elapse, which is what makes this assertion safe to make immediately.
-        var handler = IoxideFilesModule.From(dir.FullName).RefreshInterval(TimeSpan.Zero);
+        var handler = Assets.From(dir.FullName).RefreshInterval(TimeSpan.Zero);
 
         await using var host = await TestHost.RunAsync(handler, engine: ServerEngine.Ioxide);
 
@@ -297,7 +298,7 @@ public sealed class IoxideFilesTests
 
         // Not -1 milliseconds: that value IS Timeout.InfiniteTimeSpan, and means "never rescan".
         Assert.ThrowsExactly<ArgumentOutOfRangeException>(
-            () => IoxideFilesModule.From(dir.FullName).RefreshInterval(TimeSpan.FromSeconds(-1)));
+            () => Assets.From(dir.FullName).RefreshInterval(TimeSpan.FromSeconds(-1)));
     }
 
     [TestMethod]
@@ -307,7 +308,7 @@ public sealed class IoxideFilesTests
 
         var dir = Directory.CreateTempSubdirectory();
 
-        Chain.Works(IoxideFilesModule.From(dir.FullName));
+        Chain.Works(Assets.From(dir.FullName));
     }
 
     private static async ValueTask RunAsync(Func<TestHost, ValueTask> logic)
@@ -328,11 +329,13 @@ public sealed class IoxideFilesTests
 
         await File.WriteAllTextAsync(subFileBrotli, "This is sub, compressed with brotli");
 
+        // The sibling extension follows the algorithm's FileExtension ("gz"), matching the regular handler.
         var subFileGzip = Path.Combine(subDir.FullName, "subfile.txt.gz");
 
         await File.WriteAllTextAsync(subFileGzip, "This is sub, compressed with gzip");
 
-        var handler = IoxideFilesModule.From(dir.FullName);
+        var handler = Assets.From(dir.FullName)
+                            .AllowPrecompressed([new BrotliAlgorithm(), new GzipAlgorithm()], '.');
 
         await using var host = await TestHost.RunAsync(handler, engine: ServerEngine.Ioxide);
 

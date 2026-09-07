@@ -12,6 +12,8 @@ public sealed class GzipAlgorithm : ICompressionAlgorithm
 
     public AlgorithmName Name => CachedName;
 
+    public string FileExtension => "gz";
+
     public Priority Priority => Priority.Low;
 
     public IResponseContent Compress(IResponseContent content, CompressionLevel level)
